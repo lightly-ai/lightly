@@ -94,16 +94,16 @@ hydra:
       > lightly-embed input='path/to/image/folder' collate.input_size=224
 
       Load a model from a custom checkpoint to embed your images
-      > lightly-embed from_folder='path/to/image/folder' collate.input_size=224 checkpoint='path/to/checkpoint.ckpt'
+      > lightly-embed input_dir='path/to/image/folder' collate.input_size=224 checkpoint='path/to/checkpoint.ckpt'
 
       Train a self-supervised model on your image dataset from scratch
-      > lightly-train from_folder='path/to/image/folder' loader.batch_size=128 collate.input_size=224 pre_trained=False
+      > lightly-train input_dir='path/to/image/folder' loader.batch_size=128 collate.input_size=224 pre_trained=False
 
       Train a self-supervised model starting from the pre-trained checkpoint
-      > lightly-train from_folder='path/to/image/folder' loader.batch_size=128 collate.input_size=224
+      > lightly-train input_dir='path/to/image/folder' loader.batch_size=128 collate.input_size=224
 
       Train a self-supervised model starting from a custom checkpoint
-      > lightly-train from_folder='path/to/image/folder' loader.batch_size=128 collate.input_size=224 checkpoint='path/to/checkpoint.ckpt'
+      > lightly-train input_dir='path/to/image/folder' loader.batch_size=128 collate.input_size=224 checkpoint='path/to/checkpoint.ckpt'
 
       Upload thumbnails to the Lightly web solution
       > lightly-upload input_dir='path/to/image/folder' dataset_id='your_dataset_id' token='your_access_token'
@@ -121,7 +121,7 @@ hydra:
       > lightly-download tag_name='my-tag' dataset_id='your_dataset_id' token='your_access_token'
 
       Copy all files in a given tag from a source directory to a target directory
-      > lightly-download tag_name='my-tag' dataset_id='your_dataset_id' token='your_access_token' from_folder='data/' output_dir='new_data/'
+      > lightly-download tag_name='my-tag' dataset_id='your_dataset_id' token='your_access_token' input_dir='data/' output_dir='new_data/'
 
       == Additional Information ==
 
