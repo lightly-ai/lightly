@@ -61,7 +61,7 @@ uninstall: clean
 	pip uninstall lightly
 
 ## run tests in tox envs
-tox: uninstall
+tox:
 	tox
 
 ## helper for renaming
