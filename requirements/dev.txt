@@ -1,0 +1,8 @@
+tox
+sphinx
+pytest
+pytest-forked
+pytest-xdist
+responses
+sphinx-gallery
+pre-commit

@@ -1,0 +1,4 @@
+# include config files for command-line interface
+recursive-include lightly/cli *.yaml
+# exclude tests
+recursive-exclude tests *

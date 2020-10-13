@@ -1,0 +1,8 @@
+# the default package dependencies
+
+hydra-core>=1.0.0
+numpy>=1.18.1
+pytorch_lightning>=0.10.0   
+requests>=2.23.0
+torchvision
+tqdm

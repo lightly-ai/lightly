@@ -1,0 +1,125 @@
+# Documentation Guide
+
+## Prerequisites
+Make sure you insatlled `sphinx` and `sphinx_rtd_theme`:
+```
+pip install sphinx
+pip install sphinx_rtd_theme
+```
+
+## Build the Docs
+`sphinx` provides a Makefile, so to build the `html` documentation, simply type:
+```
+make html
+```
+
+You can host the docs after building using the following python command `python -m http.server 1234 -d build/html` from the docs folder.
+Open a browser and go to `http://localhost:1234` to see the documentation.
+
+## Docstrings and Style Guide
+We build our code based on the [Google Python Styleguide]().
+
+Important notes:
+- Always use three double-quotes (`"""`).
+- A function must have a docstring, unless it meets all of the following criteria: not externally visible, very short, obvious.
+- Always use type hints when possible.
+- Don't overlook the `Raises`.
+- Use punctuation.
+- Provide examples only for cli commands and core.py atm.
+- **Please look carefully at the examples provided below (from the styleguide)**.
+
+### Packages and Modules
+Packages (i.e. the `__init__.py` files) and modules should start with a docstring describing the contents and usage of the package / module. 
+
+Example:
+```python
+"""A one line summary of the module or program, terminated by a period.
+
+Leave one blank line.  The rest of this docstring should contain an
+overall description of the module or program.  Optionally, it may also
+contain a brief description of exported classes and functions and/or usage
+examples.
+
+  Typical usage example:
+
+  foo = ClassFoo()
+  bar = foo.FunctionBar()
+"""
+````
+
+### Functions
+
+Example:
+```python
+def fetch_smalltable_rows(table_handle: smalltable.Table,
+                          keys: Sequence[Union[bytes, str]],
+                          require_all_keys: bool = False,
+) -> Mapping[bytes, Tuple[str]]:
+    """Fetches rows from a Smalltable.
+
+    Retrieves rows pertaining to the given keys from the Table instance
+    represented by table_handle.  String keys will be UTF-8 encoded.
+
+    Args:
+      table_handle:
+        An open smalltable.Table instance.
+      keys:
+        A sequence of strings representing the key of each table row to
+        fetch.  String keys will be UTF-8 encoded.
+      require_all_keys:
+        Optional; If require_all_keys is True only rows with values set
+        for all keys will be returned.
+
+    Returns:
+      A dict mapping keys to the corresponding table row data
+      fetched. Each row is represented as a tuple of strings. For
+      example:
+
+      {b'Serak': ('Rigel VII', 'Preparer'),
+       b'Zim': ('Irk', 'Invader'),
+       b'Lrrr': ('Omicron Persei 8', 'Emperor')}
+
+      Returned keys are always bytes.  If a key from the keys argument is
+      missing from the dictionary, then that row was not found in the
+      table (and require_all_keys must have been False).
+
+    Raises:
+      IOError: An error occurred accessing the smalltable.
+    """
+```
+
+### Classes
+
+Attributes of a class should follow the same rules as the arguments for a function.
+
+Example:
+```python
+class SampleClass:
+    """Summary of class here.
+
+    Longer class information....
+    Longer class information....
+
+    Attributes:
+        likes_spam:
+            A boolean indicating if we like SPAM or not.
+        eggs:
+            An integer count of the eggs we have laid.
+    """
+
+    def __init__(self, likes_spam=False):
+        """Inits SampleClass with blah."""
+        self.likes_spam = likes_spam
+        self.eggs = 0
+
+    def public_method(self):
+        """Performs operation blah."""
+
+    def public_method_2(self, x: str):
+        """Performs operation blah 2. 
+        
+        Args:
+            x:
+                Some explanation for x.
+        """
+```
