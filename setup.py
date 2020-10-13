@@ -83,7 +83,7 @@ if __name__ == '__main__':
     project_urls = {
         'Homepage': 'https://www.lightly.ai',
         'Web-App': 'https://app.lightly.ai',
-        'Documentation': 'https://www.notion.so/whattolabel/WhatToLabel-Documentation-28e645f5564a453e807d0a384a4e6ea7',
+        'Documentation': 'https://lightly.readthedocs.io',
         'Github': 'https://github.com/lightly-ai/lightly',
         'Discord': 'https://discord.gg/xvNJW94',
     }
