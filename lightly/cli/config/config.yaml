@@ -128,4 +128,4 @@ hydra:
       Use self-supervised methods to understand and filter raw image data:
 
       Website: https://www.lightly.ai
-      Documentation: https://www.notion.so/whattolabel/WhatToLabel-Documentation-28e645f5564a453e807d0a384a4e6ea7
+      Documentation: https://lightly.readthedocs.io
