@@ -1,0 +1,16 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.3.0
+  hooks:
+  - id: detect-private-key      # check for private keys
+  - id: check-added-large-files # prevent commit of files >500kB
+    args: ['--maxkb=500']
+- repo: local
+  hooks:
+  - id: tox                     # run all tests
+    name: Test with tox
+    entry: make tox
+    language: system
+    pass_filenames: false
+    always_run: true
+    stages: [push]
