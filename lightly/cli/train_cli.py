@@ -26,20 +26,6 @@ from lightly.cli._helpers import load_state_dict_from_url
 
 
 def _train_cli(cfg, is_cli_call=True):
-    """Train a self-supervised model on the image dataset of your choice.
-
-    Args:
-        cfg[data]: (str)
-            Name of the dataset (to download use cifar10 or cifar100)
-        cfg[root]: (str) Directory where the dataset should be stored
-        cfg[download]: (bool) Whether to download the dataset
-        cfg[input_dir]: (str)
-            If specified, the dataset is loaded from the folder
-
-    Returns:
-        checkpoint: (str) Path to checkpoint of the best model during training
-
-    """
 
     data = cfg['data']
     download = cfg['download']
