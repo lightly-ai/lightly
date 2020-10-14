@@ -16,15 +16,6 @@ from lightly.cli._helpers import fix_input_path
 
 
 def _upload_cli(cfg, is_cli_call=True):
-    '''Upload your image dataset and/or embeddings to the Lightly platform.
-
-    Args:
-        cfg['input_dir']: (str) Path to folder which holds images to upload
-        cfg['embeddings']: (str) Path to csv file which holds embeddings to upload
-        cfg['dataset_id']: (str) Dataset identifier on the platform
-        cfg['token']: (str) Token which grants acces to the platform
-
-    '''
 
     input_dir = cfg['input_dir']
     if input_dir and is_cli_call:

@@ -20,20 +20,6 @@ from lightly.cli._helpers import fix_input_path
 
 
 def _download_cli(cfg, is_cli_call=True):
-    '''Download all samples in a given tag.
-       If input_dir and output_dir are specified, a copy of all images
-       in the tag will be stored in the output directory.
-
-    Args:
-        cfg['input_dir']: (str, optional)
-            Path to folder which holds all images from the dataset
-        cfg['output_dir']: (str, optional)
-            Path to folder where the copied images will be stored
-        cfg['tag_name']: (str) Name of the requested tag
-        cfg['dataset_id']: (str) Dataset identifier on the platform
-        cfg['token']: (str) Token which grants access to the platform
-
-    '''
 
     tag_name = cfg['tag_name']
     dataset_id = cfg['dataset_id']
@@ -41,12 +27,12 @@ def _download_cli(cfg, is_cli_call=True):
 
     if not tag_name:
         print('Please specify a tag name')
-        print('For help, try: lightly-upload --help')
+        print('For help, try: lightly-download --help')
         return
 
     if not token or not dataset_id:
         print('Please specify your access token and dataset id')
-        print('For help, try: lightly-upload --help')
+        print('For help, try: lightly-download --help')
         return
 
     # get all samples in the queried tag
@@ -62,6 +48,9 @@ def _download_cli(cfg, is_cli_call=True):
     with open(cfg['tag_name'] + '.txt', 'w') as f:
         for item in samples:
             f.write("%s\n" % item)
+    msg = 'The list of files in tag {} is stored at: '.format(cfg['tag_name'])
+    msg += os.path.join(os.getcwd(), cfg['tag_name'] + '.txt')
+    print(msg)
 
     if cfg['input_dir'] and cfg['output_dir']:
         # "name.jpg" -> "/name.jpg" to prevent bugs like this:
