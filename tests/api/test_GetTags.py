@@ -25,7 +25,7 @@ class TestGet(unittest.TestCase):
 
         # set up url
         self.dst_url = os.getenvb(b'LIGHTLY_SERVER_LOCATION',
-                                  b'https://api.whattolabel.com').decode()
+                                  b'https://api.lightly.ai').decode()
         # route
         self.dst_url += f'/users/datasets/{self.dataset_id}/tags'
         # query

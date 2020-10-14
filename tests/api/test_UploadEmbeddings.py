@@ -21,7 +21,7 @@ class TestUploadEmbeddings(unittest.TestCase):
 
         # set up url
         self.dst_url = os.getenvb(b'LIGHTLY_SERVER_LOCATION',
-                                  b'https://api.whattolabel.com').decode()
+                                  b'https://api.lightly.ai').decode()
         self.emb_url = f'{self.dst_url}/users/datasets/{self.dataset_id}/embeddings'
         self.tag_url = f'{self.dst_url}/users/datasets/{self.dataset_id}/tags/?token={self.token}'
 
