@@ -9,7 +9,7 @@ import requests
 
 from lightly.api.utils import getenv
 SERVER_LOCATION = getenv('LIGHTLY_SERVER_LOCATION',
-                         'https://api.whattolabel.com')
+                         'https://api.lightly.ai')
 
 
 def _post_request(dst_url, data=None, json=None,

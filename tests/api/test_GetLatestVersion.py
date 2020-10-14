@@ -20,7 +20,7 @@ class TestGetLatestVersion(unittest.TestCase):
 
         # set up url
         self.dst_url = os.getenvb(b'LIGHTLY_SERVER_LOCATION',
-                                  b'https://api.whattolabel.com').decode()
+                                  b'https://api.lightly.ai').decode()
         # route
         self.dst_url += '/pip/version'
         self.version = '0.0.0'

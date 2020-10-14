@@ -26,22 +26,6 @@ from lightly.cli._helpers import load_state_dict_from_url
 
 
 def _embed_cli(cfg, is_cli_call=True):
-    """Use the trained self-supervised model to embed samples from your dataset.
-
-    Args:
-        cfg[data]: (str) Name of the dataset
-        cfg[root]: (str) Directory where the dataset should be stored
-        cfg[checkpoint]: (str) Path to the lightning checkpoint
-        cfg[download]: (bool) Whether to download the dataset
-        cfg[input_dir]: (str) If specified, the dataset is loaded \
-            from the folder
-
-    Returns:
-        embeddings: (np.ndarray) A d-dimensional embedding \
-            for each data sample
-        labels: (np.ndarray) Data labels, 0 if there are no labels
-        filenames: (List[str]) File name of each data sample
-    """
 
     data = cfg['data']
     checkpoint = cfg['checkpoint']
