@@ -18,7 +18,7 @@ class TestUploadImages(unittest.TestCase):
         self.dataset_id = 'XYZ'
         self.token = 'secret'
         self.dst_url = os.getenvb(b'LIGHTLY_SERVER_LOCATION',
-                                  b'https://api.whattolabel.com').decode()
+                                  b'https://api.lightly.ai').decode()
 
         self.gettag_url = f'{self.dst_url}/users/datasets/{self.dataset_id}/tags/?token={self.token}'
         self.sample_url = f'{self.dst_url}/users/datasets/{self.dataset_id}/samples/'
