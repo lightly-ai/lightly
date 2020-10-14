@@ -28,7 +28,7 @@ class TestUploadSample(unittest.TestCase):
         }
 
         self.dst_url = os.getenvb(b'LIGHTLY_SERVER_LOCATION',
-                                  b'https://api.whattolabel.com').decode()
+                                  b'https://api.lightly.ai').decode()
         self.dst_url += f'/users/datasets/{self.dataset_id}/embeddings'
 
     def callback_1(self, request):

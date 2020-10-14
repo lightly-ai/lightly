@@ -7,19 +7,12 @@ embeddings: ''                # Path to csv file which holds embeddings.
 checkpoint: ''                # Path to a model checkpoint. If left empty, a pre-trained model
                               # will be used.
 
-### deprecated!
-# The following arguments are deprecated and will be removed
-# in the next version.
-from_folder: ''               # Path to input directory which holds images (replaced by input_dir).
-path_to_folder: ''            # Path to input directory which holds images (replaced by input_dir).
-path_to_embeddings: ''        # Path to csv file which holds embeddings (replaced by embeddings).
-
 ### platform
 # The following arguments are required for requests to the
 # Lightly platform.
 token: ''                     # User access token to the platform.
 dataset_id: ''                # Identifier of the dataset on the platform
-upload: 'thumbnails'          # Whether to upload full images, thumbnails only, or metadata only.
+upload: 'full'                # Whether to upload full images, thumbnails only, or metadata only.
                               # Must be one of ['full', 'thumbnails', 'none']
 embedding_name: 'default'     # Name of the embedding to be used on the platform.
 emb_upload_bsz: 32            # Number of embeddings which are uploaded in a single batch.

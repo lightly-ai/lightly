@@ -21,7 +21,7 @@ class TestGet(unittest.TestCase):
         self.token = '123'
         
         self.tag_url = os.getenvb(b'LIGHTLY_SERVER_LOCATION',
-                                  b'https://api.whattolabel.com').decode()
+                                  b'https://api.lightly.ai').decode()
         self.tag_url += f'/users/datasets/{self.dataset_id}/tags/'
         self.tags = [
             {'name': 'initial-tag', '_id': '123'},
@@ -29,7 +29,7 @@ class TestGet(unittest.TestCase):
         ]
 
         self.dst_url = os.getenvb(b'LIGHTLY_SERVER_LOCATION',
-                                  b'https://api.whattolabel.com').decode()
+                                  b'https://api.lightly.ai').decode()
         self.dst_url += f'/users/datasets/{self.dataset_id}/tags/123/download'
         self.samples = 'sample_1.jpg\nsample_2.jpg'
 
