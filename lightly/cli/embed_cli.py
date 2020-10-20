@@ -16,7 +16,7 @@ import torchvision
 
 from lightly.data import LightlyDataset
 from lightly.embedding import SelfSupervisedEmbedding
-from lightly.models import ResNetSimCLR
+from lightly.models import ResNetSimCLR, ResNetMoCo
 from lightly.utils import save_embeddings
 
 from lightly.cli._helpers import get_ptmodel_from_config
@@ -47,7 +47,8 @@ def _embed_cli(cfg, is_cli_call=True):
     else:
         device = torch.device('cpu')
 
-    model = ResNetSimCLR(**cfg['model']).to(device)
+    #model = ResNetSimCLR(**cfg['model']).to(device)
+    model = ResNetMoCo(**cfg['model']).to(device)
 
     transform = torchvision.transforms.Compose([
         torchvision.transforms.Resize((cfg['collate']['input_size'],

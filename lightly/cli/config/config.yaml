@@ -24,7 +24,6 @@ tag_name: 'initial-tag'       # Name of the requested tag on the Lightly platfo
 data: ''                      # Name of the dataset (optional if input_dir is set)
 root: ''                      # Root directory (optional if input_dir is set)
 download: True                # Download dataset (optional if input_dir is set)
-
 pre_trained: True             # Whether to use a pre-trained model or not
 
 # model namespace: Passed to lightly.models.ResNetGenerator.
@@ -38,6 +37,8 @@ model:
 # criterion namespace: Passed to lightly.loss.NTXentLoss.
 criterion:            
   temperature: 0.5            # Number by which logits are divided.
+  memory_bank_size: 0         # Size of the memory bank to use (e.g. for MoCo). 0 means no memory bank.
+                              # ^ slight abuse of notation, MoCo paper calls it momentum encoder
 
 # optimizer namespace: Passed to torch.optim.SGD.
 optimizer:
