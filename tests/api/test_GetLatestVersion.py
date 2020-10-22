@@ -7,7 +7,7 @@ import random
 import responses
 
 import lightly
-from lightly.api import get_latest_version
+from lightly.api import get_version
 
 N = 10
 
@@ -51,7 +51,7 @@ class TestGetLatestVersion(unittest.TestCase):
         )
 
         t0 = time.time()
-        version = get_latest_version(self.version)
+        version = get_version(self.version)
         t1 = time.time()
 
         self.assertLessEqual(t1 - t0, 1)
@@ -72,7 +72,7 @@ class TestGetLatestVersion(unittest.TestCase):
         )
 
         t0 = time.time()
-        version = get_latest_version(self.version)
+        version = get_version(self.version)
         t1 = time.time()
 
         self.assertLessEqual(t1 - t0, 1)
@@ -93,7 +93,7 @@ class TestGetLatestVersion(unittest.TestCase):
         )
 
         t0 = time.time()
-        version = get_latest_version(self.version)
+        version = get_version(self.version)
         t1 = time.time()
 
         self.assertLessEqual(t1 - t0, 1.05)

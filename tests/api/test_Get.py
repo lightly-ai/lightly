@@ -5,7 +5,7 @@ import os
 import random
 import responses
 
-from lightly.api.communication import _get_request
+from lightly.api.utils import get_request
 
 N = 10
 
@@ -46,7 +46,7 @@ class TestGet(unittest.TestCase):
 
         for i in range(N):
             params = {'sample': 'query'}
-            _get_request(self.dst_url, params=params)
+            get_request(self.dst_url, params=params)
 
     @responses.activate
     def test_get_some_success(self):
@@ -64,7 +64,7 @@ class TestGet(unittest.TestCase):
 
         for i in range(N):
             params = {'sample': 'query'}
-            _get_request(self.dst_url, params=params)
+            get_request(self.dst_url, params=params)
 
     @responses.activate
     def test_get_no_success(self):
@@ -82,4 +82,4 @@ class TestGet(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             params = {'sample': 'query'}
-            _get_request(self.dst_url, params=params)
+            get_request(self.dst_url, params=params)
