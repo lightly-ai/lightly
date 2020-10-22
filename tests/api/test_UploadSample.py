@@ -6,7 +6,7 @@ import os
 import random
 import responses
 
-from lightly.api.communication import upload_sample_with_metadata
+import lightly.api.routes as routes
 
 N = 10
 
@@ -55,9 +55,9 @@ class TestUploadSample(unittest.TestCase):
             content_type='application/json'
         )
 
-        for i in range(N):
+        for _ in range(N):
             self.f = tempfile.NamedTemporaryFile()
-            upload_sample_with_metadata(
+            routes.users.datasets.samples.post(
                 self.filename,
                 self.thumbname,
                 self.metadata,
@@ -79,9 +79,9 @@ class TestUploadSample(unittest.TestCase):
             content_type='application/json'
         )
 
-        for i in range(N):
+        for _ in range(N):
             self.f = tempfile.NamedTemporaryFile()
-            upload_sample_with_metadata(
+            routes.users.datasets.samples.post(
                 self.filename,
                 self.thumbname,
                 self.metadata,
@@ -105,7 +105,7 @@ class TestUploadSample(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             self.f = tempfile.NamedTemporaryFile()
-            upload_sample_with_metadata(
+            routes.users.datasets.samples.post(
                 self.filename,
                 self.thumbname,
                 self.metadata,

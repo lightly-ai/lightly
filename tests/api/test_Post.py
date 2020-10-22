@@ -5,7 +5,7 @@ import os
 import random
 import responses
 
-from lightly.api.communication import _post_request
+from lightly.api.utils import post_request
 
 N = 10
 
@@ -46,10 +46,10 @@ class TestPost(unittest.TestCase):
             content_type='application/json'
         )
 
-        for i in range(N):
+        for _ in range(N):
             data = self.data
             json = self.json
-            _post_request(self.dst_url, data=data, json=json)
+            post_request(self.dst_url, data=data, json=json)
 
     @responses.activate
     def test_post_some_success(self):
@@ -65,10 +65,10 @@ class TestPost(unittest.TestCase):
             content_type='application/json'
         )
 
-        for i in range(N):
+        for _ in range(N):
             data = self.data
             json = self.json
-            _post_request(self.dst_url, data=data, json=json)
+            post_request(self.dst_url, data=data, json=json)
 
     @responses.activate
     def test_post_no_success(self):
@@ -87,4 +87,4 @@ class TestPost(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             data = self.data
             json = self.json
-            _post_request(self.dst_url, data=data, json=json)
+            post_request(self.dst_url, data=data, json=json)
