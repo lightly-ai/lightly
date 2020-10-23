@@ -39,6 +39,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
             A PyTorch optimizer.
         dataloader:
             A torchvision dataloader.
+        scheduler:
+            A PyTorch learning rate scheduler.
     
     Examples:
         >>> # define a model, criterion, optimizer, and dataloader above
@@ -60,10 +62,11 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                  model: torch.nn.Module,
                  criterion: torch.nn.Module,
                  optimizer: torch.optim.Optimizer,
-                 dataloader: torch.utils.data.DataLoader):
+                 dataloader: torch.utils.data.DataLoader,
+                 scheduler = None):
 
         super(SelfSupervisedEmbedding, self).__init__(
-            model, criterion, optimizer, dataloader)
+            model, criterion, optimizer, dataloader, scheduler)
 
     def embed(self,
               dataloader: torch.utils.data.DataLoader,
