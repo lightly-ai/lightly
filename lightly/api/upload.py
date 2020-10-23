@@ -33,7 +33,7 @@ import PIL.Image as Image
 
 
 def _make_2d_embedding(batch, transformer):
-    """TODO
+    """Transforms a batch of embeddings to 2D.
 
     """
     # make a deepcopy of the batch
@@ -54,7 +54,7 @@ def _upload_single_batch(dataset_id,
                          batch,
                          transformer,
                          append=False):
-    """TODO
+    """Uploads a batch of embeddings to the Lightly platform.
 
     """
     # indicate first batch
@@ -123,7 +123,6 @@ def upload_embeddings_from_csv(path_to_embeddings: str,
 
     # use pca to make 2d embeddings
     transformer = fit_pca(embeddings)
-
     n_embeddings = len(data['embeddings'])
     n_batches = n_embeddings // max_upload
     n_batches = n_batches + 1 if n_embeddings % max_upload else n_batches
@@ -144,7 +143,7 @@ def upload_embeddings_from_csv(path_to_embeddings: str,
 
 
 def _upload_single_image(input_dir, fname, mode, dataset_id, token):
-    """TODO
+    """Uploads a single image to the Lightly platform.
 
     """
 
@@ -313,7 +312,7 @@ def upload_images_from_folder(path_to_folder: str,
     routes.users.datasets.tags.post(dataset_id, token)
 
 
-def upload_metadata_from_json(path_to_embeddings: str,
+def _upload_metadata_from_json(path_to_embeddings: str,
                               dataset_id: str,
                               token: str):
     """TODO
