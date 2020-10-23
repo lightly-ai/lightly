@@ -27,7 +27,7 @@ You can use your dataset or use the one we provide with this tutorial.
 If you use your dataset, please make sure the images are smaller than 
 2048 pixels with width and height, and you use less than 1000 images.
 
-.. note::  For this tutorial, we provide you a small dataset of pizza images.
+.. note::  For this tutorial, we provide you with a small dataset of pizza images.
     We chose a small dataset because it's easy to ship and train.
 
 Upload the data
@@ -81,12 +81,12 @@ from torchvision.models import resnet18
 
 
 # %%
-# We use a small batch size to make sure we can run the training
-# on all kinds of machines. Feel free to adapt to the value.
+# We use a small batch size to make sure we can run the training on all kinds 
+# of machines. Feel free to adjust the value to one that works on your machine.
 batch_size = 8
 
 #%%
-# Let's set up the augmentations to train and test data.
+# Let's set up the augmentations for the train and the test data.
 train_transform = transforms.Compose([
     transforms.RandomResizedCrop((224, 224), scale=(0.7, 1.0)),
     transforms.RandomHorizontalFlip(),
@@ -94,7 +94,7 @@ train_transform = transforms.Compose([
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
-# we don't do any resize or mirroring for the test data
+# we don't do any resizing or mirroring for the test data
 test_transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
