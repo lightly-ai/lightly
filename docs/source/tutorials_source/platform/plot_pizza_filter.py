@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This documentation accompanies the video tutorial: youtube link
+This documentation accompanies the video tutorial: `youtube link <https://youtu.be/imQWZ0HhYjk>`_
 
 ##############################################################################
 
@@ -104,6 +104,12 @@ test_transform = transforms.Compose([
 
 # %%
 # We load our data and split it into train/test with a 70/30 ratio.
+
+# Please make sure the data folder contains subfolders for each class
+#
+# pizzas
+#  L salami
+#  L margherita
 dset = ImageFolder('pizzas', transform=train_transform)
 
 # to use the random_split method we need to obtain the length
