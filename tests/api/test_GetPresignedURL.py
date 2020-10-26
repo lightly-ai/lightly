@@ -6,7 +6,7 @@ import random
 import responses
 
 import torchvision
-from lightly.api import get_presigned_upload_url
+import lightly.api.routes as routes
 
 
 class TestGetPresignedURL(unittest.TestCase):
@@ -55,7 +55,7 @@ class TestGetPresignedURL(unittest.TestCase):
         )
 
         for f in self.dataset:
-            url = get_presigned_upload_url(
+            url = routes.users.datasets.samples.get_presigned_upload_url(
                 'filename',
                 self.dataset_id,
                 self.sample_id,
@@ -78,7 +78,7 @@ class TestGetPresignedURL(unittest.TestCase):
         )
 
         for f in self.dataset:
-            url = get_presigned_upload_url(
+            url = routes.users.datasets.samples.get_presigned_upload_url(
                 'filename',
                 self.dataset_id,
                 self.sample_id,
@@ -102,7 +102,7 @@ class TestGetPresignedURL(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             for f in self.dataset:
-                url = get_presigned_upload_url(
+                url = routes.users.datasets.samples.get_presigned_upload_url(
                     'filename',
                     self.dataset_id,
                     self.sample_id,

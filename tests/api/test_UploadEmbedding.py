@@ -5,7 +5,7 @@ import os
 import random
 import responses
 
-from lightly.api.communication import upload_embedding
+import lightly.api.routes as routes
 
 N = 10
 
@@ -53,8 +53,8 @@ class TestUploadSample(unittest.TestCase):
             content_type='application/json'
         )
 
-        for i in range(N):
-            upload_embedding(self.data_1)
+        for _ in range(N):
+            routes.users.datasets.embeddings.post(self.data_1['datasetId'], self.data_1['token'], self.data_1)
 
     @responses.activate
     def test_upload_embedding_some_success(self):
@@ -70,8 +70,8 @@ class TestUploadSample(unittest.TestCase):
             content_type='application/json'
         )
 
-        for i in range(N):
-            upload_embedding(self.data_1)
+        for _ in range(N):
+            routes.users.datasets.embeddings.post(self.data_1['datasetId'], self.data_1['token'], self.data_1)
 
     @responses.activate
     def test_upload_embedding_no_success(self):
@@ -88,4 +88,4 @@ class TestUploadSample(unittest.TestCase):
         )
 
         with self.assertRaises(RuntimeError):
-            upload_embedding(self.data_1)
+            routes.users.datasets.embeddings.post(self.data_1['datasetId'], self.data_1['token'], self.data_1)

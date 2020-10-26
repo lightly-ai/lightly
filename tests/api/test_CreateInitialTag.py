@@ -5,7 +5,7 @@ import os
 import random
 import responses
 
-from lightly.api.communication import create_initial_tag
+import lightly.api.routes as routes
 
 N = 10
 
@@ -47,8 +47,8 @@ class TestCreateInitialTag(unittest.TestCase):
             content_type='application/json'
         )
 
-        for i in range(N):
-            create_initial_tag(self.dataset_id, self.token)
+        for _ in range(N):
+            routes.users.datasets.tags.post(self.dataset_id, self.token)
 
     @responses.activate
     def test_create_initial_tag_some_success(self):
@@ -64,8 +64,8 @@ class TestCreateInitialTag(unittest.TestCase):
             content_type='application/json'
         )
 
-        for i in range(N):
-            create_initial_tag(self.dataset_id, self.token)
+        for _ in range(N):
+            routes.users.datasets.tags.post(self.dataset_id, self.token)
 
     @responses.activate
     def test_create_initial_tag_no_success(self):
@@ -82,4 +82,4 @@ class TestCreateInitialTag(unittest.TestCase):
         )
 
         with self.assertRaises(RuntimeError):
-            create_initial_tag(self.dataset_id, self.token)
+            routes.users.datasets.tags.post(self.dataset_id, self.token)
