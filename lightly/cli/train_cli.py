@@ -16,7 +16,7 @@ from lightly.data import ImageCollateFunction
 from lightly.data import LightlyDataset
 from lightly.embedding import SelfSupervisedEmbedding
 from lightly.loss import NTXentLoss
-from lightly.models import ResNetSimCLR, ResNetMoCo
+from lightly.models import ResNetSimCLR
 
 from lightly.cli._helpers import is_url
 from lightly.cli._helpers import get_ptmodel_from_config
@@ -59,8 +59,7 @@ def _train_cli(cfg, is_cli_call=True):
         msg += 'loader.batch_size=BSZ'
         warnings.warn(msg)
 
-    #model = ResNetSimCLR(**cfg['model'])
-    model = ResNetMoCo(**cfg['model'])
+    model = ResNetSimCLR(**cfg['model'])
     checkpoint = cfg['checkpoint']
     if cfg['pre_trained'] and not checkpoint:
         # if checkpoint wasn't specified explicitly and pre_trained is True
