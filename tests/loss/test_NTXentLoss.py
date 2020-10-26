@@ -22,7 +22,7 @@ class TestNTXentLoss(unittest.TestCase):
             self.assertAlmostEqual((mv - vv).pow(2).sum(), 0.)
 
     def test_forward_pass(self):
-        loss = NTXentLoss()
+        loss = NTXentLoss(memory_bank_size=0)
         for bsz in range(1, 100):
 
             batch_1 = torch.randn((bsz, 32))
@@ -34,7 +34,7 @@ class TestNTXentLoss(unittest.TestCase):
             self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.)
 
     def test_forward_pass_1d(self):
-        loss = NTXentLoss()
+        loss = NTXentLoss(memory_bank_size=0)
         for bsz in range(1, 100):
 
             batch_1 = torch.randn((bsz, 1))
@@ -46,7 +46,7 @@ class TestNTXentLoss(unittest.TestCase):
             self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.)
 
     def test_forward_pass_neg_temp(self):
-        loss = NTXentLoss(temperature=-1.)
+        loss = NTXentLoss(temperature=-1., memory_bank_size=0)
         for bsz in range(1, 100):
 
             batch_1 = torch.randn((bsz, 32))
@@ -74,7 +74,7 @@ class TestNTXentLoss(unittest.TestCase):
 
     def test_forward_pass_cuda(self):
         if torch.cuda.is_available():
-            loss = NTXentLoss()
+            loss = NTXentLoss(memory_bank_size=0)
             for bsz in range(1, 100):
 
                 batch_1 = torch.randn((bsz, 32)).cuda()
