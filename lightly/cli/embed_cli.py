@@ -91,7 +91,7 @@ def _embed_cli(cfg, is_cli_call=True):
 
     if state_dict is not None:
         state_dict = filter_state_dict(state_dict)
-        model.load_state_dict(state_dict, strict=False)
+        model.load_state_dict(state_dict)
 
     encoder = SelfSupervisedEmbedding(model, None, None, None)
     embeddings, labels, filenames = encoder.embed(dataloader, device=device)
