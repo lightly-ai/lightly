@@ -76,7 +76,6 @@ class MemoryBankModule(torch.nn.Module):
                 The latest batch of keys to add to the memory bank.
 
         """
-
         batch_size = batch.shape[0]
         ptr = int(self.bank_ptr)
 
@@ -109,6 +108,7 @@ class MemoryBankModule(torch.nn.Module):
             return output, None
 
         batch_size, dim = output.shape
+        batch_size = batch_size // 2
 
         # initialize the memory bank if it is not already done
         if self.bank is None:

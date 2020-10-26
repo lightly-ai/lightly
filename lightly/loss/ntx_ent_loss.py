@@ -105,10 +105,11 @@ class NTXentLoss(MemoryBankModule):
         batch_size, dim = output.shape
         batch_size = batch_size // 2
 
-        # ask memory bank for negative samples
-        output, negatives = super(NTXentLoss, self).forward(output)
         # normalize the output to length 1
         output = torch.nn.functional.normalize(output, dim=1)
+
+        # ask memory bank for negative samples
+        output, negatives = super(NTXentLoss, self).forward(output)
 
         if negatives is not None:
             negatives = negatives.to(device)
