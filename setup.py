@@ -91,7 +91,7 @@ if __name__ == '__main__':
     project_urls = {
         'Homepage': 'https://www.lightly.ai',
         'Web-App': 'https://app.lightly.ai',
-        'Documentation': 'https://lightly.readthedocs.io',
+        'Documentation': 'https://docs.lightly.ai',
         'Github': 'https://github.com/lightly-ai/lightly',
         'Discord': 'https://discord.gg/xvNJW94',
     }
