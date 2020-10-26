@@ -45,7 +45,7 @@ lint-tests:
 
 ## run tests
 test:
-	pytest tests -n 20
+	pytest tests -n 4
 
 ## build source and wheel package
 dist: clean 
