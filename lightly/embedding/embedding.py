@@ -24,11 +24,13 @@ class SelfSupervisedEmbedding(BaseEmbedding):
 
     https://pytorch-lightning.readthedocs.io/en/stable/
 
-    The implementation is based on Contrastive Multiview Coding and SimCLR.
+    The implementation is based on contrastive learning.
 
-    https://arxiv.org/abs/1906.05849
+    MCM: https://arxiv.org/abs/1906.05849
 
-    https://arxiv.org/abs/2002.05709
+    SimCLR: https://arxiv.org/abs/2002.05709
+
+    MoCo: https://arxiv.org/abs/1911.05722
 
     Attributes:
         model:

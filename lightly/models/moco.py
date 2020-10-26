@@ -8,6 +8,36 @@ import torch.nn as nn
 from lightly.models.resnet import ResNetGenerator
 
 
+def _get_features_and_projections(resnet, num_ftrs, out_dim):
+    """Removes classification head from the ResNet and adds a projection head.
+
+    - Adds a batchnorm layer to the input layer.
+    - Replaces the output layer by a Conv2d followed by adaptive average pool.
+    - Adds a 2-layer mlp projection head.
+
+    """
+
+    # get the number of features from the last channel
+    last_conv_channels = list(resnet.children())[-1].in_features
+
+    # replace output layer
+    features = nn.Sequential(
+        nn.BatchNorm2d(3),
+        *list(resnet.children())[:-1],
+        nn.Conv2d(last_conv_channels, num_ftrs, 1),
+        nn.AdaptiveAvgPool2d(1),
+    )
+
+    # 2-layer mlp projection head
+    projection_head = nn.Sequential(
+        nn.Linear(num_ftrs, num_ftrs),
+        nn.ReLU(),
+        nn.Linear(num_ftrs, out_dim)
+    )
+
+    return features, projection_head
+
+
 class ResNetMoCo(nn.Module):
     """ Implementation of a momentum encoder with a ResNet backbone.
 
@@ -38,33 +68,12 @@ class ResNetMoCo(nn.Module):
 
         super(ResNetMoCo, self).__init__()
         resnet = ResNetGenerator(name=name, width=width)
-        last_conv_channels = list(resnet.children())[-1].in_features
 
-        self.features = nn.Sequential(
-            nn.BatchNorm2d(3),
-            *list(resnet.children())[:-1],
-            nn.Conv2d(last_conv_channels, num_ftrs, 1),
-            nn.AdaptiveAvgPool2d(1)
-        )
+        self.features, self.projection_head = \
+            _get_features_and_projections(resnet, self.num_ftrs, self.out_dim)
 
-        self.projection_head = nn.Sequential(
-            nn.Linear(num_ftrs, num_ftrs),
-            nn.ReLU(),
-            nn.Linear(num_ftrs, out_dim)
-        )
-
-        self.key_features = nn.Sequential(
-            nn.BatchNorm2d(3),
-            *list(resnet.children())[:-1],
-            nn.Conv2d(last_conv_channels, num_ftrs, 1),
-            nn.AdaptiveAvgPool2d(1)
-        )
-
-        self.key_projection_head = nn.Sequential(
-            nn.Linear(num_ftrs, num_ftrs),
-            nn.ReLU(),
-            nn.Linear(num_ftrs, out_dim)
-        )
+        self.key_features, self.key_projection_head = \
+            _get_features_and_projections(resnet, self.num_ftrs, self.out_dim)
 
         # set key-encoder weights to query-encoder weights
         self._momentum_update_key_encoder(0.)

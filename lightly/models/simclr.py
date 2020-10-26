@@ -5,7 +5,38 @@
 
 import torch
 import torch.nn as nn
+
 from lightly.models.resnet import ResNetGenerator
+
+
+def _get_features_and_projections(resnet, num_ftrs, out_dim):
+    """Removes classification head from the ResNet and adds a projection head.
+
+    - Adds a batchnorm layer to the input layer.
+    - Replaces the output layer by a Conv2d followed by adaptive average pool.
+    - Adds a 2-layer mlp projection head.
+
+    """
+
+    # get the number of features from the last channel
+    last_conv_channels = list(resnet.children())[-1].in_features
+
+    # replace output layer
+    features = nn.Sequential(
+        nn.BatchNorm2d(3),
+        *list(resnet.children())[:-1],
+        nn.Conv2d(last_conv_channels, num_ftrs, 1),
+        nn.AdaptiveAvgPool2d(1),
+    )
+
+    # 2-layer mlp projection head
+    projection_head = nn.Sequential(
+        nn.Linear(num_ftrs, num_ftrs),
+        nn.ReLU(),
+        nn.Linear(num_ftrs, out_dim)
+    )
+
+    return features, projection_head
 
 
 class ResNetSimCLR(nn.Module):
@@ -35,23 +66,12 @@ class ResNetSimCLR(nn.Module):
         super(ResNetSimCLR, self).__init__()
         resnet = ResNetGenerator(name=name, width=width)
 
-        last_conv_channels = list(resnet.children())[-1].in_features
+        self.features, self.projection_head = _get_features_and_projections(
+            resnet, self.num_ftrs, self.out_dim)
 
-        self.features = nn.Sequential(
-            nn.BatchNorm2d(3),
-            *list(resnet.children())[:-1],
-            nn.Conv2d(last_conv_channels, num_ftrs, 1),
-            nn.AdaptiveAvgPool2d(1)
-        )
-
-        self.projection_head = nn.Sequential(
-            nn.Linear(num_ftrs, num_ftrs),
-            nn.ReLU(),
-            nn.Linear(num_ftrs, out_dim)
-        )
 
     def forward(self, x: torch.Tensor):
-        """ Forward pass through ResNetSimCLR.
+        """Forward pass through ResNetSimCLR.
 
         Extracts features with the ResNet backbone and applies the projection
         head to the output space.

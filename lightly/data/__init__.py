@@ -7,3 +7,4 @@ from lightly.data.dataset import LightlyDataset
 from lightly.data.collate import BaseCollateFunction
 from lightly.data.collate import ImageCollateFunction
 from lightly.data.collate import SimCLRCollateFunction
+from lightly.data.collate import MoCoCollateFunction
