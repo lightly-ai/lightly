@@ -99,7 +99,7 @@ class MemoryBankModule(torch.nn.Module):
 
         Returns:
             The output if the memory bank is of size 0, otherwise the output
-            and the entries from the memory bank.python
+            and the entries from the memory bank.
 
         """
 
