@@ -28,7 +28,7 @@ Documentation
    basic_concepts/command_line_tool.rst
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 4
    :caption: Tutorials
 
    tutorials/structure_your_input
