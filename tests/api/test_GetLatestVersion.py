@@ -96,5 +96,5 @@ class TestGetLatestVersion(unittest.TestCase):
         version = get_latest_version(self.version)
         t1 = time.time()
 
-        self.assertLessEqual(t1 - t0, 1.05)
+        self.assertLessEqual(t1 - t0, 1.10)
         self.assertEqual(version, self.version)
