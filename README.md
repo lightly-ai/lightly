@@ -19,7 +19,7 @@ Lightly is a computer vision framework for self-supervised learning.
 
 ## Quick Start
 
-Lightly requires Python 3.5+. We recommend installing Lightly in a Linux or OSX environment.
+Lightly requires Python 3.5+. We recommend installing Lightly in a **Linux** or **OSX** environment.
 
 ### Installation
 You can install Lightly and its dependencies from PyPI with:
