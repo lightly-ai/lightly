@@ -23,6 +23,22 @@ class NTXentLoss(MemoryBankModule):
     Raises:
         ValueError if abs(temperature) < 1e-8 to prevent divide by zero.
 
+    Examples:
+
+        >>> # initialize loss function without memory bank
+        >>> loss_fn = NTXentLoss(memory_bank_size=0)
+        >>>
+        >>> # generate two random transforms of images
+        >>> t0 = transforms(images)
+        >>> t1 = transforms(images)
+        >>>
+        >>> # feed through SimCLR or MoCo model
+        >>> batch = torch.cat((t0, t1), dim=0)
+        >>> output = model(batch)
+        >>>
+        >>> # calculate loss
+        >>> loss = loss_fn(output)
+
     """
 
     def __init__(self,
