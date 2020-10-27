@@ -16,6 +16,15 @@ make html
 You can host the docs after building using the following python command `python -m http.server 1234 -d build/html` from the docs folder.
 Open a browser and go to `http://localhost:1234` to see the documentation.
 
+
+## Deploy the Docs
+
+Only Lightly core team members will have access to deploy new docs. 
+
+1. Open a terminal and go to the `docs/` folder. 
+1. If not done yet, authenticate your account using `gcloud auth login`
+1. Deploy to app engine using `gcloud app deploy app.yaml`
+
 ## Docstrings and Style Guide
 We build our code based on the [Google Python Styleguide]().
 

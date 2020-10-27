@@ -91,8 +91,8 @@ else:
 
 
     # check for latest version
-    from lightly.api import get_latest_version
-    latest_version = get_latest_version(__version__)
+    from lightly.api import get_version
+    latest_version = get_version(__version__)
     if latest_version is not None:
         if version_compare(__version__, latest_version) < 0:
             # local version is behind latest version

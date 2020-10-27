@@ -7,7 +7,7 @@ Lightly is a computer vision framework for self-supervised learning.
 
 - [Homepage](https://www.lightly.ai)
 - [Web-App](https://app.lightly.ai)
-- [Documentation](https://lightly.readthedocs.io)
+- [Documentation](https://docs.lightly.ai)
 - [Github](https://github.com/lightly-ai/lightly)
 - [Discord](https://discord.gg/xvNJW94)
 
@@ -30,7 +30,7 @@ pip install lightly
 We strongly recommend that you install Lightly in a dedicated virtualenv, to avoid conflicting with your system packages.
 
 ### Next Steps
-Head to the [documentation](https://lightly.readthedocs.io) and see the things you can achieve with Lightly!
+Head to the [documentation](https://docs.lightly.ai) and see the things you can achieve with Lightly!
 
 
 ## Further Reading
