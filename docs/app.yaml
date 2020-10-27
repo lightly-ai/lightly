@@ -1,0 +1,21 @@
+# When using the first time you need to authenticate your machine
+# running `gcloud auth login` in your terminal.
+#
+# To deploy the app simply run `gcloud app deploy` from a terminal
+# within the docs folder.
+
+runtime: python27
+api_version: 1
+threadsafe: true
+service: docs
+
+handlers:
+- url: /
+  static_files: build/html/index.html
+  upload: build/html/index.html
+
+- url: /(.*)
+  secure: always
+  redirect_http_response_code: 301
+  static_files: build/html/\1
+  upload: build/html/(.*)

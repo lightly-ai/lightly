@@ -70,6 +70,14 @@ if __name__ == '__main__':
     packages = [
         'lightly',
         'lightly.api',
+        'lightly.api.routes',
+        'lightly.api.routes.pip',
+        'lightly.api.routes.users',
+        'lightly.api.routes.users.datasets',
+        'lightly.api.routes.users.docker',
+        'lightly.api.routes.users.datasets.embeddings',
+        'lightly.api.routes.users.datasets.samples',
+        'lightly.api.routes.users.datasets.tags',
         'lightly.cli',
         'lightly.cli.config',
         'lightly.data',
@@ -83,7 +91,7 @@ if __name__ == '__main__':
     project_urls = {
         'Homepage': 'https://www.lightly.ai',
         'Web-App': 'https://app.lightly.ai',
-        'Documentation': 'https://lightly.readthedocs.io',
+        'Documentation': 'https://docs.lightly.ai',
         'Github': 'https://github.com/lightly-ai/lightly',
         'Discord': 'https://discord.gg/xvNJW94',
     }

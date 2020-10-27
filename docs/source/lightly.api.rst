@@ -3,18 +3,19 @@ lightly.api
 
 .. automodule:: lightly.api
 
-.communication
+.upload
 ---------------
-.. automodule:: lightly.api.communication
+.. automodule:: lightly.api.upload
    :members:
 
-.helpers
+.download
 ---------------
-.. automodule:: lightly.api.helpers
+.. automodule:: lightly.api.download
    :members:
 
 .utils
 ---------------
 .. automodule:: lightly.api.utils
    :members:
+
 
