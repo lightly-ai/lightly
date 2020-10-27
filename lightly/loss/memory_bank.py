@@ -116,5 +116,8 @@ class MemoryBankModule(torch.nn.Module):
 
         # query and update memory bank
         bank = self.bank.clone().detach()
-        self._dequeue_and_enqueue(output[batch_size:])
+
+        # only update memory bank if we later do backward pass (gradient)
+        if output.requires_grad:
+            self._dequeue_and_enqueue(output[batch_size:])
         return output, bank
