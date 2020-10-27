@@ -13,6 +13,10 @@ import torchvision.transforms as transforms
 from lightly.transforms import GaussianBlur
 from lightly.transforms import RandomRotate
 
+imagenet_normalize = {
+    'mean': [0.485, 0.456, 0.406],
+    'std': [0.229, 0.224, 0.225]
+}
 
 class BaseCollateFunction(nn.Module):
     """Base class for other collate implementations.
@@ -104,6 +108,8 @@ class ImageCollateFunction(BaseCollateFunction):
             Probability that horizontal flip is applied.
         rr_prob:
             Probability that random rotation is applied.
+        normalize:
+            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     """
 
@@ -120,14 +126,14 @@ class ImageCollateFunction(BaseCollateFunction):
                  kernel_size: float = 0.1,
                  vf_prob: float = 0.0,
                  hf_prob: float = 0.0,
-                 rr_prob: float = 0.0):
+                 rr_prob: float = 0.0,
+                 normalize: dict = imagenet_normalize):
 
         color_jitter = transforms.ColorJitter(
             cj_bright, cj_contrast, cj_sat, cj_hue
         )
 
-        transform = transforms.Compose(
-            [transforms.RandomResizedCrop(size=input_size,
+        transform = [transforms.RandomResizedCrop(size=input_size,
                                           scale=(min_scale, 1.0)),
              RandomRotate(prob=rr_prob),
              transforms.RandomHorizontalFlip(p=hf_prob),
@@ -137,12 +143,18 @@ class ImageCollateFunction(BaseCollateFunction):
              GaussianBlur(
                  kernel_size=kernel_size * input_size,
                  prob=gaussian_blur),
-             transforms.ToTensor(),
+             transforms.ToTensor()
+        ]
+
+        if normalize:
+            transform += [
              transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225]),
+                mean=normalize['mean'],
+                std=normalize['std'])
              ]
-        )
+           
+        transform = transforms.Compose(transform)
+
         super(ImageCollateFunction, self).__init__(transform)
 
 
@@ -170,6 +182,8 @@ class SimCLRCollateFunction(ImageCollateFunction):
             Probability that horizontal flip is applied.
         rr_prob:
             Probability that random rotation is applied.
+        normalize:
+            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     Examples:
 
@@ -194,7 +208,8 @@ class SimCLRCollateFunction(ImageCollateFunction):
                  kernel_size: float = 0.1,
                  vf_prob: float = 0.0,
                  hf_prob: float = 0.5,
-                 rr_prob: float = 0.0):
+                 rr_prob: float = 0.0,
+                 normalize: dict = imagenet_normalize):
 
         super(SimCLRCollateFunction, self).__init__(
             input_size=input_size,
@@ -210,6 +225,7 @@ class SimCLRCollateFunction(ImageCollateFunction):
             vf_prob=vf_prob,
             hf_prob=hf_prob,
             rr_prob=rr_prob,
+            normalize=imagenet_normalize,
         )
 
 
@@ -239,6 +255,8 @@ class MoCoCollateFunction(ImageCollateFunction):
             Probability that horizontal flip is applied.
         rr_prob:
             Probability that random rotation is applied.
+        normalize:
+            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     Examples:
 
@@ -262,7 +280,8 @@ class MoCoCollateFunction(ImageCollateFunction):
                  kernel_size: float = 0.1,
                  vf_prob: float = 0.0,
                  hf_prob: float = 0.5,
-                 rr_prob: float = 0.0):
+                 rr_prob: float = 0.0,
+                 normalize: dict = imagenet_normalize):
 
         super(MoCoCollateFunction, self).__init__(
             input_size=input_size,
@@ -278,4 +297,5 @@ class MoCoCollateFunction(ImageCollateFunction):
             vf_prob=vf_prob,
             hf_prob=hf_prob,
             rr_prob=rr_prob,
+            normalize=imagenet_normalize,
         )
