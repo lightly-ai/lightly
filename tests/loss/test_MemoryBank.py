@@ -20,6 +20,7 @@ class TestNTXentLoss(unittest.TestCase):
         for i in range(0, n, bsz):
 
             output = torch.randn(2 * bsz, dim)
+            output.requires_grad = True
             _, curr_memory_bank = memory_bank(output)
             next_memory_bank = memory_bank.bank
 
