@@ -44,7 +44,7 @@ class NTXentLoss(MemoryBankModule):
     def __init__(self,
                 temperature: float = 0.5,
                 use_cosine_similarity: bool = True,
-                memory_bank_size: int = 2 ** 10):
+                memory_bank_size: int = 0):
         super(NTXentLoss, self).__init__(size=memory_bank_size)
         self.temperature = temperature
         self.similarity_function = self._get_similarity_function(
