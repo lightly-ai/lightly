@@ -67,15 +67,20 @@ class ResNetMoCo(nn.Module):
         self.m = m
 
         super(ResNetMoCo, self).__init__()
-        resnet = ResNetGenerator(name=name, width=width)
 
         self.features, self.projection_head = \
-            _get_features_and_projections(resnet, self.num_ftrs, self.out_dim)
+            _get_features_and_projections(
+                ResNetGenerator(name=name, width=width), self.num_ftrs, self.out_dim)
 
         self.key_features, self.key_projection_head = \
-            _get_features_and_projections(resnet, self.num_ftrs, self.out_dim)
+            _get_features_and_projections(
+                ResNetGenerator(name=name, width=width), self.num_ftrs, self.out_dim)
 
         # set key-encoder weights to query-encoder weights
+        for param_k in self.key_features.parameters():
+            param_k.requires_grad = False
+        for param_k in self.key_projection_head.parameters():
+            param_k.requires_grad = False
         self._momentum_update_key_encoder(0.)
 
 
@@ -132,6 +137,6 @@ class ResNetMoCo(nn.Module):
         # embed keys
         with torch.no_grad():
             emb_k = self.key_features(k).squeeze()
-            out_k = self.key_projection_head(emb_k)
+            out_k = self.key_projection_head(emb_k).detach()
 
         return torch.cat([out_q, out_k], axis=0)
