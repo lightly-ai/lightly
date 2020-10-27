@@ -13,6 +13,11 @@ lightly.models
 .. automodule:: lightly.models.simclr
    :members:
 
+.moco
+---------------
+.. automodule:: lightly.models.moco
+   :members:
+
 .zoo
 ---------------
 .. automodule:: lightly.models.zoo

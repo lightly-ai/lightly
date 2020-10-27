@@ -17,6 +17,7 @@ class LightlyDataset(data.Dataset):
     """Provides a uniform data interface for the embedding models.
 
     Should be used for all models and functions in the lightly package.
+    Returns a tuple (sample, target, fname) when accessed using __getitem__
 
     Can either be used to load a dataset offered by torchvision (e.g. cifar10)
     or to load a custom dataset from an input folder.
@@ -43,6 +44,7 @@ class LightlyDataset(data.Dataset):
         >>>     root='./', name='cifar10', download=True)
         >>> # load cifar10 from a local folder
         >>> dataset = data.LightlyDataset(from_folder='path/to/cifar10/')
+        >>> sample, target, fname = dataset[0]
 
     """
 
