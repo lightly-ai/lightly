@@ -8,3 +8,4 @@ from lightly.data.collate import BaseCollateFunction
 from lightly.data.collate import ImageCollateFunction
 from lightly.data.collate import SimCLRCollateFunction
 from lightly.data.collate import MoCoCollateFunction
+from lightly.data.collate import imagenet_normalize
