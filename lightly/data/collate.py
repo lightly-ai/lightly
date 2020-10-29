@@ -114,18 +114,18 @@ class ImageCollateFunction(BaseCollateFunction):
     """
 
     def __init__(self,
-                 input_size: int = 32,
+                 input_size: int = 64,
                  cj_prob: float = 0.8,
                  cj_bright: float = 0.7,
                  cj_contrast: float = 0.7,
                  cj_sat: float = 0.7,
                  cj_hue: float = 0.2,
-                 min_scale: float = 0.08,
+                 min_scale: float = 0.15,
                  random_gray_scale: float = 0.2,
                  gaussian_blur: float = 0.5,
                  kernel_size: float = 0.1,
                  vf_prob: float = 0.0,
-                 hf_prob: float = 0.0,
+                 hf_prob: float = 0.5,
                  rr_prob: float = 0.0,
                  normalize: dict = imagenet_normalize):
 
@@ -186,7 +186,7 @@ class SimCLRCollateFunction(ImageCollateFunction):
         hf_prob:
             Probability that horizontal flip is applied.
         rr_prob:
-            Probability that random rotation is applied.
+            Probability that random (+-90 degree) rotation is applied.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
