@@ -58,7 +58,7 @@ class ResNetMoCo(nn.Module):
     def __init__(self,
                  name: str ='resnet-18',
                  width: float = 1.,
-                 num_ftrs: int = 16,
+                 num_ftrs: int = 32,
                  out_dim: int = 128,
                  m: float = 0.999):
 
