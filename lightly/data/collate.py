@@ -129,6 +129,11 @@ class ImageCollateFunction(BaseCollateFunction):
                  rr_prob: float = 0.0,
                  normalize: dict = imagenet_normalize):
 
+        if isinstance(input_size, tuple):
+            input_size_ = max(input_size)
+        else:
+            input_size_ = input_size
+
         color_jitter = transforms.ColorJitter(
             cj_bright, cj_contrast, cj_sat, cj_hue
         )
@@ -141,7 +146,7 @@ class ImageCollateFunction(BaseCollateFunction):
              transforms.RandomApply([color_jitter], p=cj_prob),
              transforms.RandomGrayscale(p=random_gray_scale),
              GaussianBlur(
-                 kernel_size=kernel_size * input_size,
+                 kernel_size=kernel_size * input_size_,
                  prob=gaussian_blur),
              transforms.ToTensor()
         ]
