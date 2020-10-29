@@ -107,7 +107,7 @@ class TestUploadEmbeddings(unittest.TestCase):
 
         """
 
-        self.setup(n_data=10000)
+        self.setup(n_data=100)
 
         def get_tags_callback(request):
             return (200, [], json.dumps(['tag_1', 'tag_2']))

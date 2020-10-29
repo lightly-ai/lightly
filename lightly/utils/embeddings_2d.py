@@ -4,9 +4,6 @@
 # All Rights Reserved
 
 import numpy as np
-from lightly import is_sklearn_available
-if is_sklearn_available():
-    import sklearn.decomposition as decomposition
 
 
 class PCA(object):
@@ -93,7 +90,4 @@ def fit_pca(embeddings: np.ndarray, n_components: int = 2, fraction: float = Non
     N = embeddings.shape[0]
     n = N if fraction is None else min(N, int(N * fraction))
     X = embeddings[np.random.permutation(N)][:n]
-    if is_sklearn_available():
-        return decomposition.PCA(n_components=n_components).fit(X)
-    else:
-        return PCA(n_components=n_components).fit(X)
+    return PCA(n_components=n_components).fit(X)

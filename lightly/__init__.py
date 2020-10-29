@@ -41,21 +41,8 @@ else:
     else:
         _prefetch_generator_available = True
 
-    # see if sklearn is available
-    try:
-        import sklearn
-    except ImportError:
-        _sklearn_available = False
-    else:
-        _sklearn_available = True
-
-
     def is_prefetch_generator_available():
         return _prefetch_generator_available
-
-
-    def is_sklearn_available():
-        return _sklearn_available
 
 
     # import core functionalities
