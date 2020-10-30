@@ -63,13 +63,21 @@ if __name__ == '__main__':
 
     long_description = load_description()
 
-    python_requires = '>=3.7'
+    python_requires = '>=3.6'
     install_requires = load_requirements()
     dev_requires = load_requirements(filename='dev.txt')
 
     packages = [
         'lightly',
         'lightly.api',
+        'lightly.api.routes',
+        'lightly.api.routes.pip',
+        'lightly.api.routes.users',
+        'lightly.api.routes.users.datasets',
+        'lightly.api.routes.users.docker',
+        'lightly.api.routes.users.datasets.embeddings',
+        'lightly.api.routes.users.datasets.samples',
+        'lightly.api.routes.users.datasets.tags',
         'lightly.cli',
         'lightly.cli.config',
         'lightly.data',
@@ -83,13 +91,27 @@ if __name__ == '__main__':
     project_urls = {
         'Homepage': 'https://www.lightly.ai',
         'Web-App': 'https://app.lightly.ai',
-        'Documentation': 'https://lightly.readthedocs.io',
+        'Documentation': 'https://docs.lightly.ai',
         'Github': 'https://github.com/lightly-ai/lightly',
         'Discord': 'https://discord.gg/xvNJW94',
     }
 
     classifiers = [
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Scientific/Engineering :: Mathematics",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Software Development",
+        "Topic :: Software Development :: Libraries",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "License :: OSI Approved :: MIT License"
     ]
 

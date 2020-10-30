@@ -5,7 +5,7 @@ import os
 import random
 import responses
 
-from lightly.api.communication import get_tags
+import lightly.api.routes as routes
 
 N = 10
 
@@ -52,7 +52,7 @@ class TestGet(unittest.TestCase):
         )
 
         for i in range(N):
-            tags = get_tags(self.dataset_id, self.token)
+            tags = routes.users.datasets.tags.get(self.dataset_id, self.token)
             self.assertDictEqual(tags, self.tags)
 
     @responses.activate
@@ -70,7 +70,7 @@ class TestGet(unittest.TestCase):
         )
 
         for i in range(N):
-            tags = get_tags(self.dataset_id, self.token)
+            tags = routes.users.datasets.tags.get(self.dataset_id, self.token)
             self.assertDictEqual(tags, self.tags)
 
     @responses.activate
@@ -88,5 +88,5 @@ class TestGet(unittest.TestCase):
         )
 
         with self.assertRaises(RuntimeError):
-            tags = get_tags(self.dataset_id, self.token)
+            tags = routes.users.datasets.tags.get(self.dataset_id, self.token)
             self.assertDictEqual(tags, self.tags)

@@ -2,3 +2,8 @@
 **build
 **settings.json
 lightning_logs/
+**lightning_logs/
+docs/source/tutorials
+docs/source/tutorials_source/platform/data
+docs/source/tutorials_source/platform/pizzas
+**.zip

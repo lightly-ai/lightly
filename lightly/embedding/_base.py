@@ -17,7 +17,12 @@ class BaseEmbedding(lightning.LightningModule):
 
     """
 
-    def __init__(self, model, criterion, optimizer, dataloader):
+    def __init__(self,
+                 model,
+                 criterion,
+                 optimizer,
+                 dataloader,
+                 scheduler=None):
         """ Constructor
 
         Args:
@@ -33,6 +38,7 @@ class BaseEmbedding(lightning.LightningModule):
         self.criterion = criterion
         self.optimizer = optimizer
         self.dataloader = dataloader
+        self.scheduler = scheduler
         self.checkpoint = None
         # create custom model checkpoint and set attributes
         self.checkpoint_callback = CustomModelCheckpoint()
@@ -52,7 +58,10 @@ class BaseEmbedding(lightning.LightningModule):
         return {'loss': loss, 'log': tensorboard_logs}
 
     def configure_optimizers(self):
-        return self.optimizer
+        if self.scheduler is None:
+            return self.optimizer
+        else:
+            return [self.optimizer], [self.scheduler]
 
     def train_dataloader(self):
         return self.dataloader

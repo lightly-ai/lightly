@@ -6,7 +6,7 @@ import os
 import random
 import responses
 
-from lightly.api.communication import upload_file_with_signed_url
+from lightly.api.upload import upload_file_with_signed_url
 
 N = 10
 
