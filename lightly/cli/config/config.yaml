@@ -80,6 +80,8 @@ seed: 1
 ### hydra
 # The arguments below are built-ins from the hydra-core Python package.
 hydra:
+  run:
+    dir: lightly_outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
   help:
     header: |
       == Description ==
