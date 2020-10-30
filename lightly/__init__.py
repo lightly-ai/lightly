@@ -15,7 +15,7 @@ For information about the command-line interace, see lightly.cli.
 # All Rights Reserved
 
 __name__ = 'lightly'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 
 try:
@@ -41,21 +41,8 @@ else:
     else:
         _prefetch_generator_available = True
 
-    # see if sklearn is available
-    try:
-        import sklearn
-    except ImportError:
-        _sklearn_available = False
-    else:
-        _sklearn_available = True
-
-
     def is_prefetch_generator_available():
         return _prefetch_generator_available
-
-
-    def is_sklearn_available():
-        return _sklearn_available
 
 
     # import core functionalities
@@ -91,8 +78,8 @@ else:
 
 
     # check for latest version
-    from lightly.api import get_latest_version
-    latest_version = get_latest_version(__version__)
+    from lightly.api import get_version
+    latest_version = get_version(__version__)
     if latest_version is not None:
         if version_compare(__version__, latest_version) < 0:
             # local version is behind latest version

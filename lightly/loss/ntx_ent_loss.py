@@ -6,8 +6,10 @@
 import torch
 import numpy as np
 
+from lightly.loss.memory_bank import MemoryBankModule
 
-class NTXentLoss(torch.nn.Module):
+
+class NTXentLoss(MemoryBankModule):
     """Implementation of the Contrastive Cross Entropy Loss.
     
     Attributes:
@@ -15,20 +17,39 @@ class NTXentLoss(torch.nn.Module):
             Scale logits by the inverse of the temperature.
         use_cosine_similarity:
             Whether to use cosine similarity over L2 distance.
+        memory_bank_size:
+            Number of samples to store in the memory bank.
 
     Raises:
         ValueError if abs(temperature) < 1e-8 to prevent divide by zero.
+
+    Examples:
+
+        >>> # initialize loss function without memory bank
+        >>> loss_fn = NTXentLoss(memory_bank_size=0)
+        >>>
+        >>> # generate two random transforms of images
+        >>> t0 = transforms(images)
+        >>> t1 = transforms(images)
+        >>>
+        >>> # feed through SimCLR or MoCo model
+        >>> batch = torch.cat((t0, t1), dim=0)
+        >>> output = model(batch)
+        >>>
+        >>> # calculate loss
+        >>> loss = loss_fn(output)
 
     """
 
     def __init__(self,
                 temperature: float = 0.5,
-                use_cosine_similarity: bool = True):
-        super(NTXentLoss, self).__init__()
+                use_cosine_similarity: bool = True,
+                memory_bank_size: int = 0):
+        super(NTXentLoss, self).__init__(size=memory_bank_size)
         self.temperature = temperature
         self.similarity_function = self._get_similarity_function(
                                         use_cosine_similarity)
-        self.cross_entropy = torch.nn.CrossEntropyLoss(reduction="sum")
+        self.cross_entropy = torch.nn.CrossEntropyLoss(reduction="mean")
         self.correlated_mask = None
         self.eps = 1e-8
 
@@ -92,36 +113,49 @@ class NTXentLoss(torch.nn.Module):
                 ValueError if shape of output is not multiple of batch_size.
         """
 
-        output = torch.nn.functional.normalize(output, dim=1)
-        device = output.device
-
         if output.shape[0] % 2:
-            raise ValueError('Illegal shape, axis 0 not divisible by 2: {}'
-                             .format(output.shape))
+            raise ValueError('Expected output of shape 2*bsz x dim but got '
+                             f'shape {output.shape[0]} x {output.shape[1]}.')
 
-        batch_size = output.shape[0] // 2
-        similarity_matrix = self.similarity_function(output, output)
+        device = output.device
+        batch_size, dim = output.shape
+        batch_size = batch_size // 2
 
-        # filter out the scores from the positive samples
-        l_pos = torch.diag(similarity_matrix, batch_size)
-        r_pos = torch.diag(similarity_matrix, -batch_size)
-        positives = torch.cat([l_pos, r_pos]).view(2 * batch_size, 1)
+        # normalize the output to length 1
+        output = torch.nn.functional.normalize(output, dim=1)
 
-        if self.correlated_mask is None:
-            self.correlated_mask = \
-                self._torch_get_correlated_mask(batch_size, device=device)
-        if 2 * batch_size != self.correlated_mask.shape[0]:
-            self.correlated_mask = \
-                self._torch_get_correlated_mask(batch_size, device=device)
+        # ask memory bank for negative samples
+        output, negatives = super(NTXentLoss, self).forward(output)
 
-        negatives = similarity_matrix[
-            self.correlated_mask
-            ].view(2 * batch_size, -1)
+        if negatives is not None:
+            negatives = negatives.to(device)
+            q, k = output[:batch_size], output[batch_size:]
+            # use negatives from memory bank
+            l_pos = torch.einsum('nc,nc->n', [q, k]).unsqueeze(-1)
+            l_neg = torch.einsum('nc,ck->nk', [q, negatives.clone().detach()])
+        else:
+            # use other samples from batch as negatives
+            similarity_matrix = self.similarity_function(output, output)
 
-        logits = torch.cat((positives, negatives), dim=1)
+            # filter out the scores from the positive samples
+            l_pos = torch.diag(similarity_matrix, batch_size)
+            r_pos = torch.diag(similarity_matrix, -batch_size)
+            l_pos = torch.cat([l_pos, r_pos]).view(2 * batch_size, 1)
+
+            if self.correlated_mask is None:
+                self.correlated_mask = \
+                    self._torch_get_correlated_mask(batch_size, device=device)
+            if 2 * batch_size != self.correlated_mask.shape[0]:
+                self.correlated_mask = \
+                    self._torch_get_correlated_mask(batch_size, device=device)
+
+            l_neg = similarity_matrix[
+                self.correlated_mask].view(2 * batch_size, -1)
+
+        logits = torch.cat([l_pos, l_neg], dim=1)
         logits /= self.temperature
 
-        labels = torch.zeros(2 * batch_size).long()
-
+        labels = torch.zeros(logits.shape[0]).long()
         loss = self.cross_entropy(logits, labels.to(device))
-        return loss / (2 * batch_size)
+
+        return loss

@@ -5,8 +5,11 @@
 
 import io
 import os
+import time
+import random
 
 import numpy as np
+import requests
 import warnings
 from PIL import Image, ImageFilter
 
@@ -195,7 +198,7 @@ def resize_image(image, max_width: int, max_height: int):
 
 def check_image(filename: str):
     """Checks whether an image is corrupted or not.
-    
+
     The function reports the metadata, and opens the file to check whether
     it is corrupt or not.
 
@@ -211,7 +214,7 @@ def check_image(filename: str):
         msg = f'Filename {basename} is longer than the allowed maximum of'
         msg += f'{MAXIMUM_FILENAME_LENGTH} character and will be skipped.'
         warnings.warn(msg)
-        return None, None, {}, True
+        return {}, True
 
     is_corrupted = False
     corruption = ''
@@ -238,3 +241,163 @@ def check_image(filename: str):
     metadata['is_corrupted'] = is_corrupted
 
     return metadata, is_corrupted
+
+
+def post_request(dst_url, data=None, json=None,
+                 max_backoff=32, max_retries=5):
+    """Makes a POST request with random offset retries.
+
+    Args:
+        dst_url:
+            Url the GET request is made to.
+        data:
+            POST data.
+        json:
+            POST json.
+        max_backoff:
+            Maximal backoff before throwing timing out.
+        max_retries:
+            Maximum number of retries before timing out.
+
+    Returns:
+        The server response.
+
+    Raises:
+        RuntimeError if the request fails.
+
+    """
+    counter = 0
+    backoff = 1. + random.random() * 0.1
+    success = False
+    while not success:
+
+        response = requests.post(dst_url, data=data, json=json)
+        success = (response.status_code == 200)
+
+        # exponential backoff
+        if response.status_code in [500, 502]:
+            time.sleep(backoff)
+            backoff = 2*backoff if backoff < max_backoff else backoff
+        elif response.status_code in [402]:
+            msg = 'Dataset limit reached. Failed to upload samples. '
+            msg += 'Contact your account manager to upgrade your subscription'
+            raise ConnectionRefusedError(msg)
+        # something went wrong
+        elif not success:
+            msg = f'Failed POST request to {dst_url} with status_code '
+            msg += f'{response.status_code}.'
+            raise RuntimeError(msg)
+
+        counter += 1
+        if counter >= max_retries:
+            break
+
+    if not success:
+        msg = f'The connection to the server at {dst_url} timed out. '
+        raise RuntimeError(msg)
+
+    return response
+
+
+def get_request(dst_url, params=None,
+                max_backoff=32, max_retries=5):
+    """Makes a GET request with random offset retries.
+
+    Args:
+        dst_url:
+            Url the GET request is made to.
+        params:
+            GET parameters.
+        max_backoff:
+            Maximal backoff before throwing timing out.
+        max_retries:
+            Maximum number of retries before timing out.
+
+    Returns:
+        The server response.
+
+    Raises:
+        RuntimeError if the request fails.
+
+    """
+    counter = 0
+    backoff = 1. + random.random() * 0.1
+    success = False
+    while not success:
+
+        response = requests.get(dst_url, params=params)
+        success = (response.status_code == 200)
+
+        # exponential backoff
+        if response.status_code in [500, 502]:
+            time.sleep(backoff)
+            backoff = 2*backoff if backoff < max_backoff else backoff
+        # something went wrong
+        elif not success:
+            msg = f'Failed GET request to {dst_url} with status_code '
+            msg += f'{response.status_code}.'
+            raise RuntimeError(msg)
+
+        counter += 1
+        if counter >= max_retries:
+            break
+
+    if not success:
+        msg = f'The connection to the server at {dst_url} timed out. '
+        raise RuntimeError(msg)
+
+    return response
+
+
+def put_request(dst_url, data=None, params=None, json=None,
+                max_backoff=32, max_retries=5):
+    """Makes a PUT request with random offset retries.
+
+    Args:
+        dst_url:
+            Url the PUT request is made to.
+        data:
+            PUT data.
+        params:
+            PUT parameters.
+        json:
+            PUT json.
+        max_backoff:
+            Maximal backoff before throwing timing out.
+        max_retries:
+            Maximum number of retries before timing out.
+
+    Returns:
+        The server response.
+
+    Raises:
+        RuntimeError if the request fails.
+
+    """
+    counter = 0
+    backoff = 1. + random.random() * 0.1
+    success = False
+    while not success:
+
+        response = requests.put(dst_url, data=data, json=json, params=params)
+        success = (response.status_code == 200)
+
+        # exponential backoff
+        if response.status_code in [500, 502]:
+            time.sleep(backoff)
+            backoff = 2*backoff if backoff < max_backoff else backoff
+        # something went wrong
+        elif not success:
+            msg = f'Failed PUT request to {dst_url} with status_code '
+            msg += f'{response.status_code}.'
+            raise RuntimeError(msg)
+
+        counter += 1
+        if counter >= max_retries:
+            break
+
+    if not success:
+        msg = f'The connection to the server at {dst_url} timed out. '
+        raise RuntimeError(msg)
+
+    return response

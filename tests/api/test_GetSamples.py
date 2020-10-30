@@ -5,7 +5,7 @@ import os
 import random
 import responses
 
-from lightly.api.communication import get_samples
+import lightly.api.routes as routes
 
 N = 10
 
@@ -70,7 +70,7 @@ class TestGet(unittest.TestCase):
         )
 
         for i in range(N):
-            samples = get_samples(self.dataset_id, self.token)
+            samples = routes.users.datasets.tags.get_samples(self.dataset_id, self.token)
             for s0, s1 in zip(samples, self.samples.splitlines()):
                 self.assertEqual(s0, s1)
 
@@ -95,7 +95,7 @@ class TestGet(unittest.TestCase):
         )
 
         for i in range(N):
-            samples = get_samples(self.dataset_id, self.token)
+            samples = routes.users.datasets.tags.get_samples(self.dataset_id, self.token)
             for s0, s1 in zip(samples, self.samples.splitlines()):
                 self.assertEqual(s0, s1)
     
@@ -120,7 +120,7 @@ class TestGet(unittest.TestCase):
         )
 
         with self.assertRaises(RuntimeError):
-            samples = get_samples(self.dataset_id, self.token)
+            samples = routes.users.datasets.tags.get_samples(self.dataset_id, self.token)
             for s0, s1 in zip(samples, self.samples.splitlines()):
                 self.assertEqual(s0, s1)
 
@@ -145,6 +145,6 @@ class TestGet(unittest.TestCase):
         )
 
         with self.assertRaises(RuntimeError):
-            samples = get_samples(self.dataset_id, self.token)
+            samples = routes.users.datasets.tags.get_samples(self.dataset_id, self.token)
             for s0, s1 in zip(samples, self.samples.splitlines()):
                 self.assertEqual(s0, s1)
