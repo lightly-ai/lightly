@@ -55,7 +55,11 @@ collate:
   cj_hue: 0.2                 # and hue.
   min_scale: 0.15             # Minimum size of random crop relative to input_size.
   random_gray_scale: 0.2      # Probability of converting image to gray scale.
+  gaussian_blur: 0.5          # Probability of Gaussian blur.
   kernel_size: 0.1            # Kernel size of gaussian blur relative to input_size.
+  vf_prob: 0.0                # Probability that vertical flip is applied.
+  hf_prob: 0.5                # Probability that horizontal flip is applied.
+  rr_prob: 0.0                # Probability that random (+-90 degree) rotation is applied.
 
 # loader namespace: Passed to torch.utils.data.DataLoader.
 loader:
@@ -68,7 +72,7 @@ loader:
 trainer:
   gpus: 1                     # Number of gpus to use for training.
   max_epochs: 100             # Number of epochs to train for.
-#  precision: 16              # If set to 16, will use half-precision.
+  precision: 32               # If set to 16, will use half-precision.
 
 # seed
 seed: 1
@@ -98,6 +102,9 @@ hydra:
 
       Train a self-supervised model starting from a custom checkpoint
       > lightly-train input_dir='path/to/image/folder' loader.batch_size=128 collate.input_size=224 checkpoint='path/to/checkpoint.ckpt'
+
+      Train using half-precision
+      > lightly-train input_dir='path/to/image/folder' trainer.precision=16
 
       Upload thumbnails to the Lightly web solution
       > lightly-upload input_dir='path/to/image/folder' dataset_id='your_dataset_id' token='your_access_token'

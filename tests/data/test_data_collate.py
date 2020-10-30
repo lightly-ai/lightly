@@ -6,6 +6,7 @@ import torchvision.transforms as transforms
 
 from lightly.data import BaseCollateFunction
 from lightly.data import ImageCollateFunction
+from lightly.data import SimCLRCollateFunction
 
 
 class TestDataCollate(unittest.TestCase):
@@ -39,3 +40,24 @@ class TestDataCollate(unittest.TestCase):
 
         self.assertIsNotNone(img_collate)
         self.assertEqual(len(samples), len(labels), len(fnames))
+
+    def test_image_collate_tuple_input_size(self):
+        batch = self.create_batch()
+        img_collate = ImageCollateFunction(
+            input_size=(32, 32),
+        )
+        samples, labels, fnames = img_collate(batch)
+
+        self.assertIsNotNone(img_collate)
+        self.assertEqual(len(samples), len(labels), len(fnames)) 
+
+    def test_simclr_collate_tuple_input_size(self):
+        batch = self.create_batch()
+        img_collate = SimCLRCollateFunction(
+            input_size=(32, 32),
+        )
+        samples, labels, fnames = img_collate(batch)
+
+        self.assertIsNotNone(img_collate)
+        self.assertEqual(len(samples), len(labels), len(fnames)) 
+
