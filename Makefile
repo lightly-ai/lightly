@@ -25,6 +25,7 @@ clean-pyc:
 ## remove hydra outputs
 clean-out:
 	rm -fr outputs/
+	rm -fr lightly_outputs/
 	rm -fr lightning_logs/
 	rm -fr lightly_epoch_*.ckpt
 
