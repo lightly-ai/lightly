@@ -3,8 +3,21 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from . import _prefix
 import requests
+from lightly.api.utils import getenv
+
+
+def _prefix(*args, **kwargs):
+    """Returns the prefix for the pip route.
+
+    The pip route does not require authentication.
+
+    """
+    server_location = getenv(
+        'LIGHTLY_SERVER_LOCATION',
+        'https://api.lightly.ai'
+    )
+    return server_location + '/pip'
 
 
 def get_version(version, timeout: int = 1):

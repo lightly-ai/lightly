@@ -15,7 +15,7 @@ For information about the command-line interace, see lightly.cli.
 # All Rights Reserved
 
 __name__ = 'lightly'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 
 
 try:

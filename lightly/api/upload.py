@@ -12,7 +12,8 @@ import numpy as np
 
 from itertools import islice
 
-import lightly.api.routes as routes
+#import lightly.api.routes as routes
+from lightly.api import routes
 from lightly.api.constants import LIGHTLY_MAXIMUM_DATASET_SIZE
 
 from lightly.api.utils import get_thumbnail_from_img
