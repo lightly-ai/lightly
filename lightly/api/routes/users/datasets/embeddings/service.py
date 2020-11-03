@@ -3,8 +3,29 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from . import _prefix
-import lightly.api.utils as utils
+from typing import Union
+from lightly.api.utils import getenv, get_request, post_request
+
+
+def _prefix(dataset_id: Union[str, None] = None,
+            *args, **kwargs):
+    """Returns the prefix for the embeddings routes.
+
+    Args:
+        dataset_id:
+            Identifier of the dataset.
+
+    """
+    server_location = getenv(
+        'LIGHTLY_SERVER_LOCATION',
+        'https://api.lightly.ai'
+    )
+    prefix = server_location + '/users/datasets'
+    if dataset_id is None:
+        return prefix + '/embeddings'
+    else:
+        return prefix + '/' + dataset_id + '/embeddings'
+
 
 
 def get_summaries(dataset_id: str,
@@ -33,7 +54,7 @@ def get_summaries(dataset_id: str,
     # fix url, TODO: fix api instead
     dst_url += '/'
 
-    response = utils.get_request(dst_url, params=payload)
+    response = get_request(dst_url, params=payload)
     return response.json()
 
 
@@ -64,5 +85,5 @@ def post(dataset_id: str,
         'token': token,
     }
 
-    response = utils.post_request(dst_url, json=payload)
+    response = post_request(dst_url, json=payload)
     return response

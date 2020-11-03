@@ -54,8 +54,8 @@ class BaseEmbedding(lightning.LightningModule):
         x, y, _ = batch
         y_hat = self(x)
         loss = self.criterion(y_hat, y)
-        tensorboard_logs = {'train_loss': loss}
-        return {'loss': loss, 'log': tensorboard_logs}
+        self.log('loss', loss)
+        return loss
 
     def configure_optimizers(self):
         if self.scheduler is None:

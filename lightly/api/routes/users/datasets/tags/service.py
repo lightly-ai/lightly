@@ -3,8 +3,35 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from . import _prefix
-import lightly.api.utils as utils
+from typing import Union
+from lightly.api.utils import getenv, get_request, post_request
+
+
+def _prefix(dataset_id: Union[str, None] = None,
+            tag_id: Union[str, None] = None,
+            *args, **kwargs):
+    """Returns the prefix for the tags routes.
+
+    Args:
+        dataset_id:
+            Identifier of the dataset.
+        tag_id:
+            Identifier of the tag.
+
+    """
+    server_location = getenv(
+        'LIGHTLY_SERVER_LOCATION',
+        'https://api.lightly.ai'
+    )
+    prefix = server_location + '/users/datasets'
+    if dataset_id is None:
+        prefix = prefix + '/tags'
+    else:
+        prefix = prefix + '/' + dataset_id + '/tags'
+    if tag_id is None:
+        return prefix
+    else:
+        return prefix + '/' + tag_id
 
 
 def get(dataset_id: str,
@@ -32,7 +59,7 @@ def get(dataset_id: str,
     # fix url, TODO: fix api instead
     dst_url += '/'
 
-    response = utils.get_request(dst_url, params=payload)
+    response = get_request(dst_url, params=payload)
     return response.json()
 
 
@@ -81,7 +108,7 @@ def get_samples(dataset_id: str,
         'token': token
     }
 
-    response = utils.get_request(dst_url, params=payload)
+    response = get_request(dst_url, params=payload)
     return response.text.splitlines()
 
 
@@ -115,5 +142,5 @@ def post(dataset_id: str,
     if tag is not None:
         payload['tag'] = tag
 
-    response = utils.post_request(dst_url, json=payload)
+    response = post_request(dst_url, json=payload)
     return response
