@@ -70,3 +70,46 @@ def get_authorization(token: str,
     response = requests.get(dst_url, params=payload, json=json)
     status = response.status_code
     return json, response.json(), status
+
+
+def post_diagnostics(token: str,
+                     run_id: str,
+                     action: str,
+                     data: dict,
+                     timestamp: str):
+    """Make a call to the api to add a diagnostics entry
+
+    Args:
+        token:
+            User access token.
+        run_id:
+            Unique id of the docker run.
+        action:
+            Description of the diagnostics.
+        data:
+            Relevant extra data.
+        timestamp:
+            Timestamp of the diagnostics.
+
+    Returns:
+        True if the post was successful, false otherwise.
+
+    """
+    dst_url = _prefix()
+    payload = {
+        'token': token,
+        'runId': run_id,
+        'action': action,
+        'data': data,
+        'timestamp': timestamp,
+    }
+
+    try:
+        response = requests.post(
+            dst_url,
+            json=payload,
+        )
+    except Exception:
+        return False
+    else:
+        return (response.status_code == 200)
