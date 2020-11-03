@@ -3,10 +3,23 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from . import _prefix
 import requests
 
 from lightly.api.constants import LIGHTLY_MAXIMUM_DATASET_SIZE
+from lightly.api.utils import getenv
+
+
+def _prefix(*args, **kwargs):
+    """Returns the prefix for the users routes.
+
+    All routes through users require authentication via jwt.
+
+    """
+    server_location = getenv(
+        'LIGHTLY_SERVER_LOCATION',
+        'https://api.lightly.ai'
+    )
+    return server_location + '/users'
 
 
 def get_quota(token: str):

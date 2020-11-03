@@ -6,7 +6,7 @@ import random
 import responses
 
 import torchvision
-import lightly.api.routes as routes
+from lightly.api import routes
 
 
 class TestGetPresignedURL(unittest.TestCase):

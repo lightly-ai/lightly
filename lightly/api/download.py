@@ -5,7 +5,7 @@
 
 from typing import List
 
-import lightly.api.routes as routes
+from lightly.api import routes
 
 
 def get_samples_by_tag(tag_name: str,
