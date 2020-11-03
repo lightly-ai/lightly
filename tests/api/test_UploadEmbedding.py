@@ -5,7 +5,7 @@ import os
 import random
 import responses
 
-import lightly.api.routes as routes
+from lightly.api import routes
 
 N = 10
 
