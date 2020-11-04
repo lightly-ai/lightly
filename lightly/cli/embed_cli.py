@@ -28,6 +28,7 @@ from lightly.cli._helpers import load_state_dict_from_url
 def _embed_cli(cfg, is_cli_call=True):
 
     data = cfg['data']
+    train = cfg.get('train', True)
     checkpoint = cfg['checkpoint']
     download = cfg['download']
 
@@ -59,7 +60,7 @@ def _embed_cli(cfg, is_cli_call=True):
     ])
 
     dataset = LightlyDataset(root,
-                           name=data, train=True, download=download,
+                           name=data, train=train, download=download,
                            from_folder=input_dir, transform=transform)
 
     cfg['loader']['drop_last'] = False
