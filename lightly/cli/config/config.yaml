@@ -72,7 +72,7 @@ loader:
 trainer:
   gpus: 1                     # Number of gpus to use for training.
   max_epochs: 100             # Number of epochs to train for.
-  precision: 32               # If set to 16, will use half-precision.
+  precision: 32               # If set to 16, will use half-precision.
 
 # seed
 seed: 1
