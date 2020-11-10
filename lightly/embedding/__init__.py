@@ -1,6 +1,6 @@
 """The lightly.embedding module provides trainable embedding strategies.
 
-The embedding models use a pre-trained ResNet but should be finetuned on each 
+The embedding models use a pre-trained ResNet but should be finetuned on each
 dataset instance.
 
 """
