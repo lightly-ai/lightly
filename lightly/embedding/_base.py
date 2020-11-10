@@ -12,17 +12,6 @@ import torch.nn as nn
 from lightly.embedding._callback import CustomModelCheckpoint
 
 
-def _efficiency(start_time: float,
-                prepare_time: float,
-                process_time: float) -> float:
-    """
-
-    """
-    if start_time > 0:
-        return (process_time - prepare_time) / (prepare_time - start_time)
-    return 0.
-
-
 class BaseEmbedding(lightning.LightningModule):
     """All trainable embeddings must inherit from BaseEmbedding.
 
