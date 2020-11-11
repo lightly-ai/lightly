@@ -42,6 +42,13 @@ Documentation
    lightly
 
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Docker Container
+
+   docker/general_information.rst
+
+
 Indices and tables
 ==================
 
