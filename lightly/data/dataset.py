@@ -1,4 +1,4 @@
-""" Lightly     Dataset """
+""" Lightly Dataset """
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
@@ -11,6 +11,12 @@ import torchvision.datasets as datasets
 
 from lightly.data._helpers import _load_dataset
 from lightly.data._helpers import DatasetFolder
+
+try:
+    from lightly.data._video import VideoDataset
+    VIDEO_DATASET_AVAILABLE = True
+except Exception:
+    VIDEO_DATASET_AVAILABLE = False
 
 
 class LightlyDataset(data.Dataset):
@@ -91,6 +97,8 @@ class LightlyDataset(data.Dataset):
         elif isinstance(self.dataset, DatasetFolder):
             full_path = self.dataset.samples[index][0]
             return os.path.relpath(full_path, self.root_folder)
+        elif VIDEO_DATASET_AVAILABLE and isinstance(self.dataset, VideoDataset):
+            return self.dataset._get_filename(index)
         else:
             return str(index)
 
