@@ -74,11 +74,59 @@ How to pass your own labels
 TODO
 
 
-Report
+Reporting
 -----------------------------------
 
-Explain output folder structure
-TODO
+In order to facilitate sustainability and reproducability in ML the docker container
+has an integrated reporting component. For every dataset you run through the container
+an output directory gets created with the exact configuration used for the experiment. 
+Additionally, plots, statistics and more information collected either during training of the
+self-supervised model, embedding or sampling of the dataset are provided. 
+
+To make it easier for you to understand and discuss the dataset we put the essential information into
+an automatically generated PDF report.
+Sample reports can be found on the `Lightly website <https://lightly.ai/analytics>`_.
+
+Docker Output
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Below you find a typical output folder structure.
+
+There is a **config** folder with the arguments passed to the container. The *overrides.yaml* file lists all 
+default parameters which have been overwritten.
+
+The **data** folder contains the embeddings in the lightly csv compatible format.
+
+
+.. code-block:: console
+
+    |-- config
+    |   |-- config.yaml
+    |   |-- hydra.yaml
+    |   `-- overrides.yaml
+    |-- data
+    |   |-- embeddings.csv
+    |   `-- unique_embeddings.csv
+    |-- filenames
+    |   |-- corrupt_filenames.txt
+    |   |-- duplicate_filenames.txt
+    |   |-- removed_filenames.txt
+    |   `-- sampled_filenames.txt
+    |-- plots
+    |   |-- distance_distr_after.png
+    |   |-- distance_distr_before.png
+    |   |-- filter_decision_0.png
+    |   |-- filter_decision_166668.png
+    |   |-- filter_decision_250002.png
+    |   |-- filter_decision_333336.png
+    |   |-- filter_decision_416670.png
+    |   |-- filter_decision_83334.png
+    |   |-- scatter_pca.png
+    |   |-- scatter_pca_no_overlay.png
+    |   |-- scatter_umap.png
+    |   `-- scatter_umap_no_overlay.png
+    `-- report.pdf
+
 
 Explain report content
 TODO
