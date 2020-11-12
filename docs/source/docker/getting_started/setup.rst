@@ -72,7 +72,7 @@ Create a new docker tag using the following command:
 
 .. code-block:: console
 
-    docker run --rm -it lightly/sampling:latest sanity-check=True
+    docker run --rm -it lightly/sampling:latest sanity_check=True
 
 You should see an output similar to this one:
 

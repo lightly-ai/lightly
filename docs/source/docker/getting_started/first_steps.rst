@@ -50,7 +50,6 @@ To embed your images with a pre-trained model, you can run the docker solution w
 
     docker run --gpus all --rm -it \
         -v ${INPUT_DIR}:/home/input_dir:ro \
-        -v ${SHARED_DIR}:/home/shared_dir:ro \
         -v ${OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=myawesometoken \
@@ -76,7 +75,6 @@ before embedding and sampling them.
 
     docker run --gpus all --rm -it \
         -v ${INPUT_DIR}:/home/input_dir:ro \
-        -v ${SHARED_DIR}:/home/shared_dir:ro \
         -v ${OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=myawesometoken \
@@ -110,7 +108,6 @@ can access all the settings from the lightly command-line tool.
 
     docker run --gpus all --rm -it \
         -v ${INPUT_DIR}:/home/input_dir:ro \
-        -v ${SHARED_DIR}:/home/shared_dir:ro \
         -v ${OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=myawesometoken \
@@ -121,7 +118,7 @@ can access all the settings from the lightly command-line tool.
         lightly.trainer.max_epochs=10 \
         lightly.collate.input_size=64 \
         lightly.loader.batch_size=256 \
-        lightly.model.name=resnet-101 \
+        lightly.model.name=resnet-101
 
 A list of all input parameters can be found in the CLI section of the lightly documentation.
 
@@ -254,7 +251,6 @@ With the argument stopping_condition.n_samples=X you can set the number of sampl
 
     docker run --gpus all --rm -it \
         -v ${INPUT_DIR}:/home/input_dir:ro \
-        -v ${SHARED_DIR}:/home/shared_dir:ro \
         -v ${OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=myawesometoken \
@@ -268,7 +264,6 @@ With the argument n_example_images you can determine how many pairs are shown. N
 
     docker run --gpus all --rm -it \
         -v ${INPUT_DIR}:/home/input_dir:ro \
-        -v ${SHARED_DIR}:/home/shared_dir:ro \
         -v ${OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=myawesometoken \

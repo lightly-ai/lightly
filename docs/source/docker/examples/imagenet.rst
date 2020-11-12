@@ -10,10 +10,9 @@ command.
     docker run --gpus all --rm -it \
         -v /datasets/imagenet/train/:/home/input_dir:ro \
         -v /datasets/docker_imagenet_500k:/home/output_dir \
-        -v /datasets/docker_shared_dir:/home/shared_dir \
         --ipc="host" \
         lightly/sampling:latest \
-        token=MYAWESOMETOKEN \
+        token=myawesometoken \
         lightly.collate.input_size=64 \
         lightly.loader.batch_size=256 \
         lightly.loader.num_workers=8 \

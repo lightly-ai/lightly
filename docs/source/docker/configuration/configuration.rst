@@ -9,17 +9,16 @@ The example below shows how the `token` parameter can be set when running the do
 
     docker run --rm -it \
         -v ${INPUT_DIR}:/home/input_dir:ro \
-        -v ${SHARED_DIR}:/home/output_dir:ro \
         -v ${OUTPUT_DIR}:/home/shared_dir \
         --ipc="host" --network="host" \
         lightly/sampling:latest \
-        token=MYAWESOMETOKEN
+        token=myawesometoken
 
 
 List of Parameters
 -----------------------------------
 
-The following are parameter which can be passed to the container:
+The following are parameters which can be passed to the container:
 
 .. code-block:: yaml
 
@@ -64,10 +63,9 @@ For example,
 
     docker run --rm -it \
         -v ${INPUT_DIR}:/home/input_dir:ro \
-        -v ${SHARED_DIR}:/home/output_dir:ro \
         -v ${OUTPUT_DIR}:/home/shared_dir \
         lightly/sampling:latest \
-        token=MYAWESOMETOKEN \
+        token=myawesometoken \
         lightly.loader.batch_size=512
 
 sets the batch size during training and embedding to 512.
@@ -92,9 +90,8 @@ You can use them by adding the following two parts to your docker run command:
 
     docker run --rm -it \
         -v ${INPUT_DIR}:/home/input_dir:ro \
-        -v ${SHARED_DIR}:/home/output_dir:ro \
         -v ${OUTPUT_DIR}:/home/shared_dir \
         --ipc=host \
         lightly/sampling:latest \
-        token=MYAWESOMETOKEN \
+        token=myawesometoken \
         lightly.loader.num_workers=8
