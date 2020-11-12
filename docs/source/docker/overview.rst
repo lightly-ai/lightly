@@ -52,8 +52,8 @@ We worked hard to make this happen and are very proud to present you the followi
 .. toctree::
    :maxdepth: 1
 
-   getting_started/first_steps.rst
    getting_started/setup.rst
+   getting_started/first_steps.rst
    configuration/configuration.rst
 
 Examples 
@@ -63,3 +63,12 @@ Examples
    :maxdepth: 1
 
    examples/imagenet.rst
+
+
+Changelog
+-------------
+
+**13.11.2020**
+ * Supports training, embedding, sampling
+ * Filter corrupt images
+ * Remove exact duplicates
