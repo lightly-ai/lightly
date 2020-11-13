@@ -4,8 +4,8 @@ Docker
 We all know that sometimes when working with ML data we deal with really BIG datasets. The cloud solution is great for exploration, prototyping
 and an easy way to work with lightly. But there is more!
 
-With the introduction of our on-premise solution you can process larger datasets completely on your end without data leaving your infrastructure.
-We worked hard to make this happen and are very proud to present you the following specs:
+With the introduction of our on-premise solution, you can process larger datasets completely on your end without data leaving your infrastructure.
+We worked hard to make this happen and are very proud to present you with the following specs:
 
 * Sample more than 1 Million samples within a few hours!
 
@@ -16,7 +16,7 @@ We worked hard to make this happen and are very proud to present you the followi
   * Use stopping conditions for sampling such as minimum distance between
     two samples
 
-  * Use various sampling methos
+  * Use various sampling methods
 
   * Check for corrupt files and report them
 
@@ -26,9 +26,9 @@ We worked hard to make this happen and are very proud to present you the followi
 
 * Automated reporting of the datasets for each run
 
-  * PDF report with histograms, plots, statistics and much more ...
+  * PDF report with histograms, plots, statistics, and much more ...
 
-* Hand-optimized code (to instruction level)
+* Hand-optimized code (to instruction-level)
 
   * Multithreaded
 
@@ -56,13 +56,11 @@ We worked hard to make this happen and are very proud to present you the followi
    getting_started/first_steps.rst
    configuration/configuration.rst
 
-Examples 
------------------------------------
 
 .. toctree::
    :maxdepth: 1
 
-   examples/imagenet.rst
+   examples/popular_datasets.rst
 
 
 Changelog
