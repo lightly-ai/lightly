@@ -4,7 +4,7 @@ Getting Started
 Supported Python versions
 -------------------------
 
-Lightly requires Python 3.5+. We recommend installing Lighlty in a Linux or OSX environment.
+Lightly requires Python 3.6+. We recommend installing Lighlty in a Linux or OSX environment.
 
 .. _rst-installing:
 

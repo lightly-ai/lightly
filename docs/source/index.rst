@@ -42,6 +42,14 @@ Documentation
    lightly
 
 
+.. toctree::
+   :maxdepth: 1
+   :caption: On-Premise
+
+   docker/overview.rst
+
+
+
 Indices and tables
 ==================
 
