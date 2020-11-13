@@ -28,7 +28,7 @@ The following are parameters which can be passed to the container:
     # set to true to check whether installation was successful
     sanity_check: False 
 
-    # set to false to disable check for corrupted images
+    # check for corrupted images
     enable_corruptness_check: True
 
     # remove exact duplicates
@@ -40,21 +40,21 @@ The following are parameters which can be passed to the container:
     # pass embeddings
     embeddings: ''
 
-    # train?
+    # enable training, only possible when no embeddings are passed
     enable_training: False
 
-    # normalize
+    # normalize the embeddings to unit length
     normalize_embeddings: True
 
     # sampling
-    method: 'coreset'
+    method: 'coreset'               # choose from ['coreset', 'random']
     stopping_condition:
-        n_samples: -1       # -1 means inactive
-        min_distance: -1.   # -1. means inactive
+        n_samples: -1               # float in [0., 1.] for percentage, int for number of samples, -1 means inactive
+        min_distance: -1.           # float, minimum distance between two images in the sampled dataset, -1. means inactive
 
     # report
-    n_example_images: 6
-    memory_requirement_in_GB: 2
+    n_example_images: 6             # the number of retained/removed image pairs to show in the report
+    memory_requirement_in_GB: 2     # maximum size of the distance matrix required for statistics in GB
 
 Additionally, you can pass all arguments which can be passed to the lightly CLI tool with the `lightly` prefix.
 For example,
