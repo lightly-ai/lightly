@@ -72,7 +72,7 @@ loader:
 trainer:
   gpus: 1                     # Number of gpus to use for training.
   max_epochs: 100             # Number of epochs to train for.
-  precision: 32               # If set to 16, will use half-precision.
+  precision: 32               # If set to 16, will use half-precision.
 
 # seed
 seed: 1
@@ -116,9 +116,12 @@ hydra:
 
       Upload full images to the Lightly web solution
       > lightly-upload input_dir='path/to/image/folder' dataset_id='your_dataset_id' token='your_access_token' upload='full'
+    
+      Upload images and embeddings to the Lightly web solution
+      > lightly-upload input_dir='path/to/image/folder' embeddings='path/to/embeddings.csv' dataset_id='your_dataset_id' token='your_access_token'
 
-      Upload embeddings to the Lightly cloud solution
-      > lightly-upload input_dir='path/to/embeddings.csv' dataset_id='your_dataset_id' token='your_access_token'
+      Upload embeddings to the Lightly web solution
+      > lightly-upload embeddings='path/to/embeddings.csv' dataset_id='your_dataset_id' token='your_access_token'
 
       Download a list of files in a given tag from the Lightly web solution
       > lightly-download tag_name='my-tag' dataset_id='your_dataset_id' token='your_access_token'

@@ -1,3 +1,5 @@
+.. _input-structure-label
+
 Structure Your Input
 ====================
 
