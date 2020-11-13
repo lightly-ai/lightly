@@ -8,8 +8,8 @@ Analytics
 The docker container currently reports usage metrics to our analytics software 
 (we use mixpanel) which uses https encrypted GET and POST requests to https://api.mixpanel.com. 
 The transmitted data includes information about crashes and the number of samples 
-which have been filtered. However, **the data does not include input / output samples**, 
-filenames or any other information which can be sensitive to our customers.
+that have been filtered. However, **the data does not include input / output samples**, 
+filenames, or any other information which can be sensitive to our customers.
 
 
 
@@ -31,7 +31,7 @@ to download the docker container.
 
 In short, installing the Docker container consists of the following steps:
 
-#. Copy the container-credentials.json to the instance you want use for filtering 
+#. Copy the container-credentials.json to the instance you want to use for filtering 
 #. Authenticate Docker to download the Lightly image
 #. Pull the Docker image
 #. Check whether the container works
@@ -39,7 +39,7 @@ In short, installing the Docker container consists of the following steps:
 **First**, we need to access the private container registry of Lightly. 
 You received a *container-credentials.json* file from your account manager.
 
-**Second**, to be able to download the docker image you need to login with these credentials. 
+**Second**, to be able to download the docker image you need to log in with these credentials. 
 The following command will authenticate your installed docker account. 
 We assume *container-credentials.json* is in your current directory.
 
