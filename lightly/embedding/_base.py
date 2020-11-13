@@ -40,7 +40,7 @@ class BaseEmbedding(lightning.LightningModule):
         self.dataloader = dataloader
         self.scheduler = scheduler
         self.checkpoint = None
-        # create custom model checkpoint and set attributes
+        # create custom model checkpoint and set attributes
         self.checkpoint_callback = CustomModelCheckpoint()
         self.checkpoint_callback.save_last = True
         self.checkpoint_callback.save_top_k = 1
@@ -51,10 +51,12 @@ class BaseEmbedding(lightning.LightningModule):
         return self.model(x)
 
     def training_step(self, batch, batch_idx):
+
         x, y, _ = batch
         y_hat = self(x)
         loss = self.criterion(y_hat, y)
         self.log('loss', loss)
+
         return loss
 
     def configure_optimizers(self):

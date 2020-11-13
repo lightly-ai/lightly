@@ -17,9 +17,9 @@ if is_prefetch_generator_available():
 class SelfSupervisedEmbedding(BaseEmbedding):
     """Implementation of self-supervised embedding models.
 
-    Implements an embedding strategy based on self-supervised learning. A 
-    model backbone, self-supervised criterion, optimizer, and dataloader are 
-    passed to the constructor. The embedding itself is a pytorch-lightning 
+    Implements an embedding strategy based on self-supervised learning. A
+    model backbone, self-supervised criterion, optimizer, and dataloader are
+    passed to the constructor. The embedding itself is a pytorch-lightning
     module which can be trained very easily:
 
     https://pytorch-lightning.readthedocs.io/en/stable/
@@ -43,7 +43,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
             A torchvision dataloader.
         scheduler:
             A PyTorch learning rate scheduler.
-    
+
     Examples:
         >>> # define a model, criterion, optimizer, and dataloader above
         >>> import lightly.embedding as embedding
@@ -57,7 +57,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         >>> encoder.train_embedding()
         >>> # pass pytorch-lightning trainer arguments as kwargs
         >>> encoder.train_embedding(max_epochs=10)
-    
+
     """
 
     def __init__(self,
@@ -65,7 +65,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                  criterion: torch.nn.Module,
                  optimizer: torch.optim.Optimizer,
                  dataloader: torch.utils.data.DataLoader,
-                 scheduler = None):
+                 scheduler=None):
 
         super(SelfSupervisedEmbedding, self).__init__(
             model, criterion, optimizer, dataloader, scheduler)
@@ -83,7 +83,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 Selected device (see PyTorch documentation)
             to_numpy:
                 Whether to return the embeddings as numpy array.
-        
+
         Returns:
             A tensor or ndarray of embeddings with shape n_images x num_ftrs
 
@@ -102,9 +102,12 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         else:
             pbar = tqdm(dataloader, total=len(dataloader))
 
-        start_time = time.time()
+        efficiency = 0.
+        embeddings = []
+        labels = []
         with torch.no_grad():
 
+            start_time = time.time()
             for (img, label, fname) in pbar:
 
                 img = img.to(device)
@@ -118,21 +121,19 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 emb = self.model.features(img)
                 emb = emb.detach().reshape(batch_size, -1)
 
-                if embeddings is None:
-                    embeddings = emb
-                else:
-                    embeddings = torch.cat((embeddings, emb), 0)
-
-                if labels is None:
-                    labels = label
-                else:
-                    labels = torch.cat((labels, label), 0)
+                embeddings.append(emb)
+                labels.append(label)
 
                 process_time = time.time()
 
-                pbar.set_description("Compute efficiency: {:.2f}".format(
-                    process_time / (process_time + prepare_time)))
+                efficiency = \
+                    (process_time - prepare_time) / (process_time - start_time)
+                pbar.set_description(
+                    "Compute efficiency: {:.2f}".format(efficiency))
+                start_time = time.time()
 
+            embeddings = torch.cat(embeddings, 0)
+            labels = torch.cat(labels, 0)
             if to_numpy:
                 embeddings = embeddings.cpu().numpy()
                 labels = labels.cpu().numpy()
