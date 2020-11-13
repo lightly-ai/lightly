@@ -67,7 +67,7 @@ def get_authorization(token: str,
         'task_description': task_description,
     }
 
-    response = requests.get(dst_url, params=payload, json=json)
+    response = requests.post(dst_url, params=payload, json=json)
     status = response.status_code
     return json, response.json(), status
 
