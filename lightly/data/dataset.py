@@ -4,7 +4,9 @@
 # All Rights Reserved
 
 import os
-from typing import List
+import shutil
+from PIL import Image
+from typing import List, Union
 
 import torch.utils.data as data
 import torchvision.datasets as datasets
@@ -78,6 +80,59 @@ class LightlyDataset(data.Dataset):
         if from_folder:
             self.root_folder = from_folder
 
+    def dump_image(self, output_dir: str, filename: str, format: Union[str, None] = None):
+        """
+
+        """
+        index = self.get_filenames().index(filename)
+        image, _ = self.dataset[index]
+
+        source = os.path.join(self.root_folder, filename)
+        target = os.path.join(output_dir, filename)
+
+        dirname = os.path.dirname(target)
+        os.makedirs(dirname, exist_ok=True)
+
+        if os.path.isfile(source):
+            # copy the file from the source to the target
+            shutil.copyfile(source, target)
+        else:
+            # the source is not a file (e.g. when loading a video frame)
+            try:
+                # try to save the image with the specified format or
+                # derive the format from the filename (if format=None)
+                image.save(target, format=format)
+            except ValueError:
+                # could not determine format from filename
+                image.save(os.path.join(output_dir, filename), format='png')
+
+    def dump(self, output_dir: str, filenames: Union[List[str], None] = None, format: Union[str, None] = None):
+        """Saves all specified images to the output directory.
+
+        Args:
+            output_dir:
+                TODO
+            filenames:
+                TODO
+            format:
+                TODO
+
+        """
+        # make sure no transforms are applied to the images
+        if self.dataset.transform is not None:
+            pass
+
+        # create directory if it doesn't exist yet
+        os.makedirs(output_dir, exist_ok=True)
+
+        # get all filenames
+        if filenames is None:
+            filenames = self.get_filenames()
+
+        # dump images
+        for filename in filenames:
+            self.dump_image(output_dir, filename, format=format)
+
     def get_filenames(self) -> List[str]:
         """Returns all filenames in the dataset.
 
@@ -98,7 +153,7 @@ class LightlyDataset(data.Dataset):
             full_path = self.dataset.samples[index][0]
             return os.path.relpath(full_path, self.root_folder)
         elif VIDEO_DATASET_AVAILABLE and isinstance(self.dataset, VideoDataset):
-            return self.dataset._get_filename(index)
+            return self.dataset.get_filename(index)
         else:
             return str(index)
 
