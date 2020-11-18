@@ -4,6 +4,7 @@
 # 
 
 import os
+import av
 from PIL import Image
 from torchvision import datasets
 
@@ -94,11 +95,9 @@ class VideoDataset(datasets.VisionDataset):
                              f' of size {self.__len__()}.')
 
         # find video of the frame
-        i = 0
-        while i < len(self.offsets) - 1:
-            if self.offsets[i] >= index:
-                break
-            i = i + 1
+        i = len(self.offsets) - 1
+        while (self.offsets[i] > index):
+            i = i - 1
 
         # find and return the frame as PIL image
         target = i
@@ -117,7 +116,7 @@ class VideoDataset(datasets.VisionDataset):
         """
         return sum((len(ts) for ts in self.video_timestamps))
 
-    def _get_filename(self, index):
+    def get_filename(self, index):
         """
 
         """
@@ -126,12 +125,15 @@ class VideoDataset(datasets.VisionDataset):
                              f' of size {self.__len__()}.')
     
         # find video of the frame
-        i = 0
-        while i < len(self.offsets) - 1:
-            if self.offsets[i] >= index:
-                break
-            i = i + 1
+        i = len(self.offsets) - 1
+        while (self.offsets[i] > index):
+            i = i - 1
         
-        filename = '.'.join(self.videos[i].split('.')[:-1])
+        filename = self.videos[i]
+        filename = os.path.relpath(filename, self.root)
+
+        splits = filename.split('.')
+        video_format = splits[-1]
+        video_name = '.'.join(splits[:-1])
         timestamp = float(self.video_timestamps[i][index - self.offsets[i]])
-        return '%s-%.8fs.png' % (filename, timestamp)
+        return '%s-%.8fs-%s.png' % (video_name, timestamp, video_format)
