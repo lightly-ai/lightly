@@ -32,15 +32,16 @@ def get_quota(token: str):
             A token to identify the user.
 
     Returns:
-        A dictionary with the quota for the user.
+        The quota for the user and the status code of the response.
     """
-    dst_url = _prefix()
+    dst_url = _prefix() + '/quota'
     payload = {
         'token': token
     }
 
-    try:
-        response = requests.get(dst_url, params=payload)
-        return response.json()
-    except Exception:
-        return {'maxDatasetSize': LIGHTLY_MAXIMUM_DATASET_SIZE}
+    response = requests.get(dst_url, params=payload)
+    status_code = response.status_code
+    if status_code == 200:
+        return response.json()['maxDatasetSize'], status_code
+    else:
+        return LIGHTLY_MAXIMUM_DATASET_SIZE, status_code
