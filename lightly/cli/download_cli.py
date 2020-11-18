@@ -53,6 +53,18 @@ def _download_cli(cfg, is_cli_call=True):
     print(msg)
 
     if cfg['input_dir'] and cfg['output_dir']:
+
+        input_dir = fix_input_path(cfg['input_dir'])
+        output_dir = fix_input_path(cfg['output_dir'])
+        print(f'Copying files from {input_dir} to {output_dir}.')
+
+        #
+        dataset = data.LightlyDataset(from_folder=input_dir)
+
+        # 
+        dataset.dump(output_dir, samples)
+
+        """
         # "name.jpg" -> "/name.jpg" to prevent bugs like this:
         # "path/to/1234.jpg" ends with both "234.jpg" and "1234.jpg"
         samples = [os.path.join(' ', s)[1:] for s in samples]
@@ -71,11 +83,12 @@ def _download_cli(cfg, is_cli_call=True):
         indices = [i for i in range(len(source_names))
                    if any([source_names[i].endswith(s) for s in samples])]
 
-        print(f'Copying files from {input_dir} to {output_dir}.')
+        
         for i in tqdm(indices):
             dirname = os.path.dirname(target_names[i])
             os.makedirs(dirname, exist_ok=True)
             shutil.copy(source_names[i], target_names[i])
+        """
 
 
 @hydra.main(config_path='config', config_name='config')
