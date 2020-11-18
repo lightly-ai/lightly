@@ -65,7 +65,14 @@ if __name__ == '__main__':
 
     python_requires = '>=3.6'
     install_requires = load_requirements()
+    video_requires = load_requirements(filename='video.txt')
     dev_requires = load_requirements(filename='dev.txt')
+    all_requires = dev_requires + video_requires
+    extras_require = {
+        'video': video_requires,
+        'dev': dev_requires,
+        'all': all_requires,
+    }
 
     packages = [
         'lightly',
@@ -126,7 +133,7 @@ if __name__ == '__main__':
         long_description=long_description,
         long_description_content_type='text/markdown',
         install_requires=install_requires,
-        extras_require={'dev': dev_requires},
+        extras_require=extras_require,
         python_requires=python_requires,
         packages=packages,
         classifiers=classifiers,

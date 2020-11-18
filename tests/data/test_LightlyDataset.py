@@ -3,7 +3,16 @@ import os
 import shutil
 import torchvision
 import tempfile
+import warnings
+import numpy as np
 from lightly.data import LightlyDataset
+
+try:
+    from lightly.data._video import VideoDataset
+    import cv2
+    VIDEO_DATASET_AVAILABLE = True
+except Exception:
+    VIDEO_DATASET_AVAILABLE = False
 
 
 class TestLightlyDataset(unittest.TestCase):
@@ -46,6 +55,24 @@ class TestLightlyDataset(unittest.TestCase):
                                           sample_names[sample_idx]))
         return tmp_dir, folder_names, sample_names
 
+    def create_video_dataset(self, n_videos=5, n_frames_per_video=10, w=32, h=32, c=3):
+
+        self.n_videos = n_videos
+        self.n_frames_per_video = n_frames_per_video
+    
+        self.input_dir = tempfile.mkdtemp()
+        self.ensure_dir(self.input_dir)
+        self.frames = (np.random.randn(n_frames_per_video, w, h, c) * 255).astype(np.uint8)
+        self.extensions = ('.avi')
+
+        for i in range(5):
+            path = os.path.join(self.input_dir, f'output-{i}.avi')
+            print(path)
+            out = cv2.VideoWriter(path, 0, 1, (w, h))
+            for frame in self.frames:
+                out.write(frame)
+            out.release()
+
     def test_create_lightly_dataset_from_folder(self):
         n_subfolders = 5
         n_samples_per_subfolder = 10
@@ -68,7 +95,15 @@ class TestLightlyDataset(unittest.TestCase):
         self.assertEqual(len(dataset), n_tot_files)
         self.assertListEqual(sorted(fnames), sorted(filenames))
 
+        out_dir = tempfile.mkdtemp()
+        dataset.dump(out_dir)
+        self.assertEqual(
+            sum(len(os.listdir(os.path.join(out_dir, subdir))) for subdir in os.listdir(out_dir)),
+            len(dataset),
+        )
+
         shutil.rmtree(dataset_dir)
+        shutil.rmtree(out_dir)
 
     def test_create_lightly_dataset_from_folder_nosubdir(self):
 
@@ -103,6 +138,8 @@ class TestLightlyDataset(unittest.TestCase):
         for dataset_name in self.available_dataset_names:
             dataset = LightlyDataset(root=tmp_dir, name=dataset_name)
             self.assertIsNotNone(dataset)
+    
+        shutil.rmtree(tmp_dir)
 
     def test_not_existing_torchvision_dataset(self):
         list_of_non_existing_names = [
@@ -120,3 +157,29 @@ class TestLightlyDataset(unittest.TestCase):
             LightlyDataset(
                 from_folder='/a-random-hopefully-non/existing-path-to-nowhere/'
             )
+
+    def test_video_dataset(self):
+
+        if not VIDEO_DATASET_AVAILABLE:
+            tmp_dir = tempfile.mkdtemp()
+            self.ensure_dir(tmp_dir)
+            # simulate a video
+            path = os.path.join(tmp_dir, 'my_file.png')
+            dataset = torchvision.datasets.FakeData(size=1, image_size=(3, 32, 32))
+            image, _ = dataset[0]
+            image.save(path)
+            os.rename(path, os.path.join(tmp_dir, 'my_file.avi'))
+            with self.assertRaises(ValueError):
+                dataset = LightlyDataset(from_folder=tmp_dir)
+
+            warnings.warn(
+                'Did not test video dataset because of missing requirements')        
+            shutil.rmtree(tmp_dir)
+            return
+        
+        self.create_video_dataset()
+        dataset = LightlyDataset(from_folder=self.input_dir)
+
+        out_dir = tempfile.mkdtemp()
+        dataset.dump(out_dir)
+        self.assertEqual(len(os.listdir(out_dir)), len(dataset))
