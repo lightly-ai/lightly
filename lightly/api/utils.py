@@ -197,7 +197,11 @@ def resize_image(image, max_width: int, max_height: int):
 
 
 def check_filename(basename):
-    """
+    """Checks the length of the filename.
+
+    Args:
+        basename:
+            Basename of the file.
 
     """
     return len(basename) <= MAXIMUM_FILENAME_LENGTH
@@ -210,7 +214,8 @@ def check_image(image):
     it is corrupt or not.
 
     Args:
-        filename: (str) Path to the file.
+        image:
+            PIL image from which metadata will be computed.
 
     Returns:
         A dictionary of metadata of the image.

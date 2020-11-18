@@ -15,17 +15,20 @@ except Exception:
     VIDEO_DATASET_AVAILABLE = False
 
 
-from lightly.data._image_loaders import default_loader
-
 IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp',
                   '.pgm', '.tif', '.tiff', '.webp')
 
 VIDEO_EXTENSIONS = ('.mp4', '.mov', '.avi')
 
 
-def _contains_videos(root, extensions):
-    """
+def _contains_videos(root: str, extensions: tuple):
+    """Checks whether directory contains video files.
 
+    Args:
+        root: Root directory path.
+
+    Returns:
+        True if root contains subdirectories else false.
     """
     list_dir = os.listdir(root)
     is_video = \
@@ -33,14 +36,14 @@ def _contains_videos(root, extensions):
     return any(is_video)
 
 
-def _contains_subdirs(root):
-    """Check whether directory contains subdirectories
+def _contains_subdirs(root: str):
+    """Checks whether directory contains subdirectories.
 
     Args:
-        root: (str) Root directory path
+        root: Root directory path.
 
     Returns:
-        True if root contains subdirectories else false
+        True if root contains subdirectories else false.
 
     """
     list_dir = os.listdir(root)
@@ -49,45 +52,52 @@ def _contains_subdirs(root):
     return any(is_dir)
 
 
-def _load_dataset_from_folder(root, transform):
-    """Initialize dataset from folder
+def _load_dataset_from_folder(root: str, transform):
+    """Initializes dataset from folder.
 
     Args:
         root: (str) Root directory path
         transform: (torchvision.transforms.Compose) image transformations
 
     Returns:
-        Dataset consisting of images in the root directory
+        Dataset consisting of images in the root directory.
+
     """
 
+    # if there is a video in the input directory but we do not have
+    # the right dependencies, raise a ValueError
     contains_videos = _contains_videos(root, VIDEO_EXTENSIONS)
     if contains_videos and not VIDEO_DATASET_AVAILABLE:
         raise ValueError(f'The input directory {root} contains videos '
-                         'but the VideoDataset is not available.')
+                         'but the VideoDataset is not available. \n'
+                         'Make sure you have installed the right '
+                         'dependencies.')
 
     if contains_videos:
+        # root contains videos -> create a video dataset
         dataset = VideoDataset(root,
                                extensions=VIDEO_EXTENSIONS,
                                transform=transform)
     elif _contains_subdirs(root):
+        # root contains subdirectories -> create an image folder dataset
         dataset = datasets.ImageFolder(root,
                                        transform=transform)
     else:
+        # root contains plain images -> create a folder dataset
         dataset = DatasetFolder(root,
-                                default_loader,
                                 extensions=IMG_EXTENSIONS,
                                 transform=transform)
 
     return dataset
 
 
-def _load_dataset(root='',
-                  name='cifar10',
-                  train=True,
-                  download=True,
+def _load_dataset(root: str = '',
+                  name: str = 'cifar10',
+                  train: bool = True,
+                  download: bool = True,
                   transform=None,
-                  from_folder=''):
-    """ Initialize dataset from torchvision or from folder
+                  from_folder: str = ''):
+    """Initializes dataset from torchvision or from folder.
 
     Args:
         root: (str) Directory where dataset is stored

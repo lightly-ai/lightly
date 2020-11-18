@@ -63,14 +63,6 @@ class LightlyDataset(data.Dataset):
                  download: bool = True,
                  from_folder: str = '',
                  transform=None):
-        """ Constructor
-
-
-
-        Raises:
-            ValueError: If the specified dataset doesn't exist
-
-        """
 
         super(LightlyDataset, self).__init__()
         self.dataset = _load_dataset(
@@ -80,8 +72,23 @@ class LightlyDataset(data.Dataset):
         if from_folder:
             self.root_folder = from_folder
 
-    def dump_image(self, output_dir: str, filename: str, format: Union[str, None] = None):
-        """
+    def dump_image(self,
+                   output_dir: str,
+                   filename: str,
+                   format: Union[str, None] = None):
+        """Saves a single image to the output directory.
+
+        Will copy the image from the input directory to the output directory
+        if possible. If not (e.g. for VideoDatasets), will load the image and
+        then save it to the output directory with the specified format.
+
+        Args:
+            output_dir:
+                Output directory where the image is stored.
+            filename:
+                Filename of the image to store.
+            format:
+                Image format.
 
         """
         index = self.get_filenames().index(filename)
@@ -106,16 +113,23 @@ class LightlyDataset(data.Dataset):
                 # could not determine format from filename
                 image.save(os.path.join(output_dir, filename), format='png')
 
-    def dump(self, output_dir: str, filenames: Union[List[str], None] = None, format: Union[str, None] = None):
-        """Saves all specified images to the output directory.
+    def dump(self,
+             output_dir: str,
+             filenames: Union[List[str], None] = None,
+             format: Union[str, None] = None):
+        """Saves images to the output directory.
+
+        Will copy the images from the input directory to the output directory
+        if possible. If not (e.g. for VideoDatasets), will load the images and
+        then save them to the output directory with the specified format.
 
         Args:
             output_dir:
-                TODO
+                Output directory where the image is stored.
             filenames:
-                TODO
+                Filenames of the images to store. If None, stores all images.
             format:
-                TODO
+                Image format.
 
         """
         # make sure no transforms are applied to the images
