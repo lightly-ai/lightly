@@ -232,14 +232,14 @@ def _upload_single_image(image,
 def upload_dataset(dataset: LightlyDataset,
                    dataset_id: str,
                    token: str,
-                   max_workers: int = 8  ,
+                   max_workers: int = 8,
                    mode: str = 'thumbnails',
                    verbose: bool = True):
     """Uploads images from a directory to the Lightly cloud solution.
 
     Args:
         dataset
-            The dataset to upload
+            The dataset to upload.
         dataset_id:
             The unique identifier for the dataset.
         token:
@@ -284,35 +284,6 @@ def upload_dataset(dataset: LightlyDataset,
     # handle the case where len(dataset) < max_workers
     max_workers = min(len(dataset), max_workers)
 
-    # define lambda function for parallel upload
-    """
-    def lambda_(index):
-        # wait for a random amount of time to prevent server overload
-        time.sleep(index * 0.1)
-        # find batch start and end
-        start = index * batch_size
-        stop = min((index + 1) * batch_size, len(dataset))
-        # progress bar
-        pbar = tqdm.tqdm(unit='imgs', total=stop - start)
-        # upload all images in the batch
-        success_list = []
-        for i in range(start, stop):
-            time.sleep(random.random() * 0.01)
-            image, label, filename = dataset[i]
-            success = _upload_single_image(
-                image=image,
-                label=label,
-                filename=filename,
-                dataset_id=dataset_id,
-                token=token,
-                mode=mode,
-            )
-            success_list.append(success)
-            pbar.update(1)
-            pbar.refresh()
-
-        return all(success_list)
-    """
     # upload the samples
     if verbose:
         print(f'Uploading images (with {max_workers} workers).', flush=True)
@@ -320,6 +291,7 @@ def upload_dataset(dataset: LightlyDataset,
     pbar = tqdm.tqdm(unit='imgs', total=len(dataset))
     tqdm_lock = tqdm.tqdm.get_lock()
 
+    # define lambda function for concurrent upload
     def lambda_(i):
         # load image
         image, label, filename = dataset[i]
@@ -364,7 +336,7 @@ def upload_dataset(dataset: LightlyDataset,
 def upload_images_from_folder(path_to_folder: str,
                               dataset_id: str,
                               token: str,
-                              max_workers: int = 8  ,
+                              max_workers: int = 8,
                               mode: str = 'thumbnails',
                               verbose: bool = True):
     """Uploads images from a directory to the Lightly cloud solution.

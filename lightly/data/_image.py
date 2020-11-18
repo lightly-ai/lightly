@@ -1,23 +1,27 @@
-""" """
+""" Image Dataset """
 
-#
-#
+# Copyright (c) 2020. Lightly AG and its affiliates.
+# All Rights Reserved
 
 import os
 import torchvision.datasets as datasets
 
+from lightly.data._image_loaders import default_loader
+
 
 def _make_dataset(directory, extensions=None, is_valid_file=None):
-    """Return a list of all image files with targets in the directory
+    """Returns a list of all image files with targets in the directory.
 
     Args:
-        directory: (str) Root directory path
-            (should not contain subdirectories!)
-        extensions: (List[str]) List of allowed extensions
-        is_valid_file: (callable) Used to check corrupt files
+        directory:
+            Root directory path (should not contain subdirectories!).
+        extensions:
+            Tuple of valid extensions.
+        is_valid_file:
+            Used to find valid files.
 
     Returns:
-        List of instance tuples: (path_i, target_i = 0)
+        List of instance tuples: (path_i, target_i = 0).
 
     """
 
@@ -39,27 +43,40 @@ def _make_dataset(directory, extensions=None, is_valid_file=None):
 
 
 class DatasetFolder(datasets.VisionDataset):
+    """Implements a dataset folder.
+    
+    DatasetFolder based on torchvisions implementation.
+    (https://pytorch.org/docs/stable/torchvision/datasets.html#datasetfolder)
 
-    def __init__(self, root, loader, extensions=None, transform=None,
-                 target_transform=None, is_valid_file=None):
-        """Constructor based on torchvisions DatasetFolder
-            (https://pytorch.org/docs/stable/torchvision/datasets.html#datasetfolder)
+    Attributes:
+        root:
+            Root directory path
+        loader:
+            Function that loads file at path
+        extensions:
+            Tuple of allowed extensions
+        transform:
+            Function that takes a PIL image and returns transformed version
+        target_transform:
+            As transform but for targets
+        is_valid_file:
+            Used to check corrupt files
 
-        Args:
-            root: (str) Root directory path
-            loader: (callable) Function that loads file at path
-            extensions: (List[str]) List of allowed extensions
-            transform: Function that takes a PIL image and returns
-                transformed version
-            target_transform: As transform but for targets
-            is_valid_file: (callable) Used to check corrupt files
+    Raises:
+        RuntimeError: If no supported files are found in root.
 
-        Raises:
-            RuntimeError: If no supported files are found in root.
+    """
 
-        """
+    def __init__(self,
+                 root: str,
+                 loader=default_loader,
+                 extensions=None,
+                 transform=None,
+                 target_transform=None,
+                 is_valid_file=None):
 
-        super(DatasetFolder, self).__init__(root, transform=transform,
+        super(DatasetFolder, self).__init__(root,
+                                            transform=transform,
                                             target_transform=target_transform)
 
         samples = _make_dataset(self.root, extensions, is_valid_file)
@@ -76,14 +93,15 @@ class DatasetFolder(datasets.VisionDataset):
         self.samples = samples
         self.targets = [s[1] for s in samples]
 
-    def __getitem__(self, index):
-        """Returns item at index
+    def __getitem__(self, index: int):
+        """Returns item at index.
 
         Args:
-            index: (int) Index
+            index:
+                Index of the sample to retrieve.
 
         Returns:
-            tuple: (sample, target) where target is 0
+            A tuple (sample, target) where target is 0.
 
         """
 
@@ -97,4 +115,7 @@ class DatasetFolder(datasets.VisionDataset):
         return sample, target
 
     def __len__(self):
+        """Returns the number of samples in the dataset.
+
+        """
         return len(self.samples)
