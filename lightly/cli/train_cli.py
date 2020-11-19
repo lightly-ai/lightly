@@ -21,7 +21,6 @@ from lightly.models import ResNetSimCLR
 from lightly.cli._helpers import is_url
 from lightly.cli._helpers import get_ptmodel_from_config
 from lightly.cli._helpers import fix_input_path
-from lightly.cli._helpers import filter_state_dict
 from lightly.cli._helpers import load_state_dict_from_url
 
 
@@ -59,7 +58,7 @@ def _train_cli(cfg, is_cli_call=True):
         msg += 'loader.batch_size=BSZ'
         warnings.warn(msg)
 
-    model = ResNetSimCLR(**cfg['model'])
+    state_dict = None
     checkpoint = cfg['checkpoint']
     if cfg['pre_trained'] and not checkpoint:
         # if checkpoint wasn't specified explicitly and pre_trained is True
@@ -75,9 +74,6 @@ def _train_cli(cfg, is_cli_call=True):
     
     if checkpoint:
         # load the PyTorch state dictionary and map it to the current device
-        # then, remove the model. prefix which is caused by the pytorch-lightning
-        # checkpoint saver and load the model from the "filtered" state dict
-        # this approach is compatible with pytorch_lightning 0.7.1 - 0.8.4 (latest)
         if is_url(checkpoint):
             state_dict = load_state_dict_from_url(
                 checkpoint, map_location=device
@@ -86,9 +82,12 @@ def _train_cli(cfg, is_cli_call=True):
             state_dict = torch.load(
                 checkpoint, map_location=device
             )['state_dict']
-        if state_dict is not None:
-            state_dict = filter_state_dict(state_dict)
-            model.load_state_dict(state_dict)
+
+    # load model
+    if state_dict is not None:
+        model = ResNetSimCLR.from_state_dict(state_dict, **cfg['model'])
+    else:
+        model = ResNetSimCLR(**cfg['model'])
 
     criterion = NTXentLoss(**cfg['criterion'])
     optimizer = torch.optim.SGD(model.parameters(), **cfg['optimizer'])
