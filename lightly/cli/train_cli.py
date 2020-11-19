@@ -16,7 +16,7 @@ from lightly.data import ImageCollateFunction
 from lightly.data import LightlyDataset
 from lightly.embedding import SelfSupervisedEmbedding
 from lightly.loss import NTXentLoss
-from lightly.models import ResNetSimCLR, ResNetMoCo
+from lightly.models import ResNetSimCLR
 
 from lightly.cli._helpers import is_url
 from lightly.cli._helpers import get_ptmodel_from_config

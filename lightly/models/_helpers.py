@@ -1,4 +1,3 @@
-from difflib import ndiff
 
 
 def filter_state_dict(state_dict):
