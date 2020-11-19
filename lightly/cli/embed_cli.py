@@ -21,7 +21,6 @@ from lightly.utils import save_embeddings
 
 from lightly.cli._helpers import get_ptmodel_from_config
 from lightly.cli._helpers import fix_input_path
-from lightly.cli._helpers import filter_state_dict
 from lightly.cli._helpers import load_state_dict_from_url
 
 
@@ -48,8 +47,6 @@ def _embed_cli(cfg, is_cli_call=True):
     else:
         device = torch.device('cpu')
 
-    model = ResNetSimCLR(**cfg['model']).to(device)
-
     transform = torchvision.transforms.Compose([
         torchvision.transforms.Resize((cfg['collate']['input_size'],
                                        cfg['collate']['input_size'])),
@@ -71,10 +68,8 @@ def _embed_cli(cfg, is_cli_call=True):
     )
     dataloader = torch.utils.data.DataLoader(dataset, **cfg['loader'])
 
-    # load the PyTorch state dictionary and map it to the current device
-    # then, remove the model. prefix which is caused by the pytorch-lightning
-    # checkpoint saver and load the model from the "filtered" state dict
-    # this approach is compatible with pytorch_lightning 0.7.1 - 0.8.4 (latest)
+    # load the PyTorch state dictionary and map it to the current device    
+    state_dict = None
     if not checkpoint:
         checkpoint, key = get_ptmodel_from_config(cfg['model'])
         if not checkpoint:
@@ -91,8 +86,10 @@ def _embed_cli(cfg, is_cli_call=True):
         )['state_dict']
 
     if state_dict is not None:
-        state_dict = filter_state_dict(state_dict)
-        model.load_state_dict(state_dict)
+        model = ResNetSimCLR.from_state_dict(state_dict, **cfg['model'])
+        model = model.to(device)
+    else:
+        model = ResNetSimCLR(**cfg['model']).to(device)
 
     encoder = SelfSupervisedEmbedding(model, None, None, None)
     embeddings, labels, filenames = encoder.embed(dataloader, device=device)
