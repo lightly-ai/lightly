@@ -53,7 +53,8 @@ class TestCore(unittest.TestCase):
         trainer = {
             'max_epochs': 1
         }
-        train_model_and_embed_images(input_dir=dataset_dir, trainer=trainer)
+        train_model_and_embed_images(
+            input_dir=dataset_dir, trainer=trainer)
         shutil.rmtree(dataset_dir)
         pattern = 'lightly_epoch(.*)?.ckpt$'
         for root, dirs, files in os.walk(os.getcwd()):

@@ -18,6 +18,7 @@ from lightly.api.constants import LIGHTLY_MAXIMUM_DATASET_SIZE
 
 from lightly.api.utils import get_thumbnail_from_img
 from lightly.api.utils import check_image
+from lightly.api.utils import check_filename
 from lightly.api.utils import PIL_to_bytes
 from lightly.api.utils import put_request
 
@@ -77,7 +78,8 @@ def upload_embeddings_from_csv(path_to_embeddings: str,
                                dataset_id: str,
                                token: str,
                                max_upload: int = 32,
-                               embedding_name: str = 'default'):
+                               embedding_name: str = 'default',
+                               verbose: bool = True):
     """Uploads embeddings from a csv file to the cloud solution.
 
     The csv file should be in the format specified by lightly. See the
@@ -136,6 +138,9 @@ def upload_embeddings_from_csv(path_to_embeddings: str,
         batch['embeddings'] = data['embeddings'][left:right]
         embedding_batches[i] = batch
 
+    if verbose:
+        print('Uploading embeddings:')
+
     pbar = tqdm.tqdm(unit='embs', total=n_embeddings)
     for i, batch in enumerate(embedding_batches):
         _upload_single_batch(
@@ -143,31 +148,37 @@ def upload_embeddings_from_csv(path_to_embeddings: str,
         pbar.update(len(batch['embeddings']))
 
 
-def _upload_single_image(input_dir, fname, mode, dataset_id, token):
+def _upload_single_image(image,
+                         label,
+                         filename,
+                         dataset_id,
+                         token,
+                         mode):
     """Uploads a single image to the Lightly platform.
 
     """
 
-    # random delay of uniform[0, 0.01] seconds to prevent API bursts
-    rnd_delay = random.random() * 0.01
-    time.sleep(rnd_delay)
-
-    # get PIL image handles, metadata, and check if corrupted
-    metadata, is_corrupted = check_image(
-        os.path.join(input_dir, fname)
-    )
-
-    # filename is too long, cannot accept this file
-    if not metadata:
+    # check whether the filename is too long
+    basename = filename
+    if not check_filename(basename):
+        msg = (f'Filename {basename} is longer than the allowed maximum of '
+            'characters and will be skipped.')
+        warnings.warn(msg)
         return False
 
-    # upload sample
-    basename = fname
-    thumbname = None
-    if mode in ['full', 'thumbnails'] and not is_corrupted:
-        thumbname = '.'.join(basename.split('.')[:-1]) + '_thumb.webp'
+    # calculate metadata, and check if corrupted
+    metadata = check_image(image)
 
+    # generate thumbnail if necessary
+    thumbname = None
+    thumbnail = None
+    if mode == 'thumbnails' and not metadata['is_corrupted']:
+        thumbname = '.'.join(basename.split('.')[:-1]) + '_thumb.webp'
+        thumbnail = get_thumbnail_from_img(image)
+
+    # upload sample with metadata
     sample_upload_success = True
+
     try:
         sample_id = routes.users.datasets.samples.post(
             basename, thumbname, metadata, dataset_id, token
@@ -177,28 +188,25 @@ def _upload_single_image(input_dir, fname, mode, dataset_id, token):
 
     # upload thumbnail
     thumbnail_upload_success = True
-    if mode == 'thumbnails' and not is_corrupted:
+    if mode == 'thumbnails' and not metadata['is_corrupted']:
         try:
             # try to get signed url for thumbnail
             signed_url = routes.users.datasets.samples. \
                 get_presigned_upload_url(
                     thumbname, dataset_id, sample_id, token)
-
-            # try to create thumbnail
-            image_path = os.path.join(input_dir, fname)
-            with Image.open(image_path) as temp_image:
-                thumbnail = get_thumbnail_from_img(temp_image)
             # try to upload thumbnail
             upload_file_with_signed_url(
                 PIL_to_bytes(thumbnail, ext='webp', quality=70),
                 signed_url
             )
+            # close thumbnail
+            thumbnail.close()
         except RuntimeError:
             thumbnail_upload_success = False
 
     # upload full image
     image_upload_success = True
-    if mode == 'full' and not is_corrupted:
+    if mode == 'full' and not metadata['is_corrupted']:
         try:
             # try to get signed url for image
             signed_url = routes.users.datasets.samples. \
@@ -206,12 +214,12 @@ def _upload_single_image(input_dir, fname, mode, dataset_id, token):
                     basename, dataset_id, sample_id, token)
 
             # try to upload image
-            image_path = os.path.join(input_dir, fname)
-            with open(image_path, 'rb') as temp_image:
-                upload_file_with_signed_url(
-                    temp_image,
-                    signed_url
-                )
+            upload_file_with_signed_url(
+                PIL_to_bytes(image),
+                signed_url
+            )
+            # close image
+            image.close()
         except RuntimeError:
             image_upload_success = False
 
@@ -221,17 +229,17 @@ def _upload_single_image(input_dir, fname, mode, dataset_id, token):
     return success
 
 
-def upload_images_from_folder(path_to_folder: str,
-                              dataset_id: str,
-                              token: str,
-                              max_workers: int = 8,
-                              max_requests: int = 32,
-                              mode: str = 'thumbnails'):
+def upload_dataset(dataset: LightlyDataset,
+                   dataset_id: str,
+                   token: str,
+                   max_workers: int = 8,
+                   mode: str = 'thumbnails',
+                   verbose: bool = True):
     """Uploads images from a directory to the Lightly cloud solution.
 
     Args:
-        path_to_folder:
-            Path to the folder containing the images.
+        dataset
+            The dataset to upload.
         dataset_id:
             The unique identifier for the dataset.
         token:
@@ -247,20 +255,23 @@ def upload_images_from_folder(path_to_folder: str,
 
     Raises:
         ValueError if dataset is too large.
+        RuntimeError if the connection to the server failed.
         RuntimeError if dataset already has an initial tag.
 
     """
 
-    bds = LightlyDataset(from_folder=path_to_folder)
-    fnames = bds.get_filenames()
-
     # check the allowed dataset size
-    api_max_dataset_size = routes.users.get_quota(token)['maxDatasetSize']
+    api_max_dataset_size, status_code = routes.users.get_quota(token)
     max_dataset_size = min(api_max_dataset_size, LIGHTLY_MAXIMUM_DATASET_SIZE)
-    if len(fnames) > max_dataset_size:
-        msg = f'Your dataset has {len(fnames)} samples which'
+    if len(dataset) > max_dataset_size:
+        msg = f'Your dataset has {len(dataset)} samples which'
         msg += f' is more than the allowed maximum of {max_dataset_size}'
         raise ValueError(msg)
+
+    # check whether connection to server was possible
+    if status_code != 200:
+        msg = f'Connection to server failed with status code {status_code}.'
+        raise RuntimeError(msg)
 
     # check whether the dataset alreadys has existing tags
     tags = routes.users.datasets.tags.get(dataset_id, token)
@@ -270,36 +281,45 @@ def upload_images_from_folder(path_to_folder: str,
         msg += f'{tag_names}'
         raise RuntimeError(msg)
 
-    # split the samples in batches of equal size
-    n_batches = len(fnames) // max_requests
-    n_batches = n_batches + 1 if len(fnames) % max_requests else n_batches
-    fname_batches = [
-        list(islice(fnames, i * max_requests, (i + 1) * max_requests))
-        for i in range(n_batches)
-    ]
-
-    chunksize = max(max_requests // max_workers, 1)
-    executor = ThreadPoolExecutor(max_workers=max_workers)
+    # handle the case where len(dataset) < max_workers
+    max_workers = min(len(dataset), max_workers)
 
     # upload the samples
-    pbar = tqdm.tqdm(unit='imgs', total=len(fnames))
-    for i, batch in enumerate(fname_batches):
+    if verbose:
+        print(f'Uploading images (with {max_workers} workers).', flush=True)
 
-        mapped = list(executor.map(lambda x: _upload_single_image(
-            input_dir=path_to_folder,
-            fname=x,
-            mode=mode,
+    pbar = tqdm.tqdm(unit='imgs', total=len(dataset))
+    tqdm_lock = tqdm.tqdm.get_lock()
+
+    # define lambda function for concurrent upload
+    def lambda_(i):
+        # load image
+        image, label, filename = dataset[i]
+        # upload image
+        success = _upload_single_image(
+            image=image,
+            label=label,
+            filename=filename,
             dataset_id=dataset_id,
             token=token,
-        ), batch, chunksize=chunksize))
+            mode=mode,
+        )
+        # update the progress bar
+        tqdm_lock.acquire() # lock
+        pbar.update(1)      # update
+        tqdm_lock.release() # unlock
+        # return whether the upload was successful
+        return success
 
-        if not all(mapped):
-            msg = 'Warning: Unsuccessful upload(s) in batch {}! '.format(i)
-            msg += 'This could cause problems when uploading embeddings.'
-            msg += 'Failed at file: {}'.format(mapped.index(False))
-            warnings.warn(msg)
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        results = list(executor.map(
+            lambda_, [i for i in range(len(dataset))], chunksize=1))
 
-        pbar.update(len(batch))
+    if not all(results):
+        msg = 'Warning: Unsuccessful upload(s)! '
+        msg += 'This could cause problems when uploading embeddings.'
+        msg += 'Failed at image: {}'.format(results.index(False))
+        warnings.warn(msg)
 
     # set image type of data and create initial tag
     if mode == 'full':
@@ -311,6 +331,48 @@ def upload_images_from_folder(path_to_folder: str,
 
     # create initial tag
     routes.users.datasets.tags.post(dataset_id, token)
+
+
+def upload_images_from_folder(path_to_folder: str,
+                              dataset_id: str,
+                              token: str,
+                              max_workers: int = 8,
+                              mode: str = 'thumbnails',
+                              verbose: bool = True):
+    """Uploads images from a directory to the Lightly cloud solution.
+
+    Args:
+        path_to_folder:
+            Path to the folder which holds the input images.
+        dataset_id:
+            The unique identifier for the dataset.
+        token:
+            Token for authentication.
+        max_workers:
+            Maximum number of workers uploading images in parallel.
+        max_requests:
+            Maximum number of requests a single worker can do before he has
+            to wait for the others.
+        mode:
+            One of [full, thumbnails, metadata]. Whether to upload thumbnails,
+            full images, or metadata only.
+
+    Raises:
+        ValueError if dataset is too large.
+        RuntimeError if the connection to the server failed.
+        RuntimeError if dataset already has an initial tag.
+
+    """
+
+    dataset = LightlyDataset(from_folder=path_to_folder)
+    upload_dataset(
+        dataset,
+        dataset_id,
+        token,
+        max_workers=max_workers,
+        mode=mode,
+        verbose=verbose,
+    )
 
 
 def _upload_metadata_from_json(path_to_embeddings: str,

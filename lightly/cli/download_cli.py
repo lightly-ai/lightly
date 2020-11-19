@@ -48,34 +48,22 @@ def _download_cli(cfg, is_cli_call=True):
     with open(cfg['tag_name'] + '.txt', 'w') as f:
         for item in samples:
             f.write("%s\n" % item)
+
     msg = 'The list of files in tag {} is stored at: '.format(cfg['tag_name'])
     msg += os.path.join(os.getcwd(), cfg['tag_name'] + '.txt')
-    print(msg)
+    print(msg, flush=True)
 
     if cfg['input_dir'] and cfg['output_dir']:
-        # "name.jpg" -> "/name.jpg" to prevent bugs like this:
-        # "path/to/1234.jpg" ends with both "234.jpg" and "1234.jpg"
-        samples = [os.path.join(' ', s)[1:] for s in samples]
 
-        # copy all images from one folder to the other
         input_dir = fix_input_path(cfg['input_dir'])
         output_dir = fix_input_path(cfg['output_dir'])
-
-        dataset = data.LightlyDataset(from_folder=input_dir)
-        basenames = dataset.get_filenames()
-
-        source_names = [os.path.join(input_dir, f) for f in basenames]
-        target_names = [os.path.join(output_dir, f) for f in basenames]
-
-        # only copy files which are in the tag
-        indices = [i for i in range(len(source_names))
-                   if any([source_names[i].endswith(s) for s in samples])]
-
         print(f'Copying files from {input_dir} to {output_dir}.')
-        for i in tqdm(indices):
-            dirname = os.path.dirname(target_names[i])
-            os.makedirs(dirname, exist_ok=True)
-            shutil.copy(source_names[i], target_names[i])
+
+        # create a dataset from the input directory
+        dataset = data.LightlyDataset(from_folder=input_dir)
+
+        # dump the dataset in the output directory
+        dataset.dump(output_dir, samples)
 
 
 @hydra.main(config_path='config', config_name='config')
