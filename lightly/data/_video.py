@@ -144,6 +144,8 @@ class VideoDataset(datasets.VisionDataset):
 
         self.videos = videos
         self.video_timestamps = video_timestamps
+        # offsets[i] indicates the index of the first frame of the i-th video.
+        # e.g. for two videos of length 10 and 20, the offsets will be [0, 10].
         self.offsets = offsets
         self.fpss = fpss
 
@@ -153,6 +155,19 @@ class VideoDataset(datasets.VisionDataset):
         Finds the video of the frame at index with the help of the frame 
         offsets. Then, loads the frame from the video, applies the transforms,
         and returns the frame along with the index of the video (as target).
+
+        For example, if there are two videos with 10 and 20 frames respectively
+        in the input directory:
+
+        Requesting the 5th sample returns the 5th frame from the first video and
+        the target indicates the index of the source video which is 0.
+        >>> dataset[5]
+        >>> > <PIL Image>, 0
+
+        Requesting the 20th sample returns the 10th frame from the second video
+        and the target indicates the index of the source video which is 1.
+        >>> dataset[20]
+        >>> > <PIL Image>, 1
 
         Args:
             index:
@@ -169,15 +184,17 @@ class VideoDataset(datasets.VisionDataset):
             raise IndexError(f'Index {index} is out of bounds for VideoDataset'
                              f' of size {self.__len__()}.')
 
-        # find video of the frame
+        # each sample belongs to a video, to load the sample at index, we need
+        # to find the video to which the sample belongs and then read the frame
+        # from this video on the disk.
         i = len(self.offsets) - 1
         while (self.offsets[i] > index):
             i = i - 1
 
         # find and return the frame as PIL image
-        target = i
         sample = self.loader(self.videos[i],
                              self.video_timestamps[i][index - self.offsets[i]])
+        target = i
         if self.transform is not None:
             sample = self.transform(sample)
         if self.target_transform is not None:
@@ -212,7 +229,9 @@ class VideoDataset(datasets.VisionDataset):
             raise IndexError(f'Index {index} is out of bounds for VideoDataset'
                              f' of size {self.__len__()}.')
     
-        # find video of the frame
+        # each sample belongs to a video, to load the sample at index, we need
+        # to find the video to which the sample belongs and then read the frame
+        # from this video on the disk.
         i = len(self.offsets) - 1
         while (self.offsets[i] > index):
             i = i - 1

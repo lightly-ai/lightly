@@ -44,7 +44,6 @@ else:
     def is_prefetch_generator_available():
         return _prefetch_generator_available
 
-
     # import core functionalities
     from lightly.core import train_model_and_embed_images
     from lightly.core import train_embedding_model
