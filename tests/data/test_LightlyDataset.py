@@ -18,8 +18,7 @@ except Exception:
 class TestLightlyDataset(unittest.TestCase):
 
     def ensure_dir(self, path_to_folder: str):
-        if not os.path.exists(path_to_folder):
-            os.makedirs(path_to_folder)
+        os.makedirs(path_to_folder, exist_ok=True)
 
     def setUp(self):
         self.available_dataset_names = ['cifar10',
@@ -162,8 +161,9 @@ class TestLightlyDataset(unittest.TestCase):
 
         if not VIDEO_DATASET_AVAILABLE:
             tmp_dir = tempfile.mkdtemp()
-            self.ensure_dir(tmp_dir)
             # simulate a video
+            # the video dataset will check to see whether there exists a file
+            # with a video extension, it's enough to fake a video file here
             path = os.path.join(tmp_dir, 'my_file.png')
             dataset = torchvision.datasets.FakeData(size=1, image_size=(3, 32, 32))
             image, _ = dataset[0]

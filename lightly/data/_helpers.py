@@ -11,8 +11,9 @@ from lightly.data._image import DatasetFolder
 try:
     from lightly.data._video import VideoDataset
     VIDEO_DATASET_AVAILABLE = True
-except Exception:
+except Exception as e:
     VIDEO_DATASET_AVAILABLE = False
+    VIDEO_DATASET_ERRORMSG = e
 
 
 IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp',
@@ -71,7 +72,8 @@ def _load_dataset_from_folder(root: str, transform):
         raise ValueError(f'The input directory {root} contains videos '
                          'but the VideoDataset is not available. \n'
                          'Make sure you have installed the right '
-                         'dependencies.')
+                         'dependencies. The error from the imported '
+                         f'module was: {VIDEO_DATASET_ERRORMSG}')
 
     if contains_videos:
         # root contains videos -> create a video dataset
