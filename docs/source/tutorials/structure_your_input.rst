@@ -106,6 +106,39 @@ For the structure above, lightly will understand the input as follows:
         10,
     ]
 
+Video Folder Datasets
+---------------------
+The lightly Python package allows you to work `directly` on video data, without having
+to exctract the frames first. This can save a lot of disc space as video files are
+typically strongly compressed. Using lightly on video data is as simple as pointing 
+the software at an input directory where one or more videos are stored. The package will
+automatically detect all video files and index them so that each frame can be accessed.
+
+An example for an input directory with videos could look like this:
+
+.. code-block:: bash
+
+    data/
+    +-- my_video_1.mov
+    +-- my_video_2.mp4
+    +-- my_video_3.avi
+
+The example also shows the currently supported video file formats (.mov, .mp4, and .avi).
+To upload the three videos from above to the platform, you can use
+
+.. code-block:: bash
+
+    lightly-upload token='123' dataset_id='XYZ' input_dir='data/'
+
+All other operations (like training a self-supervised model and embedding the frames individually)
+also work on video data. Give it a try! 
+
+.. note::
+
+    Randomly accessing video frames is slower compared to accessing the extracted frames on disc. However,
+    by working directly on video files, one can save a lot of disc space because the frames do not have to 
+    be exctracted beforehand.
+
 Torchvision Datasets
 --------------------
 
