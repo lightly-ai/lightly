@@ -113,7 +113,7 @@ def size_in_bytes(img):
 
     """
     img_file = io.BytesIO()
-    img.save(img_file, format=img.format)
+    img.save(img_file, format='png')
     return img_file.tell()
 
 
@@ -196,51 +196,49 @@ def resize_image(image, max_width: int, max_height: int):
     return new_image
 
 
-def check_image(filename: str):
+def check_filename(basename):
+    """Checks the length of the filename.
+
+    Args:
+        basename:
+            Basename of the file.
+
+    """
+    return len(basename) <= MAXIMUM_FILENAME_LENGTH
+
+
+def check_image(image):
     """Checks whether an image is corrupted or not.
 
     The function reports the metadata, and opens the file to check whether
     it is corrupt or not.
 
     Args:
-        filename: (str) Path to the file.
+        image:
+            PIL image from which metadata will be computed.
 
     Returns:
-        A dictionary of metadata and a flag whether file is corrupted.
+        A dictionary of metadata of the image.
     """
 
-    basename = os.path.basename(filename)
-    if len(basename) > MAXIMUM_FILENAME_LENGTH:
-        msg = f'Filename {basename} is longer than the allowed maximum of'
-        msg += f'{MAXIMUM_FILENAME_LENGTH} character and will be skipped.'
-        warnings.warn(msg)
-        return {}, True
-
-    is_corrupted = False
-    corruption = ''
-    image = Image.open(filename)
+    # try to load the image to see whether it's corrupted or not
     try:
         image.load()
+        is_corrupted = False
+        corruption = ''
     except IOError as e:
         is_corrupted = True
         corruption = e
-    if not is_corrupted and image.format.lower() not in LEGAL_IMAGE_FORMATS:
-        is_corrupted = True
-        corruption = f'Illegal image format {image.format}.'
-    image.close()
 
+    # calculate metadata from image
     if is_corrupted:
-        metadata = {
-            'corruption': corruption
-        }
+        metadata = { 'corruption': corruption }
     else:
-        image = Image.open(filename, 'r')
         metadata = get_meta_from_img(image)
         metadata['corruption'] = ''
-        image.close()
-    metadata['is_corrupted'] = is_corrupted
 
-    return metadata, is_corrupted
+    metadata['is_corrupted'] = is_corrupted
+    return metadata
 
 
 def post_request(dst_url, data=None, json=None,
