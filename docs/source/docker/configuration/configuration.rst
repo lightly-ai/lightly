@@ -34,6 +34,9 @@ The following are parameters which can be passed to the container:
     # remove exact duplicates
     remove_exact_duplicates: True
 
+    # dump the final dataset to the output directory
+    dump_dataset: False
+
     # pass checkpoint
     checkpoint: ''
 

@@ -185,6 +185,56 @@ move the embeddings file to the shared directory, and specify the filename like 
         stopping_condition.n_samples=0.3 \
         embeddings=my_embeddings.csv
 
+Sampling from Video Files
+--------------------------
+In case you are working with video files, it is possible to point the docker container 
+directly to the video files. This prevents the need to extract the individual frames beforehand.
+To do so, simply store all videos you want to work with in a single directory, the lightly software
+will automatically load all frames from the videos.
+
+.. code-block:: console
+
+    # work on a single video
+    data/
+    +-- my_video.mp4
+
+    # work on several videos
+    data/
+    +-- my_video_1.mp4
+    +-- my_video_2.avi
+
+As you can see, the videos do not need to be in the same file format. An example command for a folder 
+structure as shown above could then look like this:
+
+.. code-block:: console
+
+    docker run --gpus all --rm -it \
+        -v INPUT_DIR:/home/input_dir:ro \
+        -v SHARED_DIR:/home/shared_dir:ro \
+        -v OUTPUT_DIR:/home/output_dir \
+        lightly/sampling:latest \
+        token=MYAWESOMETOKEN \
+        stopping_condition.n_samples=0.3
+
+Where INPUT_DIR is the path to the directory containing the video files.
+
+Removing Exact Duplicates
+---------------------------
+With the docker solution, it is possible to remove **only exact duplicates** from the dataset. For this,
+simply set the stopping condition `n_samples` to 1.0 (which translates to 100% of the data). The exact command is:
+
+.. code-block:: console
+
+    docker run --gpus all --rm -it \
+        -v INPUT_DIR:/home/input_dir:ro \
+        -v SHARED_DIR:/home/shared_dir:ro \
+        -v OUTPUT_DIR:/home/output_dir \
+        lightly/sampling:latest \
+        token=MYAWESOMETOKEN \
+        remove_exact_duplicates=True \
+        stopping_condition.n_samples=1.
+
+
 Reporting
 -----------------------------------
 
