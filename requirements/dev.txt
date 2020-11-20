@@ -8,3 +8,4 @@ sphinx-gallery
 sphinx_rtd_theme
 matplotlib
 pre-commit
+opencv-python
