@@ -8,6 +8,7 @@ import PIL
 
 try:
     from lightly.data._video import VideoDataset
+    import av
     import cv2
     VIDEO_DATASET_AVAILABLE = True
 except Exception:
@@ -62,9 +63,10 @@ class TestVideoDataset(unittest.TestCase):
         for i in range(len(dataset)):
             frame, label = dataset[i]
             filename = dataset.get_filename(i)
+            print(filename)
             self.assertTrue(
                 filename.endswith(
-                    f"-{float(i % self.n_frames_per_video):.8f}s-avi.png"
+                    f"-{(i % self.n_frames_per_video):02d}-avi.png"
                 )
             )
         
