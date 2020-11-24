@@ -124,6 +124,7 @@ An example for an input directory with videos could look like this:
     +-- my_video_3.avi
 
 The example also shows the currently supported video file formats (.mov, .mp4, and .avi).
+We assign a weak label to each video.
 To upload the three videos from above to the platform, you can use
 
 .. code-block:: bash
@@ -225,3 +226,84 @@ The code shown above will produce the following `.csv` file:
      - 0.3
      - 0.2
      - 0
+
+.. note:: Note that lightly automatically creates "weak" labels for datasets
+          with subfolders. Each subfolder corresponds to one weak label.
+          The labels are called "weak" since they might not be used for a task
+          you want to solve with ML directly but still can be relevant to group
+          the data into buckets.
+
+
+Advanced usage of Embeddings
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In some cases you want to enrich the embeddings with additional information.
+The lightly csv scheme is very simple and can be easily extended.
+For example, you can add your own embeddings to the existing embeddings. This 
+could be useful if you have additional meta information about each sample.
+
+
+.. _lightly-custom-labels:
+
+Add Custom Embeddings
+""""""""""""""""""""""""""""""
+
+To add custom embeddings you need to add mre embedding columns to the .csv file.
+Make sure you keep the enumeration of the embeddings in correct order.
+
+
+Here you see an embedding from lightly with a 2-dimensional embedding vector.
+.. list-table:: lightly_embeddings.csv
+   :widths: 50 50 50 50
+   :header-rows: 1
+
+   * - filenames
+     - embedding_0
+     - embedding_1
+     - labels
+   * - img-1.jpg
+     - 0.1
+     - 0.5
+     - 0
+   * - img-2.jpg
+     - 0.2
+     - 0.2
+     - 0
+   * - img-3.jpg
+     - 0.1
+     - 0.9
+     - 1
+
+We can now append our embedding vector to the .csv file.
+
+.. list-table:: lightly_with_custom_embeddings.csv
+   :widths: 50 50 50 50 50 50
+   :header-rows: 1
+
+   * - filenames
+     - embedding_0
+     - embedding_1
+     - embedding_2
+     - embedding_3
+     - labels
+   * - img-1.jpg
+     - 0.1
+     - 0.5
+     - 0.2
+     - 0.7
+     - 0
+   * - img-2.jpg
+     - 0.2
+     - -0.2
+     - 1.1
+     - -0.4
+     - 0
+   * - img-3.jpg
+     - 0.1
+     - 0.9
+     - -0.2
+     - 0.5
+     - 1
+
+.. note:: The embedding columns must be grouped together. You can not have
+          another column between two embedding columns.

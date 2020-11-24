@@ -48,12 +48,12 @@ We worked hard to make this happen and are very proud to present you with the fo
  
   * 1 Nvidia Tesla P100 or V100 GPU with CUDA 10.0+
 
-
 .. toctree::
    :maxdepth: 1
 
    getting_started/setup.rst
    getting_started/first_steps.rst
+   advanced/meta_information.rst
    configuration/configuration.rst
 
 
