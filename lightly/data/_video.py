@@ -4,7 +4,6 @@
 # All Rights Reserved
 
 import os
-import av
 from PIL import Image
 from torchvision import datasets
 
@@ -235,12 +234,21 @@ class VideoDataset(datasets.VisionDataset):
         i = len(self.offsets) - 1
         while (self.offsets[i] > index):
             i = i - 1
-        
+
+        # get filename of the video file
         filename = self.videos[i]
         filename = os.path.relpath(filename, self.root)
 
+        # get video format and video name
         splits = filename.split('.')
         video_format = splits[-1]
         video_name = '.'.join(splits[:-1])
-        timestamp = float(self.video_timestamps[i][index - self.offsets[i]])
-        return '%s-%.8fs-%s.png' % (video_name, timestamp, video_format)
+
+        # get frame number
+        frame_number = index - self.offsets[i]
+        if i < len(self.offsets) - 1:
+            n_frames = self.offsets[i+1] - self.offsets[i]
+        else:
+            n_frames = self.__len__() - self.offsets[i]
+        
+        return f'{video_name}-{frame_number:0{len(str(n_frames))}}-{video_format}.png'

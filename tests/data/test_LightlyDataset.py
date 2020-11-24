@@ -9,6 +9,7 @@ from lightly.data import LightlyDataset
 
 try:
     from lightly.data._video import VideoDataset
+    import av
     import cv2
     VIDEO_DATASET_AVAILABLE = True
 except Exception:
@@ -169,7 +170,7 @@ class TestLightlyDataset(unittest.TestCase):
             image, _ = dataset[0]
             image.save(path)
             os.rename(path, os.path.join(tmp_dir, 'my_file.avi'))
-            with self.assertRaises(ValueError):
+            with self.assertRaises(ImportError):
                 dataset = LightlyDataset(from_folder=tmp_dir)
 
             warnings.warn(
