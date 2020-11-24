@@ -24,3 +24,8 @@ Dependencies
 Lightly currently uses `PyTorch <https://pytorch.org/>`_ as the underlying deep learning framework. 
 On top of PyTorch we use `Hydra <https://github.com/facebookresearch/hydra>`_ for managing configurations and 
 `PyTorch Lightning <https://pytorch-lightning.readthedocs.io/>`_ for training models.
+
+If you want to work with video files you need to additionally install
+`PyAV <https://github.com/PyAV-Org/PyAV#installation>`_.
+
+- av

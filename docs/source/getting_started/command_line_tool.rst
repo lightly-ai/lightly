@@ -4,19 +4,41 @@ Command-line tool
 The Lighly framework provides you with a command-line interface to train self-supervised models
 and create embeddings without having to write a single line of code.
 
+The following examples are commands you can run in your terminal like shown here.
+
+.. image:: images/cli_example.png
+    :width: 500px
+
+You can also have a look at this video to get an overview on how to work with 
+the CLI.
+
+
+.. raw:: html
+
+    <div style="position: relative; height: 0; 
+        overflow: hidden; max-width: 100%; padding-bottom: 20px; height: auto;">
+        <iframe width="560" height="315" 
+            src="https://www.youtube.com/embed/66a4O5G2Ajo" 
+            frameborder="0" allow="accelerometer; autoplay; 
+            clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+        </iframe>
+    </div>
+
+
 Train a self-supervised model
 -----------------------------
 Training a model using default parameters can be done with just one command. Let's
-assume you have a folder of cat images named `cats` and want to train a model on it.
+assume you have a folder of cat images named `cat` and want to train a model on it.
 You can use the following command to train a model and save the checkpoint:
 
 .. code-block:: bash
 
     # train a model using default parameters
-    lightly-train input_dir=cats
+    lightly-train input_dir=cat
 
     # train a model for 5 epochs
-    lightly-train input_dir=cats trainer.max_epochs=5
+    lightly-train input_dir=cat trainer.max_epochs=5
 
 For a full list of supported arguments run
 
@@ -31,10 +53,10 @@ Once you have a trained model checkpoint you can create an embedding of a datase
 .. code-block:: bash
 
     # use pre-trained models provided by Lighly
-    lightly-embed input_dir=cats
+    lightly-embed input_dir=cat
 
     # use custom checkpoint
-    lightly-embed input_dir=cats checkpoint=mycheckpoint.ckpt
+    lightly-embed input_dir=cat checkpoint=mycheckpoint.ckpt
 
 
 Upload the dataset and embedding to the Lightly platform
@@ -46,10 +68,10 @@ be used to upload your dataset
 .. code-block:: bash
 
     # upload only the dataset
-    lightly-upload input_dir=cats token=your_token dataset_id=your_dataset_id
+    lightly-upload input_dir=cat token=your_token dataset_id=your_dataset_id
 
     # you can upload the dataset together with the embedding
-    lightly-upload input_dir=cats embedding=your_embedding.csv \
+    lightly-upload input_dir=cat embedding=your_embedding.csv \
                    token=your_token dataset_id=your_dataset_id
 
 Download a dataset after curating on Lightly.ai
@@ -65,5 +87,5 @@ into a new folder. The second option is very handy for quick prototyping.
 
     # copy files in a tag to a new folder
     lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token \
-                     input_dir=cats output_dir=cats_curated
+                     input_dir=cat output_dir=cat_curated
 
