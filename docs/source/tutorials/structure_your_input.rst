@@ -1,6 +1,6 @@
 .. _input-structure-label:
 
-Tutorial 0: Structure Your Input
+Tutorial 1: Structure Your Input
 ================================
 
 The `lightly Python package <https://pypi.org/project/lightly/>`_ can process image datasets to generate embeddings 
