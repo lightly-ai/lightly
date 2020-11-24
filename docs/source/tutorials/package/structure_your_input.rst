@@ -1,11 +1,34 @@
-.. _input-structure-label
+.. _input-structure-label:
 
-Structure Your Input
-====================
+Tutorial 0: Structure Your Input
+================================
 
 The `lightly Python package <https://pypi.org/project/lightly/>`_ can process image datasets to generate embeddings 
 or to upload data to the `Lightly platform <https://app.lightly.ai>`_. In this tutorial you will learn how to structure
 your image dataset such that it is understood by our framework.
+
+Supported File Types
+--------------------
+
+Images
+^^^^^^^^^^^^^^^^^^^^^
+
+Since lightly uses `Pillow <https://github.com/python-pillow/Pillow>`_ 
+for image loading it also supports all the image formats supported by 
+`Pillow <https://github.com/python-pillow/Pillow>`_.
+
+- .jpg, .png, .tiff and 
+  `many more <https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html>`_
+
+Videos
+^^^^^^^^^^^^^^^^^^^^^
+
+To load videos directly lightly uses 
+`torchvision <https://github.com/pytorch/vision>`_ and 
+`PyAV <https://github.com/PyAV-Org/PyAV>`_. The following formats are supported.
+
+- .mov, .mp4 and .avi
+
 
 
 Image Folder Datasets
@@ -123,7 +146,6 @@ An example for an input directory with videos could look like this:
     +-- my_video_2.mp4
     +-- my_video_3.avi
 
-The example also shows the currently supported video file formats (.mov, .mp4, and .avi).
 We assign a weak label to each video.
 To upload the three videos from above to the platform, you can use
 
@@ -242,7 +264,6 @@ The lightly csv scheme is very simple and can be easily extended.
 For example, you can add your own embeddings to the existing embeddings. This 
 could be useful if you have additional meta information about each sample.
 
-
 .. _lightly-custom-labels:
 
 Add Custom Embeddings
@@ -253,6 +274,7 @@ Make sure you keep the enumeration of the embeddings in correct order.
 
 
 Here you see an embedding from lightly with a 2-dimensional embedding vector.
+
 .. list-table:: lightly_embeddings.csv
    :widths: 50 50 50 50
    :header-rows: 1
