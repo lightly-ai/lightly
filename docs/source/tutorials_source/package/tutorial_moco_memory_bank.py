@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-Tutorial 1: Train MoCo on CIFAR-10
+Tutorial 2: Train MoCo on CIFAR-10
 ==============================================
 
 In this tutorial, we will train a model based on the MoCo Paper
