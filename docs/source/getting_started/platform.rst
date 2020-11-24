@@ -4,14 +4,18 @@ The Lightly Platform
 
 The lightly framework itself allows you to use self-supervised learning
 in a very simple way and even create embeddings of your dataset.
-However, we can do much more than just train and embed datasets. The Python
-framework acts as an interface to the Lightly data curation platform. 
+However, we can do much more than just train and embed datasets. 
 Once you have an embedding of an unlabeled dataset you might still require
 some labels to train a model. But which samples do you pick for labeling and 
 training a model?
 
-This is exactly where the platform comes in. The platform helps you analyze your
-dataset and using various methods pick the relevant samples for your task.
+This is exactly why we built the 
+`Lightly Data Curation Platform <https://app.lightly.ai>`_. 
+The platform helps you analyze your dataset and using various methods 
+pick the relevant samples for your task.
+
+You can learn more about how to use the platform using our tutorials:
+:ref:`platform-tutorials-label`
 
 
 .. _my-reference-label:
