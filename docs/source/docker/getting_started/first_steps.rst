@@ -1,6 +1,33 @@
 First Steps
 ===================================
 
+The Lightly Docker solution follows a train, embed, select flow using self-
+supervised learning.
+
+#. You can either use a pre-trained model from the model zoo or fine-tune
+   a model on your unlabeled dataset using self-supervised learning. The output
+   of the train step is a model checkpoint.
+
+#. The embed step creates embeddings of the input dataset. Each sample gets
+   represented using a low-dimensional vector. The output of the embed step is
+   a .csv file.
+
+#. Finally, based on the embeddings and additional information we can use 
+   one of the sampling algorithms to pick the relevant data for you.
+   The output of the select step is a list of filenames as well as 
+   analytics in form of a pdf report with plots.
+
+.. code-block:: console
+
+    +-------+      +-------+      +--------+
+    | Train +----->+ Embed +----->+ Select |
+    +-------+      +-------+      +--------+
+
+You can use each of the three steps independently as well. E.g. you can use
+the Lightly Docker to embed a dataset and train a linear classifier on top of 
+them.
+
+
 The docker solution can be used as a command-line interface. You run the container, tell it where to find data, and where to store the result. That's it.
 There are various parameters you can pass to the container. We put a lot of effort to also expose the full lightly framework configuration.
 You could use the docker solution to train a self-supervised model instead of using the Python framework.
