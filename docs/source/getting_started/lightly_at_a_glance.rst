@@ -7,6 +7,13 @@ neighbors, similarity search, transfer learning, or data analytics.
 
 Additionally, you can use the Lightly framework to directly interact with the `lightly platform <https://www.lightly.ai>`_.
 
+You can install lightly using pip.
+
+.. code-block:: bash
+
+    pip install lightly
+
+
 How Lightly Works
 -----------------
 The flexible design of Lightly makes it easy to integrate in your Python code. Lightly is built completely around PyTorch

@@ -12,19 +12,5 @@ In this tutorial series, you will learn how to get the most out of the platform.
 
    platform/tutorial_pizza_filter.rst
 
-.. _my-reference-label:
-
-
-Authentication Token
------------------------------------
-
-In order to authenticate yourself when using the pip package
-we provide you with an authentication token. You can retrieve
-it when creating a new dataset or when clicking on your 
-account (top right)-> preferences.
-
-Keep the token for yourself and don't share it. Anyone with the
-token could access your datasets!
-
 
 
