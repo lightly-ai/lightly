@@ -9,7 +9,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from lightly.models.batchnorm import BatchNorm2d
+from lightly.models.batchnorm import get_norm_layer
 
 class BasicBlock(nn.Module):
     """ Implementation of the ResNet Basic Block.
@@ -34,7 +34,7 @@ class BasicBlock(nn.Module):
                                stride=stride,
                                padding=1,
                                bias=False)
-        self.bn1 = BatchNorm2d(planes, num_splits)
+        self.bn1 = get_norm_layer(planes, num_splits)
 
         self.conv2 = nn.Conv2d(planes,
                                planes,
@@ -42,7 +42,7 @@ class BasicBlock(nn.Module):
                                stride=1,
                                padding=1,
                                bias=False)
-        self.bn2 = BatchNorm2d(planes, num_splits)
+        self.bn2 = get_norm_layer(planes, num_splits)
 
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != self.expansion*planes:
@@ -52,7 +52,7 @@ class BasicBlock(nn.Module):
                           kernel_size=1,
                           stride=stride,
                           bias=False),
-                BatchNorm2d(self.expansion * planes, num_splits)
+                get_norm_layer(self.expansion * planes, num_splits)
             )
 
     def forward(self, x: torch.Tensor):
@@ -98,7 +98,7 @@ class Bottleneck(nn.Module):
         super(Bottleneck, self).__init__()
 
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
-        self.bn1 = BatchNorm2d(planes, num_splits)
+        self.bn1 = get_norm_layer(planes, num_splits)
 
         self.conv2 = nn.Conv2d(planes,
                                planes,
@@ -106,13 +106,13 @@ class Bottleneck(nn.Module):
                                stride=stride,
                                padding=1,
                                bias=False)
-        self.bn2 = BatchNorm2d(planes, num_splits)
+        self.bn2 = get_norm_layer(planes, num_splits)
 
         self.conv3 = nn.Conv2d(planes,
                                self.expansion*planes,
                                kernel_size=1,
                                bias=False)
-        self.bn3 = BatchNorm2d(self.expansion * planes, num_splits)
+        self.bn3 = get_norm_layer(self.expansion * planes, num_splits)
 
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != self.expansion*planes:
@@ -122,7 +122,7 @@ class Bottleneck(nn.Module):
                           kernel_size=1,
                           stride=stride,
                           bias=False),
-                BatchNorm2d(self.expansion * planes, num_splits)
+                get_norm_layer(self.expansion * planes, num_splits)
             )
 
     def forward(self, x):
@@ -188,7 +188,7 @@ class ResNet(nn.Module):
                                stride=1,
                                padding=1,
                                bias=False)
-        self.bn1 = BatchNorm2d(self.base, num_splits)
+        self.bn1 = get_norm_layer(self.base, num_splits)
         self.layer1 = self._make_layer(block, self.base, layers[0], stride=1, num_splits=num_splits)
         self.layer2 = self._make_layer(block, self.base*2, layers[1], stride=2, num_splits=num_splits)
         self.layer3 = self._make_layer(block, self.base*4, layers[2], stride=2, num_splits=num_splits)
