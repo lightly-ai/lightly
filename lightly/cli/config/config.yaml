@@ -76,9 +76,10 @@ trainer:
 
 # checkpoint_callback namespace: Modify the checkpoint callback
 checkpoint_callback:
-  save_last: True             # Whether to save the checkpoint from the last epoch
-  save_top_k: 1               # Save the top k checkpoints
-  dirpath:                    # Where to store the checkpoints
+  save_last: True             # Whether to save the checkpoint from the last epoch.
+  save_top_k: 1               # Save the top k checkpoints.
+  dirpath:                    # Where to store the checkpoints (empty field resolves to None).
+                              # If not set, checkpoints are stored in the hydra output dir.
 
 # seed
 seed: 1
