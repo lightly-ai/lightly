@@ -13,13 +13,7 @@ import torchvision.datasets as datasets
 
 from lightly.data._helpers import _load_dataset
 from lightly.data._helpers import DatasetFolder
-
-try:
-    from lightly.data._video import VideoDataset
-    VIDEO_DATASET_AVAILABLE = True
-except Exception:
-    VIDEO_DATASET_AVAILABLE = False
-
+from lightly.data._video import VideoDataset
 
 class LightlyDataset(data.Dataset):
     """Provides a uniform data interface for the embedding models.
@@ -74,7 +68,7 @@ class LightlyDataset(data.Dataset):
 
     def dump_image(self,
                    output_dir: str,
-                   filename: str,
+                   index: int,
                    format: Union[str, None] = None):
         """Saves a single image to the output directory.
 
@@ -85,14 +79,14 @@ class LightlyDataset(data.Dataset):
         Args:
             output_dir:
                 Output directory where the image is stored.
-            filename:
-                Filename of the image to store.
+            index:
+                Index of the image to store.
             format:
                 Image format.
 
         """
-        index = self.get_filenames().index(filename)
         image, _ = self.dataset[index]
+        filename = self._get_filename_by_index(index)
 
         source = os.path.join(self.root_folder, filename)
         target = os.path.join(output_dir, filename)
@@ -141,11 +135,14 @@ class LightlyDataset(data.Dataset):
 
         # get all filenames
         if filenames is None:
-            filenames = self.get_filenames()
+            indices = [i for i in range(self.__len__())]
+        else:
+            indices = \
+                [i for i, f in enumerate(self.get_filenames()) if f in filenames]
 
         # dump images
-        for filename in filenames:
-            self.dump_image(output_dir, filename, format=format)
+        for index in indices:
+            self.dump_image(output_dir, index, format=format)
 
     def get_filenames(self) -> List[str]:
         """Returns all filenames in the dataset.
@@ -166,7 +163,7 @@ class LightlyDataset(data.Dataset):
         elif isinstance(self.dataset, DatasetFolder):
             full_path = self.dataset.samples[index][0]
             return os.path.relpath(full_path, self.root_folder)
-        elif VIDEO_DATASET_AVAILABLE and isinstance(self.dataset, VideoDataset):
+        elif isinstance(self.dataset, VideoDataset):
             return self.dataset.get_filename(index)
         else:
             return str(index)
