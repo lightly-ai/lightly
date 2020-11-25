@@ -6,10 +6,11 @@
 import torch
 import torch.nn as nn
 from lightly.models.resnet import ResNetGenerator
-from lightly.models._helpers import filter_state_dict
+from lightly.models.batchnorm import get_norm_layer
+from lightly.models._loader import _StateDictLoaderMixin
 
 
-def _get_features_and_projections(resnet, num_ftrs, out_dim):
+def _get_features_and_projections(resnet, num_ftrs, out_dim, num_splits):
     """Removes classification head from the ResNet and adds a projection head.
 
     - Adds a batchnorm layer to the input layer.
@@ -23,7 +24,7 @@ def _get_features_and_projections(resnet, num_ftrs, out_dim):
 
     # replace output layer
     features = nn.Sequential(
-        nn.BatchNorm2d(3),
+        get_norm_layer(3, num_splits),
         *list(resnet.children())[:-1],
         nn.Conv2d(last_conv_channels, num_ftrs, 1),
         nn.AdaptiveAvgPool2d(1),
@@ -39,7 +40,7 @@ def _get_features_and_projections(resnet, num_ftrs, out_dim):
     return features, projection_head
 
 
-class ResNetMoCo(nn.Module):
+class ResNetMoCo(nn.Module, _StateDictLoaderMixin):
     """ Implementation of a momentum encoder with a ResNet backbone.
 
     Attributes:
@@ -61,21 +62,31 @@ class ResNetMoCo(nn.Module):
                  width: float = 1.,
                  num_ftrs: int = 32,
                  out_dim: int = 128,
+                 num_splits: int = 8,
                  m: float = 0.999):
 
         self.num_ftrs = num_ftrs
         self.out_dim = out_dim
+        self.num_splits = num_splits
         self.m = m
 
         super(ResNetMoCo, self).__init__()
 
         self.features, self.projection_head = \
             _get_features_and_projections(
-                ResNetGenerator(name=name, width=width), self.num_ftrs, self.out_dim)
+                ResNetGenerator(name=name, width=width, num_splits=num_splits),
+                self.num_ftrs,
+                self.out_dim,
+                num_splits
+            )
 
         self.key_features, self.key_projection_head = \
             _get_features_and_projections(
-                ResNetGenerator(name=name, width=width), self.num_ftrs, self.out_dim)
+                ResNetGenerator(name=name, width=width, num_splits=num_splits),
+                self.num_ftrs,
+                self.out_dim,
+                num_splits
+            )
 
         # set key-encoder weights to query-encoder weights
         for param_k in self.key_features.parameters():
@@ -84,56 +95,23 @@ class ResNetMoCo(nn.Module):
             param_k.requires_grad = False
         self._momentum_update_key_encoder(0.)
 
-    @classmethod
-    def from_state_dict(cls,
-                        state_dict: dict,
-                        name: str = 'resnet-18',
-                        width: float = 1.,
-                        num_ftrs: int = 32,
-                        out_dim: int = 128,
-                        m: float = 0.999,
-                        strict: bool = True,
-                        apply_filter: bool = True):
+    def load_from_state_dict(self,
+                             state_dict,
+                             strict: bool = True,
+                             apply_filter: bool = True):
         """Initializes a ResNetMoCo and loads weights from a checkpoint.
 
         Args:
             state_dict:
                 State dictionary with layer weights.
-            name:
-                ResNet version, choose from resnet-{9, 18, 34, 50, 101, 152}.
-            width:
-                Width of the ResNet.
-            num_ftrs:
-                Dimension of the embedding (before the projection head).
-            out_dim:
-                Dimension of the output (after the projection head).
-            m:
-                Momentum for momentum update of the key-encoder.
             strict:
                 Set to False when loading from a partial state_dict.
             apply_filter:
                 If True, removes the `model.` prefix from keys in the state_dict.
 
         """
-        model = cls(
-            name=name,
-            width=width,
-            num_ftrs=num_ftrs,
-            out_dim=out_dim,
-            m=m,
-        )
-
-        # remove the model. prefix which is caused by the pytorch-lightning
-        # checkpoint saver and load the model from the "filtered" state dict
-        # this approach is compatible with pytorch_lightning 0.7.1 - 0.8.4 (latest)
-        if apply_filter:
-            state_dict_ = filter_state_dict(state_dict)
-        else:
-            state_dict_ = state_dict
-
-        model.load_state_dict(state_dict_, strict=strict)
-
-        return model
+        self._custom_load_from_state_dict(state_dict, strict, apply_filter)
+        self._momentum_update_key_encoder(0.)
 
     @torch.no_grad()
     def _momentum_update_key_encoder(self, m=0.):
@@ -187,7 +165,16 @@ class ResNetMoCo(nn.Module):
 
         # embed keys
         with torch.no_grad():
+
+            # shuffle for batchnorm
+            idx_shuffle = torch.randperm(k.shape[0]).to(x.device)
+            k = k[idx_shuffle]
+
             emb_k = self.key_features(k).squeeze()
             out_k = self.key_projection_head(emb_k).detach()
+        
+            # unshuffle for batchnorm
+            idx_unshuffle = torch.argsort(idx_shuffle).to(x.device)
+            out_k = out_k[idx_unshuffle]
 
         return torch.cat([out_q, out_k], axis=0)
