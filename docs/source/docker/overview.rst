@@ -59,8 +59,8 @@ We worked hard to make this happen and are very proud to present you with the fo
 
 .. toctree::
    :maxdepth: 1
-
-   examples/popular_datasets.rst
+   
+   examples/overview.rst
 
 
 Changelog
