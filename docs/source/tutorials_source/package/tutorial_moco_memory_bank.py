@@ -111,8 +111,13 @@ test_transforms = torchvision.transforms.Compose([
     )
 ])
 
-dataset_train = lightly.data.LightlyDataset(
+dataset_train_moco = lightly.data.LightlyDataset(
     from_folder=path_to_train
+)
+
+dataset_train_classifier = lightly.data.LightlyDataset(
+    from_folder=path_to_train,
+    transform=test_transforms
 )
 
 dataset_test = lightly.data.LightlyDataset(
@@ -124,14 +129,23 @@ dataset_test = lightly.data.LightlyDataset(
 # Create the dataloaders to load and preprocess the data 
 # in the background.
 
-dataloader_train = torch.utils.data.DataLoader(
-    dataset_train,
+dataloader_train_moco = torch.utils.data.DataLoader(
+    dataset_train_moco,
     batch_size=batch_size,
     shuffle=True,
     collate_fn=collate_fn,
     drop_last=True,
     num_workers=num_workers
 )
+
+dataloader_train_classifier = torch.utils.data.DataLoader(
+    dataset_train_classifier,
+    batch_size=batch_size,
+    shuffle=True,
+    drop_last=True,
+    num_workers=num_workers
+)
+
 
 dataloader_test = torch.utils.data.DataLoader(
     dataset_test,
@@ -142,7 +156,7 @@ dataloader_test = torch.utils.data.DataLoader(
 )
 
 # %%
-# Create the Lightning Module
+# Create the MoCo Lightning Module
 # ---------------------------
 # Now we create our model. We use PyTorch Lightning to train
 # our model. We follow the specification of the lightning module.
@@ -151,20 +165,15 @@ class MocoModel(pl.LightningModule):
     def __init__(self):
         super().__init__()
         # create a moco based on ResNet
-        self.model = lightly.models.ResNetMoCo(num_ftrs=128)
-
-        # we create a linear layer for our downstream classification
-        # model
-        self.fc = nn.Linear(128, 10)
+        self.resnet_moco = lightly.models.ResNetMoCo(num_ftrs=128, m=0.99)
 
         # create our loss with the optional memory bank
         self.criterion = lightly.loss.NTXentLoss(
+            temperature=0.5,
             memory_bank_size=memory_bank_size)
 
-        self.accuracy = pl.metrics.Accuracy()
-
     def forward(self, x):
-        self.model(x)
+        self.resnet_moco(x)
 
     # We provide a helper method to log weights in tensorboard
     # which is useful for debugging.
@@ -173,18 +182,62 @@ class MocoModel(pl.LightningModule):
             self.logger.experiment.add_histogram(
                 name, params, self.current_epoch)
 
-    def training_step(self, batch, batch_idx, optimizer_idx):
+    def training_step(self, batch, batch_idx):
         x, y, _ = batch
+        projection = self.resnet_moco(x)
+        loss = self.criterion(projection)
+        self.log('train_loss_ssl', loss)
+        return loss
 
-        if optimizer_idx == 0:  # moco model
-            projection = self.model(x)
-            loss = self.criterion(projection)
-            self.log('train_loss_ssl', loss, prog_bar=True)
-        else:  # linear layer
-            y_hat = self.model.features(x).squeeze().detach()
-            y_hat = self.fc(y_hat)
-            loss = nn.functional.cross_entropy(y_hat, y)
-            self.log('train_loss_fc', loss, prog_bar=True)
+    def training_epoch_end(self, outputs):
+        self.custom_histogram_weights()
+
+
+    def configure_optimizers(self):
+        return torch.optim.SGD(self.resnet_moco.parameters(), lr=3e-2,
+                            momentum=0.9, weight_decay=5e-4)
+
+
+# %%
+# Create the Classifier Lightning Module
+# ---------------------------
+# We create a linear classifier using the features we extract using MoCo
+# and train it on the dataset
+
+class Classifier(pl.LightningModule):
+    def __init__(self, model):
+        super().__init__()
+        # create a moco based on ResNet
+        self.resnet_moco = model
+
+        # freeze the layers of moco
+        for p in self.resnet_moco.parameters():  # reset requires_grad
+            p.requires_grad = False
+
+        # we create a linear layer for our downstream classification
+        # model
+        self.fc = nn.Linear(128, 10)
+
+        self.accuracy = pl.metrics.Accuracy()
+
+    def forward(self, x):
+        y_hat = self.resnet_moco.features(x).squeeze().detach()
+        y_hat = self.fc(y_hat)
+        return y_hat
+
+    # We provide a helper method to log weights in tensorboard
+    # which is useful for debugging.
+    def custom_histogram_weights(self):
+        for name, params in self.named_parameters():
+            self.logger.experiment.add_histogram(
+                name, params, self.current_epoch)
+
+    def training_step(self, batch, batch_idx):
+        x, y, _ = batch
+        y_hat = self.resnet_moco.features(x).squeeze().detach()
+        y_hat = self.fc(y_hat)
+        loss = nn.functional.cross_entropy(y_hat, y)
+        self.log('train_loss_fc', loss)
         return loss
 
     def training_epoch_end(self, outputs):
@@ -192,7 +245,7 @@ class MocoModel(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         x, y, _ = batch
-        y_hat = self.model.features(x).squeeze()
+        y_hat = self.resnet_moco.features(x).squeeze()
         y_hat = self.fc(y_hat)
 
         self.accuracy(y_hat, y)
@@ -200,15 +253,12 @@ class MocoModel(pl.LightningModule):
                  on_epoch=True, prog_bar=True)
 
     def configure_optimizers(self):
-        return [
-            torch.optim.SGD(self.model.parameters(), lr=0.3,
-                            momentum=0.9, weight_decay=1e-4),
-            torch.optim.SGD(self.fc.parameters(), lr=1e-3,
-                            momentum=0.9, weight_decay=1e-4)
-        ]
+        return torch.optim.SGD(self.fc.parameters(), lr=1e-3,
+                               momentum=0.9, weight_decay=5e-4)
+        
 
 # %%
-# Train the model
+# Train the MoCo model
 # ---------------
 #
 # We can instantiate the model and train it using the
@@ -219,8 +269,13 @@ gpus = 1 if torch.cuda.is_available() else 0
 
 model = MocoModel()
 trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus)
-trainer.fit(model, dataloader_train, dataloader_test)
+trainer.fit(model, dataloader_train_moco)
 
+# %%
+# Train the Classifier
+classifier = Classifier(model.resnet_moco)
+trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus)
+trainer.fit(classifier, dataloader_train_classifier, dataloader_test)
 
 # %%
 # Checkout the tensorboard logs while the model is training.
