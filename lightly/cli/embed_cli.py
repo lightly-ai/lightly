@@ -85,11 +85,9 @@ def _embed_cli(cfg, is_cli_call=True):
             checkpoint, map_location=device
         )['state_dict']
 
+    model = ResNetSimCLR(**cfg['model']).to(device)
     if state_dict is not None:
-        model = ResNetSimCLR.from_state_dict(state_dict, **cfg['model'])
-        model = model.to(device)
-    else:
-        model = ResNetSimCLR(**cfg['model']).to(device)
+        model.load_from_state_dict(state_dict)
 
     encoder = SelfSupervisedEmbedding(model, None, None, None)
     embeddings, labels, filenames = encoder.embed(dataloader, device=device)
