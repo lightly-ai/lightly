@@ -27,6 +27,7 @@ other frameworks such as Fast.ai.
    getting_started/lightly_at_a_glance.rst
    getting_started/install.rst
    getting_started/command_line_tool.rst
+   getting_started/advanced.rst
    getting_started/platform.rst
 
 .. toctree::
@@ -38,9 +39,18 @@ other frameworks such as Fast.ai.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Python Modules
+   :caption: Python API
 
    lightly
+   lightly.core
+   lightly.api
+   lightly.cli
+   lightly.data
+   lightly.embedding
+   lightly.loss
+   lightly.models
+   lightly.transforms
+   lightly.utils
 
 
 .. toctree::
