@@ -107,6 +107,7 @@ def _train_cli(cfg, is_cli_call=True):
                                              collate_fn=collate_fn)
 
     encoder = SelfSupervisedEmbedding(model, criterion, optimizer, dataloader)
+    encoder.init_checkpoint_callback(**cfg['checkpoint_callback'])
     encoder = encoder.train_embedding(**cfg['trainer'])
 
     print('Best model is stored at: %s' % (encoder.checkpoint))
