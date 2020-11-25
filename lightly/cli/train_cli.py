@@ -84,10 +84,9 @@ def _train_cli(cfg, is_cli_call=True):
             )['state_dict']
 
     # load model
+    model = ResNetSimCLR(**cfg['model'])
     if state_dict is not None:
-        model = ResNetSimCLR.from_state_dict(state_dict, **cfg['model'])
-    else:
-        model = ResNetSimCLR(**cfg['model'])
+        model.load_from_state_dict(state_dict)
 
     criterion = NTXentLoss(**cfg['criterion'])
     optimizer = torch.optim.SGD(model.parameters(), **cfg['optimizer'])
