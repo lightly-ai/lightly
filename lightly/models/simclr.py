@@ -7,10 +7,11 @@ import torch
 import torch.nn as nn
 
 from lightly.models.resnet import ResNetGenerator
+from lightly.models.batchnorm import get_norm_layer
 from lightly.models._loader import _StateDictLoaderMixin
 
 
-def _get_features_and_projections(resnet, num_ftrs, out_dim):
+def _get_features_and_projections(resnet, num_ftrs, out_dim, num_splits):
     """Removes classification head from the ResNet and adds a projection head.
 
     - Adds a batchnorm layer to the input layer.
@@ -24,7 +25,7 @@ def _get_features_and_projections(resnet, num_ftrs, out_dim):
 
     # replace output layer
     features = nn.Sequential(
-        nn.BatchNorm2d(3),
+        get_norm_layer(3, num_splits),
         *list(resnet.children())[:-1],
         nn.Conv2d(last_conv_channels, num_ftrs, 1),
         nn.AdaptiveAvgPool2d(1),
@@ -70,7 +71,7 @@ class ResNetSimCLR(nn.Module, _StateDictLoaderMixin):
         resnet = ResNetGenerator(name=name, width=width, num_splits=num_splits)
 
         self.features, self.projection_head = _get_features_and_projections(
-            resnet, self.num_ftrs, self.out_dim)
+            resnet, self.num_ftrs, self.out_dim, num_splits)
 
     def load_from_state_dict(self,
                              state_dict,

@@ -80,7 +80,7 @@ class SplitBatchNorm(nn.BatchNorm2d):
         return result
 
 
-def BatchNorm2d(num_features: int, num_splits: int, **kw):
+def get_norm_layer(num_features: int, num_splits: int, **kw):
     """Utility to switch between BatchNorm2d and SplitBatchNorm.
 
     """
