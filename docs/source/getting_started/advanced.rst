@@ -109,5 +109,5 @@ batch sizes are preferred. However, not everyone has a multi GPU cluster at
 hand. Therefore, alternative tricks and methods have been derived in research.
 On of them is a memory bank keeping past examples as additional negatives.
 
-Check the documentation: :py:class:`lightly.loss.memory_bank.MemoryBankModule`
+Check the documentation: :py:class:`lightly.loss.memory_bank.MemoryBankModule`.
 
