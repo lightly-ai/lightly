@@ -9,6 +9,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from lightly.models.batchnorm import BatchNorm2d
 
 class BasicBlock(nn.Module):
     """ Implementation of the ResNet Basic Block.
@@ -23,7 +24,7 @@ class BasicBlock(nn.Module):
     """
     expansion = 1
 
-    def __init__(self, in_planes: int, planes: int, stride: int = 1):
+    def __init__(self, in_planes: int, planes: int, stride: int = 1, num_splits: int = 0):
 
         super(BasicBlock, self).__init__()
 
@@ -33,7 +34,7 @@ class BasicBlock(nn.Module):
                                stride=stride,
                                padding=1,
                                bias=False)
-        self.bn1 = nn.BatchNorm2d(planes)
+        self.bn1 = BatchNorm2d(planes, num_splits)
 
         self.conv2 = nn.Conv2d(planes,
                                planes,
@@ -41,7 +42,7 @@ class BasicBlock(nn.Module):
                                stride=1,
                                padding=1,
                                bias=False)
-        self.bn2 = nn.BatchNorm2d(planes)
+        self.bn2 = BatchNorm2d(planes, num_splits)
 
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != self.expansion*planes:
@@ -51,7 +52,7 @@ class BasicBlock(nn.Module):
                           kernel_size=1,
                           stride=stride,
                           bias=False),
-                nn.BatchNorm2d(self.expansion*planes)
+                BatchNorm2d(self.expansion * planes, num_splits)
             )
 
     def forward(self, x: torch.Tensor):
@@ -92,12 +93,12 @@ class Bottleneck(nn.Module):
     """
     expansion = 4
 
-    def __init__(self, in_planes: int, planes: int, stride: int = 1):
+    def __init__(self, in_planes: int, planes: int, stride: int = 1, num_splits: int = 0):
 
         super(Bottleneck, self).__init__()
 
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(planes)
+        self.bn1 = BatchNorm2d(planes, num_splits)
 
         self.conv2 = nn.Conv2d(planes,
                                planes,
@@ -105,13 +106,13 @@ class Bottleneck(nn.Module):
                                stride=stride,
                                padding=1,
                                bias=False)
-        self.bn2 = nn.BatchNorm2d(planes)
+        self.bn2 = BatchNorm2d(planes, num_splits)
 
         self.conv3 = nn.Conv2d(planes,
                                self.expansion*planes,
                                kernel_size=1,
                                bias=False)
-        self.bn3 = nn.BatchNorm2d(self.expansion*planes)
+        self.bn3 = BatchNorm2d(self.expansion * planes, num_splits)
 
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != self.expansion*planes:
@@ -121,7 +122,7 @@ class Bottleneck(nn.Module):
                           kernel_size=1,
                           stride=stride,
                           bias=False),
-                nn.BatchNorm2d(self.expansion*planes)
+                BatchNorm2d(self.expansion * planes, num_splits)
             )
 
     def forward(self, x):
@@ -173,7 +174,8 @@ class ResNet(nn.Module):
                  block: nn.Module = BasicBlock,
                  layers: List[int] = [2, 2, 2, 2],
                  num_classes: int = 10,
-                 width: float = 1.):
+                 width: float = 1.,
+                 num_splits: int = 0):
 
         super(ResNet, self).__init__()
         self.in_planes = int(64 * width)
@@ -186,18 +188,18 @@ class ResNet(nn.Module):
                                stride=1,
                                padding=1,
                                bias=False)
-        self.bn1 = nn.BatchNorm2d(self.base)
-        self.layer1 = self._make_layer(block, self.base, layers[0], stride=1)
-        self.layer2 = self._make_layer(block, self.base*2, layers[1], stride=2)
-        self.layer3 = self._make_layer(block, self.base*4, layers[2], stride=2)
-        self.layer4 = self._make_layer(block, self.base*8, layers[3], stride=2)
+        self.bn1 = BatchNorm2d(self.base, num_splits)
+        self.layer1 = self._make_layer(block, self.base, layers[0], stride=1, num_splits=num_splits)
+        self.layer2 = self._make_layer(block, self.base*2, layers[1], stride=2, num_splits=num_splits)
+        self.layer3 = self._make_layer(block, self.base*4, layers[2], stride=2, num_splits=num_splits)
+        self.layer4 = self._make_layer(block, self.base*8, layers[3], stride=2, num_splits=num_splits)
         self.linear = nn.Linear(self.base*8*block.expansion, num_classes)
 
-    def _make_layer(self, block, planes, layers, stride):
+    def _make_layer(self, block, planes, layers, stride, num_splits):
         strides = [stride] + [1]*(layers-1)
         layers = []
         for stride in strides:
-            layers.append(block(self.in_planes, planes, stride))
+            layers.append(block(self.in_planes, planes, stride, num_splits))
             self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
 
@@ -225,11 +227,19 @@ class ResNet(nn.Module):
 
 def ResNetGenerator(name: str = 'resnet-18',
                     width: float = 1,
-                    num_classes: int = 10):
+                    num_classes: int = 10,
+                    num_splits: int = 0):
     """Builds and returns the specified ResNet.
 
     Args:
-        name: (str) ResNet version from resnet-{9, 18, 34, 50, 101, 152}.
+        name:
+            ResNet version from resnet-{9, 18, 34, 50, 101, 152}.
+        width:
+            ResNet width.
+        num_classes:
+            Output dim of the last layer.
+        num_splits:
+            Number of splits to use for SplitBatchNorm.
 
     Returns:
         ResNet as nn.Module.
@@ -238,6 +248,7 @@ def ResNetGenerator(name: str = 'resnet-18',
         >>> # binary classifier with ResNet-34
         >>> from lightly.models import ResNetGenerator
         >>> resnet = ResNetGenerator('resnet-34', num_classes=2)
+
     """
 
     model_params = {
@@ -253,4 +264,4 @@ def ResNetGenerator(name: str = 'resnet-18',
         raise ValueError('Illegal name: {%s}. \
         Try resnet-9, resnet-18, resnet-34, resnet-50, resnet-101, resnet-152.' % (name))
 
-    return ResNet(**model_params[name], width=width, num_classes=10)
+    return ResNet(**model_params[name], width=width, num_classes=10, num_splits=num_splits)
