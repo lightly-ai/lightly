@@ -40,12 +40,10 @@ class BaseEmbedding(lightning.LightningModule):
         self.dataloader = dataloader
         self.scheduler = scheduler
         self.checkpoint = None
-        # create custom model checkpoint and set attributes
-        self.checkpoint_callback = CustomModelCheckpoint()
-        self.checkpoint_callback.save_last = True
-        self.checkpoint_callback.save_top_k = 1
-        self.checkpoint_callback.monitor = 'loss'
         self.cwd = os.getcwd()
+
+        self.checkpoint_callback = None
+        self.init_checkpoint_callback()
 
     def forward(self, x):
         return self.model(x)
@@ -81,8 +79,22 @@ class BaseEmbedding(lightning.LightningModule):
             A trained encoder, ready for embedding datasets.
 
         """
-        trainer = pl.Trainer(**kwargs,
-                             checkpoint_callback=self.checkpoint_callback)
+        # backwards compatability for old pytorch-lightning versions:
+        # they changed the way checkpoint callbacks are passed in v1.0.3
+        # -> do a simple version check
+        # TODO: remove when incrementing minimum requirement for pl
+        pl_version = [int(v) for v in pl.__version__.split('.')]
+        ok_version = [1, 0, 4]
+        deprecated_checkpoint_callback = \
+            all([pl_v >= ok_v for pl_v, ok_v in zip(pl_version, ok_version)])
+
+        if deprecated_checkpoint_callback:
+            trainer = pl.Trainer(**kwargs,
+                                 callbacks=[self.checkpoint_callback])
+        else:
+            trainer = pl.Trainer(**kwargs,
+                                 checkpoint_callback=self.checkpoint_callback)
+
         trainer.fit(self)
 
         self.checkpoint = self.checkpoint_callback.best_model_path
@@ -127,3 +139,30 @@ class BaseEmbedding(lightning.LightningModule):
 
         """
         raise NotImplementedError()
+
+    def init_checkpoint_callback(self,
+                                 save_last=True,
+                                 save_top_k=1,
+                                 monitor='loss',
+                                 dirpath=None):
+        """Initializes the checkpoint callback.
+
+        Args:
+            save_last:
+                Whether or not to save the checkpoint of the last epoch.
+            save_top_k:
+                Save the top_k model checkpoints.
+            monitor:
+                Which quantity to monitor.
+            dirpath:
+                Where to save the checkpoint.
+
+        """
+        # initialize custom model checkpoint
+        self.checkpoint_callback = CustomModelCheckpoint()
+        self.checkpoint_callback.save_last = save_last
+        self.checkpoint_callback.save_top_k = save_top_k
+        self.checkpoint_callback.monitor = monitor
+
+        dirpath = self.cwd if dirpath is None else dirpath
+        self.checkpoint_callback.dirpath = dirpath

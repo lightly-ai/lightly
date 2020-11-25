@@ -74,6 +74,12 @@ trainer:
   max_epochs: 100             # Number of epochs to train for.
   precision: 32               # If set to 16, will use half-precision.
 
+# checkpoint_callback namespace: Modify the checkpoint callback
+checkpoint_callback:
+  save_last: True             # Whether to save the checkpoint from the last epoch
+  save_top_k: 1               # Save the top k checkpoints
+  dirpath:                    # Where to store the checkpoints
+
 # seed
 seed: 1
 
