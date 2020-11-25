@@ -1,4 +1,4 @@
-""" Lightly is a computer vision framework for self-supervised learning.
+"""Lightly is a computer vision framework for self-supervised learning.
 
 With Lightly you can train deep learning models using
 self-supervision. This means, that you don't require
@@ -7,7 +7,60 @@ to help you understand and work with large unlabeled datasets.
 It is built on top of PyTorch and therefore fully compatible 
 with other frameworks such as Fast.ai.
 
-For information about the command-line interace, see lightly.cli.
+The framework is structured into the following modules:
+
+- **api**: 
+
+  The lightly.api module handles communication with the Lightly web-app.
+
+- **cli**:
+
+  The lightly.cli module provides a command-line interface for training 
+  self-supervised models and embedding images. Furthermore, the command-line
+  tool can be used to upload and download images from/to the Lightly web-app.
+
+- **core**:
+
+  The lightly.core module offers one-liners for simple self-supervised learning.
+
+- **data**:
+
+  The lightly.data module provides a dataset wrapper and collate functions. The
+  collate functions are in charge of the data augmentations which are crucial for
+  self-supervised learning.
+
+- **embedding**:
+
+  The lightly.embedding module combines the self-supervised models with a dataloader,
+  optimizer, and loss function to provide a simple pytorch-lightning trainable.
+
+- **loss**:
+
+  The lightly.loss module contains implementations of popular self-supervised training
+  loss functions.
+
+- **models**:
+
+  The lightly.models module holds the implementation of the ResNet as well as self-
+  supervised methods. Currently implements:
+
+  - SimCLR
+
+  - MoCo
+
+- **transforms**:
+
+  The lightly.transforms module implements custom data transforms. Currently implements:
+
+  - Gaussian Blur
+
+  - Random Rotation
+
+- **utils**:
+
+  The lightly.utils package provides global utility methods.
+  The io module contains utility to save and load embeddings in a format which is
+  understood by the Lightly library.
 
 """
 
