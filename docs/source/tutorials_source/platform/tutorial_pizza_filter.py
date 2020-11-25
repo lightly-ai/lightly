@@ -84,6 +84,11 @@ from torchvision.models import resnet18
 # We use a small batch size to make sure we can run the training on all kinds 
 # of machines. Feel free to adjust the value to one that works on your machine.
 batch_size = 8
+seed = 42
+
+# %%
+# Set the seed to make the experiment reproducible
+pl.seed_everything(seed)
 
 #%%
 # Let's set up the augmentations for the train and the test data.
