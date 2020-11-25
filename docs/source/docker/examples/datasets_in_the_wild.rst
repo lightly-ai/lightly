@@ -55,16 +55,11 @@ fixed framerates for frame extraction.
 
 How about selecting frames based on their similarity? 
 
-In this example we use the following video: 
+In this example, we use the following video: https://www.pexels.com/de-de/video/3719157/
 
 We download the video to a local folder */dataset/video/*. We can use wget in 
 a terminal under linux or MacOS to download the video (just make sure you 
-navigated to the directory where you want to download the video to):
-
-.. code-block:: console
-
-    wget url
-
+navigated to the directory where you want to download the video to).
 
 Let us extract frames from the video using ffmpeg. We want to get 5 frame per
 second (fps). Create a new directory called */dataset/frames_ffmpeg/*. Using ffmpeg we can 
@@ -88,3 +83,69 @@ extracted 99 frames let's extract 99 frames as well:
         lightly.loader.num_workers=8 lightly.trainer.max_epochs=10 \
         stopping_condition.n_samples=100 remove_exact_duplicates=True \
         enable_corruptness_check=False enable_training=False dump_dataset=True
+
+
+Let's have a look at some statistics of the two obtained datasets:
+
+.. list-table:: video_dataset_statistics.csv
+   :widths: 50 50 50 50 50
+   :header-rows: 1
+
+   * - Metric
+     - original dataset
+     - after ffmpeg
+     - after random
+     - after coreset 
+   * - Number of Samples
+     - 475
+     - 99
+     - 99
+     - 99
+   * - L2 Distance (Mean)
+     - 1.2620
+     - 1.2793
+     - 1.2746
+     - 1.3711
+   * - L2 Distance (Min)
+     - 0.0000
+     - 0.0000
+     - 0.0586
+     - 0.2353
+   * - L2 Distance (Max)
+     - 1.9835
+     - 1.9693
+     - 1.9704
+     - 1.9470
+   * - L2 Distance (10th Percentile)
+     - 0.5851
+     - 0.5891
+     - 0.5994
+     - 0.8690
+   * - L2 Distance (90th Percentile)
+     - 1.8490
+     - 1.8526
+     - 1.8525
+     - 1.7822
+
+We notice the following when looking at this table:
+
+- The **min distance** between two samples was 0 after ffmpeg selection whereas the
+  min distance significantly increased using coreset sampling.
+
+  - 0 distance means that there are at least two samples completely identical
+    (e.g. two frames in the video are the same)
+
+- The **mean distance** between the original dataset, ffmpeg as well as 
+  random selection is very similar. The coreset selection however differs 
+  significantly with a higher mean (higher diversity) in the selected dataset.
+
+- The **10th percentile** shows a similar behaviour to the mean distance.
+
+As you see in this example just selecting every N-th frame is similar to
+selecting frames randomly. More sophisticated selection methods such as 
+coreset sampling which has been heavily optimized for Lightly Docker result in 
+much higher sample diversity.
+
+.. note:: Note that by default the embeddings of the dataset will be normalized
+          to unit vector length. Max L2 distance between two vectors is 
+          therefore 2.0 (two vectors pointing in opposite directions). 
