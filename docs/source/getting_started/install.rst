@@ -29,3 +29,8 @@ If you want to work with video files you need to additionally install
 `PyAV <https://github.com/PyAV-Org/PyAV#installation>`_.
 
 - av
+
+Next Steps
+------------
+
+Check out our tutorial: :ref:`lightly-tutorials` 
