@@ -1,15 +1,15 @@
 Command-line tool
 =================
 
-The Lighly framework provides you with a command-line interface to train self-supervised models
+The Lightly framework provides you with a command-line interface to train self-supervised models
 and create embeddings without having to write a single line of code.
 
-The following examples are commands you can run in your terminal like shown here.
+The following examples are commands you can run in your terminal as shown here.
 
 .. image:: images/cli_example.png
     :width: 500px
 
-You can also have a look at this video to get an overview on how to work with 
+You can also have a look at this video to get an overview of how to work with 
 the CLI.
 
 
@@ -61,7 +61,7 @@ Once you have a trained model checkpoint you can create an embedding of a datase
 
 Upload the dataset and embedding to the Lightly platform
 --------------------------------------------------------
-You need to be registered on `Lightly <https://www.lightly.ai>`_. A free account is sufficient.
+You need to register on `Lightly <https://www.lightly.ai>`_. A free account is sufficient.
 Log in to the app and create a new dataset. You will get a token and dataset_id which can 
 be used to upload your dataset
 
@@ -76,7 +76,7 @@ be used to upload your dataset
 
 Download a dataset after curating on Lightly.ai
 -----------------------------------------------
-You can download a dataset with a given tag from the Lighly platform using the following CLI command.
+You can download a dataset with a given tag from the Lightly platform using the following CLI command.
 The CLI provides you with two options. Either you download just a list or copy the files from the dataset 
 into a new folder. The second option is very handy for quick prototyping.
 

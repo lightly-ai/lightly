@@ -6,7 +6,7 @@ ImageNet
 -----------------------------------
 
 Let's have a look at how to run the docker container to analyze and filter the famous
-ImageNet dataset. The results provided in de sample report have been obtained using the following
+ImageNet dataset. You can reproduce the sample report using the following
 command.
 
 .. code-block:: console

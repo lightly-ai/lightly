@@ -1,14 +1,15 @@
 Advanced
 ===================
 
-In this section we will have a look at some more advanced topics around lightly.
-For the moment lightly focuses mostly on contrastive learning methods.
-In contrastive learning we create multiple views of each sample and during
-training of the model force similar views (originating from same sample) to be
-close to each other respective different views (originating from different
-samples to be far away. Views are typically obtained using augmentation methods.
+In this section, we will have a look at some more advanced topics around lightly. 
+For the moment lightly focuses mostly on contrastive learning methods. 
+In contrastive learning, we create multiple views of each sample and during 
+the training of the model force similar views (originating from the 
+same sample) to be close to each other respective different views 
+(originating from different samples to be far away. Views are typically 
+obtained using augmentation methods.
 
-Through this procedure we train invariances towards certain augmentations 
+Through this procedure, we train invariances towards certain augmentations 
 when training models using contrastive learning methods. 
 
 Different augmentations result in different invariances. Here we try to group
@@ -23,10 +24,10 @@ them and examples on their effect:
   images.
 
 - **Random Vertical Flip** --> E.g. We don't care about "up and down" in images.
-  This can be useful for satelite images.
+  This can be useful for satellite images.
 
-- **Random Rotation** --> E.g. We don't care about orientation of the camera.
-  This can be useful for satelite images.
+- **Random Rotation** --> E.g. We don't care about the orientation of the camera.
+  This can be useful for satellite images.
 
 
 **Texture Invariances**
@@ -65,8 +66,8 @@ The built-in collate class
 :py:class:`lightly.data.collate.ImageCollateFunction` provides a set of 
 common augmentations used in SimCLR and MoCo.
 
-Since gaussian blur and random rotations by 90 degrees are not supported
-by default in torchvision we added them to lightly 
+Since Gaussian blur and random rotations by 90 degrees are not supported
+by default in torchvision, we added them to lightly 
 :py:class:`lightly.transforms`
 
 You can build your own collate function my inheriting from 
@@ -87,7 +88,7 @@ learning:
   
   - Check the documentation: :py:class:`lightly.models.moco.ResNetMoCo`
 
-You know a model which should be on this list? Please add an issue on GitHub :)
+Do you know a model that should be on this list? Please add an issue on GitHub :)
 
 
 
@@ -109,5 +110,9 @@ batch sizes are preferred. However, not everyone has a multi GPU cluster at
 hand. Therefore, alternative tricks and methods have been derived in research.
 On of them is a memory bank keeping past examples as additional negatives.
 
-Check the documentation: :py:class:`lightly.loss.memory_bank.MemoryBankModule`.
+For an example of the memory bank in action have a look at 
+:ref:`lightly-moco-tutorial-2`. 
+
+For more information check the documentation: 
+:py:class:`lightly.loss.memory_bank.MemoryBankModule`.
 
