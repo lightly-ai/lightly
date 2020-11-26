@@ -81,7 +81,7 @@ distances. Typically, datasets consist of multiple normal or uniform
 distributions (second row). This makes sense. In autonomous driving, we collect
 data in various cities, different weather conditions, or other factors. When 
 working with video data from multiple cameras each camera might form a cluster
-since camera from the same static camera has lots of perceptual similarity.
+since images from the same static camera have lots of perceptual similarity.
 
 The more interesting question is what kind of distribution you're aiming for.
 

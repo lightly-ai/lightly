@@ -23,7 +23,7 @@ You can learn more about how to use the platform using our tutorials:
 Authentication Token
 -----------------------------------
 
-In order to authenticate yourself on the platform when using the pip package
+To authenticate yourself on the platform when using the pip package
 we provide you with an authentication token. You can retrieve
 it when creating a new dataset or when clicking on your 
 account (top right)-> preferences on the 
