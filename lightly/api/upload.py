@@ -9,6 +9,7 @@ import time
 import random
 
 import numpy as np
+import torchvision
 
 from itertools import islice
 
@@ -338,6 +339,7 @@ def upload_images_from_folder(path_to_folder: str,
                               token: str,
                               max_workers: int = 8,
                               mode: str = 'thumbnails',
+                              size: int = -1,
                               verbose: bool = True):
     """Uploads images from a directory to the Lightly cloud solution.
 
@@ -356,6 +358,12 @@ def upload_images_from_folder(path_to_folder: str,
         mode:
             One of [full, thumbnails, metadata]. Whether to upload thumbnails,
             full images, or metadata only.
+        size:
+            Desired output size. If negative, default output size is used.
+            If size is a sequence like (h, w), output size will be matched to 
+            this. If size is an int, smaller edge of the image will be matched 
+            to this number. i.e, if height > width, then image will be rescaled
+            to (size * height / width, size).
 
     Raises:
         ValueError if dataset is too large.
@@ -364,7 +372,11 @@ def upload_images_from_folder(path_to_folder: str,
 
     """
 
-    dataset = LightlyDataset(from_folder=path_to_folder)
+    transform = None
+    if isinstance(size, tuple) or size > 0:
+        transform = torchvision.transforms.Resize(size)
+
+    dataset = LightlyDataset(from_folder=path_to_folder, transform=transform)
     upload_dataset(
         dataset,
         dataset_id,

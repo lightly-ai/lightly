@@ -28,6 +28,10 @@ def _upload_cli(cfg, is_cli_call=True):
     dataset_id = cfg['dataset_id']
     token = cfg['token']
 
+    size = cfg['resize']
+    if not isinstance(size, int):
+        size = tuple(size)
+
     if not token or not dataset_id:
         print('Please specify your access token and dataset id.')
         print('For help, try: lightly-upload --help')
@@ -36,7 +40,8 @@ def _upload_cli(cfg, is_cli_call=True):
     if input_dir:
         mode = cfg['upload']
         try:
-            upload_images_from_folder(input_dir, dataset_id, token, mode=mode)
+            upload_images_from_folder(
+                input_dir, dataset_id, token, mode=mode, size=size)
         except (ValueError, ConnectionRefusedError) as error:
             msg = f'Error: {error}'
             print(msg)
