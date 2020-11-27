@@ -7,10 +7,11 @@ import torch
 import torch.nn as nn
 
 from lightly.models.resnet import ResNetGenerator
-from lightly.models._helpers import filter_state_dict
+from lightly.models.batchnorm import get_norm_layer
+from lightly.models._loader import _StateDictLoaderMixin
 
 
-def _get_features_and_projections(resnet, num_ftrs, out_dim):
+def _get_features_and_projections(resnet, num_ftrs, out_dim, num_splits):
     """Removes classification head from the ResNet and adds a projection head.
 
     - Adds a batchnorm layer to the input layer.
@@ -24,7 +25,7 @@ def _get_features_and_projections(resnet, num_ftrs, out_dim):
 
     # replace output layer
     features = nn.Sequential(
-        nn.BatchNorm2d(3),
+        get_norm_layer(3, num_splits),
         *list(resnet.children())[:-1],
         nn.Conv2d(last_conv_channels, num_ftrs, 1),
         nn.AdaptiveAvgPool2d(1),
@@ -40,7 +41,7 @@ def _get_features_and_projections(resnet, num_ftrs, out_dim):
     return features, projection_head
 
 
-class ResNetSimCLR(nn.Module):
+class ResNetSimCLR(nn.Module, _StateDictLoaderMixin):
     """ Implementation of ResNet with a projection head.
 
     Attributes:
@@ -59,63 +60,35 @@ class ResNetSimCLR(nn.Module):
                  name: str ='resnet-18',
                  width: float = 1.,
                  num_ftrs: int = 32,
-                 out_dim: int = 128):
+                 out_dim: int = 128,
+                 num_splits: int = 0):
 
         self.num_ftrs = num_ftrs
         self.out_dim = out_dim
+        self.num_splits = num_splits
 
         super(ResNetSimCLR, self).__init__()
-        resnet = ResNetGenerator(name=name, width=width)
+        resnet = ResNetGenerator(name=name, width=width, num_splits=num_splits)
 
         self.features, self.projection_head = _get_features_and_projections(
-            resnet, self.num_ftrs, self.out_dim)
+            resnet, self.num_ftrs, self.out_dim, num_splits)
 
-    @classmethod
-    def from_state_dict(cls,
-                        state_dict: dict,
-                        name: str = 'resnet-18',
-                        width: float = 1.,
-                        num_ftrs: int = 32,
-                        out_dim: int = 128,
-                        strict: bool = True,
-                        apply_filter: bool = True):
+    def load_from_state_dict(self,
+                             state_dict,
+                             strict: bool = True,
+                             apply_filter: bool = True):
         """Initializes a ResNetMoCo and loads weights from a checkpoint.
 
         Args:
             state_dict:
                 State dictionary with layer weights.
-            name:
-                ResNet version, choose from resnet-{9, 18, 34, 50, 101, 152}.
-            width:
-                Width of the ResNet.
-            num_ftrs:
-                Dimension of the embedding (before the projection head).
-            out_dim:
-                Dimension of the output (after the projection head).
             strict:
                 Set to False when loading from a partial state_dict.
             apply_filter:
                 If True, removes the `model.` prefix from keys in the state_dict.
 
         """
-        model = cls(
-            name=name,
-            width=width,
-            num_ftrs=num_ftrs,
-            out_dim=out_dim,
-        )
-
-        # remove the model. prefix which is caused by the pytorch-lightning
-        # checkpoint saver and load the model from the "filtered" state dict
-        # this approach is compatible with pytorch_lightning 0.7.1 - 0.8.4 (latest)
-        if apply_filter:
-            state_dict_ = filter_state_dict(state_dict)
-        else:
-            state_dict_ = state_dict
-
-        model.load_state_dict(state_dict_, strict=strict)
-
-        return model
+        self._custom_load_from_state_dict(state_dict, strict, apply_filter)
 
     def forward(self, x: torch.Tensor):
         """Forward pass through ResNetSimCLR.

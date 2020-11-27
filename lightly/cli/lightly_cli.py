@@ -19,7 +19,10 @@ def _lightly_cli(cfg, is_cli_call=True):
 
     cfg['loader']['shuffle'] = True
     cfg['loader']['drop_last'] = True
-    checkpoint = _train_cli(cfg, is_cli_call)
+    if cfg['trainer']['max_epochs'] > 0:
+        checkpoint = _train_cli(cfg, is_cli_call)
+    else:
+        checkpoint = ''
 
     cfg['loader']['shuffle'] = False
     cfg['loader']['drop_last'] = False

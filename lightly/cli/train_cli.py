@@ -84,10 +84,9 @@ def _train_cli(cfg, is_cli_call=True):
             )['state_dict']
 
     # load model
+    model = ResNetSimCLR(**cfg['model'])
     if state_dict is not None:
-        model = ResNetSimCLR.from_state_dict(state_dict, **cfg['model'])
-    else:
-        model = ResNetSimCLR(**cfg['model'])
+        model.load_from_state_dict(state_dict)
 
     criterion = NTXentLoss(**cfg['criterion'])
     optimizer = torch.optim.SGD(model.parameters(), **cfg['optimizer'])
@@ -107,6 +106,7 @@ def _train_cli(cfg, is_cli_call=True):
                                              collate_fn=collate_fn)
 
     encoder = SelfSupervisedEmbedding(model, criterion, optimizer, dataloader)
+    encoder.init_checkpoint_callback(**cfg['checkpoint_callback'])
     encoder = encoder.train_embedding(**cfg['trainer'])
 
     print('Best model is stored at: %s' % (encoder.checkpoint))
