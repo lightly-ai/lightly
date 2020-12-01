@@ -1,13 +1,9 @@
 Command-line tool
 =================
 
-The Lightly framework provides you with a command-line interface to train self-supervised models
-and create embeddings without having to write a single line of code.
-
-The following examples are commands you can run in your terminal as shown here.
-
-.. image:: images/cli_example.png
-    :width: 500px
+The Lightly framework provides you with a command-line interface (CLI) to train 
+self-supervised models and create embeddings without having to write a single 
+line of code.
 
 You can also have a look at this video to get an overview of how to work with 
 the CLI.
@@ -26,8 +22,8 @@ the CLI.
     </div>
 
 
-Train a self-supervised model
------------------------------
+Train a model using the CLI
+---------------------------------------
 Training a model using default parameters can be done with just one command. Let's
 assume you have a folder of cat images named `cat` and want to train a model on it.
 You can use the following command to train a model and save the checkpoint:
@@ -46,7 +42,7 @@ For a full list of supported arguments run
     
     lightly-train --help
 
-Create an embedding using a trained model
+Create embeddings using the CLI
 -----------------------------------------
 Once you have a trained model checkpoint you can create an embedding of a dataset.
 
@@ -59,11 +55,15 @@ Once you have a trained model checkpoint you can create an embedding of a datase
     lightly-embed input_dir=cat checkpoint=mycheckpoint.ckpt
 
 
-Upload the dataset and embedding to the Lightly platform
+.. _ref-upload-data-lightly:
+
+Upload data using the CLI
 --------------------------------------------------------
-You need to register on `Lightly <https://www.lightly.ai>`_. A free account is sufficient.
-Log in to the app and create a new dataset. You will get a token and dataset_id which can 
-be used to upload your dataset
+
+In this example we will upload a data to the Lightly Platform.
+First, make sure you have an account on `Lightly <https://www.lightly.ai>`_. 
+A free account is sufficient. Log in to the app and create a new dataset. 
+You will get a *token* and *dataset_id* which can be used to upload your dataset
 
 .. code-block:: bash
 
@@ -74,11 +74,34 @@ be used to upload your dataset
     lightly-upload input_dir=cat embedding=your_embedding.csv \
                    token=your_token dataset_id=your_dataset_id
 
-Download a dataset after curating on Lightly.ai
+.. note:: To obtain your *token* and *dataset_id* check: 
+          :ref:`ref-authentication-token` and :ref:`ref-webapp-dataset-id`.
+
+
+.. _ref-upload-embedding-lightly:
+
+Upload embeddings using the CLI 
+----------------------------------
+
+You can upload embeddings directly to the Lightly Platform using the CLI.
+
+.. code-block:: bash
+
+    # upload only the embedding
+    lightly-upload embedding=your_embedding.csv token=your_token \
+                   dataset_id=your_dataset_id
+
+    # you can upload the dataset together with the embedding
+    lightly-upload input_dir=cat embedding=your_embedding.csv \
+                   token=your_token dataset_id=your_dataset_id
+
+
+Download data using the CLI
 -----------------------------------------------
-You can download a dataset with a given tag from the Lightly platform using the following CLI command.
-The CLI provides you with two options. Either you download just a list or copy the files from the dataset 
-into a new folder. The second option is very handy for quick prototyping.
+You can download a dataset with a given tag from the Lightly Platform using the 
+following CLI command. The CLI provides you with two options. Either you 
+download just a list or copy the files from the original dataset into a new 
+folder. The second option is very handy for quick prototyping.
 
 .. code-block:: bash
 

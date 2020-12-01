@@ -1,4 +1,4 @@
-Lightly at a glance
+Lightly at a Glance
 ===================
 
 Lightly is a computer vision framework for training deep learning models using self-supervised learning.

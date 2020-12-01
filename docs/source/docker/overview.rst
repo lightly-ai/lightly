@@ -55,12 +55,9 @@ We worked hard to make this happen and are very proud to present you with the fo
    getting_started/first_steps.rst
    advanced/meta_information.rst
    configuration/configuration.rst
-
-
-.. toctree::
-   :maxdepth: 1
-   
    examples/overview.rst
+
+   
 
 
 Changelog
