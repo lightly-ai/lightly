@@ -1,6 +1,33 @@
 First Steps
 ===================================
 
+The Lightly Docker solution follows a train, embed, select flow using 
+self-supervised learning.
+
+.. code-block:: console
+
+    +-------+      +-------+      +--------+
+    | Train +----->+ Embed +----->+ Select |
+    +-------+      +-------+      +--------+
+
+#. You can either use a pre-trained model from the model zoo or fine-tune
+   a model on your unlabeled dataset using self-supervised learning. The output
+   of the train step is a model checkpoint.
+
+#. The embed step creates embeddings of the input dataset. Each sample gets
+   represented using a low-dimensional vector. The output of the embed step is
+   a .csv file.
+
+#. Finally, based on the embeddings and additional information we can use 
+   one of the sampling algorithms to pick the relevant data for you.
+   The output of the select step is a list of filenames as well as 
+   analytics in form of a pdf report with plots.
+
+You can use each of the three steps independently as well. E.g. you can use
+the Lightly Docker to embed a dataset and train a linear classifier on top of 
+them.
+
+
 The docker solution can be used as a command-line interface. You run the container, tell it where to find data, and where to store the result. That's it.
 There are various parameters you can pass to the container. We put a lot of effort to also expose the full lightly framework configuration.
 You could use the docker solution to train a self-supervised model instead of using the Python framework.
@@ -58,12 +85,15 @@ Typically, your docker command would start like this:
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-    -v INPUT_DIR:/home/input_dir:ro \
-    -v OUTPUT_DIR:/home/output_dir \
-    lightly/sampling:latest \
-    token=MYAWESOMETOKEN
+        -v INPUT_DIR:/home/input_dir:ro \
+        -v OUTPUT_DIR:/home/output_dir \
+        lightly/sampling:latest \
+        token=MYAWESOMETOKEN
 
 Now, let's see how this will look in action!
+
+.. note:: Learn how to obtain your :ref:`ref-authentication-token`.
+
 
 Embedding and Sampling a Dataset
 -----------------------------------
@@ -88,19 +118,21 @@ The command above does the following:
 - **enable_corruptness_check=True** Removes exact duplicates
 
 - **stopping_condition.n_samples=0.3** Samples 30% of the images using the
-  default method (coreset). Sampling 30% == The remaining dataset will be 30%
-  of the initial dataset size. You can also specify the exact number of
-  remaining images by setting **n_samples** to an integer value.
+  default method (coreset). Sampling 30% means that the remaining dataset 
+  will be 30% of the initial dataset size. You can also specify the exact 
+  number of remaining images by setting **n_samples** to an integer value.
 
 
 Train a Self-Supervised Model
 -----------------------------------
 
-Sometimes it may be beneficial to finetune a self-supervised model on your dataset before embedding the images. 
-This may be the case when the dataset is from a specific domain (e.g. for medical images).
+Sometimes it may be beneficial to finetune a self-supervised model on your 
+dataset before embedding the images. This may be the case when the dataset is 
+from a specific domain (e.g. for medical images).
 
-The command below will **train a self-supervised model** for (default: 100) epochs on the images stored in the input directory 
-before embedding and sampling them.
+The command below will **train a self-supervised model** for (default: 100) 
+epochs on the images stored in the input directory before embedding 
+and sampling them.
 
 .. code-block:: console
 
@@ -163,7 +195,7 @@ do so.
 
 
 
-A list of all input parameters can be found in the CLI section of the lightly documentation.
+A list of all input parameters can be found here: :ref:`rst-docker-parameters`
 
 
 Sampling from Embeddings File

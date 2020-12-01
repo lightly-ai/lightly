@@ -19,7 +19,16 @@ Lightly is a computer vision framework for self-supervised learning.
 
 ## Quick Start
 
-Lightly requires Python 3.6+. We recommend installing Lightly in a **Linux** or **OSX** environment.
+Lightly requires **Python 3.6+**. We recommend installing Lightly in a **Linux** or **OSX** environment.
+
+### Requirements
+
+- hydra-core>=1.0.0
+- numpy>=1.18.1
+- pytorch_lightning>=0.10.0   
+- requests>=2.23.0
+- torchvision
+- tqdm
 
 ### Installation
 You can install Lightly and its dependencies from PyPI with:
@@ -28,6 +37,25 @@ pip install lightly
 ```
 
 We strongly recommend that you install Lightly in a dedicated virtualenv, to avoid conflicting with your system packages.
+
+### Command-Line Interface
+
+Lightly is accessible also through a command-line interface (CLI).
+To train a SimCLR model on a folder of images you can simply run
+the following command:
+
+```
+lightly-train input_dir=/mydataset
+```
+
+To create an embedding of a dataset you can use:
+
+```
+lightly-embed input_dir=/mydataset checkpoint=/mycheckpoint
+```
+
+The embeddings with the corresponding filename are stored in a human-readable .csv file.
+
 
 ### Next Steps
 Head to the [documentation](https://docs.lightly.ai) and see the things you can achieve with Lightly!
