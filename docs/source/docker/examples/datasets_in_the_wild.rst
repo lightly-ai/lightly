@@ -4,14 +4,16 @@ Datasets in the Wild
 Extract Diverse Video Frames
 -----------------------------
 
-Lots of data we use to train computer vision models is collected using 
-video cameras. Since we don't work with video files directly due to various 
-reasons (performance, usability) we extract the individual frames first.
+The following example is a showcase how the lightly docker solution can be used 
+to extract frames from a video based on their uniqueness 
+rather than based on timestamps.
+
 
 Using ffmpeg
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Using tools such as ffmpeg this can be done using a simple one-liner like this:
+Using tools such as ffmpeg we can extract frames from a video 
+using a simple one-liner like this:
 
 .. code-block:: console
 

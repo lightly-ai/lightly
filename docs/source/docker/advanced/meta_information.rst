@@ -4,14 +4,15 @@ Here you learn more advanced usage patterns of Lightly Docker.
 
 Depending on your current setup one of the following topics might interest you:
 
-- I have a dataset but I want lightly to "ignore" certain Samples.
-  --> `Mask Samples`_
+- | You have a dataset but I want lightly to "ignore" certain Samples.
+  | --> `Mask Samples`_
 
-- I have an existing dataset and want to add only relevant new data.
-  --> `Use Pre-Selected Samples`_
+- | You have an existing dataset and want to add only relevant new data.
+  | --> `Use Pre-Selected Samples`_
 
-- I have my own (weak) labels. Can lightly use this information to improve
-  the selection? --> `Custom Labels`_
+- | You have my own (weak) labels. Can lightly use this information to improve
+    the selection? 
+  | --> `Custom Labels`_
 
 
 Mask Samples
@@ -84,6 +85,10 @@ additional samples that are enriching the existing selection.
      - 1
      - 0
 
+.. note:: Pre-selected samples also count for the target number of samples.
+          For example, you have a dataset with 100 samples. If you pre-select
+          60 and want to sample 50, sampling would have no effect since there
+          are already more than 50 samples selected.
 
 Custom Labels
 -----------------------------------
