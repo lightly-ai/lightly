@@ -16,10 +16,11 @@ filenames, or any other information which can be sensitive to our customers.
 Licensing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The licensing and account management is done through the :ref:`my-reference-label` as if 
-you would use lightly. The token will be used to authenticate your account. The authentication
-happens at every run of the container. Make sure the docker container has a working internet connection
-and has access to https://api.lightly.ai.
+The licensing and account management is done through the :ref:`ref-authentication-token` 
+as if you would use lightly. The token will be used to authenticate your account. 
+The authentication happens at every run of the container. Make sure the docker 
+container has a working internet connection and has access to 
+https://api.lightly.ai.
 
 
 Download image
