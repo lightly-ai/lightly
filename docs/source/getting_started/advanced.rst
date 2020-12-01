@@ -12,35 +12,37 @@ obtained using augmentation methods.
 Through this procedure, we train invariances towards certain augmentations 
 when training models using contrastive learning methods. 
 
-Different augmentations result in different invariances. Here we try to group
-them and examples on their effect:
+Different augmentations result in different invariances. The invariances you 
+want to learn heavily depend on the type of downstream task you want to solve. 
+Here, we group the augmentations by the type of invariance they induce and 
+show examples of when such invariances can be useful.
 
 **Shape Invariances**
 
-- **Random cropping** --> E.g. We don't care if an object is small or large 
+- **Random cropping** E.g. We don't care if an object is small or large 
   or only partially in the image
 
-- **Random Horizontal Flip** --> E.g. We don't care about "left and right" in 
+- **Random Horizontal Flip** E.g. We don't care about "left and right" in 
   images.
 
-- **Random Vertical Flip** --> E.g. We don't care about "up and down" in images.
+- **Random Vertical Flip** E.g. We don't care about "up and down" in images.
   This can be useful for satellite images.
 
-- **Random Rotation** --> E.g. We don't care about the orientation of the camera.
+- **Random Rotation** E.g. We don't care about the orientation of the camera.
   This can be useful for satellite images.
 
 
 **Texture Invariances**
 
-- **Gaussian Blur** --> E.g. We don't care about the details of a person but the
+- **Gaussian Blur** E.g. We don't care about the details of a person but the
   overall shape.
 
 
 **Color Invariances**
 
-- **Color Jittering** --> E.g. We don't care if a car is blue or red
+- **Color Jittering** E.g. We don't care if a car is blue or red
 
-- **Random Grayscale** --> E.g. We don't care about the color of a tree
+- **Random Grayscale** E.g. We don't care about the color of a tree
 
 
 Some interesting papers regarding invariances in self-supervised learning:
