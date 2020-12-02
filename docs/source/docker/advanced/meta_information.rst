@@ -90,7 +90,7 @@ additional samples that are enriching the existing selection.
           60 and want to sample 50, sampling would have no effect since there
           are already more than 50 samples selected.
 
-Custom Labels
+Custom Weak Labels
 -----------------------------------
 
 You can always add custom embeddings to the dataset by following the guide
