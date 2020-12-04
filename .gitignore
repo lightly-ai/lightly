@@ -11,3 +11,4 @@ docs/source/tutorials_source/platform/pizzas
 !docs/source/tutorials/platform.rst
 !docs/source/tutorials/package/structure_your_input.rst
 **.zip
+*.egg-info
