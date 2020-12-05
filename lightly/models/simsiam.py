@@ -6,36 +6,6 @@ from lightly.models.batchnorm import get_norm_layer
 from lightly.models._loader import _StateDictLoaderMixin
 
 
-def _get_features_and_projections(resnet, num_ftrs, out_dim, num_splits):
-    """Removes classification head from the ResNet and adds a projection head.
-
-    - Adds a batchnorm layer to the input layer.
-    - Replaces the output layer by a Conv2d followed by adaptive average pool.
-    - Adds a 2-layer mlp projection head.
-
-    """
-
-    # get the number of features from the last channel
-    last_conv_channels = list(resnet.children())[-1].in_features
-
-    # replace output layer
-    features = nn.Sequential(
-        get_norm_layer(3, num_splits),
-        *list(resnet.children())[:-1],
-        nn.Conv2d(last_conv_channels, num_ftrs, 1),
-        nn.AdaptiveAvgPool2d(1),
-    )
-
-    # 2-layer mlp projection head
-    projection_head = nn.Sequential(
-        nn.Linear(num_ftrs, num_ftrs),
-        nn.ReLU(),
-        nn.Linear(num_ftrs, out_dim)
-    )
-
-    return features, projection_head
-
-
 def _prediction_mlp(in_dims: int = 2048, 
                     h_dims: int = 512, 
                     out_dims: int = 2048) -> nn.Sequential:
@@ -140,11 +110,6 @@ class SimSiam(nn.Module, _StateDictLoaderMixin):
         self.projection_mlp = \
             _projection_mlp(num_ftrs, proj_hidden_dim, out_dim)
 
-        # f - backbone + projection mlp
-        self.encoder = nn.Sequential(self.backbone,
-                                     self.projection_mlp)
-
-        # h - prediction mlp
         self.prediction_mlp = \
             _prediction_mlp(num_ftrs, pred_hidden_dim, out_dim)
         
@@ -180,15 +145,14 @@ class SimSiam(nn.Module, _StateDictLoaderMixin):
 
         """
         # device = output.device
-        batch_size, dim = x.shape
+        batch_size = len(x)
         batch_size = batch_size // 2
-
-        # normalize the output to length 1
-        # output = torch.nn.functional.normalize(output, dim=1)
 
         x1, x2 = x[:batch_size], x[batch_size:]
 
-        z1, z2 = self.encoder(x1), self.encoder(x2)
+        emb1, emb2 = self.backbone(x1), self.backbone(x2)
+        emb1, emb2 = emb1.squeeze(), emb2.squeeze()
+        z1, z2 = self.projection_mlp(emb1), self.projection_mlp(emb2)
         p1, p2 = self.prediction_mlp(z1), self.prediction_mlp(z2)
 
         output = torch.cat((z1, z2, p1, p2), 0)
