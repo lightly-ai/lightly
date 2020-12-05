@@ -13,6 +13,7 @@ checkpoints.
 
 from lightly.models.resnet import ResNetGenerator
 from lightly.models.simclr import SimCLR
+from lightly.models.simsiam import SimSiam
 from lightly.models.moco import MoCo
 from lightly.models.zoo import ZOO
 from lightly.models.zoo import checkpoints
