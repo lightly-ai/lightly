@@ -118,7 +118,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 batch_size = img.shape[0]
                 prepare_time = time.time()
 
-                emb = self.model.features(img)
+                emb = self.model.backbone(img)
                 emb = emb.detach().reshape(batch_size, -1)
 
                 embeddings.append(emb)
