@@ -10,18 +10,23 @@ command-line interface.
 
 import hydra
 import torch
+import torch.nn as nn
 import warnings
 
 from lightly.data import ImageCollateFunction
 from lightly.data import LightlyDataset
 from lightly.embedding import SelfSupervisedEmbedding
 from lightly.loss import NTXentLoss
-from lightly.models import ResNetSimCLR
+from lightly.models import SimCLR
+
+from lightly.models import ResNetGenerator
+from lightly.models.batchnorm import get_norm_layer
 
 from lightly.cli._helpers import is_url
 from lightly.cli._helpers import get_ptmodel_from_config
 from lightly.cli._helpers import fix_input_path
 from lightly.cli._helpers import load_state_dict_from_url
+from lightly.cli._helpers import load_from_state_dict
 
 
 def _train_cli(cfg, is_cli_call=True):
@@ -84,9 +89,23 @@ def _train_cli(cfg, is_cli_call=True):
             )['state_dict']
 
     # load model
-    model = ResNetSimCLR(**cfg['model'])
+    resnet = ResNetGenerator(cfg['model']['name'], cfg['model']['width'])
+    last_conv_channels = list(resnet.children())[-1].in_features
+    features = nn.Sequential(
+        get_norm_layer(3, 0),
+        *list(resnet.children())[:-1],
+        nn.Conv2d(last_conv_channels, cfg['model']['num_ftrs'], 1),
+        nn.AdaptiveAvgPool2d(1),
+    )
+
+    model = SimCLR(
+        features,
+        num_ftrs=cfg['model']['num_ftrs'],
+        out_dim=cfg['model']['out_dim']
+    )
     if state_dict is not None:
-        model.load_from_state_dict(state_dict)
+        load_from_state_dict(model, state_dict)
+        #model.load_from_state_dict(state_dict)
 
     criterion = NTXentLoss(**cfg['criterion'])
     optimizer = torch.optim.SGD(model.parameters(), **cfg['optimizer'])
