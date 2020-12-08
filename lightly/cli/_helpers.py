@@ -41,6 +41,7 @@ def get_ptmodel_from_config(model):
     else:
         return '', key
 
+
 def load_state_dict_from_url(url, map_location=None):
     """Try to load the checkopint from the given url.
 
@@ -67,7 +68,7 @@ def load_state_dict_from_url(url, map_location=None):
     return {'state_dict': None}
 
 
-def _expand_batchnorm_weights(model_dict, state_dict, num_splits):
+def _maybe_expand_batchnorm_weights(model_dict, state_dict, num_splits):
     """Expands the weights of the BatchNorm2d to the size of SplitBatchNorm.
 
     """
@@ -93,17 +94,26 @@ def _expand_batchnorm_weights(model_dict, state_dict, num_splits):
     return state_dict
 
 
-def _filter_state_dict(state_dict):
-    """Prevents unexpected key error when loading PyTorch-Lightning checkpoints.
-
-    Removes the "model." prefix from all keys in the state dictionary.
+def _filter_state_dict(state_dict, remove_model_prefix_offset: int = 1):
+    """Makes the state_dict compatible with the model.
+    
+    Prevents unexpected key error when loading PyTorch-Lightning checkpoints.
+    Allows backwards compatability to checkpoints before v1.0.6.
 
     """
-    # 
+
+    prev_backbone = 'features'
+    curr_backbone = 'backbone'
+
     new_state_dict = {}
     for key, item in state_dict.items():
-        key_parts = key.split('.')[1:]
-        key_parts = [k if k != 'features' else 'backbone' for k in key_parts]
+        # remove the "model." prefix from the state dict key
+        key_parts = key.split('.')[remove_model_prefix_offset:]
+        # with v1.0.6 the backbone of the models will be renamed from
+        # "features" to "backbone", ensure compatability with old ckpts
+        key_parts = \
+            [k if k != prev_backbone else curr_backbone for k in key_parts]
+
         new_key = '.'.join(key_parts)
         new_state_dict[new_key] = item
 
@@ -113,7 +123,8 @@ def _filter_state_dict(state_dict):
 def load_from_state_dict(model,
                          state_dict,
                          strict: bool = True,
-                         apply_filter: bool = True):
+                         apply_filter: bool = True,
+                         num_splits: int = 0):
     """Loads the model weights from the state dictionary.
 
     """
@@ -123,7 +134,7 @@ def load_from_state_dict(model,
  
     # step 2: expand batchnorm weights
     state_dict = \
-        _expand_batchnorm_weights(model.state_dict(), state_dict, 0)
+        _maybe_expand_batchnorm_weights(model.state_dict(), state_dict, num_splits)
 
     # step 3: load from checkpoint
     model.load_state_dict(state_dict, strict=strict)
