@@ -37,10 +37,23 @@ class _MomentumEncoderMixin:
 
     >>> class MyMoCo(nn.Module, _MomentumEncoderMixin):
     >>>
-    >>> def __init__(self, backbone):
-    >>>     super(MyMoCo, self).__init__()
+    >>>     def __init__(self, backbone):
+    >>>         super(MyMoCo, self).__init__()
     >>>
-    >>>     self.backbone = backbone
+    >>>         self.backbone = backbone
+    >>>         self.projection_head = get_projection_head()
+    >>>
+    >>>         # initialize momentum_backbone and momentum_projection_head
+    >>>         self._init_momentum_encoder()
+    >>>
+    >>>     def forward(self, x: torch.Tensor):
+    >>>
+    >>>         # do the momentum update
+    >>>         self._momentum_update(0.999)
+    >>>
+    >>>         # use momentum backbone
+    >>>         y = self.momentum_backbone(x)
+    >>>         y = self.momentum_projection_head(y)
 
     """
 

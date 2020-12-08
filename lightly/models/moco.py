@@ -58,7 +58,6 @@ class MoCo(nn.Module, _MomentumEncoderMixin):
 
         # initialize momentum features and momentum projection head
         self._init_momentum_encoder()
-        self._momentum_update(0.)
 
     def forward(self, x: torch.Tensor):
         """Embeds and projects the input image.
