@@ -25,7 +25,7 @@ def _get_moco_projection_head(num_ftrs: int, out_dim: int):
 
 
 class MoCo(nn.Module, _MomentumEncoderMixin):
-    """Implementation of a momentum encoder with a ResNet backbone.
+    """Implementation of the MoCo (Momentum Contrast) architecture.
 
     Attributes:
         backbone:
