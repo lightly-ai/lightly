@@ -39,7 +39,7 @@ class LightlyDataset(data.Dataset):
         transform:
             Image transforms (as in torchvision).
         indices:
-            TODO
+            If provided, ignores samples not in indices.
 
     Examples:
         >>> import lightly.data as data
@@ -203,7 +203,7 @@ class LightlyDataset(data.Dataset):
         return sample, target, fname
 
     def __len__(self):
-        """TODO
+        """Returns the length of the dataset.
 
         """
         if self.indices is not None:
