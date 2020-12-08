@@ -317,12 +317,3 @@ class MoCoCollateFunction(ImageCollateFunction):
             rr_prob=rr_prob,
             normalize=imagenet_normalize,
         )
-
-
-class SimSiamCollateFunction(SimCLRCollateFunction):
-    """SimSiam uses the same augmentations as SimCLR. Perhaps the
-    SimCLR augmentations should be abstracted into a more generic
-    base class, as those seem to be a common launching point for
-    most self-supervised methods?
-    """
-    pass

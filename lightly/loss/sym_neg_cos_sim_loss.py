@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-class SymmetrizedLoss(torch.nn.Module):
+class SymNegCosineSimilarityLoss(torch.nn.Module):
     """Implementation of the Symmetrized Loss.
     
     Examples:
@@ -24,7 +24,7 @@ class SymmetrizedLoss(torch.nn.Module):
     """
 
     def __init__(self):
-        super(SymmetrizedLoss, self).__init__()
+        super(SymNegCosineSimilarityLoss, self).__init__()
 
     def _neg_cosine_simililarity(self, x, y):
         """Computes the negative cosine similarity between the predictions x 
@@ -64,12 +64,8 @@ class SymmetrizedLoss(torch.nn.Module):
             raise ValueError('Expected output of shape 4*bsz x dim but got '
                              f'shape {output.shape[0]} x {output.shape[1]}.')
 
-        # device = output.device
         batch_size, dim = output.shape
         batch_size = batch_size // 4
-
-        # normalize the output to length 1
-        output = torch.nn.functional.normalize(output, dim=1)
 
         z1 = output[:batch_size]
         z2 = output[batch_size : batch_size * 2]
@@ -80,6 +76,4 @@ class SymmetrizedLoss(torch.nn.Module):
                self._neg_cosine_simililarity(p2, z1) / 2
 
         return loss
-
-
     
