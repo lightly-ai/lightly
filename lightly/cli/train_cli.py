@@ -105,7 +105,6 @@ def _train_cli(cfg, is_cli_call=True):
     )
     if state_dict is not None:
         load_from_state_dict(model, state_dict)
-        #model.load_from_state_dict(state_dict)
 
     criterion = NTXentLoss(**cfg['criterion'])
     optimizer = torch.optim.SGD(model.parameters(), **cfg['optimizer'])
