@@ -96,8 +96,8 @@ pl.seed_everything(seed)
 # ------------------------------------
 #
 # We start with our data preprocessing pipeline. We can implement augmentations
-# from the MOCO paper using the collate function provided by lightly.
-# We can overwrite any default parameter such as in this example the input_size.
+# from the MOCO paper using the collate functions provided by lightly. For MoCo v2,
+# we can use the same augmentations as SimCLR but override the input size and blur.
 # Images from the CIFAR-10 dataset have a resolution of 32x32 pixels. Let's use
 # this resolution to train our model. 
 #
@@ -106,8 +106,10 @@ pl.seed_everything(seed)
 #   in increasing the resolution. A higher resolution results in higher memory
 #   consumption and to compensate for that we would need to reduce the batch size.
 
-collate_fn = lightly.data.MoCoCollateFunction(
+# MoCo v2 uses SimCLR augmentations, additionally, disable blur
+collate_fn = lightly.data.SimCLRCollateFunction(
     input_size=32,
+    gaussian_blur=0.,
 )
 
 # %%
@@ -191,19 +193,32 @@ dataloader_test = torch.utils.data.DataLoader(
 # ---------------------------
 # Now we create our MoCo model. We use PyTorch Lightning to train
 # our model. We follow the specification of the lightning module.
-# In this example we set the number of feature for the hidden dimension to 128.
+# In this example we set the number of features for the hidden dimension to 512.
 # The momentum for the Momentum Encoder is set to 0.99 (default is 0.999) since
 # other reports show that this works better for Cifar-10.
+#
+# .. note:: We use a split batch norm to simulate multi-gpu behaviour. Combined
+#   with the use of batch shuffling, this prevents the model from communicating 
+#   through the batch norm layers.
 
 class MocoModel(pl.LightningModule):
     def __init__(self):
         super().__init__()
+        
+        # create a ResNet backbone and remove the classification head
+        resnet = lightly.models.ResNetGenerator('resnet-18', 1, num_splits=8)
+        backbone = nn.Sequential(
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1),
+        )
+
         # create a moco based on ResNet
-        self.resnet_moco = lightly.models.ResNetMoCo(num_ftrs=128, m=0.99)
+        self.resnet_moco = \
+            lightly.models.MoCo(backbone, num_ftrs=512, m=0.99, batch_shuffle=True)
 
         # create our loss with the optional memory bank
         self.criterion = lightly.loss.NTXentLoss(
-            temperature=0.5,
+            temperature=0.1,
             memory_bank_size=memory_bank_size)
 
     def forward(self, x):
@@ -229,7 +244,7 @@ class MocoModel(pl.LightningModule):
 
     def configure_optimizers(self):
         return torch.optim.SGD(self.resnet_moco.parameters(), lr=3e-2,
-                            momentum=0.9, weight_decay=5e-4)
+                               momentum=0.9, weight_decay=5e-4)
 
 
 # %%
@@ -250,12 +265,13 @@ class Classifier(pl.LightningModule):
 
         # we create a linear layer for our downstream classification
         # model
-        self.fc = nn.Linear(128, 10)
+        self.fc = nn.Linear(512, 10)
 
         self.accuracy = pl.metrics.Accuracy()
 
     def forward(self, x):
-        y_hat = self.resnet_moco.features(x).squeeze().detach()
+        y_hat = self.resnet_moco.backbone(x).squeeze().detach()
+        y_hat = nn.functional.normalize(y_hat, dim=1)
         y_hat = self.fc(y_hat)
         return y_hat
 
@@ -268,7 +284,8 @@ class Classifier(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         x, y, _ = batch
-        y_hat = self.resnet_moco.features(x).squeeze().detach()
+        y_hat = self.resnet_moco.backbone(x).squeeze().detach()
+        y_hat = nn.functional.normalize(y_hat, dim=1)
         y_hat = self.fc(y_hat)
         loss = nn.functional.cross_entropy(y_hat, y)
         self.log('train_loss_fc', loss)
@@ -279,7 +296,8 @@ class Classifier(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         x, y, _ = batch
-        y_hat = self.resnet_moco.features(x).squeeze()
+        y_hat = self.resnet_moco.backbone(x).squeeze()
+        y_hat = nn.functional.normalize(y_hat, dim=1)
         y_hat = self.fc(y_hat)
 
         self.accuracy(y_hat, y)
@@ -287,8 +305,8 @@ class Classifier(pl.LightningModule):
                  on_epoch=True, prog_bar=True)
 
     def configure_optimizers(self):
-        return torch.optim.SGD(self.fc.parameters(), lr=1e-3,
-                               momentum=0.9, weight_decay=5e-4)
+        return torch.optim.SGD(self.fc.parameters(), lr=10.,
+                               momentum=0.9, weight_decay=0.)
         
 
 # %%

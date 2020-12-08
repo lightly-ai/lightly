@@ -84,11 +84,11 @@ learning:
 
 - `SimCLR: A Simple Framework for Contrastive Learning of Visual Representations, T. Chen, 2020 <https://arxiv.org/abs/2002.05709>`_
   
-  - Check the documentation: :py:class:`lightly.models.simclr.ResNetSimCLR`
+  - Check the documentation: :py:class:`lightly.models.simclr.SimCLR`
 
 - `MoCo: Momentum Contrast for Unsupervised Visual Representation Learning, K. He, 2019 <https://arxiv.org/abs/1911.05722>`_
   
-  - Check the documentation: :py:class:`lightly.models.moco.ResNetMoCo`
+  - Check the documentation: :py:class:`lightly.models.moco.MoCo`
 
 Do you know a model that should be on this list? Please add an issue on GitHub :)
 
