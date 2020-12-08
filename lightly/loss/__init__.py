@@ -4,4 +4,4 @@
 # All Rights Reserved
 
 from lightly.loss.ntx_ent_loss import NTXentLoss
-from lightly.loss.symmetrized_loss import SymmetrizedLoss
+from lightly.loss.sym_neg_cos_sim_loss import SymNegCosineSimilarityLoss
