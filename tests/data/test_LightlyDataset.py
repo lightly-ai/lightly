@@ -1,5 +1,6 @@
 import unittest
 import os
+import random
 import shutil
 import torchvision
 import tempfile
@@ -184,3 +185,33 @@ class TestLightlyDataset(unittest.TestCase):
         out_dir = tempfile.mkdtemp()
         dataset.dump(out_dir)
         self.assertEqual(len(os.listdir(out_dir)), len(dataset))
+
+    def test_create_lightly_with_indices(self):
+        n_subfolders = 5
+        n_samples_per_subfolder = 10
+        n_tot_files = n_subfolders * n_samples_per_subfolder
+
+        indices = random.sample(range(n_tot_files), 20)
+
+        dataset_dir, folder_names, sample_names = self.create_dataset(
+            n_subfolders,
+            n_samples_per_subfolder
+        )
+
+        dataset = LightlyDataset(from_folder=dataset_dir, indices=indices)
+        self.assertEqual(len(dataset), 20)
+        self.assertLess(len(dataset), n_tot_files)
+        
+        filenames = dataset.get_filenames()
+        self.assertEqual(len(filenames), 20)
+        
+        fnames = []
+        for dir_name in folder_names:
+            for fname in sample_names:
+                fnames.append(os.path.join(dir_name, fname))
+        
+        fnames = [fnames[i] for i in indices]
+
+        self.assertListEqual(sorted(fnames), sorted(filenames))
+
+        shutil.rmtree(dataset_dir)
