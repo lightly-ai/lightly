@@ -24,7 +24,7 @@ def _get_simclr_projection_head(num_ftrs: int, out_dim: int):
 
 
 class SimCLR(nn.Module):
-    """Implementation of ResNet with a projection head.
+    """Implementation of the SimCLR architecture.
 
     Attributes:
         backbone:
