@@ -1,4 +1,4 @@
-""" ResNet architecture with projection head for implementation of SimCLR. """
+""" SimCLR Model """
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
@@ -6,49 +6,29 @@
 import torch
 import torch.nn as nn
 
-from lightly.models.resnet import ResNetGenerator
-from lightly.models.batchnorm import get_norm_layer
-from lightly.models._loader import _StateDictLoaderMixin
 
+def _get_simclr_projection_head(num_ftrs: int, out_dim: int):
+    """Returns a 2-layer projection head.
 
-def _get_features_and_projections(resnet, num_ftrs, out_dim, num_splits):
-    """Removes classification head from the ResNet and adds a projection head.
-
-    - Adds a batchnorm layer to the input layer.
-    - Replaces the output layer by a Conv2d followed by adaptive average pool.
-    - Adds a 2-layer mlp projection head.
+    Reference (07.12.2020):
+    https://github.com/google-research/simclr/blob/master/model_util.py#L141
 
     """
-
-    # get the number of features from the last channel
-    last_conv_channels = list(resnet.children())[-1].in_features
-
-    # replace output layer
-    features = nn.Sequential(
-        get_norm_layer(3, num_splits),
-        *list(resnet.children())[:-1],
-        nn.Conv2d(last_conv_channels, num_ftrs, 1),
-        nn.AdaptiveAvgPool2d(1),
-    )
-
-    # 2-layer mlp projection head
-    projection_head = nn.Sequential(
+    modules = [
         nn.Linear(num_ftrs, num_ftrs),
+        #nn.BatchNorm1d(num_ftrs),
         nn.ReLU(),
         nn.Linear(num_ftrs, out_dim)
-    )
+    ]
+    return nn.Sequential(*modules)
 
-    return features, projection_head
 
-
-class ResNetSimCLR(nn.Module, _StateDictLoaderMixin):
-    """ Implementation of ResNet with a projection head.
+class SimCLR(nn.Module):
+    """Implementation of the SimCLR architecture.
 
     Attributes:
-        name:
-            ResNet version, choose from resnet-{9, 18, 34, 50, 101, 152}.
-        width:
-            Width of the ResNet.
+        backbone:
+            Backbone model to extract features from images.
         num_ftrs:
             Dimension of the embedding (before the projection head).
         out_dim:
@@ -57,43 +37,19 @@ class ResNetSimCLR(nn.Module, _StateDictLoaderMixin):
     """
 
     def __init__(self,
-                 name: str ='resnet-18',
-                 width: float = 1.,
+                 backbone: nn.Module,
                  num_ftrs: int = 32,
-                 out_dim: int = 128,
-                 num_splits: int = 0):
+                 out_dim: int = 128):
 
-        self.num_ftrs = num_ftrs
-        self.out_dim = out_dim
-        self.num_splits = num_splits
+        super(SimCLR, self).__init__()
 
-        super(ResNetSimCLR, self).__init__()
-        resnet = ResNetGenerator(name=name, width=width, num_splits=num_splits)
-
-        self.features, self.projection_head = _get_features_and_projections(
-            resnet, self.num_ftrs, self.out_dim, num_splits)
-
-    def load_from_state_dict(self,
-                             state_dict,
-                             strict: bool = True,
-                             apply_filter: bool = True):
-        """Initializes a ResNetMoCo and loads weights from a checkpoint.
-
-        Args:
-            state_dict:
-                State dictionary with layer weights.
-            strict:
-                Set to False when loading from a partial state_dict.
-            apply_filter:
-                If True, removes the `model.` prefix from keys in the state_dict.
-
-        """
-        self._custom_load_from_state_dict(state_dict, strict, apply_filter)
+        self.backbone = backbone
+        self.projection_head = _get_simclr_projection_head(num_ftrs, out_dim)
 
     def forward(self, x: torch.Tensor):
-        """Forward pass through ResNetSimCLR.
+        """Embeds and projects the input images.
 
-        Extracts features with the ResNet backbone and applies the projection
+        Extracts features with the backbone and applies the projection
         head to the output space.
 
         Args:
@@ -105,8 +61,7 @@ class ResNetSimCLR(nn.Module, _StateDictLoaderMixin):
 
         """
         # embed images in feature space
-        emb = self.features(x)
-        emb = emb.squeeze()
+        emb = self.backbone(x).squeeze()
 
         # return projection to space for loss calcs
         return self.projection_head(emb)
