@@ -1,4 +1,4 @@
-Docker
+Datapool
 =================
 
 The Lightly Datapool is a tool which allows users to incrementally build up a 
