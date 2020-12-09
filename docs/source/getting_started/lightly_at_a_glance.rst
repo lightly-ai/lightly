@@ -71,10 +71,7 @@ with the normalized temperature-scaled cross entropy loss and simple stochastic 
 
     # use a resnet backbone
     resnet = torchvision.models.resnet.resnet18()
-    resnet = nn.Sequential(
-        *list(resnet.children())[:-1],
-        nn.AdaptiveAvgPool2d(1),
-    )
+    resnet = nn.Sequential(*list(resnet.children())[:-1])
 
     # build the simclr model
     model = models.SimCLR(resnet, num_ftrs=512)
