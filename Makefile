@@ -28,6 +28,7 @@ clean-out:
 	rm -fr lightly_outputs/
 	rm -fr lightning_logs/
 	rm -fr lightly_epoch_*.ckpt
+	rm -fr last.ckpt
 
 ## remove tox cache
 clean-tox:
