@@ -39,6 +39,11 @@ The following are parameters which can be passed to the container:
     # dump the final dataset to the output directory
     dump_dataset: False
 
+    # set the size of the dumped images, use =x or =[x,y] to match the shortest 
+    # edge to x or to resize the image to (x,y), use =-1 for no resizing (default)
+    output_image_size: -1
+    output_image_format: 'png'
+
     # path to the checkpoint relative to the shared directory
     checkpoint: ''
 
@@ -56,6 +61,11 @@ The following are parameters which can be passed to the container:
     stopping_condition:
         n_samples: -1               # float in [0., 1.] for percentage, int for number of samples, -1 means inactive
         min_distance: -1.           # float, minimum distance between two images in the sampled dataset, -1. means inactive
+
+    # datapool
+    datapool:                      
+        name:                       # name of the datapool
+        keep_history: True          # if True keeps backup of all previous data pool states
 
     # report
     n_example_images: 6             # the number of retained/removed image pairs to show in the report
