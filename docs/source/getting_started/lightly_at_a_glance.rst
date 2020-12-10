@@ -119,7 +119,7 @@ model directly.
     embeddings, labels, filenames = embedding_model.embed(dataloader)
 
     # access the ResNet backbone
-    resnet = embedding_model.model.features
+    resnet = embedding_model.model.backbone
 
 Done! You can continue to use the embeddings to find nearest neighbors or do similarity search.
 Furthermore, the ResNet backbone can be used for transfer and few-shot learning.
