@@ -1,16 +1,15 @@
-Advanced
-===================================
-Here you learn more advanced usage patterns of Lightly Docker.
+Meta Information
+======================
 
 Depending on your current setup one of the following topics might interest you:
 
-- | You have a dataset but I want lightly to "ignore" certain Samples.
+- | You have a dataset but want lightly to "ignore" certain Samples.
   | --> `Mask Samples`_
 
 - | You have an existing dataset and want to add only relevant new data.
   | --> `Use Pre-Selected Samples`_
 
-- | You have my own (weak) labels. Can lightly use this information to improve
+- | You have your own (weak) labels. Can lightly use this information to improve
     the selection? 
   | --> `Custom Labels`_
 
