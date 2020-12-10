@@ -270,8 +270,9 @@ class Classifier(pl.LightningModule):
         self.accuracy = pl.metrics.Accuracy()
 
     def forward(self, x):
-        y_hat = self.resnet_moco.backbone(x).squeeze().detach()
-        y_hat = nn.functional.normalize(y_hat, dim=1)
+        with torch.no_grad():
+            y_hat = self.resnet_moco.backbone(x).squeeze()
+            y_hat = nn.functional.normalize(y_hat, dim=1)
         y_hat = self.fc(y_hat)
         return y_hat
 
@@ -284,9 +285,7 @@ class Classifier(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         x, y, _ = batch
-        y_hat = self.resnet_moco.backbone(x).squeeze().detach()
-        y_hat = nn.functional.normalize(y_hat, dim=1)
-        y_hat = self.fc(y_hat)
+        y_hat = self.forward(x)
         loss = nn.functional.cross_entropy(y_hat, y)
         self.log('train_loss_fc', loss)
         return loss
@@ -296,17 +295,13 @@ class Classifier(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         x, y, _ = batch
-        y_hat = self.resnet_moco.backbone(x).squeeze()
-        y_hat = nn.functional.normalize(y_hat, dim=1)
-        y_hat = self.fc(y_hat)
-
+        y_hat = self.forward(x)
         self.accuracy(y_hat, y)
         self.log('val_acc', self.accuracy.compute(),
                  on_epoch=True, prog_bar=True)
 
     def configure_optimizers(self):
-        return torch.optim.SGD(self.fc.parameters(), lr=10.,
-                               momentum=0.9, weight_decay=0.)
+        return torch.optim.SGD(self.fc.parameters(), lr=10.0)
         
 
 # %%
