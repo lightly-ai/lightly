@@ -43,14 +43,13 @@ deactivated from the command-line (see `Usage`_ for more information).
 Usage
 ---------------
 
-.. note:: To use the datapool feature, the Lightly Docker requires write access
-          to a shared directory. This directory can be passed with the `-v` flag.
-
-
 To **initialize** a datapool, simply pass the name of the datapool as an argument
 to your docker run command and sample from a dataset as always. The Lightly Docker
 will automatically create a datapool directory and populate it with the required
 files.
+
+.. note:: To use the datapool feature, the Lightly Docker requires write access
+          to a shared directory. This directory can be passed with the `-v` flag.
 
 .. code-block:: console
 
