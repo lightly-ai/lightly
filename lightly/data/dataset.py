@@ -38,6 +38,8 @@ class LightlyDataset(data.Dataset):
             Path to directory holding the images to load.
         transform:
             Image transforms (as in torchvision).
+        indices:
+            If provided, ignores samples not in indices.
 
     Examples:
         >>> import lightly.data as data
@@ -56,7 +58,8 @@ class LightlyDataset(data.Dataset):
                  train: bool = True,
                  download: bool = True,
                  from_folder: str = '',
-                 transform=None):
+                 transform=None,
+                 indices=None):
 
         super(LightlyDataset, self).__init__()
         self.dataset = _load_dataset(
@@ -65,6 +68,8 @@ class LightlyDataset(data.Dataset):
         self.root_folder = None
         if from_folder:
             self.root_folder = from_folder
+        
+        self.indices = indices
 
     def dump_image(self,
                    output_dir: str,
@@ -85,6 +90,9 @@ class LightlyDataset(data.Dataset):
                 Image format.
 
         """
+        if self.indices is not None:
+            index = self.indices[index]
+
         image, _ = self.dataset[index]
         filename = self._get_filename_by_index(index)
 
@@ -156,7 +164,11 @@ class LightlyDataset(data.Dataset):
 
     def _get_filename_by_index(self, index) -> str:
         """Returns filename based on index
+        
         """
+        if self.indices is not None:
+            index = self.indices[index]
+
         if isinstance(self.dataset, datasets.ImageFolder):
             full_path = self.dataset.imgs[index][0]
             return os.path.relpath(full_path, self.root_folder)
@@ -182,10 +194,21 @@ class LightlyDataset(data.Dataset):
 
         """
         fname = self._get_filename_by_index(index)
+        
+        if self.indices is not None:
+            index = self.indices[index]
+        
         sample, target = self.dataset.__getitem__(index)
+        
         return sample, target, fname
 
     def __len__(self):
+        """Returns the length of the dataset.
+
+        """
+        if self.indices is not None:
+            return len(self.indices)
+
         return len(self.dataset)
 
     def __add__(self, other):

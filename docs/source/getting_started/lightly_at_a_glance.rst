@@ -1,4 +1,4 @@
-Lightly at a glance
+Lightly at a Glance
 ===================
 
 Lightly is a computer vision framework for training deep learning models using self-supervised learning.
@@ -6,6 +6,13 @@ The framework can be used for a wide range of useful applications such as findin
 neighbors, similarity search, transfer learning, or data analytics.
 
 Additionally, you can use the Lightly framework to directly interact with the `lightly platform <https://www.lightly.ai>`_.
+
+You can install lightly using pip.
+
+.. code-block:: bash
+
+    pip install lightly
+
 
 How Lightly Works
 -----------------
@@ -57,11 +64,17 @@ with the normalized temperature-scaled cross entropy loss and simple stochastic 
 
 .. code-block:: python
 
+    import torchvision
+
     import lightly.models as models
     import lightly.loss as loss
 
-    # build a resnet-34 with 32 embedding neurons
-    model = models.ResNetSimCLR(name='resnet-34', num_ftrs=32)
+    # use a resnet backbone
+    resnet = torchvision.models.resnet.resnet18()
+    resnet = nn.Sequential(*list(resnet.children())[:-1])
+
+    # build the simclr model
+    model = models.SimCLR(resnet, num_ftrs=512)
 
     # use a criterion for self-supervised learning
     # (normalized temperature-scaled cross entropy loss)
@@ -106,7 +119,7 @@ model directly.
     embeddings, labels, filenames = embedding_model.embed(dataloader)
 
     # access the ResNet backbone
-    resnet = embedding_model.model.features
+    resnet = embedding_model.model.backbone
 
 Done! You can continue to use the embeddings to find nearest neighbors or do similarity search.
 Furthermore, the ResNet backbone can be used for transfer and few-shot learning.

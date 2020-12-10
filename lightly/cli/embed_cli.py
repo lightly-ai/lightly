@@ -12,16 +12,22 @@ import os
 
 import hydra
 import torch
+import torch.nn as nn
 import torchvision
 
 from lightly.data import LightlyDataset
 from lightly.embedding import SelfSupervisedEmbedding
-from lightly.models import ResNetSimCLR
+from lightly.models import SimCLR
+
+from lightly.models import ResNetGenerator
+from lightly.models.batchnorm import get_norm_layer
+
 from lightly.utils import save_embeddings
 
 from lightly.cli._helpers import get_ptmodel_from_config
 from lightly.cli._helpers import fix_input_path
 from lightly.cli._helpers import load_state_dict_from_url
+from lightly.cli._helpers import load_from_state_dict
 
 
 def _embed_cli(cfg, is_cli_call=True):
@@ -85,9 +91,24 @@ def _embed_cli(cfg, is_cli_call=True):
             checkpoint, map_location=device
         )['state_dict']
 
-    model = ResNetSimCLR(**cfg['model']).to(device)
+    # load model
+    resnet = ResNetGenerator(cfg['model']['name'], cfg['model']['width'])
+    last_conv_channels = list(resnet.children())[-1].in_features
+    features = nn.Sequential(
+        get_norm_layer(3, 0),
+        *list(resnet.children())[:-1],
+        nn.Conv2d(last_conv_channels, cfg['model']['num_ftrs'], 1),
+        nn.AdaptiveAvgPool2d(1),
+    )
+
+    model = SimCLR(
+        features,
+        num_ftrs=cfg['model']['num_ftrs'],
+        out_dim=cfg['model']['out_dim']
+    ).to(device)
+
     if state_dict is not None:
-        model.load_from_state_dict(state_dict)
+        load_from_state_dict(model, state_dict)
 
     encoder = SelfSupervisedEmbedding(model, None, None, None)
     embeddings, labels, filenames = encoder.embed(dataloader, device=device)

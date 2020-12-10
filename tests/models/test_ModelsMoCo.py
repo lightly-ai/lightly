@@ -6,7 +6,7 @@ import torchvision
 
 import lightly
 from lightly.models import ResNetGenerator
-from lightly.models import SimCLR
+from lightly.models import MoCo
 
 
 def get_backbone(resnet, num_ftrs=64):
@@ -20,7 +20,7 @@ def get_backbone(resnet, num_ftrs=64):
     return backbone
 
 
-class TestModelsSimCLR(unittest.TestCase):
+class TestModelsMoCo(unittest.TestCase):
 
     def setUp(self):
         self.resnet_variants = [
@@ -36,7 +36,7 @@ class TestModelsSimCLR(unittest.TestCase):
     def test_create_variations_cpu(self):
         for model_name in self.resnet_variants:
             resnet = ResNetGenerator(model_name)
-            model = SimCLR(get_backbone(resnet))
+            model = MoCo(get_backbone(resnet))
             self.assertIsNotNone(model)
 
     def test_create_variations_gpu(self):
@@ -44,7 +44,7 @@ class TestModelsSimCLR(unittest.TestCase):
         if device == 'cuda':
             for model_name in self.resnet_variants:
                 resnet = ResNetGenerator(model_name)
-                model = SimCLR(get_backbone(resnet)).to(device)
+                model = MoCo(get_backbone(resnet)).to(device)
                 self.assertIsNotNone(model)
         else:
             pass
@@ -55,9 +55,9 @@ class TestModelsSimCLR(unittest.TestCase):
             for num_ftrs in [2, 16, 32, 64]:
                 for out_dim in [64, 128, 256]:
                     resnet = ResNetGenerator(model_name)
-                    model = SimCLR(get_backbone(resnet,  num_ftrs=num_ftrs),
-                                   num_ftrs=num_ftrs,
-                                   out_dim=out_dim).to(device)
+                    model = MoCo(get_backbone(resnet,  num_ftrs=num_ftrs),
+                                 num_ftrs=num_ftrs,
+                                 out_dim=out_dim).to(device)
 
                     # check that feature vector has correct dimension
                     with torch.no_grad():
@@ -80,7 +80,7 @@ class TestModelsSimCLR(unittest.TestCase):
             for input_width in [16, 32, 64, 128]:
                 for input_height in [16, 32, 64, 128]:
                     resnet = ResNetGenerator(model_name)
-                    model = SimCLR(get_backbone(resnet, num_ftrs=32)).to(device)
+                    model = MoCo(get_backbone(resnet, num_ftrs=32)).to(device)
 
                     input_tensor = torch.rand((self.batch_size,
                                                3,
