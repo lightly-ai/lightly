@@ -54,12 +54,17 @@ import lightly
 # 
 # We set some configuration parameters for our experiment.
 # Feel free to change them and analyze the effect.
+#
+# The default configuration uses a batch size of 512. This requires around 6.4GB
+# of GPU memory.
+# When training for 100 epochs you should achieve around 73% test set accuracy.
+# When training for 200 epochs accuracy increases to about 80%.
 
 num_workers = 8
-batch_size = 256
+batch_size = 512
 memory_bank_size = 4096
 seed = 1
-max_epochs = 50
+max_epochs = 100
 
 # %%
 # Replace the path with the location of your CIFAR-10 dataset.
@@ -243,8 +248,10 @@ class MocoModel(pl.LightningModule):
 
 
     def configure_optimizers(self):
-        return torch.optim.SGD(self.resnet_moco.parameters(), lr=3e-2,
-                               momentum=0.9, weight_decay=5e-4)
+        optim = torch.optim.SGD(self.resnet_moco.parameters(), lr=6e-2,
+                                momentum=0.9, weight_decay=5e-4)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
 
 
 # %%
@@ -270,8 +277,9 @@ class Classifier(pl.LightningModule):
         self.accuracy = pl.metrics.Accuracy()
 
     def forward(self, x):
-        y_hat = self.resnet_moco.backbone(x).squeeze().detach()
-        y_hat = nn.functional.normalize(y_hat, dim=1)
+        with torch.no_grad():
+            y_hat = self.resnet_moco.backbone(x).squeeze()
+            y_hat = nn.functional.normalize(y_hat, dim=1)
         y_hat = self.fc(y_hat)
         return y_hat
 
@@ -284,9 +292,7 @@ class Classifier(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         x, y, _ = batch
-        y_hat = self.resnet_moco.backbone(x).squeeze().detach()
-        y_hat = nn.functional.normalize(y_hat, dim=1)
-        y_hat = self.fc(y_hat)
+        y_hat = self.forward(x)
         loss = nn.functional.cross_entropy(y_hat, y)
         self.log('train_loss_fc', loss)
         return loss
@@ -296,17 +302,15 @@ class Classifier(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         x, y, _ = batch
-        y_hat = self.resnet_moco.backbone(x).squeeze()
-        y_hat = nn.functional.normalize(y_hat, dim=1)
-        y_hat = self.fc(y_hat)
-
+        y_hat = self.forward(x)
         self.accuracy(y_hat, y)
         self.log('val_acc', self.accuracy.compute(),
                  on_epoch=True, prog_bar=True)
 
     def configure_optimizers(self):
-        return torch.optim.SGD(self.fc.parameters(), lr=10.,
-                               momentum=0.9, weight_decay=0.)
+        optim = torch.optim.SGD(self.fc.parameters(), lr=30.)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
         
 
 # %%
@@ -329,6 +333,7 @@ trainer.fit(
 
 # %%
 # Train the Classifier
+model.eval()
 classifier = Classifier(model.resnet_moco)
 trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus,
                      progress_bar_refresh_rate=100)
