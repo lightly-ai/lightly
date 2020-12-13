@@ -11,22 +11,22 @@ from torchvision.io import read_video, read_video_timestamps
 
 
 def _video_loader(path, timestamp, pts_unit='sec'):
-    """Reads a frame from a video at a random timestamp.
+    """Reads a frame from a video at a specific timestamp.
 
     Args:
         path:
             Path to the video file.
         timestamp:
             The timestamp at which to retrieve the frame in seconds.
-        pts_unit:
-            Unit of the timestamp.
+
+    Returns:
+        A PIL image
 
     """
     # random access read from video (slow)
     frame, _, _ = read_video(path,
                              start_pts=timestamp,
-                             end_pts=timestamp,
-                             pts_unit=pts_unit)
+                             end_pts=timestamp)
     # read_video returns tensor of shape 1 x W x H x C
     frame = frame.squeeze()
     # convert to PIL image
