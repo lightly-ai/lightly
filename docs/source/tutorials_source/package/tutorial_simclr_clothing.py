@@ -235,8 +235,6 @@ plot_knn_examples(embeddings)
 # ---------------------
 # Let's train again without color augmentation. This will force our model to 
 # respect the colors in the images.
-for ckpt in glob.glob('*.ckpt'):
-    os.remove(ckpt)
 
 # Set color jitter and gray scale probability to 0
 new_collate_fn = lightly.data.SimCLRCollateFunction(
@@ -281,6 +279,3 @@ plot_knn_examples(embeddings)
 
 # You could use the pre-trained model and train a classifier on top.
 pretrained_resnet_backbone = model.backbone
-
-for ckpt in glob.glob('*.ckpt'):
-    os.remove(ckpt)
