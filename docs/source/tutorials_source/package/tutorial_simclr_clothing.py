@@ -10,7 +10,7 @@ augmentations and training procedure is from
 
 The paper explores a rather simple training procedure for contrastive learning.
 Since we use the typical contrastive learning loss based on NCE the method
-greatly benefits from having larger batch sizes. In this example we use a batch
+greatly benefits from having larger batch sizes. In this example, we use a batch
 size of 256 and paired with the input resolution per image of 64x64 pixels and
 a resnet-18 model this example requires 16GB of GPU memory.
 
