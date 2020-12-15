@@ -7,7 +7,7 @@ import os
 from PIL import Image
 from torchvision import datasets
 
-from torchvision.io import read_video
+from torchvision.io import read_video, read_video_timestamps
 
 try:
     import av
@@ -87,15 +87,22 @@ def _make_dataset(directory,
     # get timestamps
     timestamps, fpss = [], []
     for instance in instances:
-        with av.open(instance) as av_video:
-            stream = av_video.streams.video[0]
-            n_frames = stream.frames
-            duration = stream.duration
-            duration *= float(stream.time_base)
-            fps = n_frames / duration
 
-        timestamps.append([i * fps for i in range(n_frames)])
-        fpss.append(fps)
+        if AV_AVAILABLE:
+            with av.open(instance) as av_video:
+                stream = av_video.streams.video[0]
+                n_frames = stream.frames
+                duration = stream.duration
+                duration *= float(stream.time_base)
+                fps = n_frames / duration
+
+            timestamps.append([i * fps for i in range(n_frames)])
+            fpss.append(fps)
+        else:
+            ts, fps = read_video_timestamps(instance, pts_unit=pts_unit)
+            timestamps.append(ts)
+            fpss.append(fps)
+
 
     # get frame offsets
     offsets = [len(ts) for ts in timestamps]
