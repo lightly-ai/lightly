@@ -7,8 +7,8 @@ import os
 from PIL import Image
 from torchvision import datasets
 
-from torchvision.io import read_video, read_video_timestamps
-
+from torchvision.io import read_video
+import av
 
 def _video_loader(path, timestamp, pts_unit='sec'):
     """Reads a frame from a video at a random timestamp.
@@ -81,8 +81,14 @@ def _make_dataset(directory,
     # get timestamps
     timestamps, fpss = [], []
     for instance in instances:
-        ts, fps = read_video_timestamps(instance, pts_unit=pts_unit)
-        timestamps.append(ts)
+        with av.open(instance) as av_video:
+            stream = av_video.streams.video[0]
+            n_frames = stream.frames
+            duration = stream.duration
+            duration *= float(stream.time_base)
+            fps = n_frames / duration
+
+        timestamps.append([i * fps for i in range(n_frames)])
         fpss.append(fps)
 
     # get frame offsets
