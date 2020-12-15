@@ -73,7 +73,7 @@ extract the frames with the following command:
 
 
 Extracting the frames without introducing compression artifacts is using lots of 
-storage. In this example, we have a small video of 6.4 MBytes. Once extracted 
+storage. In this example, we have a small video of 6.4 MBytes. Once extracted, 
 the .png frames together with the video consume 553.4 MBytes. This is a 
 70x increase!
 
