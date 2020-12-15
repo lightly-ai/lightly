@@ -84,7 +84,7 @@ class TestLightlyDataset(unittest.TestCase):
             n_samples_per_subfolder
         )
 
-        dataset = LightlyDataset(from_folder=dataset_dir)
+        dataset = LightlyDataset(input_dir=dataset_dir)
         filenames = dataset.get_filenames()
 
         fnames = []
@@ -122,7 +122,7 @@ class TestLightlyDataset(unittest.TestCase):
             data[0].save(path)
 
         # create lightly dataset
-        dataset = LightlyDataset(from_folder=tmp_dir)
+        dataset = LightlyDataset(input_dir=tmp_dir)
         filenames = dataset.get_filenames()
 
         # tests
@@ -133,30 +133,11 @@ class TestLightlyDataset(unittest.TestCase):
         for i in range(n_tot):
             sample, target, fname = dataset[i]
 
-    def test_create_lightly_dataset_from_torchvision(self):
-        tmp_dir = tempfile.mkdtemp()
-
-        for dataset_name in self.available_dataset_names:
-            dataset = LightlyDataset(root=tmp_dir, name=dataset_name)
-            self.assertIsNotNone(dataset)
-    
-        shutil.rmtree(tmp_dir)
-
-    def test_not_existing_torchvision_dataset(self):
-        list_of_non_existing_names = [
-            'a-random-dataset',
-            'cifar-100',
-            'googleset_ 200'
-        ]
-        tmp_dir = tempfile.mkdtemp() 
-        for dataset_name in list_of_non_existing_names:
-            with self.assertRaises(ValueError):
-                LightlyDataset(root=tmp_dir, name=dataset_name)
 
     def test_not_existing_folder_dataset(self):
         with self.assertRaises(ValueError):
             LightlyDataset(
-                from_folder='/a-random-hopefully-non/existing-path-to-nowhere/'
+                '/a-random-hopefully-non/existing-path-to-nowhere/'
             )
 
     def test_video_dataset(self):
@@ -172,7 +153,7 @@ class TestLightlyDataset(unittest.TestCase):
             image.save(path)
             os.rename(path, os.path.join(tmp_dir, 'my_file.avi'))
             with self.assertRaises(ImportError):
-                dataset = LightlyDataset(from_folder=tmp_dir)
+                dataset = LightlyDataset(input_dir=tmp_dir)
 
             warnings.warn(
                 'Did not test video dataset because of missing requirements')        
@@ -180,38 +161,8 @@ class TestLightlyDataset(unittest.TestCase):
             return
         
         self.create_video_dataset()
-        dataset = LightlyDataset(from_folder=self.input_dir)
+        dataset = LightlyDataset(input_dir=self.input_dir)
 
         out_dir = tempfile.mkdtemp()
         dataset.dump(out_dir)
         self.assertEqual(len(os.listdir(out_dir)), len(dataset))
-
-    def test_create_lightly_with_indices(self):
-        n_subfolders = 5
-        n_samples_per_subfolder = 10
-        n_tot_files = n_subfolders * n_samples_per_subfolder
-
-        indices = random.sample(range(n_tot_files), 20)
-
-        dataset_dir, folder_names, sample_names = self.create_dataset(
-            n_subfolders,
-            n_samples_per_subfolder
-        )
-
-        dataset = LightlyDataset(from_folder=dataset_dir, indices=indices)
-        self.assertEqual(len(dataset), 20)
-        self.assertLess(len(dataset), n_tot_files)
-        
-        filenames = dataset.get_filenames()
-        self.assertEqual(len(filenames), 20)
-        
-        fnames = []
-        for dir_name in folder_names:
-            for fname in sample_names:
-                fnames.append(os.path.join(dir_name, fname))
-        
-        fnames = [fnames[i] for i in indices]
-
-        self.assertListEqual(sorted(fnames), sorted(filenames))
-
-        shutil.rmtree(dataset_dir)

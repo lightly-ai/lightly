@@ -15,7 +15,76 @@ from lightly.data._helpers import _load_dataset
 from lightly.data._helpers import DatasetFolder
 from lightly.data._video import VideoDataset
 
-class LightlyDataset(data.Dataset):
+
+def _get_filename_by_index(dataset, index):
+    """
+
+    """
+    if isinstance(dataset, datasets.ImageFolder):
+        full_path = dataset.imgs[index][0]
+        return os.path.relpath(full_path, dataset.root)
+    elif isinstance(dataset, DatasetFolder):
+        full_path = dataset.samples[index][0]
+        return os.path.relpath(full_path, dataset.root)
+    elif isinstance(dataset, VideoDataset):
+        return dataset.get_filename(index)
+    else:
+        return str(index)
+
+
+def _ensure_dir(path):
+    """
+
+    """
+    dirname = os.path.dirname(path)
+    os.makedirs(dirname, exist_ok=True)
+
+
+def _copy_image(input_dir, output_dir, filename):
+    """
+
+    """
+    source = os.path.join(input_dir, filename)
+    target = os.path.join(output_dir, filename)
+    _ensure_dir(target)
+    shutil.copyfile(source, target)
+
+def _save_image(image, output_dir, filename, fmt):
+    """
+
+    """
+    target = os.path.join(output_dir, filename)
+    _ensure_dir(target)
+    try:
+        # try to save the image with the specified format or
+        # derive the format from the filename (if format=None)
+        image.save(target, format=fmt)
+    except ValueError:
+        # could not determine format from filename
+        image.save(target, format='png')
+
+
+def _dump_image(dataset, output_dir, filename, index, fmt):
+    """Saves a single image to the output directory.
+
+    Will copy the image from the input directory to the output directory
+    if possible. If not (e.g. for VideoDatasets), will load the image and
+    then save it to the output directory with the specified format.
+
+    """
+
+    # TODO
+
+    if isinstance(dataset, datasets.ImageFolder):
+        _copy_image(dataset.root, output_dir, filename)
+    elif isinstance(dataset, DatasetFolder):
+        _copy_image(dataset.root, output_dir, filename)
+    else:
+        image, _ = dataset[index]
+        _save_image(image, output_dir, filename, fmt)
+
+
+class LightlyDataset:
     """Provides a uniform data interface for the embedding models.
 
     Should be used for all models and functions in the lightly package.
@@ -53,67 +122,80 @@ class LightlyDataset(data.Dataset):
     """
 
     def __init__(self,
-                 root: str = '',
-                 name: str = 'cifar10',
-                 train: bool = True,
-                 download: bool = True,
-                 from_folder: str = '',
+                 input_dir: str,
                  transform=None,
-                 indices=None):
+                 index_to_filename=None):
 
-        super(LightlyDataset, self).__init__()
-        self.dataset = _load_dataset(
-            root, name, train, download, transform, from_folder
-        )
-        self.root_folder = None
-        if from_folder:
-            self.root_folder = from_folder
-        
-        self.indices = indices
+        # TODO
+        self.input_dir = input_dir
+        if self.input_dir is not None:
+            self.dataset = _load_dataset(self.input_dir, transform)
 
-    def dump_image(self,
-                   output_dir: str,
-                   index: int,
-                   format: Union[str, None] = None):
-        """Saves a single image to the output directory.
+        # TODO
+        if index_to_filename is None:
+            self.index_to_filename = _get_filename_by_index
+        else:
+            self.index_to_filename = index_to_filename
 
-        Will copy the image from the input directory to the output directory
-        if possible. If not (e.g. for VideoDatasets), will load the image and
-        then save it to the output directory with the specified format.
-
-        Args:
-            output_dir:
-                Output directory where the image is stored.
-            index:
-                Index of the image to store.
-            format:
-                Image format.
+    @classmethod
+    def from_torch_dataset(cls,
+                           dataset,
+                           transform=None,
+                           index_to_filename=None):
+        """
 
         """
-        if self.indices is not None:
-            index = self.indices[index]
+        # TODO
+        dataset_obj = cls(
+            None,
+            transform=transform,
+            index_to_filename=index_to_filename
+        )
+        # TODO
+        dataset_obj.dataset = dataset
+        return dataset_obj
 
-        image, _ = self.dataset[index]
-        filename = self._get_filename_by_index(index)
+    def __getitem__(self, index: int):
+        """ Get item at index. Supports torchvision.ImageFolder datasets and
+            all dataset which return the tuple (sample, target).
 
-        source = os.path.join(self.root_folder, filename)
-        target = os.path.join(output_dir, filename)
+        Args:
+         - index:   index of the queried item
 
-        dirname = os.path.dirname(target)
-        os.makedirs(dirname, exist_ok=True)
+        Returns:
+         - sample:  sample at queried index
+         - target:  class_index of target class, 0 if there is no target
+         - fname:   filename of the sample, str(index) if there is no filename
 
-        if os.path.isfile(source):
-            # copy the file from the source to the target
-            shutil.copyfile(source, target)
-        else:
-            # the source is not a file (e.g. when loading a video frame)
-            try:
-                # try to save the image with the specified format or
-                # derive the format from the filename (if format=None)
-                image.save(target, format=format)
-            except ValueError:
-                # could not determine format from filename
-                image.save(os.path.join(output_dir, filename), format='png')
+        """
+        # TODO
+        fname = self.index_to_filename(self.dataset, index)
+        sample, target = self.dataset.__getitem__(index)
+        
+        return sample, target, fname
+
+
+    def __len__(self):
+        """Returns the length of the dataset.
+
+        """
+        return len(self.dataset)
+
+    def __add__(self, other):
+        """Adds another item to the dataset.
+
+        """
+        raise NotImplementedError()
+
+    def get_filenames(self) -> List[str]:
+        """Returns all filenames in the dataset.
+
+        """
+        list_of_filenames = []
+        for index in range(len(self)):
+            fname = self.index_to_filename(self.dataset, index)
+            list_of_filenames.append(fname)
+        return list_of_filenames
 
     def dump(self,
              output_dir: str,
@@ -132,84 +214,67 @@ class LightlyDataset(data.Dataset):
                 Filenames of the images to store. If None, stores all images.
             format:
                 Image format.
-
         """
-        # make sure no transforms are applied to the images
+
         if self.dataset.transform is not None:
-            pass
+            raise RuntimeError('Cannot dump dataset which applies transforms!')
 
         # create directory if it doesn't exist yet
         os.makedirs(output_dir, exist_ok=True)
 
-        # get all filenames
+        # TODO
         if filenames is None:
             indices = [i for i in range(self.__len__())]
+            filenames = self.get_filenames()
         else:
-            indices = \
-                [i for i, f in enumerate(self.get_filenames()) if f in filenames]
+            indices = []
+            all_filenames = self.get_filenames()
+            for i in range(len(filenames)):
+                if filenames[i] in all_filenames:
+                    indices.append(i)
 
         # dump images
-        for index in indices:
-            self.dump_image(output_dir, index, format=format)
+        for i, filename in zip(indices, filenames):
+            _dump_image(self.dataset, output_dir, filename, i, fmt=format)
 
-    def get_filenames(self) -> List[str]:
-        """Returns all filenames in the dataset.
 
-        """
-        list_of_filenames = []
-        for index in range(len(self)):
-            fname = self._get_filename_by_index(index)
-            list_of_filenames.append(fname)
-        return list_of_filenames
+"""
+class LightlyDualViewDataset(LightlyDataset):
 
-    def _get_filename_by_index(self, index) -> str:
-        """Returns filename based on index
-        
-        """
-        if self.indices is not None:
-            index = self.indices[index]
+    def __init__(self,
+                 input_dir: str,
+                 transform=None,
+                 index_to_filename=None):
 
-        if isinstance(self.dataset, datasets.ImageFolder):
-            full_path = self.dataset.imgs[index][0]
-            return os.path.relpath(full_path, self.root_folder)
-        elif isinstance(self.dataset, DatasetFolder):
-            full_path = self.dataset.samples[index][0]
-            return os.path.relpath(full_path, self.root_folder)
-        elif isinstance(self.dataset, VideoDataset):
-            return self.dataset.get_filename(index)
-        else:
-            return str(index)
+        super(LightlyDualViewDataset, self).__init__(
+            input_dir,
+            transform=None,
+            index_to_filename=index_to_filename,
+        )
 
-    def __getitem__(self, index):
-        """ Get item at index. Supports torchvision.ImageFolder datasets and
-            all dataset which return the tuple (sample, target).
+        self.transform = transform
 
-        Args:
-         - index:   index of the queried item
+    @classmethod
+    def from_torch_dataset(cls,
+                           dataset,
+                           transform=None,
+                           index_to_filename=None):
 
-        Returns:
-         - sample:  sample at queried index
-         - target:  class_index of target class, 0 if there is no target
-         - fname:   filename of the sample, str(index) if there is no filename
+        # TODO
+        dataset_obj = cls(
+            None,
+            transform=None,
+            index_to_filename=index_to_filename
+        )
+        # TODO
+        dataset_obj.dataset = dataset
+        dataset_obj.transform = transform
 
-        """
-        fname = self._get_filename_by_index(index)
-        
-        if self.indices is not None:
-            index = self.indices[index]
-        
-        sample, target = self.dataset.__getitem__(index)
-        
-        return sample, target, fname
+        return dataset_obj
 
-    def __len__(self):
-        """Returns the length of the dataset.
+    def __getitem__(self, index: int):
 
-        """
-        if self.indices is not None:
-            return len(self.indices)
-
-        return len(self.dataset)
-
-    def __add__(self, other):
-        raise NotImplementedError()
+        img_1 = self.transform(self.dataset[index])
+        img_2 = self.transform(self.dataset[index])
+        return img_1, img_2
+"""

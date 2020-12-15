@@ -93,12 +93,8 @@ def _load_dataset_from_folder(root: str, transform):
     return dataset
 
 
-def _load_dataset(root: str = '',
-                  name: str = 'cifar10',
-                  train: bool = True,
-                  download: bool = True,
-                  transform=None,
-                  from_folder: str = ''):
+def _load_dataset(input_dir: str,
+                  transform=None):
     """Initializes dataset from torchvision or from folder.
 
     Args:
@@ -117,6 +113,12 @@ def _load_dataset(root: str = '',
 
     """
 
+    if not os.path.exists(input_dir):
+        raise ValueError(f'The input directory {input_dir} does not exist!')
+
+    return _load_dataset_from_folder(input_dir, transform)
+
+    """
     if from_folder and os.path.exists(from_folder):
         # load data from directory
         dataset = _load_dataset_from_folder(from_folder,
@@ -194,3 +196,4 @@ def _load_dataset(root: str = '',
             % (name, from_folder))
 
     return dataset
+    """
