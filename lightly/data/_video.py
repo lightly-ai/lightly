@@ -8,7 +8,13 @@ from PIL import Image
 from torchvision import datasets
 
 from torchvision.io import read_video
-import av
+
+try:
+    import av
+    AV_AVAILABLE = True
+except ImportError:
+    AV_AVAILABLE = False
+
 
 def _video_loader(path, timestamp, pts_unit='sec'):
     """Reads a frame from a video at a random timestamp.
