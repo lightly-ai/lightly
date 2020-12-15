@@ -18,7 +18,8 @@ def _video_loader(path, timestamp, pts_unit='sec'):
             Path to the video file.
         timestamp:
             The timestamp at which to retrieve the frame in seconds.
-
+        pts_unit:
+            Unit of the timestamp.
     Returns:
         A PIL image
 
@@ -26,7 +27,8 @@ def _video_loader(path, timestamp, pts_unit='sec'):
     # random access read from video (slow)
     frame, _, _ = read_video(path,
                              start_pts=timestamp,
-                             end_pts=timestamp)
+                             end_pts=timestamp,
+                             pts_unit=pts_unit)
     # read_video returns tensor of shape 1 x W x H x C
     frame = frame.squeeze()
     # convert to PIL image
