@@ -56,7 +56,8 @@ class TestCore(unittest.TestCase):
         train_model_and_embed_images(
             input_dir=dataset_dir, trainer=trainer)
         shutil.rmtree(dataset_dir)
-        pattern = 'lightly_epoch(.*)?.ckpt$'
+        pattern = '(.*)?.ckpt$'
         for root, dirs, files in os.walk(os.getcwd()):
             for file in filter(lambda x: re.match(pattern, x), files):
                 os.remove(os.path.join(root, file))
+            
