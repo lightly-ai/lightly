@@ -5,15 +5,19 @@
 
 import os
 from PIL import Image
-from torchvision import datasets
 
-from torchvision.io import read_video, read_video_timestamps
+import torchvision
+from torchvision import datasets
+from torchvision import io
 
 try:
     import av
     AV_AVAILABLE = True
 except ImportError:
     AV_AVAILABLE = False
+
+if io._HAS_VIDEO_OPT:
+    torchvision.set_video_backend('video_reader')
 
 
 def _video_loader(path, timestamp, pts_unit='sec'):
@@ -31,7 +35,7 @@ def _video_loader(path, timestamp, pts_unit='sec'):
 
     """
     # random access read from video (slow)
-    frame, _, _ = read_video(path,
+    frame, _, _ = io.read_video(path,
                              start_pts=timestamp,
                              end_pts=timestamp,
                              pts_unit=pts_unit)
@@ -101,7 +105,7 @@ def _make_dataset(directory,
             timestamps.append([i * fps for i in range(n_frames)])
             fpss.append(fps)
         else:
-            ts, fps = read_video_timestamps(instance, pts_unit=pts_unit)
+            ts, fps = io.read_video_timestamps(instance, pts_unit=pts_unit)
             timestamps.append(ts)
             fpss.append(fps)
 
