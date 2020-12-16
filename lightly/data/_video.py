@@ -17,7 +17,7 @@ except ImportError:
 
 
 def _video_loader(path, timestamp, pts_unit='sec'):
-    """Reads a frame from a video at a random timestamp.
+    """Reads a frame from a video at a specific timestamp.
 
     Args:
         path:
@@ -26,6 +26,8 @@ def _video_loader(path, timestamp, pts_unit='sec'):
             The timestamp at which to retrieve the frame in seconds.
         pts_unit:
             Unit of the timestamp.
+    Returns:
+        A PIL image
 
     """
     # random access read from video (slow)
