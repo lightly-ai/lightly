@@ -4,6 +4,7 @@ import re
 import shutil
 import torchvision
 import tempfile
+import pytest
 from lightly import embed_images
 from lightly import train_embedding_model
 from lightly import train_model_and_embed_images
@@ -39,6 +40,7 @@ class TestCore(unittest.TestCase):
         return tmp_dir, folder_names, sample_names
 
 
+    @pytest.mark.slow
     def test_train_and_embed(self):
         n_subfolders = 10
         n_samples_per_subfolder = 10
@@ -51,7 +53,8 @@ class TestCore(unittest.TestCase):
 
         # train, one overwrite
         trainer = {
-            'max_epochs': 1
+            'max_epochs': 1,
+            'fast_dev_run': True
         }
         train_model_and_embed_images(
             input_dir=dataset_dir, trainer=trainer)
