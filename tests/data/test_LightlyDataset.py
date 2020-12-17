@@ -7,6 +7,8 @@ import tempfile
 import warnings
 import numpy as np
 from lightly.data import LightlyDataset
+import pytest
+
 
 try:
     from lightly.data._video import VideoDataset
@@ -133,6 +135,7 @@ class TestLightlyDataset(unittest.TestCase):
         for i in range(n_tot):
             sample, target, fname = dataset[i]
 
+    @pytest.mark.slow
     def test_create_lightly_dataset_from_torchvision(self):
         tmp_dir = tempfile.mkdtemp()
 

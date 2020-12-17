@@ -4,11 +4,13 @@ import os
 
 import random
 import responses
+import pytest
+
 
 import torchvision
 from lightly.api import routes
 
-
+@pytest.mark.slow
 class TestGetPresignedURL(unittest.TestCase):
 
     def setup(self, n_data=1000, psuccess=1.):
