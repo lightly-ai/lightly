@@ -5,12 +5,14 @@ import os
 
 import random
 import responses
+import pytest
+
 
 from lightly.api.upload import upload_file_with_signed_url
 
 N = 10
 
-
+@pytest.mark.slow
 class TestUploadFile(unittest.TestCase):
 
     def setup(self, psuccess=1.):
