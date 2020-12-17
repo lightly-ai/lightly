@@ -5,6 +5,8 @@
 
 import os
 from typing import List
+from fractions import Fraction
+
 from PIL import Image
 
 import torchvision
@@ -20,33 +22,6 @@ except ImportError:
 if io._HAS_VIDEO_OPT:
     torchvision.set_video_backend('video_reader')
 
-
-def _video_loader(path, timestamp, pts_unit='sec'):
-    """Reads a frame from a video at a specific timestamp.
-
-    Args:
-        path:
-            Path to the video file.
-        timestamp:
-            The timestamp at which to retrieve the frame in seconds.
-        pts_unit:
-            Unit of the timestamp.
-    Returns:
-        A PIL image
-
-    """
-    # random access read from video (slow)
-    frame, _, _ = io.read_video(path,
-                             start_pts=timestamp,
-                             end_pts=timestamp,
-                             pts_unit=pts_unit)
-    # read_video returns tensor of shape 1 x W x H x C
-    frame = frame.squeeze()
-    # convert to PIL image
-    # TODO: can it be on CUDA? -> need to move it to CPU first
-    image = Image.fromarray(frame.numpy())
-
-    return image
 
 class VideoLoader():
     """Implementation of VideoLoader.
@@ -119,14 +94,16 @@ class VideoLoader():
             A PIL Image
 
         """
-        if timestamp != None:
+        if timestamp is not None:
             self.current_timestamp_idx = self.timestamps.index(timestamp)
         else:
+            # no timestamp provided -> set current timestamp index to next frame
             if self.current_timestamp_idx < len(self.timestamps):
                 self.current_timestamp_idx += 1
 
         if self.reader:
-            if timestamp != None:
+            if timestamp is not None:
+                # Calling seek is slow. If we read next frame we can skip it!
                 if self.timestamps.index(timestamp) != self.last_timestamp_idx + 1:
                     self.reader.seek(timestamp)
 
@@ -135,7 +112,8 @@ class VideoLoader():
             self.last_timestamp_idx = self.current_timestamp_idx
 
         else: # fallback on pyav
-            if timestamp == None:
+            if timestamp is None:
+                # read next frame if no timestamp is provided
                 timestamp = self.timestamps[self.current_timestamp_idx]
             frame, _, _ = io.read_video(self.path,
                                         start_pts=timestamp,
@@ -147,16 +125,15 @@ class VideoLoader():
         if len(frame.shape) < 3:
             raise ValueError('Unexpected error during loading of frame')
 
+        # sometimes torchvision returns multiple frames for one timestamp (bug?)
         if len(frame.shape) > 3 and frame.shape[0] > 1:
             frame = frame[0]
 
-        # read_video returns tensor of shape 1 x H x W x C
+        # make sure we return a H x W x C tensor and not (1 x H x W x C)
         if len(frame.shape) == 4:
             frame = frame.squeeze()
 
-        
         # convert to PIL image
-        # TODO: can it be on CUDA? -> need to move it to CPU first
         image = Image.fromarray(frame.numpy())
         return image
 
@@ -212,12 +189,11 @@ def _make_dataset(directory,
             # estimated timestamps are not correct.
             with av.open(instance) as av_video:
                 stream = av_video.streams.video[0]
-                n_frames = stream.frames
-                duration = stream.duration
-                duration *= float(stream.time_base)
-                fps = n_frames / duration
+                duration = stream.duration * stream.time_base
+                fps = stream.base_rate
+                n_frames = int(int(duration) * fps)
 
-            timestamps.append([i * fps for i in range(n_frames)])
+            timestamps.append([Fraction(i, fps) for i in range(n_frames)])
             fpss.append(fps)
         else:
             ts, fps = io.read_video_timestamps(instance, pts_unit=pts_unit)
@@ -265,7 +241,7 @@ class VideoDataset(datasets.VisionDataset):
                                            transform=transform,
                                            target_transform=target_transform)
 
-        videos, video_timestamps, offsets, fpss = _make_dataset(
+        videos, video_timestamps, offsets, fps = _make_dataset(
             self.root, extensions, is_valid_file)
         
         if len(videos) == 0:
@@ -286,7 +262,7 @@ class VideoDataset(datasets.VisionDataset):
         # offsets[i] indicates the index of the first frame of the i-th video.
         # e.g. for two videos of length 10 and 20, the offsets will be [0, 10].
         self.offsets = offsets
-        self.fpss = fpss
+        self.fps = fps
 
     def __getitem__(self, index):
         """Returns item at index.
