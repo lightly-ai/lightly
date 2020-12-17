@@ -5,13 +5,14 @@ import os
 import random
 import responses
 import numpy as np
+import pytest
 
 import torchvision
 import tempfile
 import lightly
 from lightly.api import upload_embeddings_from_csv
 
-
+@pytest.mark.slow
 class TestUploadEmbeddings(unittest.TestCase):
 
     def setup(self, n_data=1000):

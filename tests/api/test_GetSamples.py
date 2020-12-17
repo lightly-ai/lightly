@@ -4,13 +4,15 @@ import os
 
 import random
 import responses
+import pytest
+
 
 from lightly.api import routes
 
 
 N = 10
 
-
+@pytest.mark.slow
 class TestGet(unittest.TestCase):
 
     def setup(self, mode='tag_exists', psuccess=1.):

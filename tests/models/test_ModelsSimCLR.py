@@ -25,10 +25,7 @@ class TestModelsSimCLR(unittest.TestCase):
     def setUp(self):
         self.resnet_variants = [
             'resnet-18',
-            'resnet-34',
-            'resnet-50',
-            'resnet-101',
-            'resnet-152'
+            'resnet-50'
         ]
         self.batch_size = 2
         self.input_tensor = torch.rand((self.batch_size, 3, 32, 32))
@@ -52,45 +49,43 @@ class TestModelsSimCLR(unittest.TestCase):
     def test_feature_dim_configurable(self):
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         for model_name in self.resnet_variants:
-            for num_ftrs in [2, 16, 32, 64]:
-                for out_dim in [64, 128, 256]:
-                    resnet = ResNetGenerator(model_name)
-                    model = SimCLR(get_backbone(resnet,  num_ftrs=num_ftrs),
-                                   num_ftrs=num_ftrs,
-                                   out_dim=out_dim).to(device)
+            for num_ftrs, out_dim in zip([16, 64], [64, 256]):
+                resnet = ResNetGenerator(model_name)
+                model = SimCLR(get_backbone(resnet,  num_ftrs=num_ftrs),
+                                num_ftrs=num_ftrs,
+                                out_dim=out_dim).to(device)
 
-                    # check that feature vector has correct dimension
-                    with torch.no_grad():
-                        out_features = model.backbone(
-                            self.input_tensor.to(device)
-                        )
-                    self.assertEqual(out_features.shape[1], num_ftrs)
+                # check that feature vector has correct dimension
+                with torch.no_grad():
+                    out_features = model.backbone(
+                        self.input_tensor.to(device)
+                    )
+                self.assertEqual(out_features.shape[1], num_ftrs)
 
-                    # check that projection head output has right dimension
-                    with torch.no_grad():
-                        out_projection = model.projection_head(
-                            out_features.squeeze()
-                        )
-                    self.assertEqual(out_projection.shape[1], out_dim)
-                    self.assertIsNotNone(model)
+                # check that projection head output has right dimension
+                with torch.no_grad():
+                    out_projection = model.projection_head(
+                        out_features.squeeze()
+                    )
+                self.assertEqual(out_projection.shape[1], out_dim)
+                self.assertIsNotNone(model)
 
     def test_variations_input_dimension(self):
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         for model_name in self.resnet_variants:
-            for input_width in [16, 32, 64, 128]:
-                for input_height in [16, 32, 64, 128]:
-                    resnet = ResNetGenerator(model_name)
-                    model = SimCLR(get_backbone(resnet, num_ftrs=32)).to(device)
+            for input_width, input_height in zip([32, 64], [64, 64]):
+                resnet = ResNetGenerator(model_name)
+                model = SimCLR(get_backbone(resnet, num_ftrs=32)).to(device)
 
-                    input_tensor = torch.rand((self.batch_size,
-                                               3,
-                                               input_height,
-                                               input_width))
-                    with torch.no_grad():
-                        out = model(input_tensor.to(device))
+                input_tensor = torch.rand((self.batch_size,
+                                            3,
+                                            input_height,
+                                            input_width))
+                with torch.no_grad():
+                    out = model(input_tensor.to(device))
 
-                    self.assertIsNotNone(model)
-                    self.assertIsNotNone(out)
+                self.assertIsNotNone(model)
+                self.assertIsNotNone(out)
 
 
 if __name__ == '__main__':

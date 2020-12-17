@@ -5,13 +5,15 @@ import os
 import time
 import random
 import responses
+import pytest
+
 
 import lightly
 from lightly.api import get_version
 
 N = 10
 
-
+@pytest.mark.slow
 class TestGetLatestVersion(unittest.TestCase):
 
     def setup(self, psuccess=1.):
