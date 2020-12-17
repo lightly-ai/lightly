@@ -4,12 +4,13 @@ import os
 
 import random
 import responses
+import pytest
 
 import torchvision
 import tempfile
 import lightly.api as api
 
-
+@pytest.mark.slow
 class TestUploadImages(unittest.TestCase):
 
     def setup(self, n_data=1000):

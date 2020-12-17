@@ -1,6 +1,8 @@
 
 ![Lightly Logo](docs/logos/lightly_logo_crop.png)
 
+![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)
+
 Lightly is a computer vision framework for self-supervised learning.
 
 > We, at [Lightly](https://www.lightly.ai), are passionate engineers who want to make deep learning more efficient. We want to help popularize the use of self-supervised methods to understand and filter raw image data. Our solution can be applied before any data annotation step and the learned representations can be used to analyze and visualize datasets as well as for selecting a core set of samples.

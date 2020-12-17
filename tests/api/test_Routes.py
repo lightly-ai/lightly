@@ -1,9 +1,11 @@
 import unittest
 import json
 import os
+import pytest
 
 from lightly.api import routes
 
+@pytest.mark.slow
 class TestRoutes(unittest.TestCase):
 
     def test_routes(self):
