@@ -7,9 +7,9 @@ repos:
     args: ['--maxkb=500']
 - repo: local
   hooks:
-  - id: tox                     # run all tests
-    name: Test with tox
-    entry: make tox
+  - id: pytest-check                     # run all tests
+    name: pytest-check
+    entry: make test
     language: system
     pass_filenames: false
     always_run: true
