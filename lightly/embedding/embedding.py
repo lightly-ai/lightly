@@ -6,11 +6,11 @@
 import time
 
 import torch
-from lightly import is_prefetch_generator_available
+import lightly
 from lightly.embedding._base import BaseEmbedding
 from tqdm import tqdm
 
-if is_prefetch_generator_available():
+if lightly._is_prefetch_generator_available():
     from prefetch_generator import BackgroundGenerator
 
 

@@ -94,7 +94,7 @@ else:
     else:
         _prefetch_generator_available = True
 
-    def is_prefetch_generator_available():
+    def _is_prefetch_generator_available():
         return _prefetch_generator_available
 
     # import core functionalities
@@ -104,7 +104,7 @@ else:
 
 
     # compare current version v0 to other version v1
-    def version_compare(v0, v1):
+    def _version_compare(v0, v1):
         v0 = [int(n) for n in v0.split('.')][::-1]
         v1 = [int(n) for n in v1.split('.')][::-1]
         pairs = list(zip(v0, v1))[::-1]
@@ -117,7 +117,7 @@ else:
 
 
     # message if current version is not latest version
-    def pretty_print_latest_version(latest_version, width=70):
+    def _pretty_print_latest_version(latest_version, width=70):
         lines = [
             'There is a newer version of the package available.',
             'For compatability reasons, please upgrade your current version.',
@@ -130,10 +130,10 @@ else:
 
 
     # check for latest version
-    from lightly.api import get_version
-    latest_version = get_version(__version__)
-    if latest_version is not None:
-        if version_compare(__version__, latest_version) < 0:
+    from lightly.api import get_version as _get_version
+    _latest_version = _get_version(__version__)
+    if _latest_version is not None:
+        if _version_compare(__version__, _latest_version) < 0:
             # local version is behind latest version
             # pretty_print_latest_version(latest_version)
             pass
