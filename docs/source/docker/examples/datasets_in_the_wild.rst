@@ -72,6 +72,36 @@ extract the frames with the following command:
     ffmpeg -i raw/video.mp4 -filter:v "fps=5" frames_ffmpeg/%d.png
 
 
+Extracting the frames without introducing compression artifacts is using lots of 
+storage. In this example, we have a small video of 6.4 MBytes. Once extracted, 
+the .png frames together with the video consume 553.4 MBytes. This is a 
+70x increase!
+
+.. list-table::
+   :widths: 50 50 50 30
+   :header-rows: 1
+
+   * - Metric
+     - ffmpeg extracted frames
+     - Lightly using video
+     - Reduction
+   * - Storage Consumption
+     - 447 MBytes + 6.4 MBytes
+     - 6.4 MBytes
+     - 70.84x
+
+.. note:: Why not extract the frames as compressed .jpg images? Extracting the 
+          frames as .jpg would indeed reduce storage consumption. The video from 
+          our example would end up using (14 MBytes + 6.4 MBytes). However, for 
+          critical applications where robustness and accuracy of the model are 
+          key, we have to think about the final system in production. Is your 
+          production system working with the raw camera stream (uncompressed) or 
+          with compressed frames (e.g. .jpg)? Very often we don’t have time to 
+          compress a frame in real-time systems or don’t want to introduce 
+          compression artifacts. You should also think about whether you want 
+          to train a model on compressed data whereas in production is runs 
+          using raw data.
+
 Now we want to do the same using Lightly Docker. Since the ffmpeg command
 extracted 99 frames let's extract 99 frames as well:
 
@@ -90,11 +120,9 @@ extracted 99 frames let's extract 99 frames as well:
 To perform a random selection we can simply replace "coreset" with "random" as
 our selected method. Note that if you don't specify any method coreset is used.
 
-To perform a random selection 
-
 Let's have a look at some statistics of the two obtained datasets:
 
-.. list-table:: video_dataset_statistics.csv
+.. list-table::
    :widths: 50 50 50 50 50
    :header-rows: 1
 

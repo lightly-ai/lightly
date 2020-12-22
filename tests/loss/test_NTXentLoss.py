@@ -8,7 +8,7 @@ class TestNTXentLoss(unittest.TestCase):
 
     def test_get_correlated_mask(self):
         loss = NTXentLoss()
-        for bsz in range(1, 1000):
+        for bsz in range(1, 100):
             mask = loss._torch_get_correlated_mask(bsz)
 
             # correct number of zeros in mask
@@ -23,7 +23,7 @@ class TestNTXentLoss(unittest.TestCase):
 
     def test_forward_pass(self):
         loss = NTXentLoss(memory_bank_size=0)
-        for bsz in range(1, 100):
+        for bsz in range(1, 20):
 
             batch_1 = torch.randn((bsz, 32))
             batch_2 = torch.randn((bsz, 32))
@@ -35,7 +35,7 @@ class TestNTXentLoss(unittest.TestCase):
 
     def test_forward_pass_1d(self):
         loss = NTXentLoss(memory_bank_size=0)
-        for bsz in range(1, 100):
+        for bsz in range(1, 20):
 
             batch_1 = torch.randn((bsz, 1))
             batch_2 = torch.randn((bsz, 1))
@@ -47,7 +47,7 @@ class TestNTXentLoss(unittest.TestCase):
 
     def test_forward_pass_neg_temp(self):
         loss = NTXentLoss(temperature=-1., memory_bank_size=0)
-        for bsz in range(1, 100):
+        for bsz in range(1, 20):
 
             batch_1 = torch.randn((bsz, 32))
             batch_2 = torch.randn((bsz, 32))
@@ -59,7 +59,7 @@ class TestNTXentLoss(unittest.TestCase):
     
     def test_forward_pass_memory_bank(self):
         loss = NTXentLoss(memory_bank_size=64)
-        for bsz in range(1, 100):
+        for bsz in range(1, 20):
             batch_1 = torch.randn((bsz, 32))
             batch_2 = torch.randn((bsz, 32))
             l = loss(batch_1, batch_2)
@@ -69,7 +69,7 @@ class TestNTXentLoss(unittest.TestCase):
             return
 
         loss = NTXentLoss(memory_bank_size=64)
-        for bsz in range(1, 100):
+        for bsz in range(1, 20):
             batch_1 = torch.randn((bsz, 32)).cuda()
             batch_2 = torch.randn((bsz, 32)).cuda()
             l = loss(batch_1, batch_2)
@@ -77,7 +77,7 @@ class TestNTXentLoss(unittest.TestCase):
     def test_forward_pass_cuda(self):
         if torch.cuda.is_available():
             loss = NTXentLoss(memory_bank_size=0)
-            for bsz in range(1, 100):
+            for bsz in range(1, 20):
 
                 batch_1 = torch.randn((bsz, 32)).cuda()
                 batch_2 = torch.randn((bsz, 32)).cuda()

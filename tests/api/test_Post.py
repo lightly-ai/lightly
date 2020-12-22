@@ -4,12 +4,14 @@ import os
 
 import random
 import responses
+import pytest
+
 
 from lightly.api.utils import post_request
 
 N = 10
 
-
+@pytest.mark.slow
 class TestPost(unittest.TestCase):
 
     def setup(self, psuccess=1.):
