@@ -45,8 +45,8 @@ class BaseEmbedding(lightning.LightningModule):
         self.checkpoint_callback = None
         self.init_checkpoint_callback()
 
-    def forward(self, x):
-        return self.model(x)
+    def forward(self, x0, x1):
+        return self.model(x0, x1)
 
     def training_step(self, batch, batch_idx):
 

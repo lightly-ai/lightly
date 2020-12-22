@@ -94,7 +94,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         self.model.eval()
         embeddings, labels, fnames = None, None, []
 
-        if is_prefetch_generator_available():
+        if lightly._is_prefetch_generator_available():
             pbar = tqdm(BackgroundGenerator(dataloader, max_prefetch=3),
                         total=len(dataloader))
         else:
