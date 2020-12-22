@@ -65,43 +65,61 @@ class MoCo(nn.Module, _MomentumEncoderMixin):
                 return_features: bool = False):
         """Embeds and projects the input image.
 
-        Splits the input batch into q and k following the notation of MoCo.
-        Extracts features with the ResNet backbone and applies the projection
-        head to the output space.
+        Performs the momentum update, extracts features with the backbone and 
+        applies the projection head to the output space. If both x0 and x1 are
+        not None, both will be passed through the backbone and projection head.
+        If x1 is None, only x0 will be forwarded.
 
         Args:
             x0:
-                Tensor of shape bsz x channels x W x H
+                Tensor of shape bsz x channels x W x H.
             x1:
-                TODO
+                Tensor of shape bsz x channels x W x H.
             return_features:
-                TODO
+                Whether or not to return the intermediate features backbone(x).
 
         Returns:
-            Tensor of shape bsz x out_dim
+            The output projection of x0 and (if x1 is not None) the output
+            projection of x1. If return_features is True, the output for each x
+            is a tuple (out, f) where f are the features before the projection
+            head.
+
+        Examples:
+            >>> # single input, single output
+            >>> out = model(x) 
+            >>> 
+            >>> # single input with return_features=True
+            >>> out, f = model(x, return_features=True)
+            >>>
+            >>> # two inputs, two outputs
+            >>> out0, out1 = model(x0, x1)
+            >>>
+            >>> # two inputs, two outputs with return_features=True
+            >>> (out0, f0), (out1, f1) = model(x0, x1, return_features=True)
 
         """
         self._momentum_update(self.m)
         
-        # TODO
+        # forward pass of first input x0
         f0 = self.backbone(x0).squeeze()
         out0 = self.projection_head(f0)
 
-        # TODO
+        # append features if requested
         if return_features:
             out0 = (out0, f0)
 
-        # TODO
+        # return out0 if x1 is None
         if x1 is None:
             return out0
 
-        # embed keys
+        # forward pass of second input x1
         with torch.no_grad():
 
             # shuffle for batchnorm
             if self.batch_shuffle:
                 x1, shuffle = self._batch_shuffle(x1)
 
+            # run x1 through momentum encoder
             f1 = self.momentum_backbone(x1).squeeze()
             out1 = self.momentum_projection_head(f1).detach()
         
@@ -110,7 +128,7 @@ class MoCo(nn.Module, _MomentumEncoderMixin):
                 f1 = self._batch_unshuffle(f1, shuffle)
                 out1 = self._batch_unshuffle(out1, shuffle)
 
-            # TODO
+            # append features if requested
             if return_features:
                 out1 = (out1, f1)
 
