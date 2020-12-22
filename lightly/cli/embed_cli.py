@@ -32,14 +32,7 @@ from lightly.cli._helpers import load_from_state_dict
 
 def _embed_cli(cfg, is_cli_call=True):
 
-    data = cfg['data']
-    train = cfg.get('train', True)
     checkpoint = cfg['checkpoint']
-    download = cfg['download']
-
-    root = cfg['root']
-    if root and is_cli_call:
-        root = fix_input_path(root)
 
     input_dir = cfg['input_dir']
     if input_dir and is_cli_call:
@@ -62,9 +55,7 @@ def _embed_cli(cfg, is_cli_call=True):
             std=[0.229, 0.224, 0.225])
     ])
 
-    dataset = LightlyDataset(root,
-                           name=data, train=train, download=download,
-                           from_folder=input_dir, transform=transform)
+    dataset = LightlyDataset(input_dir, transform=transform)
 
     cfg['loader']['drop_last'] = False
     cfg['loader']['shuffle'] = False
