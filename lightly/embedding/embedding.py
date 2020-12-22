@@ -26,8 +26,6 @@ class SelfSupervisedEmbedding(BaseEmbedding):
 
     The implementation is based on contrastive learning.
 
-    MCM: https://arxiv.org/abs/1906.05849
-
     SimCLR: https://arxiv.org/abs/2002.05709
 
     MoCo: https://arxiv.org/abs/1911.05722
@@ -139,15 +137,3 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 labels = labels.cpu().numpy()
 
         return embeddings, labels, fnames
-
-
-class _VAEEmbedding(BaseEmbedding):
-    """ Unsupervised embedding based on variational auto-encoders.
-
-    """
-
-    def embed(self, dataloader):
-        """ TODO
-
-        """
-        raise NotImplementedError("This site is under construction...")
