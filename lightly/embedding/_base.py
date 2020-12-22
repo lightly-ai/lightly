@@ -50,11 +50,14 @@ class BaseEmbedding(lightning.LightningModule):
 
     def training_step(self, batch, batch_idx):
 
-        x, y, _ = batch
-        y_hat = self(x)
-        loss = self.criterion(y_hat, y)
+        # get the two image transformations
+        (x0, x1), _, _ = batch
+        # forward pass of the transformations
+        y0, y1 = self(x0, x1)
+        # calculate loss
+        loss = self.criterion(y0, y1)
+        # log loss and return
         self.log('loss', loss)
-
         return loss
 
     def configure_optimizers(self):
@@ -99,40 +102,6 @@ class BaseEmbedding(lightning.LightningModule):
 
         self.checkpoint = self.checkpoint_callback.best_model_path
         self.checkpoint = os.path.join(self.cwd, self.checkpoint)
-
-        return self
-
-    def recycle(self, new_output_dim, layer=None):
-        """Build a copy of the embedding model with a new output layer
-
-        Args:
-            new_output_dim: (int)
-            layer: (int)
-
-        Returns:
-            Copy of the embedding model with new output layer
-        """
-
-        layer = -1 if layer is None else layer
-
-        modules = []
-        for module in self.model.features:
-            module_copy = copy.deepcopy(module)
-            modules.append(module_copy)
-
-        output_dim = None
-        if isinstance(modules[-1], nn.AdaptiveAvgPool2d):
-            output_dim = modules[-2].out_channels
-        elif isinstance(modules[-1], nn.Linear):
-            output_dim = modules[-1].out_features
-        else:
-            msg = 'Could not determine output_size. Last layer is {}'
-            msg = msg.format(type(modules[-1]))
-            raise NotImplementedError(msg)
-
-        modules.append(nn.Flatten())
-        modules.append(nn.Linear(output_dim, new_output_dim))
-        return nn.Sequential(*modules)
 
     def embed(self, *args, **kwargs):
         """Must be implemented by classes which inherit from BaseEmbedding.
