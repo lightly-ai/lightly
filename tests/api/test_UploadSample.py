@@ -5,12 +5,13 @@ import os
 
 import random
 import responses
+import pytest
 
 from lightly.api import routes
 
 N = 10
 
-
+@pytest.mark.slow
 class TestUploadSample(unittest.TestCase):
 
     def setup(self, psuccess=1.):

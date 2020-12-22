@@ -1,3 +1,5 @@
+.. _lightly-advanced:
+
 Advanced
 ===================
 
