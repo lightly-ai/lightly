@@ -59,7 +59,10 @@ class MoCo(nn.Module, _MomentumEncoderMixin):
         # initialize momentum features and momentum projection head
         self._init_momentum_encoder()
 
-    def forward(self, x: torch.Tensor):
+    def forward(self,
+                x0: torch.Tensor,
+                x1: torch.Tensor = None,
+                return_features: bool = False):
         """Embeds and projects the input image.
 
         Splits the input batch into q and k following the notation of MoCo.
@@ -67,36 +70,48 @@ class MoCo(nn.Module, _MomentumEncoderMixin):
         head to the output space.
 
         Args:
-            x:
+            x0:
                 Tensor of shape bsz x channels x W x H
+            x1:
+                TODO
+            return_features:
+                TODO
 
         Returns:
             Tensor of shape bsz x out_dim
 
         """
         self._momentum_update(self.m)
-
-        # adopting the notation of the moco paper
-        batch_size = x.shape[0] // 2
-        q = x[:batch_size]
-        k = x[batch_size:]
         
-        # embed queries
-        emb_q = self.backbone(q).squeeze()
-        out_q = self.projection_head(emb_q)
+        # TODO
+        f0 = self.backbone(x0).squeeze()
+        out0 = self.projection_head(f0)
+
+        # TODO
+        if return_features:
+            out0 = (out0, f0)
+
+        # TODO
+        if x1 is None:
+            return out0
 
         # embed keys
         with torch.no_grad():
 
             # shuffle for batchnorm
             if self.batch_shuffle:
-                k, shuffle = self._batch_shuffle(k)
+                x1, shuffle = self._batch_shuffle(x1)
 
-            emb_k = self.momentum_backbone(k).squeeze()
-            out_k = self.momentum_projection_head(emb_k).detach()
+            f1 = self.momentum_backbone(x1).squeeze()
+            out1 = self.momentum_projection_head(f1).detach()
         
             # unshuffle for batchnorm
             if self.batch_shuffle:
-                out_k = self._batch_unshuffle(out_k, shuffle)
+                f1 = self._batch_unshuffle(f1, shuffle)
+                out1 = self._batch_unshuffle(out1, shuffle)
 
-        return torch.cat([out_q, out_k], axis=0)
+            # TODO
+            if return_features:
+                out1 = (out1, f1)
+
+        return out0, out1

@@ -46,22 +46,46 @@ class SimCLR(nn.Module):
         self.backbone = backbone
         self.projection_head = _get_simclr_projection_head(num_ftrs, out_dim)
 
-    def forward(self, x: torch.Tensor):
+    def forward(self,
+                x0: torch.Tensor,
+                x1: torch.Tensor = None,
+                return_features: bool = False):
         """Embeds and projects the input images.
 
         Extracts features with the backbone and applies the projection
         head to the output space.
 
         Args:
-            x:
+            x0:
                 Tensor of shape bsz x channels x W x H
+            x1:
+                Tensor of shape bsz x channels x W x H
+            return_features:
+                TODO
 
         Returns:
-            Tensor of shape bsz x out_dim
+            TODO: Elaborate explanation: Tensor of shape bsz x out_dim
 
         """
-        # embed images in feature space
-        emb = self.backbone(x).squeeze()
+        
+        # TODO
+        f0 = self.backbone(x0).squeeze()
+        out0 = self.projection_head(f0)
 
-        # return projection to space for loss calcs
-        return self.projection_head(emb)
+        # TODO
+        if return_features:
+            out0 = (out0, f0)
+
+        # TODO
+        if x1 is None:
+            return out0
+
+        # TODO
+        f1 = self.backbone(x1).squeeze()
+        out1 = self.projection_head(f1)
+
+        # TODO
+        if return_features:
+            out1 = (out1, f1)
+
+        return out0, out1
