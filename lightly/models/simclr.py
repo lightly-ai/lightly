@@ -53,39 +53,58 @@ class SimCLR(nn.Module):
         """Embeds and projects the input images.
 
         Extracts features with the backbone and applies the projection
-        head to the output space.
+        head to the output space. If both x0 and x1 are not None, both will be
+        passed through the backbone and projection head. If x1 is None, only
+        x0 will be forwarded.
 
         Args:
             x0:
-                Tensor of shape bsz x channels x W x H
+                Tensor of shape bsz x channels x W x H.
             x1:
-                Tensor of shape bsz x channels x W x H
+                Tensor of shape bsz x channels x W x H.
             return_features:
-                TODO
+                Whether or not to return the intermediate features backbone(x).
 
         Returns:
-            TODO: Elaborate explanation: Tensor of shape bsz x out_dim
+            The output projection of x0 and (if x1 is not None) the output
+            projection of x1. If return_features is True, the output for each x
+            is a tuple (out, f) where f are the features before the projection
+            head.
+
+        Examples:
+            >>> # single input, single output
+            >>> out = model(x) 
+            >>> 
+            >>> # single input with return_features=True
+            >>> out, f = model(x, return_features=True)
+            >>>
+            >>> # two inputs, two outputs
+            >>> out0, out1 = model(x0, x1)
+            >>>
+            >>> # two inputs, two outputs with return_features=True
+            >>> (out0, f0), (out1, f1) = model(x0, x1, return_features=True)
 
         """
         
-        # TODO
+        # forward pass of first input x0
         f0 = self.backbone(x0).squeeze()
         out0 = self.projection_head(f0)
 
-        # TODO
+        # append features if requested
         if return_features:
             out0 = (out0, f0)
 
-        # TODO
+        # return out0 if x1 is None
         if x1 is None:
             return out0
 
-        # TODO
+        # forward pass of second input x1
         f1 = self.backbone(x1).squeeze()
         out1 = self.projection_head(f1)
 
-        # TODO
+        # append features if requested
         if return_features:
             out1 = (out1, f1)
 
+        # return both outputs
         return out0, out1

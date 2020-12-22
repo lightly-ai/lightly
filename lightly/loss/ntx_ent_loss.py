@@ -102,17 +102,19 @@ class NTXentLoss(MemoryBankModule):
                 out1: torch.Tensor):
         """Forward pass through Contrastive Cross Entropy Loss.
 
+        If used with a memory bank, the samples from the memory bank are used
+        as negative examples. Otherwise, within-batch samples are used as 
+        negative samples.
+
             Args:
                 out0:
-                    TODO
+                    Output projections of the first set of transformed images.
                 out1:
-                    TODO
+                    Output projections of the second set of transformed images.
 
             Returns:
                 Contrastive Cross Entropy Loss value.
 
-            Raises:
-                ValueError if shape of output is not multiple of batch_size.
         """
 
         device = out0.device
@@ -122,7 +124,7 @@ class NTXentLoss(MemoryBankModule):
         out0 = torch.nn.functional.normalize(out0, dim=1)
         out1 = torch.nn.functional.normalize(out1, dim=1)
 
-        # ask memory bank for negative samples
+        # ask memory bank for negative samples and extend it with out1
         out1, negatives = super(NTXentLoss, self).forward(out1)
 
         if negatives is not None:
