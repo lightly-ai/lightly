@@ -140,6 +140,12 @@ class TestLightlyDataset(unittest.TestCase):
                 '/a-random-hopefully-non/existing-path-to-nowhere/'
             )
 
+    def test_from_torch_dataset(self):
+        _dataset = torchvision.datasets.FakeData(size=1, image_size=(3, 32, 32))
+        dataset = LightlyDataset.from_torch_dataset(_dataset)
+        self.assertEqual(len(_dataset), len(dataset))
+        self.assertEqual(len(dataset.get_filenames()), len(dataset))
+
     def test_video_dataset(self):
 
         if not VIDEO_DATASET_AVAILABLE:

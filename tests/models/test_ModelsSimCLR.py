@@ -92,6 +92,31 @@ class TestModelsSimCLR(unittest.TestCase):
                     self.assertIsNotNone(model)
                     self.assertIsNotNone(out)
 
+    def test_tuple_input(self):
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        resnet = ResNetGenerator('resnet-18')
+        model = SimCLR(get_backbone(resnet, num_ftrs=32), out_dim=128).to(device)
+
+        x0 = torch.rand((self.batch_size, 3, 64, 64)).to(device)
+        x1 = torch.rand((self.batch_size, 3, 64, 64)).to(device)
+
+        out = model(x0)
+        self.assertEqual(out.shape, (self.batch_size, 128))
+
+        out, features = model(x0, return_features=True)
+        self.assertEqual(out.shape, (self.batch_size, 128))
+        self.assertEqual(features.shape, (self.batch_size, 32))
+
+        out0, out1 = model(x0, x1)
+        self.assertEqual(out0.shape, (self.batch_size, 128))
+        self.assertEqual(out1.shape, (self.batch_size, 128))
+
+        (out0, f0), (out1, f1) = model(x0, x1, return_features=True)
+        self.assertEqual(out0.shape, (self.batch_size, 128))
+        self.assertEqual(out1.shape, (self.batch_size, 128))
+        self.assertEqual(f0.shape, (self.batch_size, 32))
+        self.assertEqual(f1.shape, (self.batch_size, 32))
+
 
 if __name__ == '__main__':
     unittest.main()
