@@ -107,8 +107,7 @@ class MemoryBankModule(torch.nn.Module):
         if self.size == 0:
             return output, None
 
-        batch_size, dim = output.shape
-        batch_size = batch_size // 2
+        _, dim = output.shape
 
         # initialize the memory bank if it is not already done
         if self.bank is None:
@@ -119,5 +118,6 @@ class MemoryBankModule(torch.nn.Module):
 
         # only update memory bank if we later do backward pass (gradient)
         if output.requires_grad:
-            self._dequeue_and_enqueue(output[batch_size:])
+            self._dequeue_and_enqueue(output)
+
         return output, bank
