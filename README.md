@@ -98,6 +98,15 @@ python -m pytest -s -v --runslow
 We provide a [Pylint](https://github.com/PyCQA/pylint) config following the
 [Google Python Style Guide](https://github.com/google/styleguide/blob/gh-pages/pyguide.md).
 
+You can run the linter from your terminal either on a folder
+```
+pylint lightly/
+```
+or on a specific file
+```
+pylint lightly/core.py
+```
+
 
 ## Further Reading
 
