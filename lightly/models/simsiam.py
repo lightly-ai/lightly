@@ -42,9 +42,11 @@ def _prediction_mlp(in_dims: int = 2048,
 
 def _projection_mlp(in_dims: int = 2048, 
                     h_dims: int = 2048, 
-                    out_dims: int = 2048) -> nn.Sequential:
+                    out_dims: int = 2048,
+                    num_layers: int = 3) -> nn.Sequential:
     """Projection MLP. The original paper's implementation has 3 layers, with 
-    BN applied to its hidden fc layers but no ReLU on the output fc layer.
+    BN applied to its hidden fc layers but no ReLU on the output fc layer. 
+    The CIFAR-10 study used a MLP with only two layers.
 
     Args:
         in_dims:
@@ -53,6 +55,8 @@ def _projection_mlp(in_dims: int = 2048,
             Hidden dimension of all the fully connected layers.
         out_dims: 
             Output Dimension of the final linear layer.
+        num_layers:
+            Controls the total number of layers. Expecting 2 or 3.
 
     Returns:
         nn.Sequential:
@@ -69,7 +73,13 @@ def _projection_mlp(in_dims: int = 2048,
     l3 = nn.Sequential(nn.Linear(h_dims, out_dims),
                        nn.BatchNorm1d(out_dims))
 
-    projection = nn.Sequential(l1, l2, l3)
+    if num_layers == 3:
+        projection = nn.Sequential(l1, l2, l3)
+    elif num_layers == 2:
+        projection = nn.Sequential(l1, l3)
+    else:
+        raise NotImplementedError("Only MLPs with 2 and 3 layers are implemented.")
+
     return projection
 
 
@@ -78,15 +88,15 @@ class SimSiam(nn.Module, _StateDictLoaderMixin):
 
     Attributes:
         backbone:
-            TODO
-        width:
-            Width of the ResNet.
+            The backbone to train.
         num_ftrs:
             Dimension of the embedding (before the projection head).
         proj_hidden_dim:
-            TODO
+            Dimension of the hidden layer of the projection head. This should
+            be the same size as `num_ftrs`.
         pred_hidden_dim:
-            TODO
+            Dimension of the hidden layer of the predicion head. This should
+            be `num_ftrs` / 4.
         out_dim:
             Dimension of the output (after the projection head).
 
@@ -97,7 +107,8 @@ class SimSiam(nn.Module, _StateDictLoaderMixin):
                  num_ftrs: int = 2048,
                  proj_hidden_dim: int = 2048,
                  pred_hidden_dim: int = 512,
-                 out_dim: int = 2048):
+                 out_dim: int = 2048,
+                 num_mlp_layers: int = 3):
 
         super(SimSiam, self).__init__()
 
@@ -108,7 +119,7 @@ class SimSiam(nn.Module, _StateDictLoaderMixin):
         self.out_dim = out_dim
 
         self.projection_mlp = \
-            _projection_mlp(num_ftrs, proj_hidden_dim, out_dim)
+            _projection_mlp(num_ftrs, proj_hidden_dim, out_dim, num_mlp_layers)
 
         self.prediction_mlp = \
             _prediction_mlp(num_ftrs, pred_hidden_dim, out_dim)
@@ -117,7 +128,7 @@ class SimSiam(nn.Module, _StateDictLoaderMixin):
                              state_dict,
                              strict: bool = True,
                              apply_filter: bool = True):
-        """Initializes a ResNetMoCo and loads weights from a checkpoint.
+        """Initializes a SimSiam model and loads weights from a checkpoint.
 
         Args:
             state_dict:

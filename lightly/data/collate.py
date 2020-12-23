@@ -243,7 +243,7 @@ class SimCLRCollateFunction(ImageCollateFunction):
             vf_prob=vf_prob,
             hf_prob=hf_prob,
             rr_prob=rr_prob,
-            normalize=imagenet_normalize,
+            normalize=normalize,
         )
 
 
