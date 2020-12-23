@@ -23,7 +23,7 @@ class TestNTXentLoss(unittest.TestCase):
             output.requires_grad = True
             out0, out1 = output[:bsz], output[bsz:]
 
-            _, curr_memory_bank = memory_bank(out1)
+            _, curr_memory_bank = memory_bank(out1, update=True)
             next_memory_bank = memory_bank.bank
 
             curr_diff = out0.T - curr_memory_bank[:, ptr:ptr + bsz]
