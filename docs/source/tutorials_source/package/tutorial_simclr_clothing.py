@@ -71,7 +71,7 @@ pl.seed_everything(seed)
 # Make sure `path_to_data` points to the downloaded clothing dataset.
 # You can download it using 
 # `git clone https://github.com/alexeygrigorev/clothing-dataset.git`
-path_to_data = '/datasets/clothing_dataset/images'
+path_to_data = '/datasets/clothing-dataset/images'
 
 
 # %%
@@ -105,11 +105,11 @@ test_transforms = torchvision.transforms.Compose([
 ])
 
 dataset_train_simclr = lightly.data.LightlyDataset(
-    from_folder=path_to_data
+    input_dir=path_to_data
 )
 
 dataset_test = lightly.data.LightlyDataset(
-    from_folder=path_to_data,
+    input_dir=path_to_data,
     transform=test_transforms
 )
 
@@ -167,14 +167,14 @@ gpus = 1 if torch.cuda.is_available() else 0
 # --------------------
 # The encoder itself wraps a PyTorch-Lightning module. We can pass any 
 # lightning trainer parameter (e.g. gpus=, max_epochs=) to the train_embedding method.
-encoder = encoder.train_embedding(gpus=gpus, 
-                                  progress_bar_refresh_rate=100,
-                                  max_epochs=max_epochs)
+encoder.train_embedding(gpus=gpus, 
+                        progress_bar_refresh_rate=100,
+                        max_epochs=max_epochs)
 
 # %%
 # Now, let's make sure we move the trained model to the gpu if we have one
 device = 'cuda' if gpus==1 else 'cpu'
-encoder.to(device)
+encoder = encoder.to(device)
 
 # %%
 # We can use the .embed method to create an embedding of the dataset. The method
@@ -264,9 +264,12 @@ encoder = lightly.embedding.SelfSupervisedEmbedding(
     optimizer,
     dataloader_train_simclr
 )
-encoder = encoder.train_embedding(gpus=gpus, 
-                                  progress_bar_refresh_rate=100,
-                                  max_epochs=max_epochs).to(device)
+
+encoder.train_embedding(gpus=gpus, 
+                        progress_bar_refresh_rate=100,
+                        max_epochs=max_epochs)
+encoder = encoder.to(device)
+
 embeddings, _, fnames = encoder.embed(dataloader_test, device=device)
 embeddings = normalize(embeddings)
 

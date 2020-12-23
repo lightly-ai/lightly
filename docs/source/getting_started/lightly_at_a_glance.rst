@@ -45,7 +45,7 @@ Let's now load an image dataset and create a PyTorch dataloader with the collate
     import torch
 
     # create a dataset from your image folder
-    dataset = data.LightlyDataset(from_folder='./my/cute/cats/dataset/')
+    dataset = data.LightlyDataset(input_dir='./my/cute/cats/dataset/')
 
     # build a PyTorch dataloader
     dataloader = torch.utils.data.DataLoader(

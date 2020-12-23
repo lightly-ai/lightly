@@ -93,12 +93,8 @@ def _load_dataset_from_folder(root: str, transform):
     return dataset
 
 
-def _load_dataset(root: str = '',
-                  name: str = 'cifar10',
-                  train: bool = True,
-                  download: bool = True,
-                  transform=None,
-                  from_folder: str = ''):
+def _load_dataset(input_dir: str,
+                  transform=None):
     """Initializes dataset from torchvision or from folder.
 
     Args:
@@ -117,80 +113,7 @@ def _load_dataset(root: str = '',
 
     """
 
-    if from_folder and os.path.exists(from_folder):
-        # load data from directory
-        dataset = _load_dataset_from_folder(from_folder,
-                                            transform)
+    if not os.path.exists(input_dir):
+        raise ValueError(f'The input directory {input_dir} does not exist!')
 
-    elif name.lower() == 'cifar10' and root:
-        # load cifar10
-        dataset = datasets.CIFAR10(root,
-                                   train=train,
-                                   download=download,
-                                   transform=transform)
-
-    elif name.lower() == 'cifar100' and root:
-        # load cifar100
-        dataset = datasets.CIFAR100(root,
-                                    train=train,
-                                    download=download,
-                                    transform=transform)
-
-    elif name.lower() == 'cityscapes' and root:
-        # load cityscapes
-        root = os.path.join(root, 'cityscapes/')
-        split = 'train' if train else 'val'
-        dataset = datasets.Cityscapes(root,
-                                      split=split,
-                                      transform=transform)
-
-    elif name.lower() == 'stl10' and root:
-        # load stl10
-        split = 'train' if train else 'test'
-        dataset = datasets.STL10(root,
-                                 split=split,
-                                 download=download,
-                                 transform=transform)
-
-    elif name.lower() == 'voc07-seg' and root:
-        # load pascal voc 07 segmentation dataset
-        image_set = 'train' if train else 'val'
-        dataset = datasets.VOCSegmentation(root,
-                                           year='2007',
-                                           image_set=image_set,
-                                           download=download,
-                                           transform=transform)
-
-    elif name.lower() == 'voc12-seg' and root:
-        # load pascal voc 12 segmentation dataset
-        image_set = 'train' if train else 'val'
-        dataset = datasets.VOCSegmentation(root,
-                                           year='2012',
-                                           image_set=image_set,
-                                           download=download,
-                                           transform=transform)
-
-    elif name.lower() == 'voc07-det' and root:
-        # load pascal voc 07 object detection dataset
-        image_set = 'train' if train else 'val'
-        dataset = datasets.VOCDetection(root,
-                                        year='2007',
-                                        image_set=image_set,
-                                        download=True,
-                                        transform=transform)
-
-    elif name.lower() == 'voc12-det' and root:
-        # load pascal voc 12 object detection dataset
-        image_set = 'train' if train else 'val'
-        dataset = datasets.VOCDetection(root,
-                                        year='2012',
-                                        image_set=image_set,
-                                        download=True,
-                                        transform=transform)
-
-    else:
-        raise ValueError(
-            'The specified dataset (%s) or datafolder (%s) does not exist '
-            % (name, from_folder))
-
-    return dataset
+    return _load_dataset_from_folder(input_dir, transform)

@@ -126,7 +126,7 @@ For the structure above, lightly will understand the input as follows:
         ...
         1,
         ...
-        10,
+        9,
     ]
 
 Video Folder Datasets
@@ -161,28 +161,6 @@ also work on video data. Give it a try!
     Randomly accessing video frames is slower compared to accessing the extracted frames on disc. However,
     by working directly on video files, one can save a lot of disc space because the frames do not have to 
     be exctracted beforehand.
-
-Torchvision Datasets
---------------------
-
-Lightly also supports a direct interface to some of the `torchvision datasets <https://pytorch.org/docs/stable/torchvision/datasets.html>`_.
-From the command-line interface, they can easily be specified with the `data` and `root` keyowords. The following torchvision
-datasets are currently supported by the lightly Python package:
-
-* cifar10
-* cifar100
-* cityscapes
-* stl10
-* voc07-det
-* voc12-det
-* voc07-seg
-* voc12-seg
-
-For example, the following command downloads the cifar10 datasets and generates embeddings for all images:
-
-.. code-block:: bash
-
-    lightly-embed data='cifar10' root='./'
 
 
 Embedding Files
@@ -269,7 +247,7 @@ could be useful if you have additional meta information about each sample.
 Add Custom Embeddings
 """"""""""""""""""""""""""""""
 
-To add custom embeddings you need to add mre embedding columns to the .csv file.
+To add custom embeddings you need to add more embedding columns to the .csv file.
 Make sure you keep the enumeration of the embeddings in correct order.
 
 

@@ -376,7 +376,7 @@ def upload_images_from_folder(path_to_folder: str,
     if isinstance(size, tuple) or size > 0:
         transform = torchvision.transforms.Resize(size)
 
-    dataset = LightlyDataset(from_folder=path_to_folder, transform=transform)
+    dataset = LightlyDataset(input_dir=path_to_folder, transform=transform)
     upload_dataset(
         dataset,
         dataset_id,

@@ -29,8 +29,8 @@ class TestNTXentLoss(unittest.TestCase):
             batch_2 = torch.randn((bsz, 32))
 
             # symmetry
-            l1 = loss(torch.cat((batch_1, batch_2), 0))
-            l2 = loss(torch.cat((batch_2, batch_1), 0))
+            l1 = loss(batch_1, batch_2)
+            l2 = loss(batch_2, batch_1)
             self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.)
 
     def test_forward_pass_1d(self):
@@ -41,8 +41,8 @@ class TestNTXentLoss(unittest.TestCase):
             batch_2 = torch.randn((bsz, 1))
 
             # symmetry
-            l1 = loss(torch.cat((batch_1, batch_2), 0))
-            l2 = loss(torch.cat((batch_2, batch_1), 0))
+            l1 = loss(batch_1, batch_2)
+            l2 = loss(batch_2, batch_1)
             self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.)
 
     def test_forward_pass_neg_temp(self):
@@ -53,15 +53,16 @@ class TestNTXentLoss(unittest.TestCase):
             batch_2 = torch.randn((bsz, 32))
 
             # symmetry
-            l1 = loss(torch.cat((batch_1, batch_2), 0))
-            l2 = loss(torch.cat((batch_2, batch_1), 0))
+            l1 = loss(batch_1, batch_2)
+            l2 = loss(batch_2, batch_1)
             self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.)
     
     def test_forward_pass_memory_bank(self):
         loss = NTXentLoss(memory_bank_size=64)
         for bsz in range(1, 20):
-            batch = torch.randn(2*bsz, 32)
-            l = loss(batch)
+            batch_1 = torch.randn((bsz, 32))
+            batch_2 = torch.randn((bsz, 32))
+            l = loss(batch_1, batch_2)
 
     def test_forward_pass_memory_bank_cuda(self):
         if not torch.cuda.is_available():
@@ -69,8 +70,9 @@ class TestNTXentLoss(unittest.TestCase):
 
         loss = NTXentLoss(memory_bank_size=64)
         for bsz in range(1, 20):
-            batch = torch.randn(2*bsz, 32).cuda()
-            l = loss(batch)
+            batch_1 = torch.randn((bsz, 32)).cuda()
+            batch_2 = torch.randn((bsz, 32)).cuda()
+            l = loss(batch_1, batch_2)
 
     def test_forward_pass_cuda(self):
         if torch.cuda.is_available():
@@ -81,8 +83,8 @@ class TestNTXentLoss(unittest.TestCase):
                 batch_2 = torch.randn((bsz, 32)).cuda()
 
                 # symmetry
-                l1 = loss(torch.cat((batch_1, batch_2), 0))
-                l2 = loss(torch.cat((batch_2, batch_1), 0))
+                l1 = loss(batch_1, batch_2)
+                l2 = loss(batch_2, batch_1)
                 self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.)
         else:
             pass

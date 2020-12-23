@@ -6,11 +6,11 @@
 import time
 
 import torch
-from lightly import is_prefetch_generator_available
+import lightly
 from lightly.embedding._base import BaseEmbedding
 from tqdm import tqdm
 
-if is_prefetch_generator_available():
+if lightly._is_prefetch_generator_available():
     from prefetch_generator import BackgroundGenerator
 
 
@@ -25,8 +25,6 @@ class SelfSupervisedEmbedding(BaseEmbedding):
     https://pytorch-lightning.readthedocs.io/en/stable/
 
     The implementation is based on contrastive learning.
-
-    MCM: https://arxiv.org/abs/1906.05849
 
     SimCLR: https://arxiv.org/abs/2002.05709
 
@@ -97,7 +95,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         self.model.eval()
         embeddings, labels, fnames = None, None, []
 
-        if is_prefetch_generator_available():
+        if lightly._is_prefetch_generator_available():
             pbar = tqdm(BackgroundGenerator(dataloader, max_prefetch=3),
                         total=len(dataloader))
         else:
@@ -140,15 +138,3 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 labels = labels.cpu().numpy()
 
         return embeddings, labels, fnames
-
-
-class _VAEEmbedding(BaseEmbedding):
-    """ Unsupervised embedding based on variational auto-encoders.
-
-    """
-
-    def embed(self, dataloader):
-        """ TODO
-
-        """
-        raise NotImplementedError("This site is under construction...")
