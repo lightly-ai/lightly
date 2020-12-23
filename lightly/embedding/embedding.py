@@ -83,11 +83,12 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 Whether to return the embeddings as numpy array.
 
         Returns:
-            A tensor or ndarray of embeddings with shape n_images x num_ftrs
+            A tuple consisting of a tensor or ndarray of embeddings 
+            with shape n_images x num_ftrs and labels, fnames
 
         Examples:
             >>> # embed images in vector space
-            >>> embeddings, _, _ = encoder.embed(dataloader)
+            >>> embeddings, labels, fnames = encoder.embed(dataloader)
 
         """
 

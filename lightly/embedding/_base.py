@@ -110,8 +110,8 @@ class BaseEmbedding(lightning.LightningModule):
         raise NotImplementedError()
 
     def init_checkpoint_callback(self,
-                                 save_last=True,
-                                 save_top_k=1,
+                                 save_last=False,
+                                 save_top_k=0,
                                  monitor='loss',
                                  dirpath=None):
         """Initializes the checkpoint callback.

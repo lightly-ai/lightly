@@ -264,10 +264,12 @@ encoder = lightly.embedding.SelfSupervisedEmbedding(
     optimizer,
     dataloader_train_simclr
 )
+
 encoder.train_embedding(gpus=gpus, 
                         progress_bar_refresh_rate=100,
                         max_epochs=max_epochs)
 encoder = encoder.to(device)
+
 embeddings, _, fnames = encoder.embed(dataloader_test, device=device)
 embeddings = normalize(embeddings)
 
