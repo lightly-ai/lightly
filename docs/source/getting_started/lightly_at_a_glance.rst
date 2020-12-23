@@ -153,4 +153,11 @@ of code.
 
 What's next?
 ------------
-Get started by :ref:`rst-installing` and follow through the tutorial to learn how to get the most out of using Lightly
+Get started by :ref:`rst-installing` and follow through the tutorials to 
+learn how to get the most out of using Lightly:
+
+Tutorials:
+
+- :ref:`input-structure-label`
+- :ref:`lightly-moco-tutorial-2`
+- :ref:`lightly-simclr-tutorial-3`  
