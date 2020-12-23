@@ -48,11 +48,23 @@ class BaseCollateFunction(nn.Module):
                     a LightlyDataset.
 
             Returns:
-                A tuple of batches of images, labels, and filenames. All are 
-                exactly twice as long as the input batch size. For the labels
-                and filenames, the second half of the new batch is a copy of 
-                the first half. For the images, the two halves represent 
-                different transforms of the original images.
+                A tuple of images, labels, and filenames. The images consist of 
+                two batches corresponding to the two transformations of the
+                input images.
+
+            Examples:
+                >>> # define a random transformation and the collate function
+                >>> transform = ... # some random augmentations
+                >>> collate_fn = BaseCollateFunction(transform)
+                >>>
+                >>> # input is a batch of tuples (here, batch_size = 1)
+                >>> input = [(img, 0, 'my-image.png')]
+                >>> output = collate_fn(input)
+                >>>
+                >>> # output consists of two random transforms of the images,
+                >>> # the labels, and the filenames in the batch
+                >>> (img_t0, img_t1), label, filename = output
+
         """
         batch_size = len(batch)
 
@@ -60,16 +72,17 @@ class BaseCollateFunction(nn.Module):
         transforms = [self.transform(batch[i % batch_size][0]).unsqueeze_(0)
                       for i in range(2 * batch_size)]
         # list of labels
-        labels = [batch[i % batch_size][1] for i in range(2 * batch_size)]
+        labels = torch.LongTensor([item[1] for item in batch])
         # list of filenames
         fnames = [item[2] for item in batch]
 
-        tuple_of_batches = (
-            torch.cat(transforms, 0),
-            torch.LongTensor(labels),
-            fnames,
+        # tuple of transforms
+        transforms = (
+            torch.cat(transforms[:batch_size], 0),
+            torch.cat(transforms[batch_size:], 0)
         )
-        return tuple_of_batches
+
+        return transforms, labels, fnames
 
 
 class ImageCollateFunction(BaseCollateFunction):

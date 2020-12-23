@@ -31,13 +31,6 @@ from lightly.cli._helpers import load_from_state_dict
 
 def _train_cli(cfg, is_cli_call=True):
 
-    data = cfg['data']
-    download = cfg['download']
-
-    root = cfg['root']
-    if root and is_cli_call:
-        root = fix_input_path(root)
-
     input_dir = cfg['input_dir']
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)
@@ -109,9 +102,7 @@ def _train_cli(cfg, is_cli_call=True):
     criterion = NTXentLoss(**cfg['criterion'])
     optimizer = torch.optim.SGD(model.parameters(), **cfg['optimizer'])
 
-    dataset = LightlyDataset(root,
-                           name=data, train=True, download=download,
-                           from_folder=input_dir)
+    dataset = LightlyDataset(input_dir)
 
     cfg['loader']['batch_size'] = min(
         cfg['loader']['batch_size'],
@@ -125,7 +116,7 @@ def _train_cli(cfg, is_cli_call=True):
 
     encoder = SelfSupervisedEmbedding(model, criterion, optimizer, dataloader)
     encoder.init_checkpoint_callback(**cfg['checkpoint_callback'])
-    encoder = encoder.train_embedding(**cfg['trainer'])
+    encoder.train_embedding(**cfg['trainer'])
 
     print('Best model is stored at: %s' % (encoder.checkpoint))
     return encoder.checkpoint

@@ -97,44 +97,48 @@ class NTXentLoss(MemoryBankModule):
         v = self._cosine_similarity(x.unsqueeze(1), y.unsqueeze(0))
         return v
 
-    def forward(self, output: torch.Tensor, labels: torch.Tensor = None):
+    def forward(self,
+                out0: torch.Tensor,
+                out1: torch.Tensor):
         """Forward pass through Contrastive Cross Entropy Loss.
 
+        If used with a memory bank, the samples from the memory bank are used
+        as negative examples. Otherwise, within-batch samples are used as 
+        negative samples.
+
             Args:
-                output:
-                    Output from the model with shape: 2*bsz x d.
-                labels:
-                    Labels associated with the inputs.
+                out0:
+                    Output projections of the first set of transformed images.
+                out1:
+                    Output projections of the second set of transformed images.
 
             Returns:
                 Contrastive Cross Entropy Loss value.
 
-            Raises:
-                ValueError if shape of output is not multiple of batch_size.
         """
 
-        if output.shape[0] % 2:
-            raise ValueError('Expected output of shape 2*bsz x dim but got '
-                             f'shape {output.shape[0]} x {output.shape[1]}.')
-
-        device = output.device
-        batch_size, dim = output.shape
-        batch_size = batch_size // 2
+        device = out0.device
+        batch_size, _ = out0.shape
 
         # normalize the output to length 1
-        output = torch.nn.functional.normalize(output, dim=1)
+        out0 = torch.nn.functional.normalize(out0, dim=1)
+        out1 = torch.nn.functional.normalize(out1, dim=1)
 
-        # ask memory bank for negative samples
-        output, negatives = super(NTXentLoss, self).forward(output)
+        # ask memory bank for negative samples and extend it with out1 if 
+        # out1 requires a gradient, otherwise keep the same vectors in the 
+        # memory bank (this allows for keeping the memory bank constant e.g.
+        # for evaluating the loss on the test set)
+        out1, negatives = \
+            super(NTXentLoss, self).forward(out1, update=out0.requires_grad)
 
         if negatives is not None:
             negatives = negatives.to(device)
-            q, k = output[:batch_size], output[batch_size:]
             # use negatives from memory bank
-            l_pos = torch.einsum('nc,nc->n', [q, k]).unsqueeze(-1)
-            l_neg = torch.einsum('nc,ck->nk', [q, negatives.clone().detach()])
+            l_pos = torch.einsum('nc,nc->n', [out0, out1]).unsqueeze(-1)
+            l_neg = torch.einsum('nc,ck->nk', [out0, negatives.clone().detach()])
         else:
             # use other samples from batch as negatives
+            output = torch.cat((out0, out1), axis=0)
             similarity_matrix = self.similarity_function(output, output)
 
             # filter out the scores from the positive samples

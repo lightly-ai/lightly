@@ -146,7 +146,7 @@ test_transforms = torchvision.transforms.Compose([
 
 # We use the moco augmentations for training moco
 dataset_train_moco = lightly.data.LightlyDataset(
-    from_folder=path_to_train
+    input_dir=path_to_train
 )
 
 # Since we also train a linear classifier on the pre-trained moco model we
@@ -155,12 +155,12 @@ dataset_train_moco = lightly.data.LightlyDataset(
 # Our linear layer will be trained using cross entropy loss and labels provided
 # by the dataset. Therefore we chose light augmentations.)
 dataset_train_classifier = lightly.data.LightlyDataset(
-    from_folder=path_to_train,
+    input_dir=path_to_train,
     transform=train_classifier_transforms
 )
 
 dataset_test = lightly.data.LightlyDataset(
-    from_folder=path_to_test,
+    input_dir=path_to_test,
     transform=test_transforms
 )
 
@@ -237,9 +237,9 @@ class MocoModel(pl.LightningModule):
                 name, params, self.current_epoch)
 
     def training_step(self, batch, batch_idx):
-        x, y, _ = batch
-        projection = self.resnet_moco(x)
-        loss = self.criterion(projection)
+        (x0, x1), _, _ = batch
+        y0, y1 = self.resnet_moco(x0, x1)
+        loss = self.criterion(y0, y1)
         self.log('train_loss_ssl', loss)
         return loss
 
