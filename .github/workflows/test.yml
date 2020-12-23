@@ -1,6 +1,6 @@
 name: Unit Tests
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   test:
@@ -17,4 +17,4 @@ jobs:
     - name: Install Dependencies
       run: pip install -e '.[all]'
     - name: Run Pytest
-      run: python -m pytest -s -v
+      run: python -m pytest -s -v --runslow
