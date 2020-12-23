@@ -7,6 +7,11 @@ The `lightly Python package <https://pypi.org/project/lightly/>`_ can process im
 or to upload data to the `Lightly platform <https://app.lightly.ai>`_. In this tutorial you will learn how to structure
 your image dataset such that it is understood by our framework.
 
+You can also skip this tutorial and jump right into training a model:
+
+- :ref:`lightly-moco-tutorial-2`
+- :ref:`lightly-simclr-tutorial-3`  
+
 Supported File Types
 --------------------
 
@@ -307,3 +312,13 @@ We can now append our embedding vector to the .csv file.
 
 .. note:: The embedding columns must be grouped together. You can not have
           another column between two embedding columns.
+
+
+Next Steps
+-----------------
+
+Now that you understand the various data formats lightly supports you can 
+start training a model:
+
+- :ref:`lightly-moco-tutorial-2`
+- :ref:`lightly-simclr-tutorial-3`  
