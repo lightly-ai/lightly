@@ -59,7 +59,7 @@ num_workers = 8
 batch_size = 256
 memory_bank_size = 4096
 seed = 1
-max_epochs = 1 #50
+max_epochs = 100
 
 # %%
 # Replace the path with the location of your CIFAR-10 dataset.
