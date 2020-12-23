@@ -124,8 +124,12 @@ class NTXentLoss(MemoryBankModule):
         out0 = torch.nn.functional.normalize(out0, dim=1)
         out1 = torch.nn.functional.normalize(out1, dim=1)
 
-        # ask memory bank for negative samples and extend it with out1
-        out1, negatives = super(NTXentLoss, self).forward(out1)
+        # ask memory bank for negative samples and extend it with out1 if 
+        # out1 requires a gradient, otherwise keep the same vectors in the 
+        # memory bank (this allows for keeping the memory bank constant e.g.
+        # for evaluating the loss on the test set)
+        out1, negatives = \
+            super(NTXentLoss, self).forward(out1, update=out0.requires_grad)
 
         if negatives is not None:
             negatives = negatives.to(device)
