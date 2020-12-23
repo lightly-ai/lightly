@@ -122,7 +122,7 @@ class SimSiam(nn.Module, _StateDictLoaderMixin):
             _projection_mlp(num_ftrs, proj_hidden_dim, out_dim, num_mlp_layers)
 
         self.prediction_mlp = \
-            _prediction_mlp(num_ftrs, pred_hidden_dim, out_dim)
+            _prediction_mlp(out_dim, pred_hidden_dim, out_dim)
         
     def load_from_state_dict(self,
                              state_dict,
