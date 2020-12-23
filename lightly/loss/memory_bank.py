@@ -88,7 +88,8 @@ class MemoryBankModule(torch.nn.Module):
 
     def forward(self,
                 output: torch.Tensor,
-                labels: torch.Tensor = None):
+                labels: torch.Tensor = None,
+                update: bool = False):
         """Query memory bank for additional negative samples
 
         Args:
@@ -117,7 +118,7 @@ class MemoryBankModule(torch.nn.Module):
         bank = self.bank.clone().detach()
 
         # only update memory bank if we later do backward pass (gradient)
-        if output.requires_grad:
+        if update:
             self._dequeue_and_enqueue(output)
 
         return output, bank
