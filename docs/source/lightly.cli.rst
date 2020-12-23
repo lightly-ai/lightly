@@ -74,3 +74,4 @@ Default Settings
 ^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../lightly/cli/config/config.yaml
+   :language: yaml
