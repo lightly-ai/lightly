@@ -1,6 +1,8 @@
 
 ![Lightly Logo](docs/logos/lightly_logo_crop.png)
 
+
+![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)
 ![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)
 
 Lightly is a computer vision framework for self-supervised learning.
@@ -35,7 +37,7 @@ Lightly requires **Python 3.6+**. We recommend installing Lightly in a **Linux**
 ### Installation
 You can install Lightly and its dependencies from PyPI with:
 ```
-pip install lightly
+pip3 install lightly
 ```
 
 We strongly recommend that you install Lightly in a dedicated virtualenv, to avoid conflicting with your system packages.
@@ -58,9 +60,38 @@ lightly-embed input_dir=/mydataset checkpoint=/mycheckpoint
 
 The embeddings with the corresponding filename are stored in a human-readable .csv file.
 
-
 ### Next Steps
 Head to the [documentation](https://docs.lightly.ai) and see the things you can achieve with Lightly!
+
+
+## Development
+
+To install dev dependencies (for example to contribute to the framework)
+you can use the following command:
+```
+pip3 install -e ".[dev]"
+```
+
+For more information about how to contribute have a look [here](CONTRIBUTING.md).
+
+### Running Tests
+
+Unit tests are within the `tests` folder and we recommend to run them using 
+[pytest](https://docs.pytest.org/en/stable/).
+There are two test configurations available. By default only a subset will be run.
+This is faster and should take less than a minute. You can run it using
+```
+python -m pytest -s -v
+```
+
+To run all tests (including the slow ones) you can use the following command.
+```
+python -m pytest -s -v --runslow
+```
+
+### Code Linting
+We provide a [Pylint](https://github.com/PyCQA/pylint) config following the
+[Google Python Style Guide](https://github.com/google/styleguide/blob/gh-pages/pyguide.md).
 
 
 ## Further Reading
@@ -77,7 +108,7 @@ Head to the [documentation](https://docs.lightly.ai) and see the things you can 
   - Self-supervised learning has become increasingly popular among scientists over the last year because the learned representations perform extraordinarily well on downstream tasks. This means that they capture the important information in an image better than other types of pre-trained models. By training a self-supervised model on *your* dataset, you can make sure that the representations have all the necessary information about your images.
 
 - How can I contribute?
-  - Create an issue if you encounter bugs or have ideas for features we should implement. You can also add your own code by forking this repository and creating a PR. More details about how to contribute with code is in our contribution guide.
+  - Create an issue if you encounter bugs or have ideas for features we should implement. You can also add your own code by forking this repository and creating a PR. More details about how to contribute with code is in our [contribution guide](CONTRIBUTING.md).
 
 - Is this framework for free?
   - Yes, this framework completely free to use and we provide the code. We believe that
