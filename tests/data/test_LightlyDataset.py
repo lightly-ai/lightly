@@ -7,6 +7,8 @@ import tempfile
 import warnings
 import numpy as np
 from lightly.data import LightlyDataset
+import pytest
+
 
 try:
     from lightly.data._video import VideoDataset
@@ -132,7 +134,6 @@ class TestLightlyDataset(unittest.TestCase):
 
         for i in range(n_tot):
             sample, target, fname = dataset[i]
-
 
     def test_not_existing_folder_dataset(self):
         with self.assertRaises(ValueError):
