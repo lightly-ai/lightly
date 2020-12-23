@@ -15,6 +15,11 @@ Lightly is a computer vision framework for self-supervised learning.
 - [Github](https://github.com/lightly-ai/lightly)
 - [Discord](https://discord.gg/xvNJW94)
 
+Want to jump to the tutorials and see lightly in action?
+
+- [Train MoCo on CIFAR-10](https://docs.lightly.ai/tutorials/package/tutorial_moco_memory_bank.html)
+- [Train SimCLR on clothing data](https://docs.lightly.ai/tutorials/package/tutorial_simclr_clothing.html)
+
 ## Terminology
 - **Dataset:** A collection of raw images.
 - **Embedding:** Representation of an image in a vector space.
