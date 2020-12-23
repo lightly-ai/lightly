@@ -66,7 +66,8 @@ of samples using the
 
 The built-in collate class  
 :py:class:`lightly.data.collate.ImageCollateFunction` provides a set of 
-common augmentations used in SimCLR and MoCo.
+common augmentations used in SimCLR and MoCo. Instead of a single batch of images,
+it returns a tuple of two batches of randomly transformed images.
 
 Since Gaussian blur and random rotations by 90 degrees are not supported
 by default in torchvision, we added them to lightly 

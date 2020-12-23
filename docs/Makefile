@@ -7,7 +7,7 @@ SPHINXOPTS     ?=
 SPHINXBUILD    ?= sphinx-build
 SOURCEDIR      = source
 BUILDDIR       = build
-DATADIR		   = _data
+DATADIR	       = _data
 PACKAGESOURCE  = source/tutorials_source/package
 PLATFORMSOURCE = source/tutorials_source/platform
 
