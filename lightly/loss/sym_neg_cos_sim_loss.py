@@ -1,3 +1,8 @@
+""" Symmetrized Negative Cosine Similarity Loss Functions """
+
+# Copyright (c) 2020. Lightly AG and its affiliates.
+# All Rights Reserved
+
 import torch
 
 class SymNegCosineSimilarityLoss(torch.nn.Module):
@@ -13,9 +18,7 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
         >>> t1 = transforms(images)
         >>>
         >>> # feed through SimSiam model
-        >>> # returns z1, z2, p1, p2 concat in one tensor
-        >>> batch = torch.cat((t0, t1), dim=0)
-        >>> output = model(batch)  
+        >>> output = model(t0, t1)  
         >>>
         >>> # calculate loss
         >>> loss = loss_fn(output)
@@ -23,19 +26,6 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
     """
 
     def _neg_cosine_simililarity(self, x, y):
-        """Computes the negative cosine similarity between the predictions x 
-        and projections y.
-
-        Args:
-            x:
-                Predictions with shape: n x d.
-            y: 
-                Projections with shape: n x d. Gradients wll not flow through this
-                variable.
-
-        Returns:
-            [type]: [description]
-        """
         v = - torch.nn.functional.cosine_similarity(x, y.detach(), dim=-1).mean()
         return v
 
@@ -48,10 +38,14 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
                 out0:
                     Output projections of the first set of transformed images.
                     Expects the tuple to be of the form (z0, p0), where z0 is
-                    the output of the backbone and projection mlp, and p0 is 
+                    the output of the backbone and projection mlp, and p0 is the
+                    output of the prediction head.
                 out1:
                     Output projections of the second set of transformed images.
-
+                    Expects the tuple to be of the form (z1, p1), where z1 is
+                    the output of the backbone and projection mlp, and p1 is the
+                    output of the prediction head.
+ 
             Returns:
                 Contrastive Cross Entropy Loss value.
 
