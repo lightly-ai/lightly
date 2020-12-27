@@ -1,14 +1,15 @@
+""" SimSiam Model """
+
+# Copyright (c) 2020. Lightly AG and its affiliates.
+# All Rights Reserved
+
 import torch
 import torch.nn as nn
 
-from lightly.models.resnet import ResNetGenerator
-from lightly.models.batchnorm import get_norm_layer
-from lightly.models._loader import _StateDictLoaderMixin
 
-
-def _prediction_mlp(in_dims: int = 2048, 
-                    h_dims: int = 512, 
-                    out_dims: int = 2048) -> nn.Sequential:
+def _prediction_mlp(in_dims: int, 
+                    h_dims: int, 
+                    out_dims: int) -> nn.Sequential:
     """Prediction MLP. The original paper's implementation has 2 layers, with 
     BN applied to its hidden fc layers but no BN or ReLU on the output fc layer.
 
@@ -40,9 +41,9 @@ def _prediction_mlp(in_dims: int = 2048,
     return prediction
 
 
-def _projection_mlp(in_dims: int = 2048, 
-                    h_dims: int = 2048, 
-                    out_dims: int = 2048,
+def _projection_mlp(in_dims: int,
+                    h_dims: int,
+                    out_dims: int,
                     num_layers: int = 3) -> nn.Sequential:
     """Projection MLP. The original paper's implementation has 3 layers, with 
     BN applied to its hidden fc layers but no ReLU on the output fc layer. 
@@ -56,7 +57,7 @@ def _projection_mlp(in_dims: int = 2048,
         out_dims: 
             Output Dimension of the final linear layer.
         num_layers:
-            Controls the total number of layers. Expecting 2 or 3.
+            Controls the number of layers; must be 2 or 3. Defaults to 3.
 
     Returns:
         nn.Sequential:
@@ -83,12 +84,12 @@ def _projection_mlp(in_dims: int = 2048,
     return projection
 
 
-class SimSiam(nn.Module, _StateDictLoaderMixin):
+class SimSiam(nn.Module):
     """ Implementation of SimSiam network
 
     Attributes:
         backbone:
-            The backbone to train.
+            Backbone model to extract features from images.
         num_ftrs:
             Dimension of the embedding (before the projection head).
         proj_hidden_dim:
@@ -124,23 +125,6 @@ class SimSiam(nn.Module, _StateDictLoaderMixin):
         self.prediction_mlp = \
             _prediction_mlp(out_dim, pred_hidden_dim, out_dim)
         
-    def load_from_state_dict(self,
-                             state_dict,
-                             strict: bool = True,
-                             apply_filter: bool = True):
-        """Initializes a SimSiam model and loads weights from a checkpoint.
-
-        Args:
-            state_dict:
-                State dictionary with layer weights.
-            strict:
-                Set to False when loading from a partial state_dict.
-            apply_filter:
-                If True, removes the `model.` prefix from keys in the state_dict.
-
-        """
-        self._custom_load_from_state_dict(state_dict, strict, apply_filter)
-
     def forward(self, x: torch.Tensor):
         """Forward pass through SimSiam.
 
