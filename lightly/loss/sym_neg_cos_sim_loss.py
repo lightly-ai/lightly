@@ -1,5 +1,4 @@
 import torch
-import numpy as np
 
 class SymNegCosineSimilarityLoss(torch.nn.Module):
     """Implementation of the Symmetrized Loss.
@@ -23,9 +22,6 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
 
     """
 
-    def __init__(self):
-        super(SymNegCosineSimilarityLoss, self).__init__()
-
     def _neg_cosine_simililarity(self, x, y):
         """Computes the negative cosine similarity between the predictions x 
         and projections y.
@@ -43,15 +39,18 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
         v = - torch.nn.functional.cosine_similarity(x, y.detach(), dim=-1).mean()
         return v
 
-    def forward(self, output: torch.Tensor, labels: torch.Tensor = None):
+    def forward(self, 
+                out0: torch.Tensor, 
+                out1: torch.Tensor):
         """Forward pass through Symmetric Loss.
 
             Args:
-                output:
-                    Output from the model with shape: 2*bsz x d. Expects the order
-                    of the batches to be z1, z2, p1, p2.
-                labels:
-                    Labels associated with the inputs.
+                out0:
+                    Output projections of the first set of transformed images.
+                    Expects the tuple to be of the form (z0, p0), where z0 is
+                    the output of the backbone and projection mlp, and p0 is 
+                out1:
+                    Output projections of the second set of transformed images.
 
             Returns:
                 Contrastive Cross Entropy Loss value.
@@ -59,21 +58,11 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
             Raises:
                 ValueError if shape of output is not multiple of batch_size.
         """
+        z0, p0 = out0
+        z1, p1 = out1
 
-        if output.shape[0] % 4:
-            raise ValueError('Expected output of shape 4*bsz x dim but got '
-                             f'shape {output.shape[0]} x {output.shape[1]}.')
-
-        batch_size, dim = output.shape
-        batch_size = batch_size // 4
-
-        z1 = output[:batch_size]
-        z2 = output[batch_size : batch_size * 2]
-        p1 = output[batch_size * 2 : batch_size * 3]
-        p2 = output[batch_size * 3 : batch_size * 4]
-        
-        loss = self._neg_cosine_simililarity(p1, z2) / 2 + \
-               self._neg_cosine_simililarity(p2, z1) / 2
+        loss = self._neg_cosine_simililarity(p0, z1) / 2 + \
+               self._neg_cosine_simililarity(p1, z0) / 2
 
         return loss
     

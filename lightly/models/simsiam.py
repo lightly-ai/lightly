@@ -125,11 +125,27 @@ class SimSiam(nn.Module):
         self.prediction_mlp = \
             _prediction_mlp(out_dim, pred_hidden_dim, out_dim)
         
-    def forward(self, x: torch.Tensor):
+    def forward(self, 
+                x0: torch.Tensor, 
+                x1: torch.Tensor,
+                return_features: bool = False):
         """Forward pass through SimSiam.
 
-        Extracts features with the backbone and apply the projection
-        head to the output space.
+        Extracts features with the backbone and applies the projection
+        head to the output space. 
+
+        Args:
+            x0:
+                Tensor of shape bsz x channels x W x H.
+            x1:
+                Tensor of shape bsz x channels x W x H.
+            return_features:
+                Whether or not to return the intermediate features backbone(x).
+
+        Returns:
+            The output projection of x0 and the output projection of x1. If 
+            return_features is True, the output for each x is a tuple (out, f) 
+            where f are the features before the projection head.
 
         Args:
             x:
@@ -139,16 +155,15 @@ class SimSiam(nn.Module):
             Tensor of shape bsz x out_dim
 
         """
-        # device = output.device
-        batch_size = len(x)
-        batch_size = batch_size // 2
+        f0, f1 = self.backbone(x0).squeeze(), self.backbone(x1).squeeze()
 
-        x1, x2 = x[:batch_size], x[batch_size:]
+        z0, z1 = self.projection_mlp(f0), self.projection_mlp(f1)
+        p0, p1 = self.prediction_mlp(z0), self.prediction_mlp(z1)
 
-        emb1, emb2 = self.backbone(x1), self.backbone(x2)
-        emb1, emb2 = emb1.squeeze(), emb2.squeeze()
-        z1, z2 = self.projection_mlp(emb1), self.projection_mlp(emb2)
-        p1, p2 = self.prediction_mlp(z1), self.prediction_mlp(z2)
+        out0, out1 = (z0, p0), (z1, p1)
 
-        output = torch.cat((z1, z2, p1, p2), 0)
-        return output
+        # append features if requested
+        if return_features:
+            out0, out1 = (out0, f0), (out1, f1)
+
+        return out0, out1
