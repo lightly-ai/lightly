@@ -127,12 +127,14 @@ class SimSiam(nn.Module):
         
     def forward(self, 
                 x0: torch.Tensor, 
-                x1: torch.Tensor,
+                x1: torch.Tensor = None,
                 return_features: bool = False):
         """Forward pass through SimSiam.
 
         Extracts features with the backbone and applies the projection
-        head to the output space. 
+        head and prediction head to the output space. If both x0 and x1 are not 
+        None, both will be passed through the backbone, projection, and 
+        prediction head. If x1 is None, only x0 will be forwarded.
 
         Args:
             x0:
@@ -143,27 +145,33 @@ class SimSiam(nn.Module):
                 Whether or not to return the intermediate features backbone(x).
 
         Returns:
-            The output projection of x0 and the output projection of x1. If 
-            return_features is True, the output for each x is a tuple (out, f) 
-            where f are the features before the projection head.
-
-        Args:
-            x:
-                Tensor of shape bsz x channels x W x H
-
-        Returns:
-            Tensor of shape bsz x out_dim
+            The output prediction and projection of x0 and (if x1 is not None) 
+            the output prediction and projection of x1. If return_features is 
+            True, the output for each x is a tuple (out, f) where f are the 
+            features before the projection head.
 
         """
-        f0, f1 = self.backbone(x0).squeeze(), self.backbone(x1).squeeze()
+        f0 = self.backbone(x0).squeeze()
+        z0 = self.projection_mlp(f0)
+        p0 = self.prediction_mlp(z0)
 
-        z0, z1 = self.projection_mlp(f0), self.projection_mlp(f1)
-        p0, p1 = self.prediction_mlp(z0), self.prediction_mlp(z1)
-
-        out0, out1 = (z0, p0), (z1, p1)
+        out0 = (z0, p0)
 
         # append features if requested
         if return_features:
-            out0, out1 = (out0, f0), (out1, f1)
+            out0 = (out0, f0)
+
+        if x1 is None:
+            return out0
+        
+        f1 = self.backbone(x1).squeeze()
+        z1 = self.projection_mlp(f1)
+        p1 = self.prediction_mlp(z1)
+
+        out1 = (z1, p1)
+
+        # append features if requested
+        if return_features:
+            out1 = (out1, f1)
 
         return out0, out1
