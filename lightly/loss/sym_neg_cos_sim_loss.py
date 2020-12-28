@@ -11,17 +11,17 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
     Examples:
 
         >>> # initialize loss function
-        >>> loss_fn = SymmetrizedLoss
+        >>> loss_fn = SymNegCosineSimilarityLoss()
         >>>
         >>> # generate two random transforms of images
         >>> t0 = transforms(images)
         >>> t1 = transforms(images)
         >>>
         >>> # feed through SimSiam model
-        >>> output = model(t0, t1)  
+        >>> out0, out1 = model(t0, t1)
         >>>
         >>> # calculate loss
-        >>> loss = loss_fn(output)
+        >>> loss = loss_fn(out0, out1)
 
     """
 
