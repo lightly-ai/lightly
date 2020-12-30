@@ -22,7 +22,7 @@ class RandomRotate(object):
 
     def __init__(self, prob: float = 0.5, angle: int = 90):
         self.prob = prob
-        self.angle = 90
+        self.angle = angle
 
     def __call__(self, sample):
         """Rotates the images with a given probability.

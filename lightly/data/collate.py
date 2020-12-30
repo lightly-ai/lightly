@@ -9,7 +9,7 @@ import torch.nn as nn
 from typing import List
 
 import torchvision
-import torchvision.transforms as transforms
+import torchvision.transforms as T
 from lightly.transforms import GaussianBlur
 from lightly.transforms import RandomRotate
 
@@ -147,31 +147,31 @@ class ImageCollateFunction(BaseCollateFunction):
         else:
             input_size_ = input_size
 
-        color_jitter = transforms.ColorJitter(
+        color_jitter = T.ColorJitter(
             cj_bright, cj_contrast, cj_sat, cj_hue
         )
 
-        transform = [transforms.RandomResizedCrop(size=input_size,
-                                          scale=(min_scale, 1.0)),
+        transform = [T.RandomResizedCrop(size=input_size,
+                                         scale=(min_scale, 1.0)),
              RandomRotate(prob=rr_prob),
-             transforms.RandomHorizontalFlip(p=hf_prob),
-             transforms.RandomVerticalFlip(p=vf_prob),
-             transforms.RandomApply([color_jitter], p=cj_prob),
-             transforms.RandomGrayscale(p=random_gray_scale),
+             T.RandomHorizontalFlip(p=hf_prob),
+             T.RandomVerticalFlip(p=vf_prob),
+             T.RandomApply([color_jitter], p=cj_prob),
+             T.RandomGrayscale(p=random_gray_scale),
              GaussianBlur(
                  kernel_size=kernel_size * input_size_,
                  prob=gaussian_blur),
-             transforms.ToTensor()
+             T.ToTensor()
         ]
 
         if normalize:
             transform += [
-             transforms.Normalize(
+             T.Normalize(
                 mean=normalize['mean'],
                 std=normalize['std'])
              ]
            
-        transform = transforms.Compose(transform)
+        transform = T.Compose(transform)
 
         super(ImageCollateFunction, self).__init__(transform)
 
@@ -243,7 +243,7 @@ class SimCLRCollateFunction(ImageCollateFunction):
             vf_prob=vf_prob,
             hf_prob=hf_prob,
             rr_prob=rr_prob,
-            normalize=imagenet_normalize,
+            normalize=normalize,
         )
 
 
