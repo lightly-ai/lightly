@@ -12,6 +12,7 @@ You can read up on the model in the paper
 `Exploring Simple Siamese Representation Learning <https://arxiv.org/abs/2011.10566>`_.
 
 We will be using a dataset of satellite images from ESAs Sentinel-2 satellite over Italy.
+If you're interested, you can get your own data from the `Copernicus Open Acces Hub <https://scihub.copernicus.eu/>`_.
 The original images have been cropped into smaller tiles due to their immense size and
 the dataset has been balanced based on a simple clustering of the mean RGB color values
 to prevent a surplus of images of the sea.
@@ -20,7 +21,7 @@ In this tutorial you will learn:
 
 - How to work with the SimSiam model
 
-- How to do self-supervised learning in old-school PyTorch style
+- How to do self-supervised learning using PyTorch
 
 - How to check whether your embeddings have collapsed
 
@@ -47,13 +48,13 @@ import lightly
 # 
 # We set some configuration parameters for our experiment. 
 #
-# The default configuration with a batch size and input resolution of 128
+# The default configuration with a batch size and input resolution of 256
 # requires 16GB of GPU memory.
 
 num_workers = 8
 batch_size = 128
 seed = 1
-epochs = 30
+epochs = 100
 input_size = 256
 
 # dimension of the embeddings
@@ -62,7 +63,7 @@ num_ftrs = 512
 out_dim = proj_hidden_dim = 512
 # the prediction head uses a bottleneck architecture
 pred_hidden_dim = 128
-# use 2 layers in the projection mlp
+# use 2 layers in the projection head
 num_mlp_layers = 2
 
 
@@ -81,13 +82,13 @@ path_to_data = '/datasets/sentinel-2-italy-v1/'
 # %%
 # Setup data augmentations and loaders
 # ------------------------------------
-# Since we're working on satellite images, it makes sence to use horizonal and
+# Since we're working on satellite images, it makes sense to use horizontal and
 # vertical flips as well as random rotation transformations. We apply weak color 
 # jitter to learn an invariance of the model with respect to slight changes in
 # the color of the water.
 #
 
-# the collate function defines the transformations for self-supervised learning
+# define the augmentations for self-supervised learning
 collate_fn = lightly.data.ImageCollateFunction(
     input_size=input_size,
     # require invariance to flips and rotations
@@ -98,11 +99,28 @@ collate_fn = lightly.data.ImageCollateFunction(
     cj_prob=0.5,
     cj_bright=0.1,
     cj_contrast=0.1,
-    cj_hue=0.0,
+    cj_hue=0.1,
     cj_sat=0.1,
 )
 
+# create a lightly dataset for training, since the augmentations are handled
+# by the collate function, there is no need to apply additional ones here
+dataset_train_simsiam = lightly.data.LightlyDataset(
+    input_dir=path_to_data
+)
+
+# create a dataloader for training
+dataloader_train_simsiam = torch.utils.data.DataLoader(
+    dataset_train_simsiam,
+    batch_size=batch_size,
+    shuffle=True,
+    collate_fn=collate_fn,
+    num_workers=num_workers
+)
+
 # create a torchvision transformation for embedding the dataset after training
+# here, we resize the images to match the input size during training and apply
+# a normalization of the color channel based on statistics from imagenet
 test_transforms = torchvision.transforms.Compose([
     torchvision.transforms.Resize((input_size, input_size)),
     torchvision.transforms.ToTensor(),
@@ -112,10 +130,7 @@ test_transforms = torchvision.transforms.Compose([
     )
 ])
 
-# create a lightly dataset for training (no transforms!)
-dataset_train_simsiam = lightly.data.LightlyDataset(
-    input_dir=path_to_data
-)
+
 
 # create a lightly dataset for embedding
 dataset_test = lightly.data.LightlyDataset(
@@ -123,15 +138,7 @@ dataset_test = lightly.data.LightlyDataset(
     transform=test_transforms
 )
 
-# create a dataloader for training
-dataloader_train_simsiam = torch.utils.data.DataLoader(
-    dataset_train_simsiam,
-    batch_size=batch_size,
-    shuffle=True,
-    collate_fn=collate_fn,
-    drop_last=False,
-    num_workers=num_workers
-)
+
 
 # create a dataloader for embedding
 dataloader_test = torch.utils.data.DataLoader(
@@ -181,13 +188,6 @@ optimizer = torch.optim.SGD(
 )
 
 
-# %% 
-# Use a GPU if available
-
-
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-
 # %%
 # Train SimSiam
 # --------------------
@@ -205,6 +205,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # dimension, everything is fine (you can read
 # up on this idea `here <https://arxiv.org/abs/2011.10566>`_).
 
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model.to(device)
 
 avg_loss = 0.
@@ -236,7 +237,7 @@ for e in range(1, epochs + 1):
         output_std = torch.std(output, 0)
         output_std = output_std.mean()
 
-        # use running averages to track the loss and standard deviation
+        # use moving averages to track the loss and standard deviation
         w = 0.9
         avg_loss = w * avg_loss + (1 - w) * loss.item()
         avg_output_std = w * avg_output_std + (1 - w) * output_std.item()
@@ -298,7 +299,6 @@ from matplotlib import rcParams as rcp
 import torchvision.transforms.functional as functional
 
 # for clustering and 2d representations
-import umap
 from sklearn import random_projection
 
 # %%
@@ -306,11 +306,10 @@ from sklearn import random_projection
 # [0, 1] square.
 #
 
-
-# use a random Gaussian projection to get 2d embeddings
+# for the scatter plot we want to transform the images to a two-dimensional
+# vector space using a random Gaussian projection
 projection = random_projection.GaussianRandomProjection(n_components=2)
 embeddings_2d = projection.fit_transform(embeddings)
-#   embeddings_2d = umap.UMAP().fit_transform(embeddings)
 
 # normalize the embeddings to fit in the [0, 1] square
 M = np.max(embeddings_2d, axis=0)
@@ -389,7 +388,8 @@ example_images = [
 
 
 def get_image_as_np_array(filename: str):
-    """Returns an image as a numpy array.
+    """Loads the image with filename and returns it as a numpy array.
+
     """
     img = Image.open(filename)
     return np.asarray(img)
@@ -397,9 +397,9 @@ def get_image_as_np_array(filename: str):
 
 def get_image_as_np_array_with_frame(filename: str, w: int = 5):
     """Returns an image as a numpy array with a black frame of width w.
+
     """
     img = get_image_as_np_array(filename)
-    # get shape of the image
     ny, nx, _ = img.shape
     # create an empty image with padding for the frame
     framed_img = np.zeros((w + ny + w, w + nx + w, 3))
@@ -411,6 +411,7 @@ def get_image_as_np_array_with_frame(filename: str, w: int = 5):
 
 def plot_nearest_neighbors_3x3(example_image: str, i: int):
     """Plots the example image and its eight nearest neighbors.
+
     """
     n_subplots = 9
     # initialize empty figure
@@ -422,17 +423,12 @@ def plot_nearest_neighbors_3x3(example_image: str, i: int):
     distances = embeddings - embeddings[example_idx]
     distances = np.power(distances, 2).sum(-1).squeeze()
     # sort indices by distance to the center
-    argsort = np.argsort(distances)
+    nearest_neighbors = np.argsort(distances)[:n_subplots]
     # show images
-    plot_indices = argsort[:n_subplots]
-    for plot_offset in range(n_subplots):
-        # add the subplot
+    for plot_offset, plot_idx in enumerate(nearest_neighbors):
         ax = fig.add_subplot(3, 3, plot_offset + 1)
-        # get the index of the image to plot
-        plot_idx = plot_indices[plot_offset]
         # get the corresponding filename
         fname = os.path.join(path_to_data, filenames[plot_idx])
-        # plot the image
         if plot_offset == 0:
             ax.set_title(f"Example Image")
             plt.imshow(get_image_as_np_array_with_frame(fname))
