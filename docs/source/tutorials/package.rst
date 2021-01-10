@@ -17,3 +17,4 @@ you might want to have a look at the two frameworks to understand basic concepts
    structure_your_input.rst
    package/tutorial_moco_memory_bank.rst
    package/tutorial_simclr_clothing.rst
+   package/tutorial_simsiam_esa.rst

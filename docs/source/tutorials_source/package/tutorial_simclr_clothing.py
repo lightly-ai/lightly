@@ -133,7 +133,9 @@ dataloader_test = torch.utils.data.DataLoader(
 # %%
 # Create the SimCLR model
 # -----------------------
-# create a ResNet backbone and remove the classification head
+# Create a ResNet backbone and remove the classification head
+
+
 resnet = lightly.models.ResNetGenerator('resnet-18')
 last_conv_channels = list(resnet.children())[-1].in_features
 backbone = nn.Sequential(

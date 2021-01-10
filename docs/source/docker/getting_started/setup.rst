@@ -48,6 +48,12 @@ We assume *container-credentials.json* is in your current directory.
 
     cat container-credentials.json | docker login -u json_key --password-stdin https://eu.gcr.io
 
+If the above command does not work, try the following:
+
+.. code-block:: console
+
+    cat container-credentials.json | docker login -u _json_key --password-stdin https://eu.gcr.io
+
 **Third**, after authentication you should be able to pull our latest image. 
 Using the following command you pull the latest image from our European cloud server:
 
