@@ -54,7 +54,7 @@ import lightly
 num_workers = 8
 batch_size = 128
 seed = 1
-epochs = 100
+epochs = 50
 input_size = 256
 
 # dimension of the embeddings
@@ -95,8 +95,10 @@ collate_fn = lightly.data.ImageCollateFunction(
     hf_prob=0.5,
     vf_prob=0.5,
     rr_prob=0.5,
+    # satellite images are all taken from the same height
+    min_scale=1.0,
     # use a weak color jitter for invariance w.r.t small color changes
-    cj_prob=0.5,
+    cj_prob=0.2,
     cj_bright=0.1,
     cj_contrast=0.1,
     cj_hue=0.1,
@@ -115,6 +117,7 @@ dataloader_train_simsiam = torch.utils.data.DataLoader(
     batch_size=batch_size,
     shuffle=True,
     collate_fn=collate_fn,
+    drop_last=True,
     num_workers=num_workers
 )
 
@@ -210,7 +213,7 @@ model.to(device)
 
 avg_loss = 0.
 avg_output_std = 0.
-for e in range(1, epochs + 1):
+for e in range(epochs):
 
     for (x0, x1), _, _ in dataloader_train_simsiam:
 
@@ -219,6 +222,8 @@ for e in range(1, epochs + 1):
         x1 = x1.to(device)
 
         # run the model on both transforms of the images
+        # the output of the simsiam model is a y containing the predictions
+        # and projections for each input x
         y0, y1 = model(x0, x1)
 
         # backpropagation
