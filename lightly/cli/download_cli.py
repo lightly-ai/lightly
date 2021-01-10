@@ -60,7 +60,7 @@ def _download_cli(cfg, is_cli_call=True):
         print(f'Copying files from {input_dir} to {output_dir}.')
 
         # create a dataset from the input directory
-        dataset = data.LightlyDataset(from_folder=input_dir)
+        dataset = data.LightlyDataset(input_dir=input_dir)
 
         # dump the dataset in the output directory
         dataset.dump(output_dir, samples)
