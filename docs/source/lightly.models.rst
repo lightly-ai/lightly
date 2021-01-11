@@ -18,6 +18,11 @@ lightly.models
 .. automodule:: lightly.models.moco
    :members:
 
+.simsiam
+---------------
+.. automodule:: lightly.models.simsiam
+   :members:
+
 .zoo
 ---------------
 .. automodule:: lightly.models.zoo
