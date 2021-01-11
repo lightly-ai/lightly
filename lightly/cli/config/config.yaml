@@ -20,11 +20,6 @@ emb_upload_bsz: 32            # Number of embeddings which are uploaded in a si
 tag_name: 'initial-tag'       # Name of the requested tag on the Lightly platform.
 
 ### training and embeddings
-# The following arguments are required for training and embedding
-# images with the lightly Python package.
-data: ''                      # Name of the dataset (optional if input_dir is set)
-root: ''                      # Root directory (optional if input_dir is set)
-download: True                # Download dataset (optional if input_dir is set)
 pre_trained: True             # Whether to use a pre-trained model or not
 
 # model namespace: Passed to lightly.models.ResNetGenerator.

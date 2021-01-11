@@ -68,7 +68,8 @@ of samples using the
 
 The built-in collate class  
 :py:class:`lightly.data.collate.ImageCollateFunction` provides a set of 
-common augmentations used in SimCLR and MoCo.
+common augmentations used in SimCLR and MoCo. Instead of a single batch of images,
+it returns a tuple of two batches of randomly transformed images.
 
 Since Gaussian blur and random rotations by 90 degrees are not supported
 by default in torchvision, we added them to lightly 
@@ -92,6 +93,10 @@ learning:
   
   - Check the documentation: :py:class:`lightly.models.moco.MoCo`
 
+- `SimSiam: Exploring Simple Siamese Representation Learning, K. He, 2020 <https://arxiv.org/abs/2011.10566>`_
+
+  - Check the documentation: :py:class:`lightly.models.simsiam.SimSiam`
+
 Do you know a model that should be on this list? Please add an issue on GitHub :)
 
 
@@ -99,11 +104,16 @@ Do you know a model that should be on this list? Please add an issue on GitHub :
 Losses 
 -------------------
 
-We provide the most common loss fucntion for contrastive learning. 
+We provide the most common loss function for contrastive learning and a symmetric negative cosine similarity 
+loss for non-contrastive methods.
 
 - `NTXentLoss: Normalized Temperature-scaled Cross Entropy Loss <https://paperswithcode.com/method/nt-xent>`_
 
   - Check the documentation: :py:class:`lightly.loss.ntx_ent_loss.NTXentLoss`
+
+- Symmetric Negative Cosine Similarity Loss
+
+  - Check the documentation: :py:class:`lightly.loss.sym_neg_cos_sim_loss.SymNegCosineSimilarityLoss`
 
 
 Memory Bank
@@ -120,3 +130,85 @@ For an example of the memory bank in action have a look at
 For more information check the documentation: 
 :py:class:`lightly.loss.memory_bank.MemoryBankModule`.
 
+
+Extracting specific Video Frames
+--------------------------------
+
+When working with videos, it is preferred not to have to extract all 
+the frames beforehand. With lightly we can not only subsample the video 
+to find interesting frames for annotation but also extract only these frames.
+
+Let's have a look at how this works:
+
+.. code-block:: python
+
+    import os
+    import lightly
+
+    # read the list of filenames (e.g. from the Lightly Docker output)
+    with open('sampled_filenames.txt', 'r') as f:
+        filenames = [line.rstrip() for line in f]
+
+    # let's have a look at the first 5 filenames
+    print(filenames[:5])
+    # >>> '068536-mp4.png'
+    # >>> '138032-mp4.png'
+    # >>> '151774-mp4.png'
+    # >>> '074234-mp4.png'
+    # >>> '264863-mp4.png'
+
+    path_to_video_data = 'video/'
+    dataset = lightly.data.LightlyDataset(from_folder=path_to_video_data)
+
+    # let's get the total number of frames
+    print(len(dataset))
+    # >>> 341965
+
+    # Now we have to extract the frame number from the filename.
+    # Since the length of the filename should always be the same
+    # we can extract the substring.
+
+    # we can experiment until we find the right match
+    print(filenames[0][-14:-8])
+    # >>> '068536'
+
+    # let's get all the substrings
+    frame_numbers = [fname[-14:-8] for fname in filenames]
+
+    # let's check whether the first 5 frame numbers make sense
+    print(frame_numbers[:5])
+    # >>> ['068536', '138032', '151774', '074234', '264863']
+
+    # now we convert the strings into integers so we can use them for indexing
+    frame_numbers = [int(frame_number) for frame_number in frame_numbers]
+
+    # let's get the first frame number
+    img, label, fname = dataset[frame_numbers[0]]
+
+    # a quick sanity check
+    # fname should again be the filename from our list
+    print(fname == filenames[0])
+    # >>> True
+
+    # before saving the images make sure an output folder exists
+    out_dir = 'save_here_my_images'
+    if not os.path.exists(out_dir):
+        os.mkdir(out_dir)
+
+    # let's get all the frames and dump them into a new folder
+    for frame_number in frame_numbers:
+        img, label, fname = dataset[frame_number]
+        dst_fname = os.path.join(out_dir, fname)
+        img.save(dst_fname)
+
+
+    # want to save the images as jpgs instead of pngs?
+    # we can simply replace the file engine .png with .jpg
+
+    #for frame_number in frame_numbers:
+    #    img, label, fname = dataset[frame_number]
+    #    dst_fname = os.path.join(out_dir, fname)
+    #    dst_fname = dst_fname.replace('.png', '.jpg')
+    #    img.save(dst_fname)
+
+The example has been tested on a system running Python 3.7 and lightly 1.0.6

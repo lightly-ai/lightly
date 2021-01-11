@@ -29,17 +29,21 @@ class TestDataCollate(unittest.TestCase):
         transform = transforms.ToTensor()
         collate = BaseCollateFunction(transform)
         samples, labels, fnames = collate(batch)
+        samples0, samples1 = samples
 
         self.assertIsNotNone(collate)
-        self.assertEqual(len(samples), len(labels), len(fnames))
+        self.assertEqual(len(samples0), len(samples1))
+        self.assertEqual(len(samples1), len(labels), len(fnames))
 
     def test_image_collate(self):
         batch = self.create_batch()
         img_collate = ImageCollateFunction()
         samples, labels, fnames = img_collate(batch)
+        samples0, samples1 = samples
 
         self.assertIsNotNone(img_collate)
-        self.assertEqual(len(samples), len(labels), len(fnames))
+        self.assertEqual(len(samples0), len(samples1))
+        self.assertEqual(len(samples1), len(labels), len(fnames))
 
     def test_image_collate_tuple_input_size(self):
         batch = self.create_batch()
@@ -47,9 +51,11 @@ class TestDataCollate(unittest.TestCase):
             input_size=(32, 32),
         )
         samples, labels, fnames = img_collate(batch)
+        samples0, samples1 = samples
 
         self.assertIsNotNone(img_collate)
-        self.assertEqual(len(samples), len(labels), len(fnames)) 
+        self.assertEqual(len(samples0), len(samples1))
+        self.assertEqual(len(samples1), len(labels), len(fnames))
 
     def test_simclr_collate_tuple_input_size(self):
         batch = self.create_batch()
@@ -57,7 +63,8 @@ class TestDataCollate(unittest.TestCase):
             input_size=(32, 32),
         )
         samples, labels, fnames = img_collate(batch)
+        samples0, samples1 = samples
 
         self.assertIsNotNone(img_collate)
-        self.assertEqual(len(samples), len(labels), len(fnames)) 
-
+        self.assertEqual(len(samples0), len(samples1))
+        self.assertEqual(len(samples1), len(labels), len(fnames))

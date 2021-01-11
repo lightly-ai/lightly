@@ -54,7 +54,6 @@ class TestCore(unittest.TestCase):
         # train, one overwrite
         trainer = {
             'max_epochs': 1,
-            'fast_dev_run': True
         }
         train_model_and_embed_images(
             input_dir=dataset_dir, trainer=trainer)
