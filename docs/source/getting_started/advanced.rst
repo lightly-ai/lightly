@@ -75,7 +75,7 @@ Since Gaussian blur and random rotations by 90 degrees are not supported
 by default in torchvision, we added them to lightly 
 :py:class:`lightly.transforms`
 
-You can build your own collate function my inheriting from 
+You can build your own collate function by inheriting from 
 :py:class:`lightly.data.collate.BaseCollateFunction`
 
 
@@ -119,10 +119,10 @@ loss for non-contrastive methods.
 Memory Bank
 ^^^^^^^^^^^^^^^^^^^
 
-Since contrastive learning methods benefit from many negative examples larger
+Since contrastive learning methods benefit from many negative examples, larger
 batch sizes are preferred. However, not everyone has a multi GPU cluster at 
 hand. Therefore, alternative tricks and methods have been derived in research.
-On of them is a memory bank keeping past examples as additional negatives.
+One of them is a memory bank keeping past examples as additional negatives.
 
 For an example of the memory bank in action have a look at 
 :ref:`lightly-moco-tutorial-2`. 
@@ -165,8 +165,8 @@ Let's have a look at how this works:
     # >>> 341965
 
     # Now we have to extract the frame number from the filename.
-    # Since the length of the filename should always be the same
-    # we can extract the substring.
+    # Since the length of the filename should always be the same,
+    # we can extract the substring simply using indexing.
 
     # we can experiment until we find the right match
     print(filenames[0][-14:-8])
