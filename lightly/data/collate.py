@@ -9,7 +9,7 @@ import torch.nn as nn
 from typing import List
 
 import torchvision
-import torchvision.transforms as transforms
+import torchvision.transforms as T
 from lightly.transforms import GaussianBlur
 from lightly.transforms import RandomRotate
 
@@ -48,11 +48,23 @@ class BaseCollateFunction(nn.Module):
                     a LightlyDataset.
 
             Returns:
-                A tuple of batches of images, labels, and filenames. All are 
-                exactly twice as long as the input batch size. For the labels
-                and filenames, the second half of the new batch is a copy of 
-                the first half. For the images, the two halves represent 
-                different transforms of the original images.
+                A tuple of images, labels, and filenames. The images consist of 
+                two batches corresponding to the two transformations of the
+                input images.
+
+            Examples:
+                >>> # define a random transformation and the collate function
+                >>> transform = ... # some random augmentations
+                >>> collate_fn = BaseCollateFunction(transform)
+                >>>
+                >>> # input is a batch of tuples (here, batch_size = 1)
+                >>> input = [(img, 0, 'my-image.png')]
+                >>> output = collate_fn(input)
+                >>>
+                >>> # output consists of two random transforms of the images,
+                >>> # the labels, and the filenames in the batch
+                >>> (img_t0, img_t1), label, filename = output
+
         """
         batch_size = len(batch)
 
@@ -60,16 +72,17 @@ class BaseCollateFunction(nn.Module):
         transforms = [self.transform(batch[i % batch_size][0]).unsqueeze_(0)
                       for i in range(2 * batch_size)]
         # list of labels
-        labels = [batch[i % batch_size][1] for i in range(2 * batch_size)]
+        labels = torch.LongTensor([item[1] for item in batch])
         # list of filenames
         fnames = [item[2] for item in batch]
 
-        tuple_of_batches = (
-            torch.cat(transforms, 0),
-            torch.LongTensor(labels),
-            fnames,
+        # tuple of transforms
+        transforms = (
+            torch.cat(transforms[:batch_size], 0),
+            torch.cat(transforms[batch_size:], 0)
         )
-        return tuple_of_batches
+
+        return transforms, labels, fnames
 
 
 class ImageCollateFunction(BaseCollateFunction):
@@ -134,31 +147,31 @@ class ImageCollateFunction(BaseCollateFunction):
         else:
             input_size_ = input_size
 
-        color_jitter = transforms.ColorJitter(
+        color_jitter = T.ColorJitter(
             cj_bright, cj_contrast, cj_sat, cj_hue
         )
 
-        transform = [transforms.RandomResizedCrop(size=input_size,
-                                          scale=(min_scale, 1.0)),
+        transform = [T.RandomResizedCrop(size=input_size,
+                                         scale=(min_scale, 1.0)),
              RandomRotate(prob=rr_prob),
-             transforms.RandomHorizontalFlip(p=hf_prob),
-             transforms.RandomVerticalFlip(p=vf_prob),
-             transforms.RandomApply([color_jitter], p=cj_prob),
-             transforms.RandomGrayscale(p=random_gray_scale),
+             T.RandomHorizontalFlip(p=hf_prob),
+             T.RandomVerticalFlip(p=vf_prob),
+             T.RandomApply([color_jitter], p=cj_prob),
+             T.RandomGrayscale(p=random_gray_scale),
              GaussianBlur(
                  kernel_size=kernel_size * input_size_,
                  prob=gaussian_blur),
-             transforms.ToTensor()
+             T.ToTensor()
         ]
 
         if normalize:
             transform += [
-             transforms.Normalize(
+             T.Normalize(
                 mean=normalize['mean'],
                 std=normalize['std'])
              ]
            
-        transform = transforms.Compose(transform)
+        transform = T.Compose(transform)
 
         super(ImageCollateFunction, self).__init__(transform)
 
@@ -230,7 +243,7 @@ class SimCLRCollateFunction(ImageCollateFunction):
             vf_prob=vf_prob,
             hf_prob=hf_prob,
             rr_prob=rr_prob,
-            normalize=imagenet_normalize,
+            normalize=normalize,
         )
 
 

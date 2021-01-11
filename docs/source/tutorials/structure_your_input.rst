@@ -7,6 +7,11 @@ The `lightly Python package <https://pypi.org/project/lightly/>`_ can process im
 or to upload data to the `Lightly platform <https://app.lightly.ai>`_. In this tutorial you will learn how to structure
 your image dataset such that it is understood by our framework.
 
+You can also skip this tutorial and jump right into training a model:
+
+- :ref:`lightly-moco-tutorial-2`
+- :ref:`lightly-simclr-tutorial-3`  
+
 Supported File Types
 --------------------
 
@@ -126,7 +131,7 @@ For the structure above, lightly will understand the input as follows:
         ...
         1,
         ...
-        10,
+        9,
     ]
 
 Video Folder Datasets
@@ -161,28 +166,6 @@ also work on video data. Give it a try!
     Randomly accessing video frames is slower compared to accessing the extracted frames on disc. However,
     by working directly on video files, one can save a lot of disc space because the frames do not have to 
     be exctracted beforehand.
-
-Torchvision Datasets
---------------------
-
-Lightly also supports a direct interface to some of the `torchvision datasets <https://pytorch.org/docs/stable/torchvision/datasets.html>`_.
-From the command-line interface, they can easily be specified with the `data` and `root` keyowords. The following torchvision
-datasets are currently supported by the lightly Python package:
-
-* cifar10
-* cifar100
-* cityscapes
-* stl10
-* voc07-det
-* voc12-det
-* voc07-seg
-* voc12-seg
-
-For example, the following command downloads the cifar10 datasets and generates embeddings for all images:
-
-.. code-block:: bash
-
-    lightly-embed data='cifar10' root='./'
 
 
 Embedding Files
@@ -269,7 +252,7 @@ could be useful if you have additional meta information about each sample.
 Add Custom Embeddings
 """"""""""""""""""""""""""""""
 
-To add custom embeddings you need to add mre embedding columns to the .csv file.
+To add custom embeddings you need to add more embedding columns to the .csv file.
 Make sure you keep the enumeration of the embeddings in correct order.
 
 
@@ -329,3 +312,13 @@ We can now append our embedding vector to the .csv file.
 
 .. note:: The embedding columns must be grouped together. You can not have
           another column between two embedding columns.
+
+
+Next Steps
+-----------------
+
+Now that you understand the various data formats lightly supports you can 
+start training a model:
+
+- :ref:`lightly-moco-tutorial-2`
+- :ref:`lightly-simclr-tutorial-3`  

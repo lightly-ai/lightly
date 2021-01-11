@@ -21,11 +21,13 @@ class TestNTXentLoss(unittest.TestCase):
 
             output = torch.randn(2 * bsz, dim)
             output.requires_grad = True
-            _, curr_memory_bank = memory_bank(output)
+            out0, out1 = output[:bsz], output[bsz:]
+
+            _, curr_memory_bank = memory_bank(out1, update=True)
             next_memory_bank = memory_bank.bank
 
-            curr_diff = output[bsz:].T - curr_memory_bank[:, ptr:ptr + bsz]
-            next_diff = output[bsz:].T - next_memory_bank[:, ptr:ptr + bsz]
+            curr_diff = out0.T - curr_memory_bank[:, ptr:ptr + bsz]
+            next_diff = out1.T - next_memory_bank[:, ptr:ptr + bsz]
 
             # the current memory bank should not hold the batch yet
             self.assertGreater(curr_diff.norm(), 1e-5)
@@ -44,5 +46,5 @@ class TestNTXentLoss(unittest.TestCase):
 
             # see if there are any problems when the bank size
             # is no multiple of the batch size
-            output = torch.randn(2 * bsz, dim)
+            output = torch.randn(bsz, dim)
             _, _ = memory_bank(output)

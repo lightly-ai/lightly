@@ -25,9 +25,20 @@ def _make_dataset(directory, extensions=None, is_valid_file=None):
 
     """
 
+    # handle is_valid_file and extensions the same way torchvision handles them:
+    # https://pytorch.org/docs/stable/_modules/torchvision/datasets/folder.html#ImageFolder
+    both_none = extensions is None and is_valid_file is None
+    both_something = extensions is not None and is_valid_file is not None
+    if both_none or both_something:
+        raise ValueError('Both extensions and is_valid_file cannot be None or '
+                         'not None at the same time')
+
     if extensions is not None:
         def _is_valid_file(filename):
             return filename.lower().endswith(extensions)
+
+    if is_valid_file is not None:
+        _is_valid_file = is_valid_file
 
     instances = []
     for fname in os.listdir(directory):

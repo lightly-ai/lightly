@@ -158,6 +158,14 @@ def _make_dataset(directory,
 
     """
 
+    # handle is_valid_file and extensions the same way torchvision handles them:
+    # https://pytorch.org/docs/stable/_modules/torchvision/datasets/folder.html#ImageFolder
+    both_none = extensions is None and is_valid_file is None
+    both_something = extensions is not None and is_valid_file is not None
+    if both_none or both_something:
+        raise ValueError('Both extensions and is_valid_file cannot be None or '
+                         'not None at the same time')
+
     # use filename to find valid files
     if extensions is not None:
         def _is_valid_file(filename):
@@ -320,7 +328,7 @@ class VideoDataset(datasets.VisionDataset):
         return sample, target
 
     def __len__(self):
-        """Returns the number of samples in the dataset.
+        """Returns the number of samples (frames) in the dataset.
 
         """
         return sum((len(ts) for ts in self.video_timestamps))
@@ -328,11 +336,13 @@ class VideoDataset(datasets.VisionDataset):
     def get_filename(self, index):
         """Returns a filename for the frame at index.
 
-        The filename is created from the video filename, the timestamp, and
-        the video format. E.g. when retrieving a sample from the video
-        `my_video.mp4` at time 0.5s, the filename will be:
+        The filename is created from the video filename, the frame number, and
+        the video format. The frame number will be zero padded to make sure 
+        all filenames have the same length and can easily be sorted.
+        E.g. when retrieving a sample from the video
+        `my_video.mp4` at frame 153, the filename will be:
 
-        >>> my_video-0.50000000s-mp4.png
+        >>> my_video-153-mp4.png
     
         Args:
             index:
