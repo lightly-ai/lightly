@@ -68,7 +68,7 @@ The framework is structured into the following modules:
 # All Rights Reserved
 
 __name__ = 'lightly'
-__version__ = '1.0.7'
+__version__ = '1.0.8'
 
 
 try:
