@@ -93,6 +93,10 @@ learning:
   
   - Check the documentation: :py:class:`lightly.models.moco.MoCo`
 
+- `SimSiam: Exploring Simple Siamese Representation Learning, K. He, 2020 <https://arxiv.org/abs/2011.10566>`_
+
+  - Check the documentation: :py:class:`lightly.models.simsiam.SimSiam`
+
 Do you know a model that should be on this list? Please add an issue on GitHub :)
 
 
@@ -100,11 +104,16 @@ Do you know a model that should be on this list? Please add an issue on GitHub :
 Losses 
 -------------------
 
-We provide the most common loss fucntion for contrastive learning. 
+We provide the most common loss function for contrastive learning and a symmetric negative cosine similarity 
+loss for non-contrastive methods.
 
 - `NTXentLoss: Normalized Temperature-scaled Cross Entropy Loss <https://paperswithcode.com/method/nt-xent>`_
 
   - Check the documentation: :py:class:`lightly.loss.ntx_ent_loss.NTXentLoss`
+
+- Symmetric Negative Cosine Similarity Loss
+
+  - Check the documentation: :py:class:`lightly.loss.sym_neg_cos_sim_loss.SymNegCosineSimilarityLoss`
 
 
 Memory Bank
