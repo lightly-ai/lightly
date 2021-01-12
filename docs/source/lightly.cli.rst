@@ -69,6 +69,7 @@ This can be done by adding a + right before the argument:
    # train a ResNet-34 with momentum on my data
    lightly-train input_dir='path/to/my/data' model.name='resnet-34' +optimizer.momentum=0.9
 
+.. _ref-cli-config-default:
 
 Default Settings
 ^^^^^^^^^^^^^^^^
