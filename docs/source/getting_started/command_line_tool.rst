@@ -42,6 +42,13 @@ For a full list of supported arguments run
     
     lightly-train --help
 
+
+You can get an overview of the various parameters in 
+:ref:`ref-cli-config-default`. 
+
+
+.. _ref-cli-embeddings-lightly:
+
 Create embeddings using the CLI
 -----------------------------------------
 Once you have a trained model checkpoint, you can create an embedding of a dataset.
@@ -53,6 +60,17 @@ Once you have a trained model checkpoint, you can create an embedding of a datas
 
     # use custom checkpoint
     lightly-embed input_dir=cat checkpoint=mycheckpoint.ckpt
+
+
+The embeddings.csv file should look like the following:
+
+.. csv-table:: embeddings_example.csv
+   :header: "filenames","embedding_0","embedding_1","embedding_2","embedding_3","labels"
+   :widths: 20, 20, 20, 20, 20, 20
+    
+    101053-1.jpg,-51.535,-2.325,-21.750,78.265,0
+    101101-1.jpg,-67.958,-2.800,-28.861,103.812,0
+    101146-1.jpg,-59.831,-2.719,-25.413,90.945,0
 
 
 .. _ref-upload-data-lightly:
