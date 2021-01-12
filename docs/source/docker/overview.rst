@@ -4,6 +4,11 @@ Docker
 We all know that sometimes when working with ML data we deal with really BIG datasets. The cloud solution is great for exploration, prototyping
 and an easy way to work with lightly. But there is more!
 
+.. figure:: images/lightly_docker_overview.png
+    :align: center
+    :alt: Alt text
+    :figclass: align-center
+
 With the introduction of our on-premise solution, you can process larger datasets completely on your end without data leaving your infrastructure.
 We worked hard to make this happen and are very proud to present you with the following specs:
 
@@ -57,13 +62,3 @@ We worked hard to make this happen and are very proud to present you with the fo
    configuration/configuration.rst
    examples/overview.rst
 
-   
-
-
-Changelog
--------------
-
-**13.11.2020**
- * Supports training, embedding, sampling
- * Filter corrupt images
- * Remove exact duplicates
