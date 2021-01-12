@@ -32,7 +32,7 @@ to download the docker container.
 
 In short, installing the Docker container consists of the following steps:
 
-#. Copy the container-credentials.json to the instance you want to use for filtering 
+#. Copy the *container-credentials.json* to the instance you want to use for filtering 
 #. Authenticate Docker to download the Lightly image
 #. Pull the Docker image
 #. Check whether the container works
@@ -46,13 +46,13 @@ We assume *container-credentials.json* is in your current directory.
 
 .. code-block:: console
 
-    cat container-credentials.json | docker login -u json_key --password-stdin https://eu.gcr.io
+    cat container-credentials.json | docker login -u _json_key --password-stdin https://eu.gcr.io
 
 If the above command does not work, try the following:
 
 .. code-block:: console
 
-    cat container-credentials.json | docker login -u _json_key --password-stdin https://eu.gcr.io
+    cat container-credentials.json | docker login -u json_key --password-stdin https://eu.gcr.io
 
 **Third**, after authentication you should be able to pull our latest image. 
 Using the following command you pull the latest image from our European cloud server:
@@ -89,4 +89,4 @@ You should see an output similar to this one:
     [2020-11-12 12:49:38] You are using docker build: Thu Nov 12 08:46:04 UTC 2020.
     [2020-11-12 12:49:38] Congratulations! It looks like the Lightly container is running!
 
-Head on to the next page to see how to sample your dataset!
+Head on to :ref:`rst-docker-first-steps`  to see how to sample your dataset!
