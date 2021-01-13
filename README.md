@@ -27,16 +27,19 @@ Want to jump to the tutorials and see lightly in action?
 
 ### Benchmarks
 
-Currently implemented models and their accuracy on cifar10. All models have been trained for 200 epochs and evaluated using kNN. We report the max test accuracy over the epochs as well as the maximum GPU memory consumption. All models in this benchmark use the same augmentations as well as the same ResNet-18 backbone.
+Currently implemented models and their accuracy on cifar10. All models have been evaluated using kNN. We report the max test accuracy over the epochs as well as the maximum GPU memory consumption. All models in this benchmark use the same augmentations as well as the same ResNet-18 backbone. Training precision is set to FP32 and SGD is used as an optimizer with cosineLR.
 
-| Model   | Batch Size | Test Accuracy | Peak GPU usage |
-|---------|------------|---------------|----------------|
-| MoCo    | 128        | 0.83          | 2.1 GBytes     |
-| SimCLR  | 128        | 0.78          | 2.0 GBytes     |
-| SimSiam | 128        | 0.73          | 3.0 GBytes     |
-| MoCo    | 512        | 0.85          | 7.4 GBytes     |
-| SimCLR  | 512        | 0.83          | 7.8 GBytes     |
-| SimSiam | 512        | 0.81          | 7.0 GBytes     |
+| Model   | Epochs | Batch Size | Test Accuracy | Peak GPU usage |
+|---------|--------|------------|---------------|----------------|
+| MoCo    |  200   | 128        | 0.83          | 2.1 GBytes     |
+| SimCLR  |  200   | 128        | 0.78          | 2.0 GBytes     |
+| SimSiam |  200   | 128        | 0.73          | 3.0 GBytes     |
+| MoCo    |  200   | 512        | 0.85          | 7.4 GBytes     |
+| SimCLR  |  200   | 512        | 0.83          | 7.8 GBytes     |
+| SimSiam |  200   | 512        | 0.81          | 7.0 GBytes     |
+| MoCo    |  800   | 512        | 0.90          | 7.2 GBytes     |
+| SimCLR  |  800   | 512        | 0.89          | 7.7 GBytes     |
+| SimSiam |  800   | 512        | 0.91          | 6.9 GBytes     |
 
 
 ## Terminology

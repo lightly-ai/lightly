@@ -1,3 +1,6 @@
+
+.. _ref-docker-meta-information:
+
 Meta Information
 ======================
 

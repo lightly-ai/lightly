@@ -1,9 +1,5 @@
-Examples on Academic Datasets
-===================================
-
-
 ImageNet
------------------------------------
+===================================
 
 Let's have a look at how to run the docker container to analyze and filter the famous
 ImageNet dataset. You can reproduce the sample report using the following
