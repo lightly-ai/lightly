@@ -23,7 +23,8 @@ What you will learn
 Requirements
 ------------
 
-You can use your dataset or use the one we provide with this tutorial. 
+You can use your dataset or use the one we provide with this tutorial: 
+:download:`pizzas.zip <../../../_data/pizzas.zip>` . 
 If you use your dataset, please make sure the images are smaller than 
 2048 pixels with width and height, and you use less than 1000 images.
 
