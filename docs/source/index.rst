@@ -25,6 +25,7 @@ other frameworks such as Fast.ai.
    :caption: First Steps
 
    getting_started/lightly_at_a_glance.rst
+   getting_started/benchmarks.rst
    getting_started/install.rst
    getting_started/command_line_tool.rst
    getting_started/advanced.rst
