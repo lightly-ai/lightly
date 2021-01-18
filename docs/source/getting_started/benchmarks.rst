@@ -43,8 +43,9 @@ You can reproduce the benchmarks using the following script:
     :align: center
     :alt: kNN accuracy on test set for training the models for 200 epochs
 
-    kNN accuracy on test set for training the models for 200 epochs. The shorter
-    runs (less steps) are the ones with batch size of 512.
+    Plot with the kNN accuracy on test set for training the models for 200 epochs. The shorter
+    runs (fewer steps) are the ones with batch size of 512. Green: MoCo, Gray: SimCLR, 
+    Orange: SimSiam, Red: MoCo, Light Blue: SimCLR, Pink: SimSiam.
 
 We make the following observations running the benchmark:
 
@@ -64,8 +65,10 @@ Self-Supervised models benefit from long training times.
 
     kNN accuracy after 800 epochs. Red: SimSiam, Orange: MoCo, Blue: SimCLR 
 
-The loss behaves differently for the various models. Whereas MoCo and SimCLR use
-a contrastive loss SimSiam uses negative cosing similarity.
+Noticeably, the methods which use a contrastive loss (MoCo and SimCLR) behave 
+similar, making quick accuracy improvements in the beginning but then slowing down. 
+In contrast, SimSiam with the negative cosine similarity loss takes longer to 
+warm up but then catches up quickly to the others.
 
 .. figure:: images/bench_train_loss_cifra10_800_epochs.png
     :align: center
