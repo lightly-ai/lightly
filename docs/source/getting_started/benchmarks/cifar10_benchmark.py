@@ -129,11 +129,8 @@ def get_data_loaders(batch_size: int):
 
     return dataloader_train_ssl, dataloader_train_kNN, dataloader_test
 
-# code from here:
+# code for kNN prediction from here:
 # https://colab.research.google.com/github/facebookresearch/moco/blob/colab-notebook/colab/moco_cifar10_demo.ipynb
-
-# knn monitor as in InstDisc https://arxiv.org/abs/1805.01978
-# implementation follows http://github.com/zhirongw/lemniscate.pytorch and https://github.com/leftthomas/SimCLR
 def knn_predict(feature, feature_bank, feature_labels, classes: int, knn_k: int, knn_t: float):
     """Helper method to run kNN predictions on features based on a feature bank
 
@@ -328,8 +325,9 @@ class SimSiamModel(BenchmarkModule):
         return [optim], [scheduler]
 
 
-model_names = ['SimCLR_512', 'SimSiam_512']
-models = [SimCLRModel, SimSiamModel]
+model_names = ['MoCo_128', 'SimCLR_128', 'SimSiam_128',
+               'MoCo_512', 'SimCLR_512', 'SimSiam_512']
+models = [MocoModel, SimCLRModel, SimSiamModel]
 bench_results = []
 gpu_memory_usage = []
 
