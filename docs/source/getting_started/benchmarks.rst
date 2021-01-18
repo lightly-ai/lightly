@@ -74,5 +74,5 @@ warm up but then catches up quickly to the others.
     :align: center
     :alt: Training loss for 800 epochs
 
-    Training loss for 800 epochs
+    Training loss for 800 epochs. Red: SimSiam, Orange: MoCo, Blue: SimCLR
     
