@@ -130,6 +130,12 @@ print('Training set consists of {} images'.format(len(dataset_train)))
 print('Test set consists of {} images'.format(len(dataset_test)))
 
 # %%
+# We can create our data loaders to fetch the data from the training and test
+# set and pack them into batches.
+dataloader_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
+dataloader_test = DataLoader(dataset_test, batch_size=batch_size)
+
+# %%
 # PyTorch Lightning allows us to pack the loss as well as the 
 # optimizer into a single module.
 class MyModel(pl.LightningModule):
@@ -166,12 +172,6 @@ class MyModel(pl.LightningModule):
 
     def configure_optimizers(self):
         return torch.optim.SGD(self.model.fc.parameters(), lr=0.001, momentum=0.9)
-
-# %%
-# We can create our data loaders to fetch the data from the training and test
-# set and pack them into batches.
-dataloader_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
-dataloader_test = DataLoader(dataset_test, batch_size=batch_size)
 
 
 # %%

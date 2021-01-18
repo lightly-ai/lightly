@@ -51,7 +51,7 @@ You can get an overview of the various parameters in
 
 Create embeddings using the CLI
 -----------------------------------------
-Once you have a trained model checkpoint you can create an embedding of a dataset.
+Once you have a trained model checkpoint, you can create an embedding of a dataset.
 
 .. code-block:: bash
 
@@ -78,7 +78,7 @@ The embeddings.csv file should look like the following:
 Upload data using the CLI
 --------------------------------------------------------
 
-In this example we will upload a data to the Lightly Platform.
+In this example we will upload a dataset to the Lightly Platform.
 First, make sure you have an account on `Lightly <https://www.lightly.ai>`_. 
 A free account is sufficient. Log in to the app and create a new dataset. 
 You will get a *token* and *dataset_id* which can be used to upload your dataset
