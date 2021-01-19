@@ -7,7 +7,6 @@ from lightly.active_learning.scorers import scorer_classification, scorer_detect
 from lightly.active_learning.interface_to_client import agent, sampler_config
 
 
-@pytest.mark.fast
 class TestAgent(unittest.TestCase):
 
     def test_Agent(self):
