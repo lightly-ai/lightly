@@ -7,6 +7,7 @@ import os
 import copy
 import time
 import random
+from typing import Union
 
 import numpy as np
 import torchvision
@@ -387,9 +388,45 @@ def upload_images_from_folder(path_to_folder: str,
     )
 
 
+def upload_csv(path_to_csv: str,
+               dataset_id: str,
+               token: str,
+               name: Union[str, None] = None):
+    """Requests a signed url and sends the CSV file there.
+
+    Args:
+        path_to_csv:
+            Path to the csv file containing the embeddings to upload.
+        dataset_id:
+            The unique identifier for the dataset.
+        token:
+            Token for authentication.
+
+    """
+    # get a signed url for the csv file
+    signed_url, status = routes.v1.datasets.embeddings.get_presigned_upload_url(
+        dataset_id,
+        token,
+        name=name,
+    )
+
+    if status != 200:
+        # TODO handle this nicely
+        print('Something went wrong...', status)
+        return
+
+    # upload the csv file using the signed url
+    upload_file_with_signed_url(
+        open(path_to_csv, 'rb'),
+        signed_url,
+    )
+
+    # TODO handle response
+
+
 def _upload_metadata_from_json(path_to_embeddings: str,
-                              dataset_id: str,
-                              token: str):
+                               dataset_id: str,
+                               token: str):
     """TODO
 
     """
@@ -415,3 +452,18 @@ def upload_file_with_signed_url(file, url: str) -> bool:
     response = put_request(url, data=file)
     file.close()
     return response
+
+
+if __name__ == '__main__':
+
+    path_to_csv = '/home/philipp_lightly_ai/lightly_outputs/2021-01-19/10-21-08/embeddings.csv'
+    dataset_id = '5ff6fe276580b3000accaaa5'
+    token = '347f1dfbc3879a142d536d0b'
+    name = 'my-csv-2'
+
+    upload_csv(
+        path_to_csv,
+        dataset_id,
+        token,
+        name=name
+    )
