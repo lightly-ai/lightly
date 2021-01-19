@@ -6,7 +6,6 @@ import pytest
 from lightly.active_learning.scorers import scorer_classification, scorer_detection
 
 
-@pytest.mark.fast
 class TestScorer(unittest.TestCase):
 
     def test_ClassificationScorer(self):
