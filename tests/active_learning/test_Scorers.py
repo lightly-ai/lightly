@@ -18,3 +18,9 @@ class TestScorer(unittest.TestCase):
         scorer = scorer_classification.ScorerClassification(model_output=predictions_normalized)
 
         scores = scorer._calculate_scores()
+
+    def test_Entropy(self):
+        probs = np.array([[1, 0], [0.5, 0.5]])
+        entropies = scorer_classification.entropy(probs)
+        assert entropies[0] == 0
+        assert entropies[1] == np.log2(2)

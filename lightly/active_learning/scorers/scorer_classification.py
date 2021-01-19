@@ -1,9 +1,15 @@
 from typing import *
 
 import numpy as np
-from scipy.stats import entropy
 
 from lightly.active_learning.scorers.scorer import Scorer
+
+
+def entropy(probs: np.ndarray, axis: int = 1):
+    zeros = np.zeros_like(probs)
+    log_probs = np.log2(probs, out=zeros, where=probs > 0)
+    entropies = -1 * np.sum(probs * log_probs, axis=axis)
+    return entropies
 
 
 class ScorerClassification(Scorer):
@@ -21,5 +27,5 @@ class ScorerClassification(Scorer):
         return uncertainties
 
     def _get_prediction_entropy_score(self):
-        uncertainties = np.array([entropy(class_probabilities) for class_probabilities in self.model_output])
+        uncertainties = entropy(self.model_output, axis=1)
         return uncertainties
