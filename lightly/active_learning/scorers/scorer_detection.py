@@ -2,11 +2,11 @@ from typing import *
 
 import numpy as np
 
-from active_learning.scorers.scorer import ALScorer
+from lightly.active_learning.scorers.scorer import Scorer
 
 
-class ALScoreComputerDetection(ALScorer):
-    def __init__(self, model_output: List[List[np.ndarra]]):
+class ScorerDetection(Scorer):
+    def __init__(self, model_output: List[List[np.ndarray]]):
         # TODO check model_output
 
         self.model_output = model_output
