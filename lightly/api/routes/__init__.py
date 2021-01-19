@@ -7,3 +7,4 @@
 # submodules
 from lightly.api.routes import pip
 from lightly.api.routes import users
+from lightly.api.routes import v1
