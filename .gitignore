@@ -23,3 +23,5 @@ venv
 #ignore pycharm IDE
 .idea
 
+#ignore code generated from the openAPI
+openapi_client_prototype
