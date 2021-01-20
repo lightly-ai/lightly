@@ -10,6 +10,7 @@ BUILDDIR       = build
 DATADIR	       = _data
 PACKAGESOURCE  = source/tutorials_source/package
 PLATFORMSOURCE = source/tutorials_source/platform
+DOCKERSOURCE   = source/docker
 
 ZIPOPTS        ?= -qo
 
@@ -40,12 +41,17 @@ download:
 	mv $(PLATFORMSOURCE)/pizzas/margherita*.jpg $(PLATFORMSOURCE)/pizzas/margherita
 	mv $(PLATFORMSOURCE)/pizzas/salami*.jpg $(PLATFORMSOURCE)/pizzas/salami
 
+	# download images and report for docker
+	wget -N https://storage.googleapis.com/datasets_boris/resources.zip -P $(DATADIR)
+	unzip $(ZIPOPTS) $(DATADIR)/resources.zip  -d $(DOCKERSOURCE)
+
 clean-tutorials:
 	rm -fr source/tutorials/package
 	rm -fr source/tutorials/platform
 	rm -fr $(PLATFORMSOURCE)/data
 	rm -fr $(PLATFORMSOURCE)/pizzas
 	rm -fr $(PLATFORMSOURCE)/lightning_logs
+	rm -fr $(DOCKERSOURCE)/resources
 	make clean
 
 clean-all: clean-tutorials
