@@ -26,3 +26,60 @@ The complete **processing time** was **04h 37m 02s**. The machine used for this 
 
 You can also use the direct link for the
 `ImageNet <https://uploads-ssl.webflow.com/5f7ac1d59a6fc13a7ce87963/5facf14359b56365e817a773_report_imagenet_500k.pdf>`_ report.
+
+
+
+
+
+Combining Cityscapes with Kitti
+================================
+
+Using Lightly Docker and the datapool feature we can combine two datasets and 
+ensure that we only keep the unique samples.
+
+.. code-block:: console
+
+    docker run --shm-size="512m" --gpus all --rm -it \
+        -v /datasets/cityscapes/leftImg8bit/train/:/home/input_dir:ro \
+        -v /datasets/docker_out_cityscapes:/home/output_dir \
+        -v /datasets/docker_out_cityscapes:/home/shared_dir \
+        -e --ipc="host" --network="host" lightly/sampling:latest \
+        token=dd1f35b6b9052bf5b1b110b6 lightly.loader.num_workers=8 \
+        stopping_condition.min_distance=0.2 remove_exact_duplicates=True \
+        enable_corruptness_check=False enable_training=True \
+        lightly.trainer.max_epochs=20 lightly.optimizer.lr=1.0 \
+        lightly.trainer.precision=32 lightly.loader.batch_size=256 \
+        lightly.collate.input_size=64 datapool.name=autonomous_driving_igor
+
+The report for running the command can be found here:
+:download:`cityscapes.pdf <../resources/datapool_example_cityscapes.pdf>` 
+
+Since the cityscapes dataset has subfolders for the different cities Lightly
+Docker uses them as weak labels for the embedding plot as shown below.
+
+.. figure:: ../resources/cityscapes_scatter_umap_k_15_no_overlay.png
+    :align: center
+    :alt: some alt text
+
+    some description
+
+
+Now we can use the datapool and pre-trained model to select the interesting
+frames from Kitti and add them to Cityscapes:
+
+.. code-block:: console
+
+    docker run --shm-size="512m" --gpus all --rm -it \
+        -v /datasets/kitti/training/image_2/:/home/input_dir:ro \
+        -v /datasets/docker_out_cityscapes:/home/output_dir \
+        -v /datasets/docker_out_cityscapes:/home/shared_dir \
+        -e --ipc="host" --network="host" lightly/sampling:latest \
+        token=dd1f35b6b9052bf5b1b110b6 lightly.loader.num_workers=8 \
+        stopping_condition.min_distance=0.2 remove_exact_duplicates=True \
+        enable_corruptness_check=False enable_training=False \
+        lightly.trainer.max_epochs=20 lightly.optimizer.lr=1.0 \
+        lightly.trainer.precision=32 lightly.loader.batch_size=256 \
+        lightly.collate.input_size=64 datapool.name=autonomous_driving_igor
+
+The report for running the command can be found here:
+:download:`kitti.pdf <resources/datapool_example_kitti.pdf>` 
