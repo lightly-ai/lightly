@@ -43,7 +43,7 @@ For a full list of supported arguments run
     lightly-train --help
 
 
-You can get an overview of the various parameters in 
+You can get an overview of the various CLI parameters you can set in 
 :ref:`ref-cli-config-default`. 
 
 
