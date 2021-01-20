@@ -1,10 +1,10 @@
 import unittest
 
 import numpy as np
-import pytest
 
-from lightly.active_learning.scorers import scorer_classification, scorer_detection
-from lightly.active_learning.interface_to_client import agent, sampler_config
+from lightly.active_learning.scorers import classification
+from lightly.active_learning.agents import agent
+from lightly.active_learning.config import sampler_config
 
 
 class TestAgent(unittest.TestCase):
@@ -18,7 +18,7 @@ class TestAgent(unittest.TestCase):
         no_labelled_samples = 10
         predictions = np.random.random(size=(no_samples, no_classes))
         predictions_normalized = predictions / np.sum(predictions, axis=1)[:,np.newaxis]
-        scorer = scorer_classification.ScorerClassification(model_output=predictions_normalized)
+        scorer = classification.ScorerClassification(model_output=predictions_normalized)
 
         labelled_ids = list(range(no_labelled_samples))
 
