@@ -1,24 +1,4 @@
-from datetime import datetime
-
-from lightly.openapi_generated.swagger_client.models.sampling_method import SamplingMethod
-from lightly.openapi_generated.swagger_client.models.sampling_config import SamplingConfig
-from lightly.openapi_generated.swagger_client.models.sampling_create_request import SamplingCreateRequest
-from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import \
-    SamplingConfigStoppingCondition
-
-
 class SamplerConfig:
-    def __init__(self, method: SamplingMethod = SamplingMethod.RANDOM, batch_size: int = 32, min_distance: float = -1,
-                 name: str = None):
-        self.method = method
-        self.batch_size = batch_size
-        self.min_distance = min_distance
-        if name is None:
-            date_time = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-            name = f"{self.method}_{self.batch_size}_{self.min_distance}_{date_time}"
+    def __init__(self, name: str = 'random', batch_size: int = 32):
         self.name = name
-
-    def get_as_api_sampling_create_request(self) -> SamplingCreateRequest:
-        sampling_config = SamplingConfig(SamplingConfigStoppingCondition(self.batch_size, self.min_distance))
-        sampling_create_request = SamplingCreateRequest(name=self.name, method=self.method, config=sampling_config)
-        return sampling_create_request
+        self.batch_size = batch_size
