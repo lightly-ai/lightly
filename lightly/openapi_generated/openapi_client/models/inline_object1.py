@@ -18,7 +18,7 @@ import sys  # noqa: F401
 import six  # noqa: F401
 import nulltype  # noqa: F401
 
-from openapi_client.model_utils import (  # noqa: F401
+from lightly.openapi_generated.openapi_client.model_utils import (  # noqa: F401
     ModelComposed,
     ModelNormal,
     ModelSimple,
@@ -34,7 +34,7 @@ from openapi_client.model_utils import (  # noqa: F401
     validate_get_composed_info,
 )
 try:
-    from openapi_client.models import tag_create_request
+    from lightly.openapi_generated.openapi_client.models import tag_create_request
 except ImportError:
     tag_create_request = sys.modules[
         'openapi_client.models.tag_create_request']

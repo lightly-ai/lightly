@@ -22,10 +22,10 @@ import re
 import six
 from six.moves.urllib.parse import quote
 
-from openapi_client import rest
-from openapi_client.configuration import Configuration
-from openapi_client.exceptions import ApiValueError, ApiException
-from openapi_client.model_utils import (
+from lightly.openapi_generated.openapi_client import rest
+from lightly.openapi_generated.openapi_client.configuration import Configuration
+from lightly.openapi_generated.openapi_client.exceptions import ApiValueError, ApiException
+from lightly.openapi_generated.openapi_client.model_utils import (
     ModelNormal,
     ModelSimple,
     ModelComposed,

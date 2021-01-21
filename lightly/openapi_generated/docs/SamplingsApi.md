@@ -18,7 +18,7 @@ Trigger a sampling on a specific tag of a dataset with specific prior uploaded c
 ```python
 from __future__ import print_function
 import time
-import openapi_client
+import lightly.openapi_generated.openapi_client
 from pprint import pprint
 # Defining the host is optional and defaults to https://api.lightly.ai
 # See configuration.py for a list of all supported configuration parameters.

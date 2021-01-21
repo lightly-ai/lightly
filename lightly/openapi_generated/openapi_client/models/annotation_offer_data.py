@@ -18,7 +18,7 @@ import sys  # noqa: F401
 import six  # noqa: F401
 import nulltype  # noqa: F401
 
-from openapi_client.model_utils import (  # noqa: F401
+from lightly.openapi_generated.openapi_client.model_utils import (  # noqa: F401
     ModelComposed,
     ModelNormal,
     ModelSimple,
