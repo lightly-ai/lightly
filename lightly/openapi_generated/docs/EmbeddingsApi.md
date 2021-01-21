@@ -1,121 +1,180 @@
-# lightly.openapi_generated.swagger_client.EmbeddingsApi
+# openapi_client.EmbeddingsApi
 
 All URIs are relative to *https://api.lightly.ai*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**get_embeddings_by_sample_id**](EmbeddingsApi.md#get_embeddings_by_sample_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/embeddings | 
-[**get_embeddings_csv_write_url_by_id**](EmbeddingsApi.md#get_embeddings_csv_write_url_by_id) | **GET** /v1/datasets/{datasetId}/embeddings/writeCSVUrl | 
+[**get_embeddings_by_sample_id**](EmbeddingsApi.md#get_embeddings_by_sample_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/embeddings | Get all embeddings of a datasets sample
+[**get_embeddings_csv_write_url_by_id**](EmbeddingsApi.md#get_embeddings_csv_write_url_by_id) | **GET** /v1/datasets/{datasetId}/embeddings/writeCSVUrl | Get the signed url to upload an CSVembedding to for a specific dataset
+
 
 # **get_embeddings_by_sample_id**
-> list[EmbeddingData] get_embeddings_by_sample_id(dataset_id, sample_id, mode=mode)
-
-
+> one_ofobjectarray.OneOfobjectarray get_embeddings_by_sample_id(dataset_id, sample_id)
 
 Get all embeddings of a datasets sample
 
 ### Example
+
+* Bearer (JWT) Authentication (auth0Bearer):
 ```python
 from __future__ import print_function
 import time
-import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.rest import ApiException
+import openapi_client
 from pprint import pprint
+# Defining the host is optional and defaults to https://api.lightly.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = openapi_client.Configuration(
+    host = "https://api.lightly.ai"
+)
 
-# Configure API key authorization: ApiKeyAuth
-configuration = lightly.openapi_generated.swagger_client.Configuration()
-configuration.api_key['token'] = 'YOUR_API_KEY'
-# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
-# configuration.api_key_prefix['token'] = 'Bearer'
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
 
-# create an instance of the API class
-api_instance = lightly.openapi_generated.swagger_client.EmbeddingsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
-dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-sample_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
-mode = 'mode_example' # str | if we want everything (full) or just the summaries (optional)
+# Configure Bearer authorization (JWT): auth0Bearer
+configuration = openapi_client.Configuration(
+    access_token = 'YOUR_BEARER_TOKEN'
+)
 
-try:
-    api_response = api_instance.get_embeddings_by_sample_id(dataset_id, sample_id, mode=mode)
-    pprint(api_response)
-except ApiException as e:
-    print("Exception when calling EmbeddingsApi->get_embeddings_by_sample_id: %s\n" % e)
+# Enter a context with an instance of the API client
+with openapi_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = openapi_client.EmbeddingsApi(api_client)
+    dataset_id = 'dataset_id_example' # str | ObjectId of the dataset
+    sample_id = 'sample_id_example' # str | ObjectId of the sample
+    mode = 'full' # str | if we want everything (full) or just the summaries (optional) if omitted the server will use the default value of 'full'
+
+    # example passing only required values which don't have defaults set
+    try:
+        # Get all embeddings of a datasets sample
+        api_response = api_instance.get_embeddings_by_sample_id(dataset_id, sample_id)
+        pprint(api_response)
+    except openapi_client.ApiException as e:
+        print("Exception when calling EmbeddingsApi->get_embeddings_by_sample_id: %s\n" % e)
+
+    # example passing only required values which don't have defaults set
+    # and optional values
+    try:
+        # Get all embeddings of a datasets sample
+        api_response = api_instance.get_embeddings_by_sample_id(dataset_id, sample_id, mode=mode)
+        pprint(api_response)
+    except openapi_client.ApiException as e:
+        print("Exception when calling EmbeddingsApi->get_embeddings_by_sample_id: %s\n" % e)
 ```
 
 ### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **dataset_id** | [**MongoObjectID**](.md)| ObjectId of the dataset | 
- **sample_id** | [**MongoObjectID**](.md)| ObjectId of the sample | 
- **mode** | **str**| if we want everything (full) or just the summaries | [optional] 
+ **dataset_id** | **str**| ObjectId of the dataset |
+ **sample_id** | **str**| ObjectId of the sample |
+ **mode** | **str**| if we want everything (full) or just the summaries | [optional] if omitted the server will use the default value of 'full'
 
 ### Return type
 
-[**list[EmbeddingData]**](EmbeddingData.md)
+[**one_ofobjectarray.OneOfobjectarray**](OneOfobjectarray.md)
 
 ### Authorization
 
-[ApiKeyAuth](../README.md#ApiKeyAuth), [auth0Bearer](../README.md#auth0Bearer)
+[auth0Bearer](../README.md#auth0Bearer)
 
 ### HTTP request headers
 
  - **Content-Type**: Not defined
  - **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Get successful |  -  |
+**400** | Bad Request / malformed |  -  |
+**401** | Unauthorized to access this resource |  -  |
+**404** | The specified resource was not found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **get_embeddings_csv_write_url_by_id**
-> WriteCSVUrlData get_embeddings_csv_write_url_by_id(dataset_id, name=name)
-
-
+> inline_response2001.InlineResponse2001 get_embeddings_csv_write_url_by_id(dataset_id)
 
 Get the signed url to upload an CSVembedding to for a specific dataset
 
 ### Example
+
+* Bearer (JWT) Authentication (auth0Bearer):
 ```python
 from __future__ import print_function
 import time
-import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.rest import ApiException
+import openapi_client
 from pprint import pprint
+# Defining the host is optional and defaults to https://api.lightly.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = openapi_client.Configuration(
+    host = "https://api.lightly.ai"
+)
 
-# Configure API key authorization: ApiKeyAuth
-configuration = lightly.openapi_generated.swagger_client.Configuration()
-configuration.api_key['token'] = 'YOUR_API_KEY'
-# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
-# configuration.api_key_prefix['token'] = 'Bearer'
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
 
-# create an instance of the API class
-api_instance = lightly.openapi_generated.swagger_client.EmbeddingsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
-dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-name = 'default' # str | the sampling requests name to create a signed url for (optional) (default to default)
+# Configure Bearer authorization (JWT): auth0Bearer
+configuration = openapi_client.Configuration(
+    access_token = 'YOUR_BEARER_TOKEN'
+)
 
-try:
-    api_response = api_instance.get_embeddings_csv_write_url_by_id(dataset_id, name=name)
-    pprint(api_response)
-except ApiException as e:
-    print("Exception when calling EmbeddingsApi->get_embeddings_csv_write_url_by_id: %s\n" % e)
+# Enter a context with an instance of the API client
+with openapi_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = openapi_client.EmbeddingsApi(api_client)
+    dataset_id = 'dataset_id_example' # str | ObjectId of the dataset
+    name = 'name_example' # str | the sampling requests name to create a signed url for (optional)
+
+    # example passing only required values which don't have defaults set
+    try:
+        # Get the signed url to upload an CSVembedding to for a specific dataset
+        api_response = api_instance.get_embeddings_csv_write_url_by_id(dataset_id)
+        pprint(api_response)
+    except openapi_client.ApiException as e:
+        print("Exception when calling EmbeddingsApi->get_embeddings_csv_write_url_by_id: %s\n" % e)
+
+    # example passing only required values which don't have defaults set
+    # and optional values
+    try:
+        # Get the signed url to upload an CSVembedding to for a specific dataset
+        api_response = api_instance.get_embeddings_csv_write_url_by_id(dataset_id, name=name)
+        pprint(api_response)
+    except openapi_client.ApiException as e:
+        print("Exception when calling EmbeddingsApi->get_embeddings_csv_write_url_by_id: %s\n" % e)
 ```
 
 ### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **dataset_id** | [**MongoObjectID**](.md)| ObjectId of the dataset | 
- **name** | **str**| the sampling requests name to create a signed url for | [optional] [default to default]
+ **dataset_id** | **str**| ObjectId of the dataset |
+ **name** | **str**| the sampling requests name to create a signed url for | [optional]
 
 ### Return type
 
-[**WriteCSVUrlData**](WriteCSVUrlData.md)
+[**inline_response2001.InlineResponse2001**](InlineResponse2001.md)
 
 ### Authorization
 
-[ApiKeyAuth](../README.md#ApiKeyAuth), [auth0Bearer](../README.md#auth0Bearer)
+[auth0Bearer](../README.md#auth0Bearer)
 
 ### HTTP request headers
 
  - **Content-Type**: Not defined
  - **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Get successful |  -  |
+**400** | Bad Request / malformed |  -  |
+**401** | Unauthorized to access this resource |  -  |
+**404** | The specified resource was not found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
