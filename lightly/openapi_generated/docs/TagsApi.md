@@ -1,4 +1,4 @@
-# swagger_client.TagsApi
+# lightly.openapi_generated.swagger_client.TagsApi
 
 All URIs are relative to *https://api.lightly.ai*
 
@@ -17,15 +17,15 @@ create new tag for dataset
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.TagsApi(swagger_client.ApiClient(configuration))
-body = swagger_client.Body1() # Body1 | 
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+api_instance = lightly.openapi_generated.swagger_client.TagsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+body = lightly.openapi_generated.swagger_client.Body1() # Body1 | 
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
 
 try:
     # create new tag for dataset
@@ -66,14 +66,14 @@ Get all tags of a dataset
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.TagsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+api_instance = lightly.openapi_generated.swagger_client.TagsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
 
 try:
     # Get all tags of a dataset
@@ -113,17 +113,17 @@ Trigger a sampling on a specific tag of a dataset with specific prior uploaded c
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.TagsApi(swagger_client.ApiClient(configuration))
-body = swagger_client.SamplingCreateRequest() # SamplingCreateRequest | 
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-tag_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the tag
-embedding_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the prev uploaded embedding
+api_instance = lightly.openapi_generated.swagger_client.TagsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+body = lightly.openapi_generated.swagger_client.SamplingCreateRequest() # SamplingCreateRequest | 
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+tag_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the tag
+embedding_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the prev uploaded embedding
 
 try:
     # Trigger a sampling on a specific tag of a dataset with specific prior uploaded csv embedding
