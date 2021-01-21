@@ -30,29 +30,24 @@ class SamplingCreateRequest(object):
     swagger_types = {
         'name': 'str',
         'method': 'SamplingMethod',
-        'config': 'SamplingConfig',
-        'row_count': 'float'
+        'config': 'SamplingConfig'
     }
 
     attribute_map = {
         'name': 'name',
         'method': 'method',
-        'config': 'config',
-        'row_count': 'rowCount'
+        'config': 'config'
     }
 
-    def __init__(self, name=None, method=None, config=None, row_count=None):  # noqa: E501
+    def __init__(self, name=None, method=None, config=None):  # noqa: E501
         """SamplingCreateRequest - a model defined in Swagger"""  # noqa: E501
         self._name = None
         self._method = None
         self._config = None
-        self._row_count = None
         self.discriminator = None
         self.name = name
         self.method = method
         self.config = config
-        if row_count is not None:
-            self.row_count = row_count
 
     @property
     def name(self):
@@ -122,29 +117,6 @@ class SamplingCreateRequest(object):
             raise ValueError("Invalid value for `config`, must not be `None`")  # noqa: E501
 
         self._config = config
-
-    @property
-    def row_count(self):
-        """Gets the row_count of this SamplingCreateRequest.  # noqa: E501
-
-        temporary rowCount until the API/DB is aware how many they are..  # noqa: E501
-
-        :return: The row_count of this SamplingCreateRequest.  # noqa: E501
-        :rtype: float
-        """
-        return self._row_count
-
-    @row_count.setter
-    def row_count(self, row_count):
-        """Sets the row_count of this SamplingCreateRequest.
-
-        temporary rowCount until the API/DB is aware how many they are..  # noqa: E501
-
-        :param row_count: The row_count of this SamplingCreateRequest.  # noqa: E501
-        :type: float
-        """
-
-        self._row_count = row_count
 
     def to_dict(self):
         """Returns the model properties as a dict"""
