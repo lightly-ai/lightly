@@ -23,7 +23,7 @@ pip install git+https://github.com/GIT_USER_ID/GIT_REPO_ID.git
 
 Then import the package:
 ```python
-import openapi_client
+import lightly.openapi_generated.openapi_client
 ```
 
 ### Setuptools
@@ -37,7 +37,7 @@ python setup.py install --user
 
 Then import the package:
 ```python
-import openapi_client
+import lightly.openapi_generated.openapi_client
 ```
 
 ## Getting Started
@@ -48,7 +48,7 @@ Please follow the [installation procedure](#installation--usage) and then run th
 from __future__ import print_function
 
 import time
-import openapi_client
+import lightly.openapi_generated.openapi_client
 from pprint import pprint
 
 # Defining the host is optional and defaults to https://api.lightly.ai
