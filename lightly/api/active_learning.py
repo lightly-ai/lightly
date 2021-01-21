@@ -51,6 +51,7 @@ def sampling_request_to_server(token: str,
         'LIGHTLY_SERVER_LOCATION',
         'https://api-dev.lightly.ai'
     )
+    server_location = 'https://app-dev.lightly.ai'
 
     dst_url = (server_location +
                f"/v1/datasets/{dataset_id}/tags/{tag_id}/embeddings/{embedding_id}/sampling")
@@ -92,17 +93,15 @@ def sampling_request_to_server_with_openapi(
     sampling_create_request_ = sampling_create_request.SamplingCreateRequest(name='test', method=sampling_method_,
                                                                              config=sampling_config_)
 
-    samplings_api = SamplingsApi()
+    configuration = Configuration()
+    configuration.host = 'https://app-dev.lightly.ai'
+    api_client = ApiClient(configuration=configuration, header_name='authorization', header_value=f"Bearer [{token}]")
+    samplings_api = SamplingsApi(api_client=api_client)
 
     payload = sampling_create_request_
-    payload.token = token
     response = samplings_api.trigger_sampling_by_id(payload, dataset_id, tag_id, embedding_id)
 
-    response_json = response.json()
-
-    if response.status_code == 200:
-        return response_json['jobId']
-    raise RuntimeError(response.status_code)
+    return response.job_id
 
 
 if __name__ == '__main__':
@@ -118,7 +117,5 @@ if __name__ == '__main__':
                 'minDistance': 5,
             }
         }
-    print(sampling_request_to_server(token, datasetId, tagId,
-                                     embeddingId, name, method,
-                                     config))
+    #print(sampling_request_to_server(token, datasetId, tagId,embeddingId, name, method,config))
     print(sampling_request_to_server_with_openapi(token, datasetId, tagId, embeddingId))
