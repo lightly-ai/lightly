@@ -18,7 +18,7 @@ import sys  # noqa: F401
 import six  # noqa: F401
 import nulltype  # noqa: F401
 
-from openapi_client.model_utils import (  # noqa: F401
+from lightly.openapi_generated.openapi_client.model_utils import (  # noqa: F401
     ModelComposed,
     ModelNormal,
     ModelSimple,
@@ -34,17 +34,17 @@ from openapi_client.model_utils import (  # noqa: F401
     validate_get_composed_info,
 )
 try:
-    from openapi_client.models import dataset_type
+    from lightly.openapi_generated.openapi_client.models import dataset_type
 except ImportError:
     dataset_type = sys.modules[
         'openapi_client.models.dataset_type']
 try:
-    from openapi_client.models import embedding_data
+    from lightly.openapi_generated.openapi_client.models import embedding_data
 except ImportError:
     embedding_data = sys.modules[
         'openapi_client.models.embedding_data']
 try:
-    from openapi_client.models import image_type
+    from lightly.openapi_generated.openapi_client.models import image_type
 except ImportError:
     image_type = sys.modules[
         'openapi_client.models.image_type']

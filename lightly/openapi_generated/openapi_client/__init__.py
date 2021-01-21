@@ -18,50 +18,50 @@ from __future__ import absolute_import
 __version__ = "1.0.0"
 
 # import apis into sdk package
-from openapi_client.api.annotations_api import AnnotationsApi
-from openapi_client.api.auth_api import AuthApi
-from openapi_client.api.datasets_api import DatasetsApi
-from openapi_client.api.embeddings_api import EmbeddingsApi
-from openapi_client.api.samples_api import SamplesApi
-from openapi_client.api.samplings_api import SamplingsApi
-from openapi_client.api.tags_api import TagsApi
+from lightly.openapi_generated.openapi_client.api.annotations_api import AnnotationsApi
+from lightly.openapi_generated.openapi_client.api.auth_api import AuthApi
+from lightly.openapi_generated.openapi_client.api.datasets_api import DatasetsApi
+from lightly.openapi_generated.openapi_client.api.embeddings_api import EmbeddingsApi
+from lightly.openapi_generated.openapi_client.api.samples_api import SamplesApi
+from lightly.openapi_generated.openapi_client.api.samplings_api import SamplingsApi
+from lightly.openapi_generated.openapi_client.api.tags_api import TagsApi
 
 # import ApiClient
-from openapi_client.api_client import ApiClient
+from lightly.openapi_generated.openapi_client.api_client import ApiClient
 
 # import Configuration
-from openapi_client.configuration import Configuration
+from lightly.openapi_generated.openapi_client.configuration import Configuration
 
 # import exceptions
-from openapi_client.exceptions import OpenApiException
-from openapi_client.exceptions import ApiTypeError
-from openapi_client.exceptions import ApiValueError
-from openapi_client.exceptions import ApiKeyError
-from openapi_client.exceptions import ApiException
+from lightly.openapi_generated.openapi_client.exceptions import OpenApiException
+from lightly.openapi_generated.openapi_client.exceptions import ApiTypeError
+from lightly.openapi_generated.openapi_client.exceptions import ApiValueError
+from lightly.openapi_generated.openapi_client.exceptions import ApiKeyError
+from lightly.openapi_generated.openapi_client.exceptions import ApiException
 
 # import models into sdk package
-from openapi_client.models.annotation_data import AnnotationData
-from openapi_client.models.annotation_meta_data import AnnotationMetaData
-from openapi_client.models.annotation_offer_data import AnnotationOfferData
-from openapi_client.models.annotation_state import AnnotationState
-from openapi_client.models.api_error_code import ApiErrorCode
-from openapi_client.models.api_error_response import ApiErrorResponse
-from openapi_client.models.dataset_data import DatasetData
-from openapi_client.models.dataset_type import DatasetType
-from openapi_client.models.embedding_data import EmbeddingData
-from openapi_client.models.image_type import ImageType
-from openapi_client.models.inline_object import InlineObject
-from openapi_client.models.inline_object1 import InlineObject1
-from openapi_client.models.inline_response200 import InlineResponse200
-from openapi_client.models.inline_response2001 import InlineResponse2001
-from openapi_client.models.inline_response2002 import InlineResponse2002
-from openapi_client.models.sample_data import SampleData
-from openapi_client.models.sample_meta_data import SampleMetaData
-from openapi_client.models.sampling_config import SamplingConfig
-from openapi_client.models.sampling_config_stopping_condition import SamplingConfigStoppingCondition
-from openapi_client.models.sampling_create_request import SamplingCreateRequest
-from openapi_client.models.sampling_method import SamplingMethod
-from openapi_client.models.tag_change_data import TagChangeData
-from openapi_client.models.tag_create_request import TagCreateRequest
-from openapi_client.models.tag_data import TagData
-from openapi_client.models.tag_name import TagName
+from lightly.openapi_generated.openapi_client.models.annotation_data import AnnotationData
+from lightly.openapi_generated.openapi_client.models.annotation_meta_data import AnnotationMetaData
+from lightly.openapi_generated.openapi_client.models.annotation_offer_data import AnnotationOfferData
+from lightly.openapi_generated.openapi_client.models.annotation_state import AnnotationState
+from lightly.openapi_generated.openapi_client.models.api_error_code import ApiErrorCode
+from lightly.openapi_generated.openapi_client.models.api_error_response import ApiErrorResponse
+from lightly.openapi_generated.openapi_client.models.dataset_data import DatasetData
+from lightly.openapi_generated.openapi_client.models.dataset_type import DatasetType
+from lightly.openapi_generated.openapi_client.models.embedding_data import EmbeddingData
+from lightly.openapi_generated.openapi_client.models.image_type import ImageType
+from lightly.openapi_generated.openapi_client.models.inline_object import InlineObject
+from lightly.openapi_generated.openapi_client.models.inline_object1 import InlineObject1
+from lightly.openapi_generated.openapi_client.models.inline_response200 import InlineResponse200
+from lightly.openapi_generated.openapi_client.models.inline_response2001 import InlineResponse2001
+from lightly.openapi_generated.openapi_client.models.inline_response2002 import InlineResponse2002
+from lightly.openapi_generated.openapi_client.models.sample_data import SampleData
+from lightly.openapi_generated.openapi_client.models.sample_meta_data import SampleMetaData
+from lightly.openapi_generated.openapi_client.models.sampling_config import SamplingConfig
+from lightly.openapi_generated.openapi_client.models.sampling_config_stopping_condition import SamplingConfigStoppingCondition
+from lightly.openapi_generated.openapi_client.models.sampling_create_request import SamplingCreateRequest
+from lightly.openapi_generated.openapi_client.models.sampling_method import SamplingMethod
+from lightly.openapi_generated.openapi_client.models.tag_change_data import TagChangeData
+from lightly.openapi_generated.openapi_client.models.tag_create_request import TagCreateRequest
+from lightly.openapi_generated.openapi_client.models.tag_data import TagData
+from lightly.openapi_generated.openapi_client.models.tag_name import TagName
