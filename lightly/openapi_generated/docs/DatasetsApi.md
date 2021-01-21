@@ -1,4 +1,4 @@
-# swagger_client.DatasetsApi
+# lightly.openapi_generated.swagger_client.DatasetsApi
 
 All URIs are relative to *https://api.lightly.ai*
 
@@ -25,15 +25,15 @@ create new tag for dataset
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.DatasetsApi(swagger_client.ApiClient(configuration))
-body = swagger_client.Body1() # Body1 | 
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+api_instance = lightly.openapi_generated.swagger_client.DatasetsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+body = lightly.openapi_generated.swagger_client.Body1() # Body1 | 
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
 
 try:
     # create new tag for dataset
@@ -74,14 +74,14 @@ Get a specific dataset
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.DatasetsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+api_instance = lightly.openapi_generated.swagger_client.DatasetsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
 
 try:
     # Get a specific dataset
@@ -121,13 +121,13 @@ Get all datasets for a user
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.DatasetsApi(swagger_client.ApiClient(configuration))
+api_instance = lightly.openapi_generated.swagger_client.DatasetsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
 
 try:
     # Get all datasets for a user
@@ -164,15 +164,15 @@ Get all embeddings of a datasets sample
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.DatasetsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-sample_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
+api_instance = lightly.openapi_generated.swagger_client.DatasetsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+sample_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
 mode = 'mode_example' # str | if we want everything (full) or just the summaries (optional)
 
 try:
@@ -215,14 +215,14 @@ Get the signed url to upload an CSVembedding to for a specific dataset
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.DatasetsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+api_instance = lightly.openapi_generated.swagger_client.DatasetsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
 name = 'name_example' # str | the sampling requests name to create a signed url for (optional)
 
 try:
@@ -264,15 +264,15 @@ Get a specific sample of a dataset
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.DatasetsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-sample_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
+api_instance = lightly.openapi_generated.swagger_client.DatasetsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+sample_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
 
 try:
     # Get a specific sample of a dataset
@@ -313,15 +313,15 @@ Get the image path of a specific sample of a dataset
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.DatasetsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-sample_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
+api_instance = lightly.openapi_generated.swagger_client.DatasetsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+sample_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
 type = 'type_example' # str | if we want to get the full image or just the thumbnail (optional)
 
 try:
@@ -364,15 +364,15 @@ Get the signed url to upload an image to for a specific sample of a dataset
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.DatasetsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-sample_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
+api_instance = lightly.openapi_generated.swagger_client.DatasetsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+sample_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
 file_name = 'file_name_example' # str | the filename to create a signed url for
 
 try:
@@ -415,14 +415,14 @@ Get all samples of a dataset
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.DatasetsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+api_instance = lightly.openapi_generated.swagger_client.DatasetsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
 mode = 'mode_example' # str | if we want everything (full) or just the ObjectIds (optional)
 filename = 'filename_example' # str | filter the samples by filename (optional)
 
@@ -466,14 +466,14 @@ Get all tags of a dataset
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.DatasetsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+api_instance = lightly.openapi_generated.swagger_client.DatasetsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
 
 try:
     # Get all tags of a dataset
@@ -513,16 +513,16 @@ update a specific sample of a dataset
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.DatasetsApi(swagger_client.ApiClient(configuration))
-body = swagger_client.Body() # Body | the updated sample to set
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-sample_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
+api_instance = lightly.openapi_generated.swagger_client.DatasetsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+body = lightly.openapi_generated.swagger_client.Body() # Body | the updated sample to set
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+sample_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
 
 try:
     # update a specific sample of a dataset

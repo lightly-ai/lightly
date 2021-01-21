@@ -23,7 +23,7 @@ pip install git+https://github.com/GIT_USER_ID/GIT_REPO_ID.git
 
 Then import the package:
 ```python
-import swagger_client 
+import lightly.openapi_generated.swagger_client 
 ```
 
 ### Setuptools
@@ -37,7 +37,7 @@ python setup.py install --user
 
 Then import the package:
 ```python
-import swagger_client
+import lightly.openapi_generated.swagger_client
 ```
 
 ## Getting Started
@@ -47,15 +47,15 @@ Please follow the [installation procedure](#installation--usage) and then run th
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.AnnotationsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-annotation_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the Annotation
+api_instance = lightly.openapi_generated.swagger_client.AnnotationsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+annotation_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the Annotation
 
 try:
     # Get a Annotation by its ID
@@ -66,9 +66,9 @@ except ApiException as e:
 
 
 # create an instance of the API class
-api_instance = swagger_client.AnnotationsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-annotation_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the Annotation
+api_instance = lightly.openapi_generated.swagger_client.AnnotationsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+annotation_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the Annotation
 
 try:
     # Get all annotations of a dataset
