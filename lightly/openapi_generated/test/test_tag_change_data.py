@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.models.tag_change_data import TagChangeData  # noqa: E501
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.models.tag_change_data import TagChangeData  # noqa: E501
+from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class TestTagChangeData(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestTagChangeData(unittest.TestCase):
     def testTagChangeData(self):
         """Test TagChangeData"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = swagger_client.models.tag_change_data.TagChangeData()  # noqa: E501
+        # model = lightly.openapi_generated.swagger_client.models.tag_change_data.TagChangeData()  # noqa: E501
         pass
 
 
