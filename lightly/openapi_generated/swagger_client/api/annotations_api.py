@@ -17,7 +17,7 @@ import re  # noqa: F401
 # python 2 and python 3 compatibility library
 import six
 
-from lightly.openapi_generated.swagger_client.api_client import ApiClient
+from swagger_client.api_client import ApiClient
 
 
 class AnnotationsApi(object):
@@ -33,9 +33,8 @@ class AnnotationsApi(object):
         self.api_client = api_client
 
     def get_annotation_by_id(self, dataset_id, annotation_id, **kwargs):  # noqa: E501
-        """get_annotation_by_id  # noqa: E501
+        """Get a Annotation by its ID  # noqa: E501
 
-        Get a Annotation by its ID  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_annotation_by_id(dataset_id, annotation_id, async_req=True)
@@ -43,7 +42,7 @@ class AnnotationsApi(object):
 
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
-        :param MongoObjectID annotation_id: ObjectId of the annotation (required)
+        :param MongoObjectID annotation_id: ObjectId of the Annotation (required)
         :return: AnnotationData
                  If the method is called asynchronously,
                  returns the request thread.
@@ -56,9 +55,8 @@ class AnnotationsApi(object):
             return data
 
     def get_annotation_by_id_with_http_info(self, dataset_id, annotation_id, **kwargs):  # noqa: E501
-        """get_annotation_by_id  # noqa: E501
+        """Get a Annotation by its ID  # noqa: E501
 
-        Get a Annotation by its ID  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_annotation_by_id_with_http_info(dataset_id, annotation_id, async_req=True)
@@ -66,7 +64,7 @@ class AnnotationsApi(object):
 
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
-        :param MongoObjectID annotation_id: ObjectId of the annotation (required)
+        :param MongoObjectID annotation_id: ObjectId of the Annotation (required)
         :return: AnnotationData
                  If the method is called asynchronously,
                  returns the request thread.
@@ -117,7 +115,7 @@ class AnnotationsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
+        auth_settings = ['auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
             '/v1/datasets/{datasetId}/annotations/{annotationId}', 'GET',
@@ -135,45 +133,45 @@ class AnnotationsApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def get_annotations_by_dataset_id(self, dataset_id, **kwargs):  # noqa: E501
-        """get_annotations_by_dataset_id  # noqa: E501
+    def get_annotations_by_dataset_id(self, dataset_id, annotation_id, **kwargs):  # noqa: E501
+        """Get all annotations of a dataset  # noqa: E501
 
-        Get all annotations of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_annotations_by_dataset_id(dataset_id, async_req=True)
+        >>> thread = api.get_annotations_by_dataset_id(dataset_id, annotation_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param MongoObjectID annotation_id: ObjectId of the Annotation (required)
         :return: list[AnnotationData]
                  If the method is called asynchronously,
                  returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.get_annotations_by_dataset_id_with_http_info(dataset_id, **kwargs)  # noqa: E501
+            return self.get_annotations_by_dataset_id_with_http_info(dataset_id, annotation_id, **kwargs)  # noqa: E501
         else:
-            (data) = self.get_annotations_by_dataset_id_with_http_info(dataset_id, **kwargs)  # noqa: E501
+            (data) = self.get_annotations_by_dataset_id_with_http_info(dataset_id, annotation_id, **kwargs)  # noqa: E501
             return data
 
-    def get_annotations_by_dataset_id_with_http_info(self, dataset_id, **kwargs):  # noqa: E501
-        """get_annotations_by_dataset_id  # noqa: E501
+    def get_annotations_by_dataset_id_with_http_info(self, dataset_id, annotation_id, **kwargs):  # noqa: E501
+        """Get all annotations of a dataset  # noqa: E501
 
-        Get all annotations of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_annotations_by_dataset_id_with_http_info(dataset_id, async_req=True)
+        >>> thread = api.get_annotations_by_dataset_id_with_http_info(dataset_id, annotation_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param MongoObjectID annotation_id: ObjectId of the Annotation (required)
         :return: list[AnnotationData]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_id']  # noqa: E501
+        all_params = ['dataset_id', 'annotation_id']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -192,12 +190,18 @@ class AnnotationsApi(object):
         if ('dataset_id' not in params or
                 params['dataset_id'] is None):
             raise ValueError("Missing the required parameter `dataset_id` when calling `get_annotations_by_dataset_id`")  # noqa: E501
+        # verify the required parameter 'annotation_id' is set
+        if ('annotation_id' not in params or
+                params['annotation_id'] is None):
+            raise ValueError("Missing the required parameter `annotation_id` when calling `get_annotations_by_dataset_id`")  # noqa: E501
 
         collection_formats = {}
 
         path_params = {}
         if 'dataset_id' in params:
             path_params['datasetId'] = params['dataset_id']  # noqa: E501
+        if 'annotation_id' in params:
+            path_params['annotationId'] = params['annotation_id']  # noqa: E501
 
         query_params = []
 
@@ -212,7 +216,7 @@ class AnnotationsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
+        auth_settings = ['auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
             '/v1/datasets/{datasetId}/annotations', 'GET',
