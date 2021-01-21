@@ -21,7 +21,7 @@ import tempfile
 from dateutil.parser import parse
 import six
 
-from openapi_client.exceptions import (
+from lightly.openapi_generated.openapi_client.exceptions import (
     ApiKeyError,
     ApiTypeError,
     ApiValueError,

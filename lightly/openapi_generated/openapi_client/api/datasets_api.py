@@ -19,12 +19,12 @@ import sys  # noqa: F401
 # python 2 and python 3 compatibility library
 import six
 
-from openapi_client.api_client import ApiClient
-from openapi_client.exceptions import (
+from lightly.openapi_generated.openapi_client.api_client import ApiClient
+from lightly.openapi_generated.openapi_client.exceptions import (
     ApiTypeError,
     ApiValueError
 )
-from openapi_client.model_utils import (  # noqa: F401
+from lightly.openapi_generated.openapi_client.model_utils import (  # noqa: F401
     check_allowed_values,
     check_validations,
     date,
@@ -35,14 +35,14 @@ from openapi_client.model_utils import (  # noqa: F401
     str,
     validate_and_convert_types
 )
-from openapi_client.models import inline_object1
-from openapi_client.models import tag_data
-from openapi_client.models import dataset_data
-from openapi_client.models import one_ofobjectarray
-from openapi_client.models import inline_response2001
-from openapi_client.models import sample_data
-from openapi_client.models import inline_response200
-from openapi_client.models import inline_object
+from lightly.openapi_generated.openapi_client.models import inline_object1
+from lightly.openapi_generated.openapi_client.models import tag_data
+from lightly.openapi_generated.openapi_client.models import dataset_data
+from lightly.openapi_generated.openapi_client.models import one_ofobjectarray
+from lightly.openapi_generated.openapi_client.models import inline_response2001
+from lightly.openapi_generated.openapi_client.models import sample_data
+from lightly.openapi_generated.openapi_client.models import inline_response200
+from lightly.openapi_generated.openapi_client.models import inline_object
 
 
 class DatasetsApi(object):

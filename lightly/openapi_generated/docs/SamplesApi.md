@@ -23,7 +23,7 @@ Get all embeddings of a datasets sample
 ```python
 from __future__ import print_function
 import time
-import openapi_client
+import lightly.openapi_generated.openapi_client
 from pprint import pprint
 # Defining the host is optional and defaults to https://api.lightly.ai
 # See configuration.py for a list of all supported configuration parameters.
@@ -109,7 +109,7 @@ Get a specific sample of a dataset
 ```python
 from __future__ import print_function
 import time
-import openapi_client
+import lightly.openapi_generated.openapi_client
 from pprint import pprint
 # Defining the host is optional and defaults to https://api.lightly.ai
 # See configuration.py for a list of all supported configuration parameters.
@@ -184,7 +184,7 @@ Get the image path of a specific sample of a dataset
 ```python
 from __future__ import print_function
 import time
-import openapi_client
+import lightly.openapi_generated.openapi_client
 from pprint import pprint
 # Defining the host is optional and defaults to https://api.lightly.ai
 # See configuration.py for a list of all supported configuration parameters.
@@ -270,7 +270,7 @@ Get the signed url to upload an image to for a specific sample of a dataset
 ```python
 from __future__ import print_function
 import time
-import openapi_client
+import lightly.openapi_generated.openapi_client
 from pprint import pprint
 # Defining the host is optional and defaults to https://api.lightly.ai
 # See configuration.py for a list of all supported configuration parameters.
@@ -347,7 +347,7 @@ Get all samples of a dataset
 ```python
 from __future__ import print_function
 import time
-import openapi_client
+import lightly.openapi_generated.openapi_client
 from pprint import pprint
 # Defining the host is optional and defaults to https://api.lightly.ai
 # See configuration.py for a list of all supported configuration parameters.
@@ -433,7 +433,7 @@ update a specific sample of a dataset
 ```python
 from __future__ import print_function
 import time
-import openapi_client
+import lightly.openapi_generated.openapi_client
 from pprint import pprint
 # Defining the host is optional and defaults to https://api.lightly.ai
 # See configuration.py for a list of all supported configuration parameters.

@@ -15,7 +15,7 @@ from __future__ import absolute_import
 
 import unittest
 
-import openapi_client
+import lightly.openapi_generated.openapi_client
 
 
 class TestEmbeddingData(unittest.TestCase):
