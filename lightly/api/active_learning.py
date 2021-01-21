@@ -59,12 +59,13 @@ def sampling_request_to_server(token: str,
         'name': name,
         'method': method,
         'config': config,
+        'token': token
     }
 
     response = requests.post(dst_url, params=payload)
-    response_json = response.json()
 
     if response.status_code == 200:
+        response_json = response.json()
         return response_json['jobId']
     
     raise RuntimeError(response.status_code)
@@ -120,3 +121,4 @@ if __name__ == '__main__':
     print(sampling_request_to_server(token, datasetId, tagId,
                                      embeddingId, name, method,
                                      config))
+    print(sampling_request_to_server_with_openapi(token, datasetId, tagId, embeddingId))
