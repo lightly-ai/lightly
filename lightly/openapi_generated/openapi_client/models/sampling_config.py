@@ -18,7 +18,7 @@ import sys  # noqa: F401
 import six  # noqa: F401
 import nulltype  # noqa: F401
 
-from openapi_client.model_utils import (  # noqa: F401
+from lightly.openapi_generated.openapi_client.model_utils import (  # noqa: F401
     ModelComposed,
     ModelNormal,
     ModelSimple,
@@ -34,7 +34,7 @@ from openapi_client.model_utils import (  # noqa: F401
     validate_get_composed_info,
 )
 try:
-    from openapi_client.models import sampling_config_stopping_condition
+    from lightly.openapi_generated.openapi_client.models import sampling_config_stopping_condition
 except ImportError:
     sampling_config_stopping_condition = sys.modules[
         'openapi_client.models.sampling_config_stopping_condition']

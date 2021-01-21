@@ -18,7 +18,7 @@ import sys  # noqa: F401
 import six  # noqa: F401
 import nulltype  # noqa: F401
 
-from openapi_client.model_utils import (  # noqa: F401
+from lightly.openapi_generated.openapi_client.model_utils import (  # noqa: F401
     ModelComposed,
     ModelNormal,
     ModelSimple,
@@ -34,17 +34,17 @@ from openapi_client.model_utils import (  # noqa: F401
     validate_get_composed_info,
 )
 try:
-    from openapi_client.models import annotation_meta_data
+    from lightly.openapi_generated.openapi_client.models import annotation_meta_data
 except ImportError:
     annotation_meta_data = sys.modules[
         'openapi_client.models.annotation_meta_data']
 try:
-    from openapi_client.models import annotation_offer_data
+    from lightly.openapi_generated.openapi_client.models import annotation_offer_data
 except ImportError:
     annotation_offer_data = sys.modules[
         'openapi_client.models.annotation_offer_data']
 try:
-    from openapi_client.models import annotation_state
+    from lightly.openapi_generated.openapi_client.models import annotation_state
 except ImportError:
     annotation_state = sys.modules[
         'openapi_client.models.annotation_state']

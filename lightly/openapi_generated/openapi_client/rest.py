@@ -25,7 +25,7 @@ import six
 from six.moves.urllib.parse import urlencode
 import urllib3
 
-from openapi_client.exceptions import ApiException, ApiValueError
+from lightly.openapi_generated.openapi_client.exceptions import ApiException, ApiValueError
 
 
 logger = logging.getLogger(__name__)

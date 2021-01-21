@@ -15,9 +15,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import openapi_client
-from openapi_client.api.auth_api import AuthApi  # noqa: E501
-from openapi_client.rest import ApiException
+import lightly.openapi_generated.openapi_client
+from lightly.openapi_generated.openapi_client.api.auth_api import AuthApi  # noqa: E501
+from lightly.openapi_generated.openapi_client.rest import ApiException
 
 
 class TestAuthApi(unittest.TestCase):
