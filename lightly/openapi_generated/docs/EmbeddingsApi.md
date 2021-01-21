@@ -1,4 +1,4 @@
-# swagger_client.EmbeddingsApi
+# lightly.openapi_generated.swagger_client.EmbeddingsApi
 
 All URIs are relative to *https://api.lightly.ai*
 
@@ -16,15 +16,15 @@ Get all embeddings of a datasets sample
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.EmbeddingsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-sample_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
+api_instance = lightly.openapi_generated.swagger_client.EmbeddingsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+sample_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
 mode = 'mode_example' # str | if we want everything (full) or just the summaries (optional)
 
 try:
@@ -67,14 +67,14 @@ Get the signed url to upload an CSVembedding to for a specific dataset
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 
 # create an instance of the API class
-api_instance = swagger_client.EmbeddingsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+api_instance = lightly.openapi_generated.swagger_client.EmbeddingsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
 name = 'name_example' # str | the sampling requests name to create a signed url for (optional)
 
 try:
