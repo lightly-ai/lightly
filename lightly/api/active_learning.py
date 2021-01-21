@@ -14,23 +14,32 @@ def upload_scores_to_api(scores: Dict[str, Iterable[float]]):
     raise NotImplementedError
 
 
-def sampling_request_to_server(
-        token: str,
-        datasetId: str,
-        tagId: str,
-        embeddingId: str,
-) -> str:
+def sampling_request_to_server(token: str,
+                               dataset_id: str,
+                               tag_id: str,
+                               embedding_id: str,
+                               name: str,
+                               method: str,
+                               config: dict,
+                               ) -> str :
     """ Makes the sampling request to the server.
 
     Args:
-        sampler_config (SamplerConfig):
-            Contains info about batch size
+        token (str):
+            The token for authenticating the request.
         dataset_id (str):
             Unique identifier for the dataset.
         tag_id (str):
             Unique identifier for the current state (labelled_indices).
         embeddding_id (str):
             Unique identifier for previosuly uploaded embeddings.
+        name (str):
+            Name describing the sampling request
+        method (str):
+            Choose from ['CORESET', 'RANDOM', 'BIT']
+        config (dict):
+            Contains info on stopping condition
+
 
     Returns:
         jobId if the request was successful.
@@ -40,28 +49,24 @@ def sampling_request_to_server(
     """
     server_location = getenv(
         'LIGHTLY_SERVER_LOCATION',
-        'https://api.lightly.ai'
+        'https://api-dev.lightly.ai'
     )
 
     dst_url = (server_location +
-               f"/v1/datasets/{datasetId}/tags/{tagId}/embeddings/{embeddingId}/sampling")
+               f"/v1/datasets/{dataset_id}/tags/{tag_id}/embeddings/{embedding_id}/sampling")
 
-    SamplingCreateRequest = {
-        'name': 'test',
-        'method': 'RANDOM',
-        'config': {
-            'stoppingCondition': {
-                'nSamples': 10,
-                'minDistance': 5
-            }
-        },
+    payload = {
+        'name': name,
+        'method': method,
+        'config': config,
     }
 
-    response = requests.get(dst_url, params=SamplingCreateRequest)
+    response = requests.post(dst_url, params=payload)
     response_json = response.json()
 
     if response.status_code == 200:
         return response_json['jobId']
+    
     raise RuntimeError(response.status_code)
 
 
@@ -100,9 +105,18 @@ def sampling_request_to_server_with_openapi(
 
 
 if __name__ == '__main__':
-    token = 'f9b60358d529bdd824e3c2df'
-    datasetId = '5ff6fa9b6580b3000acca8a8'
+    token = 'bb10724138a5b33a0f35c444'
+    datasetId = '6006f54aab0cd9000ad7914c'
     tagId = 'initial-tag'
     embeddingId = '0'
-    # print(sampling_request_to_server(token, datasetId, tagId, embeddingId))
-    print(sampling_request_to_server_with_openapi(token, datasetId, tagId, embeddingId))
+    name = 'sampling-test'
+    method = 'RANDOM'
+    config = {
+            'stoppingCondition': {
+                'nSamples': 10,
+                'minDistance': 5,
+            }
+        }
+    print(sampling_request_to_server(token, datasetId, tagId,
+                                     embeddingId, name, method,
+                                     config))
