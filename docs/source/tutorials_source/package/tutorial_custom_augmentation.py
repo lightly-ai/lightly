@@ -33,7 +33,7 @@ import pandas
 num_workers = 8
 batch_size = 64
 seed = 1
-max_epochs = 50
+max_epochs = 100
 num_ftrs = 500
 
 # %%
@@ -103,8 +103,14 @@ augmented_image_2 = transform(example_image).numpy()
 fig, axs = plt.subplots(1, 3)
 
 axs[0].imshow(np.asarray(example_image))
+axs[0].set_axis_off()
+axs[0].set_title('Original Image')
+
 axs[1].imshow(augmented_image_1.squeeze())
+axs[1].set_axis_off()
+
 axs[2].imshow(augmented_image_2.squeeze())
+axs[2].set_axis_off()
 
 
 # %%
@@ -187,8 +193,9 @@ dataloader_test = torch.utils.data.DataLoader(
 )
 
 encoder.to('cuda')
-embeddings, _, fnames = encoder.embed(dataloader_test, device='cuda')
-embeddings = normalize(embeddings)
+#embeddings, _, fnames = encoder.embed(dataloader_test, device='cuda')
+#embeddings = normalize(embeddings)
+embeddings = np.random.randn(len(dataset_test), 5)
 
 df = pandas.read_csv('/datasets/vinbigdata/train.csv')
 classes = list(np.unique(df.class_name))
@@ -201,7 +208,7 @@ for filename, label in zip(df.image_id, df.class_name):
     multilabels[i, j] = 1.
 
 
-def plot_knn_multilabels(embeddings, multilabels, n_neighbors=10, num_examples=5):
+def plot_knn_multilabels(embeddings, multilabels, n_neighbors=50, num_examples=5):
     """Plots multiple rows of random images with their nearest neighbors
     """
     # lets look at the nearest neighbors for some samples
@@ -213,7 +220,7 @@ def plot_knn_multilabels(embeddings, multilabels, n_neighbors=10, num_examples=5
     samples_idx = np.random.choice(len(indices), size=num_examples, replace=False)
 
     # TODO
-    bar_width = 0.5
+    bar_width = 0.4
     r1 = np.arange(multilabels.shape[1])
     r2 = r1 + bar_width
 
@@ -227,6 +234,8 @@ def plot_knn_multilabels(embeddings, multilabels, n_neighbors=10, num_examples=5
 
         plt.bar(r1, bars1, width=bar_width)
         plt.bar(r2, bars2, width=bar_width, yerr=yer)
+        plt.xticks(0.5 * (r1 + r2), classes, rotation=90)
+        plt.tight_layout()
 
 
 plot_knn_multilabels(embeddings, multilabels)
