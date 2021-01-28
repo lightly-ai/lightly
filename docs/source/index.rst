@@ -66,8 +66,15 @@ below.
 * **Self-supervised Embedding**
    The :py:class:`lightly.embedding.embedding.SelfSupervisedEmbedding` connects the concepts 
    from above in an easy-to-use `PyTorch-Lightning <https://www.pytorchlightning.ai/>`_ module.
-   After creating a `SelfSupervisedEmbedding`, it can be trained with a single line. However, you
-   can still write the training loop in plain PyTorch code. See 
+   After creating a `SelfSupervisedEmbedding`, it can be trained with a single line:
+   
+   .. code-block:: Python
+
+      # build a self-supervised embedding and train it
+      encoder = lightly.embedding.SelfSupervisedEmbedding(model, loss, optimizer, dataloader)
+      encoder.train(gpus=1, max_epochs=10)
+   
+   However, you can still write the training loop in plain PyTorch code. See 
    :ref:`sphx_glr_tutorials_package_tutorial_simsiam_esa.py` for an example
 
 
