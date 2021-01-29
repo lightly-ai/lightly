@@ -4,11 +4,13 @@ All URIs are relative to *https://api.lightly.ai*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**get_embeddings_by_sample_id**](EmbeddingsApi.md#get_embeddings_by_sample_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/embeddings | Get all embeddings of a datasets sample
-[**get_embeddings_csv_write_url_by_id**](EmbeddingsApi.md#get_embeddings_csv_write_url_by_id) | **GET** /v1/datasets/{datasetId}/embeddings/writeCSVUrl | Get the signed url to upload an CSVembedding to for a specific dataset
+[**get_embeddings_by_sample_id**](EmbeddingsApi.md#get_embeddings_by_sample_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/embeddings | 
+[**get_embeddings_csv_write_url_by_id**](EmbeddingsApi.md#get_embeddings_csv_write_url_by_id) | **GET** /v1/datasets/{datasetId}/embeddings/writeCSVUrl | 
 
 # **get_embeddings_by_sample_id**
-> InlineResponse2001 get_embeddings_by_sample_id(dataset_id, sample_id, mode=mode)
+> list[EmbeddingData] get_embeddings_by_sample_id(dataset_id, sample_id, mode=mode)
+
+
 
 Get all embeddings of a datasets sample
 
@@ -20,6 +22,11 @@ import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: ApiKeyAuth
+configuration = lightly.openapi_generated.swagger_client.Configuration()
+configuration.api_key['token'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
 api_instance = lightly.openapi_generated.swagger_client.EmbeddingsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
@@ -28,7 +35,6 @@ sample_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObje
 mode = 'mode_example' # str | if we want everything (full) or just the summaries (optional)
 
 try:
-    # Get all embeddings of a datasets sample
     api_response = api_instance.get_embeddings_by_sample_id(dataset_id, sample_id, mode=mode)
     pprint(api_response)
 except ApiException as e:
@@ -45,11 +51,11 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**InlineResponse2001**](InlineResponse2001.md)
+[**list[EmbeddingData]**](EmbeddingData.md)
 
 ### Authorization
 
-[auth0Bearer](../README.md#auth0Bearer)
+[ApiKeyAuth](../README.md#ApiKeyAuth), [auth0Bearer](../README.md#auth0Bearer)
 
 ### HTTP request headers
 
@@ -59,7 +65,9 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **get_embeddings_csv_write_url_by_id**
-> InlineResponse2002 get_embeddings_csv_write_url_by_id(dataset_id, name=name)
+> WriteCSVUrlData get_embeddings_csv_write_url_by_id(dataset_id, name=name)
+
+
 
 Get the signed url to upload an CSVembedding to for a specific dataset
 
@@ -71,14 +79,18 @@ import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: ApiKeyAuth
+configuration = lightly.openapi_generated.swagger_client.Configuration()
+configuration.api_key['token'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
 api_instance = lightly.openapi_generated.swagger_client.EmbeddingsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
 dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-name = 'name_example' # str | the sampling requests name to create a signed url for (optional)
+name = 'default' # str | the sampling requests name to create a signed url for (optional) (default to default)
 
 try:
-    # Get the signed url to upload an CSVembedding to for a specific dataset
     api_response = api_instance.get_embeddings_csv_write_url_by_id(dataset_id, name=name)
     pprint(api_response)
 except ApiException as e:
@@ -90,15 +102,15 @@ except ApiException as e:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **dataset_id** | [**MongoObjectID**](.md)| ObjectId of the dataset | 
- **name** | **str**| the sampling requests name to create a signed url for | [optional] 
+ **name** | **str**| the sampling requests name to create a signed url for | [optional] [default to default]
 
 ### Return type
 
-[**InlineResponse2002**](InlineResponse2002.md)
+[**WriteCSVUrlData**](WriteCSVUrlData.md)
 
 ### Authorization
 
-[auth0Bearer](../README.md#auth0Bearer)
+[ApiKeyAuth](../README.md#ApiKeyAuth), [auth0Bearer](../README.md#auth0Bearer)
 
 ### HTTP request headers
 

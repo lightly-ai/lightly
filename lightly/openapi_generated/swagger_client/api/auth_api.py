@@ -33,8 +33,9 @@ class AuthApi(object):
         self.api_client = api_client
 
     def get_tokens(self, **kwargs):  # noqa: E501
-        """Get auth token from the user  # noqa: E501
+        """get_tokens  # noqa: E501
 
+        Get auth token from the user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_tokens(async_req=True)
@@ -53,8 +54,9 @@ class AuthApi(object):
             return data
 
     def get_tokens_with_http_info(self, **kwargs):  # noqa: E501
-        """Get auth token from the user  # noqa: E501
+        """get_tokens  # noqa: E501
 
+        Get auth token from the user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_tokens_with_http_info(async_req=True)
@@ -99,7 +101,7 @@ class AuthApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = ['auth0Bearer']  # noqa: E501
+        auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
             '/users/tokens', 'GET',

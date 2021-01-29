@@ -397,7 +397,7 @@ def upload_images_from_folder(path_to_folder: str,
 def upload_csv(path_to_csv: str,
                dataset_id: str,
                token: str,
-               name: Union[str, None] = None):
+               name: Union[str, None] = None) -> str:
     """Requests a signed url and sends the CSV file there.
 
     Args:
@@ -410,16 +410,12 @@ def upload_csv(path_to_csv: str,
 
     """
     # get a signed url for the csv file
-    signed_url, status = routes.v1.datasets.embeddings.get_presigned_upload_url(
+    status, signed_url, embedding_id = routes.v1.datasets.embeddings.get_presigned_upload_url(
         dataset_id,
         token,
         name=name,
     )
 
-    if status != 200:
-        # TODO handle this nicely
-        print('Something went wrong...', status)
-        return
 
     # upload the csv file using the signed url
     upload_file_with_signed_url(
@@ -427,7 +423,7 @@ def upload_csv(path_to_csv: str,
         signed_url,
     )
 
-    # TODO handle response
+    return embedding_id
 
 
 def _upload_metadata_from_json(path_to_embeddings: str,

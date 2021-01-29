@@ -4,10 +4,12 @@ All URIs are relative to *https://api.lightly.ai*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**trigger_sampling_by_id**](SamplingsApi.md#trigger_sampling_by_id) | **POST** /v1/datasets/{datasetId}/tags/{tagId}/embeddings/{embeddingId}/sampling | Trigger a sampling on a specific tag of a dataset with specific prior uploaded csv embedding
+[**trigger_sampling_by_id**](SamplingsApi.md#trigger_sampling_by_id) | **POST** /v1/datasets/{datasetId}/embeddings/{embeddingId}/sampling | 
 
 # **trigger_sampling_by_id**
-> InlineResponse2003 trigger_sampling_by_id(body, dataset_id, tag_id, embedding_id)
+> AsyncTaskData trigger_sampling_by_id(body, dataset_id, embedding_id)
+
+
 
 Trigger a sampling on a specific tag of a dataset with specific prior uploaded csv embedding
 
@@ -19,17 +21,20 @@ import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: ApiKeyAuth
+configuration = lightly.openapi_generated.swagger_client.Configuration()
+configuration.api_key['token'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
 api_instance = lightly.openapi_generated.swagger_client.SamplingsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
 body = lightly.openapi_generated.swagger_client.SamplingCreateRequest() # SamplingCreateRequest | 
 dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-tag_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the tag
-embedding_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the prev uploaded embedding
+embedding_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the embedding
 
 try:
-    # Trigger a sampling on a specific tag of a dataset with specific prior uploaded csv embedding
-    api_response = api_instance.trigger_sampling_by_id(body, dataset_id, tag_id, embedding_id)
+    api_response = api_instance.trigger_sampling_by_id(body, dataset_id, embedding_id)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling SamplingsApi->trigger_sampling_by_id: %s\n" % e)
@@ -41,16 +46,15 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **body** | [**SamplingCreateRequest**](SamplingCreateRequest.md)|  | 
  **dataset_id** | [**MongoObjectID**](.md)| ObjectId of the dataset | 
- **tag_id** | [**MongoObjectID**](.md)| ObjectId of the tag | 
- **embedding_id** | [**MongoObjectID**](.md)| ObjectId of the prev uploaded embedding | 
+ **embedding_id** | [**MongoObjectID**](.md)| ObjectId of the embedding | 
 
 ### Return type
 
-[**InlineResponse2003**](InlineResponse2003.md)
+[**AsyncTaskData**](AsyncTaskData.md)
 
 ### Authorization
 
-[auth0Bearer](../README.md#auth0Bearer)
+[ApiKeyAuth](../README.md#ApiKeyAuth), [auth0Bearer](../README.md#auth0Bearer)
 
 ### HTTP request headers
 
