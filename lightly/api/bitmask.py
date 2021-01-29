@@ -109,6 +109,14 @@ class BitMask:
         >>> mask = BitMask.from_hex('0x6')
         >>> mask = Bitmask.from_bin('0b0110')
 
+        >>> # for a dataset with 10 images, assume the following tag
+        >>> # 0001011001 where the 1st, 4th, 5th and 7th image are selected
+        >>> # this tag would be stored as 0x59.
+        >>> hexstring = 0x59                    # what you receive from the api
+        >>> mask = BitMask.from_hex(hexstring)  # create a bitmask from it
+        >>> indices = mask.to_indices()         # get list of indices which are one
+        >>> # indices is [0, 3, 4, 6]
+
     """
 
     def __init__(self, x):
