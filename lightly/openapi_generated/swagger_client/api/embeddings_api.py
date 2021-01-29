@@ -33,8 +33,9 @@ class EmbeddingsApi(object):
         self.api_client = api_client
 
     def get_embeddings_by_sample_id(self, dataset_id, sample_id, **kwargs):  # noqa: E501
-        """Get all embeddings of a datasets sample  # noqa: E501
+        """get_embeddings_by_sample_id  # noqa: E501
 
+        Get all embeddings of a datasets sample  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_embeddings_by_sample_id(dataset_id, sample_id, async_req=True)
@@ -44,7 +45,7 @@ class EmbeddingsApi(object):
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID sample_id: ObjectId of the sample (required)
         :param str mode: if we want everything (full) or just the summaries
-        :return: InlineResponse2001
+        :return: list[EmbeddingData]
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -56,8 +57,9 @@ class EmbeddingsApi(object):
             return data
 
     def get_embeddings_by_sample_id_with_http_info(self, dataset_id, sample_id, **kwargs):  # noqa: E501
-        """Get all embeddings of a datasets sample  # noqa: E501
+        """get_embeddings_by_sample_id  # noqa: E501
 
+        Get all embeddings of a datasets sample  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_embeddings_by_sample_id_with_http_info(dataset_id, sample_id, async_req=True)
@@ -67,7 +69,7 @@ class EmbeddingsApi(object):
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID sample_id: ObjectId of the sample (required)
         :param str mode: if we want everything (full) or just the summaries
-        :return: InlineResponse2001
+        :return: list[EmbeddingData]
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -119,7 +121,7 @@ class EmbeddingsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = ['auth0Bearer']  # noqa: E501
+        auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
             '/users/datasets/{datasetId}/samples/{sampleId}/embeddings', 'GET',
@@ -129,7 +131,7 @@ class EmbeddingsApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='InlineResponse2001',  # noqa: E501
+            response_type='list[EmbeddingData]',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -138,8 +140,9 @@ class EmbeddingsApi(object):
             collection_formats=collection_formats)
 
     def get_embeddings_csv_write_url_by_id(self, dataset_id, **kwargs):  # noqa: E501
-        """Get the signed url to upload an CSVembedding to for a specific dataset  # noqa: E501
+        """get_embeddings_csv_write_url_by_id  # noqa: E501
 
+        Get the signed url to upload an CSVembedding to for a specific dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_embeddings_csv_write_url_by_id(dataset_id, async_req=True)
@@ -148,7 +151,7 @@ class EmbeddingsApi(object):
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param str name: the sampling requests name to create a signed url for
-        :return: InlineResponse2002
+        :return: WriteCSVUrlData
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -160,8 +163,9 @@ class EmbeddingsApi(object):
             return data
 
     def get_embeddings_csv_write_url_by_id_with_http_info(self, dataset_id, **kwargs):  # noqa: E501
-        """Get the signed url to upload an CSVembedding to for a specific dataset  # noqa: E501
+        """get_embeddings_csv_write_url_by_id  # noqa: E501
 
+        Get the signed url to upload an CSVembedding to for a specific dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_embeddings_csv_write_url_by_id_with_http_info(dataset_id, async_req=True)
@@ -170,7 +174,7 @@ class EmbeddingsApi(object):
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param str name: the sampling requests name to create a signed url for
-        :return: InlineResponse2002
+        :return: WriteCSVUrlData
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -216,7 +220,7 @@ class EmbeddingsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = ['auth0Bearer']  # noqa: E501
+        auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
             '/v1/datasets/{datasetId}/embeddings/writeCSVUrl', 'GET',
@@ -226,7 +230,7 @@ class EmbeddingsApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='InlineResponse2002',  # noqa: E501
+            response_type='WriteCSVUrlData',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),

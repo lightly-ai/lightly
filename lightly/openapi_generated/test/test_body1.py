@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.models.body1 import Body1  # noqa: E501
-from lightly.openapi_generated.swagger_client.rest import ApiException
+import lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.models.body1 import Body1  # noqa: E501
+from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class TestBody1(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestBody1(unittest.TestCase):
     def testBody1(self):
         """Test Body1"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = lightly.openapi_generated.swagger_client.models.body1.Body1()  # noqa: E501
+        # model = lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.models.body1.Body1()  # noqa: E501
         pass
 
 
