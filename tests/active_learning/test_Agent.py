@@ -6,14 +6,16 @@ import lightly
 import numpy as np
 import torchvision
 
+from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.active_learning.scorers import classification
 from lightly.active_learning.agents import agent
 from lightly.active_learning.config import sampler_config
+from lightly.openapi_generated.swagger_client import SamplingMethod
 
 
 class TestAgent(unittest.TestCase):
 
-    def setup(self, n_data=1000):
+    def setup(self, n_data=2000):
 
         folder_path = tempfile.mkdtemp()
         self.path_to_embeddings = os.path.join(
@@ -31,12 +33,14 @@ class TestAgent(unittest.TestCase):
             sample_names
         )
 
-    @unittest.skip("Upload of embeddings is not mocked yet.")
+    @unittest.skip("Part is not mocked yet, but tries to access the real server.")
     def test_Agent(self):
         self.setup()
 
-        token = os.environ.get('TEST_TOKEN')
-        dataset_id = os.environ.get('TEST_DATASET_ID')
+        token = os.environ.get('TEST_TOKEN', 'f9b60358d529bdd824e3c2df')
+        dataset_id = os.environ.get('TEST_DATASET_ID', '5ff6fa9b6580b3000acca8a8')
+        os.environ.setdefault('TEST_TOKEN', token)
+        os.environ.setdefault('TEST_DATASET_ID', dataset_id)
         agent_ = agent.ActiveLearningAgent(token=token, dataset_id=dataset_id,
                                            path_to_embeddings=self.path_to_embeddings)
 
@@ -49,10 +53,9 @@ class TestAgent(unittest.TestCase):
 
         labelled_ids = list(range(no_labelled_samples))
 
-        sampler_name = 'random'
         batch_size = 64
-        sampler_config_ = sampler_config.SamplerConfig(name=sampler_name, batch_size=batch_size)
+        sampler_config = SamplerConfig(method=SamplingMethod.RANDOM, batch_size=batch_size, name='test_al_agent')
 
-        chosen_samples = agent_.sample(sampler_config=sampler_config_, al_scorer=scorer, labelled_ids=labelled_ids)
+        chosen_samples = agent_.sample(sampler_config=sampler_config, al_scorer=scorer, labelled_ids=labelled_ids)
 
         assert len(chosen_samples) == batch_size

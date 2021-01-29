@@ -51,28 +51,35 @@ import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: ApiKeyAuth
+configuration = lightly.openapi_generated.swagger_client.Configuration()
+configuration.api_key['token'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
 api_instance = lightly.openapi_generated.swagger_client.AnnotationsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
 dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-annotation_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the Annotation
+annotation_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the annotation
 
 try:
-    # Get a Annotation by its ID
     api_response = api_instance.get_annotation_by_id(dataset_id, annotation_id)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling AnnotationsApi->get_annotation_by_id: %s\n" % e)
 
+# Configure API key authorization: ApiKeyAuth
+configuration = lightly.openapi_generated.swagger_client.Configuration()
+configuration.api_key['token'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
 api_instance = lightly.openapi_generated.swagger_client.AnnotationsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
 dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-annotation_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the Annotation
 
 try:
-    # Get all annotations of a dataset
-    api_response = api_instance.get_annotations_by_dataset_id(dataset_id, annotation_id)
+    api_response = api_instance.get_annotations_by_dataset_id(dataset_id)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling AnnotationsApi->get_annotations_by_dataset_id: %s\n" % e)
@@ -84,32 +91,23 @@ All URIs are relative to *https://api.lightly.ai*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*AnnotationsApi* | [**get_annotation_by_id**](docs/AnnotationsApi.md#get_annotation_by_id) | **GET** /v1/datasets/{datasetId}/annotations/{annotationId} | Get a Annotation by its ID
-*AnnotationsApi* | [**get_annotations_by_dataset_id**](docs/AnnotationsApi.md#get_annotations_by_dataset_id) | **GET** /v1/datasets/{datasetId}/annotations | Get all annotations of a dataset
-*AuthApi* | [**get_tokens**](docs/AuthApi.md#get_tokens) | **GET** /users/tokens | Get auth token from the user
-*DatasetsApi* | [**create_tag_by_dataset_id**](docs/DatasetsApi.md#create_tag_by_dataset_id) | **POST** /users/datasets/{datasetId}/tags | create new tag for dataset
-*DatasetsApi* | [**get_dataset_by_id**](docs/DatasetsApi.md#get_dataset_by_id) | **GET** /users/datasets/{datasetId} | Get a specific dataset
-*DatasetsApi* | [**get_datasets**](docs/DatasetsApi.md#get_datasets) | **GET** /users/datasets | Get all datasets for a user
-*DatasetsApi* | [**get_embeddings_by_sample_id**](docs/DatasetsApi.md#get_embeddings_by_sample_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/embeddings | Get all embeddings of a datasets sample
-*DatasetsApi* | [**get_embeddings_csv_write_url_by_id**](docs/DatasetsApi.md#get_embeddings_csv_write_url_by_id) | **GET** /v1/datasets/{datasetId}/embeddings/writeCSVUrl | Get the signed url to upload an CSVembedding to for a specific dataset
-*DatasetsApi* | [**get_sample_by_id**](docs/DatasetsApi.md#get_sample_by_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId} | Get a specific sample of a dataset
-*DatasetsApi* | [**get_sample_image_read_url_by_id**](docs/DatasetsApi.md#get_sample_image_read_url_by_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/readurl | Get the image path of a specific sample of a dataset
-*DatasetsApi* | [**get_sample_image_write_url_by_id**](docs/DatasetsApi.md#get_sample_image_write_url_by_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/writeurl | Get the signed url to upload an image to for a specific sample of a dataset
-*DatasetsApi* | [**get_samples_by_dataset_id**](docs/DatasetsApi.md#get_samples_by_dataset_id) | **GET** /users/datasets/{datasetId}/samples | Get all samples of a dataset
-*DatasetsApi* | [**get_tags_by_dataset_id**](docs/DatasetsApi.md#get_tags_by_dataset_id) | **GET** /users/datasets/{datasetId}/tags | Get all tags of a dataset
-*DatasetsApi* | [**update_sample_by_id**](docs/DatasetsApi.md#update_sample_by_id) | **PUT** /users/datasets/{datasetId}/samples/{sampleId} | update a specific sample of a dataset
-*EmbeddingsApi* | [**get_embeddings_by_sample_id**](docs/EmbeddingsApi.md#get_embeddings_by_sample_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/embeddings | Get all embeddings of a datasets sample
-*EmbeddingsApi* | [**get_embeddings_csv_write_url_by_id**](docs/EmbeddingsApi.md#get_embeddings_csv_write_url_by_id) | **GET** /v1/datasets/{datasetId}/embeddings/writeCSVUrl | Get the signed url to upload an CSVembedding to for a specific dataset
-*SamplesApi* | [**get_embeddings_by_sample_id**](docs/SamplesApi.md#get_embeddings_by_sample_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/embeddings | Get all embeddings of a datasets sample
-*SamplesApi* | [**get_sample_by_id**](docs/SamplesApi.md#get_sample_by_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId} | Get a specific sample of a dataset
-*SamplesApi* | [**get_sample_image_read_url_by_id**](docs/SamplesApi.md#get_sample_image_read_url_by_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/readurl | Get the image path of a specific sample of a dataset
-*SamplesApi* | [**get_sample_image_write_url_by_id**](docs/SamplesApi.md#get_sample_image_write_url_by_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/writeurl | Get the signed url to upload an image to for a specific sample of a dataset
-*SamplesApi* | [**get_samples_by_dataset_id**](docs/SamplesApi.md#get_samples_by_dataset_id) | **GET** /users/datasets/{datasetId}/samples | Get all samples of a dataset
-*SamplesApi* | [**update_sample_by_id**](docs/SamplesApi.md#update_sample_by_id) | **PUT** /users/datasets/{datasetId}/samples/{sampleId} | update a specific sample of a dataset
-*SamplingsApi* | [**trigger_sampling_by_id**](docs/SamplingsApi.md#trigger_sampling_by_id) | **POST** /v1/datasets/{datasetId}/tags/{tagId}/embeddings/{embeddingId}/sampling | Trigger a sampling on a specific tag of a dataset with specific prior uploaded csv embedding
-*TagsApi* | [**create_tag_by_dataset_id**](docs/TagsApi.md#create_tag_by_dataset_id) | **POST** /users/datasets/{datasetId}/tags | create new tag for dataset
-*TagsApi* | [**get_tags_by_dataset_id**](docs/TagsApi.md#get_tags_by_dataset_id) | **GET** /users/datasets/{datasetId}/tags | Get all tags of a dataset
-*TagsApi* | [**trigger_sampling_by_id**](docs/TagsApi.md#trigger_sampling_by_id) | **POST** /v1/datasets/{datasetId}/tags/{tagId}/embeddings/{embeddingId}/sampling | Trigger a sampling on a specific tag of a dataset with specific prior uploaded csv embedding
+*AnnotationsApi* | [**get_annotation_by_id**](docs/AnnotationsApi.md#get_annotation_by_id) | **GET** /v1/datasets/{datasetId}/annotations/{annotationId} | 
+*AnnotationsApi* | [**get_annotations_by_dataset_id**](docs/AnnotationsApi.md#get_annotations_by_dataset_id) | **GET** /v1/datasets/{datasetId}/annotations | 
+*AuthApi* | [**get_tokens**](docs/AuthApi.md#get_tokens) | **GET** /users/tokens | 
+*DatasetsApi* | [**get_dataset_by_id**](docs/DatasetsApi.md#get_dataset_by_id) | **GET** /users/datasets/{datasetId} | 
+*DatasetsApi* | [**get_datasets**](docs/DatasetsApi.md#get_datasets) | **GET** /users/datasets | 
+*EmbeddingsApi* | [**get_embeddings_by_sample_id**](docs/EmbeddingsApi.md#get_embeddings_by_sample_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/embeddings | 
+*EmbeddingsApi* | [**get_embeddings_csv_write_url_by_id**](docs/EmbeddingsApi.md#get_embeddings_csv_write_url_by_id) | **GET** /v1/datasets/{datasetId}/embeddings/writeCSVUrl | 
+*JobsApi* | [**get_job_status_by_id**](docs/JobsApi.md#get_job_status_by_id) | **GET** /v1/jobs/{jobId} | 
+*SamplesApi* | [**get_sample_by_id**](docs/SamplesApi.md#get_sample_by_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId} | 
+*SamplesApi* | [**get_sample_image_read_url_by_id**](docs/SamplesApi.md#get_sample_image_read_url_by_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/readurl | 
+*SamplesApi* | [**get_sample_image_write_url_by_id**](docs/SamplesApi.md#get_sample_image_write_url_by_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/writeurl | 
+*SamplesApi* | [**get_samples_by_dataset_id**](docs/SamplesApi.md#get_samples_by_dataset_id) | **GET** /users/datasets/{datasetId}/samples | 
+*SamplesApi* | [**update_sample_by_id**](docs/SamplesApi.md#update_sample_by_id) | **PUT** /users/datasets/{datasetId}/samples/{sampleId} | 
+*SamplingsApi* | [**trigger_sampling_by_id**](docs/SamplingsApi.md#trigger_sampling_by_id) | **POST** /v1/datasets/{datasetId}/embeddings/{embeddingId}/sampling | 
+*TagsApi* | [**create_tag_by_dataset_id**](docs/TagsApi.md#create_tag_by_dataset_id) | **POST** /users/datasets/{datasetId}/tags | 
+*TagsApi* | [**get_tag_by_tag_id**](docs/TagsApi.md#get_tag_by_tag_id) | **GET** /v1/datasets/{datasetId}/tags/{tagId} | 
+*TagsApi* | [**get_tags_by_dataset_id**](docs/TagsApi.md#get_tags_by_dataset_id) | **GET** /users/datasets/{datasetId}/tags | 
 
 ## Documentation For Models
 
@@ -119,19 +117,21 @@ Class | Method | HTTP request | Description
  - [AnnotationState](docs/AnnotationState.md)
  - [ApiErrorCode](docs/ApiErrorCode.md)
  - [ApiErrorResponse](docs/ApiErrorResponse.md)
+ - [AsyncTaskData](docs/AsyncTaskData.md)
  - [Body](docs/Body.md)
  - [Body1](docs/Body1.md)
  - [DatasetData](docs/DatasetData.md)
  - [DatasetType](docs/DatasetType.md)
  - [EmbeddingData](docs/EmbeddingData.md)
+ - [GeneralJobResult](docs/GeneralJobResult.md)
  - [ImageType](docs/ImageType.md)
  - [InlineResponse200](docs/InlineResponse200.md)
- - [InlineResponse2001](docs/InlineResponse2001.md)
- - [InlineResponse2002](docs/InlineResponse2002.md)
- - [InlineResponse2003](docs/InlineResponse2003.md)
+ - [JobResultType](docs/JobResultType.md)
+ - [JobState](docs/JobState.md)
+ - [JobStatusData](docs/JobStatusData.md)
+ - [JobStatusDataResult](docs/JobStatusDataResult.md)
  - [MongoObjectID](docs/MongoObjectID.md)
  - [ObjectId](docs/ObjectId.md)
- - [OneOfinlineResponse2001](docs/OneOfinlineResponse2001.md)
  - [SampleData](docs/SampleData.md)
  - [SampleMetaData](docs/SampleMetaData.md)
  - [SamplingConfig](docs/SamplingConfig.md)
@@ -143,9 +143,16 @@ Class | Method | HTTP request | Description
  - [TagData](docs/TagData.md)
  - [TagName](docs/TagName.md)
  - [Timestamp](docs/Timestamp.md)
+ - [WriteCSVUrlData](docs/WriteCSVUrlData.md)
 
 ## Documentation For Authorization
 
+
+## ApiKeyAuth
+
+- **Type**: API key
+- **API key parameter name**: token
+- **Location**: URL query string
 
 ## auth0Bearer
 
