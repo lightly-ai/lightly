@@ -13,6 +13,9 @@ import requests
 import warnings
 from PIL import Image, ImageFilter
 
+from lightly.openapi_generated.swagger_client.configuration import Configuration
+from lightly.openapi_generated.swagger_client.api_client import ApiClient
+
 # the following two lines are needed because
 # PIL misidentifies certain jpeg images as MPOs
 from PIL import JpegImagePlugin
@@ -21,6 +24,14 @@ JpegImagePlugin._getmp = lambda: None
 LEGAL_IMAGE_FORMATS = ['jpg', 'jpeg', 'png', 'tiff', 'bmp']
 MAXIMUM_FILENAME_LENGTH = 80
 MAX_WIDTH, MAX_HEIGHT = 2048, 2048
+
+
+def create_api_client(token: str, host: str) -> ApiClient:
+    configuration = Configuration()
+    configuration.host = host
+    configuration.api_key = {'token': token}
+    api_client = ApiClient(configuration=configuration)
+    return api_client
 
 
 def getenv(key: str, default: str):

@@ -2,7 +2,10 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+from typing import *
 import requests
+from datetime import datetime
+
 from lightly.api.utils import getenv
 from typing import Union
 
@@ -19,14 +22,14 @@ def _prefix(dataset_id: Union[str, None] = None,
     prefix = server_location + '/v1/datasets'
     if dataset_id is not None:
         prefix = prefix + '/' + dataset_id
-    
+
     prefix = prefix + '/embeddings'
     return prefix
 
 
 def get_presigned_upload_url(dataset_id: str,
                              token: str,
-                             name: Union[str, None] = None):
+                             name: Union[str, None] = None) -> Tuple[int, str, str]:
     """Creates and returns a signed url to upload a csv file of embeddings.
 
     Args:
@@ -47,17 +50,20 @@ def get_presigned_upload_url(dataset_id: str,
         'token': token,
     }
 
-    if name is not None:
-        payload['name'] = name
+    if name is None:
+        date_time = datetime.now().strftime("%m_%d_%Y__%H_%M_%S")
+        name = f"embedding_{date_time}"
+
+    payload['name'] = name
 
     response = requests.get(dst_url, params=payload)
     response_json = response.json()
+    status = response.status_code
 
-    if response.status_code == 200:
+    if status == 200:
         signed_url = response_json['signedWriteUrl']
-        # TODO use embeddingId?
+        embedding_id = response_json['embeddingId']
     else:
-        signed_url = None
+        raise ValueError(f"getting the presigned url failed with status {status}")
 
-    return signed_url, response.status_code
-
+    return status, signed_url, embedding_id
