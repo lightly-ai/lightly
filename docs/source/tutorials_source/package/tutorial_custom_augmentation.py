@@ -32,6 +32,7 @@ import pandas
 #
 num_workers = 8
 batch_size = 64
+num_splits = 0
 seed = 1
 max_epochs = 100
 num_ftrs = 500
@@ -41,9 +42,11 @@ num_ftrs = 500
 pl.seed_everything(seed)
 
 # %%
-# Make sure `path_to_data` points to the downloaded clothing dataset.
-# You can download it using 
-# `git clone https://github.com/alexeygrigorev/clothing-dataset.git`
+# Make sure `path_to_data` points to the downloaded x-ray dataset.
+# You can download the dataset `from kaggle <https://www.kaggle.com/c/vinbigdata-chest-xray-abnormalities-detection/overview>`_.
+
+# %%
+
 path_to_data = '/datasets/vinbigdata/train'
 
 
@@ -138,7 +141,7 @@ dataloader_train_simclr = torch.utils.data.DataLoader(
 # Create a ResNet backbone and remove the classification head
 
 # TODO
-resnet = lightly.models.ResNetGenerator('resnet-18')
+resnet = lightly.models.ResNetGenerator('resnet-18', num_splits=num_splits)
 last_conv_channels = list(resnet.children())[-1].in_features
 backbone = nn.Sequential(
     *list(resnet.children())[:-1],
