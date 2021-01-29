@@ -43,10 +43,12 @@ Currently implemented models and their accuracy on cifar10. All models have been
 
 
 ## Terminology
-- **Dataset:** A collection of raw images.
-- **Embedding:** Representation of an image in a vector space.
-- **Embedding Model:** Function (typically a convolutional neural network) to create embeddings from images.
-- **Self-supervised Learning:** A form of unsupervised learning where the data provides the supervision.
+
+Below you can see a schematic overview of the different concepts present in the lightly Python package. The terms in bold are explained in more detail in our [documentation](https://docs.lightly.ai).
+
+<img src="docs/source/images/lightly_overview.png" alt="Overview of the lightly pip package"/></a>
+
+
 
 ## Quick Start
 
