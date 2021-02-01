@@ -1,4 +1,4 @@
-# lightly.openapi_generated.swagger_client.JobsApi
+# swagger_client.JobsApi
 
 All URIs are relative to *https://api.lightly.ai*
 
@@ -17,18 +17,18 @@ Get status of a specific job
 ```python
 from __future__ import print_function
 import time
-import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.rest import ApiException
+import swagger_client
+from swagger_client.rest import ApiException
 from pprint import pprint
 
 # Configure API key authorization: ApiKeyAuth
-configuration = lightly.openapi_generated.swagger_client.Configuration()
+configuration = swagger_client.Configuration()
 configuration.api_key['token'] = 'YOUR_API_KEY'
 # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 # configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
-api_instance = lightly.openapi_generated.swagger_client.JobsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+api_instance = swagger_client.JobsApi(swagger_client.ApiClient(configuration))
 job_id = 'job_id_example' # str | id of the job
 
 try:

@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.api.auth_api import AuthApi  # noqa: E501
-from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.rest import ApiException
+import swagger_client
+from swagger_client.api.auth_api import AuthApi  # noqa: E501
+from swagger_client.rest import ApiException
 
 
 class TestAuthApi(unittest.TestCase):
@@ -31,7 +31,6 @@ class TestAuthApi(unittest.TestCase):
     def test_get_tokens(self):
         """Test case for get_tokens
 
-        Get auth token from the user  # noqa: E501
         """
         pass
 

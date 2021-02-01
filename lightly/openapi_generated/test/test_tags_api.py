@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.api.tags_api import TagsApi  # noqa: E501
-from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.rest import ApiException
+import swagger_client
+from swagger_client.api.tags_api import TagsApi  # noqa: E501
+from swagger_client.rest import ApiException
 
 
 class TestTagsApi(unittest.TestCase):
@@ -31,21 +31,24 @@ class TestTagsApi(unittest.TestCase):
     def test_create_tag_by_dataset_id(self):
         """Test case for create_tag_by_dataset_id
 
-        create new tag for dataset  # noqa: E501
+        """
+        pass
+
+    def test_get_filenames_by_tag_id(self):
+        """Test case for get_filenames_by_tag_id
+
+        """
+        pass
+
+    def test_get_tag_by_tag_id(self):
+        """Test case for get_tag_by_tag_id
+
         """
         pass
 
     def test_get_tags_by_dataset_id(self):
         """Test case for get_tags_by_dataset_id
 
-        Get all tags of a dataset  # noqa: E501
-        """
-        pass
-
-    def test_trigger_sampling_by_id(self):
-        """Test case for trigger_sampling_by_id
-
-        Trigger a sampling on a specific tag of a dataset with specific prior uploaded csv embedding  # noqa: E501
         """
         pass
 

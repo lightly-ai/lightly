@@ -1,4 +1,4 @@
-# lightly.openapi_generated.swagger_client.DatasetsApi
+# swagger_client.DatasetsApi
 
 All URIs are relative to *https://api.lightly.ai*
 
@@ -18,19 +18,19 @@ Get a specific dataset
 ```python
 from __future__ import print_function
 import time
-import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.rest import ApiException
+import swagger_client
+from swagger_client.rest import ApiException
 from pprint import pprint
 
 # Configure API key authorization: ApiKeyAuth
-configuration = lightly.openapi_generated.swagger_client.Configuration()
+configuration = swagger_client.Configuration()
 configuration.api_key['token'] = 'YOUR_API_KEY'
 # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 # configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
-api_instance = lightly.openapi_generated.swagger_client.DatasetsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
-dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+api_instance = swagger_client.DatasetsApi(swagger_client.ApiClient(configuration))
+dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
 
 try:
     api_response = api_instance.get_dataset_by_id(dataset_id)
@@ -71,18 +71,18 @@ Get all datasets for a user
 ```python
 from __future__ import print_function
 import time
-import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.rest import ApiException
+import swagger_client
+from swagger_client.rest import ApiException
 from pprint import pprint
 
 # Configure API key authorization: ApiKeyAuth
-configuration = lightly.openapi_generated.swagger_client.Configuration()
+configuration = swagger_client.Configuration()
 configuration.api_key['token'] = 'YOUR_API_KEY'
 # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 # configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
-api_instance = lightly.openapi_generated.swagger_client.DatasetsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+api_instance = swagger_client.DatasetsApi(swagger_client.ApiClient(configuration))
 
 try:
     api_response = api_instance.get_datasets()

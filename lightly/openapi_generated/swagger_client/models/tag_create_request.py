@@ -30,27 +30,31 @@ class TagCreateRequest(object):
     swagger_types = {
         'name': 'TagName',
         'prev_tag': 'TagName',
-        'list_of_sample_ids': 'list[MongoObjectID]',
+        'bit_mask_data': 'TagBitMaskData',
+        'tot_size': 'int',
         'changes': 'TagChangeData'
     }
 
     attribute_map = {
         'name': 'name',
         'prev_tag': 'prevTag',
-        'list_of_sample_ids': 'listOfSampleIds',
+        'bit_mask_data': 'bitMaskData',
+        'tot_size': 'totSize',
         'changes': 'changes'
     }
 
-    def __init__(self, name=None, prev_tag=None, list_of_sample_ids=None, changes=None):  # noqa: E501
+    def __init__(self, name=None, prev_tag=None, bit_mask_data=None, tot_size=None, changes=None):  # noqa: E501
         """TagCreateRequest - a model defined in Swagger"""  # noqa: E501
         self._name = None
         self._prev_tag = None
-        self._list_of_sample_ids = None
+        self._bit_mask_data = None
+        self._tot_size = None
         self._changes = None
         self.discriminator = None
         self.name = name
         self.prev_tag = prev_tag
-        self.list_of_sample_ids = list_of_sample_ids
+        self.bit_mask_data = bit_mask_data
+        self.tot_size = tot_size
         self.changes = changes
 
     @property
@@ -100,27 +104,50 @@ class TagCreateRequest(object):
         self._prev_tag = prev_tag
 
     @property
-    def list_of_sample_ids(self):
-        """Gets the list_of_sample_ids of this TagCreateRequest.  # noqa: E501
+    def bit_mask_data(self):
+        """Gets the bit_mask_data of this TagCreateRequest.  # noqa: E501
 
 
-        :return: The list_of_sample_ids of this TagCreateRequest.  # noqa: E501
-        :rtype: list[MongoObjectID]
+        :return: The bit_mask_data of this TagCreateRequest.  # noqa: E501
+        :rtype: TagBitMaskData
         """
-        return self._list_of_sample_ids
+        return self._bit_mask_data
 
-    @list_of_sample_ids.setter
-    def list_of_sample_ids(self, list_of_sample_ids):
-        """Sets the list_of_sample_ids of this TagCreateRequest.
+    @bit_mask_data.setter
+    def bit_mask_data(self, bit_mask_data):
+        """Sets the bit_mask_data of this TagCreateRequest.
 
 
-        :param list_of_sample_ids: The list_of_sample_ids of this TagCreateRequest.  # noqa: E501
-        :type: list[MongoObjectID]
+        :param bit_mask_data: The bit_mask_data of this TagCreateRequest.  # noqa: E501
+        :type: TagBitMaskData
         """
-        if list_of_sample_ids is None:
-            raise ValueError("Invalid value for `list_of_sample_ids`, must not be `None`")  # noqa: E501
+        if bit_mask_data is None:
+            raise ValueError("Invalid value for `bit_mask_data`, must not be `None`")  # noqa: E501
 
-        self._list_of_sample_ids = list_of_sample_ids
+        self._bit_mask_data = bit_mask_data
+
+    @property
+    def tot_size(self):
+        """Gets the tot_size of this TagCreateRequest.  # noqa: E501
+
+
+        :return: The tot_size of this TagCreateRequest.  # noqa: E501
+        :rtype: int
+        """
+        return self._tot_size
+
+    @tot_size.setter
+    def tot_size(self, tot_size):
+        """Sets the tot_size of this TagCreateRequest.
+
+
+        :param tot_size: The tot_size of this TagCreateRequest.  # noqa: E501
+        :type: int
+        """
+        if tot_size is None:
+            raise ValueError("Invalid value for `tot_size`, must not be `None`")  # noqa: E501
+
+        self._tot_size = tot_size
 
     @property
     def changes(self):
