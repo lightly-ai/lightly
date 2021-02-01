@@ -18,7 +18,11 @@ class SamplerConfig:
             name = f"{self.method}_{self.batch_size}_{self.min_distance}_{date_time}"
         self.name = name
 
-    def get_as_api_sampling_create_request(self) -> SamplingCreateRequest:
-        sampling_config = SamplingConfig(SamplingConfigStoppingCondition(self.batch_size, self.min_distance))
-        sampling_create_request = SamplingCreateRequest(name=self.name, method=self.method, config=sampling_config)
+    def get_as_api_sampling_create_request(self, preselected_tag_id: str = None,
+                                           query_tag_id: str = None) -> SamplingCreateRequest:
+        sampling_config = SamplingConfig(
+            stopping_condition=SamplingConfigStoppingCondition(self.batch_size, self.min_distance))
+        sampling_create_request = SamplingCreateRequest(name=self.name, method=self.method, config=sampling_config,
+                                                        preselected_tag_id=preselected_tag_id,
+                                                        query_tag_id=query_tag_id)
         return sampling_create_request

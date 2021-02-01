@@ -33,7 +33,7 @@ class TestAgent(unittest.TestCase):
             sample_names
         )
 
-    @unittest.skip("Part is not mocked yet, but tries to access the real server.")
+    #@unittest.skip("Part is not mocked yet, but tries to access the real server.")
     def test_Agent(self):
         self.setup()
 
