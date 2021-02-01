@@ -10,7 +10,9 @@ from lightly.active_learning.scorers.scorer import Scorer
 from lightly.api.upload import upload_csv
 from lightly.api.active_learning import upload_scores_to_api, sampling_request_to_api, get_job_status_from_api
 from lightly.api.utils import create_api_client
+from lightly.api.tags import get_tag_by_tag_id
 from lightly.openapi_generated.swagger_client import JobStatusData, JobState
+from lightly.api.bitmask import BitMask
 
 
 class ActiveLearningAgent:
@@ -27,7 +29,7 @@ class ActiveLearningAgent:
         self.current_tag = initial_tag
         self.embedding_id = embedding_id
 
-    def sample(self, sampler_config: SamplerConfig, al_scorer: Scorer = None, labelled_ids: List[int] = []):
+    def sample(self, sampler_config: SamplerConfig, al_scorer: Scorer = None, preselected_tag_id: str = None) -> List[int]:
 
         # calculate scores
         if al_scorer is not None:
@@ -44,7 +46,8 @@ class ActiveLearningAgent:
             upload_scores_to_api(self.api_client, scores)
 
         job_id = sampling_request_to_api(api_client=self.api_client, dataset_id=self.dataset_id,
-                                         embedding_id=self.embedding_id, sampler_config=sampler_config)
+                                         embedding_id=self.embedding_id, sampler_config=sampler_config,
+                                         preselected_tag_id=preselected_tag_id, query_tag_id=self.current_tag)
 
         time.sleep(2)
         print(f"jobId: {job_id}")
@@ -53,7 +56,7 @@ class ActiveLearningAgent:
             job_status_data = get_job_status_from_api(self.api_client, job_id)
             print(job_status_data)
             if job_status_data.status == JobState.FINISHED:
-                chosen_samples = job_status_data.result.data
+                self.current_tag = job_status_data.result.data
                 break
             elif job_status_data.status in [JobState.UNKNOWN, JobState.RUNNING, JobState.WAITING]:
                 pass
@@ -62,4 +65,6 @@ class ActiveLearningAgent:
 
             time.sleep(job_status_data.wait_time_till_next_poll)
 
+        new_tag_data = get_tag_by_tag_id(api_client=self.api_client, dataset_id=self.dataset_id, tag_id=self.current_tag)
+        chosen_samples = BitMask.from_bin(new_tag_data.bit_mask_data).to_indices()
         return chosen_samples
