@@ -31,6 +31,8 @@ class SamplingCreateRequest(object):
         'name': 'str',
         'method': 'SamplingMethod',
         'config': 'SamplingConfig',
+        'preselected_tag_id': 'MongoObjectID',
+        'query_tag_id': 'MongoObjectID',
         'row_count': 'float'
     }
 
@@ -38,19 +40,27 @@ class SamplingCreateRequest(object):
         'name': 'name',
         'method': 'method',
         'config': 'config',
+        'preselected_tag_id': 'preselectedTagId',
+        'query_tag_id': 'queryTagId',
         'row_count': 'rowCount'
     }
 
-    def __init__(self, name=None, method=None, config=None, row_count=None):  # noqa: E501
+    def __init__(self, name=None, method=None, config=None, preselected_tag_id=None, query_tag_id=None, row_count=None):  # noqa: E501
         """SamplingCreateRequest - a model defined in Swagger"""  # noqa: E501
         self._name = None
         self._method = None
         self._config = None
+        self._preselected_tag_id = None
+        self._query_tag_id = None
         self._row_count = None
         self.discriminator = None
         self.name = name
         self.method = method
         self.config = config
+        if preselected_tag_id is not None:
+            self.preselected_tag_id = preselected_tag_id
+        if query_tag_id is not None:
+            self.query_tag_id = query_tag_id
         if row_count is not None:
             self.row_count = row_count
 
@@ -122,6 +132,48 @@ class SamplingCreateRequest(object):
             raise ValueError("Invalid value for `config`, must not be `None`")  # noqa: E501
 
         self._config = config
+
+    @property
+    def preselected_tag_id(self):
+        """Gets the preselected_tag_id of this SamplingCreateRequest.  # noqa: E501
+
+
+        :return: The preselected_tag_id of this SamplingCreateRequest.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._preselected_tag_id
+
+    @preselected_tag_id.setter
+    def preselected_tag_id(self, preselected_tag_id):
+        """Sets the preselected_tag_id of this SamplingCreateRequest.
+
+
+        :param preselected_tag_id: The preselected_tag_id of this SamplingCreateRequest.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._preselected_tag_id = preselected_tag_id
+
+    @property
+    def query_tag_id(self):
+        """Gets the query_tag_id of this SamplingCreateRequest.  # noqa: E501
+
+
+        :return: The query_tag_id of this SamplingCreateRequest.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._query_tag_id
+
+    @query_tag_id.setter
+    def query_tag_id(self, query_tag_id):
+        """Sets the query_tag_id of this SamplingCreateRequest.
+
+
+        :param query_tag_id: The query_tag_id of this SamplingCreateRequest.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._query_tag_id = query_tag_id
 
     @property
     def row_count(self):

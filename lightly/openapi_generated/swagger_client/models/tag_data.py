@@ -32,28 +32,31 @@ class TagData(object):
         'dataset_id': 'MongoObjectID',
         'prev_tag': 'TagName',
         'name': 'TagName',
-        'list_of_sample_ids': 'list[MongoObjectID]',
+        'bit_mask_data': 'TagBitMaskData',
+        'tot_size': 'int',
         'created_at': 'Timestamp',
         'changes': 'TagChangeData'
     }
 
     attribute_map = {
-        'id': '_id',
+        'id': 'id',
         'dataset_id': 'datasetId',
         'prev_tag': 'prevTag',
         'name': 'name',
-        'list_of_sample_ids': 'listOfSampleIds',
+        'bit_mask_data': 'bitMaskData',
+        'tot_size': 'totSize',
         'created_at': 'createdAt',
         'changes': 'changes'
     }
 
-    def __init__(self, id=None, dataset_id=None, prev_tag=None, name=None, list_of_sample_ids=None, created_at=None, changes=None):  # noqa: E501
+    def __init__(self, id=None, dataset_id=None, prev_tag=None, name=None, bit_mask_data=None, tot_size=None, created_at=None, changes=None):  # noqa: E501
         """TagData - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._dataset_id = None
         self._prev_tag = None
         self._name = None
-        self._list_of_sample_ids = None
+        self._bit_mask_data = None
+        self._tot_size = None
         self._created_at = None
         self._changes = None
         self.discriminator = None
@@ -61,7 +64,8 @@ class TagData(object):
         self.dataset_id = dataset_id
         self.prev_tag = prev_tag
         self.name = name
-        self.list_of_sample_ids = list_of_sample_ids
+        self.bit_mask_data = bit_mask_data
+        self.tot_size = tot_size
         self.created_at = created_at
         self.changes = changes
 
@@ -158,27 +162,50 @@ class TagData(object):
         self._name = name
 
     @property
-    def list_of_sample_ids(self):
-        """Gets the list_of_sample_ids of this TagData.  # noqa: E501
+    def bit_mask_data(self):
+        """Gets the bit_mask_data of this TagData.  # noqa: E501
 
 
-        :return: The list_of_sample_ids of this TagData.  # noqa: E501
-        :rtype: list[MongoObjectID]
+        :return: The bit_mask_data of this TagData.  # noqa: E501
+        :rtype: TagBitMaskData
         """
-        return self._list_of_sample_ids
+        return self._bit_mask_data
 
-    @list_of_sample_ids.setter
-    def list_of_sample_ids(self, list_of_sample_ids):
-        """Sets the list_of_sample_ids of this TagData.
+    @bit_mask_data.setter
+    def bit_mask_data(self, bit_mask_data):
+        """Sets the bit_mask_data of this TagData.
 
 
-        :param list_of_sample_ids: The list_of_sample_ids of this TagData.  # noqa: E501
-        :type: list[MongoObjectID]
+        :param bit_mask_data: The bit_mask_data of this TagData.  # noqa: E501
+        :type: TagBitMaskData
         """
-        if list_of_sample_ids is None:
-            raise ValueError("Invalid value for `list_of_sample_ids`, must not be `None`")  # noqa: E501
+        if bit_mask_data is None:
+            raise ValueError("Invalid value for `bit_mask_data`, must not be `None`")  # noqa: E501
 
-        self._list_of_sample_ids = list_of_sample_ids
+        self._bit_mask_data = bit_mask_data
+
+    @property
+    def tot_size(self):
+        """Gets the tot_size of this TagData.  # noqa: E501
+
+
+        :return: The tot_size of this TagData.  # noqa: E501
+        :rtype: int
+        """
+        return self._tot_size
+
+    @tot_size.setter
+    def tot_size(self, tot_size):
+        """Sets the tot_size of this TagData.
+
+
+        :param tot_size: The tot_size of this TagData.  # noqa: E501
+        :type: int
+        """
+        if tot_size is None:
+            raise ValueError("Invalid value for `tot_size`, must not be `None`")  # noqa: E501
+
+        self._tot_size = tot_size
 
     @property
     def created_at(self):

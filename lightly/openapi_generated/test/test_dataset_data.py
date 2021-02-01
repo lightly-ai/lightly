@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData  # noqa: E501
-from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.rest import ApiException
+import swagger_client
+from swagger_client.models.dataset_data import DatasetData  # noqa: E501
+from swagger_client.rest import ApiException
 
 
 class TestDatasetData(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestDatasetData(unittest.TestCase):
     def testDatasetData(self):
         """Test DatasetData"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.models.dataset_data.DatasetData()  # noqa: E501
+        # model = swagger_client.models.dataset_data.DatasetData()  # noqa: E501
         pass
 
 

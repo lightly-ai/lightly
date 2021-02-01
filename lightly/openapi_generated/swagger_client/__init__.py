@@ -36,6 +36,7 @@ from lightly.openapi_generated.swagger_client.models.api_error_response import A
 from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData
 from lightly.openapi_generated.swagger_client.models.body import Body
 from lightly.openapi_generated.swagger_client.models.body1 import Body1
+from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.embedding_data import EmbeddingData
@@ -54,9 +55,11 @@ from lightly.openapi_generated.swagger_client.models.sampling_config import Samp
 from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import SamplingConfigStoppingCondition
 from lightly.openapi_generated.swagger_client.models.sampling_create_request import SamplingCreateRequest
 from lightly.openapi_generated.swagger_client.models.sampling_method import SamplingMethod
+from lightly.openapi_generated.swagger_client.models.tag_bit_mask_data import TagBitMaskData
 from lightly.openapi_generated.swagger_client.models.tag_change_data import TagChangeData
 from lightly.openapi_generated.swagger_client.models.tag_create_request import TagCreateRequest
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
+from lightly.openapi_generated.swagger_client.models.tag_filenames_data import TagFilenamesData
 from lightly.openapi_generated.swagger_client.models.tag_name import TagName
 from lightly.openapi_generated.swagger_client.models.timestamp import Timestamp
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData

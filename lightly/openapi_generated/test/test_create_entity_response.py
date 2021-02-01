@@ -15,12 +15,12 @@ from __future__ import absolute_import
 import unittest
 
 import swagger_client
-from swagger_client.models.tag_change_data import TagChangeData  # noqa: E501
+from swagger_client.models.create_entity_response import CreateEntityResponse  # noqa: E501
 from swagger_client.rest import ApiException
 
 
-class TestTagChangeData(unittest.TestCase):
-    """TagChangeData unit test stubs"""
+class TestCreateEntityResponse(unittest.TestCase):
+    """CreateEntityResponse unit test stubs"""
 
     def setUp(self):
         pass
@@ -28,10 +28,10 @@ class TestTagChangeData(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def testTagChangeData(self):
-        """Test TagChangeData"""
+    def testCreateEntityResponse(self):
+        """Test CreateEntityResponse"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = swagger_client.models.tag_change_data.TagChangeData()  # noqa: E501
+        # model = swagger_client.models.create_entity_response.CreateEntityResponse()  # noqa: E501
         pass
 
 
