@@ -44,24 +44,25 @@ ensure that we only keep the unique samples.
         -v /datasets/docker_out_cityscapes:/home/output_dir \
         -v /datasets/docker_out_cityscapes:/home/shared_dir \
         -e --ipc="host" --network="host" lightly/sampling:latest \
-        token=dd1f35b6b9052bf5b1b110b6 lightly.loader.num_workers=8 \
+        token=MYAWESOMETOKEN lightly.loader.num_workers=8 \
         stopping_condition.min_distance=0.2 remove_exact_duplicates=True \
         enable_corruptness_check=False enable_training=True \
         lightly.trainer.max_epochs=20 lightly.optimizer.lr=1.0 \
         lightly.trainer.precision=32 lightly.loader.batch_size=256 \
-        lightly.collate.input_size=64 datapool.name=autonomous_driving_igor
+        lightly.collate.input_size=64 datapool.name=autonomous_driving
 
 The report for running the command can be found here:
-:download:`cityscapes.pdf <../resources/datapool_example_cityscapes.pdf>` 
+:download:`Cityscapes.pdf <../resources/datapool_example_cityscapes.pdf>` 
 
-Since the cityscapes dataset has subfolders for the different cities Lightly
+Since the Cityscapes dataset has subfolders for the different cities Lightly
 Docker uses them as weak labels for the embedding plot as shown below.
 
 .. figure:: ../resources/cityscapes_scatter_umap_k_15_no_overlay.png
     :align: center
     :alt: some alt text
 
-    some description
+    Scatterplot of Cityscapes. Each color represents one of the 18 
+    subfolders (cities) of the Cityscapes dataset.
 
 
 Now we can use the datapool and pre-trained model to select the interesting
@@ -74,12 +75,34 @@ frames from Kitti and add them to Cityscapes:
         -v /datasets/docker_out_cityscapes:/home/output_dir \
         -v /datasets/docker_out_cityscapes:/home/shared_dir \
         -e --ipc="host" --network="host" lightly/sampling:latest \
-        token=dd1f35b6b9052bf5b1b110b6 lightly.loader.num_workers=8 \
+        token=MYAWESOMETOKEN lightly.loader.num_workers=8 \
         stopping_condition.min_distance=0.2 remove_exact_duplicates=True \
         enable_corruptness_check=False enable_training=False \
         lightly.trainer.max_epochs=20 lightly.optimizer.lr=1.0 \
         lightly.trainer.precision=32 lightly.loader.batch_size=256 \
-        lightly.collate.input_size=64 datapool.name=autonomous_driving_igor
+        lightly.collate.input_size=64 datapool.name=autonomous_driving
+
+
+We will end up with new plots in the report due to the datapool.
+
+.. figure:: ../resources/datapool_umap_scatter_before_threshold_0.2.png
+    :align: center
+    :alt: An example of the newly selected examples when we use 
+          stopping_condition.min_distance=0.2
+
+    An example of the newly selected examples when we use 
+    stopping_condition.min_distance=0.2.
+
+.. figure:: ../resources/datapool_umap_scatter_before_threshold_0.05.png
+    :align: center
+    :alt: An example of the newly selected examples when we use 
+          stopping_condition.min_distance=0.05
+
+    An example of the newly selected examples when we use 
+    stopping_condition.min_distance=0.05.
+
 
 The report for running the command can be found here:
-:download:`kitti.pdf <resources/datapool_example_kitti.pdf>` 
+:download:`kitti_with_min_distance=0.2.pdf <resources/datapool_example_kitti_threshold_0.2.pdf>` 
+And the report for stopping condition mininum distance of 0.05:
+:download:`kitti_with_min_distance=0.05.pdf <resources/datapool_example_kitti_threshold_0.05.pdf>` 
