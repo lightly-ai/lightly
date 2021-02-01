@@ -1,4 +1,4 @@
-# InlineResponse2001
+# TagBitMaskData
 
 ## Properties
 Name | Type | Description | Notes

@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi  # noqa: E501
-from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.rest import ApiException
+import swagger_client
+from swagger_client.api.samples_api import SamplesApi  # noqa: E501
+from swagger_client.rest import ApiException
 
 
 class TestSamplesApi(unittest.TestCase):
@@ -28,45 +28,33 @@ class TestSamplesApi(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_get_embeddings_by_sample_id(self):
-        """Test case for get_embeddings_by_sample_id
-
-        Get all embeddings of a datasets sample  # noqa: E501
-        """
-        pass
-
     def test_get_sample_by_id(self):
         """Test case for get_sample_by_id
 
-        Get a specific sample of a dataset  # noqa: E501
         """
         pass
 
     def test_get_sample_image_read_url_by_id(self):
         """Test case for get_sample_image_read_url_by_id
 
-        Get the image path of a specific sample of a dataset  # noqa: E501
         """
         pass
 
     def test_get_sample_image_write_url_by_id(self):
         """Test case for get_sample_image_write_url_by_id
 
-        Get the signed url to upload an image to for a specific sample of a dataset  # noqa: E501
         """
         pass
 
     def test_get_samples_by_dataset_id(self):
         """Test case for get_samples_by_dataset_id
 
-        Get all samples of a dataset  # noqa: E501
         """
         pass
 
     def test_update_sample_by_id(self):
         """Test case for update_sample_by_id
 
-        update a specific sample of a dataset  # noqa: E501
         """
         pass
 

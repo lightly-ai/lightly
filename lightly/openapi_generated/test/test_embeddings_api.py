@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi  # noqa: E501
-from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.rest import ApiException
+import swagger_client
+from swagger_client.api.embeddings_api import EmbeddingsApi  # noqa: E501
+from swagger_client.rest import ApiException
 
 
 class TestEmbeddingsApi(unittest.TestCase):
@@ -31,14 +31,12 @@ class TestEmbeddingsApi(unittest.TestCase):
     def test_get_embeddings_by_sample_id(self):
         """Test case for get_embeddings_by_sample_id
 
-        Get all embeddings of a datasets sample  # noqa: E501
         """
         pass
 
     def test_get_embeddings_csv_write_url_by_id(self):
         """Test case for get_embeddings_csv_write_url_by_id
 
-        Get the signed url to upload an CSVembedding to for a specific dataset  # noqa: E501
         """
         pass
 

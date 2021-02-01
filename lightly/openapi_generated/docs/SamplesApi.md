@@ -1,4 +1,4 @@
-# lightly.openapi_generated.swagger_client.SamplesApi
+# swagger_client.SamplesApi
 
 All URIs are relative to *https://api.lightly.ai*
 
@@ -21,20 +21,20 @@ Get a specific sample of a dataset
 ```python
 from __future__ import print_function
 import time
-import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.rest import ApiException
+import swagger_client
+from swagger_client.rest import ApiException
 from pprint import pprint
 
 # Configure API key authorization: ApiKeyAuth
-configuration = lightly.openapi_generated.swagger_client.Configuration()
+configuration = swagger_client.Configuration()
 configuration.api_key['token'] = 'YOUR_API_KEY'
 # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 # configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
-api_instance = lightly.openapi_generated.swagger_client.SamplesApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
-dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-sample_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
+api_instance = swagger_client.SamplesApi(swagger_client.ApiClient(configuration))
+dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+sample_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
 
 try:
     api_response = api_instance.get_sample_by_id(dataset_id, sample_id)
@@ -76,20 +76,20 @@ Get the image path of a specific sample of a dataset
 ```python
 from __future__ import print_function
 import time
-import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.rest import ApiException
+import swagger_client
+from swagger_client.rest import ApiException
 from pprint import pprint
 
 # Configure API key authorization: ApiKeyAuth
-configuration = lightly.openapi_generated.swagger_client.Configuration()
+configuration = swagger_client.Configuration()
 configuration.api_key['token'] = 'YOUR_API_KEY'
 # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 # configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
-api_instance = lightly.openapi_generated.swagger_client.SamplesApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
-dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-sample_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
+api_instance = swagger_client.SamplesApi(swagger_client.ApiClient(configuration))
+dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+sample_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
 type = 'type_example' # str | if we want to get the full image or just the thumbnail (optional)
 
 try:
@@ -133,20 +133,20 @@ Get the signed url to upload an image to for a specific sample of a dataset
 ```python
 from __future__ import print_function
 import time
-import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.rest import ApiException
+import swagger_client
+from swagger_client.rest import ApiException
 from pprint import pprint
 
 # Configure API key authorization: ApiKeyAuth
-configuration = lightly.openapi_generated.swagger_client.Configuration()
+configuration = swagger_client.Configuration()
 configuration.api_key['token'] = 'YOUR_API_KEY'
 # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 # configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
-api_instance = lightly.openapi_generated.swagger_client.SamplesApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
-dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-sample_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
+api_instance = swagger_client.SamplesApi(swagger_client.ApiClient(configuration))
+dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+sample_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
 file_name = 'file_name_example' # str | the filename to create a signed url for
 
 try:
@@ -190,19 +190,19 @@ Get all samples of a dataset
 ```python
 from __future__ import print_function
 import time
-import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.rest import ApiException
+import swagger_client
+from swagger_client.rest import ApiException
 from pprint import pprint
 
 # Configure API key authorization: ApiKeyAuth
-configuration = lightly.openapi_generated.swagger_client.Configuration()
+configuration = swagger_client.Configuration()
 configuration.api_key['token'] = 'YOUR_API_KEY'
 # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 # configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
-api_instance = lightly.openapi_generated.swagger_client.SamplesApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
-dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+api_instance = swagger_client.SamplesApi(swagger_client.ApiClient(configuration))
+dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
 mode = 'mode_example' # str | if we want everything (full) or just the ObjectIds (optional)
 filename = 'filename_example' # str | filter the samples by filename (optional)
 
@@ -247,21 +247,21 @@ update a specific sample of a dataset
 ```python
 from __future__ import print_function
 import time
-import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.rest import ApiException
+import swagger_client
+from swagger_client.rest import ApiException
 from pprint import pprint
 
 # Configure API key authorization: ApiKeyAuth
-configuration = lightly.openapi_generated.swagger_client.Configuration()
+configuration = swagger_client.Configuration()
 configuration.api_key['token'] = 'YOUR_API_KEY'
 # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 # configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
-api_instance = lightly.openapi_generated.swagger_client.SamplesApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
-body = lightly.openapi_generated.swagger_client.Body() # Body | the updated sample to set
-dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-sample_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
+api_instance = swagger_client.SamplesApi(swagger_client.ApiClient(configuration))
+body = swagger_client.Body() # Body | the updated sample to set
+dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+sample_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the sample
 
 try:
     api_response = api_instance.update_sample_by_id(body, dataset_id, sample_id)

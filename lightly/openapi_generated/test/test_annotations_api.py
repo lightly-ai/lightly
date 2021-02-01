@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.api.annotations_api import AnnotationsApi  # noqa: E501
-from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.rest import ApiException
+import swagger_client
+from swagger_client.api.annotations_api import AnnotationsApi  # noqa: E501
+from swagger_client.rest import ApiException
 
 
 class TestAnnotationsApi(unittest.TestCase):
@@ -31,14 +31,12 @@ class TestAnnotationsApi(unittest.TestCase):
     def test_get_annotation_by_id(self):
         """Test case for get_annotation_by_id
 
-        Get a Annotation by its ID  # noqa: E501
         """
         pass
 
     def test_get_annotations_by_dataset_id(self):
         """Test case for get_annotations_by_dataset_id
 
-        Get all annotations of a dataset  # noqa: E501
         """
         pass
 

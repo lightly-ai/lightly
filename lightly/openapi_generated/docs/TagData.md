@@ -7,7 +7,8 @@ Name | Type | Description | Notes
 **dataset_id** | [**MongoObjectID**](MongoObjectID.md) |  | 
 **prev_tag** | [**TagName**](TagName.md) |  | 
 **name** | [**TagName**](TagName.md) |  | 
-**list_of_sample_ids** | [**list[MongoObjectID]**](MongoObjectID.md) |  | 
+**bit_mask_data** | [**TagBitMaskData**](TagBitMaskData.md) |  | 
+**tot_size** | **int** |  | 
 **created_at** | [**Timestamp**](Timestamp.md) |  | 
 **changes** | [**TagChangeData**](TagChangeData.md) |  | 
 
