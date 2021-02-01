@@ -68,6 +68,21 @@ try:
 except ApiException as e:
     print("Exception when calling AnnotationsApi->get_annotation_by_id: %s\n" % e)
 
+# Configure API key authorization: ApiKeyAuth
+configuration = swagger_client.Configuration()
+configuration.api_key['token'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['token'] = 'Bearer'
+
+# create an instance of the API class
+api_instance = swagger_client.AnnotationsApi(swagger_client.ApiClient(configuration))
+dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+
+try:
+    api_response = api_instance.get_annotations_by_dataset_id(dataset_id)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling AnnotationsApi->get_annotations_by_dataset_id: %s\n" % e)
 ```
 
 ## Documentation for API Endpoints
@@ -93,12 +108,10 @@ Class | Method | HTTP request | Description
 *SamplesApi* | [**get_samples_by_dataset_id**](docs/SamplesApi.md#get_samples_by_dataset_id) | **GET** /users/datasets/{datasetId}/samples | 
 *SamplesApi* | [**update_sample_by_id**](docs/SamplesApi.md#update_sample_by_id) | **PUT** /users/datasets/{datasetId}/samples/{sampleId} | 
 *SamplingsApi* | [**trigger_sampling_by_id**](docs/SamplingsApi.md#trigger_sampling_by_id) | **POST** /v1/datasets/{datasetId}/embeddings/{embeddingId}/sampling | 
-*TagsApi* | [**create_initial_tag_by_dataset_id**](docs/TagsApi.md#create_initial_tag_by_dataset_id) | **POST** /v1/datasets/{datasetId}/tags/initial | 
 *TagsApi* | [**create_tag_by_dataset_id**](docs/TagsApi.md#create_tag_by_dataset_id) | **POST** /v1/datasets/{datasetId}/tags | 
 *TagsApi* | [**get_filenames_by_tag_id**](docs/TagsApi.md#get_filenames_by_tag_id) | **GET** /v1/datasets/{datasetId}/tags/{tagId}/filenames | 
 *TagsApi* | [**get_tag_by_tag_id**](docs/TagsApi.md#get_tag_by_tag_id) | **GET** /v1/datasets/{datasetId}/tags/{tagId} | 
 *TagsApi* | [**get_tags_by_dataset_id**](docs/TagsApi.md#get_tags_by_dataset_id) | **GET** /v1/datasets/{datasetId}/tags | 
-
 
 ## Documentation For Models
 
@@ -110,7 +123,7 @@ Class | Method | HTTP request | Description
  - [ApiErrorResponse](docs/ApiErrorResponse.md)
  - [AsyncTaskData](docs/AsyncTaskData.md)
  - [Body](docs/Body.md)
- - [CreateCFBucketActivityRequest](docs/CreateCFBucketActivityRequest.md)
+ - [Body1](docs/Body1.md)
  - [CreateEntityResponse](docs/CreateEntityResponse.md)
  - [DatasetData](docs/DatasetData.md)
  - [DatasetEmbeddingData](docs/DatasetEmbeddingData.md)

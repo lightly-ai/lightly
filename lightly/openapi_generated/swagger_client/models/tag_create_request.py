@@ -34,7 +34,7 @@ class TagCreateRequest(object):
     """
     swagger_types = {
         'name': 'TagName',
-        'prev_tag_id': 'MongoObjectID',
+        'prev_tag': 'TagName',
         'bit_mask_data': 'TagBitMaskData',
         'tot_size': 'int',
         'changes': 'TagChangeData'
@@ -42,31 +42,30 @@ class TagCreateRequest(object):
 
     attribute_map = {
         'name': 'name',
-        'prev_tag_id': 'prevTagId',
+        'prev_tag': 'prevTag',
         'bit_mask_data': 'bitMaskData',
         'tot_size': 'totSize',
         'changes': 'changes'
     }
 
-    def __init__(self, name=None, prev_tag_id=None, bit_mask_data=None, tot_size=None, changes=None, _configuration=None):  # noqa: E501
+    def __init__(self, name=None, prev_tag=None, bit_mask_data=None, tot_size=None, changes=None):  # noqa: E501
         """TagCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._name = None
-        self._prev_tag_id = None
+        self._prev_tag = None
         self._bit_mask_data = None
         self._tot_size = None
         self._changes = None
         self.discriminator = None
 
         self.name = name
-        self.prev_tag_id = prev_tag_id
+        self.prev_tag = prev_tag
         self.bit_mask_data = bit_mask_data
         self.tot_size = tot_size
-        if changes is not None:
-            self.changes = changes
+        self.changes = changes
 
     @property
     def name(self):
@@ -138,6 +137,29 @@ class TagCreateRequest(object):
         self._bit_mask_data = bit_mask_data
 
     @property
+    def bit_mask_data(self):
+        """Gets the bit_mask_data of this TagCreateRequest.  # noqa: E501
+
+
+        :return: The bit_mask_data of this TagCreateRequest.  # noqa: E501
+        :rtype: TagBitMaskData
+        """
+        return self._bit_mask_data
+
+    @bit_mask_data.setter
+    def bit_mask_data(self, bit_mask_data):
+        """Sets the bit_mask_data of this TagCreateRequest.
+
+
+        :param bit_mask_data: The bit_mask_data of this TagCreateRequest.  # noqa: E501
+        :type: TagBitMaskData
+        """
+        if bit_mask_data is None:
+            raise ValueError("Invalid value for `bit_mask_data`, must not be `None`")  # noqa: E501
+
+        self._bit_mask_data = bit_mask_data
+
+    @property
     def tot_size(self):
         """Gets the tot_size of this TagCreateRequest.  # noqa: E501
 
@@ -155,7 +177,7 @@ class TagCreateRequest(object):
         :param tot_size: The tot_size of this TagCreateRequest.  # noqa: E501
         :type: int
         """
-        if self._configuration.client_side_validation and tot_size is None:
+        if tot_size is None:
             raise ValueError("Invalid value for `tot_size`, must not be `None`")  # noqa: E501
 
         self._tot_size = tot_size

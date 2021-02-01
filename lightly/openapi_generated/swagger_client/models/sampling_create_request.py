@@ -50,7 +50,7 @@ class SamplingCreateRequest(object):
         'row_count': 'rowCount'
     }
 
-    def __init__(self, new_tag_name=None, method=None, config=None, preselected_tag_id=None, query_tag_id=None, row_count=None, _configuration=None):  # noqa: E501
+    def __init__(self, name=None, method=None, config=None, preselected_tag_id=None, query_tag_id=None, row_count=None):  # noqa: E501
         """SamplingCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()

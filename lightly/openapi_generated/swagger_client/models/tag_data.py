@@ -54,7 +54,7 @@ class TagData(object):
         'changes': 'changes'
     }
 
-    def __init__(self, id=None, dataset_id=None, prev_tag_id=None, name=None, bit_mask_data=None, tot_size=None, created_at=None, changes=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, dataset_id=None, prev_tag=None, name=None, bit_mask_data=None, tot_size=None, created_at=None, changes=None):  # noqa: E501
         """TagData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -190,7 +190,7 @@ class TagData(object):
         :param bit_mask_data: The bit_mask_data of this TagData.  # noqa: E501
         :type: TagBitMaskData
         """
-        if self._configuration.client_side_validation and bit_mask_data is None:
+        if bit_mask_data is None:
             raise ValueError("Invalid value for `bit_mask_data`, must not be `None`")  # noqa: E501
 
         self._bit_mask_data = bit_mask_data
@@ -213,7 +213,7 @@ class TagData(object):
         :param tot_size: The tot_size of this TagData.  # noqa: E501
         :type: int
         """
-        if self._configuration.client_side_validation and tot_size is None:
+        if tot_size is None:
             raise ValueError("Invalid value for `tot_size`, must not be `None`")  # noqa: E501
 
         self._tot_size = tot_size
