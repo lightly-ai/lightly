@@ -33,7 +33,7 @@ class TestAgent(unittest.TestCase):
             sample_names
         )
 
-    #@unittest.skip("Part is not mocked yet, but tries to access the real server.")
+    @unittest.skip("Part is not mocked yet, but tries to access the real server.")
     def test_Agent(self):
         self.setup()
 
@@ -51,11 +51,9 @@ class TestAgent(unittest.TestCase):
         predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
         scorer = classification.ScorerClassification(model_output=predictions_normalized)
 
-        labelled_ids = list(range(no_labelled_samples))
-
         batch_size = 64
         sampler_config = SamplerConfig(method=SamplingMethod.RANDOM, batch_size=batch_size, name='test_al_agent')
 
-        chosen_samples = agent_.sample(sampler_config=sampler_config, al_scorer=scorer, labelled_ids=labelled_ids)
+        chosen_samples = agent_.sample(sampler_config=sampler_config, al_scorer=scorer)
 
         assert len(chosen_samples) == batch_size
