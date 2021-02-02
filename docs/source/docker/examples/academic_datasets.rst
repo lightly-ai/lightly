@@ -83,7 +83,11 @@ frames from Kitti and add them to Cityscapes:
         lightly.collate.input_size=64 datapool.name=autonomous_driving
 
 
-We will end up with new plots in the report due to the datapool.
+We will end up with new plots in the report due to the datapool. The plots show
+the embeddings and highlight with blue color the samples which have been added
+from the new dataset. In our experiment, we see that Lighlty Docker added several 
+new samples outside of the previous embedding distribution. This is great, since it
+shows that Cityscapes and Kitti have different data and we can combine the two datasets.
 
 .. figure:: ../resources/datapool_umap_scatter_before_threshold_0.2.png
     :align: center
@@ -91,7 +95,8 @@ We will end up with new plots in the report due to the datapool.
           stopping_condition.min_distance=0.2
 
     An example of the newly selected examples when we use 
-    stopping_condition.min_distance=0.2.
+    stopping_condition.min_distance=0.2. 7089 samples from Kitti have been added
+    to our existing datapool.
 
 .. figure:: ../resources/datapool_umap_scatter_before_threshold_0.05.png
     :align: center
@@ -99,10 +104,12 @@ We will end up with new plots in the report due to the datapool.
           stopping_condition.min_distance=0.05
 
     An example of the newly selected examples when we use 
-    stopping_condition.min_distance=0.05.
+    stopping_condition.min_distance=0.05. 3598 samples from Kitti have been added
+    to our existing datapool.
 
 
 The report for running the command can be found here:
-:download:`kitti_with_min_distance=0.2.pdf <resources/datapool_example_kitti_threshold_0.2.pdf>` 
+:download:`kitti_with_min_distance=0.2.pdf <../resources/datapool_example_kitti_threshold_0.2.pdf>` 
+
 And the report for stopping condition mininum distance of 0.05:
-:download:`kitti_with_min_distance=0.05.pdf <resources/datapool_example_kitti_threshold_0.05.pdf>` 
+:download:`kitti_with_min_distance=0.05.pdf <../resources/datapool_example_kitti_threshold_0.05.pdf>` 
