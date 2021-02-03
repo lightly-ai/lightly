@@ -38,9 +38,13 @@ class MockedJobsApi(JobsApi):
     def get_job_status_by_id(self, job_id, **kwargs):
         assert isinstance(job_id, str)
         self.no_calls += 1
-        status = JobState.FINISHED if self.no_calls > 3 else JobState.RUNNING
-        result = JobStatusDataResult(type=JobResultType.SAMPLING, data="tag_id_xyz")
-        response = JobStatusData(id="id_", status=status, wait_time_till_next_poll=0.5, created_at=1234, result=result)
+        if self.no_calls > 3:
+            result = JobStatusDataResult(type=JobResultType.SAMPLING, data="tag_id_xyz")
+            response = JobStatusData(id="id_", status=JobState.FINISHED,
+                                     created_at=1234, finished_at=1357, result=result)
+        else:
+            response = JobStatusData(id="id_", status=JobState.RUNNING, wait_time_till_next_poll=0.5,
+                                     created_at=1234, result=None)
         return response
 
 
