@@ -8,7 +8,7 @@ import responses
 import pytest
 
 
-from lightly.api.active_learning import sampling_request_to_api
+#from lightly.api.active_learning import sampling_request_to_api
 from lightly.openapi_generated.swagger_client import SamplingMethod
 
 
@@ -28,6 +28,7 @@ class TestPostSampling(unittest.TestCase):
             return (500, [], json.dumps({}))
 
     @responses.activate
+    @unittest.skip("This was using a deprecated function, now we trigger a sampling using the generated API")
     def test_put_all_success(self):
         '''Make sure everything works in no-error scenario.
 
