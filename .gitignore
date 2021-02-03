@@ -7,6 +7,8 @@ docs/source/tutorials/package/*
 docs/source/tutorials/platform/*
 docs/source/tutorials_source/platform/data
 docs/source/tutorials_source/platform/pizzas
+docs/source/docker/resources
+docs/source/docker/__MACOSX
 !docs/source/tutorials/package.rst
 !docs/source/tutorials/platform.rst
 !docs/source/tutorials/package/structure_your_input.rst
