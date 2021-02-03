@@ -56,6 +56,9 @@ def get(dataset_id: str,
         'token': token
     }
 
+    # fix url, TODO: fix api instead
+    dst_url += '/'
+
     response = get_request(dst_url, params=payload)
     return response.json()
 
