@@ -79,8 +79,7 @@ def _upload_single_batch(dataset_id,
     routes.users.datasets.embeddings.post(dataset_id, token, batch_2d)
 
 
-def upload_embeddings_from_csv(api_client: ApiClient,
-                               path_to_embeddings: str,
+def upload_embeddings_from_csv(path_to_embeddings: str,
                                dataset_id: str,
                                token: str,
                                max_upload: int = 32,
@@ -117,8 +116,6 @@ def upload_embeddings_from_csv(api_client: ApiClient,
     data['token'] = token
     data['datasetId'] = dataset_id
 
-    tag_api = TagsApi(api_client=api_client)
-    #tags = tag_api.get_tags_by_dataset_id(dataset_id=dataset_id)
     tags = routes.users.datasets.tags.get(dataset_id, token)
     if len(tags) == 0:
         msg = 'Forbidden upload to dataset with no existing tags.'
