@@ -4,12 +4,13 @@
 # All Rights Reserved
 
 import os
+from typing import *
 from PIL import Image
 import tqdm.contrib.concurrent as concurrent
 from lightly.data import LightlyDataset
 
 
-def check_images(data_dir: str):
+def check_images(data_dir: str) -> Tuple[List[str], List[str]]:
     '''Iterate through a directory of images and find corrupt images
 
     Args:
@@ -18,7 +19,7 @@ def check_images(data_dir: str):
     Returns:
         (healthy_images, corrupt_images)
     '''
-    dataset = LightlyDataset(from_folder=data_dir)
+    dataset = LightlyDataset(input_dir=data_dir)
     filenames = dataset.get_filenames()
 
     def _is_corrupt(filename):

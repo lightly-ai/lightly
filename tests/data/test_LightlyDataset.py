@@ -9,6 +9,7 @@ import numpy as np
 from lightly.data import LightlyDataset
 import pytest
 
+from lightly.data._utils import check_images
 
 try:
     from lightly.data._video import VideoDataset
@@ -135,6 +136,26 @@ class TestLightlyDataset(unittest.TestCase):
         for i in range(n_tot):
             sample, target, fname = dataset[i]
 
+    def test_check_images(self):
+
+        # create a dataset
+        n_tot = 100
+        dataset = torchvision.datasets.FakeData(size=n_tot,
+                                                image_size=(3, 32, 32))
+
+        tmp_dir = tempfile.mkdtemp()
+        sample_names = [f'img_{i}.jpg' for i in range(n_tot)]
+        for sample_idx in range(n_tot):
+
+            data = dataset[sample_idx]
+            path = os.path.join(tmp_dir, sample_names[sample_idx])
+            data[0].save(path)
+
+        # tests
+        healthy_images, corrupt_images = check_images(tmp_dir)
+        assert(len(healthy_images) == n_tot)
+        assert(len(corrupt_images) == 0)
+
     def test_not_existing_folder_dataset(self):
         with self.assertRaises(ValueError):
             LightlyDataset(
@@ -147,6 +168,7 @@ class TestLightlyDataset(unittest.TestCase):
         self.assertEqual(len(_dataset), len(dataset))
         self.assertEqual(len(dataset.get_filenames()), len(dataset))
 
+    @unittest.skip("Does not run in nektos/akt")
     def test_video_dataset(self):
 
         if not VIDEO_DATASET_AVAILABLE:
