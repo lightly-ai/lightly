@@ -31,6 +31,9 @@ The current benchmark contains the followin models:
    "MoCo", 200, 512, 0.85, "7.4 GBytes"
    "SimCLR", 200, 512, 0.83, "7.8 GBytes"
    "SimSiam", 200, 512, 0.81, "7.0 GBytes"
+   "MoCo", 800, 128, 0.89, "2.1 GBytes"
+   "SimCLR", 800, 128, 0.87, "1.9 GBytes"
+   "SimSiam", 800, 128, 0.80, "2.0 GBytes"
    "MoCo", 800, 512, 0.90, "7.2 GBytes"
    "SimCLR", 800, 512, 0.89, "7.7 GBytes"
    "SimSiam", 800, 512, 0.91, "6.9 GBytes"
@@ -61,7 +64,7 @@ Self-Supervised models benefit from long training times.
 
 .. figure:: images/bench_knn_accuracy_cifar10_800epochs.png
     :align: center
-    :alt: kNN accuracy after 800 epochs 
+    :alt: kNN accuracy after 800 epochs and batch size 512
 
     kNN accuracy after 800 epochs. Red: SimSiam, Orange: MoCo, Blue: SimCLR 
 
@@ -72,7 +75,17 @@ warm up but then catches up quickly to the others.
 
 .. figure:: images/bench_train_loss_cifra10_800_epochs.png
     :align: center
-    :alt: Training loss for 800 epochs
+    :alt: Training loss for 800 epochs and batch size 512
 
     Training loss for 800 epochs. Red: SimSiam, Orange: MoCo, Blue: SimCLR
-    
+
+
+Furthermore, we also add results for the same 800 epochs benchmark of the models
+but with a batch size of 128.
+
+.. figure:: images/bench_acc_loss_combined_128_800.png
+    :align: center
+    :alt: kNN test accuracy and train loss for 800 epochs and batch size 128
+
+    kNN test accuracy and train loss for 800 epochs and batch size 128
+    Blue: MoCo Red: SimCLR, Light Blue: SimSiam
