@@ -139,22 +139,27 @@ class TestLightlyDataset(unittest.TestCase):
     def test_check_images(self):
 
         # create a dataset
-        n_tot = 100
-        dataset = torchvision.datasets.FakeData(size=n_tot,
-                                                image_size=(3, 32, 32))
-
         tmp_dir = tempfile.mkdtemp()
-        sample_names = [f'img_{i}.jpg' for i in range(n_tot)]
-        for sample_idx in range(n_tot):
+        n_healthy = 100
+        n_corrupt = 20
 
-            data = dataset[sample_idx]
-            path = os.path.join(tmp_dir, sample_names[sample_idx])
+        dataset = torchvision.datasets.FakeData(size=n_healthy,
+                                                image_size=(3, 32, 32))
+        sample_names = [f'img_{i}.jpg' for i in range(n_healthy)]
+        for sample_name, data in zip(sample_names, dataset):
+            path = os.path.join(tmp_dir, sample_name)
             data[0].save(path)
+
+        corrupt_sample_names = [f'img_{i}.jpg' for i in range(n_healthy,n_healthy+n_corrupt)]
+        for sample_name in corrupt_sample_names:
+            path = os.path.join(tmp_dir, sample_name)
+            with open(path, 'a') as f:
+                f.write('this_is_not_an_image')
 
         # tests
         healthy_images, corrupt_images = check_images(tmp_dir)
-        assert(len(healthy_images) == n_tot)
-        assert(len(corrupt_images) == 0)
+        assert(len(healthy_images) == n_healthy)
+        assert(len(corrupt_images) == n_corrupt)
 
     def test_not_existing_folder_dataset(self):
         with self.assertRaises(ValueError):
