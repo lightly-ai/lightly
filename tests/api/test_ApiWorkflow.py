@@ -43,7 +43,7 @@ class MockedJobsApi(JobsApi):
             response_ = JobStatusData(id="id_", status=JobState.FINISHED, wait_time_till_next_poll=0,
                                       created_at=1234, finished_at=1357, result=result)
         else:
-            result = JobStatusDataResult()
+            result = None
             response_ = JobStatusData(id="id_", status=JobState.RUNNING, wait_time_till_next_poll=0.5,
                                       created_at=1234, result=result)
         return response_
