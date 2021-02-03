@@ -9,9 +9,6 @@ from lightly.active_learning.scorers.scorer import Scorer
 from lightly.api.api_workflow import ApiWorkflow
 
 from lightly.api.upload import upload_csv
-from lightly.api.utils import create_api_client
-from lightly.api.tags import get_tag_by_tag_id
-from lightly.openapi_generated.swagger_client import JobStatusData, JobState
 from lightly.api.bitmask import BitMask
 
 
