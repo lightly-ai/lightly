@@ -168,7 +168,6 @@ class TestLightlyDataset(unittest.TestCase):
         self.assertEqual(len(_dataset), len(dataset))
         self.assertEqual(len(dataset.get_filenames()), len(dataset))
 
-    @unittest.skip("Does not run in nektos/akt")
     def test_video_dataset(self):
 
         if not VIDEO_DATASET_AVAILABLE:
