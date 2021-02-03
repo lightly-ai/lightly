@@ -17,8 +17,8 @@ from lightly.openapi_generated.swagger_client.models.inline_response2003 import 
 class MockedEmbeddingsApi(EmbeddingsApi):
     def get_embeddings_csv_write_url_by_id(self, dataset_id: str, **kwargs):
         assert isinstance(dataset_id, str)
-        response = InlineResponse2002(signed_write_url="signed_write_url_valid", embedding_id="embedding_id_xyz")
-        return response
+        response_ = InlineResponse2002(signed_write_url="signed_write_url_valid", embedding_id="embedding_id_xyz")
+        return response_
 
 
 class MockedSamplingsApi(SamplingsApi):
@@ -26,8 +26,8 @@ class MockedSamplingsApi(SamplingsApi):
         assert isinstance(body, SamplingCreateRequest)
         assert isinstance(dataset_id, str)
         assert isinstance(embedding_id, str)
-        response = InlineResponse2003(job_id="155")
-        return response
+        response_ = InlineResponse2003(job_id="155")
+        return response_
 
 
 class MockedJobsApi(JobsApi):
@@ -40,21 +40,22 @@ class MockedJobsApi(JobsApi):
         self.no_calls += 1
         if self.no_calls > 3:
             result = JobStatusDataResult(type=JobResultType.SAMPLING, data="tag_id_xyz")
-            response = JobStatusData(id="id_", status=JobState.FINISHED,
-                                     created_at=1234, finished_at=1357, result=result)
+            response_ = JobStatusData(id="id_", status=JobState.FINISHED, wait_time_till_next_poll=0,
+                                      created_at=1234, finished_at=1357, result=result)
         else:
-            response = JobStatusData(id="id_", status=JobState.RUNNING, wait_time_till_next_poll=0.5,
-                                     created_at=1234, result=None)
-        return response
+            result = JobStatusDataResult()
+            response_ = JobStatusData(id="id_", status=JobState.RUNNING, wait_time_till_next_poll=0.5,
+                                      created_at=1234, result=result)
+        return response_
 
 
 class MockedTagsApi(TagsApi):
     def get_tag_by_tag_id(self, dataset_id, tag_id, **kwargs):
         assert isinstance(dataset_id, str)
         assert isinstance(tag_id, str)
-        response = TagData(id=tag_id, dataset_id=dataset_id, prev_tag="initial-tag", bit_mask_data="0x80bda23e9",
-                           name='second-tag', tot_size=0, created_at=1577836800, changes=dict())
-        return response
+        response_ = TagData(id=tag_id, dataset_id=dataset_id, prev_tag="initial-tag", bit_mask_data="0x80bda23e9",
+                            name='second-tag', tot_size=0, created_at=1577836800, changes=dict())
+        return response_
 
 
 def mocked_upload_file_with_signed_url(file: str, url: str, mocked_return_value=True) -> bool:
