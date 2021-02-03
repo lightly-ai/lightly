@@ -61,4 +61,5 @@ We worked hard to make this happen and are very proud to present you with the fo
    advanced/overview.rst
    configuration/configuration.rst
    examples/overview.rst
+   known_issues_faq.rst
 
