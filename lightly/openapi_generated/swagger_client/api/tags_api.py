@@ -89,12 +89,12 @@ class TagsApi(object):
             params[key] = val
         del params['kwargs']
         # verify the required parameter 'body' is set
-        if self.api_client.client_side_validation and ('body' not in params or
-                                                       params['body'] is None):  # noqa: E501
+        if ('body' not in params or
+                params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `create_initial_tag_by_dataset_id`")  # noqa: E501
         # verify the required parameter 'dataset_id' is set
-        if self.api_client.client_side_validation and ('dataset_id' not in params or
-                                                       params['dataset_id'] is None):  # noqa: E501
+        if ('dataset_id' not in params or
+                params['dataset_id'] is None):
             raise ValueError("Missing the required parameter `dataset_id` when calling `create_initial_tag_by_dataset_id`")  # noqa: E501
 
         collection_formats = {}

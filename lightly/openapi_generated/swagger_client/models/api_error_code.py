@@ -47,7 +47,6 @@ class ApiErrorCode(object):
     TAG_UNKNOWN = "TAG_UNKNOWN"
     TAG_INITIAL_EXISTS = "TAG_INITIAL_EXISTS"
     TAG_PREVTAG_NOT_OF_DATASET = "TAG_PREVTAG_NOT_OF_DATASET"
-
     """
     Attributes:
       swagger_types (dict): The key is attribute name

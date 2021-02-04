@@ -246,7 +246,6 @@ class Configuration(object):
                     'key': 'secret',
                     'value': self.get_api_key_with_prefix('secret')
                 },
-
         }
 
     def to_debug_report(self):
