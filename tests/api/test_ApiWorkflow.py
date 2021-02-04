@@ -9,7 +9,7 @@ import lightly
 from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.api.api_workflow import ApiWorkflow
 from lightly.openapi_generated.swagger_client import EmbeddingsApi, SamplingsApi, TagsApi, JobsApi, JobStatusData, \
-    SamplingCreateRequest, JobState, TagData, JobStatusDataResult, JobResultType
+    SamplingCreateRequest, JobState, TagData, JobStatusDataResult, JobResultType, MappingsApi
 from lightly.openapi_generated.swagger_client.models.inline_response2002 import InlineResponse2002
 from lightly.openapi_generated.swagger_client.models.inline_response2003 import InlineResponse2003
 
@@ -58,6 +58,17 @@ class MockedTagsApi(TagsApi):
         return response_
 
 
+class MockedMappingsApi(MappingsApi):
+    def __init__(self, *args, **kwargs):
+        sample_names = [f'img_{i}.jpg' for i in range(100)]
+        sample_names.reverse()
+        self.sample_names = sample_names
+        MappingsApi.__init__(self, *args, **kwargs)
+
+    def get_sample_mappings_by_dataset_id(self, dataset_id, field, **kwargs):
+        return self.sample_names
+
+
 def mocked_upload_file_with_signed_url(file: str, url: str, mocked_return_value=True) -> bool:
     assert isinstance(file, str)
     assert isinstance(url, str)
@@ -84,6 +95,7 @@ class TestApiWorkflow(unittest.TestCase):
 
         # Set the workflow with mocked functions
         lightly.api.api_workflow.EmbeddingsApi = MockedEmbeddingsApi
+        lightly.api.api_workflow.MappingsApi = MockedMappingsApi
         lightly.api.api_workflow.upload_file_with_signed_url = mocked_upload_file_with_signed_url
         api_workflow = ApiWorkflow(host="host_xyz", token="token_xyz", dataset_id="dataset_id_xyz")
 
