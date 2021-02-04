@@ -11,6 +11,7 @@ from lightly.openapi_generated.swagger_client import InitialTagCreateRequest
 from lightly.utils import save_embeddings
 
 from lightly.active_learning.config.sampler_config import SamplerConfig
+from lightly.api.bitmask import BitMask
 
 
 def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_id: str):
@@ -37,8 +38,10 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
     # perform_a_sampling
     sampler_config = SamplerConfig()
     new_tag = api_workflow.sampling(sampler_config=sampler_config)
+    chosen_samples_ids = BitMask.from_bin(new_tag.bit_mask_data)
 
     print(new_tag)
+    print(f'chosen_sample_ids: {chosen_samples_ids}')
 
 
 if __name__ == "__main__":
