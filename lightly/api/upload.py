@@ -188,12 +188,13 @@ def _upload_single_image(image,
         sample_id = routes.users.datasets.samples.post(
             basename, thumbname, metadata, dataset_id, token
         )
-    except RuntimeError:
+    except RuntimeError as e:
         sample_upload_success = False
+        raise ValueError
 
     # upload thumbnail
     thumbnail_upload_success = True
-    if mode == 'thumbnails' and not metadata['is_corrupted']:
+    if mode == 'thumbnails' and not metadata['is_corrupted'] and sample_upload_success:
         try:
             # try to get signed url for thumbnail
             signed_url = routes.users.datasets.samples. \
