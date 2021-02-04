@@ -4,7 +4,7 @@ import csv
 
 from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.openapi_generated.swagger_client import Configuration, ApiClient, SamplingsApi, JobsApi, JobState, \
-    TagsApi, JobStatusData, EmbeddingsApi, MappingsApi
+    TagsApi, JobStatusData, EmbeddingsApi, MappingsApi, TagData
 from lightly.api.upload import upload_file_with_signed_url
 from lightly.openapi_generated.swagger_client.models.inline_response2002 import InlineResponse2002
 
@@ -29,7 +29,7 @@ class ApiWorkflow:
         self.mappings_api = MappingsApi(api_client=api_client)
 
     def sampling(self, sampler_config: SamplerConfig, preselected_tag_id: str = None, query_tag_id: str = None,
-                 al_scores: Dict[str, List[int]] = None):
+                 al_scores: Dict[str, List[int]] = None) -> TagData:
 
         # upload the active learning scores to the api
         if al_scores is not None:
