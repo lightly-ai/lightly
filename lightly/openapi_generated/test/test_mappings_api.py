@@ -15,23 +15,23 @@ from __future__ import absolute_import
 import unittest
 
 import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.models.mongo_object_id import MongoObjectID  # noqa: E501
+from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi  # noqa: E501
 from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
-class TestMongoObjectID(unittest.TestCase):
-    """MongoObjectID unit test stubs"""
+class TestMappingsApi(unittest.TestCase):
+    """MappingsApi unit test stubs"""
 
     def setUp(self):
-        pass
+        self.api = MappingsApi()  # noqa: E501
 
     def tearDown(self):
         pass
 
-    def testMongoObjectID(self):
-        """Test MongoObjectID"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = lightly.openapi_generated.swagger_client.models.mongo_object_id.MongoObjectID()  # noqa: E501
+    def test_get_sample_mappings_by_dataset_id(self):
+        """Test case for get_sample_mappings_by_dataset_id
+
+        """
         pass
 
 

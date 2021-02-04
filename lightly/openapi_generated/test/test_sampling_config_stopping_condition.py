@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.models.sampling_config_stopping_condition import SamplingConfigStoppingCondition  # noqa: E501
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import SamplingConfigStoppingCondition  # noqa: E501
+from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class TestSamplingConfigStoppingCondition(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestSamplingConfigStoppingCondition(unittest.TestCase):
     def testSamplingConfigStoppingCondition(self):
         """Test SamplingConfigStoppingCondition"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = swagger_client.models.sampling_config_stopping_condition.SamplingConfigStoppingCondition()  # noqa: E501
+        # model = lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition.SamplingConfigStoppingCondition()  # noqa: E501
         pass
 
 

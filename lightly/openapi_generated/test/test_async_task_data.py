@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.models.async_task_data import AsyncTaskData  # noqa: E501
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData  # noqa: E501
+from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class TestAsyncTaskData(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestAsyncTaskData(unittest.TestCase):
     def testAsyncTaskData(self):
         """Test AsyncTaskData"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = swagger_client.models.async_task_data.AsyncTaskData()  # noqa: E501
+        # model = lightly.openapi_generated.swagger_client.models.async_task_data.AsyncTaskData()  # noqa: E501
         pass
 
 

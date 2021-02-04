@@ -19,7 +19,9 @@ from lightly.openapi_generated.swagger_client.api.annotations_api import Annotat
 from lightly.openapi_generated.swagger_client.api.auth_api import AuthApi
 from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
+from lightly.openapi_generated.swagger_client.api.internal_api import InternalApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
+from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
 from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
 from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
 from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
@@ -35,13 +37,14 @@ from lightly.openapi_generated.swagger_client.models.api_error_code import ApiEr
 from lightly.openapi_generated.swagger_client.models.api_error_response import ApiErrorResponse
 from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData
 from lightly.openapi_generated.swagger_client.models.body import Body
-from lightly.openapi_generated.swagger_client.models.body1 import Body1
+from lightly.openapi_generated.swagger_client.models.create_cf_bucket_activity_request import CreateCFBucketActivityRequest
 from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.embedding_data import EmbeddingData
 from lightly.openapi_generated.swagger_client.models.general_job_result import GeneralJobResult
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
+from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 from lightly.openapi_generated.swagger_client.models.inline_response200 import InlineResponse200
 from lightly.openapi_generated.swagger_client.models.job_result_type import JobResultType
 from lightly.openapi_generated.swagger_client.models.job_state import JobState

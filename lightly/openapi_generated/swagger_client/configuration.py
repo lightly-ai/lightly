@@ -236,6 +236,13 @@ class Configuration(six.with_metaclass(TypeWithDefault, object)):
                     'key': 'token',
                     'value': self.get_api_key_with_prefix('token')
                 },
+            'InternalKeyAuth':
+                {
+                    'type': 'api_key',
+                    'in': 'query',
+                    'key': 'secret',
+                    'value': self.get_api_key_with_prefix('secret')
+                },
         }
 
     def to_debug_report(self):
