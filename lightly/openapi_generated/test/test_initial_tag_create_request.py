@@ -15,12 +15,12 @@ from __future__ import absolute_import
 import unittest
 
 import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.models.mongo_object_id import MongoObjectID  # noqa: E501
+from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest  # noqa: E501
 from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
-class TestMongoObjectID(unittest.TestCase):
-    """MongoObjectID unit test stubs"""
+class TestInitialTagCreateRequest(unittest.TestCase):
+    """InitialTagCreateRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -28,10 +28,10 @@ class TestMongoObjectID(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def testMongoObjectID(self):
-        """Test MongoObjectID"""
+    def testInitialTagCreateRequest(self):
+        """Test InitialTagCreateRequest"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = lightly.openapi_generated.swagger_client.models.mongo_object_id.MongoObjectID()  # noqa: E501
+        # model = lightly.openapi_generated.swagger_client.models.initial_tag_create_request.InitialTagCreateRequest()  # noqa: E501
         pass
 
 

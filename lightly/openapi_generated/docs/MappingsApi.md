@@ -1,17 +1,17 @@
-# lightly.openapi_generated.swagger_client.JobsApi
+# lightly.openapi_generated.swagger_client.MappingsApi
 
 All URIs are relative to *https://api.lightly.ai*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**get_job_status_by_id**](JobsApi.md#get_job_status_by_id) | **GET** /v1/jobs/{jobId} | 
+[**get_sample_mappings_by_dataset_id**](MappingsApi.md#get_sample_mappings_by_dataset_id) | **GET** /v1/datasets/{datasetId}/mappings | 
 
-# **get_job_status_by_id**
-> JobStatusData get_job_status_by_id(job_id)
+# **get_sample_mappings_by_dataset_id**
+> list[str] get_sample_mappings_by_dataset_id(dataset_id, field)
 
 
 
-Get status of a specific job
+Get all samples of a dataset as a list. List index is the index of the sample2bitmask mapping and the value is the 'field' you wanted (e.g _id, fileName)
 
 ### Example
 ```python
@@ -28,25 +28,27 @@ configuration.api_key['token'] = 'YOUR_API_KEY'
 # configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
-api_instance = lightly.openapi_generated.swagger_client.JobsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
-job_id = 'job_id_example' # str | id of the job
+api_instance = lightly.openapi_generated.swagger_client.MappingsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+field = 'fileName' # str | the field to return as the value (default to fileName)
 
 try:
-    api_response = api_instance.get_job_status_by_id(job_id)
+    api_response = api_instance.get_sample_mappings_by_dataset_id(dataset_id, field)
     pprint(api_response)
 except ApiException as e:
-    print("Exception when calling JobsApi->get_job_status_by_id: %s\n" % e)
+    print("Exception when calling MappingsApi->get_sample_mappings_by_dataset_id: %s\n" % e)
 ```
 
 ### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **job_id** | **str**| id of the job | 
+ **dataset_id** | [**MongoObjectID**](.md)| ObjectId of the dataset | 
+ **field** | **str**| the field to return as the value | [default to fileName]
 
 ### Return type
 
-[**JobStatusData**](JobStatusData.md)
+**list[str]**
 
 ### Authorization
 

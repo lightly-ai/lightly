@@ -23,7 +23,7 @@ pip install git+https://github.com/GIT_USER_ID/GIT_REPO_ID.git
 
 Then import the package:
 ```python
-import swagger_client 
+import lightly.openapi_generated.swagger_client 
 ```
 
 ### Setuptools
@@ -37,7 +37,7 @@ python setup.py install --user
 
 Then import the package:
 ```python
-import swagger_client
+import lightly.openapi_generated.swagger_client
 ```
 
 ## Getting Started
@@ -47,20 +47,20 @@ Please follow the [installation procedure](#installation--usage) and then run th
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 # Configure API key authorization: ApiKeyAuth
-configuration = swagger_client.Configuration()
+configuration = lightly.openapi_generated.swagger_client.Configuration()
 configuration.api_key['token'] = 'YOUR_API_KEY'
 # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 # configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
-api_instance = swagger_client.AnnotationsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-annotation_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the annotation
+api_instance = lightly.openapi_generated.swagger_client.AnnotationsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+annotation_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the annotation
 
 try:
     api_response = api_instance.get_annotation_by_id(dataset_id, annotation_id)
@@ -69,14 +69,14 @@ except ApiException as e:
     print("Exception when calling AnnotationsApi->get_annotation_by_id: %s\n" % e)
 
 # Configure API key authorization: ApiKeyAuth
-configuration = swagger_client.Configuration()
+configuration = lightly.openapi_generated.swagger_client.Configuration()
 configuration.api_key['token'] = 'YOUR_API_KEY'
 # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 # configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
-api_instance = swagger_client.AnnotationsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+api_instance = lightly.openapi_generated.swagger_client.AnnotationsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
 
 try:
     api_response = api_instance.get_annotations_by_dataset_id(dataset_id)
@@ -98,13 +98,16 @@ Class | Method | HTTP request | Description
 *DatasetsApi* | [**get_datasets**](docs/DatasetsApi.md#get_datasets) | **GET** /users/datasets | 
 *EmbeddingsApi* | [**get_embeddings_by_sample_id**](docs/EmbeddingsApi.md#get_embeddings_by_sample_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/embeddings | 
 *EmbeddingsApi* | [**get_embeddings_csv_write_url_by_id**](docs/EmbeddingsApi.md#get_embeddings_csv_write_url_by_id) | **GET** /v1/datasets/{datasetId}/embeddings/writeCSVUrl | 
+*InternalApi* | [**internal_create_cf_bucket_activity**](docs/InternalApi.md#internal_create_cf_bucket_activity) | **POST** /v1/__internal/cloudfunctions/bucket | 
 *JobsApi* | [**get_job_status_by_id**](docs/JobsApi.md#get_job_status_by_id) | **GET** /v1/jobs/{jobId} | 
+*MappingsApi* | [**get_sample_mappings_by_dataset_id**](docs/MappingsApi.md#get_sample_mappings_by_dataset_id) | **GET** /v1/datasets/{datasetId}/mappings | 
 *SamplesApi* | [**get_sample_by_id**](docs/SamplesApi.md#get_sample_by_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId} | 
 *SamplesApi* | [**get_sample_image_read_url_by_id**](docs/SamplesApi.md#get_sample_image_read_url_by_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/readurl | 
 *SamplesApi* | [**get_sample_image_write_url_by_id**](docs/SamplesApi.md#get_sample_image_write_url_by_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/writeurl | 
 *SamplesApi* | [**get_samples_by_dataset_id**](docs/SamplesApi.md#get_samples_by_dataset_id) | **GET** /users/datasets/{datasetId}/samples | 
 *SamplesApi* | [**update_sample_by_id**](docs/SamplesApi.md#update_sample_by_id) | **PUT** /users/datasets/{datasetId}/samples/{sampleId} | 
 *SamplingsApi* | [**trigger_sampling_by_id**](docs/SamplingsApi.md#trigger_sampling_by_id) | **POST** /v1/datasets/{datasetId}/embeddings/{embeddingId}/sampling | 
+*TagsApi* | [**create_initial_tag_by_dataset_id**](docs/TagsApi.md#create_initial_tag_by_dataset_id) | **POST** /v1/datasets/{datasetId}/tags/initial | 
 *TagsApi* | [**create_tag_by_dataset_id**](docs/TagsApi.md#create_tag_by_dataset_id) | **POST** /v1/datasets/{datasetId}/tags | 
 *TagsApi* | [**get_filenames_by_tag_id**](docs/TagsApi.md#get_filenames_by_tag_id) | **GET** /v1/datasets/{datasetId}/tags/{tagId}/filenames | 
 *TagsApi* | [**get_tag_by_tag_id**](docs/TagsApi.md#get_tag_by_tag_id) | **GET** /v1/datasets/{datasetId}/tags/{tagId} | 
@@ -120,13 +123,14 @@ Class | Method | HTTP request | Description
  - [ApiErrorResponse](docs/ApiErrorResponse.md)
  - [AsyncTaskData](docs/AsyncTaskData.md)
  - [Body](docs/Body.md)
- - [Body1](docs/Body1.md)
+ - [CreateCFBucketActivityRequest](docs/CreateCFBucketActivityRequest.md)
  - [CreateEntityResponse](docs/CreateEntityResponse.md)
  - [DatasetData](docs/DatasetData.md)
  - [DatasetType](docs/DatasetType.md)
  - [EmbeddingData](docs/EmbeddingData.md)
  - [GeneralJobResult](docs/GeneralJobResult.md)
  - [ImageType](docs/ImageType.md)
+ - [InitialTagCreateRequest](docs/InitialTagCreateRequest.md)
  - [InlineResponse200](docs/InlineResponse200.md)
  - [JobResultType](docs/JobResultType.md)
  - [JobState](docs/JobState.md)
@@ -156,6 +160,12 @@ Class | Method | HTTP request | Description
 
 - **Type**: API key
 - **API key parameter name**: token
+- **Location**: URL query string
+
+## InternalKeyAuth
+
+- **Type**: API key
+- **API key parameter name**: secret
 - **Location**: URL query string
 
 ## auth0Bearer

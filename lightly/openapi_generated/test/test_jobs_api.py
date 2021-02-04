@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import swagger_client
-from swagger_client.api.jobs_api import JobsApi  # noqa: E501
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi  # noqa: E501
+from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class TestJobsApi(unittest.TestCase):
