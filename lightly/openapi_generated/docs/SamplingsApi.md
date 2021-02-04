@@ -1,4 +1,4 @@
-# swagger_client.SamplingsApi
+# lightly.openapi_generated.swagger_client.SamplingsApi
 
 All URIs are relative to *https://api.lightly.ai*
 
@@ -17,21 +17,21 @@ Trigger a sampling on a specific tag of a dataset with specific prior uploaded c
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 # Configure API key authorization: ApiKeyAuth
-configuration = swagger_client.Configuration()
+configuration = lightly.openapi_generated.swagger_client.Configuration()
 configuration.api_key['token'] = 'YOUR_API_KEY'
 # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 # configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
-api_instance = swagger_client.SamplingsApi(swagger_client.ApiClient(configuration))
-body = swagger_client.SamplingCreateRequest() # SamplingCreateRequest | 
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-embedding_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the embedding
+api_instance = lightly.openapi_generated.swagger_client.SamplingsApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
+body = lightly.openapi_generated.swagger_client.SamplingCreateRequest() # SamplingCreateRequest | 
+dataset_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
+embedding_id = lightly.openapi_generated.swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the embedding
 
 try:
     api_response = api_instance.trigger_sampling_by_id(body, dataset_id, embedding_id)

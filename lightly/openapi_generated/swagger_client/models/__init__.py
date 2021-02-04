@@ -22,13 +22,14 @@ from lightly.openapi_generated.swagger_client.models.api_error_code import ApiEr
 from lightly.openapi_generated.swagger_client.models.api_error_response import ApiErrorResponse
 from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData
 from lightly.openapi_generated.swagger_client.models.body import Body
-from lightly.openapi_generated.swagger_client.models.body1 import Body1
+from lightly.openapi_generated.swagger_client.models.create_cf_bucket_activity_request import CreateCFBucketActivityRequest
 from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.embedding_data import EmbeddingData
 from lightly.openapi_generated.swagger_client.models.general_job_result import GeneralJobResult
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
+from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 from lightly.openapi_generated.swagger_client.models.inline_response200 import InlineResponse200
 from lightly.openapi_generated.swagger_client.models.job_result_type import JobResultType
 from lightly.openapi_generated.swagger_client.models.job_state import JobState

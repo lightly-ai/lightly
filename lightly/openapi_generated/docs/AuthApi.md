@@ -1,4 +1,4 @@
-# swagger_client.AuthApi
+# lightly.openapi_generated.swagger_client.AuthApi
 
 All URIs are relative to *https://api.lightly.ai*
 
@@ -17,18 +17,18 @@ Get auth token from the user
 ```python
 from __future__ import print_function
 import time
-import swagger_client
-from swagger_client.rest import ApiException
+import lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from pprint import pprint
 
 # Configure API key authorization: ApiKeyAuth
-configuration = swagger_client.Configuration()
+configuration = lightly.openapi_generated.swagger_client.Configuration()
 configuration.api_key['token'] = 'YOUR_API_KEY'
 # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 # configuration.api_key_prefix['token'] = 'Bearer'
 
 # create an instance of the API class
-api_instance = swagger_client.AuthApi(swagger_client.ApiClient(configuration))
+api_instance = lightly.openapi_generated.swagger_client.AuthApi(lightly.openapi_generated.swagger_client.ApiClient(configuration))
 
 try:
     api_response = api_instance.get_tokens()
