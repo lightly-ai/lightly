@@ -13,8 +13,8 @@ import requests
 import warnings
 from PIL import Image, ImageFilter
 
-from lightly.openapi_generated.swagger_client.configuration import Configuration
-from lightly.openapi_generated.swagger_client.api_client import ApiClient
+from lightly.openapi_generated_with_other_gen.openapi_client.configuration import Configuration
+from lightly.openapi_generated_with_other_gen.openapi_client.api_client import ApiClient
 
 # the following two lines are needed because
 # PIL misidentifies certain jpeg images as MPOs
