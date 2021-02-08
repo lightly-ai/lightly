@@ -38,7 +38,8 @@ class ApiWorkflow:
         # trigger the sampling
         payload = sampler_config.get_as_api_sampling_create_request(
             preselected_tag_id=preselected_tag_id, query_tag_id=query_tag_id)
-        response = self.samplings_api.trigger_sampling_by_id(payload, self.dataset_id, "embedding_id_xyz")
+        payload.row_count=15
+        response = self.samplings_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
         job_id = response.job_id
 
         # poll the job status till the job is finished
@@ -75,7 +76,8 @@ class ApiWorkflow:
         signed_write_url = response.signed_write_url
 
         # upload the csv to the URL
-        upload_file_with_signed_url(file=path_to_ordered_embeddings_csv, url=signed_write_url)
+        with open(path_to_ordered_embeddings_csv, 'rb') as file_ordered_embeddings_csv:
+            upload_file_with_signed_url(file=file_ordered_embeddings_csv, url=signed_write_url)
 
     def __order_csv_by_filenames(self, path_to_embeddings_csv: str,
                                  filenames_in_desired_order: List[str],
