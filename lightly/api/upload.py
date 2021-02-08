@@ -23,15 +23,17 @@ from lightly.api.utils import check_image
 from lightly.api.utils import check_filename
 from lightly.api.utils import PIL_to_bytes
 from lightly.api.utils import put_request
-from lightly.openapi_generated.swagger_client import InitialTagCreateRequest, Configuration
+from lightly.openapi_generated_with_other_gen.openapi_client import Configuration
+from lightly.openapi_generated_with_other_gen.openapi_client.model.initial_tag_create_request import \
+    InitialTagCreateRequest
 
 from lightly.utils import fit_pca
 from lightly.utils import load_embeddings_as_dict
 
 from lightly.data import LightlyDataset
 
-from lightly.openapi_generated.swagger_client.api_client import ApiClient
-from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
+from lightly.openapi_generated_with_other_gen.openapi_client.api_client import ApiClient
+from lightly.openapi_generated_with_other_gen.openapi_client.api.tags_api import TagsApi
 
 import tqdm
 import warnings
@@ -349,7 +351,7 @@ def upload_dataset(dataset: LightlyDataset,
     tags_api = TagsApi(api_client=api_client)
 
     initial_tag_create_request = InitialTagCreateRequest()
-    tags_api.create_initial_tag_by_dataset_id(body=initial_tag_create_request, dataset_id=dataset_id)
+    tags_api.create_initial_tag_by_dataset_id(=initial_tag_create_request, dataset_id=dataset_id)
 
 
 def upload_images_from_folder(path_to_folder: str,

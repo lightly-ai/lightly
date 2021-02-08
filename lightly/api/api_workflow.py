@@ -3,18 +3,23 @@ from typing import *
 import csv
 
 from lightly.active_learning.config.sampler_config import SamplerConfig
-from lightly.openapi_generated.swagger_client import Configuration, ApiClient, SamplingsApi, JobsApi, JobState, \
-    TagsApi, JobStatusData, EmbeddingsApi, MappingsApi, TagData
+from lightly.openapi_generated_with_other_gen.openapi_client import Configuration, ApiClient
 from lightly.api.upload import upload_file_with_signed_url
-from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
+from lightly.openapi_generated_with_other_gen.openapi_client.api.embeddings_api import EmbeddingsApi
+from lightly.openapi_generated_with_other_gen.openapi_client.api.jobs_api import JobsApi
+from lightly.openapi_generated_with_other_gen.openapi_client.api.mappings_api import MappingsApi
+from lightly.openapi_generated_with_other_gen.openapi_client.api.samplings_api import SamplingsApi
+from lightly.openapi_generated_with_other_gen.openapi_client.api.tags_api import TagsApi
+from lightly.openapi_generated_with_other_gen.openapi_client.model.job_state import JobState
+from lightly.openapi_generated_with_other_gen.openapi_client.model.job_status_data import JobStatusData
+from lightly.openapi_generated_with_other_gen.openapi_client.model.tag_data import TagData
+from lightly.openapi_generated_with_other_gen.openapi_client.model.write_csv_url_data import WriteCSVUrlData
 
 
 class ApiWorkflow:
     def __init__(self, host: str, token: str, dataset_id: str, embedding_id: str = None):
 
-        configuration = Configuration()
-        configuration.host = host
-        configuration.api_key = {'token': token}
+        configuration = Configuration(host=host, api_key={'ApiKeyAuth': token})
         api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
 
