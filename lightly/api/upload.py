@@ -18,11 +18,12 @@ from itertools import islice
 from lightly.api import routes
 from lightly.api.constants import LIGHTLY_MAXIMUM_DATASET_SIZE
 
-from lightly.api.utils import get_thumbnail_from_img
+from lightly.api.utils import get_thumbnail_from_img, getenv
 from lightly.api.utils import check_image
 from lightly.api.utils import check_filename
 from lightly.api.utils import PIL_to_bytes
 from lightly.api.utils import put_request
+from lightly.openapi_generated.swagger_client import InitialTagCreateRequest, Configuration
 
 from lightly.utils import fit_pca
 from lightly.utils import load_embeddings_as_dict
@@ -335,8 +336,20 @@ def upload_dataset(dataset: LightlyDataset,
     else:
         routes.users.datasets.put_image_type(dataset_id, token, 'meta')
 
+    print("Finished upload of images, starting creation of initial tag.")
+
     # create initial tag
-    routes.users.datasets.tags.post(dataset_id, token)
+    configuration = Configuration()
+    configuration.host = getenv(
+        'LIGHTLY_SERVER_LOCATION',
+        'https://api.lightly.ai'
+    )
+    configuration.api_key = {'token': token}
+    api_client = ApiClient(configuration=configuration)
+    tags_api = TagsApi(api_client=api_client)
+
+    initial_tag_create_request = InitialTagCreateRequest()
+    tags_api.create_initial_tag_by_dataset_id(body=initial_tag_create_request, dataset_id=dataset_id)
 
 
 def upload_images_from_folder(path_to_folder: str,
