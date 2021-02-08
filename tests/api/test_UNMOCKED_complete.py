@@ -9,7 +9,6 @@ from lightly.data import LightlyDataset
 from lightly.api.upload import upload_dataset
 
 from lightly.core import embed_images
-from lightly.openapi_generated.swagger_client import InitialTagCreateRequest
 from lightly.utils import save_embeddings
 
 from lightly.active_learning.config.sampler_config import SamplerConfig
@@ -58,5 +57,5 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
 if __name__ == "__main__":
     path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test/dress"
     token = "f9b60358d529bdd824e3c2df"
-    dataset_id = "6020f8ac7a152600321cf640"
+    dataset_id = "6021348e75e2c10032ff047f"
     t_est_unmocked_complete_workflow(path_to_dataset, token, dataset_id)
