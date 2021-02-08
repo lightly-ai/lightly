@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse  # noqa: E501
-from lightly.openapi_generated.swagger_client.rest import ApiException
+import lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse  # noqa: E501
+from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class TestCreateEntityResponse(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestCreateEntityResponse(unittest.TestCase):
     def testCreateEntityResponse(self):
         """Test CreateEntityResponse"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = lightly.openapi_generated.swagger_client.models.create_entity_response.CreateEntityResponse()  # noqa: E501
+        # model = lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.models.create_entity_response.CreateEntityResponse()  # noqa: E501
         pass
 
 
