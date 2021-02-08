@@ -138,3 +138,5 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 labels = labels.cpu().numpy()
 
         return embeddings, labels, fnames
+
+
