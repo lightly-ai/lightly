@@ -28,7 +28,7 @@ class SamplingCreateRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'name': 'str',
+        'new_tag_name': 'str',
         'method': 'SamplingMethod',
         'config': 'SamplingConfig',
         'preselected_tag_id': 'MongoObjectID',
@@ -37,7 +37,7 @@ class SamplingCreateRequest(object):
     }
 
     attribute_map = {
-        'name': 'name',
+        'new_tag_name': 'newTagName',
         'method': 'method',
         'config': 'config',
         'preselected_tag_id': 'preselectedTagId',
@@ -45,16 +45,16 @@ class SamplingCreateRequest(object):
         'row_count': 'rowCount'
     }
 
-    def __init__(self, name=None, method=None, config=None, preselected_tag_id=None, query_tag_id=None, row_count=None):  # noqa: E501
+    def __init__(self, new_tag_name=None, method=None, config=None, preselected_tag_id=None, query_tag_id=None, row_count=None):  # noqa: E501
         """SamplingCreateRequest - a model defined in Swagger"""  # noqa: E501
-        self._name = None
+        self._new_tag_name = None
         self._method = None
         self._config = None
         self._preselected_tag_id = None
         self._query_tag_id = None
         self._row_count = None
         self.discriminator = None
-        self.name = name
+        self.new_tag_name = new_tag_name
         self.method = method
         self.config = config
         if preselected_tag_id is not None:
@@ -65,27 +65,27 @@ class SamplingCreateRequest(object):
             self.row_count = row_count
 
     @property
-    def name(self):
-        """Gets the name of this SamplingCreateRequest.  # noqa: E501
+    def new_tag_name(self):
+        """Gets the new_tag_name of this SamplingCreateRequest.  # noqa: E501
 
 
-        :return: The name of this SamplingCreateRequest.  # noqa: E501
+        :return: The new_tag_name of this SamplingCreateRequest.  # noqa: E501
         :rtype: str
         """
-        return self._name
+        return self._new_tag_name
 
-    @name.setter
-    def name(self, name):
-        """Sets the name of this SamplingCreateRequest.
+    @new_tag_name.setter
+    def new_tag_name(self, new_tag_name):
+        """Sets the new_tag_name of this SamplingCreateRequest.
 
 
-        :param name: The name of this SamplingCreateRequest.  # noqa: E501
+        :param new_tag_name: The new_tag_name of this SamplingCreateRequest.  # noqa: E501
         :type: str
         """
-        if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
+        if new_tag_name is None:
+            raise ValueError("Invalid value for `new_tag_name`, must not be `None`")  # noqa: E501
 
-        self._name = name
+        self._new_tag_name = new_tag_name
 
     @property
     def method(self):
