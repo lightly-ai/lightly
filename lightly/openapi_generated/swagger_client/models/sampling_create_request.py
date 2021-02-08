@@ -50,8 +50,12 @@ class SamplingCreateRequest(object):
         'row_count': 'rowCount'
     }
 
-    def __init__(self, new_tag_name=None, method=None, config=None, preselected_tag_id=None, query_tag_id=None, row_count=None):  # noqa: E501
+    def __init__(self, new_tag_name=None, method=None, config=None, preselected_tag_id=None, query_tag_id=None, row_count=None, _configuration=None):  # noqa: E501
         """SamplingCreateRequest - a model defined in Swagger"""  # noqa: E501
+        if _configuration is None:
+            _configuration = Configuration()
+        self._configuration = _configuration
+
         self._new_tag_name = None
         self._method = None
         self._config = None
@@ -59,6 +63,7 @@ class SamplingCreateRequest(object):
         self._query_tag_id = None
         self._row_count = None
         self.discriminator = None
+
         self.new_tag_name = new_tag_name
         self.method = method
         self.config = config
@@ -87,7 +92,7 @@ class SamplingCreateRequest(object):
         :param new_tag_name: The new_tag_name of this SamplingCreateRequest.  # noqa: E501
         :type: str
         """
-        if new_tag_name is None:
+        if self._configuration.client_side_validation and new_tag_name is None:
             raise ValueError("Invalid value for `new_tag_name`, must not be `None`")  # noqa: E501
 
         self._new_tag_name = new_tag_name

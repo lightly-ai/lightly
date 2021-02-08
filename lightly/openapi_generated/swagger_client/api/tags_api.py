@@ -89,12 +89,12 @@ class TagsApi(object):
             params[key] = val
         del params['kwargs']
         # verify the required parameter 'body' is set
-        if ('body' not in params or
-                params['body'] is None):
+        if self.api_client.client_side_validation and ('body' not in params or
+                                                       params['body'] is None):  # noqa: E501
             raise ValueError("Missing the required parameter `body` when calling `create_initial_tag_by_dataset_id`")  # noqa: E501
         # verify the required parameter 'dataset_id' is set
-        if ('dataset_id' not in params or
-                params['dataset_id'] is None):
+        if self.api_client.client_side_validation and ('dataset_id' not in params or
+                                                       params['dataset_id'] is None):  # noqa: E501
             raise ValueError("Missing the required parameter `dataset_id` when calling `create_initial_tag_by_dataset_id`")  # noqa: E501
 
         collection_formats = {}
@@ -303,12 +303,12 @@ class TagsApi(object):
             params[key] = val
         del params['kwargs']
         # verify the required parameter 'dataset_id' is set
-        if ('dataset_id' not in params or
-                params['dataset_id'] is None):
+        if self.api_client.client_side_validation and ('dataset_id' not in params or
+                                                       params['dataset_id'] is None):  # noqa: E501
             raise ValueError("Missing the required parameter `dataset_id` when calling `get_filenames_by_tag_id`")  # noqa: E501
         # verify the required parameter 'tag_id' is set
-        if ('tag_id' not in params or
-                params['tag_id'] is None):
+        if self.api_client.client_side_validation and ('tag_id' not in params or
+                                                       params['tag_id'] is None):  # noqa: E501
             raise ValueError("Missing the required parameter `tag_id` when calling `get_filenames_by_tag_id`")  # noqa: E501
 
         collection_formats = {}

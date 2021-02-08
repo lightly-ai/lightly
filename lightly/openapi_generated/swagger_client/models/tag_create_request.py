@@ -48,7 +48,7 @@ class TagCreateRequest(object):
         'changes': 'changes'
     }
 
-    def __init__(self, name=None, prev_tag_id=None, bit_mask_data=None, tot_size=None, changes=None):  # noqa: E501
+    def __init__(self, name=None, prev_tag_id=None, bit_mask_data=None, tot_size=None, changes=None, _configuration=None):  # noqa: E501
         """TagCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -109,7 +109,7 @@ class TagCreateRequest(object):
         :param prev_tag_id: The prev_tag_id of this TagCreateRequest.  # noqa: E501
         :type: MongoObjectID
         """
-        if prev_tag_id is None:
+        if self._configuration.client_side_validation and prev_tag_id is None:
             raise ValueError("Invalid value for `prev_tag_id`, must not be `None`")  # noqa: E501
 
         self._prev_tag_id = prev_tag_id
@@ -132,7 +132,7 @@ class TagCreateRequest(object):
         :param bit_mask_data: The bit_mask_data of this TagCreateRequest.  # noqa: E501
         :type: TagBitMaskData
         """
-        if bit_mask_data is None:
+        if self._configuration.client_side_validation and bit_mask_data is None:
             raise ValueError("Invalid value for `bit_mask_data`, must not be `None`")  # noqa: E501
 
         self._bit_mask_data = bit_mask_data
@@ -155,7 +155,7 @@ class TagCreateRequest(object):
         :param tot_size: The tot_size of this TagCreateRequest.  # noqa: E501
         :type: int
         """
-        if tot_size is None:
+        if self._configuration.client_side_validation and tot_size is None:
             raise ValueError("Invalid value for `tot_size`, must not be `None`")  # noqa: E501
 
         self._tot_size = tot_size

@@ -68,21 +68,6 @@ try:
 except ApiException as e:
     print("Exception when calling AnnotationsApi->get_annotation_by_id: %s\n" % e)
 
-# Configure API key authorization: ApiKeyAuth
-configuration = swagger_client.Configuration()
-configuration.api_key['token'] = 'YOUR_API_KEY'
-# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
-# configuration.api_key_prefix['token'] = 'Bearer'
-
-# create an instance of the API class
-api_instance = swagger_client.AnnotationsApi(swagger_client.ApiClient(configuration))
-dataset_id = swagger_client.MongoObjectID() # MongoObjectID | ObjectId of the dataset
-
-try:
-    api_response = api_instance.get_annotations_by_dataset_id(dataset_id)
-    pprint(api_response)
-except ApiException as e:
-    print("Exception when calling AnnotationsApi->get_annotations_by_dataset_id: %s\n" % e)
 ```
 
 ## Documentation for API Endpoints
@@ -113,6 +98,7 @@ Class | Method | HTTP request | Description
 *TagsApi* | [**get_filenames_by_tag_id**](docs/TagsApi.md#get_filenames_by_tag_id) | **GET** /v1/datasets/{datasetId}/tags/{tagId}/filenames | 
 *TagsApi* | [**get_tag_by_tag_id**](docs/TagsApi.md#get_tag_by_tag_id) | **GET** /v1/datasets/{datasetId}/tags/{tagId} | 
 *TagsApi* | [**get_tags_by_dataset_id**](docs/TagsApi.md#get_tags_by_dataset_id) | **GET** /v1/datasets/{datasetId}/tags | 
+
 
 ## Documentation For Models
 
