@@ -1,14 +1,14 @@
 from datetime import datetime
 
-from lightly.openapi_generated_with_other_gen.openapi_client.model.sampling_method import SamplingMethod
-from lightly.openapi_generated_with_other_gen.openapi_client.model.sampling_config import SamplingConfig
-from lightly.openapi_generated_with_other_gen.openapi_client.model.sampling_create_request import SamplingCreateRequest
-from lightly.openapi_generated_with_other_gen.openapi_client.model.sampling_config_stopping_condition import \
+from lightly.openapi_generated.swagger_client.models.sampling_method import SamplingMethod
+from lightly.openapi_generated.swagger_client.models.sampling_config import SamplingConfig
+from lightly.openapi_generated.swagger_client.models.sampling_create_request import SamplingCreateRequest
+from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import \
     SamplingConfigStoppingCondition
 
 
 class SamplerConfig:
-    def __init__(self, method: SamplingMethod = SamplingMethod(value="RANDOM"), batch_size: int = 32, min_distance: float = -1,
+    def __init__(self, method: SamplingMethod = SamplingMethod.RANDOM, batch_size: int = 32, min_distance: float = -1,
                  name: str = None):
         self.method = method
         self.batch_size = batch_size
