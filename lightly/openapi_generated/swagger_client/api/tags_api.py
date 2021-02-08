@@ -17,7 +17,7 @@ import re  # noqa: F401
 # python 2 and python 3 compatibility library
 import six
 
-from swagger_client.api_client import ApiClient
+from lightly.openapi_generated.swagger_client.api_client import ApiClient
 
 
 class TagsApi(object):
