@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 import unittest
 
-import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.models.annotation_offer_data import AnnotationOfferData  # noqa: E501
-from lightly.openapi_generated.swagger_client.rest import ApiException
+import lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client
+from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.models.annotation_offer_data import AnnotationOfferData  # noqa: E501
+from lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class TestAnnotationOfferData(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestAnnotationOfferData(unittest.TestCase):
     def testAnnotationOfferData(self):
         """Test AnnotationOfferData"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = lightly.openapi_generated.swagger_client.models.annotation_offer_data.AnnotationOfferData()  # noqa: E501
+        # model = lightly.openapi_generated.lightly.openapi_generated.lightly.openapi_generated.swagger_client.models.annotation_offer_data.AnnotationOfferData()  # noqa: E501
         pass
 
 

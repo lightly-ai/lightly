@@ -1,12 +1,14 @@
 import tempfile
 import os
 
+import numpy as np
+
 from lightly.api.api_workflow import ApiWorkflow
 
 from lightly.data import LightlyDataset
 from lightly.api.upload import upload_dataset
 
-from lightly.core import train_model_and_embed_images
+from lightly.core import embed_images
 from lightly.openapi_generated.swagger_client import InitialTagCreateRequest
 from lightly.utils import save_embeddings
 
@@ -22,30 +24,39 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
     # upload the images to the dataset and create the initial tag
     if len(api_workflow.tags_api.get_tags_by_dataset_id(dataset_id=dataset_id)) == 0:
         dataset = LightlyDataset(input_dir=path_to_dataset)
-        upload_dataset(dataset=dataset, dataset_id=dataset_id, token=token, max_workers=1)
-        initial_tag_create_request = InitialTagCreateRequest()
-        api_workflow.tags_api.create_initial_tag_by_dataset_id(body=initial_tag_create_request, dataset_id=dataset_id)
+        print("Starting upload of dataset")
+        upload_dataset(dataset=dataset, dataset_id=dataset_id, token=token, max_workers=12)
+        print("Finished creation of intial tag")
 
     # calculate and save the embeddings
     path_to_embeddings_csv = f"{path_to_dataset}/embeddings.csv"
     if not os.path.isfile(path_to_embeddings_csv):
-        embeddings, labels, filenames = train_model_and_embed_images(input_dir=path_to_dataset)
+        dataset = LightlyDataset(input_dir=path_to_dataset)
+        embeddings = np.random.normal(size=(len(dataset.dataset.samples), 32))
+        filepaths, labels = zip(*dataset.dataset.samples)
+        filenames = [os.path.basename(filepath) for filepath in filepaths]
+        print("Starting save of embeddings")
         save_embeddings(path_to_embeddings_csv, embeddings, labels, filenames)
+        print("Finished save of embeddings")
 
     # upload the embeddings
+    print("Starting upload of embeddings")
     api_workflow.upload_embeddings(path_to_embeddings_csv=path_to_embeddings_csv, name="embedding_1")
+    print("Finished upload of embeddings")
 
     # perform_a_sampling
-    sampler_config = SamplerConfig()
+    print("Starting performing a sampling")
+    sampler_config = SamplerConfig(batch_size=8)
     new_tag = api_workflow.sampling(sampler_config=sampler_config)
     chosen_samples_ids = BitMask.from_bin(new_tag.bit_mask_data)
 
     print(new_tag)
     print(f'chosen_sample_ids: {chosen_samples_ids}')
+    print("Finished the sampling")
 
 
 if __name__ == "__main__":
-    path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test"
+    path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test/dress"
     token = "f9b60358d529bdd824e3c2df"
-    dataset_id = "601c014812cb7f0032875f4f"
+    dataset_id = "6020f8ac7a152600321cf640"
     t_est_unmocked_complete_workflow(path_to_dataset, token, dataset_id)
