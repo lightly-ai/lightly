@@ -1,14 +1,12 @@
-PATH_TO_SPEC="../../lightly-core/openapi/spec/api.yml"
-PATH_FROM_BASE="lightly/openapi_generated"
-PATH_TO_OUTPUT="../$PATH_FROM_BASE"
+cd ../
+PATH_TO_SPEC="../lightly-core/openapi/spec/api.yml"
+
 #npm install -g swagger-codegen
-swagger-codegen generate -l python -i $PATH_TO_SPEC  -o $PATH_TO_OUTPUT
-cd $PATH_TO_OUTPUT
+swagger-codegen generate -l python -i $PATH_TO_SPEC  -o lightly/openapi_generated
+
+cd lightly/openapi_generated
 rm -R docs
 rm -R test
-
-PATTERN_TO_REPLACE="swagger_client"
-PATTERN_REPLACING="${PATH_FROM_BASE/"/"/"."}/$PATTERN_TO_REPLACE"
-find . -type f -name "*.py" -print0 | xargs -0 sed -i '' -e 's/PATTERN_TO_REPLACE/PATTERN_REPLACING/g'
+find . -type f -name "*.py" -print0 | xargs -0 sed -i '' -e 's/swagger_client/lightly.openapi_generated.swagger_client/g'
 
 
