@@ -6,7 +6,7 @@ from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.openapi_generated.swagger_client import Configuration, ApiClient, SamplingsApi, JobsApi, JobState, \
     TagsApi, JobStatusData, EmbeddingsApi, MappingsApi, TagData
 from lightly.api.upload import upload_file_with_signed_url
-from lightly.openapi_generated.swagger_client.models.inline_response2002 import InlineResponse2002
+from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
 
 
 class ApiWorkflow:
@@ -70,7 +70,7 @@ class ApiWorkflow:
                                                                        pop_filename_column=True)
 
         # get the URL to upload the csv to
-        response: InlineResponse2002 = \
+        response: WriteCSVUrlData = \
             self.embeddings_api.get_embeddings_csv_write_url_by_id(self.dataset_id, name=name)
         self.embedding_id = response.embedding_id
         signed_write_url = response.signed_write_url
