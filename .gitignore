@@ -25,3 +25,6 @@ venv
 
 #ignore code generated from the openAPI
 openapi_client_prototype
+
+#ignore lightly outputs
+lightly_outputs
