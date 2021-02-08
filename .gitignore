@@ -28,3 +28,5 @@ openapi_client_prototype
 
 #ignore lightly outputs
 lightly_outputs
+**.DS_Store
+
