@@ -35,7 +35,7 @@ class TagData(object):
     swagger_types = {
         'id': 'MongoObjectID',
         'dataset_id': 'MongoObjectID',
-        'prev_tag_id': 'MongoObjectID',
+        'prev_tag': 'TagName',
         'name': 'TagName',
         'bit_mask_data': 'TagBitMaskData',
         'tot_size': 'int',
@@ -46,7 +46,7 @@ class TagData(object):
     attribute_map = {
         'id': 'id',
         'dataset_id': 'datasetId',
-        'prev_tag_id': 'prevTagId',
+        'prev_tag': 'prevTag',
         'name': 'name',
         'bit_mask_data': 'bitMaskData',
         'tot_size': 'totSize',
@@ -54,7 +54,7 @@ class TagData(object):
         'changes': 'changes'
     }
 
-    def __init__(self, id=None, dataset_id=None, prev_tag_id=None, name=None, bit_mask_data=None, tot_size=None, created_at=None, changes=None):  # noqa: E501
+    def __init__(self, id=None, dataset_id=None, prev_tag=None, name=None, bit_mask_data=None, tot_size=None, created_at=None, changes=None):  # noqa: E501
         """TagData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -62,7 +62,7 @@ class TagData(object):
 
         self._id = None
         self._dataset_id = None
-        self._prev_tag_id = None
+        self._prev_tag = None
         self._name = None
         self._bit_mask_data = None
         self._tot_size = None
@@ -72,13 +72,12 @@ class TagData(object):
 
         self.id = id
         self.dataset_id = dataset_id
-        self.prev_tag_id = prev_tag_id
+        self.prev_tag = prev_tag
         self.name = name
         self.bit_mask_data = bit_mask_data
         self.tot_size = tot_size
         self.created_at = created_at
-        if changes is not None:
-            self.changes = changes
+        self.changes = changes
 
     @property
     def id(self):
@@ -127,29 +126,29 @@ class TagData(object):
         self._dataset_id = dataset_id
 
     @property
-    def prev_tag_id(self):
-        """Gets the prev_tag_id of this TagData.  # noqa: E501
+    def prev_tag(self):
+        """Gets the prev_tag of this TagData.  # noqa: E501
 
         MongoObjectID or null  # noqa: E501
 
-        :return: The prev_tag_id of this TagData.  # noqa: E501
-        :rtype: MongoObjectID
+        :return: The prev_tag of this TagData.  # noqa: E501
+        :rtype: TagName
         """
-        return self._prev_tag_id
+        return self._prev_tag
 
-    @prev_tag_id.setter
-    def prev_tag_id(self, prev_tag_id):
-        """Sets the prev_tag_id of this TagData.
+    @prev_tag.setter
+    def prev_tag(self, prev_tag):
+        """Sets the prev_tag of this TagData.
 
         MongoObjectID or null  # noqa: E501
 
-        :param prev_tag_id: The prev_tag_id of this TagData.  # noqa: E501
-        :type: MongoObjectID
+        :param prev_tag: The prev_tag of this TagData.  # noqa: E501
+        :type: TagName
         """
-        if prev_tag_id is None:
-            raise ValueError("Invalid value for `prev_tag_id`, must not be `None`")  # noqa: E501
+        if prev_tag is None:
+            raise ValueError("Invalid value for `prev_tag`, must not be `None`")  # noqa: E501
 
-        self._prev_tag_id = prev_tag_id
+        self._prev_tag = prev_tag
 
     @property
     def name(self):
@@ -261,6 +260,8 @@ class TagData(object):
         :param changes: The changes of this TagData.  # noqa: E501
         :type: TagChangeData
         """
+        if changes is None:
+            raise ValueError("Invalid value for `changes`, must not be `None`")  # noqa: E501
 
         self._changes = changes
 
