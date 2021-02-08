@@ -41,6 +41,7 @@ class ApiWorkflow:
         payload.row_count=15
         response = self.samplings_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
         job_id = response.job_id
+        print(f"job_id: {job_id}")
 
         # poll the job status till the job is finished
         time.sleep(2)
