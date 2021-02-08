@@ -1,6 +1,7 @@
 # ref: https://docs.travis-ci.com/user/languages/python
 language: python
 python:
+  - "2.7"
   - "3.2"
   - "3.3"
   - "3.4"
