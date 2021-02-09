@@ -10,7 +10,13 @@ Tutorial 5: Custom Augmentations
 # Imports
 # -------
 #
+# Make sure you have the requirements installed. You can install it using
+# ..code:
+#    
+#    pip install pydicom
+#
 # Import the Python frameworks we need for this tutorial.
+# 
 import os
 import glob
 import torch
@@ -24,6 +30,7 @@ from sklearn.preprocessing import normalize
 from PIL import Image, ImageOps
 import numpy as np
 import pandas
+from pydicom import dcmread
 
 # %%
 # Configuration
@@ -34,7 +41,7 @@ num_workers = 8
 batch_size = 64
 num_splits = 0
 seed = 1
-max_epochs = 100
+max_epochs = 1
 num_ftrs = 500
 
 # %%
@@ -97,32 +104,54 @@ transform = torchvision.transforms.Compose([
 # %%
 #
 
-example_image_name = os.path.join(path_to_data, 'ffeffc54594debf3716d6fcd2402a99f.jpg')
-example_image = Image.open(example_image_name)
+example_image_name = os.path.join(path_to_data, 'ffeffc54594debf3716d6fcd2402a99f.dicom')
+example_image_dicom = dcmread(example_image_name)
+example_image = Image.fromarray(example_image_dicom.pixel_array, 'I;16').convert('RGB')
 
 augmented_image_1 = transform(example_image).numpy()
 augmented_image_2 = transform(example_image).numpy()
 
 fig, axs = plt.subplots(1, 3)
 
+augmented_image_1 = np.transpose(augmented_image_1, (1, 2, 0))
+augmented_image_2 = np.transpose(augmented_image_2, (1, 2, 0))
+
 axs[0].imshow(np.asarray(example_image))
 axs[0].set_axis_off()
 axs[0].set_title('Original Image')
 
-axs[1].imshow(augmented_image_1.squeeze())
+axs[1].imshow(augmented_image_1)
 axs[1].set_axis_off()
 
-axs[2].imshow(augmented_image_2.squeeze())
+axs[2].imshow(augmented_image_2)
 axs[2].set_axis_off()
 
 
 # %%
 #
 
+class DicomDataset:
+    def __init__(self, input_dir: str, transform = None):
+        self.list_of_files = glob.glob(os.path.join(input_dir, '*dicom'))
+        self.transform = transform
+    
+    def __getitem__(self, idx):
+        fname = self.list_of_files[idx]
+        label = 0
+        image_dicom = dcmread(fname)
+        image = Image.fromarray(image_dicom.pixel_array, 'I;16').convert('RGB')
+        if self.transform:
+            image = self.transform(image)
+        return image, label, fname
+    
+    def __len__(self):
+        return len(self.list_of_files)
+    
+
 collate_fn = lightly.data.BaseCollateFunction(transform)
 
 
-dataset_train_simclr = lightly.data.LightlyDataset(
+dataset_train_simclr = DicomDataset(
     input_dir=path_to_data
 )
 
@@ -182,7 +211,7 @@ test_transforms = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
 ])
 
-dataset_test = lightly.data.LightlyDataset(
+dataset_test = DicomDataset(
     input_dir=path_to_data,
     transform=test_transforms
 )
