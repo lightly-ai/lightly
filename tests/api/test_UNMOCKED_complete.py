@@ -1,5 +1,6 @@
 import tempfile
 import os
+import time
 
 import numpy as np
 
@@ -22,7 +23,8 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
     api_workflow = ApiWorkflow(host="https://api-dev.lightly.ai", token=token, dataset_id=dataset_id)
 
     # upload the images to the dataset and create the initial tag
-    if len(api_workflow.tags_api.get_tags_by_dataset_id(dataset_id=dataset_id)) == 0:
+    no_created_tags = len(api_workflow.tags_api.get_tags_by_dataset_id(dataset_id=dataset_id))
+    if no_created_tags == 0:
         dataset = LightlyDataset(input_dir=path_to_dataset)
         print("Starting upload of dataset")
         upload_dataset(dataset=dataset, dataset_id=dataset_id, token=token, max_workers=12)
@@ -41,14 +43,18 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
 
     # upload the embeddings
     print("Starting upload of embeddings")
-    api_workflow.upload_embeddings(path_to_embeddings_csv=path_to_embeddings_csv, name="embedding_1")
+    timestamp = int(round(time.time() * 1000))
+    api_workflow.upload_embeddings(path_to_embeddings_csv=path_to_embeddings_csv, name=f"embedding_{timestamp}")
     print("Finished upload of embeddings")
+
+    time.sleep(3)
 
     # perform_a_sampling
     print("Starting performing a sampling")
     sampler_config = SamplerConfig(batch_size=8)
     new_tag = api_workflow.sampling(sampler_config=sampler_config)
-    chosen_samples_ids = BitMask.from_bin(new_tag.bit_mask_data)
+    print("Finished the sampling")
+    chosen_samples_ids = BitMask.from_hex(new_tag.bit_mask_data).to_indices()
 
     print(new_tag)
     print(f'chosen_sample_ids: {chosen_samples_ids}')
@@ -58,5 +64,5 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
 if __name__ == "__main__":
     path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test/dress"
     token = "f9b60358d529bdd824e3c2df"
-    dataset_id = "6021351975e2c10032ff0492"
+    dataset_id = "60224e8e08c20d0032b5c8ff"
     t_est_unmocked_complete_workflow(path_to_dataset, token, dataset_id)
