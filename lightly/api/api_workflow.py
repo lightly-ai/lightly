@@ -38,7 +38,7 @@ class ApiWorkflow:
         # trigger the sampling
         payload = sampler_config.get_as_api_sampling_create_request(
             preselected_tag_id=preselected_tag_id, query_tag_id=query_tag_id)
-        payload.row_count=15
+        payload.row_count = 15
         response = self.samplings_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
         job_id = response.job_id
         print(f"job_id: {job_id}")

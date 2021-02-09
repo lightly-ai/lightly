@@ -1,4 +1,5 @@
 import unittest
+from io import BufferedReader
 from unittest.mock import patch
 import tempfile
 import os
@@ -9,15 +10,15 @@ import lightly
 from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.api.api_workflow import ApiWorkflow
 from lightly.openapi_generated.swagger_client import EmbeddingsApi, SamplingsApi, TagsApi, JobsApi, JobStatusData, \
-    SamplingCreateRequest, JobState, TagData, JobStatusDataResult, JobResultType, MappingsApi
-from lightly.openapi_generated.swagger_client.models.inline_response2002 import InlineResponse2002
-from lightly.openapi_generated.swagger_client.models.inline_response2003 import InlineResponse2003
+    SamplingCreateRequest, JobState, TagData, JobStatusDataResult, JobResultType, MappingsApi, AsyncTaskData
+from lightly.openapi_generated.swagger_client.models.inline_response200 import InlineResponse200
+from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
 
 
 class MockedEmbeddingsApi(EmbeddingsApi):
     def get_embeddings_csv_write_url_by_id(self, dataset_id: str, **kwargs):
         assert isinstance(dataset_id, str)
-        response_ = InlineResponse2002(signed_write_url="signed_write_url_valid", embedding_id="embedding_id_xyz")
+        response_ = WriteCSVUrlData(signed_write_url="signed_write_url_valid", embedding_id="embedding_id_xyz")
         return response_
 
 
@@ -26,7 +27,7 @@ class MockedSamplingsApi(SamplingsApi):
         assert isinstance(body, SamplingCreateRequest)
         assert isinstance(dataset_id, str)
         assert isinstance(embedding_id, str)
-        response_ = InlineResponse2003(job_id="155")
+        response_ = AsyncTaskData(job_id="155")
         return response_
 
 
@@ -53,7 +54,7 @@ class MockedTagsApi(TagsApi):
     def get_tag_by_tag_id(self, dataset_id, tag_id, **kwargs):
         assert isinstance(dataset_id, str)
         assert isinstance(tag_id, str)
-        response_ = TagData(id=tag_id, dataset_id=dataset_id, prev_tag="initial-tag", bit_mask_data="0x80bda23e9",
+        response_ = TagData(id=tag_id, dataset_id=dataset_id, prev_tag_id="initial-tag", bit_mask_data="0x80bda23e9",
                             name='second-tag', tot_size=0, created_at=1577836800, changes=dict())
         return response_
 
@@ -70,7 +71,7 @@ class MockedMappingsApi(MappingsApi):
 
 
 def mocked_upload_file_with_signed_url(file: str, url: str, mocked_return_value=True) -> bool:
-    assert isinstance(file, str)
+    assert isinstance(file, BufferedReader)
     assert isinstance(url, str)
     return mocked_return_value
 
@@ -107,6 +108,7 @@ class TestApiWorkflow(unittest.TestCase):
         lightly.api.api_workflow.TagsApi = MockedTagsApi
         lightly.api.api_workflow.JobsApi = MockedJobsApi
         api_workflow = ApiWorkflow(host="host_xyz", token="token_xyz", dataset_id="dataset_id_xyz")
+        api_workflow.embedding_id = "embedding_id_xyz"
 
         sampler_config = SamplerConfig()
 
