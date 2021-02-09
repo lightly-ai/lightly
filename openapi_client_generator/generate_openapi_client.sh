@@ -1,7 +1,7 @@
 cd ../
 PATH_TO_SPEC="../lightly-core/openapi/spec/api.yml"
 
-#npm install -g swagger-codegen
+#install swagger-codegen following the instructions at https://github.com/swagger-api/swagger-codegen#compatibility
 swagger-codegen generate -l python -i $PATH_TO_SPEC  -o lightly/openapi_generated  --template-dir openapi_client_generator/python --template-engine mustache
 
 cd lightly/openapi_generated
