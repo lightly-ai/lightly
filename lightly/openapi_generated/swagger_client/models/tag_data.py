@@ -72,7 +72,8 @@ class TagData(object):
 
         self.id = id
         self.dataset_id = dataset_id
-        self.prev_tag_id = prev_tag_id
+        if prev_tag_id is not None:
+            self.prev_tag_id = prev_tag_id
         self.name = name
         self.bit_mask_data = bit_mask_data
         self.tot_size = tot_size
@@ -144,8 +145,6 @@ class TagData(object):
         :param prev_tag_id: The prev_tag_id of this TagData.  # noqa: E501
         :type: MongoObjectID
         """
-        if self._configuration.client_side_validation and prev_tag_id is None:
-            raise ValueError("Invalid value for `prev_tag_id`, must not be `None`")  # noqa: E501
 
         self._prev_tag_id = prev_tag_id
 
