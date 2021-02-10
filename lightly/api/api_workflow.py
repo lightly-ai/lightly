@@ -4,7 +4,7 @@ import csv
 
 from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.openapi_generated.swagger_client import Configuration, ApiClient, SamplingsApi, JobsApi, JobState, \
-    TagsApi, JobStatusData, EmbeddingsApi, MappingsApi, TagData
+    TagsApi, JobStatusData, EmbeddingsApi, MappingsApi, TagData, DatasetEmbeddingData
 from lightly.api.upload import upload_file_with_signed_url
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
 
@@ -27,6 +27,13 @@ class ApiWorkflow:
         self.tags_api = TagsApi(api_client=self.api_client)
         self.embeddings_api = EmbeddingsApi(api_client=api_client)
         self.mappings_api = MappingsApi(api_client=api_client)
+
+    @property
+    def filenames(self):
+        if not hasattr(self, "_filenames"):
+            self._filenames = self.mappings_api.\
+                get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
+        return self._filenames
 
     def sampling(self, sampler_config: SamplerConfig, preselected_tag_id: str = None, query_tag_id: str = None,
                  al_scores: Dict[str, List[int]] = None) -> TagData:
@@ -67,7 +74,7 @@ class ApiWorkflow:
             self.embeddings_api.get_embeddings_by_dataset_id(dataset_id=self.dataset_id)
         names_embeddings_on_server = [embedding.name for embedding in embeddings_on_server]
         if name in names_embeddings_on_server:
-            print(f"Aborting upload, embedding with name={name} already exists.")
+            print(f"Aborting upload, embedding with name='{name}' already exists.")
             self.embedding_id = next(embedding for embedding in embeddings_on_server if embedding.name == name).id
             return
 

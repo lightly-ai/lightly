@@ -29,6 +29,8 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
         print("Starting upload of dataset")
         upload_dataset(dataset=dataset, dataset_id=dataset_id, token=token, max_workers=12)
         print("Finished creation of intial tag")
+    else:
+        print("Skip upload of dataset: already uploaded.")
 
     # calculate and save the embeddings
     path_to_embeddings_csv = f"{path_to_dataset}/embeddings.csv"
@@ -46,22 +48,23 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
     api_workflow.upload_embeddings(path_to_embeddings_csv=path_to_embeddings_csv, name=f"embedding_1")
     print("Finished upload of embeddings")
 
-    time.sleep(3)
-
     # perform_a_sampling
     print("Starting performing a sampling")
     sampler_config = SamplerConfig(batch_size=8)
     new_tag = api_workflow.sampling(sampler_config=sampler_config)
     print("Finished the sampling")
     chosen_samples_ids = BitMask.from_hex(new_tag.bit_mask_data).to_indices()
+    chosen_filenames = [api_workflow.filenames[i] for i in chosen_samples_ids]
 
-    print(new_tag)
-    print(f'chosen_sample_ids: {chosen_samples_ids}')
+    print(f'chosen_filenames: {chosen_filenames}')
     print("Finished the sampling")
 
 
 if __name__ == "__main__":
     path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test/dress"
     token = "f9b60358d529bdd824e3c2df"
-    dataset_id = "6021351975e2c10032ff0492"
-    t_est_unmocked_complete_workflow(path_to_dataset, token, dataset_id)
+    dataset_id = "6023faa0c9d7110032b9cbcb"
+    for i in range(2):
+        print(f"ITERATION {i}:")
+        t_est_unmocked_complete_workflow(path_to_dataset, token, dataset_id)
+        print("")
