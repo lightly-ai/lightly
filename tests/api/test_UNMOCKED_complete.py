@@ -63,5 +63,5 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
 if __name__ == "__main__":
     path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test/dress"
     token = "f9b60358d529bdd824e3c2df"
-    dataset_id = "60224e8e08c20d0032b5c8ff"
+    dataset_id = "6021351975e2c10032ff0492"
     t_est_unmocked_complete_workflow(path_to_dataset, token, dataset_id)
