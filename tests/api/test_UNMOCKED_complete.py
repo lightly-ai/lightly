@@ -43,8 +43,7 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
 
     # upload the embeddings
     print("Starting upload of embeddings")
-    timestamp = int(round(time.time() * 1000))
-    api_workflow.upload_embeddings(path_to_embeddings_csv=path_to_embeddings_csv, name=f"embedding_{timestamp}")
+    api_workflow.upload_embeddings(path_to_embeddings_csv=path_to_embeddings_csv, name=f"embedding_1")
     print("Finished upload of embeddings")
 
     time.sleep(3)
