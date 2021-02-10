@@ -4,7 +4,7 @@ import csv
 
 from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.openapi_generated.swagger_client import Configuration, ApiClient, SamplingsApi, JobsApi, JobState, \
-    TagsApi, JobStatusData, EmbeddingsApi, MappingsApi, TagData
+    TagsApi, JobStatusData, EmbeddingsApi, MappingsApi, TagData, DatasetEmbeddingData
 from lightly.api.upload import upload_file_with_signed_url
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
 
@@ -61,6 +61,15 @@ class ApiWorkflow:
         return new_tag_data
 
     def upload_embeddings(self, path_to_embeddings_csv: str, name: str = None):
+
+        # get the names of the current embeddings on the server:
+        embeddings_on_server: List[DatasetEmbeddingData] = \
+            self.embeddings_api.get_embeddings_by_dataset_id(dataset_id=self.dataset_id)
+        names_embeddings_on_server = [embedding.name for embedding in embeddings_on_server]
+        if name in names_embeddings_on_server:
+            print(f"Aborting upload, embedding with name={name} already exists.")
+            self.embedding_id = next(embedding for embedding in embeddings_on_server if embedding.name == name).id
+            return
 
         # get the desired order of filenames
         filenames_on_server = self.mappings_api.get_sample_mappings_by_dataset_id(self.dataset_id, "fileName")

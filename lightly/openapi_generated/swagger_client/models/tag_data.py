@@ -35,7 +35,7 @@ class TagData(object):
     swagger_types = {
         'id': 'MongoObjectID',
         'dataset_id': 'MongoObjectID',
-        'prev_tag_id': 'MongoObjectID',
+        'prev_tag_id': 'str',
         'name': 'TagName',
         'bit_mask_data': 'TagBitMaskData',
         'tot_size': 'int',
@@ -72,8 +72,7 @@ class TagData(object):
 
         self.id = id
         self.dataset_id = dataset_id
-        if prev_tag_id is not None:
-            self.prev_tag_id = prev_tag_id
+        self.prev_tag_id = prev_tag_id
         self.name = name
         self.bit_mask_data = bit_mask_data
         self.tot_size = tot_size
@@ -131,9 +130,10 @@ class TagData(object):
     def prev_tag_id(self):
         """Gets the prev_tag_id of this TagData.  # noqa: E501
 
+        MongoObjectID or null  # noqa: E501
 
         :return: The prev_tag_id of this TagData.  # noqa: E501
-        :rtype: MongoObjectID
+        :rtype: str
         """
         return self._prev_tag_id
 
@@ -141,9 +141,10 @@ class TagData(object):
     def prev_tag_id(self, prev_tag_id):
         """Sets the prev_tag_id of this TagData.
 
+        MongoObjectID or null  # noqa: E501
 
         :param prev_tag_id: The prev_tag_id of this TagData.  # noqa: E501
-        :type: MongoObjectID
+        :type: str
         """
 
         self._prev_tag_id = prev_tag_id

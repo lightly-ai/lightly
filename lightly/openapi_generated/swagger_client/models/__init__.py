@@ -26,6 +26,7 @@ from lightly.openapi_generated.swagger_client.models.body import Body
 from lightly.openapi_generated.swagger_client.models.create_cf_bucket_activity_request import CreateCFBucketActivityRequest
 from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
+from lightly.openapi_generated.swagger_client.models.dataset_embedding_data import DatasetEmbeddingData
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.embedding_data import EmbeddingData
 from lightly.openapi_generated.swagger_client.models.general_job_result import GeneralJobResult
