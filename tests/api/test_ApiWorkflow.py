@@ -1,16 +1,17 @@
-import unittest
 from io import BufferedReader
-from unittest.mock import patch
 import tempfile
 import os
+from typing import *
 
+import unittest
 import numpy as np
 
 import lightly
 from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.api.api_workflow import ApiWorkflow
 from lightly.openapi_generated.swagger_client import EmbeddingsApi, SamplingsApi, TagsApi, JobsApi, JobStatusData, \
-    SamplingCreateRequest, JobState, TagData, JobStatusDataResult, JobResultType, MappingsApi, AsyncTaskData
+    SamplingCreateRequest, JobState, TagData, JobStatusDataResult, JobResultType, MappingsApi, AsyncTaskData, \
+    DatasetEmbeddingData
 from lightly.openapi_generated.swagger_client.models.inline_response200 import InlineResponse200
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
 
@@ -20,6 +21,10 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         assert isinstance(dataset_id, str)
         response_ = WriteCSVUrlData(signed_write_url="signed_write_url_valid", embedding_id="embedding_id_xyz")
         return response_
+
+    def get_embeddings_by_dataset_id(self, dataset_id, **kwargs) -> List[DatasetEmbeddingData]:
+        return [DatasetEmbeddingData(id="embedding_id_xyz", name="embedding_name_xxyyzz",
+                                     is_processed=True, created_at=0)]
 
 
 class MockedSamplingsApi(SamplingsApi):
