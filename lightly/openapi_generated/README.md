@@ -81,6 +81,7 @@ Class | Method | HTTP request | Description
 *AuthApi* | [**get_tokens**](docs/AuthApi.md#get_tokens) | **GET** /users/tokens | 
 *DatasetsApi* | [**get_dataset_by_id**](docs/DatasetsApi.md#get_dataset_by_id) | **GET** /users/datasets/{datasetId} | 
 *DatasetsApi* | [**get_datasets**](docs/DatasetsApi.md#get_datasets) | **GET** /users/datasets | 
+*EmbeddingsApi* | [**get_embeddings_by_dataset_id**](docs/EmbeddingsApi.md#get_embeddings_by_dataset_id) | **GET** /v1/datasets/{datasetId}/embeddings | 
 *EmbeddingsApi* | [**get_embeddings_by_sample_id**](docs/EmbeddingsApi.md#get_embeddings_by_sample_id) | **GET** /users/datasets/{datasetId}/samples/{sampleId}/embeddings | 
 *EmbeddingsApi* | [**get_embeddings_csv_write_url_by_id**](docs/EmbeddingsApi.md#get_embeddings_csv_write_url_by_id) | **GET** /v1/datasets/{datasetId}/embeddings/writeCSVUrl | 
 *InternalApi* | [**internal_create_cf_bucket_activity**](docs/InternalApi.md#internal_create_cf_bucket_activity) | **POST** /v1/__internal/cloudfunctions/bucket | 
@@ -112,6 +113,7 @@ Class | Method | HTTP request | Description
  - [CreateCFBucketActivityRequest](docs/CreateCFBucketActivityRequest.md)
  - [CreateEntityResponse](docs/CreateEntityResponse.md)
  - [DatasetData](docs/DatasetData.md)
+ - [DatasetEmbeddingData](docs/DatasetEmbeddingData.md)
  - [DatasetType](docs/DatasetType.md)
  - [EmbeddingData](docs/EmbeddingData.md)
  - [GeneralJobResult](docs/GeneralJobResult.md)
