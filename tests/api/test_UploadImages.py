@@ -9,12 +9,21 @@ import pytest
 import torchvision
 import tempfile
 import lightly.api as api
+from lightly.openapi_generated.swagger_client import TagsApi, InitialTagCreateRequest, CreateEntityResponse
+
+
+class MockedTagsApi(TagsApi):
+    def create_initial_tag_by_dataset_id(self, body, dataset_id, **kwargs):
+        assert isinstance(body, InitialTagCreateRequest)
+        assert isinstance(dataset_id, str)
+        response_ = CreateEntityResponse(id="xyz")
+        return response_
+
 
 @pytest.mark.slow
 class TestUploadImages(unittest.TestCase):
 
     def setup(self, n_data=1000):
-
         # set up url
         self.dataset_id = 'XYZ'
         self.token = 'secret'
@@ -40,6 +49,7 @@ class TestUploadImages(unittest.TestCase):
             path = os.path.join(self.folder_path, sample_names[sample_idx])
             data[0].save(path)
 
+        api.upload.TagsApi = MockedTagsApi
 
     @responses.activate
     def test_upload_images_dataset_too_large(self):
@@ -51,6 +61,7 @@ class TestUploadImages(unittest.TestCase):
                 [],
                 json.dumps({'maxDatasetSize': 25000})
             )
+
         responses.add_callback(
             responses.GET, self.getquota_url,
             callback=get_quota_callback,
@@ -74,7 +85,7 @@ class TestUploadImages(unittest.TestCase):
                 [],
                 json.dumps([{'name': 'initial-tag'}, {'name': 'other-tag'}])
             )
-        
+
         def get_quota_callback(request):
             return (
                 200,
@@ -104,16 +115,16 @@ class TestUploadImages(unittest.TestCase):
     @responses.activate
     def test_upload_images_metadata(self):
         self.setup(n_data=10)
-        
+
         def get_tags_callback(request):
-            return (200,[], json.dumps([]))
-        
+            return (200, [], json.dumps([]))
+
         def upload_sample_callback(request):
             return (200, [], json.dumps({'sampleId': 'x1y2'}))
-        
+
         def put_dataset_callback(request):
-            return (200,[], json.dumps([]))
-        
+            return (200, [], json.dumps([]))
+
         def post_tag_callback(request):
             return (200, [], json.dumps([]))
 
@@ -164,22 +175,22 @@ class TestUploadImages(unittest.TestCase):
     @responses.activate
     def test_upload_images_thumbnails(self):
         self.setup(n_data=10)
-        
+
         def get_tags_callback(request):
-            return (200,[], json.dumps([]))
-        
+            return (200, [], json.dumps([]))
+
         def upload_sample_callback(request):
             return (200, [], json.dumps({'sampleId': 'x1y2'}))
-        
+
         def get_thumbnail_write_url_callback(request):
             return (200, [], json.dumps({'signedWriteUrl': self.signed_url}))
-        
+
         def put_thumbnail_callback(request):
             return (200, [], json.dumps({}))
-        
+
         def put_dataset_callback(request):
-            return (200,[], json.dumps([]))
-        
+            return (200, [], json.dumps([]))
+
         def post_tag_callback(request):
             return (200, [], json.dumps([]))
 
@@ -208,7 +219,7 @@ class TestUploadImages(unittest.TestCase):
             callback=get_thumbnail_write_url_callback,
             content_type='application/json'
         )
-        
+
         responses.add_callback(
             responses.PUT, self.signed_url,
             callback=put_thumbnail_callback,
@@ -243,22 +254,22 @@ class TestUploadImages(unittest.TestCase):
     @responses.activate
     def test_upload_images_full(self):
         self.setup(n_data=10)
-        
+
         def get_tags_callback(request):
-            return (200,[], json.dumps([]))
-        
+            return (200, [], json.dumps([]))
+
         def upload_sample_callback(request):
             return (200, [], json.dumps({'sampleId': 'x1y2'}))
-        
+
         def get_thumbnail_write_url_callback(request):
             return (200, [], json.dumps({'signedWriteUrl': self.signed_url}))
-        
+
         def put_thumbnail_callback(request):
             return (200, [], json.dumps({}))
-        
+
         def put_dataset_callback(request):
-            return (200,[], json.dumps([]))
-        
+            return (200, [], json.dumps([]))
+
         def post_tag_callback(request):
             return (200, [], json.dumps([]))
 
