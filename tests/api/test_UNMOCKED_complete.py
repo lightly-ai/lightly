@@ -62,7 +62,7 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
 
 if __name__ == "__main__":
     path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test/dress"
-    token = "f9b60358d529bdd824e3c2df"
+    token = os.getenv("TOKEN")
     dataset_id = "6023faa0c9d7110032b9cbcb"
     for i in range(2):
         print(f"ITERATION {i}:")
