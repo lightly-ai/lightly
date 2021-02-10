@@ -4,7 +4,7 @@ import csv
 
 from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.openapi_generated.swagger_client import Configuration, ApiClient, SamplingsApi, JobsApi, JobState, \
-    TagsApi, JobStatusData, EmbeddingsApi, MappingsApi, TagData, DatasetEmbeddingData
+    TagsApi, JobStatusData, EmbeddingsApi, MappingsApi, TagData
 from lightly.api.upload import upload_file_with_signed_url
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
 
