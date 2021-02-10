@@ -23,6 +23,7 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         return response_
 
     def get_embeddings_by_dataset_id(self, dataset_id, **kwargs) -> List[DatasetEmbeddingData]:
+        assert isinstance(dataset_id,str)
         return [DatasetEmbeddingData(id="embedding_id_xyz", name="embedding_name_xxyyzz",
                                      is_processed=True, created_at=0)]
 
