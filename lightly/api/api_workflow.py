@@ -45,13 +45,13 @@ class ApiWorkflow:
         # trigger the sampling
         payload = sampler_config.get_as_api_sampling_create_request(
             preselected_tag_id=preselected_tag_id, query_tag_id=query_tag_id)
-        payload.row_count = 15
+        payload.row_count = 15  # TODO: remove after solving https://github.com/lightly-ai/lightly-core/issues/150
         response = self.samplings_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
         job_id = response.job_id
         print(f"job_id: {job_id}")
 
         # poll the job status till the job is finished
-        time.sleep(2)
+        time.sleep(2)  # TODO; remove after solving https://github.com/lightly-ai/lightly-core/issues/150
         while True:
             job_status_data: JobStatusData = self.jobs_api.get_job_status_by_id(job_id=job_id)
             if job_status_data.status == JobState.FINISHED:
