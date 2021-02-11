@@ -146,8 +146,6 @@ class TagData(object):
         :param prev_tag_id: The prev_tag_id of this TagData.  # noqa: E501
         :type: str
         """
-        if self._configuration.client_side_validation and prev_tag_id is None:
-            raise ValueError("Invalid value for `prev_tag_id`, must not be `None`")  # noqa: E501
 
         self._prev_tag_id = prev_tag_id
 
