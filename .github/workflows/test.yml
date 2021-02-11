@@ -25,7 +25,7 @@ jobs:
     - name: Run Pytest
       run: |
         pip install pytest-cov
-        python -m pytest -s -v --runslow --cov=./lightly --cov-report=xml --ignore=lightly/openapi_generated
+        python -m pytest -s -v --runslow --cov=./lightly --cov-report=xml --omit=lightly/openapi_generated
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
