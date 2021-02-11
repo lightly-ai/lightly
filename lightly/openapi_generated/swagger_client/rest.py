@@ -225,11 +225,7 @@ class RESTClientObject(object):
             logger.debug("response body: %s", r.data)
 
         if not 200 <= r.status <= 299:
-<<<<<<< HEAD
-g            raise ApiException(http_resp=r)
-=======
             raise ApiException(http_resp=r)
->>>>>>> a7222f691db1236a05b36228c5366c291351b5c1
 
         return r
 
