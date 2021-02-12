@@ -5,11 +5,11 @@ Tutorial 5: Custom Augmentations
 ==============================================
 
 In this tutorial, we will train a model on chest X-ray images in a self-supervised manner.
-In self-supervised learning, X-ray images can pose some problems: They are often more 
-than eight bits deep which makes them incompatible with certain standard torchvision 
+In self-supervised learning, X-ray images can pose some problems: They are often more
+than eight bits deep which makes them incompatible with certain standard torchvision
 transforms such as, for example, random-resized cropping. Additionally, some augmentations
 which are often used in self-supervised learning are ineffective on X-ray images.
-For example, applying color jitter to an X-ray image with a single color channel 
+For example, applying color jitter to an X-ray image with a single color channel
 does not make sense.
 
 We will show how to address these problems and how to train a ResNet-18 with MoCo
@@ -19,7 +19,8 @@ The original dataset this tutorial is based on can be found `on Kaggle <https://
 These images are in the DICOM format. For simplicity and efficiency reasons, 
 we randomly selected ~4000 images from the above dataset, resized them such that the
 maximum of the width and height of each image is no larger than 512, and converted
-them to the 16-bit TIFF format. To do so, we used ImageMagick:
+them to the 16-bit TIFF format. To do so, we used ImageMagick which is preinstalled
+on most Linux systems. 
 
 .. code::
 
@@ -129,7 +130,8 @@ class GaussianNoise:
 
 # %%
 # Now that we have implemented our custom augmentations, we can combine them
-# with available augmentations from the torchvision library. Make sure, that
+# with available augmentations from the torchvision library to get to the same
+# set of augmentations as used in the aforementioned paper. Make sure, that
 # the first augmentation is the histogram normalization, and that the Gaussian
 # noise is applied after converting the image to a tensor.
 #
@@ -179,7 +181,7 @@ axs[2].set_axis_off()
 
 # %%
 # Finally, in order to use the augmentation pipeline we defined for self-supervised
-# learning, we need to create a Lightly collate function like so:
+# learning, we need to create a lightly collate function like so:
 
 # create a collate function which performs the random augmentations
 collate_fn = lightly.data.BaseCollateFunction(transform)
@@ -191,6 +193,11 @@ collate_fn = lightly.data.BaseCollateFunction(transform)
 # We create a dataset which points to the images in the input directory. Since
 # the input images are 16 bits deep, we need to overwrite the image loader such 
 # that it doesn't convert the images to RGB (and hence to 8-bit) automatically.
+#
+# .. note:: The `LightlyDataset` uses a torchvision dataset underneath, which in turn uses
+#   an image loader which transforms the input image to an 8-bit RGB image. If a 16-bit
+#   grayscale image is loaded that way, all pixel values above 255 are simply clamped.
+#   Therefore, we overwrite the default image loader with our custom one.
 
 
 def tiff_loader(f):
@@ -238,15 +245,19 @@ model = lightly.models.MoCo(backbone, num_ftrs=512, m=0.99)
 # Setup criterion and optimizer
 # -----------------------------
 # For the criterion, we use the NTXentLoss which should always be used with MoCo.
-# MoCo also requires a memory bank - we set its size to 4096.
+# MoCo also requires a memory bank - we set its size to 4096 which is approximately
+# the size of the input dataset. The temperature parameter of the loss is set to 0.1.
+# This smoothens the cross entropy term in the loss function.
 #
 # The choice of the optimizer is left to the user. Here, we go with simple stochastic
 # gradient descent with momentum.
+
 criterion = lightly.loss.NTXentLoss(
     temperature=0.1,
     memory_bank_size=4096,
 )
 
+# use the same options as in the aforementioned paper
 optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=1e-4)
 
 
@@ -320,20 +331,24 @@ embeddings = normalize(embeddings)
 # of the critical findings in the nearest neighbor images (light blue) as bar plots.
 
 
-# transform the original annotations to multiclass labels
+# transform the original bounding box annotations to multiclass labels
 fnames = [fname.split('.')[0] for fname in fnames]
 
 df = pandas.read_csv('/datasets/vinbigdata/train.csv')
 classes = list(np.unique(df.class_name))
 filenames = list(np.unique(df.image_id))
 
+# iterate over all bounding boxes and add a one-hot label if an image contains
+# a bounding box of a given class, after that, the array "multilabels" will 
+# contain a row for every image in the input dataset and each row of the 
+# array contains a one-hot vector of critical findings for this image
 multilabels = np.zeros((len(dataset_test.get_filenames()), len(classes)))
 for filename, label in zip(df.image_id, df.class_name):
     try:
         i = fnames.index(filename.split('.')[0])
         j = classes.index(label)
         multilabels[i, j] = 1.
-    except:
+    except Exception:
         pass
 
 
@@ -345,7 +360,7 @@ def plot_knn_multilabels(embeddings, multilabels, samples_idx, n_neighbors=50):
     nbrs = NearestNeighbors(n_neighbors=n_neighbors).fit(embeddings)
     _, indices = nbrs.kneighbors(embeddings)
 
-    # TODO
+    # position the bars
     bar_width = 0.4
     r1 = np.arange(multilabels.shape[1])
     r2 = r1 + bar_width
@@ -363,4 +378,7 @@ def plot_knn_multilabels(embeddings, multilabels, samples_idx, n_neighbors=50):
         plt.tight_layout()
 
 
-plot_knn_multilabels(embeddings, multilabels, [4111, 3340, 1796])
+# plot the distribution of the multilabels of the k nearest neighbors of 
+# the three example images at index 4111, 3340, 1796
+k = 20
+plot_knn_multilabels(embeddings, multilabels, [4111, 3340, 1796], n_neighbors=k)
