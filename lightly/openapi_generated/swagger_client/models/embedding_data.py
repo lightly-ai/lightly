@@ -39,7 +39,11 @@ class EmbeddingData(object):
     }
 
     attribute_map = {
+<<<<<<< HEAD
         'id': 'id',
+=======
+        'id': '_id',
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         'dataset': 'dataset',
         'name': 'name'
     }
@@ -56,8 +60,12 @@ class EmbeddingData(object):
         self.discriminator = None
 
         self.id = id
+<<<<<<< HEAD
         if dataset is not None:
             self.dataset = dataset
+=======
+        self.dataset = dataset
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         self.name = name
 
     @property
@@ -101,6 +109,11 @@ class EmbeddingData(object):
         :param dataset: The dataset of this EmbeddingData.  # noqa: E501
         :type: MongoObjectID
         """
+<<<<<<< HEAD
+=======
+        if self._configuration.client_side_validation and dataset is None:
+            raise ValueError("Invalid value for `dataset`, must not be `None`")  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
         self._dataset = dataset
 

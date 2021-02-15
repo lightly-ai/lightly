@@ -34,6 +34,7 @@ class DatasetData(object):
     """
     swagger_types = {
         'id': 'MongoObjectID',
+<<<<<<< HEAD
         'name': 'DatasetName',
         'type': 'DatasetType',
         'img_type': 'ImageType',
@@ -55,6 +56,31 @@ class DatasetData(object):
     }
 
     def __init__(self, id=None, name=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
+=======
+        'name': 'str',
+        'type': 'DatasetType',
+        'created_at': 'Timestamp',
+        'last_modified_at': 'Timestamp',
+        'embeddings': 'list[EmbeddingData]',
+        'n_samples': 'int',
+        'size_in_bytes': 'int',
+        'img_type': 'ImageType'
+    }
+
+    attribute_map = {
+        'id': '_id',
+        'name': 'name',
+        'type': 'type',
+        'created_at': 'createdAt',
+        'last_modified_at': 'lastModifiedAt',
+        'embeddings': 'embeddings',
+        'n_samples': 'nSamples',
+        'size_in_bytes': 'sizeInBytes',
+        'img_type': 'imgType'
+    }
+
+    def __init__(self, id=None, name=None, type=None, created_at=None, last_modified_at=None, embeddings=None, n_samples=None, size_in_bytes=None, img_type=None, _configuration=None):  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         """DatasetData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -63,22 +89,41 @@ class DatasetData(object):
         self._id = None
         self._name = None
         self._type = None
+<<<<<<< HEAD
         self._img_type = None
         self._n_samples = None
         self._size_in_bytes = None
         self._created_at = None
         self._last_modified_at = None
+=======
+        self._created_at = None
+        self._last_modified_at = None
+        self._embeddings = None
+        self._n_samples = None
+        self._size_in_bytes = None
+        self._img_type = None
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         self.discriminator = None
 
         self.id = id
         self.name = name
         self.type = type
+<<<<<<< HEAD
         if img_type is not None:
             self.img_type = img_type
         self.n_samples = n_samples
         self.size_in_bytes = size_in_bytes
         self.created_at = created_at
         self.last_modified_at = last_modified_at
+=======
+        self.created_at = created_at
+        self.last_modified_at = last_modified_at
+        self.embeddings = embeddings
+        self.n_samples = n_samples
+        self.size_in_bytes = size_in_bytes
+        if img_type is not None:
+            self.img_type = img_type
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
     @property
     def id(self):
@@ -109,7 +154,11 @@ class DatasetData(object):
 
 
         :return: The name of this DatasetData.  # noqa: E501
+<<<<<<< HEAD
         :rtype: DatasetName
+=======
+        :rtype: str
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         """
         return self._name
 
@@ -119,7 +168,11 @@ class DatasetData(object):
 
 
         :param name: The name of this DatasetData.  # noqa: E501
+<<<<<<< HEAD
         :type: DatasetName
+=======
+        :type: str
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         """
         if self._configuration.client_side_validation and name is None:
             raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
@@ -150,6 +203,7 @@ class DatasetData(object):
         self._type = type
 
     @property
+<<<<<<< HEAD
     def img_type(self):
         """Gets the img_type of this DatasetData.  # noqa: E501
 
@@ -169,6 +223,75 @@ class DatasetData(object):
         """
 
         self._img_type = img_type
+=======
+    def created_at(self):
+        """Gets the created_at of this DatasetData.  # noqa: E501
+
+
+        :return: The created_at of this DatasetData.  # noqa: E501
+        :rtype: Timestamp
+        """
+        return self._created_at
+
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this DatasetData.
+
+
+        :param created_at: The created_at of this DatasetData.  # noqa: E501
+        :type: Timestamp
+        """
+        if self._configuration.client_side_validation and created_at is None:
+            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
+
+        self._created_at = created_at
+
+    @property
+    def last_modified_at(self):
+        """Gets the last_modified_at of this DatasetData.  # noqa: E501
+
+
+        :return: The last_modified_at of this DatasetData.  # noqa: E501
+        :rtype: Timestamp
+        """
+        return self._last_modified_at
+
+    @last_modified_at.setter
+    def last_modified_at(self, last_modified_at):
+        """Sets the last_modified_at of this DatasetData.
+
+
+        :param last_modified_at: The last_modified_at of this DatasetData.  # noqa: E501
+        :type: Timestamp
+        """
+        if self._configuration.client_side_validation and last_modified_at is None:
+            raise ValueError("Invalid value for `last_modified_at`, must not be `None`")  # noqa: E501
+
+        self._last_modified_at = last_modified_at
+
+    @property
+    def embeddings(self):
+        """Gets the embeddings of this DatasetData.  # noqa: E501
+
+
+        :return: The embeddings of this DatasetData.  # noqa: E501
+        :rtype: list[EmbeddingData]
+        """
+        return self._embeddings
+
+    @embeddings.setter
+    def embeddings(self, embeddings):
+        """Sets the embeddings of this DatasetData.
+
+
+        :param embeddings: The embeddings of this DatasetData.  # noqa: E501
+        :type: list[EmbeddingData]
+        """
+        if self._configuration.client_side_validation and embeddings is None:
+            raise ValueError("Invalid value for `embeddings`, must not be `None`")  # noqa: E501
+
+        self._embeddings = embeddings
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
     @property
     def n_samples(self):
@@ -217,6 +340,7 @@ class DatasetData(object):
         self._size_in_bytes = size_in_bytes
 
     @property
+<<<<<<< HEAD
     def created_at(self):
         """Gets the created_at of this DatasetData.  # noqa: E501
 
@@ -261,6 +385,27 @@ class DatasetData(object):
             raise ValueError("Invalid value for `last_modified_at`, must not be `None`")  # noqa: E501
 
         self._last_modified_at = last_modified_at
+=======
+    def img_type(self):
+        """Gets the img_type of this DatasetData.  # noqa: E501
+
+
+        :return: The img_type of this DatasetData.  # noqa: E501
+        :rtype: ImageType
+        """
+        return self._img_type
+
+    @img_type.setter
+    def img_type(self, img_type):
+        """Sets the img_type of this DatasetData.
+
+
+        :param img_type: The img_type of this DatasetData.  # noqa: E501
+        :type: ImageType
+        """
+
+        self._img_type = img_type
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -30,7 +30,10 @@ class JobResultType(object):
     """
     SAMPLING = "SAMPLING"
     IMAGEMETA = "IMAGEMETA"
+<<<<<<< HEAD
     EMBEDDINGS2D = "EMBEDDINGS2D"
+=======
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
     """
     Attributes:

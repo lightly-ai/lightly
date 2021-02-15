@@ -36,19 +36,30 @@ class DatasetEmbeddingData(object):
         'id': 'MongoObjectID',
         'name': 'str',
         'is_processed': 'bool',
+<<<<<<< HEAD
         'created_at': 'Timestamp',
         'is2d': 'bool'
+=======
+        'created_at': 'Timestamp'
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
     }
 
     attribute_map = {
         'id': 'id',
         'name': 'name',
         'is_processed': 'isProcessed',
+<<<<<<< HEAD
         'created_at': 'createdAt',
         'is2d': 'is2d'
     }
 
     def __init__(self, id=None, name=None, is_processed=None, created_at=None, is2d=None, _configuration=None):  # noqa: E501
+=======
+        'created_at': 'createdAt'
+    }
+
+    def __init__(self, id=None, name=None, is_processed=None, created_at=None, _configuration=None):  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         """DatasetEmbeddingData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -58,15 +69,21 @@ class DatasetEmbeddingData(object):
         self._name = None
         self._is_processed = None
         self._created_at = None
+<<<<<<< HEAD
         self._is2d = None
+=======
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         self.discriminator = None
 
         self.id = id
         self.name = name
         self.is_processed = is_processed
         self.created_at = created_at
+<<<<<<< HEAD
         if is2d is not None:
             self.is2d = is2d
+=======
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
     @property
     def id(self):
@@ -120,7 +137,11 @@ class DatasetEmbeddingData(object):
     def is_processed(self):
         """Gets the is_processed of this DatasetEmbeddingData.  # noqa: E501
 
+<<<<<<< HEAD
         indicator whether embeddings have already been processed by a background worker  # noqa: E501
+=======
+        ALWAYS FALSE UNTIL IMPLEMENTED -> Indicator if the embedding was processed by the backend (for 2dEmbeddings)  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
         :return: The is_processed of this DatasetEmbeddingData.  # noqa: E501
         :rtype: bool
@@ -131,7 +152,11 @@ class DatasetEmbeddingData(object):
     def is_processed(self, is_processed):
         """Sets the is_processed of this DatasetEmbeddingData.
 
+<<<<<<< HEAD
         indicator whether embeddings have already been processed by a background worker  # noqa: E501
+=======
+        ALWAYS FALSE UNTIL IMPLEMENTED -> Indicator if the embedding was processed by the backend (for 2dEmbeddings)  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
         :param is_processed: The is_processed of this DatasetEmbeddingData.  # noqa: E501
         :type: bool
@@ -164,6 +189,7 @@ class DatasetEmbeddingData(object):
 
         self._created_at = created_at
 
+<<<<<<< HEAD
     @property
     def is2d(self):
         """Gets the is2d of this DatasetEmbeddingData.  # noqa: E501
@@ -187,6 +213,8 @@ class DatasetEmbeddingData(object):
 
         self._is2d = is2d
 
+=======
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
     def to_dict(self):
         """Returns the model properties as a dict"""
         result = {}

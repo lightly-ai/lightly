@@ -333,6 +333,7 @@ class EmbeddingsApi(object):
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
+<<<<<<< HEAD
 
     def set_embeddings_is_processed_flag_by_id(self, dataset_id, embedding_id, **kwargs):  # noqa: E501
         """set_embeddings_is_processed_flag_by_id  # noqa: E501
@@ -436,3 +437,5 @@ class EmbeddingsApi(object):
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
+=======
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)

@@ -33,6 +33,7 @@ class DatasetsApi(object):
             api_client = ApiClient()
         self.api_client = api_client
 
+<<<<<<< HEAD
     def create_dataset(self, body, **kwargs):  # noqa: E501
         """create_dataset  # noqa: E501
 
@@ -227,6 +228,8 @@ class DatasetsApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
+=======
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
     def get_dataset_by_id(self, dataset_id, **kwargs):  # noqa: E501
         """get_dataset_by_id  # noqa: E501
 
@@ -307,7 +310,11 @@ class DatasetsApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
+<<<<<<< HEAD
             '/v1/datasets/{datasetId}', 'GET',
+=======
+            '/users/datasets/{datasetId}', 'GET',
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
             path_params,
             query_params,
             header_params,
@@ -394,7 +401,11 @@ class DatasetsApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
+<<<<<<< HEAD
             '/v1/datasets', 'GET',
+=======
+            '/users/datasets', 'GET',
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
             path_params,
             query_params,
             header_params,
@@ -408,6 +419,7 @@ class DatasetsApi(object):
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
+<<<<<<< HEAD
 
     def update_dataset_by_id(self, body, dataset_id, **kwargs):  # noqa: E501
         """update_dataset_by_id  # noqa: E501
@@ -515,3 +527,5 @@ class DatasetsApi(object):
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
+=======
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)

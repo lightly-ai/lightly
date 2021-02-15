@@ -33,6 +33,7 @@ class SamplesApi(object):
             api_client = ApiClient()
         self.api_client = api_client
 
+<<<<<<< HEAD
     def create_sample_by_dataset_id(self, body, dataset_id, **kwargs):  # noqa: E501
         """create_sample_by_dataset_id  # noqa: E501
 
@@ -140,6 +141,8 @@ class SamplesApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
+=======
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
     def get_sample_by_id(self, dataset_id, sample_id, **kwargs):  # noqa: E501
         """get_sample_by_id  # noqa: E501
 
@@ -228,7 +231,11 @@ class SamplesApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
+<<<<<<< HEAD
             '/v1/datasets/{datasetId}/samples/{sampleId}', 'GET',
+=======
+            '/users/datasets/{datasetId}/samples/{sampleId}', 'GET',
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
             path_params,
             query_params,
             header_params,
@@ -335,7 +342,11 @@ class SamplesApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
+<<<<<<< HEAD
             '/v1/datasets/{datasetId}/samples/{sampleId}/readurl', 'GET',
+=======
+            '/users/datasets/{datasetId}/samples/{sampleId}/readurl', 'GET',
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
             path_params,
             query_params,
             header_params,
@@ -350,49 +361,84 @@ class SamplesApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
+<<<<<<< HEAD
     def get_sample_image_write_url_by_id(self, dataset_id, sample_id, is_thumbnail, **kwargs):  # noqa: E501
+=======
+    def get_sample_image_write_url_by_id(self, dataset_id, sample_id, file_name, **kwargs):  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         """get_sample_image_write_url_by_id  # noqa: E501
 
         Get the signed url to upload an image to for a specific sample of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
+<<<<<<< HEAD
         >>> thread = api.get_sample_image_write_url_by_id(dataset_id, sample_id, is_thumbnail, async_req=True)
+=======
+        >>> thread = api.get_sample_image_write_url_by_id(dataset_id, sample_id, file_name, async_req=True)
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         >>> result = thread.get()
 
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID sample_id: ObjectId of the sample (required)
+<<<<<<< HEAD
         :param bool is_thumbnail: Whether or not the image to upload is a thumbnail (required)
         :return: str
+=======
+        :param str file_name: the filename to create a signed url for (required)
+        :return: InlineResponse200
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
                  If the method is called asynchronously,
                  returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
+<<<<<<< HEAD
             return self.get_sample_image_write_url_by_id_with_http_info(dataset_id, sample_id, is_thumbnail, **kwargs)  # noqa: E501
         else:
             (data) = self.get_sample_image_write_url_by_id_with_http_info(dataset_id, sample_id, is_thumbnail, **kwargs)  # noqa: E501
             return data
 
     def get_sample_image_write_url_by_id_with_http_info(self, dataset_id, sample_id, is_thumbnail, **kwargs):  # noqa: E501
+=======
+            return self.get_sample_image_write_url_by_id_with_http_info(dataset_id, sample_id, file_name, **kwargs)  # noqa: E501
+        else:
+            (data) = self.get_sample_image_write_url_by_id_with_http_info(dataset_id, sample_id, file_name, **kwargs)  # noqa: E501
+            return data
+
+    def get_sample_image_write_url_by_id_with_http_info(self, dataset_id, sample_id, file_name, **kwargs):  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         """get_sample_image_write_url_by_id  # noqa: E501
 
         Get the signed url to upload an image to for a specific sample of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
+<<<<<<< HEAD
         >>> thread = api.get_sample_image_write_url_by_id_with_http_info(dataset_id, sample_id, is_thumbnail, async_req=True)
+=======
+        >>> thread = api.get_sample_image_write_url_by_id_with_http_info(dataset_id, sample_id, file_name, async_req=True)
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         >>> result = thread.get()
 
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID sample_id: ObjectId of the sample (required)
+<<<<<<< HEAD
         :param bool is_thumbnail: Whether or not the image to upload is a thumbnail (required)
         :return: str
+=======
+        :param str file_name: the filename to create a signed url for (required)
+        :return: InlineResponse200
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
+<<<<<<< HEAD
         all_params = ['dataset_id', 'sample_id', 'is_thumbnail']  # noqa: E501
+=======
+        all_params = ['dataset_id', 'sample_id', 'file_name']  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -415,10 +461,17 @@ class SamplesApi(object):
         if self.api_client.client_side_validation and ('sample_id' not in params or
                                                        params['sample_id'] is None):  # noqa: E501
             raise ValueError("Missing the required parameter `sample_id` when calling `get_sample_image_write_url_by_id`")  # noqa: E501
+<<<<<<< HEAD
         # verify the required parameter 'is_thumbnail' is set
         if self.api_client.client_side_validation and ('is_thumbnail' not in params or
                                                        params['is_thumbnail'] is None):  # noqa: E501
             raise ValueError("Missing the required parameter `is_thumbnail` when calling `get_sample_image_write_url_by_id`")  # noqa: E501
+=======
+        # verify the required parameter 'file_name' is set
+        if self.api_client.client_side_validation and ('file_name' not in params or
+                                                       params['file_name'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `file_name` when calling `get_sample_image_write_url_by_id`")  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
         collection_formats = {}
 
@@ -429,8 +482,13 @@ class SamplesApi(object):
             path_params['sampleId'] = params['sample_id']  # noqa: E501
 
         query_params = []
+<<<<<<< HEAD
         if 'is_thumbnail' in params:
             query_params.append(('isThumbnail', params['is_thumbnail']))  # noqa: E501
+=======
+        if 'file_name' in params:
+            query_params.append(('fileName', params['file_name']))  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
         header_params = {}
 
@@ -446,14 +504,22 @@ class SamplesApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
+<<<<<<< HEAD
             '/v1/datasets/{datasetId}/samples/{sampleId}/writeurl', 'GET',
+=======
+            '/users/datasets/{datasetId}/samples/{sampleId}/writeurl', 'GET',
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
             path_params,
             query_params,
             header_params,
             body=body_params,
             post_params=form_params,
             files=local_var_files,
+<<<<<<< HEAD
             response_type='str',  # noqa: E501
+=======
+            response_type='InlineResponse200',  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -473,7 +539,11 @@ class SamplesApi(object):
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param str mode: if we want everything (full) or just the ObjectIds
+<<<<<<< HEAD
         :param str file_name: filter the samples by filename
+=======
+        :param str filename: filter the samples by filename
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         :return: list[SampleData]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -497,13 +567,21 @@ class SamplesApi(object):
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param str mode: if we want everything (full) or just the ObjectIds
+<<<<<<< HEAD
         :param str file_name: filter the samples by filename
+=======
+        :param str filename: filter the samples by filename
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         :return: list[SampleData]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
+<<<<<<< HEAD
         all_params = ['dataset_id', 'mode', 'file_name']  # noqa: E501
+=======
+        all_params = ['dataset_id', 'mode', 'filename']  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -532,8 +610,13 @@ class SamplesApi(object):
         query_params = []
         if 'mode' in params:
             query_params.append(('mode', params['mode']))  # noqa: E501
+<<<<<<< HEAD
         if 'file_name' in params:
             query_params.append(('fileName', params['file_name']))  # noqa: E501
+=======
+        if 'filename' in params:
+            query_params.append(('filename', params['filename']))  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
         header_params = {}
 
@@ -549,7 +632,11 @@ class SamplesApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
+<<<<<<< HEAD
             '/v1/datasets/{datasetId}/samples', 'GET',
+=======
+            '/users/datasets/{datasetId}/samples', 'GET',
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
             path_params,
             query_params,
             header_params,
@@ -574,11 +661,18 @@ class SamplesApi(object):
         >>> result = thread.get()
 
         :param async_req bool
+<<<<<<< HEAD
         :param SampleUpdateRequest body: The updated sample to set (required)
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID sample_id: ObjectId of the sample (required)
         :param bool enable_dataset_update:
         :return: None
+=======
+        :param Body body: the updated sample to set (required)
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param MongoObjectID sample_id: ObjectId of the sample (required)
+        :return: SampleData
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -599,16 +693,27 @@ class SamplesApi(object):
         >>> result = thread.get()
 
         :param async_req bool
+<<<<<<< HEAD
         :param SampleUpdateRequest body: The updated sample to set (required)
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID sample_id: ObjectId of the sample (required)
         :param bool enable_dataset_update:
         :return: None
+=======
+        :param Body body: the updated sample to set (required)
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param MongoObjectID sample_id: ObjectId of the sample (required)
+        :return: SampleData
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
+<<<<<<< HEAD
         all_params = ['body', 'dataset_id', 'sample_id', 'enable_dataset_update']  # noqa: E501
+=======
+        all_params = ['body', 'dataset_id', 'sample_id']  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -645,8 +750,11 @@ class SamplesApi(object):
             path_params['sampleId'] = params['sample_id']  # noqa: E501
 
         query_params = []
+<<<<<<< HEAD
         if 'enable_dataset_update' in params:
             query_params.append(('enableDatasetUpdate', params['enable_dataset_update']))  # noqa: E501
+=======
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
         header_params = {}
 
@@ -668,14 +776,22 @@ class SamplesApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
+<<<<<<< HEAD
             '/v1/datasets/{datasetId}/samples/{sampleId}', 'PUT',
+=======
+            '/users/datasets/{datasetId}/samples/{sampleId}', 'PUT',
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
             path_params,
             query_params,
             header_params,
             body=body_params,
             post_params=form_params,
             files=local_var_files,
+<<<<<<< HEAD
             response_type=None,  # noqa: E501
+=======
+            response_type='SampleData',  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),

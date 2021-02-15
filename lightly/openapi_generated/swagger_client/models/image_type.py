@@ -29,8 +29,11 @@ class ImageType(object):
     allowed enum values
     """
     FULL = "full"
+<<<<<<< HEAD
     THUMBNAIL = "thumbnail"
     META = "meta"
+=======
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
     """
     Attributes:

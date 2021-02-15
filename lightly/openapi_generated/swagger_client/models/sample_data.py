@@ -34,6 +34,7 @@ class SampleData(object):
     """
     swagger_types = {
         'id': 'MongoObjectID',
+<<<<<<< HEAD
         'dataset_id': 'MongoObjectID',
         'file_name': 'str',
         'thumb_name': 'str',
@@ -55,12 +56,28 @@ class SampleData(object):
     }
 
     def __init__(self, id=None, dataset_id=None, file_name=None, thumb_name=None, meta_data=None, index=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
+=======
+        'is_thumbnail': 'bool',
+        'thumb_name': 'str',
+        'meta': 'SampleMetaData'
+    }
+
+    attribute_map = {
+        'id': '_id',
+        'is_thumbnail': 'isThumbnail',
+        'thumb_name': 'thumbName',
+        'meta': 'meta'
+    }
+
+    def __init__(self, id=None, is_thumbnail=None, thumb_name=None, meta=None, _configuration=None):  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
         """SampleData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._id = None
+<<<<<<< HEAD
         self._dataset_id = None
         self._file_name = None
         self._thumb_name = None
@@ -84,6 +101,17 @@ class SampleData(object):
             self.created_at = created_at
         if last_modified_at is not None:
             self.last_modified_at = last_modified_at
+=======
+        self._is_thumbnail = None
+        self._thumb_name = None
+        self._meta = None
+        self.discriminator = None
+
+        self.id = id
+        self.is_thumbnail = is_thumbnail
+        self.thumb_name = thumb_name
+        self.meta = meta
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
     @property
     def id(self):
@@ -109,6 +137,7 @@ class SampleData(object):
         self._id = id
 
     @property
+<<<<<<< HEAD
     def dataset_id(self):
         """Gets the dataset_id of this SampleData.  # noqa: E501
 
@@ -151,6 +180,29 @@ class SampleData(object):
             raise ValueError("Invalid value for `file_name`, must not be `None`")  # noqa: E501
 
         self._file_name = file_name
+=======
+    def is_thumbnail(self):
+        """Gets the is_thumbnail of this SampleData.  # noqa: E501
+
+
+        :return: The is_thumbnail of this SampleData.  # noqa: E501
+        :rtype: bool
+        """
+        return self._is_thumbnail
+
+    @is_thumbnail.setter
+    def is_thumbnail(self, is_thumbnail):
+        """Sets the is_thumbnail of this SampleData.
+
+
+        :param is_thumbnail: The is_thumbnail of this SampleData.  # noqa: E501
+        :type: bool
+        """
+        if self._configuration.client_side_validation and is_thumbnail is None:
+            raise ValueError("Invalid value for `is_thumbnail`, must not be `None`")  # noqa: E501
+
+        self._is_thumbnail = is_thumbnail
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
     @property
     def thumb_name(self):
@@ -170,10 +222,16 @@ class SampleData(object):
         :param thumb_name: The thumb_name of this SampleData.  # noqa: E501
         :type: str
         """
+<<<<<<< HEAD
+=======
+        if self._configuration.client_side_validation and thumb_name is None:
+            raise ValueError("Invalid value for `thumb_name`, must not be `None`")  # noqa: E501
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
         self._thumb_name = thumb_name
 
     @property
+<<<<<<< HEAD
     def meta_data(self):
         """Gets the meta_data of this SampleData.  # noqa: E501
 
@@ -256,6 +314,29 @@ class SampleData(object):
         """
 
         self._last_modified_at = last_modified_at
+=======
+    def meta(self):
+        """Gets the meta of this SampleData.  # noqa: E501
+
+
+        :return: The meta of this SampleData.  # noqa: E501
+        :rtype: SampleMetaData
+        """
+        return self._meta
+
+    @meta.setter
+    def meta(self, meta):
+        """Sets the meta of this SampleData.
+
+
+        :param meta: The meta of this SampleData.  # noqa: E501
+        :type: SampleMetaData
+        """
+        if self._configuration.client_side_validation and meta is None:
+            raise ValueError("Invalid value for `meta`, must not be `None`")  # noqa: E501
+
+        self._meta = meta
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
 
     def to_dict(self):
         """Returns the model properties as a dict"""
