@@ -28,7 +28,10 @@ class SamplingMethod(object):
     """
     allowed enum values
     """
+<<<<<<< HEAD
     CORAL = "CORAL"
+=======
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
     CORESET = "CORESET"
     RANDOM = "RANDOM"
     BIT = "BIT"

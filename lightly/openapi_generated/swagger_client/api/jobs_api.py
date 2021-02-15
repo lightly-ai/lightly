@@ -127,6 +127,7 @@ class JobsApi(object):
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
+<<<<<<< HEAD
 
     def get_jobs(self, **kwargs):  # noqa: E501
         """get_jobs  # noqa: E501
@@ -214,3 +215,5 @@ class JobsApi(object):
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
+=======
+>>>>>>> aaec1d1... Openapi generated client: v3 on develop_active_learning_branch (#129)
