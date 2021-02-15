@@ -93,18 +93,14 @@ def mocked_upload_file_with_signed_url(file: str, url: str, mocked_return_value=
 
 
 class MockedApiWorkflowClient(ApiWorkflowClient):
-    def __init__(self, host: str, token: str, dataset_id: str, embedding_id: str = None):
-        self.host = host
-        self.token = token
-        self.dataset_id = dataset_id
-        self.embedding_id = embedding_id
+    def __init__(self, *args, **kwargs):
+        ApiWorkflowClient.__init__(self, *args, **kwargs)
 
-        api_client = None
-        self.samplings_api = MockedSamplingsApi(api_client=api_client)
-        self.jobs_api = MockedJobsApi(api_client=api_client)
-        self.tags_api = MockedTagsApi(api_client=api_client)
-        self.embeddings_api = MockedEmbeddingsApi(api_client=api_client)
-        self.mappings_api = MockedMappingsApi(api_client=api_client)
-        lightly.api_client.api_workflow_client.upload_file_with_signed_url = mocked_upload_file_with_signed_url
+        self.samplings_api = MockedSamplingsApi(api_client=self.api_client)
+        self.jobs_api = MockedJobsApi(api_client=self.api_client)
+        self.tags_api = MockedTagsApi(api_client=self.api_client)
+        self.embeddings_api = MockedEmbeddingsApi(api_client=self.api_client)
+        self.mappings_api = MockedMappingsApi(api_client=self.api_client)
+        lightly.api_client.api_workflow_upload_embeddings.upload_file_with_signed_url = mocked_upload_file_with_signed_url
 
 

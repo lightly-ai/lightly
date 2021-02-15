@@ -39,7 +39,6 @@ class TestApiWorkflow(unittest.TestCase):
         list_desired_order = ['aaaa', 'cccc']
         assert list_ordered == list_desired_order
 
-
     def test_upload_embedding(self, n_data: int = 100):
         # create fake embeddings
         folder_path = tempfile.mkdtemp()
@@ -58,6 +57,5 @@ class TestApiWorkflow(unittest.TestCase):
 
         # Set the workflow with mocked functions
         api_workflow_client = MockedApiWorkflowClient(host="host_xyz", token="token_xyz", dataset_id="dataset_id_xyz")
-
         # perform the workflow to upload the embeddings
         api_workflow_client.upload_embeddings(path_to_embeddings_csv=path_to_embeddings)
