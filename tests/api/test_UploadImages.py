@@ -9,6 +9,18 @@ import pytest
 import torchvision
 import tempfile
 import lightly.api as api
+from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
+from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
+from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
+
+
+class MockedTagsApi(TagsApi):
+    def create_initial_tag_by_dataset_id(self, body, dataset_id, **kwargs):
+        assert isinstance(body, InitialTagCreateRequest)
+        assert isinstance(dataset_id, str)
+        response_ = CreateEntityResponse(id="xyz")
+        return response_
+
 
 @pytest.mark.slow
 class TestUploadImages(unittest.TestCase):
@@ -39,6 +51,8 @@ class TestUploadImages(unittest.TestCase):
             data = self.dataset[sample_idx]
             path = os.path.join(self.folder_path, sample_names[sample_idx])
             data[0].save(path)
+
+        api.upload.TagsApi = MockedTagsApi
 
 
     @responses.activate
