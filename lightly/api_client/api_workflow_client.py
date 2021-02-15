@@ -35,7 +35,7 @@ class ApiWorkflowClient:
         self.embeddings_api = EmbeddingsApi(api_client=api_client)
         self.mappings_api = MappingsApi(api_client=api_client)
 
-    def __order_list_by_filenames(self, filenames_for_list: List[str], list_to_order: List[object]) -> List[object]:
+    def order_list_by_filenames(self, filenames_for_list: List[str], list_to_order: List[object]) -> List[object]:
         assert len(filenames_for_list) == len(list_to_order)
         dict_by_filenames = dict([(filename, element) for filename, element in zip(filenames_for_list, list_to_order)])
         list_ordered = [dict_by_filenames[filename] for filename in self.filenames_on_server
@@ -97,7 +97,7 @@ class ApiWorkflowClient:
             rows_without_header = rows[1:]
             index_filenames = header_row.index('filenames')
             filenames = [row[index_filenames] for row in rows_without_header]
-            rows_without_header_ordered = self.__order_list_by_filenames(filenames, rows_without_header)
+            rows_without_header_ordered = self.order_list_by_filenames(filenames, rows_without_header)
 
             rows_to_write = [header_row]
             rows_to_write += rows_without_header_ordered
