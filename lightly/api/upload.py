@@ -7,6 +7,7 @@ import os
 import copy
 import time
 import random
+from typing import Union
 
 import numpy as np
 import torchvision
@@ -17,16 +18,21 @@ from itertools import islice
 from lightly.api import routes
 from lightly.api.constants import LIGHTLY_MAXIMUM_DATASET_SIZE
 
-from lightly.api.utils import get_thumbnail_from_img
+from lightly.api.utils import get_thumbnail_from_img, getenv
 from lightly.api.utils import check_image
 from lightly.api.utils import check_filename
 from lightly.api.utils import PIL_to_bytes
 from lightly.api.utils import put_request
+from lightly.openapi_generated.swagger_client.configuration import Configuration
+from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 
 from lightly.utils import fit_pca
 from lightly.utils import load_embeddings_as_dict
 
 from lightly.data import LightlyDataset
+
+from lightly.openapi_generated.swagger_client.api_client import ApiClient
+from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
 
 import tqdm
 import warnings
@@ -184,12 +190,13 @@ def _upload_single_image(image,
         sample_id = routes.users.datasets.samples.post(
             basename, thumbname, metadata, dataset_id, token
         )
-    except RuntimeError:
+    except RuntimeError as e:
         sample_upload_success = False
+        raise ValueError
 
     # upload thumbnail
     thumbnail_upload_success = True
-    if mode == 'thumbnails' and not metadata['is_corrupted']:
+    if mode == 'thumbnails' and not metadata['is_corrupted'] and sample_upload_success:
         try:
             # try to get signed url for thumbnail
             signed_url = routes.users.datasets.samples. \
@@ -330,8 +337,20 @@ def upload_dataset(dataset: LightlyDataset,
     else:
         routes.users.datasets.put_image_type(dataset_id, token, 'meta')
 
+    print("Finished upload of images, starting creation of initial tag.")
+
     # create initial tag
-    routes.users.datasets.tags.post(dataset_id, token)
+    configuration = Configuration()
+    configuration.host = getenv(
+        'LIGHTLY_SERVER_LOCATION',
+        'https://api.lightly.ai'
+    )
+    configuration.api_key = {'token': token}
+    api_client = ApiClient(configuration=configuration)
+    tags_api = TagsApi(api_client=api_client)
+
+    initial_tag_create_request = InitialTagCreateRequest()
+    tags_api.create_initial_tag_by_dataset_id(body=initial_tag_create_request, dataset_id=dataset_id)
 
 
 def upload_images_from_folder(path_to_folder: str,
@@ -387,9 +406,7 @@ def upload_images_from_folder(path_to_folder: str,
     )
 
 
-def _upload_metadata_from_json(path_to_embeddings: str,
-                              dataset_id: str,
-                              token: str):
+def _upload_metadata_from_json(path_to_embeddings: str, dataset_id: str, token: str):
     """TODO
 
     """
