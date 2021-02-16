@@ -24,7 +24,7 @@ class TestApiWorkflow(unittest.TestCase):
             numbers_in_tag = list(np.random.choice(numbers_to_choose_from, 50))
             filenames_for_list = [f"img_{i}" for i in numbers_in_tag]
 
-            list_ordered = api_workflow_client.order_list_by_filenames(filenames_for_list, list_to_order=numbers_in_tag)
+            list_ordered = api_workflow_client._order_list_by_filenames(filenames_for_list, list_to_order=numbers_in_tag)
             list_desired_order = [i for i in numbers_all if i in numbers_in_tag]
             assert list_ordered == list_desired_order
 
@@ -35,7 +35,7 @@ class TestApiWorkflow(unittest.TestCase):
         api_workflow_client.mappings_api.sample_names = filenames_on_server
         filenames_for_list = ['c', 'a']
         list_to_order = ['cccc', 'aaaa']
-        list_ordered = api_workflow_client.order_list_by_filenames(filenames_for_list, list_to_order=list_to_order)
+        list_ordered = api_workflow_client._order_list_by_filenames(filenames_for_list, list_to_order=list_to_order)
         list_desired_order = ['aaaa', 'cccc']
         assert list_ordered == list_desired_order
 
@@ -58,4 +58,4 @@ class TestApiWorkflow(unittest.TestCase):
         # Set the workflow with mocked functions
         api_workflow_client = MockedApiWorkflowClient(host="host_xyz", token="token_xyz", dataset_id="dataset_id_xyz")
         # perform the workflow to upload the embeddings
-        api_workflow_client.upload_embeddings(path_to_embeddings_csv=path_to_embeddings)
+        api_workflow_client.upload_embeddings(path_to_embeddings_csv=path_to_embeddings, name="embedding_xyz")

@@ -96,6 +96,6 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         self.tags_api = MockedTagsApi(api_client=self.api_client)
         self.embeddings_api = MockedEmbeddingsApi(api_client=self.api_client)
         self.mappings_api = MockedMappingsApi(api_client=self.api_client)
-        lightly.api_client.api_workflow_upload_embeddings.upload_file_with_signed_url = mocked_upload_file_with_signed_url
+        lightly.api.api_workflow_upload_embeddings.upload_file_with_signed_url = mocked_upload_file_with_signed_url
 
 
