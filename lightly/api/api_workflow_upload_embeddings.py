@@ -14,14 +14,18 @@ from lightly.openapi_generated.swagger_client.models.write_csv_url_data import W
 
 class _UploadEmbeddingsMixin:
     def upload_embeddings(self: ApiWorkflowClient, path_to_embeddings_csv: str, name: str):
-        """
-        Uploads embedding to the server. The received embedding_id is saved as a property of self.
+        """Uploads embeddings to the server.
+
+        First checks that the specified embedding name is not on ther server. If it is, the upload is aborted.
+        Then creates a new csv with the embeddings in the order specified on the server. Next it uploads it to the server.
+        The received embedding_id is saved as a property of self.
         Args:
             path_to_embeddings_csv: the filepath to the .csv containing the embeddings, e.g. "path/to/embeddings.csv"
             name: The name of the embedding. If an embedding with such a name already exists on the server,
                 the upload is aborted.
 
-        Returns: None
+        Returns:
+            None
 
         """
         # get the names of the current embeddings on the server:
@@ -48,12 +52,14 @@ class _UploadEmbeddingsMixin:
             upload_file_with_signed_url(file=file_ordered_embeddings_csv, url=signed_write_url)
 
     def _order_csv_by_filenames(self: ApiWorkflowClient, path_to_embeddings_csv: str) -> str:
-        """
-        Orders the rows in a csv according to the order specified on the server and saves it as a new file
-        Args:
-            path_to_embeddings_csv: the path to the csv to order
+        """Orders the rows in a csv according to the order specified on the server and saves it as a new file.
 
-        Returns: the filepath to the new csv
+        Args:
+            path_to_embeddings_csv:
+                the path to the csv to order
+
+        Returns:
+            the filepath to the new csv
 
         """
         with open(path_to_embeddings_csv, 'r') as f:
