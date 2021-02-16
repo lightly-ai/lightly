@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from lightly.api_client.api_workflow_client import ApiWorkflowClient
+    from lightly.api.api_workflow_client import ApiWorkflowClient
 
 import csv
 from typing import List

@@ -1,7 +1,7 @@
 from typing import *
 
 from lightly.data.dataset import LightlyDataset
-from lightly.api.upload import upload_file_with_signed_url, upload_images_from_folder, upload_dataset
+from lightly.api.upload import upload_images_from_folder, upload_dataset
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -9,9 +9,7 @@ from lightly.openapi_generated.swagger_client.api.samplings_api import Samplings
 from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
-from lightly.openapi_generated.swagger_client.models.dataset_embedding_data import DatasetEmbeddingData
-from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
-from .api_workflow_upload_embeddings import UploadEmbeddingsMixin
+from lightly.api.api_workflow_upload_embeddings import UploadEmbeddingsMixin
 
 
 class ApiWorkflowClient(UploadEmbeddingsMixin):
