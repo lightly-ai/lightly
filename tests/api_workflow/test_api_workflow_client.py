@@ -5,6 +5,8 @@ import unittest
 import numpy as np
 
 import lightly
+from lightly.active_learning.config.sampler_config import SamplerConfig
+from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowClient
 
 
@@ -59,3 +61,12 @@ class TestApiWorkflow(unittest.TestCase):
         api_workflow_client = MockedApiWorkflowClient(host="host_xyz", token="token_xyz", dataset_id="dataset_id_xyz")
         # perform the workflow to upload the embeddings
         api_workflow_client.upload_embeddings(path_to_embeddings_csv=path_to_embeddings, name="embedding_xyz")
+
+    def test_sampling(self):
+        api_workflow_client = MockedApiWorkflowClient(host="host_xyz", token="token_xyz", dataset_id="dataset_id_xyz")
+        api_workflow_client.embedding_id = "embedding_id_xyz"
+
+        sampler_config = SamplerConfig()
+
+        new_tag_data= api_workflow_client.sampling(sampler_config=sampler_config)
+        assert isinstance(new_tag_data, TagData)
