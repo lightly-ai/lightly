@@ -35,7 +35,7 @@ class _UploadEmbeddingsMixin:
 
         # create a new csv with the filenames in the desired order
         path_to_ordered_embeddings_csv = self._order_csv_by_filenames(
-            path_to_embeddings_csv=path_to_embeddings_csv, pop_filename_column=True)
+            path_to_embeddings_csv=path_to_embeddings_csv)
 
         # get the URL to upload the csv to
         response: WriteCSVUrlData = \
@@ -47,15 +47,11 @@ class _UploadEmbeddingsMixin:
         with open(path_to_ordered_embeddings_csv, 'rb') as file_ordered_embeddings_csv:
             upload_file_with_signed_url(file=file_ordered_embeddings_csv, url=signed_write_url)
 
-    def _order_csv_by_filenames(self: ApiWorkflowClient, path_to_embeddings_csv: str,
-                                pop_filename_column: bool = True
-                                ) -> str:
+    def _order_csv_by_filenames(self: ApiWorkflowClient, path_to_embeddings_csv: str) -> str:
         """
         Orders the rows in a csv according to the order specified on the server and saves it as a new file
         Args:
             path_to_embeddings_csv: the path to the csv to order
-            pop_filename_column: if set to True, the filename column is removed,
-            as the order of filenames is already specified on the server.
 
         Returns: the filepath to the new csv
 
@@ -72,10 +68,6 @@ class _UploadEmbeddingsMixin:
 
             rows_to_write = [header_row]
             rows_to_write += rows_without_header_ordered
-
-            if pop_filename_column:
-                for row in rows_to_write:
-                    row.pop(index_filenames)
 
         path_to_ordered_embeddings_csv = path_to_embeddings_csv.replace('.csv', '_sorted.csv')
         with open(path_to_ordered_embeddings_csv, 'w') as f:
