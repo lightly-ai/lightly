@@ -1,14 +1,9 @@
 import lightly
 
-from lightly.api_client.api_workflow_client import ApiWorkflowClient
+from lightly.api.api_workflow_client import ApiWorkflowClient
 
 from io import BufferedReader
-import tempfile
-import os
 from typing import *
-
-import unittest
-import numpy as np
 
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
