@@ -1,3 +1,4 @@
+import os
 from typing import *
 
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
@@ -35,6 +36,8 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin):
         api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
 
+        os.environ["LIGHTLY_SERVER_LOCATION"] = host
+        self.token = token
         self.dataset_id = dataset_id
         if embedding_id is not None:
             self.embedding_id = embedding_id
