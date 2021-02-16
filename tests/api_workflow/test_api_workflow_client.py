@@ -5,6 +5,7 @@ import unittest
 import numpy as np
 
 import lightly
+from lightly.active_learning.agents.agent import ActiveLearningAgent
 from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowClient
@@ -68,5 +69,14 @@ class TestApiWorkflow(unittest.TestCase):
 
         sampler_config = SamplerConfig()
 
-        new_tag_data= api_workflow_client.sampling(sampler_config=sampler_config)
+        new_tag_data = api_workflow_client.sampling(sampler_config=sampler_config)
         assert isinstance(new_tag_data, TagData)
+
+    def test_agent(self):
+        api_workflow_client = MockedApiWorkflowClient(host="host_xyz", token="token_xyz", dataset_id="dataset_id_xyz")
+        api_workflow_client.embedding_id = "embedding_id_xyz"
+        agent = ActiveLearningAgent(api_workflow_client)
+        sampler_config = SamplerConfig(batch_size=8)
+        chosen_samples_ids, chosen_filenames = agent.sample(sampler_config=sampler_config)
+        assert len(chosen_samples_ids) == len(chosen_filenames)
+
