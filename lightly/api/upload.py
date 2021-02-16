@@ -18,7 +18,8 @@ from itertools import islice
 from lightly.api import routes
 from lightly.api.constants import LIGHTLY_MAXIMUM_DATASET_SIZE
 
-from lightly.api.utils import get_thumbnail_from_img, getenv
+from lightly.api.utils import get_thumbnail_from_img
+from lightly.api.utils import getenv
 from lightly.api.utils import check_image
 from lightly.api.utils import check_filename
 from lightly.api.utils import PIL_to_bytes
