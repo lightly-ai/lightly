@@ -9,10 +9,10 @@ from lightly.openapi_generated.swagger_client.api.samplings_api import Samplings
 from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
-from lightly.api.api_workflow_upload_embeddings import UploadEmbeddingsMixin
+from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 
 
-class ApiWorkflowClient(UploadEmbeddingsMixin):
+class ApiWorkflowClient(_UploadEmbeddingsMixin):
     """
     Provides a uniform interface to communicate with the api and run workflows including multiple API calls
     Args:

@@ -12,14 +12,14 @@ from lightly.openapi_generated.swagger_client.models.dataset_embedding_data impo
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
 
 
-class UploadEmbeddingsMixin:
+class _UploadEmbeddingsMixin:
     def upload_embeddings(self: ApiWorkflowClient, path_to_embeddings_csv: str, name: str):
         """
-
+        Uploads embedding to the server. The received embedding_id is saved as a property of self.
         Args:
             path_to_embeddings_csv: the filepath to the .csv containing the embeddings, e.g. "path/to/embeddings.csv"
             name: The name of the embedding. If an embedding with such a name already exists on the server,
-                the upload is aborted
+                the upload is aborted.
 
         Returns: None
 
