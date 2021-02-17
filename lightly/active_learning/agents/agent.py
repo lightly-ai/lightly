@@ -54,6 +54,8 @@ class ActiveLearningAgent:
                 self.api_workflow_client.dataset_id, tag_id=self.query_tag_id)
             chosen_samples_ids = BitMask.from_hex(tag_data.bit_mask_data).to_indices()
             filenames = [self.api_workflow_client.filenames_on_server[i] for i in chosen_samples_ids]
+        filenames_labeled = set(self.labeled_set)
+        filenames = [f for f in filenames if f not in filenames_labeled]
         return filenames
 
     def query(self, sampler_config: SamplerConfig, al_scorer: Scorer = None) -> List[str]:
