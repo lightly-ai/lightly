@@ -19,7 +19,7 @@ class SamplerConfig:
             The name of this sampling, defaults to a name consisting of all other attributes and the datetime
 
     """
-    def __init__(self, method: SamplingMethod = SamplingMethod.RANDOM, batch_size: int = 32, min_distance: float = -1,
+    def __init__(self, method: SamplingMethod = SamplingMethod.CORESET, batch_size: int = 32, min_distance: float = -1,
                  name: str = None):
 
         self.method = method
