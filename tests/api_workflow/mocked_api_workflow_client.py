@@ -69,6 +69,18 @@ class MockedTagsApi(TagsApi):
                             name='second-tag', tot_size=15, created_at=1577836800, changes=dict())
         return response_
 
+    def get_tags_by_dataset_id(self, dataset_id, **kwargs):
+        tag_1 = TagData(id='inital_tag_id', dataset_id=dataset_id, prev_tag_id=None,
+                        bit_mask_data="0x80bda23e9", name='initial-tag', tot_size=15,
+                        created_at=1577836800, changes=dict())
+        tag_2 = TagData(id='query_tag_id_xyz', dataset_id=dataset_id, prev_tag_id="initial-tag",
+                        bit_mask_data="0x80bda23e9", name='query_tag_name_xyz', tot_size=15,
+                        created_at=1577836800, changes=dict())
+        tag_3 = TagData(id='preselected_tag_id_xyz', dataset_id=dataset_id, prev_tag_id="initial-tag",
+                        bit_mask_data="0x80bda23e9", name='preselected_tag_name_xyz', tot_size=15,
+                        created_at=1577836800, changes=dict())
+        return [tag_1, tag_2, tag_3]
+
 
 class MockedMappingsApi(MappingsApi):
     def __init__(self, *args, **kwargs):

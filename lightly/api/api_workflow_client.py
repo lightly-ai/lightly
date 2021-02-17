@@ -5,6 +5,7 @@ from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_sampling import _SamplingMixin
 from lightly.data.dataset import LightlyDataset
 from lightly.api.upload import upload_images_from_folder, upload_dataset
+from lightly.openapi_generated.swagger_client import TagData
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -48,6 +49,8 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin):
         self.embeddings_api = EmbeddingsApi(api_client=api_client)
         self.mappings_api = MappingsApi(api_client=api_client)
 
+    def _get_all_tags(self) -> List[TagData]:
+        return self.tags_api.get_tags_by_dataset_id(self.dataset_id)
 
     def _order_list_by_filenames(self, filenames_for_list: List[str], list_to_order: List[object]) -> List[object]:
         """Orders a list such that it is in the order of the filenames specified on the server.

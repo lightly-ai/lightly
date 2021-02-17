@@ -76,7 +76,14 @@ class TestApiWorkflow(unittest.TestCase):
     def test_agent(self):
         api_workflow_client = MockedApiWorkflowClient(host="host_xyz", token="token_xyz", dataset_id="dataset_id_xyz")
         api_workflow_client.embedding_id = "embedding_id_xyz"
-        agent = ActiveLearningAgent(api_workflow_client, query_tag_id="query_tag_id_xyz")
-        for batch_size in [2, 4]:
-            sampler_config = SamplerConfig(batch_size=batch_size)
-            chosen_filenames = agent.query(sampler_config=sampler_config)
+
+        agent_0 = ActiveLearningAgent(api_workflow_client)
+        agent_1 = ActiveLearningAgent(api_workflow_client, query_tag_name="query_tag_name_xyz")
+        agent_2 = ActiveLearningAgent(api_workflow_client, query_tag_name="query_tag_name_xyz",
+                                    preselected_tag_name="preselected_tag_name_xyz")
+        agent_3 = ActiveLearningAgent(api_workflow_client, preselected_tag_name="preselected_tag_name_xyz")
+
+        for agent in [agent_0, agent_1, agent_2, agent_3]:
+            for batch_size in [2, 4]:
+                sampler_config = SamplerConfig(batch_size=batch_size)
+                chosen_filenames = agent.query(sampler_config=sampler_config)

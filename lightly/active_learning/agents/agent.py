@@ -19,11 +19,20 @@ class ActiveLearningAgent:
 
     """
 
-    def __init__(self, api_workflow_client: ApiWorkflowClient, query_tag_id: str = None, preselected_tag_id: str = None):
+    def __init__(self, api_workflow_client: ApiWorkflowClient, query_tag_name: str = None, preselected_tag_name: str = None):
 
         self.api_workflow_client = api_workflow_client
-        self.query_tag_id = query_tag_id
-        self.preselected_tag_id = preselected_tag_id
+        if query_tag_name is not None or preselected_tag_name is not None:
+            tag_name_id_dict = dict([tag.name, tag.id] for tag in self.api_workflow_client._get_all_tags())
+            if query_tag_name is not None:
+                self.query_tag_id = tag_name_id_dict[query_tag_name]
+            if preselected_tag_name is not None:
+                self.preselected_tag_id_tag_id = tag_name_id_dict[preselected_tag_name]
+
+        if not hasattr(self, "preselected_tag_id"):
+            self.preselected_tag_id = None
+        if not hasattr(self, "query_tag_id"):
+            self.query_tag_id = None
 
     @property
     def labeled_set(self) -> List[str]:
