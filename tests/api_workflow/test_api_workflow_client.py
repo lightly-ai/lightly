@@ -27,7 +27,8 @@ class TestApiWorkflow(unittest.TestCase):
             numbers_in_tag = list(np.random.choice(numbers_to_choose_from, 50))
             filenames_for_list = [f"img_{i}" for i in numbers_in_tag]
 
-            list_ordered = api_workflow_client._order_list_by_filenames(filenames_for_list, list_to_order=numbers_in_tag)
+            list_ordered = api_workflow_client._order_list_by_filenames(filenames_for_list,
+                                                                        list_to_order=numbers_in_tag)
             list_desired_order = [i for i in numbers_all if i in numbers_in_tag]
             assert list_ordered == list_desired_order
 
@@ -75,8 +76,7 @@ class TestApiWorkflow(unittest.TestCase):
     def test_agent(self):
         api_workflow_client = MockedApiWorkflowClient(host="host_xyz", token="token_xyz", dataset_id="dataset_id_xyz")
         api_workflow_client.embedding_id = "embedding_id_xyz"
-        agent = ActiveLearningAgent(api_workflow_client)
-        sampler_config = SamplerConfig(batch_size=8)
-        chosen_samples_ids, chosen_filenames = agent.sample(sampler_config=sampler_config)
-        assert len(chosen_samples_ids) == len(chosen_filenames)
-
+        agent = ActiveLearningAgent(api_workflow_client, query_tag_id="query_tag_id_xyz")
+        for batch_size in [2, 4]:
+            sampler_config = SamplerConfig(batch_size=batch_size)
+            chosen_filenames = agent.sample(sampler_config=sampler_config)

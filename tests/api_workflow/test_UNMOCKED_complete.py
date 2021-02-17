@@ -16,7 +16,6 @@ from lightly.active_learning.config.sampler_config import SamplerConfig
 
 
 def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_id: str):
-
     # define the api_client and api_workflow
     api_workflow_client = ApiWorkflowClient(host="https://api-dev.lightly.ai", token=token, dataset_id=dataset_id)
 
@@ -44,21 +43,21 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
     print("Finished upload of embeddings")
 
     # perform_a_sampling
-    print("Starting performing a sampling")
+    print("Starting the AL loop")
     agent = ActiveLearningAgent(api_workflow_client)
-    sampler_config = SamplerConfig(batch_size=8)
-    chosen_samples_ids, chosen_filenames = agent.sample(sampler_config=sampler_config)
-    print(f'chosen_filenames: {chosen_filenames}')
-    print("Finished the sampling")
+    for batch_size in [2, 4]:
+        sampler_config = SamplerConfig(batch_size=batch_size)
+        chosen_samples_ids, chosen_filenames = agent.sample(sampler_config=sampler_config)
+        print(f"Finished AL step with chosen_ids: {chosen_samples_ids}")
+
+    print("Finished the AL loop")
 
 
 if __name__ == "__main__":
     path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test/dress"
     token = os.getenv("TOKEN")
-    dataset_id = "602bc1e54dd1e9003219d483"
+    dataset_id = "602d289d3005b50032d5b86b"
     for i in range(2):
         print(f"ITERATION {i}:")
         t_est_unmocked_complete_workflow(path_to_dataset, token, dataset_id)
         print("")
-
-

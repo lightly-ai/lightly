@@ -34,7 +34,7 @@ class MockedEmbeddingsApi(EmbeddingsApi):
 
 
 class MockedSamplingsApi(SamplingsApi):
-    def trigger_sampling_by_id(self, body, dataset_id, embedding_id, **kwargs):
+    def trigger_sampling_by_id(self, body: SamplingCreateRequest, dataset_id, embedding_id, **kwargs):
         assert isinstance(body, SamplingCreateRequest)
         assert isinstance(dataset_id, str)
         assert isinstance(embedding_id, str)
@@ -51,7 +51,7 @@ class MockedJobsApi(JobsApi):
         assert isinstance(job_id, str)
         self.no_calls += 1
         if self.no_calls > 3:
-            result = JobStatusDataResult(type=JobResultType.SAMPLING, data="tag_id_xyz")
+            result = JobStatusDataResult(type=JobResultType.SAMPLING, data="sampling_tag_id_xyz")
             response_ = JobStatusData(id="id_", status=JobState.FINISHED, wait_time_till_next_poll=0,
                                       created_at=1234, finished_at=1357, result=result)
         else:
@@ -66,7 +66,7 @@ class MockedTagsApi(TagsApi):
         assert isinstance(dataset_id, str)
         assert isinstance(tag_id, str)
         response_ = TagData(id=tag_id, dataset_id=dataset_id, prev_tag_id="initial-tag", bit_mask_data="0x80bda23e9",
-                            name='second-tag', tot_size=0, created_at=1577836800, changes=dict())
+                            name='second-tag', tot_size=15, created_at=1577836800, changes=dict())
         return response_
 
 
