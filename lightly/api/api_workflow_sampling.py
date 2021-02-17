@@ -40,8 +40,6 @@ class _SamplingMixin:
 
         # trigger the sampling
         payload = self._create_sampling_create_request(sampler_config, preselected_tag_id, query_tag_id)
-        print(f"Running sampling with stopping_condition.n_samples={payload.config.stopping_condition.n_samples} "
-              f"and preselected_tag_id {payload.preselected_tag_id}.")
         payload.row_count = self._get_all_tags()[0].tot_size
         response = self.samplings_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
         job_id = response.job_id
