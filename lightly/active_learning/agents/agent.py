@@ -12,7 +12,6 @@ class ActiveLearningAgent:
     Attributes:
         api_workflow_client:
             The client to connect to the api.
-
         preselected_tag_id:
             The id of the tag containing the already labeled samples, default: None == no labeled samples yet.
         query_tag_id:
