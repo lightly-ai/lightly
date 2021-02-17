@@ -33,7 +33,7 @@ class SamplingCreateRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'new_tag_name': 'str',
+        'new_tag_name': 'TagName',
         'method': 'SamplingMethod',
         'config': 'SamplingConfig',
         'preselected_tag_id': 'MongoObjectID',
@@ -80,7 +80,7 @@ class SamplingCreateRequest(object):
 
 
         :return: The new_tag_name of this SamplingCreateRequest.  # noqa: E501
-        :rtype: str
+        :rtype: TagName
         """
         return self._new_tag_name
 
@@ -90,7 +90,7 @@ class SamplingCreateRequest(object):
 
 
         :param new_tag_name: The new_tag_name of this SamplingCreateRequest.  # noqa: E501
-        :type: str
+        :type: TagName
         """
         if self._configuration.client_side_validation and new_tag_name is None:
             raise ValueError("Invalid value for `new_tag_name`, must not be `None`")  # noqa: E501

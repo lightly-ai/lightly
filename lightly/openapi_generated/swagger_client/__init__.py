@@ -22,6 +22,7 @@ from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
 from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
 from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
+from lightly.openapi_generated.swagger_client.api.scores_api import ScoresApi
 from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
 
 # import ApiClient
@@ -45,6 +46,7 @@ from lightly.openapi_generated.swagger_client.models.job_result_type import JobR
 from lightly.openapi_generated.swagger_client.models.job_state import JobState
 from lightly.openapi_generated.swagger_client.models.job_status_data import JobStatusData
 from lightly.openapi_generated.swagger_client.models.job_status_data_result import JobStatusDataResult
+from lightly.openapi_generated.swagger_client.models.jobs_data import JobsData
 from lightly.openapi_generated.swagger_client.models.mongo_object_id import MongoObjectID
 from lightly.openapi_generated.swagger_client.models.object_id import ObjectId
 from lightly.openapi_generated.swagger_client.models.sample_data import SampleData
