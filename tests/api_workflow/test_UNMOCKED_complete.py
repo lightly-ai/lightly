@@ -42,13 +42,14 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
     api_workflow_client.upload_embeddings(path_to_embeddings_csv=path_to_embeddings_csv, name=f"embedding_1")
     print("Finished upload of embeddings")
 
+
     # perform_a_sampling
     print("Starting the AL loop")
     agent = ActiveLearningAgent(api_workflow_client)
-    for batch_size in [2, 4]:
+    for batch_size in [2, 3]:
         sampler_config = SamplerConfig(batch_size=batch_size)
-        chosen_samples_ids, chosen_filenames = agent.sample(sampler_config=sampler_config)
-        print(f"Finished AL step with chosen_ids: {chosen_samples_ids}")
+        chosen_filenames = agent.query(sampler_config=sampler_config)
+        print(f"Finished AL step with {len(chosen_filenames)} labeled samples in total")
 
     print("Finished the AL loop")
 
@@ -56,7 +57,7 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
 if __name__ == "__main__":
     path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test/dress"
     token = os.getenv("TOKEN")
-    dataset_id = "602d289d3005b50032d5b86b"
+    dataset_id = "602d490ae4c358003262d557"
     for i in range(2):
         print(f"ITERATION {i}:")
         t_est_unmocked_complete_workflow(path_to_dataset, token, dataset_id)

@@ -48,6 +48,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin):
         self.embeddings_api = EmbeddingsApi(api_client=api_client)
         self.mappings_api = MappingsApi(api_client=api_client)
 
+
     def _order_list_by_filenames(self, filenames_for_list: List[str], list_to_order: List[object]) -> List[object]:
         """Orders a list such that it is in the order of the filenames specified on the server.
 

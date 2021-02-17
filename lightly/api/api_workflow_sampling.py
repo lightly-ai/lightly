@@ -2,6 +2,7 @@ import time
 from typing import *
 
 from lightly.active_learning.config.sampler_config import SamplerConfig
+from lightly.api.bitmask import BitMask
 from lightly.openapi_generated.swagger_client.models.job_state import JobState
 from lightly.openapi_generated.swagger_client.models.job_status_data import JobStatusData
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
@@ -38,8 +39,8 @@ class _SamplingMixin:
             raise NotImplementedError  # TODO: fill out in later branches
 
         # trigger the sampling
-        payload = self._create_sampling_create_request(sampler_config,preselected_tag_id,query_tag_id)
-        payload.row_count = 15  # TODO: remove after solving https://github.com/lightly-ai/lightly-core/issues/150
+        payload = self._create_sampling_create_request(sampler_config, preselected_tag_id, query_tag_id)
+        payload.row_count = self.tags_api.get_tags_by_dataset_id(self.dataset_id)[0].tot_size
         response = self.samplings_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
         job_id = response.job_id
 
@@ -71,10 +72,11 @@ class _SamplingMixin:
                                         ) -> SamplingCreateRequest:
 
         if preselected_tag_id is not None:
-            n_preselected_samples = self.tags_api.get_tag_by_tag_id(
+            preselected_tag: TagData = self.tags_api.get_tag_by_tag_id(
                 dataset_id=self.dataset_id,
                 tag_id=preselected_tag_id
-            ).tot_size
+            )
+            n_preselected_samples = len(BitMask.from_hex(preselected_tag.bit_mask_data).to_indices())
         else:
             n_preselected_samples = 0
 
