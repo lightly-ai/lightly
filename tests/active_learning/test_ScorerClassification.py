@@ -14,8 +14,8 @@ class TestScorerClassification(unittest.TestCase):
         model_output = predictions_normalized
         scorer = ScorerClassification(model_output)
         scores = scorer._calculate_scores()
-        scores_prediction_entropy = scores["prediction_entropy"]
-        scores_prediction_margin = scores["prediction_margin"]
+        scores_prediction_entropy = scores["prediction-entropy"]
+        scores_prediction_margin = scores["prediction-margin"]
 
         assert scores_prediction_entropy.shape == (n_samples, )
         assert scores_prediction_margin.shape == (n_samples, )

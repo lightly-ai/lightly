@@ -18,8 +18,8 @@ class ScorerClassification(Scorer):
 
     def _calculate_scores(self) -> Dict[str, np.ndarray]:
         scores = dict()
-        scores["prediction_margin"] = self._get_prediction_margin_score()
-        scores["prediction_entropy"] = self._get_prediction_entropy_score()
+        scores["prediction-margin"] = self._get_prediction_margin_score()
+        scores["prediction-entropy"] = self._get_prediction_entropy_score()
         return scores
 
     def _get_prediction_margin_score(self):
