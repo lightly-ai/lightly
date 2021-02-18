@@ -32,7 +32,7 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
         dataset = LightlyDataset(input_dir=path_to_dataset)
         embeddings = np.random.normal(size=(len(dataset.dataset.samples), 32))
         filepaths, labels = zip(*dataset.dataset.samples)
-        filenames = [os.path.basename(filepath) for filepath in filepaths]
+        filenames = [filepath[len(path_to_dataset)+1:] for filepath in filepaths]
         print("Starting save of embeddings")
         save_embeddings(path_to_embeddings_csv, embeddings, labels, filenames)
         print("Finished save of embeddings")
@@ -60,9 +60,9 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
 
 
 if __name__ == "__main__":
-    path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test/dress"
+    path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test"
     token = os.getenv("TOKEN")
-    dataset_id = "602e2ef24def3f00325750f1"
+    dataset_id = "602e648a42ece4003201adf9"
     for i in range(2):
         print(f"ITERATION {i}:")
         t_est_unmocked_complete_workflow(path_to_dataset, token, dataset_id)
