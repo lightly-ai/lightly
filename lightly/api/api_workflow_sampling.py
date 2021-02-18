@@ -10,6 +10,7 @@ from lightly.openapi_generated.swagger_client.models.sampling_config import Samp
 from lightly.openapi_generated.swagger_client.models.sampling_create_request import SamplingCreateRequest
 from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import \
     SamplingConfigStoppingCondition
+from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class _SamplingMixin:
@@ -45,7 +46,7 @@ class _SamplingMixin:
         job_id = response.job_id
 
         # poll the job status till the job is not running anymore
-        exception_counter = 0  # TODO; remove after solving https://github.com/lightly-ai/lightly-core/issues/150
+        exception_counter = 0  # TODO; remove after solving https://github.com/lightly-ai/lightly-core/issues/156
         job_status_data = None
         wait_time_till_next_poll = 1
         while job_status_data is None or job_status_data.status == JobState.RUNNING:
@@ -53,11 +54,11 @@ class _SamplingMixin:
             try:
                 job_status_data: JobStatusData = self.jobs_api.get_job_status_by_id(job_id=job_id)
                 wait_time_till_next_poll = job_status_data.wait_time_till_next_poll
-            except Exception as e:
+            except Exception as err:
                 exception_counter += 1
-                if exception_counter == 5:
-                    print(f"Sampling job with job_id {job_id} could not be started because of error: {e}")
-                raise e
+                if exception_counter == 10:
+                    print(f"Sampling job with job_id {job_id} could not be started because of error: {err}")
+                    raise err
 
         if job_status_data.status == JobState.FAILED:
             raise ValueError(f"Sampling job with job_id {job_id} failed with error {job_status_data.error}")
