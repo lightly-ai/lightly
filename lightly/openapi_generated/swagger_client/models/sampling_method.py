@@ -28,6 +28,7 @@ class SamplingMethod(object):
     """
     allowed enum values
     """
+    CORAL = "CORAL"
     CORESET = "CORESET"
     RANDOM = "RANDOM"
     BIT = "BIT"

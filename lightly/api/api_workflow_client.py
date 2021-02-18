@@ -1,7 +1,11 @@
+import os
 from typing import *
 
+from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
+from lightly.api.api_workflow_sampling import _SamplingMixin
 from lightly.data.dataset import LightlyDataset
 from lightly.api.upload import upload_images_from_folder, upload_dataset
+from lightly.openapi_generated.swagger_client import TagData
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -9,10 +13,9 @@ from lightly.openapi_generated.swagger_client.api.samplings_api import Samplings
 from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
-from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 
 
-class ApiWorkflowClient(_UploadEmbeddingsMixin):
+class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin):
     """Provides a uniform interface to communicate with the api and run workflows including multiple API calls
 
     Args:
@@ -34,6 +37,8 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin):
         api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
 
+        os.environ["LIGHTLY_SERVER_LOCATION"] = host
+        self.token = token
         self.dataset_id = dataset_id
         if embedding_id is not None:
             self.embedding_id = embedding_id
@@ -43,6 +48,9 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin):
         self.tags_api = TagsApi(api_client=self.api_client)
         self.embeddings_api = EmbeddingsApi(api_client=api_client)
         self.mappings_api = MappingsApi(api_client=api_client)
+
+    def _get_all_tags(self) -> List[TagData]:
+        return self.tags_api.get_tags_by_dataset_id(self.dataset_id)
 
     def _order_list_by_filenames(self, filenames_for_list: List[str], list_to_order: List[object]) -> List[object]:
         """Orders a list such that it is in the order of the filenames specified on the server.
