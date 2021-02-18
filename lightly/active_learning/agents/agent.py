@@ -27,7 +27,7 @@ class ActiveLearningAgent:
             if query_tag_name is not None:
                 self.query_tag_id = tag_name_id_dict[query_tag_name]
             if preselected_tag_name is not None:
-                self.preselected_tag_id_tag_id = tag_name_id_dict[preselected_tag_name]
+                self.preselected_tag_id = tag_name_id_dict[preselected_tag_name]
 
         if not hasattr(self, "preselected_tag_id"):
             self.preselected_tag_id = None
