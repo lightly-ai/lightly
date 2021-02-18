@@ -32,7 +32,7 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
         dataset = LightlyDataset(input_dir=path_to_dataset)
         embeddings = np.random.normal(size=(len(dataset.dataset.samples), 32))
         filepaths, labels = zip(*dataset.dataset.samples)
-        filenames = [filepath[len(path_to_dataset)+1:] for filepath in filepaths]
+        filenames = [filepath[len(path_to_dataset):].lstrip('/') for filepath in filepaths]
         print("Starting save of embeddings")
         save_embeddings(path_to_embeddings_csv, embeddings, labels, filenames)
         print("Finished save of embeddings")
