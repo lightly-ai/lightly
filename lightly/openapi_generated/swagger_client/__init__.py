@@ -22,12 +22,17 @@ from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
 from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
 from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
+from lightly.openapi_generated.swagger_client.api.scores_api import ScoresApi
 from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
 
 # import ApiClient
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
 # import models into sdk package
+from lightly.openapi_generated.swagger_client.models.active_learning_score_create_request import ActiveLearningScoreCreateRequest
+from lightly.openapi_generated.swagger_client.models.active_learning_score_data import ActiveLearningScoreData
+from lightly.openapi_generated.swagger_client.models.active_learning_score_type import ActiveLearningScoreType
+from lightly.openapi_generated.swagger_client.models.active_learning_scores import ActiveLearningScores
 from lightly.openapi_generated.swagger_client.models.api_error_code import ApiErrorCode
 from lightly.openapi_generated.swagger_client.models.api_error_response import ApiErrorResponse
 from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData
@@ -54,6 +59,7 @@ from lightly.openapi_generated.swagger_client.models.sampling_config import Samp
 from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import SamplingConfigStoppingCondition
 from lightly.openapi_generated.swagger_client.models.sampling_create_request import SamplingCreateRequest
 from lightly.openapi_generated.swagger_client.models.sampling_method import SamplingMethod
+from lightly.openapi_generated.swagger_client.models.tag_active_learning_scores_data import TagActiveLearningScoresData
 from lightly.openapi_generated.swagger_client.models.tag_bit_mask_data import TagBitMaskData
 from lightly.openapi_generated.swagger_client.models.tag_change_data import TagChangeData
 from lightly.openapi_generated.swagger_client.models.tag_create_request import TagCreateRequest
