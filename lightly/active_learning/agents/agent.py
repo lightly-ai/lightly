@@ -36,6 +36,15 @@ class ActiveLearningAgent:
 
     @property
     def labeled_set(self) -> List[str]:
+        """Computes the labeled set from the preselected_tag_id
+
+        It loads the bitmaks for the preselected_tag_id from the server and then
+        extracts the filenames from it given the mapping on the server.
+
+        Returns:
+            The filenames in the labeled set
+
+        """
         if self.preselected_tag_id is None:
             filenames = []
         else:
@@ -47,6 +56,16 @@ class ActiveLearningAgent:
 
     @property
     def unlabeled_set(self) -> List[str]:
+        """Computes the unlabeled set from the query_tag_id
+
+        It loads the bitmaks for the preselected_tag_id from the server and then
+        extracts the filenames from it given the mapping on the server.
+        Next it removes the filenames already in the labeled set
+
+        Returns:
+            The filenames in the unlabeled set
+
+        """
         if self.query_tag_id is None:
             filenames = self.api_workflow_client.filenames_on_server
         else:
