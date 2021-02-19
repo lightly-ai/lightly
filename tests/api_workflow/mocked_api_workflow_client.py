@@ -5,6 +5,7 @@ from lightly.api.api_workflow_client import ApiWorkflowClient
 from io import BufferedReader
 from typing import *
 
+from lightly.openapi_generated.swagger_client import ScoresApi, CreateEntityResponse
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -28,7 +29,7 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         return response_
 
     def get_embeddings_by_dataset_id(self, dataset_id, **kwargs) -> List[DatasetEmbeddingData]:
-        assert isinstance(dataset_id,str)
+        assert isinstance(dataset_id, str)
         return [DatasetEmbeddingData(id="embedding_id_xyz", name="embedding_name_xxyyzz",
                                      is_processed=True, created_at=0)]
 
@@ -82,6 +83,13 @@ class MockedTagsApi(TagsApi):
         return [tag_1, tag_2, tag_3]
 
 
+class MockedScoresApi(ScoresApi):
+    def create_or_update_active_learning_score_by_tag_id(self, body, dataset_id, tag_id, **kwargs) -> \
+            CreateEntityResponse:
+        response_ = CreateEntityResponse(id="sampled_tag_id_xyz")
+        return response_
+
+
 class MockedMappingsApi(MappingsApi):
     def __init__(self, *args, **kwargs):
         sample_names = [f'img_{i}.jpg' for i in range(100)]
@@ -108,6 +116,5 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         self.tags_api = MockedTagsApi(api_client=self.api_client)
         self.embeddings_api = MockedEmbeddingsApi(api_client=self.api_client)
         self.mappings_api = MockedMappingsApi(api_client=self.api_client)
+        self.scores_api = MockedScoresApi(api_client=self.api_client)
         lightly.api.api_workflow_upload_embeddings.upload_file_with_signed_url = mocked_upload_file_with_signed_url
-
-
