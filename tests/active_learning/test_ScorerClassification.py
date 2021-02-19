@@ -19,6 +19,6 @@ class TestScorerClassification(unittest.TestCase):
 
         assert scores_prediction_entropy.shape == (n_samples, )
         assert scores_prediction_margin.shape == (n_samples, )
-        assert all(scores_prediction_entropy > 0)
-        assert all(scores_prediction_margin > 0)
-        assert all(scores_prediction_margin < 1)
+        assert all(scores_prediction_entropy >= 0)
+        assert all(scores_prediction_margin >= 0)
+        assert all(scores_prediction_margin <= 1)
