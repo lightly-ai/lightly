@@ -35,7 +35,8 @@ class ScorerClassification(Scorer):
             N = number of samples == len(ActiveLerningAgent.unlabelled)
                 the order must be the one specified by ActiveLerningAgent.unlabelled
             C = number of classes
-                model_output[n,c] is the predicted probability that sample n belongs to class c
+                model_output[n,c] is the predicted probability that sample n belongs to class c,
+                thus it must be in [0, 1]
             the sum of the predictions over the classes, i.e. np.sum(model_output, axis=1),
                 must equal 1 for every row/sample
     """
