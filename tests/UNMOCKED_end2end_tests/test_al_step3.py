@@ -17,7 +17,8 @@ from lightly.utils import save_embeddings
 from lightly.active_learning.config.sampler_config import SamplerConfig
 
 
-def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_id: str):
+def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_id: str,
+                                     preselected_tag_name: str = None, query_tag_name: str = None):
     # define the api_client and api_workflow
     api_workflow_client = ApiWorkflowClient(host="https://api-dev.lightly.ai", token=token, dataset_id=dataset_id)
 
@@ -46,9 +47,11 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
 
     # perform_a_sampling
     print("Starting the AL loop")
-    total_no_samples = api_workflow_client._get_all_tags()[0].tot_size
-    total_currently_chosen_samples = 0
-    agent = ActiveLearningAgent(api_workflow_client, query_tag_name='initial-tag')
+
+    agent = ActiveLearningAgent(api_workflow_client,
+                                query_tag_name=query_tag_name, preselected_tag_name=preselected_tag_name)
+    total_currently_chosen_samples = len(agent.labeled_set)
+    total_no_samples = len(agent.unlabeled_set) + total_currently_chosen_samples
     for iter, batch_size in enumerate([1, 2, 5]):
         if iter == 0:
             sampler_config = SamplerConfig(batch_size=batch_size)
@@ -72,7 +75,8 @@ if __name__ == "__main__":
     path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test"
     token = os.getenv("TOKEN")
     dataset_id = "602e648a42ece4003201adf9"
-    for i in range(2):
+    for i in range(1):
         print(f"ITERATION {i}:")
-        t_est_unmocked_complete_workflow(path_to_dataset, token, dataset_id)
+        t_est_unmocked_complete_workflow(path_to_dataset, token, dataset_id,
+                                         query_tag_name="sharp-images", preselected_tag_name="preselected_8_images")
         print("")
