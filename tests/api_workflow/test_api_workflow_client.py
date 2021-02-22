@@ -7,6 +7,8 @@ import numpy as np
 import lightly
 from lightly.active_learning.agents.agent import ActiveLearningAgent
 from lightly.active_learning.config.sampler_config import SamplerConfig
+from lightly.active_learning.scorers.classification import ScorerClassification
+from lightly.openapi_generated.swagger_client import SamplingMethod
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowClient
 
@@ -87,3 +89,16 @@ class TestApiWorkflow(unittest.TestCase):
             for batch_size in [2, 4]:
                 sampler_config = SamplerConfig(batch_size=batch_size)
                 chosen_filenames = agent.query(sampler_config=sampler_config)
+
+    def test_agent_with_scores(self):
+        api_workflow_client = MockedApiWorkflowClient(host="host_xyz", token="token_xyz", dataset_id="dataset_id_xyz")
+        api_workflow_client.embedding_id = "embedding_id_xyz"
+
+        agent = ActiveLearningAgent(api_workflow_client, preselected_tag_name="preselected_tag_name_xyz")
+
+        for batch_size in [2, 4]:
+            predictions = np.random.rand(len(agent.unlabeled_set), 10)
+            predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
+            al_scorer = ScorerClassification(predictions_normalized)
+            sampler_config = SamplerConfig(batch_size=batch_size, method=SamplingMethod.CORAL)
+            chosen_filenames = agent.query(sampler_config=sampler_config, al_scorer=al_scorer)

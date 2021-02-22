@@ -1,8 +1,11 @@
 import time
 from typing import *
 
+import numpy as np
+
 from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.api.bitmask import BitMask
+from lightly.openapi_generated.swagger_client import ActiveLearningScoreCreateRequest
 from lightly.openapi_generated.swagger_client.models.job_state import JobState
 from lightly.openapi_generated.swagger_client.models.job_status_data import JobStatusData
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
@@ -14,7 +17,7 @@ from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class _SamplingMixin:
-    def sampling(self, sampler_config: SamplerConfig, al_scores: Dict[str, List[int]] = None,
+    def sampling(self, sampler_config: SamplerConfig, al_scores: Dict[str, List[np.ndarray]] = None,
                  preselected_tag_id: str = None, query_tag_id: str = None) -> TagData:
         """Performs a sampling given the arguments.
 
@@ -37,7 +40,12 @@ class _SamplingMixin:
 
         # upload the active learning scores to the api
         if al_scores is not None:
-            raise NotImplementedError  # TODO: fill out in later branches
+            if preselected_tag_id is None:
+                raise ValueError
+            for score_type, score_values in al_scores.items():
+                body = ActiveLearningScoreCreateRequest(score_type=score_type, scores=list(score_values))
+                self.scores_api.create_or_update_active_learning_score_by_tag_id(
+                    body, dataset_id=self.dataset_id, tag_id=preselected_tag_id)
 
         # trigger the sampling
         payload = self._create_sampling_create_request(sampler_config, preselected_tag_id, query_tag_id)
@@ -71,7 +79,15 @@ class _SamplingMixin:
 
     def _create_sampling_create_request(self, sampler_config: SamplerConfig, preselected_tag_id: str, query_tag_id: str
                                         ) -> SamplingCreateRequest:
+        """Creates a SamplingCreateRequest
 
+        First, it checks how many samples are already labeled by
+            getting the number of samples in the preselected_tag_id.
+        Then the stopping_condition.n_samples
+            is set to be the number of already labeled samples + the sampler_config.batch_size.
+        Last the SamplingCreateRequest is created with the necessary nested class instances.
+
+        """
         if preselected_tag_id is not None:
             preselected_tag: TagData = self.tags_api.get_tag_by_tag_id(
                 dataset_id=self.dataset_id,
