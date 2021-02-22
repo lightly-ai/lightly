@@ -15,6 +15,10 @@
 from __future__ import absolute_import
 
 # import models into model package
+from lightly.openapi_generated.swagger_client.models.active_learning_score_create_request import ActiveLearningScoreCreateRequest
+from lightly.openapi_generated.swagger_client.models.active_learning_score_data import ActiveLearningScoreData
+from lightly.openapi_generated.swagger_client.models.active_learning_score_type import ActiveLearningScoreType
+from lightly.openapi_generated.swagger_client.models.active_learning_scores import ActiveLearningScores
 from lightly.openapi_generated.swagger_client.models.api_error_code import ApiErrorCode
 from lightly.openapi_generated.swagger_client.models.api_error_response import ApiErrorResponse
 from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData
@@ -41,6 +45,7 @@ from lightly.openapi_generated.swagger_client.models.sampling_config import Samp
 from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import SamplingConfigStoppingCondition
 from lightly.openapi_generated.swagger_client.models.sampling_create_request import SamplingCreateRequest
 from lightly.openapi_generated.swagger_client.models.sampling_method import SamplingMethod
+from lightly.openapi_generated.swagger_client.models.tag_active_learning_scores_data import TagActiveLearningScoresData
 from lightly.openapi_generated.swagger_client.models.tag_bit_mask_data import TagBitMaskData
 from lightly.openapi_generated.swagger_client.models.tag_change_data import TagChangeData
 from lightly.openapi_generated.swagger_client.models.tag_create_request import TagCreateRequest

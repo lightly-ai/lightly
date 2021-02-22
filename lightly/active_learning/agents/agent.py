@@ -36,6 +36,15 @@ class ActiveLearningAgent:
 
     @property
     def labeled_set(self) -> List[str]:
+        """Computes the labeled set from the preselected_tag_id
+
+        It loads the bitmaks for the preselected_tag_id from the server and then
+        extracts the filenames from it given the mapping on the server.
+
+        Returns:
+            The filenames in the labeled set
+
+        """
         if self.preselected_tag_id is None:
             filenames = []
         else:
@@ -47,6 +56,16 @@ class ActiveLearningAgent:
 
     @property
     def unlabeled_set(self) -> List[str]:
+        """Computes the unlabeled set from the query_tag_id
+
+        It loads the bitmaks for the preselected_tag_id from the server and then
+        extracts the filenames from it given the mapping on the server.
+        Next it removes the filenames already in the labeled set
+
+        Returns:
+            The filenames in the unlabeled set
+
+        """
         if self.query_tag_id is None:
             filenames = self.api_workflow_client.filenames_on_server
         else:
@@ -61,6 +80,7 @@ class ActiveLearningAgent:
     def query(self, sampler_config: SamplerConfig, al_scorer: Scorer = None) -> List[str]:
         """Performs an active learning query
 
+        As part of it, the self.labeled_set and self.unlabeled_set are updated and should be used for the next step.
         Args:
             sampler_config:
                 The config of the sampler.
@@ -68,19 +88,25 @@ class ActiveLearningAgent:
                 An instance of a class inheriting from Scorer, e.g. a ClassificationScorer.
 
         Returns:
-            the filenames of the chosen samples
+            the filenames of the samples in the new labeled_set
 
         """
         # calculate scores
         if al_scorer is not None:
-            scores = al_scorer._calculate_scores()
+            no_unlabeled_samples = len(self.unlabeled_set)
+            no_samples_with_predictions = len(al_scorer.model_output)
+            if no_unlabeled_samples != no_samples_with_predictions:
+                raise ValueError(f"The scorer must have exactly as much samples as in the unlabeled set,"
+                                 f"but there are {no_samples_with_predictions} predictions in the scorer,"
+                                 f"but {no_unlabeled_samples} in the unlabeled set.")
+            scores_dict = al_scorer._calculate_scores()
         else:
-            scores = None
+            scores_dict = None
 
         # perform the sampling
         new_tag_data = self.api_workflow_client.sampling(
             sampler_config=sampler_config,
-            al_scores=scores,
+            al_scores=scores_dict,
             preselected_tag_id=self.preselected_tag_id,
             query_tag_id=self.query_tag_id)
 
