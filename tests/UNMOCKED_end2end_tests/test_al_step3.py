@@ -1,3 +1,4 @@
+import sys
 import tempfile
 import os
 import time
@@ -72,11 +73,24 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
 
 
 if __name__ == "__main__":
-    path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test"
-    token = os.getenv("TOKEN")
-    dataset_id = "602e648a42ece4003201adf9"
+    if len(sys.argv) == 1:
+        path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test"
+        token = os.getenv("TOKEN")
+        dataset_id = "602e648a42ece4003201adf9"
+        query_tag_name = "sharp-images"
+        preselected_tag_name = "preselected_8_images"
+    elif len(sys.argv) == 1+5:
+        path_to_dataset, token, dataset_id, query_tag_name, preselected_tag_name = (sys.argv[1+i] for i in range(5))
+    else:
+        raise ValueError("ERROR in number of command line arguments."
+                         "Example: python test_al_step3.py this/is/my/dataset "
+                         "TOKEN dataset_id query_tag_name preselected_tag_name")
+    if query_tag_name == "None":
+        query_tag_name = None
+    if preselected_tag_name == "None":
+        preselected_tag_name = None
     for i in range(1):
         print(f"ITERATION {i}:")
         t_est_unmocked_complete_workflow(path_to_dataset, token, dataset_id,
-                                         query_tag_name="sharp-images", preselected_tag_name="preselected_8_images")
+                                         query_tag_name=query_tag_name, preselected_tag_name=preselected_tag_name)
         print("")

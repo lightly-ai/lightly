@@ -1,3 +1,4 @@
+import sys
 import tempfile
 import os
 import time
@@ -60,9 +61,15 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
 
 
 if __name__ == "__main__":
-    path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test"
-    token = os.getenv("TOKEN")
-    dataset_id = "602e648a42ece4003201adf9"
+    if len(sys.argv) == 1:
+        path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test"
+        token = os.getenv("TOKEN")
+        dataset_id = "602e648a42ece4003201adf9"
+    elif len(sys.argv) == 1+3:
+        path_to_dataset, token, dataset_id = (sys.argv[1+i] for i in range(3))
+    else:
+        raise ValueError("ERROR in number of command line arguments."
+                         "Example: python test_al_step3.py this/is/my/dataset TOKEN dataset_id")
     for i in range(2):
         print(f"ITERATION {i}:")
         t_est_unmocked_complete_workflow(path_to_dataset, token, dataset_id)
