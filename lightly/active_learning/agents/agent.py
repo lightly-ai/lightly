@@ -4,6 +4,7 @@ from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.active_learning.scorers.scorer import Scorer
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.api.bitmask import BitMask
+from lightly.openapi_generated.swagger_client.models import TagData
 
 
 class ActiveLearningAgent:
@@ -16,6 +17,10 @@ class ActiveLearningAgent:
             The id of the tag containing the already labeled samples, default: None == no labeled samples yet.
         query_tag_id:
             The id of the tag defining where to sample from, default: None resolves to initial_tag
+        labeled_set:
+            the filenames of the samples in the labeled set, List[str]
+        unlabeled_set:
+            the filenames of the samples in the unlabeled set, List[str]
 
     """
 
@@ -24,58 +29,48 @@ class ActiveLearningAgent:
         self.api_workflow_client = api_workflow_client
         if query_tag_name is not None or preselected_tag_name is not None:
             tag_name_id_dict = dict([tag.name, tag.id] for tag in self.api_workflow_client._get_all_tags())
-            if query_tag_name is not None:
-                self.query_tag_id = tag_name_id_dict[query_tag_name]
             if preselected_tag_name is not None:
                 self.preselected_tag_id = tag_name_id_dict[preselected_tag_name]
+            if query_tag_name is not None:
+                self.query_tag_id = tag_name_id_dict[query_tag_name]
 
         if not hasattr(self, "preselected_tag_id"):
             self.preselected_tag_id = None
         if not hasattr(self, "query_tag_id"):
             self.query_tag_id = None
+        self._set_labeled_and_unlabeled_set()
 
-    @property
-    def labeled_set(self) -> List[str]:
-        """Computes the labeled set from the preselected_tag_id
+    def _set_labeled_and_unlabeled_set(self, preselected_tag_data: TagData = None):
+        """Sets the labeled and unlabeled set based on the preselected and query tag id
 
-        It loads the bitmaks for the preselected_tag_id from the server and then
+        It loads the bitmaks for the both tag_ids from the server and then
         extracts the filenames from it given the mapping on the server.
 
-        Returns:
-            The filenames in the labeled set
+        Args:
+            preselected_tag_data:
+                optional param, then it must not be loaded from the API
 
         """
         if self.preselected_tag_id is None:
-            filenames = []
+            self.labeled_set = []
         else:
-            tag_data = self.api_workflow_client.tags_api.get_tag_by_tag_id(
-                self.api_workflow_client.dataset_id, tag_id=self.preselected_tag_id)
-            chosen_samples_ids = BitMask.from_hex(tag_data.bit_mask_data).to_indices()
-            filenames = [self.api_workflow_client.filenames_on_server[i] for i in chosen_samples_ids]
-        return filenames
+            if preselected_tag_data is None:
+                preselected_tag_data = self.api_workflow_client.tags_api.get_tag_by_tag_id(
+                    self.api_workflow_client.dataset_id, tag_id=self.preselected_tag_id)
+            chosen_samples_ids = BitMask.from_hex(preselected_tag_data.bit_mask_data).to_indices()
+            self.labeled_set = [self.api_workflow_client.filenames_on_server[i] for i in chosen_samples_ids]
 
-    @property
-    def unlabeled_set(self) -> List[str]:
-        """Computes the unlabeled set from the query_tag_id
+        if not hasattr(self, "unlabeled_set"):
+            if self.query_tag_id is None:
+                self.unlabeled_set = self.api_workflow_client.filenames_on_server
+            else:
+                query_tag_data = self.api_workflow_client.tags_api.get_tag_by_tag_id(
+                    self.api_workflow_client.dataset_id, tag_id=self.query_tag_id)
+                chosen_samples_ids = BitMask.from_hex(query_tag_data.bit_mask_data).to_indices()
+                self.unlabeled_set = [self.api_workflow_client.filenames_on_server[i] for i in chosen_samples_ids]
 
-        It loads the bitmaks for the preselected_tag_id from the server and then
-        extracts the filenames from it given the mapping on the server.
-        Next it removes the filenames already in the labeled set
-
-        Returns:
-            The filenames in the unlabeled set
-
-        """
-        if self.query_tag_id is None:
-            filenames = self.api_workflow_client.filenames_on_server
-        else:
-            tag_data = self.api_workflow_client.tags_api.get_tag_by_tag_id(
-                self.api_workflow_client.dataset_id, tag_id=self.query_tag_id)
-            chosen_samples_ids = BitMask.from_hex(tag_data.bit_mask_data).to_indices()
-            filenames = [self.api_workflow_client.filenames_on_server[i] for i in chosen_samples_ids]
         filenames_labeled = set(self.labeled_set)
-        filenames = [f for f in filenames if f not in filenames_labeled]
-        return filenames
+        self.unlabeled_set = [f for f in self.unlabeled_set if f not in filenames_labeled]
 
     def query(self, sampler_config: SamplerConfig, al_scorer: Scorer = None) -> List[str]:
         """Performs an active learning query
@@ -110,7 +105,8 @@ class ActiveLearningAgent:
             preselected_tag_id=self.preselected_tag_id,
             query_tag_id=self.query_tag_id)
 
-        # set the newly chosen tag as the new preselected_tag_id
+        # set the newly chosen tag as the new preselected_tag_id and update the sets
         self.preselected_tag_id = new_tag_data.id
+        self._set_labeled_and_unlabeled_set(new_tag_data)
 
         return self.labeled_set
