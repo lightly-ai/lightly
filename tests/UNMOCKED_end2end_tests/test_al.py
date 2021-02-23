@@ -1,3 +1,4 @@
+import sys
 import tempfile
 import os
 import time
@@ -18,7 +19,8 @@ from lightly.active_learning.config.sampler_config import SamplerConfig
 
 
 def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_id: str,
-                                     preselected_tag_name: str = None, query_tag_name: str = None):
+                                     preselected_tag_name: str = None, query_tag_name: str = None,
+                                     with_scores: bool = True):
     # define the api_client and api_workflow
     api_workflow_client = ApiWorkflowClient(host="https://api-dev.lightly.ai", token=token, dataset_id=dataset_id)
 
@@ -53,7 +55,7 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
     total_currently_chosen_samples = len(agent.labeled_set)
     total_no_samples = len(agent.unlabeled_set) + total_currently_chosen_samples
     for iter, batch_size in enumerate([1, 2, 5]):
-        if iter == 0:
+        if iter == 0 or not with_scores:
             sampler_config = SamplerConfig(batch_size=batch_size)
             chosen_filenames = agent.query(sampler_config=sampler_config)
         else:
@@ -72,11 +74,35 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
 
 
 if __name__ == "__main__":
-    path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test"
-    token = os.getenv("TOKEN")
-    dataset_id = "602e648a42ece4003201adf9"
+    if len(sys.argv) == 1:
+        path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test"
+        token = os.getenv("TOKEN")
+        dataset_id = "602e648a42ece4003201adf9"
+        query_tag_name = "sharp-images"
+        preselected_tag_name = "preselected_8_images"
+        with_scores = "True"
+    elif len(sys.argv) == 1 + 6:
+        path_to_dataset, token, dataset_id, query_tag_name, preselected_tag_name, with_scores = \
+            (sys.argv[1 + i] for i in range(6))
+    else:
+        raise ValueError("ERROR in number of command line arguments, must be 6."
+                         "Example: python test_al.py this/is/my/dataset "
+                         "TOKEN dataset_id query_tag_name preselected_tag_name True")
+
+    if query_tag_name == "None":
+        query_tag_name = None
+    if preselected_tag_name == "None":
+        preselected_tag_name = None
+    if with_scores == "True":
+        with_scores = True
+    elif with_scores == "False":
+        with_scores = False
+    else:
+        raise ValueError("'with_scores' must be either 'True' or 'False'")
+
     for i in range(1):
         print(f"ITERATION {i}:")
         t_est_unmocked_complete_workflow(path_to_dataset, token, dataset_id,
-                                         query_tag_name="sharp-images", preselected_tag_name="preselected_8_images")
+                                         query_tag_name=query_tag_name, preselected_tag_name=preselected_tag_name,
+                                         with_scores=with_scores)
         print("")
