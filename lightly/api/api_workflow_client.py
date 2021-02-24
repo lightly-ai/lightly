@@ -75,7 +75,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin):
 
     @property
     def filenames_on_server(self):
-        if not hasattr(self, "_filenames"):
+        if not hasattr(self, "_filenames_on_server"):
             self._filenames_on_server = self.mappings_api. \
                 get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
         return self._filenames_on_server
