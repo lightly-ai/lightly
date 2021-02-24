@@ -88,18 +88,10 @@ class _SamplingMixin:
         Last the SamplingCreateRequest is created with the necessary nested class instances.
 
         """
-        if preselected_tag_id is not None:
-            preselected_tag: TagData = self.tags_api.get_tag_by_tag_id(
-                dataset_id=self.dataset_id,
-                tag_id=preselected_tag_id
-            )
-            n_preselected_samples = bin(int(preselected_tag.bit_mask_data, 16)).count("1")
-        else:
-            n_preselected_samples = 0
 
         sampling_config = SamplingConfig(
             stopping_condition=SamplingConfigStoppingCondition(
-                n_samples=n_preselected_samples+sampler_config.batch_size,
+                n_samples=sampler_config.n_samples,
                 min_distance=sampler_config.min_distance
             )
         )

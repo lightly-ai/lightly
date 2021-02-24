@@ -54,7 +54,7 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
                                 query_tag_name=query_tag_name, preselected_tag_name=preselected_tag_name)
     total_currently_chosen_samples = len(agent.labeled_set)
     total_no_samples = len(agent.unlabeled_set) + total_currently_chosen_samples
-    for iter, batch_size in enumerate([1, 2, 5]):
+    for iter, batch_size in enumerate([1, 3, 8]):
         if iter == 0 or not with_scores:
             sampler_config = SamplerConfig(batch_size=batch_size)
             chosen_filenames = agent.query(sampler_config=sampler_config)

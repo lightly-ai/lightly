@@ -87,7 +87,8 @@ class TestApiWorkflow(unittest.TestCase):
 
         for agent in [agent_0, agent_1, agent_2, agent_3]:
             for batch_size in [2, 4]:
-                sampler_config = SamplerConfig(batch_size=batch_size)
+                n_samples = len(agent.labeled_set)+batch_size
+                sampler_config = SamplerConfig(n_samples=n_samples)
                 chosen_filenames = agent.query(sampler_config=sampler_config)
 
     def test_agent_with_scores(self):
@@ -96,9 +97,9 @@ class TestApiWorkflow(unittest.TestCase):
 
         agent = ActiveLearningAgent(api_workflow_client, preselected_tag_name="preselected_tag_name_xyz")
 
-        for batch_size in [2, 4]:
+        for n_samples in [2, 6]:
             predictions = np.random.rand(len(agent.unlabeled_set), 10)
             predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
             al_scorer = ScorerClassification(predictions_normalized)
-            sampler_config = SamplerConfig(batch_size=batch_size, method=SamplingMethod.CORAL)
+            sampler_config = SamplerConfig(n_samples=n_samples, method=SamplingMethod.CORAL)
             chosen_filenames = agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
