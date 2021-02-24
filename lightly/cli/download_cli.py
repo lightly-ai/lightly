@@ -18,6 +18,10 @@ import lightly.data as data
 from lightly.api import get_samples_by_tag
 from lightly.cli._helpers import fix_input_path
 
+from lightly.api.utils import getenv
+from lightly.api.api_workflow_client import ApiWorkflowClient
+from lightly.api.bitmask import BitMask
+
 
 def _download_cli(cfg, is_cli_call=True):
 
@@ -35,14 +39,30 @@ def _download_cli(cfg, is_cli_call=True):
         print('For help, try: lightly-download --help')
         return
 
-    # get all samples in the queried tag
-    samples = get_samples_by_tag(
-        tag_name,
-        dataset_id,
-        token,
-        mode='list',
-        filenames=None
+    host = getenv(
+        'LIGHTLY_SERVER_LOCATION',
+        'https://api.lightly.ai'
     )
+
+    api_workflow_client = ApiWorkflowClient(
+        host=host, token=token, dataset_id=dataset_id
+    )
+
+    # get tag id
+    tag_name_id_dict = dict([tag.name, tag.id] for tag in api_workflow_client._get_all_tags())
+    tag_id = tag_name_id_dict.get(tag_name, None)
+    if tag_id is None:
+        print(f'The specified tag {tag_name} does not exist.')
+        return
+
+    # get tag data
+    tag_data = api_workflow_client.tags_api.get_tag_by_tag_id(
+        dataset_id=dataset_id, tag_id=tag_id
+    )
+    
+    # get samples
+    chosen_samples_ids = BitMask.from_hex(tag_data.bit_mask_data).to_indices()
+    samples = [api_workflow_client.filenames_on_server[i] for i in chosen_samples_ids]
 
     # store sample names in a .txt file
     with open(cfg['tag_name'] + '.txt', 'w') as f:
