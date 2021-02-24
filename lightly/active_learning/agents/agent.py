@@ -86,6 +86,13 @@ class ActiveLearningAgent:
             the filenames of the samples in the new labeled_set
 
         """
+        # check input
+        if sampler_config.n_samples < len(self.labeled_set):
+            print("ERROR: The number of samples which should be sampled according to the config"
+                  " (including the current labeled set)"
+                  "is smaller than the number of samples in the current labeled set.")
+            return self.labeled_set
+
         # calculate scores
         if al_scorer is not None:
             no_unlabeled_samples = len(self.unlabeled_set)
