@@ -1,4 +1,5 @@
 from typing import *
+import warnings
 
 from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.active_learning.scorers.scorer import Scorer
@@ -88,9 +89,10 @@ class ActiveLearningAgent:
         """
         # check input
         if sampler_config.n_samples < len(self.labeled_set):
-            print("ERROR: The number of samples which should be sampled according to the config"
-                  " (including the current labeled set)"
-                  "is smaller than the number of samples in the current labeled set.")
+            warnings.warng("ActiveLearningAgent.query: The number of samples which should be sampled "
+                           "including the current labeled set "
+                           "(sampler_config.n_samples) "
+                            "is smaller than the number of samples in the current labeled set.")
             return self.labeled_set
 
         # calculate scores
