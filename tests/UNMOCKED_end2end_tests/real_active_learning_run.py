@@ -33,7 +33,7 @@ class CSVEmbeddingDataset:
                 for index_to_delete in indexes_to_delete:
                     del embedding_row[index_to_delete]
 
-        self.dataset = dict([(filename, (np.array(embedding_row), int(label)))
+        self.dataset = dict([(filename, (np.array(embedding_row, dtype=float), int(label)))
                              for filename, embedding_row, label in zip(filenames, embeddings, labels)])
 
     def get_features(self, filenames: List[str]) -> np.ndarray:
@@ -53,7 +53,7 @@ class CSVEmbeddingDataset:
 
 def real_active_learning_run(path_to_dataset: str, token: str, dataset_id: str,
                              path_to_train_embeddings_csv: str, path_to_test_embeddings_csv: str,
-                             method: SamplingMethod = SamplingMethod.CORESET,
+                             method: SamplingMethod = SamplingMethod.CORAL,
                              ratios: List[str] = [0.01, 0.03, 0.1]):
     # define the api_client and api_workflow
     api_workflow_client = ApiWorkflowClient(host="https://api-dev.lightly.ai", token=token, dataset_id=dataset_id)
