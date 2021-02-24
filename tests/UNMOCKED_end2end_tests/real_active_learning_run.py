@@ -1,5 +1,6 @@
 import csv
 import os
+import sys
 from typing import *
 
 import numpy as np
@@ -77,15 +78,19 @@ def real_active_learning_run(path_to_dataset: str, token: str, dataset_id: str,
     al_scorer = None
 
     for iteration, ratio in enumerate(ratios):
-        print(f"Beginning with iteration {iteration}")
-        # 3. Perform a sampling
         n_samples = int(ratio * no_samples_total)
+        print(f"Beginning with iteration {iteration} to have {n_samples} labeled samples")
+        # 3. Perform a sampling
+
         method_here = SamplingMethod.CORESET if iteration == 0 and method == SamplingMethod.CORAL else method
         sampler_config = SamplerConfig(method=method_here, n_samples=n_samples)
         if al_scorer is None:
             agent.query(sampler_config=sampler_config)
         else:
-            agent.query(sampler_config=sampler_config,al_scorer=al_scorer)
+            agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
+
+        assert len(agent.labeled_set) == n_samples
+        assert len(agent.unlabeled_set) == no_samples_total-n_samples
 
         # 4. get the features and labels of the labeled_set
         features = training_set.get_features(agent.labeled_set)
@@ -106,16 +111,28 @@ def real_active_learning_run(path_to_dataset: str, token: str, dataset_id: str,
             # 6. Save the predictions in a scorer
             al_scorer = ScorerClassification(model_output=predictions)
 
+    print("Success!")
+
 
 if __name__ == "__main__":
-    path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/train"
-    token = os.getenv("TOKEN")
-    dataset_id = "603606ed2176760032373065"
-    path_to_train_embeddings_csv = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/train/lightly_outputs/2021-02-23/23-38-25/embeddings.csv"
-    path_to_test_embeddings_csv = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test/lightly_outputs/2021-02-23/23-41-09/embeddings.csv"
-    for i in range(1):
-        print(f"ITERATION {i}:")
+    if len(sys.argv) == 1:
+        path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/train"
+        token = os.getenv("TOKEN")
+        dataset_id = "603606ed2176760032373065"
+        path_to_train_embeddings_csv = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/train/lightly_outputs/2021-02-23/23-38-25/embeddings.csv"
+        path_to_test_embeddings_csv = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test/lightly_outputs/2021-02-23/23-41-09/embeddings.csv"
+    elif len(sys.argv) == 1 + 5:
+        path_to_dataset, token, dataset_id, path_to_train_embeddings_csv, path_to_test_embeddings_csv = \
+            (sys.argv[1 + i] for i in range(5))
+    else:
+        raise ValueError("ERROR in number of command line arguments, must be 5."
+                         "Example: python real_active_learning_run.py this/is/my/dataset "
+                         "TOKEN dataset_id path/to/train/embeddings.csv path/to/test/embeddings.csv")
+
+    for method in [SamplingMethod.RANDOM, SamplingMethod.CORESET, SamplingMethod.CORAL]:
+        print(f"ITERATION with method {method}:")
         real_active_learning_run(path_to_dataset, token, dataset_id,
                                  path_to_train_embeddings_csv=path_to_train_embeddings_csv,
-                                 path_to_test_embeddings_csv=path_to_test_embeddings_csv)
+                                 path_to_test_embeddings_csv=path_to_test_embeddings_csv,
+                                 method=method)
         print("")
