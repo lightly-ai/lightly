@@ -14,6 +14,9 @@ from lightly.api import upload_embeddings_from_csv
 from lightly.api import upload_images_from_folder
 from lightly.cli._helpers import fix_input_path
 
+from lightly.api.utils import getenv
+from lightly.api.api_workflow_client import ApiWorkflowClient
+
 
 def _upload_cli(cfg, is_cli_call=True):
 
@@ -37,24 +40,25 @@ def _upload_cli(cfg, is_cli_call=True):
         print('For help, try: lightly-upload --help')
         return
 
+    host = getenv(
+        'LIGHTLY_SERVER_LOCATION',
+        'https://api.lightly.ai'
+    )
+
+    api_workflow_client = ApiWorkflowClient(
+        host=host, token=token, dataset_id=dataset_id
+    )
+
     if input_dir:
         mode = cfg['upload']
-        try:
-            upload_images_from_folder(
-                input_dir, dataset_id, token, mode=mode, size=size)
-        except (ValueError, ConnectionRefusedError) as error:
-            msg = f'Error: {error}'
-            print(msg)
-            exit(0)
+        api_workflow_client.upload_dataset(
+            input=input_dir, mode=mode, size=size
+        )
 
     if path_to_embeddings:
-        max_upload = cfg['emb_upload_bsz']
-        upload_embeddings_from_csv(
-            path_to_embeddings,
-            dataset_id,
-            token,
-            max_upload=max_upload,
-            embedding_name=cfg['embedding_name']
+        name = cfg['embedding_name']
+        api_workflow_client.upload_embeddings(
+            path_to_embeddings_csv=path_to_embeddings, name=name
         )
 
 
