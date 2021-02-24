@@ -10,8 +10,6 @@ command-line interface.
 
 import hydra
 
-from lightly.api import upload_embeddings_from_csv
-from lightly.api import upload_images_from_folder
 from lightly.cli._helpers import fix_input_path
 
 from lightly.api.utils import getenv

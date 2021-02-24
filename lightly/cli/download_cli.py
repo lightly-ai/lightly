@@ -15,7 +15,6 @@ import hydra
 from tqdm import tqdm
 
 import lightly.data as data
-from lightly.api import get_samples_by_tag
 from lightly.cli._helpers import fix_input_path
 
 from lightly.api.utils import getenv
