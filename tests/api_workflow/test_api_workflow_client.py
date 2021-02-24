@@ -86,7 +86,8 @@ class TestApiWorkflow(unittest.TestCase):
         agent_3 = ActiveLearningAgent(api_workflow_client, preselected_tag_name="preselected_tag_name_xyz")
 
         for agent in [agent_0, agent_1, agent_2, agent_3]:
-            for n_samples in [2, 6]:
+            for batch_size in [2, 4]:
+                n_samples = len(agent.labeled_set)+batch_size
                 sampler_config = SamplerConfig(n_samples=n_samples)
                 chosen_filenames = agent.query(sampler_config=sampler_config)
 

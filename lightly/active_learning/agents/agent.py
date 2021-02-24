@@ -89,7 +89,7 @@ class ActiveLearningAgent:
         """
         # check input
         if sampler_config.n_samples < len(self.labeled_set):
-            warnings.warng("ActiveLearningAgent.query: The number of samples which should be sampled "
+            warnings.warn("ActiveLearningAgent.query: The number of samples which should be sampled "
                            "including the current labeled set "
                            "(sampler_config.n_samples) "
                             "is smaller than the number of samples in the current labeled set.")
