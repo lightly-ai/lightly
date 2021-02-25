@@ -52,7 +52,7 @@ Prerequisites:
 # Import the Python frameworks we need for this tutorial.
 
 import csv
-from typing import List
+from typing import List, Dict, Tuple
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -66,12 +66,8 @@ from lightly.openapi_generated.swagger_client import SamplingMethod
 # Definition of parameters
 path_to_embeddings_csv = "path/to/embeddings.csv"
 host = "https://api.lightly.ai"  # the URL of the web platform
-token = "ABCDEF"  # the token of the web platform
-dataset_id = "ASDFASDF"  # the id of your dataset on the web platform
-n_samples_to_sample = [100, 200]  # We first want to 100 samples to be labeled and
-# then another 100 to have 200 samples in total
-methods_to_sample = [SamplingMethod.CORESET, SamplingMethod.CORAL]  # We perform the initial sampling with CORESET
-# and then use CORAL for the following sampling with active learning scores
+YOUR_TOKEN = "ABCDEF"  # your token of the web platform
+YOUR_DATASET_ID = "ASDFASDF"  # the id of your dataset on the web platform
 
 
 # %%
@@ -101,8 +97,10 @@ class CSVEmbeddingDataset:
                 for index_to_delete in indexes_to_delete:
                     del embedding_row[index_to_delete]
 
-        self.dataset = dict([(filename, (np.array(embedding_row, dtype=float), int(label)))
-                             for filename, embedding_row, label in zip(filenames, embeddings, labels)])
+        # create the dataset as a dictionary mapping from the filename to a tuple of the embedding and the label
+        self.dataset: Dict[str, Tuple[np.ndarray, int]] = \
+            dict([(filename, (np.array(embedding_row, dtype=float), int(label)))
+                  for filename, embedding_row, label in zip(filenames, embeddings, labels)])
 
     def get_features(self, filenames: List[str]) -> np.ndarray:
         features_array = np.array([self.dataset[filename][0] for filename in filenames])
@@ -114,19 +112,21 @@ class CSVEmbeddingDataset:
 
 
 # %%
-# Definition of dataset, active learning agent and classifier
+# Upload the embeddings and dataset
+api_workflow_client = ApiWorkflowClient(host=host, token=YOUR_TOKEN, dataset_id=YOUR_DATASET_ID)
+api_workflow_client.upload_embeddings(name="embedding-1", path_to_embeddings_csv=path_to_embeddings_csv)
+
+# %%
+# Definition of dataset for classifer,the active learning agent and the classifier
 dataset = CSVEmbeddingDataset(path_to_embeddings_csv=path_to_embeddings_csv)
-agent = ActiveLearningAgent(ApiWorkflowClient(host=host, token=token, dataset_id=dataset_id))
+agent = ActiveLearningAgent(api_workflow_client=api_workflow_client)
 classifier = KNeighborsClassifier(n_neighbors=20, weights='distance')
 
 # %%
-# Upload of the embeddings
-agent.api_workflow_client.upload_embeddings(name="embedding-1", path_to_embeddings_csv=path_to_embeddings_csv)
-
-# %%
 # 1. Choose an initial subset of your dataset.
+# We want to start with 100 samples and use the CORESET sampler for sampling them.
 print("Starting the initial sampling")
-sampler_config = SamplerConfig(name="initial-sampling", n_samples=n_samples_to_sample[0], method=methods_to_sample[0])
+sampler_config = SamplerConfig(name="initial-sampling", n_samples=100, method=SamplingMethod.CORESET)
 agent.query(sampler_config=sampler_config)
 print(f"There are {len(agent.labeled_set)} samples in the labeled set.")
 
@@ -147,7 +147,8 @@ active_learning_scorer = ScorerClassification(model_output=predictions)
 
 # %%
 # 5. Use an active learning agent to choose the next samples to be labeled based on the active learning scores.
-sampler_config = SamplerConfig(name="2nd-sampling", n_samples=n_samples_to_sample[1], method=methods_to_sample[1])
+# We want to sample another 100 samples to have 200 samples in total and use the active learning sampler CORAL for it.
+sampler_config = SamplerConfig(name="2nd-sampling", n_samples=200, method=SamplingMethod.CORAL)
 agent.query(sampler_config=sampler_config, al_scorer=active_learning_scorer)
 print(f"There are {len(agent.labeled_set)} samples in the labeled set.")
 
