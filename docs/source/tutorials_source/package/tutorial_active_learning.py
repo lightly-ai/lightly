@@ -34,15 +34,23 @@ Prerequisites:
 
 # %%
 # Creation of the dataset on the lightly platform with embeddings
-# To perform samplings, we need to
-# A. Train a model on the dataset, e.g. using the CLI https://docs.lightly.ai/getting_started/command_line_tool.html#train-a-model-using-the-cli
-# B. Create embeddings for the dataset, e.g. using the CLI https://docs.lightly.ai/getting_started/command_line_tool.html#create-embeddings-using-the-cli
+# To perform samplings, we need to perform several steps, ideally with the CLI.
+# More documentation on each step is found at https://docs.lightly.ai/getting_started/command_line_tool.html#
+# A. Train a model on the dataset, e.g. with
+#    lightly-train input_dir="path/to/clothing-dataset-small"
+# B. Create embeddings for the dataset, e.g. with
+#    lightly-embed input_dir="path/to/clothing-dataset-small/train" checkpoint=mycheckpoint.ckpt
 #    Save the path to the embeddings.csv, you will need it later.
 #    for uploading the embeddings and for defining the dataset for the classifier
 # C. Create a new dataset on the lightly platform as described in https://docs.lightly.ai/getting_started/platform.html#.
 #    Save the token and dataset id, you will need them later to upload the images and embeddings
 #    and to run the active learning samplers.
-# D. Upload the images to the platform, e.g. using the CLI https://docs.lightly.ai/getting_started/command_line_tool.html#upload-data-using-the-cli
+# D. Upload the images to the platform, e.g. with
+#    lightly-upload input_dir="path/to/clothing-dataset-small/train" \
+#    embedding="path/to/clothing-dataset-small/train/.../embeddings.csv" \
+#    token="yourToken" dataset_id="yourDatasetId"
+
+
 
 
 # %%
@@ -64,10 +72,9 @@ from lightly.openapi_generated.swagger_client import SamplingMethod
 
 # %%
 # Definition of parameters
-path_to_embeddings_csv = "path/to/embeddings.csv"
-host = "https://api.lightly.ai"  # the URL of the web platform
-YOUR_TOKEN = "ABCDEF"  # your token of the web platform
-YOUR_DATASET_ID = "ASDFASDF"  # the id of your dataset on the web platform
+path_to_embeddings_csv = "path/to/clothing-dataset-small/train/.../embeddings.csv"
+YOUR_TOKEN = "yourToken"  # your token of the web platform
+YOUR_DATASET_ID = "yourDatasetId"  # the id of your dataset on the web platform
 
 
 # %%
@@ -113,7 +120,7 @@ class CSVEmbeddingDataset:
 
 # %%
 # Upload the embeddings to the lightly web platform
-api_workflow_client = ApiWorkflowClient(host=host, token=YOUR_TOKEN, dataset_id=YOUR_DATASET_ID)
+api_workflow_client = ApiWorkflowClient(token=YOUR_TOKEN, dataset_id=YOUR_DATASET_ID)
 api_workflow_client.upload_embeddings(name="embedding-1", path_to_embeddings_csv=path_to_embeddings_csv)
 
 # %%
