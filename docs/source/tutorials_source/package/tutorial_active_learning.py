@@ -112,15 +112,15 @@ class CSVEmbeddingDataset:
 
 
 # %%
-# Upload the embeddings and dataset
+# Upload the embeddings to the lightly web platform
 api_workflow_client = ApiWorkflowClient(host=host, token=YOUR_TOKEN, dataset_id=YOUR_DATASET_ID)
 api_workflow_client.upload_embeddings(name="embedding-1", path_to_embeddings_csv=path_to_embeddings_csv)
 
 # %%
-# Definition of dataset for classifer,the active learning agent and the classifier
+# Definition of the dataset for the classifer,the classifier and the active learning agent
 dataset = CSVEmbeddingDataset(path_to_embeddings_csv=path_to_embeddings_csv)
-agent = ActiveLearningAgent(api_workflow_client=api_workflow_client)
 classifier = KNeighborsClassifier(n_neighbors=20, weights='distance')
+agent = ActiveLearningAgent(api_workflow_client=api_workflow_client)
 
 # %%
 # 1. Choose an initial subset of your dataset.
