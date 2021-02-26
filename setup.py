@@ -97,9 +97,9 @@ if __name__ == '__main__':
         'lightly.active_learning.agents',
         'lightly.active_learning.config',
         'lightly.active_learning.scorers',
-        'lightly.openapi_generated'
-        'lightly.openapi_generated.swager_client'
-        'lightly.openapi_generated.swager_client.api'
+        'lightly.openapi_generated',
+        'lightly.openapi_generated.swager_client',
+        'lightly.openapi_generated.swager_client.api',
         'lightly.openapi_generated.swager_client.models'
     ]
 
