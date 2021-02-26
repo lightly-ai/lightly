@@ -1,6 +1,6 @@
 """
 
-Tutorial 6: Active Learning
+Tutorial 2: Active Learning
 ==============================================
 
 In this tutorial, we will run an active learning loop using both the lightly package and the platform.
