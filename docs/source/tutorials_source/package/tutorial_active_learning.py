@@ -21,13 +21,19 @@ based on the class of the k nearest samples in the labeled set.
 We use the euclidean distance between a sample's embeddings as the distance metric.
 The advantage of such a classifier compared to CNNs is that it is very fast and easily implemented.
 
-To make the definition of the dataset for training the classifier easy,
+
+What you will learn
+-------------------
+* You learn how an active learning loop is set up and which components are needed for it.
+* You learn how to perform active learning with Lightly.
+
+Requirements
+------------
+- Make sure you are familiar with the command line tools described at https://docs.lightly.ai/getting_started/command_line_tool.html#
+- To make the definition of the dataset for training the classifier easy,
 we recommend using a dataset where the samples are grouped into folder according to their class.
 We use the clothing-dataset-small. You can download it using
 `git clone https://github.com/alexeygrigorev/clothing-dataset-small.git`
-
-Prerequisites:
-- Make sure you are familiar with the command line tools described at https://docs.lightly.ai/getting_started/command_line_tool.html#
 
 """
 
@@ -37,18 +43,17 @@ Prerequisites:
 # To perform samplings, we need to perform several steps, ideally with the CLI.
 # More documentation on each step is found at https://docs.lightly.ai/getting_started/command_line_tool.html#
 # A. Train a model on the dataset, e.g. with
-#    lightly-train input_dir="path/to/clothing-dataset-small"
+#    ```lightly-train input_dir="path/to/clothing-dataset-small"```
 # B. Create embeddings for the dataset, e.g. with
-#    lightly-embed input_dir="path/to/clothing-dataset-small/train" checkpoint=mycheckpoint.ckpt
+#    ```lightly-embed input_dir="path/to/clothing-dataset-small/train" checkpoint=mycheckpoint.ckpt```
 #    Save the path to the embeddings.csv, you will need it later.
 #    for uploading the embeddings and for defining the dataset for the classifier
 # C. Create a new dataset on the lightly platform as described in https://docs.lightly.ai/getting_started/platform.html#.
 #    Save the token and dataset id, you will need them later to upload the images and embeddings
 #    and to run the active learning samplers.
 # D. Upload the images to the platform, e.g. with
-#    lightly-upload input_dir="path/to/clothing-dataset-small/train" \
-#    embedding="path/to/clothing-dataset-small/train/.../embeddings.csv" \
-#    token="yourToken" dataset_id="yourDatasetId"
+#    ```lightly-upload input_dir="path/to/clothing-dataset-small/train" \
+#    token="yourToken" dataset_id="yourDatasetId"```
 
 
 
