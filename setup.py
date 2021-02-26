@@ -93,7 +93,7 @@ if __name__ == '__main__':
         'lightly.models',
         'lightly.transforms',
         'lightly.utils',
-        'lightly.active_learning'
+        'lightly.active_learning',
         'lightly.openapi_generated'
     ]
 
