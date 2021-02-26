@@ -157,7 +157,7 @@ def get_meta_from_img(img):
     return metadata
 
 
-def get_thumbnail_from_img(img, size: int = 80):
+def get_thumbnail_from_img(img, size: int = 128):
     """Compute the thumbnail of the image.
 
     Args:
@@ -171,7 +171,7 @@ def get_thumbnail_from_img(img, size: int = 80):
 
     """
     thumbnail = img.copy()
-    thumbnail.thumbnail((size, size), Image.LINEAR)
+    thumbnail.thumbnail((size, size), Image.LANCZOS)
     return thumbnail
 
 
