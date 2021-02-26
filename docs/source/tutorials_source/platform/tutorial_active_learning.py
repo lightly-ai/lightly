@@ -184,7 +184,7 @@ accuracy_on_unlabeled_set = classifier.score(X=unlabeled_set_features, y=unlabel
 print(f"accuracy on unlabeled set: {accuracy_on_unlabeled_set}")
 
 # evaluate on test set
-dataset_test = CSVEmbeddingDataset("path/to/test/embeddings.csv")
+dataset_test = CSVEmbeddingDataset("path/to/clothing-dataset-small/test/.../embeddings.csv")
 test_features = dataset_test.get_features(agent.unlabeled_set)
 test_labels = dataset_test.get_labels(agent.unlabeled_set)
 accuracy_on_test_set = classifier.score(X=test_features, y=test_labels)
