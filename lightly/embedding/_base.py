@@ -82,21 +82,8 @@ class BaseEmbedding(lightning.LightningModule):
             A trained encoder, ready for embedding datasets.
 
         """
-        # backwards compatability for old pytorch-lightning versions:
-        # they changed the way checkpoint callbacks are passed in v1.0.3
-        # -> do a simple version check
-        # TODO: remove when incrementing minimum requirement for pl
-        pl_version = [int(v) for v in pl.__version__.split('.')]
-        ok_version = [1, 0, 4]
-        deprecated_checkpoint_callback = \
-            all([pl_v >= ok_v for pl_v, ok_v in zip(pl_version, ok_version)])
 
-        if deprecated_checkpoint_callback:
-            trainer = pl.Trainer(**kwargs,
-                                 callbacks=[self.checkpoint_callback])
-        else:
-            trainer = pl.Trainer(**kwargs,
-                                 checkpoint_callback=self.checkpoint_callback)
+        trainer = pl.Trainer(**kwargs, callbacks=[self.checkpoint_callback])
 
         trainer.fit(self)
 
