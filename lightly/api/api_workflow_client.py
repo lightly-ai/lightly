@@ -1,10 +1,9 @@
 import os
 from typing import *
 
+from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_sampling import _SamplingMixin
-from lightly.data.dataset import LightlyDataset
-from lightly.api.upload import upload_images_from_folder, upload_dataset
 from lightly.openapi_generated.swagger_client import TagData, ScoresApi
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
@@ -15,7 +14,7 @@ from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
 
 
-class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin):
+class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMixin):
     """Provides a uniform interface to communicate with the api and run workflows including multiple API calls
 
     Args:
@@ -79,24 +78,3 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin):
             self._filenames_on_server = self.mappings_api. \
                 get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
         return self._filenames_on_server
-
-    def upload_dataset(self, input: Union[str, LightlyDataset], **kwargs):
-        """Uploads a dataset to the server and creates the initial tag.
-
-        Args:
-            input:
-                one of the following:
-                    - the path to the dataset, e.g. "path/to/dataset"
-                    - the dataset in form of a LightlyDataset
-            **kwargs:
-                see specification of the called functions
-        """
-        if isinstance(input, str):
-            path_to_dataset = input
-            upload_images_from_folder(path_to_dataset, self.dataset_id, self.token, **kwargs)
-        elif isinstance(input, LightlyDataset):
-            dataset = input
-            upload_dataset(dataset, self.dataset_id, self.token, **kwargs)
-        else:
-            raise ValueError(f"input must either be a LightlyDataset or the path to the dataset as str, "
-                             f"but is of type {type(input)}")
