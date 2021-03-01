@@ -33,24 +33,28 @@ class InitialTagCreateRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'name': 'TagName'
+        'name': 'TagName',
+        'img_type': 'ImageType'
     }
 
     attribute_map = {
-        'name': 'name'
+        'name': 'name',
+        'img_type': 'imgType'
     }
 
-    def __init__(self, name=None, _configuration=None):  # noqa: E501
+    def __init__(self, name=None, img_type=None, _configuration=None):  # noqa: E501
         """InitialTagCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._name = None
+        self._img_type = None
         self.discriminator = None
 
         if name is not None:
             self.name = name
+        self.img_type = img_type
 
     @property
     def name(self):
@@ -72,6 +76,29 @@ class InitialTagCreateRequest(object):
         """
 
         self._name = name
+
+    @property
+    def img_type(self):
+        """Gets the img_type of this InitialTagCreateRequest.  # noqa: E501
+
+
+        :return: The img_type of this InitialTagCreateRequest.  # noqa: E501
+        :rtype: ImageType
+        """
+        return self._img_type
+
+    @img_type.setter
+    def img_type(self, img_type):
+        """Sets the img_type of this InitialTagCreateRequest.
+
+
+        :param img_type: The img_type of this InitialTagCreateRequest.  # noqa: E501
+        :type: ImageType
+        """
+        if self._configuration.client_side_validation and img_type is None:
+            raise ValueError("Invalid value for `img_type`, must not be `None`")  # noqa: E501
+
+        self._img_type = img_type
 
     def to_dict(self):
         """Returns the model properties as a dict"""
