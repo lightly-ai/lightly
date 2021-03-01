@@ -219,19 +219,17 @@ def upload_dataset(dataset: LightlyDataset,
         msg += 'Failed at image: {}'.format(results.index(False))
         warnings.warn(msg)
 
-    # set image type of data
+    # set image type of data and create initial tag
     if mode == 'full':
-        routes.users.datasets.put_image_type(dataset_id, token, mode)
+        img_type = 'full'
     elif mode == 'thumbnails':
-        routes.users.datasets.put_image_type(dataset_id, token, 'thumbnail')
+        img_type = 'thumbnail'
     else:
-        routes.users.datasets.put_image_type(dataset_id, token, 'meta')
-
-    # create initial tag
+        img_type = "meta"
+        
     api_client = get_api_client(token=token)
     tags_api = TagsApi(api_client=api_client)
-
-    initial_tag_create_request = InitialTagCreateRequest()
+    initial_tag_create_request = InitialTagCreateRequest(img_type=img_type)
     tags_api.create_initial_tag_by_dataset_id(body=initial_tag_create_request, dataset_id=dataset_id)
 
 
