@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Union
 
-from build.lib.lightly.api.upload import upload_dataset
+from lightly.api.upload import upload_dataset
 from lightly.api.upload import upload_images_from_folder
 
 from lightly.data.dataset import LightlyDataset

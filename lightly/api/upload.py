@@ -15,7 +15,7 @@ import torchvision
 from itertools import islice
 
 #import lightly.api.routes as routes
-from lightly.api import routes
+#from lightly.api import routes
 from lightly.api.constants import LIGHTLY_MAXIMUM_DATASET_SIZE
 
 from lightly.api.utils import get_thumbnail_from_img
@@ -28,9 +28,6 @@ from lightly.openapi_generated.swagger_client import SamplesApi, SampleCreateReq
 from lightly.openapi_generated.swagger_client.configuration import Configuration
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 
-from lightly.utils import fit_pca
-from lightly.utils import load_embeddings_as_dict
-
 from lightly.data import LightlyDataset
 
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
@@ -39,8 +36,6 @@ from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
 import tqdm
 import warnings
 from concurrent.futures import ThreadPoolExecutor
-
-import PIL.Image as Image
 
 
 def get_api_client(token: str, host: str = None) -> ApiClient:
@@ -90,9 +85,8 @@ def _upload_single_image(image,
     try:
         body = SampleCreateRequest(file_name=basename, thumb_name=thumbname, meta_data=metadata)
         sample_id = samples_api.create_sample_by_dataset_id(body=body, dataset_id=dataset_id)
-    except RuntimeError as e:
-        sample_upload_success = False
-        raise ValueError
+    except RuntimeError:
+        raise ValueError("Creating the sampling in the web platform failed.")
 
     # upload thumbnail
     thumbnail_upload_success = True
@@ -226,7 +220,7 @@ def upload_dataset(dataset: LightlyDataset,
         img_type = 'thumbnail'
     else:
         img_type = "meta"
-        
+
     api_client = get_api_client(token=token)
     tags_api = TagsApi(api_client=api_client)
     initial_tag_create_request = InitialTagCreateRequest(img_type=img_type)
@@ -251,9 +245,6 @@ def upload_images_from_folder(path_to_folder: str,
             Token for authentication.
         max_workers:
             Maximum number of workers uploading images in parallel.
-        max_requests:
-            Maximum number of requests a single worker can do before he has
-            to wait for the others.
         mode:
             One of [full, thumbnails, metadata]. Whether to upload thumbnails,
             full images, or metadata only.
@@ -282,7 +273,7 @@ def upload_images_from_folder(path_to_folder: str,
         token,
         max_workers=max_workers,
         mode=mode,
-        verbose=verbose,
+        verbose=verbose
     )
 
 
