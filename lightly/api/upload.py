@@ -24,6 +24,7 @@ from lightly.api.utils import check_image
 from lightly.api.utils import check_filename
 from lightly.api.utils import PIL_to_bytes
 from lightly.api.utils import put_request
+from lightly.openapi_generated.swagger_client import SamplesApi, SampleCreateRequest
 from lightly.openapi_generated.swagger_client.configuration import Configuration
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 
@@ -40,6 +41,16 @@ import warnings
 from concurrent.futures import ThreadPoolExecutor
 
 import PIL.Image as Image
+
+
+def get_api_client(token: str, host: str = None) -> ApiClient:
+    if host is None:
+        host = getenv('LIGHTLY_SERVER_LOCATION', 'https://api.lightly.ai')
+    configuration = Configuration()
+    configuration.host = host
+    configuration.api_key = {'token': token}
+    api_client = ApiClient(configuration=configuration)
+    return api_client
 
 
 def _make_2d_embedding(batch, transformer):
@@ -140,7 +151,7 @@ def upload_embeddings_from_csv(path_to_embeddings: str,
 
     embedding_batches = [None] * n_batches
     for i in range(n_batches):
-        left = i*max_upload
+        left = i * max_upload
         right = min((i + 1) * max_upload, n_embeddings)
         batch = data.copy()
         batch['embeddings'] = data['embeddings'][left:right]
@@ -170,7 +181,7 @@ def _upload_single_image(image,
     basename = filename
     if not check_filename(basename):
         msg = (f'Filename {basename} is longer than the allowed maximum of '
-            'characters and will be skipped.')
+               'characters and will be skipped.')
         warnings.warn(msg)
         return False
 
@@ -187,10 +198,12 @@ def _upload_single_image(image,
     # upload sample with metadata
     sample_upload_success = True
 
+    api_client = get_api_client(token=token)
+    samples_api = SamplesApi(api_client=api_client)
+
     try:
-        sample_id = routes.users.datasets.samples.post(
-            basename, thumbname, metadata, dataset_id, token
-        )
+        body = SampleCreateRequest(file_name=basename, thumb_name=thumbname, meta_data=metadata)
+        sample_id = samples_api.create_sample_by_dataset_id(body=body, dataset_id=dataset_id)
     except RuntimeError as e:
         sample_upload_success = False
         raise ValueError
@@ -200,9 +213,8 @@ def _upload_single_image(image,
     if mode == 'thumbnails' and not metadata['is_corrupted'] and sample_upload_success:
         try:
             # try to get signed url for thumbnail
-            signed_url = routes.users.datasets.samples. \
-                get_presigned_upload_url(
-                    thumbname, dataset_id, sample_id, token)
+            signed_url = samples_api.\
+                get_sample_image_write_url_by_id(dataset_id=dataset_id, sample_id=sample_id, is_thumbnail=True)
             # try to upload thumbnail
             upload_file_with_signed_url(
                 PIL_to_bytes(thumbnail, ext='webp', quality=70),
@@ -218,9 +230,8 @@ def _upload_single_image(image,
     if mode == 'full' and not metadata['is_corrupted']:
         try:
             # try to get signed url for image
-            signed_url = routes.users.datasets.samples. \
-                get_presigned_upload_url(
-                    basename, dataset_id, sample_id, token)
+            signed_url = samples_api. \
+                get_sample_image_write_url_by_id(dataset_id=dataset_id, sample_id=sample_id, is_thumbnail=False)
 
             # try to upload image
             upload_file_with_signed_url(
@@ -282,14 +293,6 @@ def upload_dataset(dataset: LightlyDataset,
         msg = f'Connection to server failed with status code {status_code}.'
         raise RuntimeError(msg)
 
-    # check whether the dataset alreadys has existing tags
-    tags = routes.users.datasets.tags.get(dataset_id, token)
-    if len(tags) > 0:
-        tag_names = [t['name'] for t in tags]
-        msg = 'Forbidden upload to dataset with existing tags: '
-        msg += f'{tag_names}'
-        raise RuntimeError(msg)
-
     # handle the case where len(dataset) < max_workers
     max_workers = min(len(dataset), max_workers)
 
@@ -314,9 +317,9 @@ def upload_dataset(dataset: LightlyDataset,
             mode=mode,
         )
         # update the progress bar
-        tqdm_lock.acquire() # lock
-        pbar.update(1)      # update
-        tqdm_lock.release() # unlock
+        tqdm_lock.acquire()  # lock
+        pbar.update(1)  # update
+        tqdm_lock.release()  # unlock
         # return whether the upload was successful
         return success
 
@@ -330,7 +333,7 @@ def upload_dataset(dataset: LightlyDataset,
         msg += 'Failed at image: {}'.format(results.index(False))
         warnings.warn(msg)
 
-    # set image type of data and create initial tag
+    # set image type of data
     if mode == 'full':
         routes.users.datasets.put_image_type(dataset_id, token, mode)
     elif mode == 'thumbnails':
@@ -338,16 +341,8 @@ def upload_dataset(dataset: LightlyDataset,
     else:
         routes.users.datasets.put_image_type(dataset_id, token, 'meta')
 
-    print("Finished upload of images, starting creation of initial tag.")
-
     # create initial tag
-    configuration = Configuration()
-    configuration.host = getenv(
-        'LIGHTLY_SERVER_LOCATION',
-        'https://api.lightly.ai'
-    )
-    configuration.api_key = {'token': token}
-    api_client = ApiClient(configuration=configuration)
+    api_client = get_api_client(token=token)
     tags_api = TagsApi(api_client=api_client)
 
     initial_tag_create_request = InitialTagCreateRequest()
