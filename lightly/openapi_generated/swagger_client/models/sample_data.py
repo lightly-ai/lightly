@@ -34,34 +34,51 @@ class SampleData(object):
     """
     swagger_types = {
         'id': 'MongoObjectID',
-        'is_thumbnail': 'bool',
+        'dataset_id': 'MongoObjectID',
+        'file_name': 'str',
         'thumb_name': 'str',
-        'meta': 'SampleMetaData'
+        'meta_data': 'SampleMetaData',
+        'created_at': 'Timestamp',
+        'last_modified_at': 'Timestamp'
     }
 
     attribute_map = {
-        'id': '_id',
-        'is_thumbnail': 'isThumbnail',
+        'id': 'id',
+        'dataset_id': 'datasetId',
+        'file_name': 'fileName',
         'thumb_name': 'thumbName',
-        'meta': 'meta'
+        'meta_data': 'metaData',
+        'created_at': 'createdAt',
+        'last_modified_at': 'lastModifiedAt'
     }
 
-    def __init__(self, id=None, is_thumbnail=None, thumb_name=None, meta=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, dataset_id=None, file_name=None, thumb_name=None, meta_data=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
         """SampleData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._id = None
-        self._is_thumbnail = None
+        self._dataset_id = None
+        self._file_name = None
         self._thumb_name = None
-        self._meta = None
+        self._meta_data = None
+        self._created_at = None
+        self._last_modified_at = None
         self.discriminator = None
 
         self.id = id
-        self.is_thumbnail = is_thumbnail
-        self.thumb_name = thumb_name
-        self.meta = meta
+        if dataset_id is not None:
+            self.dataset_id = dataset_id
+        self.file_name = file_name
+        if thumb_name is not None:
+            self.thumb_name = thumb_name
+        if meta_data is not None:
+            self.meta_data = meta_data
+        if created_at is not None:
+            self.created_at = created_at
+        if last_modified_at is not None:
+            self.last_modified_at = last_modified_at
 
     @property
     def id(self):
@@ -87,27 +104,48 @@ class SampleData(object):
         self._id = id
 
     @property
-    def is_thumbnail(self):
-        """Gets the is_thumbnail of this SampleData.  # noqa: E501
+    def dataset_id(self):
+        """Gets the dataset_id of this SampleData.  # noqa: E501
 
 
-        :return: The is_thumbnail of this SampleData.  # noqa: E501
-        :rtype: bool
+        :return: The dataset_id of this SampleData.  # noqa: E501
+        :rtype: MongoObjectID
         """
-        return self._is_thumbnail
+        return self._dataset_id
 
-    @is_thumbnail.setter
-    def is_thumbnail(self, is_thumbnail):
-        """Sets the is_thumbnail of this SampleData.
+    @dataset_id.setter
+    def dataset_id(self, dataset_id):
+        """Sets the dataset_id of this SampleData.
 
 
-        :param is_thumbnail: The is_thumbnail of this SampleData.  # noqa: E501
-        :type: bool
+        :param dataset_id: The dataset_id of this SampleData.  # noqa: E501
+        :type: MongoObjectID
         """
-        if self._configuration.client_side_validation and is_thumbnail is None:
-            raise ValueError("Invalid value for `is_thumbnail`, must not be `None`")  # noqa: E501
 
-        self._is_thumbnail = is_thumbnail
+        self._dataset_id = dataset_id
+
+    @property
+    def file_name(self):
+        """Gets the file_name of this SampleData.  # noqa: E501
+
+
+        :return: The file_name of this SampleData.  # noqa: E501
+        :rtype: str
+        """
+        return self._file_name
+
+    @file_name.setter
+    def file_name(self, file_name):
+        """Sets the file_name of this SampleData.
+
+
+        :param file_name: The file_name of this SampleData.  # noqa: E501
+        :type: str
+        """
+        if self._configuration.client_side_validation and file_name is None:
+            raise ValueError("Invalid value for `file_name`, must not be `None`")  # noqa: E501
+
+        self._file_name = file_name
 
     @property
     def thumb_name(self):
@@ -127,33 +165,71 @@ class SampleData(object):
         :param thumb_name: The thumb_name of this SampleData.  # noqa: E501
         :type: str
         """
-        if self._configuration.client_side_validation and thumb_name is None:
-            raise ValueError("Invalid value for `thumb_name`, must not be `None`")  # noqa: E501
 
         self._thumb_name = thumb_name
 
     @property
-    def meta(self):
-        """Gets the meta of this SampleData.  # noqa: E501
+    def meta_data(self):
+        """Gets the meta_data of this SampleData.  # noqa: E501
 
 
-        :return: The meta of this SampleData.  # noqa: E501
+        :return: The meta_data of this SampleData.  # noqa: E501
         :rtype: SampleMetaData
         """
-        return self._meta
+        return self._meta_data
 
-    @meta.setter
-    def meta(self, meta):
-        """Sets the meta of this SampleData.
+    @meta_data.setter
+    def meta_data(self, meta_data):
+        """Sets the meta_data of this SampleData.
 
 
-        :param meta: The meta of this SampleData.  # noqa: E501
+        :param meta_data: The meta_data of this SampleData.  # noqa: E501
         :type: SampleMetaData
         """
-        if self._configuration.client_side_validation and meta is None:
-            raise ValueError("Invalid value for `meta`, must not be `None`")  # noqa: E501
 
-        self._meta = meta
+        self._meta_data = meta_data
+
+    @property
+    def created_at(self):
+        """Gets the created_at of this SampleData.  # noqa: E501
+
+
+        :return: The created_at of this SampleData.  # noqa: E501
+        :rtype: Timestamp
+        """
+        return self._created_at
+
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this SampleData.
+
+
+        :param created_at: The created_at of this SampleData.  # noqa: E501
+        :type: Timestamp
+        """
+
+        self._created_at = created_at
+
+    @property
+    def last_modified_at(self):
+        """Gets the last_modified_at of this SampleData.  # noqa: E501
+
+
+        :return: The last_modified_at of this SampleData.  # noqa: E501
+        :rtype: Timestamp
+        """
+        return self._last_modified_at
+
+    @last_modified_at.setter
+    def last_modified_at(self, last_modified_at):
+        """Sets the last_modified_at of this SampleData.
+
+
+        :param last_modified_at: The last_modified_at of this SampleData.  # noqa: E501
+        :type: Timestamp
+        """
+
+        self._last_modified_at = last_modified_at
 
     def to_dict(self):
         """Returns the model properties as a dict"""
