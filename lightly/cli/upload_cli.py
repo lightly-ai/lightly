@@ -9,13 +9,15 @@ command-line interface.
 # All Rights Reserved
 
 import hydra
+
+from lightly.cli._helpers import fix_input_path
+from lightly.api.utils import getenv
 from lightly.api.api_workflow_client import ApiWorkflowClient
 
-from lightly.api import upload_images_from_folder
-from lightly.cli._helpers import fix_input_path
 
 
 def _upload_cli(cfg, is_cli_call=True):
+
     input_dir = cfg['input_dir']
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)
@@ -36,9 +38,17 @@ def _upload_cli(cfg, is_cli_call=True):
         print('For help, try: lightly-upload --help')
         return
 
-    api_workflow_client = ApiWorkflowClient(token=token, dataset_id=dataset_id)
+    host = getenv(
+        'LIGHTLY_SERVER_LOCATION',
+        'https://api.lightly.ai'
+    )
 
-    if input_dir:
+    api_workflow_client = ApiWorkflowClient(
+        host=host, token=token, dataset_id=dataset_id
+    )
+
+
+if input_dir:
         mode = cfg['upload']
         api_workflow_client.upload_dataset(
             input=input_dir, mode=mode, size=size
