@@ -4,10 +4,14 @@ import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import TYPE_CHECKING, Union
 
+from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
+
+from lightly.api.utils import check_filename, check_image, get_thumbnail_from_img, PIL_to_bytes
+
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 import tqdm
 
-from lightly.api.upload import _upload_single_image
+from lightly.api.upload import upload_file_with_signed_url
 
 if TYPE_CHECKING:
     from lightly.api.api_workflow_client import ApiWorkflowClient
@@ -122,3 +126,51 @@ class _UploadDatasetMixin:
 
         initial_tag_create_request = InitialTagCreateRequest(img_type=img_type)
         self.tags_api.create_initial_tag_by_dataset_id(body=initial_tag_create_request, dataset_id=self.dataset_id)
+
+    def _upload_single_image(self: ApiWorkflowClient, image, label, filename: str, mode):
+        """Uploads a single image to the Lightly platform.
+
+        """
+
+        # check whether the filename is too long
+        basename = filename
+        if not check_filename(basename):
+            msg = (f'Filename {basename} is longer than the allowed maximum of '
+                   'characters and will be skipped.')
+            warnings.warn(msg)
+            return False
+
+        # calculate metadata, and check if corrupted
+        metadata = check_image(image)
+
+        # generate thumbnail if necessary
+        thumbname = None
+        thumbnail = None
+        if mode == 'thumbnails' and not metadata['is_corrupted']:
+            thumbname = '.'.join(basename.split('.')[:-1]) + '_thumb.webp'
+
+        try:
+            body = SampleCreateRequest(file_name=basename, thumb_name=thumbname, meta_data=metadata)
+            sample_id = self.samples_api.create_sample_by_dataset_id(body=body, dataset_id=self.dataset_id).id
+        except RuntimeError:
+            raise ValueError("Creating the sampling in the web platform failed.")
+
+        if not metadata['is_corrupted'] and mode in ["thumbnails", "full"]:
+            if mode == "thumbnails":
+                is_thumbnail = True
+                thumbnail = get_thumbnail_from_img(image)
+                image_to_upload = PIL_to_bytes(thumbnail, ext='webp', quality=90)
+            else:
+                is_thumbnail = False
+                image_to_upload = PIL_to_bytes(image)
+
+            signed_url = self.samples_api.get_sample_image_write_url_by_id(
+                dataset_id=self.dataset_id, sample_id=sample_id, is_thumbnail=is_thumbnail)
+
+            # try to upload thumbnail
+            upload_file_with_signed_url(image_to_upload, signed_url)
+
+            if mode == "thumbnails":
+                thumbnail.close()
+            else:
+                image.close()
