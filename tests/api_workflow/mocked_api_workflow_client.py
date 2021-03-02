@@ -60,7 +60,7 @@ class MockedJobsApi(JobsApi):
                                       created_at=1234, finished_at=1357, result=result)
         else:
             result = None
-            response_ = JobStatusData(id="id_", status=JobState.RUNNING, wait_time_till_next_poll=0.5,
+            response_ = JobStatusData(id="id_", status=JobState.RUNNING, wait_time_till_next_poll=0.001,
                                       created_at=1234, result=result)
         return response_
 
@@ -169,6 +169,8 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
 
         lightly.api.api_workflow_upload_dataset.get_quota = mocked_get_quota
         lightly.api.api_workflow_client.put_request = mocked_put_request
+
+        self.wait_time_till_next_poll = 0.001  # for api_workflow_sampling
 
 
 class MockedApiWorkflowSetup(unittest.TestCase):

@@ -17,20 +17,20 @@ class TestApiWorkflowAgent(MockedApiWorkflowSetup):
                                       preselected_tag_name="preselected_tag_name_xyz")
         agent_3 = ActiveLearningAgent(self.api_workflow_client, preselected_tag_name="preselected_tag_name_xyz")
 
-        for agent in [agent_0, agent_1, agent_2, agent_3]:
-            for batch_size in [2, 4]:
-                n_samples = len(agent.labeled_set) + batch_size
-                sampler_config = SamplerConfig(n_samples=n_samples)
-                chosen_filenames = agent.query(sampler_config=sampler_config)
+        for method in [SamplingMethod.CORAL, SamplingMethod.CORESET, SamplingMethod.RANDOM, SamplingMethod.BIT]:
+            for agent in [agent_0, agent_1, agent_2, agent_3]:
+                for batch_size in [2, 6]:
+                    n_samples = len(agent.labeled_set) + batch_size
+                    if method == SamplingMethod.CORAL and len(agent.labeled_set) > 0:
+                        sampler_config = SamplerConfig(n_samples=n_samples, method=SamplingMethod.CORESET)
+                    else:
+                        sampler_config = SamplerConfig(n_samples=n_samples, method=method)
 
-    def test_agent_with_scores(self):
-        self.api_workflow_client.embedding_id = "embedding_id_xyz"
-
-        agent = ActiveLearningAgent(self.api_workflow_client, preselected_tag_name="preselected_tag_name_xyz")
-
-        for n_samples in [2, 6]:
-            predictions = np.random.rand(len(agent.unlabeled_set), 10)
-            predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
-            al_scorer = ScorerClassification(predictions_normalized)
-            sampler_config = SamplerConfig(n_samples=n_samples, method=SamplingMethod.CORAL)
-            chosen_filenames = agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
+                    if sampler_config.method == SamplingMethod.CORESET:
+                        predictions = np.random.rand(len(agent.unlabeled_set), 10)
+                        predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
+                        al_scorer = ScorerClassification(predictions_normalized)
+                        chosen_filenames = agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
+                    else:
+                        sampler_config = SamplerConfig(n_samples=n_samples)
+                        chosen_filenames = agent.query(sampler_config=sampler_config)
