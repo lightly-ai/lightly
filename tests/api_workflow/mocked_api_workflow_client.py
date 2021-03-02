@@ -166,7 +166,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         self.mappings_api = MockedMappingsApi(api_client=self.api_client)
         self.scores_api = MockedScoresApi(api_client=self.api_client)
 
-        lightly.api.upload.routes.users.get_quota = mocked_get_quota
+        lightly.api.api_workflow_upload_dataset.get_quota = mocked_get_quota
         lightly.api.upload.put_request = mocked_put_request
         lightly.api.upload.ApiClient = MockedApiClient
         lightly.api.upload.SamplesApi = MockedSamplesApi
