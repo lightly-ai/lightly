@@ -54,7 +54,7 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
                                 query_tag_name=query_tag_name, preselected_tag_name=preselected_tag_name)
     total_initial_chosen_samples = len(agent.labeled_set)
     total_no_samples = len(agent.unlabeled_set) + len(agent.labeled_set)
-    for iter, n_samples in enumerate([1, 3, 8]):
+    for iter, n_samples in enumerate([2, 5, 9]):
         total_samples_to_choose = total_initial_chosen_samples + n_samples
         if iter == 0 or not with_scores:
             sampler_config = SamplerConfig(n_samples=total_samples_to_choose)
@@ -78,7 +78,7 @@ if __name__ == "__main__":
         path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test"
         token = os.getenv("TOKEN")
         dataset_id = "603df3b5ec6936003281bc1c"
-        query_tag_name = None#"sharp-images"
+        query_tag_name = "initial-tag"
         preselected_tag_name = None#"preselected_8_images"
         with_scores = "True"
     elif len(sys.argv) == 1 + 6:
