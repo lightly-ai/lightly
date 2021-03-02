@@ -14,7 +14,7 @@ import torchvision
 
 from itertools import islice
 
-#import lightly.api.routes as routes
+# import lightly.api.routes as routes
 from lightly.api import routes
 from lightly.api.constants import LIGHTLY_MAXIMUM_DATASET_SIZE
 
@@ -74,11 +74,8 @@ def _upload_single_image(image,
     thumbnail = None
     if mode == 'thumbnails' and not metadata['is_corrupted']:
         thumbname = '.'.join(basename.split('.')[:-1]) + '_thumb.webp'
-        thumbnail = get_thumbnail_from_img(image)
 
     # upload sample with metadata
-    sample_upload_success = True
-
     api_client = get_api_client(token=token)
     samples_api = SamplesApi(api_client=api_client)
 
@@ -88,46 +85,25 @@ def _upload_single_image(image,
     except RuntimeError:
         raise ValueError("Creating the sampling in the web platform failed.")
 
-    # upload thumbnail
-    thumbnail_upload_success = True
-    if mode == 'thumbnails' and not metadata['is_corrupted'] and sample_upload_success:
-        try:
-            # try to get signed url for thumbnail
-            signed_url = samples_api.\
-                get_sample_image_write_url_by_id(dataset_id=dataset_id, sample_id=sample_id, is_thumbnail=True)
-            # try to upload thumbnail
-            upload_file_with_signed_url(
-                PIL_to_bytes(thumbnail, ext='webp', quality=70),
-                signed_url
-            )
-            # close thumbnail
+    if not metadata['is_corrupted'] and mode in ["thumbnails", "full"]:
+        if mode == "thumbnails":
+            is_thumbnail = True
+            thumbnail = get_thumbnail_from_img(image)
+            image_to_upload = PIL_to_bytes(thumbnail, ext='webp', quality=90)
+        else:
+            is_thumbnail = False
+            image_to_upload = PIL_to_bytes(image)
+
+        signed_url = samples_api.get_sample_image_write_url_by_id(
+            dataset_id=dataset_id, sample_id=sample_id, is_thumbnail=is_thumbnail)
+
+        # try to upload thumbnail
+        upload_file_with_signed_url(image_to_upload, signed_url)
+
+        if mode == "thumbnails":
             thumbnail.close()
-        except RuntimeError:
-            thumbnail_upload_success = False
-
-    # upload full image
-    image_upload_success = True
-    if mode == 'full' and not metadata['is_corrupted']:
-        try:
-            # try to get signed url for image
-            signed_url = samples_api. \
-                get_sample_image_write_url_by_id(dataset_id=dataset_id, sample_id=sample_id, is_thumbnail=False)
-
-            # try to upload image
-            upload_file_with_signed_url(
-                PIL_to_bytes(image),
-                signed_url
-            )
-            # close image
+        else:
             image.close()
-        except RuntimeError:
-            image_upload_success = False
-
-    success = sample_upload_success
-    success = success and thumbnail_upload_success
-    success = success and image_upload_success
-    return success
-
 
 
 def upload_file_with_signed_url(file, url: str) -> bool:

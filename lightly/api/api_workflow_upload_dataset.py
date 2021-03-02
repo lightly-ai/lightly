@@ -80,15 +80,20 @@ class _UploadDatasetMixin:
         def lambda_(i):
             # load image
             image, label, filename = dataset[i]
-            # upload image
-            success = _upload_single_image(
-                image=image,
-                label=label,
-                filename=filename,
-                dataset_id=self.dataset_id,
-                token=self.token,
-                mode=mode,
-            )
+            # try to upload image
+            try:
+                _upload_single_image(
+                    image=image,
+                    label=label,
+                    filename=filename,
+                    dataset_id=self.dataset_id,
+                    token=self.token,
+                    mode=mode,
+                )
+                success = True
+            except:
+                success = False
+
             # update the progress bar
             tqdm_lock.acquire()  # lock
             pbar.update(1)  # update
