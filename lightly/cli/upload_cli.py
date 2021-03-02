@@ -11,12 +11,13 @@ command-line interface.
 import hydra
 
 from lightly.cli._helpers import fix_input_path
+
 from lightly.api.utils import getenv
 from lightly.api.api_workflow_client import ApiWorkflowClient
 
 
 def _upload_cli(cfg, is_cli_call=True):
-    
+
     input_dir = cfg['input_dir']
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)
