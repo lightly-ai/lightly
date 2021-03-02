@@ -15,9 +15,8 @@ from lightly.api.utils import getenv
 from lightly.api.api_workflow_client import ApiWorkflowClient
 
 
-
 def _upload_cli(cfg, is_cli_call=True):
-
+    
     input_dir = cfg['input_dir']
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)
@@ -47,8 +46,7 @@ def _upload_cli(cfg, is_cli_call=True):
         host=host, token=token, dataset_id=dataset_id
     )
 
-
-if input_dir:
+    if input_dir:
         mode = cfg['upload']
         api_workflow_client.upload_dataset(
             input=input_dir, mode=mode, size=size
