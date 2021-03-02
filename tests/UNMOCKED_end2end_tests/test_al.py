@@ -77,9 +77,9 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test"
         token = os.getenv("TOKEN")
-        dataset_id = "602e648a42ece4003201adf9"
-        query_tag_name = "sharp-images"
-        preselected_tag_name = "preselected_8_images"
+        dataset_id = "603df3b5ec6936003281bc1c"
+        query_tag_name = None#"sharp-images"
+        preselected_tag_name = None#"preselected_8_images"
         with_scores = "True"
     elif len(sys.argv) == 1 + 6:
         path_to_dataset, token, dataset_id, query_tag_name, preselected_tag_name, with_scores = \
