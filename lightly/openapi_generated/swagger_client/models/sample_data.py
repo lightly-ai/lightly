@@ -38,6 +38,7 @@ class SampleData(object):
         'file_name': 'str',
         'thumb_name': 'str',
         'meta_data': 'SampleMetaData',
+        'index': 'int',
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp'
     }
@@ -48,11 +49,12 @@ class SampleData(object):
         'file_name': 'fileName',
         'thumb_name': 'thumbName',
         'meta_data': 'metaData',
+        'index': 'index',
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt'
     }
 
-    def __init__(self, id=None, dataset_id=None, file_name=None, thumb_name=None, meta_data=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, dataset_id=None, file_name=None, thumb_name=None, meta_data=None, index=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
         """SampleData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -63,6 +65,7 @@ class SampleData(object):
         self._file_name = None
         self._thumb_name = None
         self._meta_data = None
+        self._index = None
         self._created_at = None
         self._last_modified_at = None
         self.discriminator = None
@@ -75,6 +78,8 @@ class SampleData(object):
             self.thumb_name = thumb_name
         if meta_data is not None:
             self.meta_data = meta_data
+        if index is not None:
+            self.index = index
         if created_at is not None:
             self.created_at = created_at
         if last_modified_at is not None:
@@ -188,6 +193,27 @@ class SampleData(object):
         """
 
         self._meta_data = meta_data
+
+    @property
+    def index(self):
+        """Gets the index of this SampleData.  # noqa: E501
+
+
+        :return: The index of this SampleData.  # noqa: E501
+        :rtype: int
+        """
+        return self._index
+
+    @index.setter
+    def index(self, index):
+        """Sets the index of this SampleData.
+
+
+        :param index: The index of this SampleData.  # noqa: E501
+        :type: int
+        """
+
+        self._index = index
 
     @property
     def created_at(self):

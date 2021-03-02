@@ -30,6 +30,7 @@ class JobResultType(object):
     """
     SAMPLING = "SAMPLING"
     IMAGEMETA = "IMAGEMETA"
+    EMBEDDINGS2D = "EMBEDDINGS2D"
 
     """
     Attributes:

@@ -47,7 +47,6 @@ from lightly.openapi_generated.swagger_client.models.embedding_data import Embed
 from lightly.openapi_generated.swagger_client.models.general_job_result import GeneralJobResult
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
-from lightly.openapi_generated.swagger_client.models.inline_response200 import InlineResponse200
 from lightly.openapi_generated.swagger_client.models.job_result_type import JobResultType
 from lightly.openapi_generated.swagger_client.models.job_state import JobState
 from lightly.openapi_generated.swagger_client.models.job_status_data import JobStatusData
