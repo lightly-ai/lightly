@@ -40,7 +40,6 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
         api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
 
-        os.environ["LIGHTLY_SERVER_LOCATION"] = host
         self.token = token
         self.dataset_id = dataset_id
         if embedding_id is not None:
