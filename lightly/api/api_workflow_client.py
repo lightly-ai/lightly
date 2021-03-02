@@ -1,6 +1,10 @@
 import os
 from typing import *
 
+from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
+
+from lightly.api.utils import put_request
+
 from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_sampling import _SamplingMixin
@@ -48,6 +52,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
         self.embeddings_api = EmbeddingsApi(api_client=api_client)
         self.mappings_api = MappingsApi(api_client=api_client)
         self.scores_api = ScoresApi(api_client=api_client)
+        self.samples_api = SamplesApi(api_client=api_client)
 
     def _get_all_tags(self) -> List[TagData]:
         return self.tags_api.get_tags_by_dataset_id(self.dataset_id)
@@ -78,3 +83,8 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
             self._filenames_on_server = self.mappings_api. \
                 get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
         return self._filenames_on_server
+
+    def upload_file_with_signed_url(self, file, signed_write_url: str):
+        response = put_request(signed_write_url, data=file)
+        file.close()
+        return response

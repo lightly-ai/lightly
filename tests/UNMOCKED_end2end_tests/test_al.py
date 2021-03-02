@@ -8,9 +8,7 @@ import numpy as np
 from lightly.active_learning.agents.agent import ActiveLearningAgent
 from lightly.active_learning.scorers.classification import ScorerClassification
 from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.api.bitmask import BitMask
 from lightly.data import LightlyDataset
-from lightly.api.upload import upload_dataset
 from lightly.openapi_generated.swagger_client import SamplingMethod
 
 from lightly.utils import save_embeddings

@@ -7,7 +7,6 @@ if TYPE_CHECKING:
 import csv
 from typing import List
 
-from lightly.api.upload import upload_file_with_signed_url
 from lightly.openapi_generated.swagger_client.models.dataset_embedding_data import DatasetEmbeddingData
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
 
@@ -49,7 +48,7 @@ class _UploadEmbeddingsMixin:
 
         # upload the csv to the URL
         with open(path_to_ordered_embeddings_csv, 'rb') as file_ordered_embeddings_csv:
-            upload_file_with_signed_url(file=file_ordered_embeddings_csv, url=signed_write_url)
+            self.upload_file_with_signed_url(file=file_ordered_embeddings_csv, signed_write_url=signed_write_url)
 
     def _order_csv_by_filenames(self: ApiWorkflowClient, path_to_embeddings_csv: str) -> str:
         """Orders the rows in a csv according to the order specified on the server and saves it as a new file.

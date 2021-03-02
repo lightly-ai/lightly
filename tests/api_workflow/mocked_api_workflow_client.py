@@ -165,12 +165,10 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         self.embeddings_api = MockedEmbeddingsApi(api_client=self.api_client)
         self.mappings_api = MockedMappingsApi(api_client=self.api_client)
         self.scores_api = MockedScoresApi(api_client=self.api_client)
+        self.samples_api = MockedSamplesApi(api_client=self.api_client)
 
         lightly.api.api_workflow_upload_dataset.get_quota = mocked_get_quota
-        lightly.api.upload.put_request = mocked_put_request
-        lightly.api.upload.ApiClient = MockedApiClient
-        lightly.api.upload.SamplesApi = MockedSamplesApi
-        lightly.api.upload.TagsApi = MockedTagsApi
+        lightly.api.api_workflow_client.put_request = mocked_put_request
 
 
 class MockedApiWorkflowSetup(unittest.TestCase):

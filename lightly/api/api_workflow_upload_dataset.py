@@ -11,8 +11,6 @@ from lightly.api.utils import check_filename, check_image, get_thumbnail_from_im
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 import tqdm
 
-from lightly.api.upload import upload_file_with_signed_url
-
 if TYPE_CHECKING:
     from lightly.api.api_workflow_client import ApiWorkflowClient
 
@@ -86,12 +84,10 @@ class _UploadDatasetMixin:
             image, label, filename = dataset[i]
             # try to upload image
             try:
-                _upload_single_image(
+                self._upload_single_image(
                     image=image,
                     label=label,
                     filename=filename,
-                    dataset_id=self.dataset_id,
-                    token=self.token,
                     mode=mode,
                 )
                 success = True
@@ -168,7 +164,7 @@ class _UploadDatasetMixin:
                 dataset_id=self.dataset_id, sample_id=sample_id, is_thumbnail=is_thumbnail)
 
             # try to upload thumbnail
-            upload_file_with_signed_url(image_to_upload, signed_url)
+            self.upload_file_with_signed_url(image_to_upload, signed_url)
 
             if mode == "thumbnails":
                 thumbnail.close()
