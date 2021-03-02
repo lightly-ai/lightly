@@ -84,7 +84,7 @@ def _upload_single_image(image,
 
     try:
         body = SampleCreateRequest(file_name=basename, thumb_name=thumbname, meta_data=metadata)
-        sample_id = samples_api.create_sample_by_dataset_id(body=body, dataset_id=dataset_id)
+        sample_id = samples_api.create_sample_by_dataset_id(body=body, dataset_id=dataset_id).id
     except RuntimeError:
         raise ValueError("Creating the sampling in the web platform failed.")
 
