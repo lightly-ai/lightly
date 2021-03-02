@@ -52,22 +52,22 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
 
     agent = ActiveLearningAgent(api_workflow_client,
                                 query_tag_name=query_tag_name, preselected_tag_name=preselected_tag_name)
-    total_currently_chosen_samples = len(agent.labeled_set)
-    total_no_samples = len(agent.unlabeled_set) + total_currently_chosen_samples
-    for iter, batch_size in enumerate([1, 3, 8]):
+    total_initial_chosen_samples = len(agent.labeled_set)
+    total_no_samples = len(agent.unlabeled_set) + len(agent.labeled_set)
+    for iter, n_samples in enumerate([1, 3, 8]):
+        total_samples_to_choose = total_initial_chosen_samples + n_samples
         if iter == 0 or not with_scores:
-            sampler_config = SamplerConfig(batch_size=batch_size)
+            sampler_config = SamplerConfig(n_samples=total_samples_to_choose)
             chosen_filenames = agent.query(sampler_config=sampler_config)
         else:
             predictions = np.random.rand(len(agent.unlabeled_set), 10)
             predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
             al_scorer = ScorerClassification(predictions_normalized)
-            sampler_config = SamplerConfig(batch_size=batch_size, method=SamplingMethod.CORAL)
+            sampler_config = SamplerConfig(n_samples=total_samples_to_choose, method=SamplingMethod.CORAL)
             chosen_filenames = agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
-        total_currently_chosen_samples += batch_size
-        assert (len(chosen_filenames) == total_currently_chosen_samples)
-        assert (len(agent.labeled_set) == total_currently_chosen_samples)
-        assert (len(agent.unlabeled_set) == total_no_samples - total_currently_chosen_samples)
+        assert (len(chosen_filenames) == total_samples_to_choose)
+        assert (len(agent.labeled_set) == total_samples_to_choose)
+        assert (len(agent.unlabeled_set) == total_no_samples - total_samples_to_choose)
         print(f"Finished AL step with {len(chosen_filenames)} labeled samples in total")
 
     print("Finished the AL loop")
