@@ -118,7 +118,7 @@ class _UploadDatasetMixin:
         elif mode == 'thumbnails':
             img_type = 'thumbnail'
         else:
-            img_type = "meta"
+            img_type = 'meta'
 
         initial_tag_create_request = InitialTagCreateRequest(img_type=img_type)
         self.tags_api.create_initial_tag_by_dataset_id(body=initial_tag_create_request, dataset_id=self.dataset_id)
