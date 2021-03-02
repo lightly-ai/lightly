@@ -33,6 +33,7 @@ class SampleMetaData(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'custom': 'dict(str, object)',
         'sharpness': 'float',
         'size_in_bytes': 'int',
         'snr': 'float',
@@ -44,6 +45,7 @@ class SampleMetaData(object):
     }
 
     attribute_map = {
+        'custom': 'custom',
         'sharpness': 'sharpness',
         'size_in_bytes': 'sizeInBytes',
         'snr': 'snr',
@@ -54,12 +56,13 @@ class SampleMetaData(object):
         'sum_of_values': 'sumOfValues'
     }
 
-    def __init__(self, sharpness=None, size_in_bytes=None, snr=None, mean=None, shape=None, std=None, sum_of_squares=None, sum_of_values=None, _configuration=None):  # noqa: E501
+    def __init__(self, custom=None, sharpness=None, size_in_bytes=None, snr=None, mean=None, shape=None, std=None, sum_of_squares=None, sum_of_values=None, _configuration=None):  # noqa: E501
         """SampleMetaData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
+        self._custom = None
         self._sharpness = None
         self._size_in_bytes = None
         self._snr = None
@@ -70,6 +73,8 @@ class SampleMetaData(object):
         self._sum_of_values = None
         self.discriminator = None
 
+        if custom is not None:
+            self.custom = custom
         if sharpness is not None:
             self.sharpness = sharpness
         if size_in_bytes is not None:
@@ -86,6 +91,27 @@ class SampleMetaData(object):
             self.sum_of_squares = sum_of_squares
         if sum_of_values is not None:
             self.sum_of_values = sum_of_values
+
+    @property
+    def custom(self):
+        """Gets the custom of this SampleMetaData.  # noqa: E501
+
+
+        :return: The custom of this SampleMetaData.  # noqa: E501
+        :rtype: dict(str, object)
+        """
+        return self._custom
+
+    @custom.setter
+    def custom(self, custom):
+        """Sets the custom of this SampleMetaData.
+
+
+        :param custom: The custom of this SampleMetaData.  # noqa: E501
+        :type: dict(str, object)
+        """
+
+        self._custom = custom
 
     @property
     def sharpness(self):
