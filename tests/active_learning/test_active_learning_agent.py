@@ -7,7 +7,7 @@ from lightly.openapi_generated.swagger_client import SamplingMethod
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
-class TestApiWorkflowAgent(MockedApiWorkflowSetup):
+class TestActiveLearningAgent(MockedApiWorkflowSetup):
     def test_agent(self):
         self.api_workflow_client.embedding_id = "embedding_id_xyz"
 
