@@ -91,7 +91,8 @@ class _UploadDatasetMixin:
                     mode=mode,
                 )
                 success = True
-            except:
+            except Exception as e:
+                warnings.warn(f"Upload of image {filename} failed with error {e}")
                 success = False
 
             # update the progress bar
