@@ -20,8 +20,8 @@ Lightly has been built to help you understand and work with large unlabeled
 datasets. It is built on top of PyTorch and therefore fully compatible with 
 other frameworks such as Fast.ai.
 
-Overview
--------------------
+Self-supervised Learning
+--------------------------
 
 The figure below shows an overview of the different used by the ligthly PIP package 
 and a schema of how they interact. The expressions in **bold** are explained further 
@@ -78,6 +78,13 @@ below.
    :ref:`sphx_glr_tutorials_package_tutorial_simsiam_esa.py` for an example
 
 
+Active Learning
+-------------------
+The image representations learned through self-supervised learning cannot only be used
+for downstream task or nearest neighbor search. The similarity between representations
+also serves as an excellent proxy for mutual information between images. This fact can
+be exploited when doing active learning to get the most informative subset of images
+during training. Check out our section on :ref:`lightly-active-learning` for more information.
 
 
 .. toctree::
@@ -90,6 +97,7 @@ below.
    getting_started/command_line_tool.rst
    getting_started/advanced.rst
    getting_started/platform.rst
+   getting_started/active_learning.rst
 
 .. toctree::
    :maxdepth: 1
@@ -103,9 +111,10 @@ below.
    :caption: Python API
 
    lightly
-   lightly.core
+   lightly.active_learning
    lightly.api
    lightly.cli
+   lightly.core
    lightly.data
    lightly.embedding
    lightly.loss

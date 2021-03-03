@@ -1,3 +1,4 @@
+.. _lightly-platform:
 
 The Lightly Platform
 ===================================
