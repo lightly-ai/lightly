@@ -6,15 +6,6 @@ Lightly enables active learning with only a few lines of additional code. Learn
 here, how to get the most out of your data by maximizing the available information
 in your annotated dataset.
 
-
-Introcution to Pool-based Active Learning
-------------------------------------------
-TODO
-
-
-Active Learning with Lightly
------------------------------
-
 Preparations
 ~~~~~~~~~~~~~~~~~
 Before you read on, make sure you have read the section on the :ref:`lightly-platform`. 
@@ -88,7 +79,11 @@ Next, you will need to initialize the `ApiWorkflowClient` and the `ActiveLearnin
 
 .. note::
 
-   Note about query_tag. TODO.
+   It may not always be a good idea to sample from the full dataset. For example,
+   it could be that a large portion of the images is blurry. In that case, it's 
+   possible to create a tag in the web-app which only contains the sharp images
+   and tell the `ActiveLearningAgent` to only sample from this tag. To do so, set
+   the `query_tag_name` argument in the constructor.
 
 Let's configure the sampling request and request an initial selection next:
 
@@ -127,28 +122,43 @@ have to re-initialize them, the tracking of the tags is taken care of for you.
     api_client = ApiWorkflowClient(dataset_id='xyz', token='123')
     al_agent = ActiveLearningAgent(api_client, preselected_tag_name='initial-selection')
 
-TODO text here about getting the scorer, normalize!
+The next part is what differentiates active learning from simple subsampling; the
+trained model is used to get predictions on the unlabeled data and the sampler then
+decides based on these predictions. To get a list of all filenames in the unlabeled set,
+you can simply call
 
 .. code-block:: Python
 
-    # TODO getting the scorer
+   # get all filenames in the unlabeled set
+   unlabeled_set = al_agent.unlabeled_set
 
-TODO text here about starting the next query 
+Use this list to get predictions on the unlabeled images.
+
+**Important:** The predictions need to be in the same order as the filenames in the
+list returned by the `ActiveLearningAgent` and they need to be stored in a numpy array.
+
+Once you have the scores in the right order, make sure to normalize them such that
+the rows sum to one. Then, create a scorer object like so:
+
+
+.. code-block:: Python
+
+    from lightly.active_learning.scorers import ScorerClassification
+
+    scorer = ScorerClassification(predictions)
+
+Now you have everything to get the next batch of images. One important thing to mention
+here is that the argument `n_samples` always refers to the total size of the labeled set.
 
 .. code-block:: Python
 
    # we want a total of 200 images after the first iteration
+   # this time, we use the CORAL sampler and provide a scorer to the query
    config = SamplerConfig(n_samples=200, method=SamplingMethod.CORAL, name='al-iteration-1')
    al_iteration_1 = al_agent.query(sampler_config, scorer)
 
    assert len(al_iteration_1) == 200
 
-
-TODO text here
-required:
-- ApiWorkflowClient from before
-- AL agent (from before, otherwise need to set preselected tag)
-- SamplerConfig (n_smaples, name, CORAL)
-- Scorer (predictions -> normalized)
-
--> show code
+As before, you will receive the filenames of all the images in the labeled set and there
+will be a new tag named `al-iteration-1` visible in the web-app. You can repeat the active
+learning step until the model achieves the required accuracy.
