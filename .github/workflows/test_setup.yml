@@ -1,0 +1,41 @@
+name: check setup.py
+on: [push]
+
+jobs:
+  test:
+    name: Test setup.py
+    runs-on: ubuntu-latest
+
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+    - name: Hack to get setup-python to work on nektos/act
+      run: |
+        if [ ! -f "/etc/lsb-release" ] ; then
+          echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
+        fi
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Install Dependencies
+      run: pip install -e '.[all]'
+    - name: Install lightly directly from a branch
+      run: |
+        sudo apt install git-all
+        pip uninstall lightly --yes
+        pip install "git+https://github.com/lightly-ai/lightly.git@develop_active_learning"
+    - name: basic tests of CLI
+      run: |
+        lightly-train --help
+        lightly-embed --help
+        lightly-upload --help
+        lightly-magic --help
+        lightly-download --help
+    - name: test of CLI on a real dataset
+      run: |
+        git clone https://github.com/alexeygrigorev/clothing-dataset-small clothing_dataset_small
+        INPUT_DIR_1="clothing_dataset_small/test/dress"
+        lightly-train input_dir=$INPUT_DIR_1 trainer.max_epochs=1 loader.num_workers=6
+        lightly-embed input_dir=$INPUT_DIR_1
