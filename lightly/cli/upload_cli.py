@@ -10,10 +10,13 @@ command-line interface.
 
 import hydra
 
+import torchvision
+
 from lightly.cli._helpers import fix_input_path
 
 from lightly.api.utils import getenv
 from lightly.api.api_workflow_client import ApiWorkflowClient
+from lightly.data import LightlyDataset
 
 
 def _upload_cli(cfg, is_cli_call=True):
@@ -32,6 +35,9 @@ def _upload_cli(cfg, is_cli_call=True):
     size = cfg['resize']
     if not isinstance(size, int):
         size = tuple(size)
+    transform = None
+    if isinstance(size, tuple) or size > 0:
+        transform = torchvision.transforms.Resize(size)
 
     if not token or not dataset_id:
         print('Please specify your access token and dataset id.')
@@ -49,8 +55,9 @@ def _upload_cli(cfg, is_cli_call=True):
 
     if input_dir:
         mode = cfg['upload']
+        dataset = LightlyDataset(input_dir=input_dir, transform=transform)
         api_workflow_client.upload_dataset(
-            input=input_dir, mode=mode, size=size
+            input=dataset, mode=mode
         )
 
     if path_to_embeddings:
@@ -92,6 +99,12 @@ def upload_cli(cfg):
         embedding_name:
             Assign the embedding a name in order to identify it on the 
             Lightly platform.
+        resize:
+            Desired size of the uploaded images. If negative, default size is used.
+            If size is a sequence like (h, w), output size will be matched to 
+            this. If size is an int, smaller edge of the image will be matched 
+            to this number. i.e, if height > width, then image will be rescaled
+            to (size * height / width, size).
 
     Examples:
         >>> # upload thumbnails to the Lightly platform
