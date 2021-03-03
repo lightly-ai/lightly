@@ -65,7 +65,7 @@ class _SamplingMixin:
                 wait_time_till_next_poll = job_status_data.wait_time_till_next_poll
             except Exception as err:
                 exception_counter += 1
-                if exception_counter == 10:
+                if exception_counter == 20:
                     print(f"Sampling job with job_id {job_id} could not be started because of error: {err}")
                     raise err
 
