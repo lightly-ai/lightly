@@ -43,7 +43,7 @@ We use the clothing-dataset-small. You can download it using
 # To perform samplings, we need to perform several steps, ideally with the CLI.
 # More documentation on each step is found at https://docs.lightly.ai/getting_started/command_line_tool.html#
 # A. Train a model on the dataset, e.g. with
-#    ```lightly-train input_dir="path/to/clothing-dataset-small"```
+#    ```lightly-train input_dir="path/to/clothing-dataset-small trainer.max_epochs=5"```
 # B. Create embeddings for the dataset, e.g. with
 #    ```lightly-embed input_dir="path/to/clothing-dataset-small/train" checkpoint=mycheckpoint.ckpt```
 #    Save the path to the embeddings.csv, you will need it later.
@@ -78,6 +78,7 @@ from lightly.openapi_generated.swagger_client import SamplingMethod
 # %%
 # Definition of parameters
 path_to_embeddings_csv = "path/to/clothing-dataset-small/train/.../embeddings.csv"
+path_to_test_embeddings_csv = "path/to/clothing-dataset-small/test/.../embeddings.csv"
 YOUR_TOKEN = "yourToken"  # your token of the web platform
 YOUR_DATASET_ID = "yourDatasetId"  # the id of your dataset on the web platform
 
@@ -184,7 +185,7 @@ accuracy_on_unlabeled_set = classifier.score(X=unlabeled_set_features, y=unlabel
 print(f"accuracy on unlabeled set: {accuracy_on_unlabeled_set}")
 
 # evaluate on test set
-dataset_test = CSVEmbeddingDataset("path/to/clothing-dataset-small/test/.../embeddings.csv")
+dataset_test = CSVEmbeddingDataset(path_to_test_embeddings_csv)
 test_features = dataset_test.get_features(agent.unlabeled_set)
 test_labels = dataset_test.get_labels(agent.unlabeled_set)
 accuracy_on_test_set = classifier.score(X=test_features, y=test_labels)
