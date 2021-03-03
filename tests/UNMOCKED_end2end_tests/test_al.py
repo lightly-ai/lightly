@@ -20,7 +20,8 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
                                      preselected_tag_name: str = None, query_tag_name: str = None,
                                      with_scores: bool = True):
     # define the api_client and api_workflow
-    api_workflow_client = ApiWorkflowClient(host="https://api-dev.lightly.ai", token=token, dataset_id=dataset_id)
+    host = os.getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai")
+    api_workflow_client = ApiWorkflowClient(host=host, token=token, dataset_id=dataset_id)
 
     # upload the images to the dataset and create the initial tag
     no_tags_on_server = len(api_workflow_client.tags_api.get_tags_by_dataset_id(dataset_id=dataset_id))
@@ -77,7 +78,7 @@ if __name__ == "__main__":
         token = os.getenv("TOKEN")
         dataset_id = "603e5426e25693003383fcc9"
         query_tag_name = "initial-tag"
-        preselected_tag_name = None#"preselected_8_images"
+        preselected_tag_name = None
         with_scores = "True"
     elif len(sys.argv) == 1 + 6:
         path_to_dataset, token, dataset_id, query_tag_name, preselected_tag_name, with_scores = \

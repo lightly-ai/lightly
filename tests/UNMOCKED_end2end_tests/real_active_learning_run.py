@@ -57,7 +57,8 @@ def real_active_learning_run(path_to_dataset: str, token: str, dataset_id: str,
                              method: SamplingMethod = SamplingMethod.CORAL,
                              ratios: List[str] = [0.01, 0.03, 0.1]):
     # define the api_client and api_workflow
-    api_workflow_client = ApiWorkflowClient(host="https://api-dev.lightly.ai", token=token, dataset_id=dataset_id)
+    host = os.getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai")
+    api_workflow_client = ApiWorkflowClient(host=host, token=token, dataset_id=dataset_id)
 
     # 1. upload the images to the dataset and create the initial tag
     no_tags_on_server = len(api_workflow_client.tags_api.get_tags_by_dataset_id(dataset_id=dataset_id))
