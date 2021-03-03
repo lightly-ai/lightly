@@ -31,3 +31,4 @@ lightly_outputs
 
 #ignore eggs
 .eggs
+tests/UNMOCKED_end2end_tests/test_cli_magic.sh
