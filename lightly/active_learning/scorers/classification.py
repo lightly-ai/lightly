@@ -27,18 +27,14 @@ def _entropy(probs: np.ndarray, axis: int = 1) -> np.ndarray:
 
 
 class ScorerClassification(Scorer):
-    """A class to compute active learning scores out of the model_output (i.e. the predictions of a model) for a classification task.
+    """Helper class to compute active learning scores from the model_output.
 
     Attributes:
         model_output:
-            the predictions, shape: (N, C)
-            N = number of samples == len(ActiveLerningAgent.unlabelled)
-                the order must be the one specified by ActiveLerningAgent.unlabelled
-            C = number of classes
-                model_output[n,c] is the predicted probability that sample n belongs to class c,
-                thus it must be in [0, 1]
-            the sum of the predictions over the classes, i.e. np.sum(model_output, axis=1),
-                must equal 1 for every row/sample
+            Predictions of shape N x C where N is the number of unlabeled samples
+            and C is the number of classes in the classification task. Must be
+            normalized such that the sum over each row is 1.
+
     """
     def __init__(self, model_output: np.ndarray):
         self.model_output = model_output
