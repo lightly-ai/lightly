@@ -141,32 +141,33 @@ class _UploadDatasetMixin:
 
         # generate thumbnail if necessary
         thumbname = None
-        thumbnail = None
-        if mode == 'thumbnails' and not metadata['is_corrupted']:
+        if not metadata['is_corrupted'] and mode in ["thumbnails", "full"]:
             thumbname = '.'.join(basename.split('.')[:-1]) + '_thumb.webp'
 
-        try:
-            body = SampleCreateRequest(file_name=basename, thumb_name=thumbname, meta_data=metadata)
-            sample_id = self.samples_api.create_sample_by_dataset_id(body=body, dataset_id=self.dataset_id).id
-        except RuntimeError:
-            raise ValueError("Creating the sampling in the web platform failed.")
+        body = SampleCreateRequest(file_name=basename, thumb_name=thumbname, meta_data=metadata)
+        sample_id = self.samples_api.create_sample_by_dataset_id(body=body, dataset_id=self.dataset_id).id
 
         if not metadata['is_corrupted'] and mode in ["thumbnails", "full"]:
-            if mode == "thumbnails":
-                is_thumbnail = True
-                thumbnail = get_thumbnail_from_img(image)
-                image_to_upload = PIL_to_bytes(thumbnail, ext='webp', quality=90)
-            else:
-                is_thumbnail = False
-                image_to_upload = PIL_to_bytes(image)
+            thumbnail = get_thumbnail_from_img(image)
+            image_to_upload = PIL_to_bytes(thumbnail, ext='webp', quality=90)
 
             signed_url = self.samples_api.get_sample_image_write_url_by_id(
-                dataset_id=self.dataset_id, sample_id=sample_id, is_thumbnail=is_thumbnail)
+                dataset_id=self.dataset_id, sample_id=sample_id, is_thumbnail=True)
 
             # try to upload thumbnail
             self.upload_file_with_signed_url(image_to_upload, signed_url)
 
-            if mode == "thumbnails":
-                thumbnail.close()
-            else:
-                image.close()
+            thumbnail.close()
+
+        if not metadata['is_corrupted'] and mode == "full":
+            image_to_upload = PIL_to_bytes(image)
+
+            signed_url = self.samples_api.get_sample_image_write_url_by_id(
+                dataset_id=self.dataset_id, sample_id=sample_id, is_thumbnail=False)
+
+            # try to upload thumbnail
+            self.upload_file_with_signed_url(image_to_upload, signed_url)
+
+            image.close()
+
+
