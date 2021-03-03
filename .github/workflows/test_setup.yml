@@ -23,6 +23,7 @@ jobs:
       run: pip install -e '.[all]'
     - name: Install lightly directly from a branch
       run: |
+        sudo apt update
         sudo apt install git-all
         pip uninstall lightly --yes
         pip install "git+https://github.com/lightly-ai/lightly.git@develop_active_learning"
