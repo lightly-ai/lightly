@@ -4,8 +4,6 @@ import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import TYPE_CHECKING, Union
 
-import torchvision
-
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
 
 from lightly.api.utils import check_filename, check_image, get_thumbnail_from_img, PIL_to_bytes
@@ -24,7 +22,7 @@ from lightly.api.routes.users.service import get_quota
 class _UploadDatasetMixin:
 
     def upload_dataset(self: ApiWorkflowClient, input: Union[str, LightlyDataset], max_workers: int = 8,
-                       size: Union[int, tuple] = -1,  mode: str = 'thumbnails', verbose: bool = True):
+                       mode: str = 'thumbnails', verbose: bool = True):
         """Uploads a dataset to to the Lightly cloud solution.
 
         Args:
@@ -37,12 +35,6 @@ class _UploadDatasetMixin:
             max_requests:
                 Maximum number of requests a single worker can do before he has
                 to wait for the others.
-            size:
-                Desired output size. If negative, default output size is used.
-                If size is a sequence like (h, w), output size will be matched to 
-                this. If size is an int, smaller edge of the image will be matched 
-                to this number. i.e, if height > width, then image will be rescaled
-                to (size * height / width, size).
             mode:
                 One of [full, thumbnails, metadata]. Whether to upload thumbnails,
                 full images, or metadata only.
@@ -56,10 +48,7 @@ class _UploadDatasetMixin:
 
         # Check input variable 'input'
         if isinstance(input, str):
-            transform = None
-            if isinstance(size, tuple) or size > 0:
-                transform = torchvision.transforms.Resize(size)
-            dataset = LightlyDataset(input_dir=input, transform=transform)
+            dataset = LightlyDataset(input_dir=input)
         elif isinstance(input, LightlyDataset):
             dataset = input
         else:
