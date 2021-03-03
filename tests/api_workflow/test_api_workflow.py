@@ -22,8 +22,7 @@ class TestApiWorkflow(unittest.TestCase):
             numbers_all = list(np.random.choice(numbers_to_choose_from, 100))
             filenames_on_server = [f"img_{i}" for i in numbers_all]
 
-            api_workflow_client = MockedApiWorkflowClient(host="host_xyz", token="token_xyz",
-                                                          dataset_id="dataset_id_xyz")
+            api_workflow_client = MockedApiWorkflowClient(token="token_xyz", dataset_id="dataset_id_xyz")
             api_workflow_client.mappings_api.sample_names = filenames_on_server
 
             numbers_in_tag = list(np.random.choice(numbers_to_choose_from, 50))
@@ -36,8 +35,7 @@ class TestApiWorkflow(unittest.TestCase):
 
     def test_reorder_manual(self):
         filenames_on_server = ['a', 'b', 'c']
-        api_workflow_client = MockedApiWorkflowClient(host="host_xyz", token="token_xyz",
-                                                      dataset_id="dataset_id_xyz")
+        api_workflow_client = MockedApiWorkflowClient(token="token_xyz", dataset_id="dataset_id_xyz")
         api_workflow_client.mappings_api.sample_names = filenames_on_server
         filenames_for_list = ['c', 'a']
         list_to_order = ['cccc', 'aaaa']

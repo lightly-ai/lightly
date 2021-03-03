@@ -20,8 +20,7 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
                                      preselected_tag_name: str = None, query_tag_name: str = None,
                                      with_scores: bool = True):
     # define the api_client and api_workflow
-    host = os.getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai")
-    api_workflow_client = ApiWorkflowClient(host=host, token=token, dataset_id=dataset_id)
+    api_workflow_client = ApiWorkflowClient(token=token, dataset_id=dataset_id)
 
     # upload the images to the dataset and create the initial tag
     no_tags_on_server = len(api_workflow_client.tags_api.get_tags_by_dataset_id(dataset_id=dataset_id))

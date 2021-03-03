@@ -175,5 +175,4 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
 
 class MockedApiWorkflowSetup(unittest.TestCase):
     def setUp(self) -> None:
-        self.api_workflow_client = MockedApiWorkflowClient(host="host_xyz", token="token_xyz",
-                                                           dataset_id="dataset_id_xyz")
+        self.api_workflow_client = MockedApiWorkflowClient(token="token_xyz", dataset_id="dataset_id_xyz")

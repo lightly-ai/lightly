@@ -3,7 +3,7 @@ from typing import *
 
 from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
 
-from lightly.api.utils import put_request
+from lightly.api.utils import put_request, getenv
 
 from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
@@ -32,10 +32,10 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
             the id of the embedding to use. If it is not set, but used by a workflow, the newest embedding is taken by default
     """
 
-    def __init__(self, host: str, token: str, dataset_id: str, embedding_id: str = None):
+    def __init__(self, token: str, dataset_id: str, embedding_id: str = None):
 
         configuration = Configuration()
-        configuration.host = host
+        configuration.host = getenv('LIGHTLY_SERVER_LOCATION', 'https://api.lightly.ai')
         configuration.api_key = {'token': token}
         api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
