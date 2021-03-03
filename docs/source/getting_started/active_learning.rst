@@ -155,9 +155,9 @@ here is that the argument `n_samples` always refers to the total size of the lab
    # we want a total of 200 images after the first iteration
    # this time, we use the CORAL sampler and provide a scorer to the query
    config = SamplerConfig(n_samples=200, method=SamplingMethod.CORAL, name='al-iteration-1')
-   al_iteration_1 = al_agent.query(sampler_config, scorer)
+   labeled_set_iteration_1 = al_agent.query(sampler_config, scorer)
 
-   assert len(al_iteration_1) == 200
+   assert len(labeled_set_iteration_1) == 200
 
 As before, you will receive the filenames of all the images in the labeled set and there
 will be a new tag named `al-iteration-1` visible in the web-app. You can repeat the active
