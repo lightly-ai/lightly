@@ -139,7 +139,7 @@ agent = ActiveLearningAgent(api_workflow_client=api_workflow_client)
 # 1. Choose an initial subset of your dataset.
 # We want to start with 100 samples and use the CORESET sampler for sampling them.
 print("Starting the initial sampling")
-sampler_config = SamplerConfig(name="initial-sampling", n_samples=100, method=SamplingMethod.CORESET)
+sampler_config = SamplerConfig(n_samples=100, method=SamplingMethod.CORESET, name='initial-selection')
 agent.query(sampler_config=sampler_config)
 print(f"There are {len(agent.labeled_set)} samples in the labeled set.")
 
@@ -161,7 +161,7 @@ active_learning_scorer = ScorerClassification(model_output=predictions)
 # %%
 # 5. Use an active learning agent to choose the next samples to be labeled based on the active learning scores.
 # We want to sample another 100 samples to have 200 samples in total and use the active learning sampler CORAL for it.
-sampler_config = SamplerConfig(name="2nd-sampling", n_samples=200, method=SamplingMethod.CORAL)
+sampler_config = SamplerConfig(n_samples=200, method=SamplingMethod.CORAL, name='al-iteration-1')
 agent.query(sampler_config=sampler_config, al_scorer=active_learning_scorer)
 print(f"There are {len(agent.labeled_set)} samples in the labeled set.")
 
