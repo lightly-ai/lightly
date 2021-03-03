@@ -39,7 +39,7 @@ class EmbeddingData(object):
     }
 
     attribute_map = {
-        'id': '_id',
+        'id': 'id',
         'dataset': 'dataset',
         'name': 'name'
     }
@@ -56,7 +56,8 @@ class EmbeddingData(object):
         self.discriminator = None
 
         self.id = id
-        self.dataset = dataset
+        if dataset is not None:
+            self.dataset = dataset
         self.name = name
 
     @property
@@ -100,8 +101,6 @@ class EmbeddingData(object):
         :param dataset: The dataset of this EmbeddingData.  # noqa: E501
         :type: MongoObjectID
         """
-        if self._configuration.client_side_validation and dataset is None:
-            raise ValueError("Invalid value for `dataset`, must not be `None`")  # noqa: E501
 
         self._dataset = dataset
 

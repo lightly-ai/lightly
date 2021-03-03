@@ -36,17 +36,19 @@ class DatasetEmbeddingData(object):
         'id': 'MongoObjectID',
         'name': 'str',
         'is_processed': 'bool',
-        'created_at': 'Timestamp'
+        'created_at': 'Timestamp',
+        'is2d': 'bool'
     }
 
     attribute_map = {
         'id': 'id',
         'name': 'name',
         'is_processed': 'isProcessed',
-        'created_at': 'createdAt'
+        'created_at': 'createdAt',
+        'is2d': 'is2d'
     }
 
-    def __init__(self, id=None, name=None, is_processed=None, created_at=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, name=None, is_processed=None, created_at=None, is2d=None, _configuration=None):  # noqa: E501
         """DatasetEmbeddingData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -56,12 +58,15 @@ class DatasetEmbeddingData(object):
         self._name = None
         self._is_processed = None
         self._created_at = None
+        self._is2d = None
         self.discriminator = None
 
         self.id = id
         self.name = name
         self.is_processed = is_processed
         self.created_at = created_at
+        if is2d is not None:
+            self.is2d = is2d
 
     @property
     def id(self):
@@ -115,7 +120,7 @@ class DatasetEmbeddingData(object):
     def is_processed(self):
         """Gets the is_processed of this DatasetEmbeddingData.  # noqa: E501
 
-        ALWAYS FALSE UNTIL IMPLEMENTED -> Indicator if the embedding was processed by the backend (for 2dEmbeddings)  # noqa: E501
+        indicator whether embeddings have already been processed by a background worker  # noqa: E501
 
         :return: The is_processed of this DatasetEmbeddingData.  # noqa: E501
         :rtype: bool
@@ -126,7 +131,7 @@ class DatasetEmbeddingData(object):
     def is_processed(self, is_processed):
         """Sets the is_processed of this DatasetEmbeddingData.
 
-        ALWAYS FALSE UNTIL IMPLEMENTED -> Indicator if the embedding was processed by the backend (for 2dEmbeddings)  # noqa: E501
+        indicator whether embeddings have already been processed by a background worker  # noqa: E501
 
         :param is_processed: The is_processed of this DatasetEmbeddingData.  # noqa: E501
         :type: bool
@@ -158,6 +163,29 @@ class DatasetEmbeddingData(object):
             raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
         self._created_at = created_at
+
+    @property
+    def is2d(self):
+        """Gets the is2d of this DatasetEmbeddingData.  # noqa: E501
+
+        flag set by the background worker if the embedding is 2d  # noqa: E501
+
+        :return: The is2d of this DatasetEmbeddingData.  # noqa: E501
+        :rtype: bool
+        """
+        return self._is2d
+
+    @is2d.setter
+    def is2d(self, is2d):
+        """Sets the is2d of this DatasetEmbeddingData.
+
+        flag set by the background worker if the embedding is 2d  # noqa: E501
+
+        :param is2d: The is2d of this DatasetEmbeddingData.  # noqa: E501
+        :type: bool
+        """
+
+        self._is2d = is2d
 
     def to_dict(self):
         """Returns the model properties as a dict"""

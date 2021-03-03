@@ -29,6 +29,8 @@ class ImageType(object):
     allowed enum values
     """
     FULL = "full"
+    THUMBNAIL = "thumbnail"
+    META = "meta"
 
     """
     Attributes:

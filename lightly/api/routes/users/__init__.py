@@ -8,5 +8,4 @@
 from lightly.api.routes.users.service import get_quota  # noqa: F401, E402
 
 # submodules
-from . import datasets   # noqa: F401, E402
 from . import docker      # noqa: F401, E402

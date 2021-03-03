@@ -57,7 +57,8 @@ def real_active_learning_run(path_to_dataset: str, token: str, dataset_id: str,
                              method: SamplingMethod = SamplingMethod.CORAL,
                              ratios: List[str] = [0.01, 0.03, 0.1]):
     # define the api_client and api_workflow
-    api_workflow_client = ApiWorkflowClient(host="https://api-dev.lightly.ai", token=token, dataset_id=dataset_id)
+    host = os.getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai")
+    api_workflow_client = ApiWorkflowClient(host=host, token=token, dataset_id=dataset_id)
 
     # 1. upload the images to the dataset and create the initial tag
     no_tags_on_server = len(api_workflow_client.tags_api.get_tags_by_dataset_id(dataset_id=dataset_id))
@@ -74,6 +75,7 @@ def real_active_learning_run(path_to_dataset: str, token: str, dataset_id: str,
     training_set = CSVEmbeddingDataset(path_to_embeddings_csv=path_to_train_embeddings_csv)
     test_set = CSVEmbeddingDataset(path_to_embeddings_csv=path_to_test_embeddings_csv)
     no_samples_total = len(training_set.dataset.items())
+    assert no_samples_total == len(api_workflow_client.filenames_on_server)
 
     al_scorer = None
 
@@ -118,7 +120,7 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         path_to_dataset = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/train"
         token = os.getenv("TOKEN")
-        dataset_id = "603606ed2176760032373065"
+        dataset_id = "603e068c23de290032d7bb55"
         path_to_train_embeddings_csv = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/train/lightly_outputs/2021-02-23/23-38-25/embeddings.csv"
         path_to_test_embeddings_csv = "/Users/malteebnerlightly/Documents/datasets/clothing-dataset-small-master/test/lightly_outputs/2021-02-23/23-41-09/embeddings.csv"
     elif len(sys.argv) == 1 + 5:

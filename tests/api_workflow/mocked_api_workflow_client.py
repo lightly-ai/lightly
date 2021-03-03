@@ -1,3 +1,5 @@
+import unittest
+
 import lightly
 
 from lightly.api.api_workflow_client import ApiWorkflowClient
@@ -5,7 +7,8 @@ from lightly.api.api_workflow_client import ApiWorkflowClient
 from io import BufferedReader
 from typing import *
 
-from lightly.openapi_generated.swagger_client import ScoresApi, CreateEntityResponse
+from lightly.openapi_generated.swagger_client import ScoresApi, CreateEntityResponse, SamplesApi, SampleCreateRequest, \
+    InitialTagCreateRequest, ApiClient
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -57,12 +60,18 @@ class MockedJobsApi(JobsApi):
                                       created_at=1234, finished_at=1357, result=result)
         else:
             result = None
-            response_ = JobStatusData(id="id_", status=JobState.RUNNING, wait_time_till_next_poll=0.5,
+            response_ = JobStatusData(id="id_", status=JobState.RUNNING, wait_time_till_next_poll=0.001,
                                       created_at=1234, result=result)
         return response_
 
 
 class MockedTagsApi(TagsApi):
+    def create_initial_tag_by_dataset_id(self, body, dataset_id, **kwargs):
+        assert isinstance(body, InitialTagCreateRequest)
+        assert isinstance(dataset_id, str)
+        response_ = CreateEntityResponse(id="xyz")
+        return response_
+
     def get_tag_by_tag_id(self, dataset_id, tag_id, **kwargs):
         assert isinstance(dataset_id, str)
         assert isinstance(tag_id, str)
@@ -101,14 +110,53 @@ class MockedMappingsApi(MappingsApi):
         return self.sample_names
 
 
+class MockedSamplesApi(SamplesApi):
+    def create_sample_by_dataset_id(self, body, dataset_id, **kwargs):
+        assert isinstance(body, SampleCreateRequest)
+        response_ = CreateEntityResponse(id="xyz")
+        return response_
+
+    def get_sample_image_write_url_by_id(self, dataset_id, sample_id, is_thumbnail, **kwargs):
+        url = f"{sample_id}_write_url"
+        return url
+
+
 def mocked_upload_file_with_signed_url(file: str, url: str, mocked_return_value=True) -> bool:
     assert isinstance(file, BufferedReader)
     assert isinstance(url, str)
     return mocked_return_value
 
 
+def mocked_get_quota(token: str) -> Tuple[int, int]:
+    quota = 25000
+    status = 200
+    return quota, status
+
+
+def mocked_put_request(dst_url, data=None, params=None, json=None, max_backoff=32, max_retries=5) -> bool:
+    assert isinstance(dst_url, str)
+    success = True
+    return success
+
+
+class MockedApiClient(ApiClient):
+    def request(self, method, url, query_params=None, headers=None,
+                post_params=None, body=None, _preload_content=True,
+                _request_timeout=None):
+        raise ValueError("ERROR: calling ApiClient.request(), but this should be mocked.")
+
+    def call_api(self, resource_path, method,
+                 path_params=None, query_params=None, header_params=None,
+                 body=None, post_params=None, files=None,
+                 response_type=None, auth_settings=None, async_req=None,
+                 _return_http_data_only=None, collection_formats=None,
+                 _preload_content=True, _request_timeout=None):
+        raise ValueError("ERROR: calling ApiClient.call_api(), but this should be mocked.")
+
+
 class MockedApiWorkflowClient(ApiWorkflowClient):
     def __init__(self, *args, **kwargs):
+        lightly.api.api_workflow_client.ApiClient = MockedApiClient
         ApiWorkflowClient.__init__(self, *args, **kwargs)
 
         self.samplings_api = MockedSamplingsApi(api_client=self.api_client)
@@ -117,4 +165,15 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         self.embeddings_api = MockedEmbeddingsApi(api_client=self.api_client)
         self.mappings_api = MockedMappingsApi(api_client=self.api_client)
         self.scores_api = MockedScoresApi(api_client=self.api_client)
-        lightly.api.api_workflow_upload_embeddings.upload_file_with_signed_url = mocked_upload_file_with_signed_url
+        self.samples_api = MockedSamplesApi(api_client=self.api_client)
+
+        lightly.api.api_workflow_upload_dataset.get_quota = mocked_get_quota
+        lightly.api.api_workflow_client.put_request = mocked_put_request
+
+        self.wait_time_till_next_poll = 0.001  # for api_workflow_sampling
+
+
+class MockedApiWorkflowSetup(unittest.TestCase):
+    def setUp(self) -> None:
+        self.api_workflow_client = MockedApiWorkflowClient(host="host_xyz", token="token_xyz",
+                                                           dataset_id="dataset_id_xyz")

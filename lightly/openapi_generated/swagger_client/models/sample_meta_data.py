@@ -33,6 +33,7 @@ class SampleMetaData(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'custom': 'dict(str, object)',
         'sharpness': 'float',
         'size_in_bytes': 'int',
         'snr': 'float',
@@ -44,6 +45,7 @@ class SampleMetaData(object):
     }
 
     attribute_map = {
+        'custom': 'custom',
         'sharpness': 'sharpness',
         'size_in_bytes': 'sizeInBytes',
         'snr': 'snr',
@@ -54,12 +56,13 @@ class SampleMetaData(object):
         'sum_of_values': 'sumOfValues'
     }
 
-    def __init__(self, sharpness=None, size_in_bytes=None, snr=None, mean=None, shape=None, std=None, sum_of_squares=None, sum_of_values=None, _configuration=None):  # noqa: E501
+    def __init__(self, custom=None, sharpness=None, size_in_bytes=None, snr=None, mean=None, shape=None, std=None, sum_of_squares=None, sum_of_values=None, _configuration=None):  # noqa: E501
         """SampleMetaData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
+        self._custom = None
         self._sharpness = None
         self._size_in_bytes = None
         self._snr = None
@@ -70,14 +73,45 @@ class SampleMetaData(object):
         self._sum_of_values = None
         self.discriminator = None
 
-        self.sharpness = sharpness
-        self.size_in_bytes = size_in_bytes
-        self.snr = snr
-        self.mean = mean
-        self.shape = shape
-        self.std = std
-        self.sum_of_squares = sum_of_squares
-        self.sum_of_values = sum_of_values
+        if custom is not None:
+            self.custom = custom
+        if sharpness is not None:
+            self.sharpness = sharpness
+        if size_in_bytes is not None:
+            self.size_in_bytes = size_in_bytes
+        if snr is not None:
+            self.snr = snr
+        if mean is not None:
+            self.mean = mean
+        if shape is not None:
+            self.shape = shape
+        if std is not None:
+            self.std = std
+        if sum_of_squares is not None:
+            self.sum_of_squares = sum_of_squares
+        if sum_of_values is not None:
+            self.sum_of_values = sum_of_values
+
+    @property
+    def custom(self):
+        """Gets the custom of this SampleMetaData.  # noqa: E501
+
+
+        :return: The custom of this SampleMetaData.  # noqa: E501
+        :rtype: dict(str, object)
+        """
+        return self._custom
+
+    @custom.setter
+    def custom(self, custom):
+        """Sets the custom of this SampleMetaData.
+
+
+        :param custom: The custom of this SampleMetaData.  # noqa: E501
+        :type: dict(str, object)
+        """
+
+        self._custom = custom
 
     @property
     def sharpness(self):
@@ -97,8 +131,6 @@ class SampleMetaData(object):
         :param sharpness: The sharpness of this SampleMetaData.  # noqa: E501
         :type: float
         """
-        if self._configuration.client_side_validation and sharpness is None:
-            raise ValueError("Invalid value for `sharpness`, must not be `None`")  # noqa: E501
 
         self._sharpness = sharpness
 
@@ -120,8 +152,6 @@ class SampleMetaData(object):
         :param size_in_bytes: The size_in_bytes of this SampleMetaData.  # noqa: E501
         :type: int
         """
-        if self._configuration.client_side_validation and size_in_bytes is None:
-            raise ValueError("Invalid value for `size_in_bytes`, must not be `None`")  # noqa: E501
 
         self._size_in_bytes = size_in_bytes
 
@@ -143,8 +173,6 @@ class SampleMetaData(object):
         :param snr: The snr of this SampleMetaData.  # noqa: E501
         :type: float
         """
-        if self._configuration.client_side_validation and snr is None:
-            raise ValueError("Invalid value for `snr`, must not be `None`")  # noqa: E501
 
         self._snr = snr
 
@@ -166,8 +194,6 @@ class SampleMetaData(object):
         :param mean: The mean of this SampleMetaData.  # noqa: E501
         :type: list[float]
         """
-        if self._configuration.client_side_validation and mean is None:
-            raise ValueError("Invalid value for `mean`, must not be `None`")  # noqa: E501
 
         self._mean = mean
 
@@ -189,8 +215,6 @@ class SampleMetaData(object):
         :param shape: The shape of this SampleMetaData.  # noqa: E501
         :type: list[int]
         """
-        if self._configuration.client_side_validation and shape is None:
-            raise ValueError("Invalid value for `shape`, must not be `None`")  # noqa: E501
 
         self._shape = shape
 
@@ -212,8 +236,6 @@ class SampleMetaData(object):
         :param std: The std of this SampleMetaData.  # noqa: E501
         :type: list[float]
         """
-        if self._configuration.client_side_validation and std is None:
-            raise ValueError("Invalid value for `std`, must not be `None`")  # noqa: E501
 
         self._std = std
 
@@ -235,8 +257,6 @@ class SampleMetaData(object):
         :param sum_of_squares: The sum_of_squares of this SampleMetaData.  # noqa: E501
         :type: list[float]
         """
-        if self._configuration.client_side_validation and sum_of_squares is None:
-            raise ValueError("Invalid value for `sum_of_squares`, must not be `None`")  # noqa: E501
 
         self._sum_of_squares = sum_of_squares
 
@@ -258,8 +278,6 @@ class SampleMetaData(object):
         :param sum_of_values: The sum_of_values of this SampleMetaData.  # noqa: E501
         :type: list[float]
         """
-        if self._configuration.client_side_validation and sum_of_values is None:
-            raise ValueError("Invalid value for `sum_of_values`, must not be `None`")  # noqa: E501
 
         self._sum_of_values = sum_of_values
 

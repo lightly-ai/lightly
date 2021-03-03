@@ -56,7 +56,8 @@ class _SamplingMixin:
         # poll the job status till the job is not running anymore
         exception_counter = 0  # TODO; remove after solving https://github.com/lightly-ai/lightly-core/issues/156
         job_status_data = None
-        wait_time_till_next_poll = 1
+
+        wait_time_till_next_poll = getattr(self, "wait_time_till_next_poll", 1)
         while job_status_data is None or job_status_data.status == JobState.RUNNING:
             time.sleep(wait_time_till_next_poll)
             try:
@@ -64,7 +65,7 @@ class _SamplingMixin:
                 wait_time_till_next_poll = job_status_data.wait_time_till_next_poll
             except Exception as err:
                 exception_counter += 1
-                if exception_counter == 10:
+                if exception_counter == 20:
                     print(f"Sampling job with job_id {job_id} could not be started because of error: {err}")
                     raise err
 
