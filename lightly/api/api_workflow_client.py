@@ -32,10 +32,10 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
             the id of the embedding to use. If it is not set, but used by a workflow, the newest embedding is taken by default
     """
 
-    def __init__(self, host: str, token: str, dataset_id: str, embedding_id: str = None):
+    def __init__(self, token: str, dataset_id: str, embedding_id: str = None):
 
         configuration = Configuration()
-        configuration.host = host
+        configuration.host = os.getenv('LIGHTLY_SERVER_LOCATION', 'https://api.lightly.ai')
         configuration.api_key = {'token': token}
         api_client = ApiClient(configuration=configuration)
         self.api_client = api_client

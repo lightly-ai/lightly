@@ -38,13 +38,8 @@ def _upload_cli(cfg, is_cli_call=True):
         print('For help, try: lightly-upload --help')
         return
 
-    host = getenv(
-        'LIGHTLY_SERVER_LOCATION',
-        'https://api.lightly.ai'
-    )
-
     api_workflow_client = ApiWorkflowClient(
-        host=host, token=token, dataset_id=dataset_id
+        token=token, dataset_id=dataset_id
     )
 
     if input_dir:
