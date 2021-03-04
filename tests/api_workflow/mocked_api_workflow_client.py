@@ -89,7 +89,10 @@ class MockedTagsApi(TagsApi):
         tag_3 = TagData(id='preselected_tag_id_xyz', dataset_id=dataset_id, prev_tag_id="initial-tag",
                         bit_mask_data="0x80bda23e9", name='preselected_tag_name_xyz', tot_size=15,
                         created_at=1577836800, changes=dict())
-        return [tag_1, tag_2, tag_3]
+        tags = [tag_1, tag_2, tag_3]
+        no_tags_to_return = getattr(self, "no_tags", 3)
+        tags = tags[:no_tags_to_return]
+        return tags
 
 
 class MockedScoresApi(ScoresApi):
