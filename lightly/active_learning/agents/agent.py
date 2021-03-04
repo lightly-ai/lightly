@@ -19,9 +19,9 @@ class ActiveLearningAgent:
         query_tag_id:
             The id of the tag defining where to sample from, default: None resolves to initial_tag
         labeled_set:
-            the filenames of the samples in the labeled set, List[str]
+            The filenames of the samples in the labeled set, List[str]
         unlabeled_set:
-            the filenames of the samples in the unlabeled set, List[str]
+            The filenames of the samples in the unlabeled set, List[str]
 
     """
 
@@ -74,17 +74,19 @@ class ActiveLearningAgent:
         self.unlabeled_set = [f for f in self.unlabeled_set if f not in filenames_labeled]
 
     def query(self, sampler_config: SamplerConfig, al_scorer: Scorer = None) -> List[str]:
-        """Performs an active learning query
+        """Performs an active learning query.
 
-        As part of it, the self.labeled_set and self.unlabeled_set are updated and should be used for the next step.
+        As part of it, the self.labeled_set and self.unlabeled_set are updated
+        and can be used for the next step.
+
         Args:
             sampler_config:
-                The config of the sampler.
+                The sampling configuration.
             al_scorer:
                 An instance of a class inheriting from Scorer, e.g. a ClassificationScorer.
 
         Returns:
-            the filenames of the samples in the new labeled_set
+            The filenames of the samples in the new labeled_set.
 
         """
         # check input

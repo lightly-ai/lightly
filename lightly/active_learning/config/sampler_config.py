@@ -4,19 +4,22 @@ from lightly.openapi_generated.swagger_client.models.sampling_method import Samp
 
 
 class SamplerConfig:
-    """The configuration parameters of a sampler
-
-    This class should be created by the user.
+    """Configuration class for a sampler.
 
     Attributes:
         method:
-            The method to use for sampling, e.g. RANDOM.
+            The method to use for sampling, e.g. CORESET.
         n_samples:
-            The maximum number of samples to be chosen by the sampler including the samples in the preselected tag.
+            The maximum number of samples to be chosen by the sampler
+            including the samples in the preselected tag. One of the stopping
+            conditions.
         min_distance:
-            The minimum distance of samples in the chosen set, one of stopping conditions.
+            The minimum distance of samples in the chosen set, one of the
+            stopping conditions.
         name:
-            The name of this sampling, defaults to a name consisting of all other attributes and the datetime
+            The name of this sampling, defaults to a name consisting of all
+            other attributes and the datetime. A new tag will be created in the
+            web-app under this name.
 
     """
     def __init__(self, method: SamplingMethod = SamplingMethod.CORESET, n_samples: int = 32, min_distance: float = -1,
