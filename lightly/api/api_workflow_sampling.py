@@ -1,10 +1,14 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lightly.api.api_workflow_client import ApiWorkflowClient
+
 import time
-from typing import *
+from typing import Dict, List
 
 import numpy as np
 
 from lightly.active_learning.config.sampler_config import SamplerConfig
-from lightly.api.bitmask import BitMask
 from lightly.openapi_generated.swagger_client import ActiveLearningScoreCreateRequest
 from lightly.openapi_generated.swagger_client.models.job_state import JobState
 from lightly.openapi_generated.swagger_client.models.job_status_data import JobStatusData
@@ -13,11 +17,11 @@ from lightly.openapi_generated.swagger_client.models.sampling_config import Samp
 from lightly.openapi_generated.swagger_client.models.sampling_create_request import SamplingCreateRequest
 from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import \
     SamplingConfigStoppingCondition
-from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class _SamplingMixin:
-    def sampling(self, sampler_config: SamplerConfig, al_scores: Dict[str, List[np.ndarray]] = None,
+
+    def sampling(self: ApiWorkflowClient, sampler_config: SamplerConfig, al_scores: Dict[str, List[np.ndarray]] = None,
                  preselected_tag_id: str = None, query_tag_id: str = None) -> TagData:
         """Performs a sampling given the arguments.
 
@@ -43,6 +47,13 @@ class _SamplingMixin:
         tags = self._get_all_tags()
         if sampler_config.name in [tag.name for tag in tags]:
             raise RuntimeError('There already exists a tag with tag_name {sampler_config.name}.')
+
+        # make sure we have an embedding id
+        try:
+            self.embedding_id
+        except AttributeError:
+            self.set_embedding_id_by_name()
+
 
         # upload the active learning scores to the api
         if al_scores is not None:
