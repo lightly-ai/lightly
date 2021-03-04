@@ -76,7 +76,7 @@ class _SamplingMixin:
                     raise err
 
         if job_status_data.status == JobState.FAILED:
-            raise ValueError(f"Sampling job with job_id {job_id} failed with error {job_status_data.error}")
+            raise RuntimeError(f"Sampling job with job_id {job_id} failed with error {job_status_data.error}")
 
         # get the new tag from the job status
         new_tag_id = job_status_data.result.data
