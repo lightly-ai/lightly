@@ -22,12 +22,7 @@ def t_est_unmocked_complete_workflow(path_to_dataset: str, token: str, dataset_i
     # define the api_client and api_workflow
     api_workflow_client = ApiWorkflowClient(token=token, dataset_id=dataset_id)
 
-    # upload the images to the dataset and create the initial tag
-    no_tags_on_server = len(api_workflow_client.tags_api.get_tags_by_dataset_id(dataset_id=dataset_id))
-    if no_tags_on_server == 0:
-        api_workflow_client.upload_dataset(input=path_to_dataset)
-    else:
-        print("Skip upload of dataset: already uploaded.")
+    api_workflow_client.upload_dataset(input=path_to_dataset)
 
     # calculate and save the embeddings
     path_to_embeddings_csv = f"{path_to_dataset}/embeddings.csv"
