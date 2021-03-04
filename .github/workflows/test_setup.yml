@@ -23,7 +23,6 @@ jobs:
       run: pip install -e '.[all]'
     - name: Install lightly directly from a branch
       run: |
-        sudo apt update
         sudo apt install git
         pip uninstall lightly --yes
         BRANCH_NAME=${GITHUB_REF##*/}
