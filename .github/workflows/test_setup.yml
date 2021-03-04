@@ -26,7 +26,8 @@ jobs:
         sudo apt update
         sudo apt install git
         pip uninstall lightly --yes
-        pip install "git+https://github.com/lightly-ai/lightly.git@develop_active_learning"
+        BRANCH_NAME=${GITHUB_REF##*/}
+        pip install "git+https://github.com/lightly-ai/lightly.git@$BRANCH_NAME"
     - name: basic tests of CLI
       run: |
         lightly-train --help
