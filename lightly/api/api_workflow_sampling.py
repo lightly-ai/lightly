@@ -36,7 +36,13 @@ class _SamplingMixin:
 
         Raises:
             ApiException, ValueError
+
         """
+
+        # make sure the tag name does not exist yet
+        tags = self._get_all_tags()
+        if sampler_config.name in [tag.name for tag in tags]:
+            raise RuntimeError('There already exists a tag with tag_name {sampler_config.name}.')
 
         # upload the active learning scores to the api
         if al_scores is not None:
