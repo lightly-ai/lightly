@@ -69,6 +69,13 @@ class _UploadEmbeddingsMixin:
             rows_without_header = rows[1:]
             index_filenames = header_row.index('filenames')
             filenames = [row[index_filenames] for row in rows_without_header]
+
+            if len(filenames) != len(self.filenames_on_server):
+                raise ValueError(f"There are {len(filenames)} rows in the embedding file, but "
+                                 f"{len(self.filenames_on_server)} filenames/samples on the server.")
+            if set(filenames) != set(self.filenames_on_server):
+                raise ValueError(f"The filenames in the embedding file and the filenames on the server do not align")
+
             rows_without_header_ordered = self._order_list_by_filenames(filenames, rows_without_header)
 
             rows_to_write = [header_row]
