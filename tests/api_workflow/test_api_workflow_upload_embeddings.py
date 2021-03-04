@@ -42,3 +42,15 @@ class TestApiWorkflowUploadEmbeddigns(MockedApiWorkflowSetup):
         n_data = len(self.api_workflow_client.mappings_api.sample_names)
         with self.assertRaises(ValueError):
             self.t_ester_upload_embedding(n_data=n_data, special_name_first_sample=True)
+
+    def test_set_embedding_id_success(self):
+        embedding_name = self.api_workflow_client.embeddings_api.embeddings[0].name
+        self.api_workflow_client.set_embedding_id_by_name(embedding_name)
+
+    def test_set_embedding_id_failure(self):
+        embedding_name = "blibblabblub"
+        with self.assertRaises(ValueError):
+            self.api_workflow_client.set_embedding_id_by_name(embedding_name)
+
+    def test_set_embedding_id_default(self):
+        self.api_workflow_client.set_embedding_id_by_name()

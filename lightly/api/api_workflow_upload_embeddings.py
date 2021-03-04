@@ -12,6 +12,20 @@ from lightly.openapi_generated.swagger_client.models.write_csv_url_data import W
 
 
 class _UploadEmbeddingsMixin:
+
+    def set_embedding_id_by_name(self: ApiWorkflowClient, embedding_name: str = None):
+        embeddings: List[DatasetEmbeddingData] = \
+            self.embeddings_api.get_embeddings_by_dataset_id(dataset_id=self.dataset_id)
+
+        if embedding_name is None:
+            self.embedding_id = embeddings[-1].id
+            return
+
+        try:
+            self.embedding_id = next(embedding.id for embedding in embeddings if embedding.name == embedding_name)
+        except StopIteration:
+            raise ValueError(f"No embedding with name {embedding_name} found on the server.")
+
     def upload_embeddings(self: ApiWorkflowClient, path_to_embeddings_csv: str, name: str):
         """Uploads embeddings to the server.
 
