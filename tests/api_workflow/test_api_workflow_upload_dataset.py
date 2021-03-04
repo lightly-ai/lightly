@@ -15,6 +15,7 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
     def setUp(self) -> None:
         MockedApiWorkflowSetup.setUp(self)
         self.create_fake_dataset()
+        self.api_workflow_client.tags_api.no_tags = 0
 
     def create_fake_dataset(self, n_data=1000):
         self.dataset = torchvision.datasets.FakeData(size=n_data,
@@ -30,6 +31,11 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
 
     def test_upload_dataset_from_folder(self):
         self.api_workflow_client.upload_dataset(input=self.folder_path)
+
+    def test_upload_existing_dataset(self):
+        self.api_workflow_client.tags_api.no_tags = 2
+        with self.assertWarns(Warning):
+            self.api_workflow_client.upload_dataset(input=self.folder_path)
 
     def test_upload_dataset_from_dataset(self):
         dataset = LightlyDataset.from_torch_dataset(self.dataset)

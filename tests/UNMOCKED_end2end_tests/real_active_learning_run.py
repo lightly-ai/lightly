@@ -60,11 +60,7 @@ def real_active_learning_run(path_to_dataset: str, token: str, dataset_id: str,
     api_workflow_client = ApiWorkflowClient(token=token, dataset_id=dataset_id)
 
     # 1. upload the images to the dataset and create the initial tag
-    no_tags_on_server = len(api_workflow_client.tags_api.get_tags_by_dataset_id(dataset_id=dataset_id))
-    if no_tags_on_server == 0:
-        api_workflow_client.upload_dataset(input=path_to_dataset)
-    else:
-        print("Skip upload of dataset: already uploaded.")
+    api_workflow_client.upload_dataset(input=path_to_dataset)
 
     # 2. upload the embeddings of the dataset
     api_workflow_client.upload_embeddings(path_to_embeddings_csv=path_to_train_embeddings_csv, name=f"embedding_1")

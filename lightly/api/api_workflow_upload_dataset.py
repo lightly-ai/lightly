@@ -40,11 +40,14 @@ class _UploadDatasetMixin:
                 full images, or metadata only.
 
         Raises:
-            ValueError if dataset is too large.
+            ValueError if dataset is too large or input has the wrong type
             RuntimeError if the connection to the server failed.
-            RuntimeError if dataset already has an initial tag.
 
         """
+        no_tags_on_server = len(self._get_all_tags())
+        if no_tags_on_server > 0:
+            warnings.warn(f"Dataset with id {self.dataset_id} has already been completely uploaded to the platform. Skipping upload.")
+            return
 
         # Check input variable 'input'
         if isinstance(input, str):
