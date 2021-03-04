@@ -46,7 +46,7 @@ class _UploadDatasetMixin:
         """
         no_tags_on_server = len(self._get_all_tags())
         if no_tags_on_server > 0:
-            warnings.warn(f"Dataset has already been uploaded to the platform. Skipping upload.")
+            warnings.warn(f"Dataset with id {self.dataset_id} has already been completely uploaded to the platform. Skipping upload.")
             return
 
         # Check input variable 'input'
