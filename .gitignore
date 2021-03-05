@@ -23,3 +23,11 @@ venv
 #ignore pycharm IDE
 .idea
 
+#ignore lightly outputs
+lightly_outputs
+
+#ignore .DS_Store
+**.DS_Store
+
+#ignore eggs
+.eggs

@@ -13,3 +13,4 @@ In this tutorial series, you will learn how to get the most out of the platform.
    :maxdepth: 1
 
    platform/tutorial_pizza_filter.rst
+   platform/tutorial_active_learning.rst
