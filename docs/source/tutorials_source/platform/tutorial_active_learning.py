@@ -53,13 +53,13 @@ A. Train a model on the dataset, e.g. with
 
 .. code::
 
-    lightly-train input_dir="path/to/clothing-dataset-small trainer.max_epochs=5
+    lightly-train input_dir="/datasets/clothing-dataset-small/train trainer.max_epochs=5
 
 B. Create embeddings for the dataset, e.g. with
 
 .. code::
     
-    lightly-embed input_dir="path/to/clothing-dataset-small/train" checkpoint=mycheckpoint.ckpt
+    lightly-embed input_dir="/datasets/clothing-dataset-small/train" checkpoint=mycheckpoint.ckpt
 
 Save the path to the embeddings.csv, you will need it later.
 for uploading the embeddings and for defining the dataset for the classifier
@@ -72,14 +72,14 @@ D. Upload the images to the platform, e.g. with
 
 .. code::
     
-    lightly-upload input_dir="path/to/clothing-dataset-small/train token="yourToken" dataset_id="yourDatasetId"
+    lightly-upload input_dir="/datasets/clothing-dataset-small/train" token="yourToken" dataset_id="yourDatasetId"
 
 """
 
 
 # %%
-# Imports
-# -------
+# Active Learning
+# -----------------
 #
 # Import the Python frameworks we need for this tutorial.
 
@@ -96,11 +96,18 @@ from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.openapi_generated.swagger_client import SamplingMethod
 
 # %%
-# Define the parameters
-path_to_embeddings_csv = "path/to/clothing-dataset-small/train/.../embeddings.csv"
+# Define the parameters (make sure to set the path to your embeddings file).
+path_to_embeddings_csv = "/datasets/clothing-dataset-small/embeddings.csv"
 YOUR_TOKEN = "yourToken"  # your token of the web platform
 YOUR_DATASET_ID = "yourDatasetId"  # the id of your dataset on the web platform
 
+# allow setting of token and dataset_id from environment variables
+def try_get_token_and_id_from_env():
+    token = os.getenv('TOKEN', YOUR_TOKEN)
+    dataset_id = os.getenv('AL_TUTORIAL_DATASET_ID', YOUR_DATASET_ID)
+    return token, dataset_id
+
+YOUR_TOKEN, YOUR_DATASET_ID = try_get_token_and_id_from_env()
 
 # %%
 # Define the dataset for the classifier based on the embeddings.csv
