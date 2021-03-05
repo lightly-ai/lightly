@@ -1,3 +1,5 @@
+.. _lightly-command-line-tool:
+
 Command-line tool
 =================
 
