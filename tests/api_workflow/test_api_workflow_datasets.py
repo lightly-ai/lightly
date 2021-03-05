@@ -14,13 +14,15 @@ class TestApiWorkflowDatasets(MockedApiWorkflowSetup):
         self.api_workflow_client.datasets_api.reset()
         self.api_workflow_client.create_dataset(dataset_name="dataset_1")
 
-    def test_create_with_counter(self):
+    def test_create_dataset_with_counter(self):
         self.api_workflow_client.datasets_api.reset()
         self.api_workflow_client.create_dataset(dataset_name="basename")
-        self.api_workflow_client.create_new_dataset_with_counter(dataset_basename="basename")
-        assert self.api_workflow_client.datasets_api.datasets[-1].name == "basename_1"
+        n_tries = 3
+        for i in range(n_tries):
+            self.api_workflow_client.create_new_dataset_with_counter(dataset_basename="basename")
+        assert self.api_workflow_client.datasets_api.datasets[-1].name == f"basename_{n_tries}"
 
-    def test_create_with_counter_nonexisting(self):
+    def test_create_dataset_with_counter_nonexisting(self):
         self.api_workflow_client.datasets_api.reset()
         self.api_workflow_client.create_dataset(dataset_name="basename")
         self.api_workflow_client.create_new_dataset_with_counter(dataset_basename="baseName")
