@@ -46,7 +46,7 @@ class _SamplingMixin:
         # make sure the tag name does not exist yet
         tags = self._get_all_tags()
         if sampler_config.name in [tag.name for tag in tags]:
-            raise RuntimeError('There already exists a tag with tag_name {sampler_config.name}.')
+            raise RuntimeError(f"There already exists a tag with tag_name {sampler_config.name}.")
 
         # make sure we have an embedding id
         try:

@@ -1,5 +1,11 @@
 import os
+import warnings
 from typing import *
+
+from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
+
+from lightly.api.api_workflow_datasets import _DatasetsMixin
+from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
 
 from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
 
@@ -18,12 +24,10 @@ from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
 
 
-class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMixin):
+class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMixin, _DatasetsMixin):
     """Provides a uniform interface to communicate with the api and run workflows including multiple API calls
 
     Args:
-        host:
-            the url of the server, e.g. https://api-dev.lightly.ai
         token:
             the token of the user, provided in webapp
         dataset_id:
@@ -32,7 +36,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
             the id of the embedding to use. If it is not set, but used by a workflow, the newest embedding is taken by default
     """
 
-    def __init__(self, token: str, dataset_id: str, embedding_id: str = None):
+    def __init__(self, token: str, dataset_id: str = None, embedding_id: str = None):
 
         configuration = Configuration()
         configuration.host = getenv('LIGHTLY_SERVER_LOCATION', 'https://api.lightly.ai')
@@ -41,10 +45,12 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
         self.api_client = api_client
 
         self.token = token
-        self.dataset_id = dataset_id
+        if dataset_id is not None:
+            self._dataset_id = dataset_id
         if embedding_id is not None:
             self.embedding_id = embedding_id
 
+        self.datasets_api = DatasetsApi(api_client=self.api_client)
         self.samplings_api = SamplingsApi(api_client=self.api_client)
         self.jobs_api = JobsApi(api_client=self.api_client)
         self.tags_api = TagsApi(api_client=self.api_client)
@@ -52,6 +58,25 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
         self.mappings_api = MappingsApi(api_client=api_client)
         self.scores_api = ScoresApi(api_client=api_client)
         self.samples_api = SamplesApi(api_client=api_client)
+
+    @property
+    def dataset_id(self) -> str:
+        ''' Returns the dataset_id
+
+        If the dataset_id is set, it is returned.
+        If it is unset, then the dataset_id of the last modified dataset is taken.
+
+        '''
+        try:
+            return self._dataset_id
+        except AttributeError:
+            all_datasets: List[DatasetData] = self.datasets_api.get_datasets()
+            datasets_sorted = sorted(all_datasets, key=lambda dataset: dataset.last_modified_at)
+            last_modified_dataset = datasets_sorted[-1]
+            self._dataset_id = last_modified_dataset.id
+            warnings.warn(UserWarning(f"Dataset has not been specified, "
+                          f"taking the last modified dataset {last_modified_dataset.name} as default dataset."))
+            return self._dataset_id
 
     def _get_all_tags(self) -> List[TagData]:
         return self.tags_api.get_tags_by_dataset_id(self.dataset_id)
