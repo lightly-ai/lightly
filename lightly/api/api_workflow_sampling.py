@@ -1,8 +1,3 @@
-from __future__ import annotations
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from lightly.api.api_workflow_client import ApiWorkflowClient
-
 import time
 from typing import Dict, List
 
@@ -21,7 +16,7 @@ from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_co
 
 class _SamplingMixin:
 
-    def sampling(self: ApiWorkflowClient, sampler_config: SamplerConfig, al_scores: Dict[str, List[np.ndarray]] = None,
+    def sampling(self, sampler_config: SamplerConfig, al_scores: Dict[str, List[np.ndarray]] = None,
                  preselected_tag_id: str = None, query_tag_id: str = None) -> TagData:
         """Performs a sampling given the arguments.
 
