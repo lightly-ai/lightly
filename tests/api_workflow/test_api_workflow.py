@@ -10,10 +10,25 @@ from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.active_learning.scorers.classification import ScorerClassification
 from lightly.openapi_generated.swagger_client import SamplingMethod
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
-from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowClient
+from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowClient, MockedApiWorkflowSetup
 
 
-class TestApiWorkflow(unittest.TestCase):
+class TestApiWorkflow(MockedApiWorkflowSetup):
+
+    def setUp(self) -> None:
+        self.api_workflow_client = MockedApiWorkflowClient(token="token_xyz")
+
+    def test_dataset_id_nonexisting(self):
+        self.api_workflow_client.datasets_api.reset()
+        assert not hasattr(self.api_workflow_client, "_dataset_id")
+        with self.assertWarns(UserWarning):
+            dataset_id = self.api_workflow_client.dataset_id
+        assert dataset_id == self.api_workflow_client.datasets_api.datasets[-1].id
+
+    def test_dataset_id_existing(self):
+        id = "random_dataset_id"
+        self.api_workflow_client._dataset_id = id
+        assert self.api_workflow_client.dataset_id == id
 
     def test_reorder_random(self):
         no_random_tries = 100
