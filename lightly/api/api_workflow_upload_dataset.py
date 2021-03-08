@@ -1,8 +1,6 @@
-from __future__ import annotations
-
 import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
-from typing import TYPE_CHECKING, Union
+from typing import Union
 
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
 
@@ -11,9 +9,6 @@ from lightly.api.utils import check_filename, check_image, get_thumbnail_from_im
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 import tqdm
 
-if TYPE_CHECKING:
-    from lightly.api.api_workflow_client import ApiWorkflowClient
-
 from lightly.api.constants import LIGHTLY_MAXIMUM_DATASET_SIZE
 from lightly.data.dataset import LightlyDataset
 from lightly.api.routes.users.service import get_quota
@@ -21,7 +16,7 @@ from lightly.api.routes.users.service import get_quota
 
 class _UploadDatasetMixin:
 
-    def upload_dataset(self: ApiWorkflowClient, input: Union[str, LightlyDataset], max_workers: int = 8,
+    def upload_dataset(self, input: Union[str, LightlyDataset], max_workers: int = 8,
                        mode: str = 'thumbnails', verbose: bool = True):
         """Uploads a dataset to to the Lightly cloud solution.
 
@@ -126,7 +121,7 @@ class _UploadDatasetMixin:
         initial_tag_create_request = InitialTagCreateRequest(img_type=img_type)
         self.tags_api.create_initial_tag_by_dataset_id(body=initial_tag_create_request, dataset_id=self.dataset_id)
 
-    def _upload_single_image(self: ApiWorkflowClient, image, label, filename: str, mode):
+    def _upload_single_image(self, image, label, filename: str, mode):
         """Uploads a single image to the Lightly platform.
 
         """
