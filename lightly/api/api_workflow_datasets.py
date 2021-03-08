@@ -61,7 +61,7 @@ class _DatasetsMixin:
         response: CreateEntityResponse = self.datasets_api.create_dataset(body=body)
         self._dataset_id = response.id
 
-    def create_new_dataset_with_counter(self: ApiWorkflowClient, dataset_basename: str):
+    def _create_new_dataset_with_unique_name(self: ApiWorkflowClient, dataset_basename: str):
         """Creates a new dataset on the web platform
 
         If a dataset with the specified name already exists,
