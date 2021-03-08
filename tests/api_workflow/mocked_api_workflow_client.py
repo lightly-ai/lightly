@@ -1,5 +1,11 @@
 import unittest
 
+from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
+
+from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
+
+from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
+
 import lightly
 
 from lightly.api.api_workflow_client import ApiWorkflowClient
@@ -128,6 +134,35 @@ class MockedSamplesApi(SamplesApi):
         return url
 
 
+class MockedDatasetsApi(DatasetsApi):
+    def __init__(self, api_client):
+        no_datasets = 3
+        self.default_datasets = [DatasetData(name=f"dataset_{i}", id=f"dataset_{i}_id", last_modified_at=i,
+                                             type="", size_in_bytes=-1, n_samples=-1, created_at=-1)
+                                 for i in range(no_datasets)]
+        self.reset()
+
+    def reset(self):
+        self.datasets = self.default_datasets
+
+    def get_datasets(self, **kwargs):
+        return self.datasets
+
+    def create_dataset(self, body: DatasetCreateRequest, **kwargs):
+        assert isinstance(body, DatasetCreateRequest)
+        id = body.name + "_id"
+        dataset = DatasetData(id=id, name=body.name, last_modified_at=len(self.datasets) + 1,
+                              type="", size_in_bytes=-1, n_samples=-1, created_at=-1)
+        self.datasets += [dataset]
+        response_ = CreateEntityResponse(id=id)
+        return response_
+
+    def delete_dataset_by_id(self, dataset_id, **kwargs):
+        datasets_without_that_id = [dataset for dataset in self.datasets if dataset.id != dataset_id]
+        assert len(datasets_without_that_id) == len(self.datasets) - 1
+        self.datasets = datasets_without_that_id
+
+
 def mocked_upload_file_with_signed_url(file: str, url: str, mocked_return_value=True) -> bool:
     assert isinstance(file, BufferedReader)
     assert isinstance(url, str)
@@ -173,6 +208,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         self.mappings_api = MockedMappingsApi(api_client=self.api_client)
         self.scores_api = MockedScoresApi(api_client=self.api_client)
         self.samples_api = MockedSamplesApi(api_client=self.api_client)
+        self.datasets_api = MockedDatasetsApi(api_client=self.api_client)
 
         lightly.api.api_workflow_upload_dataset.get_quota = mocked_get_quota
         lightly.api.api_workflow_client.put_request = mocked_put_request
