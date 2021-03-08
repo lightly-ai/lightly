@@ -30,18 +30,18 @@ class TestApiWorkflowDatasets(MockedApiWorkflowSetup):
 
     def test_set_dataset_id_success(self):
         self.api_workflow_client.datasets_api.reset()
-        self.api_workflow_client.set_dataset_id("dataset_1")
+        self.api_workflow_client.set_dataset_id_by_name("dataset_1")
         assert self.api_workflow_client.dataset_id == "dataset_1_id"
 
     def test_set_dataset_id_error(self):
         self.api_workflow_client.datasets_api.reset()
         with self.assertRaises(ValueError):
-            self.api_workflow_client.set_dataset_id("nonexisting-dataset")
+            self.api_workflow_client.set_dataset_id_by_name("nonexisting-dataset")
 
     def test_delete_dataset(self):
         self.api_workflow_client.datasets_api.reset()
-        self.api_workflow_client.set_dataset_id("dataset_1")
-        self.api_workflow_client.delete_dataset()
+        self.api_workflow_client.create_dataset(dataset_name="dataset_to_delete")
+        self.api_workflow_client.delete_dataset_by_id(self.api_workflow_client.dataset_id)
         assert not hasattr(self, "_dataset_id")
 
 
