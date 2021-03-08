@@ -1,9 +1,3 @@
-from __future__ import annotations
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from lightly.api.api_workflow_client import ApiWorkflowClient
-
 import csv
 from typing import List
 
@@ -13,7 +7,7 @@ from lightly.openapi_generated.swagger_client.models.write_csv_url_data import W
 
 class _UploadEmbeddingsMixin:
 
-    def set_embedding_id_by_name(self: ApiWorkflowClient, embedding_name: str = None):
+    def set_embedding_id_by_name(self, embedding_name: str = None):
         embeddings: List[DatasetEmbeddingData] = \
             self.embeddings_api.get_embeddings_by_dataset_id(dataset_id=self.dataset_id)
 
@@ -26,7 +20,7 @@ class _UploadEmbeddingsMixin:
         except StopIteration:
             raise ValueError(f"No embedding with name {embedding_name} found on the server.")
 
-    def upload_embeddings(self: ApiWorkflowClient, path_to_embeddings_csv: str, name: str):
+    def upload_embeddings(self, path_to_embeddings_csv: str, name: str):
         """Uploads embeddings to the server.
 
         First checks that the specified embedding name is not on ther server. If it is, the upload is aborted.
@@ -64,7 +58,7 @@ class _UploadEmbeddingsMixin:
         with open(path_to_ordered_embeddings_csv, 'rb') as file_ordered_embeddings_csv:
             self.upload_file_with_signed_url(file=file_ordered_embeddings_csv, signed_write_url=signed_write_url)
 
-    def _order_csv_by_filenames(self: ApiWorkflowClient, path_to_embeddings_csv: str) -> str:
+    def _order_csv_by_filenames(self, path_to_embeddings_csv: str) -> str:
         """Orders the rows in a csv according to the order specified on the server and saves it as a new file.
 
         Args:

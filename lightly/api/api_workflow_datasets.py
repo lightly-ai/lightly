@@ -1,9 +1,3 @@
-from __future__ import annotations
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from lightly.api.api_workflow_client import ApiWorkflowClient
-
 from typing import List
 
 from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
@@ -13,7 +7,7 @@ from lightly.openapi_generated.swagger_client.models.dataset_data import Dataset
 
 class _DatasetsMixin:
 
-    def set_dataset_id_by_name(self: ApiWorkflowClient, dataset_name: str):
+    def set_dataset_id_by_name(self, dataset_name: str):
         """Sets the dataset id given the name of the dataset
 
         Args:
@@ -34,7 +28,7 @@ class _DatasetsMixin:
             raise ValueError(f"A dataset with the name {dataset_name} does not exist on the web platform. "
                              f"Please create it first.")
 
-    def create_dataset(self: ApiWorkflowClient, dataset_name: str):
+    def create_dataset(self, dataset_name: str):
         """Creates a dataset on the webplatform
 
         If a dataset with that name already exists, instead the dataset_id is set.
@@ -48,7 +42,7 @@ class _DatasetsMixin:
         except ValueError:
             self._create_dataset_without_check_existing(dataset_name=dataset_name)
 
-    def _create_dataset_without_check_existing(self: ApiWorkflowClient, dataset_name: str):
+    def _create_dataset_without_check_existing(self, dataset_name: str):
         """Creates a dataset on the webplatform
 
         No checking if a dataset with such a name already exists is performed.
@@ -61,7 +55,7 @@ class _DatasetsMixin:
         response: CreateEntityResponse = self.datasets_api.create_dataset(body=body)
         self._dataset_id = response.id
 
-    def create_new_dataset_with_unique_name(self: ApiWorkflowClient, dataset_basename: str):
+    def create_new_dataset_with_unique_name(self, dataset_basename: str):
         """Creates a new dataset on the web platform
 
         If a dataset with the specified name already exists,
@@ -86,7 +80,7 @@ class _DatasetsMixin:
             dataset_name = f"{dataset_basename}_{counter}"
         self._create_dataset_without_check_existing(dataset_name=dataset_name)
 
-    def delete_dataset_by_id(self: ApiWorkflowClient, dataset_id: str):
+    def delete_dataset_by_id(self, dataset_id: str):
         """Deletes a dataset on the web platform
 
         Args:
