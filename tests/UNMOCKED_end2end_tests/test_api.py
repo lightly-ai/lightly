@@ -66,7 +66,7 @@ def create_new_dataset_with_embeddings(path_to_dataset: str,
     api_workflow_client = ApiWorkflowClient(token=token)
 
     # create the dataset
-    api_workflow_client.create_new_dataset_with_counter(dataset_basename=dataset_name)
+    api_workflow_client.create_new_dataset_with_unique_name(dataset_basename=dataset_name)
 
     # upload to the dataset
     api_workflow_client.upload_dataset(input=path_to_dataset)
@@ -160,7 +160,7 @@ def t_est_api_with_matrix(path_to_dataset: str,
                       f"and preselected_tag '{preselected_tag_name}'.")
                 t_est_active_learning(api_workflow_client, method, query_tag_name, preselected_tag_name)
 
-    api_workflow_client.delete_dataset()
+    api_workflow_client.delete_dataset_by_id(api_workflow_client.dataset_id)
 
     print("Success of the complete test suite! The dataset on the server was deleted again.")
 
