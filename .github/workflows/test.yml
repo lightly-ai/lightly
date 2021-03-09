@@ -6,6 +6,9 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [3.6, 3.7, 3.8, 3.9]
 
 
     steps:
@@ -16,10 +19,10 @@ jobs:
         if [ ! -f "/etc/lsb-release" ] ; then
           echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
         fi
-    - name: Set up Python 3.7
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.7
+        python-version: ${{ matrix.python }}
     - name: Install Dependencies
       run: pip install -e '.[all]'
     - name: Run Pytest
