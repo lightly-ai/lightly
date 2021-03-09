@@ -171,6 +171,6 @@ if __name__ == "__main__":
             (sys.argv[1 + i] for i in range(2))
     else:
         raise ValueError("ERROR in number of command line arguments, must be 2."
-                         "Example: test_api path/to/dataset TOKEN")
+                         "Example: python test_api path/to/dataset TOKEN")
 
     t_est_api_with_matrix(path_to_dataset=path_to_dataset, token=token)
