@@ -25,15 +25,23 @@ from lightly.openapi_generated.swagger_client.configuration import Configuration
 
 
 class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMixin, _DatasetsMixin):
-    """Provides a uniform interface to communicate with the api and run workflows including multiple API calls
+    """Provides a uniform interface to communicate with the api 
+    
+    The APIWorkflowClient is used to communicaate with the Lightly API. The client
+    can run also more complex workflows which include multiple API calls at once.
+    
+    The Client can be used in combination withe the active-learning agent. 
 
     Args:
         token:
             the token of the user, provided in webapp
         dataset_id:
-            the id of the dataset, provided in webapp
+            the id of the dataset, provided in webapp. \
+            If it is not set, but used by a workflow, \
+            the last modfied dataset is taken by default.
         embedding_id:
-            the id of the embedding to use. If it is not set, but used by a workflow, the newest embedding is taken by default
+            the id of the embedding to use. If it is not set, \
+            but used by a workflow, the newest embedding is taken by default
     """
 
     def __init__(self, token: str, dataset_id: str = None, embedding_id: str = None):
