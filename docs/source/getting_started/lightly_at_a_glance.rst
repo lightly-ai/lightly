@@ -1,3 +1,5 @@
+.. _lightly-at-a-glance:
+
 Lightly at a Glance
 ===================
 
