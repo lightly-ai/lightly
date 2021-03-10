@@ -30,7 +30,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
     The APIWorkflowClient is used to communicaate with the Lightly API. The client
     can run also more complex workflows which include multiple API calls at once.
     
-    The Client can be used in combination withe the active-learning agent. 
+    The client can be used in combination with the active-learning agent. 
 
     Args:
         token:

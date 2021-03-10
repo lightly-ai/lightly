@@ -25,7 +25,7 @@ The model is capable of detecting the following core classes:
 How It Works
 ---------------
 
-Our pretagging model are based on a FasterRCNN model with a ResNet-50 backbone.
+Our pretagging model is based on a FasterRCNN model with a ResNet-50 backbone.
 The model has been trained on a dataset consisting of ~100k images.
 
 The results of pretagging are visualized in the report. We report both, the 
@@ -42,7 +42,7 @@ before filtering.
     The plot shows the distribution of the various detected classes. 
     Further it shows the average number of objects per image.
 
-For every docker run with pretaggin enabled we also dump all model predictions
+For every docker run with pretagging enabled we also dump all model predictions
 into a json file with the following format:
 
 .. code-block:: json
@@ -87,6 +87,10 @@ run command: `pretagging=True`
 - `pretagging_debug=True` add a few images to the report for debugging showing
   showing the image with the bounding box predictions. 
 
+  .. note:: The debug mode for pretagging is currently not available for video
+            datasets.
+  
+
 The final docker run command to enable pretagging as well as pretagging_debug
 should look like this:
 
@@ -121,7 +125,7 @@ person.
 
 To create such a pretagging selection mechanism you need to create a config file.
 
-For the example of selecting only images with >1 person we can create
+For the example of selecting only images with >=1 person we can create
 a `min_requirements.json` file:
 
 .. code-block:: json
