@@ -37,6 +37,7 @@ from lightly.openapi_generated.swagger_client.models.job_result_type import JobR
 from lightly.openapi_generated.swagger_client.models.job_state import JobState
 from lightly.openapi_generated.swagger_client.models.job_status_data import JobStatusData
 from lightly.openapi_generated.swagger_client.models.job_status_data_result import JobStatusDataResult
+from lightly.openapi_generated.swagger_client.models.job_status_meta import JobStatusMeta
 from lightly.openapi_generated.swagger_client.models.jobs_data import JobsData
 from lightly.openapi_generated.swagger_client.models.mongo_object_id import MongoObjectID
 from lightly.openapi_generated.swagger_client.models.object_id import ObjectId
@@ -56,4 +57,5 @@ from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from lightly.openapi_generated.swagger_client.models.tag_filenames_data import TagFilenamesData
 from lightly.openapi_generated.swagger_client.models.tag_name import TagName
 from lightly.openapi_generated.swagger_client.models.timestamp import Timestamp
+from lightly.openapi_generated.swagger_client.models.version_number import VersionNumber
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
