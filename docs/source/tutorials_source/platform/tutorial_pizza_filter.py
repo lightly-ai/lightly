@@ -24,7 +24,7 @@ Requirements
 ------------
 
 You can use your dataset or use the one we provide with this tutorial: 
-:download:`pizzas.zip <../../../_data/pizzas.zip>` . 
+:download:`pizzas.zip <../../../_data/pizzas.zip>`. 
 If you use your dataset, please make sure the images are smaller than 
 2048 pixels with width and height, and you use less than 1000 images.
 
@@ -37,7 +37,7 @@ Upload the data
 We start by uploading the dataset to the `Lightly Platform <https://app.lightly.ai>`_.
 
 Create a new account if you do not have one yet and create a new dataset. You can upload images
-using drag and drop from your local machine. 
+using drag and drop from your local machine.
 
 Filter the dataset using metadata
 ---------------------------------
