@@ -100,7 +100,7 @@ else:
     # check for latest version
     from lightly.api.version_checking import get_latest_version, version_compare, pretty_print_latest_version
 
-    latest_version = get_latest_version()
+    latest_version = get_latest_version(__version__)
     if latest_version is not None:
         if version_compare(__version__, latest_version) < 0:
             # local version is behind latest version

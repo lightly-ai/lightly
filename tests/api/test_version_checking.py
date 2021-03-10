@@ -21,7 +21,7 @@ class TestVersionChecking(unittest.TestCase):
             version_compare("1.1.1", "1.1")
 
     def test_get_latest_version(self):
-        get_latest_version()
+        get_latest_version("1.2.3")
 
     def test_get_minimum_compatible_version(self):
         get_minimum_compatible_version()

@@ -12,15 +12,17 @@ from lightly.api.utils import getenv
 def get_versioning_api() -> VersioningApi:
     configuration = Configuration()
     configuration.host = getenv('LIGHTLY_SERVER_LOCATION', 'https://api.lightly.ai')
+    token = getenv('TOKEN', None)
+    configuration.api_key = {'token': token}
     api_client = ApiClient(configuration=configuration)
     versioning_api = VersioningApi(api_client)
     return versioning_api
 
 
-def get_latest_version() -> Tuple[None, str]:
+def get_latest_version(current_version: str) -> Tuple[None, str]:
     try:
         versioning_api = get_versioning_api()
-        version_number: str = versioning_api.get_latest_pip_version()
+        version_number: str = versioning_api.get_latest_pip_version(current_version = current_version)
         return version_number
     except Exception as e:
         return None
