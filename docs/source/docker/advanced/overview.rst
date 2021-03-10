@@ -8,3 +8,4 @@ Here you learn more advanced usage patterns of Lightly Docker.
    
    meta_information.rst
    datapool.rst
+   pretagging.rst

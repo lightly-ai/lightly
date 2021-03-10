@@ -7,7 +7,7 @@ here, how to get the most out of your data by maximizing the available informati
 in your annotated dataset.
 
 Preparations
-~~~~~~~~~~~~~~~~~
+-----------------
 Before you read on, make sure you have read the section on the :ref:`lightly-platform`. 
 In particular, you should know how to create a dataset in the `web-app <https://app.lightly.ai>`_.
 and how to upload images and embeddings to it. To do active learning, you will 
@@ -15,12 +15,12 @@ need such a dataset with embeddings (don't worry, it's free!).
 
 
 Concepts
-~~~~~~~~~~~~~~~~~
+-----------------
 Lightly makes use of the following concepts for active learning:
 
 * **ApiWorkflowClient:** :py:class:`lightly.api.api_workflow_client.ApiWorkflowClient`
    The `ApiWorkflowClient` is used to connect to our API. The API handles the 
-   selection of the images based on embeddings and uncertainty scores. To initialize
+   selection of the images based on embeddings and active-learning scores. To initialize
    the `ApiWorkflowClient`, you will need the `datasetId` and the `token` from the 
    :ref:`lightly-platform`.
    
@@ -37,7 +37,7 @@ Lightly makes use of the following concepts for active learning:
 
    * Random: Selects samples uniformly at random.
    * Coreset: Greedily selects samples which are diverse.
-   * Coral: Combines Coreset with uncertainty scores to do active learning.
+   * Coral: Combines Coreset with scores to do active learning.
    
 * **Scorer:** :py:class:`lightly.active_learning.scorers.scorer.Scorer`
    The `Scorer` takes as input the predictions of a pre-trained model on the set
@@ -51,19 +51,20 @@ done with Lightly.
 
 
 Initial Selection
-~~~~~~~~~~~~~~~~~~~
+-----------------
 The goal of making an initial selection is to get a subdataset on which you can train
 an initial model. The output of the model can then be used to select new samples. That way,
 the model can be iteratively improved.
 
 To make an initial selection, start off by adding your raw, *unlabeled* data and the according
 image embeddings to a dataset in the Lightly `web-app <https://app.lightly.ai>`_. A simple way to do so
-is to use `lightly-magic` from the command-line.
+is to use `lightly-magic` from the command-line. Don't forget adapt the arguments input_dir,
+dataset_id and token.
 
 .. code-block:: bash
 
    # use trainer.max_epochs=0 to skip training
-   lightly-magic input_dir='path/to/raw/dataset' dataset_id='xyz' token='123' trainer.max_epochs=0
+   lightly-magic input_dir='path/to/your/raw/dataset' dataset_id='xyz' token='123' trainer.max_epochs=0
 
 Next, you will need to initialize the `ApiWorkflowClient` and the `ActiveLearningAgent`
 
@@ -95,8 +96,8 @@ Let's configure the sampling request and request an initial selection next:
    # we want an initial pool of 100 images
    config = SamplerConfig(n_samples=100, method=SamplingMethod.CORESET, name='initial-selection')
    initial_selection = al_agent.query(sampler_config)
-
-   assert len(initial_selection) == 100
+   
+   # initial_selection contains now 100 filenames
 
 The query returns the list of filenames corresponding to the initial selection. Additionally, you
 will find that a tag has been created in the web-app under the name "initial-selection".
@@ -104,13 +105,14 @@ Head there to scroll through the samples and download the selected images before
 
 
 Active Learning Step
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 After you have annotated your initial selection of images, you can train a model
 on them. The trained model can then be used to figure out, with which images it 
 has problems. These images can then be added to the labeled dataset.
 
-To do active learning with Lightly, you will need the `ApiWorkflowClient` and `ActiveLearningAgent` from before.
+To continue with active learning with Lightly, you will need the `ApiWorkflowClient` and `ActiveLearningAgent` from before.
+If you perform the next selection step in a new file you have to initialize the client and agent again.
 If you have to re-initialize them, make sure to set the `pre_selected_tag_name` to your
 current selection (if this is the first iteration, this is the name you have passed 
 to the sampler config when doing the initial selection). Note, that if you don't 
@@ -119,8 +121,8 @@ have to re-initialize them, the tracking of the tags is taken care of for you.
 .. code-block:: Python
 
    # re-initializing the ApiWorkflowClient and ActiveLearningAgent
-    api_client = ApiWorkflowClient(dataset_id='xyz', token='123')
-    al_agent = ActiveLearningAgent(api_client, preselected_tag_name='initial-selection')
+   api_client = ApiWorkflowClient(dataset_id='xyz', token='123')
+   al_agent = ActiveLearningAgent(api_client, preselected_tag_name='initial-selection')
 
 The next part is what differentiates active learning from simple subsampling; the
 trained model is used to get predictions on the unlabeled data and the sampler then
@@ -162,3 +164,29 @@ here is that the argument `n_samples` always refers to the total size of the lab
 As before, you will receive the filenames of all the images in the labeled set and there
 will be a new tag named `al-iteration-1` visible in the web-app. You can repeat the active
 learning step until the model achieves the required accuracy.
+
+Scorers
+-----------------
+Lightly has so called scorers for the common computer vision tasks such as 
+image classification, detection and others. Depending on the task your working
+on you can use a different scorer.
+
+Image Classification
+^^^^^^^^^^^^^^^^^^^^^
+Use this scorer when working on a classification problem (binary or multiclass).
+
+For more information about how to use the classification scorer have a look here:
+:py:class:`lightly.active_learning.scorers.classification.ScorerClassification`
+
+
+Object Detection
+^^^^^^^^^^^^^^^^^^^^^
+Coming soon...
+
+Image Segmentation
+^^^^^^^^^^^^^^^^^^^^^
+Coming soon...
+
+Keypoint Detection
+^^^^^^^^^^^^^^^^^^^^^
+Coming soon...
