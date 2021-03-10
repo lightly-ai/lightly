@@ -18,6 +18,11 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
     def setUp(self) -> None:
         self.api_workflow_client = MockedApiWorkflowClient(token="token_xyz")
 
+    def test_error_if_version_is_incompatible(self):
+        lightly.api.api_workflow_client.__version__ = "0.0.0"
+        with self.assertRaises(ValueError):
+            MockedApiWorkflowClient(token="token_xyz")
+
     def test_dataset_id_nonexisting(self):
         self.api_workflow_client.datasets_api.reset()
         assert not hasattr(self.api_workflow_client, "_dataset_id")
