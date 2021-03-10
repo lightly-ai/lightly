@@ -43,6 +43,7 @@ class VersioningApi(object):
         >>> result = thread.get()
 
         :param async_req bool
+        :param str current_version:
         :return: VersionNumber
                  If the method is called asynchronously,
                  returns the request thread.
@@ -64,12 +65,13 @@ class VersioningApi(object):
         >>> result = thread.get()
 
         :param async_req bool
+        :param str current_version:
         :return: VersionNumber
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = []  # noqa: E501
+        all_params = ['current_version']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -90,6 +92,8 @@ class VersioningApi(object):
         path_params = {}
 
         query_params = []
+        if 'current_version' in params:
+            query_params.append(('currentVersion', params['current_version']))  # noqa: E501
 
         header_params = {}
 
