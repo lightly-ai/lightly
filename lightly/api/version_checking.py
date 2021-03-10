@@ -22,7 +22,7 @@ def get_latest_version() -> Tuple[None, str]:
         versioning_api = get_versioning_api()
         version_number: str = versioning_api.get_latest_pip_version()
         return version_number
-    except:
+    except Exception as e:
         return None
 
 
