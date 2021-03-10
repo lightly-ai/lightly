@@ -47,21 +47,22 @@ into a json file with the following format:
 
 .. code-block:: json
 
+    // boxes have format x1, y1, x2, y2
     [
         {
             "filename": "0000000095.png",
             "boxes": [
                 [
-                    869.5512084960938,
-                    153.78746032714844,
-                    885.997314453125,
-                    197.8896026611328
+                    0.869,
+                    0.153,
+                    0.885,
+                    0.197
                 ],
                 [
-                    231.59332275390625,
-                    175.98333740234375,
-                    291.9855651855469,
-                    202.55943298339844
+                    0.231,
+                    0.175,
+                    0.291,
+                    0.202
                 ]
             ],
             "labels": [
@@ -119,7 +120,7 @@ The following shows an example of how the debugging images in the report look li
 Pretagging for Selection
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can also use pretagging to guide the data selection process. This can beh
+You can also use pretagging to guide the data selection process. This can be
 helpful if you for example only care about images where there is at least one
 person.
 
