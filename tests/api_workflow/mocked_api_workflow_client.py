@@ -14,7 +14,7 @@ from io import BufferedReader
 from typing import *
 
 from lightly.openapi_generated.swagger_client import ScoresApi, CreateEntityResponse, SamplesApi, SampleCreateRequest, \
-    InitialTagCreateRequest, ApiClient
+    InitialTagCreateRequest, ApiClient, VersioningApi
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -162,6 +162,12 @@ class MockedDatasetsApi(DatasetsApi):
         assert len(datasets_without_that_id) == len(self.datasets) - 1
         self.datasets = datasets_without_that_id
 
+class MockedVersioningApi(VersioningApi):
+    def get_latest_pip_version(self, **kwargs):
+        return "1.0.8"
+
+    def get_minimum_compatible_pip_version(self, **kwargs):
+        return "1.0.0"
 
 def mocked_upload_file_with_signed_url(file: str, url: str, mocked_return_value=True) -> bool:
     assert isinstance(file, BufferedReader)
@@ -199,6 +205,7 @@ class MockedApiClient(ApiClient):
 class MockedApiWorkflowClient(ApiWorkflowClient):
     def __init__(self, *args, **kwargs):
         lightly.api.api_workflow_client.ApiClient = MockedApiClient
+        lightly.api.version_checking.VersioningApi = MockedVersioningApi
         ApiWorkflowClient.__init__(self, *args, **kwargs)
 
         self.samplings_api = MockedSamplingsApi(api_client=self.api_client)
