@@ -44,11 +44,6 @@ download:
 
 	# sunflowers dataset
 	wget -N https://storage.googleapis.com/datasets_boris/Sunflowers.zip -P $(DATADIR)
-	unzip $(ZIPOPTS) $(DATADIR)/pizzas.zip  -d $(PLATFORMSOURCE)
-	mkdir -p $(PLATFORMSOURCE)/pizzas/margherita
-	mkdir -p $(PLATFORMSOURCE)/pizzas/salami
-	mv $(PLATFORMSOURCE)/pizzas/margherita*.jpg $(PLATFORMSOURCE)/pizzas/margherita
-	mv $(PLATFORMSOURCE)/pizzas/salami*.jpg $(PLATFORMSOURCE)/pizzas/salami
 
 	# download images and report for docker
 	wget -N https://storage.googleapis.com/datasets_boris/resources.zip -P $(DATADIR)

@@ -60,6 +60,14 @@ head to the *Embedding* page of your dataset. You should see a two-dimensional
 scatter plot of your embeddings. If you hover over the images, their thumbnails
 will appear. Can you find clusters of similar images?
 
+.. figure:: ../../tutorials_source/platform/images/sunflowers_scatter_before_sampling.PNG
+    :align: center
+    :alt: Alt text
+    :figclass: align-center
+
+    After uploading embeddings, you should see a two-dimensional scatter plot of
+    your dataset as shown above. Hover over an image to view a thumbnail of it.
+
 .. note::
 
    We use principal component analysis (PCA) to reduce the dimensionality of the
@@ -78,10 +86,27 @@ create a sampling. You will need to configure the following settings:
 * **Stopping Condition:** Indicate how many samples you want to keep.
 * **Name:** Give your sampling a name. A new tag will be created under this name.
 
+.. figure:: ../../tutorials_source/platform/images/sampling_create_request.PNG
+    :align: center
+    :alt: Alt text
+    :figclass: align-center
+    :figwidth: 250px
+
+    Example of a filled out sampling request in the web-app.
+
 After confirming your settings, a worker will start processing your request. Once
 it's done, you can find the new tag with the selected images under your tags. If
 you select it, you can see how the scatter plot now shows selected images and 
 discarded images in a different color. Play around with the different samplers to see
 differences between the results.
+
+.. figure:: ../../tutorials_source/platform/images/sunflowers_scatter_after_sampling.PNG
+    :align: center
+    :alt: Alt text
+    :figclass: align-center
+
+    After the sampling you can see which samples were selected and which ones were discarded.
+    Here, the dark blue dots are part of the new tag while the gray ones are left away. Notice
+    how the Coreset sampler selects an evenly spaced subset of images.
 
 """
