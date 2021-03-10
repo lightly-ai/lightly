@@ -10,7 +10,8 @@ from torchvision.transforms import functional as TF
 class RandomRotate(object):
     """Implementation of random rotation.
 
-    Randomly rotates an input image by an angle.
+    Randomly rotates an input image by a fixed angle. By default we rotate
+    the image by 90 degrees with a probability of 50%. 
 
     Attributes:
         prob:
