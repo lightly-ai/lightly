@@ -105,4 +105,3 @@ else:
         if version_compare(__version__, latest_version) < 0:
             # local version is behind latest version
             pretty_print_latest_version(latest_version)
-            pass
