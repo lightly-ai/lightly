@@ -83,7 +83,8 @@ For example,
         token=MYAWESOMETOKEN \
         lightly.loader.batch_size=512
 
-sets the batch size during training and embedding to 512.
+sets the batch size during training and embedding to 512. You find a list of all
+lightly CLI parameters here: :ref:`ref-cli-config-default`
 
 Choosing the Right Parameters
 -----------------------------------

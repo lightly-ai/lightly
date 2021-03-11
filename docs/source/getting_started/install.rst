@@ -28,7 +28,9 @@ On top of PyTorch we use `Hydra <https://github.com/facebookresearch/hydra>`_ fo
 If you want to work with video files you need to additionally install
 `PyAV <https://github.com/PyAV-Org/PyAV#installation>`_.
 
-- av
+.. code-block:: bash
+
+    pip install av
 
 Next Steps
 ------------

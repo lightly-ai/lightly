@@ -1,3 +1,4 @@
+.. _lightly-platform:
 
 The Lightly Platform
 ===================================
@@ -25,7 +26,7 @@ Basic Concepts
 Dataset
 ^^^^^^^^^^^
 As the name suggests, a dataset is a collection of samples. Think of it as a 
-project. When you use the platform for the first time you create a dataset. 
+project. When you use the platform for the first time, you create a dataset. 
 
 .. figure:: images/dataset_overview.jpg
     :align: center
@@ -80,10 +81,10 @@ multiple child tags from the same tag.
 
 You can interact with your tags by using the left-hand menu of the application. 
 You can only create new tags once you modified your dataset. Once a 
-modification is done you can "freeze" the state by creating a tag using by 
+modification is done you can "freeze" the state by creating a tag by 
 giving it a name (text field at bottom) and pressing enter.
 
-There is a bar linear bar indicating the current number of 
+There is a linear bar indicating the current number of 
 active samples you work with. 
 
 Embedding
@@ -101,20 +102,20 @@ to select the most important samples out of your dataset.
 
     You can visualize the embedding for a dataset by switching to the sampling 
     mode (click sampling on the left menu). You will see a 2-dimensional plot 
-    of your embedding. The color indicate the currently active samples. If you 
-    switch to another tag you will see immediate effect on the plot.
+    of your embedding. The colors indicate the currently active samples. If you 
+    switch to another tag, you will see immediate effect on the plot.
 
 
 Obtaining Good Embeddings
 """""""""""""""""""""""""""
 
-We optimized the whole workflow to use **low-dimensional embeddings**. 
+We optimized the workflow of sampling only important datapoints by using **low-dimensional embeddings**. 
 This has two benefits:
 
 - Low-dimensional embeddings have more meaningful distance metrics. 
   We know that the data usually lies on a manifold in high-dimensional spaces 
   (see `curse of dimensionality <https://en.wikipedia.org/wiki/Curse_of_dimensionality>`_). 
-  Even though samples might be close in cosine or L2 distance they are far away.
+  Even very similar samples might have a high L2-distance or low cosine similarity in high embeddings.
 - Most algorithms to sample a subset based on the embeddings scale with 
   the dimensionality. Therefore low-dimensional embeddings can significantly 
   reduce computing time.
@@ -122,7 +123,7 @@ This has two benefits:
 We leverage **self-supervised learning** to obtain good 
 features/representations/embedddings of your unlabeled data. The quality of the 
 representations depends heavily on the chosen augmentations. For example, 
-imagine you want to train a classifier to detect healthy and not healthy leaves. 
+imagine you want to train a classifier to detect healthy and unhealthy leaves. 
 Training self-supervised models with color augmentation enabled would make the 
 model and therefore the embeddings invariant towards different colors. However, 
 the color might be a very important feature of the leave to determine whether 
@@ -162,7 +163,7 @@ Upload Embeddings
 -------------------------
 
 Embeddings can be uploaded using the Python Package.
-You can not upload embedding through the web interface.
+You can not upload embedding through the web interface. Instead
 :ref:`ref-upload-embedding-lightly`
 
 
@@ -218,14 +219,14 @@ section by clicking on it.
 Dataset Identifier
 -------------------------
 
-Every dataset has a unique identifier. You find it in the dataset overview page.
+Every dataset has a unique identifier called 'Dataset ID'. You find it in the dataset overview page.
 
 .. figure:: images/webapp_dataset_id.jpg
     :align: center
     :alt: Alt text
     :figclass: align-center
 
-    The dataset id is a unique identifier.
+    The Dataset ID is a unique identifier.
 
 .. _ref-authentication-token:
 

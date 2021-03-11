@@ -46,7 +46,6 @@ show examples of when such invariances can be useful.
 
 - **Random Grayscale** E.g. We don't care about the color of a tree
 
-
 Some interesting papers regarding invariances in self-supervised learning:
 
 - `Demystifying Contrastive Self-Supervised Learning, S. Purushwalkam, 2020 <https://arxiv.org/abs/2007.13916>`_
@@ -62,7 +61,7 @@ Some interesting papers regarding invariances in self-supervised learning:
 Augmentations
 -------------------
 
-Lightly uses the collate operation to apply augmentations when loading a bach 
+Lightly uses the collate operation to apply augmentations when loading a batch 
 of samples using the 
 `PyTorch dataloader <https://pytorch.org/docs/stable/data.html>`_.
 
@@ -75,8 +74,28 @@ Since Gaussian blur and random rotations by 90 degrees are not supported
 by default in torchvision, we added them to lightly 
 :py:class:`lightly.transforms`
 
-You can build your own collate function my inheriting from 
+You can build your own collate function by inheriting from 
 :py:class:`lightly.data.collate.BaseCollateFunction`
+
+.. code-block:: python
+
+  # create a dataset using SimCLR augmentations
+  collate_fn = lightly.data.SimCLRCollateFunction()
+  dataloader_train_simclr = torch.utils.data.DataLoader(
+    dataset_train_simclr, 
+    collate_fn=collate_fn,
+  )
+  
+  # same augmentation but without blur and resize images to 128x128
+  collate_fn = lightly.data.SimCLRCollateFunction(
+    input_size=128,
+    gaussian_blur=0.
+  )
+  dataloader_train_simclr = torch.utils.data.DataLoader(
+    dataset_train_simclr, 
+    collate_fn=collate_fn,
+  )
+
 
 
 Models
@@ -99,6 +118,22 @@ learning:
 
 Do you know a model that should be on this list? Please add an issue on GitHub :)
 
+All models have a backbone component. This could be a ResNet.
+When creating a self-supervised learning model you pass it a backbone. You need
+to make sure the backbone output dimension matches the `num_ftrs` parameter 
+of the model.
+
+.. code-block:: python
+
+        # create a ResNet backbone and remove the classification head
+        resnet = lightly.models.ResNetGenerator('resnet-18')
+        backbone = nn.Sequential(
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1),
+        )
+
+        # create a simclr model based on ResNet
+        self.resnet_simclr = lightly.models.SimCLR(backbone, num_ftrs=512)
 
 
 Losses 
@@ -110,25 +145,43 @@ loss for non-contrastive methods.
 - `NTXentLoss: Normalized Temperature-scaled Cross Entropy Loss <https://paperswithcode.com/method/nt-xent>`_
 
   - Check the documentation: :py:class:`lightly.loss.ntx_ent_loss.NTXentLoss`
+  - This loss can be combined with a :ref:`lightly-advanced-memory-bank` 
 
-- Symmetric Negative Cosine Similarity Loss
+- `Symmetric Negative Cosine Similarity Loss <https://arxiv.org/abs/2011.10566>`_
 
   - Check the documentation: :py:class:`lightly.loss.sym_neg_cos_sim_loss.SymNegCosineSimilarityLoss`
 
 
+.. _lightly-advanced-memory-bank:
+
 Memory Bank
 ^^^^^^^^^^^^^^^^^^^
 
-Since contrastive learning methods benefit from many negative examples larger
+Since contrastive learning methods benefit from many negative examples, larger
 batch sizes are preferred. However, not everyone has a multi GPU cluster at 
 hand. Therefore, alternative tricks and methods have been derived in research.
-On of them is a memory bank keeping past examples as additional negatives.
+One of them is a memory bank keeping past examples as additional negatives.
 
 For an example of the memory bank in action have a look at 
 :ref:`lightly-moco-tutorial-2`. 
 
 For more information check the documentation: 
 :py:class:`lightly.loss.memory_bank.MemoryBankModule`.
+
+.. code-block:: python
+
+  # to create a NTXentLoss with a memory bank (like for MoCo) set the 
+  # memory_bank_size parameter to a value > 0
+  criterion = lightly.loss.NTXentLoss(memory_bank_size=4096)
+  # the memory bank is used automatically for every forward pass
+  y0, y1 = resnet_moco(x0, x1)
+  loss = criterion(y0, y1)
+
+  # you can also use a symmetric loss instead (for faster convergence)
+  y0_a, y1_a = resnet_moco(x0, x1)
+  y0_b, y1_b = resnet_moco(x1, x0)
+  loss = 0.5 * (criterion(y0_a, y1_a) + criterion(y0_b, y1_b))
+
 
 
 Extracting specific Video Frames
@@ -165,8 +218,8 @@ Let's have a look at how this works:
     # >>> 341965
 
     # Now we have to extract the frame number from the filename.
-    # Since the length of the filename should always be the same
-    # we can extract the substring.
+    # Since the length of the filename should always be the same,
+    # we can extract the substring simply using indexing.
 
     # we can experiment until we find the right match
     print(filenames[0][-14:-8])

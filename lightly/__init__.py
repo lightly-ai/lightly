@@ -68,7 +68,7 @@ The framework is structured into the following modules:
 # All Rights Reserved
 
 __name__ = 'lightly'
-__version__ = '1.0.8'
+__version__ = '1.1.0'
 
 
 try:
@@ -97,43 +97,11 @@ else:
     def _is_prefetch_generator_available():
         return _prefetch_generator_available
 
-    # import core functionalities
-    from lightly.core import train_model_and_embed_images
-    from lightly.core import train_embedding_model
-    from lightly.core import embed_images
-
-
-    # compare current version v0 to other version v1
-    def _version_compare(v0, v1):
-        v0 = [int(n) for n in v0.split('.')][::-1]
-        v1 = [int(n) for n in v1.split('.')][::-1]
-        pairs = list(zip(v0, v1))[::-1]
-        for x, y in pairs:
-            if x < y:
-                return -1
-            if x > y:
-                return 1
-        return 0
-
-
-    # message if current version is not latest version
-    def _pretty_print_latest_version(latest_version, width=70):
-        lines = [
-            'There is a newer version of the package available.',
-            'For compatability reasons, please upgrade your current version.',
-            '> pip install lightly=={}'.format(latest_version),
-        ]
-        print('-' * width)
-        for line in lines:
-            print('| ' + line + (width - len(line) - 3) * " " + "|")
-        print('-' * width)
-
-
     # check for latest version
-    from lightly.api import get_version as _get_version
-    _latest_version = _get_version(__version__)
-    if _latest_version is not None:
-        if _version_compare(__version__, _latest_version) < 0:
+    from lightly.api.version_checking import get_latest_version, version_compare, pretty_print_latest_version
+
+    latest_version = get_latest_version(__version__)
+    if latest_version is not None:
+        if version_compare(__version__, latest_version) < 0:
             # local version is behind latest version
-            # pretty_print_latest_version(latest_version)
-            pass
+            pretty_print_latest_version(latest_version)

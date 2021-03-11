@@ -1,8 +1,5 @@
-Datasets in the Wild
-=============================
-
 Extract Diverse Video Frames
------------------------------
+=============================
 
 The following example is a showcase how the lightly docker solution can be used 
 to extract frames from a video based on their uniqueness 
@@ -10,7 +7,7 @@ rather than based on timestamps.
 
 
 Using ffmpeg
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
 
 Using tools such as ffmpeg we can extract frames from a video 
 using a simple one-liner like this:
@@ -50,7 +47,7 @@ On the other hand, even a video with 5 fps might contain lots of similar frames
 or even worse, we might miss some frames with lots of "action". 
 
 Using Lightly Docker
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
 
 Lightly Docker has been designed to give engineers an alternative to using
 fixed framerates for frame extraction. 

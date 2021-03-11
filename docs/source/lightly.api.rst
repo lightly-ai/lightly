@@ -3,9 +3,9 @@ lightly.api
 
 .. automodule:: lightly.api
 
-.upload
----------------
-.. automodule:: lightly.api.upload
+.api_workflow_client
+---------------------
+.. automodule:: lightly.api.api_workflow_client
    :members:
 
 .download

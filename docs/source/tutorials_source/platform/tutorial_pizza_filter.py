@@ -23,7 +23,8 @@ What you will learn
 Requirements
 ------------
 
-You can use your dataset or use the one we provide with this tutorial. 
+You can use your dataset or use the one we provide with this tutorial: 
+:download:`pizzas.zip <../../../_data/pizzas.zip>`. 
 If you use your dataset, please make sure the images are smaller than 
 2048 pixels with width and height, and you use less than 1000 images.
 
@@ -36,7 +37,7 @@ Upload the data
 We start by uploading the dataset to the `Lightly Platform <https://app.lightly.ai>`_.
 
 Create a new account if you do not have one yet and create a new dataset. You can upload images
-using drag and drop from your local machine. 
+using drag and drop from your local machine.
 
 Filter the dataset using metadata
 ---------------------------------
@@ -129,6 +130,12 @@ print('Training set consists of {} images'.format(len(dataset_train)))
 print('Test set consists of {} images'.format(len(dataset_test)))
 
 # %%
+# We can create our data loaders to fetch the data from the training and test
+# set and pack them into batches.
+dataloader_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
+dataloader_test = DataLoader(dataset_test, batch_size=batch_size)
+
+# %%
 # PyTorch Lightning allows us to pack the loss as well as the 
 # optimizer into a single module.
 class MyModel(pl.LightningModule):
@@ -165,12 +172,6 @@ class MyModel(pl.LightningModule):
 
     def configure_optimizers(self):
         return torch.optim.SGD(self.model.fc.parameters(), lr=0.001, momentum=0.9)
-
-# %%
-# We can create our data loaders to fetch the data from the training and test
-# set and pack them into batches.
-dataloader_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
-dataloader_test = DataLoader(dataset_test, batch_size=batch_size)
 
 
 # %%

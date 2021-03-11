@@ -4,6 +4,7 @@
 
 ![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)
 ![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)
+![codecov](https://codecov.io/gh/lightly-ai/lightly/branch/develop/graph/badge.svg?token=1NEAVROK3W)
 
 Lightly is a computer vision framework for self-supervised learning.
 
@@ -15,16 +16,40 @@ Lightly is a computer vision framework for self-supervised learning.
 - [Github](https://github.com/lightly-ai/lightly)
 - [Discord](https://discord.gg/xvNJW94)
 
+
+### Tutorials
+
 Want to jump to the tutorials and see lightly in action?
 
 - [Train MoCo on CIFAR-10](https://docs.lightly.ai/tutorials/package/tutorial_moco_memory_bank.html)
 - [Train SimCLR on clothing data](https://docs.lightly.ai/tutorials/package/tutorial_simclr_clothing.html)
+- [Train SimSiam on satellite images](https://docs.lightly.ai/tutorials/package/tutorial_simsiam_esa.html)
+
+
+### Benchmarks
+
+Currently implemented models and their accuracy on cifar10. All models have been evaluated using kNN. We report the max test accuracy over the epochs as well as the maximum GPU memory consumption. All models in this benchmark use the same augmentations as well as the same ResNet-18 backbone. Training precision is set to FP32 and SGD is used as an optimizer with cosineLR.
+
+| Model   | Epochs | Batch Size | Test Accuracy | Peak GPU usage |
+|---------|--------|------------|---------------|----------------|
+| MoCo    |  200   | 128        | 0.83          | 2.1 GBytes     |
+| SimCLR  |  200   | 128        | 0.78          | 2.0 GBytes     |
+| SimSiam |  200   | 128        | 0.73          | 3.0 GBytes     |
+| MoCo    |  200   | 512        | 0.85          | 7.4 GBytes     |
+| SimCLR  |  200   | 512        | 0.83          | 7.8 GBytes     |
+| SimSiam |  200   | 512        | 0.81          | 7.0 GBytes     |
+| MoCo    |  800   | 512        | 0.90          | 7.2 GBytes     |
+| SimCLR  |  800   | 512        | 0.89          | 7.7 GBytes     |
+| SimSiam |  800   | 512        | 0.91          | 6.9 GBytes     |
+
 
 ## Terminology
-- **Dataset:** A collection of raw images.
-- **Embedding:** Representation of an image in a vector space.
-- **Embedding Model:** Function (typically a convolutional neural network) to create embeddings from images.
-- **Self-supervised Learning:** A form of unsupervised learning where the data provides the supervision.
+
+Below you can see a schematic overview of the different concepts present in the lightly Python package. The terms in bold are explained in more detail in our [documentation](https://docs.lightly.ai).
+
+<img src="docs/source/images/lightly_overview.png" alt="Overview of the lightly pip package"/></a>
+
+
 
 ## Quick Start
 
