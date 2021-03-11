@@ -1,3 +1,5 @@
+.. _rst-docker-first-steps:
+
 First Steps
 ===================================
 
@@ -216,6 +218,9 @@ move the embeddings file to the shared directory, and specify the filename like 
         enable_corruptness_check=False \
         stopping_condition.n_samples=0.3 \
         embeddings=my_embeddings.csv
+
+The embeddings file should follow the structure of the .csv file created by the
+lightly CLI: :ref:`ref-cli-embeddings-lightly` or as described in :ref:`ref-docker-meta-information`. 
 
 Sampling from Video Files
 --------------------------

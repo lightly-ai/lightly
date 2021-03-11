@@ -6,15 +6,31 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [3.6, 3.7, 3.8, 3.9]
+
 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v2
-    - name: Set up Python 3.7
+    - name: Hack to get setup-python to work on nektos/act
+      run: |
+        if [ ! -f "/etc/lsb-release" ] ; then
+          echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
+        fi
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.7
+        python-version: ${{ matrix.python }}
     - name: Install Dependencies
       run: pip install -e '.[all]'
     - name: Run Pytest
-      run: python -m pytest -s -v --runslow
+      run: |
+        pip install pytest-cov
+        python -m pytest -s -v --runslow --cov=./lightly --cov-report=xml --ignore=./lightly/openapi_generated/
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }}

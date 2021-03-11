@@ -1,3 +1,5 @@
+.. _lightly-command-line-tool:
+
 Command-line tool
 =================
 
@@ -42,9 +44,16 @@ For a full list of supported arguments run
     
     lightly-train --help
 
+
+You can get an overview of the various CLI parameters you can set in 
+:ref:`ref-cli-config-default`. 
+
+
+.. _ref-cli-embeddings-lightly:
+
 Create embeddings using the CLI
 -----------------------------------------
-Once you have a trained model checkpoint you can create an embedding of a dataset.
+Once you have a trained model checkpoint, you can create an embedding of a dataset.
 
 .. code-block:: bash
 
@@ -55,12 +64,23 @@ Once you have a trained model checkpoint you can create an embedding of a datase
     lightly-embed input_dir=cat checkpoint=mycheckpoint.ckpt
 
 
+The embeddings.csv file should look like the following:
+
+.. csv-table:: embeddings_example.csv
+   :header: "filenames","embedding_0","embedding_1","embedding_2","embedding_3","labels"
+   :widths: 20, 20, 20, 20, 20, 20
+    
+    101053-1.jpg,-51.535,-2.325,-21.750,78.265,0
+    101101-1.jpg,-67.958,-2.800,-28.861,103.812,0
+    101146-1.jpg,-59.831,-2.719,-25.413,90.945,0
+
+
 .. _ref-upload-data-lightly:
 
 Upload data using the CLI
 --------------------------------------------------------
 
-In this example we will upload a data to the Lightly Platform.
+In this example we will upload a dataset to the Lightly Platform.
 First, make sure you have an account on `Lightly <https://www.lightly.ai>`_. 
 A free account is sufficient. Log in to the app and create a new dataset. 
 You will get a *token* and *dataset_id* which can be used to upload your dataset

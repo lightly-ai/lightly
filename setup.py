@@ -78,13 +78,8 @@ if __name__ == '__main__':
         'lightly',
         'lightly.api',
         'lightly.api.routes',
-        'lightly.api.routes.pip',
         'lightly.api.routes.users',
-        'lightly.api.routes.users.datasets',
         'lightly.api.routes.users.docker',
-        'lightly.api.routes.users.datasets.embeddings',
-        'lightly.api.routes.users.datasets.samples',
-        'lightly.api.routes.users.datasets.tags',
         'lightly.cli',
         'lightly.cli.config',
         'lightly.data',
@@ -93,6 +88,14 @@ if __name__ == '__main__':
         'lightly.models',
         'lightly.transforms',
         'lightly.utils',
+        'lightly.active_learning',
+        'lightly.active_learning.agents',
+        'lightly.active_learning.config',
+        'lightly.active_learning.scorers',
+        'lightly.openapi_generated',
+        'lightly.openapi_generated.swagger_client',
+        'lightly.openapi_generated.swagger_client.api',
+        'lightly.openapi_generated.swagger_client.models'
     ]
 
     project_urls = {

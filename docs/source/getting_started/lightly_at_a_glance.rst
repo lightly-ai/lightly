@@ -1,3 +1,5 @@
+.. _lightly-at-a-glance:
+
 Lightly at a Glance
 ===================
 
@@ -161,3 +163,4 @@ Tutorials:
 - :ref:`input-structure-label`
 - :ref:`lightly-moco-tutorial-2`
 - :ref:`lightly-simclr-tutorial-3`  
+- :ref:`lightly-simsiam-tutorial-4`  
