@@ -12,8 +12,6 @@ from lightly.api.utils import getenv
 def get_versioning_api() -> VersioningApi:
     configuration = Configuration()
     configuration.host = getenv('LIGHTLY_SERVER_LOCATION', 'https://api.lightly.ai')
-    token = getenv('TOKEN', None)
-    configuration.api_key = {'token': token}
     api_client = ApiClient(configuration=configuration)
     versioning_api = VersioningApi(api_client)
     return versioning_api
