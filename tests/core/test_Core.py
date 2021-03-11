@@ -5,9 +5,8 @@ import shutil
 import torchvision
 import tempfile
 import pytest
-from lightly import embed_images
-from lightly import train_embedding_model
-from lightly import train_model_and_embed_images
+
+from lightly.core import train_model_and_embed_images
 
 
 class TestCore(unittest.TestCase):
@@ -40,7 +39,7 @@ class TestCore(unittest.TestCase):
         return tmp_dir, folder_names, sample_names
 
 
-    @pytest.mark.slow
+    #@pytest.mark.slow
     def test_train_and_embed(self):
         n_subfolders = 10
         n_samples_per_subfolder = 10
@@ -62,4 +61,3 @@ class TestCore(unittest.TestCase):
         for root, dirs, files in os.walk(os.getcwd()):
             for file in filter(lambda x: re.match(pattern, x), files):
                 os.remove(os.path.join(root, file))
-            

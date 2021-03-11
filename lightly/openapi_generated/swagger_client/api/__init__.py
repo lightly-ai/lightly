@@ -11,3 +11,4 @@ from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
 from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
 from lightly.openapi_generated.swagger_client.api.scores_api import ScoresApi
 from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
+from lightly.openapi_generated.swagger_client.api.versioning_api import VersioningApi
