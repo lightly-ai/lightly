@@ -35,6 +35,7 @@ class JobStatusData(object):
     swagger_types = {
         'id': 'MongoObjectID',
         'status': 'JobState',
+        'meta': 'JobStatusMeta',
         'wait_time_till_next_poll': 'int',
         'created_at': 'Timestamp',
         'finished_at': 'Timestamp',
@@ -45,6 +46,7 @@ class JobStatusData(object):
     attribute_map = {
         'id': 'id',
         'status': 'status',
+        'meta': 'meta',
         'wait_time_till_next_poll': 'waitTimeTillNextPoll',
         'created_at': 'createdAt',
         'finished_at': 'finishedAt',
@@ -52,7 +54,7 @@ class JobStatusData(object):
         'result': 'result'
     }
 
-    def __init__(self, id=None, status=None, wait_time_till_next_poll=None, created_at=None, finished_at=None, error=None, result=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, status=None, meta=None, wait_time_till_next_poll=None, created_at=None, finished_at=None, error=None, result=None, _configuration=None):  # noqa: E501
         """JobStatusData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -60,6 +62,7 @@ class JobStatusData(object):
 
         self._id = None
         self._status = None
+        self._meta = None
         self._wait_time_till_next_poll = None
         self._created_at = None
         self._finished_at = None
@@ -69,6 +72,8 @@ class JobStatusData(object):
 
         self.id = id
         self.status = status
+        if meta is not None:
+            self.meta = meta
         self.wait_time_till_next_poll = wait_time_till_next_poll
         self.created_at = created_at
         if finished_at is not None:
@@ -123,6 +128,27 @@ class JobStatusData(object):
             raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
 
         self._status = status
+
+    @property
+    def meta(self):
+        """Gets the meta of this JobStatusData.  # noqa: E501
+
+
+        :return: The meta of this JobStatusData.  # noqa: E501
+        :rtype: JobStatusMeta
+        """
+        return self._meta
+
+    @meta.setter
+    def meta(self, meta):
+        """Sets the meta of this JobStatusData.
+
+
+        :param meta: The meta of this JobStatusData.  # noqa: E501
+        :type: JobStatusMeta
+        """
+
+        self._meta = meta
 
     @property
     def wait_time_till_next_poll(self):

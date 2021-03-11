@@ -2,6 +2,9 @@ import os
 import warnings
 from typing import *
 
+from lightly.__init__ import __version__
+
+from lightly.api.version_checking import get_minimum_compatible_version, version_compare
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
 
 from lightly.api.api_workflow_datasets import _DatasetsMixin
@@ -46,6 +49,8 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
 
     def __init__(self, token: str, dataset_id: str = None, embedding_id: str = None):
 
+        self.check_version_compatibility()
+
         configuration = Configuration()
         configuration.host = getenv('LIGHTLY_SERVER_LOCATION', 'https://api.lightly.ai')
         configuration.api_key = {'token': token}
@@ -66,6 +71,13 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
         self.mappings_api = MappingsApi(api_client=api_client)
         self.scores_api = ScoresApi(api_client=api_client)
         self.samples_api = SamplesApi(api_client=api_client)
+
+    def check_version_compatibility(self):
+        minimum_version = get_minimum_compatible_version()
+        if version_compare(__version__, minimum_version) < 0:
+            raise ValueError(f"Incompatible Version of lightly pip package. "
+                             f"Please upgrade to at least version {minimum_version} "
+                             f"to be able to access the api and webapp")
 
     @property
     def dataset_id(self) -> str:

@@ -5,5 +5,4 @@
 
 
 # submodules
-from lightly.api.routes import pip
 from lightly.api.routes import users

@@ -31,7 +31,6 @@ class SamplingMethod(object):
     CORAL = "CORAL"
     CORESET = "CORESET"
     RANDOM = "RANDOM"
-    BIT = "BIT"
 
     """
     Attributes:

@@ -17,7 +17,7 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
                                       preselected_tag_name="preselected_tag_name_xyz")
         agent_3 = ActiveLearningAgent(self.api_workflow_client, preselected_tag_name="preselected_tag_name_xyz")
 
-        for method in [SamplingMethod.CORAL, SamplingMethod.CORESET, SamplingMethod.RANDOM, SamplingMethod.BIT]:
+        for method in [SamplingMethod.CORAL, SamplingMethod.CORESET, SamplingMethod.RANDOM]:
             for agent in [agent_0, agent_1, agent_2, agent_3]:
                 for batch_size in [2, 6]:
                     n_samples = len(agent.labeled_set) + batch_size
