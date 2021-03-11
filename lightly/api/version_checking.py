@@ -1,3 +1,4 @@
+import warnings
 from typing import Tuple
 
 import requests
@@ -47,12 +48,7 @@ def version_compare(v0, v1):
 
 
 def pretty_print_latest_version(latest_version, width=70):
-    lines = [
-        'There is a newer version of the package available.',
-        'For compatability reasons, please upgrade your current version.',
-        '> pip install lightly=={}'.format(latest_version),
-    ]
-    print('-' * width)
-    for line in lines:
-        print('| ' + line + (width - len(line) - 3) * " " + "|")
-    print('-' * width)
+    warning = f"There is a newer version of the package available. " \
+              f"For compatability reasons, please upgrade your current version:" \
+              f"pip install lightly=={latest_version}"
+    warnings.warn(Warning(warning))
