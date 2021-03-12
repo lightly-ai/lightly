@@ -49,7 +49,8 @@ class _UploadDatasetMixin:
                              f"but is of type {type(input)}")
 
         # check the allowed dataset size
-        max_dataset_size = self.__get_quota()
+        max_dataset_size_str = self.quota_api.get_quota_maximum_dataset_size()
+        max_dataset_size = int(max_dataset_size_str)
         if len(dataset) > max_dataset_size:
             msg = f'Your dataset has {len(dataset)} samples which'
             msg += f' is more than the allowed maximum of {max_dataset_size}'
@@ -156,10 +157,5 @@ class _UploadDatasetMixin:
             self.upload_file_with_signed_url(image_to_upload, signed_url)
 
             image.close()
-
-    def __get_quota(self) -> int:
-        quota: str = self.quota_api.get_quota()
-        quota: int = int(quota)
-        return quota
 
 

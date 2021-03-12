@@ -170,7 +170,7 @@ class MockedVersioningApi(VersioningApi):
         return "1.0.0"
 
 class MockedQuotaApi(QuotaApi):
-    def get_quota(self, **kwargs):
+    def get_quota_maximum_dataset_size(self, **kwargs):
         return "60000"
 
 def mocked_upload_file_with_signed_url(file: str, url: str, mocked_return_value=True) -> bool:

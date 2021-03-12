@@ -31,7 +31,7 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
         quota = self.n_data-1
         def get_quota_reduced():
             return str(quota)
-        self.api_workflow_client.quota_api.get_quota = get_quota_reduced
+        self.api_workflow_client.quota_api.get_quota_maximum_dataset_size = get_quota_reduced
         with self.assertRaises(ValueError):
             self.api_workflow_client.upload_dataset(input=self.folder_path)
 
