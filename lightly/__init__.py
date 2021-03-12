@@ -48,6 +48,8 @@ The framework is structured into the following modules:
 
   - MoCo
 
+  - SimSiam
+
 - **transforms**:
 
   The lightly.transforms module implements custom data transforms. Currently implements:
@@ -68,7 +70,7 @@ The framework is structured into the following modules:
 # All Rights Reserved
 
 __name__ = 'lightly'
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 
 
 try:
@@ -97,8 +99,22 @@ else:
     def _is_prefetch_generator_available():
         return _prefetch_generator_available
 
+    from lightly.core import *
+    from lightly import active_learning
+    from lightly import api
+    from lightly import data
+    from lightly import embedding
+    from lightly import loss
+    from lightly import models
+    from lightly import openapi_generated
+    from lightly import transforms
+    from lightly import utils
+
+
     # check for latest version
-    from lightly.api.version_checking import get_latest_version, version_compare, pretty_print_latest_version
+    from lightly.api.version_checking import get_latest_version
+    from lightly.api.version_checking import version_compare
+    from lightly.api.version_checking import pretty_print_latest_version
 
     latest_version = get_latest_version(__version__)
     if latest_version is not None:
