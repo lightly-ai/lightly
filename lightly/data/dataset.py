@@ -248,3 +248,17 @@ class LightlyDataset:
         # dump images
         for i, filename in zip(indices, filenames):
             _dump_image(self.dataset, output_dir, filename, i, fmt=format)
+
+    @property
+    def transform(self):
+        """Getter for the transform of the dataset.
+
+        """
+        return self.dataset.transform
+
+    @transform.setter
+    def transform(self, t):
+        """Setter for the transform of the dataset.
+
+        """
+        self.dataset.transform = t

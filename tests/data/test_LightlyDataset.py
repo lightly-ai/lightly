@@ -199,3 +199,16 @@ class TestLightlyDataset(unittest.TestCase):
         out_dir = tempfile.mkdtemp()
         dataset.dump(out_dir)
         self.assertEqual(len(os.listdir(out_dir)), len(dataset))
+
+    def test_transform_setter(self):
+        
+        tmp_dir, _, _ = self.create_dataset()
+        dataset = LightlyDataset(input_dir=tmp_dir)
+        # the transform of both datasets should be None
+        self.assertIsNone(dataset.transform)
+        self.assertIsNone(dataset.dataset.transform)
+        # use the setter
+        dataset.transform = torchvision.transforms.ToTensor()
+        # assert that the transform is set in the nested dataset
+        self.assertIsNotNone(dataset.transform)
+        self.assertIsNotNone(dataset.dataset.transform)
