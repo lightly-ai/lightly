@@ -2,6 +2,7 @@ import os
 import tempfile
 
 import numpy as np
+from lightly.utils.io import save_embeddings
 
 import lightly
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
@@ -19,7 +20,7 @@ class TestApiWorkflowUploadEmbeddigns(MockedApiWorkflowSetup):
         if special_name_first_sample:
             sample_names[0] = "bliblablub"
         labels = [0] * len(sample_names)
-        lightly.utils.save_embeddings(
+        save_embeddings(
             path_to_embeddings,
             np.random.randn(n_data, 16),
             labels,
