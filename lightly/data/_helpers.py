@@ -37,6 +37,19 @@ def _contains_videos(root: str, extensions: tuple):
     return any(is_video)
 
 
+def _is_lightly_output_dir(dirname: str):
+    """Checks whether the directory is a lightly_output directory.
+
+    Args:
+        dirname: Directory to check.
+
+    Returns:
+        True if dirname is "lightly_outputs" else false.
+
+    """
+    return 'lightly_outputs' in dirname
+
+
 def _contains_subdirs(root: str):
     """Checks whether directory contains subdirectories.
 
@@ -48,6 +61,7 @@ def _contains_subdirs(root: str):
 
     """
     list_dir = os.listdir(root)
+    list_dir = list(filter(lambda x: not _is_lightly_output_dir(x), list_dir))
     is_dir = \
         [os.path.isdir(os.path.join(root, f)) for f in list_dir]
     return any(is_dir)
