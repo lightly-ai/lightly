@@ -32,3 +32,4 @@ lightly_outputs
 #ignore eggs
 .eggs
 tests/UNMOCKED_end2end_tests/call_test_api.py
+tests/UNMOCKED_end2end_tests/get_versions_all_apis.py
