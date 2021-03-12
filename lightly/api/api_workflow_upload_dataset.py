@@ -6,7 +6,6 @@ import tqdm
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
 from lightly.api.utils import check_filename, check_image, get_thumbnail_from_img, PIL_to_bytes
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
-from lightly.api.constants import LIGHTLY_MAXIMUM_DATASET_SIZE
 from lightly.data.dataset import LightlyDataset
 
 
@@ -50,8 +49,7 @@ class _UploadDatasetMixin:
                              f"but is of type {type(input)}")
 
         # check the allowed dataset size
-        api_max_dataset_size = self.__get_quota()
-        max_dataset_size = min(api_max_dataset_size, LIGHTLY_MAXIMUM_DATASET_SIZE)
+        max_dataset_size = self.__get_quota()
         if len(dataset) > max_dataset_size:
             msg = f'Your dataset has {len(dataset)} samples which'
             msg += f' is more than the allowed maximum of {max_dataset_size}'
