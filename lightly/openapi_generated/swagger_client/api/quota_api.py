@@ -33,13 +33,13 @@ class QuotaApi(object):
             api_client = ApiClient()
         self.api_client = api_client
 
-    def get_quota(self, **kwargs):  # noqa: E501
-        """get_quota  # noqa: E501
+    def get_quota_maximum_dataset_size(self, **kwargs):  # noqa: E501
+        """get_quota_maximum_dataset_size  # noqa: E501
 
-        Get quota of the current user  # noqa: E501
+        Get quota of the current user for the maximum dataset size  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_quota(async_req=True)
+        >>> thread = api.get_quota_maximum_dataset_size(async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
@@ -49,18 +49,18 @@ class QuotaApi(object):
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.get_quota_with_http_info(**kwargs)  # noqa: E501
+            return self.get_quota_maximum_dataset_size_with_http_info(**kwargs)  # noqa: E501
         else:
-            (data) = self.get_quota_with_http_info(**kwargs)  # noqa: E501
+            (data) = self.get_quota_maximum_dataset_size_with_http_info(**kwargs)  # noqa: E501
             return data
 
-    def get_quota_with_http_info(self, **kwargs):  # noqa: E501
-        """get_quota  # noqa: E501
+    def get_quota_maximum_dataset_size_with_http_info(self, **kwargs):  # noqa: E501
+        """get_quota_maximum_dataset_size  # noqa: E501
 
-        Get quota of the current user  # noqa: E501
+        Get quota of the current user for the maximum dataset size  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_quota_with_http_info(async_req=True)
+        >>> thread = api.get_quota_maximum_dataset_size_with_http_info(async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
@@ -80,7 +80,7 @@ class QuotaApi(object):
             if key not in all_params:
                 raise TypeError(
                     "Got an unexpected keyword argument '%s'"
-                    " to method get_quota" % key
+                    " to method get_quota_maximum_dataset_size" % key
                 )
             params[key] = val
         del params['kwargs']
