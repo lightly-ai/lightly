@@ -1,17 +1,13 @@
 import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Union
-
-from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
-
-from lightly.api.utils import check_filename, check_image, get_thumbnail_from_img, PIL_to_bytes
-
-from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 import tqdm
 
+from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
+from lightly.api.utils import check_filename, check_image, get_thumbnail_from_img, PIL_to_bytes
+from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 from lightly.api.constants import LIGHTLY_MAXIMUM_DATASET_SIZE
 from lightly.data.dataset import LightlyDataset
-from lightly.api.routes.users.service import get_quota
 
 
 class _UploadDatasetMixin:
@@ -54,17 +50,12 @@ class _UploadDatasetMixin:
                              f"but is of type {type(input)}")
 
         # check the allowed dataset size
-        api_max_dataset_size, status_code = get_quota(self.token)
+        api_max_dataset_size = self.__get_quota()
         max_dataset_size = min(api_max_dataset_size, LIGHTLY_MAXIMUM_DATASET_SIZE)
         if len(dataset) > max_dataset_size:
             msg = f'Your dataset has {len(dataset)} samples which'
             msg += f' is more than the allowed maximum of {max_dataset_size}'
             raise ValueError(msg)
-
-        # check whether connection to server was possible
-        if status_code != 200:
-            msg = f'Connection to server failed with status code {status_code}.'
-            raise RuntimeError(msg)
 
         # handle the case where len(dataset) < max_workers
         max_workers = min(len(dataset), max_workers)
@@ -167,5 +158,10 @@ class _UploadDatasetMixin:
             self.upload_file_with_signed_url(image_to_upload, signed_url)
 
             image.close()
+
+    def __get_quota(self) -> int:
+        quota: str = self.quota_api.get_quota()
+        quota: int = int(quota)
+        return quota
 
 
