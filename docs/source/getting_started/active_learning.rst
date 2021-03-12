@@ -1,22 +1,26 @@
 .. _lightly-active-learning:
 
-Active Learning
+Active-Learning
 ===================
-Lightly enables active learning with only a few lines of additional code. Learn 
+Lightly enables active-learning with only a few lines of additional code. Learn 
 here, how to get the most out of your data by maximizing the available information
 in your annotated dataset.
+
+.. figure:: images/al_accuracy_plot.png
+
+   Plot showing the different samples and how they perform on the clothing dataset.
 
 Preparations
 -----------------
 Before you read on, make sure you have read the section on the :ref:`lightly-platform`. 
 In particular, you should know how to create a dataset in the `web-app <https://app.lightly.ai>`_.
-and how to upload images and embeddings to it. To do active learning, you will 
+and how to upload images and embeddings to it. To do active-learning, you will 
 need such a dataset with embeddings (don't worry, it's free!).
 
 
 Concepts
 -----------------
-Lightly makes use of the following concepts for active learning:
+Lightly makes use of the following concepts for active-learning:
 
 * **ApiWorkflowClient:** :py:class:`lightly.api.api_workflow_client.ApiWorkflowClient`
    The `ApiWorkflowClient` is used to connect to our API. The API handles the 
@@ -25,7 +29,7 @@ Lightly makes use of the following concepts for active learning:
    :ref:`lightly-platform`.
    
 * **ActiveLearningAgent:** :py:class:`lightly.active_learning.agents.agent.ActiveLearningAgent`
-   The `ActiveLearningAgent` builds the client interface of our active learning 
+   The `ActiveLearningAgent` builds the client interface of our active-learning 
    framework. It allows to indicate which images are preselected and which ones
    to sample from. Furthermore, one can query it to get a new batch of images.
    To initialize an `ActiveLearningAgent` you need an `ApiWorkflowClient`.
@@ -37,7 +41,7 @@ Lightly makes use of the following concepts for active learning:
 
    * Random: Selects samples uniformly at random.
    * Coreset: Greedily selects samples which are diverse.
-   * Coral: Combines Coreset with scores to do active learning.
+   * Coral: Combines Coreset with scores to do active-learning.
    
 * **Scorer:** :py:class:`lightly.active_learning.scorers.scorer.Scorer`
    The `Scorer` takes as input the predictions of a pre-trained model on the set
@@ -46,7 +50,7 @@ Lightly makes use of the following concepts for active learning:
    Coral.
    
 
-Continue reading to see how these components interact and how active learning is
+Continue reading to see how these components interact and how active-learning is
 done with Lightly.
 
 
@@ -104,14 +108,14 @@ will find that a tag has been created in the web-app under the name "initial-sel
 Head there to scroll through the samples and download the selected images before annotating them.
 
 
-Active Learning Step
+Active-Learning Step
 ----------------------
 
 After you have annotated your initial selection of images, you can train a model
 on them. The trained model can then be used to figure out, with which images it 
 has problems. These images can then be added to the labeled dataset.
 
-To continue with active learning with Lightly, you will need the `ApiWorkflowClient` and `ActiveLearningAgent` from before.
+To continue with active-learning with Lightly, you will need the `ApiWorkflowClient` and `ActiveLearningAgent` from before.
 If you perform the next selection step in a new file you have to initialize the client and agent again.
 If you have to re-initialize them, make sure to set the `pre_selected_tag_name` to your
 current selection (if this is the first iteration, this is the name you have passed 
@@ -124,7 +128,7 @@ have to re-initialize them, the tracking of the tags is taken care of for you.
    api_client = ApiWorkflowClient(dataset_id='xyz', token='123')
    al_agent = ActiveLearningAgent(api_client, preselected_tag_name='initial-selection')
 
-The next part is what differentiates active learning from simple subsampling; the
+The next part is what differentiates active-learning from simple subsampling; the
 trained model is used to get predictions on the unlabeled data and the sampler then
 decides based on these predictions. To get a list of all filenames in the unlabeled set,
 you can simply call

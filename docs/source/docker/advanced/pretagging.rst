@@ -45,7 +45,7 @@ before filtering.
 For every docker run with pretagging enabled we also dump all model predictions
 into a json file with the following format:
 
-.. code-block:: json
+.. code-block:: javascript
 
     // boxes have format x1, y1, x2, y2
     [
