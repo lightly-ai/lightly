@@ -20,7 +20,7 @@ Lightly has been built to help you understand and work with large unlabeled
 datasets. It is built on top of PyTorch and therefore fully compatible with 
 other frameworks such as Fast.ai.
 
-**NEW** Lightly has now integrated support for active-learning in combination 
+**NEW** Lightly now has integrated support for active learning in combination 
 with the Lightly platform. Use the open-source framework to create embeddings 
 of your unlabeled data and combine them with model predictions to select 
 the most valueable samples for labeling.
@@ -88,15 +88,15 @@ below.
    See :ref:`sphx_glr_tutorials_package_tutorial_simsiam_esa.py` for an example
 
 
-Active-Learning
+Active Learning
 -------------------
 The image representations learned through self-supervised learning cannot only be used
 for downstream task or nearest neighbor search. The similarity between representations
 also serves as an excellent proxy for mutual information between images. This fact can
-be exploited when doing active-learning to get the most informative subset of images
+be exploited when doing active learning to get the most informative subset of images
 during training. Check out our section on :ref:`lightly-active-learning` for more information.
 
-.. note:: To use active-learning you need a lightly version of **1.1.0** or newer!
+.. note:: To use active learning you need a lightly version of **1.1.0** or newer!
           You can check the version of the installed package using `pip list`
           and check for the installed version of `lightly`.
 

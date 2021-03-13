@@ -124,13 +124,14 @@ The command above does the following:
   will be 30% of the initial dataset size. You can also specify the exact 
   number of remaining images by setting **n_samples** to an integer value.
 
-You can also use the stopping condition **min_distance**. This allows you specify
-a minimum distance of the normalized embeddings you want to keep in the Final
-dataset. This is often a more convenient method when working with different data
-sources and trying to combine them in a balanced way.
+  This allows you to specify the minimum allowed distance between two image 
+  embeddings in the output dataset. After normalizing the input embeddings 
+  to unit length, this value should be between 0 and 2. This is often a more 
+  convenient method when working with different data sources and trying to 
+  combine them in a balanced way.
 
 - **stopping_condition.min_distance=0.2** would remove all samples which are
-  closer than 0.2. 
+  closer to each other than 0.2. 
 
 
 Train a Self-Supervised Model
