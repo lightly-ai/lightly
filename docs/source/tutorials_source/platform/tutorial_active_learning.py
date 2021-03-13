@@ -2,29 +2,29 @@
 
 .. _lightly-tutorial-active-learning-knn:
 
-Tutorial 3: Active-Learning with kNN
+Tutorial 3: Active learning with kNN
 ==============================================
 
-In this tutorial, we will run an active-learning loop using both the lightly package and the platform.
-An active-learning loop is a sequence of multiple samplings each choosing only a subset
+In this tutorial, we will run an active learning loop using both the lightly package and the platform.
+An active learning loop is a sequence of multiple samplings each choosing only a subset
 of all samples in the dataset.
 
-To learn more about how active-learning with lightly works have a look at :ref:`lightly-active-learning`.
+To learn more about how active learning with lightly works have a look at :ref:`lightly-active-learning`.
 
 This workflow has the following structure:
 
 1. Choose an initial subset of your dataset e.g. using one of our samplers like the coreset sampler.
 Split your dataset accordingly into a labeled set and unlabeled set. 
 
-Next, the active-learning loop starts:
+Next, the active learning loop starts:
 
 2. Train a classifier on the labeled set.
 
 3. Use the classifier to predict on the unlabeled set.
 
-4. Calculate active-learning scores from the prediction.
+4. Calculate active learning scores from the prediction.
 
-5. Use an active-learning agent to choose the next samples to be labeled based on the scores.
+5. Use an active learning agent to choose the next samples to be labeled based on the scores.
 
 6. Update the labeled set to include the newly chosen samples and remove them from the unlabeled set.
 
@@ -36,8 +36,8 @@ The advantage of such a classifier compared to CNNs is that it is very fast and 
 
 What you will learn
 -------------------
-* You learn how an active-learning loop is set up and which components are needed for it.
-* You learn how to perform active-learning with Lightly.
+* You learn how an active learning loop is set up and which components are needed for it.
+* You learn how to perform active learning with Lightly.
 
 Requirements
 ------------
@@ -74,7 +74,7 @@ for uploading the embeddings and for defining the dataset for the classifier
 
 C. Create a new dataset on the lightly platform as described in :ref:`lightly-platform`.
 Save the token and dataset id, you will need them later to upload the images and embeddings
-and to run the active-learning samplers.
+and to run the active learning samplers.
 
 D. Upload the images to the platform, e.g. with
 
@@ -86,7 +86,7 @@ D. Upload the images to the platform, e.g. with
 
 
 # %%
-# Active-Learning
+# Active learning
 # -----------------
 #
 # Import the Python frameworks we need for this tutorial.
@@ -164,7 +164,7 @@ api_workflow_client = ApiWorkflowClient(token=YOUR_TOKEN, dataset_id=YOUR_DATASE
 api_workflow_client.upload_embeddings(name="embedding-1", path_to_embeddings_csv=path_to_embeddings_csv)
 
 # %%
-# Define the dataset for the classifer, the classifier and the active-learning agent
+# Define the dataset for the classifer, the classifier and the active learning agent
 dataset = CSVEmbeddingDataset(path_to_embeddings_csv=path_to_embeddings_csv)
 classifier = KNeighborsClassifier(n_neighbors=20, weights='distance')
 agent = ActiveLearningAgent(api_workflow_client=api_workflow_client)
@@ -189,12 +189,12 @@ unlabeled_set_features = dataset.get_features(agent.unlabeled_set)
 predictions = classifier.predict_proba(X=unlabeled_set_features)
 
 # %%
-# 4. Calculate active-learning scores from the prediction.
+# 4. Calculate active learning scores from the prediction.
 active_learning_scorer = ScorerClassification(model_output=predictions)
 
 # %%
-# 5. Use an active-learning agent to choose the next samples to be labeled based on the active-learning scores.
-# We want to sample another 100 samples to have 200 samples in total and use the active-learning sampler CORAL for it.
+# 5. Use an active learning agent to choose the next samples to be labeled based on the active learning scores.
+# We want to sample another 100 samples to have 200 samples in total and use the active learning sampler CORAL for it.
 sampler_config = SamplerConfig(n_samples=200, method=SamplingMethod.CORAL, name='al-iteration-1')
 agent.query(sampler_config=sampler_config, al_scorer=active_learning_scorer)
 print(f"There are {len(agent.labeled_set)} samples in the labeled set.")

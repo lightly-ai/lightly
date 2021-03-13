@@ -117,23 +117,23 @@ class LightlyDataset:
 
     Examples:
         >>> # load a dataset consisting of images from a local folder
-        >>> # mydata
+        >>> # mydata/
         >>> # `- img1.png
         >>> # `- img2.png
         >>> # `- ...
         >>> import lightly.data as data
         >>> dataset = data.LightlyDataset(input_dir='path/to/mydata/')
         >>> sample, target, fname = dataset[0]
-        >>> 
+        >>>
         >>> # also works with subfolders
-        >>> # mydata
+        >>> # mydata/
         >>> # `- subfolder1
         >>> #     `- img1.png
         >>> # `- subfolder2
         >>> # ...
         >>>
         >>> # also works with videos
-        >>> # mydata
+        >>> # mydata/
         >>> # `- video1.mp4
         >>> # `- video2.mp4
         >>> # `- ...
