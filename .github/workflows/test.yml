@@ -27,6 +27,7 @@ jobs:
       run: pip install -e '.[all]'
     - name: Run Pytest
       run: |
+        LIGHTLY_SERVER_LOCATION="localhost:-1"
         pip install pytest-cov
         python -m pytest -s -v --runslow --cov=./lightly --cov-report=xml --ignore=./lightly/openapi_generated/
     - name: Upload coverage to Codecov
