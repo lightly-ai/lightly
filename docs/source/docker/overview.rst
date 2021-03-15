@@ -21,7 +21,7 @@ We worked hard to make this happen and are very proud to present you with the fo
 * Sample more than 1 Million samples within a few hours!
 
 * Runs directly with videos without prior extraction of the frames!
-ƒ
+
 * Wrapped in a docker container (no setup required if your system supports docker)
 
 * Configurable
