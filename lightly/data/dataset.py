@@ -93,14 +93,22 @@ class LightlyDataset:
     """Provides a uniform data interface for the embedding models.
 
     Should be used for all models and functions in the lightly package.
-    Returns a tuple (sample, target, fname) when accessed using __getitem__
+    Returns a tuple (sample, target, fname) when accessed using __getitem__.
 
-    Can either be used to load a dataset offered by torchvision (e.g. cifar10)
-    or to load a custom dataset from an input folder.
+    The LightlyDataset supports different input sources. You can use it
+    on a folder of images. You can also use it on a folder with subfolders
+    with images (ImageNet style). If the input_dir has subfolders each subfolder
+    gets its own target label. You can also work with videos (requires pyav).
+    If there are multiple videos in the input_dir each video gets a different
+    target label assigned. If input_dir contains images and videos
+    only the videos are used.
+
+    Can also be used in combination with the `from_torch_dataset` method
+    to load a dataset offered by torchvision (e.g. cifar10).
 
     Args:
         input_dir:
-            Path to directory holding the images to load.
+            Path to directory holding the images or videos to load.
         transform:
             Image transforms (as in torchvision).
         index_to_filename:
@@ -108,11 +116,27 @@ class LightlyDataset:
             the filename of the file at the index. If None, uses default.
 
     Examples:
-        >>> # load cifar10 from a local folder
+        >>> # load a dataset consisting of images from a local folder
+        >>> # mydata/
+        >>> # `- img1.png
+        >>> # `- img2.png
+        >>> # `- ...
         >>> import lightly.data as data
-        >>> dataset = data.LightlyDataset(input_dir='path/to/cifar10/')
+        >>> dataset = data.LightlyDataset(input_dir='path/to/mydata/')
         >>> sample, target, fname = dataset[0]
-
+        >>>
+        >>> # also works with subfolders
+        >>> # mydata/
+        >>> # `- subfolder1
+        >>> #     `- img1.png
+        >>> # `- subfolder2
+        >>> # ...
+        >>>
+        >>> # also works with videos
+        >>> # mydata/
+        >>> # `- video1.mp4
+        >>> # `- video2.mp4
+        >>> # `- ...
     """
 
     def __init__(self,
@@ -150,11 +174,11 @@ class LightlyDataset:
             A LightlyDataset object.
 
         Examples:
-        >>> # load cifar10 from torchvision
-        >>> import torchvision
-        >>> import lightly.data as data
-        >>> base = torchvision.datasets.CIFAR10(root='./')
-        >>> dataset = data.LightlyDataset.from_torch_dataset(base)
+            >>> # load cifar10 from torchvision
+            >>> import torchvision
+            >>> import lightly.data as data
+            >>> base = torchvision.datasets.CIFAR10(root='./')
+            >>> dataset = data.LightlyDataset.from_torch_dataset(base)
 
         """
         # create an "empty" dataset object
@@ -223,7 +247,10 @@ class LightlyDataset:
             filenames:
                 Filenames of the images to store. If None, stores all images.
             format:
-                Image format.
+                Image format. Can be any pillow image format (png, jpg, ...).
+                By default we try to use the same format as the input data. If
+                not possible (e.g. for videos) we dump the image 
+                as a png image to prevent compression artifacts.
 
         """
 

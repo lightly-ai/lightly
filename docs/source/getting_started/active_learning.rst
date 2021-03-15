@@ -1,10 +1,14 @@
 .. _lightly-active-learning:
 
-Active Learning
+Active learning
 ===================
 Lightly enables active learning with only a few lines of additional code. Learn 
 here, how to get the most out of your data by maximizing the available information
 in your annotated dataset.
+
+.. figure:: images/al_accuracy_plot.png
+
+   Plot showing the different samples and how they perform on the clothing dataset.
 
 Preparations
 -----------------
@@ -20,7 +24,7 @@ Lightly makes use of the following concepts for active learning:
 
 * **ApiWorkflowClient:** :py:class:`lightly.api.api_workflow_client.ApiWorkflowClient`
    The `ApiWorkflowClient` is used to connect to our API. The API handles the 
-   selection of the images based on embeddings and active-learning scores. To initialize
+   selection of the images based on embeddings and active learning scores. To initialize
    the `ApiWorkflowClient`, you will need the `datasetId` and the `token` from the 
    :ref:`lightly-platform`.
    
