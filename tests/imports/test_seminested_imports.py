@@ -16,6 +16,9 @@ class TestSemiNestedImports(unittest.TestCase):
 
         # api imports
         from lightly import api
+        api.routes.users.docker.get_authorization
+        api.routes.users.docker.get_soft_authorization
+        api.routes.users.docker.post_diagnostics
         api.api_workflow_client.ApiWorkflowClient
         api.bitmask.BitMask
 
