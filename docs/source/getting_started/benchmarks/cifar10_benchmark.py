@@ -246,26 +246,26 @@ gpu_memory_usage = []
 
 # loop through configurations and train models
 for batch_size in batch_sizes:
-    for Model in models:
+    for BenchmarkModel in models:
         runs = []
         for seed in range(n_runs):
             pl.seed_everything(seed)
             dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(batch_size)
-            model = Model(dataloader_train_kNN, classes)
+            benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
             trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus,
                                 progress_bar_refresh_rate=100,
                                 distributed_backend=distributed_backend)
             trainer.fit(
-                model,
+                benchmark_model,
                 train_dataloader=dataloader_train_ssl,
                 val_dataloaders=dataloader_test
             )
             gpu_memory_usage.append(torch.cuda.max_memory_allocated())
             torch.cuda.reset_peak_memory_stats()
-            runs.append(model.max_accuracy)
+            runs.append(benchmark_model.max_accuracy)
 
             # delete model and trainer + free up cuda memory
-            del model
+            del benchmark_model
             del trainer
             torch.cuda.empty_cache()
         bench_results.append(runs)
