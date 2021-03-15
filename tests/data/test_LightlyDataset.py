@@ -15,6 +15,7 @@ try:
     from lightly.data._video import VideoDataset
     import av
     import cv2
+
     VIDEO_DATASET_AVAILABLE = True
 except Exception:
     VIDEO_DATASET_AVAILABLE = False
@@ -27,13 +28,13 @@ class TestLightlyDataset(unittest.TestCase):
 
     def setUp(self):
         self.available_dataset_names = ['cifar10',
-                                        #'cifar100',
-                                        #'cityscapes',
-                                        #'stl10',
-                                        #'voc07-seg',
-                                        #'voc12-seg',
-                                        #'voc07-det',
-                                        #'voc12-det]
+                                        # 'cifar100',
+                                        # 'cityscapes',
+                                        # 'stl10',
+                                        # 'voc07-seg',
+                                        # 'voc12-seg',
+                                        # 'voc07-det',
+                                        # 'voc12-det]
                                         ]
 
     def create_dataset(self, n_subfolders=5, n_samples_per_subfolder=20):
@@ -63,7 +64,7 @@ class TestLightlyDataset(unittest.TestCase):
 
         self.n_videos = n_videos
         self.n_frames_per_video = n_frames_per_video
-    
+
         self.input_dir = tempfile.mkdtemp()
         self.ensure_dir(self.input_dir)
         self.frames = (np.random.randn(n_frames_per_video, w, h, c) * 255).astype(np.uint8)
@@ -119,7 +120,6 @@ class TestLightlyDataset(unittest.TestCase):
         tmp_dir = tempfile.mkdtemp()
         sample_names = [f'img_{i}.jpg' for i in range(n_tot)]
         for sample_idx in range(n_tot):
-
             data = dataset[sample_idx]
             path = os.path.join(tmp_dir, sample_names[sample_idx])
             data[0].save(path)
@@ -150,7 +150,7 @@ class TestLightlyDataset(unittest.TestCase):
             path = os.path.join(tmp_dir, sample_name)
             data[0].save(path)
 
-        corrupt_sample_names = [f'img_{i}.jpg' for i in range(n_healthy,n_healthy+n_corrupt)]
+        corrupt_sample_names = [f'img_{i}.jpg' for i in range(n_healthy, n_healthy + n_corrupt)]
         for sample_name in corrupt_sample_names:
             path = os.path.join(tmp_dir, sample_name)
             with open(path, 'a') as f:
@@ -158,8 +158,8 @@ class TestLightlyDataset(unittest.TestCase):
 
         # tests
         healthy_images, corrupt_images = check_images(tmp_dir)
-        assert(len(healthy_images) == n_healthy)
-        assert(len(corrupt_images) == n_corrupt)
+        assert (len(healthy_images) == n_healthy)
+        assert (len(corrupt_images) == n_corrupt)
 
     def test_not_existing_folder_dataset(self):
         with self.assertRaises(ValueError):
@@ -172,6 +172,8 @@ class TestLightlyDataset(unittest.TestCase):
         dataset = LightlyDataset.from_torch_dataset(_dataset)
         self.assertEqual(len(_dataset), len(dataset))
         self.assertEqual(len(dataset.get_filenames()), len(dataset))
+
+
 
     def test_video_dataset(self):
 
@@ -189,10 +191,10 @@ class TestLightlyDataset(unittest.TestCase):
                 dataset = LightlyDataset(input_dir=tmp_dir)
 
             warnings.warn(
-                'Did not test video dataset because of missing requirements')        
+                'Did not test video dataset because of missing requirements')
             shutil.rmtree(tmp_dir)
             return
-        
+
         self.create_video_dataset()
         dataset = LightlyDataset(input_dir=self.input_dir)
 
@@ -200,10 +202,11 @@ class TestLightlyDataset(unittest.TestCase):
         dataset.dump(out_dir)
         self.assertEqual(len(os.listdir(out_dir)), len(dataset))
 
-    def test_transform_setter(self):
-        
-        tmp_dir, _, _ = self.create_dataset()
-        dataset = LightlyDataset(input_dir=tmp_dir)
+    def test_transform_setter(self, dataset: LightlyDataset = None):
+
+        if dataset is None:
+            tmp_dir, _, _ = self.create_dataset()
+            dataset = LightlyDataset(input_dir=tmp_dir)
         # the transform of both datasets should be None
         self.assertIsNone(dataset.transform)
         self.assertIsNone(dataset.dataset.transform)
