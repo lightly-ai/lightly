@@ -3,6 +3,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Union
 import tqdm
 
+from lightly.openapi_generated.swagger_client import TagCreator
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
 from lightly.api.utils import check_filename, check_image, get_thumbnail_from_img, PIL_to_bytes
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
@@ -108,7 +109,7 @@ class _UploadDatasetMixin:
         else:
             img_type = 'meta'
 
-        initial_tag_create_request = InitialTagCreateRequest(img_type=img_type)
+        initial_tag_create_request = InitialTagCreateRequest(img_type=img_type, creator=TagCreator.USER_PIP)
         self.tags_api.create_initial_tag_by_dataset_id(body=initial_tag_create_request, dataset_id=self.dataset_id)
 
     def _upload_single_image(self, image, label, filename: str, mode):
