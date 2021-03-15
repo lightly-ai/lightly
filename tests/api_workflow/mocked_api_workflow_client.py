@@ -14,7 +14,7 @@ from io import BufferedReader
 from typing import *
 
 from lightly.openapi_generated.swagger_client import ScoresApi, CreateEntityResponse, SamplesApi, SampleCreateRequest, \
-    InitialTagCreateRequest, ApiClient, VersioningApi
+    InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -169,16 +169,14 @@ class MockedVersioningApi(VersioningApi):
     def get_minimum_compatible_pip_version(self, **kwargs):
         return "1.0.0"
 
+class MockedQuotaApi(QuotaApi):
+    def get_quota_maximum_dataset_size(self, **kwargs):
+        return "60000"
+
 def mocked_upload_file_with_signed_url(file: str, url: str, mocked_return_value=True) -> bool:
     assert isinstance(file, BufferedReader)
     assert isinstance(url, str)
     return mocked_return_value
-
-
-def mocked_get_quota(token: str) -> Tuple[int, int]:
-    quota = 25000
-    status = 200
-    return quota, status
 
 
 def mocked_put_request(dst_url, data=None, params=None, json=None, max_backoff=32, max_retries=5) -> bool:
@@ -216,8 +214,8 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         self.scores_api = MockedScoresApi(api_client=self.api_client)
         self.samples_api = MockedSamplesApi(api_client=self.api_client)
         self.datasets_api = MockedDatasetsApi(api_client=self.api_client)
+        self.quota_api = MockedQuotaApi(api_client=self.api_client)
 
-        lightly.api.api_workflow_upload_dataset.get_quota = mocked_get_quota
         lightly.api.api_workflow_client.put_request = mocked_put_request
 
         self.wait_time_till_next_poll = 0.001  # for api_workflow_sampling

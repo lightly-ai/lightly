@@ -4,8 +4,5 @@
 # All Rights Reserved
 
 
-# provided functions
-from lightly.api.routes.users.service import get_quota  # noqa: F401, E402
-
 # submodules
 from . import docker      # noqa: F401, E402

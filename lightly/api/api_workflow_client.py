@@ -17,7 +17,7 @@ from lightly.api.utils import put_request, getenv
 from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_sampling import _SamplingMixin
-from lightly.openapi_generated.swagger_client import TagData, ScoresApi
+from lightly.openapi_generated.swagger_client import TagData, ScoresApi, QuotaApi
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -71,6 +71,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
         self.mappings_api = MappingsApi(api_client=api_client)
         self.scores_api = ScoresApi(api_client=api_client)
         self.samples_api = SamplesApi(api_client=api_client)
+        self.quota_api = QuotaApi(api_client=api_client)
 
     def check_version_compatibility(self):
         minimum_version = get_minimum_compatible_version()

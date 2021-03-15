@@ -37,6 +37,7 @@ class TagCreateRequest(object):
         'prev_tag_id': 'MongoObjectID',
         'bit_mask_data': 'TagBitMaskData',
         'tot_size': 'int',
+        'creator': 'TagCreator',
         'changes': 'TagChangeData'
     }
 
@@ -45,10 +46,11 @@ class TagCreateRequest(object):
         'prev_tag_id': 'prevTagId',
         'bit_mask_data': 'bitMaskData',
         'tot_size': 'totSize',
+        'creator': 'creator',
         'changes': 'changes'
     }
 
-    def __init__(self, name=None, prev_tag_id=None, bit_mask_data=None, tot_size=None, changes=None, _configuration=None):  # noqa: E501
+    def __init__(self, name=None, prev_tag_id=None, bit_mask_data=None, tot_size=None, creator=None, changes=None, _configuration=None):  # noqa: E501
         """TagCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -58,6 +60,7 @@ class TagCreateRequest(object):
         self._prev_tag_id = None
         self._bit_mask_data = None
         self._tot_size = None
+        self._creator = None
         self._changes = None
         self.discriminator = None
 
@@ -65,6 +68,8 @@ class TagCreateRequest(object):
         self.prev_tag_id = prev_tag_id
         self.bit_mask_data = bit_mask_data
         self.tot_size = tot_size
+        if creator is not None:
+            self.creator = creator
         if changes is not None:
             self.changes = changes
 
@@ -159,6 +164,27 @@ class TagCreateRequest(object):
             raise ValueError("Invalid value for `tot_size`, must not be `None`")  # noqa: E501
 
         self._tot_size = tot_size
+
+    @property
+    def creator(self):
+        """Gets the creator of this TagCreateRequest.  # noqa: E501
+
+
+        :return: The creator of this TagCreateRequest.  # noqa: E501
+        :rtype: TagCreator
+        """
+        return self._creator
+
+    @creator.setter
+    def creator(self, creator):
+        """Sets the creator of this TagCreateRequest.
+
+
+        :param creator: The creator of this TagCreateRequest.  # noqa: E501
+        :type: TagCreator
+        """
+
+        self._creator = creator
 
     @property
     def changes(self):

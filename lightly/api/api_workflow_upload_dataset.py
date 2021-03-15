@@ -1,17 +1,13 @@
 import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Union
-
-from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
-
-from lightly.api.utils import check_filename, check_image, get_thumbnail_from_img, PIL_to_bytes
-
-from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 import tqdm
 
-from lightly.api.constants import LIGHTLY_MAXIMUM_DATASET_SIZE
+from lightly.openapi_generated.swagger_client import TagCreator
+from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
+from lightly.api.utils import check_filename, check_image, get_thumbnail_from_img, PIL_to_bytes
+from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 from lightly.data.dataset import LightlyDataset
-from lightly.api.routes.users.service import get_quota
 
 
 class _UploadDatasetMixin:
@@ -54,17 +50,12 @@ class _UploadDatasetMixin:
                              f"but is of type {type(input)}")
 
         # check the allowed dataset size
-        api_max_dataset_size, status_code = get_quota(self.token)
-        max_dataset_size = min(api_max_dataset_size, LIGHTLY_MAXIMUM_DATASET_SIZE)
+        max_dataset_size_str = self.quota_api.get_quota_maximum_dataset_size()
+        max_dataset_size = int(max_dataset_size_str)
         if len(dataset) > max_dataset_size:
             msg = f'Your dataset has {len(dataset)} samples which'
             msg += f' is more than the allowed maximum of {max_dataset_size}'
             raise ValueError(msg)
-
-        # check whether connection to server was possible
-        if status_code != 200:
-            msg = f'Connection to server failed with status code {status_code}.'
-            raise RuntimeError(msg)
 
         # handle the case where len(dataset) < max_workers
         max_workers = min(len(dataset), max_workers)
@@ -118,7 +109,7 @@ class _UploadDatasetMixin:
         else:
             img_type = 'meta'
 
-        initial_tag_create_request = InitialTagCreateRequest(img_type=img_type)
+        initial_tag_create_request = InitialTagCreateRequest(img_type=img_type, creator=TagCreator.USER_PIP)
         self.tags_api.create_initial_tag_by_dataset_id(body=initial_tag_create_request, dataset_id=self.dataset_id)
 
     def _upload_single_image(self, image, label, filename: str, mode):

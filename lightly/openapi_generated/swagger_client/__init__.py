@@ -20,6 +20,7 @@ from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsAp
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
+from lightly.openapi_generated.swagger_client.api.quota_api import QuotaApi
 from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
 from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
 from lightly.openapi_generated.swagger_client.api.scores_api import ScoresApi
@@ -68,6 +69,7 @@ from lightly.openapi_generated.swagger_client.models.tag_active_learning_scores_
 from lightly.openapi_generated.swagger_client.models.tag_bit_mask_data import TagBitMaskData
 from lightly.openapi_generated.swagger_client.models.tag_change_data import TagChangeData
 from lightly.openapi_generated.swagger_client.models.tag_create_request import TagCreateRequest
+from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from lightly.openapi_generated.swagger_client.models.tag_filenames_data import TagFilenamesData
 from lightly.openapi_generated.swagger_client.models.tag_name import TagName
