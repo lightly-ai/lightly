@@ -16,7 +16,6 @@ class TestSemiNestedImports(unittest.TestCase):
 
         # api imports
         from lightly import api
-        api.routes.users.get_quota
         api.routes.users.docker.get_authorization
         api.routes.users.docker.get_soft_authorization
         api.routes.users.docker.post_diagnostics
