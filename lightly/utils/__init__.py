@@ -13,3 +13,5 @@ from lightly.utils.io import save_embeddings
 from lightly.utils.io import load_embeddings
 from lightly.utils.io import load_embeddings_as_dict
 from lightly.utils.embeddings_2d import fit_pca
+from lightly.utils.benchmarking import BenchmarkModule
+from lightly.utils.benchmarking import knn_predict

@@ -13,3 +13,8 @@ lightly.utils
 .. automodule:: lightly.utils.embeddings_2d
    :members:
 
+.benchmarking
+---------------
+.. automodule:: lightly.utils.benchmarking
+   :members:
+
