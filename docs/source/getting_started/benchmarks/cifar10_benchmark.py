@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 
+Note that this benchmark also supports a multi-GPU setup. If you run it on
+a system with multiple GPUs make sure that you kill all the processes when
+killing the application. Due to the way we setup this benchmark the distributed
+processes might continue the benchmark if one of the nodes is killed.
+If you know how to fix this don't hesitate to create an issue or PR :)
+
+
 Code to reproduce the benchmark results:
 
 | Model   | Epochs | Batch Size | Test Accuracy | Peak GPU usage |
@@ -39,7 +46,8 @@ n_runs = 1 # optional, increase to create multiple runs and report mean + std
 batch_sizes = [128, 512]
 
 # use a GPU if available
-gpus = 1 if torch.cuda.is_available() else 0
+gpus = -1 if torch.cuda.is_available() else 0
+distributed_backend = 'ddp' if torch.cuda.device_count() > 1 else None
 
 # Adapted from our MoCo Tutorial on CIFAR-10
 #
@@ -245,7 +253,8 @@ for batch_size in batch_sizes:
             dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(batch_size)
             model = Model(dataloader_train_kNN, classes)
             trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus,
-                                progress_bar_refresh_rate=100)
+                                progress_bar_refresh_rate=100,
+                                distributed_backend=distributed_backend)
             trainer.fit(
                 model,
                 train_dataloader=dataloader_train_ssl,

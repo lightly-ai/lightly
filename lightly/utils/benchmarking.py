@@ -5,6 +5,7 @@
 
 import torch
 import torch.nn as nn
+import torch.distributed as dist 
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import pytorch_lightning as pl
@@ -156,7 +157,6 @@ class BenchmarkModule(pl.LightningModule):
         self.backbone = nn.Module()
         self.max_accuracy = 0.0
         self.dataloader_kNN = dataloader_kNN
-        #self.gpus = gpus
         self.num_classes = num_classes
         self.knn_k = knn_k
         self.knn_t = knn_t
@@ -198,18 +198,24 @@ class BenchmarkModule(pl.LightningModule):
                 self.knn_k,
                 self.knn_t
             )
-            num = images.size(0)
-            top1 = (pred_labels[:, 0] == targets).float().sum().item()
+            num = images.size()
+            top1 = (pred_labels[:, 0] == targets).float().sum()
             return (num, top1)
 
     def validation_epoch_end(self, outputs):
+        device = self.dummy_param.device
         if outputs:
-            total_num = 0
-            total_top1 = 0.
+            total_num = torch.Tensor([0]).to(device)
+            total_top1 = torch.Tensor([0.]).to(device)
             for (num, top1) in outputs:
-                total_num += num
+                total_num += num[0]
                 total_top1 += top1
-            acc = float(total_top1 / total_num)
+
+            if dist.get_world_size() > 1:
+                dist.all_reduce(total_num)
+                dist.all_reduce(total_top1)
+
+            acc = float(total_top1.item() / total_num.item())
             if acc > self.max_accuracy:
                 self.max_accuracy = acc
             self.log('kNN_accuracy', acc * 100.0, prog_bar=True)
