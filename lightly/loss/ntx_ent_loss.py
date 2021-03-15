@@ -11,6 +11,13 @@ from lightly.loss.memory_bank import MemoryBankModule
 
 class NTXentLoss(MemoryBankModule):
     """Implementation of the Contrastive Cross Entropy Loss.
+
+    This implementation follows the SimCLR[0] paper. If you enable the memory
+    bank by setting the `memory_bank_size` value > 0 the loss behaves like 
+    the one described in the MoCo[1] paper.
+
+    [0] SimCLR, 2020, https://arxiv.org/abs/2002.05709
+    [1] MoCo, 2020, https://arxiv.org/abs/1911.05722
     
     Attributes:
         temperature:
@@ -18,7 +25,8 @@ class NTXentLoss(MemoryBankModule):
         use_cosine_similarity:
             Whether to use cosine similarity over L2 distance.
         memory_bank_size:
-            Number of samples to store in the memory bank.
+            Number of negative samples to store in the memory bank. 
+            Use 0 for SimCLR. For MoCo we typically use numbers like 4096 or 65536.
 
     Raises:
         ValueError if abs(temperature) < 1e-8 to prevent divide by zero.
@@ -100,7 +108,7 @@ class NTXentLoss(MemoryBankModule):
     def forward(self,
                 out0: torch.Tensor,
                 out1: torch.Tensor):
-        """Forward pass through Contrastive Cross Entropy Loss.
+        """Forward pass through Contrastive Cross-Entropy Loss.
 
         If used with a memory bank, the samples from the memory bank are used
         as negative examples. Otherwise, within-batch samples are used as 

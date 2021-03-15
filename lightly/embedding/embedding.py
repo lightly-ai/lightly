@@ -20,15 +20,13 @@ class SelfSupervisedEmbedding(BaseEmbedding):
     Implements an embedding strategy based on self-supervised learning. A
     model backbone, self-supervised criterion, optimizer, and dataloader are
     passed to the constructor. The embedding itself is a pytorch-lightning
-    module which can be trained very easily:
-
-    https://pytorch-lightning.readthedocs.io/en/stable/
+    module.
 
     The implementation is based on contrastive learning.
 
-    SimCLR: https://arxiv.org/abs/2002.05709
-
-    MoCo: https://arxiv.org/abs/1911.05722
+    * SimCLR: https://arxiv.org/abs/2002.05709
+    * MoCo: https://arxiv.org/abs/1911.05722
+    * SimSiam: https://arxiv.org/abs/2011.10566
 
     Attributes:
         model:
@@ -76,14 +74,14 @@ class SelfSupervisedEmbedding(BaseEmbedding):
 
         Args:
             dataloader:
-                A torchvision dataloader.
+                A PyTorch dataloader.
             device:
-                Selected device (see PyTorch documentation)
+                Selected device (`cpu`, `cuda`, see PyTorch documentation)
             to_numpy:
                 Whether to return the embeddings as numpy array.
 
         Returns:
-            A tuple consisting of a tensor or ndarray of embeddings 
+            A tuple consisting of a tensor or ndarray of embeddings
             with shape n_images x num_ftrs and labels, fnames
 
         Examples:

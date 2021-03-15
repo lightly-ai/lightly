@@ -20,6 +20,12 @@ Lightly has been built to help you understand and work with large unlabeled
 datasets. It is built on top of PyTorch and therefore fully compatible with 
 other frameworks such as Fast.ai.
 
+**NEW** Lightly now has integrated support for active learning in combination 
+with the Lightly platform. Use the open-source framework to create embeddings 
+of your unlabeled data and combine them with model predictions to select 
+the most valueable samples for labeling.
+Check it out here: :ref:`lightly-tutorial-active-learning-knn` 
+
 Self-supervised Learning
 --------------------------
 
@@ -42,6 +48,10 @@ below.
    The collate function is the place where lightly applies augmentations which are crucial
    for self-supervised learning. You can use our pre-defined augmentations or write your own
    ones. For more information, check out :ref:`lightly-advanced` and :py:class:`lightly.data.collate.BaseCollateFunction`.
+   You can add your own augmentations very easily as we show in this tutorial:
+
+   * :ref:`lightly-custom-augmentation-5` 
+
 * **Dataloader**
    For the dataloader you can simply use the PyTorch dataloader. Be sure to pass it a `LightlyDataset` though!
 * **Backbone Neural Network**
@@ -74,8 +84,8 @@ below.
       encoder = lightly.embedding.SelfSupervisedEmbedding(model, loss, optimizer, dataloader)
       encoder.train(gpus=1, max_epochs=10)
    
-   However, you can still write the training loop in plain PyTorch code. See 
-   :ref:`sphx_glr_tutorials_package_tutorial_simsiam_esa.py` for an example
+   However, you can still write the training loop in plain PyTorch code. 
+   See :ref:`sphx_glr_tutorials_package_tutorial_simsiam_esa.py` for an example
 
 
 Active Learning
@@ -85,6 +95,10 @@ for downstream task or nearest neighbor search. The similarity between represent
 also serves as an excellent proxy for mutual information between images. This fact can
 be exploited when doing active learning to get the most informative subset of images
 during training. Check out our section on :ref:`lightly-active-learning` for more information.
+
+.. note:: To use active learning you need a lightly version of **1.1.0** or newer!
+          You can check the version of the installed package using `pip list`
+          and check for the installed version of `lightly`.
 
 
 .. toctree::

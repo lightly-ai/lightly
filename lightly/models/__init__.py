@@ -1,9 +1,9 @@
 """The lightly.models package provides model implementations.
 
-The package contains an implementation of the commonly used ResNet and 
+The package contains an implementation of the commonly used ResNet and
 adaptations of the architecture which make self-supervised learning simpler.
 
-The package also hosts the Lightly model zoo - a list of downloadable ResNet 
+The package also hosts the Lightly model zoo - a list of downloadable ResNet
 checkpoints.
 
 """

@@ -1,4 +1,12 @@
-""" ResNet Implementation """
+"""Custom ResNet Implementation
+
+Note that the architecture we present here differs from the one used in
+torchvision. We replace the first 7x7 convolution by a 3x3 convolution to make
+the model faster and run better on smaller input image resolutions.
+
+Furthermore, we introduce a resnet-9 variant for extra small models. These can 
+run for example on a microcontroller with 100kBytes of storage.
+"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
@@ -239,7 +247,10 @@ def ResNetGenerator(name: str = 'resnet-18',
         num_classes:
             Output dim of the last layer.
         num_splits:
-            Number of splits to use for SplitBatchNorm.
+            Number of splits to use for SplitBatchNorm (for MoCo model).
+            Increase this number to simulate multi-gpu behavior.
+            E.g. `num_splits=8` simulates a 8-GPU cluster.
+            `num_splits=0` uses normal PyTorch BatchNorm.
 
     Returns:
         ResNet as nn.Module.

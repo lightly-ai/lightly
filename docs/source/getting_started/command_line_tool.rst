@@ -90,8 +90,8 @@ You will get a *token* and *dataset_id* which can be used to upload your dataset
     # upload only the dataset
     lightly-upload input_dir=cat token=your_token dataset_id=your_dataset_id
 
-    # you can upload the dataset together with the embedding
-    lightly-upload input_dir=cat embedding=your_embedding.csv \
+    # you can upload the dataset together with the embeddings
+    lightly-upload input_dir=cat embeddings=your_embedding.csv \
                    token=your_token dataset_id=your_dataset_id
 
 .. note:: To obtain your *token* and *dataset_id* check: 
@@ -107,12 +107,12 @@ You can upload embeddings directly to the Lightly Platform using the CLI.
 
 .. code-block:: bash
 
-    # upload only the embedding
-    lightly-upload embedding=your_embedding.csv token=your_token \
+    # upload only the embeddings
+    lightly-upload embeddings=your_embedding.csv token=your_token \
                    dataset_id=your_dataset_id
 
-    # you can upload the dataset together with the embedding
-    lightly-upload input_dir=cat embedding=your_embedding.csv \
+    # you can upload the dataset together with the embeddings
+    lightly-upload input_dir=cat embeddings=your_embedding.csv \
                    token=your_token dataset_id=your_dataset_id
 
 
