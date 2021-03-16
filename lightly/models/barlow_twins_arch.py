@@ -86,4 +86,5 @@ class BarlowTwins(nn.Module):
                 x1: torch.Tensor = None,
                 return_features: bool = False):
 
-            self.resnet_simsiam(x0, x1, return_features)
+            return self.resnet_simsiam(x0, x1, return_features)
+
