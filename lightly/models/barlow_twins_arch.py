@@ -7,7 +7,7 @@
 
 import torch
 import torch.nn as nn
-from . import ResNetGenerator, SimSiam
+from . import ResNetGenerator
 # from . since it is imported in __init__ : '.'=lightly.models.resnet
 
 def _projection_head_barlow(in_dims: int,
@@ -17,7 +17,6 @@ def _projection_head_barlow(in_dims: int,
     """
     Projection MLP. The original paper's implementation [0] has 3 layers, with
     8192 output units each layer. BN and ReLU applied to first and second layer.
-    The CIFAR-10 study used a MLP with only two layers.
 
     Args:
         in_dims:
@@ -44,6 +43,7 @@ def _projection_head_barlow(in_dims: int,
                        nn.ReLU(inplace=True))
 
     l3 = nn.Sequential(nn.Linear(h_dims, out_dims))
+    #SimSiam and BarlowTwins only differs in one BN layer
 
     if num_layers == 3:
         projection = nn.Sequential(l1, l2, l3)
@@ -55,36 +55,101 @@ def _projection_head_barlow(in_dims: int,
     return projection
 
 class BarlowTwins(nn.Module):
+    """Implementation of Barlow twins[0] network.
+    ResNet-50 backbone with projection head.
+
+    Recommended loss: :py:class:`lightly.loss.barlow_twins_loss.BarlowTwinsLoss`
+
+    Default params are the ones explained in the original paper [0].
+    [0] Zbontar,J. et.al. 2021. Barlow Twins... https://arxiv.org/abs/2103.03230
+
+    Attributes:
+        backbone:
+            Backbone model to extract features from images.
+            ResNet-50 in original paper [0].
+        num_ftrs:
+            Dimension of the embedding (before the projection head).
+        proj_hidden_dim:
+            Dimension of the hidden layer of the projection head. This should
+            be the same size as `num_ftrs`.
+        out_dim:
+            Dimension of the output (after the projection head).
+
+    """
 
     def __init__(self,
                  backbone: nn.Module = ResNetGenerator('resnet-50'),
                  num_ftrs: int = 2048,
                  proj_hidden_dim: int = 8192,
-                 pred_hidden_dim: int = 512, ##OJO
                  out_dim: int = 8192,
                  num_mlp_layers: int = 3):
 
         super(BarlowTwins, self).__init__()
 
-        bonenet = backbone
-        self.backbone = nn.Sequential(
-            *list(bonenet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1),
-        )
-        # Barlow Twins uses the same architecture as SimSiam
-        # The difference is in the parameters used in [0]
-        self.resnet_simsiam = SimSiam(self.backbone,
-                                      num_ftrs=num_ftrs,
-                                      proj_hidden_dim=proj_hidden_dim,
-                                      pred_hidden_dim=pred_hidden_dim, ##OJO
-                                      out_dim=out_dim,
-                                      num_mlp_layers=num_mlp_layers
-                                     )
+        self.backbone = backbone
+        self.num_ftrs = num_ftrs
+        self.proj_hidden_dim = proj_hidden_dim
+        self.out_dim = out_dim
 
-        def forward(self,
+        self.projection_mlp = \
+            _projection_head_barlow(num_ftrs, proj_hidden_dim, out_dim, num_mlp_layers)
+
+    def forward(self,
                 x0: torch.Tensor,
                 x1: torch.Tensor = None,
                 return_features: bool = False):
 
-            return self.resnet_simsiam(x0, x1, return_features)
+        """Forward pass through BarloTwins.
 
+        Extracts features with the backbone and applies the projection
+        head to the output space. If both x0 and x1 are not None, both will be passed through
+        the backbone and projection. If x1 is None, only x0 will be forwarded.
+        Barlow Twins only implement a projection head unlike SimSiam.
+
+        Args:
+            x0:
+                Tensor of shape bsz x channels x W x H.
+            x1:
+                Tensor of shape bsz x channels x W x H.
+            return_features:
+                Whether or not to return the intermediate features backbone(x).
+
+        Returns:
+            The output projection of x0 and (if x1 is not None)
+            the output projection of x1. If return_features is
+            True, the output for each x is a tuple (out, f) where f are the
+            features before the projection head.
+
+        Examples:
+            >>> # single input, single output
+            >>> out = model(x)
+            >>>
+            >>> # single input with return_features=True
+            >>> out, f = model(x, return_features=True)
+            >>>
+            >>> # two inputs, two outputs
+            >>> out0, out1 = model(x0, x1)
+            >>>
+            >>> # two inputs, two outputs with return_features=True
+            >>> (out0, f0), (out1, f1) = model(x0, x1, return_features=True)
+        """
+        # forward pass first input
+        f0 = self.backbone(x0).squeeze()
+        out0 = self.projection_mlp(f0)
+
+        # append features if requested
+        if return_features:
+            out0 = (out0, f0)
+
+        if x1 is None:
+            return out0
+
+        # forward pass second input
+        f1 = self.backbone(x1).squeeze()
+        out1 = self.projection_mlp(f1)
+
+        # append features if requested
+        if return_features:
+            out1 = (out1, f1)
+
+        return out0, out1
