@@ -67,8 +67,12 @@ def _download_cli(cfg, is_cli_call=True):
     msg += os.path.join(os.getcwd(), cfg['tag_name'] + '.txt')
     print(msg, flush=True)
 
-    if cfg['input_dir'] and cfg['output_dir']:
+    if not cfg['input_dir'] and cfg['output_dir']:
+        # download full images from api
+        output_dir = fix_input_path(cfg['output_dir'])
+        api_workflow_client.download_dataset(output_dir, tag_name=tag_name)
 
+    elif cfg['input_dir'] and cfg['output_dir']:
         input_dir = fix_input_path(cfg['input_dir'])
         output_dir = fix_input_path(cfg['output_dir'])
         print(f'Copying files from {input_dir} to {output_dir}.')
