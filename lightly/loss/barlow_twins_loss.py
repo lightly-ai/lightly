@@ -22,12 +22,21 @@ class BarlowTwinsLoss(torch.nn.Module):
 
     """
 
-    def __init__(self, device, lambda_param=5e-3):
+    def __init__(self, lambda_param=5e-3):
+        """Lambda param configuration with default value like in [0]
+
+        Args:
+            lambda_param ([float], optional): parameter for importance of
+                redundancy reduction term.
+            Defaults to 5e-3 [0].
+        """
         super(BarlowTwinsLoss, self).__init__()
         self.lambda_param = lambda_param
-        self.device = device
 
     def forward(self, z_a: torch.Tensor, z_b: torch.Tensor):
+
+        device = z_a.device
+
         # normalize repr. along the batch dimension
         z_a_norm = (z_a - z_a.mean(0)) / z_a.std(0) # NxD
         z_b_norm = (z_b - z_b.mean(0)) / z_b.std(0) # NxD
@@ -38,10 +47,9 @@ class BarlowTwinsLoss(torch.nn.Module):
         # cross-correlation matrix
         c = torch.mm(z_a_norm.T, z_b_norm) / N # DxD
         # loss
-        c_diff = (c - torch.eye(D, device=self.device)).pow(2) # DxD
+        c_diff = (c - torch.eye(D, device=device)).pow(2) # DxD
         # multiply off-diagonal elems of c_diff by lambda
         c_diff[~torch.eye(D, dtype=bool)] *= self.lambda_param
         loss = c_diff.sum()
-        
-        return loss
 
+        return loss

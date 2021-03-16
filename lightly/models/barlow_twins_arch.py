@@ -102,8 +102,9 @@ class BarlowTwins(nn.Module):
         """Forward pass through BarloTwins.
 
         Extracts features with the backbone and applies the projection
-        head to the output space. If both x0 and x1 are not None, both will be passed through
-        the backbone and projection. If x1 is None, only x0 will be forwarded.
+        head to the output space. If both x0 and x1 are not None, both will be
+        passed through the backbone and projection. If x1 is None, only x0 will
+        be forwarded.
         Barlow Twins only implement a projection head unlike SimSiam.
 
         Args:
