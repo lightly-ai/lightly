@@ -6,10 +6,11 @@
 import os
 import shutil
 from PIL import Image
-from typing import List, Union
+from typing import List, Union, Callable
 
 import torch.utils.data as data
 import torchvision.datasets as datasets
+from torchvision import transforms
 
 from lightly.data._helpers import _load_dataset
 from lightly.data._helpers import DatasetFolder
@@ -52,6 +53,7 @@ def _copy_image(input_dir, output_dir, filename):
     target = os.path.join(output_dir, filename)
     _ensure_dir(target)
     shutil.copyfile(source, target)
+
 
 def _save_image(image, output_dir, filename, fmt):
     """Saves an image in the output directory.
@@ -141,8 +143,8 @@ class LightlyDataset:
 
     def __init__(self,
                  input_dir: str,
-                 transform=None,
-                 index_to_filename=None):
+                 transform: transforms.Compose = None,
+                 index_to_filename: Callable[[datasets.VisionDataset, int], str] = None):
 
         # can pass input_dir=None to create an "empty" dataset
         self.input_dir = input_dir
@@ -151,7 +153,7 @@ class LightlyDataset:
 
         # initialize function to get filename of image
         self.index_to_filename = _get_filename_by_index
-        if index_to_filename is  not None:
+        if index_to_filename is not None:
             self.index_to_filename = index_to_filename
 
     @classmethod
@@ -205,9 +207,8 @@ class LightlyDataset:
         """
         fname = self.index_to_filename(self.dataset, index)
         sample, target = self.dataset.__getitem__(index)
-        
-        return sample, target, fname
 
+        return sample, target, fname
 
     def __len__(self):
         """Returns the length of the dataset.
