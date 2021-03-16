@@ -16,6 +16,7 @@ from lightly.api.utils import put_request, getenv
 
 from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
+from lightly.api.api_workflow_download_dataset import _DownloadDatasetMixin
 from lightly.api.api_workflow_sampling import _SamplingMixin
 from lightly.openapi_generated.swagger_client import TagData, ScoresApi, QuotaApi
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
@@ -27,7 +28,7 @@ from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
 
 
-class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMixin, _DatasetsMixin):
+class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMixin, _DownloadDatasetMixin, _DatasetsMixin):
     """Provides a uniform interface to communicate with the api 
     
     The APIWorkflowClient is used to communicaate with the Lightly API. The client
