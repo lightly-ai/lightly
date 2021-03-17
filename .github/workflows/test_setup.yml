@@ -1,5 +1,5 @@
 name: check setup.py
-on: [push, pull_request_target]
+on: [push, workflow_dispatch]
 
 jobs:
   test:
