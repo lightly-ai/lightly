@@ -133,12 +133,16 @@ class MockedSamplesApi(SamplesApi):
         url = f"{sample_id}_write_url"
         return url
 
+    def get_sample_image_read_url_by_id(self, dataset_id, sample_id, type, **kwargs):
+        url = f"{sample_id}_write_url"
+        return url
+
 
 class MockedDatasetsApi(DatasetsApi):
     def __init__(self, api_client):
         no_datasets = 3
         self.default_datasets = [DatasetData(name=f"dataset_{i}", id=f"dataset_{i}_id", last_modified_at=i,
-                                             type="", size_in_bytes=-1, n_samples=-1, created_at=-1)
+                                             type="", img_type="full", size_in_bytes=-1, n_samples=-1, created_at=-1)
                                  for i in range(no_datasets)]
         self.reset()
 
@@ -156,6 +160,9 @@ class MockedDatasetsApi(DatasetsApi):
         self.datasets += [dataset]
         response_ = CreateEntityResponse(id=id)
         return response_
+
+    def get_dataset_by_id(self, dataset_id):
+        return next(dataset for dataset in self.default_datasets if dataset_id == dataset.id)
 
     def delete_dataset_by_id(self, dataset_id, **kwargs):
         datasets_without_that_id = [dataset for dataset in self.datasets if dataset.id != dataset_id]
@@ -222,5 +229,5 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
 
 
 class MockedApiWorkflowSetup(unittest.TestCase):
-    def setUp(self) -> None:
-        self.api_workflow_client = MockedApiWorkflowClient(token="token_xyz", dataset_id="dataset_id_xyz")
+    def setUp(self, token="token_xyz",  dataset_id="dataset_id_xyz") -> None:
+        self.api_workflow_client = MockedApiWorkflowClient(token=token, dataset_id=dataset_id)
