@@ -133,6 +133,10 @@ class MockedSamplesApi(SamplesApi):
         url = f"{sample_id}_write_url"
         return url
 
+    def get_sample_image_read_url_by_id(self, dataset_id, sample_id, type, **kwargs):
+        url = f"{sample_id}_write_url"
+        return url
+
 
 class MockedDatasetsApi(DatasetsApi):
     def __init__(self, api_client):

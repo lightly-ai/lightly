@@ -18,7 +18,7 @@ from lightly.data.dataset import LightlyDataset
 
 
 def _make_dir_and_save_image(output_dir: str, filename: str, img: Image):
-    """
+    """Saves the images and creates necessary subdirectories.
 
     """
     path = os.path.join(output_dir, filename)
@@ -28,6 +28,18 @@ def _make_dir_and_save_image(output_dir: str, filename: str, img: Image):
         os.makedirs(head)
 
     img.save(path)
+    img.close()
+
+
+def _get_image_from_read_url(read_url: str):
+    """Makes a get request to the signed read url and returns the image.
+
+    """
+    request = Request(read_url, method='GET')
+    with urlopen(request) as response:
+        blob = response.read()
+        img = Image.open(io.BytesIO(blob))
+    return img
 
 
 class _DownloadDatasetMixin:
@@ -36,13 +48,15 @@ class _DownloadDatasetMixin:
                          output_dir: str,
                          tag_name: str = 'initial-tag',
                          verbose: bool = True):
-        """TODO
+        """Downloads images from the web-app and stores them in output_dir.
 
         Args:
+            output_dir:
+                Where to store the downloaded images.
             tag_name:
                 Name of the tag which should be downloaded.
             verbose:
-                TODO
+                Whether or not to show the progress bar.
 
         Raises:
             ValueError if the specified tag does not exist on the dataset.
@@ -61,11 +75,9 @@ class _DownloadDatasetMixin:
         # check if tag exists
         available_tags = self._get_all_tags()
         try:
+            print(available_tags)
             tag = next(tag for tag in available_tags if tag.name == tag_name)
         except StopIteration:
-            tag = None
-
-        if tag is None:
             raise ValueError(
                 f"Dataset with id {self.dataset_id} has no tag {tag_name}!"
             )
@@ -91,11 +103,9 @@ class _DownloadDatasetMixin:
                 sample_id,
                 type="full",
             )
-            request = Request(read_url, method='GET')
-            with urlopen(request) as response:
-                blob = response.read()
-                img = Image.open(io.BytesIO(blob))
-                _make_dir_and_save_image(output_dir, filename, img)
-            
+
+            img = _get_image_from_read_url(read_url)
+            _make_dir_and_save_image(output_dir, filename, img)
+
             if verbose:
                 pbar.update(1)

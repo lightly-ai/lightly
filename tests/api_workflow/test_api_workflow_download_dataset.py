@@ -1,32 +1,25 @@
 import os
-import tempfile
+import shutil
+
+from unittest.mock import patch
+
+import PIL
+import numpy as np
 
 import torchvision
+
+import lightly
 from lightly.data.dataset import LightlyDataset
 
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
 
 
+
 class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
     def setUp(self) -> None:
         MockedApiWorkflowSetup.setUp(self, dataset_id='dataset_0_id')
-        self.n_data = 100
-        self.create_fake_dataset()
-        self.api_workflow_client.tags_api.no_tags = 0
-
-    def create_fake_dataset(self):
-        n_data = self.n_data
-        self.dataset = torchvision.datasets.FakeData(size=n_data,
-                                                     image_size=(3, 32, 32))
-
-        self.folder_path = tempfile.mkdtemp()
-        sample_names = [f'img_{i}.jpg' for i in range(n_data)]
-        self.sample_names = sample_names
-        for sample_idx in range(n_data):
-            data = self.dataset[sample_idx]
-            path = os.path.join(self.folder_path, sample_names[sample_idx])
-            data[0].save(path)
+        self.api_workflow_client.tags_api.no_tags = 3
 
     def test_download_non_existing_tag(self):
         with self.assertRaises(ValueError):
@@ -39,4 +32,15 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
         self.api_workflow_client.datasets_api.get_dataset_by_id = get_thumbnail_dataset_by_id
         with self.assertRaises(ValueError):
             self.api_workflow_client.download_dataset('path/to/dir')
+
+    def test_download_dataset(self):
+        def my_func(read_url):
+            return PIL.Image.fromarray(np.zeros((32, 32))).convert('RGB')
+        #mock_get_image_from_readurl.return_value = PIL.Image.fromarray(np.zeros((32, 32)))
+        lightly.api.api_workflow_download_dataset._get_image_from_read_url = my_func
+        self.api_workflow_client.download_dataset('path-to-dir-remove-me', tag_name='initial-tag')
+        shutil.rmtree('path-to-dir-remove-me')
+
+
+
 
