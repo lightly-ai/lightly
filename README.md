@@ -16,6 +16,13 @@ Lightly is a computer vision framework for self-supervised learning.
 - [Github](https://github.com/lightly-ai/lightly)
 - [Discord](https://discord.gg/xvNJW94)
 
+### Supported Models
+
+- [MoCo, 2019](https://arxiv.org/abs/1911.05722)
+- [SimCLR, 2020](https://arxiv.org/abs/2002.05709)
+- [SimSiam, 2021](https://arxiv.org/abs/2011.10566)
+- [Barlow Twins, 2021](https://arxiv.org/abs/2103.03230)
+
 
 ### Tutorials
 

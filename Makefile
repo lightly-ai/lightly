@@ -47,7 +47,7 @@ lint-tests:
 
 ## run tests
 test:
-	pytest tests -n 4 --runslow
+	pytest tests --runslow
 
 ## build source and wheel package
 dist: clean 

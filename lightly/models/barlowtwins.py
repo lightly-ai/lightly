@@ -55,8 +55,7 @@ def _projection_head_barlow(in_dims: int,
     return projection
 
 class BarlowTwins(nn.Module):
-    """Implementation of Barlow twins[0] network.
-    ResNet-50 backbone with projection head.
+    """Implementation of BarlowTwins[0] network.
 
     Recommended loss: :py:class:`lightly.loss.barlow_twins_loss.BarlowTwinsLoss`
 
@@ -78,7 +77,7 @@ class BarlowTwins(nn.Module):
     """
 
     def __init__(self,
-                 backbone: nn.Module = ResNetGenerator('resnet-50'),
+                 backbone: nn.Module,
                  num_ftrs: int = 2048,
                  proj_hidden_dim: int = 8192,
                  out_dim: int = 8192,
@@ -99,7 +98,7 @@ class BarlowTwins(nn.Module):
                 x1: torch.Tensor = None,
                 return_features: bool = False):
 
-        """Forward pass through BarloTwins.
+        """Forward pass through BarlowTwins.
 
         Extracts features with the backbone and applies the projection
         head to the output space. If both x0 and x1 are not None, both will be
