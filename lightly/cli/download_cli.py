@@ -123,10 +123,10 @@ def download_cli(cfg):
         >>> lightly-download token='123' dataset_id='XYZ' tag_name='my-tag'
         >>>
         >>> # download all images in tag 'my-tag' from the Lightly platform
-        >>> lightly-download token='123' dataset_id='XYZ' tag_name='my-tag' output_dir='my_data'
+        >>> lightly-download token='123' dataset_id='XYZ' tag_name='my-tag' output_dir='my_data/'
         >>>
         >>> # copy all files in 'my-tag' to a new directory
-        >>> lightly-download token='123' dataset_id='XYZ' tag_name='my-tag' input_dir='data' output_dir='my_data'
+        >>> lightly-download token='123' dataset_id='XYZ' tag_name='my-tag' input_dir='data/' output_dir='my_data/'
 
 
     """
