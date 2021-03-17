@@ -119,16 +119,27 @@ You can upload embeddings directly to the Lightly Platform using the CLI.
 Download data using the CLI
 -----------------------------------------------
 You can download a dataset with a given tag from the Lightly Platform using the 
-following CLI command. The CLI provides you with two options. Either you 
-download just a list or copy the files from the original dataset into a new 
-folder. The second option is very handy for quick prototyping.
+following CLI command. The CLI provides you with three options:
+
+* Download the list of filenames for a given tag in the dataset.
+  
+* Download the images for a given tag in the dataset.
+  
+* Copy the images for a given tag from an input directory to a target directory.
+
+The last option allows you to very quickly extract only the images in a given tag
+without the need to download them explicitly.
 
 .. code-block:: bash
 
     # download a list of files
     lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token
 
-    # copy files in a tag to a new folder
+    # download the images and store them in an output directory
     lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token \
-                     input_dir=cat output_dir=cat_curated
+                     output_dir=path/to/output/dir
+
+    # copy images from an input directory to an output directory
+    lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token \
+                     input_dir=path/to/input/dir output_dir=path/to/output/dir
 
