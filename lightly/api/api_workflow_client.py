@@ -76,6 +76,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
 
     def check_version_compatibility(self):
         minimum_version = get_minimum_compatible_version()
+        print(__version__, minimum_version)
         if version_compare(__version__, minimum_version) < 0:
             raise ValueError(f"Incompatible Version of lightly pip package. "
                              f"Please upgrade to at least version {minimum_version} "
