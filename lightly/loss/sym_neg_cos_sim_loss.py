@@ -6,7 +6,9 @@
 import torch
 
 class SymNegCosineSimilarityLoss(torch.nn.Module):
-    """Implementation of the Symmetrized Loss.
+    """Implementation of the Symmetrized Loss used in the SimSiam[0] paper.
+
+    [0] SimSiam, 2020, https://arxiv.org/abs/2011.10566
     
     Examples:
 

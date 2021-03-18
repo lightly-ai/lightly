@@ -3,6 +3,25 @@
 Known Issues and FAQ
 ===================================
 
+Docker is slow when working with long videos
+---------------------------------------------------
+
+We are working on this issue internally. For now we suggest to split the large
+videos into chunks. You can do this using ffmpeg and without losing quality.
+The following code just breaks up the video in a way that no re-encoding is needed.
+
+.. code-block:: console
+
+    ffmpeg -i input.mp4 -c copy -map 0 -segment_time 01:00:00 -f segment -reset_timestamps 1 output%03d.mp4
+
+What exactly happens here?
+
+- `input.mp4`, this is your input video
+- `-c copy -map 0`, this makes sure we just copy and don't re-encode the video
+- `-segment_time 01:00:00 -f segment`, defines that we want chunks of 1h each
+- `-reset_timestamps 1`, makes sure we reset the timestamps (each video starts from 0)
+- `output%03d.mp4`, name of the output vidoes (output001.mp4, output002.mp4, ...)
+
 
 Shared Memory Error when running Lightly Docker
 -----------------------------------------------

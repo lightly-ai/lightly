@@ -23,7 +23,7 @@ container has a working internet connection and has access to
 https://api.lightly.ai.
 
 
-Download image
+Download the Docker Image
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Ask your account manager from Lightly for the credentials

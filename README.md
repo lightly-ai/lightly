@@ -16,6 +16,13 @@ Lightly is a computer vision framework for self-supervised learning.
 - [Github](https://github.com/lightly-ai/lightly)
 - [Discord](https://discord.gg/xvNJW94)
 
+### Supported Models
+
+- [MoCo, 2019](https://arxiv.org/abs/1911.05722)
+- [SimCLR, 2020](https://arxiv.org/abs/2002.05709)
+- [SimSiam, 2021](https://arxiv.org/abs/2011.10566)
+- [Barlow Twins, 2021](https://arxiv.org/abs/2103.03230)
+
 
 ### Tutorials
 
@@ -24,11 +31,13 @@ Want to jump to the tutorials and see lightly in action?
 - [Train MoCo on CIFAR-10](https://docs.lightly.ai/tutorials/package/tutorial_moco_memory_bank.html)
 - [Train SimCLR on clothing data](https://docs.lightly.ai/tutorials/package/tutorial_simclr_clothing.html)
 - [Train SimSiam on satellite images](https://docs.lightly.ai/tutorials/package/tutorial_simsiam_esa.html)
+- [Use lightly with custom augmentations](https://docs.lightly.ai/tutorials/package/tutorial_custom_augmentations.html)
 
 
 ### Benchmarks
 
 Currently implemented models and their accuracy on cifar10. All models have been evaluated using kNN. We report the max test accuracy over the epochs as well as the maximum GPU memory consumption. All models in this benchmark use the same augmentations as well as the same ResNet-18 backbone. Training precision is set to FP32 and SGD is used as an optimizer with cosineLR.
+One epoch on cifar10 takes ~35 secondson a V100 GPU. [Learn more about the cifar10 benchmark here](https://docs.lightly.ai/getting_started/benchmarks.html)
 
 | Model   | Epochs | Batch Size | Test Accuracy | Peak GPU usage |
 |---------|--------|------------|---------------|----------------|
@@ -38,6 +47,9 @@ Currently implemented models and their accuracy on cifar10. All models have been
 | MoCo    |  200   | 512        | 0.85          | 7.4 GBytes     |
 | SimCLR  |  200   | 512        | 0.83          | 7.8 GBytes     |
 | SimSiam |  200   | 512        | 0.81          | 7.0 GBytes     |
+| MoCo    |  800   | 128        | 0.89          | 2.1 GBytes     |
+| SimCLR  |  800   | 128        | 0.87          | 1.9 GBytes     |
+| SimSiam |  800   | 128        | 0.80          | 2.0 GBytes     |
 | MoCo    |  800   | 512        | 0.90          | 7.2 GBytes     |
 | SimCLR  |  800   | 512        | 0.89          | 7.7 GBytes     |
 | SimSiam |  800   | 512        | 0.91          | 6.9 GBytes     |
@@ -59,7 +71,7 @@ Lightly requires **Python 3.6+**. We recommend installing Lightly in a **Linux**
 
 - hydra-core>=1.0.0
 - numpy>=1.18.1
-- pytorch_lightning>=0.10.0   
+- pytorch_lightning>=1.0.4 
 - requests>=2.23.0
 - torchvision
 - tqdm
@@ -88,7 +100,8 @@ To create an embedding of a dataset you can use:
 lightly-embed input_dir=/mydataset checkpoint=/mycheckpoint
 ```
 
-The embeddings with the corresponding filename are stored in a human-readable .csv file.
+The embeddings with the corresponding filename are stored in a 
+[human-readable .csv file](https://docs.lightly.ai/getting_started/command_line_tool.html#create-embeddings-using-the-cli).
 
 ### Next Steps
 Head to the [documentation](https://docs.lightly.ai) and see the things you can achieve with Lightly!

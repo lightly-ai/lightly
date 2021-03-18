@@ -8,6 +8,11 @@ lightly.models
 .. automodule:: lightly.models.resnet
    :members:
 
+.barlowtwins
+---------------
+.. automodule:: lightly.models.barlowtwins
+   :members:
+
 .simclr
 ---------------
 .. automodule:: lightly.models.simclr

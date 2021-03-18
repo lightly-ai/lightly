@@ -1,11 +1,17 @@
 """
 
-Tutorial 3: Active Learning
+.. _lightly-tutorial-active-learning-knn:
+
+Tutorial 3: Active learning with kNN
 ==============================================
 
 In this tutorial, we will run an active learning loop using both the lightly package and the platform.
 An active learning loop is a sequence of multiple samplings each choosing only a subset
-of all samples in the dataset. This workflow has the following structure:
+of all samples in the dataset.
+
+To learn more about how active learning with lightly works have a look at :ref:`lightly-active-learning`.
+
+This workflow has the following structure:
 
 1. Choose an initial subset of your dataset e.g. using one of our samplers like the coreset sampler.
 Split your dataset accordingly into a labeled set and unlabeled set. 
@@ -18,11 +24,11 @@ Next, the active learning loop starts:
 
 4. Calculate active learning scores from the prediction.
 
-5. Use an active learning agent to choose the next samples to be labeled based on the active learning scores.
+5. Use an active learning agent to choose the next samples to be labeled based on the scores.
 
 6. Update the labeled set to include the newly chosen samples and remove them from the unlabeled set.
 
-In this tutorial we use a k-nearest-neighbor classifier that predicts the class of a sample
+In this tutorial, we use a k-nearest-neighbor classifier that predicts the class of a sample
 based on the class of the k nearest samples in the labeled set.
 We use the euclidean distance between a sample's embeddings as the distance metric.
 The advantage of such a classifier compared to CNNs is that it is very fast and easily implemented.
@@ -45,7 +51,9 @@ Requirements
     git clone https://github.com/alexeygrigorev/clothing-dataset-small.git
 
 
-Creation of the dataset on the lightly platform with embeddings
+Creation of the dataset on the Lightly Platform with embeddings
+---------------------------------------------------------------
+
 To perform samplings, we need to perform several steps, ideally with the CLI.
 More documentation on each step can be found here: :ref:`lightly-command-line-tool`.
 
@@ -78,7 +86,7 @@ D. Upload the images to the platform, e.g. with
 
 
 # %%
-# Active Learning
+# Active learning
 # -----------------
 #
 # Import the Python frameworks we need for this tutorial.

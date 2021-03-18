@@ -14,7 +14,6 @@ class TestNestedImports(unittest.TestCase):
         #lightly.active_learning.scorers.classification.ScorerClassification
 
         # api imports
-        lightly.api.routes.users.get_quota
         lightly.api.routes.users.docker.get_authorization
         lightly.api.routes.users.docker.get_soft_authorization
         lightly.api.routes.users.docker.post_diagnostics

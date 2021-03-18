@@ -2,3 +2,5 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+
+from lightly.api import routes

@@ -5,7 +5,6 @@
 
 import requests
 
-from lightly.api.constants import LIGHTLY_MAXIMUM_DATASET_SIZE
 from lightly.api.utils import getenv
 
 

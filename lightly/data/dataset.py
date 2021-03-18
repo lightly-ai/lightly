@@ -6,10 +6,11 @@
 import os
 import shutil
 from PIL import Image
-from typing import List, Union
+from typing import List, Union, Callable
 
 import torch.utils.data as data
 import torchvision.datasets as datasets
+from torchvision import transforms
 
 from lightly.data._helpers import _load_dataset
 from lightly.data._helpers import DatasetFolder
@@ -53,6 +54,7 @@ def _copy_image(input_dir, output_dir, filename):
     _ensure_dir(target)
     shutil.copyfile(source, target)
 
+
 def _save_image(image, output_dir, filename, fmt):
     """Saves an image in the output directory.
 
@@ -93,14 +95,22 @@ class LightlyDataset:
     """Provides a uniform data interface for the embedding models.
 
     Should be used for all models and functions in the lightly package.
-    Returns a tuple (sample, target, fname) when accessed using __getitem__
+    Returns a tuple (sample, target, fname) when accessed using __getitem__.
 
-    Can either be used to load a dataset offered by torchvision (e.g. cifar10)
-    or to load a custom dataset from an input folder.
+    The LightlyDataset supports different input sources. You can use it
+    on a folder of images. You can also use it on a folder with subfolders
+    with images (ImageNet style). If the input_dir has subfolders each subfolder
+    gets its own target label. You can also work with videos (requires pyav).
+    If there are multiple videos in the input_dir each video gets a different
+    target label assigned. If input_dir contains images and videos
+    only the videos are used.
+
+    Can also be used in combination with the `from_torch_dataset` method
+    to load a dataset offered by torchvision (e.g. cifar10).
 
     Args:
         input_dir:
-            Path to directory holding the images to load.
+            Path to directory holding the images or videos to load.
         transform:
             Image transforms (as in torchvision).
         index_to_filename:
@@ -108,17 +118,33 @@ class LightlyDataset:
             the filename of the file at the index. If None, uses default.
 
     Examples:
-        >>> # load cifar10 from a local folder
+        >>> # load a dataset consisting of images from a local folder
+        >>> # mydata/
+        >>> # `- img1.png
+        >>> # `- img2.png
+        >>> # `- ...
         >>> import lightly.data as data
-        >>> dataset = data.LightlyDataset(input_dir='path/to/cifar10/')
+        >>> dataset = data.LightlyDataset(input_dir='path/to/mydata/')
         >>> sample, target, fname = dataset[0]
-
+        >>>
+        >>> # also works with subfolders
+        >>> # mydata/
+        >>> # `- subfolder1
+        >>> #     `- img1.png
+        >>> # `- subfolder2
+        >>> # ...
+        >>>
+        >>> # also works with videos
+        >>> # mydata/
+        >>> # `- video1.mp4
+        >>> # `- video2.mp4
+        >>> # `- ...
     """
 
     def __init__(self,
                  input_dir: str,
-                 transform=None,
-                 index_to_filename=None):
+                 transform: transforms.Compose = None,
+                 index_to_filename: Callable[[datasets.VisionDataset, int], str] = None):
 
         # can pass input_dir=None to create an "empty" dataset
         self.input_dir = input_dir
@@ -127,7 +153,7 @@ class LightlyDataset:
 
         # initialize function to get filename of image
         self.index_to_filename = _get_filename_by_index
-        if index_to_filename is  not None:
+        if index_to_filename is not None:
             self.index_to_filename = index_to_filename
 
     @classmethod
@@ -150,11 +176,11 @@ class LightlyDataset:
             A LightlyDataset object.
 
         Examples:
-        >>> # load cifar10 from torchvision
-        >>> import torchvision
-        >>> import lightly.data as data
-        >>> base = torchvision.datasets.CIFAR10(root='./')
-        >>> dataset = data.LightlyDataset.from_torch_dataset(base)
+            >>> # load cifar10 from torchvision
+            >>> import torchvision
+            >>> import lightly.data as data
+            >>> base = torchvision.datasets.CIFAR10(root='./')
+            >>> dataset = data.LightlyDataset.from_torch_dataset(base)
 
         """
         # create an "empty" dataset object
@@ -181,9 +207,8 @@ class LightlyDataset:
         """
         fname = self.index_to_filename(self.dataset, index)
         sample, target = self.dataset.__getitem__(index)
-        
-        return sample, target, fname
 
+        return sample, target, fname
 
     def __len__(self):
         """Returns the length of the dataset.
@@ -223,7 +248,10 @@ class LightlyDataset:
             filenames:
                 Filenames of the images to store. If None, stores all images.
             format:
-                Image format.
+                Image format. Can be any pillow image format (png, jpg, ...).
+                By default we try to use the same format as the input data. If
+                not possible (e.g. for videos) we dump the image 
+                as a png image to prevent compression artifacts.
 
         """
 
@@ -248,3 +276,17 @@ class LightlyDataset:
         # dump images
         for i, filename in zip(indices, filenames):
             _dump_image(self.dataset, output_dir, filename, i, fmt=format)
+
+    @property
+    def transform(self):
+        """Getter for the transform of the dataset.
+
+        """
+        return self.dataset.transform
+
+    @transform.setter
+    def transform(self, t):
+        """Setter for the transform of the dataset.
+
+        """
+        self.dataset.transform = t
