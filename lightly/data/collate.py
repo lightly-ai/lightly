@@ -120,7 +120,7 @@ class ImageCollateFunction(BaseCollateFunction):
         hf_prob:
             Probability that horizontal flip is applied.
         rr_prob:
-            Probability that random rotation is applied.
+            Probability that random (+90 degree) rotation is applied.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
@@ -199,7 +199,7 @@ class SimCLRCollateFunction(ImageCollateFunction):
         hf_prob:
             Probability that horizontal flip is applied.
         rr_prob:
-            Probability that random (+-90 degree) rotation is applied.
+            Probability that random (+90 degree) rotation is applied.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
@@ -272,7 +272,7 @@ class MoCoCollateFunction(ImageCollateFunction):
         hf_prob:
             Probability that horizontal flip is applied.
         rr_prob:
-            Probability that random rotation is applied.
+            Probability that random (+90 degree) rotation is applied.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 

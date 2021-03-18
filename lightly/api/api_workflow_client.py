@@ -16,8 +16,9 @@ from lightly.api.utils import put_request, getenv
 
 from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
+from lightly.api.api_workflow_download_dataset import _DownloadDatasetMixin
 from lightly.api.api_workflow_sampling import _SamplingMixin
-from lightly.openapi_generated.swagger_client import TagData, ScoresApi
+from lightly.openapi_generated.swagger_client import TagData, ScoresApi, QuotaApi
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -27,13 +28,13 @@ from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
 
 
-class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMixin, _DatasetsMixin):
+class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMixin, _DownloadDatasetMixin, _DatasetsMixin):
     """Provides a uniform interface to communicate with the api 
     
     The APIWorkflowClient is used to communicaate with the Lightly API. The client
     can run also more complex workflows which include multiple API calls at once.
     
-    The client can be used in combination with the active-learning agent. 
+    The client can be used in combination with the active learning agent. 
 
     Args:
         token:
@@ -71,6 +72,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
         self.mappings_api = MappingsApi(api_client=api_client)
         self.scores_api = ScoresApi(api_client=api_client)
         self.samples_api = SamplesApi(api_client=api_client)
+        self.quota_api = QuotaApi(api_client=api_client)
 
     def check_version_compatibility(self):
         minimum_version = get_minimum_compatible_version()

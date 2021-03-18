@@ -53,6 +53,7 @@ from lightly.openapi_generated.swagger_client.models.tag_active_learning_scores_
 from lightly.openapi_generated.swagger_client.models.tag_bit_mask_data import TagBitMaskData
 from lightly.openapi_generated.swagger_client.models.tag_change_data import TagChangeData
 from lightly.openapi_generated.swagger_client.models.tag_create_request import TagCreateRequest
+from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from lightly.openapi_generated.swagger_client.models.tag_filenames_data import TagFilenamesData
 from lightly.openapi_generated.swagger_client.models.tag_name import TagName

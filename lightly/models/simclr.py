@@ -24,7 +24,11 @@ def _get_simclr_projection_head(num_ftrs: int, out_dim: int):
 
 
 class SimCLR(nn.Module):
-    """Implementation of the SimCLR architecture.
+    """Implementation of the SimCLR[0] architecture
+
+    Recommended loss: :py:class:`lightly.loss.ntx_ent_loss.NTXentLoss`
+
+    [0] SimCLR, 2020, https://arxiv.org/abs/2002.05709
 
     Attributes:
         backbone:

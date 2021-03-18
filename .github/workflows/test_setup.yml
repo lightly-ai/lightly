@@ -1,5 +1,5 @@
 name: check setup.py
-on: [push]
+on: [push, workflow_dispatch]
 
 jobs:
   test:
@@ -29,6 +29,7 @@ jobs:
         pip install "git+https://github.com/lightly-ai/lightly.git@$BRANCH_NAME"
     - name: basic tests of CLI
       run: |
+        LIGHTLY_SERVER_LOCATION="localhost:-1"
         lightly-train --help
         lightly-embed --help
         lightly-upload --help
@@ -36,6 +37,7 @@ jobs:
         lightly-download --help
     - name: test of CLI on a real dataset
       run: |
+        LIGHTLY_SERVER_LOCATION="localhost:-1"
         git clone https://github.com/alexeygrigorev/clothing-dataset-small clothing_dataset_small
         INPUT_DIR_1="clothing_dataset_small/test/dress"
         lightly-train input_dir=$INPUT_DIR_1 trainer.max_epochs=1 loader.num_workers=6

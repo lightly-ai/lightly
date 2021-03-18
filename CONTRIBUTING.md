@@ -118,7 +118,7 @@ Follow these steps to start contributing:
 
    ```bash
    $ git fetch upstream
-   $ git rebase upstream/master
+   $ git rebase upstream/develop
    ```
 
    Push the changes to your account using:

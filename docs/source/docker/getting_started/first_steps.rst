@@ -57,7 +57,7 @@ There are **three** types of volume mappings:
 * **Input Directory:**
    The input directory contains the dataset we want to process. The format of the input data should be either a single
    folder containing all the images or a folder containing a subfolder which holds the images.
-   See the tutorial "Structure Your Input" for more information.
+   See the tutorial :ref:`input-structure-label`  for more information.
    The container has only **read access** to this directory (note the *:ro* at
    the end of the volume mapping).
 * **Shared Directory:**
@@ -123,6 +123,15 @@ The command above does the following:
   default method (coreset). Sampling 30% means that the remaining dataset 
   will be 30% of the initial dataset size. You can also specify the exact 
   number of remaining images by setting **n_samples** to an integer value.
+
+  This allows you to specify the minimum allowed distance between two image 
+  embeddings in the output dataset. After normalizing the input embeddings 
+  to unit length, this value should be between 0 and 2. This is often a more 
+  convenient method when working with different data sources and trying to 
+  combine them in a balanced way.
+
+- **stopping_condition.min_distance=0.2** would remove all samples which are
+  closer to each other than 0.2. 
 
 
 Train a Self-Supervised Model

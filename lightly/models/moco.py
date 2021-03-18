@@ -25,7 +25,12 @@ def _get_moco_projection_head(num_ftrs: int, out_dim: int):
 
 
 class MoCo(nn.Module, _MomentumEncoderMixin):
-    """Implementation of the MoCo (Momentum Contrast) architecture.
+    """Implementation of the MoCo (Momentum Contrast)[0] architecture.
+
+    Recommended loss: :py:class:`lightly.loss.ntx_ent_loss.NTXentLoss` with 
+    a memory bank.
+
+    [0] MoCo, 2020, https://arxiv.org/abs/1911.05722
 
     Attributes:
         backbone:
