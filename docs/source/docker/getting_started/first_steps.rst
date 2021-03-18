@@ -79,8 +79,12 @@ There are **three** types of volume mappings:
 Typically, your docker command would start like this:
 
 - Map *INPUT_DIR* (from your system) to */home/input_dir* in the container
+  
+  *e.g. /path/to/my/cat/dataset:/home/input_dir:ro*
 
 - Map *OUTPUT_DIR* (from your system) to */home/output_dir* in the container
+  
+  *e.g. /path/where/I/want/the/docker/output:/home/output_dir*
 
 - Specify the token to authenticate your user
 
@@ -96,6 +100,10 @@ Now, let's see how this will look in action!
 
 .. note:: Learn how to obtain your :ref:`ref-authentication-token`.
 
+.. warning:: Don't forget to replace **INPUT_DIR** and **OUTPUT_DIR** with the path 
+             to your local input and output directory. You must not change the 
+             path after the **:** since this path is describing the internal
+             file system within the containe!
 
 Embedding and Sampling a Dataset
 -----------------------------------
