@@ -5,8 +5,10 @@ import numpy as np
 from lightly.active_learning.scorers.scorer import Scorer
 
 
-def _object_frequency(model_output: List, frequency_pentaly: float, min_score: float) -> np.ndarray:
-    """Computes the entropy of a probability matrix over one array
+def _object_frequency(model_output: List,
+                      frequency_pentaly: float,
+                      min_score: float) -> np.ndarray:
+    """
     """
     n_objs = []
     for output in model_output:
@@ -21,8 +23,10 @@ def _object_frequency(model_output: List, frequency_pentaly: float, min_score: f
         for k, v in objs.items():
             val += v
         n_objs.append(val)
-    
-    scores = [np.interp(x, (x.min(), x.max()), (min_score, 1.0)) for x in n_objs]
+
+    _min = min(n_objs)
+    _max = max(n_objs)
+    scores = [np.interp(x, (_min, _max), (min_score, 1.0)) for x in n_objs]
     return scores
 
 
@@ -37,23 +41,16 @@ class ScorerObjectDetection(Scorer):
 
 
     """
-    def __init__(self, model_output: List, config: Dict):
+    def __init__(self, model_output: List, config: Dict=None):
         self.model_output = model_output
         self.config = config
 
     def _calculate_scores(self) -> Dict[str, np.ndarray]:
         scores = dict()
-        scores["object-frequency"] = _object_frequency
+        scores["object-frequency"] = self._get_object_frequency()
         return scores
 
     def _get_object_frequency(self):
         scores = _object_frequency(self.model_output, 0.25, 0.9)
         return scores
 
-    def _get_prediction_margin_score(self):
-        uncertainties = np.array([1 - max(class_probabilities) for class_probabilities in self.model_output])
-        return uncertainties
-
-    def _get_prediction_entropy_score(self):
-        uncertainties = _entropy(self.model_output, axis=1)
-        return uncertainties
