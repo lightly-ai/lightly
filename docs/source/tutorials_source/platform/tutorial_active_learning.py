@@ -5,6 +5,11 @@
 Tutorial 3: Active learning with kNN
 ==============================================
 
+We provide the tutorial in a ready to use 
+`Google Colab <https://colab.research.google.com/drive/1E3rz7fY7UqXNI_VYNxSu6KvQINzotwrz?usp=sharing>`_ 
+notebook:
+
+
 In this tutorial, we will run an active learning loop using both the lightly package and the platform.
 An active learning loop is a sequence of multiple samplings each choosing only a subset
 of all samples in the dataset.
@@ -32,7 +37,6 @@ In this tutorial, we use a k-nearest-neighbor classifier that predicts the class
 based on the class of the k nearest samples in the labeled set.
 We use the euclidean distance between a sample's embeddings as the distance metric.
 The advantage of such a classifier compared to CNNs is that it is very fast and easily implemented.
-
 
 What you will learn
 -------------------
