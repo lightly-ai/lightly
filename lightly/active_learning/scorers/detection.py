@@ -5,10 +5,23 @@ import numpy as np
 from lightly.active_learning.scorers.scorer import Scorer
 
 
-def _object_frequency(model_output: List,
+def _object_frequency(model_output: List[Dict],
                       frequency_pentaly: float,
                       min_score: float) -> np.ndarray:
-    """
+    """Scorer which prefers samples with many and diverse objects
+
+    Args:
+        model_outputs:
+            Predictions of the model.
+        frequency_penalty:
+            Penalty applied on multiple objects of the same category. A value
+            of 0.25 would count the first object fully and every additional
+            object only as 0.25.
+        min_score:
+            The minimum score a single sample can have
+        
+    Returns:
+        Numpy array of length N with the computed scores
     """
     n_objs = []
     for output in model_output:
@@ -27,7 +40,7 @@ def _object_frequency(model_output: List,
     _min = min(n_objs)
     _max = max(n_objs)
     scores = [np.interp(x, (_min, _max), (min_score, 1.0)) for x in n_objs]
-    return scores
+    return np.asarray(scores)
 
 
 class ScorerObjectDetection(Scorer):
@@ -38,10 +51,17 @@ class ScorerObjectDetection(Scorer):
             List of length N containing the predictions of an object detection
             model. For each sample we expect a dictionary containing `boxes`,
             `object_probabilities` and `class_probabilities`.
-
-
+            `boxes` has shape [B, 4] for B found bounding boxes and the 4 values
+            x1, y1, x2, y2.
+            `object_probabilities` has shape [B] with a objectness value for each
+            bounding box.
+            `class_probabilities` has shape [B, C] for the B bounding boxes and
+            C classes. The class probabilities should all sum up to 1.
+        config:
+            A dictionary containing additional parameters for the scorers.
     """
-    def __init__(self, model_output: List, config: Dict=None):
+
+    def __init__(self, model_output: List[Dict], config: Dict=None):
         self.model_output = model_output
         self.config = config
 
