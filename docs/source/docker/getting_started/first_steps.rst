@@ -103,7 +103,7 @@ Now, let's see how this will look in action!
 .. warning:: Don't forget to replace **INPUT_DIR** and **OUTPUT_DIR** with the path 
              to your local input and output directory. You must not change the 
              path after the **:** since this path is describing the internal
-             file system within the containe!
+             file system within the container!
 
 Embedding and Sampling a Dataset
 -----------------------------------
