@@ -12,3 +12,8 @@ lightly.transforms
 ---------------
 .. automodule:: lightly.transforms.rotation
    :members:
+
+.solarize
+---------------
+.. automodule:: lightly.transforms.solarize
+   :members:
