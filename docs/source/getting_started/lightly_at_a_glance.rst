@@ -56,6 +56,13 @@ Let's now load an image dataset and create a PyTorch dataloader with the collate
         shuffle=True,           # shuffling is important!
         collate_fn=collate_fn)  # apply transformations to the input images
 
+.. note:: You can also use a custom PyTorch `Dataset` instead of the 
+          `LightlyDataset`. Just make sure your `Dataset` implementation returns
+          a tuple of (sample, target, fname) to support the basic functions
+          for training models. See :py:class:`lightly.data.dataset`
+          for more information.
+
+
 Head to the next section to see how you can train a ResNet on the data you just prepared.
 
 Training
@@ -102,6 +109,33 @@ Put everything together in an embedding model and train it for 10 epochs on a si
     embedding_model.train_embedding(gpus=1, max_epochs=10)
 
 Congrats, you just trained your first model using self-supervised learning!
+
+You can also train the model using PyTorch Lightning directly.
+
+.. code-block:: python
+
+    trainer = pl.Trainer(max_epochs=max_epochs, gpus=1)
+    trainer.fit(
+        model,
+        dataloader
+    )
+
+To train on a machine with multiple GPUs we recommend using the 
+`distributed data parallel` backend.
+
+.. code-block:: python
+
+    # if we have a machine with 4 GPUs we set gpus=4
+    trainer = pl.Trainer(
+        max_epochs=max_epochs, 
+        gpus=4, 
+        distributed_backend='ddp'
+    )
+    trainer.fit(
+        model,
+        dataloader
+    )
+
 
 Embeddings
 ^^^^^^^^^^
