@@ -108,3 +108,11 @@ class TestObjectDetectionOutput(unittest.TestCase):
                 [1, 2]
             )
 
+        with self.assertRaises(ValueError):
+            # string labels
+            ObjectDetectionOutput.from_scores(
+                [BoundingBox(0, 0, 1, 1)],
+                [1.1],
+                ['hello'],
+            )
+
