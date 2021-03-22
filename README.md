@@ -18,6 +18,8 @@ Lightly is a computer vision framework for self-supervised learning.
 
 ### Features
 
+Lightly offers features like
+
 - modular framework
 - support for multi-gpu training using PyTorch Lightning
 - easy to use and written in a PyTorch like style
@@ -64,8 +66,8 @@ We strongly recommend that you install Lightly in a dedicated virtualenv, to avo
 
 ### Lightly in Action
 
-With lighlty you can use latest self-supervised learning methods in a modular
-way using the full power of PyTorch. Experiment with differnt backbones,
+With lightly you can use latest self-supervised learning methods in a modular
+way using the full power of PyTorch. Experiment with different backbones,
 models and loss functions. The framework has been designed to be easy to use
 from the ground up.
 
@@ -161,7 +163,7 @@ The embeddings with the corresponding filename are stored in a
 ### Benchmarks
 
 Currently implemented models and their accuracy on cifar10. All models have been evaluated using kNN. We report the max test accuracy over the epochs as well as the maximum GPU memory consumption. All models in this benchmark use the same augmentations as well as the same ResNet-18 backbone. Training precision is set to FP32 and SGD is used as an optimizer with cosineLR.
-One epoch on cifar10 takes ~35 secondson a V100 GPU. [Learn more about the cifar10 benchmark here](https://docs.lightly.ai/getting_started/benchmarks.html)
+One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifar10 benchmark here](https://docs.lightly.ai/getting_started/benchmarks.html)
 
 | Model   | Epochs | Batch Size | Test Accuracy |
 |---------|--------|------------|---------------|
