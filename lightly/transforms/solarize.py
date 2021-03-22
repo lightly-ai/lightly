@@ -26,7 +26,7 @@ class RandomSolarization(object):
         self.threshold = threshold
 
     def __call__(self, sample):
-        """Solarizes the giving input image
+        """Solarizes the given input image
 
         Args:
             sample:
