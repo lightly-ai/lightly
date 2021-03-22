@@ -23,6 +23,12 @@ class ObjectDetectionOutput:
                              f'but are {len(boxes)}, {len(scores)}, and '
                              f'{len(labels)}')
 
+        if any([score > 1 for score in scores]):
+            raise ValueError('Scores must be smaller than or equal to one!')
+
+        if any([score < 0 for score in scores]):
+            raise ValueError('Scores must be larger than or equal to zero!')
+
         self.boxes = boxes
         self.scores = scores
         self.labels = labels
