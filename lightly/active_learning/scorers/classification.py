@@ -54,7 +54,7 @@ class ScorerClassification(Scorer):
 
     """
     def __init__(self, model_output: np.ndarray):
-        self.model_output = model_output
+        super(ScorerClassification, self).__init__(model_output)
 
     def _calculate_scores(self) -> Dict[str, np.ndarray]:
         scores = dict()
