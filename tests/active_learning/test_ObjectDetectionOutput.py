@@ -2,11 +2,9 @@ import unittest
 
 from lightly.active_learning.utils.bounding_box import BoundingBox
 from lightly.active_learning.utils.object_detection_output import ObjectDetectionOutput
-from lightly.active_learning.scorers.detection import ScorerObjectDetection
 
 
-
-class TestScorerObjectDetection(unittest.TestCase):
+class TestObjectDetectionOutput(unittest.TestCase):
 
     def setUp(self):
         self.dummy_data = [
@@ -48,9 +46,6 @@ class TestScorerObjectDetection(unittest.TestCase):
             }
         ]
 
-
-    def test_object_detection_scorer(self):
-
         # convert bounding boxes
         W, H = 128, 128
         for data in self.dummy_data:
@@ -61,20 +56,63 @@ class TestScorerObjectDetection(unittest.TestCase):
                 y1 = box[3] / H
                 data['boxes'][i] = BoundingBox(x0, y0, x1, y1)
 
+    def test_object_detection_output(self):
+        
+        outputs_1 = []
+        outputs_2 = []
         for i, data in enumerate(self.dummy_data):
-            self.dummy_data[i] = ObjectDetectionOutput(
+            output = ObjectDetectionOutput(
                 data['boxes'],
                 data['object_probabilities'],
                 data['class_probabilities'],
             )
+            outputs_1.append(output)
 
-        scorer = ScorerObjectDetection(self.dummy_data)
-        scores = scorer._calculate_scores()
+            scores = [o * max(c) for o, c in zip(data['object_probabilities'], data['class_probabilities'])]
+            output_2 = ObjectDetectionOutput.from_scores(
+                data['boxes'],
+                scores,
+                data['labels'],
+            )
 
-        res = scores['object-frequency']
-        self.assertEqual(len(res), len(self.dummy_data))
-        self.assertListEqual(res.tolist(), [1.0, 0.95, 0.9])
+        for output_1, output_2 in zip(outputs_1, outputs_2):
+            for x, y in zip(output_1.labels, output_2.labels):
+                self.assertEqual(x, y)
+            for x, y in zip(output_1.scores, output_2.scores):
+                self.assertEqual(x, y)
 
-        res = scores['prediction-margin']
-        self.assertEqual(len(res), len(self.dummy_data))
-        self.assertListEqual(res.tolist(), [0.5514945, 0.9488, 0.])
+
+    def test_object_detection_output_illegal_args(self):
+
+        with self.assertRaises(ValueError):
+            # score > 1
+            ObjectDetectionOutput.from_scores(
+                [BoundingBox(0, 0, 1, 1)],
+                [1.1],
+                [0]
+            )
+
+        with self.assertRaises(ValueError):
+            # score < 0
+            ObjectDetectionOutput.from_scores(
+                [BoundingBox(0, 0, 1, 1)],
+                [-1.],
+                [1]
+            )
+
+        with self.assertRaises(ValueError):
+            # different length
+            ObjectDetectionOutput(
+                [BoundingBox(0, 0, 1, 1)],
+                [0.5, 0.2],
+                [1, 2]
+            )
+
+        with self.assertRaises(ValueError):
+            # string labels
+            ObjectDetectionOutput.from_scores(
+                [BoundingBox(0, 0, 1, 1)],
+                [1.1],
+                ['hello'],
+            )
+
