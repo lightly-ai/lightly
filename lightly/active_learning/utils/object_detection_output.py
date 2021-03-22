@@ -9,7 +9,31 @@ from lightly.active_learning.utils.bounding_box import BoundingBox
 
 
 class ObjectDetectionOutput:
-    """TODO
+    """Class which unifies different object detection output formats.
+
+    Attributes:
+        boxes:
+            List of BoundingBox objects with coordinates (x0, y0, x1, y1).
+        scores:
+            List of confidence scores (i.e. max(class prob) * objectness).
+        labels:
+            List of labels.
+
+    Examples:
+        >>> # typical model output
+        >>> prediction = {
+        >>>     'boxes': [[0.1, 0.2, 0.3, 0.4]],
+        >>>     'scores': [0.1234],
+        >>>     'labels': [1]
+        >>> }
+        >>>
+        >>> # convert bbox to objects
+        >>> boxes = [BoundingBox(0.1, 0.2, 0.3, 0.4)]
+        >>> scores = prediction['scores']
+        >>> labels = prediction['labels']
+        >>>
+        >>> # create detection output
+        >>> detection_output = ObjectDetectionOutput(boxes, scores, labels)
 
     """
 
@@ -39,10 +63,32 @@ class ObjectDetectionOutput:
                                  object_probabilities: List[float],
                                  class_probabilities: List[List[float]],
                                  labels: List[int]):
-        """TODO
+        """Helper to convert from output format with class probabilities.
+
+        Examples:
+            >>> # typical model output
+            >>> prediction = {
+            >>>     'boxes': [[0.1, 0.2, 0.3, 0.4]],
+            >>>     'object_probabilities': [0.6],
+            >>>     'class_probabilities': [0.1, 0.5],
+            >>>     'labels': [1]
+            >>> }
+            >>>
+            >>> # convert bbox to objects
+            >>> boxes = [BoundingBox(0.1, 0.2, 0.3, 0.4)]
+            >>> object_probabilities = prediction['object_probabilities']
+            >>> class_probabilities = prediction['class_probabilities']
+            >>> labels = prediction['labels']
+            >>>
+            >>> # create detection output
+            >>> detection_output = ObjectDetectionOutput.from_class_probabilities(
+            >>>     boxes,
+            >>>     object_probabilities,
+            >>>     class_probabilities,
+            >>>     labels
+            >>> )
 
         """
-
         scores = []
         for o, c in zip(object_probabilities, class_probabilities):
             # calculate the score as the object probability times the maximum

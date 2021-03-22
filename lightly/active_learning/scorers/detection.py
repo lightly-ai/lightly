@@ -12,8 +12,8 @@ def _object_frequency(model_output: List[ObjectDetectionOutput],
     """Score which prefers samples with many and diverse objects.
 
     Args:
-        model_outputs:
-            Predictions of the model.
+        model_output:
+            Predictions of the model of length N.
         frequency_penalty:
             Penalty applied on multiple objects of the same category. A value
             of 0.25 would count the first object fully and every additional
@@ -45,7 +45,14 @@ def _object_frequency(model_output: List[ObjectDetectionOutput],
 
 
 def _prediction_margin(model_output: List[ObjectDetectionOutput]):
-    """TODO
+    """Score which prefers samples with low max(class prob) * objectness.
+
+    Args:
+        model_output:
+            Predictions of the model of length N.
+
+    Returns:
+        Numpy array of length N with the computed scores.
 
     """
     scores = []
@@ -66,17 +73,24 @@ class ScorerObjectDetection(Scorer):
 
     Attributes:
         model_output:
-            TODO
+            List of model outputs in an object detection setting.
         config:
             A dictionary containing additional parameters for the scorers.
 
     Examples:
-        >>> predictions = [{
-        >>>     'boxes': [[14, 16, 52, 85]],
-        >>>     'object_probabilities': [0.1024],
-        >>>     'class_probabilities': [[0.5, 0.41, 0.09]]
-        >>> }]
-        >>> scorer = ScorerObjectDetection(predictions)
+        >>> # from output with scores
+        >>> detection_outputs = ObjectDetectionOutput(boxes, scores, labels)
+        >>> scorer = ScorerObjectDetection(detection_outputs)
+        >>>
+        >>> # from output with class probabilities
+        >>> detection_output = ObjectDetectionOutput.from_class_probabilities(
+        >>>     boxes,
+        >>>     object_probabilities,
+        >>>     class_probabilities,
+        >>>     labels
+        >>> )
+        >>> scorer = ScorerObjectDetection(detection_output)
+
     """
 
     def __init__(self,

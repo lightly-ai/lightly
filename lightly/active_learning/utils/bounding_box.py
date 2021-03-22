@@ -5,7 +5,28 @@
 
 
 class BoundingBox:
-    """TODO
+    """Class which unifies different bounding box formats.
+
+    Attributes:
+        x0:
+            x0 coordinate (normalized to [0, 1])
+        y0:
+            y0 coordinate (normalized to [0, 1])
+        x1:
+            x1 coordinate (normalized to [0, 1])
+        y1:
+            y1 coordinate (normalized to [0, 1])
+
+    Examples:
+    >>> # simple case
+    >>> bbox = BoundingBox(0.1, 0.2, 0.3, 0.4)
+    >>>
+    >>> # same bounding box in x, y, w, h format
+    >>> bbox = BoundingBox.from_x_y_w_h(0.1, 0.2, 0.2, 0.2)
+    >>>
+    >>> # same bounding box with prior normalization
+    >>> W, H = 100, 100 # get image shape
+    >>> bbox = BoundingBox(10 / W, 20 / H, 30 / W, 40 / H)
 
     """
 
@@ -37,28 +58,31 @@ class BoundingBox:
 
     @classmethod
     def from_x_y_w_h(cls, x: float, y: float, w: float, h: float):
-        """
+        """Helper to convert from bounding box format with width and height.
+
+        Examples:
+        >>> bbox = BoundingBox.from_x_y_w_h(0.1, 0.2, 0.2, 0.2)
 
         """
         return cls(x, y, x + w, y + h)
 
     @property
     def width(self):
-        """
+        """Returns the width of the bounding box relative to the image size.
 
         """
         return self.x1 - self.x0
 
     @property
     def height(self):
-        """
+        """Returns the height of the bounding box relative to the image size.
 
         """
         return self.y1 - self.y0
 
     @property
     def area(self):
-        """
+        """Returns the area of the bounding box relative to the area of the image.
 
         """
         return self.width * self.height
