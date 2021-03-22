@@ -78,18 +78,32 @@ class ScorerObjectDetection(Scorer):
             A dictionary containing additional parameters for the scorers.
 
     Examples:
-        >>> # from output with scores
-        >>> detection_outputs = ObjectDetectionOutput(boxes, scores, labels)
-        >>> scorer = ScorerObjectDetection(detection_outputs)
+        >>> # typical model output
+        >>> predictions = [{
+        >>>     'boxes': [[0.1, 0.2, 0.3, 0.4]],
+        >>>     'object_probabilities': [0.1024],
+        >>>     'class_probabilities': [[0.5, 0.41, 0.09]]
+        >>> }]
         >>>
-        >>> # from output with class probabilities
-        >>> detection_output = ObjectDetectionOutput.from_class_probabilities(
-        >>>     boxes,
-        >>>     object_probabilities,
-        >>>     class_probabilities,
-        >>>     labels
-        >>> )
-        >>> scorer = ScorerObjectDetection(detection_output)
+        >>> # generate detection outputs
+        >>> model_output = []
+        >>> for prediction in predictions:
+        >>>     # convert each box to a BoundingBox object
+        >>>     boxes = []
+        >>>     for box in prediction['boxes']:
+        >>>         x0, x1 = box[0], box[2]
+        >>>         y0, y1 = box[1], box[3]
+        >>>         boxes.append(BoundingBox(x0, y0, x1, y1))
+        >>>     # create detection outputs
+        >>>     output = ObjectDetectionOutput(
+        >>>         boxes,
+        >>>         prediction['object_probabilities'],
+        >>>         prediction['class_probabilities']
+        >>>     )
+        >>>     model_output.append(output)
+        >>>
+        >>> # create scorer from output
+        >>> scorer = ScorerObjectDetection(model_output)
 
     """
 

@@ -62,11 +62,10 @@ class TestScorerObjectDetection(unittest.TestCase):
                 data['boxes'][i] = BoundingBox(x0, y0, x1, y1)
 
         for i, data in enumerate(self.dummy_data):
-            self.dummy_data[i] = ObjectDetectionOutput.from_class_probabilities(
+            self.dummy_data[i] = ObjectDetectionOutput(
                 data['boxes'],
                 data['object_probabilities'],
                 data['class_probabilities'],
-                data['labels'],
             )
 
         scorer = ScorerObjectDetection(self.dummy_data)

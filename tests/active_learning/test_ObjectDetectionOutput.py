@@ -57,19 +57,36 @@ class TestObjectDetectionOutput(unittest.TestCase):
                 data['boxes'][i] = BoundingBox(x0, y0, x1, y1)
 
     def test_object_detection_output(self):
+        
+        outputs_1 = []
+        outputs_2 = []
         for i, data in enumerate(self.dummy_data):
-            self.dummy_data[i] = ObjectDetectionOutput.from_class_probabilities(
+            output = ObjectDetectionOutput(
                 data['boxes'],
                 data['object_probabilities'],
                 data['class_probabilities'],
+            )
+            outputs_1.append(output)
+
+            scores = [o * max(c) for o, c in zip(data['object_probabilities'], data['class_probabilities'])]
+            output_2 = ObjectDetectionOutput.from_scores(
+                data['boxes'],
+                scores,
                 data['labels'],
             )
+
+        for output_1, output_2 in zip(outputs_1, outputs_2):
+            for x, y in zip(output_1.labels, output_2.labels):
+                self.assertEqual(x, y)
+            for x, y in zip(output_1.scores, output_2.scores):
+                self.assertEqual(x, y)
+
 
     def test_object_detection_output_illegal_args(self):
 
         with self.assertRaises(ValueError):
             # score > 1
-            ObjectDetectionOutput(
+            ObjectDetectionOutput.from_scores(
                 [BoundingBox(0, 0, 1, 1)],
                 [1.1],
                 [0]
@@ -77,7 +94,7 @@ class TestObjectDetectionOutput(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             # score < 0
-            ObjectDetectionOutput(
+            ObjectDetectionOutput.from_scores(
                 [BoundingBox(0, 0, 1, 1)],
                 [-1.],
                 [1]
