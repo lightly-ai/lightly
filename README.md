@@ -16,7 +16,16 @@ Lightly is a computer vision framework for self-supervised learning.
 - [Github](https://github.com/lightly-ai/lightly)
 - [Discord](https://discord.gg/xvNJW94)
 
-### Supported Models
+### Features
+
+Lightly offers features like
+
+- modular framework
+- support for multi-gpu training using PyTorch Lightning
+- easy to use and written in a PyTorch like style
+- supports custom backbone models for self-supervised pre-training
+
+#### Supported Models
 
 - [MoCo, 2019](https://arxiv.org/abs/1911.05722)
 - [SimCLR, 2020](https://arxiv.org/abs/2002.05709)
@@ -33,41 +42,11 @@ Want to jump to the tutorials and see lightly in action?
 - [Train SimSiam on satellite images](https://docs.lightly.ai/tutorials/package/tutorial_simsiam_esa.html)
 - [Use lightly with custom augmentations](https://docs.lightly.ai/tutorials/package/tutorial_custom_augmentations.html)
 
-
-### Benchmarks
-
-Currently implemented models and their accuracy on cifar10. All models have been evaluated using kNN. We report the max test accuracy over the epochs as well as the maximum GPU memory consumption. All models in this benchmark use the same augmentations as well as the same ResNet-18 backbone. Training precision is set to FP32 and SGD is used as an optimizer with cosineLR.
-One epoch on cifar10 takes ~35 secondson a V100 GPU. [Learn more about the cifar10 benchmark here](https://docs.lightly.ai/getting_started/benchmarks.html)
-
-| Model   | Epochs | Batch Size | Test Accuracy | Peak GPU usage |
-|---------|--------|------------|---------------|----------------|
-| MoCo    |  200   | 128        | 0.83          | 2.1 GBytes     |
-| SimCLR  |  200   | 128        | 0.78          | 2.0 GBytes     |
-| SimSiam |  200   | 128        | 0.73          | 3.0 GBytes     |
-| MoCo    |  200   | 512        | 0.85          | 7.4 GBytes     |
-| SimCLR  |  200   | 512        | 0.83          | 7.8 GBytes     |
-| SimSiam |  200   | 512        | 0.81          | 7.0 GBytes     |
-| MoCo    |  800   | 128        | 0.89          | 2.1 GBytes     |
-| SimCLR  |  800   | 128        | 0.87          | 1.9 GBytes     |
-| SimSiam |  800   | 128        | 0.80          | 2.0 GBytes     |
-| MoCo    |  800   | 512        | 0.90          | 7.2 GBytes     |
-| SimCLR  |  800   | 512        | 0.89          | 7.7 GBytes     |
-| SimSiam |  800   | 512        | 0.91          | 6.9 GBytes     |
-
-
-## Terminology
-
-Below you can see a schematic overview of the different concepts present in the lightly Python package. The terms in bold are explained in more detail in our [documentation](https://docs.lightly.ai).
-
-<img src="docs/source/images/lightly_overview.png" alt="Overview of the lightly pip package"/></a>
-
-
-
 ## Quick Start
 
 Lightly requires **Python 3.6+**. We recommend installing Lightly in a **Linux** or **OSX** environment.
 
-### Requirements
+### Dependencies
 
 - hydra-core>=1.0.0
 - numpy>=1.18.1
@@ -83,6 +62,83 @@ pip3 install lightly
 ```
 
 We strongly recommend that you install Lightly in a dedicated virtualenv, to avoid conflicting with your system packages.
+
+
+### Lightly in Action
+
+With lightly you can use latest self-supervised learning methods in a modular
+way using the full power of PyTorch. Experiment with different backbones,
+models and loss functions. The framework has been designed to be easy to use
+from the ground up.
+
+```python
+import torch
+import torchvision
+import lightly.models as models
+import lightly.loss as loss
+import lightly.data as data
+
+# the collate function applies random transforms to the input images
+collate_fn = data.ImageCollateFunction(input_size=32, cj_prob=0.5)
+
+# create a dataset from your image folder
+dataset = data.LightlyDataset(input_dir='./my/cute/cats/dataset/')
+
+# build a PyTorch dataloader
+dataloader = torch.utils.data.DataLoader(
+    dataset,                # pass the dataset to the dataloader
+    batch_size=128,         # a large batch size helps with the learning
+    shuffle=True,           # shuffling is important!
+    collate_fn=collate_fn)  # apply transformations to the input images
+
+# use a resnet backbone
+resnet = torchvision.models.resnet.resnet18()
+resnet = nn.Sequential(*list(resnet.children())[:-1])
+
+# build the simclr model
+model = models.SimCLR(resnet, num_ftrs=512)
+
+# use a criterion for self-supervised learning
+criterion = loss.NTXentLoss(temperature=0.5)
+
+# get a PyTorch optimizer
+optimizer = torch.optim.SGD(model.parameters(), lr=1e-0, weight_decay=1e-5)
+```
+
+You can easily use another model like SimSiam by swapping the model and the
+loss function.
+```python
+# build the simsiam model
+model = models.SimSiam(resnet, num_ftrs=512)
+
+# use the SimSiam loss function
+criterion = loss.SymNegCosineSimilarityLoss()
+```
+
+Use PyTorch Lightning to train the model:
+
+```python
+trainer = pl.Trainer(max_epochs=max_epochs, gpus=1)
+trainer.fit(
+    model,
+    dataloader
+)
+```
+
+Or train the model on 4 GPUs:
+```python
+trainer = pl.Trainer(
+    max_epochs=max_epochs, 
+    gpus=4, 
+    distributed_backend='ddp'
+)
+trainer.fit(
+    model,
+    dataloader
+)
+```
+
+
 
 ### Command-Line Interface
 
@@ -102,6 +158,35 @@ lightly-embed input_dir=/mydataset checkpoint=/mycheckpoint
 
 The embeddings with the corresponding filename are stored in a 
 [human-readable .csv file](https://docs.lightly.ai/getting_started/command_line_tool.html#create-embeddings-using-the-cli).
+
+
+### Benchmarks
+
+Currently implemented models and their accuracy on cifar10. All models have been evaluated using kNN. We report the max test accuracy over the epochs as well as the maximum GPU memory consumption. All models in this benchmark use the same augmentations as well as the same ResNet-18 backbone. Training precision is set to FP32 and SGD is used as an optimizer with cosineLR.
+One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifar10 benchmark here](https://docs.lightly.ai/getting_started/benchmarks.html)
+
+| Model   | Epochs | Batch Size | Test Accuracy |
+|---------|--------|------------|---------------|
+| MoCo    |  200   | 128        | 0.83          |
+| SimCLR  |  200   | 128        | 0.78          |
+| SimSiam |  200   | 128        | 0.73          |
+| MoCo    |  200   | 512        | 0.85          |
+| SimCLR  |  200   | 512        | 0.83          |
+| SimSiam |  200   | 512        | 0.81          |
+| MoCo    |  800   | 128        | 0.89          |
+| SimCLR  |  800   | 128        | 0.87          |
+| SimSiam |  800   | 128        | 0.80          |
+| MoCo    |  800   | 512        | 0.90          |
+| SimCLR  |  800   | 512        | 0.89          |
+| SimSiam |  800   | 512        | 0.91          |
+
+
+## Terminology
+
+Below you can see a schematic overview of the different concepts present in the lightly Python package. The terms in bold are explained in more detail in our [documentation](https://docs.lightly.ai).
+
+<img src="docs/source/images/lightly_overview.png" alt="Overview of the lightly pip package"/></a>
+
 
 ### Next Steps
 Head to the [documentation](https://docs.lightly.ai) and see the things you can achieve with Lightly!
