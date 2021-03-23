@@ -50,6 +50,8 @@ The framework is structured into the following modules:
 
   - SimSiam
 
+  - Barlow Twins
+
 - **transforms**:
 
   The lightly.transforms module implements custom data transforms. Currently implements:
@@ -57,6 +59,8 @@ The framework is structured into the following modules:
   - Gaussian Blur
 
   - Random Rotation
+
+  - Random Solarization
 
 - **utils**:
 
@@ -70,7 +74,7 @@ The framework is structured into the following modules:
 # All Rights Reserved
 
 __name__ = 'lightly'
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 
 
 try:
