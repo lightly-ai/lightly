@@ -302,6 +302,34 @@ To make it easier for you to understand and discuss the dataset we put the essen
 an automatically generated PDF report.
 Sample reports can be found on the `Lightly website <https://lightly.ai/analytics>`_.
 
+
+.. _ref-docker-runs:
+
+Live View of Docker Status
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can get a live status update of the currently running docker runs through 
+the `cloud platform <https://app.lightly.ai>`_. 
+
+To use the new feature simply follow the steps:
+
+#. Make sure you have the latest docker version installed
+   (see :ref:`ref-docker-download-and-install`) 
+#. Open a browser and navigate to the `Lightly Platform <https://app.lightly.ai>`_
+#. In the navigation menu on the top click on **My Docker Runs**
+#. Once you start the Lightly Docker you should see the dashboard of the current
+   run. Please make sure that you use the same token for the docker run as you
+   find in the dashboard.
+
+In the dashboard, you see a 
+list of your docker runs and a live update of the active runs. Use this
+view to see whether the data selection is still running as expected.
+
+.. image:: images/docker_runs_overview.png
+
+.. note:: Note that only status updates and error messages are transmitted. 
+
+
 Docker Output
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -340,15 +368,15 @@ Below you find a typical output folder structure.
     |-- config
     |   |-- config.yaml
     |   |-- hydra.yaml
-    |   `-- overrides.yaml
+    |   '-- overrides.yaml
     |-- data
     |   |-- embeddings.csv
-    |   `-- unique_embeddings.csv
+    |   '-- unique_embeddings.csv
     |-- filenames
     |   |-- corrupt_filenames.txt
     |   |-- duplicate_filenames.txt
     |   |-- removed_filenames.txt
-    |   `-- sampled_filenames.txt
+    |   '-- sampled_filenames.txt
     |-- plots
     |   |-- distance_distr_after.png
     |   |-- distance_distr_before.png
@@ -361,8 +389,8 @@ Below you find a typical output folder structure.
     |   |-- scatter_pca.png
     |   |-- scatter_pca_no_overlay.png
     |   |-- scatter_umap.png
-    |   `-- scatter_umap_no_overlay.png
-    `-- report.pdf
+    |   '-- scatter_umap_no_overlay.png
+    '-- report.pdf
 
 Evaluation of the Sampling Proces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
