@@ -23,6 +23,8 @@ container has a working internet connection and has access to
 https://api.lightly.ai.
 
 
+.. _ref-docker-download-and-install:
+
 Download the Docker Image
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -90,3 +92,7 @@ You should see an output similar to this one:
     [2020-11-12 12:49:38] Congratulations! It looks like the Lightly container is running!
 
 Head on to :ref:`rst-docker-first-steps`  to see how to sample your dataset!
+
+.. note:: To update the Lightly Docker to the latest version you can can do
+          a **docker pull ...** followed by a new **docker tag ...** as described
+          above.
