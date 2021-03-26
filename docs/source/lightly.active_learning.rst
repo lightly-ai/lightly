@@ -19,4 +19,6 @@ lightly.active_learning
    :members:
 .. automodule:: lightly.active_learning.scorers.classification
    :members:
+.. automodule:: lightly.active_learning.scorers.detection
+   :members:
 
