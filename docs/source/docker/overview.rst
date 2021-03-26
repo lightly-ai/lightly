@@ -12,6 +12,8 @@ and an easy way to work with lightly. But there is more!
 With the introduction of our on-premise solution, you can process larger datasets completely on your end without data leaving your infrastructure.
 We worked hard to make this happen and are very proud to present you with the following specs:
 
+* **NEW** See your docker runs live in the Lightly Platform (see :ref:`ref-docker-runs` )
+
 * **NEW** Lightly Docker has built-in pretagging models (see :ref:`ref-docker-pretagging` )
 
   * Use this feature to pre-label your dataset or to only select images which contain certain objects
