@@ -319,8 +319,7 @@ To use the new feature simply follow the steps:
 #. In the navigation menu on the top click on **My Docker Runs**
 #. Once you start the Lightly Docker you should see the dashboard of the current
    run. Please make sure that you use the same token for the docker run as you
-   use in the dashboard.
-
+   find in the dashboard.
 
 In the dashboard, you see a 
 list of your docker runs and a live update of the active runs. Use this
