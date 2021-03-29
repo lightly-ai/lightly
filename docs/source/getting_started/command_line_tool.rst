@@ -24,6 +24,22 @@ the CLI.
     </div>
 
 
+Check the installation of lightly
+-----------------------------------
+To see if the lightly command-line tool was installed correctly, you can run the
+following command which will print the installed lightly version:
+
+.. code-block:: bash
+
+    lightly-version
+
+If lightly was installed correctly, you should see something like this:
+
+.. code-block:: bash
+
+    lightly version 1.1.4
+
+
 Train a model using the CLI
 ---------------------------------------
 Training a model using default parameters can be done with just one command. Let's

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
-"""**Lightly Version:** Show version of installed package.
+"""**Lightly Version:** Show the version of the installed package.
 
+Example:
+    >>> # show the version of the installed package
+    >>> lightly-version
 """
 
 # Copyright (c) 2021. Lightly AG and its affiliates.
