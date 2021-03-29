@@ -3,11 +3,12 @@
 
 """
 
-# Copyright (c) 2020. Lightly AG and its affiliates.
+# Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
 import hydra
 import lightly
+
 
 def _version_cli():
     version = lightly.__version__
