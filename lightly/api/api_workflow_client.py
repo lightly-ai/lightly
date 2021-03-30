@@ -1,38 +1,32 @@
-import os
+import time
+import random
 import time
 import warnings
-import random
-from io import BytesIO
+from io import IOBase
 from typing import *
 
+import requests
 from requests import Response
 
 from lightly.__init__ import __version__
-
-import requests
-
-from lightly.api.version_checking import get_minimum_compatible_version, version_compare
-from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
-
 from lightly.api.api_workflow_datasets import _DatasetsMixin
-from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
-
-from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
-
-from lightly.api.utils import getenv
-
-from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
-from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_download_dataset import _DownloadDatasetMixin
 from lightly.api.api_workflow_sampling import _SamplingMixin
+from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
+from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
+from lightly.api.utils import getenv
+from lightly.api.version_checking import get_minimum_compatible_version, version_compare
 from lightly.openapi_generated.swagger_client import TagData, ScoresApi, QuotaApi
+from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
+from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
 from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
 from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
+from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
 
 
 class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMixin, _DownloadDatasetMixin,
@@ -138,7 +132,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
                 get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
         return self._filenames_on_server
 
-    def upload_file_with_signed_url(self, file: BytesIO, signed_write_url: str,
+    def upload_file_with_signed_url(self, file: IOBase, signed_write_url: str,
                                     max_backoff: int = 32, max_retries: int = 5) -> Response:
         """Uploads a file to a url via a put request.
 
