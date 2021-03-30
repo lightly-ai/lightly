@@ -1,8 +1,12 @@
 import os
+import time
 import warnings
+import random
 from typing import *
 
 from lightly.__init__ import __version__
+
+import requests
 
 from lightly.api.version_checking import get_minimum_compatible_version, version_compare
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
@@ -130,7 +134,30 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
                 get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
         return self._filenames_on_server
 
-    def upload_file_with_signed_url(self, file, signed_write_url: str):
-        response = self.api_client.request(method="PUT", url=signed_write_url,body=file)
-        file.close()
+    def upload_file_with_signed_url(self, file, signed_write_url: str, max_backoff=32, max_retries=5):
+
+        counter = 0
+        backoff = 1. + random.random() * 0.1
+        success = False
+        while not success:
+
+            response = requests.put(signed_write_url, data=file)
+            success = (response.status_code == 200)
+
+            # exponential backoff
+            if response.status_code in [500, 502]:
+                time.sleep(backoff)
+                backoff = 2 * backoff if backoff < max_backoff else backoff
+            # something went wrong
+            elif not success:
+                msg = f'Failed PUT request to {signed_write_url} with status_code '
+                msg += f'{response.status_code}.'
+                raise RuntimeError(msg)
+
+            counter += 1
+            if counter >= max_retries:
+                msg = f'The connection to the server at {signed_write_url} timed out. '
+                raise RuntimeError(msg)
+
+
         return response

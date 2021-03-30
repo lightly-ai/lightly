@@ -5,17 +5,13 @@
 
 import io
 import os
-import time
-import random
 
 import numpy as np
-import requests
-import warnings
 from PIL import Image, ImageFilter
-
 # the following two lines are needed because
 # PIL misidentifies certain jpeg images as MPOs
 from PIL import JpegImagePlugin
+
 JpegImagePlugin._getmp = lambda: None
 
 LEGAL_IMAGE_FORMATS = ['jpg', 'jpeg', 'png', 'tiff', 'bmp']
