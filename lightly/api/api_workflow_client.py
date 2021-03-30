@@ -12,7 +12,7 @@ from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsAp
 
 from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
 
-from lightly.api.utils import put_request, getenv
+from lightly.api.utils import getenv
 
 from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
@@ -131,6 +131,6 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
         return self._filenames_on_server
 
     def upload_file_with_signed_url(self, file, signed_write_url: str):
-        response = put_request(signed_write_url, data=file)
+        response = self.api_client.request(method="PUT", url=signed_write_url,body=file)
         file.close()
         return response
