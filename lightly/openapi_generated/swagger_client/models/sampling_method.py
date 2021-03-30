@@ -28,6 +28,7 @@ class SamplingMethod(object):
     """
     allowed enum values
     """
+    ACTIVE_LEARNING = "ACTIVE_LEARNING"
     CORAL = "CORAL"
     CORESET = "CORESET"
     RANDOM = "RANDOM"
