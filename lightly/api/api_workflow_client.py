@@ -2,7 +2,10 @@ import os
 import time
 import warnings
 import random
+from io import BytesIO
 from typing import *
+
+from requests import Response
 
 from lightly.__init__ import __version__
 
@@ -32,7 +35,8 @@ from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
 
 
-class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMixin, _DownloadDatasetMixin, _DatasetsMixin):
+class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMixin, _DownloadDatasetMixin,
+                        _DatasetsMixin):
     """Provides a uniform interface to communicate with the api 
     
     The APIWorkflowClient is used to communicaate with the Lightly API. The client
@@ -101,7 +105,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
             last_modified_dataset = datasets_sorted[-1]
             self._dataset_id = last_modified_dataset.id
             warnings.warn(UserWarning(f"Dataset has not been specified, "
-                          f"taking the last modified dataset {last_modified_dataset.name} as default dataset."))
+                                      f"taking the last modified dataset {last_modified_dataset.name} as default dataset."))
             return self._dataset_id
 
     def _get_all_tags(self) -> List[TagData]:
@@ -117,7 +121,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
                 Some values belonging to the samples
 
         Returns:
-            The list reorderd. The same reorder applied on the filenames_for_list
+            The list reordered. The same reorder applied on the filenames_for_list
             would put them in the order of the filenames in self.filenames_on_server
 
         """
@@ -134,7 +138,25 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
                 get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
         return self._filenames_on_server
 
-    def upload_file_with_signed_url(self, file, signed_write_url: str, max_backoff=32, max_retries=5):
+    def upload_file_with_signed_url(self, file: BytesIO, signed_write_url: str,
+                                    max_backoff: int = 32, max_retries: int = 5) -> Response:
+        """Uploads a file to a url via a put request.
+
+        Args:
+            file:
+                The file to upload.
+            signed_write_url:
+                The url to upload the file to. As no authorization is used,
+                the url must be a signed write url.
+            max_backoff:
+                Maximal backoff before retrying.
+            max_retries:
+                Maximum number of retries before timing out.
+
+        Returns:
+            The response of the put request, usually a 200 for the success case.
+
+        """
 
         counter = 0
         backoff = 1. + random.random() * 0.1
@@ -158,6 +180,5 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
             if counter >= max_retries:
                 msg = f'The connection to the server at {signed_write_url} timed out. '
                 raise RuntimeError(msg)
-
 
         return response
