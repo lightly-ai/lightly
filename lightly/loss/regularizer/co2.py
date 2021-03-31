@@ -46,7 +46,19 @@ class CO2Regularizer(MemoryBankModule):
                 memory_bank_size: int = 0):
 
         super(CO2Regularizer, self).__init__(size=memory_bank_size)
-        self.kl_div = torch.nn.KLDivLoss(reduction='batchmean', log_target=True)
+        # try-catch the KLDivLoss construction for backwards compatability
+        self.log_target = True
+        try:
+            self.kl_div = torch.nn.KLDivLoss(
+                reduction='batchmean',
+                log_target=True
+            )
+        except TypeError:
+            self.log_target = False
+            self.kl_div = torch.nn.KLDivLoss(
+                reduction='batchmean'
+            )
+
         self.t_consistency = t_consistency
         self.alpha = alpha
 
@@ -97,10 +109,8 @@ class CO2Regularizer(MemoryBankModule):
         # divide by temperature
         logits = logits / self.t_consistency
 
-        # the input to kl_div is expected to be log(p) and we set the
-        # flag log_target to True, so both probabilities should be passed as log
-        log_probs = torch.nn.functional.log_softmax(logits, dim=-1)
-        return log_probs
+        # the input to kl_div is expected to be log(p) 
+        return torch.nn.functional.log_softmax(logits, dim=-1)
 
 
     def forward(self,
@@ -135,5 +145,11 @@ class CO2Regularizer(MemoryBankModule):
         p = self._get_pseudo_labels(out0, out1, negatives)
         q = self._get_pseudo_labels(out1, out0, negatives)
         
-        # calculate kullback leibler divergence from log probabilities
-        return self.alpha * 0.5 * (self.kl_div(p, q) + self.kl_div(q, p))
+        # calculate symmetrized kullback leibler divergence
+        if self.log_target:
+            div = self.kl_div(p, q) + self.kl_div(q, p)
+        else:
+            # can't use log_target because of early torch version
+            div = self.kl_div(p, torch.exp(q)) + self.kl_div(q, torch.exp(p))
+
+        return self.alpha * 0.5 * div
