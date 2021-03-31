@@ -8,7 +8,7 @@ class SamplerConfig:
 
     Attributes:
         method:
-            The method to use for sampling, one of CORESET, RANDOM, CORAL
+            The method to use for sampling, one of CORESET, RANDOM, CORAL, ACTIVE_LEARNING
         n_samples:
             The maximum number of samples to be chosen by the sampler
             including the samples in the preselected tag. One of the stopping
