@@ -17,3 +17,9 @@ lightly.loss
 -------------
 .. autoclass:: lightly.loss.memory_bank.MemoryBankModule
    :members:
+
+
+.regularizer.co2
+-----------------
+.. autoclass:: lightly.loss.regularizer.co2.CO2Regularizer
+   :members:
