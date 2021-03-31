@@ -76,7 +76,7 @@ Next, you will need to initialize the `ApiWorkflowClient` and the `ActiveLearnin
 
     import lightly
     from lightly.api import ApiWorkflowClient
-    from lightly.active_learning import ActiveLearningAgent
+    from lightly.active_learning.agents import ActiveLearningAgent
 
     api_client = ApiWorkflowClient(dataset_id='xyz', token='123')
     al_agent = ActiveLearningAgent(api_client) 
@@ -94,7 +94,7 @@ Let's configure the sampling request and request an initial selection next:
 
 .. code-block:: Python
 
-   from lightly.active_learning import SamplerConfig
+   from lightly.active_learning.config import SamplerConfig
    from lightly.openapi_generated.swagger_client import SamplingMethod
 
    # we want an initial pool of 100 images
