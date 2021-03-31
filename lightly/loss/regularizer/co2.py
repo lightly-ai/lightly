@@ -58,29 +58,36 @@ class CO2Regularizer(MemoryBankModule):
 
         Args:
             out0:
-                Output projections of the first set of transformed images.
+                Output projections of the first set of transformed images (query).
+                Shape: bsz x n_ftrs
             out1:
-                Output projections of the second set of transformed images.
+                Output projections of the second set of transformed images (positive sample).
+                Shape: bsz x n_ftrs
             negatives:
                 Negative samples to compare against. If this is None, the second
                 batch of images will be used as negative samples.
+                Shape: memory_bank_size x n_ftrs
 
         Returns:
-            Log probability that a positive samples will classify each negative 
+            Log probability that a positive samples will classify each negative
             sample as the positive sample.
+            Shape: bsz x (bsz - 1) or bsz x memory_bank_size
 
         """
         batch_size, _ = out0.shape
         if negatives is None:
             # use second batch as negative samples
+            # l_pos has shape bsz x 1 and l_neg has shape bsz x bsz
             l_pos = torch.einsum('nc,nc->n', [out0, out1]).unsqueeze(-1)
             l_neg = torch.einsum('nc,ck->nk', [out0, out1.t()])
             # remove elements on the diagonal
+            # l_neg has shape bsz x (bsz - 1)
             l_neg = l_neg.masked_select(
                 ~torch.eye(batch_size, dtype=bool, device=l_neg.device)
             ).view(batch_size, batch_size - 1)
         else:
             # use memory bank as negative samples
+            # l_pos has shape bsz x 1 and l_neg has shape bsz x memory_bank_size
             negatives = negatives.to(out0.device)
             l_pos = torch.einsum('nc,nc->n', [out0, out1]).unsqueeze(-1)
             l_neg = torch.einsum('nc,ck->nk', [out0, negatives.clone().detach()])
@@ -120,6 +127,7 @@ class CO2Regularizer(MemoryBankModule):
         # out1 requires a gradient, otherwise keep the same vectors in the 
         # memory bank (this allows for keeping the memory bank constant e.g.
         # for evaluating the loss on the test set)
+        # if the memory_bank size is 0, negatives will be None
         out1, negatives = \
             super(CO2Regularizer, self).forward(out1, update=True)
         
