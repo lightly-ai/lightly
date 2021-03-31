@@ -8,7 +8,7 @@ class SamplerConfig:
 
     Attributes:
         method:
-            The method to use for sampling, e.g. CORESET.
+            The method to use for sampling, one of CORESET, RANDOM, CORAL
         n_samples:
             The maximum number of samples to be chosen by the sampler
             including the samples in the preselected tag. One of the stopping
@@ -20,6 +20,17 @@ class SamplerConfig:
             The name of this sampling, defaults to a name consisting of all
             other attributes and the datetime. A new tag will be created in the
             web-app under this name.
+
+    Examples:
+        >>> # sample 100 images with CORESET sampling
+        >>> config = SamplerConfig(method=SamplingMethod.CORESET, n_samples=100)
+        >>> config = SamplerConfig(method='CORESET', n_samples=100)
+        >>>
+        >>> # give your sampling a name
+        >>> config = SamplerConfig(method='CORESET', n_samples=100, name='my-sampling')
+        >>>
+        >>> # use minimum distance between samples as stopping criterion
+        >>> config = SamplerConfig(method='CORESET', n_samples=-1, min_distance=0.1)
 
     """
     def __init__(self, method: SamplingMethod = SamplingMethod.CORESET, n_samples: int = 32, min_distance: float = -1,

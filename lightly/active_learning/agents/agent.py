@@ -9,7 +9,7 @@ from lightly.openapi_generated.swagger_client.models import TagData
 
 
 class ActiveLearningAgent:
-    """A basic class providing an active learning policy
+    """Interface for active learning queries.
 
     Attributes:
         api_workflow_client:
@@ -22,6 +22,30 @@ class ActiveLearningAgent:
             The filenames of the samples in the labeled set, List[str]
         unlabeled_set:
             The filenames of the samples in the unlabeled set, List[str]
+
+    Examples:
+        >>> # set the token and dataset id
+        >>> token = '123'
+        >>> dataset_id = 'XYZ'
+        >>>
+        >>> # create an active learning agent
+        >>> client = ApiWorkflowClient(token, dataset_id)
+        >>> agent = ActiveLearningAgent(client)
+        >>>
+        >>> # make an initial active learning query
+        >>> sampler_config = SamplerConfig(n_samples=100, name='initial-set')
+        >>> initial_set = agent.query(sampler_config)
+        >>> unlabeled_set = agent.unlabeled_set
+        >>>
+        >>> # train and evaluate a model on the initial set
+        >>> # make predictions on the unlabeled set (keep ordering of filenames)
+        >>>
+        >>> # create active learning scorer
+        >>> scorer = ScorerClassification(predictions)
+        >>>
+        >>> # make a second active learning query
+        >>> sampler_config = SamplerConfig(n_samples=200, name='second-set')
+        >>> second_set = agent.query(sampler_config, scorer)
 
     """
 
