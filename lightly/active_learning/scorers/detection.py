@@ -71,11 +71,38 @@ def _prediction_margin(model_output: List[ObjectDetectionOutput]):
 class ScorerObjectDetection(Scorer):
     """Class to compute active learning scores from the model_output of an object detection task.
 
+    Currently supports the following scorers:
+
+        `object-frequency`:
+            This scorer uses model predictions to focus more on images which
+            have many objects in them. Use this scorer if you want scenes
+            with lots of objects in them like we usually want in
+            computer vision tasks such as perception in autonomous driving.
+
+        `prediction-margin`:
+            This scorer uses the margin between 1.0 and the highest confidence
+            prediction. Use this scorer to select images where the model is
+            insecure.
+
     Attributes:
         model_output:
             List of model outputs in an object detection setting.
         config:
             A dictionary containing additional parameters for the scorers.
+
+            `frequency_penalty` (float):
+                Used by the `object-frequency` scorer.
+                If objects of the same class are within the same sample we
+                multiply them with the penalty. 1.0 has no effect. 0.5 would
+                count the first object fully and the second object of the same
+                class only 50%. Lowering this value results in a more balanced
+                setting of the classes. 0.0 is max penalty. (default: 0.25)
+            `min_score` (float):
+                Used by the `object-frequency` scorer.
+                Specifies the minimum score per sample. All scores are
+                scaled to [`min_score`, 1.0] range. Lowering the number makes
+                the sampler focus more on samples with many objects.
+                (default: 0.9)
 
     Examples:
         >>> # typical model output
@@ -112,6 +139,43 @@ class ScorerObjectDetection(Scorer):
                  config: Dict = None):
         super(ScorerObjectDetection, self).__init__(model_output)
         self.config = config
+        self._check_config()
+
+    def _check_config(self):
+        default_conf = {
+            'frequency_penalty': 0.25,
+            'min_score': 0.9
+        }
+
+        # Check if we have a config dictionary passed in constructor
+        if self.config is not None and isinstance(self.config, dict):
+            # check if constructor received keys which are wrong
+            for k in self.config.keys():
+                if k not in default_conf.keys():
+                    raise KeyError(
+                        f'Scorer config parameter {k} is not a valid key. '
+                        f'Use one of: {default_conf.keys()}'
+                    )
+
+            # for now all values in config should be between 0.0 and 1.0 and numbers
+            for k, v in self.config.items():
+                if not (isinstance(v, float) or isinstance(v, int)):
+                    raise ValueError(
+                        f'Scorer config values must be numbers. However, '
+                        f'{k} has a value of type {type(v)}.'
+                    )
+
+                if v < 0.0 or v > 1.0:
+                    raise ValueError(
+                        f'Scorer config parameter {k} value ({v}) out of range. '
+                        f'Should be between 0.0 and 1.0.'
+                    )
+
+                # use default config if not specified in config
+                for k, v in default_conf.items():
+                    self.config[k] = self.config.get(k, v)
+        else:
+            self.config = default_conf
 
     def _calculate_scores(self) -> Dict[str, np.ndarray]:
         scores = dict()
@@ -120,7 +184,10 @@ class ScorerObjectDetection(Scorer):
         return scores
 
     def _get_object_frequency(self):
-        scores = _object_frequency(self.model_output, 0.25, 0.9)
+        scores = _object_frequency(
+            self.model_output,
+            self.config['frequency_penalty'],
+            self.config['min_score'])
         return scores
 
     def _get_prediction_margin(self):

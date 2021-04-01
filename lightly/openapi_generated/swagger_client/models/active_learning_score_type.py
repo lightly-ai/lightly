@@ -30,6 +30,7 @@ class ActiveLearningScoreType(object):
     """
     PREDICTION_ENTROPY = "prediction-entropy"
     PREDICTION_MARGIN = "prediction-margin"
+    OBJECT_FREQUENCY = "object-frequency"
     BALD = "BALD"
 
     """

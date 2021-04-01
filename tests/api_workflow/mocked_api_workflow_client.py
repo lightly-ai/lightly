@@ -1,4 +1,7 @@
 import unittest
+from io import IOBase
+
+from requests import Response
 
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
 
@@ -10,7 +13,6 @@ import lightly
 
 from lightly.api.api_workflow_client import ApiWorkflowClient
 
-from io import BufferedReader
 from typing import *
 
 from lightly.openapi_generated.swagger_client import ScoresApi, CreateEntityResponse, SamplesApi, SampleCreateRequest, \
@@ -180,16 +182,12 @@ class MockedQuotaApi(QuotaApi):
     def get_quota_maximum_dataset_size(self, **kwargs):
         return "60000"
 
-def mocked_upload_file_with_signed_url(file: str, url: str, mocked_return_value=True) -> bool:
-    assert isinstance(file, BufferedReader)
-    assert isinstance(url, str)
-    return mocked_return_value
-
-
-def mocked_put_request(dst_url, data=None, params=None, json=None, max_backoff=32, max_retries=5) -> bool:
+def mocked_request_put(dst_url: str, data=IOBase) -> Response:
     assert isinstance(dst_url, str)
-    success = True
-    return success
+    assert isinstance(data, IOBase)
+    response_ = Response()
+    response_.status_code = 200
+    return response_
 
 
 class MockedApiClient(ApiClient):
@@ -223,7 +221,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         self.datasets_api = MockedDatasetsApi(api_client=self.api_client)
         self.quota_api = MockedQuotaApi(api_client=self.api_client)
 
-        lightly.api.api_workflow_client.put_request = mocked_put_request
+        lightly.api.api_workflow_client.requests.put = mocked_request_put
 
         self.wait_time_till_next_poll = 0.001  # for api_workflow_sampling
 

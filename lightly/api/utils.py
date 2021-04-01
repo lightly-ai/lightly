@@ -5,17 +5,13 @@
 
 import io
 import os
-import time
-import random
 
 import numpy as np
-import requests
-import warnings
 from PIL import Image, ImageFilter
-
 # the following two lines are needed because
 # PIL misidentifies certain jpeg images as MPOs
 from PIL import JpegImagePlugin
+
 JpegImagePlugin._getmp = lambda: None
 
 LEGAL_IMAGE_FORMATS = ['jpg', 'jpeg', 'png', 'tiff', 'bmp']
@@ -239,56 +235,3 @@ def check_image(image):
 
     metadata['is_corrupted'] = is_corrupted
     return metadata
-
-def put_request(dst_url, data=None, params=None, json=None,
-                max_backoff=32, max_retries=5):
-    """Makes a PUT request with random offset retries.
-
-    Args:
-        dst_url:
-            Url the PUT request is made to.
-        data:
-            PUT data.
-        params:
-            PUT parameters.
-        json:
-            PUT json.
-        max_backoff:
-            Maximal backoff before throwing timing out.
-        max_retries:
-            Maximum number of retries before timing out.
-
-    Returns:
-        The server response.
-
-    Raises:
-        RuntimeError if the request fails.
-
-    """
-    counter = 0
-    backoff = 1. + random.random() * 0.1
-    success = False
-    while not success:
-
-        response = requests.put(dst_url, data=data, json=json, params=params)
-        success = (response.status_code == 200)
-
-        # exponential backoff
-        if response.status_code in [500, 502]:
-            time.sleep(backoff)
-            backoff = 2*backoff if backoff < max_backoff else backoff
-        # something went wrong
-        elif not success:
-            msg = f'Failed PUT request to {dst_url} with status_code '
-            msg += f'{response.status_code}.'
-            raise RuntimeError(msg)
-
-        counter += 1
-        if counter >= max_retries:
-            break
-
-    if not success:
-        msg = f'The connection to the server at {dst_url} timed out. '
-        raise RuntimeError(msg)
-
-    return response
