@@ -35,16 +35,18 @@ class SampleCreateRequest(object):
     swagger_types = {
         'file_name': 'str',
         'thumb_name': 'str',
+        'exif': 'dict(str, object)',
         'meta_data': 'SampleMetaData'
     }
 
     attribute_map = {
         'file_name': 'fileName',
         'thumb_name': 'thumbName',
+        'exif': 'exif',
         'meta_data': 'metaData'
     }
 
-    def __init__(self, file_name=None, thumb_name=None, meta_data=None, _configuration=None):  # noqa: E501
+    def __init__(self, file_name=None, thumb_name=None, exif=None, meta_data=None, _configuration=None):  # noqa: E501
         """SampleCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -52,12 +54,15 @@ class SampleCreateRequest(object):
 
         self._file_name = None
         self._thumb_name = None
+        self._exif = None
         self._meta_data = None
         self.discriminator = None
 
         self.file_name = file_name
         if thumb_name is not None:
             self.thumb_name = thumb_name
+        if exif is not None:
+            self.exif = exif
         if meta_data is not None:
             self.meta_data = meta_data
 
@@ -104,6 +109,27 @@ class SampleCreateRequest(object):
         """
 
         self._thumb_name = thumb_name
+
+    @property
+    def exif(self):
+        """Gets the exif of this SampleCreateRequest.  # noqa: E501
+
+
+        :return: The exif of this SampleCreateRequest.  # noqa: E501
+        :rtype: dict(str, object)
+        """
+        return self._exif
+
+    @exif.setter
+    def exif(self, exif):
+        """Sets the exif of this SampleCreateRequest.
+
+
+        :param exif: The exif of this SampleCreateRequest.  # noqa: E501
+        :type: dict(str, object)
+        """
+
+        self._exif = exif
 
     @property
     def meta_data(self):
