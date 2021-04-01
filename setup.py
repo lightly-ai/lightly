@@ -58,6 +58,7 @@ if __name__ == '__main__':
             "lightly-magic = lightly.cli.lightly_cli:entry",
             "lightly-upload = lightly.cli.upload_cli:entry",
             "lightly-download = lightly.cli.download_cli:entry",
+            "lightly-version = lightly.cli.version_cli:entry",
         ]
     }
 

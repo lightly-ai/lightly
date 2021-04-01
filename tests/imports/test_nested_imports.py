@@ -46,6 +46,8 @@ class TestNestedImports(unittest.TestCase):
         lightly.loss.SymNegCosineSimilarityLoss
         lightly.loss.sym_neg_cos_sim_loss.SymNegCosineSimilarityLoss
         lightly.loss.memory_bank.MemoryBankModule
+        lightly.loss.regularizer.CO2Regularizer
+        lightly.loss.regularizer.co2.CO2Regularizer
 
         # models imports
         lightly.models.ResNetGenerator

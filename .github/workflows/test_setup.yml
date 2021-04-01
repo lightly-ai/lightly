@@ -35,6 +35,7 @@ jobs:
         lightly-upload --help
         lightly-magic --help
         lightly-download --help
+        lightly-version
     - name: test of CLI on a real dataset
       run: |
         LIGHTLY_SERVER_LOCATION="localhost:-1"
