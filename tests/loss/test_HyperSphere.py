@@ -8,7 +8,8 @@ class TestHyperSphereLoss(unittest.TestCase):
 
     def test_forward_pass(self):
         loss = HypersphereLoss()
-        for bsz in range(1, 20):
+        # NOTE: skipping bsz==1 case as its not relevant to this loss, and will produce nan-values
+        for bsz in range(2, 20):
 
             batch_1 = torch.randn((bsz, 32))
             batch_2 = torch.randn((bsz, 32))

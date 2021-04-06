@@ -1,27 +1,10 @@
 """
-https://arxiv.org/pdf/2005.10242.pdf
-
-NOTE: hypersphere is perhaps bad naming as I am not sure it is the essence;
-alignment-and-uniformity loss perhaps? Does not sound as nice.
+FIXME: hypersphere is perhaps bad naming as I am not sure it is the essence;
+ alignment-and-uniformity loss perhaps? Does not sound as nice.
 """
 
 import torch
-
-
-def normalize_l2(x, dim=-1):
-    """Apply l2 normalization along a given axis of a tensor
-
-    Args:
-        x : torch.Tensor, [...], float
-        dim : int
-
-    Returns:
-        torch.Tensor, [...], float
-            tensor l2-normalized along the given axis
-
-    """
-
-    return x / x.norm(p=2, dim=dim, keepdim=True)
+import torch.nn.functional as F
 
 
 class HypersphereLoss(torch.nn.Module):
@@ -30,6 +13,23 @@ class HypersphereLoss(torch.nn.Module):
     Implementation of the loss described in 'Understanding Contrastive Representation Learning through
     Alignment and Uniformity on the Hypersphere.' [0]
     [0] Tongzhou Wang. et.al, 2020, ... https://arxiv.org/pdf/2005.10242.pdf
+
+    Note
+    ----
+    In order for this loss to function as advertized, an l1-normalization to the hypersphere is required.
+    This loss function applies this l1-normalization internally in the loss-layer.
+    However, it is recommended that the same normalization is also applied in your architecture,
+    considering that this l1-loss is also intended to be applied during inference.
+    Perhaps there may be merit in leaving it out of the inferrence pathway, but this use has not been tested.
+
+    Moreover it is recommended that the layers preceeding this loss function are either a linear layer without activation,
+    a batch-normalization layer, or both. The directly upstream architecture can have a large influence
+    on the ability of this loss to achieve its stated aim of promoting uniformity on the hypersphere;
+    and if by contrast the last layer going into the embedding is a RELU or similar nonlinearity,
+    we may see that we will never get very close to achieving the goal of uniformity on the hypersphere,
+    but will confine ourselves to the subspace of positive activations.
+    Similar architectural considerations are relevant to most contrastive loss functions,
+    but we call it out here explicitly.
 
         Examples:
 
@@ -79,18 +79,12 @@ class HypersphereLoss(torch.nn.Module):
                 scalar loss value
 
         """
-        # FIXME: this is necessary for the loss to function as advertized,
-        #  but not technically part of the loss i feel
-        #  as it needs to be applied during inference as well
-        #  leave that responsibility to the end user?
-        x = normalize_l2(z_a)
-        y = normalize_l2(z_b)
+        x = F.normalize(z_a)
+        y = F.normalize(z_b)
 
         def lalign(x, y):
             return (x - y).norm(dim=1).pow(self.alpha).mean()
         def lunif(x):
             sq_pdist = torch.pdist(x, p=2).pow(2)
-            # NOTE: add nan_to_num to support batch-size==1 case.
-            # not a very practically relevant case but the tests as copy-pasted seem to demand it
-            return sq_pdist.mul(-self.t).exp().mean().log().nan_to_num()
+            return sq_pdist.mul(-self.t).exp().mean().log()
         return lalign(x, y) + self.lam * (lunif(x) + lunif(y)) / 2
