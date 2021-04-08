@@ -152,27 +152,11 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
 
         """
 
-        counter = 0
-        backoff = 1. + random.random() * 0.1
-        success = False
-        while not success:
+        response = requests.put(signed_write_url, data=file)
 
-            response = requests.put(signed_write_url, data=file)
-            success = (response.status_code == 200)
-
-            # exponential backoff
-            if response.status_code in [500, 502]:
-                time.sleep(backoff)
-                backoff = 2 * backoff if backoff < max_backoff else backoff
-            # something went wrong
-            elif not success:
-                msg = f'Failed PUT request to {signed_write_url} with status_code '
-                msg += f'{response.status_code}.'
-                raise RuntimeError(msg)
-
-            counter += 1
-            if counter >= max_retries:
-                msg = f'The connection to the server at {signed_write_url} timed out. '
-                raise RuntimeError(msg)
+        if response.status_code != 200:
+            msg = f'Failed PUT request to {signed_write_url} with status_code'
+            msg += f'{response.status__code}!'
+            raise RuntimeError(msg)
 
         return response
