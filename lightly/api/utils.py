@@ -5,6 +5,8 @@
 
 import io
 import os
+import time
+import random
 
 import numpy as np
 from PIL import Image, ImageFilter
@@ -17,6 +19,44 @@ JpegImagePlugin._getmp = lambda: None
 LEGAL_IMAGE_FORMATS = ['jpg', 'jpeg', 'png', 'tiff', 'bmp']
 MAXIMUM_FILENAME_LENGTH = 80
 MAX_WIDTH, MAX_HEIGHT = 2048, 2048
+
+
+def retry(func, *args, **kwargs):
+    """Repeats a function until it completes successfully or fails too often.
+
+    Args:
+        func:
+            The function call to repeat.
+        args:
+            The arguments which are passed to the function.
+        kwargs:
+            Key-word arguments which are passed to the function.
+
+    Returns:
+        What func returns.
+
+    Exceptions:
+        RuntimeError when number of retries has been exceeded.
+
+    """
+
+    # config
+    backoff = 1. + random.random() * 0.1
+    max_backoff = 32
+    max_retries = 5
+
+    # try to make the request
+    for i in range(max_retries):
+        try:
+            # return on success
+            return func(*args, **kwargs)
+        except Exception:
+            # sleep on failure
+            time.sleep(backoff)
+            backoff = 2 * backoff if backoff < max_backoff else backoff
+        
+    # max retries exceeded
+    raise RuntimeError('The connection to the server timed out.')
 
 
 def getenv(key: str, default: str):
