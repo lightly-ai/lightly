@@ -110,6 +110,8 @@ class MockedTagsApi(TagsApi):
 class MockedScoresApi(ScoresApi):
     def create_or_update_active_learning_score_by_tag_id(self, body, dataset_id, tag_id, **kwargs) -> \
             CreateEntityResponse:
+        if len(body.scores) > 0 and not isinstance(body.scores[0], float):
+            raise AttributeError
         response_ = CreateEntityResponse(id="sampled_tag_id_xyz")
         return response_
 
