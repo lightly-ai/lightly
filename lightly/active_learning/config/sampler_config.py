@@ -24,7 +24,6 @@ class SamplerConfig:
     Examples:
         >>> # sample 100 images with CORESET sampling
         >>> config = SamplerConfig(method=SamplingMethod.CORESET, n_samples=100)
-        >>> config = SamplerConfig(method=SamplingMethod.CORESET, n_samples=100)
         >>>
         >>> # give your sampling a name
         >>> config = SamplerConfig(method=SamplingMethod.CORESET, n_samples=100, name='my-sampling')
