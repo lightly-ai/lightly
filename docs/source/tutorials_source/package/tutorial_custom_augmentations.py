@@ -53,13 +53,13 @@ import pandas
 # 
 # We will use eight workers to fetch the data from disc and a batch size of 128.
 # The input size of the images is set to 128. With these settings, the training
-# requires 16GB of GPU memory.
+# requires 2.5GB of GPU memory.
 
 num_workers = 8
 batch_size = 128
 input_size = 128
 seed = 1
-max_epochs = 100
+max_epochs = 50
 
 # %%
 # Let's set the seed for our experiments
@@ -230,10 +230,9 @@ dataloader_train = torch.utils.data.DataLoader(
 # neural network.
 
 # remove the classification head and get the ResNet backbone
-resnet = lightly.models.ResNetGenerator('resnet-18')
+resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(
     *list(resnet.children())[:-1],
-    nn.AdaptiveAvgPool2d(1)
 )
 
 # %%
