@@ -58,15 +58,15 @@ Let's now load an image dataset and create a PyTorch dataloader with the collate
 
 .. note:: You can also use a custom PyTorch `Dataset` instead of the 
           `LightlyDataset`. Just make sure your `Dataset` implementation returns
-          a tuple of (sample, target, fname) to support the basic functions
+          a tuple of **(sample, target, fname)** to support the basic functions
           for training models. See :py:class:`lightly.data.dataset`
           for more information.
 
 
 Head to the next section to see how you can train a ResNet on the data you just prepared.
 
-Training
-^^^^^^^^
+Model, Loss and Training
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Now, we need an embedding model, an optimizer and a loss function. We use a ResNet together
 with the normalized temperature-scaled cross entropy loss and simple stochastic gradient descent.
@@ -79,7 +79,7 @@ with the normalized temperature-scaled cross entropy loss and simple stochastic 
     import lightly.loss as loss
 
     # use a resnet backbone
-    resnet = torchvision.models.resnet.resnet18()
+    resnet = torchvision.models.resnet18()
     resnet = nn.Sequential(*list(resnet.children())[:-1])
 
     # build the simclr model
@@ -91,6 +91,13 @@ with the normalized temperature-scaled cross entropy loss and simple stochastic 
 
     # get a PyTorch optimizer
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-0, weight_decay=1e-5)
+
+
+.. note:: You can also use custom backbones and use lightly to train them using
+          self-supervised learning. Learn more about how to use custom backbones
+          in our 
+          `colab playground <https://colab.research.google.com/drive/1ubepXnpANiWOSmq80e-mqAxjLx53m-zu?usp=sharing>`_.
+
 
 Put everything together in an embedding model and train it for 10 epochs on a single GPU.
 
