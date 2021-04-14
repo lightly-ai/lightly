@@ -210,8 +210,8 @@ class BenchmarkModule(pl.LightningModule):
             for (num, top1) in outputs:
                 total_num += num[0]
                 total_top1 += top1
-
-            if dist.get_world_size() > 1:
+             
+            if dist.is_initialized() and dist.get_world_size() > 1:
                 dist.all_reduce(total_num)
                 dist.all_reduce(total_top1)
 

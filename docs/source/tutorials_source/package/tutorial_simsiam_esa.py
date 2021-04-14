@@ -96,7 +96,8 @@ collate_fn = lightly.data.ImageCollateFunction(
     vf_prob=0.5,
     rr_prob=0.5,
     # satellite images are all taken from the same height
-    min_scale=1.0,
+    # so we use only slight random cropping
+    min_scale=0.5,
     # use a weak color jitter for invariance w.r.t small color changes
     cj_prob=0.2,
     cj_bright=0.1,

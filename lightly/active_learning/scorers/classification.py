@@ -29,6 +29,17 @@ def _entropy(probs: np.ndarray, axis: int = 1) -> np.ndarray:
 class ScorerClassification(Scorer):
     """Class to compute active learning scores from the model_output of a classification task.
 
+    Currently supports the following scorers:
+
+        `prediction-margin`:
+            This scorer uses the margin between 1.0 and the highest confidence
+            prediction. Use this scorer to select images where the model is
+            insecure.
+
+        `prediction-entropy`:
+            This scorer computes the entropy of the prediction. All
+            confidences are considered to compute the entropy of a sample.
+
     Attributes:
         model_output:
             Predictions of shape N x C where N is the number of unlabeled samples

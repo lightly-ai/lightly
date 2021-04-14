@@ -12,7 +12,8 @@ class HypersphereLoss(torch.nn.Module):
 
     Implementation of the loss described in 'Understanding Contrastive Representation Learning through
     Alignment and Uniformity on the Hypersphere.' [0]
-    [0] Tongzhou Wang. et.al, 2020, ... https://arxiv.org/pdf/2005.10242.pdf
+    
+    [0] Tongzhou Wang. et.al, 2020, ... https://arxiv.org/abs/2005.10242
 
     Note
     ----

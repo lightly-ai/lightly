@@ -22,6 +22,20 @@ What exactly happens here?
 - `-reset_timestamps 1`, makes sure we reset the timestamps (each video starts from 0)
 - `output%03d.mp4`, name of the output vidoes (output001.mp4, output002.mp4, ...)
 
+Docker Crashes when running with GPUs
+-------------------------------------
+
+You run the docker with `--gpus all` and encounter the following error?
+
+.. code-block:: console
+
+    Error response from daemon: could not select device driver "" with capabilities: [[gpu]].
+
+This error might be caused because your docker installation does not support GPUs.
+
+Try to install `nvidia-docker` following the guide 
+`here <https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker>`_.
+
 
 Shared Memory Error when running Lightly Docker
 -----------------------------------------------
