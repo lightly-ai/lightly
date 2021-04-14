@@ -203,8 +203,8 @@ Currently, the following scorers are available:
   objects in them like we usually want in computer vision tasks such as 
   perception in autonomous driving.
 
-- **prediction-margin** uses the margin between 1.0 and the highest confidence 
-  prediction. Use this scorer to select images where the model is insecure.
+- **prediction-margin** uses the margin between 1.0 and the mean of the highest 
+  confidence prediction. Use this scorer to select images where the model is insecure.
 
 
 Image Segmentation

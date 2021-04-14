@@ -58,7 +58,7 @@ Let's now load an image dataset and create a PyTorch dataloader with the collate
 
 .. note:: You can also use a custom PyTorch `Dataset` instead of the 
           `LightlyDataset`. Just make sure your `Dataset` implementation returns
-          a tuple of **(sample, target, fname)** to support the basic functions
+          a tuple of **(sample, target, filename)** to support the basic functions
           for training models. See :py:class:`lightly.data.dataset`
           for more information.
 
