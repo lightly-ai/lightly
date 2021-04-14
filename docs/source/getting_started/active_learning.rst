@@ -99,7 +99,7 @@ Let's configure the sampling request and request an initial selection next:
 
    # we want an initial pool of 100 images
    config = SamplerConfig(n_samples=100, method=SamplingMethod.CORESET, name='initial-selection')
-   initial_selection = al_agent.query(sampler_config)
+   initial_selection = al_agent.query(config)
    
    # initial_selection contains now 100 filenames
 
@@ -179,13 +179,33 @@ Image Classification
 ^^^^^^^^^^^^^^^^^^^^^
 Use this scorer when working on a classification problem (binary or multiclass).
 
+Currently, the following scorers are available:
+
+- **prediction-margin** uses the margin between 1.0 and the highest confidence 
+  prediction. Use this scorer to select images where the model is insecure.
+
+- **prediction-entropy** computes the entropy of the prediction. 
+  All confidences are considered to compute the entropy of a sample.
+
 For more information about how to use the classification scorer have a look here:
 :py:class:`lightly.active_learning.scorers.classification.ScorerClassification`
 
 
 Object Detection
 ^^^^^^^^^^^^^^^^^^^^^
-Coming soon...
+Use this scorer when working on an object detection problem using bounding
+boxes.
+
+Currently, the following scorers are available:
+
+- **object-frequency** uses model predictions to focus more on images which 
+  have many objects in them. Use this scorer if you want scenes with lots of 
+  objects in them like we usually want in computer vision tasks such as 
+  perception in autonomous driving.
+
+- **prediction-margin** uses the margin between 1.0 and the mean of the highest 
+  confidence prediction. Use this scorer to select images where the model is insecure.
+
 
 Image Segmentation
 ^^^^^^^^^^^^^^^^^^^^^

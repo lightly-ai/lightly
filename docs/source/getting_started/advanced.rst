@@ -19,6 +19,11 @@ want to learn heavily depend on the type of downstream task you want to solve.
 Here, we group the augmentations by the type of invariance they induce and 
 show examples of when such invariances can be useful.
 
+For example, if we use `color jittering` and `random grayscale` during the training of a
+self-supervised model, we train the model to put the two augmented versions of the 
+input image very close to each other in the feature space. We essentially train 
+the model to ignore the color augmentations.
+
 **Shape Invariances**
 
 - **Random cropping** E.g. We don't care if an object is small or large 
@@ -46,6 +51,8 @@ show examples of when such invariances can be useful.
 
 - **Random Grayscale** E.g. We don't care about the color of a tree
 
+- **Solarization** E.g. We don't care about color and brightness
+
 Some interesting papers regarding invariances in self-supervised learning:
 
 - `Demystifying Contrastive Self-Supervised Learning, S. Purushwalkam, 2020 <https://arxiv.org/abs/2007.13916>`_
@@ -70,8 +77,8 @@ The built-in collate class
 common augmentations used in SimCLR and MoCo. Instead of a single batch of images,
 it returns a tuple of two batches of randomly transformed images.
 
-Since Gaussian blur and random rotations by 90 degrees are not supported
-by default in torchvision, we added them to lightly 
+Since **gaussian blur**, **solarization** and **random rotations** by 90 degrees 
+are not supported in torchvision, we added them to lightly 
 :py:class:`lightly.transforms`
 
 You can build your own collate function by inheriting from 
@@ -116,6 +123,10 @@ learning:
 
   - Check the documentation: :py:class:`lightly.models.simsiam.SimSiam`
 
+- `Barlow Twins: Self-Supervised Learning via Redundancy Reduction, S. Deny, 2021 <https://arxiv.org/abs/2103.03230v1>`_
+
+  - Check the documentation: :py:class:`lightly.models.barlowtwins.BarlowTwins`
+
 Do you know a model that should be on this list? Please add an issue on GitHub :)
 
 All models have a backbone component. This could be a ResNet.
@@ -123,10 +134,28 @@ When creating a self-supervised learning model you pass it a backbone. You need
 to make sure the backbone output dimension matches the `num_ftrs` parameter 
 of the model.
 
+Lightly has a built-in generator for ResNets. However, the model architecture slightly differs from the official ResNet implementatation.
+The difference is in the first few layers. Whereas the official ResNet starts 
+with a 7x7 convolution the one from lightly has a 3x3 convolution. 
+
+* The 3x3 convolution variant is more efficient (less parameters and faster 
+  processing) and is better suited for small input images (32x32 pixels or 64x64 pixels). 
+  We recommend to use the lighlty variant for cifar10 or running the model on a microcontroller 
+  (see https://github.com/ARM-software/EndpointAI/tree/master/ProofOfConcepts/Vision/OpenMvMaskDefaults)
+* However, the 7x7 convolution variant is better suited for larger images 
+  since the number of features is smaller due to the stride and additional 
+  `MaxPool2d` layer. For benchmarking against other academic papers on 
+  datasets such as ImageNet, Pascal VOC, MOCO, etc. use the torchvision variant.
+
 .. code-block:: python
 
-        # create a ResNet backbone and remove the classification head
+        # create a lightly ResNet
         resnet = lightly.models.ResNetGenerator('resnet-18')
+
+        # alternatively create a torchvision ResNet backbone
+        resnet_torchvision = torchvision.models.resnet18()
+
+        # remove the last linear layer and add an adaptive average pooling layer
         backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1),
@@ -134,6 +163,10 @@ of the model.
 
         # create a simclr model based on ResNet
         self.resnet_simclr = lightly.models.SimCLR(backbone, num_ftrs=512)
+
+You can also use **custom backbones** with lightly. We provide a 
+`colab notebook to show how you can use torchvision or timm models
+<https://colab.research.google.com/drive/1ubepXnpANiWOSmq80e-mqAxjLx53m-zu?usp=sharing>`_.
 
 
 Losses 
@@ -150,6 +183,18 @@ loss for non-contrastive methods.
 - `Symmetric Negative Cosine Similarity Loss <https://arxiv.org/abs/2011.10566>`_
 
   - Check the documentation: :py:class:`lightly.loss.sym_neg_cos_sim_loss.SymNegCosineSimilarityLoss`
+
+- `Barlow Twin Loss <https://arxiv.org/abs/2103.03230v1>`_
+
+  - Check the documentation: :py:class:`lightly.loss.barlow_twins_loss.BarlowTwinsLoss`
+
+- `CO2 regularization Loss <https://arxiv.org/abs/2010.02217>`_
+
+  - Check the documentation: :py:class:`lightly.loss.regularizer.co2.CO2Regularizer`
+
+- `Hypersphere Loss <https://arxiv.org/abs/2005.10242>`_
+
+  - Check the documentation: :py:class:`lightly.loss.hypersphere_loss.HypersphereLoss`
 
 
 .. _lightly-advanced-memory-bank:

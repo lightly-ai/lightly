@@ -71,7 +71,7 @@ max_epochs = 100
 # We assume we have a train folder with subfolders
 # for each class and .png images inside.
 #
-# You can download `CIFAR-10 in folders from kaggle 
+# You can download `CIFAR-10 in folders from Kaggle 
 # <https://www.kaggle.com/swaroopkml/cifar10-pngs-in-folders>`_.
 
 # The dataset structure should be like this:
@@ -202,8 +202,11 @@ dataloader_test = torch.utils.data.DataLoader(
 # The momentum for the Momentum Encoder is set to 0.99 (default is 0.999) since
 # other reports show that this works better for Cifar-10.
 #
+# For the backbone we use the lightly variant of a resnet-18. You can use another model following
+# our `playground to use custom backbones <https://colab.research.google.com/drive/1ubepXnpANiWOSmq80e-mqAxjLx53m-zu?usp=sharing>`_.
+#
 # .. note:: We use a split batch norm to simulate multi-gpu behaviour. Combined
-#   with the use of batch shuffling, this prevents the model from communicating 
+#   with the use of batch shuffling, this prevents the model from communicating
 #   through the batch norm layers.
 
 class MocoModel(pl.LightningModule):

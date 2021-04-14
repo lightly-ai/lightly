@@ -8,10 +8,6 @@ lightly.api
 .. automodule:: lightly.api.api_workflow_client
    :members:
 
-.download
----------------
-.. automodule:: lightly.api.download
-   :members:
 
 .utils
 ---------------
