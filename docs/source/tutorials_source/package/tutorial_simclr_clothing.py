@@ -54,13 +54,13 @@ import numpy as np
 # We set some configuration parameters for our experiment.
 # Feel free to change them and analyze the effect.
 #
-# The default configuration with a batch size of 256 and input resolution of 64
-# requires 16GB of GPU memory.
+# The default configuration with a batch size of 256 and input resolution of 128
+# requires 6GB of GPU memory.
 num_workers = 8
 batch_size = 256
 seed = 1
 max_epochs = 20
-input_size = 64
+input_size = 128
 num_ftrs = 32
 
 # %%
@@ -136,12 +136,11 @@ dataloader_test = torch.utils.data.DataLoader(
 # Create a ResNet backbone and remove the classification head
 
 
-resnet = lightly.models.ResNetGenerator('resnet-18')
+resnet = torchvision.models.resnet18()
 last_conv_channels = list(resnet.children())[-1].in_features
 backbone = nn.Sequential(
     *list(resnet.children())[:-1],
     nn.Conv2d(last_conv_channels, num_ftrs, 1),
-    nn.AdaptiveAvgPool2d(1)
 )
 
 # create the SimCLR model using the newly created backbone
@@ -251,12 +250,11 @@ new_collate_fn = lightly.data.SimCLRCollateFunction(
 dataloader_train_simclr.collate_fn=new_collate_fn
 
 # create a ResNet backbone and remove the classification head
-resnet = lightly.models.ResNetGenerator('resnet-18')
+resnet = torchvision.models.resnet18()
 last_conv_channels = list(resnet.children())[-1].in_features
 backbone = nn.Sequential(
     *list(resnet.children())[:-1],
     nn.Conv2d(last_conv_channels, num_ftrs, 1),
-    nn.AdaptiveAvgPool2d(1)
 )
 model = lightly.models.SimCLR(backbone, num_ftrs=num_ftrs)
 optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
@@ -267,7 +265,7 @@ encoder = lightly.embedding.SelfSupervisedEmbedding(
     dataloader_train_simclr
 )
 
-encoder.train_embedding(gpus=gpus, 
+encoder.train_embedding(gpus=gpus,
                         progress_bar_refresh_rate=100,
                         max_epochs=max_epochs)
 encoder = encoder.to(device)
@@ -284,3 +282,26 @@ plot_knn_examples(embeddings)
 
 # You could use the pre-trained model and train a classifier on top.
 pretrained_resnet_backbone = model.backbone
+
+# you can also store the backbone and use it in another code
+state_dict = {
+    'resnet18_parameters': pretrained_resnet_backbone.state_dict()
+}
+torch.save(state_dict, 'model.pth')
+
+# %%
+# THIS COULD BE IN A NEW FILE (e.g. inference.py
+#
+# Make sure you place the `model.pth` file in the same folder as this code
+
+# load the model in a new file for inference
+resnet18_new = torchvision.models.resnet18()
+last_conv_channels = list(resnet.children())[-1].in_features
+# note that we need to create exactly the same backbone in order to load the weights
+backbone_new = nn.Sequential(
+    *list(resnet.children())[:-1],
+    nn.Conv2d(last_conv_channels, num_ftrs, 1),
+)
+
+ckpt = torch.load('model.pth')
+backbone_new.load_state_dict(ckpt['resnet18_parameters'])
