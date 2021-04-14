@@ -19,8 +19,8 @@ want to learn heavily depend on the type of downstream task you want to solve.
 Here, we group the augmentations by the type of invariance they induce and 
 show examples of when such invariances can be useful.
 
-For example, if we use Color Jittering and Random Grayscale during training of a
-self-supervised model we train the model to put the two augmented versions of the 
+For example, if we use `color jittering` and `random grayscale` during the training of a
+self-supervised model, we train the model to put the two augmented versions of the 
 input image very close to each other in the feature space. We essentially train 
 the model to ignore the color augmentations.
 
@@ -77,8 +77,8 @@ The built-in collate class
 common augmentations used in SimCLR and MoCo. Instead of a single batch of images,
 it returns a tuple of two batches of randomly transformed images.
 
-Since **Gaussian blur**, **Solarization** and **random rotations** by 90 degrees are not supported
-by default in torchvision, we added them to lightly 
+Since **gaussian blur**, **solarization** and **random rotations** by 90 degrees 
+are not supported in torchvision, we added them to lightly 
 :py:class:`lightly.transforms`
 
 You can build your own collate function by inheriting from 

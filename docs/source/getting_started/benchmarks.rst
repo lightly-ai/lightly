@@ -60,7 +60,7 @@ We make the following observations running the benchmark:
 
 - SimCLR and SimSiam benefit from larger batch sizes. MoCo (which uses a
   memorybank) performs very well also for smaller batch sizes.
-- All models need roughly 3h (on a V100 GPU) to complete the 200 epoch benchmark 
+- All models need around 3h (on a V100 GPU) to complete the 200 epoch benchmark 
   and use roughly the same amount of GPU memory.
 
 Furthermore, we conducted experiments training the models for 800 epochs.
