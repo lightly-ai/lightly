@@ -18,6 +18,7 @@ from __future__ import absolute_import
 # import apis into sdk package
 from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
+from lightly.openapi_generated.swagger_client.api.embeddings2d_api import Embeddings2dApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
 from lightly.openapi_generated.swagger_client.api.quota_api import QuotaApi
@@ -38,6 +39,7 @@ from lightly.openapi_generated.swagger_client.models.active_learning_scores impo
 from lightly.openapi_generated.swagger_client.models.api_error_code import ApiErrorCode
 from lightly.openapi_generated.swagger_client.models.api_error_response import ApiErrorResponse
 from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData
+from lightly.openapi_generated.swagger_client.models.body import Body
 from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
@@ -46,6 +48,10 @@ from lightly.openapi_generated.swagger_client.models.dataset_embedding_data impo
 from lightly.openapi_generated.swagger_client.models.dataset_name import DatasetName
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.dataset_update_request import DatasetUpdateRequest
+from lightly.openapi_generated.swagger_client.models.dimensionality_reduction_method import DimensionalityReductionMethod
+from lightly.openapi_generated.swagger_client.models.embedding2d_coordinates import Embedding2dCoordinates
+from lightly.openapi_generated.swagger_client.models.embedding2d_create_request import Embedding2dCreateRequest
+from lightly.openapi_generated.swagger_client.models.embedding2d_data import Embedding2dData
 from lightly.openapi_generated.swagger_client.models.embedding_data import EmbeddingData
 from lightly.openapi_generated.swagger_client.models.general_job_result import GeneralJobResult
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType

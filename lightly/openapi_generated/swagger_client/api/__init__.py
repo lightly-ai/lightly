@@ -5,6 +5,7 @@ from __future__ import absolute_import
 # import apis into api package
 from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
+from lightly.openapi_generated.swagger_client.api.embeddings2d_api import Embeddings2dApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
 from lightly.openapi_generated.swagger_client.api.quota_api import QuotaApi
