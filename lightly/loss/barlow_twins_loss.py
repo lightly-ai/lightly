@@ -3,6 +3,7 @@ import torch
 class BarlowTwinsLoss(torch.nn.Module):
     """Implementation of the Barlow Twins Loss from Barlow Twins[0] paper.
     This code specifically implements the Figure Algorithm 1 from [0].
+    
     [0] Zbontar,J. et.al, 2021, Barlow Twins... https://arxiv.org/abs/2103.03230
 
         Examples:

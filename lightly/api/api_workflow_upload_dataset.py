@@ -9,6 +9,8 @@ from lightly.api.utils import check_filename, check_image, get_thumbnail_from_im
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 from lightly.data.dataset import LightlyDataset
 
+from lightly.api.utils import retry
+
 
 class _UploadDatasetMixin:
 
@@ -134,28 +136,48 @@ class _UploadDatasetMixin:
             thumbname = '.'.join(basename.split('.')[:-1]) + '_thumb.webp'
 
         body = SampleCreateRequest(file_name=basename, thumb_name=thumbname, meta_data=metadata)
-        sample_id = self.samples_api.create_sample_by_dataset_id(body=body, dataset_id=self.dataset_id).id
+        sample_id = retry(
+            self.samples_api.create_sample_by_dataset_id,
+            body=body,
+            dataset_id=self.dataset_id
+        ).id
 
         if not metadata['is_corrupted'] and mode in ["thumbnails", "full"]:
             thumbnail = get_thumbnail_from_img(image)
             image_to_upload = PIL_to_bytes(thumbnail, ext='webp', quality=90)
 
-            signed_url = self.samples_api.get_sample_image_write_url_by_id(
-                dataset_id=self.dataset_id, sample_id=sample_id, is_thumbnail=True)
+            signed_url = retry(
+                self.samples_api.get_sample_image_write_url_by_id,
+                dataset_id=self.dataset_id,
+                sample_id=sample_id,
+                is_thumbnail=True
+            )
 
             # try to upload thumbnail
-            self.upload_file_with_signed_url(image_to_upload, signed_url)
+            retry(
+                self.upload_file_with_signed_url,
+                image_to_upload,
+                signed_url
+            )
 
             thumbnail.close()
 
         if not metadata['is_corrupted'] and mode == "full":
             image_to_upload = PIL_to_bytes(image)
 
-            signed_url = self.samples_api.get_sample_image_write_url_by_id(
-                dataset_id=self.dataset_id, sample_id=sample_id, is_thumbnail=False)
+            signed_url = retry(
+                self.samples_api.get_sample_image_write_url_by_id,
+                dataset_id=self.dataset_id,
+                sample_id=sample_id,
+                is_thumbnail=False
+            )
 
             # try to upload thumbnail
-            self.upload_file_with_signed_url(image_to_upload, signed_url)
+            retry(
+                self.upload_file_with_signed_url,
+                image_to_upload,
+                signed_url
+            )
 
             image.close()
 

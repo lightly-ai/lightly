@@ -43,6 +43,11 @@ Use the following command to get an overview of the available parameters:
 
     docker run --gpus all --rm -it lightly/sampling:latest --help
 
+.. note:: In case the command fails because docker does not detect your GPU
+          you want to make sure `nvidia-docker` is installed.
+          You can follow the guide 
+          `here <https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker>`_.
+
 
 Storage Access
 -----------------------------------
@@ -141,6 +146,10 @@ The command above does the following:
 - **stopping_condition.min_distance=0.2** would remove all samples which are
   closer to each other than 0.2. 
 
+The docker creates just an output file with the selected
+filenames for you. You can also tell the program to copy the selected files into
+the output folder by adding the parameter **dump_dataset=True** to the command.
+
 
 Train a Self-Supervised Model
 -----------------------------------
@@ -238,6 +247,23 @@ move the embeddings file to the shared directory, and specify the filename like 
 
 The embeddings file should follow the structure of the .csv file created by the
 lightly CLI: :ref:`ref-cli-embeddings-lightly` or as described in :ref:`ref-docker-meta-information`. 
+
+Manually Inspecting the Embeddings
+----------------------------------
+Every time you run Lightly Docker you will find an `embeddings.csv` file in the
+output directory. This file contains the embeddings of all samples in your dataset.
+You can use the embeddings for clustering or manual inspection of your dataset.
+
+.. figure:: images/colab_embeddings_example.png
+    :align: center
+    :alt: Example plot of working with embeddings.csv
+
+    Example plot of working with embeddings.csv
+
+
+We provide an 
+`example notebook <https://colab.research.google.com/drive/1aHJBKyfopheWYOkIEEXyxyRoqQVfWe3A?usp=sharing>`_
+to learn more about how to work with the embeddings.
 
 Sampling from Video Files
 --------------------------

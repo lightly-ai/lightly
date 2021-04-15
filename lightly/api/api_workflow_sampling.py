@@ -55,6 +55,8 @@ class _SamplingMixin:
             if preselected_tag_id is None:
                 raise ValueError
             for score_type, score_values in al_scores.items():
+                if isinstance(score_values, np.ndarray):
+                    score_values = score_values.astype(np.float64)
                 body = ActiveLearningScoreCreateRequest(score_type=score_type, scores=list(score_values))
                 self.scores_api.create_or_update_active_learning_score_by_tag_id(
                     body, dataset_id=self.dataset_id, tag_id=preselected_tag_id)
