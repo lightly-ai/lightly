@@ -334,16 +334,17 @@ class EmbeddingsApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def set_embeddings_is_processed_flag_by_id(self, dataset_id, embedding_id, **kwargs):  # noqa: E501
+    def set_embeddings_is_processed_flag_by_id(self, body, dataset_id, embedding_id, **kwargs):  # noqa: E501
         """set_embeddings_is_processed_flag_by_id  # noqa: E501
 
         Sets the isProcessed flag of the specified embedding  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.set_embeddings_is_processed_flag_by_id(dataset_id, embedding_id, async_req=True)
+        >>> thread = api.set_embeddings_is_processed_flag_by_id(body, dataset_id, embedding_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
+        :param Body body: (required)
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID embedding_id: ObjectId of the embedding (required)
         :return: None
@@ -352,21 +353,22 @@ class EmbeddingsApi(object):
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.set_embeddings_is_processed_flag_by_id_with_http_info(dataset_id, embedding_id, **kwargs)  # noqa: E501
+            return self.set_embeddings_is_processed_flag_by_id_with_http_info(body, dataset_id, embedding_id, **kwargs)  # noqa: E501
         else:
-            (data) = self.set_embeddings_is_processed_flag_by_id_with_http_info(dataset_id, embedding_id, **kwargs)  # noqa: E501
+            (data) = self.set_embeddings_is_processed_flag_by_id_with_http_info(body, dataset_id, embedding_id, **kwargs)  # noqa: E501
             return data
 
-    def set_embeddings_is_processed_flag_by_id_with_http_info(self, dataset_id, embedding_id, **kwargs):  # noqa: E501
+    def set_embeddings_is_processed_flag_by_id_with_http_info(self, body, dataset_id, embedding_id, **kwargs):  # noqa: E501
         """set_embeddings_is_processed_flag_by_id  # noqa: E501
 
         Sets the isProcessed flag of the specified embedding  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.set_embeddings_is_processed_flag_by_id_with_http_info(dataset_id, embedding_id, async_req=True)
+        >>> thread = api.set_embeddings_is_processed_flag_by_id_with_http_info(body, dataset_id, embedding_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
+        :param Body body: (required)
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID embedding_id: ObjectId of the embedding (required)
         :return: None
@@ -374,7 +376,7 @@ class EmbeddingsApi(object):
                  returns the request thread.
         """
 
-        all_params = ['dataset_id', 'embedding_id']  # noqa: E501
+        all_params = ['body', 'dataset_id', 'embedding_id']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -389,6 +391,10 @@ class EmbeddingsApi(object):
                 )
             params[key] = val
         del params['kwargs']
+        # verify the required parameter 'body' is set
+        if self.api_client.client_side_validation and ('body' not in params or
+                                                       params['body'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `body` when calling `set_embeddings_is_processed_flag_by_id`")  # noqa: E501
         # verify the required parameter 'dataset_id' is set
         if self.api_client.client_side_validation and ('dataset_id' not in params or
                                                        params['dataset_id'] is None):  # noqa: E501
@@ -414,8 +420,14 @@ class EmbeddingsApi(object):
         local_var_files = {}
 
         body_params = None
+        if 'body' in params:
+            body_params = params['body']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.select_header_content_type(  # noqa: E501
             ['application/json'])  # noqa: E501
 
         # Authentication setting
