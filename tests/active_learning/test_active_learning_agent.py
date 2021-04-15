@@ -27,7 +27,7 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
                         sampler_config = SamplerConfig(n_samples=n_samples, method=method)
 
                     if sampler_config.method == SamplingMethod.CORESET:
-                        predictions = np.random.rand(len(agent.unlabeled_set), 10)
+                        predictions = np.random.rand(len(agent.unlabeled_set), 10).astype(np.float32)
                         predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
                         al_scorer = ScorerClassification(predictions_normalized)
                         chosen_filenames = agent.query(sampler_config=sampler_config, al_scorer=al_scorer)

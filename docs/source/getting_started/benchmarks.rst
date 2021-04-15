@@ -15,6 +15,12 @@ over all epochs the model reached.
 All experiments use the same augmentations (SimCLR augmentations without gaussian
 blur) and the same ResNet-18 backbone.
 
+.. note:: The ResNet-18 backbone in this benchmark is slightly different from 
+          the torchvision variant as it starts with a 3x3 convolution and has no
+          stride and no `MaxPool2d`. This is a typical variation used for cifar10
+          benchmarks of SSL methods.
+
+
 The current benchmark contains the followin models:
 
 - MoCo (with symmetric loss and memory bank with 4096 entries)
@@ -54,8 +60,8 @@ We make the following observations running the benchmark:
 
 - SimCLR and SimSiam benefit from larger batch sizes. MoCo (which uses a
   memorybank) performs very well also for smaller batch sizes.
-- All models need roughly 3h to complete the 200 epoch benchmark and use roughly
-  the same amount of GPU memory.
+- All models need around 3h (on a V100 GPU) to complete the 200 epoch benchmark 
+  and use roughly the same amount of GPU memory.
 
 Furthermore, we conducted experiments training the models for 800 epochs.
 
@@ -89,3 +95,15 @@ but with a batch size of 128.
 
     kNN test accuracy and train loss for 800 epochs and batch size 128
     Blue: MoCo Red: SimCLR, Light Blue: SimSiam
+
+Next Steps
+-----------------
+
+Now that you understand the performance of the different lightly methods how about
+looking into a tutorial to implement your favorite model?
+
+- :ref:`input-structure-label`
+- :ref:`lightly-moco-tutorial-2`
+- :ref:`lightly-simclr-tutorial-3`  
+- :ref:`lightly-simsiam-tutorial-4`
+- :ref:`lightly-custom-augmentation-5`

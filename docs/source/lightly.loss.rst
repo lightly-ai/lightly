@@ -18,6 +18,15 @@ lightly.loss
 .. autoclass:: lightly.loss.memory_bank.MemoryBankModule
    :members:
 
+.barlow_twins_loss
+-----------------
+.. autoclass:: lightly.loss.barlow_twins_loss.BarlowTwinsLoss
+   :members:
+
+.hypersphere_loss
+-----------------
+.. autoclass:: lightly.loss.hypersphere_loss.HypersphereLoss
+   :members:
 
 .regularizer.co2
 -----------------

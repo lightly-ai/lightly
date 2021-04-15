@@ -37,6 +37,7 @@ class SampleData(object):
         'dataset_id': 'MongoObjectID',
         'file_name': 'str',
         'thumb_name': 'str',
+        'exif': 'dict(str, object)',
         'meta_data': 'SampleMetaData',
         'index': 'int',
         'created_at': 'Timestamp',
@@ -48,13 +49,14 @@ class SampleData(object):
         'dataset_id': 'datasetId',
         'file_name': 'fileName',
         'thumb_name': 'thumbName',
+        'exif': 'exif',
         'meta_data': 'metaData',
         'index': 'index',
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt'
     }
 
-    def __init__(self, id=None, dataset_id=None, file_name=None, thumb_name=None, meta_data=None, index=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, dataset_id=None, file_name=None, thumb_name=None, exif=None, meta_data=None, index=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
         """SampleData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -64,6 +66,7 @@ class SampleData(object):
         self._dataset_id = None
         self._file_name = None
         self._thumb_name = None
+        self._exif = None
         self._meta_data = None
         self._index = None
         self._created_at = None
@@ -76,6 +79,8 @@ class SampleData(object):
         self.file_name = file_name
         if thumb_name is not None:
             self.thumb_name = thumb_name
+        if exif is not None:
+            self.exif = exif
         if meta_data is not None:
             self.meta_data = meta_data
         if index is not None:
@@ -172,6 +177,27 @@ class SampleData(object):
         """
 
         self._thumb_name = thumb_name
+
+    @property
+    def exif(self):
+        """Gets the exif of this SampleData.  # noqa: E501
+
+
+        :return: The exif of this SampleData.  # noqa: E501
+        :rtype: dict(str, object)
+        """
+        return self._exif
+
+    @exif.setter
+    def exif(self, exif):
+        """Sets the exif of this SampleData.
+
+
+        :param exif: The exif of this SampleData.  # noqa: E501
+        :type: dict(str, object)
+        """
+
+        self._exif = exif
 
     @property
     def meta_data(self):
