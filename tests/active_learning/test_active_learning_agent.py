@@ -30,7 +30,10 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
                         predictions = np.random.rand(len(agent.unlabeled_set), 10).astype(np.float32)
                         predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
                         al_scorer = ScorerClassification(predictions_normalized)
-                        chosen_filenames = agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
+                        labeled_set, added_set = agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
                     else:
                         sampler_config = SamplerConfig(n_samples=n_samples)
-                        chosen_filenames = agent.query(sampler_config=sampler_config)
+                        labeled_set, added_set = agent.query(sampler_config=sampler_config)
+
+                    assert len(added_set) <= len(labeled_set)
+                    assert set(added_set).issubset(labeled_set)
