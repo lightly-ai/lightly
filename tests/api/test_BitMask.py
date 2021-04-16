@@ -21,6 +21,17 @@ class TestBitMask(unittest.TestCase):
         mask.unset_kth_bit(4)
         self.assertFalse(mask.get_kth_bit(4))
 
+    def test_large_bitmasks(self):
+        bitstring = "0b" + "1" * 5678
+        mask = BitMask.from_bin(bitstring)
+        mask_as_bitstring = mask.to_bin()
+        self.assertEqual(mask_as_bitstring, bitstring)
+
+    def test_bitmask_from_length(self):
+        length = 4
+        mask = BitMask.from_length(length)
+        self.assertEqual(mask.to_bin(), "0b1111")
+
     def test_get_and_set_outside_of_range(self):
 
         mask = BitMask.from_bin("0b11110000")
