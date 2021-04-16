@@ -67,6 +67,7 @@ def _intersection(x: int, y: int) -> int:
     """
     return x & y
 
+
 def _difference(x: int, y: int) -> int:
     """Uses difference to get the intersection of the two masks.
     """
@@ -127,6 +128,13 @@ class BitMask:
         """Creates a BitMask from a binary string.
         """
         return cls(_bin_to_int(binstring))
+
+    @classmethod
+    def from_length(cls, length: int):
+        """Creates a all-true bitmask of a predefined length
+        """
+        binstring = '0b' + '1' * length
+        return cls.from_bin(binstring)
 
     def to_hex(self):
         """Creates a BitMask from a hex string.
