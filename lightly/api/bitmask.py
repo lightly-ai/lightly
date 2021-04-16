@@ -196,6 +196,12 @@ class BitMask:
         """
         self.x = _difference(self.x, other.x)
 
+    def __sub__(self, other):
+        return BitMask(self.x - other.x)
+
+    def __eq__(self, other):
+        return self.to_bin() == other.to_bin()
+
     def subset_a_list(self, list_: List):
         """Returns a subset of a list depending on the bitmask
         Examples:
