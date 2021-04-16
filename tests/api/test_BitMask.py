@@ -80,6 +80,12 @@ class TestBitMask(unittest.TestCase):
         mask_a.intersection(mask_b)
         self.assertEqual(mask_a.x, int("0b100", 2))
 
+    def test_difference(self):
+        mask_a = BitMask.from_bin("0b101")
+        mask_b = BitMask.from_bin("0b001")
+        mask_a.difference(mask_b)
+        self.assertEqual(mask_a.x, int("0b100", 2))
+
     def test_nonzero_bits(self):
 
         mask = BitMask.from_bin("0b0")

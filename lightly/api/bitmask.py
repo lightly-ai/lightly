@@ -67,6 +67,11 @@ def _intersection(x: int, y: int) -> int:
     """
     return x & y
 
+def _difference(x: int, y: int) -> int:
+    """Uses difference to get the intersection of the two masks.
+    """
+    return x - y
+
 
 def _get_kth_bit(x: int, k: int) -> int:
     """Returns the kth bit in the mask from the right.
@@ -172,6 +177,16 @@ class BitMask:
             >>> # mask1.binstring is '0b0000'
         """
         self.x = _intersection(self.x, other.x)
+
+    def difference(self, other):
+        """Calculates the difference of two bit masks.
+        Examples:
+            >>> mask1 = BitMask.from_bin('0b0111')
+            >>> mask2 = BitMask.from_bin('0b1100')
+            >>> mask1.difference(mask2)
+            >>> # mask1.binstring is '0b0011'
+        """
+        self.x = _difference(self.x, other.x)
 
     def get_kth_bit(self, k: int) -> bool:
         """Returns the boolean value of the kth bit from the right.
