@@ -97,6 +97,14 @@ class TestBitMask(unittest.TestCase):
         mask_a.difference(mask_b)
         self.assertEqual(mask_a.x, int("0b100", 2))
 
+    def test_subset_a_list(self):
+        list_ = [4, 7, 9, 1]
+        mask = BitMask.from_bin("0b0101")
+        target_masked_list = [7, 1]
+        masked_list = mask.subset_a_list(list_)
+        self.assertEqual(target_masked_list,masked_list)
+
+
     def test_nonzero_bits(self):
 
         mask = BitMask.from_bin("0b0")
