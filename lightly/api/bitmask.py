@@ -196,6 +196,18 @@ class BitMask:
         """
         self.x = _difference(self.x, other.x)
 
+    def subset_a_list(self, list_: List):
+        """Returns a subset of a list depending on the bitmask
+        Examples:
+            >>> list_to_subset = [4, 7, 9, 1]
+            >>> mask = BitMask.from_bin("0b0101")
+            >>> masked_list = mask.subset_a_list(list_to_subset)
+            >>> # masked_list = [7, 1]
+        """
+        bits = self.to_bin()
+        reversed_masked_list = [e for e, bit in zip(reversed(list_),reversed(bits)) if bit == "1"]
+        return list(reversed(reversed_masked_list))
+
     def get_kth_bit(self, k: int) -> bool:
         """Returns the boolean value of the kth bit from the right.
         """
