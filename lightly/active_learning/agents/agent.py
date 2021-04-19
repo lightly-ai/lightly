@@ -126,8 +126,7 @@ class ActiveLearningAgent:
                           "including the current labeled set "
                           "(sampler_config.n_samples) "
                           "is smaller than the number of samples in the current labeled set."
-                          "Skipping the sampling and returning the old labeled_set and"
-                          "no ne filenames.")
+                          "Skipping the sampling and returning the previous labeled set.")
             return self.labeled_set, []
 
         # calculate scores
