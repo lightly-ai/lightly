@@ -177,7 +177,13 @@ class ScorerObjectDetection(Scorer):
         else:
             self.config = default_conf
 
-    def _calculate_scores(self) -> Dict[str, np.ndarray]:
+    def calculate_scores(self) -> Dict[str, np.ndarray]:
+        """Calculates and returns the active learning scores.
+
+        Returns:
+            A dictionary mapping from the score name (as string)
+            to the scores (as a single-dimensional numpy array).
+        """
         scores = dict()
         scores['object-frequency'] = self._get_object_frequency()
         scores['prediction-margin'] = self._get_prediction_margin()
