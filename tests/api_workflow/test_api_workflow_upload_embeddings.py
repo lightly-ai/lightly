@@ -9,7 +9,10 @@ from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
 class TestApiWorkflowUploadEmbeddigns(MockedApiWorkflowSetup):
-    def t_ester_upload_embedding(self, n_data, special_name_first_sample: bool = False):
+    def t_ester_upload_embedding(self,
+                                 n_data,
+                                 special_name_first_sample: bool = False,
+                                 comma_in_first_sample: bool = False):
         # create fake embeddings
         folder_path = tempfile.mkdtemp()
         path_to_embeddings = os.path.join(
@@ -43,6 +46,11 @@ class TestApiWorkflowUploadEmbeddigns(MockedApiWorkflowSetup):
         n_data = len(self.api_workflow_client.mappings_api.sample_names)
         with self.assertRaises(ValueError):
             self.t_ester_upload_embedding(n_data=n_data, special_name_first_sample=True)
+
+    def test_upload_comma_filenames(self):
+        n_data = len(self.api_workflow_client.mappings_api.sample_names)
+        with self.assertRaises(ValueError):
+            self.t_ester_upload_embedding(n_data=n_data, comma_in_first_sample=True)
 
     def test_set_embedding_id_success(self):
         embedding_name = self.api_workflow_client.embeddings_api.embeddings[0].name
