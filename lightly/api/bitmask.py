@@ -2,7 +2,7 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-
+from copy import deepcopy
 from typing import List
 
 
@@ -102,7 +102,7 @@ class BitMask:
         >>> # for a dataset with 10 images, assume the following tag
         >>> # 0001011001 where the 1st, 4th, 5th and 7th image are selected
         >>> # this tag would be stored as 0x59.
-        >>> hexstring = 0x59                    # what you receive from the api
+        >>> hexstring = '0x59'                    # what you receive from the api
         >>> mask = BitMask.from_hex(hexstring)  # create a bitmask from it
         >>> indices = mask.to_indices()         # get list of indices which are one
         >>> # indices is [0, 3, 4, 6]
@@ -122,6 +122,13 @@ class BitMask:
         """Creates a BitMask from a binary string.
         """
         return cls(_bin_to_int(binstring))
+
+    @classmethod
+    def from_length(cls, length: int):
+        """Creates a all-true bitmask of a predefined length
+        """
+        binstring = '0b' + '1' * length
+        return cls.from_bin(binstring)
 
     def to_hex(self):
         """Creates a BitMask from a hex string.
@@ -172,6 +179,37 @@ class BitMask:
             >>> # mask1.binstring is '0b0000'
         """
         self.x = _intersection(self.x, other.x)
+
+    def difference(self, other):
+        """Calculates the difference of two bit masks.
+        Examples:
+            >>> mask1 = BitMask.from_bin('0b0111')
+            >>> mask2 = BitMask.from_bin('0b1100')
+            >>> mask1.difference(mask2)
+            >>> # mask1.binstring is '0b0011'
+        """
+        self.union(other)
+        self.x = self.x - other.x
+
+    def __sub__(self, other):
+        ret = deepcopy(self)
+        ret.difference(other)
+        return ret
+
+    def __eq__(self, other):
+        return self.to_bin() == other.to_bin()
+
+    def masked_select_from_list(self, list_: List):
+        """Returns a subset of a list depending on the bitmask
+        Examples:
+            >>> list_to_subset = [4, 7, 9, 1]
+            >>> mask = BitMask.from_bin("0b0101")
+            >>> masked_list = mask.masked_select_from_list(list_to_subset)
+            >>> # masked_list = [7, 1]
+        """
+        bits = self.to_bin()
+        reversed_masked_list = [e for e, bit in zip(reversed(list_),reversed(bits)) if bit == "1"]
+        return list(reversed(reversed_masked_list))
 
     def get_kth_bit(self, k: int) -> bool:
         """Returns the boolean value of the kth bit from the right.
