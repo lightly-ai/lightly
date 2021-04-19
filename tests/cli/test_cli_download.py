@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import tempfile
 
 from hydra.experimental import compose, initialize
@@ -8,13 +9,13 @@ import lightly
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
 
 
-#in download_cli_file.py: from lightly.api.api_workflow_client import ApiWorkflowClient
+#in download_cli.py: from lightly.api.api_workflow_client import ApiWorkflowClient
 
 class TestCLIDownload(MockedApiWorkflowSetup):
 
     @classmethod
     def setUpClass(cls) -> None:
-        lightly.cli.download_cli_file.ApiWorkflowClient = MockedApiWorkflowClient
+        sys.modules["lightly.cli.download_cli"].ApiWorkflowClient = MockedApiWorkflowClient
         initialize(config_path="../../lightly/cli/config", job_name="test_app")
 
     def setUp(self):
@@ -41,22 +42,23 @@ class TestCLIDownload(MockedApiWorkflowSetup):
     def test_download_base(self):
         cli_string = "lightly-download token='123' dataset_id='XYZ'"
         self.parse_cli_string(cli_string)
-        lightly.cli.download_cli_file.download_cli(self.cfg)
+        lightly.cli.download_cli(self.cfg)
 
     def test_download_tag_name(self):
         cli_string = "lightly-download token='123' dataset_id='XYZ' tag_name='sampled_tag_xyz'"
         self.parse_cli_string(cli_string)
-        lightly.cli.download_cli_file.download_cli(self.cfg)
+        lightly.cli.download_cli(self.cfg)
 
     def test_download_tag_name_nonexisting(self):
         cli_string = "lightly-download token='123' dataset_id='XYZ' tag_name='nonexisting_xyz'"
         self.parse_cli_string(cli_string)
-        lightly.cli.download_cli_file.download_cli(self.cfg)
+        with self.assertWarns(Warning):
+            lightly.cli.download_cli(self.cfg)
 
     def test_download_tag_name_exclude_parent(self):
         cli_string = "lightly-download token='123' dataset_id='XYZ' tag_name='sampled_tag_xyz' exclude_parent_tag=True"
         self.parse_cli_string(cli_string)
-        lightly.cli.download_cli_file.download_cli(self.cfg)
+        lightly.cli.download_cli(self.cfg)
 
     def tearDown(self) -> None:
         try:
