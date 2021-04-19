@@ -52,7 +52,7 @@ def _upload_cli(cfg, is_cli_call=True):
         mode = cfg['upload']
         dataset = LightlyDataset(input_dir=input_dir, transform=transform)
         api_workflow_client.upload_dataset(
-            input=dataset, mode=mode
+            input=dataset, mode=mode, max_workers=cfg['loader']['num_workers']
         )
 
     if path_to_embeddings:

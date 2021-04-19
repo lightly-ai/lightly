@@ -4,6 +4,9 @@ import sys
 from typing import List, Tuple
 
 import numpy as np
+from hydra.experimental import initialize, compose
+
+from lightly.cli import upload_cli
 from lightly.data.dataset import LightlyDataset
 
 from lightly.active_learning.scorers.classification import ScorerClassification
@@ -69,7 +72,14 @@ def create_new_dataset_with_embeddings(path_to_dataset: str,
     api_workflow_client.create_new_dataset_with_unique_name(dataset_basename=dataset_name)
 
     # upload to the dataset
-    api_workflow_client.upload_dataset(input=path_to_dataset)
+    initialize(config_path="../../lightly/cli/config", job_name="test_app")
+    cfg = compose(config_name="config", overrides=[
+        f"input_dir='{path_to_dataset}'",
+        f"token='{token}'",
+        f"dataset_id={api_workflow_client.dataset_id}",
+        f"loader.num_workers=9"
+        ])
+    upload_cli(cfg)
 
     # calculate and save the embeddings
     path_to_embeddings_csv = f"{path_to_dataset}/embeddings.csv"
