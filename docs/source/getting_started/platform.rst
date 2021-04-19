@@ -162,9 +162,24 @@ drag-and-drop or using the Python Package according to:
 Upload Embeddings
 -------------------------
 
-Embeddings can be uploaded using the Python Package.
-You can not upload embedding through the web interface. Instead
-:ref:`ref-upload-embedding-lightly`
+Embeddings can be uploaded using the Python Package or the front-end. The simplest
+way to upload the embeddings is from the command line: :ref:`ref-upload-embedding-lightly`.
+
+If you have a numpy array of image embeddings, the filenames of the images, and categorical pseudo-labels,
+you can use the `save_embeddings` function to store them in a lightly-compatible CSV format and upload
+them from your Python code or using the CLI. The following snippet shows how to upload the embeddings from Python.
+
+.. code-block:: python
+
+    from lightly.utils import save_embeddings
+    from lightly.api.api_workflow_client import ApiWorkflowClient
+
+    # save embeddings
+    save_embeddings('embeddings.csv', embeddings, labels, filenames)
+
+    # upload them to the platform
+    client = ApiWorkflowClient(token='123', dataset_id='xyz')
+    client.upload_embeddings('embeddings.csv', name='my-embeddings')
 
 
 Sampling
