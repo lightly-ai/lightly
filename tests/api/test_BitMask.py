@@ -1,4 +1,5 @@
 import unittest
+from copy import deepcopy
 from random import random, seed, randint
 
 from lightly.api.bitmask import BitMask
@@ -126,9 +127,12 @@ class TestBitMask(unittest.TestCase):
 
     def test_operator_minus(self):
         mask_a = BitMask.from_bin("0b10111")
+        mask_a_old = deepcopy(mask_a)
         mask_b = BitMask.from_bin("0b01100")
         mask_target = BitMask.from_bin("0b10011")
-        self.assertEqual(mask_a - mask_b, mask_target)
+        diff = mask_a - mask_b
+        self.assertEqual(diff, mask_target)
+        self.assertEqual(mask_a_old, mask_a)  # make sure the original mask is unchanged.
 
     def test_equal(self):
         mask_a = BitMask.from_bin("0b101")
@@ -139,7 +143,7 @@ class TestBitMask(unittest.TestCase):
         list_ = [4, 7, 9, 1]
         mask = BitMask.from_bin("0b0101")
         target_masked_list = [7, 1]
-        masked_list = mask.subset_a_list(list_)
+        masked_list = mask.masked_select_from_list(list_)
         self.assertEqual(target_masked_list, masked_list)
 
     def test_nonzero_bits(self):

@@ -199,12 +199,12 @@ class BitMask:
     def __eq__(self, other):
         return self.to_bin() == other.to_bin()
 
-    def subset_a_list(self, list_: List):
+    def masked_select_from_list(self, list_: List):
         """Returns a subset of a list depending on the bitmask
         Examples:
             >>> list_to_subset = [4, 7, 9, 1]
             >>> mask = BitMask.from_bin("0b0101")
-            >>> masked_list = mask.subset_a_list(list_to_subset)
+            >>> masked_list = mask.masked_select_from_list(list_to_subset)
             >>> # masked_list = [7, 1]
         """
         bits = self.to_bin()

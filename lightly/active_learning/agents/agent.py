@@ -97,9 +97,9 @@ class ActiveLearningAgent:
             bitmask_query_tag = BitMask.from_hex(query_tag_data.bit_mask_data)
         self.bitmask_unlabeled_set = bitmask_query_tag - self.bitmask_labeled_set
 
-        self.labeled_set = self.bitmask_labeled_set.subset_a_list(self.api_workflow_client.filenames_on_server)
-        self.added_set = self.bitmask_added_set.subset_a_list(self.api_workflow_client.filenames_on_server)
-        self.unlabeled_set = self.bitmask_unlabeled_set.subset_a_list(self.api_workflow_client.filenames_on_server)
+        self.labeled_set = self.bitmask_labeled_set.masked_select_from_list(self.api_workflow_client.filenames_on_server)
+        self.added_set = self.bitmask_added_set.masked_select_from_list(self.api_workflow_client.filenames_on_server)
+        self.unlabeled_set = self.bitmask_unlabeled_set.masked_select_from_list(self.api_workflow_client.filenames_on_server)
 
     def query(self, sampler_config: SamplerConfig, al_scorer: Scorer = None) -> Tuple[List[str], List[str]]:
         """Performs an active learning query.
