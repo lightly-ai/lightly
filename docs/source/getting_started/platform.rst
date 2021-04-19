@@ -159,6 +159,17 @@ drag-and-drop or using the Python Package according to:
     You can upload up to 1'000 images using the frontend.
 
 
+Images can also be uploaded from a Python script:
+
+.. code-block:: python
+
+    from lightly.api.api_workflow_client import ApiWorkflowClient
+    client = ApiWorkflowClient(token='123'm dataset_id='xyz')
+
+    # change mode to thumbnails or meta if you're working with sensitive data
+    client.upload_dataset('path/to/your/images/', mode='full')
+
+
 Upload Embeddings
 -------------------------
 
