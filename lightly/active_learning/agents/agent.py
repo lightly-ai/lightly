@@ -137,7 +137,7 @@ class ActiveLearningAgent:
                 raise ValueError(f"The scorer must have exactly as many samples as in the unlabeled set,"
                                  f"but there are {no_samples_with_predictions} predictions in the scorer,"
                                  f"but {no_unlabeled_samples} in the unlabeled set.")
-            scores_dict = al_scorer._calculate_scores()
+            scores_dict = al_scorer.calculate_scores()
         else:
             scores_dict = None
 

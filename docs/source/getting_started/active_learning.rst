@@ -45,9 +45,10 @@ Lightly makes use of the following concepts for active learning:
    
 * **Scorer:** :py:class:`lightly.active_learning.scorers.scorer.Scorer`
    The `Scorer` takes as input the predictions of a pre-trained model on the set
-   of unlabeled images. It evaluates different scores based on how certain the model
-   is about the images and passes them to the API so the sampler can use them with
-   Coral.
+   of unlabeled images. It offers a `calculate_scores()` method, which evaluates
+   different scores based on how certain the model is about the images. When
+   performing a sampling, the scores are passed to the API so the sampler can use
+   them with Coral.
    
 
 Continue reading to see how these components interact and how active learning is
