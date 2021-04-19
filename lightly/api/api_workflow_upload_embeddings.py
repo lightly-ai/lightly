@@ -96,9 +96,8 @@ class _UploadEmbeddingsMixin:
                                  f'{len(self.filenames_on_server)} filenames/samples on the server.')
             if set(filenames) != set(self.filenames_on_server):
                 raise ValueError(f'The filenames in the embedding file and the filenames on the server do not align')
-            are_valid_filenames = [_is_valid_filename(f) for f in filenames]
-            if not all(are_valid_filenames):
-                invalid_filenames = [f for f, v in zip(filenames, are_valid_filenames) if v]
+            invalid_filenames = [f for f in filenames if not _is_valid_filename(f)]
+            if len(invalid_filenames) > 0:
                 raise ValueError(f'Invalid filename(s) in embedding file: {invalid_filenames}')
 
             rows_without_header_ordered = self._order_list_by_filenames(filenames, rows_without_header)
