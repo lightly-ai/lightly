@@ -61,6 +61,7 @@ class _UploadDatasetMixin:
 
         # handle the case where len(dataset) < max_workers
         max_workers = min(len(dataset), max_workers)
+        max_workers = max(max_workers, 1)
 
         # upload the samples
         if verbose:
