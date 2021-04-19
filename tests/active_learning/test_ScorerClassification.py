@@ -13,7 +13,7 @@ class TestScorerClassification(unittest.TestCase):
         predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
         model_output = predictions_normalized
         scorer = ScorerClassification(model_output)
-        scores = scorer._calculate_scores()
+        scores = scorer.calculate_scores()
         scores_prediction_entropy = scores["prediction-entropy"]
         scores_prediction_margin = scores["prediction-margin"]
 
