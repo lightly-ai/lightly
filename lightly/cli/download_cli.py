@@ -10,6 +10,7 @@ command-line interface.
 
 import os
 import shutil
+import warnings
 
 import hydra
 from tqdm import tqdm
@@ -47,7 +48,7 @@ def _download_cli(cfg, is_cli_call=True):
     tag_name_id_dict = dict([tag.name, tag.id] for tag in api_workflow_client._get_all_tags())
     tag_id = tag_name_id_dict.get(tag_name, None)
     if tag_id is None:
-        print(f'The specified tag {tag_name} does not exist.')
+        warnings.warn(f'The specified tag {tag_name} does not exist.')
         return
 
     # get tag data
