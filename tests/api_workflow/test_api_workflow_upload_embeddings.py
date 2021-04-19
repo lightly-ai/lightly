@@ -22,6 +22,8 @@ class TestApiWorkflowUploadEmbeddigns(MockedApiWorkflowSetup):
         sample_names = [f'img_{i}.jpg' for i in range(n_data)]
         if special_name_first_sample:
             sample_names[0] = "bliblablub"
+        if comma_in_first_sample:
+            sample_names[0] = "bli,blablu"
         labels = [0] * len(sample_names)
         save_embeddings(
             path_to_embeddings,
