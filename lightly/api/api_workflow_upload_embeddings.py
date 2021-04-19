@@ -20,6 +20,15 @@ def _is_valid_filename(filename: str):
 class _UploadEmbeddingsMixin:
 
     def set_embedding_id_by_name(self, embedding_name: str = None):
+        """Sets the embedding id of the client by embedding name.
+
+        Args:
+            embedding_name:
+                Name under which the embedding was uploaded.
+    
+        Raises:
+            ValueError if the embedding does not exist.
+        """
         embeddings: List[DatasetEmbeddingData] = \
             self.embeddings_api.get_embeddings_by_dataset_id(dataset_id=self.dataset_id)
 
@@ -38,13 +47,13 @@ class _UploadEmbeddingsMixin:
         First checks that the specified embedding name is not on ther server. If it is, the upload is aborted.
         Then creates a new csv with the embeddings in the order specified on the server. Next it uploads it to the server.
         The received embedding_id is saved as a property of self.
-        Args:
-            path_to_embeddings_csv: the filepath to the .csv containing the embeddings, e.g. "path/to/embeddings.csv"
-            name: The name of the embedding. If an embedding with such a name already exists on the server,
-                the upload is aborted.
 
-        Returns:
-            None
+        Args:
+            path_to_embeddings_csv:
+                The path to the .csv containing the embeddings, e.g. "path/to/embeddings.csv"
+            name:
+                The name of the embedding. If an embedding with such a name already exists on the server,
+                the upload is aborted.
 
         """
         # get the names of the current embeddings on the server:

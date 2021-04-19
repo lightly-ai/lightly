@@ -85,12 +85,11 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
 
     @property
     def dataset_id(self) -> str:
-        ''' Returns the dataset_id
+        '''The current dataset_id.
 
         If the dataset_id is set, it is returned.
-        If it is unset, then the dataset_id of the last modified dataset is taken.
-
-        '''
+        If it is not set, then the dataset_id of the last modified dataset is selected.
+        ''' 
         try:
             return self._dataset_id
         except AttributeError:
@@ -127,6 +126,9 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin, _SamplingMixin, _UploadDatasetMi
 
     @property
     def filenames_on_server(self):
+        '''The list of the filenames in the dataset.
+
+        '''
         if not hasattr(self, "_filenames_on_server"):
             self._filenames_on_server = self.mappings_api. \
                 get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
