@@ -18,6 +18,7 @@ resize: -1                    # Allow resizing of the images before uploading, u
 embedding_name: 'default'     # Name of the embedding to be used on the platform.
 emb_upload_bsz: 32            # Number of embeddings which are uploaded in a single batch.
 tag_name: 'initial-tag'       # Name of the requested tag on the Lightly platform.
+exclude_parent_tag: False     # If true, only the samples in the defined tag, but without the parent tag, are taken
 
 ### training and embeddings
 pre_trained: True             # Whether to use a pre-trained model or not
@@ -128,6 +129,9 @@ hydra:
 
       Download a list of files in a given tag from the Lightly web solution
       > lightly-download tag_name='my-tag' dataset_id='your_dataset_id' token='your_access_token'
+
+      Download a list of files in a given tag without filenames from the parent tag from the Lightly web solution
+      > lightly-download tag_name='my-tag' dataset_id='your_dataset_id' token='your_access_token' exclude_parent_tag=True
 
       Copy all files in a given tag from a source directory to a target directory
       > lightly-download tag_name='my-tag' dataset_id='your_dataset_id' token='your_access_token' input_dir='data/' output_dir='new_data/'
