@@ -49,7 +49,8 @@ class ActiveLearningAgent:
 
     """
 
-    def __init__(self, api_workflow_client: ApiWorkflowClient, query_tag_name: str = None, preselected_tag_name: str = None):
+    def __init__(self, api_workflow_client: ApiWorkflowClient, query_tag_name: str = None,
+                 preselected_tag_name: str = None):
 
         self.api_workflow_client = api_workflow_client
         if query_tag_name is not None or preselected_tag_name is not None:
@@ -76,10 +77,12 @@ class ActiveLearningAgent:
                 optional param, then it must not be loaded from the API
 
         """
-        self.bitmask_labeled_set = BitMask.from_hex("0x0")
-        self.bitmask_added_set = BitMask.from_hex("0x0")
-        if self.preselected_tag_id is not None:
-            if preselected_tag_data is None:
+
+        if not hasattr(self, "bitmask_labeled_set"):
+            self.bitmask_labeled_set = BitMask.from_hex("0x0")  # empty labeled set
+            self.bitmask_added_set = BitMask.from_hex("0x0")  # empty added set
+        if self.preselected_tag_id is not None:  # else the default values (empty labeled and added set) are kept
+            if preselected_tag_data is None:  # if it is not passed as argument, it must be loaded from the API
                 preselected_tag_data = self.api_workflow_client.tags_api.get_tag_by_tag_id(
                     self.api_workflow_client.dataset_id, tag_id=self.preselected_tag_id)
             new_bitmask_labeled_set = BitMask.from_hex(preselected_tag_data.bit_mask_data)
@@ -111,38 +114,43 @@ class ActiveLearningAgent:
                 An instance of a class inheriting from Scorer, e.g. a ClassificationScorer.
 
         Returns:
-            The filenames of the samples in the new labeled_set and the added filenames.
+            The filenames of the samples in the new labeled_set
+            and the filenames of the samples chosen by the sampler.
+            This added_set was added to the old labeled_set
+            to form the new labeled_set.
 
         """
         # check input
         if sampler_config.n_samples < len(self.labeled_set):
             warnings.warn("ActiveLearningAgent.query: The number of samples which should be sampled "
-                           "including the current labeled set "
-                           "(sampler_config.n_samples) "
-                            "is smaller than the number of samples in the current labeled set.")
+                          "including the current labeled set "
+                          "(sampler_config.n_samples) "
+                          "is smaller than the number of samples in the current labeled set."
+                          "Skipping the sampling and returning the old labeled_set and"
+                          "no ne filenames.")
+            return self.labeled_set, []
 
+        # calculate scores
+        if al_scorer is not None:
+            no_unlabeled_samples = len(self.unlabeled_set)
+            no_samples_with_predictions = len(al_scorer.model_output)
+            if no_unlabeled_samples != no_samples_with_predictions:
+                raise ValueError(f"The scorer must have exactly as many samples as in the unlabeled set,"
+                                 f"but there are {no_samples_with_predictions} predictions in the scorer,"
+                                 f"but {no_unlabeled_samples} in the unlabeled set.")
+            scores_dict = al_scorer._calculate_scores()
         else:
-            # calculate scores
-            if al_scorer is not None:
-                no_unlabeled_samples = len(self.unlabeled_set)
-                no_samples_with_predictions = len(al_scorer.model_output)
-                if no_unlabeled_samples != no_samples_with_predictions:
-                    raise ValueError(f"The scorer must have exactly as much samples as in the unlabeled set,"
-                                     f"but there are {no_samples_with_predictions} predictions in the scorer,"
-                                     f"but {no_unlabeled_samples} in the unlabeled set.")
-                scores_dict = al_scorer._calculate_scores()
-            else:
-                scores_dict = None
+            scores_dict = None
 
-            # perform the sampling
-            new_tag_data = self.api_workflow_client.sampling(
-                sampler_config=sampler_config,
-                al_scores=scores_dict,
-                preselected_tag_id=self.preselected_tag_id,
-                query_tag_id=self.query_tag_id)
+        # perform the sampling
+        new_tag_data = self.api_workflow_client.sampling(
+            sampler_config=sampler_config,
+            al_scores=scores_dict,
+            preselected_tag_id=self.preselected_tag_id,
+            query_tag_id=self.query_tag_id)
 
-            # set the newly chosen tag as the new preselected_tag_id and update the sets
-            self.preselected_tag_id = new_tag_data.id
-            self._set_labeled_and_unlabeled_set(new_tag_data)
+        # set the newly chosen tag as the new preselected_tag_id and update the sets
+        self.preselected_tag_id = new_tag_data.id
+        self._set_labeled_and_unlabeled_set(new_tag_data)
 
         return self.labeled_set, self.added_set

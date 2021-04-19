@@ -1,4 +1,6 @@
 import unittest
+from random import random, seed, randint
+
 from lightly.api.bitmask import BitMask
 
 N = 10
@@ -91,31 +93,54 @@ class TestBitMask(unittest.TestCase):
         mask_a.intersection(mask_b)
         self.assertEqual(mask_a.x, int("0b100", 2))
 
-    def test_difference(self):
-        mask_a = BitMask.from_bin("0b101")
-        mask_b = BitMask.from_bin("0b001")
+    def assert_difference(self, bistring_1: str, bitstring_2: str, target: str):
+        mask_a = BitMask.from_bin(bistring_1)
+        mask_b = BitMask.from_bin(bitstring_2)
         mask_a.difference(mask_b)
-        self.assertEqual(mask_a.x, int("0b100", 2))
+        self.assertEqual(mask_a.x, int(target, 2))
+
+    def test_differences(self):
+        self.assert_difference("0b101", "0b001", "0b100")
+        self.assert_difference("0b0111", "0b1100", "0b0011")
+        self.assert_difference("0b10111", "0b01100", "0b10011")
+
+    def random_bitsting(self, length: int):
+        bitsting = '0b'
+        for i in range(length):
+            bitsting += str(randint(0, 1))
+        return bitsting
+
+    def test_difference_random(self):
+        seed(42)
+        for rep in range(10):
+            for string_length in range(1, 100, 10):
+                bitstring_1 = self.random_bitsting(string_length)
+                bitstring_2 = self.random_bitsting(string_length)
+                target = '0b'
+                for bit_1, bit_2 in zip(bitstring_1[2:], bitstring_2[2:]):
+                    if bit_1 == '1' and bit_2 == '0':
+                        target += '1'
+                    else:
+                        target += '0'
+                self.assert_difference(bitstring_1, bitstring_2, target)
 
     def test_operator_minus(self):
-        mask_a = BitMask.from_bin("0b101")
-        mask_b = BitMask.from_bin("0b001")
-        mask_target = BitMask.from_bin("0b100")
-        self.assertEqual(mask_a-mask_b, mask_target)
+        mask_a = BitMask.from_bin("0b10111")
+        mask_b = BitMask.from_bin("0b01100")
+        mask_target = BitMask.from_bin("0b10011")
+        self.assertEqual(mask_a - mask_b, mask_target)
 
     def test_equal(self):
         mask_a = BitMask.from_bin("0b101")
         mask_b = BitMask.from_bin("0b101")
         self.assertEqual(mask_a, mask_b)
 
-
     def test_subset_a_list(self):
         list_ = [4, 7, 9, 1]
         mask = BitMask.from_bin("0b0101")
         target_masked_list = [7, 1]
         masked_list = mask.subset_a_list(list_)
-        self.assertEqual(target_masked_list,masked_list)
-
+        self.assertEqual(target_masked_list, masked_list)
 
     def test_nonzero_bits(self):
 

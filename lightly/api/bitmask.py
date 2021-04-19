@@ -2,7 +2,7 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-
+from copy import deepcopy
 from typing import List
 
 
@@ -68,12 +68,6 @@ def _intersection(x: int, y: int) -> int:
     return x & y
 
 
-def _difference(x: int, y: int) -> int:
-    """Uses difference to get the intersection of the two masks.
-    """
-    return x - y
-
-
 def _get_kth_bit(x: int, k: int) -> int:
     """Returns the kth bit in the mask from the right.
     """
@@ -108,7 +102,7 @@ class BitMask:
         >>> # for a dataset with 10 images, assume the following tag
         >>> # 0001011001 where the 1st, 4th, 5th and 7th image are selected
         >>> # this tag would be stored as 0x59.
-        >>> hexstring = 0x59                    # what you receive from the api
+        >>> hexstring = '0x59'                    # what you receive from the api
         >>> mask = BitMask.from_hex(hexstring)  # create a bitmask from it
         >>> indices = mask.to_indices()         # get list of indices which are one
         >>> # indices is [0, 3, 4, 6]
@@ -194,10 +188,13 @@ class BitMask:
             >>> mask1.difference(mask2)
             >>> # mask1.binstring is '0b0011'
         """
-        self.x = _difference(self.x, other.x)
+        self.union(other)
+        self.x = self.x - other.x
 
     def __sub__(self, other):
-        return BitMask(self.x - other.x)
+        ret = deepcopy(self)
+        ret.difference(other)
+        return ret
 
     def __eq__(self, other):
         return self.to_bin() == other.to_bin()
