@@ -12,6 +12,7 @@ checkpoint: ''                # Path to a model checkpoint. If left empty, a pr
 # Lightly platform.
 token: ''                     # User access token to the platform.
 dataset_id: ''                # Identifier of the dataset on the platform
+new_dataset_name: ''          # Name of the new dataset to be created on the platform
 upload: 'full'                # Whether to upload full images, thumbnails only, or metadata only.
                               # Must be one of ['full', 'thumbnails', 'none']
 resize: -1                    # Allow resizing of the images before uploading, usage =-1, =x, =[x,y]
