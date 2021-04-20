@@ -6,7 +6,7 @@ from typing import Tuple, List
 import torchvision
 
 from lightly.data.dataset import LightlyDataset
-from lightly.data.lighty_subset import LightlySubset
+from lightly.data.lightly_subset import LightlySubset
 
 from tests.data.test_LightlyDataset import TestLightlyDataset
 
