@@ -25,7 +25,7 @@ lightly-cli_do_something_command
 
 ## Documentation
 - [ ] I have added docstrings to all changed/added public functions/methods.
-- [ ] My change requires a change to the documentation ( `.rst files).
+- [ ] My change requires a change to the documentation ( `.rst` files).
 - [ ] I have updated the documentation accordingly.
 - [ ] The autodocs update the documentation accordingly.`
 

@@ -17,7 +17,7 @@ Please_describe_what_you_changed_and_why___You_do_not_need_to_repeat_stuff_from_
 
 ## Documentation
 - [ ] I have added docstrings to all public functions/methods.
-- [ ] My change requires a change to the documentation ( .rst files).
+- [ ] My change requires a change to the documentation ( `.rst` files).
 - [ ] I have updated the documentation accordingly.
 - [ ] The autodocs update the documentation accordingly.
 
