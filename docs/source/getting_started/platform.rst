@@ -166,7 +166,7 @@ Images can also be uploaded from a Python script:
     from lightly.api.api_workflow_client import ApiWorkflowClient
     client = ApiWorkflowClient(token='123'm dataset_id='xyz')
 
-    # change mode to thumbnails or meta if you're working with sensitive data
+    # change mode to 'thumbnails' or 'meta' if you're working with sensitive data
     client.upload_dataset('path/to/your/images/', mode='full')
 
 
@@ -185,10 +185,11 @@ them from your Python code or using the CLI. The following snippet shows how to 
     from lightly.utils import save_embeddings
     from lightly.api.api_workflow_client import ApiWorkflowClient
 
-    # save embeddings
+    # store the embeddings in a lightly compatible CSV format before uploading
+    # them to the platform
     save_embeddings('embeddings.csv', embeddings, labels, filenames)
 
-    # upload them to the platform
+    # upload the embeddings.csv file to the platform
     client = ApiWorkflowClient(token='123', dataset_id='xyz')
     client.upload_embeddings('embeddings.csv', name='my-embeddings')
 
