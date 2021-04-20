@@ -15,7 +15,11 @@ class TestCLIUpload(MockedApiWorkflowSetup):
     @classmethod
     def setUpClass(cls) -> None:
         sys.modules["lightly.cli.upload_cli"].ApiWorkflowClient = MockedApiWorkflowClient
-        initialize(config_path="../../lightly/cli/config", job_name="test_app")
+
+    def setUp(self):
+        self.create_fake_dataset()
+        with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
+            self.cfg = compose(config_name="config", overrides=["token='123'", f"input_dir={self.folder_path}"])
 
     def create_fake_dataset(self, n_data: int=5):
         self.dataset = torchvision.datasets.FakeData(size=n_data,
@@ -28,10 +32,6 @@ class TestCLIUpload(MockedApiWorkflowSetup):
             data = self.dataset[sample_idx]
             path = os.path.join(self.folder_path, sample_names[sample_idx])
             data[0].save(path)
-
-    def setUp(self):
-        self.create_fake_dataset()
-        self.cfg = compose(config_name="config", overrides=["token='123'", f"input_dir={self.folder_path}"])
 
     def parse_cli_string(self, cli_words: str):
         cli_words = cli_words.replace("lightly-upload ", "")

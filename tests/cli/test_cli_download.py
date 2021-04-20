@@ -16,10 +16,11 @@ class TestCLIDownload(MockedApiWorkflowSetup):
     @classmethod
     def setUpClass(cls) -> None:
         sys.modules["lightly.cli.download_cli"].ApiWorkflowClient = MockedApiWorkflowClient
-        initialize(config_path="../../lightly/cli/config", job_name="test_app")
+
 
     def setUp(self):
-        self.cfg = compose(config_name="config", overrides=["token='123'", "dataset_id='XYZ'"])
+        with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
+            self.cfg = compose(config_name="config", overrides=["token='123'", "dataset_id='XYZ'"])
 
 
     def parse_cli_string(self, cli_words: str):
