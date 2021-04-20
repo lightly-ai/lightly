@@ -113,14 +113,14 @@ def upload_cli(cfg):
             to (size * height / width, size).
 
     Examples:
-        >>> # upload thumbnails to the Lightly platform to a new dataset
+        >>> # create a new dataset on the Lightly platform and upload thumbnails to it
         >>> lightly-upload input_dir=data/ token='123' new_dataset_name='new_dataset_name_xyz'
         >>>
-        >>> # upload thumbnails to the Lightly platform to an existing dataset
+        >>> # upload thumbnails to the Lightly platform to an existing dataset
         >>> lightly-upload input_dir=data/ token='123' dataset_id='XYZ'
         >>> 
-        >>> # upload full images to the Lightly platform
-        >>> lightly-upload input_dir=data/ token='123' dataset_id='XYZ' upload='full'
+        >>> # create a new dataset on the Lightly platform and upload full images to it
+        >>> lightly-upload input_dir=data/ token='123' new_dataset_name='new_dataset_name_xyz' upload='full'
         >>>
         >>> # upload metadata to the Lightly platform
         >>> lightly-upload input_dir=data/ token='123' dataset_id='XYZ' upload='metadata'
@@ -131,6 +131,9 @@ def upload_cli(cfg):
         >>> # upload both, images and embeddings in a single command
         >>> lightly-upload input_dir=data/ embeddings=embeddings.csv upload='full' \\
         >>>     token='123' dataset_id='XYZ'
+        >>> # create a new dataset on the Lightly platform and upload both, images and embeddings
+        >>> lightly-upload input_dir=data/ embeddings=embeddings.csv upload='full' \\
+        >>>     token='123' new_dataset_name='new_dataset_name_xyz'
 
     """
     _upload_cli(cfg)
