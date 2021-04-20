@@ -7,6 +7,7 @@ command-line interface.
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+import warnings
 
 import hydra
 
@@ -33,8 +34,7 @@ def _upload_cli(cfg, is_cli_call=True):
     new_dataset_name = cfg['new_dataset_name']
 
     if not token:
-        print('Please specify your access token.')
-        print('For help, try: lightly-upload --help')
+        warnings.warn('Please specify your access token. For help, try: lightly-upload --help')
         return
 
     dataset_id_ok = dataset_id and len(dataset_id) > 0
@@ -45,9 +45,8 @@ def _upload_cli(cfg, is_cli_call=True):
     elif dataset_id_ok and not new_dataset_name_ok:
         api_workflow_client = ApiWorkflowClient(token=token, dataset_id=dataset_id)
     else:
-        print('Please specify either the dataset_id of an existing dataset')
-        print('or a new_dataset_name.')
-        print('For help, try: lightly-upload --help')
+        warnings.warn('Please specify either the dataset_id of an existing dataset or a new_dataset_name. '
+                      'For help, try: lightly-upload --help')
         return
 
     size = cfg['resize']
@@ -114,7 +113,10 @@ def upload_cli(cfg):
             to (size * height / width, size).
 
     Examples:
-        >>> # upload thumbnails to the Lightly platform
+        >>> # upload thumbnails to the Lightly platform to a new dataset
+        >>> lightly-upload input_dir=data/ token='123' new_dataset_name='new_dataset_name_xyz'
+        >>>
+        >>> # upload thumbnails to the Lightly platform to an existing dataset
         >>> lightly-upload input_dir=data/ token='123' dataset_id='XYZ'
         >>> 
         >>> # upload full images to the Lightly platform
