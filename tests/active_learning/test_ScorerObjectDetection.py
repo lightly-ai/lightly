@@ -71,13 +71,19 @@ class TestScorerObjectDetection(unittest.TestCase):
         scorer = ScorerObjectDetection(self.dummy_data)
         scores = scorer.calculate_scores()
 
-        res = scores['object-frequency']
+        res = scores['object_frequency']
         self.assertEqual(len(res), len(self.dummy_data))
         self.assertListEqual(res.tolist(), [1.0, 0.95, 0.9])
 
-        res = scores['prediction-margin']
+        res = scores['objectness_least_confidence']
         self.assertEqual(len(res), len(self.dummy_data))
         self.assertListEqual(res.tolist(), [0.5514945, 0.9488, 0.])
+
+        for score_name, score in scores.items():
+            if "classification" in score_name:
+                self.assertEqual(len(res), len(self.dummy_data))
+            if score_name == "classification_uncertainty_least_confidence":
+                self.assertListEqual(score.tolist(), [max(0.5,0.3), 0.5, 0])
 
 
     def test_object_detection_scorer_config(self):

@@ -100,6 +100,7 @@ class ScorerClassification(Scorer):
 
         scores = dict()
         for score, score_name in scores_with_names:
+            score = np.nan_to_num(score)
             scores[score_name] = score
         return scores
 
