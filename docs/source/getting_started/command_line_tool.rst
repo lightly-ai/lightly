@@ -125,7 +125,7 @@ Upload embeddings using the CLI
 ----------------------------------
 
 You can upload embeddings directly to the Lightly Platform using the CLI.
-Again, you can use the *dataset_id* and *new_dataset_name* interchageably.
+Again, you can use the *dataset_id* and *new_dataset_name* interchangeably.
 
 .. code-block:: bash
 
