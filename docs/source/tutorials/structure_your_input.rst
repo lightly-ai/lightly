@@ -156,7 +156,7 @@ To upload the three videos from above to the platform, you can use
 
 .. code-block:: bash
 
-    lightly-upload token='123' dataset_id='XYZ' input_dir='data/'
+    lightly-upload token='123' new_dataset_name='my_video_dataset' input_dir='data/'
 
 All other operations (like training a self-supervised model and embedding the frames individually)
 also work on video data. Give it a try! 

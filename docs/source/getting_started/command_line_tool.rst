@@ -99,7 +99,9 @@ Upload data using the CLI
 In this example we will upload a dataset to the Lightly Platform.
 First, make sure you have an account on `Lightly <https://www.lightly.ai>`_. 
 A free account is sufficient. Log in to the app and create a new dataset. 
-You will get a *token* and *dataset_id* which can be used to upload your dataset
+You will get a *token* and *dataset_id* which can be used to upload your dataset.
+Alternatively, you can create a new dataset directly with the *token*
+by providing the *new_dataset_name* instead of the *dataset_id*.
 
 .. code-block:: bash
 
@@ -109,6 +111,9 @@ You will get a *token* and *dataset_id* which can be used to upload your dataset
     # you can upload the dataset together with the embeddings
     lightly-upload input_dir=cat embeddings=your_embedding.csv \
                    token=your_token dataset_id=your_dataset_id
+
+    # create a new dataset and upload to it
+    lightly-upload input_dir=cat token=your_token new_dataset_name=your_dataset_name
 
 .. note:: To obtain your *token* and *dataset_id* check: 
           :ref:`ref-authentication-token` and :ref:`ref-webapp-dataset-id`.
@@ -120,6 +125,7 @@ Upload embeddings using the CLI
 ----------------------------------
 
 You can upload embeddings directly to the Lightly Platform using the CLI.
+Again, you can use the *dataset_id* and *new_dataset_name* interchageably.
 
 .. code-block:: bash
 
@@ -129,7 +135,7 @@ You can upload embeddings directly to the Lightly Platform using the CLI.
 
     # you can upload the dataset together with the embeddings
     lightly-upload input_dir=cat embeddings=your_embedding.csv \
-                   token=your_token dataset_id=your_dataset_id
+                   token=your_token new_dataset_name=your_dataset_name
 
 
 Download data using the CLI
