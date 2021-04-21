@@ -153,7 +153,7 @@ class ScorerClassification(Scorer):
 
     def _get_scores_uncertainty_least_confidence(self):
         scores = 1 - np.max(self.model_output, axis=1)
-        return scores, "uncertainty_least_confidence"
+        return scores
 
     def _get_scores_uncertainty_margin(self):
         scores = 1 - _margin_largest_secondlargest(self.model_output)
