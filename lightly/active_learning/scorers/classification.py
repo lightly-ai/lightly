@@ -25,6 +25,23 @@ def _entropy(probs: np.ndarray, axis: int = 1) -> np.ndarray:
     entropies = -1 * np.sum(probs * log_probs, axis=axis)
     return entropies
 
+def _margin_largest_secondlargest(probs: np.ndarray) -> np.ndarray:
+    """Computes the margin of a probability matrix
+
+        Args:
+            probs:
+                A probability matrix of shape (N, M)
+
+        Exammple:
+            if probs.shape = (N, C) then margins.shape = (N, )
+
+        Returns:
+            The margin of the prediction vectors
+        """
+    sorted_probs = np.partition(probs, -2, axis=1)
+    margins = sorted_probs[:, -1] - sorted_probs[:, -2]
+    return margins
+
 
 class ScorerClassification(Scorer):
     """Class to compute active learning scores from the model_output of a classification task.
@@ -74,15 +91,31 @@ class ScorerClassification(Scorer):
             A dictionary mapping from the score name (as string)
             to the scores (as a single-dimensional numpy array).
         """
+
+        scores_with_names = [
+            self._get_scores_uncertainty_least_confidence(),
+            self._get_scores_uncertainty_margin(),
+            self._get_scores_uncertainty_entropy()
+        ]
+
         scores = dict()
-        scores["prediction-margin"] = self._get_prediction_margin_score()
-        scores["prediction-entropy"] = self._get_prediction_entropy_score()
+        for score, score_name in scores_with_names:
+            scores[score_name] = score
         return scores
 
-    def _get_prediction_margin_score(self):
-        uncertainties = np.array([1 - max(class_probabilities) for class_probabilities in self.model_output])
-        return uncertainties
+    """
+    The following three uncertainty scores are taken from
+    http://burrsettles.com/pub/settles.activelearning.pdf, Section 3.1, page 12f
+    and also explained in https://towardsdatascience.com/uncertainty-sampling-cheatsheet-ec57bc067c0b
+    """
+    def _get_scores_uncertainty_least_confidence(self):
+        scores = np.array([1 - max(class_probabilities) for class_probabilities in self.model_output])
+        return scores, "uncertainty_least_confidence"
 
-    def _get_prediction_entropy_score(self):
-        uncertainties = _entropy(self.model_output, axis=1)
-        return uncertainties
+    def _get_scores_uncertainty_margin(self):
+        scores = 1 - _margin_largest_secondlargest(self.model_output)
+        return scores, "uncertainty_margin"
+
+    def _get_scores_uncertainty_entropy(self):
+        scores = _entropy(self.model_output, axis=1)
+        return scores, "uncertainty_entropy"
