@@ -7,18 +7,19 @@ embeddings: ''                # Path to csv file which holds embeddings.
 checkpoint: ''                # Path to a model checkpoint. If left empty, a pre-trained model
                               # will be used.
 
-### platform
+### Lightly platform
 # The following arguments are required for requests to the
 # Lightly platform.
-token: ''                     # User access token to the platform.
-dataset_id: ''                # Identifier of the dataset on the platform
+token: ''                     # User access token to the Lightly platform.
+dataset_id: ''                # Identifier of the dataset on the Lightly platform.
+new_dataset_name: ''          # Name of the new dataset to be created on the Lightly platform
 upload: 'full'                # Whether to upload full images, thumbnails only, or metadata only.
                               # Must be one of ['full', 'thumbnails', 'none']
 resize: -1                    # Allow resizing of the images before uploading, usage =-1, =x, =[x,y]
-embedding_name: 'default'     # Name of the embedding to be used on the platform.
+embedding_name: 'default'     # Name of the embedding to be used on the Lightly platform.
 emb_upload_bsz: 32            # Number of embeddings which are uploaded in a single batch.
 tag_name: 'initial-tag'       # Name of the requested tag on the Lightly platform.
-exclude_parent_tag: False     # If true, only the samples in the defined tag, but without the parent tag, are taken
+exclude_parent_tag: False     # If true, only the samples in the defined tag, but without the parent tag, are taken.
 
 ### training and embeddings
 pre_trained: True             # Whether to use a pre-trained model or not
