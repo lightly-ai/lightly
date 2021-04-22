@@ -7,17 +7,26 @@ import lightly
 class TestNestedImports(unittest.TestCase):
 
     def test_nested_imports(self):
-        # active learning (commented out don't work)
-        #lightly.active_learning.agents.agent.ActiveLearningAgent
-        #lightly.active_learning.agents.ActiveLearningAgent
+        # active learning
+        lightly.active_learning.agents.agent.ActiveLearningAgent
+        lightly.active_learning.agents.ActiveLearningAgent
         lightly.active_learning.config.sampler_config.SamplerConfig
-        #lightly.active_learning.scorers.classification.ScorerClassification
+        lightly.active_learning.config.SamplerConfig
+        lightly.active_learning.scorers.classification.ScorerClassification
+        lightly.active_learning.scorers.ScorerClassification
+        lightly.active_learning.scorers.detection.ScorerObjectDetection
+        lightly.active_learning.scorers.ScorerObjectDetection
+        lightly.active_learning.utils.bounding_box.BoundingBox
+        lightly.active_learning.utils.BoundingBox
+        lightly.active_learning.utils.object_detection_output.ObjectDetectionOutput
+        lightly.active_learning.utils.ObjectDetectionOutput
 
         # api imports
         lightly.api.routes.users.docker.get_authorization
         lightly.api.routes.users.docker.get_soft_authorization
         lightly.api.routes.users.docker.post_diagnostics
         lightly.api.api_workflow_client.ApiWorkflowClient
+        lightly.api.ApiWorkflowClient
         lightly.api.bitmask.BitMask
 
         # data imports

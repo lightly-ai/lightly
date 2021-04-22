@@ -9,10 +9,10 @@ class TestSemiNestedImports(unittest.TestCase):
     def test_seminested_imports(self):
         from lightly import active_learning
         # active learning (commented out don't work)
-        #lightly.active_learning.agents.agent.ActiveLearningAgent
-        #lightly.active_learning.agents.ActiveLearningAgent
-        active_learning.config.sampler_config.SamplerConfig
-        #lightly.active_learning.scorers.classification.ScorerClassification
+        active_learning.agents.ActiveLearningAgent
+        active_learning.config.SamplerConfig
+        active_learning.scorers.ScorerClassification
+        active_learning.scorers.ScorerObjectDetection
 
         # api imports
         from lightly import api

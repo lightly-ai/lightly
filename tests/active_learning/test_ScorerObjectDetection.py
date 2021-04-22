@@ -69,7 +69,7 @@ class TestScorerObjectDetection(unittest.TestCase):
             )
 
         scorer = ScorerObjectDetection(self.dummy_data)
-        scores = scorer._calculate_scores()
+        scores = scorer.calculate_scores()
 
         res = scores['object-frequency']
         self.assertEqual(len(res), len(self.dummy_data))
@@ -101,7 +101,7 @@ class TestScorerObjectDetection(unittest.TestCase):
 
         # check for default config
         scorer = ScorerObjectDetection(self.dummy_data)
-        scores = scorer._calculate_scores()
+        scores = scorer.calculate_scores()
         expected_default_config = {
             'frequency_penalty': 0.25,
             'min_score': 0.9
@@ -114,7 +114,7 @@ class TestScorerObjectDetection(unittest.TestCase):
             'min_score': 0.6
         }
         scorer = ScorerObjectDetection(self.dummy_data, config=new_config)
-        scores = scorer._calculate_scores()
+        scores = scorer.calculate_scores()
         self.assertDictEqual(scorer.config, new_config)
 
         # check for invalid key passed

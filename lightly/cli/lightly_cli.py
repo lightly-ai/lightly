@@ -31,7 +31,7 @@ def _lightly_cli(cfg, is_cli_call=True):
     embeddings = _embed_cli(cfg, is_cli_call)
     cfg['embeddings'] = embeddings
 
-    if cfg['token'] and cfg['dataset_id']:
+    if cfg['token'] and (cfg['dataset_id'] or cfg['new_dataset_name']):
         _upload_cli(cfg)   
 
 
