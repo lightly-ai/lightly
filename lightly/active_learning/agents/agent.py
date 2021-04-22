@@ -14,10 +14,20 @@ class ActiveLearningAgent:
     Attributes:
         api_workflow_client:
             The client to connect to the api.
-        TODO
+        query_set:
+            Set of filenames corresponding to samples which can possibly be selected.
+            Set to all samples in the query tag or to the whole dataset by default.
+        labeled_set:
+            Set of filenames corresponding to samples in the labeled set.
+            Set to all samples in the preselected tag or to an empty list by default.
+        unlabeled_set:
+            Set of filenames corresponding to samples which are in the query set
+            but not in the labeled set.
+        added_set:
+            Set of filenames corresponding to samples which were added to the 
+            labeled set in the last query.
 
     Examples:
-        TODO: rework
         >>> # set the token and dataset id
         >>> token = '123'
         >>> dataset_id = 'XYZ'
@@ -28,18 +38,20 @@ class ActiveLearningAgent:
         >>>
         >>> # make an initial active learning query
         >>> sampler_config = SamplerConfig(n_samples=100, name='initial-set')
-        >>> initial_set = agent.query(sampler_config)
-        >>> unlabeled_set = agent.unlabeled_set
+        >>> initial_set, _ = agent.query(sampler_config)
         >>>
         >>> # train and evaluate a model on the initial set
-        >>> # make predictions on the unlabeled set (keep ordering of filenames)
+        >>> # make predictions on the query set:
+        >>> query_set = agent.query_set
+        >>> # important:
+        >>> # be sure to keep the order of the query set when you make predictions
         >>>
         >>> # create active learning scorer
         >>> scorer = ScorerClassification(predictions)
         >>>
         >>> # make a second active learning query
         >>> sampler_config = SamplerConfig(n_samples=200, name='second-set')
-        >>> second_set = agent.query(sampler_config, scorer)
+        >>> second_set, added_set = agent.query(sampler_config, scorer)
 
     """
 
@@ -159,7 +171,9 @@ class ActiveLearningAgent:
               al_scorer: Scorer = None) -> Tuple[List[str], List[str]]:
         """Performs an active learning query.
 
-        TODO: what happens here?
+        After the query, the labeled set is updated to contain all selected samples,
+        the added set is recalculated as (new labeled set - old labeled set), and
+        the query set stays the same.
 
         Args:
             sampler_config:
