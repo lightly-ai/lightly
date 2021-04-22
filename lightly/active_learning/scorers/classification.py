@@ -67,7 +67,13 @@ class ScorerClassification(Scorer):
     def __init__(self, model_output: np.ndarray):
         super(ScorerClassification, self).__init__(model_output)
 
-    def _calculate_scores(self) -> Dict[str, np.ndarray]:
+    def calculate_scores(self) -> Dict[str, np.ndarray]:
+        """Calculates and returns the active learning scores.
+
+        Returns:
+            A dictionary mapping from the score name (as string)
+            to the scores (as a single-dimensional numpy array).
+        """
         scores = dict()
         scores["prediction-margin"] = self._get_prediction_margin_score()
         scores["prediction-entropy"] = self._get_prediction_entropy_score()

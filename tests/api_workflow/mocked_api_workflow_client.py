@@ -16,7 +16,7 @@ from lightly.api.api_workflow_client import ApiWorkflowClient
 from typing import *
 
 from lightly.openapi_generated.swagger_client import ScoresApi, CreateEntityResponse, SamplesApi, SampleCreateRequest, \
-    InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi
+    InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, TagArithmeticsRequest, TagBitMaskResponse
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -93,18 +93,24 @@ class MockedTagsApi(TagsApi):
 
     def get_tags_by_dataset_id(self, dataset_id, **kwargs):
         tag_1 = TagData(id='inital_tag_id', dataset_id=dataset_id, prev_tag_id=None,
-                        bit_mask_data="0x80bda23e9", name='initial-tag', tot_size=15,
+                        bit_mask_data="0xF", name='initial-tag', tot_size=4,
                         created_at=1577836800, changes=dict())
         tag_2 = TagData(id='query_tag_id_xyz', dataset_id=dataset_id, prev_tag_id="initial-tag",
-                        bit_mask_data="0x80bda23e9", name='query_tag_name_xyz', tot_size=15,
+                        bit_mask_data="0xF", name='query_tag_name_xyz', tot_size=4,
                         created_at=1577836800, changes=dict())
         tag_3 = TagData(id='preselected_tag_id_xyz', dataset_id=dataset_id, prev_tag_id="initial-tag",
-                        bit_mask_data="0x80bda23e9", name='preselected_tag_name_xyz', tot_size=15,
+                        bit_mask_data="0x1", name='preselected_tag_name_xyz', tot_size=4,
                         created_at=1577836800, changes=dict())
-        tags = [tag_1, tag_2, tag_3]
-        no_tags_to_return = getattr(self, "no_tags", 3)
+        tag_4 = TagData(id='sampled_tag_xyz', dataset_id=dataset_id, prev_tag_id="preselected_tag_id_xyz",
+                        bit_mask_data="0x3", name='sampled_tag_xyz', tot_size=4,
+                        created_at=1577836800, changes=dict())
+        tags = [tag_1, tag_2, tag_3, tag_4]
+        no_tags_to_return = getattr(self, "no_tags", 4)
         tags = tags[:no_tags_to_return]
         return tags
+
+    def perform_tag_arithmetics(self, body: TagArithmeticsRequest, dataset_id, **kwargs):
+        return TagBitMaskResponse(bit_mask_data="0x2")
 
 
 class MockedScoresApi(ScoresApi):
