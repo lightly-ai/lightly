@@ -7,7 +7,7 @@ Please_describe_what_you_changed_and_why___You_do_not_need_to_repeat_stuff_from_
 ## Tests
 - [ ] My change is covered by existing tests.
 - [ ] My change needs new tests.
-- [ ] I have added/adapted tests accordingly.
+- [ ] I have added/adapted the tests accordingly.
 - [ ] I have manually tested the change. if_yes_describe_how
 
 ## Documentation
