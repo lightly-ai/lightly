@@ -107,15 +107,14 @@ def _mean_classification_scores(
         output_scores_dict[score_name] = []
     ## Fill the dictionary
     for scores_dict in scores_dict_list:
-        if len(scores_dict.keys()) == len(score_names):
-            for score_name, score in scores_dict.items():
+        if len(scores_dict.keys())>0:
+            for score_name in score_names:
+                score = scores_dict[score_name]
                 scalar_score = float(reduce_fn_over_bounding_boxes(score))
                 output_scores_dict[score_name].append(scalar_score)
-        elif len(scores_dict.keys()) == 0:
+        else:
             for score_name in score_names:
                 output_scores_dict[score_name].append(0)
-        else:
-            raise ValueError("Got a scores_dict dict with a diverging number of scores, this should never happen.")
 
     return output_scores_dict
 
@@ -248,7 +247,7 @@ class ScorerObjectDetection(Scorer):
 
         # add classification scores
         scores_dict_classification = \
-            _mean_classification_scores(model_output=self.model_output, n_classes=self._get_number_classes())
+            _mean_classification_scores(model_output=self.model_output)
         for score_name, score in scores_dict_classification.items():
             scores[f"classification_{score_name}"] = score
         return scores
