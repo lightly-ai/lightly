@@ -135,6 +135,13 @@ class ScorerObjectDetection(Scorer):
             prediction. Use this scorer to select images where the model is
             insecure.
 
+        scores from ScorerClassification:
+            These scores are computed for each object detection out of
+            the class probability prediction for this detection.
+            Then these scores are reduced to one score per image
+            by taking the maximum. The scores are named as
+            f"classification_{score_name}".
+
     Attributes:
         model_output:
             List of model outputs in an object detection setting.

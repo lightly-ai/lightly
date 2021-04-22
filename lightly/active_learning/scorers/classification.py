@@ -48,14 +48,25 @@ class ScorerClassification(Scorer):
 
     Currently supports the following scorers:
 
-        `prediction-margin`:
-            This scorer uses the margin between 1.0 and the highest confidence
-            prediction. Use this scorer to select images where the model is
-            insecure.
+        The following three uncertainty scores are taken from
+        http://burrsettles.com/pub/settles.activelearning.pdf, Section 3.1, page 12f
+        and also explained in https://towardsdatascience.com/uncertainty-sampling-cheatsheet-ec57bc067c0b
+        They all have in common, that the score is highest if all classes have the
+        same confidence and are 0 if the model assigns 100% probability to a single class.
+        The differ in the number of class confidences they take into account.
 
-        `prediction-entropy`:
-            This scorer computes the entropy of the prediction. All
-            confidences are considered to compute the entropy of a sample.
+        `uncertainty_least_confidence`:
+            This score is 1 - the highest confidence prediction. It is high
+            when the confidence about the most probable class is low.
+
+        `uncertainty_margin`
+            This score is 1- the margin between the highest conficence
+            and second highest confidence prediction. It is high when the model
+            cannot decide between the two most probable classes.
+
+        `uncertainty_entropy`:
+            This scorer computes the entropy of the prediction. The confidences
+             for all classes are considered to compute the entropy of a sample.
 
     Attributes:
         model_output:
@@ -104,11 +115,6 @@ class ScorerClassification(Scorer):
             scores[score_name] = score
         return scores
 
-    """
-    The following three uncertainty scores are taken from
-    http://burrsettles.com/pub/settles.activelearning.pdf, Section 3.1, page 12f
-    and also explained in https://towardsdatascience.com/uncertainty-sampling-cheatsheet-ec57bc067c0b
-    """
     def _get_scores_uncertainty_least_confidence(self):
         scores = np.array([1 - max(class_probabilities) for class_probabilities in self.model_output])
         return scores, "uncertainty_least_confidence"
