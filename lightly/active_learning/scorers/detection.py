@@ -2,13 +2,14 @@ from typing import *
 
 import numpy as np
 
+from lightly.active_learning.scorers import ScorerClassification
 from lightly.active_learning.scorers.scorer import Scorer
 from lightly.active_learning.utils.object_detection_output import ObjectDetectionOutput
 
 
 def _object_frequency(model_output: List[ObjectDetectionOutput],
                       frequency_penalty: float,
-                      min_score: float) -> np.ndarray:
+                      min_score: float) -> Tuple[np.ndarray, str]:
     """Score which prefers samples with many and diverse objects.
 
     Args:
@@ -41,10 +42,10 @@ def _object_frequency(model_output: List[ObjectDetectionOutput],
     _min = min(n_objs)
     _max = max(n_objs)
     scores = [np.interp(x, (_min, _max), (min_score, 1.0)) for x in n_objs]
-    return np.asarray(scores)
+    return np.asarray(scores), "object_frequency"
 
 
-def _prediction_margin(model_output: List[ObjectDetectionOutput]):
+def _prediction_margin(model_output: List[ObjectDetectionOutput]) -> Tuple[np.ndarray, str]:
     """Score which prefers samples with low max(class prob) * objectness.
 
     Args:
@@ -65,7 +66,54 @@ def _prediction_margin(model_output: List[ObjectDetectionOutput]):
             # set the score to 0 if there was no bounding box detected
             score = 0.
         scores.append(score)
-    return np.asarray(scores)
+
+    return np.asarray(scores), "objectness_least_confidence"
+
+
+def _reduce_classification_scores_over_boxes(
+        model_output: List[ObjectDetectionOutput],
+        reduce_fn_over_bounding_boxes: Callable[[np.ndarray], float] = np.max,
+        default_value_no_bounding_box: float = 0
+) -> Dict[str, List[float]]:
+    """Calculates classification scores over the mean of all found objects
+
+    Args:
+        model_output:
+            Predictions of the model of length N.
+        reduce_fn_over_bounding_boxes:
+            TODO
+        default_value_no_bounding_box:
+            TODO
+
+    Returns:
+        Numpy array of length N with the computed scores.
+
+    """
+    # calculate a score dictionary for each sample
+    scores_dict_list: List[dict[str, np.ndarray]] = []
+    for index_sample, output in enumerate(model_output):
+        probs = np.array(output.class_probabilities)
+        scores_dict_this_sample = ScorerClassification(model_output=probs).calculate_scores()
+        scores_dict_list.append(scores_dict_this_sample)
+
+    score_names = ScorerClassification.score_names()
+
+    # reduce it to one score per sample
+
+    # Initialize the dictionary
+    output_scores_dict = {score_name: [] for score_name in score_names}
+
+    # Fill the dictionary
+    for scores_dict in scores_dict_list:
+        for score_name in score_names:
+            score: np.ndarray = scores_dict[score_name]
+            if len(score) > 0:
+                scalar_score = float(reduce_fn_over_bounding_boxes(score))
+            else:
+                scalar_score = default_value_no_bounding_box
+            output_scores_dict[score_name].append(scalar_score)
+
+    return output_scores_dict
 
 
 class ScorerObjectDetection(Scorer):
@@ -193,16 +241,27 @@ class ScorerObjectDetection(Scorer):
             to the scores (as a single-dimensional numpy array).
         """
         scores = dict()
-        scores['object-frequency'] = self._get_object_frequency()
-        scores['prediction-margin'] = self._get_prediction_margin()
+        scores_with_names = [
+            self._get_object_frequency()
+            self._get_prediction_margin()
+        ]
+        for score, score_name in scores_with_names:
+            score = np.nan_to_num(score)
+            scores[score_name] = score
+
+        # add classification scores
+        scores_dict_classification = \
+            _reduce_classification_scores_over_boxes(model_output=self.model_output)
+        for score_name, score in scores_dict_classification.items():
+            scores[f"classification_{score_name}"] = score
+
         return scores
 
     def _get_object_frequency(self):
-        scores = _object_frequency(
+        return _object_frequency(
             self.model_output,
             self.config['frequency_penalty'],
             self.config['min_score'])
 
     def _get_prediction_margin(self):
-        scores = _prediction_margin(self.model_output)
-        return scores
+        return _prediction_margin(self.model_output)
