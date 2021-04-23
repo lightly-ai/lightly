@@ -20,7 +20,7 @@ def _object_frequency(model_output: List[ObjectDetectionOutput],
             object only as 0.25.
         min_score:
             The minimum score a single sample can have
-
+        
     Returns:
         Numpy array of length N with the computed scores
 
