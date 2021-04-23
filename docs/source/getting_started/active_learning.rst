@@ -71,7 +71,7 @@ dataset_id and token.
    # use trainer.max_epochs=0 to skip training
    lightly-magic input_dir='path/to/your/raw/dataset' dataset_id='xyz' token='123' trainer.max_epochs=0
 
-Next, you will need to initialize the `ApiWorkflowClient` and the `ActiveLearningAgent`
+Then, in your Python script, you will need to initialize the `ApiWorkflowClient` and the `ActiveLearningAgent`
 
 .. code-block:: Python
 
@@ -89,7 +89,7 @@ Next, you will need to initialize the `ApiWorkflowClient` and the `ActiveLearnin
    it could be that a large portion of the images is blurry. In that case, it's 
    possible to create a tag in the web-app which only contains the sharp images
    and tell the `ActiveLearningAgent` to only sample from this tag. To do so, set
-   the `query_tag_name` argument in the constructor.
+   the `query_tag_name` argument in the constructor of the agent.
 
 Let's configure the sampling request and request an initial selection next:
 
@@ -98,23 +98,26 @@ Let's configure the sampling request and request an initial selection next:
    from lightly.active_learning.config import SamplerConfig
    from lightly.openapi_generated.swagger_client import SamplingMethod
 
-   # we want an initial pool of 100 images
-   config = SamplerConfig(n_samples=100, method=SamplingMethod.CORESET, name='initial-selection')
-   initial_selection = al_agent.query(config)
+   # we want an initial pool of 150 images
+   config = SamplerConfig(n_samples=150, method=SamplingMethod.CORESET, name='initial-selection')
+   al_agent.query(config)
+   initial_selection = al_agent.labeled_set
    
-   # initial_selection contains now 100 filenames
+   # initial_selection now contains 150 filenames
+   assert len(initial_selection) == 150
 
-The query returns the list of filenames corresponding to the initial selection. Additionally, you
-will find that a tag has been created in the web-app under the name "initial-selection".
-Head there to scroll through the samples and download the selected images before annotating them.
+The result of the query is a tag in the web-app under the name "initial-selection". The tag contains
+the images which were selected by the sampling algorithm. Head there to scroll through the samples and
+download the selected images before annotating them. Alternatively, you can access the filenames
+of the selected images via the attribute `labeled_set` as shown above.
 
 
 Active Learning Step
 ----------------------
 
 After you have annotated your initial selection of images, you can train a model
-on them. The trained model can then be used to figure out, with which images it 
-has problems. These images can then be added to the labeled dataset.
+on them. The trained model can then be used to figure out which images pose problems.
+This section will show you how these images can be added to the labeled dataset.
 
 To continue with active learning with Lightly, you will need the `ApiWorkflowClient` and `ActiveLearningAgent` from before.
 If you perform the next selection step in a new file you have to initialize the client and agent again.
@@ -130,23 +133,22 @@ have to re-initialize them, the tracking of the tags is taken care of for you.
    al_agent = ActiveLearningAgent(api_client, preselected_tag_name='initial-selection')
 
 The next part is what differentiates active learning from simple subsampling; the
-trained model is used to get predictions on the unlabeled data and the sampler then
-decides based on these predictions. To get a list of all filenames in the unlabeled set,
-you can simply call
+trained model is used to get predictions on the data and the sampler then
+decides based on these predictions. To get a list of all filenames for which 
+predictions are required, you can use the `query_set`:
 
 .. code-block:: Python
 
-   # get all filenames in the unlabeled set
-   unlabeled_set = al_agent.unlabeled_set
+   # get all filenames in the query set
+   query_set = al_agent.query_set
 
 Use this list to get predictions on the unlabeled images.
 
 **Important:** The predictions need to be in the same order as the filenames in the
-list returned by the `ActiveLearningAgent` and they need to be stored in a numpy array.
+list returned by the `ActiveLearningAgent`.
 
-Once you have the scores in the right order, make sure to normalize them such that
-the rows sum to one. Then, create a scorer object like so:
-
+For classification, the predictions need to be in a numpy array and normalized,
+such that the rows sum to one. Then, create a scorer object like so:
 
 .. code-block:: Python
 
@@ -159,16 +161,21 @@ here is that the argument `n_samples` always refers to the total size of the lab
 
 .. code-block:: Python
 
-   # we want a total of 200 images after the first iteration
+   # we want a total of 200 images after the first iteration (50 new samples)
    # this time, we use the CORAL sampler and provide a scorer to the query
    config = SamplerConfig(n_samples=200, method=SamplingMethod.CORAL, name='al-iteration-1')
-   labeled_set_iteration_1 = al_agent.query(sampler_config, scorer)
+   al_agent.query(sampler_config, scorer)
+
+   labeled_set_iteration_1 = al_agent.labeled_set
+   added_set_iteration_1 = al_agent.added_set
 
    assert len(labeled_set_iteration_1) == 200
+   assert len(added_set_iteration_1) == 50
 
-As before, you will receive the filenames of all the images in the labeled set and there
-will be a new tag named `al-iteration-1` visible in the web-app. You can repeat the active
-learning step until the model achieves the required accuracy.
+As before, there will be a new tag named `al-iteration-1` visible in the web-app. Additionally, 
+you can access the filenames of all the images in the labeled set and the filenames which were
+added by this query via the attributes `labeled_set` and `added_set` respectively.
+You can repeat the active learning step until the model achieves the required accuracy.
 
 Scorers
 -----------------
