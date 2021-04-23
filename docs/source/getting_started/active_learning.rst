@@ -164,6 +164,7 @@ here is that the argument `n_samples` always refers to the total size of the lab
    # we want a total of 200 images after the first iteration (50 new samples)
    # this time, we use the CORAL sampler and provide a scorer to the query
    config = SamplerConfig(n_samples=200, method=SamplingMethod.CORAL, name='al-iteration-1')
+
    al_agent.query(sampler_config, scorer)
 
    labeled_set_iteration_1 = al_agent.labeled_set
