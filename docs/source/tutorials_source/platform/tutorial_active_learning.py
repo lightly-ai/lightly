@@ -43,48 +43,65 @@ What you will learn
 * You learn how an active learning loop is set up and which components are needed for it.
 * You learn how to perform active learning with Lightly.
 
-Requirements
+Define your dataset
 ------------
-- Make sure you are familiar with the command line tools described at :ref:`lightly-command-line-tool`.
 - To make the definition of the dataset for training the classifier easy,
   we recommend using a dataset where the samples are grouped into folder according to their class.
   We use the clothing-dataset-small. You can download it using
 
 .. code::
 
-    git clone https://github.com/alexeygrigorev/clothing-dataset-small.git
+    git clone https://github.com/alexeygrigorev/clothing-dataset-small.git ./clothing-dataset-small
+
+The dataset's images are RGB images with a few hundred pixels in width and height. They show clothes
+from 10 different clothes, like dresses, hats or t-shirts. The dataset is already split into a train,
+test and validation set and all images for one class are put into one folder.
+
+.. image:: ./images/clothing-dataset-small-structure.png
+  :width: 400
+  :alt: The directory and file structure of the clothing dataset small
 
 
 Creation of the dataset on the Lightly Platform with embeddings
 ---------------------------------------------------------------
 
-To perform samplings, we need to perform several steps, ideally with the CLI.
-More documentation on each step can be found here: :ref:`lightly-command-line-tool`.
-
-A. Train a model on the dataset, e.g. with
-
-.. code::
-
-    lightly-train input_dir="/datasets/clothing-dataset-small/train trainer.max_epochs=5
-
-B. Create embeddings for the dataset, e.g. with
+To perform samplings, we need a dataset with embeddings on the Lightly platform.
+The first step for it is training an embedding model. Next, your dataset is embedded.
+Last, the dataset and the embeddings are uploaded to the Lightly platform.
+These three steps can all be done using our lightly pip package with the single lightly-magic command:
 
 .. code::
-    
-    lightly-embed input_dir="/datasets/clothing-dataset-small/train" checkpoint=mycheckpoint.ckpt
+    #### Commands in terminal / command line
 
-Save the path to the embeddings.csv, you will need it later.
-for uploading the embeddings and for defining the dataset for the classifier
+    # Lightly is installed as a pip package
+    pip install lightly
 
-C. Create a new dataset on the lightly platform as described in :ref:`lightly-platform`.
-Save the token and dataset id, you will need them later to upload the images and embeddings
-and to run the active learning samplers.
+    # Your personal token for accessing the Lightly Platform is defined. You can get it from
+    # the Lightly platform at https://app.lightly.ai under your username and then Preferences.
+    export LIGHTLY_TOKEN="YOUR_TOKEN"
 
-D. Upload the images to the platform, e.g. with
+    # You set the name your dataset should have on the lightly platform.
+    # You can give it any name you want and change the default name.
+    export LIGHTLY_DATASET_NAME="clothing_dataset_small"
 
-.. code::
-    
-    lightly-upload input_dir="/datasets/clothing-dataset-small/train" token="yourToken" dataset_id="yourDatasetId"
+    # The `lightly-magic command first needs the input directory of your dataset.
+    # Then it needs the information for how many epochs to train an embedding model on it.
+    # If you want to use our pretrained model instead, set trainer.max_epochs=0.
+    # Next, the embedding model is used to embed all images in in input directory and saves the embeddings in
+    # a csv file. Last, a new dataset with the specified name is created on the Lightly platform.
+    # The embeddings file is uploaded to it and the images itself are uploaded with 8 workers in parallel.
+    lightly-magic input_dir="./clothing-dataset-small/train" trainer.max_epochs=0 token=$LIGHTLY_TOKEN new_dataset_name=$LIGHTLY_DATASET_NAME loader.num_workers=8
+
+    # In the console output of the lightly-magic command, you find the filename of the created
+    # embeddings file. We need this file later, so set the path to it as environment variable.
+    export LIGHTLY_EMBEDDINGS_CSV="path_to_the_embeddings_csv"
+
+
+Optional:
+You can find out more about the CLI commands and their parameters at https://docs.lightly.ai/lightly.cli.html
+
+Optional:
+You can have a look at your dataset and embeddings by browsing to it on the lightly platform.
 
 """
 
@@ -94,6 +111,7 @@ D. Upload the images to the platform, e.g. with
 # -----------------
 #
 # Import the Python frameworks we need for this tutorial.
+# We need numpy, scikit-learn and lightly as non-standard packages.
 
 import os
 import csv
@@ -106,20 +124,6 @@ from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.active_learning.scorers.classification import ScorerClassification
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.openapi_generated.swagger_client import SamplingMethod
-
-# %%
-# Define the parameters (make sure to set the path to your embeddings file).
-path_to_embeddings_csv = "/datasets/clothing-dataset-small/embeddings.csv"
-YOUR_TOKEN = "yourToken"  # your token of the web platform
-YOUR_DATASET_ID = "yourDatasetId"  # the id of your dataset on the web platform
-
-# allow setting of token and dataset_id from environment variables
-def try_get_token_and_id_from_env():
-    token = os.getenv('TOKEN', YOUR_TOKEN)
-    dataset_id = os.getenv('AL_TUTORIAL_DATASET_ID', YOUR_DATASET_ID)
-    return token, dataset_id
-
-YOUR_TOKEN, YOUR_DATASET_ID = try_get_token_and_id_from_env()
 
 # %%
 # Define the dataset for the classifier based on the embeddings.csv
@@ -163,21 +167,26 @@ class CSVEmbeddingDataset:
 
 
 # %%
-# Upload the embeddings to the lightly web platform
-api_workflow_client = ApiWorkflowClient(token=YOUR_TOKEN, dataset_id=YOUR_DATASET_ID)
-api_workflow_client.upload_embeddings(name="embedding-1", path_to_embeddings_csv=path_to_embeddings_csv)
+# First we read the variables, we set before as environement variables via the console
+token = os.getenv("LIGHTLY_TOKEN")
+dataset_name = os.getenv("LIGHTLY_DATASET_NAME")
+path_to_embeddings_csv = os.getenv("LIGHTLY_EMBEDDINGS_CSV")
+
+# We define the client to the Lightly Platform API
+api_workflow_client = ApiWorkflowClient(token=token)
+api_workflow_client.create_dataset(dataset_name=dataset_name)
 
 # %%
-# Define the dataset for the classifer, the classifier and the active learning agent
+# We define the dataset, the classifier and the active learning agent
 dataset = CSVEmbeddingDataset(path_to_embeddings_csv=path_to_embeddings_csv)
 classifier = KNeighborsClassifier(n_neighbors=20, weights='distance')
 agent = ActiveLearningAgent(api_workflow_client=api_workflow_client)
 
 # %%
 # 1. Choose an initial subset of your dataset.
-# We want to start with 100 samples and use the CORESET sampler for sampling them.
+# We want to start with 200 samples and use the CORESET sampler for sampling them.
 print("Starting the initial sampling")
-sampler_config = SamplerConfig(n_samples=100, method=SamplingMethod.CORESET, name='initial-selection')
+sampler_config = SamplerConfig(n_samples=200, method=SamplingMethod.CORESET, name='initial-selection')
 agent.query(sampler_config=sampler_config)
 print(f"There are {len(agent.labeled_set)} samples in the labeled set.")
 
@@ -198,8 +207,8 @@ active_learning_scorer = ScorerClassification(model_output=predictions)
 
 # %%
 # 5. Use an active learning agent to choose the next samples to be labeled based on the active learning scores.
-# We want to sample another 100 samples to have 200 samples in total and use the active learning sampler CORAL for it.
-sampler_config = SamplerConfig(n_samples=200, method=SamplingMethod.CORAL, name='al-iteration-1')
+# We want to sample another 100 samples to have 300 samples in total and use the active learning sampler CORAL for it.
+sampler_config = SamplerConfig(n_samples=300, method=SamplingMethod.CORAL, name='al-iteration-1')
 agent.query(sampler_config=sampler_config, al_scorer=active_learning_scorer)
 print(f"There are {len(agent.labeled_set)} samples in the labeled set.")
 
@@ -208,7 +217,7 @@ print(f"There are {len(agent.labeled_set)} samples in the labeled set.")
 # This is already done internally inside the ActiveLearningAgent - no work for you :)
 
 # %%
-# Now you can use the newly chosen labeled set to retrain you classifer on it.
+# Now you can use the newly chosen labeled set to retrain your classifier on it.
 # You can evaluate it e.g. on the unlabeled set, or on embeddings of a test set you generated before.
 # If you are not satisfied with the performance, you can run steps 2 to 5 again.
 labeled_set_features = dataset.get_features(agent.labeled_set)
