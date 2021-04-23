@@ -195,3 +195,7 @@ class ScorerObjectDetection(Scorer):
             self.config['frequency_penalty'],
             self.config['min_score'])
         return scores
+
+    def _get_prediction_margin(self):
+        scores = _prediction_margin(self.model_output)
+        return scores
