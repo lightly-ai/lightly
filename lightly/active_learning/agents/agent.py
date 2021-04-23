@@ -59,7 +59,7 @@ class ActiveLearningAgent:
 
     def __init__(self,
                  api_workflow_client: ApiWorkflowClient,
-                 query_tag_name: str = None,
+                 query_tag_name: str = 'initial-tag',
                  preselected_tag_name: str = None):
 
         self.api_workflow_client = api_workflow_client
@@ -67,16 +67,15 @@ class ActiveLearningAgent:
         # set the query_tag_id and preselected_tag_id
         self._query_tag_id = None
         self._preselected_tag_id = None
-        if query_tag_name is not None or preselected_tag_name is not None:
-            # build lookup table for tag_name to tag_id
-            tag_name_id_dict = {}
-            for tag in self.api_workflow_client._get_all_tags():
-                tag_name_id_dict[tag.name] = tag.id
-            # use lookup table to set ids
-            if query_tag_name is not None:
-                self._query_tag_id = tag_name_id_dict[query_tag_name]
-            if preselected_tag_name is not None:
-                self._preselected_tag_id = tag_name_id_dict[preselected_tag_name]
+
+        # build lookup table for tag_name to tag_id
+        tag_name_id_dict = {}
+        for tag in self.api_workflow_client._get_all_tags():
+            tag_name_id_dict[tag.name] = tag.id
+        # use lookup table to set ids
+        self._query_tag_id = tag_name_id_dict[query_tag_name]
+        if preselected_tag_name is not None:
+            self._preselected_tag_id = tag_name_id_dict[preselected_tag_name]
 
         # set the filename lists based on preselected and query tag
         self._query_tag_bitmask = self._get_query_tag_bitmask()
@@ -89,18 +88,12 @@ class ActiveLearningAgent:
         """Initializes the query tag bitmask.
 
         """
-        if self._query_tag_id is None:
-            # if not specified, all samples belong to the query tag
-            query_tag_bitmask = BitMask.from_length(
-                len(self.api_workflow_client.filenames_on_server)
-            )
-        else:
-            # get query tag from api and set bitmask accordingly
-            query_tag_data = self.api_workflow_client.tags_api.get_tag_by_tag_id(
-                self.api_workflow_client.dataset_id,
-                tag_id=self._query_tag_id
-            )
-            query_tag_bitmask = BitMask.from_hex(query_tag_data.bit_mask_data)
+        # get query tag from api and set bitmask accordingly
+        query_tag_data = self.api_workflow_client.tags_api.get_tag_by_tag_id(
+            self.api_workflow_client.dataset_id,
+            tag_id=self._query_tag_id
+        )
+        query_tag_bitmask = BitMask.from_hex(query_tag_data.bit_mask_data)
 
         return query_tag_bitmask
 
