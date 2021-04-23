@@ -17,3 +17,4 @@ class Scorer():
     def score_names(cls) -> List[str]:
         """Returns the names of the calculated active learning scores
         """
+        raise NotImplementedError
