@@ -94,7 +94,7 @@ class ScorerClassification(Scorer):
     """
     def __init__(self, model_output: Union[np.ndarray, List[List[float]]]):
         if isinstance(model_output, List):
-            model_output = np.ndarray(model_output)
+            model_output = np.array(model_output)
         super(ScorerClassification, self).__init__(model_output)
 
     @classmethod
@@ -116,6 +116,8 @@ class ScorerClassification(Scorer):
             A dictionary mapping from the score name (as string)
             to the scores (as a single-dimensional numpy array).
         """
+        if len(self.model_output) == 0:
+            return {score_name: [] for score_name in self.score_names()}
 
         scores_with_names = [
             self._get_scores_uncertainty_least_confidence(),
@@ -150,7 +152,7 @@ class ScorerClassification(Scorer):
         return scores
 
     def _get_scores_uncertainty_least_confidence(self):
-        scores = np.array([1 - max(class_probabilities) for class_probabilities in self.model_output])
+        scores = 1 - np.max(self.model_output, axis=1)
         return scores, "uncertainty_least_confidence"
 
     def _get_scores_uncertainty_margin(self):
