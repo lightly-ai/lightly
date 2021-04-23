@@ -121,16 +121,23 @@ class ScorerObjectDetection(Scorer):
 
     Currently supports the following scorers:
 
-        `object-frequency`:
+        `object_frequency`:
             This scorer uses model predictions to focus more on images which
             have many objects in them. Use this scorer if you want scenes
             with lots of objects in them like we usually want in
             computer vision tasks such as perception in autonomous driving.
 
-        `prediction-margin`:
-            This scorer uses the margin between 1.0 and the highest confidence
-            prediction. Use this scorer to select images where the model is
-            insecure.
+        `objectness_least_confidence`:
+            This score is 1 - the mean of the highest confidence prediction. Use this scorer
+            to select images where the model is insecure about both whether it found an object
+            at all and the class of the object.
+
+        scores from ScorerClassification:
+            These scores are computed for each object detection out of
+            the class probability prediction for this detection.
+            Then these scores are reduced to one score per image
+            by taking the maximum. The scores are named as
+            f"classification_{score_name}".
 
     Attributes:
         model_output:
@@ -151,6 +158,7 @@ class ScorerObjectDetection(Scorer):
                 scaled to [`min_score`, 1.0] range. Lowering the number makes
                 the sampler focus more on samples with many objects.
                 (default: 0.9)
+
 
     Examples:
         >>> # typical model output
@@ -242,7 +250,7 @@ class ScorerObjectDetection(Scorer):
         """
         scores = dict()
         scores_with_names = [
-            self._get_object_frequency()
+            self._get_object_frequency(),
             self._get_prediction_margin()
         ]
         for score, score_name in scores_with_names:

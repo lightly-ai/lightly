@@ -219,15 +219,25 @@ boxes.
 
 Currently, the following scorers are available:
 
-- **object-frequency**
+- **object_frequency**
   This score measures the number of objects in the image. Use this scorer if
   you want scenes with lots of objects in them. This is suited for computer vision
   tasks such as perception in autonomous driving.
 
-- **prediction-margin**
+- **objectness_least_confidence**
   This score is 1 - the mean of the highest confidence prediction. Use this scorer
   to select images where the model is insecure about both whether it found an object
   at all and the class of the object.
+
+- **classification_scores**
+  These scores are computed for each object detection per image out of
+  the class probability prediction for this detection. Then these scores are reduced
+  to one score per image by taking the maximum. In particular we support:
+  - **classification_uncertainty_least_confidence**
+  - **classification_uncertainty_margin**
+  - **classification_uncertainty_entropy**
+  The scores are computed using the scorer for classification.
+
 
 For more information about how to use the object detection scorer have a look here:
 :py:class:`lightly.active_learning.scorers.detection.ScorerDetection

@@ -1,5 +1,8 @@
 import unittest
 
+import numpy as np
+
+from lightly.active_learning.scorers.classification import _entropy
 from lightly.active_learning.utils.bounding_box import BoundingBox
 from lightly.active_learning.utils.object_detection_output import ObjectDetectionOutput
 from lightly.active_learning.scorers.detection import ScorerObjectDetection
@@ -73,13 +76,27 @@ class TestScorerObjectDetection(unittest.TestCase):
 
         self.assertTrue(set(scores.keys()), set(ScorerObjectDetection.score_names()))
 
-        res = scores['object-frequency']
+        res = scores['object_frequency']
         self.assertEqual(len(res), len(self.dummy_data))
         self.assertListEqual(res.tolist(), [1.0, 0.95, 0.9])
 
-        res = scores['prediction-margin']
+        res = scores['objectness_least_confidence']
         self.assertEqual(len(res), len(self.dummy_data))
         self.assertListEqual(res.tolist(), [0.5514945, 0.9488, 0.])
+
+        for score_name, score in scores.items():
+            if "classification" in score_name:
+                self.assertEqual(len(res), len(self.dummy_data))
+            if score_name == "classification_uncertainty_least_confidence":
+                self.assertListEqual(list(score), [max(1 - 0.7, 1 - 0.5)/(1 - 1/3), (1 - 0.5)/(1 - 1/3), 0])
+            elif score_name == "classification_uncertainty_margin":
+                self.assertListEqual(list(score), [max(1 - (0.7 - 0.2), 1 - (0.5 - 0.4)), 1 - (0.5 - 0.41), 0])
+            elif score_name == "classification_uncertainty_entropy":
+                entropies_0 = _entropy(np.array(self.dummy_data[0].class_probabilities))/np.log2(3)
+                entropies_1 = _entropy(np.array(self.dummy_data[1].class_probabilities))/np.log2(3)
+                score_target = [float(max(entropies_0)), float(max(entropies_1)), 0]
+                for val1, val2 in zip(score, score_target):
+                    self.assertAlmostEqual(val1, val2, places=8)
 
 
     def test_object_detection_scorer_config(self):
