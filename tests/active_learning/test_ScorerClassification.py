@@ -44,3 +44,4 @@ class TestScorerClassification(unittest.TestCase):
         scores = scorer.calculate_scores()
         self.assertEqual(set(scores.keys()), set(ScorerClassification.score_names()))
 
+
