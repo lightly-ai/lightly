@@ -20,7 +20,7 @@ def _object_frequency(model_output: List[ObjectDetectionOutput],
             object only as 0.25.
         min_score:
             The minimum score a single sample can have
-        
+
     Returns:
         Numpy array of length N with the computed scores
 
@@ -204,5 +204,5 @@ class ScorerObjectDetection(Scorer):
             self.config['min_score'])
 
     def _get_prediction_margin(self):
-            scores = _prediction_margin(self.model_output)
-
+        scores = _prediction_margin(self.model_output)
+        return scores

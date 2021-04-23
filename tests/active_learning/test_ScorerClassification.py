@@ -16,6 +16,7 @@ class TestScorerClassification(unittest.TestCase):
         scorer = ScorerClassification(model_output)
         scores = scorer.calculate_scores()
 
+
         self.assertEqual(set(scores.keys()), set(ScorerClassification.score_names()))
 
         for score_name, score in scores.items():
@@ -42,3 +43,4 @@ class TestScorerClassification(unittest.TestCase):
         scorer = ScorerClassification(model_output=[])
         scores = scorer.calculate_scores()
         self.assertEqual(set(scores.keys()), set(ScorerClassification.score_names()))
+
