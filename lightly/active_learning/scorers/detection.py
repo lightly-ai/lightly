@@ -2,14 +2,13 @@ from typing import *
 
 import numpy as np
 
-from lightly.active_learning.scorers import ScorerClassification
 from lightly.active_learning.scorers.scorer import Scorer
 from lightly.active_learning.utils.object_detection_output import ObjectDetectionOutput
 
 
 def _object_frequency(model_output: List[ObjectDetectionOutput],
                       frequency_penalty: float,
-                      min_score: float) -> Tuple[np.ndarray, str]:
+                      min_score: float) -> np.ndarray:
     """Score which prefers samples with many and diverse objects.
 
     Args:
@@ -42,10 +41,10 @@ def _object_frequency(model_output: List[ObjectDetectionOutput],
     _min = min(n_objs)
     _max = max(n_objs)
     scores = [np.interp(x, (_min, _max), (min_score, 1.0)) for x in n_objs]
-    return np.asarray(scores), "object_frequency"
+    return np.asarray(scores)
 
 
-def _objectness_least_confidence(model_output: List[ObjectDetectionOutput]) -> Tuple[np.ndarray, str]:
+def _prediction_margin(model_output: List[ObjectDetectionOutput]):
     """Score which prefers samples with low max(class prob) * objectness.
 
     Args:
@@ -66,57 +65,7 @@ def _objectness_least_confidence(model_output: List[ObjectDetectionOutput]) -> T
             # set the score to 0 if there was no bounding box detected
             score = 0.
         scores.append(score)
-    return np.asarray(scores), "objectness_least_confidence"
-
-
-def _mean_classification_scores(
-        model_output: List[ObjectDetectionOutput],
-        reduce_fn_over_bounding_boxes: Callable[[np.ndarray], float] = np.max
-) -> Dict[str, List[float]]:
-    """Calculates classification scores over the mean of all found objects
-
-    Args:
-        model_output:
-            Predictions of the model of length N.
-
-    Returns:
-        Numpy array of length N with the computed scores.
-
-    """
-    # calculate a score dictionary for each sample
-    scores_dict_list: List[dict[str, np.ndarray]] = []
-    for index_sample, output in enumerate(model_output):
-        if len(output.class_probabilities) > 0:
-            probs = np.array(output.class_probabilities)
-            scores_dict_this_sample = ScorerClassification(model_output=probs).calculate_scores()
-            scores_dict_list.append(scores_dict_this_sample)
-        else:
-            scores_dict_list.append(dict())
-
-    # get all score_names:
-    score_names: List[str] = []
-    for score_dict in scores_dict_list:
-        if len(score_dict.keys()) > 0:
-            score_names = list(score_dict.keys())
-            break
-
-    # reduce it to one score per sample
-    ## Initialize the dictionary
-    output_scores_dict: Dict[str, List[float]] = dict()
-    for score_name in score_names:
-        output_scores_dict[score_name] = []
-    ## Fill the dictionary
-    for scores_dict in scores_dict_list:
-        if len(scores_dict.keys())>0:
-            for score_name in score_names:
-                score = scores_dict[score_name]
-                scalar_score = float(reduce_fn_over_bounding_boxes(score))
-                output_scores_dict[score_name].append(scalar_score)
-        else:
-            for score_name in score_names:
-                output_scores_dict[score_name].append(0)
-
-    return output_scores_dict
+    return np.asarray(scores)
 
 
 class ScorerObjectDetection(Scorer):
@@ -134,13 +83,6 @@ class ScorerObjectDetection(Scorer):
             This scorer uses the margin between 1.0 and the highest confidence
             prediction. Use this scorer to select images where the model is
             insecure.
-
-        scores from ScorerClassification:
-            These scores are computed for each object detection out of
-            the class probability prediction for this detection.
-            Then these scores are reduced to one score per image
-            by taking the maximum. The scores are named as
-            f"classification_{score_name}".
 
     Attributes:
         model_output:
@@ -250,21 +192,9 @@ class ScorerObjectDetection(Scorer):
             A dictionary mapping from the score name (as string)
             to the scores (as a single-dimensional numpy array).
         """
-        scores_with_names = [
-            self._get_object_frequency(),
-            self._get_prediction_margin(),
-        ]
-
         scores = dict()
-        for score, score_name in scores_with_names:
-            score = np.nan_to_num(score)
-            scores[score_name] = score
-
-        # add classification scores
-        scores_dict_classification = \
-            _mean_classification_scores(model_output=self.model_output)
-        for score_name, score in scores_dict_classification.items():
-            scores[f"classification_{score_name}"] = score
+        scores['object-frequency'] = self._get_object_frequency()
+        scores['prediction-margin'] = self._get_prediction_margin()
         return scores
 
     def _get_object_frequency(self):
@@ -272,7 +202,6 @@ class ScorerObjectDetection(Scorer):
             self.model_output,
             self.config['frequency_penalty'],
             self.config['min_score'])
-        return scores
 
     def _get_prediction_margin(self):
         scores = _objectness_least_confidence(self.model_output)
