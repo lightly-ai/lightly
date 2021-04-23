@@ -33,10 +33,12 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
                         predictions = np.random.rand(len(agent.query_set), 10).astype(np.float32)
                         predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
                         al_scorer = ScorerClassification(predictions_normalized)
-                        labeled_set, added_set = agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
+                        agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
                     else:
                         sampler_config = SamplerConfig(n_samples=n_samples)
-                        labeled_set, added_set = agent.query(sampler_config=sampler_config)
+                        agent.query(sampler_config=sampler_config)
+                    
+                    labeled_set, added_set = agent.labeled_set, agent.added_set
 
                     self.assertEqual(n_old_labeled + len(added_set), len(labeled_set))
                     self.assertTrue(set(added_set).issubset(labeled_set))
@@ -87,6 +89,4 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
             method=SamplingMethod.RANDOM
         )
 
-        labeled, added = agent.query(sampler_config)
-
-        self.assertListEqual(added, [])
+        agent.query(sampler_config)

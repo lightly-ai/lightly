@@ -38,7 +38,8 @@ class ActiveLearningAgent:
         >>>
         >>> # make an initial active learning query
         >>> sampler_config = SamplerConfig(n_samples=100, name='initial-set')
-        >>> initial_set, _ = agent.query(sampler_config)
+        >>> agent.query(sampler_config)
+        >>> initial_set = agent.labeled_set
         >>>
         >>> # train and evaluate a model on the initial set
         >>> # make predictions on the query set:
@@ -51,7 +52,8 @@ class ActiveLearningAgent:
         >>>
         >>> # make a second active learning query
         >>> sampler_config = SamplerConfig(n_samples=200, name='second-set')
-        >>> second_set, added_set = agent.query(sampler_config, scorer)
+        >>> agent.query(sampler_config, scorer)
+        >>> added_set = agent.added_set # access only the samples added by this query
 
     """
 
@@ -181,12 +183,6 @@ class ActiveLearningAgent:
             al_scorer:
                 An instance of a class inheriting from Scorer, e.g. a ClassificationScorer.
 
-        Returns:
-            The filenames of the samples in the new labeled_set
-            and the filenames of the samples chosen by the sampler.
-            This added_set was added to the old labeled_set
-            to form the new labeled_set.
-
         """
 
         # handle illogical stopping condition
@@ -194,9 +190,9 @@ class ActiveLearningAgent:
             warnings.warn(
                 f'ActiveLearningAgent.query: The number of samples ({sampler_config.n_samples}) is '
                 f'smaller than the number of preselected samples ({len(self.labeled_set)}).'
-                'Skipping the active learning query and returning the previous labeled set.'
+                'Skipping the active learning query.'
             )
-            return self.labeled_set, []
+            return
 
         # calculate active learning scores
         scores_dict = None
@@ -223,5 +219,3 @@ class ActiveLearningAgent:
         # set the newly chosen tag as the new preselected_tag
         self._preselected_tag_id = new_tag_data.id
         self._preselected_tag_bitmask = self._get_preselected_tag_bitmask()
-
-        return self.labeled_set, self.added_set

@@ -98,18 +98,18 @@ Let's configure the sampling request and request an initial selection next:
    from lightly.active_learning.config import SamplerConfig
    from lightly.openapi_generated.swagger_client import SamplingMethod
 
-   # we want an initial pool of 100 images
-   config = SamplerConfig(n_samples=100, method=SamplingMethod.CORESET, name='initial-selection')
-   initial_selection, added_set = al_agent.query(config)
+   # we want an initial pool of 150 images
+   config = SamplerConfig(n_samples=150, method=SamplingMethod.CORESET, name='initial-selection')
+   al_agent.query(config)
+   initial_selection = al_agent.labeled_set
    
-   # initial_selection contains now 100 filenames
-   assert len(initial_selection) == 100
-   assert len(added_set) == 100
+   # initial_selection now contains 150 filenames
+   assert len(initial_selection) == 150
 
-The query returns the list of filenames corresponding to the initial selection and the list of samples which
-were added to the selection. In the first iteration, the two lists are equal. Additionally, you
-will find that a tag has been created in the web-app under the name "initial-selection".
-Head there to scroll through the samples and download the selected images before annotating them.
+The result of the query is a tag in the web-app under the name "initial-selection". The tag contains
+the images which were selected by the sampling algorithm. Head there to scroll through the samples and
+download the selected images before annotating them. Alternatively, you can access the filenames
+of the selected images via the attribute `labeled_set` as shown above.
 
 
 Active Learning Step
@@ -161,16 +161,20 @@ here is that the argument `n_samples` always refers to the total size of the lab
 
 .. code-block:: Python
 
-   # we want a total of 200 images after the first iteration
+   # we want a total of 200 images after the first iteration (50 new samples)
    # this time, we use the CORAL sampler and provide a scorer to the query
    config = SamplerConfig(n_samples=200, method=SamplingMethod.CORAL, name='al-iteration-1')
-   labeled_set_iteration_1, added_set = al_agent.query(sampler_config, scorer)
+   al_agent.query(sampler_config, scorer)
+
+   labeled_set_iteration_1 = al_agent.labeled_set
+   added_set_iteration_1 = al_agent.added_set
 
    assert len(labeled_set_iteration_1) == 200
-   assert len(added_set) == 100
+   assert len(added_set_iteration_1) == 50
 
-As before, you will receive the filenames of all the images in the labeled set and the filenames
-of the newly added images. Additionally, there will be a new tag named `al-iteration-1` visible in the web-app.
+As before, there will be a new tag named `al-iteration-1` visible in the web-app. Additionally, 
+you can access the filenames of all the images in the labeled set and the filenames which were
+added by this query via the attributes `labeled_set` and `added_set` respectively.
 You can repeat the active learning step until the model achieves the required accuracy.
 
 Scorers

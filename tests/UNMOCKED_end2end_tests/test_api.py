@@ -142,7 +142,7 @@ def t_est_active_learning(api_workflow_client: ApiWorkflowClient,
         assert len(agent.unlabeled_set) == total_no_samples - n_samples
 
         # Update the scorer
-        n_samples = len(agent.unlabeled_set)
+        n_samples = len(agent.query_set)
         n_classes = 10
         predictions = np.random.rand(n_samples, n_classes)
         predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
