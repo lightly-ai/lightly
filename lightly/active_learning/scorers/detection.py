@@ -204,5 +204,5 @@ class ScorerObjectDetection(Scorer):
             self.config['min_score'])
 
     def _get_prediction_margin(self):
-        scores = _objectness_least_confidence(self.model_output)
-        return scores
+            scores = _prediction_margin(self.model_output)
+
