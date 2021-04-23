@@ -92,11 +92,25 @@ class ScorerClassification(Scorer):
         >>> scorer = ScorerClassification(predictions)
 
     """
-    def __init__(self, model_output: np.ndarray):
+    def __init__(self, model_output: Union[np.ndarray, List[List[float]]]):
+        if isinstance(model_output, List):
+            model_output = np.ndarray(model_output)
         super(ScorerClassification, self).__init__(model_output)
 
-    def calculate_scores(self) -> Dict[str, np.ndarray]:
+    @classmethod
+    def score_names(cls) -> List[str]:
+        """Returns the names of the calculated active learning scores
+        """
+        score_names = list(cls(model_output=[[0.5, 0.5]]).calculate_scores().keys())
+        return score_names
+
+    def calculate_scores(self, normalize_to_0_1: bool = True) -> Dict[str, np.ndarray]:
         """Calculates and returns the active learning scores.
+
+        Args:
+            normalize_to_0_1:
+                If this is true, each score is normalized to have a
+                theoretical minimum of 0 and a theoretical maximum of 1.
 
         Returns:
             A dictionary mapping from the score name (as string)
@@ -113,6 +127,26 @@ class ScorerClassification(Scorer):
         for score, score_name in scores_with_names:
             score = np.nan_to_num(score)
             scores[score_name] = score
+
+        if normalize_to_0_1:
+            scores = self.normalize_scores_0_1(scores)
+
+        return scores
+
+    def normalize_scores_0_1(self, scores: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
+        num_classes = self.model_output.shape[1]
+        model_output_very_sure = np.zeros(shape=(1,num_classes))
+        model_output_very_sure[0, 0] = 1
+        model_output_very_unsure = np.ones_like(model_output_very_sure)/num_classes
+
+        scores_minimum = ScorerClassification(model_output_very_sure).calculate_scores(normalize_to_0_1=False)
+        scores_maximum = ScorerClassification(model_output_very_unsure).calculate_scores(normalize_to_0_1=False)
+
+        for score_name in scores.keys():
+            interp_xp = [float(scores_minimum[score_name]), float(scores_maximum[score_name])]
+            interp_fp = [0, 1]
+            scores[score_name] = np.interp(scores[score_name], interp_xp, interp_fp)
+
         return scores
 
     def _get_scores_uncertainty_least_confidence(self):
