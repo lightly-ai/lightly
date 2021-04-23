@@ -188,9 +188,9 @@ labeled_set_labels = dataset.get_labels(agent.labeled_set)
 classifier.fit(X=labeled_set_features, y=labeled_set_labels)
 
 # %%
-# 3. Use the classifier to predict on the unlabeled set.
-unlabeled_set_features = dataset.get_features(agent.unlabeled_set)
-predictions = classifier.predict_proba(X=unlabeled_set_features)
+# 3. Use the classifier to predict on the query set.
+query_set_features = dataset.get_features(agent.query_set)
+predictions = classifier.predict_proba(X=query_set_features)
 
 # %%
 # 4. Calculate active learning scores from the prediction.

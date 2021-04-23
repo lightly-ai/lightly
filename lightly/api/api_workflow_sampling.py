@@ -10,8 +10,21 @@ from lightly.openapi_generated.swagger_client.models.job_status_data import JobS
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from lightly.openapi_generated.swagger_client.models.sampling_config import SamplingConfig
 from lightly.openapi_generated.swagger_client.models.sampling_create_request import SamplingCreateRequest
-from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import \
-    SamplingConfigStoppingCondition
+from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import SamplingConfigStoppingCondition
+
+
+
+def _parse_active_learning_scores(scores):
+    """Makes list/np.array of active learning scores serializable.
+
+    """
+    # the api only accepts float64s
+    if isinstance(scores, np.ndarray):
+        scores = scores.astype(np.float64)
+
+    # convert to list and return
+    return list(scores)
+
 
 
 class _SamplingMixin:
@@ -41,7 +54,9 @@ class _SamplingMixin:
         # make sure the tag name does not exist yet
         tags = self._get_all_tags()
         if sampler_config.name in [tag.name for tag in tags]:
-            raise RuntimeError(f"There already exists a tag with tag_name {sampler_config.name}.")
+            raise RuntimeError(f'There already exists a tag with tag_name {sampler_config.name}.')
+        if len(tags) == 0:
+            raise RuntimeError('There exists no initial-tag for this dataset.')
 
         # make sure we have an embedding id
         try:
@@ -51,15 +66,25 @@ class _SamplingMixin:
 
 
         # upload the active learning scores to the api
+        # change @20210422: we store the active learning scores with the query
+        # tag. policy is that if there's no explicit query tag, the whole dataset
+        # will be the query tag (i.e. query_tag = initial-tag)
         if al_scores is not None:
-            if preselected_tag_id is None:
-                raise ValueError
+            # set the query tag to the initial-tag if necessary
+            if query_tag_id is None:
+                query_tag = next(t for t in tags if t.name == 'initial-tag')
+                query_tag_id = query_tag.id
+            # iterate over all available score types and upload them
             for score_type, score_values in al_scores.items():
-                if isinstance(score_values, np.ndarray):
-                    score_values = score_values.astype(np.float64)
-                body = ActiveLearningScoreCreateRequest(score_type=score_type, scores=list(score_values))
+                body = ActiveLearningScoreCreateRequest(
+                    score_type=score_type,
+                    scores=_parse_active_learning_scores(score_values)
+                )
                 self.scores_api.create_or_update_active_learning_score_by_tag_id(
-                    body, dataset_id=self.dataset_id, tag_id=preselected_tag_id)
+                    body,
+                    dataset_id=self.dataset_id,
+                    tag_id=query_tag_id,
+                )
 
         # trigger the sampling
         payload = self._create_sampling_create_request(sampler_config, preselected_tag_id, query_tag_id)
