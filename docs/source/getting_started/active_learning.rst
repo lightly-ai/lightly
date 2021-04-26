@@ -187,13 +187,26 @@ Image Classification
 ^^^^^^^^^^^^^^^^^^^^^
 Use this scorer when working on a classification problem (binary or multiclass).
 
-Currently, the following scorers are available:
 
-- **prediction-margin** uses the margin between 1.0 and the highest confidence 
-  prediction. Use this scorer to select images where the model is insecure.
+Currently we offer three uncertainty scorers,which are taken from
+http://burrsettles.com/pub/settles.activelearning.pdf, Section 3.1, page 12f
+and also explained in https://towardsdatascience.com/uncertainty-sampling-cheatsheet-ec57bc067c0b
+They all have in common, that the score is highest if all classes have the
+same confidence and are 0 if the model assigns 100% probability to a single class.
+The differ in the number of class confidences they take into account.
 
-- **prediction-entropy** computes the entropy of the prediction. 
-  All confidences are considered to compute the entropy of a sample.
+- **uncertainty_least_confidence**:
+    This score is 1 - the highest confidence prediction. It is high
+    when the confidence about the most probable class is low.
+
+- **uncertainty_margin**
+    This score is 1 - the margin between the highest confidence
+    and second highest confidence prediction. It is high when the model
+    cannot decide between the two most probable classes.
+
+- **uncertainty_entropy**
+    This scorer computes the entropy of the prediction. The confidences
+    for all classes are considered to compute the entropy of a sample.
 
 For more information about how to use the classification scorer have a look here:
 :py:class:`lightly.active_learning.scorers.classification.ScorerClassification`
@@ -206,13 +219,18 @@ boxes.
 
 Currently, the following scorers are available:
 
-- **object-frequency** uses model predictions to focus more on images which 
-  have many objects in them. Use this scorer if you want scenes with lots of 
-  objects in them like we usually want in computer vision tasks such as 
-  perception in autonomous driving.
+- **object-frequency**
+  This score measures the number of objects in the image. Use this scorer if
+  you want scenes with lots of objects in them. This is suited for computer vision
+  tasks such as perception in autonomous driving.
 
-- **prediction-margin** uses the margin between 1.0 and the mean of the highest 
-  confidence prediction. Use this scorer to select images where the model is insecure.
+- **prediction-margin**
+  This score is 1 - the mean of the highest confidence prediction. Use this scorer
+  to select images where the model is insecure about both whether it found an object
+  at all and the class of the object.
+
+For more information about how to use the object detection scorer have a look here:
+:py:class:`lightly.active_learning.scorers.detection.ScorerDetection
 
 
 Image Segmentation
