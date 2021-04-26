@@ -25,20 +25,48 @@ def _entropy(probs: np.ndarray, axis: int = 1) -> np.ndarray:
     entropies = -1 * np.sum(probs * log_probs, axis=axis)
     return entropies
 
+def _margin_largest_secondlargest(probs: np.ndarray) -> np.ndarray:
+    """Computes the margin of a probability matrix
+
+        Args:
+            probs:
+                A probability matrix of shape (N, M)
+
+        Exammple:
+            if probs.shape = (N, C) then margins.shape = (N, )
+
+        Returns:
+            The margin of the prediction vectors
+        """
+    sorted_probs = np.partition(probs, -2, axis=1)
+    margins = sorted_probs[:, -1] - sorted_probs[:, -2]
+    return margins
+
 
 class ScorerClassification(Scorer):
     """Class to compute active learning scores from the model_output of a classification task.
 
     Currently supports the following scorers:
 
-        `prediction-margin`:
-            This scorer uses the margin between 1.0 and the highest confidence
-            prediction. Use this scorer to select images where the model is
-            insecure.
+        The following three uncertainty scores are taken from
+        http://burrsettles.com/pub/settles.activelearning.pdf, Section 3.1, page 12f
+        and also explained in https://towardsdatascience.com/uncertainty-sampling-cheatsheet-ec57bc067c0b
+        They all have in common, that the score is highest if all classes have the
+        same confidence and are 0 if the model assigns 100% probability to a single class.
+        The differ in the number of class confidences they take into account.
 
-        `prediction-entropy`:
-            This scorer computes the entropy of the prediction. All
-            confidences are considered to compute the entropy of a sample.
+        `uncertainty_least_confidence`:
+            This score is 1 - the highest confidence prediction. It is high
+            when the confidence about the most probable class is low.
+
+        `uncertainty_margin`
+            This score is 1- the margin between the highest conficence
+            and second highest confidence prediction. It is high when the model
+            cannot decide between the two most probable classes.
+
+        `uncertainty_entropy`:
+            This scorer computes the entropy of the prediction. The confidences
+             for all classes are considered to compute the entropy of a sample.
 
     Attributes:
         model_output:
@@ -64,25 +92,73 @@ class ScorerClassification(Scorer):
         >>> scorer = ScorerClassification(predictions)
 
     """
-    def __init__(self, model_output: np.ndarray):
+    def __init__(self, model_output: Union[np.ndarray, List[List[float]]]):
+        if isinstance(model_output, List):
+            model_output = np.array(model_output)
         super(ScorerClassification, self).__init__(model_output)
 
-    def calculate_scores(self) -> Dict[str, np.ndarray]:
+    @classmethod
+    def score_names(cls) -> List[str]:
+        """Returns the names of the calculated active learning scores
+        """
+        score_names = list(cls(model_output=[[0.5, 0.5]]).calculate_scores().keys())
+        return score_names
+
+    def calculate_scores(self, normalize_to_0_1: bool = True) -> Dict[str, np.ndarray]:
         """Calculates and returns the active learning scores.
+
+        Args:
+            normalize_to_0_1:
+                If this is true, each score is normalized to have a
+                theoretical minimum of 0 and a theoretical maximum of 1.
 
         Returns:
             A dictionary mapping from the score name (as string)
             to the scores (as a single-dimensional numpy array).
         """
+        if len(self.model_output) == 0:
+            return {score_name: [] for score_name in self.score_names()}
+
+        scores_with_names = [
+            self._get_scores_uncertainty_least_confidence(),
+            self._get_scores_uncertainty_margin(),
+            self._get_scores_uncertainty_entropy()
+        ]
+
         scores = dict()
-        scores["prediction-margin"] = self._get_prediction_margin_score()
-        scores["prediction-entropy"] = self._get_prediction_entropy_score()
+        for score, score_name in scores_with_names:
+            score = np.nan_to_num(score)
+            scores[score_name] = score
+
+        if normalize_to_0_1:
+            scores = self.normalize_scores_0_1(scores)
+
         return scores
 
-    def _get_prediction_margin_score(self):
-        uncertainties = np.array([1 - max(class_probabilities) for class_probabilities in self.model_output])
-        return uncertainties
+    def normalize_scores_0_1(self, scores: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
+        num_classes = self.model_output.shape[1]
+        model_output_very_sure = np.zeros(shape=(1,num_classes))
+        model_output_very_sure[0, 0] = 1
+        model_output_very_unsure = np.ones_like(model_output_very_sure)/num_classes
 
-    def _get_prediction_entropy_score(self):
-        uncertainties = _entropy(self.model_output, axis=1)
-        return uncertainties
+        scores_minimum = ScorerClassification(model_output_very_sure).calculate_scores(normalize_to_0_1=False)
+        scores_maximum = ScorerClassification(model_output_very_unsure).calculate_scores(normalize_to_0_1=False)
+
+        for score_name in scores.keys():
+            interp_xp = [float(scores_minimum[score_name]), float(scores_maximum[score_name])]
+            interp_fp = [0, 1]
+            scores[score_name] = np.interp(scores[score_name], interp_xp, interp_fp)
+
+        return scores
+
+    def _get_scores_uncertainty_least_confidence(self):
+        scores = 1 - np.max(self.model_output, axis=1)
+        return scores, "uncertainty_least_confidence"
+
+    def _get_scores_uncertainty_margin(self):
+        scores = 1 - _margin_largest_secondlargest(self.model_output)
+        return scores, "uncertainty_margin"
+
+    def _get_scores_uncertainty_entropy(self):
+        scores = _entropy(self.model_output, axis=1)
+        return scores, "uncertainty_entropy"

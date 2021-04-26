@@ -20,7 +20,7 @@ def _object_frequency(model_output: List[ObjectDetectionOutput],
             object only as 0.25.
         min_score:
             The minimum score a single sample can have
-        
+
     Returns:
         Numpy array of length N with the computed scores
 
@@ -177,6 +177,14 @@ class ScorerObjectDetection(Scorer):
         else:
             self.config = default_conf
 
+    @classmethod
+    def score_names(cls) -> List[str]:
+        """Returns the names of the calculated active learning scores
+        """
+        scorer = cls(model_output=[ObjectDetectionOutput([], [], [])])
+        score_names = list(scorer.calculate_scores().keys())
+        return score_names
+
     def calculate_scores(self) -> Dict[str, np.ndarray]:
         """Calculates and returns the active learning scores.
 
@@ -199,4 +207,3 @@ class ScorerObjectDetection(Scorer):
     def _get_prediction_margin(self):
         scores = _prediction_margin(self.model_output)
         return scores
-

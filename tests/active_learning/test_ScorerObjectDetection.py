@@ -71,6 +71,8 @@ class TestScorerObjectDetection(unittest.TestCase):
         scorer = ScorerObjectDetection(self.dummy_data)
         scores = scorer.calculate_scores()
 
+        self.assertTrue(set(scores.keys()), set(ScorerObjectDetection.score_names()))
+
         res = scores['object-frequency']
         self.assertEqual(len(res), len(self.dummy_data))
         self.assertListEqual(res.tolist(), [1.0, 0.95, 0.9])
