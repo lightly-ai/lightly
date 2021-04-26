@@ -98,7 +98,7 @@ class _MomentumEncoderMixin:
 
         """
         batch_size = batch.shape[0]
-        shuffle = torch.randperm(batch_size).to(batch.device)
+        shuffle = torch.randperm(batch_size, device=batch.device)
         return batch[shuffle], shuffle
 
     @torch.no_grad()
@@ -106,5 +106,5 @@ class _MomentumEncoderMixin:
         """Returns the unshuffled batch.
 
         """
-        unshuffle = torch.argsort(shuffle).to(batch.device)
+        unshuffle = torch.argsort(shuffle)
         return batch[unshuffle]
