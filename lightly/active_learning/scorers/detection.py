@@ -45,7 +45,7 @@ def _object_frequency(model_output: List[ObjectDetectionOutput],
     return np.asarray(scores), "object_frequency"
 
 
-def _prediction_margin(model_output: List[ObjectDetectionOutput]) -> Tuple[np.ndarray, str]:
+def _objectness_least_confidence(model_output: List[ObjectDetectionOutput]) -> Tuple[np.ndarray, str]:
     """Score which prefers samples with low max(class prob) * objectness.
 
     Args:
@@ -81,9 +81,10 @@ def _reduce_classification_scores_over_boxes(
         model_output:
             Predictions of the model of length N.
         reduce_fn_over_bounding_boxes:
-            TODO
+            This function reduces the scores for each bounding box of an image
+            to one score per image.
         default_value_no_bounding_box:
-            TODO
+            This is the default score if the image does not have any bounding boxes found.
 
     Returns:
         Numpy array of length N with the computed scores.
@@ -251,7 +252,7 @@ class ScorerObjectDetection(Scorer):
         scores = dict()
         scores_with_names = [
             self._get_object_frequency(),
-            self._get_prediction_margin()
+            self._get_objectness_least_confidence()
         ]
         for score, score_name in scores_with_names:
             score = np.nan_to_num(score)
@@ -271,5 +272,5 @@ class ScorerObjectDetection(Scorer):
             self.config['frequency_penalty'],
             self.config['min_score'])
 
-    def _get_prediction_margin(self):
-        return _prediction_margin(self.model_output)
+    def _get_objectness_least_confidence(self):
+        return _objectness_least_confidence(self.model_output)
