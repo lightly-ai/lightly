@@ -231,7 +231,7 @@ Currently, the following scorers are available:
 
 - **classification_scores**
   These scores are computed for each object detection per image out of
-  the class probability prediction for this detection. Then these scores are reduced
+  the class probability prediction for this detection. Then, they are reduced
   to one score per image by taking the maximum. In particular we support:
   - **classification_uncertainty_least_confidence**
   - **classification_uncertainty_margin**

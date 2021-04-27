@@ -9,7 +9,7 @@ from lightly.active_learning.utils.object_detection_output import ObjectDetectio
 
 def _object_frequency(model_output: List[ObjectDetectionOutput],
                       frequency_penalty: float,
-                      min_score: float) -> Tuple[np.ndarray, str]:
+                      min_score: float) -> np.ndarray:
     """Score which prefers samples with many and diverse objects.
 
     Args:
@@ -42,10 +42,10 @@ def _object_frequency(model_output: List[ObjectDetectionOutput],
     _min = min(n_objs)
     _max = max(n_objs)
     scores = [np.interp(x, (_min, _max), (min_score, 1.0)) for x in n_objs]
-    return np.asarray(scores), "object_frequency"
+    return np.asarray(scores)
 
 
-def _objectness_least_confidence(model_output: List[ObjectDetectionOutput]) -> Tuple[np.ndarray, str]:
+def _objectness_least_confidence(model_output: List[ObjectDetectionOutput]) -> np.ndarray:
     """Score which prefers samples with low max(class prob) * objectness.
 
     Args:
@@ -67,7 +67,7 @@ def _objectness_least_confidence(model_output: List[ObjectDetectionOutput]) -> T
             score = 0.
         scores.append(score)
 
-    return np.asarray(scores), "objectness_least_confidence"
+    return np.asarray(scores)
 
 
 def _reduce_classification_scores_over_boxes(
@@ -270,7 +270,7 @@ class ScorerObjectDetection(Scorer):
         return _object_frequency(
             self.model_output,
             self.config['frequency_penalty'],
-            self.config['min_score'])
+            self.config['min_score']), "object_frequency"
 
     def _get_objectness_least_confidence(self):
-        return _objectness_least_confidence(self.model_output)
+        return _objectness_least_confidence(self.model_output), "objectness_least_confidence"
