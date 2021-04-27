@@ -11,6 +11,8 @@ from lightly.data.dataset import LightlyDataset
 
 from lightly.api.utils import retry
 
+from lightly_utils import image_processing
+
 
 class _UploadDatasetMixin:
 
@@ -131,12 +133,23 @@ class _UploadDatasetMixin:
         # calculate metadata, and check if corrupted
         metadata = check_image(image)
 
+        # try to get exif data
+        try:
+            exifdata = image_processing.Exifdata(image)
+        except Exception:
+            exifdata = None
+
         # generate thumbnail if necessary
         thumbname = None
         if not metadata['is_corrupted'] and mode in ["thumbnails", "full"]:
             thumbname = '.'.join(basename.split('.')[:-1]) + '_thumb.webp'
 
-        body = SampleCreateRequest(file_name=basename, thumb_name=thumbname, meta_data=metadata)
+        body = SampleCreateRequest(
+            file_name=basename,
+            thumb_name=thumbname,
+            meta_data=metadata,
+            exif=exifdata if exifdata is None else exifdata.to_dict(),
+        )
         sample_id = retry(
             self.samples_api.create_sample_by_dataset_id,
             body=body,
