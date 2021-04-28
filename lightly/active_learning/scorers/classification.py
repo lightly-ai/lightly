@@ -1,3 +1,4 @@
+import warnings
 from typing import *
 
 import numpy as np
@@ -93,9 +94,25 @@ class ScorerClassification(Scorer):
 
     """
     def __init__(self, model_output: Union[np.ndarray, List[List[float]]]):
-        if isinstance(model_output, List):
+        if not isinstance(model_output, np.ndarray):
             model_output = np.array(model_output)
-        super(ScorerClassification, self).__init__(model_output)
+
+        validated_model_output = self.ensure_valid_model_output(model_output)
+
+        super(ScorerClassification, self).__init__(validated_model_output)
+
+    def ensure_valid_model_output(self, model_output: np.ndarray) -> np.ndarray:
+        if len(model_output) == 0:
+            return model_output
+        if len(model_output.shape) != 2:
+            raise ValueError("ScorerClassification model_output must be a 2-dimensional array")
+        if model_output.shape[1] == 0:
+            raise ValueError("ScorerClassification model_output must not have an empty dimension 1")
+        if model_output.shape[1] == 1:
+            # assuming a binary classification problem with
+            # the model_output denoting the probability of the first class
+            model_output = np.concatenate([model_output, 1-model_output], axis=1)
+        return model_output
 
     @classmethod
     def score_names(cls) -> List[str]:
