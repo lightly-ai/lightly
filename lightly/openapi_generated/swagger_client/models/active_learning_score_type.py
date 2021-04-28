@@ -26,14 +26,6 @@ class ActiveLearningScoreType(object):
     """
 
     """
-    allowed enum values
-    """
-    PREDICTION_ENTROPY = "prediction-entropy"
-    PREDICTION_MARGIN = "prediction-margin"
-    OBJECT_FREQUENCY = "object-frequency"
-    BALD = "BALD"
-
-    """
     Attributes:
       swagger_types (dict): The key is attribute name
                             and the value is attribute type.
