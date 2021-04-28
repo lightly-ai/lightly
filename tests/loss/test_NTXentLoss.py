@@ -6,6 +6,32 @@ from lightly.loss import NTXentLoss
 
 class TestNTXentLoss(unittest.TestCase):
 
+    def test_with_values(self):
+        out0 = [[1., 1., 1.], [-1., -1., -1.]]
+        out1 = [[1., 1., 0.], [-1., -1., 0.]]
+        out0 = torch.FloatTensor(out0)
+        out1 = torch.FloatTensor(out1)
+
+        loss = NTXentLoss()
+        l1 = loss(out0, out1)
+        l2 = loss(out1, out0)
+        self.assertAlmostEqual(float(l1), 0.0625955, places=5)
+        self.assertAlmostEqual(float(l2), 0.0625955, places=5)
+
+    def test_with_values_and_memory_bank(self):
+        out0 = [[1., 1., 1.], [-1., -1., -1.]]
+        out1 = [[1., 1., 0.], [-1., -1., 0.]]
+        out0 = torch.FloatTensor(out0)
+        out1 = torch.FloatTensor(out1)
+
+        torch.manual_seed(42)
+        loss = NTXentLoss(memory_bank_size=64)
+        l1 = loss(out0, out1)
+        l2 = loss(out1, out0)
+        for l in [l1, l2]:
+            self.assertAlmostEqual(float(l), 4.5, delta=0.5)
+
+
     def test_get_correlated_mask(self):
         loss = NTXentLoss()
         for bsz in range(1, 100):

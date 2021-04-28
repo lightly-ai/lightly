@@ -117,8 +117,11 @@ class NTXentLoss(MemoryBankModule):
             Args:
                 out0:
                     Output projections of the first set of transformed images.
+                    Shape: (batch_size, embedding_size)
                 out1:
                     Output projections of the second set of transformed images.
+                    Shape: (batch_size, embedding_size)
+                    out0[i] and out1[i] are two different augmentation of the same image.
 
             Returns:
                 Contrastive Cross Entropy Loss value.
@@ -136,15 +139,45 @@ class NTXentLoss(MemoryBankModule):
         # out1 requires a gradient, otherwise keep the same vectors in the 
         # memory bank (this allows for keeping the memory bank constant e.g.
         # for evaluating the loss on the test set)
+        # out1: shape: (batch_size, embedding_size)
+        # negatives: shape: (embedding_size, memory_bank_size)
         out1, negatives = \
             super(NTXentLoss, self).forward(out1, update=out0.requires_grad)
 
+        # We use the cosine similarity, which is a dot product (einsum) here,
+        # as all vectors are already normalized to unit length.
+        # Notation in einsum: n = batch_size, c = embedding_size and k = memory_bank_size.
+
+        # sim_pos is of shape (batch_size, 1) and sim_pos[i] denotes the similarity
+        # of the i-th sample in the batch to its positive pair
+        sim_pos = torch.einsum('nc,nc->n', out0, out1).unsqueeze(-1)
+        l_pos = sim_pos
+
         if negatives is not None:
-            negatives = negatives.to(device)
             # use negatives from memory bank
-            l_pos = torch.einsum('nc,nc->n', [out0, out1]).unsqueeze(-1)
-            l_neg = torch.einsum('nc,ck->nk', [out0, negatives.clone().detach()])
+            negatives = negatives.to(device)
+
+            # sim_neg each is of shape (batch_size, memory_bank_size) and sim_neg[i,j] denotes the similarity
+            # of the i-th sample to the j-th negative sample
+            sim_neg_out0 = torch.einsum('nc,ck->nk', out0, negatives.clone().detach())
+            sim_neg_out1 = torch.einsum('nc,ck->nk', out1, negatives.clone().detach())
+            sim_neg = sim_neg_out0 + sim_neg_out1
+            l_neg = sim_neg
+
         else:
+            # use other samples from batch as negatives
+            output = torch.cat((out0, out1), axis=0)
+
+            # sim_neg each is of shape (batch_size, memory_bank_size) and
+            # sim_neg[i,j] denotes the similarity of the i-th sample in out0 to the j-th sample in out1
+            sim_neg_out0 = torch.einsum('nc,mc->nm', out0, out1)
+            sim_neg_out1 = torch.einsum('mc,nc->mn', out1, out0)
+            sim_neg = sim_neg_out0 + sim_neg_out1
+
+            # as we only want the sum of similarities
+
+
+
             # use other samples from batch as negatives
             output = torch.cat((out0, out1), axis=0)
             similarity_matrix = self.similarity_function(output, output)
