@@ -38,9 +38,36 @@ class TestScorerClassification(unittest.TestCase):
             self.assertAlmostEqual(val1, val2,places=8)
 
 
-    def test_scorer_classification_empty_model_output(self):
-        scorer = ScorerClassification(model_output=[])
-        scores = scorer.calculate_scores()
-        self.assertEqual(set(scores.keys()), set(ScorerClassification.score_names()))
+    def test_scorer_classification_variable_model_output(self):
+
+        for num_samples in range(5):
+            for num_classes in range(5):
+
+                if num_samples > 0:
+                    preds = [1./num_samples] * num_classes
+                else:
+                    preds = []
+                model_output = [preds] * num_samples
+
+                if num_samples == 0 or num_classes == 0:
+                    with self.assertRaises(ValueError):
+                        scorer = ScorerClassification(model_output=model_output)
+                else:
+                    scorer = ScorerClassification(model_output=model_output)
+                    scores = scorer.calculate_scores()
+                    self.assertEqual(set(scores.keys()), set(ScorerClassification.score_names()))
+                    for score_values in scores.values():
+                        self.assertEqual(len(score_values), len(model_output))
+
+    def test_scorer_classification_wrong_model_output_tensor_order(self):
+
+        for tensor_order in range(5):
+            model_output = np.ndarray((3,)*tensor_order)
+            if tensor_order != 2:
+                with self.assertRaises(ValueError):
+                    scorer = ScorerClassification(model_output=model_output)
+            else:
+                scorer = ScorerClassification(model_output=model_output)
+                scores = scorer.calculate_scores()
 
 
