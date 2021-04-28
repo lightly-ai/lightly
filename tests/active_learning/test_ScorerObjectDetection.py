@@ -76,6 +76,10 @@ class TestScorerObjectDetection(unittest.TestCase):
 
         self.assertTrue(set(scores.keys()), set(ScorerObjectDetection.score_names()))
 
+        # make sure the max entry of a score is not 0.0
+        for key, val in scores.items():
+            self.assertNotEqual(max(val), 0.0)
+
         # make sure all scores are numpy arrays
         for key, val in scores.items():
             self.assertEqual(type(scores[key]), type(np.array([])))
@@ -178,6 +182,12 @@ class TestScorerObjectDetection(unittest.TestCase):
         scorer = ScorerObjectDetection(self.dummy_data)
         scores = scorer.calculate_scores()
 
+        # make sure the max entry of a score is not 0.0
+        for key, val in scores.items():
+            self.assertNotEqual(max(val), 0.0)
+
         # make sure all scores are numpy arrays
         for key, val in scores.items():
             self.assertEqual(type(scores[key]), type(np.array([])))
+
+
