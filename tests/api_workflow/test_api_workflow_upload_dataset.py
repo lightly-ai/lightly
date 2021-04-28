@@ -1,5 +1,6 @@
 import os
 import tempfile
+import pathlib
 
 import torchvision
 from lightly.data.dataset import LightlyDataset
@@ -27,6 +28,12 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
             path = os.path.join(self.folder_path, sample_names[sample_idx])
             data[0].save(path)
 
+    def create_fake_corrupt_dataset(self):
+        n_data = self.n_data
+        sample_names = [f'img_{i}.jpg' for i in range(n_data)]
+        for sample_name in sample_names:
+            pathlib.Path(os.path.join(self.folder_path, sample_name)).touch()
+
     def test_upload_dataset_over_quota(self):
         quota = self.n_data-1
         def get_quota_reduced():
@@ -34,10 +41,6 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
         self.api_workflow_client.quota_api.get_quota_maximum_dataset_size = get_quota_reduced
         with self.assertRaises(ValueError):
             self.api_workflow_client.upload_dataset(input=self.folder_path)
-
-
-    def test_upload_dataset_from_folder(self):
-        self.api_workflow_client.upload_dataset(input=self.folder_path)
 
     def test_upload_existing_dataset(self):
         self.api_workflow_client.tags_api.no_tags = 2
@@ -47,3 +50,8 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
     def test_upload_dataset_from_dataset(self):
         dataset = LightlyDataset.from_torch_dataset(self.dataset)
         self.api_workflow_client.upload_dataset(input=dataset)
+
+    def test_corrupt_dataset_from_folder(self):
+        self.create_fake_corrupt_dataset()
+        self.api_workflow_client.upload_dataset(input=self.folder_path)
+        self.api_workflow_client.upload_dataset(input=self.folder_path)
