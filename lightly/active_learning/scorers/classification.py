@@ -102,10 +102,12 @@ class ScorerClassification(Scorer):
         super(ScorerClassification, self).__init__(model_output)
 
     def ensure_model_output_is_correct(self, model_output: np.ndarray):
+        if len(model_output) == 0:
+            return
         if len(model_output.shape) != 2:
             raise ValueError("ScorerClassification model_output must be a 2-dimensional array")
-        if model_output.shape[0] == 0 or model_output.shape[1] == 0:
-            raise ValueError("ScorerClassification model_output must not have empty dimensions")
+        if model_output.shape[1] == 0:
+            raise ValueError("ScorerClassification model_output must not have an empty dimension 1")
         if model_output.shape[1] == 1:
             warnings.warn("Trying to use the ScorerClassification on a prediction vector"
                           "with only a single class. This does not make sense.")
