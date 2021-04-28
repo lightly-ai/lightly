@@ -184,8 +184,8 @@ class TestScorerObjectDetection(unittest.TestCase):
 
         # UNCOMMENT TO BREAK
         # make sure the max entry of a score is not 0.0
-        #for key, val in scores.items():
-        #    self.assertNotEqual(max(val), 0.0)
+        for key, val in scores.items():
+            self.assertNotEqual(max(val), 0.0)
         
         # make sure all scores are numpy arrays
         for key, val in scores.items():

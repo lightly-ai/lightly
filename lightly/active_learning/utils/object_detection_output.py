@@ -126,9 +126,9 @@ class ObjectDetectionOutput:
         # create one-hot class probabilities
         max_label = max(labels) if len(labels) > 0 else 0
         class_probabilities = []
-        for label in labels:
-            c = [0.] * (max_label + 1)
-            c[label] = 1.
+        for object_prob, label in zip(object_probabilities, labels):
+            c = [(1-object_prob)/(max_label + 1)] * (max_label + 1)
+            c[label] = object_prob
             class_probabilities.append(c)
 
         # create object detection output
