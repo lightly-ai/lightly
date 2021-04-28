@@ -262,7 +262,7 @@ class ScorerObjectDetection(Scorer):
         scores_dict_classification = \
             _reduce_classification_scores_over_boxes(model_output=self.model_output)
         for score_name, score in scores_dict_classification.items():
-            scores[score_name] = score
+            scores[score_name] = np.array(score)
 
         return scores
 
