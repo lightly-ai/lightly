@@ -80,10 +80,9 @@ class TestScorerObjectDetection(unittest.TestCase):
         for key, val in scores.items():
             self.assertNotEqual(max(val), 0.0)
 
-        # UNCOMMENT TO BREAK
         # make sure all scores are numpy arrays
-        #for key, val in scores.items():
-        #    self.assertEqual(type(scores[key]), type(np.array([])))
+        for key, val in scores.items():
+            self.assertEqual(type(scores[key]), type(np.array([])))
 
         res = scores['object_frequency']
         self.assertEqual(len(res), len(self.dummy_data))
@@ -187,9 +186,9 @@ class TestScorerObjectDetection(unittest.TestCase):
         # make sure the max entry of a score is not 0.0
         #for key, val in scores.items():
         #    self.assertNotEqual(max(val), 0.0)
-        #
+        
         # make sure all scores are numpy arrays
-        # for key, val in scores.items():
-        #     self.assertEqual(type(scores[key]), type(np.array([])))
+        for key, val in scores.items():
+            self.assertEqual(type(scores[key]), type(np.array([])))
 
 
