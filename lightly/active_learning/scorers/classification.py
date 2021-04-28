@@ -97,20 +97,22 @@ class ScorerClassification(Scorer):
         if not isinstance(model_output, np.ndarray):
             model_output = np.array(model_output)
 
-        self.ensure_model_output_is_correct(model_output)
+        validated_model_output = self.ensure_valid_model_output(model_output)
 
-        super(ScorerClassification, self).__init__(model_output)
+        super(ScorerClassification, self).__init__(validated_model_output)
 
-    def ensure_model_output_is_correct(self, model_output: np.ndarray):
+    def ensure_valid_model_output(self, model_output: np.ndarray) -> np.ndarray:
         if len(model_output) == 0:
-            return
+            return model_output
         if len(model_output.shape) != 2:
             raise ValueError("ScorerClassification model_output must be a 2-dimensional array")
         if model_output.shape[1] == 0:
             raise ValueError("ScorerClassification model_output must not have an empty dimension 1")
         if model_output.shape[1] == 1:
-            warnings.warn("Trying to use the ScorerClassification on a prediction vector"
-                          "with only a single class. This does not make sense.")
+            # assuming a binary classification problem with
+            # the model_output denoting the probability of the first class
+            model_output = np.concatenate([model_output, 1-model_output], axis=1)
+        return model_output
 
     @classmethod
     def score_names(cls) -> List[str]:
@@ -171,10 +173,7 @@ class ScorerClassification(Scorer):
         return scores, "uncertainty_least_confidence"
 
     def _get_scores_uncertainty_margin(self):
-        if self.model_output.shape[1] == 1:
-            scores = np.zeros_like(self.model_output)
-        else:
-            scores = 1 - _margin_largest_secondlargest(self.model_output)
+        scores = 1 - _margin_largest_secondlargest(self.model_output)
         return scores, "uncertainty_margin"
 
     def _get_scores_uncertainty_entropy(self):

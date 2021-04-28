@@ -38,6 +38,22 @@ class TestScorerClassification(unittest.TestCase):
         for val1, val2 in zip(scores["uncertainty_entropy"], _entropy(model_output) / np.log2(3)):
             self.assertAlmostEqual(val1, val2, places=8)
 
+    def test_score_calculation_binary(self):
+        model_output = [
+            [0.7],
+            [0.4]
+        ]
+        model_output = np.array(model_output)
+        scorer = ScorerClassification(model_output)
+        scores = scorer.calculate_scores()
+
+        self.assertListEqual(list(scores["uncertainty_least_confidence"]),
+                             [(1 - 0.7) / (1 - 1. / 2.), (1 - 0.6) / (1 - 1. / 2.)])
+        self.assertListEqual(list(scores["uncertainty_margin"]), [1 - (0.7 - 0.3), 1 - (0.6 - 0.4)])
+        model_output = np.concatenate([model_output, 1-model_output], axis=1)
+        for val1, val2 in zip(scores["uncertainty_entropy"], _entropy(model_output) / np.log2(2)):
+            self.assertAlmostEqual(val1, val2, places=8)
+
     def test_scorer_classification_empty_model_output(self):
         scorer = ScorerClassification(model_output=[])
         scores = scorer.calculate_scores()
