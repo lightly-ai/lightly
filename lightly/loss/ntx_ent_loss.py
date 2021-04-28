@@ -50,13 +50,10 @@ class NTXentLoss(MemoryBankModule):
     """
 
     def __init__(self,
-                temperature: float = 0.5,
-                use_cosine_similarity: bool = True,
-                memory_bank_size: int = 0):
+                 temperature: float = 0.5,
+                 memory_bank_size: int = 0):
         super(NTXentLoss, self).__init__(size=memory_bank_size)
         self.temperature = temperature
-        self.similarity_function = self._get_similarity_function(
-                                        use_cosine_similarity)
         self.cross_entropy = torch.nn.CrossEntropyLoss(reduction="mean")
         self.correlated_mask = None
         self.eps = 1e-8
@@ -65,45 +62,12 @@ class NTXentLoss(MemoryBankModule):
             raise ValueError('Illegal temperature: abs({}) < 1e-8'
                              .format(self.temperature))
 
-    def _get_similarity_function(self, use_cosine_similarity):
-        if use_cosine_similarity:
-            self._cosine_similarity = torch.nn.CosineSimilarity(dim=-1)
-            return self._cosine_simililarity
-        else:
-            return self._dot_simililarity
-
     def _torch_get_correlated_mask(self, batch_size, device=None):
         diag = torch.eye(2 * batch_size, device=device)
         diag[batch_size:, :batch_size] += torch.eye(batch_size, device=device)
         diag[:batch_size, batch_size:] += torch.eye(batch_size, device=device)
         mask = (1 - diag).type(torch.bool)
         return mask
-
-    def _get_correlated_mask(self, batch_size):
-        # TODO: deprecate
-        diag = np.eye(2 * batch_size)
-        l1 = np.eye((2 * batch_size), 2 * batch_size, k=-batch_size)
-        l2 = np.eye((2 * batch_size), 2 * batch_size, k=batch_size)
-        mask = torch.from_numpy((diag + l1 + l2))
-        mask = (1 - mask).type(torch.bool)
-        if torch.cuda.is_available():
-            mask.to("cuda")
-        return mask
-
-    @staticmethod
-    def _dot_simililarity(x, y):
-        v = torch.tensordot(x.unsqueeze(1), y.T.unsqueeze(0), dims=2)
-        # x shape: (N, 1, C)
-        # y shape: (1, C, 2N)
-        # v shape: (N, 2N)
-        return v
-
-    def _cosine_simililarity(self, x, y):
-        # x shape: (N, 1, C)
-        # y shape: (1, 2N, C)
-        # v shape: (N, 2N)
-        v = self._cosine_similarity(x.unsqueeze(1), y.unsqueeze(0))
-        return v
 
     def forward(self,
                 out0: torch.Tensor,
@@ -148,12 +112,12 @@ class NTXentLoss(MemoryBankModule):
         # as all vectors are already normalized to unit length.
         # Notation in einsum: n = batch_size, c = embedding_size and k = memory_bank_size.
 
-        # sim_pos is of shape (batch_size, 1) and sim_pos[i] denotes the similarity
-        # of the i-th sample in the batch to its positive pair
-        sim_pos = torch.einsum('nc,nc->n', out0, out1).unsqueeze(-1)
-        l_pos = sim_pos
 
         if negatives is not None:
+            # sim_pos is of shape (batch_size, 1) and sim_pos[i] denotes the similarity
+            # of the i-th sample in the batch to its positive pair
+            sim_pos = torch.einsum('nc,nc->n', out0, out1).unsqueeze(-1)
+
             # use negatives from memory bank
             negatives = negatives.to(device)
 
@@ -162,25 +126,16 @@ class NTXentLoss(MemoryBankModule):
             sim_neg_out0 = torch.einsum('nc,ck->nk', out0, negatives.clone().detach())
             sim_neg_out1 = torch.einsum('nc,ck->nk', out1, negatives.clone().detach())
             sim_neg = sim_neg_out0 + sim_neg_out1
+
+            l_pos = sim_pos
             l_neg = sim_neg
+
 
         else:
             # use other samples from batch as negatives
             output = torch.cat((out0, out1), axis=0)
 
-            # sim_neg each is of shape (batch_size, memory_bank_size) and
-            # sim_neg[i,j] denotes the similarity of the i-th sample in out0 to the j-th sample in out1
-            sim_neg_out0 = torch.einsum('nc,mc->nm', out0, out1)
-            sim_neg_out1 = torch.einsum('mc,nc->mn', out1, out0)
-            sim_neg = sim_neg_out0 + sim_neg_out1
-
-            # as we only want the sum of similarities
-
-
-
-            # use other samples from batch as negatives
-            output = torch.cat((out0, out1), axis=0)
-            similarity_matrix = self.similarity_function(output, output)
+            similarity_matrix = torch.einsum("nc,mc->nm", output, output)
 
             # filter out the scores from the positive samples
             l_pos = torch.diag(similarity_matrix, batch_size)

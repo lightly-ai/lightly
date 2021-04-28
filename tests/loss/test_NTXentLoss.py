@@ -9,44 +9,56 @@ from lightly.loss import NTXentLoss
 class TestNTXentLoss(unittest.TestCase):
 
     def test_with_values(self):
-        out0 = [[1., 1., 1.], [-1., -1., -1.]]
-        out1 = [[1., 1., -1.], [-1., -1., 1.]]
+        n_samples = 5
+        dimension = 16
+        out0 = np.random.normal(0, 1, size=(n_samples, dimension))
+        out1 = np.random.normal(0, 1, size=(n_samples, dimension))
+        temperature = 3
         out0 = torch.FloatTensor(out0)
         out1 = torch.FloatTensor(out1)
-        sim_matrix = [[]]
 
-        loss_function = NTXentLoss()
-        l1 = loss_function(out0, out1)
-        l2 = loss_function(out1, out0)
-        self.assertAlmostEqual(float(l1), 0.0625955, places=5)
-        self.assertAlmostEqual(float(l2), 0.0625955, places=5)
+        loss_function = NTXentLoss(temperature=temperature)
+        l1 = float(loss_function(out0, out1))
+        l2 = float(loss_function(out1, out0))
+        l1_manual = self.calc_ntxent_loss_manual(out0, out1, temperature=temperature)
+        l2_manual = self.calc_ntxent_loss_manual(out0, out1, temperature=temperature)
+        self.assertAlmostEqual(l1, l2, places=5)
+        self.assertAlmostEqual(l1, l1_manual, places=5)
+        self.assertAlmostEqual(l2, l2_manual, places=5)
 
-    def calc_loss_manual(self, out0: np.ndarray, out1: np.ndarray, temperature: float) -> loss:
-        # using the pseudocode directly from https://arxiv.org/pdf/2002.05709.pdf Algorithm1
-        z = np.concatenate([out0, out1], axis=1)
+    def calc_ntxent_loss_manual(self, out0, out1, temperature: float) -> float:
+        # using the pseudocode directly from https://arxiv.org/pdf/2002.05709.pdf , Algorithm 1
+
+        out0 = np.array(out0)
+        out1 = np.array(out1)
+
         N = len(out0)
+        z = np.concatenate([out0, out1], axis=0)
+        # different to the notation in the paper, in our case z[k] and z[k+N]
+        # are different augmentations of the same image
 
         s_i_j = np.zeros((2 * len(out0), 2 * len(out1)))
         for i in range(2 * N):
             for j in range(2 * N):
-                s_i_j[i, j] = z[i].T * z[j] / (np.linalg.norm(z[i]) * np.linalg.norm(z[j]))
+                sim = np.inner(z[i], z[j]) / (np.linalg.norm(z[i]) * np.linalg.norm(z[j]))
+                s_i_j[i, j] = sim
 
-        logit_i_j = np.exp(s_i_j / temperature)
+        exponential_i_j = np.exp(s_i_j / temperature)
 
-        l_i_j = np.zeros_like(logit_i_j)
+        l_i_j = np.zeros_like(exponential_i_j)
         for i in range(2 * N):
             for j in range(2 * N):
-                nominator = logit_i_j[i, j]
+                nominator = exponential_i_j[i, j]
                 denominator = 0
                 for k in range(2 * N):
                     if k != i:
-                        denominator += logit_i_j[i, k]
-                l_i_j[i, j] = -1 * np.log(nominator/denominator)
+                        denominator += exponential_i_j[i, k]
+                l_i_j[i, j] = -1 * np.log(nominator / denominator)
 
         loss = 0
         for k in range(N):
-            loss += l_i_j[2*k-1, 2*k] + l_i_j[2*k, 2*k-1]
-        loss /= (2*N)
+            loss += l_i_j[k, k + N] + l_i_j[k + N, k]
+        loss /= (2 * N)
         return loss
 
     def test_with_values_and_memory_bank(self):
