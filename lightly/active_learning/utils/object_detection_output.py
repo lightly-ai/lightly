@@ -80,9 +80,13 @@ class ObjectDetectionOutput:
                     labels: List[int]):
         """Helper to convert from output format with scores.
 
+        We advise not using this method if you want to use the uncertainty
+        active learning scores correctly.
+
         Since this output format does not provide class probabilities, they
-        will be replaced by a one-hot vector indicating the label provided in
-        labels. The objectness will be set to the score for each bounding box.
+        will be replaced by a estimated class probability computed by the
+        objectness. The highest class probability matches the label.
+        The objectness will be set to the score for each bounding box.
 
         Args:
             boxes:
