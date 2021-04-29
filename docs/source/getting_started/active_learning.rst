@@ -224,11 +224,11 @@ We expect the model predictions to contain
 - objectness_probability for each bounding box
 - classification_probabilities for each bounding box
 
-You find more about the format here: 
+You can find more about the format here: 
 :py:class:`lightly.active_learning.utils.object_detection_output.ObjectDetectionOutput`
 
-We also provide a helper method to work with the model output format of only
-consisting of a probability per bounding box and the associcated label.
+We also provide a helper method to work with the model output format consisting 
+of only a probability per bounding box and the associated label.
 :py:class:`lightly.active_learning.utils.object_detection_output.ObjectDetectionOutput.from_scores`
 
 

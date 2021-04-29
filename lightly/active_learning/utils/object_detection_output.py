@@ -132,7 +132,7 @@ class ObjectDetectionOutput:
         class_probabilities = []
         for object_prob, label in zip(object_probabilities, labels):
             num_classes = max(max_label, 1)
-            c = [(1-object_prob)/num_classes] * (num_classes + 1)
+            c = [(1 - object_prob) / num_classes] * (num_classes + 1)
             c[label] = object_prob
             class_probabilities.append(c)
 
