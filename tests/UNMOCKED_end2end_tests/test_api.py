@@ -100,7 +100,7 @@ def create_new_dataset_with_embeddings(path_to_dataset: str,
 
 def t_est_active_learning(api_workflow_client: ApiWorkflowClient,
                           method: SamplingMethod = SamplingMethod.CORAL,
-                          query_tag_name: str = None,
+                          query_tag_name: str = 'initial-tag',
                           preselected_tag_name: str = None,
                           n_samples_additional: List[int] = [2, 5]):
     # create the tags with 100 respectively 10 samples if not yet existant
@@ -142,7 +142,7 @@ def t_est_active_learning(api_workflow_client: ApiWorkflowClient,
         assert len(agent.unlabeled_set) == total_no_samples - n_samples
 
         # Update the scorer
-        n_samples = len(agent.unlabeled_set)
+        n_samples = len(agent.query_set)
         n_classes = 10
         predictions = np.random.rand(n_samples, n_classes)
         predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
@@ -164,7 +164,7 @@ def t_est_api_with_matrix(path_to_dataset: str,
     )
 
     for method in [SamplingMethod.CORAL, SamplingMethod.CORESET, SamplingMethod.RANDOM]:
-        for query_tag_name in [None, "query_tag_name_xyz"]:
+        for query_tag_name in ['initial-tag', "query_tag_name_xyz"]:
             for preselected_tag_name in [None, "preselected_tag_name_xyz"]:
                 print(f"Starting AL run with method '{method}', query_tag '{query_tag_name}' "
                       f"and preselected_tag '{preselected_tag_name}'.")

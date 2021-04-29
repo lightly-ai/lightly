@@ -1,7 +1,11 @@
-from typing import *
+from typing import Callable
+from typing import Dict
+from typing import List
+
 
 import numpy as np
 
+from lightly.active_learning.scorers import ScorerClassification
 from lightly.active_learning.scorers.scorer import Scorer
 from lightly.active_learning.utils.object_detection_output import ObjectDetectionOutput
 
@@ -20,7 +24,7 @@ def _object_frequency(model_output: List[ObjectDetectionOutput],
             object only as 0.25.
         min_score:
             The minimum score a single sample can have
-        
+
     Returns:
         Numpy array of length N with the computed scores
 
@@ -44,7 +48,7 @@ def _object_frequency(model_output: List[ObjectDetectionOutput],
     return np.asarray(scores)
 
 
-def _prediction_margin(model_output: List[ObjectDetectionOutput]):
+def _objectness_least_confidence(model_output: List[ObjectDetectionOutput]) -> np.ndarray:
     """Score which prefers samples with low max(class prob) * objectness.
 
     Args:
@@ -65,7 +69,55 @@ def _prediction_margin(model_output: List[ObjectDetectionOutput]):
             # set the score to 0 if there was no bounding box detected
             score = 0.
         scores.append(score)
+
     return np.asarray(scores)
+
+
+def _reduce_classification_scores_over_boxes(
+        model_output: List[ObjectDetectionOutput],
+        reduce_fn_over_bounding_boxes: Callable[[np.ndarray], float] = np.max,
+        default_value_no_bounding_box: float = 0
+) -> Dict[str, List[float]]:
+    """Calculates classification scores over the mean of all found objects
+
+    Args:
+        model_output:
+            Predictions of the model of length N.
+        reduce_fn_over_bounding_boxes:
+            This function reduces the scores for each bounding box of an image
+            to one score per image.
+        default_value_no_bounding_box:
+            This is the default score if the image does not have any bounding boxes found.
+
+    Returns:
+        Numpy array of length N with the computed scores.
+
+    """
+    # calculate a score dictionary for each sample
+    scores_dict_list: List[Dict[str, np.ndarray]] = []
+    for index_sample, output in enumerate(model_output):
+        probs = np.array(output.class_probabilities)
+        scores_dict_this_sample = ScorerClassification(model_output=probs).calculate_scores()
+        scores_dict_list.append(scores_dict_this_sample)
+
+    score_names = ScorerClassification.score_names()
+
+    # reduce it to one score per sample
+
+    # Initialize the dictionary
+    output_scores_dict = {score_name: [] for score_name in score_names}
+
+    # Fill the dictionary
+    for scores_dict in scores_dict_list:
+        for score_name in score_names:
+            score: np.ndarray = scores_dict[score_name]
+            if len(score) > 0:
+                scalar_score = float(reduce_fn_over_bounding_boxes(score))
+            else:
+                scalar_score = default_value_no_bounding_box
+            output_scores_dict[score_name].append(scalar_score)
+
+    return output_scores_dict
 
 
 class ScorerObjectDetection(Scorer):
@@ -73,16 +125,23 @@ class ScorerObjectDetection(Scorer):
 
     Currently supports the following scorers:
 
-        `object-frequency`:
+        `object_frequency`:
             This scorer uses model predictions to focus more on images which
             have many objects in them. Use this scorer if you want scenes
             with lots of objects in them like we usually want in
             computer vision tasks such as perception in autonomous driving.
 
-        `prediction-margin`:
-            This scorer uses the margin between 1.0 and the highest confidence
-            prediction. Use this scorer to select images where the model is
-            insecure.
+        `objectness_least_confidence`:
+            This score is 1 - the mean of the highest confidence prediction. Use this scorer
+            to select images where the model is insecure about both whether it found an object
+            at all and the class of the object.
+
+        scores from ScorerClassification:
+            These scores are computed for each object detection out of
+            the class probability prediction for this detection.
+            Then these scores are reduced to one score per image
+            by taking the maximum. The scores are named as
+            f"classification_{score_name}".
 
     Attributes:
         model_output:
@@ -103,6 +162,7 @@ class ScorerObjectDetection(Scorer):
                 scaled to [`min_score`, 1.0] range. Lowering the number makes
                 the sampler focus more on samples with many objects.
                 (default: 0.9)
+
 
     Examples:
         >>> # typical model output
@@ -172,10 +232,18 @@ class ScorerObjectDetection(Scorer):
                     )
 
                 # use default config if not specified in config
-                for k, v in default_conf.items():
-                    self.config[k] = self.config.get(k, v)
+                for key, val in default_conf.items():
+                    self.config[key] = self.config.get(key, val)
         else:
             self.config = default_conf
+
+    @classmethod
+    def score_names(cls) -> List[str]:
+        """Returns the names of the calculated active learning scores
+        """
+        scorer = cls(model_output=[ObjectDetectionOutput([], [], [])])
+        score_names = list(scorer.calculate_scores().keys())
+        return score_names
 
     def calculate_scores(self) -> Dict[str, np.ndarray]:
         """Calculates and returns the active learning scores.
@@ -185,18 +253,27 @@ class ScorerObjectDetection(Scorer):
             to the scores (as a single-dimensional numpy array).
         """
         scores = dict()
-        scores['object-frequency'] = self._get_object_frequency()
-        scores['prediction-margin'] = self._get_prediction_margin()
+        scores_with_names = [
+            self._get_object_frequency(),
+            self._get_objectness_least_confidence()
+        ]
+        for score, score_name in scores_with_names:
+            score = np.nan_to_num(score)
+            scores[score_name] = score
+
+        # add classification scores
+        scores_dict_classification = \
+            _reduce_classification_scores_over_boxes(model_output=self.model_output)
+        for score_name, score in scores_dict_classification.items():
+            scores[score_name] = np.array(score)
+
         return scores
 
     def _get_object_frequency(self):
-        scores = _object_frequency(
+        return _object_frequency(
             self.model_output,
             self.config['frequency_penalty'],
-            self.config['min_score'])
-        return scores
+            self.config['min_score']), "object_frequency"
 
-    def _get_prediction_margin(self):
-        scores = _prediction_margin(self.model_output)
-        return scores
-
+    def _get_objectness_least_confidence(self):
+        return _objectness_least_confidence(self.model_output), "objectness_least_confidence"

@@ -29,8 +29,8 @@ class DimensionalityReductionMethod(object):
     allowed enum values
     """
     PCA = "PCA"
-    UMAP = "UMAP"
     TSNE = "TSNE"
+    UMAP = "UMAP"
 
     """
     Attributes:
