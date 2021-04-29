@@ -9,22 +9,23 @@ from lightly.loss import NTXentLoss
 class TestNTXentLoss(unittest.TestCase):
 
     def test_with_values(self):
-        n_samples = 5
-        dimension = 16
-        out0 = np.random.normal(0, 1, size=(n_samples, dimension))
-        out1 = np.random.normal(0, 1, size=(n_samples, dimension))
-        temperature = 3
-        out0 = torch.FloatTensor(out0)
-        out1 = torch.FloatTensor(out1)
+        for n_samples in [1, 2, 4]:
+            for dimension in [1, 2, 16, 64]:
+                for temperature in [0.1, 1, 10]:
+                    out0 = np.random.normal(0, 1, size=(n_samples, dimension))
+                    out1 = np.random.normal(0, 1, size=(n_samples, dimension))
+                    with self.subTest(msg=f"out0.shape={out0.shape}, temperature={temperature}"):
+                        out0 = torch.FloatTensor(out0)
+                        out1 = torch.FloatTensor(out1)
 
-        loss_function = NTXentLoss(temperature=temperature)
-        l1 = float(loss_function(out0, out1))
-        l2 = float(loss_function(out1, out0))
-        l1_manual = self.calc_ntxent_loss_manual(out0, out1, temperature=temperature)
-        l2_manual = self.calc_ntxent_loss_manual(out0, out1, temperature=temperature)
-        self.assertAlmostEqual(l1, l2, places=5)
-        self.assertAlmostEqual(l1, l1_manual, places=5)
-        self.assertAlmostEqual(l2, l2_manual, places=5)
+                        loss_function = NTXentLoss(temperature=temperature)
+                        l1 = float(loss_function(out0, out1))
+                        l2 = float(loss_function(out1, out0))
+                        l1_manual = self.calc_ntxent_loss_manual(out0, out1, temperature=temperature)
+                        l2_manual = self.calc_ntxent_loss_manual(out0, out1, temperature=temperature)
+                        self.assertAlmostEqual(l1, l2, places=5)
+                        self.assertAlmostEqual(l1, l1_manual, places=5)
+                        self.assertAlmostEqual(l2, l2_manual, places=5)
 
     def calc_ntxent_loss_manual(self, out0, out1, temperature: float) -> float:
         # using the pseudocode directly from https://arxiv.org/pdf/2002.05709.pdf , Algorithm 1
@@ -77,7 +78,7 @@ class TestNTXentLoss(unittest.TestCase):
     def test_get_correlated_mask(self):
         loss = NTXentLoss()
         for bsz in range(1, 100):
-            mask = loss._torch_get_correlated_mask(bsz)
+            mask = loss._torch_get_mask_negative_samples(bsz)
 
             # correct number of zeros in mask
             self.assertAlmostEqual(mask.sum(), 4 * (bsz * bsz - bsz))
