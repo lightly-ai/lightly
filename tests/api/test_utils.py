@@ -20,13 +20,13 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(retry(my_func, 5, kwarg=5), 10)
 
 
-    # def test_retry_fail(self):
+    def test_retry_fail(self):
 
-    #     def my_func():
-    #         raise RuntimeError()
+        def my_func():
+            raise RuntimeError()
         
-    #     with self.assertRaises(RuntimeError):
-    #         retry(my_func)
+        with self.assertRaises(RuntimeError):
+            retry(my_func)
 
     def test_getenv(self):
         os.environ['TEST_ENV_VARIABLE'] = 'hello world'
