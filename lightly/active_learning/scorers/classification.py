@@ -134,7 +134,7 @@ class ScorerClassification(Scorer):
             to the scores (as a single-dimensional numpy array).
         """
         if len(self.model_output) == 0:
-            return {score_name: [] for score_name in self.score_names()}
+            return {score_name: np.array([]) for score_name in self.score_names()}
 
         scores_with_names = [
             self._get_scores_uncertainty_least_confidence(),

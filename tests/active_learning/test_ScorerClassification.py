@@ -22,6 +22,7 @@ class TestScorerClassification(unittest.TestCase):
             self.assertEqual(score.shape, (n_samples,))
             self.assertTrue(all(score >= 0))
             self.assertTrue(all(score <= 1))
+            self.assertEqual(type(score), np.ndarray)
 
     def test_score_calculation_specific(self):
         model_output = [
@@ -80,6 +81,7 @@ class TestScorerClassification(unittest.TestCase):
                         self.assertEqual(set(scores.keys()), set(ScorerClassification.score_names()))
                         for score_values in scores.values():
                             self.assertEqual(len(score_values), len(model_output))
+                            self.assertEqual(type(score_values), np.ndarray)
 
     def test_scorer_classification_variable_model_output_tensor_order(self):
 
@@ -89,6 +91,8 @@ class TestScorerClassification(unittest.TestCase):
                 if tensor_order == 2 or tensor_order == 0:
                     scorer = ScorerClassification(model_output=model_output)
                     scores = scorer.calculate_scores()
+                    for score_values in scores.values():
+                        self.assertEqual(type(score_values), np.ndarray)
                 else:
                     with self.assertRaises(ValueError):
                         scorer = ScorerClassification(model_output=model_output)

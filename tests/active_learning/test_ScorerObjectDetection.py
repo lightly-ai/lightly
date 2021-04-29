@@ -76,6 +76,14 @@ class TestScorerObjectDetection(unittest.TestCase):
 
         self.assertTrue(set(scores.keys()), set(ScorerObjectDetection.score_names()))
 
+        # make sure the max entry of a score is not 0.0
+        for key, val in scores.items():
+            self.assertNotEqual(max(val), 0.0)
+
+        # make sure all scores are numpy arrays
+        for key, val in scores.items():
+            self.assertEqual(type(scores[key]), type(np.array([])))
+
         res = scores['object_frequency']
         self.assertEqual(len(res), len(self.dummy_data))
         self.assertListEqual(res.tolist(), [1.0, 0.95, 0.9])
@@ -151,3 +159,36 @@ class TestScorerObjectDetection(unittest.TestCase):
         }
         with self.assertRaises(ValueError):
             scorer = ScorerObjectDetection(self.dummy_data, config=new_config)
+
+    def test_object_detection_from_class_labels(self):
+        # convert bounding boxes
+        W, H = 128, 128
+        for data in self.dummy_data:
+            for i, box in enumerate(data['boxes']):
+                x0 = box[0] / W
+                y0 = box[1] / H
+                x1 = box[2] / W
+                y1 = box[3] / H
+                data['boxes'][i] = BoundingBox(x0, y0, x1, y1)
+
+        for i, data in enumerate(self.dummy_data):
+            self.dummy_data[i] = ObjectDetectionOutput.from_scores(
+                data['boxes'],
+                data['object_probabilities'],
+                data['labels']
+            )
+
+        # check for default config
+        scorer = ScorerObjectDetection(self.dummy_data)
+        scores = scorer.calculate_scores()
+
+        # UNCOMMENT TO BREAK
+        # make sure the max entry of a score is not 0.0
+        for key, val in scores.items():
+            self.assertNotEqual(max(val), 0.0)
+        
+        # make sure all scores are numpy arrays
+        for key, val in scores.items():
+            self.assertEqual(type(scores[key]), type(np.array([])))
+
+
