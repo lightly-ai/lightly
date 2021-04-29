@@ -1,4 +1,7 @@
-from typing import *
+from typing import Callable
+from typing import Dict
+from typing import List
+
 
 import numpy as np
 
@@ -91,7 +94,7 @@ def _reduce_classification_scores_over_boxes(
 
     """
     # calculate a score dictionary for each sample
-    scores_dict_list: List[dict[str, np.ndarray]] = []
+    scores_dict_list: List[Dict[str, np.ndarray]] = []
     for index_sample, output in enumerate(model_output):
         probs = np.array(output.class_probabilities)
         scores_dict_this_sample = ScorerClassification(model_output=probs).calculate_scores()
@@ -229,8 +232,8 @@ class ScorerObjectDetection(Scorer):
                     )
 
                 # use default config if not specified in config
-                for k, v in default_conf.items():
-                    self.config[k] = self.config.get(k, v)
+                for key, val in default_conf.items():
+                    self.config[key] = self.config.get(key, val)
         else:
             self.config = default_conf
 
@@ -262,7 +265,7 @@ class ScorerObjectDetection(Scorer):
         scores_dict_classification = \
             _reduce_classification_scores_over_boxes(model_output=self.model_output)
         for score_name, score in scores_dict_classification.items():
-            scores[score_name] = score
+            scores[score_name] = np.array(score)
 
         return scores
 

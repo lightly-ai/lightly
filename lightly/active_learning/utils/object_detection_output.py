@@ -80,9 +80,13 @@ class ObjectDetectionOutput:
                     labels: List[int]):
         """Helper to convert from output format with scores.
 
+        We advise not using this method if you want to use the uncertainty
+        active learning scores correctly.
+
         Since this output format does not provide class probabilities, they
-        will be replaced by a one-hot vector indicating the label provided in
-        labels. The objectness will be set to the score for each bounding box.
+        will be replaced by a estimated class probability computed by the
+        objectness. The highest class probability matches the label.
+        The objectness will be set to the score for each bounding box.
 
         Args:
             boxes:
@@ -126,9 +130,10 @@ class ObjectDetectionOutput:
         # create one-hot class probabilities
         max_label = max(labels) if len(labels) > 0 else 0
         class_probabilities = []
-        for label in labels:
-            c = [0.] * (max_label + 1)
-            c[label] = 1.
+        for object_prob, label in zip(object_probabilities, labels):
+            num_classes = max(max_label, 1)
+            c = [(1 - object_prob) / num_classes] * (num_classes + 1)
+            c[label] = object_prob
             class_probabilities.append(c)
 
         # create object detection output

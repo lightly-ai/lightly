@@ -215,7 +215,22 @@ For more information about how to use the classification scorer have a look here
 Object Detection
 ^^^^^^^^^^^^^^^^^^^^^
 Use this scorer when working on an object detection problem using bounding
-boxes.
+boxes. The object detection scorers require the input to be in 
+the `ObjectDetectionOutput` format.
+
+We expect the model predictions to contain
+
+- bounding boxes of shape (x0, y0, x1, y1)
+- objectness_probability for each bounding box
+- classification_probabilities for each bounding box
+
+You can find more about the format here: 
+:py:class:`lightly.active_learning.utils.object_detection_output.ObjectDetectionOutput`
+
+We also provide a helper method to work with the model output format consisting 
+of only a probability per bounding box and the associated label.
+:py:class:`lightly.active_learning.utils.object_detection_output.ObjectDetectionOutput.from_scores`
+
 
 Currently, the following scorers are available:
 
@@ -233,9 +248,9 @@ Currently, the following scorers are available:
   These scores are computed for each object detection per image out of
   the class probability prediction for this detection. Then, they are reduced
   to one score per image by taking the maximum. In particular we support:
-  - **classification_uncertainty_least_confidence**
-  - **classification_uncertainty_margin**
-  - **classification_uncertainty_entropy**
+  - **uncertainty_least_confidence**
+  - **uncertainty_margin**
+  - **uncertainty_entropy**
   The scores are computed using the scorer for classification.
 
 
