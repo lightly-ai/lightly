@@ -33,10 +33,12 @@ Next, the active learning loop starts:
 
 6. Update the labeled set to include the newly chosen samples and remove them from the unlabeled set.
 
-In this tutorial, we use a k-nearest-neighbor classifier that predicts the class of a sample
-based on the class of the k nearest samples in the labeled set.
-We use the euclidean distance between a sample's embeddings as the distance metric.
-The advantage of such a classifier compared to CNNs is that it is very fast and easily implemented.
+In this tutorial, we use a linear regression on top of the embeddings as classifier.
+This is the same as using the embedding model as a pretrained backbone
+and putting a single layer classification head on top of it, while finetuning only the classification head
+on the labeled dataset, but keeping the backbone frozen.
+As the embeddings as input to the classification head are already computed,
+using them directly saves computation time.
 
 What you will learn
 -------------------
@@ -54,7 +56,7 @@ Define your dataset
     git clone https://github.com/alexeygrigorev/clothing-dataset-small.git ./clothing-dataset-small
 
 The dataset's images are RGB images with a few hundred pixels in width and height. They show clothes
-from 10 different clothes, like dresses, hats or t-shirts. The dataset is already split into a train,
+from 10 different classes, like dresses, hats or t-shirts. The dataset is already split into a train,
 test and validation set and all images for one class are put into one folder.
 
 .. image:: ./images/clothing-dataset-small-structure.png
@@ -117,7 +119,7 @@ import os
 import csv
 from typing import List, Dict, Tuple
 import numpy as np
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
 
 from lightly.active_learning.agents.agent import ActiveLearningAgent
 from lightly.active_learning.config.sampler_config import SamplerConfig
@@ -130,6 +132,7 @@ from lightly.openapi_generated.swagger_client import SamplingMethod
 # The kNN-classifier needs the embeddings as features for its classification. Thus we define a class to create
 # such a dataset out of the embeddings.csv. It also allows to choose only a subset of all samples
 # dependent on the filenames given.
+
 
 class CSVEmbeddingDataset:
     def __init__(self, path_to_embeddings_csv: str):
@@ -167,7 +170,7 @@ class CSVEmbeddingDataset:
 
 
 # %%
-# First we read the variables, we set before as environement variables via the console
+# First we read the variables we set before as environment variables via the console
 token = os.getenv("LIGHTLY_TOKEN")
 dataset_name = os.getenv("LIGHTLY_DATASET_NAME")
 path_to_embeddings_csv = os.getenv("LIGHTLY_EMBEDDINGS_CSV")
@@ -179,7 +182,7 @@ api_workflow_client.create_dataset(dataset_name=dataset_name)
 # %%
 # We define the dataset, the classifier and the active learning agent
 dataset = CSVEmbeddingDataset(path_to_embeddings_csv=path_to_embeddings_csv)
-classifier = KNeighborsClassifier(n_neighbors=20, weights='distance')
+classifier = LogisticRegression(max_iter=1000)
 agent = ActiveLearningAgent(api_workflow_client=api_workflow_client)
 
 # %%
