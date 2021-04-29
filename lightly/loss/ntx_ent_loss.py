@@ -67,13 +67,13 @@ class NTXentLoss(MemoryBankModule):
         being True except on three diagonals. These three diagonals are
         the main diagonal and the diagonals of the other two quadrants.
 
-        Example for batch_size=3 with x=False and _=True:
-        x _ _ x _  _
-        _ x _ _ x  _
-        _ _ x _ _  x
-        x _ _ x _  _
-        _ x _ _ x  _
-        _ _ x _ _  x
+        Example for batch_size=3 with X=False and _=True:
+        X _ _ X _ _
+        _ X _ _ X _
+        _ _ X _ _ X
+        X _ _ X _ _
+        _ X _ _ X _
+        _ _ X _ _ X
 
         """
         diag = torch.eye(2 * batch_size, device=device)
