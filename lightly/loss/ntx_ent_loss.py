@@ -98,7 +98,6 @@ class NTXentLoss(MemoryBankModule):
                 out1:
                     Output projections of the second set of transformed images.
                     Shape: (batch_size, embedding_size)
-                    out0[i] and out1[i] are two different augmentation of the same image.
 
             Returns:
                 Contrastive Cross Entropy Loss value.
