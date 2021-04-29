@@ -9,7 +9,6 @@ from PIL import Image
 
 from lightly.openapi_generated.swagger_client import TagCreator
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
-from lightly.api.utils import check_filename, check_image, get_thumbnail_from_img, PIL_to_bytes
 from lightly.api.bitmask import BitMask
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
