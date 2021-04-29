@@ -1,5 +1,7 @@
 import unittest
 
+import numpy as np
+
 from lightly.active_learning.utils.bounding_box import BoundingBox
 from lightly.active_learning.utils.object_detection_output import ObjectDetectionOutput
 
@@ -37,6 +39,18 @@ class TestObjectDetectionOutput(unittest.TestCase):
                     [0.5, 0.41, 0.09],
                 ],
                 'labels': [0]
+            },
+            {
+                'boxes': [
+                    [14, 16, 52, 85],
+                ],
+                'object_probabilities': [
+                    1.0,
+                ],
+                'class_probabilities': [
+                    [0.0, 1.0, 0.0],
+                ],
+                'labels': [4]
             },
             {
                 'boxes': [],
@@ -80,6 +94,21 @@ class TestObjectDetectionOutput(unittest.TestCase):
                 self.assertEqual(x, y)
             for x, y in zip(output_1.scores, output_2.scores):
                 self.assertEqual(x, y)
+
+
+    def test_object_detection_output_from_scores(self):
+        outputs = []
+        for i, data in enumerate(self.dummy_data):
+            output = ObjectDetectionOutput.from_scores(
+                data['boxes'],
+                data['object_probabilities'],
+                data['labels'],
+            )
+            outputs.append(output)
+        
+        for output in outputs:
+            for class_probs in output.class_probabilities:
+                self.assertEqual(np.sum(class_probs), 1.0)
 
 
     def test_object_detection_output_illegal_args(self):
