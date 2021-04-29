@@ -162,7 +162,7 @@ class NTXentLoss(MemoryBankModule):
 
             if self.mask_negative_samples is None \
                     or 2 * batch_size != self.mask_negative_samples.shape[0]:
-                #
+                # if the mask_negative_samples is not correct or has the wrong size
                 self.mask_negative_samples = \
                     self._torch_get_mask_negative_samples(batch_size, device=device)
 
@@ -177,7 +177,7 @@ class NTXentLoss(MemoryBankModule):
             # sim_pos is of shape (2 * batch_size, 1)
             # sim_neg is of shape (2 * batch_size, 2 * (batch_size -1))
 
-        # The goal is to maximize sim_pos in relation sim_neg.
+        # The goal is to maximize sim_pos in relation to sim_neg.
         # This goal can be targeted with the cross-entropy-loss
 
         logits = torch.cat([sim_pos, sim_neg], dim=1)
