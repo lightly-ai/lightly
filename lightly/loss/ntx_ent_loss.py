@@ -52,7 +52,6 @@ class NTXentLoss(MemoryBankModule):
         super(NTXentLoss, self).__init__(size=memory_bank_size)
         self.temperature = temperature
         self.cross_entropy = torch.nn.CrossEntropyLoss(reduction="mean")
-        self.mask_negative_samples = None
         self.eps = 1e-8
 
         if abs(self.temperature) < self.eps:
