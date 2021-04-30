@@ -132,7 +132,7 @@ class NTXentLoss(MemoryBankModule):
                 return tensor
 
             mask_base = torch.eye(batch_size, dtype=torch.bool, device=out0.device)
-            mask_0 = torch.zeros_like(mask_base)
+            mask_0 = torch.zeros_like(mask_base, device=out0.device)
 
             # the positive samples are on the diagonals of the upper right and lower left quadrant
             mask_pos = concat_to_2x2(mask_0, mask_base, mask_base, mask_0)
