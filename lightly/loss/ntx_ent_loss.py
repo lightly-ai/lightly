@@ -130,6 +130,7 @@ class NTXentLoss(MemoryBankModule):
             # of the i-th sample in the batch to its positive pair
             sim_pos = torch.einsum('nc,nc->n', out0, out1).unsqueeze(-1)
 
+
             # use negatives from memory bank
             negatives = negatives.to(device)
 
@@ -137,7 +138,7 @@ class NTXentLoss(MemoryBankModule):
             # of the i-th sample to the j-th negative sample
             sim_neg_out0 = torch.einsum('nc,ck->nk', out0, negatives.clone().detach())
             sim_neg_out1 = torch.einsum('nc,ck->nk', out1, negatives.clone().detach())
-            sim_neg = sim_neg_out0 + sim_neg_out1
+            sim_neg = (sim_neg_out0 + sim_neg_out1)/2
 
 
         else:

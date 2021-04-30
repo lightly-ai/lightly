@@ -62,6 +62,30 @@ class TestNTXentLoss(unittest.TestCase):
         loss /= (2 * N)
         return loss
 
+    def test_with_correlated_embedding(self):
+        n_samples = 8
+        temperature = 3
+        memory_bank_size = n_samples
+        out0 = np.random.random((n_samples, 1))
+        out1 = np.random.random((n_samples, 1))
+        out0 = np.concatenate([out0, 2 * out0], axis=1)
+        out1 = np.concatenate([out1, 2 * out1], axis=1)
+        out0 = torch.FloatTensor(out0)
+        out1 = torch.FloatTensor(out1)
+        out0.requires_grad = True
+
+        loss_function = NTXentLoss(temperature=temperature)
+        loss = float(loss_function(out0, out1))
+        expected_loss = -1 * np.log(1 / (2 * n_samples - 1))
+        loss_function_with_bank = NTXentLoss(temperature=temperature, memory_bank_size=memory_bank_size)
+        for i in range(2):
+            loss_with_memory_bank = float(loss_function_with_bank(out0, out1))
+        self.assertAlmostEqual(loss, expected_loss, places=1)
+
+
+        expected_loss_memory_bank = -1 * np.log(1 / (memory_bank_size+1))
+        self.assertAlmostEqual(loss_with_memory_bank, expected_loss_memory_bank, places=3)
+
     def test_with_values_and_memory_bank(self):
         out0 = [[1., 1., 1.], [-1., -1., -1.]]
         out1 = [[1., 1., 0.], [-1., -1., 0.]]
