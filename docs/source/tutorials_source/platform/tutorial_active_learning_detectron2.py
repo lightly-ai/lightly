@@ -5,13 +5,13 @@
 Tutorial 4: Active Learning using Detectron2 on Comma10k
 =========================================================
 
-This tutorial is available as a 
-`Google Colab Notebook<https://colab.research.google.com/drive/1r0KDqIwr6PV3hFhREKgSjRaEbQa5N_5I?usp=sharing>`_
+This tutorial is available as a
+`Google Colab Notebook <https://colab.research.google.com/drive/1r0KDqIwr6PV3hFhREKgSjRaEbQa5N_5I?usp=sharing>`_
 
 In this tutorial you will learn:
 
-*   how to use Lightly Active Learning together with the 
-    [detectron2](https://github.com/facebookresearch/detectron2) framework 
+*   how to use Lightly Active Learning together with the
+    `detectron2 <https://github.com/facebookresearch/detectron2>`_ framework
     for object detection
 *   how to use the Lightly Platform to inspect the selected samples
 *   how to get the selected samples for labeling
@@ -19,10 +19,11 @@ In this tutorial you will learn:
 The tutorial will be divided into
 the following steps. 
 
-1. (optional) Installation of detectron2 and lightly
-1. Run predictions using a pretrained model
-1. Use lightly to compute active learning scores for the predictions
-1. Use the Lightly Platform to understand where our model struggles
+#. Installation of detectron2 and lightly
+#. Run predictions using a pretrained model
+#. Use lightly to compute active learning scores for the predictions
+#. Use the Lightly Platform to understand where our model struggles
+#. Select the most valuable 100 images for annotation
 
 Requirements
 ------------
@@ -34,7 +35,7 @@ Requirements
 
 - In this tutorial we work with the comma10k dataset. The dataset consists of
   10'000 images for autonomous driving and is available
-  [here on GitHub](https://github.com/commaai/comma10k)
+  `here on GitHub <https://github.com/commaai/comma10k>`_
   We can download the dataset using `git clone`. We save the dataset locally
   to `/datasets/`
 
@@ -173,7 +174,10 @@ def predict_and_overlay(model, fname):
     # We can use `Visualizer` to draw the predictions on the image.
     v = Visualizer(im[:, :, ::-1], MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
     out = v.draw_instance_predictions(out["instances"].to("cpu"))
+    plt.figure(figsize=(16,12))
     plt.imshow(out.get_image()[:, :, ::-1])
+    plt.axis('off')
+    plt.tight_layout()
 
 # %%
 
@@ -216,13 +220,13 @@ for fname in pbar:
 # The scorer assigns scores between 0.0 and 1.0 to 
 # each sample and for each scoring method
 scorer = ScorerObjectDetection(obj_detection_outputs)
-score = scorer.calculate_scores()
+scores = scorer.calculate_scores()
 # %% 
 # let's have a look at the sample with the highest
 # prediction-margin score
-score = score['uncertainty_margin'].max()
-idx = score['uncertainty_margin'].argmax()
-print(f'Highest uncertainty_margin score found for idx {idx}: {score}')
+max_score = scores['uncertainty_margin'].max()
+idx = scores['uncertainty_margin'].argmax()
+print(f'Highest uncertainty_margin score found for idx {idx}: {max_score}')
 
 # %%
 # let's have a look at this particular example and show the model 
@@ -249,8 +253,9 @@ print(al_agent.added_set[:5])
 # %%
 al_agent.query_set.index(al_agent.added_set[0])
 
+
 # %%
 # let's show model predictions for the first 3 images
-to_label = [os.path.join('./comma10k/imgs/', x) for x in al_agent.added_set]
+to_label = [os.path.join(DATASET_ROOT, x) for x in al_agent.added_set]
 for i in range(5):
   predict_and_overlay(predictor, to_label[i])
