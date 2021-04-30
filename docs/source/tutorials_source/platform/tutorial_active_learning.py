@@ -96,6 +96,11 @@ Following Commands are all in terminal/command line
     # embeddings file. We need this file later, so set the path to it as an environment variable.
     export LIGHTLY_EMBEDDINGS_CSV="path_to_the_embeddings_csv"
 
+.. code::
+    # Install the pip packages required for the tutorial if not already installed
+    pip install numpy
+    pip install scikit-learn
+
 
 Optional:
 You can find out more about the CLI commands and their parameters at https://docs.lightly.ai/lightly.cli.html
@@ -111,10 +116,6 @@ You can have a look at your dataset and embeddings by browsing through it on the
 # -----------------
 #
 # Import the Python frameworks we need for this tutorial.
-# We need numpy, scikit-learn and lightly as non-standard packages.
-# If you don't have them install them via pip:
-# in terminal: pip install numpy
-# in terminal: pip install scikit-learn
 
 import os
 import csv
