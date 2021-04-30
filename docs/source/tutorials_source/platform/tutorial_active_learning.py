@@ -1,8 +1,8 @@
 """
 
-.. _lightly-tutorial-active-learning-knn:
+.. _lightly-tutorial-active-learning-classification:
 
-Tutorial 3: Active learning with kNN
+Tutorial 3: Active learning for classification
 ==============================================
 
 We provide the tutorial in a ready to use 
@@ -10,7 +10,7 @@ We provide the tutorial in a ready to use
 notebook:
 
 
-In this tutorial, we will run an active learning loop using both the lightly package and the platform.
+In this tutorial, we will run an active learning loop using both the lightly package and the Lightly platform.
 An active learning loop is a sequence of multiple samplings each choosing only a subset
 of all samples in the dataset.
 
@@ -18,8 +18,8 @@ To learn more about how active learning with lightly works have a look at :ref:`
 
 This workflow has the following structure:
 
-1. Choose an initial subset of your dataset e.g. using one of our samplers like the coreset sampler.
-Split your dataset accordingly into a labeled set and unlabeled set. 
+1. Choose an initial subset of your dataset, e.g. using one of our samplers like the coreset sampler.
+Label this initial subset and train your model on it.
 
 Next, the active learning loop starts:
 
@@ -33,22 +33,22 @@ Next, the active learning loop starts:
 
 6. Update the labeled set to include the newly chosen samples and remove them from the unlabeled set.
 
-In this tutorial, we use a linear regression on top of the embeddings as classifier.
+In this tutorial, we use logistic regression on top of the embeddings as a classifier.
 This is the same as using the embedding model as a pretrained backbone
-and putting a single layer classification head on top of it, while finetuning only the classification head
+and putting a single layer classification head on top of it while fine-tuning only the classification head
 on the labeled dataset, but keeping the backbone frozen.
-As the embeddings as input to the classification head are already computed,
-using them directly saves computation time.
+Since the embeddings are already computed, we can use them directly as input to the classification head.
+This saves computational time and makes the tutorial quick to walk through.
 
 What you will learn
 -------------------
 * You learn how an active learning loop is set up and which components are needed for it.
-* You learn how to perform active learning with Lightly.
+* You learn how to do active learning with Lightly.
 
 Define your dataset
 ------------
 - To make the definition of the dataset for training the classifier easy,
-  we recommend using a dataset where the samples are grouped into folder according to their class.
+  we recommend using a dataset where the images are grouped in folders by class.
   We use the clothing-dataset-small. You can download it using
 
 .. code::
@@ -57,7 +57,7 @@ Define your dataset
 
 The dataset's images are RGB images with a few hundred pixels in width and height. They show clothes
 from 10 different classes, like dresses, hats or t-shirts. The dataset is already split into a train,
-test and validation set and all images for one class are put into one folder.
+test, and validation set, and all images for one class are put into one folder.
 
 .. image:: ./images/clothing-dataset-small-structure.png
   :width: 400
@@ -67,35 +67,33 @@ test and validation set and all images for one class are put into one folder.
 Creation of the dataset on the Lightly Platform with embeddings
 ---------------------------------------------------------------
 
-To perform samplings, we need a dataset with embeddings on the Lightly platform.
-The first step for it is training an embedding model. Next, your dataset is embedded.
-Last, the dataset and the embeddings are uploaded to the Lightly platform.
-These three steps can all be done using our lightly pip package with the single lightly-magic command:
+To do active learning, we need a dataset with embeddings on the Lightly platform.
+The first step for this is to train a self-supervised embedding model. Then, embed your dataset and lastly,
+upload the dataset and embeddings to the Lightly platform.
+These three steps can be done using a single command from the lightly pip package: lightly-magic
 
+Following Commands are all in terminal/command line
 .. code::
-    #### Commands in terminal / command line
-
-    # Lightly is installed as a pip package
+    # Install lightly as a pip package
     pip install lightly
 
+.. code::
     # Your personal token for accessing the Lightly Platform is defined. You can get it from
     # the Lightly platform at https://app.lightly.ai under your username and then Preferences.
     export LIGHTLY_TOKEN="YOUR_TOKEN"
 
-    # You set the name your dataset should have on the lightly platform.
-    # You can give it any name you want and change the default name.
-    export LIGHTLY_DATASET_NAME="clothing_dataset_small"
-
+.. code::
     # The `lightly-magic command first needs the input directory of your dataset.
     # Then it needs the information for how many epochs to train an embedding model on it.
     # If you want to use our pretrained model instead, set trainer.max_epochs=0.
-    # Next, the embedding model is used to embed all images in in input directory and saves the embeddings in
+    # Next, the embedding model is used to embed all images in the input directory and saves the embeddings in
     # a csv file. Last, a new dataset with the specified name is created on the Lightly platform.
-    # The embeddings file is uploaded to it and the images itself are uploaded with 8 workers in parallel.
-    lightly-magic input_dir="./clothing-dataset-small/train" trainer.max_epochs=0 token=$LIGHTLY_TOKEN new_dataset_name=$LIGHTLY_DATASET_NAME loader.num_workers=8
+    # The embeddings file is uploaded to it and the images themselves are uploaded with 8 workers in parallel.
+    lightly-magic input_dir="./clothing-dataset-small/train" trainer.max_epochs=0 token=$LIGHTLY_TOKEN new_dataset_name="active learning clothing dataset" loader.num_workers=8
 
+.. code::
     # In the console output of the lightly-magic command, you find the filename of the created
-    # embeddings file. We need this file later, so set the path to it as environment variable.
+    # embeddings file. We need this file later, so set the path to it as an environment variable.
     export LIGHTLY_EMBEDDINGS_CSV="path_to_the_embeddings_csv"
 
 
@@ -103,7 +101,7 @@ Optional:
 You can find out more about the CLI commands and their parameters at https://docs.lightly.ai/lightly.cli.html
 
 Optional:
-You can have a look at your dataset and embeddings by browsing to it on the lightly platform.
+You can have a look at your dataset and embeddings by browsing through it on the Lightly platform.
 
 """
 
@@ -114,6 +112,9 @@ You can have a look at your dataset and embeddings by browsing to it on the ligh
 #
 # Import the Python frameworks we need for this tutorial.
 # We need numpy, scikit-learn and lightly as non-standard packages.
+# If you don't have them install them via pip:
+# in terminal: pip install numpy
+# in terminal: pip install scikit-learn
 
 import os
 import csv
@@ -129,9 +130,9 @@ from lightly.openapi_generated.swagger_client import SamplingMethod
 
 # %%
 # Define the dataset for the classifier based on the embeddings.csv
-# The kNN-classifier needs the embeddings as features for its classification. Thus we define a class to create
-# such a dataset out of the embeddings.csv. It also allows to choose only a subset of all samples
-# dependent on the filenames given.
+# The LogisticRegression classifier needs the embeddings as features for its classification.
+# Thus we define a class to create such a dataset out of the embeddings.csv.
+# It also allows to choose only a subset of all samples dependant on the filenames given.
 
 
 class CSVEmbeddingDataset:
@@ -171,13 +172,12 @@ class CSVEmbeddingDataset:
 
 # %%
 # First we read the variables we set before as environment variables via the console
-token = os.getenv("LIGHTLY_TOKEN")
-dataset_name = os.getenv("LIGHTLY_DATASET_NAME")
-path_to_embeddings_csv = os.getenv("LIGHTLY_EMBEDDINGS_CSV")
+token = os.getenv("LIGHTLY_TOKEN", default="YOUR_TOKEN")
+path_to_embeddings_csv = os.getenv("LIGHTLY_EMBEDDINGS_CSV", default="path_to_your_embeddings_csv")
 
 # We define the client to the Lightly Platform API
 api_workflow_client = ApiWorkflowClient(token=token)
-api_workflow_client.create_dataset(dataset_name=dataset_name)
+api_workflow_client.create_dataset(dataset_name="active learning clothing dataset")
 
 # %%
 # We define the dataset, the classifier and the active learning agent
