@@ -124,21 +124,18 @@ class NTXentLoss(MemoryBankModule):
         # as all vectors are already normalized to unit length.
         # Notation in einsum: n = batch_size, c = embedding_size and k = memory_bank_size.
 
-
         if negatives is not None:
+            # use negatives from memory bank
+            negatives = negatives.to(device)
+
+
             # sim_pos is of shape (batch_size, 1) and sim_pos[i] denotes the similarity
             # of the i-th sample in the batch to its positive pair
             sim_pos = torch.einsum('nc,nc->n', out0, out1).unsqueeze(-1)
 
-
-            # use negatives from memory bank
-            negatives = negatives.to(device)
-
-            # sim_neg each is of shape (batch_size, memory_bank_size) and sim_neg[i,j] denotes the similarity
+            # sim_neg is of shape (batch_size, memory_bank_size) and sim_neg[i,j] denotes the similarity
             # of the i-th sample to the j-th negative sample
-            sim_neg_out0 = torch.einsum('nc,ck->nk', out0, negatives.clone().detach())
-            sim_neg_out1 = torch.einsum('nc,ck->nk', out1, negatives.clone().detach())
-            sim_neg = (sim_neg_out0 + sim_neg_out1)/2
+            sim_neg = torch.einsum('nc,ck->nk', out0, negatives.clone().detach())
 
 
         else:
@@ -152,22 +149,23 @@ class NTXentLoss(MemoryBankModule):
             # lower right: out1 to out1
             similarity_matrix = torch.einsum("nc,mc->nm", output, output)
 
-            # filter out the scores from the positive sample pairs
-            # They are one the diagonal of the upper right and lower left quadrant
-            # The main diagonal contains the similarities of samples to themselves
-            # and is always 1, thus it is ignored
-            sim_pos_out0_out1 = torch.diag(similarity_matrix, batch_size)
-            sim_pos_out1_out0 = torch.diag(similarity_matrix, -batch_size)
-            sim_pos = torch.cat([sim_pos_out0_out1, sim_pos_out1_out0]).view(2 * batch_size, 1)
+            def concat_to_2x2(tensor00, tensor01, tensor10, tensor11):
+                tensor0 = torch.cat([tensor00, tensor01], dim=1)
+                tensor1 = torch.cat([tensor10, tensor11], dim=1)
+                tensor = torch.cat([tensor0, tensor1], dim=0)
+                return tensor
 
-            if self.mask_negative_samples is None \
-                    or 2 * batch_size != self.mask_negative_samples.shape[0]:
-                # if the mask_negative_samples is not correct or has the wrong size
-                self.mask_negative_samples = \
-                    self._torch_get_mask_negative_samples(batch_size, device=device)
+            mask_base = torch.eye(batch_size, dtype=torch.bool, device=out0.device)
+            mask_0 = torch.zeros_like(mask_base)
 
-            sim_neg = similarity_matrix[
-                self.mask_negative_samples].view(2 * batch_size, -1)
+            # the positive samples are on the diagonals of the upper right and lower left quadrant
+            mask_pos = concat_to_2x2(mask_0, mask_base, mask_base, mask_0)
+            sim_pos = similarity_matrix[mask_pos].view(2 * batch_size, -1)
+
+            # the negative samples are everywhere except on the diagonals of the 4 quadrants
+            mask_neg = ~concat_to_2x2(mask_base, mask_base, mask_base, mask_base)
+            sim_neg = similarity_matrix[mask_neg].view(2 * batch_size, -1)
+
 
         # shapes:
         # if negatives:
