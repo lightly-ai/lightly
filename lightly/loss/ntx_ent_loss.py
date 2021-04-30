@@ -59,29 +59,6 @@ class NTXentLoss(MemoryBankModule):
             raise ValueError('Illegal temperature: abs({}) < 1e-8'
                              .format(self.temperature))
 
-    def _torch_get_mask_negative_samples(self, batch_size, device=None):
-        """ Creates a matrix being true at values of the similarity matrix for
-        negative samples.
-
-        It creates a square matrix of size (2*batch_size, 2*batch_size)
-        being True except on three diagonals. These three diagonals are
-        the main diagonal and the diagonals of the other two quadrants.
-
-        Example for batch_size=3 with X=False and _=True:
-        X _ _ X _ _
-        _ X _ _ X _
-        _ _ X _ _ X
-        X _ _ X _ _
-        _ X _ _ X _
-        _ _ X _ _ X
-
-        """
-        diag = torch.eye(2 * batch_size, device=device)
-        diag[batch_size:, :batch_size] += torch.eye(batch_size, device=device)
-        diag[:batch_size, batch_size:] += torch.eye(batch_size, device=device)
-        mask = (1 - diag).type(torch.bool)
-        return mask
-
     def forward(self,
                 out0: torch.Tensor,
                 out1: torch.Tensor):

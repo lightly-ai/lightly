@@ -63,42 +63,30 @@ class TestNTXentLoss(unittest.TestCase):
         return loss
 
     def test_with_correlated_embedding(self):
-        n_samples = 8
-        temperature = 3
-        memory_bank_size = n_samples
-        out0 = np.random.random((n_samples, 1))
-        out1 = np.random.random((n_samples, 1))
-        out0 = np.concatenate([out0, 2 * out0], axis=1)
-        out1 = np.concatenate([out1, 2 * out1], axis=1)
-        out0 = torch.FloatTensor(out0)
-        out1 = torch.FloatTensor(out1)
-        out0.requires_grad = True
+        for n_samples in [1, 2, 8, 16]:
+            for memory_bank_size in [1, 2, 8, 15, 16, 17]:
+                for temperature in [0.1, 1, 7]:
+                    with self.subTest(msg=f"n_samples: {n_samples}, memory_bank_size: {memory_bank_size},"
+                                          f"temperature: {temperature}"):
+                        out0 = np.random.random((n_samples, 1))
+                        out1 = np.random.random((n_samples, 1))
+                        out0 = np.concatenate([out0, 2 * out0], axis=1)
+                        out1 = np.concatenate([out1, 2 * out1], axis=1)
+                        out0 = torch.FloatTensor(out0)
+                        out1 = torch.FloatTensor(out1)
+                        out0.requires_grad = True
 
-        loss_function = NTXentLoss(temperature=temperature)
-        loss = float(loss_function(out0, out1))
-        expected_loss = -1 * np.log(1 / (2 * n_samples - 1))
-        self.assertAlmostEqual(loss, expected_loss, places=1)
+                        loss_function = NTXentLoss(temperature=temperature)
+                        loss = float(loss_function(out0, out1))
+                        expected_loss = -1 * np.log(1 / (2 * n_samples - 1))
+                        self.assertAlmostEqual(loss, expected_loss, places=5)
 
-        loss_function_with_bank = NTXentLoss(temperature=temperature, memory_bank_size=memory_bank_size)
-        for i in range(2):
-            loss_with_memory_bank = float(loss_function_with_bank(out0, out1))
-        expected_loss_memory_bank = -1 * np.log(1 / (memory_bank_size+1))
-        self.assertAlmostEqual(loss_with_memory_bank, expected_loss_memory_bank, places=3)
-
-    def test_get_correlated_mask(self):
-        loss = NTXentLoss()
-        for bsz in range(1, 100):
-            mask = loss._torch_get_mask_negative_samples(bsz)
-
-            # correct number of zeros in mask
-            self.assertAlmostEqual(mask.sum(), 4 * (bsz * bsz - bsz))
-
-            # if mask is correct,
-            # (1 - mask) * v adds up the first and second half of v
-            v = torch.randn((2 * bsz))
-            mv = torch.mv(1. - mask.float(), v)
-            vv = (v[bsz:] + v[:bsz]).repeat(2)
-            self.assertAlmostEqual((mv - vv).pow(2).sum(), 0.)
+                        loss_function_with_bank = NTXentLoss(temperature=temperature, memory_bank_size=memory_bank_size)
+                        for i in range(int(memory_bank_size/n_samples)+2):
+                            # fill the memory bank over multiple rounds
+                            loss_with_memory_bank = float(loss_function_with_bank(out0, out1))
+                        expected_loss_memory_bank = -1 * np.log(1 / (memory_bank_size+1))
+                        self.assertAlmostEqual(loss_with_memory_bank, expected_loss_memory_bank, places=5)
 
     def test_forward_pass(self):
         loss = NTXentLoss(memory_bank_size=0)
