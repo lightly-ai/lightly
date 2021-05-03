@@ -113,55 +113,25 @@ class NTXentLoss(MemoryBankModule):
             # of the i-th sample to the j-th negative sample
             sim_neg = torch.einsum('nc,ck->nk', out0, negatives.clone().detach())
 
+            # set the labels to the first "class", i.e. sim_pos,
+            # so that it is maximized in relation to sim_neg
+            logits = torch.cat([sim_pos, sim_neg], dim=1) / self.temperature
+            labels = torch.zeros(logits.shape[0]).long()
+
 
         else:
             # use other samples from batch as negatives
             output = torch.cat((out0, out1), axis=0)
 
-            # the similarity matrix has 4 quadrants:
-            # upper left: out0 to out0
-            # upper right: out0 to out1
-            # lower left: out1 to out0
-            # lower right: out1 to out1
-            similarity_matrix = torch.einsum("nc,mc->nm", output, output)
+            # the logits are the similarity matrix divided by the temperature
+            logits = torch.einsum('nc,mc->nm', output, output) / self.temperature
+            # We need to removed the similarities of samples to themselves
+            logits = logits[~torch.eye(2*batch_size, dtype=torch.bool)].view(2*batch_size, -1)
 
-            def concat_to_2x2(tensor00, tensor01, tensor10, tensor11):
-                tensor0 = torch.cat([tensor00, tensor01], dim=1)
-                tensor1 = torch.cat([tensor10, tensor11], dim=1)
-                tensor = torch.cat([tensor0, tensor1], dim=0)
-                return tensor
+            # The labels point of a sample in out_i to its equivalent in out_(1-i)
+            labels = torch.arange(batch_size)
+            labels = torch.cat([labels + batch_size - 1, labels]).long()
 
-            mask_base = torch.eye(batch_size, dtype=torch.bool, device=out0.device)
-            mask_0 = torch.zeros_like(mask_base, device=out0.device)
-
-            # the positive samples are on the diagonals of the upper right and lower left quadrant
-            mask_pos = concat_to_2x2(mask_0, mask_base, mask_base, mask_0)
-            sim_pos = similarity_matrix[mask_pos].view(2 * batch_size, -1)
-
-            # the negative samples are everywhere except on the diagonals of the 4 quadrants
-            mask_neg = ~concat_to_2x2(mask_base, mask_base, mask_base, mask_base)
-            sim_neg = similarity_matrix[mask_neg].view(2 * batch_size, -1)
-
-
-        # shapes:
-        # if negatives:
-            # sim_pos is of shape (batch_size, 1)
-            # sim_neg is of shape (batch_size, memory_bank_size)
-        # else:
-            # sim_pos is of shape (2 * batch_size, 1)
-            # sim_neg is of shape (2 * batch_size, 2 * (batch_size -1))
-
-        # The goal is to maximize sim_pos in relation to sim_neg.
-        # This goal can be targeted with the cross-entropy-loss
-
-        logits = torch.cat([sim_pos, sim_neg], dim=1)
-
-        # The temperature normalization part of NTXent
-        logits /= self.temperature
-
-        # set the labels to the first "class", i.e. sim_pos,
-        # so that it is maximized in relation to sim_neg
-        labels = torch.zeros(logits.shape[0]).long()
         loss = self.cross_entropy(logits, labels.to(device))
 
         return loss
