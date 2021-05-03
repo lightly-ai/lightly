@@ -255,7 +255,8 @@ Currently, the following scorers are available:
 
 
 For more information about how to use the object detection scorer have a look here:
-:py:class:`lightly.active_learning.scorers.detection.ScorerDetection
+
+:py:class:`lightly.active_learning.scorers.detection.ScorerObjectDetection`
 
 
 Image Segmentation
