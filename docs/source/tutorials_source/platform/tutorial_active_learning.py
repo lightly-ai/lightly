@@ -53,15 +53,15 @@ Define your dataset
 
 .. code::
 
-    git clone https://github.com/alexeygrigorev/clothing-dataset-small.git ./clothing-dataset-small
+    git clone https://github.com/alexeygrigorev/clothing-dataset-small.git
 
 The dataset's images are RGB images with a few hundred pixels in width and height. They show clothes
 from 10 different classes, like dresses, hats or t-shirts. The dataset is already split into a train,
 test, and validation set, and all images for one class are put into one folder.
 
-.. image:: ./images/clothing-dataset-small-structure.png
-  :width: 400
-  :alt: The directory and file structure of the clothing dataset small
+.. image:: ./platform/images/clothing-dataset-small-structure.png
+    :align: center
+    :alt: The directory and file structure of the clothing dataset small
 
 
 Creation of the dataset on the Lightly Platform with embeddings
@@ -73,40 +73,47 @@ upload the dataset and embeddings to the Lightly platform.
 These three steps can be done using a single command from the lightly pip package: lightly-magic
 
 Following Commands are all in terminal/command line
+
 .. code::
+
     # Install lightly as a pip package
     pip install lightly
 
 .. code::
+
     # Your personal token for accessing the Lightly Platform is defined. You can get it from
     # the Lightly platform at https://app.lightly.ai under your username and then Preferences.
     export LIGHTLY_TOKEN="YOUR_TOKEN"
 
 .. code::
-    # The `lightly-magic command first needs the input directory of your dataset.
+
+    # The lightly-magic command first needs the input directory of your dataset.
     # Then it needs the information for how many epochs to train an embedding model on it.
     # If you want to use our pretrained model instead, set trainer.max_epochs=0.
     # Next, the embedding model is used to embed all images in the input directory and saves the embeddings in
     # a csv file. Last, a new dataset with the specified name is created on the Lightly platform.
     # The embeddings file is uploaded to it and the images themselves are uploaded with 8 workers in parallel.
-    lightly-magic input_dir="./clothing-dataset-small/train" trainer.max_epochs=0 token=$LIGHTLY_TOKEN new_dataset_name="active learning clothing dataset" loader.num_workers=8
+    lightly-magic input_dir="./clothing-dataset-small/train" trainer.max_epochs=0 token=$LIGHTLY_TOKEN new_dataset_name="active_learning_clothing_dataset" loader.num_workers=8
 
 .. code::
+
     # In the console output of the lightly-magic command, you find the filename of the created
     # embeddings file. We need this file later, so set the path to it as an environment variable.
     export LIGHTLY_EMBEDDINGS_CSV="path_to_the_embeddings_csv"
 
 .. code::
+
     # Install the pip packages required for the tutorial if not already installed
     pip install numpy
     pip install scikit-learn
 
 
 Optional:
-You can find out more about the CLI commands and their parameters at https://docs.lightly.ai/lightly.cli.html
+You can find out more about the CLI commands and their parameters at https://docs.lightly.ai/lightly.cli.html.
 
 Optional:
-You can have a look at your dataset and embeddings by browsing through it on the Lightly platform.
+You can have a look at your dataset and embeddings by browsing through it
+on the Lightly platform at https://app.lightly.ai.
 
 """
 
@@ -178,7 +185,7 @@ path_to_embeddings_csv = os.getenv("LIGHTLY_EMBEDDINGS_CSV", default="path_to_yo
 
 # We define the client to the Lightly Platform API
 api_workflow_client = ApiWorkflowClient(token=token)
-api_workflow_client.create_dataset(dataset_name="active learning clothing dataset")
+api_workflow_client.create_dataset(dataset_name="active_learning_clothing_dataset")
 
 # %%
 # We define the dataset, the classifier and the active learning agent
