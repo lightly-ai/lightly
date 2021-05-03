@@ -126,9 +126,9 @@ class NTXentLoss(MemoryBankModule):
             # the logits are the similarity matrix divided by the temperature
             logits = torch.einsum('nc,mc->nm', output, output) / self.temperature
             # We need to removed the similarities of samples to themselves
-            logits = logits[~torch.eye(2*batch_size, dtype=torch.bool)].view(2*batch_size, -1)
+            logits = logits[~torch.eye(2*batch_size, dtype=torch.bool, device=out0.device)].view(2*batch_size, -1)
 
-            # The labels point of a sample in out_i to its equivalent in out_(1-i)
+            # The labels point from a sample in out_i to its equivalent in out_(1-i)
             labels = torch.arange(batch_size)
             labels = torch.cat([labels + batch_size - 1, labels]).long()
 
