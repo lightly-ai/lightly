@@ -36,11 +36,9 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
             Dimension of the output (after the projection/prediction mlp).
         m:
             Momentum for the momentum update of encoder.
-
     """
 
     def __init__(self,
-                 
                  backbone: nn.Module,
                  num_ftrs: int = 2048,
                  hidden_dim: int = 4096,
@@ -126,7 +124,7 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
     def forward(self,
                 x0: torch.Tensor,
                 x1: torch.Tensor = None,
-                
+                return_features: bool = False
                 ):
         """Symmetrizes the forward pass (see _forward).
 
@@ -140,12 +138,12 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
                 Tensor of shape bsz x channels x W x H.
 
         Returns: 
-                tensors after passing through the online and
+                Tensors after passing through the online and
                 target networks.
 
 
         """
-        p0, z1 = self._forward(x0, x1)
-        p1, z0 = self._forward(x1, x0)
+        p0, z1 = self._forward(x0, x1,return_features=return_features)
+        p1, z0 = self._forward(x1, x0,return_features=return_features)
 
         return (z0, p0), (z1, p1)
