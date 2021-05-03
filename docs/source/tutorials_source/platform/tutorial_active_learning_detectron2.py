@@ -6,7 +6,7 @@ Tutorial 4: Active Learning using Detectron2 on Comma10k
 =========================================================
 
 Active learning is a process of using model predictions to find a new set of
-images to annotate. The images are chosen to have maximal impact on the model
+images to annotate. The images are chosen to have a maximal impact on the model
 performance. In this tutorial, we will use a pre-trained object detection model
 to do active learning on a completely unlabeled set of images.
 
@@ -18,7 +18,7 @@ containing 80 different classes. Our goal is to take an MS COCO pre-trained
 model and optimize it for an autonomous driving task where we only care about
 pedestrians and cars (two classes present within MS COCO). We will proceed as
 follows: First, we will use the pre-trained model to make predictions on our
-task dataset (Comma10k) which has been collected for auonomous driving. Then,
+task dataset (Comma10k) which has been collected for autonomous driving. Then,
 we use the predictions, self-supervised learning, and active learning with the
 lightly framework to find the 100 most informative images on which we can
 finetune our model.
@@ -41,14 +41,14 @@ The tutorial will be divided into
 the following steps. 
 
 #. Installation of detectron2 and lightly
-#. Run predictions using a pretrained model
+#. Run predictions using a pre-trained model
 #. Use lightly to compute active learning scores for the predictions
 #. Use the Lightly Platform to understand where our model struggles
 #. Select the most valuable 100 images for annotation
 
 Requirements
 ------------
-- Make sure you have OpenCV installed to read and the preprocess the images.
+- Make sure you have OpenCV installed to read and preprocess the images.
   You can install the framework using the following command:
 
 .. code::
@@ -59,7 +59,7 @@ Requirements
 - Make sure you have the detectron2 framework installed on your machine. Check out
   the `detectron2 installation documentation <https://detectron2.readthedocs.io/en/latest/tutorials/install.html>`_
 
-- In this tutorial we work with the comma10k dataset. The dataset consists of
+- In this tutorial, we work with the comma10k dataset. The dataset consists of
   10'000 images for autonomous driving and is available
   `here on GitHub <https://github.com/commaai/comma10k>`_
   We can download the dataset using `git clone`. We save the dataset locally
@@ -110,7 +110,7 @@ from lightly.openapi_generated.swagger_client import SamplingMethod
 # First, head over to `the Lightly Platform <https://app.lightly.ai/>`_ and 
 # create a new dataset.
 #
-# We can now upload the data using using the command line interface. Replace 
+# We can now upload the data using the command line interface. Replace 
 # **yourToken** and *yourDatasetId** with the two provided values from the web app.
 # Don't forget to adjust the **input_dir** to the location of your dataset.
 #
@@ -122,7 +122,7 @@ from lightly.openapi_generated.swagger_client import SamplingMethod
 #
 # .. note::
 #
-#     In this tutorial we use the lightly-magic command which trains a model
+#     In this tutorial, we use the lightly-magic command which trains a model
 #     before embedding and uploading it to the Lightly Platform.
 #     To skip training, you can set `trainer.max_epochs=0`.
 
@@ -145,12 +145,12 @@ YOUR_TOKEN, YOUR_DATASET_ID = try_get_token_and_id_from_env()
 # Inference on unlabeled data
 # ----------------------------
 #
-# In active learning we want to pick the new data for which our model struggles 
-# the most. If we have an image with a single car in it and our model has a very 
+# In active learning, we want to pick the new data for which our model struggles 
+# the most. If we have an image with a single car in it and our model has 
 # high confidence that there is a car we don't gain a lot by including 
-# this example into our training data. However, if we focus on images where the 
+# this example in our training data. However, if we focus on images where the 
 # model is not sure whether the object is a car or a building we want 
-# to include the image to refine the decision boundary.
+# to include these images to refine the decision boundary.
 #
 # First, we need to create an active learning agent in order to 
 # provide lightly with the model predictions. 
@@ -173,13 +173,13 @@ print(al_agent.unlabeled_set[:3])
 # Note, that our active learning agent already synchronized with the Lightly
 # Platform and knows the filenames present in our dataset.
 #
-
 # Let's verify the length of the `unlabeled_set`. The `unlabeled_set` is the set of 
-# images from which we want to query from. By default this is our full
+# images from which we want to query. By default this is our full
 # dataset uploaded to Lightly. You can learn more about the different sets we 
 # can access through the active learning agent here
 # :py:class:`lightly.api.api_workflow_client.ApiWorkflowClient`
-#
+
+
 # The length of the `unlabeled_set` should match the number of uploaded
 # images
 print(len(al_agent.unlabeled_set))
@@ -192,7 +192,7 @@ print(len(al_agent.unlabeled_set))
 # run predictions on the new images.
 # 
 # - We use a pre-trained Faster R-CNN with a ResNet-50 backbone
-# - We use a MS COCO pre-trained model from detectron2
+# - We use an MS COCO pre-trained model from detectron2
 
 cfg = get_cfg()
 # add project-specific config (e.g., TensorMask) here if you're not running a model in detectron2's core library
@@ -247,12 +247,12 @@ def convert_bbox_detectron2lightly(outputs):
 # Run model predictions
 # ----------------------
 #
-# We now use the created model and iterate over the `unlabeled_set` and make predictions.
+# We now use the created model and iterate over the `query_set` and make predictions.
 # It's important that the predictions are in the same order as the filenames
-# in the `unlabeled_set`. Otherwise, we could upload a prediction to the wrong sample!
+# in the `query_set`. Otherwise, we could upload a prediction to the wrong sample!
 
 obj_detection_outputs = []
-pbar = tqdm.tqdm(al_agent.unlabeled_set)
+pbar = tqdm.tqdm(al_agent.query_set)
 for fname in pbar:
   fname_full = os.path.join(DATASET_ROOT, fname)
   im = cv2.imread(fname_full)
@@ -283,7 +283,7 @@ print(f'Highest uncertainty_margin score found for idx {idx}: {max_score}')
 # %%
 # Let's have a look at this particular image and show the model 
 # prediction for it.
-fname = os.path.join(DATASET_ROOT, al_agent.unlabeled_set[idx])
+fname = os.path.join(DATASET_ROOT, al_agent.query_set[idx])
 predict_and_overlay(predictor, fname)
 
 # %%
@@ -291,7 +291,7 @@ predict_and_overlay(predictor, fname)
 # improve our existing model. We pick the sampling method called `CORAL` which
 # is a combination of Coreset and Active Learning. Whereas Coreset maximizes
 # the image diversity based on the embeddings, active learning aims at selecting
-# images where our models struggles the most. 
+# images where our model struggles the most.
 config = SamplerConfig(
   n_samples=100, 
   method=SamplingMethod.CORAL, 
@@ -317,11 +317,10 @@ for i in range(5):
 # What's Next?
 # -------------
 # 
-# We showed in this tutorial how you can use Lightly Active Learing to discover 
+# We showed in this tutorial how you can use Lightly Active Learning to discover 
 # the images you should label next. You can close the loop by annotating 
 # the 100 images and re-train your model. Then start the next iteration 
-# by making new model predictions on the updated unlabeled_set (which will now 
-# contain 100 fewer images).
+# by making new model predictions on the `query_set`.
 #
 # Using Lightly Active Learning has two advantages:
 #
@@ -335,6 +334,6 @@ for i in range(5):
 #   of small red cars.
 
 # %%
-# After retraining our model on the newly labeled 100 images 
-# we can do another active learning iteration with the updated unlabeld set.
-print(len(al_agent.unlabeled_set))
+# After re-training our model on the newly labeled 100 images 
+# we can do another active learning iteration by running predictions on the
+# the `query_set`.
