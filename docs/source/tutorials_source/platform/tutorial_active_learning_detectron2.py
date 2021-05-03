@@ -5,17 +5,25 @@
 Tutorial 4: Active Learning using Detectron2 on Comma10k
 =========================================================
 
-In machine learning projects we often don't start training a model from scratch
-but we start with an already pre-trained model. For object detection tasks a
-common dataset is MS COCO consisting of over 100'000 images containing 80
-different classes. Our goal is now to take a MS COCO pretrained model and optimize
-it for an autonomous driving task where we only care about pedestrians and cars
-(two classes present within MS COCO). We use the pretrained model and run
-predictions on a second dataset (Comma10k) which has been collected for
-autonomous driving. The predictions combined with self-supervised embeddings we 
-can get using the lighty framework allow us to find the 100 most important images
-through active learning. Active learning is a process where we take model predictions
-to find new images for annotation having a great positive impact on model accuracy.
+Active learning is a process of using model predictions to find a new set of
+images to annotate. The images are chosen to have maximal impact on the model
+performance. In this tutorial, we will use a pre-trained object detection model
+to do active learning on a completely unlabeled set of images.
+
+
+In machine learning, we often don't train a model from scratch.
+Instead, we start with an already pre-trained model. For object detection tasks,
+a common pre-training dataset is MS COCO consisting of over 100'000 images
+containing 80 different classes. Our goal is to take an MS COCO pre-trained
+model and optimize it for an autonomous driving task where we only care about
+pedestrians and cars (two classes present within MS COCO). We will proceed as
+follows: First, we will use the pre-trained model to make predictions on our
+task dataset (Comma10k) which has been collected for auonomous driving. Then,
+we use the predictions, self-supervised learning, and active learning with the
+lightly framework to find the 100 most informative images on which we can
+finetune our model.
+
+
 
 
 This tutorial is available as a
@@ -40,6 +48,14 @@ the following steps.
 
 Requirements
 ------------
+- Make sure you have OpenCV installed to read and the preprocess the images.
+  You can install the framework using the following command:
+
+.. code::
+  
+   pip install opencv-python
+
+
 - Make sure you have the detectron2 framework installed on your machine. Check out
   the `detectron2 installation documentation <https://detectron2.readthedocs.io/en/latest/tutorials/install.html>`_
 
@@ -74,7 +90,7 @@ from detectron2.config import get_cfg
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog, DatasetCatalog
 
-# includes for lightly
+# imports for lightly
 import lightly
 from lightly.active_learning.utils.bounding_box import BoundingBox
 from lightly.active_learning.utils.object_detection_output import ObjectDetectionOutput
@@ -85,7 +101,7 @@ from lightly.active_learning.config import SamplerConfig
 from lightly.openapi_generated.swagger_client import SamplingMethod
 
 # %%
-# Upload dataset to lightly
+# Upload dataset to Lightly
 # -------------------------
 #
 # To work with the Lightly Platform and use the active learning feature we
@@ -102,12 +118,13 @@ from lightly.openapi_generated.swagger_client import SamplingMethod
 # 
 #     lightly-magic token="yourToken" dataset_id="yourDatasetId" \
 #         input_dir='/datasets/comma10k/imgs/' trainer.max_epochs=20 \
-#         loader.batch_size=64 loader.num_workers=2
+#         loader.batch_size=64 loader.num_workers=8
 #
 # .. note::
 #
 #     In this tutorial we use the lightly-magic command which trains a model
 #     before embedding and uploading it to the Lightly Platform.
+#     To skip training, you can set `trainer.max_epochs=0`.
 
 
 YOUR_TOKEN = "yourToken"  # your token of the web platform
@@ -147,25 +164,25 @@ al_agent = ActiveLearningAgent(api_client)
 # %%
 
 # we can access the images of the dataset we want to use for active learning using
-# the `al_agent.query_set` property
+# the `al_agent.unlabeled_set` property
 
 # let's print the first 3 entries
-print(al_agent.query_set[:3])
+print(al_agent.unlabeled_set[:3])
 
 # %%
 # Note, that our active learning agent already synchronized with the Lightly
 # Platform and knows the filenames present in our dataset.
 #
 
-# Let's verify the length of the `query_set`. The `query_set` is the set of 
+# Let's verify the length of the `unlabeled_set`. The `unlabeled_set` is the set of 
 # images from which we want to query from. By default this is our full
 # dataset uploaded to Lightly. You can learn more about the different sets we 
 # can access through the active learning agent here
 # :py:class:`lightly.api.api_workflow_client.ApiWorkflowClient`
 #
-# The length of the `query_set` should match the number of uploaded
+# The length of the `unlabeled_set` should match the number of uploaded
 # images
-print(len(al_agent.query_set))
+print(len(al_agent.unlabeled_set))
 
 # %%
 # Create our Detectron2 model
@@ -211,7 +228,9 @@ def convert_bbox_detectron2lightly(outputs):
     height, width = outputs['instances'].image_size
     boxes = []
 
-    for (bbox_raw, score, class_idx) in zip(outputs['instances'].pred_boxes.tensor, outputs['instances'].scores, outputs['instances'].pred_classes):
+    for (bbox_raw, score, class_idx) in zip(outputs['instances'].pred_boxes.tensor, 
+                                            outputs['instances'].scores,
+                                            outputs['instances'].pred_classes):
         x0, y0, x1, y1 = bbox_raw.cpu().numpy()
         x0 /= width
         y0 /= height
@@ -219,19 +238,21 @@ def convert_bbox_detectron2lightly(outputs):
         y1 /= height
       
         boxes.append(BoundingBox(x0, y0, x1, y1))
-    output = ObjectDetectionOutput.from_scores(boxes, outputs['instances'].scores.cpu().numpy(), outputs['instances'].pred_classes.cpu().numpy().tolist())
+    output = ObjectDetectionOutput.from_scores(
+      boxes, outputs['instances'].scores.cpu().numpy(),
+      outputs['instances'].pred_classes.cpu().numpy().tolist())
     return output
 
 # %%
 # Run model predictions
 # ----------------------
 #
-# We now use the created model and iterate over the `query_set` and make predictions.
+# We now use the created model and iterate over the `unlabeled_set` and make predictions.
 # It's important that the predictions are in the same order as the filenames
-# in the `query_set`. Otherwise, we could upload a prediction to the wrong sample!
+# in the `unlabeled_set`. Otherwise, we could upload a prediction to the wrong sample!
 
 obj_detection_outputs = []
-pbar = tqdm.tqdm(al_agent.query_set)
+pbar = tqdm.tqdm(al_agent.unlabeled_set)
 for fname in pbar:
   fname_full = os.path.join(DATASET_ROOT, fname)
   im = cv2.imread(fname_full)
@@ -247,7 +268,14 @@ scorer = ScorerObjectDetection(obj_detection_outputs)
 scores = scorer.calculate_scores()
 # %% 
 # Let's have a look at the sample with the highest
-# prediction-margin score.
+# uncertainty_margin score.
+#
+# .. note::
+#    A high uncertainty margin means that the image contains at least one 
+#    bounding box for which the model is unsure about the class of the object 
+#    in the bounding box. Read more about how our active learning scores are 
+#    calculated here:
+#    :py:class:`lightly.active_learning.scorers.detection.ScorerDetection`
 max_score = scores['uncertainty_margin'].max()
 idx = scores['uncertainty_margin'].argmax()
 print(f'Highest uncertainty_margin score found for idx {idx}: {max_score}')
@@ -255,7 +283,7 @@ print(f'Highest uncertainty_margin score found for idx {idx}: {max_score}')
 # %%
 # Let's have a look at this particular image and show the model 
 # prediction for it.
-fname = os.path.join(DATASET_ROOT, al_agent.query_set[idx])
+fname = os.path.join(DATASET_ROOT, al_agent.unlabeled_set[idx])
 predict_and_overlay(predictor, fname)
 
 # %%
@@ -291,16 +319,22 @@ for i in range(5):
 # 
 # We showed in this tutorial how you can use Lightly Active Learing to discover 
 # the images you should label next. You can close the loop by annotating 
-# the 100 images and re'train your model. Then start the next iteration 
-# by making new model predictions on the updated query_set (which will now 
+# the 100 images and re-train your model. Then start the next iteration 
+# by making new model predictions on the updated unlabeled_set (which will now 
 # contain 100 fewer images).
 #
 # Using Lightly Active Learning has two advantages:
 #
-# By letting the model chose the next batch of images to label we achieve 
-# a higher accuracy faster. We're only labeling the images having a great impact.
-# By combining the model predictions with the image embeddings we make sure we 
-# don't select many similar images. Imagine the model being very bad at small 
-# red cars and the 100 images therefore would only contain this set of images. 
-# We might overfit the model because it suddenly has too many training examples 
-# of small red cars.
+# - By letting the model chose the next batch of images to label we achieve 
+#   a higher accuracy faster. We're only labeling the images having a great impact.
+# 
+# - By combining the model predictions with the image embeddings we make sure we 
+#   don't select many similar images. Imagine the model being very bad at small 
+#   red cars and the 100 images therefore would only contain this set of images. 
+#   We might overfit the model because it suddenly has too many training examples 
+#   of small red cars.
+
+# %%
+# After retraining our model on the newly labeled 100 images 
+# we can do another active learning iteration with the updated unlabeld set.
+print(len(al_agent.unlabeled_set))
