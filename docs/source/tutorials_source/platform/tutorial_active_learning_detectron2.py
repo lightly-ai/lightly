@@ -15,8 +15,7 @@ In machine learning, we often don't train a model from scratch.
 Instead, we start with an already pre-trained model. For object detection tasks,
 a common pre-training dataset is MS COCO consisting of over 100'000 images
 containing 80 different classes. Our goal is to take an MS COCO pre-trained
-model and optimize it for an autonomous driving task where we only care about
-pedestrians and cars (two classes present within MS COCO). We will proceed as
+model and optimize it for an autonomous driving task. We will proceed as
 follows: First, we will use the pre-trained model to make predictions on our
 task dataset (Comma10k) which has been collected for autonomous driving. Then,
 we use the predictions, self-supervised learning, and active learning with the
