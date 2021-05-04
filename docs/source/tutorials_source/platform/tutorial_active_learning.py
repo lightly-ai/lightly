@@ -59,7 +59,7 @@ The dataset's images are RGB images with a few hundred pixels in width and heigh
 from 10 different classes, like dresses, hats or t-shirts. The dataset is already split into a train,
 test, and validation set, and all images for one class are put into one folder.
 
-.. image:: ./platform/images/clothing-dataset-small-structure.png
+.. figure:: ../../tutorials_source/platform/images/clothing-dataset-small-structure.png
     :align: center
     :alt: The directory and file structure of the clothing dataset small
 
@@ -72,7 +72,7 @@ The first step for this is to train a self-supervised embedding model. Then, emb
 upload the dataset and embeddings to the Lightly platform.
 These three steps can be done using a single command from the lightly pip package: lightly-magic
 
-Following Commands are all in terminal/command line
+The following commands are all to be entered in the terminal/command line
 
 .. code::
 
@@ -93,7 +93,9 @@ Following Commands are all in terminal/command line
     # Next, the embedding model is used to embed all images in the input directory and saves the embeddings in
     # a csv file. Last, a new dataset with the specified name is created on the Lightly platform.
     # The embeddings file is uploaded to it and the images themselves are uploaded with 8 workers in parallel.
-    lightly-magic input_dir="./clothing-dataset-small/train" trainer.max_epochs=0 token=$LIGHTLY_TOKEN new_dataset_name="active_learning_clothing_dataset" loader.num_workers=8
+
+    lightly-magic input_dir="./clothing-dataset-small/train" trainer.max_epochs=0 token=$LIGHTLY_TOKEN \
+    new_dataset_name="active_learning_clothing_dataset" loader.num_workers=8
 
 .. code::
 
@@ -109,11 +111,11 @@ Following Commands are all in terminal/command line
 
 
 Optional:
-You can find out more about the CLI commands and their parameters at https://docs.lightly.ai/lightly.cli.html.
+For more information about the CLI commands refer to :ref:`lightly-command-line-tool`
 
 Optional:
 You can have a look at your dataset and embeddings by browsing through it
-on the Lightly platform at https://app.lightly.ai.
+on the `Lightly Platform <https://app.lightly.ai>`_.
 
 """
 
