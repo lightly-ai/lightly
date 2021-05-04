@@ -111,7 +111,7 @@ from lightly.openapi_generated.swagger_client import SamplingMethod
 # create a new dataset.
 #
 # We can now upload the data using the command line interface. Replace 
-# **yourToken** and *yourDatasetId** with the two provided values from the web app.
+# **yourToken** and **yourDatasetId** with the two provided values from the web app.
 # Don't forget to adjust the **input_dir** to the location of your dataset.
 #
 # .. code:: 
@@ -164,25 +164,25 @@ al_agent = ActiveLearningAgent(api_client)
 # %%
 
 # we can access the images of the dataset we want to use for active learning using
-# the `al_agent.unlabeled_set` property
+# the `al_agent.query_set` property
 
 # let's print the first 3 entries
-print(al_agent.unlabeled_set[:3])
+print(al_agent.query_set[:3])
 
 # %%
 # Note, that our active learning agent already synchronized with the Lightly
 # Platform and knows the filenames present in our dataset.
 #
-# Let's verify the length of the `unlabeled_set`. The `unlabeled_set` is the set of 
+# Let's verify the length of the `query_set`. The `query_set` is the set of 
 # images from which we want to query. By default this is our full
 # dataset uploaded to Lightly. You can learn more about the different sets we 
 # can access through the active learning agent here
 # :py:class:`lightly.api.api_workflow_client.ApiWorkflowClient`
 
 
-# The length of the `unlabeled_set` should match the number of uploaded
+# The length of the `query_set` should match the number of uploaded
 # images
-print(len(al_agent.unlabeled_set))
+print(len(al_agent.query_set))
 
 # %%
 # Create our Detectron2 model
