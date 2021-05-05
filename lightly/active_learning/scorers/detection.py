@@ -140,8 +140,8 @@ class ScorerObjectDetection(Scorer):
             These scores are computed for each object detection out of
             the class probability prediction for this detection.
             Then these scores are reduced to one score per image
-            by taking the maximum. The scores are named as
-            f"classification_{score_name}".
+            by taking the maximum. The score names all begin with
+            `uncertainty`.
 
     Attributes:
         model_output:
