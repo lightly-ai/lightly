@@ -20,6 +20,7 @@ def _lightly_cli(cfg, is_cli_call=True):
     cfg['loader']['shuffle'] = True
     cfg['loader']['drop_last'] = True
     if cfg['trainer']['max_epochs'] > 0:
+        print('#' * 10 + ' Starting to train an embedding model.')
         checkpoint = _train_cli(cfg, is_cli_call)
     else:
         checkpoint = ''
@@ -28,11 +29,15 @@ def _lightly_cli(cfg, is_cli_call=True):
     cfg['loader']['drop_last'] = False
     cfg['checkpoint'] = checkpoint
 
+    print('#' * 10 + ' Starting to embed your dataset.')
     embeddings = _embed_cli(cfg, is_cli_call)
     cfg['embeddings'] = embeddings
 
     if cfg['token'] and (cfg['dataset_id'] or cfg['new_dataset_name']):
-        _upload_cli(cfg)   
+        print('#' * 10 + ' Starting to upload your dataset to the Lightly platform.')
+        _upload_cli(cfg)
+
+    print('#' * 10 + ' Finished')
 
 
 @hydra.main(config_path="config", config_name="config")
