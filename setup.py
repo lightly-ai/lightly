@@ -78,9 +78,6 @@ if __name__ == '__main__':
     packages = [
         'lightly',
         'lightly.api',
-        'lightly.api.routes',
-        'lightly.api.routes.users',
-        'lightly.api.routes.users.docker',
         'lightly.cli',
         'lightly.cli.config',
         'lightly.data',
