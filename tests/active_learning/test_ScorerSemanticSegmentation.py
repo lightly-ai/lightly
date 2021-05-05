@@ -36,6 +36,11 @@ class TestScorerSemanticSegmentation(unittest.TestCase):
         # the following data should always fail
         self.dummy_data_valerr = np.random.randn(self.N, self.C)
 
+    def dummy_data_generator(self):
+        for _ in range(self.N):
+            prediction = np.random.randn(self.W, self.H, self.C)
+            prediction /= np.sum(prediction, axis=-1)[:, :, None]
+            yield prediction
 
     def test_scorer_default_case(self):
         
@@ -76,6 +81,15 @@ class TestScorerSemanticSegmentation(unittest.TestCase):
     def test_scorer_classes_1_case(self):
         
         scorer = ScorerSemanticSegmentation(self.dummy_data_classes_1)
+        scores = scorer.calculate_scores()
+
+        for score_name, score_array in scores.items():
+            self.assertTrue(isinstance(score_array, np.ndarray))
+            self.assertEqual(score_array.shape, (self.N, ))       
+
+    def test_scorer_generator_case(self):
+        
+        scorer = ScorerSemanticSegmentation(self.dummy_data_generator())
         scores = scorer.calculate_scores()
 
         for score_name, score_array in scores.items():
