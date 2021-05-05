@@ -4,7 +4,7 @@
 # All Rights Reserved
 
 
-from typing import Union, Generator, List
+from typing import Callable, Union, Generator, List, Dict
 
 import numpy as np
 
@@ -12,17 +12,33 @@ from lightly.active_learning.scorers.scorer import Scorer
 from lightly.active_learning.scorers import ScorerClassification
 
 
-
 def _reduce_classification_scores_over_pixels(scores: np.ndarray,
                                               reduce_fn_over_pixels: Callable[[np.ndarray], float] = np.mean):
-    """TODO
+    """Reduces classification scores to a single floating point number.
+
+    Args:
+        scores:
+            Numpy array of length N = W x H.
+        reduce_fn_over_pixels:
+            Function which reduces the scores in the array to a single float.
+
+    Returns:
+        A single floating point active learning score.
 
     """
     return float(reduce_fn_over_pixels(scores))
 
 
 def _calculate_scores_for_single_prediction(prediction: np.ndarray):
-    """TODO
+    """Takes a single prediction array and calculates all scores for it.
+
+    Args:
+        prediction:
+            The W x H x C array of predictions where C is the number of classes.
+
+    Returns:
+        A dictionary where each key is a score name and each item is the
+        respective score (single float) for this prediction.
 
     """
     if len(prediction.shape) != 3:
@@ -72,12 +88,12 @@ class ScorerSemanticSegmentation(Scorer):
         >>>
         >>> # create a scorer and calculate the active learning scores
         >>> scorer = ScorerSemanticSegmentation(model_output)
-        >>> scorer.calculate_scores()
+        >>> scores = scorer.calculate_scores()
 
     """
 
     def __init__(self,
-                 model_output: Union[List[np.ndarray], Generator[np.ndarray]]):
+                 model_output: Union[List[np.ndarray], Generator[np.ndarray, None, None]]):
         super(ScorerSemanticSegmentation, self).__init__(model_output)
 
     def calculate_scores(self) -> Dict[str, np.ndarray]:
