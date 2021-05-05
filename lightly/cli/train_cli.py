@@ -13,6 +13,8 @@ import torch
 import torch.nn as nn
 import warnings
 
+from torch.utils.hipify.hipify_python import bcolors
+
 from lightly.data import ImageCollateFunction
 from lightly.data import LightlyDataset
 from lightly.embedding import SelfSupervisedEmbedding
@@ -118,7 +120,7 @@ def _train_cli(cfg, is_cli_call=True):
     encoder.init_checkpoint_callback(**cfg['checkpoint_callback'])
     encoder.train_embedding(**cfg['trainer'])
 
-    print('Best model is stored at: %s' % (encoder.checkpoint))
+    print(f'Best model is stored at: {bcolors.OKBLUE}{encoder.checkpoint}{bcolors.ENDC}')
     return encoder.checkpoint
 
 

@@ -12,6 +12,7 @@ import warnings
 import hydra
 
 import torchvision
+from torch.utils.hipify.hipify_python import bcolors
 
 from lightly.cli._helpers import fix_input_path
 
@@ -68,6 +69,8 @@ def _upload_cli(cfg, is_cli_call=True):
         api_workflow_client.upload_embeddings(
             path_to_embeddings_csv=path_to_embeddings, name=name
         )
+
+    print(f'The dataset id is {bcolors.OKBLUE}{api_workflow_client.dataset_id}{bcolors.ENDC}')
 
 
 @hydra.main(config_path='config', config_name='config')

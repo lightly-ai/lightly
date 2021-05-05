@@ -13,6 +13,7 @@ import shutil
 import warnings
 
 import hydra
+from torch.utils.hipify.hipify_python import bcolors
 from tqdm import tqdm
 
 import lightly.data as data
@@ -73,12 +74,13 @@ def _download_cli(cfg, is_cli_call=True):
     samples = [api_workflow_client.filenames_on_server[i] for i in chosen_samples_ids]
 
     # store sample names in a .txt file
-    with open(cfg['tag_name'] + '.txt', 'w') as f:
+    filename = cfg['tag_name'] + '.txt'
+    with open(filename, 'w') as f:
         for item in samples:
             f.write("%s\n" % item)
 
-    msg = 'The list of files in tag {} is stored at: '.format(cfg['tag_name'])
-    msg += os.path.join(os.getcwd(), cfg['tag_name'] + '.txt')
+    filepath = os.path.join(os.getcwd(), filename)
+    msg = f'The list of files in tag {cfg["tag_name"]} is stored at: {bcolors.OKBLUE}{filepath}{bcolors.ENDC}'
     print(msg, flush=True)
 
     if not cfg['input_dir'] and cfg['output_dir']:
@@ -89,7 +91,7 @@ def _download_cli(cfg, is_cli_call=True):
     elif cfg['input_dir'] and cfg['output_dir']:
         input_dir = fix_input_path(cfg['input_dir'])
         output_dir = fix_input_path(cfg['output_dir'])
-        print(f'Copying files from {input_dir} to {output_dir}.')
+        print(f'Copying files from {input_dir} to {bcolors.OKBLUE}{output_dir}{bcolors.ENDC}.')
 
         # create a dataset from the input directory
         dataset = data.LightlyDataset(input_dir=input_dir)
