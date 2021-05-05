@@ -15,19 +15,19 @@ class TestScorerSemanticSegmentation(unittest.TestCase):
 
         # the following data should always pass
         self.dummy_data = np.random.randn(self.N * self.W * self.H, self.C)
-        self.dummy_data /= np.linalg.norm(self.dummy_data, axis=-1)[:, None]
+        self.dummy_data /= np.sum(self.dummy_data, axis=-1)[:, None]
         self.dummy_data = self.dummy_data.reshape(self.N, self.W, self.H, self.C)
 
         self.dummy_data_width_1 = np.random.randn(self.N * self.H, self.C)
-        self.dummy_data_width_1 /= np.linalg.norm(self.dummy_data_width_1, axis=-1)[:, None]
+        self.dummy_data_width_1 /= np.sum(self.dummy_data_width_1, axis=-1)[:, None]
         self.dummy_data_width_1 = self.dummy_data_width_1.reshape(self.N, 1, self.H, self.C)
 
         self.dummy_data_height_1 = np.random.randn(self.N * self.W, self.C)
-        self.dummy_data_height_1 /= np.linalg.norm(self.dummy_data_height_1, axis=-1)[:, None]
+        self.dummy_data_height_1 /= np.sum(self.dummy_data_height_1, axis=-1)[:, None]
         self.dummy_data_height_1 = self.dummy_data_height_1.reshape(self.N, self.W, 1, self.C)
 
         self.dummy_data_width_height_1 = np.random.randn(self.N, self.C)
-        self.dummy_data_width_height_1 /= np.linalg.norm(self.dummy_data_width_height_1, axis=-1)[:, None]
+        self.dummy_data_width_height_1 /= np.sum(self.dummy_data_width_height_1, axis=-1)[:, None]
         self.dummy_data_width_height_1 = self.dummy_data_width_height_1.reshape(self.N, 1, 1, self.C)
 
         self.dummy_data_classes_1 = np.random.randn(self.N * self.W * self.H, 1)
