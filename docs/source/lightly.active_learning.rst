@@ -21,6 +21,8 @@ lightly.active_learning
    :members:
 .. automodule:: lightly.active_learning.scorers.detection
    :members:
+.. automodule:: lightly.active_learning.scorers.semantic_segmentation
+   :members:
 
 .utils
 --------
