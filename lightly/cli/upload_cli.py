@@ -69,8 +69,9 @@ def _upload_cli(cfg, is_cli_call=True):
         api_workflow_client.upload_embeddings(
             path_to_embeddings_csv=path_to_embeddings, name=name
         )
-
-    print(f'The dataset id is {bcolors.OKBLUE}{api_workflow_client.dataset_id}{bcolors.ENDC}')
+    if new_dataset_name_ok:
+        print(f'The dataset_id of the newly created dataset is '
+              f'{bcolors.OKBLUE}{api_workflow_client.dataset_id}{bcolors.ENDC}')
 
 
 @hydra.main(config_path='config', config_name='config')
