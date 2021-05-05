@@ -13,9 +13,6 @@ class TestFromImports(unittest.TestCase):
         from lightly.active_learning.scorers.classification import ScorerClassification
 
         # api imports
-        from lightly.api.routes.users.docker import get_authorization
-        from lightly.api.routes.users.docker import get_soft_authorization
-        from lightly.api.routes.users.docker import post_diagnostics
         from lightly.api.api_workflow_client import ApiWorkflowClient
         from lightly.api.bitmask import BitMask
 
