@@ -74,18 +74,18 @@ These three steps can be done using a single command from the lightly pip packag
 
 The following commands are all to be entered in the terminal/command line
 
-.. code::
+.. code-block:: bash
 
     # Install lightly as a pip package
     pip install lightly
 
-.. code::
+.. code-block:: bash
 
     # Your personal token for accessing the Lightly Platform is defined. You can get it from
     # the Lightly platform at https://app.lightly.ai under your username and then Preferences.
     export LIGHTLY_TOKEN="YOUR_TOKEN"
 
-.. code::
+.. code-block:: bash
 
     # The lightly-magic command first needs the input directory of your dataset.
     # Then it needs the information for how many epochs to train an embedding model on it.
@@ -97,13 +97,13 @@ The following commands are all to be entered in the terminal/command line
     lightly-magic input_dir="./clothing-dataset-small/train" trainer.max_epochs=0 token=$LIGHTLY_TOKEN \
     new_dataset_name="active_learning_clothing_dataset" loader.num_workers=8
 
-.. code::
+.. code-block:: bash
 
     # In the console output of the lightly-magic command, you find the filename of the created
     # embeddings file. We need this file later, so set the path to it as an environment variable.
     export LIGHTLY_EMBEDDINGS_CSV="path_to_the_embeddings_csv"
 
-.. code::
+.. code-block:: bash
 
     # Install the pip packages required for the tutorial if not already installed
     pip install numpy
