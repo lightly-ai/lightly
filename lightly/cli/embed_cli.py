@@ -14,6 +14,7 @@ import hydra
 import torch
 import torch.nn as nn
 import torchvision
+from torch.utils.hipify.hipify_python import bcolors
 
 from lightly.data import LightlyDataset
 from lightly.embedding import SelfSupervisedEmbedding
@@ -107,7 +108,7 @@ def _embed_cli(cfg, is_cli_call=True):
     if is_cli_call:
         path = os.path.join(os.getcwd(), 'embeddings.csv')
         save_embeddings(path, embeddings, labels, filenames)
-        print('Embeddings are stored at %s' % (path))
+        print(f'Embeddings are stored at {bcolors.OKBLUE}{path}{bcolors.ENDC}')
         return path
 
     return embeddings, labels, filenames
