@@ -1,3 +1,7 @@
+""" BYOL Model """
+
+# Copyright (c) 2021. Lightly AG and its affiliates.
+# All Rights Reserved
 
 import torch
 import torch.nn as nn
@@ -112,6 +116,10 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
 
         Performs two forward passes, once where x0 is passed through the encoder
         and x1 through the momentum encoder and once the other way around.
+
+        Note that this model currently requires two inputs for the forward pass 
+        (x0 and x1) which correspond to the two augmentations.
+        Furthermore, `the return_features` argument does not work yet.
 
         Args:
             x0:
