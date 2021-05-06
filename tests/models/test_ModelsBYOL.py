@@ -76,14 +76,20 @@ class TestModelsBYOL(unittest.TestCase):
         for model_name in self.resnet_variants:
             for input_width, input_height in zip([32, 64], [64, 64]):
                 resnet = ResNetGenerator(model_name)
-                model = BYOL(get_backbone(resnet, num_ftrs=32)).to(device)
+                model = BYOL(
+                    get_backbone(resnet, num_ftrs=32),
+                    num_ftrs=32
+                ).to(device)
 
                 input_tensor = torch.rand((self.batch_size,
                                             3,
                                             input_height,
                                             input_width))
                 with torch.no_grad():
-                    out = model(input_tensor.to(device))
+                    out, _ = model(
+                        input_tensor.to(device),
+                        input_tensor.to(device)
+                    )
 
                 self.assertIsNotNone(model)
                 self.assertIsNotNone(out)
@@ -91,27 +97,37 @@ class TestModelsBYOL(unittest.TestCase):
     def test_tuple_input(self):
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         resnet = ResNetGenerator('resnet-18')
-        model = BYOL(get_backbone(resnet, num_ftrs=32), out_dim=128).to(device)
+        model = BYOL(
+            get_backbone(resnet, num_ftrs=32),
+            num_ftrs=32,
+            out_dim=128
+        ).to(device)
 
         x0 = torch.rand((self.batch_size, 3, 64, 64)).to(device)
         x1 = torch.rand((self.batch_size, 3, 64, 64)).to(device)
 
-        out = model(x0)
-        self.assertEqual(out.shape, (self.batch_size, 128))
+        (z0, p0), (z1, p1) = model(x0, x1)
+        self.assertEqual(z0.shape, (self.batch_size, 128))
+        self.assertEqual(z1.shape, (self.batch_size, 128))
+        self.assertEqual(p0.shape, (self.batch_size, 128))
+        self.assertEqual(p1.shape, (self.batch_size, 128))
 
-        out, features = model(x0, return_features=True)
-        self.assertEqual(out.shape, (self.batch_size, 128))
-        self.assertEqual(features.shape, (self.batch_size, 32))
+    def test_raises(self):
+        
+        resnet = ResNetGenerator('resnet-18')
+        model = BYOL(get_backbone(resnet))
+        x0 = torch.rand((self.batch_size, 3, 64, 64))
 
-        out0, out1 = model(x0, x1)
-        self.assertEqual(out0.shape, (self.batch_size, 128))
-        self.assertEqual(out1.shape, (self.batch_size, 128))
+        with self.assertRaises(ValueError):
+            model(x0, None)
 
-        (out0, f0), (out1, f1) = model(x0, x1, return_features=True)
-        self.assertEqual(out0.shape, (self.batch_size, 128))
-        self.assertEqual(out1.shape, (self.batch_size, 128))
-        self.assertEqual(f0.shape, (self.batch_size, 32))
-        self.assertEqual(f1.shape, (self.batch_size, 32))
+        with self.assertRaises(ValueError):
+            model(None, x0)
+
+        # test different input shape
+        x1 = torch.rand((self.batch_size, 5, 32, 32))
+        with self.assertRaises(ValueError):
+            model(x0, x1)
 
 
 if __name__ == '__main__':

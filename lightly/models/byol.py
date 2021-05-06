@@ -58,9 +58,8 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
         self.m = m
 
     def _forward(self,
-                x0: torch.Tensor,
-                x1: torch.Tensor = None,
-                return_features: bool = False):
+                 x0: torch.Tensor,
+                 x1: torch.Tensor = None):
         """Forward pass through the encoder and the momentum encoder.
 
         Performs the momentum update, extracts features with the backbone and
@@ -73,27 +72,17 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
                 Tensor of shape bsz x channels x W x H.
             x1:
                 Tensor of shape bsz x channels x W x H.
-            return_features:
-                Whether or not to return the intermediate features backbone(x).
 
         Returns:
             The output proejction of x0 and (if x1 is not None) the output 
-            projection of x1. If return_features is True, the output for each x 
-            is a tuple (out, f) where f are the features before the projection
-            head.
+            projection of x1.
         
         Examples:
             >>> # single input, single output
             >>> out = model._forward(x)
             >>>
-            >>> # single input with return_features=True
-            >>> out, f = model._forward(x, return_features=True)
-            >>>
             >>> # two inputs, two outputs
             >>> out0, out1 = model._forward(x0, x1)
-            >>>
-            >>> # two inputs two outputs with return_features=True
-            >>> (out0, f0), (out1, f1) = model._forward(x0, x1, return_features=True)
 
         """
 
@@ -104,10 +93,6 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
         z0 = self.projection_head(f0)
         out0 = self.prediction_head(z0)
 
-        # append features if requested
-        if return_features:
-            out0 = (out0, f0)
-
         if x1 is None:
             return out0
 
@@ -117,16 +102,12 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
             f1 = self.momentum_backbone(x1).squeeze()
             out1 = self.momentum_projection_head(f1)
         
-            if return_features:
-                out1 = (out1, f1)
-        
         return out0, out1
 
     def forward(self,
                 x0: torch.Tensor,
-                x1: torch.Tensor = None,
-                return_features: bool = False
-                ):
+                x1: torch.Tensor,
+                return_features: bool = False):
         """Symmetrizes the forward pass (see _forward).
 
         Performs two forward passes, once where x0 is passed through the encoder
@@ -139,12 +120,32 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
                 Tensor of shape bsz x channels x W x H.
 
         Returns: 
-                Tensors after passing through the online and
-                target networks.
+            A tuple out0, out1, where out0 and out1 are tuples containing the
+            predictions and projections of x0 and x1: out0 = (z0, p0) and
+            out1 = (z1, p1).
 
+        Examples:
+            >>> # initialize the model and the loss function
+            >>> model = BYOL()
+            >>> criterion = SymNegCosineSimilarityLoss()
+            >>>
+            >>> # forward pass for two batches of transformed images x1 and x2
+            >>> out0, out1 = model(x0, x1)
+            >>> loss = criterion(out0, out1)
 
         """
-        p0, z1 = self._forward(x0, x1,return_features=return_features)
-        p1, z0 = self._forward(x1, x0,return_features=return_features)
+
+        if x0 is None:
+            raise ValueError('x0 must not be None!')
+        if x1 is None:
+            raise ValueError('x1 must not be None!')
+
+        if not all([s0 == s1 for s0, s1 in zip(x0.shape, x1.shape)]):
+            raise ValueError(
+                f'x0 and x1 must have same shape but got shapes {x0.shape} and {x1.shape}!'
+            )
+
+        p0, z1 = self._forward(x0, x1)
+        p1, z0 = self._forward(x1, x0)
 
         return (z0, p0), (z1, p1)
