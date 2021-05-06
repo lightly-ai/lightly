@@ -18,7 +18,7 @@ class TestCLIDownload(MockedApiWorkflowSetup):
 
     def setUp(self):
         with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
-            self.cfg = compose(config_name="config", overrides=["token='123'", "dataset_id='XYZ'"])
+            self.cfg = compose(config_name="config")
 
     def create_fake_dataset(self, n_data: int = 5):
         self.dataset = torchvision.datasets.FakeData(size=n_data,
@@ -74,6 +74,7 @@ class TestCLIDownload(MockedApiWorkflowSetup):
         lightly.cli.download_cli(self.cfg)
 
     def test_download_no_tag_name(self):
+        # defaults to initial-tag
         cli_string = "lightly-download token='123' dataset_id='XYZ'"
         self.parse_cli_string(cli_string)
         lightly.cli.download_cli(self.cfg)
@@ -81,12 +82,14 @@ class TestCLIDownload(MockedApiWorkflowSetup):
     def test_download_no_token(self):
         cli_string = "lightly-download dataset_id='XYZ' tag_name='sampled_tag_xyz'"
         self.parse_cli_string(cli_string)
-        lightly.cli.download_cli(self.cfg)
+        with self.assertWarns(UserWarning):
+            lightly.cli.download_cli(self.cfg)
 
     def test_download_no_dataset_id(self):
         cli_string = "lightly-download token='123' tag_name='sampled_tag_xyz'"
         self.parse_cli_string(cli_string)
-        lightly.cli.download_cli(self.cfg)
+        with self.assertWarns(UserWarning):
+            lightly.cli.download_cli(self.cfg)
 
     def test_download_copy_from_input_to_output_dir(self):
         self.create_fake_dataset(n_data=100)

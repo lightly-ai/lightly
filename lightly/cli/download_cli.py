@@ -17,7 +17,7 @@ from torch.utils.hipify.hipify_python import bcolors
 from tqdm import tqdm
 
 import lightly.data as data
-from lightly.cli._helpers import fix_input_path
+from lightly.cli._helpers import fix_input_path, print_as_warning
 
 from lightly.api.utils import getenv
 from lightly.api.api_workflow_client import ApiWorkflowClient
@@ -31,15 +31,9 @@ def _download_cli(cfg, is_cli_call=True):
     dataset_id = cfg['dataset_id']
     token = cfg['token']
 
-    if not tag_name:
-        print('Please specify a tag name')
-        print('For help, try: lightly-download --help')
-        return
-
-    if not token or not dataset_id:
-        print('Please specify your access token and dataset id')
-        print('For help, try: lightly-download --help')
-        return
+    if not tag_name or not token or not dataset_id:
+        print_as_warning('Please specify all of the parameters tag_name, token and dataset_id')
+        print_as_warning('For help, try: lightly-download --help')
 
     api_workflow_client = ApiWorkflowClient(
         token=token, dataset_id=dataset_id

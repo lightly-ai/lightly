@@ -4,10 +4,27 @@
 # All Rights Reserved
 
 import os
+import warnings
+
 import torch
 from hydra import utils
+from torch.utils.hipify.hipify_python import bcolors
 
 from lightly.models import ZOO as model_zoo
+
+
+def _custom_formatwarning(msg, *args, **kwargs):
+    # ignore everything except the message
+    return f"{bcolors.WARNING}{msg}{bcolors.WARNING}\n"
+
+
+def print_as_warning(message: str):
+    old_format = warnings.formatwarning
+
+    warnings.formatwarning = _custom_formatwarning
+    warnings.warn(message, UserWarning)
+
+    warnings.formatwarning = old_format
 
 
 def fix_input_path(path):
@@ -79,7 +96,7 @@ def _maybe_expand_batchnorm_weights(model_dict, state_dict, num_splits):
         # not batchnorm -> continue
         if not running_mean in key and not running_var in key:
             continue
-        
+
         state = state_dict.get(key, None)
         # not in dict -> continue
         if state is None:
@@ -131,7 +148,7 @@ def load_from_state_dict(model,
     # step 1: filter state dict
     if apply_filter:
         state_dict = _filter_state_dict(state_dict)
- 
+
     # step 2: expand batchnorm weights
     state_dict = \
         _maybe_expand_batchnorm_weights(model.state_dict(), state_dict, num_splits)

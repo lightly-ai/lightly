@@ -14,7 +14,7 @@ import hydra
 import torchvision
 from torch.utils.hipify.hipify_python import bcolors
 
-from lightly.cli._helpers import fix_input_path
+from lightly.cli._helpers import fix_input_path, print_as_warning
 
 from lightly.api.utils import getenv
 from lightly.api.api_workflow_client import ApiWorkflowClient
@@ -34,9 +34,10 @@ def _upload_cli(cfg, is_cli_call=True):
     token = cfg['token']
     new_dataset_name = cfg['new_dataset_name']
 
+    cli_api_args_wrong = False
     if not token:
-        warnings.warn('Please specify your access token. For help, try: lightly-upload --help')
-        return
+        print_as_warning('Please specify your access token.')
+        cli_api_args_wrong = True
 
     dataset_id_ok = dataset_id and len(dataset_id) > 0
     new_dataset_name_ok = new_dataset_name and len(new_dataset_name) > 0
@@ -46,8 +47,11 @@ def _upload_cli(cfg, is_cli_call=True):
     elif dataset_id_ok and not new_dataset_name_ok:
         api_workflow_client = ApiWorkflowClient(token=token, dataset_id=dataset_id)
     else:
-        warnings.warn('Please specify either the dataset_id of an existing dataset or a new_dataset_name. '
-                      'For help, try: lightly-upload --help')
+        print_as_warning('Please specify either the dataset_id of an existing dataset or a new_dataset_name.')
+        cli_api_args_wrong = True
+
+    if cli_api_args_wrong:
+        print_as_warning('For help, try: lightly-upload --help')
         return
 
     size = cfg['resize']
