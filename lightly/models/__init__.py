@@ -20,3 +20,4 @@ from lightly.models.moco import MoCo
 from lightly.models.nnclr import NNCLR
 from lightly.models.zoo import ZOO
 from lightly.models.zoo import checkpoints
+from lightly.models.byol import BYOL
