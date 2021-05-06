@@ -2,7 +2,7 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-
+import copy
 import os
 import warnings
 
@@ -19,7 +19,7 @@ def _custom_formatwarning(msg, *args, **kwargs):
 
 
 def print_as_warning(message: str):
-    old_format = warnings.formatwarning
+    old_format = copy.copy(warnings.formatwarning)
 
     warnings.formatwarning = _custom_formatwarning
     warnings.warn(message, UserWarning)

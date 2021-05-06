@@ -34,6 +34,7 @@ def _download_cli(cfg, is_cli_call=True):
     if not tag_name or not token or not dataset_id:
         print_as_warning('Please specify all of the parameters tag_name, token and dataset_id')
         print_as_warning('For help, try: lightly-download --help')
+        return
 
     api_workflow_client = ApiWorkflowClient(
         token=token, dataset_id=dataset_id
