@@ -70,12 +70,12 @@ def _upload_cli(cfg, is_cli_call=True):
 
     if path_to_embeddings:
         name = cfg['embedding_name']
-        print("Starting upload of embeddings...")
+        print("Starting upload of embeddings.")
         api_workflow_client.upload_embeddings(
             path_to_embeddings_csv=path_to_embeddings, name=name
         )
-        print("Finished upload of embeddings...")
-        
+        print("Finished upload of embeddings.")
+
     if new_dataset_name_ok:
         print(f'The dataset_id of the newly created dataset is '
               f'{bcolors.OKBLUE}{api_workflow_client.dataset_id}{bcolors.ENDC}')
