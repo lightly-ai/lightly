@@ -67,6 +67,7 @@ def _upload_cli(cfg, is_cli_call=True):
         api_workflow_client.upload_dataset(
             input=dataset, mode=mode, max_workers=cfg['loader']['num_workers']
         )
+        print(f"Finished the upload of the dataset.")
 
     if path_to_embeddings:
         name = cfg['embedding_name']
