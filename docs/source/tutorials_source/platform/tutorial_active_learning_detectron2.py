@@ -11,6 +11,8 @@ performance. In this tutorial, we will use a pre-trained object detection model
 to do active learning on a completely unlabeled set of images.
 
 .. figure:: images/sphx_glr_tutorial_active_learning_detectron2_003.png
+   :align: center
+   :alt: Detectron2 Faster RCNN prediction on Comma10k
 
    Detectron2 Faster RCNN prediction on Comma10k
 
