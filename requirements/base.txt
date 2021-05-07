@@ -2,7 +2,7 @@
 
 hydra-core>=1.0.0
 numpy>=1.18.1
-pytorch_lightning>=1.0.4
+pytorch_lightning>=1.0.4,<=1.2.10
 requests>=2.23.0
 torchvision
 tqdm>=4.44
