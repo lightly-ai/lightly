@@ -28,6 +28,11 @@ lightly.models
 .. automodule:: lightly.models.simsiam
    :members:
 
+.byol
+---------------
+.. automodule:: lightly.models.byol
+   :members:
+
 .zoo
 ---------------
 .. automodule:: lightly.models.zoo

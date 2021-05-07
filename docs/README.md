@@ -5,6 +5,7 @@ Make sure you insatlled `sphinx` and `sphinx_rtd_theme`:
 ```
 pip install sphinx
 pip install sphinx_rtd_theme
+pip install sphinx_gallery
 ```
 
 ## Build the Docs

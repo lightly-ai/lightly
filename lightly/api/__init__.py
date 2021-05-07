@@ -4,4 +4,3 @@
 # All Rights Reserved
 
 from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.api import routes

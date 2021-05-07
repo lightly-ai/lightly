@@ -24,7 +24,7 @@ other frameworks such as Fast.ai.
 with the Lightly platform. Use the open-source framework to create embeddings 
 of your unlabeled data and combine them with model predictions to select 
 the most valueable samples for labeling.
-Check it out here: :ref:`lightly-tutorial-active-learning-knn` 
+Check it out here: :ref:`lightly-tutorial-active-learning-classification`
 
 Self-supervised Learning
 --------------------------

@@ -22,9 +22,6 @@ class TestNestedImports(unittest.TestCase):
         lightly.active_learning.utils.ObjectDetectionOutput
 
         # api imports
-        lightly.api.routes.users.docker.get_authorization
-        lightly.api.routes.users.docker.get_soft_authorization
-        lightly.api.routes.users.docker.post_diagnostics
         lightly.api.api_workflow_client.ApiWorkflowClient
         lightly.api.ApiWorkflowClient
         lightly.api.bitmask.BitMask
