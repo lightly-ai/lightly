@@ -298,6 +298,20 @@ structure as shown above could then look like this:
 
 Where INPUT_DIR is the path to the directory containing the video files.
 
+You can let Lightly Docker automatically extract the sampled frames and save
+them in the output folder using `dump_dataset=True`.
+
+.. code-block:: console
+
+    docker run --gpus all --rm -it \
+        -v INPUT_DIR:/home/input_dir:ro \
+        -v SHARED_DIR:/home/shared_dir:ro \
+        -v OUTPUT_DIR:/home/output_dir \
+        lightly/sampling:latest \
+        token=MYAWESOMETOKEN \
+        stopping_condition.n_samples=0.3 \
+        dump_dataset=True
+
 Removing Exact Duplicates
 ---------------------------
 With the docker solution, it is possible to remove **only exact duplicates** from the dataset. For this,
@@ -313,6 +327,53 @@ simply set the stopping condition `n_samples` to 1.0 (which translates to 100% o
         token=MYAWESOMETOKEN \
         remove_exact_duplicates=True \
         stopping_condition.n_samples=1.
+
+
+.. _ref-docker-upload-to-platform:
+
+Upload Sampled Dataset To Lightly Platform
+------------------------------------------
+
+Lightly Docker can automatically push the sampled dataset as well as its 
+embeddings to the Lightly Platform.
+
+Imagine you have a dataset of 100 videos with 10'000 frames each. 1 Million frames
+in total. Using Lightly Docker and the Coreset method we sample the most diverse
+50'000 images (a reduction of 20x). Now we push the 50'000 images to the 
+Lightly Platform for a more interactive analysis. We can access all metadata as
+well as the embedding view to explore the dataset, find clusters and further curate
+the dataset.
+Finally, we can use the Active Learning capabilities of the Lightly Platform to
+iteratively train, predict, label the dataset in chunks until we reach the desired
+model accuracy.
+
+To push the sampled dataset automatically after running Lightly Docker you can 
+append `upload_dataset=True` to the docker run command.
+
+E.g. 
+
+.. code-block:: console
+
+    docker run --gpus all --rm -it \
+        -v INPUT_DIR:/home/input_dir:ro \
+        -v SHARED_DIR:/home/shared_dir:ro \
+        -v OUTPUT_DIR:/home/output_dir \
+        lightly/sampling:latest \
+        token=MYAWESOMETOKEN \
+        stopping_condition.n_samples=50'000 \
+        stopping_condition.min_distance=0.3 \
+        upload_dataset=True
+
+You can upload only thumbnails (to save bandwidth) or only metadata (for privacy
+sensitive data) by
+adding the argument `lightly.upload=thumbnails` or `lightly.upload=meta`.
+
+.. note:: You must specify the stopping condition `n_samples` and set the value
+          below 75'000 (the current limit of a dataset in the Lightly Platform).
+          We recommend setting both stopping conditions (`min_distance` and 
+          `n_samples`) in which case sampling stops as soon as the first
+          condition is met.
+
 
 
 Reporting
@@ -364,10 +425,14 @@ The output directory is structured in the following way:
 * config:
    A directory containing copies of the configuration files and overwrites.
 * data:
-   The data directory contains everything to do with data. If `enable_corruptness_check=True`,
-   it will contain a "clean" version of the dataset. If `remove_exact_duplicates=True`, it will 
-   contain a copy of the `embeddings.csv` where all duplicates are removed. Otherwise, it will 
+   The data directory contains everything to do with data. 
+   
+   * If `enable_corruptness_check=True`, it will contain a "clean" version of 
+     the dataset. 
+   * If `remove_exact_duplicates=True`, it will contain a copy of the 
+     `embeddings.csv` where all duplicates are removed. Otherwise, it will 
    simply store the embeddings computed by the model.
+   
 * filenames:
    This directory contains lists of filenames of the corrupt images, removed images, sampled
    images and the images which were removed because they have an exact duplicate in the dataset.
@@ -384,6 +449,9 @@ The output directory is structured in the following way:
    * visualizations of the dataset
    * nearest neighbors of retained images among the removed ones
 
+* **NEW** report.json
+   * The report is also available as a report.json file. Any value from the pdf
+     pdf report can be easily be accessed.
 
 
 Below you find a typical output folder structure.
@@ -396,27 +464,42 @@ Below you find a typical output folder structure.
     |   |-- hydra.yaml
     |   '-- overrides.yaml
     |-- data
+    |   |-- al_score_embeddings.csv
+    |   |-- bounding_boxes.json
+    |   |-- bounding_boxes_examples
     |   |-- embeddings.csv
-    |   '-- unique_embeddings.csv
+    |   |-- normalized_embeddings.csv
+    |   |-- sampled
+    |   '-- selected_embeddings.csv
     |-- filenames
     |   |-- corrupt_filenames.txt
     |   |-- duplicate_filenames.txt
     |   |-- removed_filenames.txt
     |   '-- sampled_filenames.txt
+    |-- lightly_epoch_1.ckpt
     |-- plots
     |   |-- distance_distr_after.png
     |   |-- distance_distr_before.png
     |   |-- filter_decision_0.png
-    |   |-- filter_decision_166668.png
-    |   |-- filter_decision_250002.png
-    |   |-- filter_decision_333336.png
-    |   |-- filter_decision_416670.png
-    |   |-- filter_decision_83334.png
+    |   |-- filter_decision_11.png
+    |   |-- filter_decision_22.png
+    |   |-- filter_decision_33.png
+    |   |-- filter_decision_44.png
+    |   |-- filter_decision_55.png
+    |   |-- pretagging_histogram_after.png
+    |   |-- pretagging_histogram_before.png
     |   |-- scatter_pca.png
     |   |-- scatter_pca_no_overlay.png
-    |   |-- scatter_umap.png
-    |   '-- scatter_umap_no_overlay.png
+    |   |-- scatter_umap_k_15.png
+    |   |-- scatter_umap_k_15_no_overlay.png
+    |   |-- scatter_umap_k_5.png
+    |   |-- scatter_umap_k_50.png
+    |   |-- scatter_umap_k_50_no_overlay.png
+    |   '-- scatter_umap_k_5_no_overlay.png
+    |-- report.json
     '-- report.pdf
+
+
 
 Evaluation of the Sampling Proces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
