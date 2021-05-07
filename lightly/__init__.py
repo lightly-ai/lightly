@@ -52,6 +52,8 @@ The framework is structured into the following modules:
 
   - Barlow Twins
 
+  - BYOL
+
 - **transforms**:
 
   The lightly.transforms module implements custom data transforms. Currently implements:
@@ -74,7 +76,7 @@ The framework is structured into the following modules:
 # All Rights Reserved
 
 __name__ = 'lightly'
-__version__ = '1.1.7'
+__version__ = '1.1.8'
 
 
 try:
