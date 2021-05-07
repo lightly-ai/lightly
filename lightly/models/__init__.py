@@ -15,6 +15,8 @@ from lightly.models.resnet import ResNetGenerator
 from lightly.models.barlowtwins import BarlowTwins
 from lightly.models.simclr import SimCLR
 from lightly.models.simsiam import SimSiam
+from lightly.models.byol import BYOL
 from lightly.models.moco import MoCo
 from lightly.models.zoo import ZOO
 from lightly.models.zoo import checkpoints
+from lightly.models.byol import BYOL

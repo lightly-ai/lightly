@@ -5,11 +5,13 @@ import tqdm
 
 from lightly.openapi_generated.swagger_client import TagCreator
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
-from lightly.api.utils import check_filename, check_image, get_thumbnail_from_img, PIL_to_bytes
+from lightly.api.utils import check_filename, PIL_to_bytes
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 from lightly.data.dataset import LightlyDataset
 
 from lightly.api.utils import retry
+
+from lightly_utils import image_processing
 
 
 class _UploadDatasetMixin:
@@ -129,14 +131,25 @@ class _UploadDatasetMixin:
             return False
 
         # calculate metadata, and check if corrupted
-        metadata = check_image(image)
+        metadata = image_processing.Metadata(image).to_dict()
+
+        # try to get exif data
+        try:
+            exifdata = image_processing.Exifdata(image)
+        except Exception:
+            exifdata = None
 
         # generate thumbnail if necessary
         thumbname = None
         if not metadata['is_corrupted'] and mode in ["thumbnails", "full"]:
             thumbname = '.'.join(basename.split('.')[:-1]) + '_thumb.webp'
 
-        body = SampleCreateRequest(file_name=basename, thumb_name=thumbname, meta_data=metadata)
+        body = SampleCreateRequest(
+            file_name=basename,
+            thumb_name=thumbname,
+            meta_data=metadata,
+            exif=exifdata if exifdata is None else exifdata.to_dict(),
+        )
         sample_id = retry(
             self.samples_api.create_sample_by_dataset_id,
             body=body,
@@ -144,8 +157,8 @@ class _UploadDatasetMixin:
         ).id
 
         if not metadata['is_corrupted'] and mode in ["thumbnails", "full"]:
-            thumbnail = get_thumbnail_from_img(image)
-            image_to_upload = PIL_to_bytes(thumbnail, ext='webp', quality=90)
+            thumbnail = image_processing.Thumbnail(image)
+            image_to_upload = thumbnail.to_bytes()
 
             signed_url = retry(
                 self.samples_api.get_sample_image_write_url_by_id,
@@ -161,7 +174,7 @@ class _UploadDatasetMixin:
                 signed_url
             )
 
-            thumbnail.close()
+            thumbnail.thumbnail.close()
 
         if not metadata['is_corrupted'] and mode == "full":
             image_to_upload = PIL_to_bytes(image)
@@ -173,7 +186,7 @@ class _UploadDatasetMixin:
                 is_thumbnail=False
             )
 
-            # try to upload thumbnail
+            # try to upload full image
             retry(
                 self.upload_file_with_signed_url,
                 image_to_upload,

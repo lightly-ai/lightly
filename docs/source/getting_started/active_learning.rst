@@ -255,12 +255,38 @@ Currently, the following scorers are available:
 
 
 For more information about how to use the object detection scorer have a look here:
-:py:class:`lightly.active_learning.scorers.detection.ScorerDetection
+
+:py:class:`lightly.active_learning.scorers.detection.ScorerObjectDetection`
 
 
 Image Segmentation
 ^^^^^^^^^^^^^^^^^^^^^
-Coming soon...
+
+Use this scorer when you're training a model for semantic segmentation.
+The semantic segmentation scorer expects a list or generator of pixelwise label
+predictions.
+
+We expect the model predictions to be of shape W x H x C, where
+
+- W is the width of the image
+- H is the height of the image
+- C is the number of segmentation classes (e.g. 2 for background vs foreground)
+
+Currently, the following scorers are available:
+
+- **classification_scores**
+  These scores treat segmentation as a pixelwise classification task. The 
+  classification uncertainty scores are computed per pixel and then reduced to
+  a single score per image by taking the mean. In particular, we support:
+  - **uncertainty_least_confidence**
+  - **uncertainty_margin**
+  - **uncertainty_entropy**
+  The scores are computed using the scorer for classification.
+
+
+For more information about how to use the semantic segmentation scorer have a look here:
+
+:py:class:`lightly.active_learning.scorers.semantic_segmentation.ScorerSemanticSegmentation`
 
 Keypoint Detection
 ^^^^^^^^^^^^^^^^^^^^^
