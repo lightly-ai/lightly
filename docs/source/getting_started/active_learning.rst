@@ -13,7 +13,7 @@ in your annotated dataset.
 We designed Lightly Active Learning to give you the best performance while
 being very easy to use. Check out our tutorials to learn more:
 
-- :ref:`lightly-tutorial-active-learning-knn` 
+- :ref:`lightly-tutorial-active-learning-classification` 
 - :ref:`lightly-tutorial-active-learning-detectron2` 
 
 
@@ -305,5 +305,5 @@ Next Steps
 
 Check out our tutorial about how to use Lightly Active Learning:
 
-- :ref:`lightly-tutorial-active-learning-knn` 
+- :ref:`lightly-tutorial-active-learning-classification` 
 - :ref:`lightly-tutorial-active-learning-detectron2` 
