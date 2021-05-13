@@ -54,19 +54,19 @@ Lightly-magic is a singular command for training, embedding, and uploading to th
     
 .. code-block:: bash
     
-    #embedding and uploading the images and embeddings to web app
+    # embedding and uploading the images and embeddings to web app
     # passing in input directory of dataset(Data_dir),using pretrained model
-    #with assigned token as yourToken and datasedID as yourDatasedID
-    #loader.num_workers species the number of cpu cores used for speeding the process.
-    lightly-magic input_dir=Data_dir trainer.max_epochs=0 loader.num_workers=8\
+    # with assigned token as yourToken and datasedID as yourDatasedID
+    # loader.num_workers species the number of cpu cores used for speeding the process.
+    lightly-magic input_dir=Data_dir trainer.max_epochs=0 loader.num_workers=8 \
     token=yourToken datasetId=yourDatasetId
     
-    #passing a custom dataset in the above example instead of datasetId
-    lightly-magic input_dir=Data_dir trainer.max_epochs=0 loader.num_workers=8\
+    # passing a custom dataset in the above example instead of datasetId
+    lightly-magic input_dir=Data_dir trainer.max_epochs=0 loader.num_workers=8 \
     token=yourToken new_dataset_name=myNewDataset
     
-    #To use a custom batch size, pass the batch size to loader.batch_size parameter
-    #updating the previous example by passing value for loader.batch_size
+    # To use a custom batch size, pass the batch size to loader.batch_size parameter
+    # updating the previous example by passing value for loader.batch_size
     lightly-magic input_dir=Data_dir trainer.max_epochs=0 loader.batch_size=128 \
     loader.num_workers=8 token=yourToken new_dataset_name=myNewDataset
     
