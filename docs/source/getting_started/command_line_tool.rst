@@ -39,6 +39,40 @@ If lightly was installed correctly, you should see something like this:
 
     lightly version 1.1.4
 
+Training, Embedding, and Uploading in a go - Magic
+---------------------------------------------------
+Lightly-magic is a singular command for training, embedding, and uploading to the Lightly Platform. 
+    
+* To start with, we need to input the directory of the dataset, pass it to input_dir 
+* It requires information on the number of epochs to perform, set trainer.max_epochs,
+* To use a pre-trained model, simply set trainer.max_epochs=0.
+* The embedding model is used to embed all images in the input directory and saves the embeddings in a CSV file. A new dataset with the specified name is created on the Lightly platform. The embeddings file is uploaded to it, and the images themselves are uploaded with loader.num_workers workers in parallel, this utilizes CPU cores for faster processing.
+* To set a custom batch size just set the value to loader.batch_size for the same.
+* To parse in a new dataset set the value of  new_dataset_name as the name of the dataset. For example, the dataset to be loaded is myNewDataset, pass the value as new_dataset_name=myNewDataset
+    
+    
+    
+.. code-block:: bash
+    
+    # embedding and uploading the images and embeddings to web app
+    # passing in input directory of dataset(Data_dir),using pretrained model
+    # with assigned token as yourToken and datasedID as yourDatasedID
+    # loader.num_workers species the number of cpu cores used for speeding the process.
+    lightly-magic input_dir=Data_dir trainer.max_epochs=0 loader.num_workers=8 \
+    token=yourToken datasetId=yourDatasetId
+    
+    # passing a custom dataset in the above example instead of datasetId
+    lightly-magic input_dir=Data_dir trainer.max_epochs=0 loader.num_workers=8 \
+    token=yourToken new_dataset_name=myNewDataset
+    
+    # To use a custom batch size, pass the batch size to loader.batch_size parameter
+    # updating the previous example by passing value for loader.batch_size
+    lightly-magic input_dir=Data_dir trainer.max_epochs=0 loader.batch_size=128 \
+    loader.num_workers=8 token=yourToken new_dataset_name=myNewDataset
+    
+    
+
+
 
 Train a model using the CLI
 ---------------------------------------
@@ -164,4 +198,12 @@ without the need to download them explicitly.
     # copy images from an input directory to an output directory
     lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token \
                      input_dir=path/to/input/dir output_dir=path/to/output/dir
+
+
+
+
+    
+
+
+
 
