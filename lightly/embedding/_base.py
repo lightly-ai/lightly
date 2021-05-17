@@ -7,6 +7,7 @@ import copy
 
 import pytorch_lightning as pl
 import pytorch_lightning.core.lightning as lightning
+from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 import torch.nn as nn
 
 from lightly.embedding._callback import CustomModelCheckpoint
@@ -114,11 +115,21 @@ class BaseEmbedding(lightning.LightningModule):
                 Where to save the checkpoint.
 
         """
-        # initialize custom model checkpoint
-        self.checkpoint_callback = CustomModelCheckpoint()
-        self.checkpoint_callback.save_last = save_last
-        self.checkpoint_callback.save_top_k = save_top_k
-        self.checkpoint_callback.monitor = monitor
 
-        dirpath = self.cwd if dirpath is None else dirpath
-        self.checkpoint_callback.dirpath = dirpath
+        if pl.__version__[:3] in ['1.0', '1.1', '1.2']:
+            # initialize custom model checkpoint
+            self.checkpoint_callback = CustomModelCheckpoint()
+            self.checkpoint_callback.save_last = save_last
+            self.checkpoint_callback.save_top_k = save_top_k
+            self.checkpoint_callback.monitor = monitor
+
+            dirpath = self.cwd if dirpath is None else dirpath
+            self.checkpoint_callback.dirpath = dirpath
+        else:
+            self.checkpoint_callback = ModelCheckpoint(
+                dirpath=self.cwd if dirpath is None else dirpath,
+                filename='lightly_epoch_{epoch:d}',
+                save_last=save_last,
+                save_top_k=save_top_k,
+                monitor=monitor,
+                auto_insert_metric_name=False)
