@@ -10,6 +10,11 @@ images to annotate. The images are chosen to have a maximal impact on the model
 performance. In this tutorial, we will use a pre-trained object detection model
 to do active learning on a completely unlabeled set of images.
 
+.. figure:: images/sphx_glr_tutorial_active_learning_detectron2_003.png
+   :align: center
+   :alt: Detectron2 Faster RCNN prediction on Comma10k
+
+   Detectron2 Faster RCNN prediction on Comma10k
 
 In machine learning, we often don't train a model from scratch.
 Instead, we start with an already pre-trained model. For object detection tasks,
@@ -21,9 +26,6 @@ task dataset (Comma10k) which has been collected for autonomous driving. Then,
 we use the predictions, self-supervised learning, and active learning with the
 lightly framework to find the 100 most informative images on which we can
 finetune our model.
-
-
-
 
 This tutorial is available as a
 `Google Colab Notebook <https://colab.research.google.com/drive/1r0KDqIwr6PV3hFhREKgSjRaEbQa5N_5I?usp=sharing>`_
@@ -243,7 +245,7 @@ def convert_bbox_detectron2lightly(outputs):
     return output
 
 # %%
-# Run model predictions
+# Get Model Predictions
 # ----------------------
 #
 # We now use the created model and iterate over the `query_set` and make predictions.
@@ -274,7 +276,7 @@ scores = scorer.calculate_scores()
 #    bounding box for which the model is unsure about the class of the object 
 #    in the bounding box. Read more about how our active learning scores are 
 #    calculated here:
-#    :py:class:`lightly.active_learning.scorers.detection.ScorerDetection`
+#    :py:class:`lightly.active_learning.scorers.detection.ScorerObjectDetection`
 max_score = scores['uncertainty_margin'].max()
 idx = scores['uncertainty_margin'].argmax()
 print(f'Highest uncertainty_margin score found for idx {idx}: {max_score}')
@@ -286,6 +288,9 @@ fname = os.path.join(DATASET_ROOT, al_agent.query_set[idx])
 predict_and_overlay(predictor, fname)
 
 # %%
+# Query Samples for Labeling
+# ---------------------------
+#
 # Finally, we can tell our agent to select the top 100 images to annotate and
 # improve our existing model. We pick the sampling method called `CORAL` which
 # is a combination of Coreset and Active Learning. Whereas Coreset maximizes
@@ -313,7 +318,7 @@ for i in range(5):
   predict_and_overlay(predictor, to_label[i])
 
 # %%
-# What's Next?
+# Next Steps
 # -------------
 # 
 # We showed in this tutorial how you can use Lightly Active Learning to discover 
