@@ -10,6 +10,13 @@ in your annotated dataset.
 
    Plot showing the different samples and how they perform on the clothing dataset.
 
+We designed Lightly Active Learning to give you the best performance while
+being very easy to use. Check out our tutorials to learn more:
+
+- :ref:`lightly-tutorial-active-learning-classification` 
+- :ref:`lightly-tutorial-active-learning-detectron2` 
+
+
 Preparations
 -----------------
 Before you read on, make sure you have read the section on the :ref:`lightly-platform`. 
@@ -291,3 +298,12 @@ For more information about how to use the semantic segmentation scorer have a lo
 Keypoint Detection
 ^^^^^^^^^^^^^^^^^^^^^
 Coming soon...
+
+
+Next Steps
+-----------
+
+Check out our tutorial about how to use Lightly Active Learning:
+
+- :ref:`lightly-tutorial-active-learning-classification` 
+- :ref:`lightly-tutorial-active-learning-detectron2` 
