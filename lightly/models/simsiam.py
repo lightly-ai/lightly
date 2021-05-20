@@ -167,7 +167,7 @@ class SimSiam(nn.Module):
             >>> # two inputs, two outputs with return_features=True
             >>> (out0, f0), (out1, f1) = model(x0, x1, return_features=True)
         """
-        f0 = self.backbone(x0).squeeze()
+        f0 = self.backbone(x0).flatten(start_dim=1)
         z0 = self.projection_mlp(f0)
         p0 = self.prediction_mlp(z0)
 
@@ -180,7 +180,7 @@ class SimSiam(nn.Module):
         if x1 is None:
             return out0
         
-        f1 = self.backbone(x1).squeeze()
+        f1 = self.backbone(x1).flatten(start_dim=1)
         z1 = self.projection_mlp(f1)
         p1 = self.prediction_mlp(z1)
 

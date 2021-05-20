@@ -175,8 +175,8 @@ def _make_dataset(directory,
     if is_valid_file is not None:
         _is_valid_file = is_valid_file
 
-    # find all instances (no subdirectories)
-    instances = []
+    # find all video instances (no subdirectories)
+    video_instances = []
     for fname in os.listdir(directory):
 
         # skip invalid files
@@ -185,11 +185,11 @@ def _make_dataset(directory,
 
         # keep track of valid files
         path = os.path.join(directory, fname)
-        instances.append(path)
+        video_instances.append(path)
 
     # get timestamps
     timestamps, fpss = [], []
-    for instance in instances:
+    for instance in video_instances[:]: # video_instances[:] creates a copy
 
         if AV_AVAILABLE and torchvision.get_video_backend() == 'pyav':
             # This is a hacky solution to estimate the timestamps.
@@ -197,6 +197,13 @@ def _make_dataset(directory,
             # estimated timestamps are not correct.
             with av.open(instance) as av_video:
                 stream = av_video.streams.video[0]
+
+                # check if we can extract the video duration
+                if not stream.duration:
+                    print(f'Video {instance} has no timestamp and will be skipped...')
+                    video_instances.remove(instance) # remove from original list (not copy)
+                    continue # skip this broken video
+
                 duration = stream.duration * stream.time_base
                 fps = stream.base_rate
                 n_frames = int(int(duration) * fps)
@@ -208,14 +215,13 @@ def _make_dataset(directory,
             timestamps.append(ts)
             fpss.append(fps)
 
-
     # get frame offsets
     offsets = [len(ts) for ts in timestamps]
     offsets = [0] + offsets[:-1]
     for i in range(1, len(offsets)):
         offsets[i] = offsets[i-1] + offsets[i] # cumsum
 
-    return instances, timestamps, offsets, fpss
+    return video_instances, timestamps, offsets, fpss
 
 
 class VideoDataset(datasets.VisionDataset):

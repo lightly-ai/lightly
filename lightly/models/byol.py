@@ -93,7 +93,7 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
         self._momentum_update(self.m)
 
         # forward pass of first input x0
-        f0 = self.backbone(x0).squeeze()
+        f0 = self.backbone(x0).flatten(start_dim=1)
         z0 = self.projection_head(f0)
         out0 = self.prediction_head(z0)
 
@@ -103,7 +103,7 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
         # forward pass of second input x1
         with torch.no_grad():
 
-            f1 = self.momentum_backbone(x1).squeeze()
+            f1 = self.momentum_backbone(x1).flatten(start_dim=1)
             out1 = self.momentum_projection_head(f1)
         
         return out0, out1

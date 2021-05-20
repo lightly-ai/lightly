@@ -134,7 +134,7 @@ class BarlowTwins(nn.Module):
             >>> (out0, f0), (out1, f1) = model(x0, x1, return_features=True)
         """
         # forward pass first input
-        f0 = self.backbone(x0).squeeze()
+        f0 = self.backbone(x0).flatten(start_dim=1)
         out0 = self.projection_mlp(f0)
 
         # append features if requested
@@ -145,7 +145,7 @@ class BarlowTwins(nn.Module):
             return out0
 
         # forward pass second input
-        f1 = self.backbone(x1).squeeze()
+        f1 = self.backbone(x1).flatten(start_dim=1)
         out1 = self.projection_mlp(f1)
 
         # append features if requested

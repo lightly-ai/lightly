@@ -31,6 +31,7 @@ Lightly offers features like
 - [SimCLR, 2020](https://arxiv.org/abs/2002.05709)
 - [SimSiam, 2021](https://arxiv.org/abs/2011.10566)
 - [Barlow Twins, 2021](https://arxiv.org/abs/2103.03230)
+- [BYOL, 2020](https://arxiv.org/abs/2006.07733)
 
 
 ### Tutorials
@@ -165,20 +166,24 @@ The embeddings with the corresponding filename are stored in a
 Currently implemented models and their accuracy on cifar10. All models have been evaluated using kNN. We report the max test accuracy over the epochs as well as the maximum GPU memory consumption. All models in this benchmark use the same augmentations as well as the same ResNet-18 backbone. Training precision is set to FP32 and SGD is used as an optimizer with cosineLR.
 One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifar10 benchmark here](https://docs.lightly.ai/getting_started/benchmarks.html)
 
-| Model   | Epochs | Batch Size | Test Accuracy |
-|---------|--------|------------|---------------|
-| MoCo    |  200   | 128        | 0.83          |
-| SimCLR  |  200   | 128        | 0.78          |
-| SimSiam |  200   | 128        | 0.73          |
-| MoCo    |  200   | 512        | 0.85          |
-| SimCLR  |  200   | 512        | 0.83          |
-| SimSiam |  200   | 512        | 0.81          |
-| MoCo    |  800   | 128        | 0.89          |
-| SimCLR  |  800   | 128        | 0.87          |
-| SimSiam |  800   | 128        | 0.80          |
-| MoCo    |  800   | 512        | 0.90          |
-| SimCLR  |  800   | 512        | 0.89          |
-| SimSiam |  800   | 512        | 0.91          |
+| Model       | Epochs | Batch Size | Test Accuracy |
+|-------------|--------|------------|---------------|
+| MoCo        |  200   | 128        | 0.83          |
+| SimCLR      |  200   | 128        | 0.78          |
+| SimSiam     |  200   | 128        | 0.73          |
+| BarlowTwins |  200   | 128        | 0.84          |
+| BYOL        |  200   | 128        | 0.85          |
+| MoCo        |  200   | 512        | 0.85          |
+| SimCLR      |  200   | 512        | 0.83          |
+| SimSiam     |  200   | 512        | 0.81          |
+| BarlowTwins |  200   | 512        | 0.78          |
+| BYOL        |  200   | 512        | 0.84          |
+| MoCo        |  800   | 128        | 0.89          |
+| SimCLR      |  800   | 128        | 0.87          |
+| SimSiam     |  800   | 128        | 0.80          |
+| MoCo        |  800   | 512        | 0.90          |
+| SimCLR      |  800   | 512        | 0.89          |
+| SimSiam     |  800   | 512        | 0.91          |
 
 
 ## Terminology
