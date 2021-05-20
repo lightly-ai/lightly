@@ -9,12 +9,14 @@ and an easy way to work with lightly. But there is more!
     :alt: Alt text
     :figclass: align-center
 
-With the introduction of our on-premise solution, you can process larger datasets completely on your end without data leaving your infrastructure.
+With the introduction of our on-premise solution, you can **process larger datasets completely on your end without data leaving your infrastructure**.
 We worked hard to make this happen and are very proud to present you with the following specs:
 
-* **NEW** See your docker runs live in the Lightly Platform (see :ref:`ref-docker-runs` )
+* **NEW** Automatically upload the sampled dataset to the Lightly Platform (see :ref:`ref-docker-upload-to-platform`)
 
-* **NEW** Lightly Docker has built-in pretagging models (see :ref:`ref-docker-pretagging` )
+* **NEW** See your docker runs live in the Lightly Platform (see :ref:`ref-docker-runs`)
+
+* Lightly Docker has built-in pretagging models (see :ref:`ref-docker-pretagging`)
 
   * Use this feature to pre-label your dataset or to only select images which contain certain objects
 
@@ -61,7 +63,7 @@ We worked hard to make this happen and are very proud to present you with the fo
 
   * 16GB free RAM
  
-  * 1 Nvidia Tesla P100 or V100 GPU with CUDA 10.0+
+  * 1 Nvidia Tesla P100, T4, V100 or A100 GPU with CUDA 10.0+
 
 .. toctree::
    :maxdepth: 1

@@ -19,7 +19,8 @@ except Exception as e:
 IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp',
                   '.pgm', '.tif', '.tiff', '.webp')
 
-VIDEO_EXTENSIONS = ('.mp4', '.mov', '.avi')
+VIDEO_EXTENSIONS = ('.mp4', '.mov', '.avi', '.mpg',
+                    '.hevc', '.m4v', '.webm', '.mpeg')
 
 
 def _contains_videos(root: str, extensions: tuple):

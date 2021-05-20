@@ -444,3 +444,14 @@ def plot_nearest_neighbors_3x3(example_image: str, i: int):
 # show example images for each cluster
 for i, example_image in enumerate(example_images):
     plot_nearest_neighbors_3x3(example_image, i)
+
+# %%
+# Next Steps
+# ------------
+#
+# Interested in exploring other self-supervised models? Check out our other
+# tutorials:
+#
+# - :ref:`lightly-moco-tutorial-2`
+# - :ref:`lightly-simclr-tutorial-3`
+# - :ref:`lightly-custom-augmentation-5`

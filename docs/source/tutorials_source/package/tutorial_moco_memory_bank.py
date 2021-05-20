@@ -361,3 +361,14 @@ trainer.fit(
 #   6006 from your remote machine to your local machine:
 #
 #   `ssh username:host -N -L localhost:6006:localhost:6006`
+
+# %%
+# Next Steps
+# ------------
+#
+# Interested in exploring other self-supervised models? Check out our other
+# tutorials:
+#
+# - :ref:`lightly-simclr-tutorial-3`
+# - :ref:`lightly-simsiam-tutorial-4`
+# - :ref:`lightly-custom-augmentation-5`
