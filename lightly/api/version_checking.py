@@ -9,6 +9,8 @@ from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
 from lightly.api.utils import getenv
 
+from lightly import __version__
+
 
 def get_versioning_api() -> VersioningApi:
     configuration = Configuration()
@@ -48,7 +50,8 @@ def version_compare(v0, v1):
 
 
 def pretty_print_latest_version(latest_version, width=70):
-    warning = f"There is a newer version of the package available. " \
-              f"For compatability reasons, please upgrade your current version:" \
+    warning = f"You are using lightly version {__version__}. " \
+              f"There is a newer version of the package available. " \
+              f"For compatability reasons, please upgrade your current version: " \
               f"pip install lightly=={latest_version}"
     warnings.warn(Warning(warning))
