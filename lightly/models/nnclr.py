@@ -88,6 +88,7 @@ class NNCLR(nn.Module):
     """Implementation of the NNCLR[0] architecture
 
     Recommended loss: :py:class:`lightly.loss.ntx_ent_loss.NTXentLoss`
+    Recommended module: :py:class:`lightly.models.modules.nn_memory_bank.NNmemoryBankModule`
 
     [0] NNCLR, 2021, https://arxiv.org/abs/2104.14548
 
@@ -104,6 +105,19 @@ class NNCLR(nn.Module):
             Dimension of the output (after the projection head).
         num_mlp_layers:
             Number of linear layers for MLP.
+
+    Examples:
+        >>> model = NNCLR(backbone)
+        >>> criterion = NTXentLoss(temperature=0.1)
+        >>> 
+        >>> nn_replacer = NNmemoryBankModule(size=2 ** 16)
+        >>>
+        >>> # forward pass
+        >>> (z0, p0), (z1, p1) = model(x0, x1)
+        >>> z0 = nn_replacer(z0.detach(), update=False)
+        >>> z1 = nn_replacer(z1.detach(), update=True)
+        >>>
+        >>> loss = 0.5 * (criterion(z0, p1) + criterion(z1, p0))
 
     """
 
