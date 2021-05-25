@@ -5,7 +5,7 @@ import torch.nn as nn
 import torchvision
 
 from lightly.models import NNCLR
-from lightly.models.modules import NNmemoryBankModule
+from lightly.models.modules import NNMemoryBankModule
 
 
 def resnet_generator(name: str):
@@ -123,7 +123,7 @@ class TestNNCLR(unittest.TestCase):
             model = NNCLR(get_backbone(resnet), **config).to(device)
 
             for nn_size in [2 ** 3, 2 ** 8]:
-                nn_replacer = NNmemoryBankModule(size=nn_size)
+                nn_replacer = NNMemoryBankModule(size=nn_size)
 
                 with torch.no_grad():
                     for i in range(10):

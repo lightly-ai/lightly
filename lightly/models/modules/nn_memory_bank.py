@@ -7,7 +7,7 @@ import torch
 from lightly.loss.memory_bank import MemoryBankModule
 
 
-class NNmemoryBankModule(MemoryBankModule):
+class NNMemoryBankModule(MemoryBankModule):
     """Nearest Neighbour Memory Bank implementation
 
     This class implements a nearest neighbour memory bank as described in the 
@@ -36,7 +36,7 @@ class NNmemoryBankModule(MemoryBankModule):
 
     """
     def __init__(self, size: int = 2 ** 16):
-        super(NNmemoryBankModule, self).__init__(size)
+        super(NNMemoryBankModule, self).__init__(size)
 
     def forward(self,
                 output: torch.Tensor,
@@ -49,7 +49,7 @@ class NNmemoryBankModule(MemoryBankModule):
 
         """
 
-        output, bank = super(NNmemoryBankModule, self).forward(output, update=update)
+        output, bank = super(NNMemoryBankModule, self).forward(output, update=update)
         bank = bank.to(output.device).t()
 
         output_normed = torch.nn.functional.normalize(output, dim=1)
