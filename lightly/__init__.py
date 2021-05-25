@@ -54,6 +54,8 @@ The framework is structured into the following modules:
 
   - BYOL
 
+  - NNCLR
+
 - **transforms**:
 
   The lightly.transforms module implements custom data transforms. Currently implements:
