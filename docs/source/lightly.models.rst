@@ -33,8 +33,21 @@ lightly.models
 .. automodule:: lightly.models.byol
    :members:
 
+.nnclr
+---------------
+.. automodule:: lightly.models.nnclr
+   :members:
+
 .zoo
 ---------------
 .. automodule:: lightly.models.zoo
+   :members:
+
+   
+.. automodule:: lightly.models.modules
+
+.nn_memory_bank
+---------------
+.. automodule:: lightly.models.modules.nn_memory_bank
    :members:
 
