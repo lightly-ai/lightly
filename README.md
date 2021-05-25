@@ -43,6 +43,14 @@ Want to jump to the tutorials and see lightly in action?
 - [Train SimSiam on satellite images](https://docs.lightly.ai/tutorials/package/tutorial_simsiam_esa.html)
 - [Use lightly with custom augmentations](https://docs.lightly.ai/tutorials/package/tutorial_custom_augmentations.html)
 
+Tutorials of using the lightly packge together with the Lightly Platform:
+
+- [Active Learning using Detectron2 on Comma10k](https://docs.lightly.ai/tutorials/platform/tutorial_active_learning_detectron2.html)
+
+Community and partner projects:
+
+- [On-Device Deep Learning with Lightly on an ARM microcontroller](https://github.com/ARM-software/EndpointAI/tree/master/ProofOfConcepts/Vision/OpenMvMaskDefaults)
+
 ## Quick Start
 
 Lightly requires **Python 3.6+**. We recommend installing Lightly in a **Linux** or **OSX** environment.
