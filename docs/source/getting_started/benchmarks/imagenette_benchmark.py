@@ -7,21 +7,6 @@ killing the application. Due to the way we setup this benchmark the distributed
 processes might continue the benchmark if one of the nodes is killed.
 If you know how to fix this don't hesitate to create an issue or PR :)
 
-
-Code to reproduce the benchmark results:
-
-| Model   | Epochs | Batch Size | Test Accuracy | Peak GPU usage |
-|---------|--------|------------|---------------|----------------|
-| MoCo    |  200   | 128        | 0.83          | 2.1 GBytes     |
-| SimCLR  |  200   | 128        | 0.78          | 2.0 GBytes     |
-| SimSiam |  200   | 128        | 0.73          | 3.0 GBytes     |
-| MoCo    |  200   | 512        | 0.85          | 7.4 GBytes     |
-| SimCLR  |  200   | 512        | 0.83          | 7.8 GBytes     |
-| SimSiam |  200   | 512        | 0.81          | 7.0 GBytes     |
-| MoCo    |  800   | 512        | 0.90          | 7.2 GBytes     |
-| SimCLR  |  800   | 512        | 0.89          | 7.7 GBytes     |
-| SimSiam |  800   | 512        | 0.91          | 6.9 GBytes     |
-
 """
 import os
 
