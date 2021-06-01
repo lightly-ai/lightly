@@ -31,10 +31,12 @@ import torch.nn.functional as F
 import torchvision
 import numpy as np
 import pytorch_lightning as pl
+from pytorch_lightning.loggers import TensorBoardLogger
 from torchvision import transforms
 from torchvision.transforms.transforms import CenterCrop
 import lightly
 from lightly.utils import BenchmarkModule
+from lightly.models.modules import NNMemoryBankModule
 
 num_workers = 12
 memory_bank_size = 4096
@@ -42,12 +44,13 @@ memory_bank_size = 4096
 logs_root_dir = os.path.join(os.getcwd(), 'imagenette_logs')
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 200
+max_epochs = 800
 knn_k = 200
 knn_t = 0.1
 classes = 10
 input_size=128
 num_ftrs=512
+nn_size=2 ** 16
 
 # benchmark
 n_runs = 1 # optional, increase to create multiple runs and report mean + std
@@ -203,6 +206,40 @@ class SimCLRModel(BenchmarkModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
+class NNCLRModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+        last_conv_channels = list(resnet.children())[-1].in_features
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1],
+            nn.Conv2d(last_conv_channels, num_ftrs, 1),
+        )
+        # create a simclr model based on ResNet
+        self.resnet_simclr = \
+            lightly.models.NNCLR(self.backbone, num_ftrs=num_ftrs, num_mlp_layers=2)
+        self.criterion = lightly.loss.NTXentLoss()
+
+        self.nn_replacer = NNMemoryBankModule(size=nn_size)
+            
+    def forward(self, x):
+        self.resnet_simclr(x)
+
+    def training_step(self, batch, batch_idx):
+        (x0, x1), _, _ = batch
+        (z0, p0), (z1, p1) = self.resnet_simclr(x0, x1)
+        z0 = self.nn_replacer(z0.detach(), update=False)
+        z1 = self.nn_replacer(z1.detach(), update=True)
+        loss = 0.5 * (self.criterion(z0, p1) + self.criterion(z1, p0))
+        self.log('train_loss_ssl', loss)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.SGD(self.resnet_simclr.parameters(), lr=6e-2,
+                                momentum=0.9, weight_decay=5e-4)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
 
 class SimSiamModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
@@ -235,6 +272,41 @@ class SimSiamModel(BenchmarkModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
+class NNSimSiamModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+        last_conv_channels = list(resnet.children())[-1].in_features
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1],
+            nn.Conv2d(last_conv_channels, num_ftrs, 1),
+        )
+        # create a simsiam model based on ResNet
+        self.resnet_simsiam = \
+            lightly.models.SimSiam(self.backbone, num_ftrs=num_ftrs, num_mlp_layers=2)
+        self.criterion = lightly.loss.SymNegCosineSimilarityLoss()
+
+        self.nn_replacer = NNMemoryBankModule(size=nn_size)
+            
+    def forward(self, x):
+        self.resnet_simsiam(x)
+
+    def training_step(self, batch, batch_idx):
+        (x0, x1), _, _ = batch
+        (z0, p0), (z1, p1) = self.resnet_simsiam(x0, x1)
+        z0 = self.nn_replacer(z0.detach(), update=False)
+        z1 = self.nn_replacer(z1.detach(), update=True)
+        loss = self.criterion((z0, p0), (z1, p1))
+        self.log('train_loss_ssl', loss)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.SGD(self.resnet_simsiam.parameters(), lr=6e-2,
+                                momentum=0.9, weight_decay=5e-4)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
+
 
 class BarlowTwinsModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
@@ -252,7 +324,8 @@ class BarlowTwinsModel(BenchmarkModule):
                 self.backbone, 
                 num_ftrs=num_ftrs,
                 proj_hidden_dim=2048,
-                out_dim=2048
+                out_dim=2048,
+                num_mlp_layers=2
                 )
         self.criterion = lightly.loss.BarlowTwinsLoss()
             
@@ -303,28 +376,64 @@ class BYOLModel(BenchmarkModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
-model_names = ['MoCo_256', 'SimCLR_256', 'SimSiam_256', 'BarlowTwins_256', 'BYOL_256']
+class NNBYOLModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+        last_conv_channels = list(resnet.children())[-1].in_features
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1],
+            nn.Conv2d(last_conv_channels, num_ftrs, 1),
+        )
+        # create a byol model based on ResNet
+        self.resnet_byol = \
+            lightly.models.BYOL(self.backbone, num_ftrs=num_ftrs)
+        self.criterion = lightly.loss.SymNegCosineSimilarityLoss()
 
-#model_names = ['BYOL_128', #'BarlowTwins_128',
-#               'BYOL_512',] #'BarlowTwins_512']
+        self.nn_replacer = NNMemoryBankModule(size=nn_size)
+            
+    def forward(self, x):
+        self.resnet_byol(x)
 
-#model_names = ['BarlowTwins_128', 'BarlowTwins_512']
+    def training_step(self, batch, batch_idx):
+        (x0, x1), _, _ = batch
+        (z0, p0), (z1, p1) = self.resnet_byol(x0, x1)
+        z0 = self.nn_replacer(z0.detach(), update=False)
+        z1 = self.nn_replacer(z1.detach(), update=True)
+        loss = self.criterion((z0, p0), (z1, p1))
+        self.log('train_loss_ssl', loss)
+        return loss
 
+    def configure_optimizers(self):
+        optim = torch.optim.SGD(self.resnet_byol.parameters(), lr=6e-2,
+                                momentum=0.9, weight_decay=5e-4)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
 
-models = [MocoModel, SimCLRModel, SimSiamModel, BarlowTwinsModel, BYOLModel]
-# models = [BarlowTwinsModel]# BYOLModel] # , BarlowTwinsModel]
+model_names = ['MoCo_256', 'SimCLR_256', 'SimSiam_256', 'BarlowTwins_256', 
+               'BYOL_256', 'NNCLR_256', 'NNSimSiam_256', 'NNBYOL_256']
+
+models = [MocoModel, SimCLRModel, SimSiamModel, BarlowTwinsModel, 
+          BYOLModel, NNCLRModel, NNSimSiamModel, NNBYOLModel]
+
 bench_results = []
 gpu_memory_usage = []
 
 # loop through configurations and train models
 for batch_size in batch_sizes:
-    for BenchmarkModel in models:
+    for model_name, BenchmarkModel in zip(model_names, models):
         runs = []
         for seed in range(n_runs):
             pl.seed_everything(seed)
             dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(batch_size)
             benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
-            trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus,
+
+            logger = TensorBoardLogger('imagenette_runs', version=model_name)
+
+            trainer = pl.Trainer(max_epochs=max_epochs, 
+                                gpus=gpus,
+                                logger=logger,
                                 distributed_backend=distributed_backend,
                                 default_root_dir=logs_root_dir)
             trainer.fit(
