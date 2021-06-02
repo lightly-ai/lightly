@@ -49,7 +49,7 @@ distributed_backend = 'ddp' if torch.cuda.device_count() > 1 else None
 path_to_train = '/datasets/imagenette2-160/train/'
 path_to_test = '/datasets/imagenette2-160/val/'
 
-# Use SimCLR augmentations, additionally, disable blur
+# Use SimCLR augmentations
 collate_fn = lightly.data.SimCLRCollateFunction(
     input_size=input_size,
 )

@@ -17,7 +17,7 @@ We use the ImageNette dataset provided here: https://github.com/fastai/imagenett
 For our benchmarks we use the 160px version. Training for 800 epochs on a V100
 GPU takes around 4 hours.
 
-The current benchmark contains the followin models:
+The current benchmark contains the following models:
 
 - MoCo
 - SimCLR
