@@ -7,6 +7,8 @@ killing the application. Due to the way we setup this benchmark the distributed
 processes might continue the benchmark if one of the nodes is killed.
 If you know how to fix this don't hesitate to create an issue or PR :)
 
+You can download the ImageNette dataset from here: https://github.com/fastai/imagenette
+
 """
 import os
 
