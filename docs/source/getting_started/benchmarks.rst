@@ -4,6 +4,38 @@ We show benchmarks of the different models for self-supervised learning
 and their performance on public datasets.
 
 
+We have benchmarks we regularly update for these datasets:
+- CIFAR10 `CIFAR10`_
+- ImageNette `ImageNette`_
+
+
+ImageNette
+-----------------------------------
+
+We use the ImageNette dataset provided here: https://github.com/fastai/imagenette
+
+For our benchmarks we use the 160px version. Training for 800 epochs on a V100
+GPU takes around 4 hours.
+
+The current benchmark contains the following models:
+
+- MoCo
+- SimCLR
+- SimSiam
+- BarlowTwins
+- BYOL
+
+.. csv-table:: ImageNette benchmark results 
+   :header: "Model", "Epochs", "Batch Size", "kNN test Accuracy", "Peak GPU consumption"
+   :widths: 20, 20, 20, 20, 20
+
+   "MoCo", 800, 256, 0.827, "-"
+   "SimCLR", 800, 256, 0.847, "-"
+   "SimSiam", 800, 256, 0.827, "-"
+   "BarlowTwins", 800, 256, 0.801, "-"
+   "BYOL", 800, 256, 0.851, "-"
+
+
 CIFAR10
 -----------------------------------
 
@@ -26,6 +58,8 @@ The current benchmark contains the followin models:
 - MoCo (with symmetric loss and memory bank with 4096 entries)
 - SimCLR
 - SimSiam (with 2 MLP layers)
+- BarlowTwins
+- BYOL
 
 .. csv-table:: Cifar10 benchmark results 
    :header: "Model", "Epochs", "Batch Size", "kNN test Accuracy", "Peak GPU consumption"
