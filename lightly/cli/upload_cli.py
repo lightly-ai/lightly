@@ -14,7 +14,7 @@ import hydra
 import torchvision
 from torch.utils.hipify.hipify_python import bcolors
 
-from lightly.cli._helpers import fix_input_path, print_as_warning
+from lightly.cli._helpers import fix_input_path, print_as_warning, cpu_count
 
 from lightly.api.utils import getenv
 from lightly.api.api_workflow_client import ApiWorkflowClient
@@ -53,6 +53,10 @@ def _upload_cli(cfg, is_cli_call=True):
     if cli_api_args_wrong:
         print_as_warning('For help, try: lightly-upload --help')
         return
+
+    # determine the number of available cores
+    if cfg['loader']['num_workers'] < 0:
+        cfg['loader']['num_workers'] = cpu_count()
 
     size = cfg['resize']
     if not isinstance(size, int):
