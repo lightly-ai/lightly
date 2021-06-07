@@ -27,13 +27,13 @@ def print_as_warning(message: str):
     warnings.formatwarning = old_format
 
 
-def available_cpu_count():
-    """Returns the number of CPUs which can be used by the process.
+def cpu_count():
+    """Returns the number of CPUs which are present in the system.
 
-    This number is not equivalent to the number of CPUs in the system.
+    This number is not equivalent to the number of available CPUs to the process.
 
     """
-    return len(os.sched_getaffinity(0))
+    return os.cpu_count()
 
 
 def fix_input_path(path):

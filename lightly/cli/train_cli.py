@@ -29,7 +29,7 @@ from lightly.cli._helpers import get_ptmodel_from_config
 from lightly.cli._helpers import fix_input_path
 from lightly.cli._helpers import load_state_dict_from_url
 from lightly.cli._helpers import load_from_state_dict
-from lightly.cli._helpers import available_cpu_count
+from lightly.cli._helpers import cpu_count
 
 
 def _train_cli(cfg, is_cli_call=True):
@@ -61,7 +61,7 @@ def _train_cli(cfg, is_cli_call=True):
 
     # determine the number of available cores
     if cfg['loader']['num_workers'] < 0:
-        cfg['loader']['num_workers'] = available_cpu_count()
+        cfg['loader']['num_workers'] = cpu_count()
 
     state_dict = None
     checkpoint = cfg['checkpoint']
