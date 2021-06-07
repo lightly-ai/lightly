@@ -29,6 +29,7 @@ from lightly.cli._helpers import get_ptmodel_from_config
 from lightly.cli._helpers import fix_input_path
 from lightly.cli._helpers import load_state_dict_from_url
 from lightly.cli._helpers import load_from_state_dict
+from lightly.cli._helpers import available_cpu_count
 
 
 def _embed_cli(cfg, is_cli_call=True):
@@ -58,12 +59,18 @@ def _embed_cli(cfg, is_cli_call=True):
 
     dataset = LightlyDataset(input_dir, transform=transform)
 
+    # disable drop_last and shuffle
     cfg['loader']['drop_last'] = False
     cfg['loader']['shuffle'] = False
     cfg['loader']['batch_size'] = min(
         cfg['loader']['batch_size'],
         len(dataset)
     )
+
+    # determine the number of available cores
+    if cfg['loader']['num_workers'] < 0:
+        cfg['loader']['num_workers'] = available_cpu_count()
+
     dataloader = torch.utils.data.DataLoader(dataset, **cfg['loader'])
 
     # load the PyTorch state dictionary and map it to the current device    
