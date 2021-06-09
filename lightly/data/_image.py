@@ -3,13 +3,15 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from typing import List, Tuple
+
 import os
 import torchvision.datasets as datasets
 
 from lightly.data._image_loaders import default_loader
 
 
-def _make_dataset(directory, extensions=None, is_valid_file=None):
+def _make_dataset(directory, extensions=None, is_valid_file=None) -> List[Tuple[str, int]]:
     """Returns a list of all image files with targets in the directory.
 
     Args:
@@ -41,16 +43,17 @@ def _make_dataset(directory, extensions=None, is_valid_file=None):
         _is_valid_file = is_valid_file
 
     instances = []
-    for fname in os.listdir(directory):
+    for f in os.scandir(directory):
 
-        if not _is_valid_file(fname):
+        if not _is_valid_file(f.name):
             continue
 
-        path = os.path.join(directory, fname)
-        item = (path, 0)
+        # convention: the label of all images is 0, based on the fact that
+        # they are all in the same directory
+        item = (f.path, 0)
         instances.append(item)
 
-    return instances
+    return sorted(instances, key=lambda x: x[0]) # sort by path
 
 
 class DatasetFolder(datasets.VisionDataset):
