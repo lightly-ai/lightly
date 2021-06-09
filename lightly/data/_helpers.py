@@ -60,8 +60,8 @@ def _contains_subdirs(root: str):
 
     """
     with os.scandir(root) as scan_dir:
-        return any(f.is_dir() for f in scan_dir \
-            if not _is_lightly_output_dir(f.name))
+        return any(not _is_lightly_output_dir(f.name) for f in scan_dir \
+            if f.is_dir())
 
 
 def _load_dataset_from_folder(root: str, transform):
