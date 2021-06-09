@@ -32,9 +32,9 @@ def _contains_videos(root: str, extensions: tuple):
     Returns:
         True if root contains subdirectories else false.
     """
-    list_dir = os.listdir(root)
+    scan_dir = os.scandir(root)
     is_video = \
-        [f.lower().endswith(extensions) for f in list_dir]
+        [f.name.lower().endswith(extensions) for f in scan_dir]
     return any(is_video)
 
 
@@ -61,10 +61,9 @@ def _contains_subdirs(root: str):
         True if root contains subdirectories else false.
 
     """
-    list_dir = os.listdir(root)
-    list_dir = list(filter(lambda x: not _is_lightly_output_dir(x), list_dir))
+    scan_dir = os.scandir(root)
     is_dir = \
-        [os.path.isdir(os.path.join(root, f)) for f in list_dir]
+        [f.is_dir() for f in scan_dir if not _is_lightly_output_dir(f.name)]
     return any(is_dir)
 
 
