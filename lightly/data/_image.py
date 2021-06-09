@@ -41,16 +41,15 @@ def _make_dataset(directory, extensions=None, is_valid_file=None):
         _is_valid_file = is_valid_file
 
     instances = []
-    for fname in os.listdir(directory):
+    for f in os.scandir(directory):
 
-        if not _is_valid_file(fname):
+        if not _is_valid_file(f.name):
             continue
 
-        path = os.path.join(directory, fname)
-        item = (path, 0)
+        item = (f.path, 0)
         instances.append(item)
 
-    return instances
+    return sorted(instances, key=lambda x: x[0]) # sort by path
 
 
 class DatasetFolder(datasets.VisionDataset):
