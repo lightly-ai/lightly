@@ -192,7 +192,7 @@ class ActiveLearningAgent:
         if al_scorer is not None:
             scores_dict = al_scorer.calculate_scores()
 
-            # Check if the number the length of the query_set and the scores are the same
+            # Check if the length of the query_set and each of the scores are the same
             no_query_samples = len(self.query_set)
             for score in scores_dict.values():
                 no_query_samples_with_scores = len(score)
