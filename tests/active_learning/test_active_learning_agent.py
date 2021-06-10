@@ -72,7 +72,7 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
         method = SamplingMethod.CORAL
         n_samples = len(agent.labeled_set) + 2
 
-        n_predictions = len(agent.query_set) - 3  # the -3 should cause an error
+        n_predictions = len(agent.query_set)
         predictions = np.random.rand(n_predictions, no_classes, width, height).astype(np.float32)
         predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
         predictions_generator = (predictions_normalized[i] for i in range(n_predictions))

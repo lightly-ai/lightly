@@ -190,14 +190,15 @@ class ActiveLearningAgent:
         # calculate active learning scores
         scores_dict = None
         if al_scorer is not None:
+            scores_dict = al_scorer.calculate_scores()
             no_query_samples = len(self.query_set)
-            no_query_samples_with_scores = len(al_scorer.model_output)
+            no_query_samples_with_scores = len(list(scores_dict.values())[0])
             if no_query_samples != no_query_samples_with_scores:
                 raise ValueError(
                     f'Number of query samples ({no_query_samples}) must match '
                     f'the number of predictions ({no_query_samples_with_scores})!'
                 )
-            scores_dict = al_scorer.calculate_scores()
+
 
         # perform the sampling
         new_tag_data = self.api_workflow_client.sampling(
