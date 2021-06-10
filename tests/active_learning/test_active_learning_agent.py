@@ -2,6 +2,7 @@ import numpy as np
 
 from lightly.active_learning.agents.agent import ActiveLearningAgent
 from lightly.active_learning.config.sampler_config import SamplerConfig
+from lightly.active_learning.scorers import ScorerSemanticSegmentation
 from lightly.active_learning.scorers.classification import ScorerClassification
 from lightly.openapi_generated.swagger_client import SamplingMethod
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
@@ -52,7 +53,7 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
         method = SamplingMethod.CORAL
         n_samples = len(agent.labeled_set) + 2
 
-        n_predictions = len(agent.query_set) - 3 # the -3 should cause en error
+        n_predictions = len(agent.query_set) - 3  # the -3 should cause an error
         predictions = np.random.rand(n_predictions, 10).astype(np.float32)
         predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
         al_scorer = ScorerClassification(predictions_normalized)
@@ -60,6 +61,25 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
         sampler_config = SamplerConfig(n_samples=n_samples, method=method)
         with self.assertRaises(ValueError):
             agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
+
+    def test_agent_with_generator(self):
+        self.api_workflow_client.embedding_id = "embedding_id_xyz"
+        width = 32
+        height = 32
+        no_classes = 13
+
+        agent = ActiveLearningAgent(self.api_workflow_client, preselected_tag_name="preselected_tag_name_xyz")
+        method = SamplingMethod.CORAL
+        n_samples = len(agent.labeled_set) + 2
+
+        n_predictions = len(agent.query_set) - 3  # the -3 should cause an error
+        predictions = np.random.rand(n_predictions, no_classes, width, height).astype(np.float32)
+        predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
+        predictions_generator = (predictions_normalized[i] for i in range(n_predictions))
+        al_scorer = ScorerSemanticSegmentation(predictions_generator)
+
+        sampler_config = SamplerConfig(n_samples=n_samples, method=method)
+        agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
 
     def test_agent_added_set_before_query(self):
 
