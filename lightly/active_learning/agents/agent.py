@@ -191,13 +191,16 @@ class ActiveLearningAgent:
         scores_dict = None
         if al_scorer is not None:
             scores_dict = al_scorer.calculate_scores()
+
+            # Check if the number the length of the query_set and the scores are the same
             no_query_samples = len(self.query_set)
-            no_query_samples_with_scores = len(list(scores_dict.values())[0])
-            if no_query_samples != no_query_samples_with_scores:
-                raise ValueError(
-                    f'Number of query samples ({no_query_samples}) must match '
-                    f'the number of predictions ({no_query_samples_with_scores})!'
-                )
+            for score in scores_dict.values():
+                no_query_samples_with_scores = len(score)
+                if no_query_samples != no_query_samples_with_scores:
+                    raise ValueError(
+                        f'Number of query samples ({no_query_samples}) must match '
+                        f'the number of predictions ({no_query_samples_with_scores})!'
+                    )
 
 
         # perform the sampling
