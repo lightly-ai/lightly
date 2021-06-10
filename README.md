@@ -32,6 +32,7 @@ Lightly offers features like
 - [SimSiam, 2021](https://arxiv.org/abs/2011.10566)
 - [Barlow Twins, 2021](https://arxiv.org/abs/2103.03230)
 - [BYOL, 2020](https://arxiv.org/abs/2006.07733)
+- [NNCLR, 2021](https://arxiv.org/abs/2104.14548)
 
 
 ### Tutorials
@@ -46,6 +47,7 @@ Want to jump to the tutorials and see lightly in action?
 Tutorials of using the lightly packge together with the Lightly Platform:
 
 - [Active Learning using Detectron2 on Comma10k](https://docs.lightly.ai/tutorials/platform/tutorial_active_learning_detectron2.html)
+- [Active Learning with the Nvidia TLT](https://github.com/lightly-ai/NvidiaTLTActiveLearning)
 
 Community and partner projects:
 
@@ -171,8 +173,21 @@ The embeddings with the corresponding filename are stored in a
 
 ### Benchmarks
 
-Currently implemented models and their accuracy on cifar10. All models have been evaluated using kNN. We report the max test accuracy over the epochs as well as the maximum GPU memory consumption. All models in this benchmark use the same augmentations as well as the same ResNet-18 backbone. Training precision is set to FP32 and SGD is used as an optimizer with cosineLR.
-One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifar10 benchmark here](https://docs.lightly.ai/getting_started/benchmarks.html)
+Currently implemented models and their accuracy on cifar10 and imagenette. All models have been evaluated using kNN. We report the max test accuracy over the epochs as well as the maximum GPU memory consumption. All models in this benchmark use the same augmentations as well as the same ResNet-18 backbone. Training precision is set to FP32 and SGD is used as an optimizer with cosineLR.
+One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifar10 and imagenette benchmark here](https://docs.lightly.ai/getting_started/benchmarks.html)
+
+#### ImageNette
+
+| Model       | Epochs | Batch Size | Test Accuracy |
+|-------------|--------|------------|---------------|
+| MoCo        |  800   | 256        | 0.827         |
+| SimCLR      |  800   | 256        | 0.847         |
+| SimSiam     |  800   | 256        | 0.827          |
+| BarlowTwins |  800   | 256        | 0.801         |
+| BYOL        |  800   | 256        | 0.851         |
+
+
+#### Cifar10
 
 | Model       | Epochs | Batch Size | Test Accuracy |
 |-------------|--------|------------|---------------|
@@ -192,7 +207,6 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 | MoCo        |  800   | 512        | 0.90          |
 | SimCLR      |  800   | 512        | 0.89          |
 | SimSiam     |  800   | 512        | 0.91          |
-
 
 ## Terminology
 

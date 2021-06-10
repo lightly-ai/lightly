@@ -35,6 +35,9 @@ The current benchmark contains the following models:
    "BarlowTwins", 800, 256, 0.801, "-"
    "BYOL", 800, 256, 0.851, "-"
 
+You can reproduce the benchmarks using the following script:
+:download:`imagenette_benchmark.py <benchmarks/imagenette_benchmark.py>` 
+
 
 CIFAR10
 -----------------------------------
