@@ -35,6 +35,8 @@ class TagCreateRequest(object):
     swagger_types = {
         'name': 'TagName',
         'prev_tag_id': 'MongoObjectID',
+        'query_tag_id': 'MongoObjectID',
+        'preselected_tag_id': 'MongoObjectID',
         'bit_mask_data': 'TagBitMaskData',
         'tot_size': 'int',
         'creator': 'TagCreator',
@@ -44,13 +46,15 @@ class TagCreateRequest(object):
     attribute_map = {
         'name': 'name',
         'prev_tag_id': 'prevTagId',
+        'query_tag_id': 'queryTagId',
+        'preselected_tag_id': 'preselectedTagId',
         'bit_mask_data': 'bitMaskData',
         'tot_size': 'totSize',
         'creator': 'creator',
         'changes': 'changes'
     }
 
-    def __init__(self, name=None, prev_tag_id=None, bit_mask_data=None, tot_size=None, creator=None, changes=None, _configuration=None):  # noqa: E501
+    def __init__(self, name=None, prev_tag_id=None, query_tag_id=None, preselected_tag_id=None, bit_mask_data=None, tot_size=None, creator=None, changes=None, _configuration=None):  # noqa: E501
         """TagCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -58,6 +62,8 @@ class TagCreateRequest(object):
 
         self._name = None
         self._prev_tag_id = None
+        self._query_tag_id = None
+        self._preselected_tag_id = None
         self._bit_mask_data = None
         self._tot_size = None
         self._creator = None
@@ -66,6 +72,10 @@ class TagCreateRequest(object):
 
         self.name = name
         self.prev_tag_id = prev_tag_id
+        if query_tag_id is not None:
+            self.query_tag_id = query_tag_id
+        if preselected_tag_id is not None:
+            self.preselected_tag_id = preselected_tag_id
         self.bit_mask_data = bit_mask_data
         self.tot_size = tot_size
         if creator is not None:
@@ -118,6 +128,48 @@ class TagCreateRequest(object):
             raise ValueError("Invalid value for `prev_tag_id`, must not be `None`")  # noqa: E501
 
         self._prev_tag_id = prev_tag_id
+
+    @property
+    def query_tag_id(self):
+        """Gets the query_tag_id of this TagCreateRequest.  # noqa: E501
+
+
+        :return: The query_tag_id of this TagCreateRequest.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._query_tag_id
+
+    @query_tag_id.setter
+    def query_tag_id(self, query_tag_id):
+        """Sets the query_tag_id of this TagCreateRequest.
+
+
+        :param query_tag_id: The query_tag_id of this TagCreateRequest.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._query_tag_id = query_tag_id
+
+    @property
+    def preselected_tag_id(self):
+        """Gets the preselected_tag_id of this TagCreateRequest.  # noqa: E501
+
+
+        :return: The preselected_tag_id of this TagCreateRequest.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._preselected_tag_id
+
+    @preselected_tag_id.setter
+    def preselected_tag_id(self, preselected_tag_id):
+        """Sets the preselected_tag_id of this TagCreateRequest.
+
+
+        :param preselected_tag_id: The preselected_tag_id of this TagCreateRequest.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._preselected_tag_id = preselected_tag_id
 
     @property
     def bit_mask_data(self):

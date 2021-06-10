@@ -419,6 +419,7 @@ class DatasetsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
+        :param int limit: if set, only returns the newest up until limit
         :return: list[DatasetDataEnriched]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -440,12 +441,13 @@ class DatasetsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
+        :param int limit: if set, only returns the newest up until limit
         :return: list[DatasetDataEnriched]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = []  # noqa: E501
+        all_params = ['limit']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -466,6 +468,8 @@ class DatasetsApi(object):
         path_params = {}
 
         query_params = []
+        if 'limit' in params:
+            query_params.append(('limit', params['limit']))  # noqa: E501
 
         header_params = {}
 

@@ -34,7 +34,7 @@ class SamplingConfigStoppingCondition(object):
     """
     swagger_types = {
         'n_samples': 'float',
-        'min_distance': 'int'
+        'min_distance': 'float'
     }
 
     attribute_map = {
@@ -84,10 +84,10 @@ class SamplingConfigStoppingCondition(object):
     def min_distance(self):
         """Gets the min_distance of this SamplingConfigStoppingCondition.  # noqa: E501
 
-        How far should forest gump run  # noqa: E501
+        The minimum distance sampled images should have. Before the distance would fall below, the sampling is stopped.  # noqa: E501
 
         :return: The min_distance of this SamplingConfigStoppingCondition.  # noqa: E501
-        :rtype: int
+        :rtype: float
         """
         return self._min_distance
 
@@ -95,10 +95,10 @@ class SamplingConfigStoppingCondition(object):
     def min_distance(self, min_distance):
         """Sets the min_distance of this SamplingConfigStoppingCondition.
 
-        How far should forest gump run  # noqa: E501
+        The minimum distance sampled images should have. Before the distance would fall below, the sampling is stopped.  # noqa: E501
 
         :param min_distance: The min_distance of this SamplingConfigStoppingCondition.  # noqa: E501
-        :type: int
+        :type: float
         """
 
         self._min_distance = min_distance

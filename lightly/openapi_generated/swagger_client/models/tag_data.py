@@ -36,6 +36,8 @@ class TagData(object):
         'id': 'MongoObjectID',
         'dataset_id': 'MongoObjectID',
         'prev_tag_id': 'str',
+        'query_tag_id': 'MongoObjectID',
+        'preselected_tag_id': 'MongoObjectID',
         'name': 'TagName',
         'bit_mask_data': 'TagBitMaskData',
         'tot_size': 'int',
@@ -47,6 +49,8 @@ class TagData(object):
         'id': 'id',
         'dataset_id': 'datasetId',
         'prev_tag_id': 'prevTagId',
+        'query_tag_id': 'queryTagId',
+        'preselected_tag_id': 'preselectedTagId',
         'name': 'name',
         'bit_mask_data': 'bitMaskData',
         'tot_size': 'totSize',
@@ -54,7 +58,7 @@ class TagData(object):
         'changes': 'changes'
     }
 
-    def __init__(self, id=None, dataset_id=None, prev_tag_id=None, name=None, bit_mask_data=None, tot_size=None, created_at=None, changes=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, dataset_id=None, prev_tag_id=None, query_tag_id=None, preselected_tag_id=None, name=None, bit_mask_data=None, tot_size=None, created_at=None, changes=None, _configuration=None):  # noqa: E501
         """TagData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -63,6 +67,8 @@ class TagData(object):
         self._id = None
         self._dataset_id = None
         self._prev_tag_id = None
+        self._query_tag_id = None
+        self._preselected_tag_id = None
         self._name = None
         self._bit_mask_data = None
         self._tot_size = None
@@ -73,6 +79,10 @@ class TagData(object):
         self.id = id
         self.dataset_id = dataset_id
         self.prev_tag_id = prev_tag_id
+        if query_tag_id is not None:
+            self.query_tag_id = query_tag_id
+        if preselected_tag_id is not None:
+            self.preselected_tag_id = preselected_tag_id
         self.name = name
         self.bit_mask_data = bit_mask_data
         self.tot_size = tot_size
@@ -130,7 +140,7 @@ class TagData(object):
     def prev_tag_id(self):
         """Gets the prev_tag_id of this TagData.  # noqa: E501
 
-        MongoObjectID or null  # noqa: E501
+        MongoObjectID or null.  Generally: The prevTagId is this tag's parent, i.e. it is a superset of this tag. Sampler: The prevTagId is the initial-tag if there was no preselectedTagId, otherwise, it's the preselectedTagId.   # noqa: E501
 
         :return: The prev_tag_id of this TagData.  # noqa: E501
         :rtype: str
@@ -141,13 +151,55 @@ class TagData(object):
     def prev_tag_id(self, prev_tag_id):
         """Sets the prev_tag_id of this TagData.
 
-        MongoObjectID or null  # noqa: E501
+        MongoObjectID or null.  Generally: The prevTagId is this tag's parent, i.e. it is a superset of this tag. Sampler: The prevTagId is the initial-tag if there was no preselectedTagId, otherwise, it's the preselectedTagId.   # noqa: E501
 
         :param prev_tag_id: The prev_tag_id of this TagData.  # noqa: E501
         :type: str
         """
 
         self._prev_tag_id = prev_tag_id
+
+    @property
+    def query_tag_id(self):
+        """Gets the query_tag_id of this TagData.  # noqa: E501
+
+
+        :return: The query_tag_id of this TagData.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._query_tag_id
+
+    @query_tag_id.setter
+    def query_tag_id(self, query_tag_id):
+        """Sets the query_tag_id of this TagData.
+
+
+        :param query_tag_id: The query_tag_id of this TagData.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._query_tag_id = query_tag_id
+
+    @property
+    def preselected_tag_id(self):
+        """Gets the preselected_tag_id of this TagData.  # noqa: E501
+
+
+        :return: The preselected_tag_id of this TagData.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._preselected_tag_id
+
+    @preselected_tag_id.setter
+    def preselected_tag_id(self, preselected_tag_id):
+        """Sets the preselected_tag_id of this TagData.
+
+
+        :param preselected_tag_id: The preselected_tag_id of this TagData.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._preselected_tag_id = preselected_tag_id
 
     @property
     def name(self):
