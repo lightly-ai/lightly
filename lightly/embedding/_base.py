@@ -78,6 +78,7 @@ class BaseEmbedding(lightning.LightningModule):
                 min_epochs: (int) Minimum number of epochs to train
                 max_epochs: (int) Maximum number of epochs to train
                 gpus: (int) number of gpus to use
+                weights_summary: (str) how to print a summary of the model and weights (number, size)
 
         Returns:
             A trained encoder, ready for embedding datasets.

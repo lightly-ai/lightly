@@ -22,6 +22,7 @@ def _lightly_cli(cfg, is_cli_call=True):
     if cfg['trainer']['max_epochs'] > 0:
         print('#' * 10 + ' Starting to train an embedding model.')
         checkpoint = _train_cli(cfg, is_cli_call)
+        cfg['trainer']['weights_summary'] = None
     else:
         checkpoint = ''
 
