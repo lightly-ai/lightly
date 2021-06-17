@@ -312,6 +312,12 @@ them in the output folder using `dump_dataset=True`.
         stopping_condition.n_samples=0.3 \
         dump_dataset=True
 
+
+.. note:: The `dump_dataset` feature by default saves the images in the `png` format. This can take a lot of time
+          when working with high-resolution videos. You can speed up the process by specifying the output format
+          `output_image_format='jpg'` or the resolution `output_image_size=X` of the images.
+
+
 Removing Exact Duplicates
 ---------------------------
 With the docker solution, it is possible to remove **only exact duplicates** from the dataset. For this,
