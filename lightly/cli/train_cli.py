@@ -157,6 +157,9 @@ def train_cli(cfg):
         >>>
         >>> # train model for 10 epochs
         >>> lightly-train input_dir=data/ trainer.max_epochs=10
+        >>>
+        >>> # print a full summary of the model
+        >>> lightly-train input_dir=data/ trainer.weights_summary=full
 
     """
     return _train_cli(cfg)
