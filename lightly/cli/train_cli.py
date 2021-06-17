@@ -45,11 +45,16 @@ def _train_cli(cfg, is_cli_call=True):
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
 
+    if cfg["trainer"]["weights_summary"] == "None":
+        cfg["trainer"]["weights_summary"] = None
+
     if torch.cuda.is_available():
         device = 'cuda'
     elif cfg['trainer'] and cfg['trainer']['gpus']:
         device = 'cpu'
         cfg['trainer']['gpus'] = 0
+    else:
+        device = 'cpu'
 
     if cfg['loader']['batch_size'] < 64:
         msg = 'Training a self-supervised model with a small batch size: {}! '
@@ -152,6 +157,9 @@ def train_cli(cfg):
         >>>
         >>> # train model for 10 epochs
         >>> lightly-train input_dir=data/ trainer.max_epochs=10
+        >>>
+        >>> # print a full summary of the model
+        >>> lightly-train input_dir=data/ trainer.weights_summary=full
 
     """
     return _train_cli(cfg)
