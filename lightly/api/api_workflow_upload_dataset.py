@@ -79,7 +79,7 @@ class _UploadDatasetMixin:
         def lambda_(i):
             # load image
             image, label, filename = dataset[i]
-            filepath = dataset.get_filepath_from_filename(filename)
+            filepath = dataset.get_filepath_from_filename(filename, image)
             # try to upload image
             try:
                 self._upload_single_image(
