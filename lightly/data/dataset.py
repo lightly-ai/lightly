@@ -277,6 +277,9 @@ class LightlyDataset:
         for i, filename in zip(indices, filenames):
             _dump_image(self.dataset, output_dir, filename, i, fmt=format)
 
+    def get_filepath_from_filename(self, filename: str):
+        return os.path.join(self.input_dir, filename)
+
     @property
     def transform(self):
         """Getter for the transform of the dataset.
