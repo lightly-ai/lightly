@@ -5,12 +5,11 @@ from hydra.experimental import initialize, compose
 from lightly.api import ApiWorkflowClient
 from lightly.cli import upload_cli
 
-
-def create_new_dataset(path_to_dataset: str, token: str, dataset_name: str):
+def benchmark_upload(path_to_dataset, token):
     api_workflow_client = ApiWorkflowClient(token=token)
 
     # create the dataset
-    api_workflow_client.create_new_dataset_with_unique_name(dataset_basename=dataset_name)
+    api_workflow_client.create_new_dataset_with_unique_name(dataset_basename="benchmark_upload")
 
     # upload to the dataset
     initialize(config_path="../../lightly/cli/config", job_name="test_app")
@@ -19,19 +18,9 @@ def create_new_dataset(path_to_dataset: str, token: str, dataset_name: str):
         f"token='{token}'",
         f"dataset_id={api_workflow_client.dataset_id}",
         f"loader.num_workers=12"
-        ])
+    ])
     upload_cli(cfg)
-
     api_workflow_client.delete_dataset_by_id(api_workflow_client.dataset_id)
-
-
-
-def mock_dataset_upload_to_measure():
-    pass
-
-def benchmark_upload(path_to_dataset, token):
-    create_new_dataset(path_to_dataset, token, "test_benchmark_upload")
-
 
 
 if __name__ == "__main__":
