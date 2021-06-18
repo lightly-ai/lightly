@@ -12,10 +12,10 @@ if __name__ == "__main__":
     api_client = ApiWorkflowClient(token=token).api_client
     quota_api = QuotaApi(api_client)
 
-    no_iters = 200
+    n_iters = 200
 
-    latencies = np.zeros(no_iters)
-    for i in tqdm(range(no_iters)):
+    latencies = np.zeros(n_iters)
+    for i in tqdm(range(n_iters)):
         start = time.time()
         quota_api.get_quota_maximum_dataset_size()
         duration = time.time()-start

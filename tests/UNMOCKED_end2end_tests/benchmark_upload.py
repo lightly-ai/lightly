@@ -6,6 +6,23 @@ from lightly.api import ApiWorkflowClient
 from lightly.cli import upload_cli
 
 def benchmark_upload(path_to_dataset, token):
+    """
+    This function creates a new dataset on the Lightly web platform.
+    Then it uploads the dataset to it using the function for the cli command.
+    Last, it deletes the dataset again.
+
+    Call this function with a profiler to see which functions take up the most time
+    and how long the upload takes in total. This knowledge allows to optimize the upload.
+
+    Args:
+        path_to_dataset:
+            Filepath to the dataset to be uploaded.
+        token:
+            The token of the Lightly Web platform
+
+    Returns:
+
+    """
     api_workflow_client = ApiWorkflowClient(token=token)
 
     # create the dataset
@@ -20,6 +37,8 @@ def benchmark_upload(path_to_dataset, token):
         f"loader.num_workers=12"
     ])
     upload_cli(cfg)
+
+    #delete the dataset again
     api_workflow_client.delete_dataset_by_id(api_workflow_client.dataset_id)
 
 
@@ -29,6 +48,6 @@ if __name__ == "__main__":
             (sys.argv[1 + i] for i in range(2))
     else:
         raise ValueError("ERROR in number of command line arguments, must be 2."
-                         "Example: python test_api path/to/dataset TOKEN")
+                         "Example: python benchmark_upload path/to/dataset TOKEN")
 
     benchmark_upload(path_to_dataset=path_to_dataset, token=token)
