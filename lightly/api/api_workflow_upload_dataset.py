@@ -75,6 +75,9 @@ class _UploadDatasetMixin:
         pbar = tqdm.tqdm(unit='imgs', total=len(dataset))
         tqdm_lock = tqdm.tqdm.get_lock()
 
+        # calculate the files size more efficiently
+        lightly_utils.image_processing.metadata._size_in_bytes = lambda img: 0
+
         # define lambda function for concurrent upload
         def lambda_(i):
             # load image
@@ -136,8 +139,8 @@ class _UploadDatasetMixin:
             return False
 
         # calculate metadata, and check if corrupted
-        lightly_utils.image_processing.metadata._size_in_bytes = lambda img: os.path.getsize(filepath)
         metadata = image_processing.Metadata(image).to_dict()
+        metadata["sizeInBytes"] = os.path.getsize(filepath)
 
         # try to get exif data
         try:
