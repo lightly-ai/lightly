@@ -22,16 +22,15 @@ from lightly.data import LightlyDataset
 
 
 def _crop_cli(cfg, is_cli_call=True):
-    if is_cli_call:
-        input_dir = cfg['input_dir']
-        if input_dir:
-            input_dir = fix_input_path(input_dir)
-        output_dir = cfg['output_dir']
-        if output_dir:
-            output_dir = fix_input_path(output_dir)
-        label_dir = cfg['label_dir']
-        if label_dir:
-            label_dir = fix_input_path(label_dir)
+    input_dir = cfg['input_dir']
+    if input_dir and is_cli_call:
+        input_dir = fix_input_path(input_dir)
+    output_dir = cfg['output_dir']
+    if output_dir and is_cli_call:
+        output_dir = fix_input_path(output_dir)
+    label_dir = cfg['label_dir']
+    if label_dir and is_cli_call:
+        label_dir = fix_input_path(label_dir)
 
 
     dataset = LightlyDataset(input_dir)
@@ -40,7 +39,7 @@ def _crop_cli(cfg, is_cli_call=True):
     for filename_image in filenames_images:
         filepath_image = dataset.get_filepath_from_filename(filename_image)
         filepath_label = os.path.join(label_dir, filename_image).replace('jpg', 'txt')
-        filepath_out_dir = os.path.join(output_dir, filepath_image).replace('jpg','')
+        filepath_out_dir = os.path.join(output_dir, filename_image).replace('jpg','')
         Path(filepath_out_dir).mkdir(parents=True, exist_ok=True)
 
         class_indices, bounding_boxes = read_yolo_label_file(filepath_label, float(cfg['crop_padding']))
