@@ -1,6 +1,9 @@
+import os
 import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Union
+
+import lightly_utils.image_processing
 import tqdm
 
 from lightly.openapi_generated.swagger_client import TagCreator
@@ -72,16 +75,21 @@ class _UploadDatasetMixin:
         pbar = tqdm.tqdm(unit='imgs', total=len(dataset))
         tqdm_lock = tqdm.tqdm.get_lock()
 
+        # calculate the files size more efficiently
+        lightly_utils.image_processing.metadata._size_in_bytes = lambda img: 0
+
         # define lambda function for concurrent upload
         def lambda_(i):
             # load image
             image, label, filename = dataset[i]
+            filepath = dataset.get_filepath_from_filename(filename, image)
             # try to upload image
             try:
                 self._upload_single_image(
                     image=image,
                     label=label,
                     filename=filename,
+                    filepath=filepath,
                     mode=mode,
                 )
                 success = True
@@ -117,7 +125,7 @@ class _UploadDatasetMixin:
         initial_tag_create_request = InitialTagCreateRequest(img_type=img_type, creator=TagCreator.USER_PIP)
         self.tags_api.create_initial_tag_by_dataset_id(body=initial_tag_create_request, dataset_id=self.dataset_id)
 
-    def _upload_single_image(self, image, label, filename: str, mode):
+    def _upload_single_image(self, image, label, filename: str, filepath: str, mode):
         """Uploads a single image to the Lightly platform.
 
         """
@@ -132,6 +140,7 @@ class _UploadDatasetMixin:
 
         # calculate metadata, and check if corrupted
         metadata = image_processing.Metadata(image).to_dict()
+        metadata["sizeInBytes"] = os.path.getsize(filepath)
 
         # try to get exif data
         try:
@@ -177,21 +186,21 @@ class _UploadDatasetMixin:
             thumbnail.thumbnail.close()
 
         if not metadata['is_corrupted'] and mode == "full":
-            image_to_upload = PIL_to_bytes(image)
+            with open(filepath, 'rb') as image_to_upload:
 
-            signed_url = retry(
-                self.samples_api.get_sample_image_write_url_by_id,
-                dataset_id=self.dataset_id,
-                sample_id=sample_id,
-                is_thumbnail=False
-            )
+                signed_url = retry(
+                    self.samples_api.get_sample_image_write_url_by_id,
+                    dataset_id=self.dataset_id,
+                    sample_id=sample_id,
+                    is_thumbnail=False
+                )
 
-            # try to upload full image
-            retry(
-                self.upload_file_with_signed_url,
-                image_to_upload,
-                signed_url
-            )
+                # try to upload full image
+                retry(
+                    self.upload_file_with_signed_url,
+                    image_to_upload,
+                    signed_url
+                )
 
             image.close()
 
