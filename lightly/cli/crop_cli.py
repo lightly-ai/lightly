@@ -38,15 +38,16 @@ def _crop_cli(cfg, is_cli_call=True):
     cropped_images_list_list: List[List[Image]] = []
     for filename_image in filenames_images:
         filepath_image = dataset.get_filepath_from_filename(filename_image)
-        filepath_label = os.path.join(label_dir, filename_image).replace('jpg', 'txt')
-        filepath_out_dir = os.path.join(output_dir, filename_image).replace('jpg','')
+        filepath_image_base, image_extension = os.path.splitext(filepath_image)
+        filepath_label = os.path.join(label_dir, filename_image).replace(image_extension, 'txt')
+        filepath_out_dir = os.path.join(output_dir, filename_image).replace(f'.{image_extension}', '')
         Path(filepath_out_dir).mkdir(parents=True, exist_ok=True)
 
         class_indices, bounding_boxes = read_yolo_label_file(filepath_label, float(cfg['crop_padding']))
         cropped_images = crop_image_by_bounding_boxes(filepath_image, bounding_boxes)
         cropped_images_list_list.append(cropped_images)
         for index, (class_index, cropped_image) in enumerate((zip(class_indices, cropped_images))):
-            cropped_image_filename = os.path.join(filepath_out_dir, f'{index}_{class_index}.jpg')
+            cropped_image_filename = os.path.join(filepath_out_dir, f'{index}_{class_index}.{image_extension}')
             cropped_image.save(cropped_image_filename)
 
 
