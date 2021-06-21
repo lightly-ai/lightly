@@ -53,6 +53,7 @@ if __name__ == '__main__':
 
     entry_points = {
         "console_scripts": [
+            "lightly-crop = lightly.cli.crop_cli:entry",
             "lightly-train = lightly.cli.train_cli:entry",
             "lightly-embed = lightly.cli.embed_cli:entry",
             "lightly-magic = lightly.cli.lightly_cli:entry",
@@ -80,6 +81,7 @@ if __name__ == '__main__':
         'lightly.api',
         'lightly.cli',
         'lightly.cli.config',
+        'lightly.cropping',
         'lightly.data',
         'lightly.embedding',
         'lightly.loss',
