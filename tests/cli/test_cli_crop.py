@@ -53,10 +53,10 @@ class TestCLIMagic(MockedApiWorkflowSetup):
             with open(path, 'a') as the_file:
                 for i in range(objects_per_image):
                     class_id = random.randint(0, no_classes)
-                    x = random.uniform(0.3, 0.7)
-                    y = random.uniform(0.3, 0.7)
-                    w = random.uniform(0.1, 0.5)
-                    h = random.uniform(0.1, 0.5)
+                    x = random.uniform(0.1, 0.9)
+                    y = random.uniform(0.1, 0.9)
+                    w = random.uniform(0.1, 1.0)
+                    h = random.uniform(0.1, 1.0)
                     line = f"{class_id} {x} {y} {w} {h}\n"
                     the_file.write(line)
 

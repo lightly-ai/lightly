@@ -33,7 +33,20 @@ class BoundingBox:
 
     """
 
-    def __init__(self, x0: float, y0: float, x1: float, y1: float):
+    def __init__(self, x0: float, y0: float, x1: float, y1: float, clip_values: bool = False):
+        """
+            clip_values:
+                Set to true to clip the values into [0, 1] instead of raising an error if they lie outside.
+        """
+
+        if clip_values:
+            def clip_to_0_1(value):
+                return min(1, max(0, value))
+
+            x0 = clip_to_0_1(x0)
+            y0 = clip_to_0_1(y0)
+            x1 = clip_to_0_1(x1)
+            y1 = clip_to_0_1(y1)
 
         if x0 > 1 or x1 > 1 or y0 > 1 or y1 > 1 or \
                 x0 < 0 or x1 < 0 or y0 < 0 or y1 < 0:
@@ -77,7 +90,7 @@ class BoundingBox:
         >>> bbox = BoundingBox.from_yolo(0.5, 0.4, 0.2, 0.3)
 
         """
-        return cls(x_center - w / 2, y_center - h / 2, x_center + w / 2, y_center + h / 2)
+        return cls(x_center - w / 2, y_center - h / 2, x_center + w / 2, y_center + h / 2, clip_values=True)
 
     @property
     def width(self):
