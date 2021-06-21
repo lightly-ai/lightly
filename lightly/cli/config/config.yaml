@@ -6,6 +6,7 @@ output_dir: ''                # Path to directory which should store downloads.
 embeddings: ''                # Path to csv file which holds embeddings.
 checkpoint: ''                # Path to a model checkpoint. If left empty, a pre-trained model
                               # will be used.
+label_dir: ''                # Path to the input directory which holds the labels.
 
 ### Lightly platform
 # The following arguments are required for requests to the
@@ -23,6 +24,7 @@ exclude_parent_tag: False     # If true, only the samples in the defined tag, bu
 
 ### training and embeddings
 pre_trained: True             # Whether to use a pre-trained model or not
+crop_padding: 0.1             # The padding to use when cropping
 
 # model namespace: Passed to lightly.models.ResNetGenerator.
 model:

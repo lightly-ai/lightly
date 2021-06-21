@@ -1,5 +1,6 @@
 """ Bounding Box Utils """
 
+
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
@@ -35,15 +36,15 @@ class BoundingBox:
     def __init__(self, x0: float, y0: float, x1: float, y1: float):
 
         if x0 > 1 or x1 > 1 or y0 > 1 or y1 > 1 or \
-            x0 < 0 or x1 < 0 or y0 < 0 or y1 < 0:
+                x0 < 0 or x1 < 0 or y0 < 0 or y1 < 0:
             raise ValueError(
-                'Bounding Box Coordinates must be relative to '
-                'image width and height but are ({x0}, {y0}, {x1}, {y1}).'
+                f'Bounding Box Coordinates must be relative to '
+                f'image width and height but are ({x0}, {y0}, {x1}, {y1}).'
             )
 
         if x0 > x1:
             raise ValueError(
-                'x0 must be smaller than or equal to x1 for bounding box '
+                f'x0 must be smaller than or equal to x1 for bounding box '
                 f'[{x0}, {y0}, {x1}, {y1}]'
             )
 
@@ -67,6 +68,16 @@ class BoundingBox:
 
         """
         return cls(x, y, x + w, y + h)
+
+    @classmethod
+    def from_yolo(cls, x_center: float, y_center: float, w: float, h: float):
+        """Helper to convert from yolo format
+
+        Examples:
+        >>> bbox = BoundingBox.from_yolo(0.5, 0.4, 0.2, 0.3)
+
+        """
+        return cls(x_center - w / 2, y_center - h / 2, x_center + w / 2, y_center + h / 2)
 
     @property
     def width(self):
