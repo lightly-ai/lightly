@@ -43,7 +43,7 @@ def _crop_cli(cfg, is_cli_call=True):
         filepath_out_dir = os.path.join(output_dir, filepath_image).replace('jpg','')
         Path(filepath_out_dir).mkdir(parents=True, exist_ok=True)
 
-        class_indices, bounding_boxes = read_yolo_label_file(filepath_label)
+        class_indices, bounding_boxes = read_yolo_label_file(filepath_label, float(cfg['crop_padding']))
         cropped_images = crop_image_by_bounding_boxes(filepath_image, bounding_boxes)
         cropped_images_list_list.append(cropped_images)
         for index, (class_index, cropped_image) in enumerate((zip(class_indices, cropped_images))):
