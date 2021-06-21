@@ -92,11 +92,11 @@ except NameError:
 
 
 if __LIGHTLY_SETUP__:
-    # setting up lightly
+    # setting up lightly
     msg = f'Partial import of {__name__}=={__version__} during build process.' 
     print(msg)
 else:
-    # see if prefetch_generator is available
+    # see if prefetch_generator is available
     try:
         import prefetch_generator
     except ImportError:

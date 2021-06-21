@@ -1,4 +1,5 @@
 import sys
+import time
 
 from hydra.experimental import initialize, compose
 
@@ -20,9 +21,10 @@ def benchmark_upload(path_to_dataset, token):
         token:
             The token of the Lightly Web platform
 
-    Returns:
 
     """
+    start = time.time()
+
     api_workflow_client = ApiWorkflowClient(token=token)
 
     # create the dataset
@@ -40,6 +42,9 @@ def benchmark_upload(path_to_dataset, token):
 
     #delete the dataset again
     api_workflow_client.delete_dataset_by_id(api_workflow_client.dataset_id)
+
+    duration = time.time() - start
+    print(f"Finished and need {duration:.3f}s in total.")
 
 
 if __name__ == "__main__":

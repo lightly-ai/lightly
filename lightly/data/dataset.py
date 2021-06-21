@@ -5,6 +5,9 @@
 
 import os
 import shutil
+import tempfile
+
+import PIL.Image
 from PIL import Image
 from typing import List, Union, Callable
 
@@ -276,6 +279,30 @@ class LightlyDataset:
         # dump images
         for i, filename in zip(indices, filenames):
             _dump_image(self.dataset, output_dir, filename, i, fmt=format)
+
+    def get_filepath_from_filename(self, filename: str, image: PIL.Image.Image = None):
+        """Returns the filepath given the filename of the image
+
+        Args:
+            filename:
+                The filename of the image
+            image:
+                The image corresponding to the filename
+
+        Returns:
+
+        """
+        if hasattr(self, 'input_dir') and isinstance(self.input_dir, str):
+            return os.path.join(self.input_dir, filename)
+        else:
+            if image is None:
+                raise ValueError("This LightlyDataset was created from a torch dataset and thus has no input_dir."
+                                 "Thus you must provide the image to be able to save it and return the path to it.")
+            folder_path = tempfile.mkdtemp()
+            filepath = os.path.join(folder_path,filename) + '.jpg'
+            image.save(filepath)
+            return filepath
+
 
     @property
     def transform(self):
