@@ -30,6 +30,7 @@ jobs:
     - name: basic tests of CLI
       run: |
         LIGHTLY_SERVER_LOCATION="localhost:-1"
+        lightly-crop --help
         lightly-train --help
         lightly-embed --help
         lightly-upload --help

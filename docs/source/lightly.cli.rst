@@ -32,6 +32,11 @@ lightly.cli
 -------------
 .. automodule:: lightly.cli.version_cli
 
+.crop_cli
+---------------
+.. automodule:: lightly.cli.crop_cli
+   :members:
+
 .config.config.yaml
 -------------------
 
