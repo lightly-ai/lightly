@@ -83,11 +83,27 @@ def crop_cli(cfg):
     Command-Line Args:
         input_dir:
             Path to the input directory where images are stored.
+        labels_dir:
+            Path to the directory where the labels are stored. There must be one label file for each image.
+            The label file must have the same name as the image file, but the extension .txt.
+            For example, img_123.txt for img_123.jpg. The label file must be in YOLO format.
+        output_dir:
+            Path to the directory where the cropped images are stored. They are stored in one directory per input image.
+        crop_padding: Optional
+            The additonal padding about the bounding box. This makes the crops include the context of the object.
+            The padding is relative and added to the width and height.
+        label_names_file: Optional
+            A yaml file including the names of the classes. If it is given, the filenames of the cropped images include
+            the class names instead of the class id.
+
 
     Examples:
-        TODO
-        >>> # train model with default settings
-        >>> lightly-crop input_dir=data_root/images labels_dir=data_root/labels output_dir=data_root/images_cropped padding=0.1
+        >>> # Crop images and set the crop to be 20% around the bounding box
+        >>> lightly-crop input_dir=data/images label_dir=data/labels output_dir=data/cropped_images crop_padding=0.2
+
+        >>> # Crop images and use the class names in the filename
+        >>> lightly-crop input_dir=data/images label_dir=data/labels output_dir=data/cropped_images label_names_file=data/data.yaml
+
     """
     return _crop_cli(cfg)
 
