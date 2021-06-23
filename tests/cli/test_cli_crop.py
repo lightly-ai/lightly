@@ -5,13 +5,14 @@ import tempfile
 import random
 
 import torchvision
+import yaml
 from hydra.experimental import compose, initialize
 
 import lightly
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
 
 
-class TestCLIMagic(MockedApiWorkflowSetup):
+class TestCLICrop(MockedApiWorkflowSetup):
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -25,7 +26,8 @@ class TestCLIMagic(MockedApiWorkflowSetup):
             self.cfg = compose(config_name="config", overrides=[
                 f"input_dir={self.folder_path}",
                 f"label_dir={self.folder_path_labels}",
-                f"output_dir={tempfile.mkdtemp()}"
+                f"output_dir={tempfile.mkdtemp()}",
+                f"label_names_file={self.label_names_file}"
             ])
 
     def create_fake_dataset(self):
@@ -52,13 +54,17 @@ class TestCLIMagic(MockedApiWorkflowSetup):
             path = os.path.join(self.folder_path_labels, filename_label)
             with open(path, 'a') as the_file:
                 for i in range(objects_per_image):
-                    class_id = random.randint(0, no_classes)
+                    class_id = random.randint(0, no_classes-1)
                     x = random.uniform(0.1, 0.9)
                     y = random.uniform(0.1, 0.9)
                     w = random.uniform(0.1, 1.0)
                     h = random.uniform(0.1, 1.0)
                     line = f"{class_id} {x} {y} {w} {h}\n"
                     the_file.write(line)
+        yaml_dict = {"names": [f"class{i}" for i in range(no_classes)]}
+        self.label_names_file = tempfile.mktemp('.yaml', 'data', dir=self.folder_path_labels)
+        with open(self.label_names_file, 'w') as file:
+            yaml.dump(yaml_dict, file)
 
     def parse_cli_string(self, cli_words: str):
         cli_words = cli_words.replace("lightly-crop ", "")
@@ -76,7 +82,13 @@ class TestCLIMagic(MockedApiWorkflowSetup):
         self.parse_cli_string(cli_string)
         self.assertEqual(self.cfg['label_dir'], '/blub')
 
-    def test_crop(self):
+    def test_crop_with_class_names(self):
         cli_string = "lightly-crop crop_padding=0.1"
         self.parse_cli_string(cli_string)
+        lightly.cli.crop_cli(self.cfg)
+
+    def test_crop_without_class_names(self):
+        cli_string = "lightly-crop crop_padding=0.1"
+        self.parse_cli_string(cli_string)
+        self.cfg['label_names_file'] = ''
         lightly.cli.crop_cli(self.cfg)

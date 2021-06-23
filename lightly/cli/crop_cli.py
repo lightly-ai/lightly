@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import List
 
 import hydra
+import yaml
 from PIL.Image import Image
 from torch.utils.hipify.hipify_python import bcolors
 
@@ -31,6 +32,15 @@ def _crop_cli(cfg, is_cli_call=True):
     label_dir = cfg['label_dir']
     if label_dir and is_cli_call:
         label_dir = fix_input_path(label_dir)
+    label_names_file = cfg['label_names_file']
+    if label_names_file and len(label_names_file) > 0:
+        if is_cli_call:
+            label_names_file = fix_input_path(label_names_file)
+        with open(label_names_file, 'r') as file:
+            label_names_file_dict = yaml.full_load(file)
+        class_names = label_names_file_dict['names']
+    else:
+        class_names = None
 
 
     dataset = LightlyDataset(input_dir)
@@ -47,7 +57,11 @@ def _crop_cli(cfg, is_cli_call=True):
         cropped_images = crop_image_by_bounding_boxes(filepath_image, bounding_boxes)
         cropped_images_list_list.append(cropped_images)
         for index, (class_index, cropped_image) in enumerate((zip(class_indices, cropped_images))):
-            cropped_image_filename = os.path.join(filepath_out_dir, f'{index}_{class_index}{image_extension}')
+            if class_names:
+                class_name = class_names[class_index]
+            else:
+                class_name = f"class{class_index}"
+            cropped_image_filename = os.path.join(filepath_out_dir, f'{index}_{class_name}{image_extension}')
             cropped_image.save(cropped_image_filename)
 
 
