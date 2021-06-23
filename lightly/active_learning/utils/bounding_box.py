@@ -55,15 +55,15 @@ class BoundingBox:
                 f'image width and height but are ({x0}, {y0}, {x1}, {y1}).'
             )
 
-        if x0 > x1:
+        if x0 >= x1:
             raise ValueError(
-                f'x0 must be smaller than or equal to x1 for bounding box '
+                f'x0 must be smaller than x1 for bounding box '
                 f'[{x0}, {y0}, {x1}, {y1}]'
             )
 
-        if y0 > y1:
+        if y0 >= y1:
             raise ValueError(
-                'y0 must be smaller than or equal to y1 for bounding box '
+                'y0 must be smaller than y1 for bounding box '
                 f'[{x0}, {y0}, {x1}, {y1}]'
             )
 

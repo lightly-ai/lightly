@@ -22,12 +22,13 @@ class TestBoundingBox(unittest.TestCase):
     def test_bounding_box_illogical_argument(self):
         with self.assertRaises(ValueError):
             # let x1 < x0
-            bbox = BoundingBox(0.5, 0.3, 0.1, 0.6)
+            bbox = BoundingBox(0.5, 0.3, 0.1, 0.6, clip_values=False)
 
     def test_bounding_box_illogical_argument_2(self):
         with self.assertRaises(ValueError):
             # let y1 < y0
-            bbox = BoundingBox(0.2, 0.6, 0.5, 0.3)
+            bbox = BoundingBox(0.2, 0.6, 0.5, 0.3, clip_values=False)
+
 
     def test_bounding_box_oob_arguments(self):
         with self.assertRaises(ValueError):
