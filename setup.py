@@ -81,7 +81,6 @@ if __name__ == '__main__':
         'lightly.api',
         'lightly.cli',
         'lightly.cli.config',
-        'lightly.cropping',
         'lightly.data',
         'lightly.embedding',
         'lightly.loss',
@@ -90,6 +89,7 @@ if __name__ == '__main__':
         'lightly.models.modules',
         'lightly.transforms',
         'lightly.utils',
+        'lightly.utils.cropping'
         'lightly.active_learning',
         'lightly.active_learning.agents',
         'lightly.active_learning.config',

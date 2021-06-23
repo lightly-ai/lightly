@@ -94,7 +94,8 @@ def crop_cli(cfg):
             The padding is relative and added to the width and height.
         label_names_file: Optional
             A yaml file including the names of the classes. If it is given, the filenames of the cropped images include
-            the class names instead of the class id.
+            the class names instead of the class id. This file is usually included when having a dataset in yolo format.
+            Example contents of such a label_names_file.yaml: "names: ['class_name_a', 'class_name_b']"
 
 
     Examples:

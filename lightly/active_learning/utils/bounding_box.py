@@ -33,7 +33,7 @@ class BoundingBox:
 
     """
 
-    def __init__(self, x0: float, y0: float, x1: float, y1: float, clip_values: bool = False):
+    def __init__(self, x0: float, y0: float, x1: float, y1: float, clip_values: bool = True):
         """
             clip_values:
                 Set to true to clip the values into [0, 1] instead of raising an error if they lie outside.
@@ -83,8 +83,9 @@ class BoundingBox:
         return cls(x, y, x + w, y + h)
 
     @classmethod
-    def from_yolo(cls, x_center: float, y_center: float, w: float, h: float):
-        """Helper to convert from yolo format
+    def from_yolo_label(cls, x_center: float, y_center: float, w: float, h: float):
+        """Helper to convert from yolo label format
+        x_center, y_center, w, h --> x0, y0, x1, y1
 
         Examples:
         >>> bbox = BoundingBox.from_yolo(0.5, 0.4, 0.2, 0.3)
