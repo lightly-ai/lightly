@@ -17,8 +17,8 @@ from PIL.Image import Image
 from torch.utils.hipify.hipify_python import bcolors
 
 from lightly.cli._helpers import fix_input_path
-from lightly.cropping.crop_image_by_bounding_boxes import crop_image_by_bounding_boxes
-from lightly.cropping.read_yolo_label_file import read_yolo_label_file
+from lightly.utils.cropping.crop_image_by_bounding_boxes import crop_image_by_bounding_boxes
+from lightly.utils.cropping.read_yolo_label_file import read_yolo_label_file
 from lightly.data import LightlyDataset
 
 

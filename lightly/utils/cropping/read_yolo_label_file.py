@@ -27,6 +27,6 @@ def read_yolo_label_file(filepath: str, padding: float, separator: str = ' ') ->
 
         w_norm *= 1+padding
         h_norm *= 1+padding
-        bbox = BoundingBox.from_yolo(x_norm, y_norm, w_norm, h_norm)
+        bbox = BoundingBox.from_yolo_label(x_norm, y_norm, w_norm, h_norm)
         bounding_boxes.append(bbox)
     return class_indices, bounding_boxes
