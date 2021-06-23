@@ -72,7 +72,7 @@ def _crop_cli(cfg, is_cli_call=True):
 
 @hydra.main(config_path="config", config_name="config")
 def crop_cli(cfg):
-    """TODO
+    """Crops images into one sub-image for each object.
 
     Args:
         cfg:
