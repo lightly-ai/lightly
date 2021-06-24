@@ -111,12 +111,12 @@ class NTXentLoss(MemoryBankModule):
 
             # sim_neg is of shape (batch_size, memory_bank_size) and sim_neg[i,j] denotes the similarity
             # of the i-th sample to the j-th negative sample
-            sim_neg = torch.einsum('nc,ck->nk', out0, negatives.clone().detach())
+            sim_neg = torch.einsum('nc,ck->nk', out0, negatives)
 
             # set the labels to the first "class", i.e. sim_pos,
             # so that it is maximized in relation to sim_neg
             logits = torch.cat([sim_pos, sim_neg], dim=1) / self.temperature
-            labels = torch.zeros(logits.shape[0]).long()
+            labels = torch.zeros(logits.shape[0], device=device, dtype=torch.long)
 
 
         else:
@@ -129,9 +129,9 @@ class NTXentLoss(MemoryBankModule):
             logits = logits[~torch.eye(2*batch_size, dtype=torch.bool, device=out0.device)].view(2*batch_size, -1)
 
             # The labels point from a sample in out_i to its equivalent in out_(1-i)
-            labels = torch.arange(batch_size)
-            labels = torch.cat([labels + batch_size - 1, labels]).long()
+            labels = torch.arange(batch_size, device=device, dtype=torch.long)
+            labels = torch.cat([labels + batch_size - 1, labels])
 
-        loss = self.cross_entropy(logits, labels.to(device))
+        loss = self.cross_entropy(logits, labels)
 
         return loss
