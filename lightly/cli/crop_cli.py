@@ -15,6 +15,7 @@ import hydra
 import yaml
 from PIL.Image import Image
 from torch.utils.hipify.hipify_python import bcolors
+from tqdm import tqdm
 
 from lightly.cli._helpers import fix_input_path
 from lightly.utils.cropping.crop_image_by_bounding_boxes import crop_image_by_bounding_boxes
@@ -46,7 +47,8 @@ def _crop_cli(cfg, is_cli_call=True):
     dataset = LightlyDataset(input_dir)
     filenames_images = dataset.get_filenames()
     cropped_images_list_list: List[List[Image]] = []
-    for filename_image in filenames_images:
+    print(f"Cropping objects out of {len(filenames_images)} images...")
+    for filename_image in tqdm(filenames_images):
         filepath_image = dataset.get_filepath_from_filename(filename_image)
         filepath_image_base, image_extension = os.path.splitext(filepath_image)
         filepath_label = os.path.join(label_dir, filename_image).replace(image_extension, '.txt')
