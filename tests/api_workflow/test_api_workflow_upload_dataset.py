@@ -45,6 +45,9 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
     def test_upload_dataset_from_folder(self):
         self.api_workflow_client.upload_dataset(input=self.folder_path)
 
+    def test_upload_dataset_from_folder_full(self):
+        self.api_workflow_client.upload_dataset(input=self.folder_path, mode="full")
+
     def test_upload_existing_dataset(self):
         self.api_workflow_client.tags_api.no_tags = 2
         with self.assertWarns(Warning):
