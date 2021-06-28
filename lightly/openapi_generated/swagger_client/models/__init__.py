@@ -51,6 +51,7 @@ from lightly.openapi_generated.swagger_client.models.sample_create_request impor
 from lightly.openapi_generated.swagger_client.models.sample_data import SampleData
 from lightly.openapi_generated.swagger_client.models.sample_meta_data import SampleMetaData
 from lightly.openapi_generated.swagger_client.models.sample_update_request import SampleUpdateRequest
+from lightly.openapi_generated.swagger_client.models.sample_write_urls import SampleWriteUrls
 from lightly.openapi_generated.swagger_client.models.sampling_config import SamplingConfig
 from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import SamplingConfigStoppingCondition
 from lightly.openapi_generated.swagger_client.models.sampling_create_request import SamplingCreateRequest
