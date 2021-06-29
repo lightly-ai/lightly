@@ -274,4 +274,4 @@ for result, model, gpu_usage in zip(bench_results, model_names, gpu_memory_usage
     result_np = np.array(result)
     mean = result_np.mean()
     std = result_np.std()
-    print(f'{model}: {mean:.2f} +- {std:.2f}, GPU used: {gpu_usage / (1024.0**3):.1f} GByte', flush=True)
+    print(f'{model}: {mean:.3f} +- {std:.3f}, GPU used: {gpu_usage / (1024.0**3):.1f} GByte', flush=True)
