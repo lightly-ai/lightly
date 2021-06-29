@@ -16,7 +16,8 @@ from lightly.api.api_workflow_client import ApiWorkflowClient
 from typing import *
 
 from lightly.openapi_generated.swagger_client import ScoresApi, CreateEntityResponse, SamplesApi, SampleCreateRequest, \
-    InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, TagArithmeticsRequest, TagBitMaskResponse
+    InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, TagArithmeticsRequest, TagBitMaskResponse, \
+    SampleWriteUrls
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -146,6 +147,12 @@ class MockedSamplesApi(SamplesApi):
     def get_sample_image_read_url_by_id(self, dataset_id, sample_id, type, **kwargs):
         url = f"{sample_id}_write_url"
         return url
+
+    def get_sample_image_write_urls_by_id(self, dataset_id, sample_id, **kwargs) -> SampleWriteUrls:
+        thumb_url = f"{sample_id}_thumb_write_url"
+        full_url = f"{sample_id}_full_write_url"
+        ret = SampleWriteUrls(full=full_url, thumb=thumb_url)
+        return ret
 
 
 class MockedDatasetsApi(DatasetsApi):

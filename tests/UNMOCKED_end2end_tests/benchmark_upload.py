@@ -6,7 +6,7 @@ from hydra.experimental import initialize, compose
 from lightly.api import ApiWorkflowClient
 from lightly.cli import upload_cli
 
-def benchmark_upload(path_to_dataset, token):
+def benchmark_upload(path_to_dataset, token, num_workers: int=-1):
     """
     This function creates a new dataset on the Lightly web platform.
     Then it uploads the dataset to it using the function for the cli command.
@@ -20,6 +20,8 @@ def benchmark_upload(path_to_dataset, token):
             Filepath to the dataset to be uploaded.
         token:
             The token of the Lightly Web platform
+        num_workers:
+            The number of workers uploading in parallel
 
 
     """
@@ -36,7 +38,7 @@ def benchmark_upload(path_to_dataset, token):
         f"input_dir='{path_to_dataset}'",
         f"token='{token}'",
         f"dataset_id={api_workflow_client.dataset_id}",
-        f"loader.num_workers=12"
+        f"loader.num_workers={num_workers}"
     ])
     upload_cli(cfg)
 
