@@ -6,6 +6,21 @@ killing the application. Due to the way we setup this benchmark the distributed
 processes might continue the benchmark if one of the nodes is killed.
 If you know how to fix this don't hesitate to create an issue or PR :)
 You can download the ImageNette dataset from here: https://github.com/fastai/imagenette
+
+
+Code to reproduce the benchmark results:
+
+| Model       | Epochs | Batch Size | Test Accuracy | Peak GPU usage |
+|-------------|--------|------------|---------------|----------------|
+| MoCo        |  800   | 256        | 0.83          | 4.4 GBytes     |
+| SimCLR      |  800   | 256        | 0.85          | 4.4 GBytes     |
+| SimSiam     |  800   | 256        | 0.84          | 4.5 GBytes     |
+| BarlowTwins |  200   | 256        | 0.80          | 4.5 GBytes     |
+| BYOL        |  200   | 256        | 0.85          | 4.6 GBytes     |
+| NNCLR       |  200   | 256        | 0.83          | 4.5 GBytes     |
+| NNSimSiam   |  800   | 256        | 0.82          | 4.9 GBytes     |
+| NNBYOL      |  800   | 256        | 0.85          | 4.6 GBytes     |
+
 """
 import os
 
@@ -438,4 +453,4 @@ for result, model, gpu_usage in zip(bench_results, model_names, gpu_memory_usage
     result_np = np.array(result)
     mean = result_np.mean()
     std = result_np.std()
-    print(f'{model}: {mean:.2f} +- {std:.2f}, GPU used: {gpu_usage / (1024.0**3):.1f} GByte', flush=True)
+    print(f'{model}: {mean:.3f} +- {std:.3f}, GPU used: {gpu_usage / (1024.0**3):.1f} GByte', flush=True)
