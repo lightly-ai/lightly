@@ -283,3 +283,15 @@ pylint lightly/core.py
   By building, what we call a self-supervised active learning loop we help companies understand and work with their data more efficiently. This framework acts as an interface
   for our platform to easily upload and download datasets, embeddings and models. Whereas 
   the platform will cost for additional features this frameworks will always remain free of charge (even for commercial use).
+
+## BibTeX
+If you want to cite the framework feel free to use this:
+
+```bibtex
+@article{susmelj2020lightly,
+  title={Lightly},
+  author={Susmelj, Igor, et al.},
+  journal={GitHub. Note: https://github.com/lightly-ai/lightly},
+  year={2020}
+}
+```
