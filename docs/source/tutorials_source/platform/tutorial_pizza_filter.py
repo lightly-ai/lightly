@@ -166,6 +166,7 @@ class MyModel(pl.LightningModule):
         x, y = batch
         y_hat = self(x)
         loss = torch.nn.functional.cross_entropy(y_hat, y)
+        y_hat = torch.nn.functional.softmax(y_hat, dim=1)
         self.accuracy(y_hat, y)
         self.log('val_loss', loss, on_epoch=True, prog_bar=True)
         self.log('val_acc', self.accuracy.compute(), on_epoch=True, prog_bar=True)
