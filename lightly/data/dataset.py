@@ -280,7 +280,7 @@ class LightlyDataset:
         for i, filename in zip(indices, filenames):
             _dump_image(self.dataset, output_dir, filename, i, fmt=format)
 
-    def get_filepath_from_filename(self, filename: str, image: PIL.Image.Image):
+    def get_filepath_from_filename(self, filename: str, image: PIL.Image.Image = None):
         """Returns the filepath given the filename of the image
 
         There are three cases:
@@ -297,8 +297,6 @@ class LightlyDataset:
             The filename to the image, either the exiting one (case 1) or a newly created jpg (case 2, 3)
 
         """
-        if image is None:
-            raise ValueError("The parameter image must not be None.")
 
         has_input_dir = hasattr(self, 'input_dir') and isinstance(self.input_dir, str)
         if has_input_dir:
@@ -306,6 +304,9 @@ class LightlyDataset:
             if os.path.isfile(path_to_image):
                 # Case 1
                 return path_to_image
+
+        if image is None:
+            raise ValueError("The parameter image must not be None for VideoDatasets and TorchDatasets")
 
         # Case 2 and 3
         folder_path = tempfile.mkdtemp()
