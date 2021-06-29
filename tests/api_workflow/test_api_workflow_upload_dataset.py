@@ -1,4 +1,6 @@
+import copy
 import os
+import random
 import tempfile
 import pathlib
 
@@ -80,4 +82,31 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
 
     def test_upload_video_dataset_from_folder(self):
         self.create_fake_video_dataset()
-        self.api_workflow_client.upload_dataset(input=self.video_input_dir, max_workers=0)
+        self.api_workflow_client.upload_dataset(input=self.folder_path)
+
+    def test_upload_dataset_twice(self):
+        rng = np.random.default_rng(2021)
+
+        base_upload_single_image = self.api_workflow_client._upload_single_image
+
+        # Upload with some uploads failing
+        def failing_upload_sample(*args, **kwargs):
+            if rng.random() < 0.9:
+                return base_upload_single_image(*args, **kwargs)
+            else:
+                raise ValueError()
+        self.api_workflow_client._upload_single_image = failing_upload_sample
+        self.api_workflow_client.upload_dataset(input=self.folder_path)
+
+        # Ensure that not all samples were uploaded
+        samples = self.api_workflow_client.samples_api.get_samples_by_dataset_id(dataset_id="does not matter")
+        self.assertLess(len(samples), len(self.sample_names))
+
+        # Upload without failing uploads
+        self.api_workflow_client._upload_single_image = base_upload_single_image
+        self.api_workflow_client.upload_dataset(input=self.folder_path)
+
+        # Ensure that now all samples were uploaded exactly once
+        samples = self.api_workflow_client.samples_api.get_samples_by_dataset_id(dataset_id="does not matter")
+        self.assertEqual(len(self.sample_names), len(samples))
+

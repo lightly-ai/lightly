@@ -17,7 +17,7 @@ from typing import *
 
 from lightly.openapi_generated.swagger_client import ScoresApi, CreateEntityResponse, SamplesApi, SampleCreateRequest, \
     InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, TagArithmeticsRequest, TagBitMaskResponse, \
-    SampleWriteUrls
+    SampleWriteUrls, SampleData
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -135,9 +135,21 @@ class MockedMappingsApi(MappingsApi):
 
 
 class MockedSamplesApi(SamplesApi):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.sample_create_requests: List[SampleCreateRequest] = []
+
+    def get_samples_by_dataset_id(self, dataset_id, **kwargs) -> List[SampleData]:
+        samples = []
+        for i, body in enumerate(self.sample_create_requests):
+            sample = SampleData(id=f'{i}_xyz', dataset_id='dataset_id_xyz', file_name=body.file_name)
+            samples.append(sample)
+        return samples
+
     def create_sample_by_dataset_id(self, body, dataset_id, **kwargs):
         assert isinstance(body, SampleCreateRequest)
         response_ = CreateEntityResponse(id="xyz")
+        self.sample_create_requests.append(body)
         return response_
 
     def get_sample_image_write_url_by_id(self, dataset_id, sample_id, is_thumbnail, **kwargs):
