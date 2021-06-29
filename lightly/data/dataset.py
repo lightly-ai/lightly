@@ -280,9 +280,13 @@ class LightlyDataset:
         for i, filename in zip(indices, filenames):
             _dump_image(self.dataset, output_dir, filename, i, fmt=format)
 
-    def get_filepath_from_filename(self, filename: str, image: PIL.Image.Image = None):
+    def get_filepath_from_filename(self, filename: str, image: PIL.Image.Image):
         """Returns the filepath given the filename of the image
 
+        There are three cases:
+        - The dataset is a regular dataset with the images in the input dir.
+        - The dataset is a video dataset, thus the images have to be saved in a temporary folder.
+        - The dataset is a torch dataset, thus the images have to be saved in a temporary folder.
         Args:
             filename:
                 The filename of the image
@@ -290,18 +294,24 @@ class LightlyDataset:
                 The image corresponding to the filename
 
         Returns:
+            The filename to the image, either the exiting one (case 1) or a newly created jpg (case 2, 3)
 
         """
-        if hasattr(self, 'input_dir') and isinstance(self.input_dir, str):
-            return os.path.join(self.input_dir, filename)
-        else:
-            if image is None:
-                raise ValueError("This LightlyDataset was created from a torch dataset and thus has no input_dir."
-                                 "Thus you must provide the image to be able to save it and return the path to it.")
-            folder_path = tempfile.mkdtemp()
-            filepath = os.path.join(folder_path,filename) + '.jpg'
-            image.save(filepath)
-            return filepath
+        if image is None:
+            raise ValueError("The parameter image must not be None.")
+
+        has_input_dir = hasattr(self, 'input_dir') and isinstance(self.input_dir, str)
+        if has_input_dir:
+            path_to_image = os.path.join(self.input_dir, filename)
+            if os.path.isfile(path_to_image):
+                # Case 1
+                return path_to_image
+
+        # Case 2 and 3
+        folder_path = tempfile.mkdtemp()
+        filepath = os.path.join(folder_path,filename) + '.jpg'
+        image.save(filepath)
+        return filepath
 
 
     @property

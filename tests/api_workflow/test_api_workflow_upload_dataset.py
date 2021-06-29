@@ -2,10 +2,13 @@ import os
 import tempfile
 import pathlib
 
+import numpy as np
 import torchvision
 from lightly.data.dataset import LightlyDataset
 
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
+
+import cv2
 
 
 class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
@@ -61,3 +64,20 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
         self.corrupt_fake_dataset()
         self.api_workflow_client.upload_dataset(input=self.folder_path)
         self.api_workflow_client.upload_dataset(input=self.folder_path)
+
+    def create_fake_video_dataset(self, n_videos=5, n_frames_per_video=10, w=32, h=32, c=3, extension='avi'):
+
+
+        self.video_input_dir = tempfile.mkdtemp()
+        self.frames = (np.random.randn(n_frames_per_video, w, h, c) * 255).astype(np.uint8)
+
+        for i in range(n_videos):
+            path = os.path.join(self.video_input_dir, f'output-{i}.{extension}')
+            out = cv2.VideoWriter(path, 0, 1, (w, h))
+            for frame in self.frames:
+                out.write(frame)
+            out.release()
+
+    def test_upload_video_dataset_from_folder(self):
+        self.create_fake_video_dataset()
+        self.api_workflow_client.upload_dataset(input=self.video_input_dir, max_workers=0)
