@@ -1,12 +1,12 @@
 import os
 import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
-from typing import Union
+from typing import Union, List
 
 import lightly_utils.image_processing
 import tqdm
 
-from lightly.openapi_generated.swagger_client import TagCreator, SamplesApi, SampleWriteUrls
+from lightly.openapi_generated.swagger_client import TagCreator, SamplesApi, SampleWriteUrls, SampleData
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
 from lightly.api.utils import check_filename, PIL_to_bytes
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
@@ -73,16 +73,28 @@ class _UploadDatasetMixin:
         if verbose:
             print(f'Uploading images (with {max_workers} workers).', flush=True)
 
-        pbar = tqdm.tqdm(unit='imgs', total=len(dataset))
-        tqdm_lock = tqdm.tqdm.get_lock()
 
         # calculate the files size more efficiently
         lightly_utils.image_processing.metadata._size_in_bytes = lambda img: 0
+
+        # get the filenames of the samples already on the server
+        self.samples_api: SamplesApi
+        samples: List[SampleData] = self.samples_api.get_samples_by_dataset_id(dataset_id=self.dataset_id)
+        filenames = [sample.file_name for sample in samples]
+        if len(filenames) > 0:
+            print(f"Found {len(filenames)} images already on the server, they are skipped during the upload.")
+        filenames_set = set(filenames)
+
+        pbar = tqdm.tqdm(unit='imgs', total=len(dataset)-len(filenames))
+        tqdm_lock = tqdm.tqdm.get_lock()
 
         # define lambda function for concurrent upload
         def lambda_(i):
             # load image
             image, label, filename = dataset[i]
+            if filename in filenames_set:
+                return True
+
             filepath = dataset.get_filepath_from_filename(filename, image)
             # try to upload image
             try:
