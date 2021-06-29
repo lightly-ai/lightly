@@ -7,13 +7,8 @@ import warnings
 import PIL
 import torchvision
 
-try:
-    from lightly.data._video import VideoDataset, _make_dataset
-    import av
-    import cv2
-    VIDEO_DATASET_AVAILABLE = True
-except Exception:
-    VIDEO_DATASET_AVAILABLE = False
+from lightly.data._video import VideoDataset, _make_dataset
+import cv2
 
 class TestVideoDataset(unittest.TestCase):
 
@@ -40,10 +35,6 @@ class TestVideoDataset(unittest.TestCase):
             out.release()
 
     def test_video_similar_timestamps_for_different_backends(self):
-        if not VIDEO_DATASET_AVAILABLE:
-            warnings.warn(
-                'Did not test video dataset because of missing requirements')
-            return
 
         self.create_dataset()
 
@@ -73,10 +64,6 @@ class TestVideoDataset(unittest.TestCase):
 
     def test_video_dataset_from_folder(self):
 
-        if not VIDEO_DATASET_AVAILABLE:
-            warnings.warn(
-                'Did not test video dataset because of missing requirements')
-            return
 
         self.create_dataset()
 
