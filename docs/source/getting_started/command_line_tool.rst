@@ -49,7 +49,9 @@ One simple trick to overcome this limitation, is to use labels or to use a pre-t
 to get bounding boxes around the objects and then cropping the objects out of the
 image.
 
-We can do this using the **lightly-crop** CLI command.  
+We can do this using the **lightly-crop** CLI command. The CLI command crops 
+objects out of the input images based on labels and copies them into an output folder.
+The new folder consists now of the cropped images.
 
 .. code-block:: bash
 
@@ -70,11 +72,14 @@ corresponding .txt file. Each row in the .txt file has the following format:
     0 0.23 0.14 0.05 0.04
     1 0.43 0.13 0.12 0.08
 
-An example for the labe names .yaml file:
+An example for the label names .yaml file:
 
 .. code-block:: yaml
 
     names: [cat, dog]
+
+You can use the output of the lightly-crop command as the *input_dir* for your
+lightly-train command.
 
 Training, Embedding, and Uploading in a go - Magic
 ---------------------------------------------------
