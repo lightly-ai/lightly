@@ -34,6 +34,7 @@ class SampleMetaData(object):
     """
     swagger_types = {
         'custom': 'dict(str, object)',
+        'dynamic': 'dict(str, object)',
         'sharpness': 'float',
         'size_in_bytes': 'int',
         'snr': 'float',
@@ -46,6 +47,7 @@ class SampleMetaData(object):
 
     attribute_map = {
         'custom': 'custom',
+        'dynamic': 'dynamic',
         'sharpness': 'sharpness',
         'size_in_bytes': 'sizeInBytes',
         'snr': 'snr',
@@ -56,13 +58,14 @@ class SampleMetaData(object):
         'sum_of_values': 'sumOfValues'
     }
 
-    def __init__(self, custom=None, sharpness=None, size_in_bytes=None, snr=None, mean=None, shape=None, std=None, sum_of_squares=None, sum_of_values=None, _configuration=None):  # noqa: E501
+    def __init__(self, custom=None, dynamic=None, sharpness=None, size_in_bytes=None, snr=None, mean=None, shape=None, std=None, sum_of_squares=None, sum_of_values=None, _configuration=None):  # noqa: E501
         """SampleMetaData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._custom = None
+        self._dynamic = None
         self._sharpness = None
         self._size_in_bytes = None
         self._snr = None
@@ -75,6 +78,8 @@ class SampleMetaData(object):
 
         if custom is not None:
             self.custom = custom
+        if dynamic is not None:
+            self.dynamic = dynamic
         if sharpness is not None:
             self.sharpness = sharpness
         if size_in_bytes is not None:
@@ -112,6 +117,27 @@ class SampleMetaData(object):
         """
 
         self._custom = custom
+
+    @property
+    def dynamic(self):
+        """Gets the dynamic of this SampleMetaData.  # noqa: E501
+
+
+        :return: The dynamic of this SampleMetaData.  # noqa: E501
+        :rtype: dict(str, object)
+        """
+        return self._dynamic
+
+    @dynamic.setter
+    def dynamic(self, dynamic):
+        """Sets the dynamic of this SampleMetaData.
+
+
+        :param dynamic: The dynamic of this SampleMetaData.  # noqa: E501
+        :type: dict(str, object)
+        """
+
+        self._dynamic = dynamic
 
     @property
     def sharpness(self):

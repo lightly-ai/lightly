@@ -21,6 +21,7 @@ from lightly.openapi_generated.swagger_client.api.embeddings_api import Embeddin
 from lightly.openapi_generated.swagger_client.api.embeddings2d_api import Embeddings2dApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
+from lightly.openapi_generated.swagger_client.api.other_api import OtherApi
 from lightly.openapi_generated.swagger_client.api.quota_api import QuotaApi
 from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
 from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
@@ -68,6 +69,7 @@ from lightly.openapi_generated.swagger_client.models.sample_create_request impor
 from lightly.openapi_generated.swagger_client.models.sample_data import SampleData
 from lightly.openapi_generated.swagger_client.models.sample_meta_data import SampleMetaData
 from lightly.openapi_generated.swagger_client.models.sample_update_request import SampleUpdateRequest
+from lightly.openapi_generated.swagger_client.models.sample_write_urls import SampleWriteUrls
 from lightly.openapi_generated.swagger_client.models.sampling_config import SamplingConfig
 from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import SamplingConfigStoppingCondition
 from lightly.openapi_generated.swagger_client.models.sampling_create_request import SamplingCreateRequest

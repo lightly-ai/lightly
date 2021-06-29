@@ -76,8 +76,7 @@ def create_new_dataset_with_embeddings(path_to_dataset: str,
     cfg = compose(config_name="config", overrides=[
         f"input_dir='{path_to_dataset}'",
         f"token='{token}'",
-        f"dataset_id={api_workflow_client.dataset_id}",
-        f"loader.num_workers=9"
+        f"dataset_id={api_workflow_client.dataset_id}"
         ])
     upload_cli(cfg)
 

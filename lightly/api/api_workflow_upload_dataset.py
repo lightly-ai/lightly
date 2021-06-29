@@ -6,7 +6,7 @@ from typing import Union
 import lightly_utils.image_processing
 import tqdm
 
-from lightly.openapi_generated.swagger_client import TagCreator
+from lightly.openapi_generated.swagger_client import TagCreator, SamplesApi, SampleWriteUrls
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
 from lightly.api.utils import check_filename, PIL_to_bytes
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
@@ -15,6 +15,7 @@ from lightly.data.dataset import LightlyDataset
 from lightly.api.utils import retry
 
 from lightly_utils import image_processing
+
 
 
 class _UploadDatasetMixin:
@@ -129,6 +130,7 @@ class _UploadDatasetMixin:
         """Uploads a single image to the Lightly platform.
 
         """
+        self.samples_api: SamplesApi
 
         # check whether the filename is too long
         basename = filename
@@ -166,42 +168,42 @@ class _UploadDatasetMixin:
         ).id
 
         if not metadata['is_corrupted'] and mode in ["thumbnails", "full"]:
-            thumbnail = image_processing.Thumbnail(image)
-            image_to_upload = thumbnail.to_bytes()
 
-            signed_url = retry(
-                self.samples_api.get_sample_image_write_url_by_id,
-                dataset_id=self.dataset_id,
-                sample_id=sample_id,
-                is_thumbnail=True
-            )
-
-            # try to upload thumbnail
-            retry(
-                self.upload_file_with_signed_url,
-                image_to_upload,
-                signed_url
-            )
-
-            thumbnail.thumbnail.close()
-
-        if not metadata['is_corrupted'] and mode == "full":
-            with open(filepath, 'rb') as image_to_upload:
-
-                signed_url = retry(
-                    self.samples_api.get_sample_image_write_url_by_id,
-                    dataset_id=self.dataset_id,
-                    sample_id=sample_id,
-                    is_thumbnail=False
-                )
-
-                # try to upload full image
+            def upload_thumbnail(image, signed_url):
+                thumbnail = image_processing.Thumbnail(image)
+                image_to_upload = thumbnail.to_bytes()
                 retry(
                     self.upload_file_with_signed_url,
                     image_to_upload,
                     signed_url
                 )
+                thumbnail.thumbnail.close()
 
-            image.close()
+            def upload_full_image(filepath, signed_url):
+                with open(filepath, 'rb') as image_to_upload:
+                    retry(
+                        self.upload_file_with_signed_url,
+                        image_to_upload,
+                        signed_url
+                    )
+
+            if mode == "thumbnails":
+                thumbnail_url = retry(
+                    self.samples_api.get_sample_image_write_url_by_id,
+                    dataset_id=self.dataset_id,
+                    sample_id=sample_id,
+                    is_thumbnail=True
+                )
+                upload_thumbnail(image, thumbnail_url)
+            elif mode == "full":
+                sample_write_urls: SampleWriteUrls = retry(
+                    self.samples_api.get_sample_image_write_urls_by_id, dataset_id=self.dataset_id, sample_id=sample_id
+                )
+                upload_thumbnail(image, sample_write_urls.thumb)
+                upload_full_image(filepath, sample_write_urls.full)
+
+
+
+        image.close()
 
 
