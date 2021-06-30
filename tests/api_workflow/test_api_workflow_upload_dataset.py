@@ -28,15 +28,18 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
                                                      image_size=(3, 32, 32))
 
         self.folder_path = tempfile.mkdtemp()
-        sample_names = [f'img_{i}.jpg' for i in range(n_data)]
+        image_extension = '.jpg'
+        sample_names = [f'img_{i}{image_extension}' for i in range(n_data)]
         for sample_idx in range(n_data):
             data = self.dataset[sample_idx]
             sample_name = sample_names[sample_idx]
             path = os.path.join(self.folder_path, sample_name)
 
+
             if length_of_filepath > len(path):
+                assert path.endswith(image_extension)
                 n_missing_chars = length_of_filepath - len(path)
-                path = path.replace('.jpg', 'x' * n_missing_chars + '.jpg')
+                path = path[:-len(image_extension)] + 'x' * n_missing_chars + image_extension
 
             data[0].save(path)
 
