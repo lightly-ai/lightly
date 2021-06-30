@@ -93,6 +93,7 @@ class _UploadDatasetMixin:
             # load image
             image, label, filename = dataset[i]
             if filename in filenames_set:
+                # the sample was already uploaded
                 return True
 
             filepath = dataset.get_filepath_from_filename(filename, image)
