@@ -6,6 +6,8 @@ import pathlib
 
 import numpy as np
 import torchvision
+
+from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
 from lightly.data.dataset import LightlyDataset
 
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
@@ -20,17 +22,22 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
         self.create_fake_dataset()
         self.api_workflow_client.tags_api.no_tags = 0
 
-    def create_fake_dataset(self):
+    def create_fake_dataset(self, length_of_filepath: int = -1):
         n_data = self.n_data
         self.dataset = torchvision.datasets.FakeData(size=n_data,
                                                      image_size=(3, 32, 32))
 
         self.folder_path = tempfile.mkdtemp()
         sample_names = [f'img_{i}.jpg' for i in range(n_data)]
-        self.sample_names = sample_names
         for sample_idx in range(n_data):
             data = self.dataset[sample_idx]
-            path = os.path.join(self.folder_path, sample_names[sample_idx])
+            sample_name = sample_names[sample_idx]
+            path = os.path.join(self.folder_path, sample_name)
+
+            if length_of_filepath > len(path):
+                n_missing_chars = length_of_filepath - len(path)
+                path = path.replace('.jpg', 'x' * n_missing_chars + '.jpg')
+
             data[0].save(path)
 
     def corrupt_fake_dataset(self):
@@ -40,9 +47,11 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
             pathlib.Path(os.path.join(self.folder_path, sample_name)).touch()
 
     def test_upload_dataset_over_quota(self):
-        quota = self.n_data-1
+        quota = self.n_data - 1
+
         def get_quota_reduced():
             return str(quota)
+
         self.api_workflow_client.quota_api.get_quota_maximum_dataset_size = get_quota_reduced
         with self.assertRaises(ValueError):
             self.api_workflow_client.upload_dataset(input=self.folder_path)
@@ -52,6 +61,9 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
 
     def test_upload_dataset_from_folder_full(self):
         self.api_workflow_client.upload_dataset(input=self.folder_path, mode="full")
+
+    def test_upload_dataset_from_folder_only_metadata(self):
+        self.api_workflow_client.upload_dataset(input=self.folder_path, mode="metadata")
 
     def test_upload_existing_dataset(self):
         self.api_workflow_client.tags_api.no_tags = 2
@@ -67,8 +79,21 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
         self.api_workflow_client.upload_dataset(input=self.folder_path)
         self.api_workflow_client.upload_dataset(input=self.folder_path)
 
-    def create_fake_video_dataset(self, n_videos=5, n_frames_per_video=10, w=32, h=32, c=3, extension='avi'):
+    def test_filename_length_lower(self):
+        self.create_fake_dataset(length_of_filepath=MAXIMUM_FILENAME_LENGTH - 1)
+        self.api_workflow_client.upload_dataset(input=self.folder_path)
 
+        samples = self.api_workflow_client.samples_api.get_samples_by_dataset_id(dataset_id="does not matter")
+        self.assertEqual(self.n_data, len(samples))
+
+    def test_filename_length_upper(self):
+        self.create_fake_dataset(length_of_filepath=MAXIMUM_FILENAME_LENGTH + 10)
+        self.api_workflow_client.upload_dataset(input=self.folder_path)
+
+        samples = self.api_workflow_client.samples_api.get_samples_by_dataset_id(dataset_id="does not matter")
+        self.assertEqual(0, len(samples))
+
+    def create_fake_video_dataset(self, n_videos=5, n_frames_per_video=10, w=32, h=32, c=3, extension='avi'):
 
         self.video_input_dir = tempfile.mkdtemp()
         self.frames = (np.random.randn(n_frames_per_video, w, h, c) * 255).astype(np.uint8)
@@ -95,12 +120,13 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
                 return base_upload_single_image(*args, **kwargs)
             else:
                 raise ValueError()
+
         self.api_workflow_client._upload_single_image = failing_upload_sample
         self.api_workflow_client.upload_dataset(input=self.folder_path)
 
         # Ensure that not all samples were uploaded
         samples = self.api_workflow_client.samples_api.get_samples_by_dataset_id(dataset_id="does not matter")
-        self.assertLess(len(samples), len(self.sample_names))
+        self.assertLess(len(samples), self.n_data)
 
         # Upload without failing uploads
         self.api_workflow_client._upload_single_image = base_upload_single_image
@@ -108,5 +134,4 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
 
         # Ensure that now all samples were uploaded exactly once
         samples = self.api_workflow_client.samples_api.get_samples_by_dataset_id(dataset_id="does not matter")
-        self.assertEqual(len(self.sample_names), len(samples))
-
+        self.assertEqual(self.n_data, len(samples))
