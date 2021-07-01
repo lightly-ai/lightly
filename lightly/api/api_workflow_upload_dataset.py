@@ -8,7 +8,7 @@ import tqdm
 
 from lightly.openapi_generated.swagger_client import TagCreator, SamplesApi, SampleWriteUrls, SampleData
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
-from lightly.api.utils import check_filename, PIL_to_bytes
+from lightly.api.utils import check_filename, PIL_to_bytes, MAXIMUM_FILENAME_LENGTH
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 from lightly.data.dataset import LightlyDataset
 
@@ -145,13 +145,11 @@ class _UploadDatasetMixin:
         """
         self.samples_api: SamplesApi
 
-        # check whether the filename is too long
-        basename = filename
-        if not check_filename(basename):
-            msg = (f'Filename {basename} is longer than the allowed maximum of '
+        # check whether the filepath is too long
+        if not check_filename(filepath):
+            msg = (f'Filepath {filepath} is longer than the allowed maximum of {MAXIMUM_FILENAME_LENGTH}'
                    'characters and will be skipped.')
-            warnings.warn(msg)
-            return False
+            raise ValueError(msg)
 
         # calculate metadata, and check if corrupted
         metadata = image_processing.Metadata(image).to_dict()
@@ -166,10 +164,10 @@ class _UploadDatasetMixin:
         # generate thumbnail if necessary
         thumbname = None
         if not metadata['is_corrupted'] and mode in ["thumbnails", "full"]:
-            thumbname = '.'.join(basename.split('.')[:-1]) + '_thumb.webp'
+            thumbname = '.'.join(filename.split('.')[:-1]) + '_thumb.webp'
 
         body = SampleCreateRequest(
-            file_name=basename,
+            file_name=filename,
             thumb_name=thumbname,
             meta_data=metadata,
             exif=exifdata if exifdata is None else exifdata.to_dict(),

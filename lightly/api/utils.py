@@ -16,7 +16,7 @@ from PIL import JpegImagePlugin
 
 JpegImagePlugin._getmp = lambda: None
 
-MAXIMUM_FILENAME_LENGTH = 80
+MAXIMUM_FILENAME_LENGTH = 255
 
 
 def retry(func, *args, **kwargs):
