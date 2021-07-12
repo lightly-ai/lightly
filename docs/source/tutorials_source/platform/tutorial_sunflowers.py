@@ -7,7 +7,7 @@ This tutorial highlights the basic functionality of sampling in the web-app.
 You can use the Coreset sampling algorithm to choose a diverse subset of your dataset.
 This can be useful many purposes, e.g. for having a good subset of data to label
 or for creating a validation or test dataset that covers the complete sample space.
-Removing duplicate images can also help you in reduce bias and imbalances in your dataset.
+Removing duplicate images can also help you in reducing bias and imbalances in your dataset.
 
 What you will learn
 --------------------
