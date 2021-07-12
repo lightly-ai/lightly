@@ -1,6 +1,6 @@
 """
 
-Tutorial 2: Diversify your Dataset using Coreset
+Tutorial 2: Diversify the Sunflowers Dataset
 =============================================
 
 This tutorial highlights the basic functionality of sampling in the web-app.
@@ -25,7 +25,8 @@ download it here :download:`Sunflowers.zip <../../../_data/Sunflowers.zip>`.
 To use the Lightly platform, we need to upload the dataset with embeddings to it.
 The first step for this is to train a self-supervised embedding model.
 Then, embed your dataset and lastly, upload the dataset and embeddings to the Lightly platform.
-These three steps can be done using a single command from the lightly pip package: lightly-magic
+These three steps can be done using a single terminal command from the lightly pip package: lightly-magic
+But first, we need to install lightly from the Python package index.
 
 .. code-block:: bash
 
@@ -94,7 +95,7 @@ create a sampling. You will need to configure the following settings:
     Example of a filled out sampling request in the web-app.
 
 After confirming your settings, a worker will start processing your request. Once
-it's done, it is switched to the new tag. You can see how the scatter plot now shows
+it's done, the page switches to the new tag. You can see how the scatter plot now shows
 selected images and discarded images in a different color. Play around with the different samplers
 to see differences between the results.
 
@@ -110,7 +111,7 @@ to see differences between the results.
 .. note::
 
    The coreset sampler chooses the samples evenly spaced out in the 32-dimensional space.
-   This does not necessarily translate in being evenly spaced out after the dimensionality
+   This does not necessarily translate into being evenly spaced out after the dimensionality
    reduction to 2 dimensions.
 
 
