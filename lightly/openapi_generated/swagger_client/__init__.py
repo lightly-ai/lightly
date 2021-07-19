@@ -42,6 +42,7 @@ from lightly.openapi_generated.swagger_client.models.api_error_response import A
 from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData
 from lightly.openapi_generated.swagger_client.models.body import Body
 from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
+from lightly.openapi_generated.swagger_client.models.custom_sample_meta_data import CustomSampleMetaData
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
 from lightly.openapi_generated.swagger_client.models.dataset_data_enriched import DatasetDataEnriched

@@ -36,17 +36,19 @@ class SampleCreateRequest(object):
         'file_name': 'str',
         'thumb_name': 'str',
         'exif': 'dict(str, object)',
-        'meta_data': 'SampleMetaData'
+        'meta_data': 'SampleMetaData',
+        'custom_meta_data': 'CustomSampleMetaData'
     }
 
     attribute_map = {
         'file_name': 'fileName',
         'thumb_name': 'thumbName',
         'exif': 'exif',
-        'meta_data': 'metaData'
+        'meta_data': 'metaData',
+        'custom_meta_data': 'customMetaData'
     }
 
-    def __init__(self, file_name=None, thumb_name=None, exif=None, meta_data=None, _configuration=None):  # noqa: E501
+    def __init__(self, file_name=None, thumb_name=None, exif=None, meta_data=None, custom_meta_data=None, _configuration=None):  # noqa: E501
         """SampleCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -56,6 +58,7 @@ class SampleCreateRequest(object):
         self._thumb_name = None
         self._exif = None
         self._meta_data = None
+        self._custom_meta_data = None
         self.discriminator = None
 
         self.file_name = file_name
@@ -65,6 +68,8 @@ class SampleCreateRequest(object):
             self.exif = exif
         if meta_data is not None:
             self.meta_data = meta_data
+        if custom_meta_data is not None:
+            self.custom_meta_data = custom_meta_data
 
     @property
     def file_name(self):
@@ -151,6 +156,27 @@ class SampleCreateRequest(object):
         """
 
         self._meta_data = meta_data
+
+    @property
+    def custom_meta_data(self):
+        """Gets the custom_meta_data of this SampleCreateRequest.  # noqa: E501
+
+
+        :return: The custom_meta_data of this SampleCreateRequest.  # noqa: E501
+        :rtype: CustomSampleMetaData
+        """
+        return self._custom_meta_data
+
+    @custom_meta_data.setter
+    def custom_meta_data(self, custom_meta_data):
+        """Sets the custom_meta_data of this SampleCreateRequest.
+
+
+        :param custom_meta_data: The custom_meta_data of this SampleCreateRequest.  # noqa: E501
+        :type: CustomSampleMetaData
+        """
+
+        self._custom_meta_data = custom_meta_data
 
     def to_dict(self):
         """Returns the model properties as a dict"""
