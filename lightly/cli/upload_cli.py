@@ -7,7 +7,7 @@ command-line interface.
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-import warnings
+import json
 
 import hydra
 
@@ -54,6 +54,14 @@ def _upload_cli(cfg, is_cli_call=True):
         print_as_warning('For help, try: lightly-upload --help')
         return
 
+    # potentially load custom metadata
+    custom_metadata = None
+    if cfg['custom_metadata']:
+        path_to_custom_metadata = fix_input_path(cfg['custom_metadata'])
+        print(f'Loading custom metadata from {path_to_custom_metadata}')
+        with open(path_to_custom_metadata, 'r') as f:
+            custom_metadata = json.load(f)
+
     # determine the number of available cores
     if cfg['loader']['num_workers'] < 0:
         cfg['loader']['num_workers'] = cpu_count()
@@ -69,7 +77,10 @@ def _upload_cli(cfg, is_cli_call=True):
         mode = cfg['upload']
         dataset = LightlyDataset(input_dir=input_dir, transform=transform)
         api_workflow_client.upload_dataset(
-            input=dataset, mode=mode, max_workers=cfg['loader']['num_workers']
+            input=dataset,
+            mode=mode,
+            max_workers=cfg['loader']['num_workers'],
+            custom_metadata=custom_metadata,
         )
         print(f"Finished the upload of the dataset.")
 

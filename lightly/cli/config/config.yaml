@@ -8,6 +8,7 @@ checkpoint: ''                # Path to a model checkpoint. If left empty, a pr
                               # will be used.
 label_dir: ''                 # Path to the input directory which holds the labels.
 label_names_file: ''          # Path to a yaml file having the label names under the value 'names'
+custom_metadata: ''           # Path to a json file in COCO format containing additional metadata
 
 ### Lightly platform
 # The following arguments are required for requests to the
