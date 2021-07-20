@@ -1,9 +1,10 @@
 import os
 import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
-from typing import Union, List
+from typing import Union, List, Dict
 
 import lightly_utils.image_processing
+from torch.utils import data
 import tqdm
 
 from lightly.openapi_generated.swagger_client import TagCreator, SamplesApi, SampleWriteUrls, SampleData
@@ -20,8 +21,12 @@ from lightly_utils import image_processing
 
 class _UploadDatasetMixin:
 
-    def upload_dataset(self, input: Union[str, LightlyDataset], max_workers: int = 8,
-                       mode: str = 'thumbnails', verbose: bool = True):
+    def upload_dataset(self,
+                       input: Union[str, LightlyDataset],
+                       max_workers: int = 8,
+                       mode: str = 'thumbnails',
+                       verbose: bool = True,
+                       custom_metadata: Union[Dict, None] = None):
         """Uploads a dataset to to the Lightly cloud solution.
 
         Args:
@@ -85,6 +90,15 @@ class _UploadDatasetMixin:
             print(f"Found {len(filenames)} images already on the server, they are skipped during the upload.")
         filenames_set = set(filenames)
 
+        # TODO
+        filename_to_metadata = {}
+        if custom_metadata is not None:
+            self.verify_custom_metadata_format(custom_metadata)
+            filename_to_metadata = self.index_custom_metadata_by_filename(
+                dataset.get_filenames(),
+                custom_metadata,
+            )
+
         pbar = tqdm.tqdm(unit='imgs', total=len(dataset)-len(filenames))
         tqdm_lock = tqdm.tqdm.get_lock()
 
@@ -97,6 +111,12 @@ class _UploadDatasetMixin:
                 return True
 
             filepath = dataset.get_filepath_from_filename(filename, image)
+
+            # TODO
+            print(filename_to_metadata)
+            custom_metadata_ = filename_to_metadata.get(filename, None)
+            print(filename, custom_metadata_, filename in filename_to_metadata.keys())
+
             # try to upload image
             try:
                 self._upload_single_image(
@@ -105,6 +125,7 @@ class _UploadDatasetMixin:
                     filename=filename,
                     filepath=filepath,
                     mode=mode,
+                    custom_metadata=custom_metadata_,
                 )
                 success = True
             except Exception as e:
@@ -139,7 +160,13 @@ class _UploadDatasetMixin:
         initial_tag_create_request = InitialTagCreateRequest(img_type=img_type, creator=TagCreator.USER_PIP)
         self.tags_api.create_initial_tag_by_dataset_id(body=initial_tag_create_request, dataset_id=self.dataset_id)
 
-    def _upload_single_image(self, image, label, filename: str, filepath: str, mode):
+    def _upload_single_image(self,
+                             image,
+                             label: int,
+                             filename: str,
+                             filepath: str,
+                             mode: str,
+                             custom_metadata: Union[Dict, None] = None):
         """Uploads a single image to the Lightly platform.
 
         """
@@ -171,6 +198,7 @@ class _UploadDatasetMixin:
             thumb_name=thumbname,
             meta_data=metadata,
             exif=exifdata if exifdata is None else exifdata.to_dict(),
+            custom_meta_data=custom_metadata,
         )
         sample_id = retry(
             self.samples_api.create_sample_by_dataset_id,
