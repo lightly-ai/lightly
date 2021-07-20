@@ -142,12 +142,18 @@ You can pass this information as `custom_metadata` and configure it for inspecti
             {
                 "image_id": 0,
                 "number_of_people": 3,
-                "weather": "cloudy"
+                "weather": {
+                    "scenario": "cloudy",
+                    "temperature": 20.3
+                }
             },
             {
                 "image_id": 1,
                 "number_of_people": 1,
-                "weather": "rainy"
+                "weather": {
+                    "scenario": "rainy",
+                    "temperature": 15.0
+                }
             }
         ]
     }

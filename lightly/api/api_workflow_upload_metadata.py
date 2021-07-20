@@ -137,23 +137,29 @@ class _UploadCustomMetadataMixin:
                 "images": [
                     {
                         "file_name": "image0.jpg",
-                        "id": 0
+                        "id": 0,
                     },
                     {
                         "file_name": "image1.jpg",
-                        "id": 1
+                        "id": 1,
                     }
                 ],
                 "metadata": [
                     {
-                        "image_id": 0,  // this metadata belongs to "image0.jpg"
-                        "custom_metadata_entry_0": 0.5,
-                        "custom_metadata_entry_1": "some_string"
+                        "image_id": 0,
+                        "number_of_people": 3,
+                        "weather": {
+                            "scenario": "cloudy",
+                            "temperature": 20.3
+                        }
                     },
                     {
-                        "image_id": 1,  // this metadata belongs to "image1.jpg"
-                        "custom_metadata_entry_0": 0.1,
-                        "custom_metadata_entry_1": "some_other_string"
+                        "image_id": 1,
+                        "number_of_people": 1,
+                        "weather": {
+                            "scenario": "rainy",
+                            "temperature": 15.0
+                        }
                     }
                 ]
             }
