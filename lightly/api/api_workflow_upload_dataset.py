@@ -90,7 +90,7 @@ class _UploadDatasetMixin:
             print(f"Found {len(filenames)} images already on the server, they are skipped during the upload.")
         filenames_set = set(filenames)
 
-        # TODO
+        # index custom metadata by filename (only if it exists)
         filename_to_metadata = {}
         if custom_metadata is not None:
             self.verify_custom_metadata_format(custom_metadata)
@@ -112,7 +112,7 @@ class _UploadDatasetMixin:
 
             filepath = dataset.get_filepath_from_filename(filename, image)
 
-            # TODO
+            # get custom metadata (evaluates to None if there is none)
             custom_metadata_ = filename_to_metadata.get(filename, None)
 
             # try to upload image
