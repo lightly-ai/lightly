@@ -58,7 +58,7 @@ def _upload_cli(cfg, is_cli_call=True):
     custom_metadata = None
     if cfg['custom_metadata']:
         path_to_custom_metadata = fix_input_path(cfg['custom_metadata'])
-        print(f'Loading custom metadata from {path_to_custom_metadata}')
+        print(f'Loading custom metadata from {bcolors.OKBLUE}{path_to_custom_metadata}{bcolors.ENDC}')
         with open(path_to_custom_metadata, 'r') as f:
             custom_metadata = json.load(f)
 

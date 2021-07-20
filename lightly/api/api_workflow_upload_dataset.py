@@ -113,9 +113,7 @@ class _UploadDatasetMixin:
             filepath = dataset.get_filepath_from_filename(filename, image)
 
             # TODO
-            print(filename_to_metadata)
             custom_metadata_ = filename_to_metadata.get(filename, None)
-            print(filename, custom_metadata_, filename in filename_to_metadata.keys())
 
             # try to upload image
             try:
