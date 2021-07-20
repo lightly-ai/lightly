@@ -120,7 +120,10 @@ Upload custom metadata using the CLI
     
 You can upload custom metadata along with your images. Custom metadata can be used
 to gain additional insights in the web-app. In order to upload the custom metadata,
-you need to save it to a `.json` file in the following COCO-like format:
+you need to save it to a `.json` file in a COCO-like format. For example, in many 
+computer vision problems, companies are interested in the number of people present in an image.
+They could also be interested in the different weather scenarios (e.g. for autonomous driving).
+You can pass this information as `custom_metadata` and configure it for inspection in the web-app:
 
 .. code-block:: json
 
@@ -135,20 +138,24 @@ you need to save it to a `.json` file in the following COCO-like format:
                 "id": 1,
             }
         ],
-        "metadata" [
+        "metadata": [
             {
-                "image_id": 0,  // this metadata belongs to "image0.jpg"
-                "custom_metadata_entry_0": 0.5,
-                "custom_metadata_entry_1": "some_string"
+                "image_id": 0,
+                "number_of_people": 3,
+                "weather": "cloudy"
             },
             {
-                "image_id": 1,  // this metadata belongs to "image1.jpg"
-                "custom_metadata_entry_0": 0.1,
-                "custom_metadata_entry_1": "some_other_string"
+                "image_id": 1,
+                "number_of_people": 1,
+                "weather": "rainy"
             }
         ]
     }
 
+
+.. note:: Make sure that the custom metadata is present for every image. The metadata
+          must not necessarily include the same keys for all images but it is strongly
+          recommended.
 
 To add the metadata in the web-app, simply pass it to the `lightly-magic` command:
 
