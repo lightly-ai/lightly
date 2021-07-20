@@ -113,7 +113,7 @@ class _UploadDatasetMixin:
             filepath = dataset.get_filepath_from_filename(filename, image)
 
             # get custom metadata (evaluates to None if there is none)
-            custom_metadata_ = filename_to_metadata.get(filename, None)
+            custom_metadata_item = filename_to_metadata.get(filename, None)
 
             # try to upload image
             try:
@@ -123,7 +123,7 @@ class _UploadDatasetMixin:
                     filename=filename,
                     filepath=filepath,
                     mode=mode,
-                    custom_metadata=custom_metadata_,
+                    custom_metadata=custom_metadata_item,
                 )
                 success = True
             except Exception as e:
