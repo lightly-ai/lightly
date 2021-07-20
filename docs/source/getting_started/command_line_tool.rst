@@ -163,6 +163,9 @@ You can pass this information as `custom_metadata` and configure it for inspecti
           must not necessarily include the same keys for all images but it is strongly
           recommended.
 
+.. note:: We support numbers, strings, booleans, and even nested objects for
+          custom metadata.
+
 To add the metadata in the web-app, simply pass it to the `lightly-magic` command:
 
 .. code-block:: bash
