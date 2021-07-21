@@ -36,17 +36,19 @@ class SampleUpdateRequest(object):
         'file_name': 'str',
         'thumb_name': 'str',
         'exif': 'dict(str, object)',
-        'meta_data': 'SampleMetaData'
+        'meta_data': 'SampleMetaData',
+        'custom_meta_data': 'CustomSampleMetaData'
     }
 
     attribute_map = {
         'file_name': 'fileName',
         'thumb_name': 'thumbName',
         'exif': 'exif',
-        'meta_data': 'metaData'
+        'meta_data': 'metaData',
+        'custom_meta_data': 'customMetaData'
     }
 
-    def __init__(self, file_name=None, thumb_name=None, exif=None, meta_data=None, _configuration=None):  # noqa: E501
+    def __init__(self, file_name=None, thumb_name=None, exif=None, meta_data=None, custom_meta_data=None, _configuration=None):  # noqa: E501
         """SampleUpdateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -56,13 +58,19 @@ class SampleUpdateRequest(object):
         self._thumb_name = None
         self._exif = None
         self._meta_data = None
+        self._custom_meta_data = None
         self.discriminator = None
 
-        self.file_name = file_name
-        self.thumb_name = thumb_name
+        if file_name is not None:
+            self.file_name = file_name
+        if thumb_name is not None:
+            self.thumb_name = thumb_name
         if exif is not None:
             self.exif = exif
-        self.meta_data = meta_data
+        if meta_data is not None:
+            self.meta_data = meta_data
+        if custom_meta_data is not None:
+            self.custom_meta_data = custom_meta_data
 
     @property
     def file_name(self):
@@ -82,8 +90,6 @@ class SampleUpdateRequest(object):
         :param file_name: The file_name of this SampleUpdateRequest.  # noqa: E501
         :type: str
         """
-        if self._configuration.client_side_validation and file_name is None:
-            raise ValueError("Invalid value for `file_name`, must not be `None`")  # noqa: E501
 
         self._file_name = file_name
 
@@ -105,8 +111,6 @@ class SampleUpdateRequest(object):
         :param thumb_name: The thumb_name of this SampleUpdateRequest.  # noqa: E501
         :type: str
         """
-        if self._configuration.client_side_validation and thumb_name is None:
-            raise ValueError("Invalid value for `thumb_name`, must not be `None`")  # noqa: E501
 
         self._thumb_name = thumb_name
 
@@ -149,10 +153,29 @@ class SampleUpdateRequest(object):
         :param meta_data: The meta_data of this SampleUpdateRequest.  # noqa: E501
         :type: SampleMetaData
         """
-        if self._configuration.client_side_validation and meta_data is None:
-            raise ValueError("Invalid value for `meta_data`, must not be `None`")  # noqa: E501
 
         self._meta_data = meta_data
+
+    @property
+    def custom_meta_data(self):
+        """Gets the custom_meta_data of this SampleUpdateRequest.  # noqa: E501
+
+
+        :return: The custom_meta_data of this SampleUpdateRequest.  # noqa: E501
+        :rtype: CustomSampleMetaData
+        """
+        return self._custom_meta_data
+
+    @custom_meta_data.setter
+    def custom_meta_data(self, custom_meta_data):
+        """Sets the custom_meta_data of this SampleUpdateRequest.
+
+
+        :param custom_meta_data: The custom_meta_data of this SampleUpdateRequest.  # noqa: E501
+        :type: CustomSampleMetaData
+        """
+
+        self._custom_meta_data = custom_meta_data
 
     def to_dict(self):
         """Returns the model properties as a dict"""
