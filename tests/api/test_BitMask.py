@@ -140,11 +140,22 @@ class TestBitMask(unittest.TestCase):
         self.assertEqual(mask_a, mask_b)
 
     def test_subset_a_list(self):
-        list_ = [4, 7, 9, 1]
-        mask = BitMask.from_bin("0b0101")
-        target_masked_list = [7, 1]
-        masked_list = mask.masked_select_from_list(list_)
-        self.assertEqual(target_masked_list, masked_list)
+        n = 1000
+        list_ = [randint(0, 1) for _ in range(n - 2)] + [0, 1]
+        mask = BitMask.from_length(n)
+        for index, item_ in enumerate(list_):
+            if item_ == 0:
+                mask.unset_kth_bit(index)
+            else:
+                mask.set_kth_bit(index)
+
+        all_ones = mask.masked_select_from_list(list_)
+        mask.x = mask.x ^ (2 ** n - 1) # inverse
+        all_zeros = mask.masked_select_from_list(list_)
+        self.assertGreater(len(all_ones), 0)
+        self.assertGreater(len(all_zeros), 0)
+        self.assertTrue(all([item_ > 0 for item_ in all_ones]))
+        self.assertTrue(all([item_ == 0 for item_ in all_zeros]))
 
     def test_nonzero_bits(self):
 
