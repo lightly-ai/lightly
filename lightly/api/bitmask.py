@@ -45,15 +45,11 @@ def _get_nonzero_bits(x: int) -> List[int]:
     return nonzero_bit_indices
 
 
-def _invert(x: int) -> int:
+def _invert(x: int, total_size: int) -> int:
     """Flips every bit of x as if x was an unsigned integer.
     """
     # use XOR of x and 0xFFFFFF to get the inverse
-    # return x ^ (2 ** (x.bit_length()) - 1)
-    # TODO: the solution above can give wrong answers for the case where
-    # the tag representation starts with a zero, therefore it needs to know
-    # the exact number of samples in the dataset to do a correct inverse
-    raise NotImplementedError('This method is not implemented yet...')
+    return x ^ (2 ** total_size - 1)
 
 
 def _union(x: int, y: int) -> int:
@@ -149,11 +145,15 @@ class BitMask:
         """
         return _get_nonzero_bits(self.x)
 
-    def invert(self):
+    def invert(self, total_size: int):
         """Sets every 0 to 1 and every 1 to 0 in the bitstring.
 
+        Args:
+            total_size:
+                Total size of the tag.
+
         """
-        self.x = _invert(self.x)
+        self.x = _invert(self.x, total_size)
 
     def complement(self):
         """Same as invert but with the appropriate name.
