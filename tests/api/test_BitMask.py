@@ -105,7 +105,7 @@ class TestBitMask(unittest.TestCase):
         self.assert_difference("0b0111", "0b1100", "0b0011")
         self.assert_difference("0b10111", "0b01100", "0b10011")
 
-    def random_bitsting(self, length: int):
+    def random_bitstring(self, length: int):
         bitsting = '0b'
         for i in range(length):
             bitsting += str(randint(0, 1))
@@ -115,8 +115,8 @@ class TestBitMask(unittest.TestCase):
         seed(42)
         for rep in range(10):
             for string_length in range(1, 100, 10):
-                bitstring_1 = self.random_bitsting(string_length)
-                bitstring_2 = self.random_bitsting(string_length)
+                bitstring_1 = self.random_bitstring(string_length)
+                bitstring_2 = self.random_bitstring(string_length)
                 target = '0b'
                 for bit_1, bit_2 in zip(bitstring_1[2:], bitstring_2[2:]):
                     if bit_1 == '1' and bit_2 == '0':
@@ -139,7 +139,7 @@ class TestBitMask(unittest.TestCase):
         mask_b = BitMask.from_bin("0b101")
         self.assertEqual(mask_a, mask_b)
 
-    def test_subset_a_list(self):
+    def test_masked_select_from_list(self):
         n = 1000
         list_ = [randint(0, 1) for _ in range(n - 2)] + [0, 1]
         mask = BitMask.from_length(n)
@@ -150,12 +150,40 @@ class TestBitMask(unittest.TestCase):
                 mask.set_kth_bit(index)
 
         all_ones = mask.masked_select_from_list(list_)
-        mask.x = mask.x ^ (2 ** n - 1) # inverse
+        mask.invert(n)
         all_zeros = mask.masked_select_from_list(list_)
         self.assertGreater(len(all_ones), 0)
         self.assertGreater(len(all_zeros), 0)
         self.assertTrue(all([item_ > 0 for item_ in all_ones]))
         self.assertTrue(all([item_ == 0 for item_ in all_zeros]))
+
+
+    def test_masked_select_from_list_example(self):
+        list_ = [1, 2, 3, 4, 5, 6]
+        mask = BitMask.from_bin('0b001101') # expected result is [1, 3, 4]
+        selected = mask.masked_select_from_list(list_)
+        self.assertListEqual(selected, [1, 3, 4])
+
+
+    def test_invert(self):
+        # get random bitstring
+        length = 10
+        bitstring = self.random_bitstring(10)
+ 
+        #get inverse
+        mask = BitMask.from_bin(bitstring)
+        mask.invert(length)
+        inverted = mask.to_bin()
+
+        # remove 0b
+        inverted = inverted[2:]
+        bitstring = bitstring[2:]
+        for i in range(min(len(bitstring), len(inverted))):
+            if bitstring[-i - 1] == '0':
+                self.assertEqual(inverted[-i - 1], '1')
+            else:
+                self.assertEqual(inverted[-i - 1], '0')
+
 
     def test_nonzero_bits(self):
 
