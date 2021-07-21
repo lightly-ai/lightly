@@ -200,16 +200,20 @@ class BitMask:
         return self.to_bin() == other.to_bin()
 
     def masked_select_from_list(self, list_: List):
-        """Returns a subset of a list depending on the bitmask
+        """Returns a subset of a list depending on the bitmask.
+
+        The bitmask is read from right to left, i.e. the least significant bit
+        corresponds to index 0.
+
         Examples:
             >>> list_to_subset = [4, 7, 9, 1]
             >>> mask = BitMask.from_bin("0b0101")
             >>> masked_list = mask.masked_select_from_list(list_to_subset)
-            >>> # masked_list = [7, 1]
+            >>> # masked_list = [4, 9]
+
         """
-        bits = self.to_bin()
-        reversed_masked_list = [e for e, bit in zip(reversed(list_),reversed(bits)) if bit == "1"]
-        return list(reversed(reversed_masked_list))
+        indices = self.to_indices()
+        return [list_[index] for index in indices]
 
     def get_kth_bit(self, k: int) -> bool:
         """Returns the boolean value of the kth bit from the right.
