@@ -158,12 +158,17 @@ You can pass this information as `custom_metadata` and configure it for inspecti
         ]
     }
 
+Hereby, it's important to use the keys as in the example: Information about the
+images must be stored under the key `images` and each image must have a `file_name`
+and an `id`. Custom metadata must be accessed with the `metadata` key and each entry
+must have an `image_id` to match it with the corresponding image.
+
 
 .. note:: Make sure that the custom metadata is present for every image. The metadata
           must not necessarily include the same keys for all images but it is strongly
           recommended.
 
-.. note:: We support numbers, strings, booleans, and even nested objects for
+.. note:: We support integers, floats, strings, booleans, and even nested objects for
           custom metadata.
 
 To add the metadata in the web-app, simply pass it to the `lightly-magic` command:
