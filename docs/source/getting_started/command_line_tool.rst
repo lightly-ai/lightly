@@ -100,20 +100,83 @@ Lightly-magic is a singular command for training, embedding, and uploading to th
     # passing in input directory of dataset(Data_dir),using pretrained model
     # with assigned token as yourToken and datasedID as yourDatasedID
     # loader.num_workers species the number of cpu cores used for speeding the process.
-    lightly-magic input_dir=Data_dir trainer.max_epochs=0 loader.num_workers=8 \
-    token=yourToken datasetId=yourDatasetId
+    lightly-magic input_dir=data_dir trainer.max_epochs=0 loader.num_workers=8 \
+    token=yourToken dataset_id=yourDatasetId
     
     # passing a custom dataset in the above example instead of datasetId
-    lightly-magic input_dir=Data_dir trainer.max_epochs=0 loader.num_workers=8 \
+    lightly-magic input_dir=data_dir trainer.max_epochs=0 loader.num_workers=8 \
     token=yourToken new_dataset_name=myNewDataset
     
     # To use a custom batch size, pass the batch size to loader.batch_size parameter
     # updating the previous example by passing value for loader.batch_size
-    lightly-magic input_dir=Data_dir trainer.max_epochs=0 loader.batch_size=128 \
+    lightly-magic input_dir=data_dir trainer.max_epochs=0 loader.batch_size=128 \
     loader.num_workers=8 token=yourToken new_dataset_name=myNewDataset
     
     
+    .. _ref-upload-custom-metadata-lightly:
 
+Upload custom metadata using the CLI
+---------------------------------------
+    
+You can upload custom metadata along with your images. Custom metadata can be used
+to gain additional insights in the web-app. In order to upload the custom metadata,
+you need to save it to a `.json` file in a COCO-like format. For example, in many 
+computer vision problems, companies are interested in the number of people present in an image.
+They could also be interested in the different weather scenarios (e.g. for autonomous driving).
+You can pass this information as `custom_metadata` and configure it for inspection in the web-app:
+
+.. code-block:: json
+
+    {
+        "images": [
+            {
+                "file_name": "image0.jpg",
+                "id": 0,
+            },
+            {
+                "file_name": "image1.jpg",
+                "id": 1,
+            }
+        ],
+        "metadata": [
+            {
+                "image_id": 0,
+                "number_of_people": 3,
+                "weather": {
+                    "scenario": "cloudy",
+                    "temperature": 20.3
+                }
+            },
+            {
+                "image_id": 1,
+                "number_of_people": 1,
+                "weather": {
+                    "scenario": "rainy",
+                    "temperature": 15.0
+                }
+            }
+        ]
+    }
+
+Hereby, it's important to use the keys as in the example: Information about the
+images must be stored under the key `images` and each image must have a `file_name`
+and an `id`. Custom metadata must be accessed with the `metadata` key and each entry
+must have an `image_id` to match it with the corresponding image.
+
+
+.. note:: Make sure that the custom metadata is present for every image. The metadata
+          must not necessarily include the same keys for all images but it is strongly
+          recommended.
+
+.. note:: We support integers, floats, strings, booleans, and even nested objects for
+          custom metadata.
+
+To add the metadata in the web-app, simply pass it to the `lightly-magic` command:
+
+.. code-block:: bash
+
+    lightly-magic input_dir=data_dir trainer.max_epochs=0 loader.num_workers=8 \
+    token=yourToken dataset_id=yourDatasetId custom_metadata=yourCustomMetadata.json
 
 
 Train a model using the CLI

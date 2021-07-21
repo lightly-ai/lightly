@@ -39,6 +39,7 @@ class SampleData(object):
         'thumb_name': 'str',
         'exif': 'dict(str, object)',
         'meta_data': 'SampleMetaData',
+        'custom_meta_data': 'CustomSampleMetaData',
         'index': 'int',
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp'
@@ -51,12 +52,13 @@ class SampleData(object):
         'thumb_name': 'thumbName',
         'exif': 'exif',
         'meta_data': 'metaData',
+        'custom_meta_data': 'customMetaData',
         'index': 'index',
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt'
     }
 
-    def __init__(self, id=None, dataset_id=None, file_name=None, thumb_name=None, exif=None, meta_data=None, index=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, dataset_id=None, file_name=None, thumb_name=None, exif=None, meta_data=None, custom_meta_data=None, index=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
         """SampleData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -68,6 +70,7 @@ class SampleData(object):
         self._thumb_name = None
         self._exif = None
         self._meta_data = None
+        self._custom_meta_data = None
         self._index = None
         self._created_at = None
         self._last_modified_at = None
@@ -83,6 +86,8 @@ class SampleData(object):
             self.exif = exif
         if meta_data is not None:
             self.meta_data = meta_data
+        if custom_meta_data is not None:
+            self.custom_meta_data = custom_meta_data
         if index is not None:
             self.index = index
         if created_at is not None:
@@ -219,6 +224,27 @@ class SampleData(object):
         """
 
         self._meta_data = meta_data
+
+    @property
+    def custom_meta_data(self):
+        """Gets the custom_meta_data of this SampleData.  # noqa: E501
+
+
+        :return: The custom_meta_data of this SampleData.  # noqa: E501
+        :rtype: CustomSampleMetaData
+        """
+        return self._custom_meta_data
+
+    @custom_meta_data.setter
+    def custom_meta_data(self, custom_meta_data):
+        """Sets the custom_meta_data of this SampleData.
+
+
+        :param custom_meta_data: The custom_meta_data of this SampleData.  # noqa: E501
+        :type: CustomSampleMetaData
+        """
+
+        self._custom_meta_data = custom_meta_data
 
     @property
     def index(self):
