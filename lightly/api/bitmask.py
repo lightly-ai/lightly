@@ -45,15 +45,11 @@ def _get_nonzero_bits(x: int) -> List[int]:
     return nonzero_bit_indices
 
 
-def _invert(x: int) -> int:
+def _invert(x: int, total_size: int) -> int:
     """Flips every bit of x as if x was an unsigned integer.
     """
     # use XOR of x and 0xFFFFFF to get the inverse
-    # return x ^ (2 ** (x.bit_length()) - 1)
-    # TODO: the solution above can give wrong answers for the case where
-    # the tag representation starts with a zero, therefore it needs to know
-    # the exact number of samples in the dataset to do a correct inverse
-    raise NotImplementedError('This method is not implemented yet...')
+    return x ^ (2 ** total_size - 1)
 
 
 def _union(x: int, y: int) -> int:
@@ -149,11 +145,15 @@ class BitMask:
         """
         return _get_nonzero_bits(self.x)
 
-    def invert(self):
+    def invert(self, total_size: int):
         """Sets every 0 to 1 and every 1 to 0 in the bitstring.
 
+        Args:
+            total_size:
+                Total size of the tag.
+
         """
-        self.x = _invert(self.x)
+        self.x = _invert(self.x, total_size)
 
     def complement(self):
         """Same as invert but with the appropriate name.
@@ -200,16 +200,20 @@ class BitMask:
         return self.to_bin() == other.to_bin()
 
     def masked_select_from_list(self, list_: List):
-        """Returns a subset of a list depending on the bitmask
+        """Returns a subset of a list depending on the bitmask.
+
+        The bitmask is read from right to left, i.e. the least significant bit
+        corresponds to index 0.
+
         Examples:
             >>> list_to_subset = [4, 7, 9, 1]
             >>> mask = BitMask.from_bin("0b0101")
             >>> masked_list = mask.masked_select_from_list(list_to_subset)
-            >>> # masked_list = [7, 1]
+            >>> # masked_list = [4, 9]
+
         """
-        bits = self.to_bin()
-        reversed_masked_list = [e for e, bit in zip(reversed(list_),reversed(bits)) if bit == "1"]
-        return list(reversed(reversed_masked_list))
+        indices = self.to_indices()
+        return [list_[index] for index in indices]
 
     def get_kth_bit(self, k: int) -> bool:
         """Returns the boolean value of the kth bit from the right.
