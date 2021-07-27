@@ -34,15 +34,19 @@ class JobStatusMeta(object):
     """
     swagger_types = {
         'total': 'int',
-        'processed': 'int'
+        'processed': 'int',
+        'upload_method': 'JobStatusUploadMethod',
+        'is_registered': 'bool'
     }
 
     attribute_map = {
         'total': 'total',
-        'processed': 'processed'
+        'processed': 'processed',
+        'upload_method': 'uploadMethod',
+        'is_registered': 'isRegistered'
     }
 
-    def __init__(self, total=None, processed=None, _configuration=None):  # noqa: E501
+    def __init__(self, total=None, processed=None, upload_method=None, is_registered=None, _configuration=None):  # noqa: E501
         """JobStatusMeta - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -50,10 +54,16 @@ class JobStatusMeta(object):
 
         self._total = None
         self._processed = None
+        self._upload_method = None
+        self._is_registered = None
         self.discriminator = None
 
         self.total = total
         self.processed = processed
+        if upload_method is not None:
+            self.upload_method = upload_method
+        if is_registered is not None:
+            self.is_registered = is_registered
 
     @property
     def total(self):
@@ -100,6 +110,50 @@ class JobStatusMeta(object):
             raise ValueError("Invalid value for `processed`, must not be `None`")  # noqa: E501
 
         self._processed = processed
+
+    @property
+    def upload_method(self):
+        """Gets the upload_method of this JobStatusMeta.  # noqa: E501
+
+
+        :return: The upload_method of this JobStatusMeta.  # noqa: E501
+        :rtype: JobStatusUploadMethod
+        """
+        return self._upload_method
+
+    @upload_method.setter
+    def upload_method(self, upload_method):
+        """Sets the upload_method of this JobStatusMeta.
+
+
+        :param upload_method: The upload_method of this JobStatusMeta.  # noqa: E501
+        :type: JobStatusUploadMethod
+        """
+
+        self._upload_method = upload_method
+
+    @property
+    def is_registered(self):
+        """Gets the is_registered of this JobStatusMeta.  # noqa: E501
+
+        Flag which indicates whether the job was registered or not.  # noqa: E501
+
+        :return: The is_registered of this JobStatusMeta.  # noqa: E501
+        :rtype: bool
+        """
+        return self._is_registered
+
+    @is_registered.setter
+    def is_registered(self, is_registered):
+        """Sets the is_registered of this JobStatusMeta.
+
+        Flag which indicates whether the job was registered or not.  # noqa: E501
+
+        :param is_registered: The is_registered of this JobStatusMeta.  # noqa: E501
+        :type: bool
+        """
+
+        self._is_registered = is_registered
 
     def to_dict(self):
         """Returns the model properties as a dict"""
