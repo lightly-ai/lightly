@@ -41,6 +41,7 @@ class DatasetDataEnriched(object):
         'size_in_bytes': 'int',
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp',
+        'meta_data_configuration_id': 'MongoObjectID',
         'samples': 'list[MongoObjectID]',
         'n_tags': 'int',
         'n_embeddings': 'int'
@@ -55,12 +56,13 @@ class DatasetDataEnriched(object):
         'size_in_bytes': 'sizeInBytes',
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt',
+        'meta_data_configuration_id': 'metaDataConfigurationId',
         'samples': 'samples',
         'n_tags': 'nTags',
         'n_embeddings': 'nEmbeddings'
     }
 
-    def __init__(self, id=None, name=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, created_at=None, last_modified_at=None, samples=None, n_tags=None, n_embeddings=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, name=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, created_at=None, last_modified_at=None, meta_data_configuration_id=None, samples=None, n_tags=None, n_embeddings=None, _configuration=None):  # noqa: E501
         """DatasetDataEnriched - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -74,6 +76,7 @@ class DatasetDataEnriched(object):
         self._size_in_bytes = None
         self._created_at = None
         self._last_modified_at = None
+        self._meta_data_configuration_id = None
         self._samples = None
         self._n_tags = None
         self._n_embeddings = None
@@ -88,6 +91,8 @@ class DatasetDataEnriched(object):
         self.size_in_bytes = size_in_bytes
         self.created_at = created_at
         self.last_modified_at = last_modified_at
+        if meta_data_configuration_id is not None:
+            self.meta_data_configuration_id = meta_data_configuration_id
         self.samples = samples
         self.n_tags = n_tags
         self.n_embeddings = n_embeddings
@@ -273,6 +278,27 @@ class DatasetDataEnriched(object):
             raise ValueError("Invalid value for `last_modified_at`, must not be `None`")  # noqa: E501
 
         self._last_modified_at = last_modified_at
+
+    @property
+    def meta_data_configuration_id(self):
+        """Gets the meta_data_configuration_id of this DatasetDataEnriched.  # noqa: E501
+
+
+        :return: The meta_data_configuration_id of this DatasetDataEnriched.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._meta_data_configuration_id
+
+    @meta_data_configuration_id.setter
+    def meta_data_configuration_id(self, meta_data_configuration_id):
+        """Sets the meta_data_configuration_id of this DatasetDataEnriched.
+
+
+        :param meta_data_configuration_id: The meta_data_configuration_id of this DatasetDataEnriched.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._meta_data_configuration_id = meta_data_configuration_id
 
     @property
     def samples(self):
