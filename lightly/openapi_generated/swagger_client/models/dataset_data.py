@@ -39,6 +39,7 @@ class DatasetData(object):
         'img_type': 'ImageType',
         'n_samples': 'int',
         'size_in_bytes': 'int',
+        'meta_data_configuration_id': 'MongoObjectID',
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp'
     }
@@ -50,11 +51,12 @@ class DatasetData(object):
         'img_type': 'imgType',
         'n_samples': 'nSamples',
         'size_in_bytes': 'sizeInBytes',
+        'meta_data_configuration_id': 'metaDataConfigurationId',
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt'
     }
 
-    def __init__(self, id=None, name=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, name=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, meta_data_configuration_id=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
         """DatasetData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -66,6 +68,7 @@ class DatasetData(object):
         self._img_type = None
         self._n_samples = None
         self._size_in_bytes = None
+        self._meta_data_configuration_id = None
         self._created_at = None
         self._last_modified_at = None
         self.discriminator = None
@@ -77,6 +80,8 @@ class DatasetData(object):
             self.img_type = img_type
         self.n_samples = n_samples
         self.size_in_bytes = size_in_bytes
+        if meta_data_configuration_id is not None:
+            self.meta_data_configuration_id = meta_data_configuration_id
         self.created_at = created_at
         self.last_modified_at = last_modified_at
 
@@ -215,6 +220,27 @@ class DatasetData(object):
             raise ValueError("Invalid value for `size_in_bytes`, must not be `None`")  # noqa: E501
 
         self._size_in_bytes = size_in_bytes
+
+    @property
+    def meta_data_configuration_id(self):
+        """Gets the meta_data_configuration_id of this DatasetData.  # noqa: E501
+
+
+        :return: The meta_data_configuration_id of this DatasetData.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._meta_data_configuration_id
+
+    @meta_data_configuration_id.setter
+    def meta_data_configuration_id(self, meta_data_configuration_id):
+        """Sets the meta_data_configuration_id of this DatasetData.
+
+
+        :param meta_data_configuration_id: The meta_data_configuration_id of this DatasetData.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._meta_data_configuration_id = meta_data_configuration_id
 
     @property
     def created_at(self):

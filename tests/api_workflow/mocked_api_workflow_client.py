@@ -193,6 +193,9 @@ class MockedDatasetsApi(DatasetsApi):
     def get_dataset_by_id(self, dataset_id):
         return next(dataset for dataset in self.default_datasets if dataset_id == dataset.id)
 
+    def register_dataset_upload_by_id(self, body, dataset_id):
+        return True
+
     def delete_dataset_by_id(self, dataset_id, **kwargs):
         datasets_without_that_id = [dataset for dataset in self.datasets if dataset.id != dataset_id]
         assert len(datasets_without_that_id) == len(self.datasets) - 1

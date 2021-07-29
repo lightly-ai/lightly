@@ -11,6 +11,9 @@ from lightly.openapi_generated.swagger_client import TagCreator, SamplesApi, Sam
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
 from lightly.api.utils import check_filename, PIL_to_bytes, MAXIMUM_FILENAME_LENGTH
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
+from lightly.openapi_generated.swagger_client.models.job_status_meta import JobStatusMeta
+from lightly.openapi_generated.swagger_client.models.job_status_upload_method import JobStatusUploadMethod
+
 from lightly.data.dataset import LightlyDataset
 
 from lightly.api.utils import retry
@@ -98,6 +101,22 @@ class _UploadDatasetMixin:
                 dataset.get_filenames(),
                 custom_metadata,
             )
+
+        # register dataset upload
+        try:
+            job_status_meta = JobStatusMeta(
+                total=len(dataset),
+                processed=len(filenames),
+                is_registered=True,
+                upload_method=JobStatusUploadMethod.USER_PIP,
+            )
+            self.datasets_api.register_dataset_upload_by_id(
+                job_status_meta,
+                self.dataset_id
+            )
+        except Exception:
+            # TODO: remove try/catch after release of latest API
+            pass
 
         pbar = tqdm.tqdm(unit='imgs', total=len(dataset)-len(filenames))
         tqdm_lock = tqdm.tqdm.get_lock()
