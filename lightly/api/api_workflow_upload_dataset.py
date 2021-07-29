@@ -103,16 +103,20 @@ class _UploadDatasetMixin:
             )
 
         # register dataset upload
-        job_status_meta = JobStatusMeta(
-            total=len(dataset),
-            processed=len(filenames),
-            is_registered=True,
-            upload_method=JobStatusUploadMethod.USER_PIP,
-        )
-        self.datasets_api.register_dataset_upload_by_id(
-            job_status_meta,
-            self.dataset_id
-        )
+        try:
+            job_status_meta = JobStatusMeta(
+                total=len(dataset),
+                processed=len(filenames),
+                is_registered=True,
+                upload_method=JobStatusUploadMethod.USER_PIP,
+            )
+            self.datasets_api.register_dataset_upload_by_id(
+                job_status_meta,
+                self.dataset_id
+            )
+        except Exception:
+            # TODO: remove try/catch after release of latest API
+            pass
 
         pbar = tqdm.tqdm(unit='imgs', total=len(dataset)-len(filenames))
         tqdm_lock = tqdm.tqdm.get_lock()
