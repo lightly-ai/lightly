@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import json
 import tempfile
 
 import torchvision
@@ -32,6 +33,19 @@ class TestCLIUpload(MockedApiWorkflowSetup):
             data = self.dataset[sample_idx]
             path = os.path.join(self.folder_path, sample_names[sample_idx])
             data[0].save(path)
+        
+        coco_json = {}
+        coco_json['images'] = [
+            {'id': i, 'file_name': fname} for i, fname in enumerate(self.sample_names)
+        ]
+        coco_json['metadata'] = [
+            {'id': i, 'image_id': i, 'custom_metadata': 0 } for i, _ in enumerate(self.sample_names)
+        ]
+        
+        self.tfile = tempfile.NamedTemporaryFile(mode="w+")
+        json.dump(coco_json, self.tfile)
+        self.tfile.flush()
+
 
     def parse_cli_string(self, cli_words: str):
         cli_words = cli_words.replace("lightly-upload ", "")
@@ -77,5 +91,7 @@ class TestCLIUpload(MockedApiWorkflowSetup):
         with self.assertWarns(UserWarning):
             lightly.cli.upload_cli(self.cfg)
 
-
-
+    def test_upload_metadata_only(self):
+        cli_string = f"lightly-upload token='123' dataset_id='xyz' custom_metadata='{self.tfile.name}'"
+        self.parse_cli_string(cli_string)
+        lightly.cli.upload_cli(self.cfg)
