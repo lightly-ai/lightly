@@ -92,6 +92,10 @@ def _upload_cli(cfg, is_cli_call=True):
         )
         print("Finished upload of embeddings.")
 
+    if custom_metadata is not None and not input_dir:
+        # upload custom metadata separately
+        api_workflow_client.upload_custom_metadata(custom_metadata, verbose=True)
+
     if new_dataset_name_ok:
         print(f'The dataset_id of the newly created dataset is '
               f'{bcolors.OKBLUE}{api_workflow_client.dataset_id}{bcolors.ENDC}')
