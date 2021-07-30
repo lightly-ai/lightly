@@ -113,7 +113,7 @@ Lightly-magic is a singular command for training, embedding, and uploading to th
     loader.num_workers=8 token=yourToken new_dataset_name=myNewDataset
     
     
-    .. _ref-upload-custom-metadata-lightly:
+.. _ref-upload-custom-metadata-lightly:
 
 Upload custom metadata using the CLI
 ---------------------------------------

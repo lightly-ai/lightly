@@ -138,6 +138,11 @@ def upload_cli(cfg):
             this. If size is an int, smaller edge of the image will be matched 
             to this number. i.e, if height > width, then image will be rescaled
             to (size * height / width, size).
+        custom_metadata:
+            Path to a .json file containing custom metadata. The file must be in
+            the COCO annotations (although annotations can be empty) format and
+            contain an additional field `metadata` storing a list of metadata entries.
+            The metadata entries are matched with the images via `image_id`.
 
     Examples:
         >>> # create a new dataset on the Lightly platform and upload thumbnails to it
@@ -158,9 +163,16 @@ def upload_cli(cfg):
         >>> # upload both, images and embeddings in a single command
         >>> lightly-upload input_dir=data/ embeddings=embeddings.csv upload='full' \\
         >>>     token='123' dataset_id='XYZ'
+        >>>
         >>> # create a new dataset on the Lightly platform and upload both, images and embeddings
         >>> lightly-upload input_dir=data/ embeddings=embeddings.csv upload='full' \\
         >>>     token='123' new_dataset_name='new_dataset_name_xyz'
+        >>>
+        >>> # upload a dataset with custom metadata
+        >>> lightly-upload input_dir=data/ token='123' dataset_id='XYZ' custom_metadata=custom_metadata.json
+        >>> 
+        >>> # upload custom metadata to an existing dataset
+        >>> lightly-upload token='123' dataset_id='XYZ' custom_metadata=custom_metadata.json
 
     """
     _upload_cli(cfg)

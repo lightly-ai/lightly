@@ -57,14 +57,17 @@ def lightly_cli(cfg):
             User access token to the Lightly platform. If dataset_id
             and token are specified, the images and embeddings are 
             uploaded to the platform.
-
             (Required for upload)
         dataset_id:
             Identifier of the dataset on the Lightly platform. If 
             dataset_id and token are specified, the images and 
             embeddings are uploaded to the platform.
-
             (Required for upload)
+        custom_metadata:
+            Path to a .json file containing custom metadata. The file must be in
+            the COCO annotations (although annotations can be empty) format and
+            contain an additional field `metadata` storing a list of metadata entries.
+            The metadata entries are matched with the images via `image_id`.
 
     Examples:
         >>> # train model and embed images with default settings
@@ -75,6 +78,10 @@ def lightly_cli(cfg):
         >>>
         >>> # train model, embed images, and upload to the Lightly platform
         >>> lightly-magic input_dir=data/ token='123' dataset_id='XYZ'
+        >>>
+        >>> # upload images, embeddings, and custom metadata
+        >>> lightly-magic input_dir=data/ token='123' dataset_id='XYZ' custom_metadata=custom_metadata.json
+
 
     """
     return _lightly_cli(cfg)
