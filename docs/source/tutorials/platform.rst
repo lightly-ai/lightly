@@ -16,3 +16,4 @@ In this tutorial series, you will learn how to get the most out of the platform.
    platform/tutorial_sunflowers.rst
    platform/tutorial_active_learning.rst
    platform/tutorial_active_learning_detectron2.rst
+   platform/tutorial_aquarium_custom_metadata.rst
