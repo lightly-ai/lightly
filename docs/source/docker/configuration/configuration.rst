@@ -28,21 +28,13 @@ The following are parameters which can be passed to the container:
     token: ''
 
     # set to true to check whether installation was successful
-    sanity_check: False 
+    sanity_check: False
 
     # enable check for corrupted images (copies healthy ones if necessary)
     enable_corruptness_check: True
 
     # remove exact duplicates
     remove_exact_duplicates: True
-
-    # dump the final dataset to the output directory
-    dump_dataset: False
-
-    # set the size of the dumped images, use =x or =[x,y] to match the shortest 
-    # edge to x or to resize the image to (x,y), use =-1 for no resizing (default)
-    output_image_size: -1
-    output_image_format: 'png'
 
     # path to the checkpoint relative to the shared directory
     checkpoint: ''
@@ -53,23 +45,50 @@ The following are parameters which can be passed to the container:
     # enable training, only possible when no embeddings are passed
     enable_training: False
 
+    # dump the final dataset to the output directory
+    dump_dataset: False
+    dump_sampled_embeddings: True
+    # set the size of the dumped images, use =x or =[x,y] to match the shortest
+    # edge to x or to resize the image to (x,y), use =-1 for no resizing (default)
+    output_image_size: -1
+    output_image_format: 'png'
+
+    # upload?
+    upload_dataset: False
+
+    # pretagging
+    pretagging: False
+    pretagging_debug: False
+    pretagging_config: ''
+
+    # append weak labels
+    append_weak_labels: False
+
     # normalize the embeddings to unit length
     normalize_embeddings: True
 
-    # sampling
+    # active learning scorer
+    scorer: 'object-frequency'
+    scorer_config:
+      frequency_penalty: 0.25
+      min_score: 0.9
+
+
+    # sampling
     method: 'coreset'               # choose from ['coreset', 'random']
     stopping_condition:
         n_samples: -1               # float in [0., 1.] for percentage, int for number of samples, -1 means inactive
         min_distance: -1.           # float, minimum distance between two images in the sampled dataset, -1. means inactive
 
     # datapool
-    datapool:                      
+    datapool:
         name:                       # name of the datapool
         keep_history: True          # if True keeps backup of all previous data pool states
 
     # report
     n_example_images: 6             # the number of retained/removed image pairs to show in the report
     memory_requirement_in_GB: 2     # maximum size of the distance matrix allowed for statistics in GB
+    show_video_sampling_timeline: True
 
 Additionally, you can pass all arguments which can be passed to the lightly CLI tool with the `lightly` prefix.
 For example,
