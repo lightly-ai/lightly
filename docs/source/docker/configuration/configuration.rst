@@ -75,10 +75,10 @@ The following are parameters which can be passed to the container:
 
 
     # sampling
-    method: 'coreset'
+    method: 'coreset'               # choose from ['coreset', 'random']
     stopping_condition:
-        n_samples: -1
-        min_distance: -1.
+        n_samples: -1               # float in [0., 1.] for percentage, int for number of samples, -1 means inactive
+        min_distance: -1.           # float, minimum distance between two images in the sampled dataset, -1. means inactive
 
     # datapool
     datapool:
