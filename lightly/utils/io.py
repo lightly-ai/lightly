@@ -200,8 +200,7 @@ def format_custom_metadata(custom_metadata: List[Tuple[str, Dict]]):
 
 
 def save_custom_metadata(path: str, custom_metadata: List[Tuple[str, Dict]]):
-    """Transforms custom metadata into a format which can be handled by Lightly
-       and saves it as json.
+    """Saves custom metadata in a .json.
 
     Args:
         path:

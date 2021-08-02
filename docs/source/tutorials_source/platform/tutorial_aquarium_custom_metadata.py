@@ -11,9 +11,10 @@ Tutorial 5: Custom Metadata and Rebalancing
 =============================================
 
 The addition of custom metadata to your dataset can lead to valuable insights which
-in turn can drastically improve your machine learning models. Here, you will learn
-how to upload custom metadata to your dataset, gain insights about the data, and 
-how to curate the data for better model training.
+in turn can drastically improve your machine learning models. Lightly supports the upload
+of categorical (e.g. weather scenario, road type, or copyright license) and numerical metadata (e.g.
+instance counts, outside temperature, or vehicle velocity). Here, you will learn how to upload custom metadata 
+to your dataset, gain insights about the data, and how to curate the data for better model training.
 
 
 What you will learn
@@ -41,16 +42,47 @@ For this tutorial the `lightly` pip package needs to be installed:
 
 Custom Metadata
 -----------------
--> talk about how metadata is often available (with examples)
 
--> in this tutorial we will extract the metadata from the annotations
+In many datasets, images come with additional metainformation. For example, in autonomous driving,
+it's normal to record not only the image but also the current weather situation, the road type, and
+further situation specific information like the presence of vulnerable street users. In our case,
+the metadata can be extracted from the annotations.
 
--> look at statistics from the Roboflow website: strong imbalance (x23 from least to most common)
+.. note:: 
 
--> we want to counteract this imbalance
+    Balancing a dataset by different available metadata is crucial for machine learning.
 
--> show how to extract and save in correct structure (code below)
+Let's take a look at the dataset statistics from the `Roboflow website <https://public.roboflow.com/object-detection/aquarium>`_.
+The table below contains the class names and instance counts of the dataset
 
++---------------+----------------+
+| Class Name    | Instance Count |
++===============+================+
+| fish          | 2669           |
++---------------+----------------+
+| jellyfish     | 694            |
++---------------+----------------+
+| penguin       | 516            |
++---------------+----------------+
+| shark         | 354            |
++---------------+----------------+
+| puffin        | 284            |
++---------------+----------------+
+| stingray      | 184            |
++---------------+----------------+
+| starfish      | 116            |
++---------------+----------------+
+
+We can see that the dataset at hand is heavily imbalanced - the class distribution is long tail. 
+The most common class is `fish` and objects of that class appear 23 times more often than members 
+of the weakest represented class `starfish`. In order to counteract this imbalance, we want to 
+**remove redundant images which show a lot of fish** from the dataset.
+
+
+Let's start by figuring out how many objects of each class are on each image. The following code extracts metadata from COCO annotations and saves them in a 
+lightly-friendly format. If you want to skip this step, you can use the provided `_annotations.coco.metadata.json`.
+
+.. note:: You can save your own custom metadata with :py:class:`lightly.utils.io.save_custom_metadata`.
 
 .. code-block:: python
 
@@ -60,7 +92,6 @@ Custom Metadata
     PATH_TO_COCO_ANNOTATIONS = 'PATH/TO/AQUARIUM/_annotations.cooo.json'
     OUTPUT_FILE = 'my_custom_metadata.json'
 
-
     # read coco annotations
     with open(PATH_TO_COCO_ANNOTATIONS, 'r')  as f:
         coco_annotations = json.load(f)
@@ -68,12 +99,10 @@ Custom Metadata
         categories = coco_annotations['categories']
         images = coco_annotations['images']
 
-
     # create a mapping from category id to category name
     category_id_to_category_name = {}
     for category in categories:
         category_id_to_category_name[category['id']] = category['name']
-
 
     # create a list of pairs of (filename, metadata)
     custom_metadata = []
@@ -92,21 +121,22 @@ Custom Metadata
         # append (filename, metadata) to the list
         custom_metadata.append((image['file_name'], metadata))
 
-
     # save custom metadata in the correct json format
     save_custom_metadata(OUTPUT_FILE, custom_metadata)
 
 
-Upload the custom dataset along with your dataset:
+Now that we have extracted and saved the custom metadata in the correct format,
+we can upload the dataset to the `Lightly web-app <https://app.lightly.ai>`_. 
+Don't forget to replace the variables `YOUR_TOKEN`, `YOUR_DATASET_PATH` and `YOUR_CUSTOM_METADATA_FILE.json` in the command below.
 
 .. code-block:: bash
 
     lightly-magic input_dir="./aquarium" trainer.max_epochs=0 token=YOUR_TOKEN new_dataset_name="Aquarium" custom_metadata=YOUR_CUSTOM_METADATA_FILE.json
 
 
-Note that if you already have a dataset on the Lightly platform, you can add custom metadata with
+Note that if you already have a dataset on the Lightly platform, you can add custom metadata with:
 
-.. code-block::bash
+.. code-block:: bash
 
     lightly-upload token=YOUR_TOKEN dataset_id=YOUR_DATASET_ID custom_metadata=YOUR_CUSTOM_METADATA_FILE.json
 
