@@ -110,3 +110,19 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
         )
 
         agent.query(sampler_config)
+
+    def test_agent_only_upload_scores(self):
+        self.api_workflow_client.embedding_id = "embedding_id_xyz"
+        agent = ActiveLearningAgent(
+            self.api_workflow_client,
+            preselected_tag_name="preselected_tag_name_xyz",
+        )
+
+        n_predictions = len(agent.query_set)
+        predictions = np.random.rand(n_predictions, 10).astype(np.float32)
+        predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
+        al_scorer = ScorerClassification(predictions_normalized)
+
+        agent.upload_scores(al_scorer)
+
+
