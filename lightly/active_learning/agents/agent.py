@@ -162,6 +162,13 @@ class ActiveLearningAgent:
 
 
     def upload_scores(self, al_scorer: Scorer):
+        """Computes and uploads active learning scores to the Lightly webapp.
+
+        Args:
+            al_scorer:
+                An instance of a class inheriting from Scorer, e.g. a ClassificationScorer.
+
+        """
         # calculate active learning scores
         al_scores_dict = al_scorer.calculate_scores()
 
@@ -179,9 +186,11 @@ class ActiveLearningAgent:
 
     def query(self,
               sampler_config: SamplerConfig,
-              al_scorer: Scorer = None) -> Tuple[List[str], List[str]]:
+              al_scorer: Scorer = None):
         """Performs an active learning query.
 
+        First the active learning scores are computed and uploaded,
+        then the sampling query is performed.
         After the query, the labeled set is updated to contain all selected samples,
         the added set is recalculated as (new labeled set - old labeled set), and
         the query set stays the same.
