@@ -161,11 +161,36 @@ class ActiveLearningAgent:
         )
 
 
+    def upload_scores(self, al_scorer: Scorer):
+        """Computes and uploads active learning scores to the Lightly webapp.
+
+        Args:
+            al_scorer:
+                An instance of a class inheriting from Scorer, e.g. a ClassificationScorer.
+
+        """
+        # calculate active learning scores
+        al_scores_dict = al_scorer.calculate_scores()
+
+        # Check if the length of the query_set and each of the scores are the same
+        no_query_samples = len(self.query_set)
+        for score in al_scores_dict.values():
+            no_query_samples_with_scores = len(score)
+            if no_query_samples != no_query_samples_with_scores:
+                raise ValueError(
+                    f'Number of query samples ({no_query_samples}) must match '
+                    f'the number of predictions ({no_query_samples_with_scores})!'
+                )
+        self.api_workflow_client.upload_scores(al_scores_dict, self._query_tag_id)
+
+
     def query(self,
               sampler_config: SamplerConfig,
-              al_scorer: Scorer = None) -> Tuple[List[str], List[str]]:
+              al_scorer: Scorer = None):
         """Performs an active learning query.
 
+        First the active learning scores are computed and uploaded,
+        then the sampling query is performed.
         After the query, the labeled set is updated to contain all selected samples,
         the added set is recalculated as (new labeled set - old labeled set), and
         the query set stays the same.
@@ -187,26 +212,12 @@ class ActiveLearningAgent:
             )
             return
 
-        # calculate active learning scores
-        scores_dict = None
-        if al_scorer is not None:
-            scores_dict = al_scorer.calculate_scores()
-
-            # Check if the length of the query_set and each of the scores are the same
-            no_query_samples = len(self.query_set)
-            for score in scores_dict.values():
-                no_query_samples_with_scores = len(score)
-                if no_query_samples != no_query_samples_with_scores:
-                    raise ValueError(
-                        f'Number of query samples ({no_query_samples}) must match '
-                        f'the number of predictions ({no_query_samples_with_scores})!'
-                    )
-
+        if al_scorer:
+            self.upload_scores(al_scorer)
 
         # perform the sampling
         new_tag_data = self.api_workflow_client.sampling(
             sampler_config=sampler_config,
-            al_scores=scores_dict,
             preselected_tag_id=self._preselected_tag_id,
             query_tag_id=self._query_tag_id
         )
