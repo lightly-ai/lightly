@@ -1,5 +1,5 @@
 import time
-from typing import Dict, List
+from typing import Dict, List, Union
 
 import numpy as np
 
@@ -10,11 +10,11 @@ from lightly.openapi_generated.swagger_client.models.job_status_data import JobS
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from lightly.openapi_generated.swagger_client.models.sampling_config import SamplingConfig
 from lightly.openapi_generated.swagger_client.models.sampling_create_request import SamplingCreateRequest
-from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import SamplingConfigStoppingCondition
+from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import \
+    SamplingConfigStoppingCondition
 
 
-
-def _parse_active_learning_scores(scores):
+def _parse_active_learning_scores(scores: Union[np.ndarray, List]):
     """Makes list/np.array of active learning scores serializable.
 
     """
@@ -26,11 +26,34 @@ def _parse_active_learning_scores(scores):
     return list(scores)
 
 
-
 class _SamplingMixin:
 
-    def sampling(self, sampler_config: SamplerConfig, al_scores: Dict[str, List[np.ndarray]] = None,
-                 preselected_tag_id: str = None, query_tag_id: str = None) -> TagData:
+    def upload_scores(self, al_scores: Dict[str, np.ndarray], query_tag_id: str = None):
+
+        tags = self._get_all_tags()
+
+        # upload the active learning scores to the api
+        # change @20210422: we store the active learning scores with the query
+        # tag. policy is that if there's no explicit query tag, the whole dataset
+        # will be the query tag (i.e. query_tag = initial-tag)
+        # set the query tag to the initial-tag if necessary
+        if query_tag_id is None:
+            query_tag = next(t for t in tags if t.name == 'initial-tag')
+            query_tag_id = query_tag.id
+        # iterate over all available score types and upload them
+        for score_type, score_values in al_scores.items():
+            body = ActiveLearningScoreCreateRequest(
+                score_type=score_type,
+                scores=_parse_active_learning_scores(score_values)
+            )
+            self.scores_api.create_or_update_active_learning_score_by_tag_id(
+                body,
+                dataset_id=self.dataset_id,
+                tag_id=query_tag_id,
+            )
+
+    def sampling(self, sampler_config: SamplerConfig, preselected_tag_id: str = None, query_tag_id: str = None) \
+            -> TagData:
         """Performs a sampling given the arguments.
 
         Args:
@@ -64,28 +87,6 @@ class _SamplingMixin:
         except AttributeError:
             self.set_embedding_id_by_name()
 
-
-        # upload the active learning scores to the api
-        # change @20210422: we store the active learning scores with the query
-        # tag. policy is that if there's no explicit query tag, the whole dataset
-        # will be the query tag (i.e. query_tag = initial-tag)
-        if al_scores is not None:
-            # set the query tag to the initial-tag if necessary
-            if query_tag_id is None:
-                query_tag = next(t for t in tags if t.name == 'initial-tag')
-                query_tag_id = query_tag.id
-            # iterate over all available score types and upload them
-            for score_type, score_values in al_scores.items():
-                body = ActiveLearningScoreCreateRequest(
-                    score_type=score_type,
-                    scores=_parse_active_learning_scores(score_values)
-                )
-                self.scores_api.create_or_update_active_learning_score_by_tag_id(
-                    body,
-                    dataset_id=self.dataset_id,
-                    tag_id=query_tag_id,
-                )
-
         # trigger the sampling
         payload = self._create_sampling_create_request(sampler_config, preselected_tag_id, query_tag_id)
         payload.row_count = self._get_all_tags()[0].tot_size
@@ -98,9 +99,9 @@ class _SamplingMixin:
 
         wait_time_till_next_poll = getattr(self, "wait_time_till_next_poll", 1)
         while job_status_data is None \
-            or job_status_data.status == JobState.RUNNING \
+                or job_status_data.status == JobState.RUNNING \
                 or job_status_data.status == JobState.WAITING \
-                    or job_status_data.status == JobState.UNKNOWN:
+                or job_status_data.status == JobState.UNKNOWN:
             # sleep before polling again
             time.sleep(wait_time_till_next_poll)
             # try to read the sleep time until the next poll from the status data
@@ -148,4 +149,3 @@ class _SamplingMixin:
                                                         preselected_tag_id=preselected_tag_id,
                                                         query_tag_id=query_tag_id)
         return sampling_create_request
-

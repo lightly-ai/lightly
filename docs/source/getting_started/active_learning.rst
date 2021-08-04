@@ -184,10 +184,18 @@ you can access the filenames of all the images in the labeled set and the filena
 added by this query via the attributes `labeled_set` and `added_set` respectively.
 You can repeat the active learning step until the model achieves the required accuracy.
 
+As the web-app allows viewing the active learning scores in the embedding view,
+there are usecases where only active learning scores should be uploaded to the web-app,
+but without performing a sampling. This is also easily possible:
+
+.. code-block:: Python
+
+   al_agent.upload_scores(scorer)
+
 Scorers
 -----------------
 Lightly has so called scorers for the common computer vision tasks such as 
-image classification, detection and others. Depending on the task your working
+image classification, detection and others. Depending on the task you are working
 on you can use a different scorer.
 
 Image Classification
