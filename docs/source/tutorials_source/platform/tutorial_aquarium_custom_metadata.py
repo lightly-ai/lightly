@@ -53,10 +53,10 @@ the metadata can be extracted from the annotations.
     Balancing a dataset by different available metadata is crucial for machine learning.
 
 Let's take a look at the dataset statistics from the `Roboflow website <https://public.roboflow.com/object-detection/aquarium>`_.
-The table below contains the class names and instance counts of the dataset
+The table below contains the category names and instance counts of the dataset
 
 +---------------+----------------+
-| Class Name    | Instance Count |
+| Category Name    | Instance Count |
 +===============+================+
 | fish          | 2669           |
 +---------------+----------------+
@@ -73,13 +73,13 @@ The table below contains the class names and instance counts of the dataset
 | starfish      | 116            |
 +---------------+----------------+
 
-We can see that the dataset at hand is heavily imbalanced - the class distribution is long tail. 
-The most common class is `fish` and objects of that class appear 23 times more often than members 
-of the weakest represented class `starfish`. In order to counteract this imbalance, we want to 
+We can see that the dataset at hand is heavily imbalanced - the category distribution is long tail. 
+The most common category is `fish` and objects of that category appear 23 times more often than members 
+of the weakest represented category `starfish`. In order to counteract this imbalance, we want to 
 **remove redundant images which show a lot of fish** from the dataset.
 
 
-Let's start by figuring out how many objects of each class are on each image. The following code extracts metadata from COCO annotations and saves them in a 
+Let's start by figuring out how many objects of each category are on each image. The following code extracts metadata from COCO annotations and saves them in a 
 lightly-friendly format. If you want to skip this step, you can use the provided `_annotations.coco.metadata.json`.
 
 .. note:: You can save your own custom metadata with :py:class:`lightly.utils.io.save_custom_metadata`.
@@ -108,7 +108,7 @@ lightly-friendly format. If you want to skip this step, you can use the provided
     custom_metadata = []
     for image in images:
 
-        # we want to count the number of instances of every class on the image
+        # we want to count the number of instances of every category on the image
         metadata = {'number_of_instances': {}}
         for category in categories:
             metadata['number_of_instances'][category['name']] = 0
@@ -127,7 +127,7 @@ lightly-friendly format. If you want to skip this step, you can use the provided
 
 Now that we have extracted and saved the custom metadata in the correct format,
 we can upload the dataset to the `Lightly web-app <https://app.lightly.ai>`_. 
-Don't forget to replace the variables `YOUR_TOKEN`, `YOUR_DATASET_PATH` and `YOUR_CUSTOM_METADATA_FILE.json` in the command below.
+Don't forget to replace the variables `YOUR_TOKEN`, and `YOUR_CUSTOM_METADATA_FILE.json` in the command below.
 
 .. code-block:: bash
 
@@ -141,17 +141,72 @@ Note that if you already have a dataset on the Lightly platform, you can add cus
     lightly-upload token=YOUR_TOKEN dataset_id=YOUR_DATASET_ID custom_metadata=YOUR_CUSTOM_METADATA_FILE.json
 
 
+.. note::
+
+    Check out :py:class:`lightly.api.api_workflow_client.ApiWorkflowClient.upload_custom_metadata`
+    to learn more about the expected format of the custom metadata json file.
+
+
 Configuration
 ---------------
--> configure a custom metadata which shows the number of fish on an image
+In order to use custom metadata in the web-app, it needs to be configured first. For this, head to your dataset and 
+select the `Settings > Custom Metadata` menu. We name the configuration `Number of Fish` since we're interested in the
+number of fish on each image. Next, we fill in the `Path`: To do so, we click on it and select `number_of_instances.fish`.
+Finally, we pick `Integer` as a data type. The configured custom metadata should look like this:
 
--> explain how to confirm configuration is correct (sort-by & plot)
+.. figure:: ../../tutorials_source/platform/images/custom_metadata_configuration_aquarium.png
+   :align: center
+   :alt: Custom metadata configuration for number of fish
+
+   Completed configuration for the custom metadata "Number of Fish".
+
+
+To verify the configuration works correctly, we can head to the `Explore` screen and sort our dataset by the `Number of Fish`.
+If we decrease in descending order we can easily verify that the metadata is configured properly.
+
+Next, we head to the `Embedding` page. On the top right, we select `Color by property` and set it to `Number of Fish`. This will highlight
+clusters of similar images with many fish on them:
+
+.. figure:: ../../tutorials_source/platform/images/custom_metadata_scatter_plot.png
+   :align: center
+   :alt: Custom metadata scatter plot
+
+   Scatter plot highlighting clusters of similar images with many fish on them (light green).
 
 
 Rebalancing
 ----------------
--> subsample the "many fish cluster" to reduce the number of fish in the dataset
+As we have seen earlier in this tutorial, the aquarium dataset is heavily imbalanced. The scatter plot also tells us that the bulk of the 
+fish instances in the dataset comes from a few, similar images. We want to rebalance the dataset by only keeping a diverse subset of these
+images. For this, we start by creating a new tag consisting only of images with a lot of fish in them. We do so, by shift-clicking in the
+scatter plot and drawing a circle around the clusters of interest. We call the tag `Fish`.
 
--> result should be a rebalanced dataset
+.. figure:: ../../tutorials_source/platform/images/custom_metadata_scatter_plot_with_tag.png
+    :align: center
+    :alt: Custom metadata scatter plot (fish tag)
+
+    Scatter plot of the tag we named "Fish".
+
+Now, we can use CORESET sampling to diversify this tag and reduce the number of images in it (see `Tutorial 2: Diversify the Sunflowers Dataset` 
+if you're not familiar with subsampling). We use CORESET to create the tag `FewerFish` with only 10 remaining images.
+
+Lastly, all we need to do in order to get the balanced dataset is merge the `FewerFish` tag with the remainder of the dataset. For this we can use
+`tag arithmetics`:
+
+1. We open the tag tree by clicking on the three dots in the navigation bar and unravel it.
+
+2. We create a new tag which is the inverse of the `Fish` tag. We start by left-clicking on `initial-tag` and shift-clicking on the `Fish` tag. The tag arithmetics menu should pop up. We select `difference`, put in the name `NoFish` and hit enter.
+
+3. We create the final dataset by taking the union of the `NoFish` and the `FewerFish` tag.
+
+In the end, the tag tree should look like this:
+
+.. figure:: ../../tutorials_source/platform/images/final_tag_tree.png
+    :align: center
+    :alt: Final tag tree.
+
+    The final tag tree with the tags `Fish`, `FewerFish`, `NoFish`, and `final-tag`.
+
+Now we can use the balanced dataset to train our machine learning model. We can easily download the data from the `Download` page.
 
 """
