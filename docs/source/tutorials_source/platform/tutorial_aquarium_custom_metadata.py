@@ -82,6 +82,12 @@ of the weakest represented category `starfish`. In order to counteract this imba
 Let's start by figuring out how many objects of each category are on each image. The following code extracts metadata from COCO annotations and saves them in a 
 lightly-friendly format. If you want to skip this step, you can use the provided `_annotations.coco.metadata.json`.
 
+.. note::
+
+    Check out :py:class:`lightly.api.api_workflow_client.ApiWorkflowClient.upload_custom_metadata`
+    to learn more about the expected format of the custom metadata json file.
+
+
 .. note:: You can save your own custom metadata with :py:class:`lightly.utils.io.save_custom_metadata`.
 
 .. code-block:: python
@@ -89,8 +95,8 @@ lightly-friendly format. If you want to skip this step, you can use the provided
     import json
     from lightly.utils import save_custom_metadata
 
-    PATH_TO_COCO_ANNOTATIONS = 'PATH/TO/AQUARIUM/_annotations.cooo.json'
-    OUTPUT_FILE = 'my_custom_metadata.json'
+    PATH_TO_COCO_ANNOTATIONS = './aquarium/_annotations.cooo.json'
+    OUTPUT_FILE = '_annotations.coco.metadata.json'
 
     # read coco annotations
     with open(PATH_TO_COCO_ANNOTATIONS, 'r')  as f:
@@ -141,12 +147,6 @@ Note that if you already have a dataset on the Lightly platform, you can add cus
     lightly-upload token=YOUR_TOKEN dataset_id=YOUR_DATASET_ID custom_metadata=YOUR_CUSTOM_METADATA_FILE.json
 
 
-.. note::
-
-    Check out :py:class:`lightly.api.api_workflow_client.ApiWorkflowClient.upload_custom_metadata`
-    to learn more about the expected format of the custom metadata json file.
-
-
 Configuration
 ---------------
 In order to use custom metadata in the web-app, it needs to be configured first. For this, head to your dataset and 
@@ -162,7 +162,7 @@ Finally, we pick `Integer` as a data type. The configured custom metadata should
 
 
 To verify the configuration works correctly, we can head to the `Explore` screen and sort our dataset by the `Number of Fish`.
-If we decrease in descending order we can easily verify that the metadata is configured properly.
+If we sort in descending order we see that images with many fish are shown first. This verifies that the metadata is configured properly.
 
 Next, we head to the `Embedding` page. On the top right, we select `Color by property` and set it to `Number of Fish`. This will highlight
 clusters of similar images with many fish on them:
