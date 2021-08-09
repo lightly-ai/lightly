@@ -63,9 +63,9 @@ def crop_dataset_by_bounding_boxes_and_save(dataset: LightlyDataset,
             tqdm(zip(filenames_images, class_indices_list_list, bounding_boxes_list_list)):
 
         if not len(class_indices) == len(bounding_boxes):
-            warnings.warn(f"Length of class indices ({len(class_indices)} does not equal length of bounding boxes"
+            warnings.warn(UserWarning(f"Length of class indices ({len(class_indices)} does not equal length of bounding boxes"
                           f"({len(bounding_boxes)}. This is an error in the input arguments. "
-                          f"Skipping this image {filename_image}.")
+                          f"Skipping this image {filename_image}."))
             continue
 
         filepath_image = dataset.get_filepath_from_filename(filename_image)

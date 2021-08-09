@@ -113,11 +113,11 @@ class TestCLICrop(MockedApiWorkflowSetup):
                                                         class_indices_list_list,
                                                         class_names)
         with self.subTest("wrong internal length of class_indices_list_list"):
-            with self.assertRaises(ValueError):
+            with self.assertWarns(UserWarning):
                 class_indices_list_list[0] *= 2
                 crop_dataset_by_bounding_boxes_and_save(dataset,
                                                         output_dir,
-                                                        bounding_boxes_list_list[:-1],
+                                                        bounding_boxes_list_list,
                                                         class_indices_list_list,
                                                         class_names)
 
