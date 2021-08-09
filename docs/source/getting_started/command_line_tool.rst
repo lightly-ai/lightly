@@ -113,7 +113,7 @@ Lightly-magic is a singular command for training, embedding, and uploading to th
     loader.num_workers=8 token=yourToken new_dataset_name=myNewDataset
     
     
-    .. _ref-upload-custom-metadata-lightly:
+.. _ref-upload-custom-metadata-lightly:
 
 Upload custom metadata using the CLI
 ---------------------------------------
@@ -177,6 +177,12 @@ To add the metadata in the web-app, simply pass it to the `lightly-magic` comman
 
     lightly-magic input_dir=data_dir trainer.max_epochs=0 loader.num_workers=8 \
     token=yourToken dataset_id=yourDatasetId custom_metadata=yourCustomMetadata.json
+
+Alternatively, you can upload custom metadata to an already existing dataset like this:
+
+.. code-block:: bash
+
+    lightly-upload token=yourToken dataset_id=yourDatasetId custom_metadata=yourCustomMetadata.json
 
 
 Train a model using the CLI

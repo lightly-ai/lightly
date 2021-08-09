@@ -68,6 +68,9 @@ def _calculate_scores_for_single_prediction(prediction: np.ndarray):
 class ScorerSemanticSegmentation(Scorer):
     """Class to compute active learning scores for a semantic segmentation task.
 
+    Note: Since predictions for semantic segmentation may consume a lot of memory,
+    it's also possible to use the scorer with a generator. See below for an example.
+
     Currently supports the following scores:
         `uncertainty scores`:
             These scores are calculated by treating each pixel as its own 
@@ -81,13 +84,21 @@ class ScorerSemanticSegmentation(Scorer):
             of classes (e.g. C=2 for two classes foreground and background).
 
     Examples:
-        >>> # typical output of a semantic segmentation model is a list 
-        >>> # of W x H x C prediction arrays (one for each input)
-        >>> model_output[0].shape
-        >>> > 512 x 512 x 2
+        >>> # use a generator of predictions to calculate active learning scores
+        >>> def generator(filenames: List[string]):
+        >>>     for filename in filenames:
+        >>>         path = os.path.join(ROOT_PATH, filename)
+        >>>         img_tensor = prepare_img(path).to('cuda') 
+        >>>         with torch.no_grad():
+        >>>             out = model(img_tensor)
+        >>>             out = torch.softmax(out, axis=1)
+        >>>             out = out.squeeze(0)
+        >>>             out = out.transpose(0,2)
+        >>>             yield out.cpu().numpy()
         >>>
         >>> # create a scorer and calculate the active learning scores
-        >>> scorer = ScorerSemanticSegmentation(model_output)
+        >>> model_output_generator = generator(al_agent.query_set)
+        >>> scorer = ScorerSemanticSegmentation(model_output_generator)
         >>> scores = scorer.calculate_scores()
 
     """

@@ -3,10 +3,15 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import List
+import json
+import csv
+from typing import List, Tuple, Dict
 
 import numpy as np
-import csv
+
+
+from lightly.api.api_workflow_upload_metadata import _COCO_ANNOTATION_KEYS
+
 
 def save_embeddings(path: str,
                     embeddings: np.ndarray,
@@ -147,3 +152,63 @@ def load_embeddings_as_dict(path: str,
     else:
         return data
 
+
+
+
+
+def format_custom_metadata(custom_metadata: List[Tuple[str, Dict]]):
+    """Transforms custom metadata into a format which can be handled by Lightly.
+
+    Args:
+        custom_metadata:
+            List of tuples (filename, metadata) where metadata is a dictionary.
+
+    Returns:
+        A dictionary of formatted custom metadata.
+
+    Examples:
+        >>> custom_metadata = [
+        >>>     ('hello.png', {'number_of_people': 1}),
+        >>>     ('world.png', {'number_of_people': 3}),
+        >>> ]
+        >>> 
+        >>> format_custom_metadata(custom_metadata)
+        >>> > {
+        >>> >   'images': [{'id': 0, 'file_name': 'hello.png'}, {'id': 1, 'file_name': 'world.png'}],
+        >>> >   'metadata': [{'image_id': 0, 'number_of_people': 1}, {'image_id': 1, 'number_of_people': 3}]
+        >>> > }
+    
+    """
+    formatted = {
+        _COCO_ANNOTATION_KEYS.images: [],
+        _COCO_ANNOTATION_KEYS.custom_metadata: [],
+    }
+
+    for i, (filename, metadata) in enumerate(custom_metadata):
+        formatted[_COCO_ANNOTATION_KEYS.images].append({
+            _COCO_ANNOTATION_KEYS.images_id: i,
+            _COCO_ANNOTATION_KEYS.images_filename: filename,
+        })
+        formatted[_COCO_ANNOTATION_KEYS.custom_metadata].append({
+            _COCO_ANNOTATION_KEYS.custom_metadata_image_id: i,
+            **metadata,
+        })
+
+    return formatted
+
+
+
+
+def save_custom_metadata(path: str, custom_metadata: List[Tuple[str, Dict]]):
+    """Saves custom metadata in a .json.
+
+    Args:
+        path:
+            Filename of the .json file where the data should be stored.
+        custom_metadata:
+            List of tuples (filename, metadata) where metadata is a dictionary.
+    
+    """
+    formatted = format_custom_metadata(custom_metadata)
+    with open(path, 'w') as f:
+        json.dump(formatted, f)
