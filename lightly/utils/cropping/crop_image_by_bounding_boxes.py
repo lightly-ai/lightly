@@ -81,9 +81,12 @@ def crop_dataset_by_bounding_boxes_and_save(dataset: LightlyDataset,
                 class_name = class_names[class_index]
             else:
                 class_name = f"class{class_index}"
-            cropped_image_filepath = os.path.join(filepath_out_dir, f'{index}_{class_name}{image_extension}')
-            cropped_images_filepaths.append(cropped_image_filepath)
+            cropped_image_last_filename = f'{index}_{class_name}{image_extension}'
+            cropped_image_filepath = os.path.join(filepath_out_dir, cropped_image_last_filename)
             cropped_image.save(cropped_image_filepath)
+
+            cropped_image_filename = os.path.join(filename_image.replace(image_extension, ''), cropped_image_last_filename)
+            cropped_images_filepaths.append(cropped_image_filename)
 
         cropped_image_filepath_list_list.append(cropped_images_filepaths)
 

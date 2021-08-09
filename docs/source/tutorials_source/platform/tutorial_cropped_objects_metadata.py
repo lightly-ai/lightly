@@ -1,16 +1,19 @@
 import torch
 import torchvision
 from torch.utils.data import DataLoader
+from torch.utils.hipify.hipify_python import bcolors
 from tqdm import tqdm
 
 from lightly.active_learning.utils import BoundingBox
 from lightly.data import LightlyDataset
 from lightly.data.lightly_subset import LightlySubset
+from lightly.utils import save_custom_metadata
 from lightly.utils.cropping.crop_image_by_bounding_boxes import crop_dataset_by_bounding_boxes_and_save
 
-DATASET_PATH = "../../datasets/retail_SKU110k/SKU_110k_val_100/valid/images"
-CATEGORY_NAMES_PATH = "../../datasets/retail_SKU110k/SKU_110k_val_100/coco_stuff_91_category_names.txt"
-OUTPUT_DIR = "../../datasets/retail_SKU110k/SKU_110k_val_100/valid/cropped_images"
+BASE_PATH = "../../datasets/retail_SKU110k/SKU_110k_val_100/valid/"
+DATASET_PATH = BASE_PATH+"images"
+OUTPUT_DIR = BASE_PATH+"cropped_images"
+METADATA_OUTPUT_FILE = BASE_PATH+"cropped_images_objectness_scores.json"
 debug = True
 
 ''' Define the dataset and dataloader'''
@@ -62,7 +65,11 @@ objectness_scores_list_list = [list(prediction["scores"]) for prediction in pred
 metadata_list = []
 for cropped_images_list, objectness_scores_list in zip(cropped_images_list_list, objectness_scores_list_list):
     for cropped_images_filename, objectness_score in zip(cropped_images_list, objectness_scores_list):
-        metadata_list.append((cropped_images_filename, {"objectness_score": objectness_score}))
+        metadata_list.append((cropped_images_filename, {"objectness_score": float(objectness_score)}))
+save_custom_metadata(METADATA_OUTPUT_FILE,metadata_list)
 
-
-i=0
+''' Tell the lightly CLI command '''
+cli_command = f"lightly-magic input_dir={OUTPUT_DIR} new_dataset_name=SKU_110k_val_cropped trainer.max_epochs=0 " \
+              f"custom_metadata={METADATA_OUTPUT_FILE} token=MY_TOKEN"
+print(f"Upload the images and custom metadata with the following CLI command:")
+print(f"{bcolors.OKBLUE}{cli_command}{bcolors.ENDC}")
