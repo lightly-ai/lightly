@@ -1,5 +1,7 @@
 """
 
+.. _lightly-tutorial-sunflowers:
+
 Tutorial 2: Diversify the Sunflowers Dataset
 =============================================
 

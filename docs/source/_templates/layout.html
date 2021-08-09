@@ -1,4 +1,8 @@
 {% extends "!layout.html" %}
+
+{# Custom CSS overrides #}
+  {% set bootswatch_css_custom = ['/_static/my-styles.css'] %}
+
 {% block footer %}
 {{ super() }}
 
@@ -46,6 +50,4 @@
   }*/
 </style>
 
-  {# Custom CSS overrides #}
-  {% set bootswatch_css_custom = ['_static/my-styles.css'] %}
 {% endblock %}
