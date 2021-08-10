@@ -141,7 +141,7 @@ a pretrained one. For more information, head to :ref:`lightly-command-line-tool`
 7. Once the cropped images, embeddings and metadata are uploaded, we can use the Lightly Webapp
 to configure the Objectness Score as metadata. This is done in the Configuration view.
 
-.. figure:: ../../tutorials_source/platform/images/tutorial_cropped_objects_metadata/sku110k_config_metadata.png
+.. figure:: ../../tutorials_source/platform/images/tutorial_cropped_objects_metadata/sku110k_config_metadata.jpg
     :align: center
     :alt: Configuration of Objectness Score as metadata
 
@@ -149,7 +149,7 @@ to configure the Objectness Score as metadata. This is done in the Configuration
 We directly see that many images show images despite having a low objectness score,
 thus they are false negatives / missing examples.
 
-.. figure:: ../../tutorials_source/platform/images/tutorial_cropped_objects_metadata/sku110k_explore_sort_objectness.png
+.. figure:: ../../tutorials_source/platform/images/tutorial_cropped_objects_metadata/sku110k_explore_sort_objectness.jpg
     :align: center
     :alt: Explore view of images sorted by ascending objectness score
 
@@ -158,7 +158,7 @@ thus it is false negative. Similar images which are also false negatives are sho
 Thus all of them can be added directly to the list of missing examples,
 instead of finding and adding all of them by hand.
 
-.. figure:: ../../tutorials_source/platform/images/tutorial_cropped_objects_metadata/sku110k_find_similar.png
+.. figure:: ../../tutorials_source/platform/images/tutorial_cropped_objects_metadata/sku110k_find_similar.jpg
     :align: center
     :alt: Detail view of a missing examples together with similar samples
 
