@@ -144,22 +144,22 @@ For more information, head to :ref:`lightly-command-line-tool`.
     :align: center
     :alt: Terminal output of lightly-magic command.
 
-7. Once the cropped images, embeddings and metadata are uploaded, we can use the Lightly Webapp
+7. Once the cropped images, embeddings and metadata are uploaded, you can use the Lightly Webapp
 to configure the Objectness Score as metadata. This is done in the Configuration view.
 
 .. figure:: ../../tutorials_source/platform/images/tutorial_cropped_objects_metadata/sku110k_config_metadata.jpg
     :align: center
     :alt: Configuration of Objectness Score as metadata
 
-8. Now we can switch to the explore view and select to sort by the Objectness Score in ascending order.
-We directly see that many images show images despite having a low objectness score,
+8. Now you can switch to the explore view and select to sort by the Objectness Score in ascending order.
+You see that many images show objects despite having a low objectness score,
 thus they are false negatives / missing examples.
 
 .. figure:: ../../tutorials_source/platform/images/tutorial_cropped_objects_metadata/sku110k_explore_sort_objectness.jpg
     :align: center
     :alt: Explore view of images sorted by ascending objectness score
 
-When clicking on one them, we wee that they it has a low objectness score of only 0.05, despite showing an object,
+When clicking on one them, you see that it has a low objectness score of only 0.05, despite showing an object,
 thus it is false negative. Similar images which are also false negatives are shown as well.
 Thus all of them can be added directly to the list of missing examples,
 instead of finding and adding all of them by hand.
