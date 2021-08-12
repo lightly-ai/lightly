@@ -42,13 +42,13 @@ For this tutorial the `lightly` pip package needs to be installed:
 .. code-block:: bash
 
     # Install lightly as a pip package
-    pip install lightly.
+    pip install lightly
 
 Steps
 -------------
 
 The steps of this tutorial are quite straightforward:
-    1. Define the dataset and torch dataloader for your dataset. You need to provide the path to the dataset images.
+    1. Define the dataset in form of a LightlyDataset of torch tensors. You need to provide the path to the dataset images.
     2. Define a pretrained object detection model. We use the retina net trained on COCO 2017. As it was not pretrained on a retail dataset, its performance is not state-of-the art. Nonetheless, it is sufficient for this tutorial and very easy to use.
     3. Predict with the model on the dataset.
     4. Use the bounding boxes of the object predictions to crop the objects out of the full images and save them in the output directory.
@@ -57,11 +57,7 @@ The steps of this tutorial are quite straightforward:
     7. In the Lightly Webapp: Configure the objectness score as custom metadata.
     8. In the Lightly Webapp: Sort the images in the explore view by increasing objectness score. This allows to easily find missing examples / false positives and similar images to them.
 
-Computational Expense
--------------
-* Step 3 needs to run a model on every image in your dataset. In step 6, when embedding all cropped images, an embedding model needs to be run on every of them. These two are computationally expensive. They run much faster if you have CUDA support.
-* In step 4, every detected object needs to be cropped out and saved on the disk.
-* In step 6, uploading all cropped images takes a while, approximately 30 images/s can be achieved.
+For 100 input images with 150 predicted objects on each image, the tutorial runs in about 30 minutes on a Laptop CPU.
 
 .. code-block:: python
 
@@ -81,7 +77,7 @@ Computational Expense
     # the file where the objectness scores will be saved
     METADATA_OUTPUT_FILE = BASE_PATH+"cropped_images_objectness_scores.json"
 
-    ''' 1. Define the dataset and dataloader'''
+    ''' 1. Define the dataset'''
     x_size = 2048
     y_size = 2048
     transform = torchvision.transforms.Compose([
