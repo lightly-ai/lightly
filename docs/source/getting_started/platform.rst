@@ -45,7 +45,7 @@ The video below gives you a quick tour through the platform:
 Basic Concepts
 -----------------------------------
 
-The Lightly Platform is built around datasets, tags, embeddings, and image metadata.
+The Lightly Platform is built around datasets, tags, embeddings, samples and their metadata.
 
 Learn more about the different concepts in our `Glossary <https://app.lightly.ai/glossary>`_.
 
@@ -163,9 +163,15 @@ Format
 ^^^^^^^^^^^
 
 In order to upload the custom metadata, you need to save it to a `.json` file in a COCO-like format.
-The following things are important: Information about the images is stored under the key `images`.
-Each image must have a `file_name` and an `id`. Custom metadata must be accessed with the `metadata` 
-key and each entry must have an `image_id` to match it with the corresponding image.
+The following things are important:
+
+- Information about the images is stored under the key `images`.
+
+- Each image must have a `file_name` and an `id`.
+
+- Custom metadata must be accessed with the `metadata` key.
+
+- Each custom metadata entry must have an `image_id` to match it with the corresponding image.
 
 For the example of an autonomous driving company mentioned above, the custom metadata file would
 need to look like this:
@@ -209,7 +215,7 @@ need to look like this:
           recommended.
 
 .. note:: Lightly supports integers, floats, strings, booleans, and even nested objects for
-          custom metadata.
+          custom metadata. Every metadata item must be a valid JSON object.
 
 
 

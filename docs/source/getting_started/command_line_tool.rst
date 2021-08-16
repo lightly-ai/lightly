@@ -220,7 +220,7 @@ Upload custom metadata using the CLI
 ---------------------------------------
     
 You can upload custom metadata along with your images. Custom metadata can be used
-to gain additional insights in the web-app (see :ref:`platform-custom-metadata`).
+to gain additional insights in the `Lightly Platform <https://app.lightly.ai>`_ (see :ref:`platform-custom-metadata`).
 
 To upload custom metadata, simply pass it to the `lightly-magic` command:
 

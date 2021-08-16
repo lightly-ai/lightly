@@ -232,7 +232,7 @@ For more information check the documentation:
 Obtaining Good Embeddings
 ---------------------------
 
-We optimized the workflow of sampling only important datapoints by using **low-dimensional embeddings**. 
+We optimize the workflow of sampling only important datapoints by using **low-dimensional embeddings**. 
 This has two benefits:
 
 - Low-dimensional embeddings have more meaningful distance metrics. 
