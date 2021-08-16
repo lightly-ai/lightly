@@ -15,187 +15,213 @@ This is exactly why we built the
 The platform helps you analyze your dataset and using various methods 
 pick the relevant samples for your task.
 
-You can learn more about how to use the platform using our tutorials:
-:ref:`platform-tutorials-label`
+
+The video below gives you a quick tour through the platform:
+
+
+.. raw:: html
+
+    <div style="position: relative; height: 0; 
+        overflow: hidden; max-width: 100%; padding-bottom: 20px; height: auto;">
+        <iframe width="560" height="315" 
+            src="https://www.youtube.com/embed/38kwv0xEIz4" 
+            frameborder="0" allow="accelerometer; autoplay; 
+            clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+        </iframe>
+    </div>
+
+.. |br| raw:: html
+
+    <br />
+
+|br|
+
+.. note:: 
+
+    Head to our :ref:`tutorials <platform-tutorials-label>` to see the many use-cases of the Lightly Platform.
 
 
 Basic Concepts
 -----------------------------------
 
+The Lightly Platform is built around datasets, tags, embeddings, samples and their metadata.
 
-Dataset
-^^^^^^^^^^^
-As the name suggests, a dataset is a collection of samples. Think of it as a 
-project. When you use the platform for the first time, you create a dataset. 
-
-.. figure:: images/dataset_overview.jpg
-    :align: center
-    :alt: Alt text
-
-    Dataset overview on the web platform. Here you see general information
-    such as the number of images or the size of the overall dataset.
-
-.. figure:: images/dataset_home.jpg
-    :align: center
-    :alt: Alt text
-    :figclass: align-center
-
-    Dataset overview on the web platform. Here you see generalinformation such 
-    as the number of images or the size of the overall dataset.
-
-Upload Samples
-"""""""""""""""
-
-There are two ways to upload samples to a dataset. You can either use the web 
-front-end of the platform or the Python pip package.
-
-We recommend using the `front-end <https://app.lightly.ai>`_ for simple projects 
-consisting of less than 1'000 samples or 1 GByte in size. Once you create a new 
-dataset you should see an upload field. You can either click on it to open the 
-file browser or drag and drop a list of files or a folder. To upload the 
-selected files you simply click on upload. The upload process typically 
-takes a few minutes.
-
-If you work with larger datasets we recommend 
-you to use the `Python pip package <https://github.com/lightly-ai/lightly>`_.
+Learn more about the different concepts in our `Glossary <https://app.lightly.ai/glossary>`_.
 
 
-Tag
-^^^^^^^^^^^
 
-If you're familiar with git think of tags as commits. Every tag represents 
-a set of images from your dataset. Initially, a new dataset consists of 
-all images. During the filtering process, you reduce the dataset to the 
-relevant fraction for your work. Tags allow you to keep track of the 
-changes and go back in time. Similar to branches in git you can have 
-multiple child tags from the same tag.
-
-.. figure:: images/webapp_tags.gif
-    :align: center
-    :alt: Alt text
-    :figclass: align-center
-    :scale: 150%
-
-    The marked area on the left side in the web app shows the tag interface. 
-    You can use it to select and create new tags.
-
-You can interact with your tags by using the left-hand menu of the application. 
-You can only create new tags once you modified your dataset. Once a 
-modification is done you can "freeze" the state by creating a tag by 
-giving it a name (text field at bottom) and pressing enter.
-
-There is a linear bar indicating the current number of 
-active samples you work with. 
-
-Embedding
-^^^^^^^^^^^
-
-Use our pip package to create embeddings of your dataset using 
-self-supervised learning. Embeddings can be used together with sampling methods 
-to select the most important samples out of your dataset.
-
-.. figure:: images/webapp_embedding.jpg
-    :align: center
-    :alt: Alt text
-    :figclass: align-center
-    :figwidth: 500px
-
-    You can visualize the embedding for a dataset by switching to the sampling 
-    mode (click sampling on the left menu). You will see a 2-dimensional plot 
-    of your embedding. The colors indicate the currently active samples. If you 
-    switch to another tag, you will see immediate effect on the plot.
-
-
-Obtaining Good Embeddings
-"""""""""""""""""""""""""""
-
-We optimized the workflow of sampling only important datapoints by using **low-dimensional embeddings**. 
-This has two benefits:
-
-- Low-dimensional embeddings have more meaningful distance metrics. 
-  We know that the data usually lies on a manifold in high-dimensional spaces 
-  (see `curse of dimensionality <https://en.wikipedia.org/wiki/Curse_of_dimensionality>`_). 
-  Even very similar samples might have a high L2-distance or low cosine similarity in high embeddings.
-- Most algorithms to sample a subset based on the embeddings scale with 
-  the dimensionality. Therefore low-dimensional embeddings can significantly 
-  reduce computing time.
-
-We leverage **self-supervised learning** to obtain good 
-features/representations/embedddings of your unlabeled data. The quality of the 
-representations depends heavily on the chosen augmentations. For example, 
-imagine you want to train a classifier to detect healthy and unhealthy leaves. 
-Training self-supervised models with color augmentation enabled would make the 
-model and therefore the embeddings invariant towards different colors. However, 
-the color might be a very important feature of the leave to determine whether 
-it is healthy (green) or not (brown).
 
 Create a Dataset
 -------------------------
 
-To create a new dataset follow these steps:
 
-#. Login to your Lightly account 
-   on the `web application <https://app.lightly.ai>`_.
+To create a new dataset of images with embeddings use the lightly :ref:`lightly-command-line-tool`:
 
-#. Click on *"My Datasets"* in the top right.
+.. code-block:: bash
 
-#. Click *"Create a new Dataset"*.
-
-#. Enter a name for your dataset and click *"Create"*.
-
-Upload Images
-----------------------------
-
-Once you have created a dataset you can upload images using drag and drop or by
-clicking to the marked area in the web application. Upload images through 
-drag-and-drop or using the Python Package according to:
-:ref:`ref-upload-data-lightly` 
-
-.. figure:: images/webapp_image_upload.jpg
-    :align: center
-    :alt: Alt text
-    :figclass: align-center
-
-    You can upload up to 1'000 images using the frontend.
+    lightly-magic trainer.max_epochs=0 token='YOUR_API_TOKEN' new_dataset_name='my-dataset' input_dir='/path/to/my/dataset'
 
 
-Images can also be uploaded from a Python script:
-
-.. code-block:: python
-
-    from lightly.api.api_workflow_client import ApiWorkflowClient
-    client = ApiWorkflowClient(token='123'm dataset_id='xyz')
-
-    # change mode to 'thumbnails' or 'meta' if you're working with sensitive data
-    client.upload_dataset('path/to/your/images/', mode='full')
-
-
-Upload Embeddings
--------------------------
-
-Embeddings can be uploaded using the Python Package or the front-end. The simplest
-way to upload the embeddings is from the command line: :ref:`ref-upload-embedding-lightly`.
-
-If you have a numpy array of image embeddings, the filenames of the images, and categorical pseudo-labels,
-you can use the `save_embeddings` function to store them in a lightly-compatible CSV format and upload
-them from your Python code or using the CLI. The following snippet shows how to upload the embeddings from Python.
+Images and embeddings can also be uploaded from a Python script. For this, you need to 
+have a numpy array of image embeddings, the filenames of the images, and categorical pseudo-labels.
+You can use the `save_embeddings` function to store them in a lightly-compatible CSV format and
+upload them from your Python code:
 
 .. code-block:: python
 
     from lightly.utils import save_embeddings
     from lightly.api.api_workflow_client import ApiWorkflowClient
 
-    # store the embeddings in a lightly compatible CSV format before uploading
-    # them to the platform
+    client = ApiWorkflowClient(token='123', dataset_id='xyz')
+
+    # upload the images to the dataset
+    # change mode to 'thumbnails' or 'meta' if you're working with sensitive data
+    client.upload_dataset('path/to/your/images/', mode='full')
+
+    # store the embeddings in a lightly compatible CSV format
     save_embeddings('embeddings.csv', embeddings, labels, filenames)
 
     # upload the embeddings.csv file to the platform
-    client = ApiWorkflowClient(token='123', dataset_id='xyz')
     client.upload_embeddings('embeddings.csv', name='my-embeddings')
+
+.. note::
+
+    Check out :ref:`ref-webapp-dataset-id` to see how to get the dataset identifier.
+
+
+.. _platform-custom-metadata:
+
+Custom Metadata
+------------------------
+
+With the custom metadata option, you can upload any information about your
+images to the Lightly Platform and analyze it there. For example, in autonomous driving, companies
+are often interested in different weather scenarios or the number of pedestrians in an image.
+The Lightly Platform supports the upload of arbitrary custom metadata as long as it's correctly
+formatted.
+
+
+Upload
+^^^^^^^^^^^
+
+You can pass custom metadata when creating a dataset and later configure it for inspection in the web-app.
+Simply add the argument `custom_metadata` to the :py:class:`lightly-magic <lightly.cli.lightly_cli>` command.
+
+
+.. code-block:: bash
+
+    lightly-magic trainer.max_epochs=0 token='YOUR_API_TOKEN' new_dataset_name='my-dataset' input_dir='/path/to/my/dataset' custom_metadata='my-custom-metadata.json'
+
+
+As with images and embeddings before, it's also possible to upload custom metadata from your Python code:
+
+
+.. code-block:: python
+
+    import json
+    from lightly.api.api_workflow_client import ApiWorkflowClient
+
+    client = ApiWorkflowClient(token='123', dataset_id='xyz')
+    with open('my-custom-metadata.json') as f:
+        client.upload_custom_metadata(json.load(f))
+
+.. note:: 
+
+    To save the custom metadata in the correct format, use the helpers 
+    :py:class:`format_custom_metadata <lightly.utils.io.format_custom_metadata>` and 
+    :py:class:`save_custom_metadata <lightly.utils.io.save_custom_metadata>` or learn more
+    about the custom metadata format below.
+
+.. note::
+
+    Check out :ref:`ref-webapp-dataset-id` to see how to get the dataset identifier.
+
+
+Configuration
+^^^^^^^^^^^^^^^
+
+In order to use the custom metadata on the Lightly Platform, it must be configured first. For this,
+follow these steps:
+
+1. Go to your dataset and click on "Configurator" on the left side.
+2. Click on "Add entry" to add a new configuration.
+3. Click on "Path". Lightly should now propose different custom metadata keys.
+4. Pick the key you are interested in, set the data type, display name, and fallback value.
+5. Click on "Save changes" on the bottom.
+
+Done! You can now use the custom metadata in the "Explore" and "Analyze & Filter" screens.
+
+.. figure:: images/custom_metadata_weather_temperature.png
+    :align: center
+    :alt: Custom metadata weather configuration
+
+    Example of a custom metadata configuration for the key `weather.temperature`.
+
+
+Format
+^^^^^^^^^^^
+
+In order to upload the custom metadata, you need to save it to a `.json` file in a COCO-like format.
+The following things are important:
+
+- Information about the images is stored under the key `images`.
+
+- Each image must have a `file_name` and an `id`.
+
+- Custom metadata must be accessed with the `metadata` key.
+
+- Each custom metadata entry must have an `image_id` to match it with the corresponding image.
+
+For the example of an autonomous driving company mentioned above, the custom metadata file would
+need to look like this:
+
+.. code-block:: json
+
+    {
+        "images": [
+            {
+                "file_name": "image0.jpg",
+                "id": 0,
+            },
+            {
+                "file_name": "image1.jpg",
+                "id": 1,
+            }
+        ],
+        "metadata": [
+            {
+                "image_id": 0,
+                "number_of_pedestrians": 3,
+                "weather": {
+                    "scenario": "cloudy",
+                    "temperature": 20.3
+                }
+            },
+            {
+                "image_id": 1,
+                "number_of_pedestrians": 1,
+                "weather": {
+                    "scenario": "rainy",
+                    "temperature": 15.0
+                }
+            }
+        ]
+    }
+
+
+.. note:: Make sure that the custom metadata is present for every image. The metadata
+          must not necessarily include the same keys for all images but it is strongly
+          recommended.
+
+.. note:: Lightly supports integers, floats, strings, booleans, and even nested objects for
+          custom metadata. Every metadata item must be a valid JSON object.
+
+
 
 
 Sampling
-^^^^^^^^^^^
+----------------
 
 Before you start sampling make sure you have
 
