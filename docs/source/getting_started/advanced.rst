@@ -229,6 +229,30 @@ For more information check the documentation:
 
 
 
+Obtaining Good Embeddings
+---------------------------
+
+We optimized the workflow of sampling only important datapoints by using **low-dimensional embeddings**. 
+This has two benefits:
+
+- Low-dimensional embeddings have more meaningful distance metrics. 
+  We know that the data usually lies on a manifold in high-dimensional spaces 
+  (see `curse of dimensionality <https://en.wikipedia.org/wiki/Curse_of_dimensionality>`_). 
+  Even very similar samples might have a high L2-distance or low cosine similarity in high embeddings.
+- Most algorithms to sample a subset based on the embeddings scale with 
+  the dimensionality. Therefore low-dimensional embeddings can significantly 
+  reduce computing time.
+
+We leverage **self-supervised learning** to obtain good 
+features/representations/embedddings of your unlabeled data. The quality of the 
+representations depends heavily on the chosen augmentations. For example, 
+imagine you want to train a classifier to detect healthy and unhealthy leaves. 
+Training self-supervised models with color augmentation enabled would make the 
+model and therefore the embeddings invariant towards different colors. However, 
+the color might be a very important feature of the leave to determine whether 
+it is healthy (green) or not (brown).
+
+
 Extracting specific Video Frames
 --------------------------------
 
