@@ -137,8 +137,22 @@ Before you start, install the following dependencies:
 
 
 Now that everything is setup, begin with building the data processing pipeline. Dagster's pipelines consist of several `solids` which can
-be chained one after each other. The following code is the first solid in the pipeline. It downloads a random video from `Pexels <https://www.pexels.com/>`_
-and saves it in the current working directory. Don't forget to set the `PEXELS_API_KEY`.
+be chained one after each other. Put each solid in a separate file and aim for the following directory structure:
+
+.. code:: console
+
+    ./source
+    ├── aws_example_pipeline.py
+    └── solids
+        ├── aws
+        │   ├── lightly.py
+        │   └── s3.py
+        └── pexels.py
+
+
+The following code is the content of `pexels.py` and represents first solid in the pipeline.
+It downloads a random video from `Pexels <https://www.pexels.com/>`_ and saves it in the current
+working directory. Don't forget to set the `PEXELS_API_KEY`.
 
 
 .. code-block:: python
@@ -208,7 +222,7 @@ and saves it in the current working directory. Don't forget to set the `PEXELS_A
         return path
 
 
-The next solid in the pipeline uploads the video to the S3 bucket. It saves the video
+The next solid in the pipeline (`s3.py`) uploads the video to the S3 bucket. It saves the video
 in a randomly created subfolder in the S3 bucket and passes the object name to the next solid.
 Set the `BUCKET_NAME` and `REGION_NAME` to your bucket name and region of the EC2 instance. 
 
@@ -290,7 +304,7 @@ Set the `BUCKET_NAME` and `REGION_NAME` to your bucket name and region of the EC
         return object_name
 
 
-Finally, the last solid in the pipeline spins up the EC2 instance, runs the Lightly Docker on the object name passed
+Finally, the last solid in the pipeline (`lightly.py`) spins up the EC2 instance, runs the Lightly Docker on the object name passed
 by the last solid, and then stops the EC2 instance again. Set the `REGION_NAME`, `INSTANCE_ID`, and `MOUNTED_DIR` if 
 necessary.
 
