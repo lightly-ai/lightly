@@ -6,10 +6,10 @@ Tutorial 6: Find false negatives of object detection
 =============================================
 
     In object detection applications, it can happen that the detector does not detect an object
-    because it did not see any examples of this or similar object yet.
-    This especially a problem in warehouse and retail applications,
+    because it did not see any examples of this or similar objects yet.
+    This is especially a problem in warehouse and retail applications,
     as new products get added to the shelves every day. These new products with new appearence
-    often have a low so-called objectness score. Currently, finding these objects false detected
+    often have a low so-called objectness score. Currently, finding these objects falsely detected
     as non-objects needs a lot of manual labour, especially when having 1000s of new images coming
     in every day. Lightly can make this work easier in a two-step approach:
 
@@ -134,7 +134,7 @@ For 100 input images with 150 predicted objects on each image, the tutorial runs
     print(f"Upload the images and custom metadata with the following CLI command:")
     print(cli_command)
 
-6. Adapt this command to include your token and run it in a terminal. It will embed the images
+6. Adapt this command to include your Lightly webapp token and run it in a terminal. It will embed the images
 with a pretrained model, create a new dataset in the Lightly webapp and upload the images,
 embeddings and metadata to it. You can also change some arguments,
 e.g. to train a better embedding model instead of relying on a pretrained one.
@@ -145,7 +145,7 @@ For more information, head to :ref:`lightly-command-line-tool`.
     :alt: Terminal output of lightly-magic command.
 
 7. Once the cropped images, embeddings and metadata are uploaded, you can use the Lightly Webapp
-to configure the Objectness Score as metadata. This is done in the Configuration view.
+to configure the Objectness Score as metadata. This is done in the Configurator view.
 
 .. figure:: ../../tutorials_source/platform/images/tutorial_cropped_objects_metadata/sku110k_config_metadata.jpg
     :align: center
@@ -164,9 +164,24 @@ thus it is false negative. Similar images which are also false negatives are sho
 Thus all of them can be added directly to the list of missing examples,
 instead of finding and adding all of them by hand.
 
-.. figure:: ../../tutorials_source/platform/images/tutorial_cropped_objects_metadata/sku110k_find_similar.jpg
+.. figure:: ../../tutorials_source/platform/images/tutorial_cropped_objects_metadata/sku110k_select_nn.jpg
     :align: center
-    :alt: Detail view of a missing examples together with similar samples
+    :alt: Detail view of a missing example together with similar samples
+
+You can select/unselect an image by clicking on the checkbox in its top-right corner.
+Multiple images in a row can be selected with shift-click, all images with CTRL-A.
+You can view all currently selected images by toggling "Only show selected" in the top.
+
+.. figure:: ../../tutorials_source/platform/images/tutorial_cropped_objects_metadata/sku110k_selected_images.jpg
+    :align: center
+    :alt: View of all selected images
+
+If you are satisfied with your current selection,
+click on the green double arrow buttom in the bottom right to create a new Tag from the current selection.
+You can call this tag e.g. "missing_examples"
+
+To download these images or their filenames head to the Download View. You can download from there directly
+or using the CLI command.
 
 
 """
