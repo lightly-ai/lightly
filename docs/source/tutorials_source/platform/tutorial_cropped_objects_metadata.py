@@ -9,8 +9,8 @@ Tutorial 6: Find false negatives of object detection
     because it did not see any examples of this or similar objects yet.
     This is especially a problem in warehouse and retail applications,
     as new products get added to the shelves every day. These new products with new appearence
-    often have a low so-called objectness score. Currently, finding these objects falsely detected
-    as non-objects needs a lot of manual labour, especially when having 1000s of new images coming
+    often have a low so-called objectness score. Currently, finding such negative samples
+    requires a lot of manual labour, especially when having 1000s of new images coming
     in every day. Lightly can make this work easier in a two-step approach:
 
     1. A human finds one false negative and adds it to the missing examples.
@@ -50,7 +50,7 @@ Steps
 The steps of this tutorial are quite straightforward:
     1. Define the dataset in form of a LightlyDataset of torch tensors. You need to provide the path to the dataset images.
     2. Define a pretrained object detection model. We use the retina net trained on COCO 2017. As it was not pretrained on a retail dataset, its performance is not state-of-the art. Nonetheless, it is sufficient for this tutorial and very easy to use.
-    3. Predict with the model on the dataset.
+    3. Generate predictions for each image in the dataset.
     4. Use the bounding boxes of the object predictions to crop the objects out of the full images and save them in the output directory.
     5. Extract the objectness scores and save them as custom metadata in a .json file.
     6. Use the lightly-magic command to upload the cropped images, their embeddings and the objectness scores.
@@ -72,10 +72,10 @@ For 100 input images with 150 predicted objects on each image, the tutorial runs
     from lightly.utils.cropping.crop_image_by_bounding_boxes import crop_dataset_by_bounding_boxes_and_save
 
     BASE_PATH = "path/to/dataset/"
-    DATASET_PATH = BASE_PATH+"images"  # the path were the full images are found
-    OUTPUT_DIR = BASE_PATH+"cropped_images" # the path where the cropped images will be saved
+    DATASET_PATH = os.path.join(BASE_PATH,"images")  # the path were the full images are found
+    OUTPUT_DIR = os.path.join(BASE_PATH,"cropped_images") # the path where the cropped images will be saved
     # the file where the objectness scores will be saved
-    METADATA_OUTPUT_FILE = BASE_PATH+"cropped_images_objectness_scores.json"
+    METADATA_OUTPUT_FILE = os.path.join(BASE_PATH,"cropped_images_objectness_scores.json")
 
     ''' 1. Define the dataset'''
     x_size = 2048
