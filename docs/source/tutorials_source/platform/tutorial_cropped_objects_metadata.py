@@ -72,10 +72,10 @@ For 100 input images with 150 predicted objects on each image, the tutorial runs
     from lightly.utils.cropping.crop_image_by_bounding_boxes import crop_dataset_by_bounding_boxes_and_save
 
     BASE_PATH = "path/to/dataset/"
-    DATASET_PATH = os.path.join(BASE_PATH,"images")  # the path were the full images are found
-    OUTPUT_DIR = os.path.join(BASE_PATH,"cropped_images") # the path where the cropped images will be saved
+    DATASET_PATH = os.path.join(BASE_PATH, "images")  # the path were the full images are found
+    OUTPUT_DIR = os.path.join(BASE_PATH, "cropped_images") # the path where the cropped images will be saved
     # the file where the objectness scores will be saved
-    METADATA_OUTPUT_FILE = os.path.join(BASE_PATH,"cropped_images_objectness_scores.json")
+    METADATA_OUTPUT_FILE = os.path.join(BASE_PATH, "cropped_images_objectness_scores.json")
 
     ''' 1. Define the dataset'''
     x_size = 2048
