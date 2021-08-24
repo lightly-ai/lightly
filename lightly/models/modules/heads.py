@@ -12,27 +12,33 @@ class ProjectionHead(nn.Module):
     
     """
 
-    def __init__(self, layers: List[Tuple[int, int, nn.Module, nn.Module]]):
+    def __init__(self, blocks: List[Tuple[int, int, nn.Module, nn.Module]]):
 
-        self.ffnn = []
-        for input_dim, output_dim, batch_norm, non_linearity in layers:
-            self.ffnn.append(nn.Linear(input_dim, output_dim))
+        super(ProjectionHead, self).__init__()
+
+        self.layers = []
+        for input_dim, output_dim, batch_norm, non_linearity in blocks:
+            self.layers.append(nn.Linear(input_dim, output_dim))
             if batch_norm:
-                self.ffnn.append(batch_norm)
+                self.layers.append(batch_norm)
             if non_linearity:
-                self.ffnn.append(non_linearity)
-        self.ffnn = nn.Sequential(*self.ffnn)
-
-        # TODO
-        self.input_dim = layers[0][0]
-        self.output_dim = layers[-1][1]
+                self.layers.append(non_linearity)
+        self.layers = nn.Sequential(*self.layers)
 
     def forward(self, x: torch.Tensor):
         """TODO
         
         """
-        return self.ffnn(x)
+        return self.layers(x)
 
+    @property
+    def in_features(self):
+        # the first layer is always a linear layer
+        return self.layers[-1].in_features
+
+    @property
+    def output_dim(self):
+        return self.layers[-1].out_features
 
 class BarlowTwinsProjectionHead(ProjectionHead):
     """TODO
