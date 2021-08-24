@@ -4,11 +4,24 @@ from typing import Union, List, Tuple
 
 import torch
 import torch.nn as nn
-from torch.nn.modules.batchnorm import BatchNorm1d
-
 
 class ProjectionHead(nn.Module):
-    """TODO
+    """Base class for all projection and prediction heads.
+
+    Args:
+        blocks:
+            List of tuples, each denoting one block of the projection head MLP.
+            Each tuple reads (in_features, out_features, batch_norm_layer, 
+            non_linearity_layer).
+
+    Examples:
+        >>> # the following projection head has two blocks
+        >>> # the first block uses batch norm an a ReLU non-linearity
+        >>> # the second block is a simple linear layer
+        >>> projection_head = ProjectionHead([
+        >>>     (256, 256, nn.BatchNorm1d(256), nn.ReLU()),
+        >>>     (256, 128, None, None)    
+        >>> ])
     
     """
 
@@ -26,32 +39,31 @@ class ProjectionHead(nn.Module):
         self.layers = nn.Sequential(*self.layers)
 
     def forward(self, x: torch.Tensor):
-        """TODO
+        """Computes one forward pass through the projection head.
+
+        Args:
+            x:
+                Input of shape bsz x num_ftrs.
         
         """
         return self.layers(x)
 
-    @property
-    def in_features(self):
-        # the first layer is always a linear layer
-        return self.layers[-1].in_features
-
-    @property
-    def output_dim(self):
-        return self.layers[-1].out_features
 
 class BarlowTwinsProjectionHead(ProjectionHead):
-    """TODO
-    
+    """Projection head used for Barlow Twins.
+
+    "The projector network has three linear layers, each with 8192 output
+    units. The first two layers of the projector are followed by a batch 
+    normalization layer and rectified linear units." [0]
+
+    [0]: TODO
+
     """
 
     def __init__(self,
                  input_dim: int,
                  hidden_dim: int,
                  output_dim: int):
-        """TODO
-        
-        """
         super(BarlowTwinsProjectionHead, self).__init__([
             (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
             (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
@@ -60,16 +72,19 @@ class BarlowTwinsProjectionHead(ProjectionHead):
 
 
 class BYOLProjectionHead(ProjectionHead):
-    """TODO
-    
+    """Projection head used for BYOL.
+
+    "This MLP consists in a linear layer with output size 4096 followed by batch
+    normalization [68], rectified linear units (ReLU) [69], and a final linear
+    layer with output dimension 256." [0]
+
+    [0]: TODO
+
     """
     def __init__(self,
                  input_dim: int,
                  hidden_dim: int,
                  output_dim: int):
-        """TODO
-        
-        """
         super(BarlowTwinsProjectionHead, self).__init__([
             (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
             (hidden_dim, output_dim, None, None),
@@ -77,47 +92,122 @@ class BYOLProjectionHead(ProjectionHead):
 
 
 class MoCoProjectionHead(ProjectionHead):
-    """TODO
+    """Projection head used for MoCo.
+
+    "(...) we replace the fc head in MoCo with a 2-layer MLP head (hidden layer 
+    2048-d, with ReLU)" [0]
+
+    [0]: TODO
     
     """
 
-    def __init__(self, input_dim: int, output_dim: int):
+    def __init__(self,
+                 input_dim: int,
+                 hidden_dim: int,
+                 output_dim: int):
         super(MoCoProjectionHead, self).__init__([
-            (input_dim, input_dim, None, nn.ReLU()),
-            (input_dim, output_dim, None, None),
+            (input_dim, hidden_dim, None, nn.ReLU()),
+            (hidden_dim, output_dim, None, None),
         ])
 
 
 class NNCLRProjectionHead(ProjectionHead):
-    """TODO
-    
+    """Projection head used for NNCLR.
+
+    "The architectureof the projection MLP is 3 fully connected layers of sizes
+    [2048,2048,d] where d is the embedding size used to apply the loss. We use 
+    d = 256 in the experiments unless otherwise stated. All fully-connected 
+    layers are followed by batch-normalization [36]. All the batch-norm layers 
+    except the last layer are followed by ReLU activation." [0]
+
+    [0]: TODO
+
     """
-    pass
+    def __init__(self,
+                 input_dim: int,
+                 hidden_dim: int,
+                 output_dim: int):
+        super(NNCLRProjectionHead, self).__init__([
+            (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+            (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+            (hidden_dim, output_dim, nn.BatchNorm1d(hidden_dim), None),
+        ])
 
 
 class NNCLRPredictionHead(ProjectionHead):
-    """TODO
-    
+    """Prediction head used for NNCLR.
+
+    "The architecture of the prediction MLP g is 2 fully-connected layers
+    of size [4096,d]. The hidden layer of the prediction MLP is followed by
+    batch-norm and ReLU. The last layer has no batch-norm or activation." [0]
+
+    [0]: TODO
+
     """
-    pass
+    def __init__(self,
+                 input_dim: int,
+                 hidden_dim: int,
+                 output_dim: int):
+        super(NNCLRPredictionHead, self).__init__([
+            (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+            (hidden_dim, output_dim, None, None),
+        ])
 
 
 class SimCLRProjectionHead(ProjectionHead):
-    """TODO
+    """Projection head used for SimCLR.
+
+    "We use a MLP with one hidden layer to obtain zi = g(h) = W_2 * σ(W_1 * h)
+    where σ is a ReLU non-linearity." [0]
+
+    [0]: TODO
     
     """
-    pass
+    def __init__(self,
+                 input_dim: int,
+                 hidden_dim: int,
+                 output_dim: int):
+        super(SimCLRProjectionHead, self).__init__([
+            (input_dim, hidden_dim, None, nn.ReLU()),
+            (hidden_dim, output_dim, None, None),
+        ])
 
 
 class SimSiamProjectionHead(ProjectionHead):
-    """TODO
+    """Projection head used for SimSiam.
+
+    "The projection MLP (in f) has BN applied to each fully-connected (fc) layer, 
+    including its output fc. Its output fc has no ReLU. The hidden fc is 2048-d.
+    This MLP has 3 layers." [0]
+
+    [0]: TODO
     
     """
-    pass
+    def __init__(self,
+                 input_dim: int,
+                 hidden_dim: int,
+                 output_dim: int):
+        super(SimSiamProjectionHead, self).__init__([
+            (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+            (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+            (hidden_dim, output_dim, nn.BatchNorm1d(hidden_dim), None),
+        ])
 
 
 class SimSiamPredictionHead(ProjectionHead):
-    """TODO
+    """Prediction head used for SimSiam.
+
+    "The prediction MLP (h) has BN applied to its hidden fc layers. Its output 
+    fc does not have BN (...) or ReLU. This MLP has 2 layers." [0]
+
+    [0]: TODO
     
     """
-    pass
+    def __init__(self,
+                input_dim: int,
+                hidden_dim: int,
+                output_dim: int):
+        super(SimSiamPredictionHead, self).__init__([
+            (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+            (hidden_dim, output_dim, None, None),
+        ])
