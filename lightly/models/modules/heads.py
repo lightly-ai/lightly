@@ -60,7 +60,7 @@ class BarlowTwinsProjectionHead(ProjectionHead):
     units. The first two layers of the projector are followed by a batch
     normalization layer and rectified linear units." [0]
 
-    [0]: TODO
+    [0]: 2021, Barlow Twins, https://arxiv.org/abs/2103.03230
 
     """
 
@@ -82,7 +82,7 @@ class BYOLProjectionHead(ProjectionHead):
     batch normalization [68], rectified linear units (ReLU) [69], and a final
     linear layer with output dimension 256." [0]
 
-    [0]: TODO
+    [0]: BYOL, 2020, https://arxiv.org/abs/2006.07733
 
     """
     def __init__(self,
@@ -101,7 +101,7 @@ class MoCoProjectionHead(ProjectionHead):
     "(...) we replace the fc head in MoCo with a 2-layer MLP head (hidden layer
     2048-d, with ReLU)" [0]
 
-    [0]: TODO
+    [0]: MoCo, 2020, https://arxiv.org/abs/1911.05722
 
     """
 
@@ -124,7 +124,7 @@ class NNCLRProjectionHead(ProjectionHead):
     layers are followed by batch-normalization [36]. All the batch-norm layers
     except the last layer are followed by ReLU activation." [0]
 
-    [0]: TODO
+    [0]: NNCLR, 2021, https://arxiv.org/abs/2104.14548
 
     """
     def __init__(self,
@@ -145,7 +145,7 @@ class NNCLRPredictionHead(ProjectionHead):
     of size [4096,d]. The hidden layer of the prediction MLP is followed by
     batch-norm and ReLU. The last layer has no batch-norm or activation." [0]
 
-    [0]: TODO
+    [0]: NNCLR, 2021, https://arxiv.org/abs/2104.14548
 
     """
     def __init__(self,
@@ -164,7 +164,7 @@ class SimCLRProjectionHead(ProjectionHead):
     "We use a MLP with one hidden layer to obtain zi = g(h) = W_2 * σ(W_1 * h)
     where σ is a ReLU non-linearity." [0]
 
-    [0]: TODO
+    [0] SimCLR, 2020, https://arxiv.org/abs/2002.05709
 
     """
     def __init__(self,
@@ -184,7 +184,7 @@ class SimSiamProjectionHead(ProjectionHead):
     layer, including its output fc. Its output fc has no ReLU. The hidden fc is
     2048-d. This MLP has 3 layers." [0]
 
-    [0]: TODO
+    [0]: SimSiam, 2020, https://arxiv.org/abs/2011.10566
 
     """
     def __init__(self,
@@ -204,7 +204,7 @@ class SimSiamPredictionHead(ProjectionHead):
     "The prediction MLP (h) has BN applied to its hidden fc layers. Its output
     fc does not have BN (...) or ReLU. This MLP has 2 layers." [0]
 
-    [0]: TODO
+    [0]: SimSiam, 2020, https://arxiv.org/abs/2011.10566
 
     """
     def __init__(self,
