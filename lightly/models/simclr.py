@@ -6,21 +6,7 @@
 import torch
 import torch.nn as nn
 
-
-def _get_simclr_projection_head(num_ftrs: int, out_dim: int):
-    """Returns a 2-layer projection head.
-
-    Reference (07.12.2020):
-    https://github.com/google-research/simclr/blob/master/model_util.py#L141
-
-    """
-    modules = [
-        nn.Linear(num_ftrs, num_ftrs),
-        #nn.BatchNorm1d(num_ftrs),
-        nn.ReLU(),
-        nn.Linear(num_ftrs, out_dim)
-    ]
-    return nn.Sequential(*modules)
+from lightly.models.modules import SimCLRProjectionHead
 
 
 class SimCLR(nn.Module):
@@ -48,7 +34,7 @@ class SimCLR(nn.Module):
         super(SimCLR, self).__init__()
 
         self.backbone = backbone
-        self.projection_head = _get_simclr_projection_head(num_ftrs, out_dim)
+        self.projection_head = SimCLRProjectionHead(num_ftrs, num_ftrs, out_dim)
 
     def forward(self,
                 x0: torch.Tensor,

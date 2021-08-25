@@ -7,21 +7,7 @@ import torch
 import torch.nn as nn
 
 from lightly.models._momentum import _MomentumEncoderMixin
-
-
-def _get_moco_projection_head(num_ftrs: int, out_dim: int):
-    """Returns a 2-layer projection head.
-
-    Reference (07.12.2020):
-    https://github.com/facebookresearch/moco/blob/master/moco/builder.py
-
-    """
-    modules = [
-        nn.Linear(num_ftrs, num_ftrs),
-        nn.ReLU(),
-        nn.Linear(num_ftrs, out_dim)
-    ]
-    return nn.Sequential(*modules)
+from lightly.models.modules import MoCoProjectionHead
 
 
 class MoCo(nn.Module, _MomentumEncoderMixin):
@@ -54,7 +40,7 @@ class MoCo(nn.Module, _MomentumEncoderMixin):
         super(MoCo, self).__init__()
 
         self.backbone = backbone
-        self.projection_head = _get_moco_projection_head(num_ftrs, out_dim)
+        self.projection_head = MoCoProjectionHead(num_ftrs, num_ftrs, out_dim)
         self.momentum_features = None
         self.momentum_projection_head = None
 
