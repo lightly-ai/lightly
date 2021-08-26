@@ -44,11 +44,14 @@ class TestProjectionHeads(unittest.TestCase):
             head = head.eval()
             head = head.to(device)
             for batch_size in [1, 2]:
-                x = torch.torch.rand((batch_size, in_features)).to(device)
-                with torch.no_grad():
-                    y = head(x)
-                self.assertEqual(y.shape[0], batch_size)
-                self.assertEqual(y.shape[1], out_features)
+                msg = f'd_in, d_h, d_out = ' + \
+                    f'{in_features}x{hidden_features}x{out_features}'
+                with self.subTest(msg=msg):
+                    x = torch.torch.rand((batch_size, in_features)).to(device)
+                    with torch.no_grad():
+                        y = head(x)
+                    self.assertEqual(y.shape[0], batch_size)
+                    self.assertEqual(y.shape[1], out_features)
 
     def test_barlow_twins_projection_head_cpu(self):
         self._test_single_projection_head(BarlowTwinsProjectionHead)

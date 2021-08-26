@@ -52,6 +52,7 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
         super(BYOL, self).__init__()
 
         self.backbone = backbone
+        # the architecture of the projection and prediction head is the same
         self.projection_head = BYOLProjectionHead(num_ftrs, hidden_dim, out_dim)
         self.prediction_head = BYOLProjectionHead(out_dim, hidden_dim, out_dim)
         self.momentum_backbone = None

@@ -79,7 +79,7 @@ class BYOLProjectionHead(ProjectionHead):
     """Projection head used for BYOL.
 
     "This MLP consists in a linear layer with output size 4096 followed by
-    batch normalization [68], rectified linear units (ReLU) [69], and a final
+    batch normalization, rectified linear units (ReLU), and a final
     linear layer with output dimension 256." [0]
 
     [0]: BYOL, 2020, https://arxiv.org/abs/2006.07733
