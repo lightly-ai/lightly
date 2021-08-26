@@ -23,9 +23,11 @@ Code to reproduce the benchmark results:
 | SimSiam |  800   | 512        | 0.91          | 6.9 GBytes     |
 
 """
+from lightly.models.modules.heads import ProjectionHead
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn.modules.batchnorm import BatchNorm1d
 import torchvision
 import numpy as np
 import pytorch_lightning as pl
@@ -218,7 +220,22 @@ class SimSiamModel(BenchmarkModule):
         )
         # create a simsiam model based on ResNet
         self.resnet_simsiam = \
-            lightly.models.SimSiam(self.backbone, num_ftrs=512, num_mlp_layers=2)
+            lightly.models.SimSiam(self.backbone, num_ftrs=512)
+        # replace the 3-layer projection head by a 2-layer projection head
+        self.resnet_simsiam.projection_mlp = ProjectionHead([
+            (
+                self.resnet_simsiam.num_ftrs,
+                self.resnet_simsiam.proj_hidden_dim,
+                nn.BatchNorm1d(self.resnet_simsiam.proj_hidden_dim),
+                nn.ReLU(inplace=True)
+            ),
+            (
+                self.resnet_simsiam.proj_hidden_dim,
+                self.resnet_simsiam.out_dim,
+                nn.BatchNorm1d(self.resnet_simsiam.out_dim),
+                None
+            )
+        ])
         self.criterion = lightly.loss.SymNegCosineSimilarityLoss()
             
     def forward(self, x):
