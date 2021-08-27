@@ -56,4 +56,5 @@ class TestProjectionHeads(unittest.TestCase):
                         self.assertEqual(y.shape[1], out_features)
 
     def test_single_projection_head_cuda(self):
-        self.test_single_projection_head(device='cuda')
+        if torch.cuda.is_available():
+            self.test_single_projection_head(device='cuda')
