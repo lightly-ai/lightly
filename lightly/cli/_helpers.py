@@ -150,7 +150,7 @@ def _fix_projection_head_keys(state_dict):
     """Makes the state_dict compatible with the refactored projection heads.
 
     TODO: Remove once the models are refactored and the old checkpoints were
-    replaced!
+    replaced! Relevant issue: https://github.com/lightly-ai/lightly/issues/379
 
     Prevents unexpected key error when loading old checkpoints.
     
