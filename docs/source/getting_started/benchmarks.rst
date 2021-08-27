@@ -56,7 +56,7 @@ blur) and the same ResNet-18 backbone.
           benchmarks of SSL methods.
 
 
-The current benchmark contains the followin models:
+The current benchmark contains the following models:
 
 - MoCo (with symmetric loss and memory bank with 4096 entries)
 - SimCLR
@@ -71,7 +71,7 @@ The current benchmark contains the followin models:
    "MoCo", 200, 128, 0.83, "2.1 GBytes"
    "SimCLR", 200, 128, 0.78, "2.0 GBytes"
    "SimSiam", 200, 128, 0.73, "3.0 GBytes"
-   "BarlowTwins", 200, 128, 0.84 "2.1 GBytes"                                                                                               
+   "BarlowTwins", 200, 128, 0.84, "2.1 GBytes"                                                                                               
    "BYOL", 200, 128, 0.85, "2.2 GBytes"
    "MoCo", 200, 512, 0.85, "7.4 GBytes"
    "SimCLR", 200, 512, 0.83, "7.8 GBytes"

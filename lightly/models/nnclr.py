@@ -6,6 +6,9 @@
 import torch
 import torch.nn as nn
 
+from lightly.models.modules import NNCLRProjectionHead
+from lightly.models.modules import NNCLRPredictionHead
+
 
 def _prediction_mlp(in_dims: int, 
                     h_dims: int, 
@@ -126,8 +129,7 @@ class NNCLR(nn.Module):
                  num_ftrs: int = 512,
                  proj_hidden_dim: int = 2048,
                  pred_hidden_dim: int = 4096,
-                 out_dim: int = 256,
-                 num_mlp_layers: int = 3):
+                 out_dim: int = 256):
 
         super(NNCLR, self).__init__()
 
@@ -137,11 +139,17 @@ class NNCLR(nn.Module):
         self.pred_hidden_dim = pred_hidden_dim
         self.out_dim = out_dim
 
-        self.projection_mlp = \
-            _projection_mlp(num_ftrs, proj_hidden_dim, out_dim, num_mlp_layers)
+        self.projection_mlp = NNCLRProjectionHead(
+            num_ftrs,
+            proj_hidden_dim,
+            out_dim,
+        )
         
-        self.prediction_mlp = \
-            _prediction_mlp(num_ftrs, pred_hidden_dim, out_dim)
+        self.prediction_mlp = NNCLRPredictionHead(
+            num_ftrs,
+            pred_hidden_dim,
+            out_dim,
+        )
 
     def forward(self,
                 x0: torch.Tensor,

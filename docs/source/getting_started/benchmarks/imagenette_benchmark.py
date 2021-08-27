@@ -23,6 +23,7 @@ Code to reproduce the benchmark results:
 
 """
 import os
+from lightly.models.modules.heads import ProjectionHead
 
 import torch
 import torch.nn as nn
@@ -216,7 +217,21 @@ class NNCLRModel(BenchmarkModule):
         )
         # create a simclr model based on ResNet
         self.resnet_simclr = \
-            lightly.models.NNCLR(self.backbone, num_ftrs=num_ftrs, num_mlp_layers=2)
+            lightly.models.NNCLR(self.backbone, num_ftrs=num_ftrs)
+        self.resnet_simclr.projection_mlp = ProjectionHead([
+            (
+                self.resnet_simclr.num_ftrs,
+                self.resnet_simclr.proj_hidden_dim,
+                nn.BatchNorm1d(self.resnet_simclr.proj_hidden_dim),
+                nn.ReLU(inplace=True)
+            ),
+            (
+                self.resnet_simclr.proj_hidden_dim,
+                self.resnet_simclr.out_dim,
+                nn.BatchNorm1d(self.resnet_simclr.out_dim),
+                None
+            )
+        ])
         self.criterion = lightly.loss.NTXentLoss()
 
         self.nn_replacer = NNMemoryBankModule(size=nn_size)
@@ -251,7 +266,21 @@ class SimSiamModel(BenchmarkModule):
         )
         # create a simsiam model based on ResNet
         self.resnet_simsiam = \
-            lightly.models.SimSiam(self.backbone, num_ftrs=num_ftrs, num_mlp_layers=2)
+            lightly.models.SimSiam(self.backbone, num_ftrs=num_ftrs)
+        self.resnet_simsiam.projection_mlp = ProjectionHead([
+            (
+                self.resnet_simsiam.num_ftrs,
+                self.resnet_simsiam.proj_hidden_dim,
+                nn.BatchNorm1d(self.resnet_simsiam.proj_hidden_dim),
+                nn.ReLU(inplace=True)
+            ),
+            (
+                self.resnet_simsiam.proj_hidden_dim,
+                self.resnet_simsiam.out_dim,
+                nn.BatchNorm1d(self.resnet_simsiam.out_dim),
+                None
+            )
+        ])
         self.criterion = lightly.loss.SymNegCosineSimilarityLoss()
 
     def forward(self, x):
@@ -282,7 +311,21 @@ class NNSimSiamModel(BenchmarkModule):
         )
         # create a simsiam model based on ResNet
         self.resnet_simsiam = \
-            lightly.models.SimSiam(self.backbone, num_ftrs=num_ftrs, num_mlp_layers=2)
+            lightly.models.SimSiam(self.backbone, num_ftrs=num_ftrs)
+        self.resnet_simsiam.projection_mlp = ProjectionHead([
+            (
+                self.resnet_simsiam.num_ftrs,
+                self.resnet_simsiam.proj_hidden_dim,
+                nn.BatchNorm1d(self.resnet_simsiam.proj_hidden_dim),
+                nn.ReLU(inplace=True)
+            ),
+            (
+                self.resnet_simsiam.proj_hidden_dim,
+                self.resnet_simsiam.out_dim,
+                nn.BatchNorm1d(self.resnet_simsiam.out_dim),
+                None
+            )
+        ])
         self.criterion = lightly.loss.SymNegCosineSimilarityLoss()
 
         self.nn_replacer = NNMemoryBankModule(size=nn_size)
@@ -323,8 +366,21 @@ class BarlowTwinsModel(BenchmarkModule):
                 num_ftrs=num_ftrs,
                 proj_hidden_dim=2048,
                 out_dim=2048,
-                num_mlp_layers=2
-                )
+            )
+        self.resnet_barlowtwins.projection_mlp = ProjectionHead([
+            (
+                self.resnet_barlowtwins.num_ftrs,
+                self.resnet_barlowtwins.proj_hidden_dim,
+                nn.BatchNorm1d(self.resnet_barlowtwins.proj_hidden_dim),
+                nn.ReLU(inplace=True)
+            ),
+            (
+                self.resnet_barlowtwins.proj_hidden_dim,
+                self.resnet_barlowtwins.out_dim,
+                None,
+                None
+            )
+        ])
         self.criterion = lightly.loss.BarlowTwinsLoss()
 
     def forward(self, x):

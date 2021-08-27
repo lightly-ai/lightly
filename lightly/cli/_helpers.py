@@ -146,6 +146,37 @@ def _filter_state_dict(state_dict, remove_model_prefix_offset: int = 1):
     return new_state_dict
 
 
+def _fix_projection_head_keys(state_dict):
+    """Makes the state_dict compatible with the refactored projection heads.
+
+    TODO: Remove once the models are refactored and the old checkpoints were
+    replaced! Relevant issue: https://github.com/lightly-ai/lightly/issues/379
+
+    Prevents unexpected key error when loading old checkpoints.
+    
+    """
+
+    projection_head_identifier = 'projection_head'
+    prediction_head_identifier = 'prediction_head'
+    projection_head_insert = 'layers'
+
+    new_state_dict = {}
+    for key, item in state_dict.items():
+        if (projection_head_identifier in key or \
+            prediction_head_identifier in key) and \
+                projection_head_insert not in key:
+            # insert layers if it's not part of the key yet
+            key_parts = key.split('.')
+            key_parts.insert(1, projection_head_insert)
+            new_key = '.'.join(key_parts)
+        else:
+            new_key = key
+
+        new_state_dict[new_key] = item
+
+    return new_state_dict
+
+
 def load_from_state_dict(model,
                          state_dict,
                          strict: bool = True,
@@ -154,9 +185,12 @@ def load_from_state_dict(model,
     """Loads the model weights from the state dictionary.
 
     """
+
     # step 1: filter state dict
     if apply_filter:
         state_dict = _filter_state_dict(state_dict)
+
+    state_dict = _fix_projection_head_keys(state_dict)
 
     # step 2: expand batchnorm weights
     state_dict = \

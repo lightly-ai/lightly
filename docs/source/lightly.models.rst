@@ -51,3 +51,8 @@ lightly.models
 .. automodule:: lightly.models.modules.nn_memory_bank
    :members:
 
+.heads
+--------
+.. automodule:: lightly.models.modules.heads
+   :members:
+
