@@ -38,8 +38,7 @@ class SimSiam(nn.Module):
                  num_ftrs: int = 2048,
                  proj_hidden_dim: int = 2048,
                  pred_hidden_dim: int = 512,
-                 out_dim: int = 2048,
-                 num_mlp_layers: int = 3):
+                 out_dim: int = 2048):
 
         super(SimSiam, self).__init__()
 
