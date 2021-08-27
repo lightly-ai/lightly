@@ -38,73 +38,22 @@ class TestProjectionHeads(unittest.TestCase):
         ]
 
 
-    def _test_single_projection_head(self, head_cls, device: str = 'cpu'):
-        for in_features, hidden_features, out_features in self.n_features:
-            head = head_cls(in_features, hidden_features, out_features)
-            head = head.eval()
-            head = head.to(device)
-            for batch_size in [1, 2]:
-                msg = f'd_in, d_h, d_out = ' + \
-                    f'{in_features}x{hidden_features}x{out_features}'
-                with self.subTest(msg=msg):
-                    x = torch.torch.rand((batch_size, in_features)).to(device)
-                    with torch.no_grad():
-                        y = head(x)
-                    self.assertEqual(y.shape[0], batch_size)
-                    self.assertEqual(y.shape[1], out_features)
+    def test_single_projection_head(self, device: str = 'cpu'):
+        for head_cls in self.heads:
+            for in_features, hidden_features, out_features in self.n_features:
+                head = head_cls(in_features, hidden_features, out_features)
+                head = head.eval()
+                head = head.to(device)
+                for batch_size in [1, 2]:
+                    msg = f'head: {head_cls}' + \
+                        f'd_in, d_h, d_out = ' + \
+                            f'{in_features}x{hidden_features}x{out_features}'
+                    with self.subTest(msg=msg):
+                        x = torch.torch.rand((batch_size, in_features)).to(device)
+                        with torch.no_grad():
+                            y = head(x)
+                        self.assertEqual(y.shape[0], batch_size)
+                        self.assertEqual(y.shape[1], out_features)
 
-    def test_barlow_twins_projection_head_cpu(self):
-        self._test_single_projection_head(BarlowTwinsProjectionHead)
-
-    def test_byol_projection_head_cpu(self):
-        self._test_single_projection_head(BYOLProjectionHead)
-
-    def test_moco_projection_head_cpu(self):
-        self._test_single_projection_head(MoCoProjectionHead)
-
-    def test_nnclr_projection_head_cpu(self):
-        self._test_single_projection_head(NNCLRProjectionHead)
-
-    def test_nnclr_prediction_head_cpu(self):
-        self._test_single_projection_head(NNCLRPredictionHead)
-
-    def test_simclr_projection_head_cpu(self):
-        self._test_single_projection_head(SimCLRProjectionHead)
-
-    def test_simsiam_projection_head_cpu(self):
-        self._test_single_projection_head(SimSiamProjectionHead)
-
-    def test_simsiam_prediction_head_cpu(self):
-        self._test_single_projection_head(SimSiamPredictionHead)
-
-    def test_barlow_twins_projection_head_gpu(self):
-        if torch.cuda.is_available():
-            self._test_single_projection_head(BarlowTwinsProjectionHead, 'cuda')
-
-    def test_byol_projection_head_gpu(self):
-        if torch.cuda.is_available():
-            self._test_single_projection_head(BYOLProjectionHead, 'cuda')
-
-    def test_moco_projection_head_gpu(self):
-        if torch.cuda.is_available():
-            self._test_single_projection_head(MoCoProjectionHead, 'cuda')
-
-    def test_nnclr_projection_head_gpu(self):
-        if torch.cuda.is_available():
-            self._test_single_projection_head(NNCLRProjectionHead, 'cuda')
-
-    def test_nnclr_prediction_head_gpu(self):
-        if torch.cuda.is_available():
-            self._test_single_projection_head(NNCLRPredictionHead, 'cuda')
-
-    def test_simclr_projection_head_gpu(self):
-        if torch.cuda.is_available():
-            self._test_single_projection_head(SimCLRProjectionHead, 'cuda')
-
-    def test_simsiam_projection_head_gpu(self):
-        if torch.cuda.is_available():
-            self._test_single_projection_head(SimSiamProjectionHead, 'cuda')
-
-    def test_simsiam_prediction_head_gpu(self):
-        if torch.cuda.is_available():
-            self._test_single_projection_head(SimSiamPredictionHead, 'cuda')
+    def test_single_projection_head_cuda(self):
+        self.test_single_projection_head(device='cuda')
