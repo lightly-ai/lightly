@@ -29,14 +29,12 @@ class TestSimSiam(unittest.TestCase):
                 proj_hidden_dim=512,
                 pred_hidden_dim=128,
                 out_dim=512,
-                num_mlp_layers=2
             ),
             resnet50 = dict(
                 num_ftrs=2048,
                 proj_hidden_dim=2048,
                 pred_hidden_dim=512,
                 out_dim=2048,
-                num_mlp_layers=3
             )
         )
         self.batch_size = 2

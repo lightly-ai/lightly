@@ -37,6 +37,7 @@ In this tutorial you will learn:
 import math
 import torch
 import torch.nn as nn
+from torch.nn.modules.batchnorm import BatchNorm1d
 import torchvision
 import numpy as np
 import lightly
@@ -63,9 +64,6 @@ num_ftrs = 512
 out_dim = proj_hidden_dim = 512
 # the prediction head uses a bottleneck architecture
 pred_hidden_dim = 128
-# use 2 layers in the projection head
-num_mlp_layers = 2
-
 
 # %%
 # Let's set the seed for our experiments and the path to our data
@@ -168,11 +166,17 @@ backbone = nn.Sequential(*list(resnet.children())[:-1])
 model = lightly.models.SimSiam(
     backbone,
     num_ftrs=num_ftrs,
-    proj_hidden_dim=pred_hidden_dim,
+    proj_hidden_dim=proj_hidden_dim,
     pred_hidden_dim=pred_hidden_dim,
     out_dim=out_dim,
-    num_mlp_layers=num_mlp_layers
 )
+
+# replace the 3-layer projection head by a 2-layer projection head
+# (similar to how it's done for SimSiam on Cifar10)
+model.projection_mlp = lightly.models.modules.heads.ProjectionHead([
+    (num_ftrs, proj_hidden_dim, nn.BatchNorm1d(proj_hidden_dim), nn.ReLU()),
+    (proj_hidden_dim, out_dim, nn.BatchNorm1d(out_dim), None)
+])
 
 # %%
 # SimSiam uses a symmetric negative cosine similarity loss and does therefore

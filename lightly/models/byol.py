@@ -6,9 +6,8 @@
 import torch
 import torch.nn as nn
 
-import lightly
+from lightly.models.modules import BYOLProjectionHead
 from lightly.models._momentum import _MomentumEncoderMixin
-from lightly.models.batchnorm import get_norm_layer
 
 
 def _get_byol_mlp(num_ftrs: int, hidden_dim: int, out_dim: int):
@@ -53,8 +52,9 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
         super(BYOL, self).__init__()
 
         self.backbone = backbone
-        self.projection_head = _get_byol_mlp(num_ftrs, hidden_dim, out_dim)
-        self.prediction_head = _get_byol_mlp(out_dim, hidden_dim, out_dim)
+        # the architecture of the projection and prediction head is the same
+        self.projection_head = BYOLProjectionHead(num_ftrs, hidden_dim, out_dim)
+        self.prediction_head = BYOLProjectionHead(out_dim, hidden_dim, out_dim)
         self.momentum_backbone = None
         self.momentum_projection_head = None
 

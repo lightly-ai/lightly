@@ -10,8 +10,8 @@ from lightly.loss.memory_bank import MemoryBankModule
 class NNMemoryBankModule(MemoryBankModule):
     """Nearest Neighbour Memory Bank implementation
 
-    This class implements a nearest neighbour memory bank as described in the 
-    NNCLR paper[0]. During the forward pass we return the nearest neighbour 
+    This class implements a nearest neighbour memory bank as described in the
+    NNCLR paper[0]. During the forward pass we return the nearest neighbour
     from the memory bank.
 
     [0] NNCLR, 2021, https://arxiv.org/abs/2104.14548
@@ -24,7 +24,7 @@ class NNMemoryBankModule(MemoryBankModule):
     Examples:
         >>> model = NNCLR(backbone)
         >>> criterion = NTXentLoss(temperature=0.1)
-        >>> 
+        >>>
         >>> nn_replacer = NNmemoryBankModule(size=2 ** 16)
         >>>
         >>> # forward pass
@@ -49,14 +49,17 @@ class NNMemoryBankModule(MemoryBankModule):
 
         """
 
-        output, bank = super(NNMemoryBankModule, self).forward(output, update=update)
+        output, bank = \
+            super(NNMemoryBankModule, self).forward(output, update=update)
         bank = bank.to(output.device).t()
 
         output_normed = torch.nn.functional.normalize(output, dim=1)
         bank_normed = torch.nn.functional.normalize(bank, dim=1)
 
-        similarity_matrix = torch.einsum("nd,md->nm", output_normed, bank_normed)
+        similarity_matrix = \
+            torch.einsum("nd,md->nm", output_normed, bank_normed)
         index_nearest_neighbours = torch.argmax(similarity_matrix, dim=1)
-        nearest_neighbours = torch.index_select(bank, dim=0, index=index_nearest_neighbours)
+        nearest_neighbours = \
+            torch.index_select(bank, dim=0, index=index_nearest_neighbours)
 
         return nearest_neighbours
