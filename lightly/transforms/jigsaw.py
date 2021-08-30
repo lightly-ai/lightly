@@ -25,6 +25,14 @@ class Jigsaw(object):
             Size of crops.
         transform:
             Transformation to apply on each crop.
+    
+    Examples:
+        >>> from lightly.transforms import Jigsaw
+        >>>
+        >>> jigsaw_crop = Jigsaw(n_grid=3, img_size=255, crop_size=64, transform=transforms.ToTensor())
+        >>>
+        >>> # img is a PIL image
+        >>> crops = jigsaw_crops(img)
     """
     def __init__(self, n_grid=3, img_size=255, crop_size=64, transform=transforms.ToTensor()):
         self.n_grid = n_grid
@@ -42,7 +50,8 @@ class Jigsaw(object):
         """Performs the Jigsaw augmentation
         Args:
             img:
-                PIL image to perform Jigsaw augmentation on
+                PIL image to perform Jigsaw augmentation on.
+
         Returns:
             Torch tensor with stacked crops.
         """
