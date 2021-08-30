@@ -4,7 +4,7 @@
 # All Rights Reserved
 
 import numpy as np
-from PIL import ImageOps
+from PIL import Image
 
 
 class Jigsaw(object):
