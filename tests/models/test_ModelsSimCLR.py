@@ -64,7 +64,7 @@ class TestModelsSimCLR(unittest.TestCase):
 
                 # check that projection head output has right dimension
                 with torch.no_grad():
-                    out_projection = model.projection_head(
+                    out_projection = model.head(
                         out_features.squeeze()
                     )
                 self.assertEqual(out_projection.shape[1], out_dim)

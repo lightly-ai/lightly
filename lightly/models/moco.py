@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 
 from lightly.models._momentum import _MomentumEncoderMixin
+from lightly.models.base_embedding_model import BaseEmbeddingModel
 from lightly.models.modules import MoCoProjectionHead
 
 
@@ -50,6 +51,9 @@ class MoCo(nn.Module, _MomentumEncoderMixin):
         # initialize momentum features and momentum projection head
         self._init_momentum_encoder()
 
+        self.model_normal = BaseEmbeddingModel(backbone=self.backbone, head=self.projection_head)
+        self.model_moco = BaseEmbeddingModel(backbone=self.momentum_backbone, head=self.momentum_projection_head)
+
     def forward(self,
                 x0: torch.Tensor,
                 x1: torch.Tensor = None,
@@ -92,8 +96,7 @@ class MoCo(nn.Module, _MomentumEncoderMixin):
         self._momentum_update(self.m)
         
         # forward pass of first input x0
-        f0 = self.backbone(x0).flatten(start_dim=1)
-        out0 = self.projection_head(f0)
+        out0, f0 = self.model_normal.forward(x0, return_features=True)
 
         # append features if requested
         if return_features:
@@ -111,8 +114,7 @@ class MoCo(nn.Module, _MomentumEncoderMixin):
                 x1, shuffle = self._batch_shuffle(x1)
 
             # run x1 through momentum encoder
-            f1 = self.momentum_backbone(x1).flatten(start_dim=1)
-            out1 = self.momentum_projection_head(f1).detach()
+            out1, f1 = self.model_moco.forward(x0, return_features=True)
         
             # unshuffle for batchnorm
             if self.batch_shuffle:
