@@ -1,6 +1,6 @@
 .. _lightly-at-a-glance:
 
-Lightly at a Glance
+Self-supervised learning
 ===================
 
 Lightly is a computer vision framework for training deep learning models using self-supervised learning.
@@ -8,12 +8,7 @@ The framework can be used for a wide range of useful applications such as findin
 neighbors, similarity search, transfer learning, or data analytics.
 
 Additionally, you can use the Lightly framework to directly interact with the `lightly platform <https://www.lightly.ai>`_.
-
-You can install lightly using pip.
-
-.. code-block:: bash
-
-    pip install lightly
+Check out our section on :ref:`lightly-platform` for more information.
 
 
 How Lightly Works
