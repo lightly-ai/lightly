@@ -181,10 +181,27 @@ def load_from_state_dict(model,
                          state_dict,
                          strict: bool = True,
                          apply_filter: bool = True,
-                         num_splits: int = 0):
+                         num_splits: int = 0,
+                         replace_projection_head_with_head: bool = True):
     """Loads the model weights from the state dictionary.
 
     """
+    # Step 0
+    if replace_projection_head_with_head and 'projection_head' in state_dict:
+        # Replace the state dict to prevent the error when loading a legacy
+        # embedding model
+        """
+        RuntimeError: Error(s) in loading state_dict for SimCLR: 32
+    
+        Missing key(s) in state_dict: "head.layers.0.weight", 
+        "head.layers.0.bias", "head.layers.2.weight", "head.layers.2.bias".33
+    
+        Unexpected key(s) in state_dict: "projection_head.layers.0.weight", 
+        "projection_head.layers.0.bias", "projection_head.layers.2.weight", 
+        "projection_head.layers.2.bias".
+        """
+        state_dict['head'] = state_dict['projection_head']
+        del state_dict['projection_head']
 
     # step 1: filter state dict
     if apply_filter:

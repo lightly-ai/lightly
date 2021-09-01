@@ -106,23 +106,6 @@ def _embed_cli(cfg, is_cli_call=True):
     ).to(device)
 
     if state_dict is not None:
-
-        # Replace the state dict to prevent the error when loading a legacy
-        # embedding model
-        """
-        RuntimeError: Error(s) in loading state_dict for SimCLR: 32
-        
-        Missing key(s) in state_dict: "head.layers.0.weight", 
-        "head.layers.0.bias", "head.layers.2.weight", "head.layers.2.bias".33
-        
-        Unexpected key(s) in state_dict: "projection_head.layers.0.weight", 
-        "projection_head.layers.0.bias", "projection_head.layers.2.weight", 
-        "projection_head.layers.2.bias".
-        """
-        if 'projection_head' in state_dict:
-            state_dict['head'] = state_dict['projection_head']
-            del state_dict['projection_head']
-
         load_from_state_dict(model, state_dict)
 
     encoder = SelfSupervisedEmbedding(model, None, None, None)
