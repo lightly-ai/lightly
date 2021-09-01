@@ -4,7 +4,7 @@ import unittest
 from lightly.transforms import Jigsaw
 
 
-class TestGaussianBlur(unittest.TestCase):
+class TestJigsaw(unittest.TestCase):
 
     def test_on_pil_image(self):
         crop = Jigsaw()
