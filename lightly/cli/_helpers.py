@@ -5,6 +5,7 @@
 import copy
 import os
 import warnings
+from typing import Dict
 
 import torch
 from hydra import utils
@@ -159,12 +160,16 @@ def _fix_projection_head_keys(state_dict):
     projection_head_identifier = 'projection_head'
     prediction_head_identifier = 'prediction_head'
     projection_head_insert = 'layers'
+    prediction_head_replace = 'head'
 
     new_state_dict = {}
     for key, item in state_dict.items():
         if (projection_head_identifier in key or \
             prediction_head_identifier in key) and \
                 projection_head_insert not in key:
+            # replace prediction_head by head
+            key = key.replace(projection_head_identifier,
+                              prediction_head_replace)
             # insert layers if it's not part of the key yet
             key_parts = key.split('.')
             key_parts.insert(1, projection_head_insert)
@@ -178,7 +183,7 @@ def _fix_projection_head_keys(state_dict):
 
 
 def load_from_state_dict(model,
-                         state_dict,
+                         state_dict: Dict,
                          strict: bool = True,
                          apply_filter: bool = True,
                          num_splits: int = 0,
@@ -186,23 +191,7 @@ def load_from_state_dict(model,
     """Loads the model weights from the state dictionary.
 
     """
-    # Step 0
-    if replace_projection_head_with_head and 'projection_head' in state_dict:
-        # Replace the state dict to prevent the error when loading a legacy
-        # embedding model
-        """
-        RuntimeError: Error(s) in loading state_dict for SimCLR: 32
-    
-        Missing key(s) in state_dict: "head.layers.0.weight", 
-        "head.layers.0.bias", "head.layers.2.weight", "head.layers.2.bias".33
-    
-        Unexpected key(s) in state_dict: "projection_head.layers.0.weight", 
-        "projection_head.layers.0.bias", "projection_head.layers.2.weight", 
-        "projection_head.layers.2.bias".
-        """
-        state_dict['head'] = state_dict['projection_head']
-        del state_dict['projection_head']
-
+    '.0.weight'
     # step 1: filter state dict
     if apply_filter:
         state_dict = _filter_state_dict(state_dict)
