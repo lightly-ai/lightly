@@ -2,7 +2,7 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-from typing import Tuple
+from typing import Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -29,7 +29,15 @@ class BaseEmbeddingModel(nn.Module):
     def forward(self,
                 x0: torch.Tensor,
                 x1: torch.Tensor = None,
-                return_features: bool = False):
+                return_features: bool = False)\
+            -> Union[
+                torch.Tensor,
+                Tuple[torch.Tensor, torch.Tensor],
+                Tuple[
+                    Tuple[torch.Tensor, torch.Tensor],
+                    Tuple[torch.Tensor, torch.Tensor],
+                ],
+            ]:
         """Forward pass through the embedding mdoel.
 
         Extracts features with the backbone and applies the projection
