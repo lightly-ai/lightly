@@ -59,6 +59,7 @@ class TestFromImports(unittest.TestCase):
         from lightly.models import checkpoints
         from lightly.models.zoo import checkpoints
         from lightly.models.batchnorm import get_norm_layer
+        from lightly.models.base_embedding_model import BaseEmbeddingModel
 
         # transforms imports
         from lightly.transforms import GaussianBlur

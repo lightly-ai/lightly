@@ -69,6 +69,7 @@ class TestNestedImports(unittest.TestCase):
         lightly.models.checkpoints
         lightly.models.zoo.checkpoints
         lightly.models.batchnorm.get_norm_layer
+        lightly.models.BaseEmbeddingModel
 
         # transforms imports
         lightly.transforms.GaussianBlur

@@ -68,6 +68,7 @@ class TestSemiNestedImports(unittest.TestCase):
         models.checkpoints
         models.zoo.checkpoints
         models.batchnorm.get_norm_layer
+        models.BaseEmbeddingModel
 
         # transforms imports
         from lightly import transforms

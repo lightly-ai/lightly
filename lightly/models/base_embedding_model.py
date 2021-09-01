@@ -2,7 +2,7 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-from typing import List, Tuple
+from typing import Tuple
 
 import torch
 import torch.nn as nn
@@ -19,12 +19,12 @@ class BaseEmbeddingModel(nn.Module):
         self.backbone = backbone
         self.head = head
 
-    def _base_forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        """Forward pass throught the backbone and head"""
+    def _base_forward(self, x: torch.Tensor) \
+            -> Tuple[torch.Tensor, torch.Tensor]:
+        """Forward pass through the backbone and head"""
         features = self.backbone(x).flatten(start_dim=1)
         out = self.head(features)
         return out, features
-
 
     def forward(self,
                 x0: torch.Tensor,
@@ -33,9 +33,10 @@ class BaseEmbeddingModel(nn.Module):
         """Forward pass through the embedding mdoel.
 
         Extracts features with the backbone and applies the projection
-        head and prediction head(s) to the output space. If both x0 and x1 are not
-        None, both will be passed through the backbone, projection, and
-        prediction head. If x1 is None, only x0 will be forwarded.
+        head and prediction head(s) to the output space. If both x0 and x1
+        are not None, both will be passed through the
+        backbone, projection, and prediction head. If x1 is None, only x0
+        will be forwarded.
 
         Args:
             x0:
@@ -50,7 +51,7 @@ class BaseEmbeddingModel(nn.Module):
             the output prediction and projection of x1. If return_features is
             True, the output for each x is a tuple (out, f) where f are the
             features before the projection head.
-            
+
         Examples:
             >>> # single input, single output
             >>> out = model(x) 
