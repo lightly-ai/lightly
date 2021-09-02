@@ -114,7 +114,7 @@ class MoCo(nn.Module, _MomentumEncoderMixin):
                 x1, shuffle = self._batch_shuffle(x1)
 
             # run x1 through momentum encoder
-            out1, f1 = self.model_moco.forward(x0, return_features=True)
+            out1, f1 = self.model_moco.forward(x1, return_features=True)
         
             # unshuffle for batchnorm
             if self.batch_shuffle:

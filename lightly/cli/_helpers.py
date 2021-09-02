@@ -191,7 +191,6 @@ def load_from_state_dict(model,
     """Loads the model weights from the state dictionary.
 
     """
-    '.0.weight'
     # step 1: filter state dict
     if apply_filter:
         state_dict = _filter_state_dict(state_dict)
