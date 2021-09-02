@@ -11,3 +11,4 @@
 from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.rotation import RandomRotate
 from lightly.transforms.solarize import RandomSolarization
+from lightly.transforms.jigsaw import Jigsaw
