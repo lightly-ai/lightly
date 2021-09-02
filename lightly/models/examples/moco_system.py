@@ -1,13 +1,13 @@
 import pytorch_lightning as pl
 import torch
 
-from lightly.models._momentum import _MomentumEncoderMixin
 from lightly.models.modules.heads import MoCoProjectionHead
 
 import lightly
+from lightly.models.modules.momentum_encoder import MomentumEncoder
 
 
-class MocoSystem(pl.LightningModule, _MomentumEncoderMixin):
+class MocoSystem(pl.LightningModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
@@ -23,11 +23,11 @@ class MocoSystem(pl.LightningModule, _MomentumEncoderMixin):
         self.projection_head = MoCoProjectionHead(num_ftrs, num_ftrs, out_dim)
 
         # define the momentum encoded model
-        self.m = 0.999
-        self.batch_shuffle = True
-        self._init_momentum_encoder()  # takes the backbone and
-        # projection_head and defines the momentum_backbone and
-        # momentum_projection_head
+        self.momentum_encoder = \
+            MomentumEncoder(backbone=self.backbone,
+                            projection_head=self.projection_head,
+                            momentum=0.999,
+                            batch_shuffle=True)
 
         # create our loss with the optional memory bank
         self.criterion = lightly.loss.NTXentLoss(
@@ -39,30 +39,13 @@ class MocoSystem(pl.LightningModule, _MomentumEncoderMixin):
         out = self.projection_head(features)
         return out
 
-    def forward_momentum(self, x):
-        self._momentum_update(self.m)
-        # shuffle for batchnorm
-        if self.batch_shuffle:
-            x, shuffle = self._batch_shuffle(x)
-
-        # run x through momentum encoder
-        features = self.momentum_backbone(x).flatten(start_dim=1)
-        out = self.momentum_projection_head(features)
-
-        # unshuffle for batchnorm
-        if self.batch_shuffle:
-            features = self._batch_unshuffle(features, shuffle)
-            out = self._batch_unshuffle(out, shuffle)
-
-        return out
-
     def training_step(self, batch, batch_idx):
         # We assume that x0 and x1 are different augmentations of the same
         # image each
         (x0, x1), _, _ = batch
         # Run each augmentation separately through the model or momentum model
         out0 = self.forward(x0)
-        out1 = self.forward_momentum(x1)
+        out1 = self.momentum_encoder.forward(x1)
 
         # We use a symmetric loss
         # (model trains faster at little compute overhead)
