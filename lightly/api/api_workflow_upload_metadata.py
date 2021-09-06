@@ -3,7 +3,9 @@ from bisect import bisect_left
 
 import tqdm
 
-from lightly.openapi_generated.swagger_client.models.sample_update_request import SampleUpdateRequest
+from lightly.openapi_generated.swagger_client.models.sample_update_request import \
+    SampleUpdateRequest
+from lightly.utils.io import COCO_ANNOTATION_KEYS
 
 
 def _assert_key_exists_in_custom_metadata(key: str, dictionary: Dict):
@@ -35,12 +37,11 @@ class _UploadCustomMetadataMixin:
 
         """
         _assert_key_exists_in_custom_metadata(
-            _COCO_ANNOTATION_KEYS.images, custom_metadata
+            COCO_ANNOTATION_KEYS.images, custom_metadata
         )
         _assert_key_exists_in_custom_metadata(
-            _COCO_ANNOTATION_KEYS.custom_metadata, custom_metadata
+            COCO_ANNOTATION_KEYS.custom_metadata, custom_metadata
         )
-
 
     def index_custom_metadata_by_filename(self,
                                           filenames: List[str],
@@ -59,29 +60,28 @@ class _UploadCustomMetadataMixin:
 
         """
 
-
         # sort images by filename
-        custom_metadata[_COCO_ANNOTATION_KEYS.images] = sorted(
-            custom_metadata[_COCO_ANNOTATION_KEYS.images],
-            key=lambda x: x[_COCO_ANNOTATION_KEYS.images_filename]
+        custom_metadata[COCO_ANNOTATION_KEYS.images] = sorted(
+            custom_metadata[COCO_ANNOTATION_KEYS.images],
+            key=lambda x: x[COCO_ANNOTATION_KEYS.images_filename]
         )
 
         # sort metadata by image id
-        custom_metadata[_COCO_ANNOTATION_KEYS.custom_metadata] = sorted(
-            custom_metadata[_COCO_ANNOTATION_KEYS.custom_metadata],
-            key=lambda x: x[_COCO_ANNOTATION_KEYS.custom_metadata_image_id]
+        custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata] = sorted(
+            custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata],
+            key=lambda x: x[COCO_ANNOTATION_KEYS.custom_metadata_image_id]
         )
 
         # get a list of filenames for binary search
         image_filenames = [
-            image[_COCO_ANNOTATION_KEYS.images_filename] for image in 
-            custom_metadata[_COCO_ANNOTATION_KEYS.images]        
+            image[COCO_ANNOTATION_KEYS.images_filename] for image in
+            custom_metadata[COCO_ANNOTATION_KEYS.images]
         ]
 
         # get a list of image ids for binary search
         metadata_image_ids = [
-            data[_COCO_ANNOTATION_KEYS.custom_metadata_image_id] for data in 
-            custom_metadata[_COCO_ANNOTATION_KEYS.custom_metadata]        
+            data[COCO_ANNOTATION_KEYS.custom_metadata_image_id] for data in
+            custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata]
         ]
 
         # map filename to metadata in O(n * logn)
@@ -94,8 +94,8 @@ class _UploadCustomMetadataMixin:
                     f'Image with filename {filename} does not exist in custom metadata!'
                 )
 
-            image = custom_metadata[_COCO_ANNOTATION_KEYS.images][image_index]
-            image_id = image[_COCO_ANNOTATION_KEYS.images_id]
+            image = custom_metadata[COCO_ANNOTATION_KEYS.images][image_index]
+            image_id = image[COCO_ANNOTATION_KEYS.images_id]
 
             metadata_index = bisect_left(metadata_image_ids, image_id)
             if metadata_index == len(metadata_image_ids):
@@ -103,11 +103,11 @@ class _UploadCustomMetadataMixin:
                     f'Image with id {image_id} has no custom metadata!'
                 )
 
-            metadata = custom_metadata[_COCO_ANNOTATION_KEYS.custom_metadata][metadata_index]
+            metadata = custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata][
+                metadata_index]
             filename_to_metadata[filename] = metadata
 
         return filename_to_metadata
-
 
     def upload_custom_metadata(self,
                                custom_metadata: Dict,

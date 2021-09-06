@@ -176,7 +176,7 @@ def load_embeddings_as_dict(path: str,
         return data
 
 
-class _COCO_ANNOTATION_KEYS:
+class COCO_ANNOTATION_KEYS:
     """Enum of coco annotation keys complemented with a key for custom metadata.
 
     """
@@ -214,17 +214,17 @@ def format_custom_metadata(custom_metadata: List[Tuple[str, Dict]]):
     
     """
     formatted = {
-        _COCO_ANNOTATION_KEYS.images: [],
-        _COCO_ANNOTATION_KEYS.custom_metadata: [],
+        COCO_ANNOTATION_KEYS.images: [],
+        COCO_ANNOTATION_KEYS.custom_metadata: [],
     }
 
     for i, (filename, metadata) in enumerate(custom_metadata):
-        formatted[_COCO_ANNOTATION_KEYS.images].append({
-            _COCO_ANNOTATION_KEYS.images_id: i,
-            _COCO_ANNOTATION_KEYS.images_filename: filename,
+        formatted[COCO_ANNOTATION_KEYS.images].append({
+            COCO_ANNOTATION_KEYS.images_id: i,
+            COCO_ANNOTATION_KEYS.images_filename: filename,
         })
-        formatted[_COCO_ANNOTATION_KEYS.custom_metadata].append({
-            _COCO_ANNOTATION_KEYS.custom_metadata_image_id: i,
+        formatted[COCO_ANNOTATION_KEYS.custom_metadata].append({
+            COCO_ANNOTATION_KEYS.custom_metadata_image_id: i,
             **metadata,
         })
 
