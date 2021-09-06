@@ -1,20 +1,11 @@
 import csv
 from typing import List
 
-from lightly.openapi_generated.swagger_client.models.dataset_embedding_data import DatasetEmbeddingData
-from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
-
-
-
-def _is_valid_filename(filename: str):
-    """Returns False if the filename is misformatted.
-
-    """
-    invalid_characters = [',']
-    for character in invalid_characters:
-        if character in filename:
-            return False
-    return True
+from lightly.openapi_generated.swagger_client.models.dataset_embedding_data \
+    import DatasetEmbeddingData
+from lightly.openapi_generated.swagger_client.models.write_csv_url_data \
+    import WriteCSVUrlData
+from lightly.utils.io import check_filenames
 
 
 class _UploadEmbeddingsMixin:
@@ -104,12 +95,12 @@ class _UploadEmbeddingsMixin:
                 raise ValueError(f'There are {len(filenames)} rows in the embedding file, but '
                                  f'{len(self.filenames_on_server)} filenames/samples on the server.')
             if set(filenames) != set(self.filenames_on_server):
-                raise ValueError(f'The filenames in the embedding file and the filenames on the server do not align')
-            invalid_filenames = [f for f in filenames if not _is_valid_filename(f)]
-            if len(invalid_filenames) > 0:
-                raise ValueError(f'Invalid filename(s) in embedding file: {invalid_filenames}')
+                raise ValueError(f'The filenames in the embedding file and '
+                                 f'the filenames on the server do not align')
+            check_filenames(filenames)
 
-            rows_without_header_ordered = self._order_list_by_filenames(filenames, rows_without_header)
+            rows_without_header_ordered = \
+                self._order_list_by_filenames(filenames, rows_without_header)
 
             rows_to_write = [header_row]
             rows_to_write += rows_without_header_ordered

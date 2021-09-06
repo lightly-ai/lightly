@@ -6,20 +6,6 @@ import tqdm
 from lightly.openapi_generated.swagger_client.models.sample_update_request import SampleUpdateRequest
 
 
-class _COCO_ANNOTATION_KEYS:
-    """Enum of coco annotation keys complemented with a key for custom metadata.
-    
-    """
-    # image keys
-    images: str = 'images'
-    images_id: str = 'id'
-    images_filename: str = 'file_name'
-
-    # metadata keys
-    custom_metadata: str = 'metadata'
-    custom_metadata_image_id: str = 'image_id'
-
-
 def _assert_key_exists_in_custom_metadata(key: str, dictionary: Dict):
     """Raises a formatted KeyError if key is not a key of the dictionary.
     
@@ -72,6 +58,7 @@ class _UploadCustomMetadataMixin:
             A dictionary containing custom metdata indexed by filename.
 
         """
+
 
         # sort images by filename
         custom_metadata[_COCO_ANNOTATION_KEYS.images] = sorted(

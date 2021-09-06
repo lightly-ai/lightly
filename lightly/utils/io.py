@@ -9,8 +9,23 @@ from typing import List, Tuple, Dict
 
 import numpy as np
 
+INVALID_FILENAME_CHARACTERS = [',']
 
-from lightly.api.api_workflow_upload_metadata import _COCO_ANNOTATION_KEYS
+
+def _is_valid_filename(filename: str) -> bool:
+    """Returns False if the filename is misformatted.
+
+    """
+    for character in INVALID_FILENAME_CHARACTERS:
+        if character in filename:
+            return False
+    return True
+
+
+def check_filenames(filenames: List[str]):
+    invalid_filenames = [f for f in filenames if not _is_valid_filename(f)]
+    if len(invalid_filenames) > 0:
+        raise ValueError(f'Invalid filename(s): {invalid_filenames}')
 
 
 def save_embeddings(path: str,
@@ -43,10 +58,12 @@ def save_embeddings(path: str,
         >>>     labels,
         >>>     filenames)
     """
+    check_filenames(filenames)
+
     n_embeddings = len(embeddings)
     n_filenames = len(filenames)
     n_labels = len(labels)
-    
+
     if n_embeddings != n_labels or n_filenames != n_labels:
         msg = 'Length of embeddings, labels, and filenames should be equal '
         msg += f' but are not: ({n_embeddings}, {n_filenames}, {n_labels})'
@@ -59,7 +76,7 @@ def save_embeddings(path: str,
         writer = csv.writer(csv_file, delimiter=',')
         writer.writerow(header)
         for filename, embedding, label in zip(filenames, embeddings, labels):
-            writer.writerow([filename] + list(embedding) + [label])
+            writer.writerow([filename] + list(embedding) + [str(label)])
 
 
 def load_embeddings(path: str):
@@ -82,6 +99,7 @@ def load_embeddings(path: str):
 
     """
     filenames, labels = [], []
+    check_filenames(filenames)
     embeddings = []
     with open(path, 'r', newline='') as csv_file:
         reader = csv.reader(csv_file, delimiter=',')
@@ -89,7 +107,7 @@ def load_embeddings(path: str):
             # skip header
             if i == 0:
                 continue
-            # read filenames and labels
+            #  read filenames and labels
             filenames.append(row[0])
             labels.append(int(row[-1]))
             # read embeddings
@@ -136,14 +154,11 @@ def load_embeddings_as_dict(path: str,
     embeddings, labels, filenames = load_embeddings(path)
 
     # build dictionary
-    data = {}
-    data['embeddingName'] = embedding_name
-    data['embeddings'] = []
+    data = {'embeddingName': embedding_name, 'embeddings': []}
     for embedding, filename, label in zip(embeddings, filenames, labels):
-        item = {}
-        item['fileName'] = filename
-        item['value'] = embedding.tolist()
-        item['label'] = label
+        item = {'fileName': filename,
+                'value': embedding.tolist(),
+                'label': label}
         data['embeddings'].append(item)
 
     # return embeddings along with dictionary
@@ -153,7 +168,18 @@ def load_embeddings_as_dict(path: str,
         return data
 
 
+class _COCO_ANNOTATION_KEYS:
+    """Enum of coco annotation keys complemented with a key for custom metadata.
 
+    """
+    # image keys
+    images: str = 'images'
+    images_id: str = 'id'
+    images_filename: str = 'file_name'
+
+    # metadata keys
+    custom_metadata: str = 'metadata'
+    custom_metadata_image_id: str = 'image_id'
 
 
 def format_custom_metadata(custom_metadata: List[Tuple[str, Dict]]):
@@ -195,8 +221,6 @@ def format_custom_metadata(custom_metadata: List[Tuple[str, Dict]]):
         })
 
     return formatted
-
-
 
 
 def save_custom_metadata(path: str, custom_metadata: List[Tuple[str, Dict]]):
