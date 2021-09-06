@@ -23,6 +23,13 @@ def _is_valid_filename(filename: str) -> bool:
 
 
 def check_filenames(filenames: List[str]):
+    """Raises an error if one of the filenames is misformatted
+
+    Args:
+        filenames:
+            A list of string being filenames
+
+    """
     invalid_filenames = [f for f in filenames if not _is_valid_filename(f)]
     if len(invalid_filenames) > 0:
         raise ValueError(f'Invalid filename(s): {invalid_filenames}')
