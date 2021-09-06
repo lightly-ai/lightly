@@ -160,7 +160,10 @@ class LightlyDataset:
         if index_to_filename is not None:
             self.index_to_filename = index_to_filename
 
-        check_filenames(self.get_filenames())
+        # if created from an input directory with filenames, check if they
+        # are valid
+        if input_dir:
+            check_filenames(self.get_filenames())
 
     @classmethod
     def from_torch_dataset(cls,
