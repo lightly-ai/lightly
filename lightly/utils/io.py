@@ -99,7 +99,6 @@ def load_embeddings(path: str):
 
     """
     filenames, labels = [], []
-    check_filenames(filenames)
     embeddings = []
     with open(path, 'r', newline='') as csv_file:
         reader = csv.reader(csv_file, delimiter=',')
@@ -112,6 +111,8 @@ def load_embeddings(path: str):
             labels.append(int(row[-1]))
             # read embeddings
             embeddings.append(row[1:-1])
+
+    check_filenames(filenames)
 
     embeddings = np.array(embeddings).astype(np.float32)
     return embeddings, labels, filenames
