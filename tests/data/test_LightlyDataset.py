@@ -7,9 +7,9 @@ import tempfile
 import warnings
 import numpy as np
 from lightly.data import LightlyDataset
-import pytest
 
 from lightly.data._utils import check_images
+from lightly.utils.io import INVALID_FILENAME_CHARACTERS
 
 try:
     from lightly.data._video import VideoDataset
@@ -135,6 +135,26 @@ class TestLightlyDataset(unittest.TestCase):
 
         for i in range(n_tot):
             sample, target, fname = dataset[i]
+
+    def test_create_lightly_dataset_with_invalid_char_in_filename(self):
+
+        # create a dataset
+        n_tot = 100
+        dataset = torchvision.datasets.FakeData(size=n_tot,
+                                                image_size=(3, 32, 32))
+
+        for invalid_char in INVALID_FILENAME_CHARACTERS:
+            with self.subTest(msg=f"invalid_char: {invalid_char}"):
+                tmp_dir = tempfile.mkdtemp()
+                sample_names = [f'img_,_{i}.jpg' for i in range(n_tot)]
+                for sample_idx in range(n_tot):
+                    data = dataset[sample_idx]
+                    path = os.path.join(tmp_dir, sample_names[sample_idx])
+                    data[0].save(path)
+
+                # create lightly dataset
+                    with self.assertRaises(ValueError):
+                        dataset = LightlyDataset(input_dir=tmp_dir)
 
     def test_check_images(self):
 
