@@ -70,11 +70,3 @@ class TestApiWorkflowUploadEmbeddigns(MockedApiWorkflowSetup):
 
     def test_set_embedding_id_default(self):
         self.api_workflow_client.set_embedding_id_by_name()
-
-    def test_is_valid_filename(self):
-        filenames = [',a', ',', 'a,', 'a']
-        is_valid = [False, False, False, True]
-        result = [
-            lightly.api.api_workflow_upload_embeddings._is_valid_filename(f) for f in filenames
-        ]
-        self.assertListEqual(is_valid, result)
