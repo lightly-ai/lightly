@@ -65,3 +65,32 @@ the docker run command:
 
     # example of docker run with setting shared memory to 512 MBytes
     docker run --shm-size="512m" --gpus all
+
+
+Docker crashes because of too many open files
+-----------------------------------------------
+
+The following error message appears when the docker runtime has not enough
+file handlers. By default Docker uses 1024. However, when using multiple
+workers for data fetching `lightly.loader.num_workers` this might be not
+enough. As file handlers are used at many different parts of the code,
+the actual error message may differ. Internet connections like for
+connecting to the Lightly API also use file handlers.
+
+.. code-block:: console
+
+    <Error [Errno 24] Too many open files>
+
+To solve this problem we need to increase the number of file handlers for the
+docker runtime.
+
+You can change the number of file handlers to 90000 by adding
+`--ulimit nofile=90000:90000` to the docker run command:
+
+.. code-block:: console
+
+    # example of docker run with 90000 file handlers
+    docker run --ulimit nofile=90000:90000 --gpus all
+
+More documentation on docker file handlers is providided `here.
+<https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit>`_
