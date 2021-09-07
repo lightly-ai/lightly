@@ -23,6 +23,7 @@ from lightly.openapi_generated.swagger_client.models.api_error_code import ApiEr
 from lightly.openapi_generated.swagger_client.models.api_error_response import ApiErrorResponse
 from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData
 from lightly.openapi_generated.swagger_client.models.body import Body
+from lightly.openapi_generated.swagger_client.models.body1 import Body1
 from lightly.openapi_generated.swagger_client.models.configuration_data import ConfigurationData
 from lightly.openapi_generated.swagger_client.models.configuration_entry import ConfigurationEntry
 from lightly.openapi_generated.swagger_client.models.configuration_set_request import ConfigurationSetRequest
