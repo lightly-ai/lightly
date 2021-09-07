@@ -93,5 +93,4 @@ You can change the number of file handlers to 90000 by adding
     docker run --ulimit nofile=90000:90000 --gpus all
 
 More documentation on docker file handlers is providided `here.
-<https://mtyurt.net/post/docker-how-to-increase-number-of-open-files-limit
-.html>`_
+<https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit>`_
