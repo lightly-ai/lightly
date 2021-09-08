@@ -66,8 +66,12 @@ def crop_dataset_by_bounding_boxes_and_save(dataset: LightlyDataset,
         image = Image.open(filepath_image)
         
         cropped_images_filepaths = []
+        # For every image, crop out multiple cropped images, one for each
+        # bounding box
         for index, (class_index, bbox) in \
                 enumerate((zip(class_indices, bounding_boxes))):
+
+            # determine the filename and filepath of the cropped image
             if class_names:
                 class_name = class_names[class_index]
             else:
@@ -75,13 +79,14 @@ def crop_dataset_by_bounding_boxes_and_save(dataset: LightlyDataset,
             cropped_image_last_filename = f'{index}_{class_name}{image_extension}'
             cropped_image_filepath = os.path.join(filepath_out_dir, cropped_image_last_filename)
 
+            # crop out the image and save it
             w, h = image.size
             crop_box = (w * bbox.x0, h * bbox.y0, w * bbox.x1, h * bbox.y1)
             crop_box = tuple(int(i) for i in crop_box)
             cropped_image = image.crop(crop_box)
             cropped_image.save(cropped_image_filepath)
-            del cropped_image
 
+            # add the filename of the cropped image to the corresponding list
             cropped_image_filename = os.path.join(filename_image.replace(image_extension, ''), cropped_image_last_filename)
             cropped_images_filepaths.append(cropped_image_filename)
 
