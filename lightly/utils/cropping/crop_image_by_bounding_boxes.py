@@ -10,18 +10,6 @@ from lightly.active_learning.utils import BoundingBox
 from lightly.data import LightlyDataset
 
 
-def crop_image_by_bounding_boxes(image_filepath: str, bounding_boxes: List[BoundingBox]) -> List[Image.Image]:
-    image = Image.open(image_filepath)
-    cropped_images = []
-    for bbox in bounding_boxes:
-        w, h = image.size
-        crop_box = (w * bbox.x0, h * bbox.y0, w * bbox.x1, h * bbox.y1)
-        crop_box = tuple(int(i) for i in crop_box)
-        cropped_image = image.crop(crop_box)
-        cropped_images.append(cropped_image)
-    return cropped_images
-
-
 def crop_dataset_by_bounding_boxes_and_save(dataset: LightlyDataset,
                                             output_dir: str,
                                             bounding_boxes_list_list: List[List[BoundingBox]],
@@ -55,7 +43,7 @@ def crop_dataset_by_bounding_boxes_and_save(dataset: LightlyDataset,
         raise ValueError("There must be one bounding box and class index list for each image in the datasets,"
                          "but the lengths dont align.")
 
-    cropped_image_filepath_list_list: List[List[Image]] = []
+    cropped_image_filepath_list_list: List[List[str]] = []
 
 
     print(f"Cropping objects out of {len(filenames_images)} images...")
@@ -71,21 +59,38 @@ def crop_dataset_by_bounding_boxes_and_save(dataset: LightlyDataset,
         filepath_image = dataset.get_filepath_from_filename(filename_image)
         filepath_image_base, image_extension = os.path.splitext(filepath_image)
 
-        filepath_out_dir = os.path.join(output_dir, filename_image).replace(image_extension, '')
+        filepath_out_dir = os.path.join(output_dir, filename_image)\
+            .replace(image_extension, '')
         Path(filepath_out_dir).mkdir(parents=True, exist_ok=True)
 
-        cropped_images = crop_image_by_bounding_boxes(filepath_image, bounding_boxes)
+        image = Image.open(filepath_image)
+        
         cropped_images_filepaths = []
-        for index, (class_index, cropped_image) in enumerate((zip(class_indices, cropped_images))):
+        # For every image, crop out multiple cropped images, one for each
+        # bounding box
+        for index, (class_index, bbox) in \
+                enumerate((zip(class_indices, bounding_boxes))):
+
+            # determine the filename and filepath of the cropped image
             if class_names:
                 class_name = class_names[class_index]
             else:
                 class_name = f"class{class_index}"
             cropped_image_last_filename = f'{index}_{class_name}{image_extension}'
             cropped_image_filepath = os.path.join(filepath_out_dir, cropped_image_last_filename)
+
+            # crop out the image and save it
+            w, h = image.size
+            crop_box = (w * bbox.x0, h * bbox.y0, w * bbox.x1, h * bbox.y1)
+            crop_box = tuple(int(i) for i in crop_box)
+            cropped_image = image.crop(crop_box)
             cropped_image.save(cropped_image_filepath)
 
-            cropped_image_filename = os.path.join(filename_image.replace(image_extension, ''), cropped_image_last_filename)
+            # add the filename of the cropped image to the corresponding list
+            cropped_image_filename: str = os.path.join(
+                filename_image.replace(image_extension, ''),
+                cropped_image_last_filename
+            )
             cropped_images_filepaths.append(cropped_image_filename)
 
         cropped_image_filepath_list_list.append(cropped_images_filepaths)
