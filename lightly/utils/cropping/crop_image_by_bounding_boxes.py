@@ -43,7 +43,7 @@ def crop_dataset_by_bounding_boxes_and_save(dataset: LightlyDataset,
         raise ValueError("There must be one bounding box and class index list for each image in the datasets,"
                          "but the lengths dont align.")
 
-    cropped_image_filepath_list_list: List[List[Image]] = []
+    cropped_image_filepath_list_list: List[List[str]] = []
 
 
     print(f"Cropping objects out of {len(filenames_images)} images...")
@@ -87,7 +87,10 @@ def crop_dataset_by_bounding_boxes_and_save(dataset: LightlyDataset,
             cropped_image.save(cropped_image_filepath)
 
             # add the filename of the cropped image to the corresponding list
-            cropped_image_filename = os.path.join(filename_image.replace(image_extension, ''), cropped_image_last_filename)
+            cropped_image_filename: str = os.path.join(
+                filename_image.replace(image_extension, ''),
+                cropped_image_last_filename
+            )
             cropped_images_filepaths.append(cropped_image_filename)
 
         cropped_image_filepath_list_list.append(cropped_images_filepaths)
