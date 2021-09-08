@@ -2,6 +2,8 @@ import csv
 import tempfile
 from typing import List
 
+from lightly.openapi_generated.swagger_client import Body1, \
+    DimensionalityReductionMethod
 from lightly.openapi_generated.swagger_client.models.dataset_embedding_data \
     import DatasetEmbeddingData
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data \
@@ -82,7 +84,22 @@ class _UploadEmbeddingsMixin:
             f_bytes.seek(0)
             self.upload_file_with_signed_url(file=f_bytes, signed_write_url=signed_write_url)
 
-    def _order_csv_by_filenames(self, path_to_embeddings_csv: str) -> List[str]:
+        # trigger the 2d embeddings job
+        for dimensionality_reduction_method in [
+            DimensionalityReductionMethod.PCA,
+            DimensionalityReductionMethod.TSNE,
+            DimensionalityReductionMethod.UMAP
+        ]:
+
+            body = Body1(
+                dimensionality_reduction_method=dimensionality_reduction_method)
+            self.embeddings_api.trigger2d_embeddings_job(
+                body=body,
+                dataset_id=self.dataset_id,
+                embedding_id=self.embedding_id
+            )
+
+    def _order_csv_by_filenames(self, path_to_embeddings_csv: str) -> str:
         """Orders the rows in a csv according to the order specified on the server and saves it as a new file.
 
         Args:
