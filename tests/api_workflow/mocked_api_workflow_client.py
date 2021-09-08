@@ -16,9 +16,11 @@ from lightly.api.api_workflow_client import ApiWorkflowClient
 
 from typing import *
 
-from lightly.openapi_generated.swagger_client import ScoresApi, CreateEntityResponse, SamplesApi, SampleCreateRequest, \
-    InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, TagArithmeticsRequest, TagBitMaskResponse, \
-    SampleWriteUrls, SampleData
+from lightly.openapi_generated.swagger_client import ScoresApi, \
+    CreateEntityResponse, SamplesApi, SampleCreateRequest, \
+    InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, \
+    TagArithmeticsRequest, TagBitMaskResponse, \
+    SampleWriteUrls, SampleData, Body1
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -49,6 +51,9 @@ class MockedEmbeddingsApi(EmbeddingsApi):
     def get_embeddings_by_dataset_id(self, dataset_id, **kwargs) -> List[DatasetEmbeddingData]:
         assert isinstance(dataset_id, str)
         return self.embeddings
+
+    def trigger2d_embeddings_job(self, body, dataset_id, embedding_id, **kwargs):
+        assert isinstance(body, Body1)
 
 
 class MockedSamplingsApi(SamplingsApi):
