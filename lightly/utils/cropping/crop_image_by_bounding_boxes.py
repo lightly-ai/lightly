@@ -9,9 +9,7 @@ from tqdm import tqdm
 from lightly.active_learning.utils import BoundingBox
 from lightly.data import LightlyDataset
 
-from memory_profiler import profile
 
-@profile
 def crop_dataset_by_bounding_boxes_and_save(dataset: LightlyDataset,
                                             output_dir: str,
                                             bounding_boxes_list_list: List[List[BoundingBox]],
