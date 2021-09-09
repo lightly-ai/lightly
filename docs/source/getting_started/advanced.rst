@@ -1,6 +1,6 @@
 .. _lightly-advanced:
 
-Advanced
+Advanced Concepts in Self-Supervised Learning
 ===================
 
 In this section, we will have a look at some more advanced topics around lightly. 

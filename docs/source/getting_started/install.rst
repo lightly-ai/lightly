@@ -1,4 +1,4 @@
-Getting Started 
+Installation
 ===================================
 
 Supported Python versions
