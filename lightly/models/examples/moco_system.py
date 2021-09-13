@@ -8,8 +8,8 @@ from lightly.models.modules.momentum_encoder import MomentumEncoder
 
 
 class MocoSystem(pl.LightningModule):
-    def __init__(self, dataloader_kNN, num_classes):
-        super().__init__(dataloader_kNN, num_classes)
+    def __init__(self):
+        super().__init__()
         # create a ResNet backbone and remove the classification head
         resnet = lightly.models.ResNetGenerator('resnet-18', num_splits=8)
         self.backbone = torch.nn.Sequential(
@@ -19,7 +19,6 @@ class MocoSystem(pl.LightningModule):
         # create a moco model based on ResNet
         num_ftrs = 512
         out_dim = 128
-        self.m = 0.999
         self.projection_head = MoCoProjectionHead(num_ftrs, num_ftrs, out_dim)
 
         # define the momentum encoded model
@@ -62,6 +61,6 @@ class MocoSystem(pl.LightningModule):
         optim = torch.optim.SGD(self.resnet_moco.parameters(), lr=6e-2,
                                 momentum=0.9, weight_decay=5e-4)
         max_epochs = 200
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim,
-                                                               T_max=200)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optim, T_max=max_epochs)
         return [optim], [scheduler]
