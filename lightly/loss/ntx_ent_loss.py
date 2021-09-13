@@ -4,8 +4,12 @@
 # All Rights Reserved
 
 import torch
+import torch.nn as nn
+import torch.distributed as dist
+
 
 from lightly.loss.memory_bank import MemoryBankModule
+from lightly.loss.gather import GatherLayer
 
 
 class NTXentLoss(MemoryBankModule):
@@ -118,19 +122,40 @@ class NTXentLoss(MemoryBankModule):
             logits = torch.cat([sim_pos, sim_neg], dim=1) / self.temperature
             labels = torch.zeros(logits.shape[0], device=device, dtype=torch.long)
 
-
         else:
-            # use other samples from batch as negatives
-            output = torch.cat((out0, out1), axis=0)
+            
+            if dist.is_initialized() and dist.get_world_size() > 1:
+                # gather hidden representations from other processes
+                out0_large = torch.cat(GatherLayer.apply(out0), 0)
+                out1_large = torch.cat(GatherLayer.apply(out1), 0)
+                rank = dist.get_rank()
+            else:
+                # TODO
+                out0_large = out0
+                out1_large = out1
+                rank = 0
 
-            # the logits are the similarity matrix divided by the temperature
-            logits = torch.einsum('nc,mc->nm', output, output) / self.temperature
-            # We need to removed the similarities of samples to themselves
-            logits = logits[~torch.eye(2*batch_size, dtype=torch.bool, device=out0.device)].view(2*batch_size, -1)
+            # TODO
+            logits_aa = torch.einsum('nc,mc->nm', out0, out0_large) / self.temperature
+            logits_ab = torch.einsum('nc,mc->nm', out0, out1_large) / self.temperature
+            logits_ba = torch.einsum('nc,mc->nm', out1, out0_large) / self.temperature
+            logits_bb = torch.einsum('nc,mc->nm', out1, out1_large) / self.temperature
 
-            # The labels point from a sample in out_i to its equivalent in out_(1-i)
+            # initialize labels and masks
             labels = torch.arange(batch_size, device=device, dtype=torch.long)
-            labels = torch.cat([labels + batch_size - 1, labels])
+            labels = labels + rank * batch_size
+            masks = torch.ones_like(logits_aa).bool()
+            masks = masks.scatter_(0, labels.unsqueeze(0), False)
+
+            # remove similarities of samples to themselves
+            logits_aa = logits_aa[masks].view(batch_size, -1)
+            logits_bb = logits_bb[masks].view(batch_size, -1)
+
+            # TODO
+            logits_abaa = torch.cat([logits_ab, logits_aa], 1)
+            logits_babb = torch.cat([logits_ba, logits_bb], 1)
+            logits = torch.cat([logits_abaa, logits_babb], 0)
+            labels = torch.cat([labels, labels])
 
         loss = self.cross_entropy(logits, labels)
 
