@@ -285,10 +285,6 @@ class LightlyDataset:
                 # make sure the filename exists in filenames
                 if filenames[filename_index] == filename:
                     indices.append(index)
-                else:
-                    raise RuntimeError(
-                        f'Filename {filename} does not exist in list of filenames.'
-                    )
 
         # dump images
         for i, filename in zip(indices, filenames):
