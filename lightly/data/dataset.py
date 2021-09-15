@@ -4,6 +4,7 @@
 # All Rights Reserved
 
 import os
+import bisect
 import shutil
 import tempfile
 
@@ -277,10 +278,17 @@ class LightlyDataset:
             filenames = self.get_filenames()
         else:
             indices = []
+            filenames = sorted(filenames)
             all_filenames = self.get_filenames()
-            for i in range(len(filenames)):
-                if filenames[i] in all_filenames:
-                    indices.append(i)
+            for index, filename in enumerate(all_filenames):
+                filename_index = bisect.bisect_left(filenames, filename)
+                # make sure the filename exists in filenames
+                if filenames[filename_index] == filename:
+                    indices.append(index)
+                else:
+                    raise RuntimeError(
+                        f'Filename {filename} does not exist in list of filenames.'
+                    )
 
         # dump images
         for i, filename in zip(indices, filenames):
