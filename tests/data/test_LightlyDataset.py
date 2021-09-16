@@ -219,8 +219,11 @@ class TestLightlyDataset(unittest.TestCase):
         dataset = LightlyDataset(input_dir=self.input_dir)
 
         out_dir = tempfile.mkdtemp()
-        dataset.dump(out_dir)
-        self.assertEqual(len(os.listdir(out_dir)), len(dataset))
+        dataset.dump(out_dir, dataset.get_filenames()[(len(dataset) // 2):])
+        self.assertEqual(len(os.listdir(out_dir)), len(dataset) // 2)
+        for filename in os.listdir(out_dir):
+            self.assertIn(filename, dataset.get_filenames()[(len(dataset) // 2):])  
+
 
     def test_transform_setter(self, dataset: LightlyDataset = None):
 
