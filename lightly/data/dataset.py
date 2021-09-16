@@ -283,7 +283,8 @@ class LightlyDataset:
             for index, filename in enumerate(all_filenames):
                 filename_index = bisect.bisect_left(filenames, filename)
                 # make sure the filename exists in filenames
-                if filenames[filename_index] == filename:
+                if filename_index < len(filenames) and \
+                    filenames[filename_index] == filename:
                     indices.append(index)
 
         # dump images
