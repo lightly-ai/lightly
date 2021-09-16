@@ -19,4 +19,3 @@ you might want to have a look at the two frameworks to understand basic concepts
    package/tutorial_simclr_clothing.rst
    package/tutorial_simsiam_esa.rst
    package/tutorial_custom_augmentations.rst
-   Tutorial 6: Embedded COVID mask detection <https://www.lightly.ai/post/embedded-covid-mask-detection-on-an-arm-m7-using-pytorch>

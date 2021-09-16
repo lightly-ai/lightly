@@ -20,3 +20,4 @@ In this tutorial series, you will learn how to get the most out of the platform.
    platform/tutorial_cropped_objects_metadata.rst
    Tutorial 7: Active Learning with Nvidia TLT <https://www.lightly.ai/post/active-learning-with-nvidia-tlt>
    Tutorial 8: Integration with LabelStudio for Active Learning <https://github.com/lightly-ai/Lightly_LabelStudio_AL>
+   Tutorial 9: Embedded COVID mask detection <https://www.lightly.ai/post/embedded-covid-mask-detection-on-an-arm-m7-using-pytorch>
