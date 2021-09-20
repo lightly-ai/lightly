@@ -62,12 +62,11 @@ class SimSiam(nn.Module):
             out_dim,
         )
 
-        warnings.warn(
+        warnings.warn(Warning(
             'The high-level building block SimSiam will be deprecated in version 1.2.0. '
             + 'Use low-level building blocks instead. '
-            + 'See https://docs.lightly.ai/lightly.models.htmlfor more information',
+            + 'See https://docs.lightly.ai/lightly.models.html for more information'),
             PendingDeprecationWarning)
-
         
     def forward(self, 
                 x0: torch.Tensor, 
