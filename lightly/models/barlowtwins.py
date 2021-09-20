@@ -5,6 +5,8 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+import warnings
+
 import torch
 import torch.nn as nn
 
@@ -51,6 +53,12 @@ class BarlowTwins(nn.Module):
             proj_hidden_dim,
             out_dim
         )
+
+        warnings.warn(Warning(
+            'The high-level building block BarlowTwins will be deprecated in version 1.2.0. '
+            + 'Use low-level building blocks instead. '
+            + 'See https://docs.lightly.ai/lightly.models.html for more information'),
+            PendingDeprecationWarning)
 
     def forward(self,
                 x0: torch.Tensor,
