@@ -1,5 +1,8 @@
 """The lightly.models package provides model implementations.
 
+Note that the high-level building blocks will be deprecated with lightly version
+1.2.0.
+
 The package contains an implementation of the commonly used ResNet and
 adaptations of the architecture which make self-supervised learning simpler.
 
