@@ -3,6 +3,8 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
+import warnings
+
 import torch
 import torch.nn as nn
 
@@ -60,6 +62,12 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
 
         self._init_momentum_encoder()
         self.m = m
+
+        warnings.warn(Warning(
+            'The high-level building block BYOL will be deprecated in version 1.2.0. '
+            + 'Use low-level building blocks instead. '
+            + 'See https://docs.lightly.ai/lightly.models.html for more information'),
+            PendingDeprecationWarning)
 
     def _forward(self,
                  x0: torch.Tensor,
