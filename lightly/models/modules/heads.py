@@ -215,3 +215,42 @@ class SimSiamPredictionHead(ProjectionHead):
             (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
             (hidden_dim, output_dim, None, None),
         ])
+
+
+class SwaVProjectionHead(ProjectionHead):
+    """Projection head used for SwaV.
+
+    "We implement in SwAV the improvements used in SimCLR, i.e. (...) and the
+    MLP projection head." [0]
+
+    [0]: SwaV, 2020, https://arxiv.org/abs/2006.09882
+
+    """
+    def __init__(self,
+                 input_dim: int,
+                 hidden_dim: int,
+                 output_dim: int):
+        super(SwaVProjectionHead, self).__init__([
+            (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+            (hidden_dim, output_dim, None, None),
+        ])
+
+
+class SwaVPrototypes(ProjectionHead):
+    """Prototypes used for SwaV.
+    
+    """
+    def __init__(self,
+                 input_dim: int,
+                 n_prototypes: int):
+        super(SwaVPrototypes, self).__init__([])
+        self.layers = nn.Linear(input_dim, n_prototypes, bias=False)
+
+    @torch.no_grad()
+    def normalize_weights(self):
+        """Normalizes the prototypes to the unit sphere.
+        
+        """
+        w = self.layers.weight.data.clone()
+        w = nn.functional.normalize(w, dim=1, p=2)
+        self.layers.weight.copy_(w)
