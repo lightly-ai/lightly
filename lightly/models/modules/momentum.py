@@ -40,6 +40,10 @@ def batch_unshuffle(batch: torch.Tensor, shuffle: torch.Tensor):
 def deactivate_requires_grad(params):
     """Deactivates the requires_grad flag for all parameters.
     
+    This has the same effect as executing the model within a `torch.no_grad()`
+    context. Use this method to disabled gradient computation and therefore
+    training for a model.
+
     Examples:
         >>> backbone = resnet18()
         >>> deactivate_requires_grad(backbone)
@@ -47,8 +51,23 @@ def deactivate_requires_grad(params):
     for param in params:
         param.requires_grad = False
 
+def activate_requires_grad(params):
+    """Activates the requires_grad flag for all parameters.
+
+    Use this method to activate gradients for a model (e.g. after deactivating
+    them using `deactivate_requires_grad(...)`).
+
+    Examples:
+        >>> backbone = resnet18()
+        >>> activate_requires_grad(backbone)
+    """
+    for param in params:
+        param.requires_grad = True
+
 def update_momentum(model: nn.Module, model_ema: nn.Module, m: float):
     """Updates parameters of `model_ema` with Exponential Moving Average of `model`
+
+    Momentum encoders are a crucial component fo models such as MoCo or BYOL. 
 
     Examples:
         >>> backbone = resnet18()
@@ -60,33 +79,5 @@ def update_momentum(model: nn.Module, model_ema: nn.Module, m: float):
         >>> update_momentum(moco, moco_momentum, m=0.999)
         >>> update_momentum(projection_head, projection_head_momentum, m=0.999)
     """
-    for model_params, model_ema_params in zip(model.parameters(), model_ema.parameters()):
-        ema = model_ema_params.data
-        curr = model_params.data
-        ema = ema * m + (1 - m) * curr
-
-class MomentumWrapper(nn.Module):
-    """Module to provide momentum encoder functionalities in one wrapper.
-
-    """
-    model: nn.Module
-    m: float
-    shuffle: bool
-
-    def __init__(self, model: nn.Module, m: float=0.999, shuffle: bool=True):
-        self.model_ema = deactivate_requires_grad(copy.deepcopy(model))
-        self.m = m
-        self.shuffle = shuffle
-
-    def forward(self, x):
-        if self.shuffle:
-            x, shuffle = batch_shuffle(x)
-
-        out = self.model(x)
-
-        if self.shuffle:
-            out = batch_unshuffle(out, shuffle)
-        return out
-
-    def update_moving_average(self, model: nn.Module, model_ema: nn.Module):
-        update_momentum(model, model_ema, m=self.m)
+    for model_ema, model in zip(model_ema.parameters(), model.parameters()):
+        model_ema.data = model_ema.data * m + model.data * (1. - m)
