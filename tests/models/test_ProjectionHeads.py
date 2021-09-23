@@ -58,9 +58,9 @@ class TestProjectionHeads(unittest.TestCase):
                         self.assertEqual(y.shape[0], batch_size)
                         self.assertEqual(y.shape[1], out_features)
 
+    @unittest.skipUnless(torch.cuda.is_available(), "skip")
     def test_single_projection_head_cuda(self):
-        if torch.cuda.is_available():
-            self.test_single_projection_head(device='cuda')
+        self.test_single_projection_head(device='cuda')
 
     def test_swav_prototypes(self, device: str = 'cpu'):
         for in_features, _, n_prototypes in self.n_features:
@@ -77,6 +77,6 @@ class TestProjectionHeads(unittest.TestCase):
                         self.assertEqual(y.shape[0], batch_size)
                         self.assertEqual(y.shape[1], n_prototypes)
 
+    @unittest.skipUnless(torch.cuda.is_available(), "skip")
     def test_swav_prototypes_cuda(self):
-        if torch.cuda.is_available():
-            self.test_swav_prototypes(device='cuda')
+        self.test_swav_prototypes(device='cuda')

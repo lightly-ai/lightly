@@ -115,7 +115,6 @@ def get_data_loaders(batch_size: int, multi_crops: bool = False):
         batch_size=batch_size,
         shuffle=True,
         collate_fn=collate_fn if not multi_crops else swav_collate_fn,
-        #collate_fn=collate_fn,
         drop_last=True,
         num_workers=num_workers
     )
