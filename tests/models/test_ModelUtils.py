@@ -27,7 +27,6 @@ class TestModelUtils(unittest.TestCase):
         x1 = torch.rand((4, 3,64,64))
         x1_shuffled, shuffle = batch_shuffle(x1)
         out1 = batch_unshuffle(x1_shuffled, shuffle)
-        # self.assertEqual(x1, out1)
         self.assertTrue(torch.equal(x1, out1))
         self.assertFalse(torch.equal(x1, x1_shuffled))
 
@@ -37,7 +36,7 @@ class TestModelUtils(unittest.TestCase):
             nn.ReLU(),
         )
         self.assertTrue(has_grad(model))
-        deactivate_requires_grad(model.parameters())
+        deactivate_requires_grad(model)
         self.assertFalse(has_grad(model))
         activate_requires_grad(model)
         self.assertTrue(has_grad(model))
