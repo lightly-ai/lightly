@@ -1,4 +1,4 @@
-""" Momentum Encoder """
+""" Utils for working with SSL models """
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
@@ -37,22 +37,22 @@ def batch_unshuffle(batch: torch.Tensor, shuffle: torch.Tensor):
     unshuffle = torch.argsort(shuffle)
     return batch[unshuffle]
 
-def deactivate_requires_grad(params):
-    """Deactivates the requires_grad flag for all parameters.
+def deactivate_requires_grad(model: nn.Module):
+    """Deactivates the requires_grad flag for all parameters of a model.
     
-    This has the same effect as executing the model within a `torch.no_grad()`
-    context. Use this method to disabled gradient computation and therefore
+    This has the same effect as permanently executing the model within a `torch.no_grad()`
+    context. Use this method to disable gradient computation and therefore
     training for a model.
 
     Examples:
         >>> backbone = resnet18()
         >>> deactivate_requires_grad(backbone)
     """
-    for param in params:
+    for param in model.parameters():
         param.requires_grad = False
 
-def activate_requires_grad(params):
-    """Activates the requires_grad flag for all parameters.
+def activate_requires_grad(model: nn.Module):
+    """Activates the requires_grad flag for all parameters of a model.
 
     Use this method to activate gradients for a model (e.g. after deactivating
     them using `deactivate_requires_grad(...)`).
@@ -61,7 +61,7 @@ def activate_requires_grad(params):
         >>> backbone = resnet18()
         >>> activate_requires_grad(backbone)
     """
-    for param in params:
+    for param in model.parameters():
         param.requires_grad = True
 
 def update_momentum(model: nn.Module, model_ema: nn.Module, m: float):
