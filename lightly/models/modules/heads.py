@@ -220,11 +220,6 @@ class SimSiamPredictionHead(ProjectionHead):
 class SwaVProjectionHead(ProjectionHead):
     """Projection head used for SwaV.
 
-    "We implement in SwAV the improvements used in SimCLR, i.e. (...) and the
-    MLP projection head." [0]
-
-    [0]: SwaV, 2020, https://arxiv.org/abs/2006.09882
-
     """
     def __init__(self,
                  input_dim: int,
@@ -238,19 +233,25 @@ class SwaVProjectionHead(ProjectionHead):
 
 class SwaVPrototypes(ProjectionHead):
     """Prototypes used for SwaV.
-    
+
+    Each output feature is assigned to a prototype, SwaV solves the swapped
+    predicition problem where the features of one augmentation are used to
+    predict the assigned prototypes of the other augmentation.
+
+    Examples:
+        >>> # use features with 128 dimensions and 512 prototypes
+        >>> prototypes = SwaVPrototypes(128, 512)
+        >>>
+        >>> # pass batch through backbone and projection head.
+        >>> features = model(x)
+        >>> features = nn.functional.normalize(features, dim=1, p=2)
+        >>>
+        >>> # logits has shape bsz x 512
+        >>> logits = prototypes(features)
+
     """
     def __init__(self,
                  input_dim: int,
                  n_prototypes: int):
         super(SwaVPrototypes, self).__init__([])
         self.layers = nn.Linear(input_dim, n_prototypes, bias=False)
-
-    @torch.no_grad()
-    def normalize_weights(self):
-        """Normalizes the prototypes to the unit sphere.
-        
-        """
-        w = self.layers.weight.data.clone()
-        w = nn.functional.normalize(w, dim=1, p=2)
-        self.layers.weight.copy_(w)
