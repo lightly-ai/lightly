@@ -10,6 +10,11 @@ import torch.distributed as dist
 def sinkhorn(out: torch.Tensor, iterations: int = 3, epsilon: float = 0.05):
     """Distributed sinkhorn algorithm.
 
+    As outlined in [0] and implemented in [1].
+    
+    [0]: SwaV, 2020, https://arxiv.org/abs/2006.09882
+    [1]: https://github.com/facebookresearch/swav/ 
+
     Args:
         out:
             Similarity of the features and the SwaV prototypes.
@@ -23,26 +28,17 @@ def sinkhorn(out: torch.Tensor, iterations: int = 3, epsilon: float = 0.05):
     
     """
 
-    # get the world size in the distributed case
-    world_size = 1
-    if dist.is_initialized():
-        world_size = dist.get_world_size()
-
     # get the exponential matrix and make it sum to 1
     Q = torch.exp(out / epsilon).t()
     sum_Q = torch.sum(Q)
-    if world_size > 1:
-        dist.all_reduce(sum_Q)
     Q /= sum_Q
 
-    B = Q.shape[1] * world_size
+    B = Q.shape[1]
     K = Q.shape[0] # number of prototypes
 
     for i in range(iterations):
         # normalize rows
         sum_of_rows = torch.sum(Q, dim=1, keepdim=True)
-        if world_size > 1:
-            dist.all_reduce(sum_of_rows)
         Q /= sum_of_rows
         Q /= K
         # normalize columns
@@ -53,8 +49,16 @@ def sinkhorn(out: torch.Tensor, iterations: int = 3, epsilon: float = 0.05):
     return Q.t()
 
 
-class SwaV(nn.Module):
-    """TODO
+class SwaVLoss(nn.Module):
+    """Implementation of the SwaV loss.
+
+    Attributes:
+        temperature:
+            Temperature parameter used for cross entropy calculations.
+        sinkhorn_iterations:
+            Number of iterations of the sinkhorn algorithm.
+        sinkhorn_epsilon:
+            Temperature parameter used in the sinkhorn algorithm.
     
     """
 
@@ -62,7 +66,7 @@ class SwaV(nn.Module):
                  temperature: float = 0.1,
                  sinkhorn_iterations: int = 3,
                  sinkhorn_epsilon: float = 0.05):
-        super(SwaV, self).__init__()
+        super(SwaVLoss, self).__init__()
         self.temperature = temperature
         self.sinkhorn_iterations = sinkhorn_iterations
         self.sinkhorn_epsilon = sinkhorn_epsilon
