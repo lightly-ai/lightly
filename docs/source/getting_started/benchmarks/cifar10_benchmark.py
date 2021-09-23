@@ -24,7 +24,7 @@ Code to reproduce the benchmark results:
 
 """
 from lightly.models.modules.heads import BYOLProjectionHead, ProjectionHead, MoCoProjectionHead
-from lightly.models.modules.momentum import deactivate_requires_grad, update_momentum, batch_shuffle, batch_unshuffle
+from lightly.models.utils import deactivate_requires_grad, update_momentum, batch_shuffle, batch_unshuffle
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -158,8 +158,8 @@ class MocoModel(BenchmarkModule):
         self.projection_head = MoCoProjectionHead(512, 512, 128)
         self.backbone_momentum = copy.deepcopy(self.backbone)
         self.projection_head_momentum = copy.deepcopy(self.projection_head)
-        deactivate_requires_grad(self.backbone_momentum.parameters())
-        deactivate_requires_grad(self.projection_head_momentum.parameters())
+        deactivate_requires_grad(self.backbone_momentum)
+        deactivate_requires_grad(self.projection_head_momentum)
 
         # create our loss with the optional memory bank
         self.criterion = lightly.loss.NTXentLoss(
@@ -167,7 +167,7 @@ class MocoModel(BenchmarkModule):
             memory_bank_size=memory_bank_size)
             
     def forward(self, x):
-        x = self.backbone(x)
+        x = self.backbone(x).flatten(start_dim=1)
         return self.projection_head(x)
 
     def training_step(self, batch, batch_idx):
@@ -292,19 +292,19 @@ class BYOLModel(BenchmarkModule):
         )
 
         # create a byol model based on ResNet
-        self.projection_head = BYOLProjectionHead(512,1024,256)
+        self.projection_head = BYOLProjectionHead(512, 1024, 256)
         self.prediction_head = BYOLProjectionHead(256,1024,256)
 
         self.backbone_momentum = copy.deepcopy(self.backbone)
         self.projection_head_momentum = copy.deepcopy(self.projection_head)
 
-        deactivate_requires_grad(self.backbone_momentum.parameters())
-        deactivate_requires_grad(self.projection_head_momentum.parameters())
+        deactivate_requires_grad(self.backbone_momentum)
+        deactivate_requires_grad(self.projection_head_momentum)
 
         self.criterion = lightly.loss.SymNegCosineSimilarityLoss()
 
     def forward(self, x):
-        x = self.backbone(x)
+        x = self.backbone(x).flatten(start_dim=1)
         return self.projection_head(x)
 
     def training_step(self, batch, batch_idx):
