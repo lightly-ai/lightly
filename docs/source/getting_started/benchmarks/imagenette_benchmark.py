@@ -55,7 +55,7 @@ nn_size=2 ** 16
 
 # benchmark
 n_runs = 1 # optional, increase to create multiple runs and report mean + std
-batch_sizes = [128]
+batch_sizes = [256]
 
 # use a GPU if available
 gpus = -1 if torch.cuda.is_available() else 0
@@ -488,9 +488,9 @@ class SwaVModel(BenchmarkModule):
         )
 
         self.projection_head = SwaVProjectionHead(512, 512, 128)
-        self.prototypes = SwaVPrototypes(128, 512) # use 200 prototypes
+        self.prototypes = SwaVPrototypes(128, 512) # use 512 prototypes
 
-        self.criterion = lightly.loss.SwaV()
+        self.criterion = lightly.loss.SwaVLoss()
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -500,16 +500,27 @@ class SwaVModel(BenchmarkModule):
 
     def training_step(self, batch, batch_idx):
 
-        with torch.no_grad():
-            self.prototypes.normalize_weights()
+        # normalize the prototypes so they are on the unit sphere
+        lightly.models.utils.normalize_weight(
+            self.prototypes.layers.weight
+        )
 
+        # the multi-crop dataloader returns a list of image crops where the
+        # first two items are the high resolution crops and the rest are low
+        # resolution crops
         multi_crops, _, _ = batch
         multi_crop_features = [self.forward(x) for x in multi_crops]
 
+        # split list of crop features into high and low resolution
         high_resolution_features = multi_crop_features[:2]
         low_resolution_features = multi_crop_features[2:]
 
-        loss = self.criterion(high_resolution_features, low_resolution_features)
+        # calculate the SwaV loss
+        loss = self.criterion(
+            high_resolution_features,
+            low_resolution_features
+        )
+
         self.log('train_loss_ssl', loss)
         return loss
 
@@ -523,15 +534,12 @@ class SwaVModel(BenchmarkModule):
         return [optim], [scheduler]
 
 
-#model_names = ['MoCo_256', 'SimCLR_256', 'SimSiam_256', 'BarlowTwins_256', 
-#               'BYOL_256', 'NNCLR_256', 'NNSimSiam_256', 'NNBYOL_256']
+model_names = ['MoCo_256', 'SimCLR_256', 'SimSiam_256', 'BarlowTwins_256', 
+               'BYOL_256', 'NNCLR_256', 'NNSimSiam_256', 'NNBYOL_256',
+               'SwaV_256']
 
-#models = [MocoModel, SimCLRModel, SimSiamModel, BarlowTwinsModel, 
-#          BYOLModel, NNCLRModel, NNSimSiamModel, NNBYOLModel]
-
-model_names = ['SwaV_512']
-
-models = [SwaVModel]
+models = [MocoModel, SimCLRModel, SimSiamModel, BarlowTwinsModel, 
+          BYOLModel, NNCLRModel, NNSimSiamModel, NNBYOLModel, SwaVModel]
 
 bench_results = []
 gpu_memory_usage = []
@@ -545,8 +553,6 @@ for batch_size in batch_sizes:
             dataloader_train_ssl, dataloader_train_kNN, dataloader_test = \
                 get_data_loaders(batch_size, multi_crops='swav' in model_name.lower())
             benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
-
-            print(benchmark_model)
 
             logger = TensorBoardLogger('imagenette_runs', version=model_name)
 
