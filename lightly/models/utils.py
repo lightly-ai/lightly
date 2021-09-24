@@ -81,3 +81,11 @@ def update_momentum(model: nn.Module, model_ema: nn.Module, m: float):
     """
     for model_ema, model in zip(model_ema.parameters(), model.parameters()):
         model_ema.data = model_ema.data * m + model.data * (1. - m)
+
+
+@torch.no_grad()
+def normalize_weight(weight: nn.Parameter, dim: int = 1, keepdim: bool = True):
+    """Normalizes the weight to unit length along the specified dimension.
+
+    """
+    weight.div_(torch.norm(weight, dim=dim, keepdim=keepdim))
