@@ -9,6 +9,8 @@ from lightly.models.utils import batch_unshuffle
 from lightly.models.utils import activate_requires_grad
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
+from lightly.models.utils import normalize_weight
+
 
 def has_grad(model: nn.Module):
     """Helper method to check if a model has `requires_grad` set to True
@@ -48,3 +50,12 @@ class TestModelUtils(unittest.TestCase):
         )
         model_momentum = copy.deepcopy(model)
         update_momentum(model, model_momentum, 0.99)
+
+    def test_normalize_weight_linear(self):
+        input_dim = 32
+        output_dim = 64
+        linear = nn.Linear(input_dim, output_dim, bias=False)
+        normalize_weight(linear.weight, dim=0)
+        self.assertEqual(linear.weight.norm(dim=0).sum(), input_dim)
+        normalize_weight(linear.weight, dim=1)
+        self.assertEqual(linear.weight.norm(dim=1).sum(), output_dim)
