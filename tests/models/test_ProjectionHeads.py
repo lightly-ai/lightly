@@ -12,6 +12,8 @@ from lightly.models.modules.heads import NNCLRPredictionHead
 from lightly.models.modules.heads import SimCLRProjectionHead
 from lightly.models.modules.heads import SimSiamProjectionHead
 from lightly.models.modules.heads import SimSiamPredictionHead
+from lightly.models.modules.heads import SwaVProjectionHead
+from lightly.models.modules.heads import SwaVPrototypes
 
 
 class TestProjectionHeads(unittest.TestCase):
@@ -34,7 +36,8 @@ class TestProjectionHeads(unittest.TestCase):
             NNCLRPredictionHead,
             SimCLRProjectionHead,
             SimSiamProjectionHead,
-            SimSiamPredictionHead,           
+            SimSiamPredictionHead,
+            SwaVProjectionHead,         
         ]
 
 
@@ -55,6 +58,25 @@ class TestProjectionHeads(unittest.TestCase):
                         self.assertEqual(y.shape[0], batch_size)
                         self.assertEqual(y.shape[1], out_features)
 
+    @unittest.skipUnless(torch.cuda.is_available(), "skip")
     def test_single_projection_head_cuda(self):
-        if torch.cuda.is_available():
-            self.test_single_projection_head(device='cuda')
+        self.test_single_projection_head(device='cuda')
+
+    def test_swav_prototypes(self, device: str = 'cpu'):
+        for in_features, _, n_prototypes in self.n_features:
+            prototypes = SwaVPrototypes(in_features, n_prototypes)
+            prototypes = prototypes.eval()
+            prototypes = prototypes.to(device)
+            for batch_size in [1, 2]:
+                msg = 'prototypes d_in, n_prototypes = ' +\
+                    f'{in_features} x {n_prototypes}'
+                with self.subTest(msg=msg):
+                        x = torch.torch.rand((batch_size, in_features)).to(device)
+                        with torch.no_grad():
+                            y = prototypes(x)
+                        self.assertEqual(y.shape[0], batch_size)
+                        self.assertEqual(y.shape[1], n_prototypes)
+
+    @unittest.skipUnless(torch.cuda.is_available(), "skip")
+    def test_swav_prototypes_cuda(self):
+        self.test_swav_prototypes(device='cuda')

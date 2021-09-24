@@ -215,3 +215,43 @@ class SimSiamPredictionHead(ProjectionHead):
             (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
             (hidden_dim, output_dim, None, None),
         ])
+
+
+class SwaVProjectionHead(ProjectionHead):
+    """Projection head used for SwaV.
+
+    """
+    def __init__(self,
+                 input_dim: int,
+                 hidden_dim: int,
+                 output_dim: int):
+        super(SwaVProjectionHead, self).__init__([
+            (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+            (hidden_dim, output_dim, None, None),
+        ])
+
+
+class SwaVPrototypes(ProjectionHead):
+    """Prototypes used for SwaV.
+
+    Each output feature is assigned to a prototype, SwaV solves the swapped
+    predicition problem where the features of one augmentation are used to
+    predict the assigned prototypes of the other augmentation.
+
+    Examples:
+        >>> # use features with 128 dimensions and 512 prototypes
+        >>> prototypes = SwaVPrototypes(128, 512)
+        >>>
+        >>> # pass batch through backbone and projection head.
+        >>> features = model(x)
+        >>> features = nn.functional.normalize(features, dim=1, p=2)
+        >>>
+        >>> # logits has shape bsz x 512
+        >>> logits = prototypes(features)
+
+    """
+    def __init__(self,
+                 input_dim: int,
+                 n_prototypes: int):
+        super(SwaVPrototypes, self).__init__([])
+        self.layers = nn.Linear(input_dim, n_prototypes, bias=False)

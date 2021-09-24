@@ -16,5 +16,7 @@ from lightly.models.modules.heads import NNCLRPredictionHead
 from lightly.models.modules.heads import SimCLRProjectionHead
 from lightly.models.modules.heads import SimSiamProjectionHead
 from lightly.models.modules.heads import SimSiamPredictionHead
+from lightly.models.modules.heads import SwaVProjectionHead
+from lightly.models.modules.heads import SwaVPrototypes
 from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
 
