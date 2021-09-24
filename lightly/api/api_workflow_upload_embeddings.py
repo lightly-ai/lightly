@@ -2,8 +2,8 @@ import csv
 import tempfile
 from typing import List
 
-from lightly.openapi_generated.swagger_client import Body1, \
-    DimensionalityReductionMethod
+from lightly.openapi_generated.swagger_client import \
+    DimensionalityReductionMethod, EmbeddingIdTrigger2dEmbeddingsJobBody
 from lightly.openapi_generated.swagger_client.models.dataset_embedding_data \
     import DatasetEmbeddingData
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data \
@@ -91,7 +91,7 @@ class _UploadEmbeddingsMixin:
             DimensionalityReductionMethod.UMAP
         ]:
 
-            body = Body1(
+            body = EmbeddingIdTrigger2dEmbeddingsJobBody(
                 dimensionality_reduction_method=dimensionality_reduction_method)
             self.embeddings_api.trigger2d_embeddings_job(
                 body=body,
