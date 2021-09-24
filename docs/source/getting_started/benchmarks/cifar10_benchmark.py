@@ -23,21 +23,35 @@ Code to reproduce the benchmark results:
 | SimSiam |  800   | 512        | 0.91          | 6.9 GBytes     |
 
 """
-from lightly.models.modules.heads import BYOLProjectionHead, ProjectionHead, MoCoProjectionHead
-from lightly.models.utils import deactivate_requires_grad, update_momentum, batch_shuffle, batch_unshuffle
+import copy
+import os
+
+import lightly
+import numpy as np
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn.modules.batchnorm import BatchNorm1d
 import torchvision
-import numpy as np
-import pytorch_lightning as pl
-import lightly
+from lightly.models.modules import NNMemoryBankModule
+from lightly.models.modules.heads import BYOLProjectionHead
+from lightly.models.modules.heads import MoCoProjectionHead
+from lightly.models.modules.heads import ProjectionHead
+from lightly.models.modules.heads import SwaVProjectionHead
+from lightly.models.modules.heads import SwaVPrototypes
+from lightly.models.utils import batch_shuffle
+from lightly.models.utils import batch_unshuffle
+from lightly.models.utils import deactivate_requires_grad
+from lightly.models.utils import update_momentum
 from lightly.utils import BenchmarkModule
-import copy
+from pytorch_lightning.loggers import TensorBoardLogger
+from torchvision import transforms
+from torchvision.transforms.transforms import CenterCrop
 
 num_workers = 8
 memory_bank_size = 4096
+
+logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
 max_epochs = 200
@@ -280,6 +294,54 @@ class SimSiamModel(BenchmarkModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
+class BarlowTwinsModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+        last_conv_channels = list(resnet.children())[-1].in_features
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1],
+        )
+        # create a barlow twins model based on ResNet
+        self.resnet_barlowtwins = \
+            lightly.models.BarlowTwins(
+                self.backbone, 
+                num_ftrs=512,
+                proj_hidden_dim=2048,
+                out_dim=2048,
+            )
+        self.resnet_barlowtwins.projection_mlp = ProjectionHead([
+            (
+                self.resnet_barlowtwins.num_ftrs,
+                self.resnet_barlowtwins.proj_hidden_dim,
+                nn.BatchNorm1d(self.resnet_barlowtwins.proj_hidden_dim),
+                nn.ReLU(inplace=True)
+            ),
+            (
+                self.resnet_barlowtwins.proj_hidden_dim,
+                self.resnet_barlowtwins.out_dim,
+                None,
+                None
+            )
+        ])
+        self.criterion = lightly.loss.BarlowTwinsLoss()
+
+    def forward(self, x):
+        self.resnet_barlowtwins(x)
+
+    def training_step(self, batch, batch_idx):
+        (x0, x1), _, _ = batch
+        x0, x1 = self.resnet_barlowtwins(x0, x1)
+        loss = self.criterion(x0, x1)
+        self.log('train_loss_ssl', loss)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.SGD(self.resnet_barlowtwins.parameters(), lr=6e-2,
+                                momentum=0.9, weight_decay=5e-4)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
 
 class BYOLModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
@@ -339,23 +401,28 @@ class BYOLModel(BenchmarkModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
-model_names = ['MoCo_128', 'SimCLR_128', 'SimSiam_128', 'BYOL_128',
-               'MoCo_512', 'SimCLR_512', 'SimSiam_512', 'BYOL_512']
-models = [MocoModel, SimCLRModel, SimSiamModel, BYOLModel]
+model_names = ['MoCo_128', 'SimCLR_128', 'SimSiam_128', 'BarlowTwinsModel_128', 'BYOL_128',
+               'MoCo_512', 'SimCLR_512', 'SimSiam_512', 'BarlowTwinsModel_512', 'BYOL_512']
+models = [MocoModel, SimCLRModel, SimSiamModel, BarlowTwinsModel, BYOLModel]
 bench_results = []
 gpu_memory_usage = []
 
 # loop through configurations and train models
 for batch_size in batch_sizes:
-    for BenchmarkModel in models:
+    for model_name, BenchmarkModel in zip(model_names, models):
         runs = []
         for seed in range(n_runs):
             pl.seed_everything(seed)
             dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(batch_size)
             benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
-            trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus,
+
+            logger = TensorBoardLogger('imagenette_runs', version=model_name)
+
+            trainer = pl.Trainer(max_epochs=max_epochs, 
+                                gpus=gpus,
                                 progress_bar_refresh_rate=100,
-                                distributed_backend=distributed_backend)
+                                distributed_backend=distributed_backend,
+                                default_root_dir=logs_root_dir)
             trainer.fit(
                 benchmark_model,
                 train_dataloader=dataloader_train_ssl,
