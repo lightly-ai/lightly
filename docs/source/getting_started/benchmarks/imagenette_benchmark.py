@@ -22,6 +22,7 @@ Code to reproduce the benchmark results:
 | NNBYOL      |  800   | 256        | 0.85          | 4.6 GBytes     |
 
 """
+from lightly.models.modules.heads import SwaVProjectionHead, SwaVPrototypes
 import os
 from lightly.models.modules.heads import ProjectionHead
 
@@ -70,6 +71,14 @@ collate_fn = lightly.data.SimCLRCollateFunction(
     input_size=input_size,
 )
 
+
+swav_collate_fn = lightly.data.SwaVCollateFunction(
+    crop_sizes=[128, 64],
+    crop_counts=[2, 4],
+    gaussian_blur=0.5,
+)
+
+
 # No additional augmentations for the test set
 test_transforms = torchvision.transforms.Compose([
     torchvision.transforms.Resize(input_size),
@@ -96,7 +105,7 @@ dataset_test = lightly.data.LightlyDataset(
     transform=test_transforms
 )
 
-def get_data_loaders(batch_size: int):
+def get_data_loaders(batch_size: int, multi_crops: bool = False):
     """Helper method to create dataloaders for ssl, kNN train and kNN test
     Args:
         batch_size: Desired batch size for all dataloaders
@@ -105,7 +114,7 @@ def get_data_loaders(batch_size: int):
         dataset_train_ssl,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=collate_fn,
+        collate_fn=collate_fn if not multi_crops else swav_collate_fn,
         drop_last=True,
         num_workers=num_workers
     )
@@ -465,11 +474,71 @@ class NNBYOLModel(BenchmarkModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
+
+class SwaVModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+        last_conv_channels = list(resnet.children())[-1].in_features
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1],
+            nn.Conv2d(last_conv_channels, num_ftrs, 1),
+        )
+
+        self.projection_head = SwaVProjectionHead(512, 512, 128)
+        self.prototypes = SwaVPrototypes(128, 512) # use 512 prototypes
+
+        self.criterion = lightly.loss.SwaVLoss()
+
+    def forward(self, x):
+        x = self.backbone(x).flatten(start_dim=1)
+        x = self.projection_head(x)
+        x = nn.functional.normalize(x, dim=1, p=2)
+        return self.prototypes(x)
+
+    def training_step(self, batch, batch_idx):
+
+        # normalize the prototypes so they are on the unit sphere
+        lightly.models.utils.normalize_weight(
+            self.prototypes.layers.weight
+        )
+
+        # the multi-crop dataloader returns a list of image crops where the
+        # first two items are the high resolution crops and the rest are low
+        # resolution crops
+        multi_crops, _, _ = batch
+        multi_crop_features = [self.forward(x) for x in multi_crops]
+
+        # split list of crop features into high and low resolution
+        high_resolution_features = multi_crop_features[:2]
+        low_resolution_features = multi_crop_features[2:]
+
+        # calculate the SwaV loss
+        loss = self.criterion(
+            high_resolution_features,
+            low_resolution_features
+        )
+
+        self.log('train_loss_ssl', loss)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.Adam(
+            self.parameters(),
+            lr=1e-3,
+            weight_decay=1e-6,
+        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
+
+
 model_names = ['MoCo_256', 'SimCLR_256', 'SimSiam_256', 'BarlowTwins_256', 
-               'BYOL_256', 'NNCLR_256', 'NNSimSiam_256', 'NNBYOL_256']
+               'BYOL_256', 'NNCLR_256', 'NNSimSiam_256', 'NNBYOL_256',
+               'SwaV_256']
 
 models = [MocoModel, SimCLRModel, SimSiamModel, BarlowTwinsModel, 
-          BYOLModel, NNCLRModel, NNSimSiamModel, NNBYOLModel]
+          BYOLModel, NNCLRModel, NNSimSiamModel, NNBYOLModel, SwaVModel]
 
 bench_results = []
 gpu_memory_usage = []
@@ -480,7 +549,8 @@ for batch_size in batch_sizes:
         runs = []
         for seed in range(n_runs):
             pl.seed_everything(seed)
-            dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(batch_size)
+            dataloader_train_ssl, dataloader_train_kNN, dataloader_test = \
+                get_data_loaders(batch_size, multi_crops='swav' in model_name.lower())
             benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
 
             logger = TensorBoardLogger('imagenette_runs', version=model_name)
