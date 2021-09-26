@@ -80,13 +80,12 @@ collate_fn = lightly.data.SimCLRCollateFunction(
     input_size=input_size,
 )
 
-
+# Multi crop augmentation for SwAV
 swav_collate_fn = lightly.data.SwaVCollateFunction(
     crop_sizes=[128, 64],
-    crop_counts=[2, 4],
+    crop_counts=[2, 4], # 2 crops @ 128x128px and 4 crops @ 64x64px
     gaussian_blur=0.5,
 )
-
 
 # No additional augmentations for the test set
 test_transforms = torchvision.transforms.Compose([
@@ -542,7 +541,7 @@ class SwaVModel(BenchmarkModule):
             nn.Conv2d(last_conv_channels, num_ftrs, 1),
         )
 
-        self.projection_head = SwaVProjectionHead(512, 512, 128)
+        self.projection_head = SwaVProjectionHead(num_ftrs, 512, 128)
         self.prototypes = SwaVPrototypes(128, 512) # use 512 prototypes
 
         self.criterion = lightly.loss.SwaVLoss()
