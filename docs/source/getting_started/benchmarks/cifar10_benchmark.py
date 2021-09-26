@@ -93,10 +93,16 @@ distributed_backend = 'ddp' if torch.cuda.device_count() > 1 else None
 path_to_train = '/datasets/cifar10/train/'
 path_to_test = '/datasets/cifar10/test/'
 
-# Use SimCLR augmentations, additionally, disable blur
+# Use SimCLR augmentations, additionally, disable blur for cifar10
 collate_fn = lightly.data.SimCLRCollateFunction(
     input_size=32,
     gaussian_blur=0.,
+)
+
+# Multi crop augmentation for SwAV
+swav_collate_fn = lightly.data.SwaVCollateFunction(
+    crop_sizes=[128, 64],
+    crop_counts=[2, 4], # 2 crops @ 128x128px and 4 crops @ 64x64px
 )
 
 # No additional augmentations for the test set
@@ -123,7 +129,7 @@ dataset_test = lightly.data.LightlyDataset(
     transform=test_transforms
 )
 
-def get_data_loaders(batch_size: int):
+def get_data_loaders(batch_size: int, multi_crops: bool = False):
     """Helper method to create dataloaders for ssl, kNN train and kNN test
 
     Args:
@@ -133,7 +139,7 @@ def get_data_loaders(batch_size: int):
         dataset_train_ssl,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=collate_fn,
+        collate_fn=collate_fn if not multi_crops else swav_collate_fn,
         drop_last=True,
         num_workers=num_workers
     )
@@ -311,6 +317,7 @@ class BarlowTwinsModel(BenchmarkModule):
                 proj_hidden_dim=2048,
                 out_dim=2048,
             )
+        # replace the 3-layer projection head by a 2-layer projection head
         self.resnet_barlowtwins.projection_mlp = ProjectionHead([
             (
                 self.resnet_barlowtwins.num_ftrs,
@@ -401,9 +408,65 @@ class BYOLModel(BenchmarkModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
-model_names = ['MoCo_128', 'SimCLR_128', 'SimSiam_128', 'BarlowTwinsModel_128', 'BYOL_128',
-               'MoCo_512', 'SimCLR_512', 'SimSiam_512', 'BarlowTwinsModel_512', 'BYOL_512']
-models = [MocoModel, SimCLRModel, SimSiamModel, BarlowTwinsModel, BYOLModel]
+class SwaVModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
+        )
+
+        self.projection_head = SwaVProjectionHead(512, 512, 128)
+        self.prototypes = SwaVPrototypes(128, 512) # use 512 prototypes
+
+        self.criterion = lightly.loss.SwaVLoss()
+
+    def forward(self, x):
+        x = self.backbone(x).flatten(start_dim=1)
+        x = self.projection_head(x)
+        x = nn.functional.normalize(x, dim=1, p=2)
+        return self.prototypes(x)
+
+    def training_step(self, batch, batch_idx):
+
+        # normalize the prototypes so they are on the unit sphere
+        lightly.models.utils.normalize_weight(
+            self.prototypes.layers.weight
+        )
+
+        # the multi-crop dataloader returns a list of image crops where the
+        # first two items are the high resolution crops and the rest are low
+        # resolution crops
+        multi_crops, _, _ = batch
+        multi_crop_features = [self.forward(x) for x in multi_crops]
+
+        # split list of crop features into high and low resolution
+        high_resolution_features = multi_crop_features[:2]
+        low_resolution_features = multi_crop_features[2:]
+
+        # calculate the SwaV loss
+        loss = self.criterion(
+            high_resolution_features,
+            low_resolution_features
+        )
+
+        self.log('train_loss_ssl', loss)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.Adam(
+            self.parameters(),
+            lr=1e-3,
+            weight_decay=1e-6,
+        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
+
+model_names = ['MoCo_128', 'SimCLR_128', 'SimSiam_128', 'BarlowTwinsModel_128', 'BYOL_128', 'SwAV_128',
+               'MoCo_512', 'SimCLR_512', 'SimSiam_512', 'BarlowTwinsModel_512', 'BYOL_512', 'SwAV_512']
+models = [MocoModel, SimCLRModel, SimSiamModel, BarlowTwinsModel, BYOLModel, SwaVModel]
 bench_results = []
 gpu_memory_usage = []
 
