@@ -101,8 +101,8 @@ collate_fn = lightly.data.SimCLRCollateFunction(
 
 # Multi crop augmentation for SwAV
 swav_collate_fn = lightly.data.SwaVCollateFunction(
-    crop_sizes=[128, 64],
-    crop_counts=[2, 4], # 2 crops @ 128x128px and 4 crops @ 64x64px
+    crop_sizes=[32],
+    crop_counts=[2], # 2 crops @ 32x32px
 )
 
 # No additional augmentations for the test set
