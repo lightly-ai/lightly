@@ -7,6 +7,7 @@ processes might continue the benchmark if one of the nodes is killed.
 If you know how to fix this don't hesitate to create an issue or PR :)
 You can download the ImageNette dataset from here: https://github.com/fastai/imagenette
 
+Code has been tested on a V100 GPU with 16GBytes of video memory.
 
 Code to reproduce the benchmark results:
 
@@ -22,27 +23,35 @@ Code to reproduce the benchmark results:
 | NNBYOL      |  800   | 256        | 0.85          | 4.6 GBytes     |
 
 """
-from lightly.models.modules.heads import SwaVProjectionHead, SwaVPrototypes
+import copy
 import os
-from lightly.models.modules.heads import ProjectionHead
 
+import lightly
+import numpy as np
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
-import numpy as np
-import pytorch_lightning as pl
+from lightly.models.modules import NNMemoryBankModule
+from lightly.models.modules.heads import BYOLProjectionHead
+from lightly.models.modules.heads import MoCoProjectionHead
+from lightly.models.modules.heads import ProjectionHead
+from lightly.models.modules.heads import SwaVProjectionHead
+from lightly.models.modules.heads import SwaVPrototypes
+from lightly.models.utils import batch_shuffle
+from lightly.models.utils import batch_unshuffle
+from lightly.models.utils import deactivate_requires_grad
+from lightly.models.utils import update_momentum
+from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
 from torchvision import transforms
 from torchvision.transforms.transforms import CenterCrop
-import lightly
-from lightly.utils import BenchmarkModule
-from lightly.models.modules import NNMemoryBankModule
 
 num_workers = 12
 memory_bank_size = 4096
 
-logs_root_dir = os.path.join(os.getcwd(), 'imagenette_logs')
+logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
 max_epochs = 800
@@ -71,13 +80,12 @@ collate_fn = lightly.data.SimCLRCollateFunction(
     input_size=input_size,
 )
 
-
+# Multi crop augmentation for SwAV
 swav_collate_fn = lightly.data.SwaVCollateFunction(
     crop_sizes=[128, 64],
-    crop_counts=[2, 4],
+    crop_counts=[2, 4], # 2 crops @ 128x128px and 4 crops @ 64x64px
     gaussian_blur=0.5,
 )
-
 
 # No additional augmentations for the test set
 test_transforms = torchvision.transforms.Compose([
@@ -141,43 +149,61 @@ def get_data_loaders(batch_size: int, multi_crops: bool = False):
 class MocoModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
-        # create a ResNet backbone and remove the classification head
-        #resnet = lightly.models.ResNetGenerator('resnet-18', num_splits=8)
-        #s#elf.backbone = nn.Sequential(
-        #    *list(resnet.children())[:-1],
-        #    nn.AdaptiveAvgPool2d(1),
-        #)
 
+        # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         last_conv_channels = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.Conv2d(last_conv_channels, num_ftrs, 1),
+            nn.AdaptiveAvgPool2d(1)
         )
 
         # create a moco model based on ResNet
-        self.resnet_moco = \
-            lightly.models.MoCo(self.backbone, num_ftrs=num_ftrs, m=0.99, batch_shuffle=True)
+        self.projection_head = MoCoProjectionHead(num_ftrs, num_ftrs, 128)
+        self.backbone_momentum = copy.deepcopy(self.backbone)
+        self.projection_head_momentum = copy.deepcopy(self.projection_head)
+        deactivate_requires_grad(self.backbone_momentum)
+        deactivate_requires_grad(self.projection_head_momentum)
+
         # create our loss with the optional memory bank
         self.criterion = lightly.loss.NTXentLoss(
             temperature=0.1,
             memory_bank_size=memory_bank_size)
 
     def forward(self, x):
-        self.resnet_moco(x)
+        x = self.backbone(x).flatten(start_dim=1)
+        return self.projection_head(x)
 
     def training_step(self, batch, batch_idx):
         (x0, x1), _, _ = batch
+
+        # update momentum
+        update_momentum(self.backbone, self.backbone_momentum, 0.99)
+        update_momentum(self.projection_head, self.projection_head_momentum, 0.99)
+
+        def step(x0_, x1_):
+            x1_, shuffle = batch_shuffle(x1_)
+            x0_ = self.backbone(x0_).flatten(start_dim=1)
+            x0_ = self.projection_head(x0_)
+
+            x1_ = self.backbone_momentum(x1_).flatten(start_dim=1)
+            x1_ = self.projection_head_momentum(x1_)
+            x1_ = batch_unshuffle(x1_, shuffle)
+            return x0_, x1_
+
         # We use a symmetric loss (model trains faster at little compute overhead)
         # https://colab.research.google.com/github/facebookresearch/moco/blob/colab-notebook/colab/moco_cifar10_demo.ipynb
-        loss_1 = self.criterion(*self.resnet_moco(x0, x1))
-        loss_2 = self.criterion(*self.resnet_moco(x1, x0))
+        loss_1 = self.criterion(*step(x0, x1))
+        loss_2 = self.criterion(*step(x1, x0))
+
         loss = 0.5 * (loss_1 + loss_2)
         self.log('train_loss_ssl', loss)
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.SGD(self.resnet_moco.parameters(), lr=6e-2,
+        params = list(self.backbone.parameters()) + list(self.projection_head.parameters())
+        optim = torch.optim.SGD(params, lr=6e-2,
                                 momentum=0.9, weight_decay=5e-4)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
@@ -417,24 +443,53 @@ class BYOLModel(BenchmarkModule):
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.Conv2d(last_conv_channels, num_ftrs, 1),
+            nn.AdaptiveAvgPool2d(1)
         )
+
         # create a byol model based on ResNet
-        self.resnet_byol = \
-            lightly.models.BYOL(self.backbone, num_ftrs=num_ftrs)
+        self.projection_head = BYOLProjectionHead(512, 1024, 256)
+        self.prediction_head = BYOLProjectionHead(256,1024,256)
+
+        self.backbone_momentum = copy.deepcopy(self.backbone)
+        self.projection_head_momentum = copy.deepcopy(self.projection_head)
+
+        deactivate_requires_grad(self.backbone_momentum)
+        deactivate_requires_grad(self.projection_head_momentum)
+
         self.criterion = lightly.loss.SymNegCosineSimilarityLoss()
 
     def forward(self, x):
-        self.resnet_byol(x)
+        x = self.backbone(x).flatten(start_dim=1)
+        return self.projection_head(x)
 
     def training_step(self, batch, batch_idx):
         (x0, x1), _, _ = batch
-        x0, x1 = self.resnet_byol(x0, x1)
-        loss = self.criterion(x0, x1)
+
+        # update momentum
+        update_momentum(self.backbone, self.backbone_momentum, 0.99)
+        update_momentum(self.projection_head, self.projection_head_momentum, 0.99)
+
+        def step(x0_, x1_):
+            x0_ = self.backbone(x0_).flatten(start_dim=1)
+            x0_ = self.projection_head(x0_)
+            x0_ = self.prediction_head(x0_)
+
+            x1_ = self.backbone_momentum(x1_).flatten(start_dim=1)
+            x1_ = self.projection_head_momentum(x1_)
+            return x0_, x1_
+
+        p0, z1 = step(x0, x1)
+        p1, z0 = step(x1, x0)
+        
+        loss = self.criterion((z0, p0), (z1, p1))
         self.log('train_loss_ssl', loss)
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.SGD(self.resnet_byol.parameters(), lr=6e-2,
+        params = list(self.backbone.parameters()) \
+            + list(self.projection_head.parameters()) \
+            + list(self.prediction_head.parameters())
+        optim = torch.optim.SGD(params, lr=6e-2,
                                 momentum=0.9, weight_decay=5e-4)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
@@ -486,7 +541,7 @@ class SwaVModel(BenchmarkModule):
             nn.Conv2d(last_conv_channels, num_ftrs, 1),
         )
 
-        self.projection_head = SwaVProjectionHead(512, 512, 128)
+        self.projection_head = SwaVProjectionHead(num_ftrs, 512, 128)
         self.prototypes = SwaVPrototypes(128, 512) # use 512 prototypes
 
         self.criterion = lightly.loss.SwaVLoss()
