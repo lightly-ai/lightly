@@ -25,7 +25,7 @@ E.g. create and run a bash script with the following content:
     SHARED_DIR=/path/to/shared
     OUTPUT_DIR=/path/to/output
 
-    TOKEN=YOUR_TOKEN # put your token here, make sure to swap between dev and prod token
+    TOKEN=YOUR_TOKEN # put your token here
     N_SAMPLES=1
 
     docker run --ulimit nofile=32:32 --gpus all --rm -it \
@@ -121,7 +121,7 @@ E.g. use the following bash script.
     EMBEDDINGS_REL_TO_SHARED = embeddings_al.csv
     
 
-    TOKEN= # put your token here, make sure to swap between dev and prod token
+    TOKEN= # put your token here
     N_SAMPLES= # Choose how many samples you want to use here, e.g. 0.1 for 10 percent.
 
     docker run --ulimit nofile=32:32 --gpus all --rm -it \
