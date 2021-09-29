@@ -1,4 +1,4 @@
-Documentation: Use the docker for active learning
+Active learning
 ==============================================
 
 For running an active learning step with the Lightly docker, we need to perform
@@ -11,14 +11,15 @@ For running an active learning step with the Lightly docker, we need to perform
 
 
 Step 1: Create an embeddings.csv file with the Lightly docker.
-==============================================
+---------------
 Run the docker as usual and as described in the getting started section.
 The only difference is that you set the number of samples to be sampled to 1.0,
 this prevents sampling.
 E.g. create and run a bash script with the following content:
 
 .. code::
-    # Have this in a step_1_run_docker_only_embeddings.sh
+
+    # Have this in a step_1_run_docker_create_embeddings.sh
     INPUT_DIR=/path/to/your/dataset
     SHARED_DIR=/path/to/shared
     OUTPUT_DIR=/path/to/output
@@ -44,15 +45,15 @@ E.g. create and run a bash script with the following content:
 
 Running it will create a terminal output similar to the following:
 
-.. code-block:: bash
+.. code-block::
 
     [2021-09-28 15:47:34] Loading initial dataset...
     [2021-09-28 15:47:34] Found 372 input images in input_dir.
     [2021-09-28 15:47:34] Lightly On-Premise License is valid
     [2021-09-28 15:47:34] Checking for corrupt images (disable with enable_corruptness_check=False).
-    Corrupt images found: 0: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████| 372/372 [00:01<00:00, 294.46it/s]
+    Corrupt images found: 0: 100%|███████████████████████| 372/372 [00:01<00:00, 294.46it/s]
     [2021-09-28 15:47:36] Embedding images.
-    Compute efficiency: 0.67: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████| 24/24 [00:01<00:00, 20.49it/s]
+    Compute efficiency: 0.67: 100%|██████████████████████| 24/24 [00:01<00:00, 20.49it/s]
     [2021-09-28 15:47:42] Saving embeddings to output_dir/2021-09-28/15:47:34/data/embeddings.csv.
     [2021-09-28 15:47:42] Removing exact duplicates (disable with remove_exact_duplicates=False).
     [2021-09-28 15:47:42] Found 0 exact duplicates.
@@ -84,7 +85,7 @@ It should look similar to this:
 
 
 Step 2. Add your active learning scores as an additonal column.
-==============================================
+---------------
 If you want to use your use predictions from your model as active learning scores,
 you can use the Scorers from the lightly pip package.
 
@@ -158,7 +159,7 @@ Your embeddings_al.csv should look similar to this:
 
 
 Step 3. Use the Lightly docker to perform a sampling on the scores.
-==============================================
+---------------
 Run the docker and use the generated embedding file from the last step.
 Then parform an active learning sampling using the `CORAL` sampler.
 E.g. use the following bash script.
@@ -175,6 +176,8 @@ E.g. use the following bash script.
     OUTPUT_DIR=/path/to/output/
     
     EMBEDDING_FILE= # insert the path printed in the last step here.
+    # e.g. /path/to/output/2021-07-28/12:00:00/data/embeddings_al.csv
+
     cp INPUT_EMBEDDING_FILE SHARED_DIR # copy the embedding file to the shared directory
     EMBEDDINGS_REL_TO_SHARED=embeddings_al.csv
     
@@ -202,16 +205,17 @@ Your terminal output should look similar to this:
 
 .. code-block::
 
-    [2021-09-28 15:56:39] Loading initial embedding file...
-    [2021-09-28 15:56:39] Output images will not be resized.
-    [2021-09-28 15:56:39] Found 372 input images in shared_dir/embeddings_al.csv.
-    [2021-09-28 15:56:39] Lightly On-Premise License is valid
-    [2021-09-28 15:56:40] Removing exact duplicates (disable with remove_exact_duplicates=False).
-    [2021-09-28 15:56:40] Found 0 exact duplicates.
-    [2021-09-28 15:56:40] Unique embeddings are stored in shared_dir/embeddings_al.csv
-    [2021-09-28 15:56:40] Normalizing embeddings to unit length (disable with normalize_embeddings=False).
-    [2021-09-28 15:56:40] Normalized embeddings are stored in output_dir/2021-09-28/15:56:39/data/normalized_embeddings.csv
-    [2021-09-28 15:56:40] Sampling dataset with stopping condition: n_samples=0.1
-    [2021-09-28 15:56:40] Sampled 37 images.
-    [2021-09-28 15:56:40] Writing report to output_dir/2021-09-28/15:56:39/report.pdf.
-    [2021-09-28 15:56:56] Something went wrong while generating the report: 'NoneType' object has no attribute 'dataset'
+    [2021-09-29 09:36:27] Loading initial embedding file...
+    [2021-09-29 09:36:27] Output images will not be resized.
+    [2021-09-29 09:36:27] Found 372 input images in shared_dir/embeddings_al.csv.
+    [2021-09-29 09:36:27] Lightly On-Premise License is valid
+    [2021-09-29 09:36:28] Removing exact duplicates (disable with remove_exact_duplicates=False).
+    [2021-09-29 09:36:28] Found 0 exact duplicates.
+    [2021-09-29 09:36:28] Unique embeddings are stored in shared_dir/embeddings_al.csv
+    [2021-09-29 09:36:28] Normalizing embeddings to unit length (disable with normalize_embeddings=False).
+    [2021-09-29 09:36:28] Normalized embeddings are stored in output_dir/2021-09-29/09:36:27/data/normalized_embeddings.csv
+    [2021-09-29 09:36:28] Sampling dataset with stopping condition: n_samples=10
+    [2021-09-29 09:36:28] Sampled 10 images.
+    [2021-09-29 09:36:28] Writing report to output_dir/2021-09-29/09:36:27/report.pdf.
+    [2021-09-29 09:36:56] Writing csv with information about removed samples to output_dir/2021-09-29/09:36:27/removed_samples.csv
+    [2021-09-29 09:36:56] Done!
