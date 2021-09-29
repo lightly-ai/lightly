@@ -14,9 +14,9 @@ class TestApiWorkflowUploadEmbeddigns(MockedApiWorkflowSetup):
                                  special_name_first_sample: bool = False,
                                  special_char_in_first_filename: str = None):
         # create fake embeddings
-        folder_path = tempfile.mkdtemp()
+        self.folder_path = tempfile.mkdtemp()
         path_to_embeddings = os.path.join(
-            folder_path,
+            self.folder_path,
             'embeddings.csv'
         )
         sample_names = [f'img_{i}.jpg' for i in range(n_data)]
@@ -39,6 +39,8 @@ class TestApiWorkflowUploadEmbeddigns(MockedApiWorkflowSetup):
     def test_upload_success(self):
         n_data = len(self.api_workflow_client.mappings_api.sample_names)
         self.t_ester_upload_embedding(n_data=n_data)
+        filepath_embeddings_sorted = os.path.join(self.folder_path, "embeddings_sorted.csv")
+        self.assertFalse(os.path.isfile(filepath_embeddings_sorted))
 
     def test_upload_wrong_lenght(self):
         n_data = 42 + len(self.api_workflow_client.mappings_api.sample_names)
@@ -70,3 +72,12 @@ class TestApiWorkflowUploadEmbeddigns(MockedApiWorkflowSetup):
 
     def test_set_embedding_id_default(self):
         self.api_workflow_client.set_embedding_id_by_name()
+
+    def tearDown(self) -> None:
+        for filename in ["embeddings.csv", "embeddings_sorted.csv"]:
+            try:
+                filepath = os.path.join(self.folder_path, filename)
+                os.remove(filepath)
+            except FileNotFoundError:
+                pass
+
