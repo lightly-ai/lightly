@@ -92,22 +92,18 @@ def _embed_cli(cfg, is_cli_call=True):
     # load model
     resnet = ResNetGenerator(cfg['model']['name'], cfg['model']['width'])
     last_conv_channels = list(resnet.children())[-1].in_features
+    features = nn.Sequential(
+        get_norm_layer(3, 0),
+        *list(resnet.children())[:-1],
+        nn.Conv2d(last_conv_channels, cfg['model']['num_ftrs'], 1),
+        nn.AdaptiveAvgPool2d(1),
+    )
 
-    class SimClrCheckpointModel(nn.Module):
-        """Implementation of the SimCLR architecture for using the checkpoint
-
-        Only used for loading the checkpoint into it.
-        """
-        def __init__(self):
-            super(SimClrCheckpointModel, self).__init__()
-            self.backbone = nn.Sequential(
-                get_norm_layer(3, 0),
-                *list(resnet.children())[:-1],
-                nn.Conv2d(last_conv_channels, cfg['model']['num_ftrs'], 1),
-                nn.AdaptiveAvgPool2d(1),
-            )
-
-    model = SimClrCheckpointModel().to(device)
+    model = SimCLR(
+        features,
+        num_ftrs=cfg['model']['num_ftrs'],
+        out_dim=cfg['model']['out_dim']
+    ).to(device)
 
     if state_dict is not None:
         load_from_state_dict(model, state_dict)
