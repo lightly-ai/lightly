@@ -47,26 +47,43 @@ Running it will create a terminal output similar to the following:
 
 .. code-block::
 
-    [2021-09-28 15:47:34] Loading initial dataset...
-    [2021-09-28 15:47:34] Found 372 input images in input_dir.
-    [2021-09-28 15:47:34] Lightly On-Premise License is valid
-    [2021-09-28 15:47:34] Checking for corrupt images (disable with enable_corruptness_check=False).
-    Corrupt images found: 0: 100%|███████████████████████| 372/372 [00:01<00:00, 294.46it/s]
-    [2021-09-28 15:47:36] Embedding images.
-    Compute efficiency: 0.67: 100%|██████████████████████| 24/24 [00:01<00:00, 20.49it/s]
-    [2021-09-28 15:47:42] Saving embeddings to output_dir/2021-09-28/15:47:34/data/embeddings.csv.
-    [2021-09-28 15:47:42] Removing exact duplicates (disable with remove_exact_duplicates=False).
-    [2021-09-28 15:47:42] Found 0 exact duplicates.
-    [2021-09-28 15:47:42] Unique embeddings are stored in output_dir/2021-09-28/15:47:34/data/embeddings.csv
-    [2021-09-28 15:47:42] Normalizing embeddings to unit length (disable with normalize_embeddings=False).
-    [2021-09-28 15:47:42] Normalized embeddings are stored in output_dir/2021-09-28/15:47:34/data/normalized_embeddings.csv
-    [2021-09-28 15:47:42] Sampling dataset with stopping condition: n_samples=372
-    [2021-09-28 15:47:42] Skipped sampling because the number of remaining images is smaller than the number of requested samples.
-    [2021-09-28 15:47:42] Writing report to output_dir/2021-09-28/15:47:34/report.pdf.
-    [2021-09-28 15:48:18] Writing csv with information about removed samples to output_dir/2021-09-28/15:47:34/removed_samples.csv
-    [2021-09-28 15:48:18] Done!
+    [2021-09-29 13:32:11] Loading initial dataset...
+    [2021-09-29 13:32:11] Found 372 input images in input_dir.
+    [2021-09-29 13:32:11] Lightly On-Premise License is valid
+    [2021-09-29 13:32:11] Checking for corrupt images (disable with enable_corruptness_check=False).
+    Corrupt images found: 0: 100%|██████████████████| 372/372 [00:01<00:00, 310.35it/s]
+    [2021-09-29 13:32:14] Training self-supervised model.
+    GPU available: True, used: True
+    [2021-09-29 13:32:57,696][lightning][INFO] - GPU available: True, used: True
+    TPU available: None, using: 0 TPU cores
+    [2021-09-29 13:32:57,697][lightning][INFO] - TPU available: None, using: 0 TPU cores
+    LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+    [2021-09-29 13:32:57,697][lightning][INFO] - LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
 
-By running it, this will create a embeddings.csv file
+      | Name      | Type       | Params
+    -----------------------------------------
+    0 | model     | SimCLR     | 11.2 M
+    1 | criterion | NTXentLoss | 0
+    -----------------------------------------
+    11.2 M    Trainable params
+    0         Non-trainable params
+    [2021-09-29 13:34:29,772][lightning][INFO] - Saving latest checkpoint...
+    Epoch 19: 100%|████████████████████████████████| 23/23 [00:04<00:00,  5.10it/s, loss=2.52, v_num=0]
+    [2021-09-29 13:34:29] Embedding images.
+    Compute efficiency: 0.90: 100%|█████████████████████████| 24/24 [00:01<00:00, 21.85it/s]
+    [2021-09-29 13:34:31] Saving embeddings to output_dir/2021-09-29/13:32:11/data/embeddings.csv.
+    [2021-09-29 13:34:31] Removing exact duplicates (disable with remove_exact_duplicates=False).
+    [2021-09-29 13:34:31] Found 0 exact duplicates.
+    [2021-09-29 13:34:31] Unique embeddings are stored in output_dir/2021-09-29/13:32:11/data/embeddings.csv
+    [2021-09-29 13:34:31] Normalizing embeddings to unit length (disable with normalize_embeddings=False).
+    [2021-09-29 13:34:31] Normalized embeddings are stored in output_dir/2021-09-29/13:32:11/data/normalized_embeddings.csv
+    [2021-09-29 13:34:31] Sampling dataset with stopping condition: n_samples=372
+    [2021-09-29 13:34:31] Skipped sampling because the number of remaining images is smaller than the number of requested samples.
+    [2021-09-29 13:34:31] Writing report to output_dir/2021-09-29/13:32:11/report.pdf.
+    [2021-09-29 13:35:04] Writing csv with information about removed samples to output_dir/2021-09-29/13:32:11/removed_samples.csv
+    [2021-09-29 13:35:04] Done!
+
+By running it, this will create an embeddings.csv file
 in the output directory. Locate it and save the path to it.
 E.g. It may be found under
 `/path/to/output/2021-09-28/15:47:34/data/embeddings.csv`
