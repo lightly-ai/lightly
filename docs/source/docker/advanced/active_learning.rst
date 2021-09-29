@@ -87,7 +87,8 @@ It should look similar to this:
 Step 2. Add your active learning scores as an additonal column.
 ---------------
 If you want to use the predictions from your model as active learning scores,
-you can use the scorers from the lightly pip package.
+you can use the `scorers from the lightly pip package <https://docs.lightly.ai/getting_started/active_learning.html#scorers>`_ .
+
 
 .. code-block:: python
 
@@ -161,7 +162,7 @@ Your embeddings_al.csv should look similar to this:
 Step 3. Use the Lightly docker to perform a sampling on the scores.
 ---------------
 Run the docker and use the generated embedding file from the last step.
-Then parform an active learning sampling using the `CORAL` sampler.
+Then perform an active learning sampling using the `CORAL` sampler.
 E.g. use the following bash script.
 
 
