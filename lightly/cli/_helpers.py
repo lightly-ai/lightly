@@ -165,14 +165,10 @@ def _fix_projection_head_keys(state_dict):
         if (projection_head_identifier in key or \
             prediction_head_identifier in key) and \
                 projection_head_insert not in key:
-            # insert layers if it's not part of the key yet
-            key_parts = key.split('.')
-            key_parts.insert(1, projection_head_insert)
-            new_key = '.'.join(key_parts)
+            pass
         else:
             new_key = key
-
-        new_state_dict[new_key] = item
+            new_state_dict[key] = item
 
     return new_state_dict
 
