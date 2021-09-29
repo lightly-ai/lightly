@@ -18,7 +18,6 @@ from torch.utils.hipify.hipify_python import bcolors
 
 from lightly.data import LightlyDataset
 from lightly.embedding import SelfSupervisedEmbedding
-from lightly.models import SimCLR
 
 from lightly.models import ResNetGenerator
 from lightly.models.batchnorm import get_norm_layer
