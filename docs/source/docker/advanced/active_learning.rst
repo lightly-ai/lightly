@@ -86,8 +86,8 @@ It should look similar to this:
 
 Step 2. Add your active learning scores as an additonal column.
 ---------------
-If you want to use your use predictions from your model as active learning scores,
-you can use the Scorers from the lightly pip package.
+If you want to use the predictions from your model as active learning scores,
+you can use the scorers from the lightly pip package.
 
 .. code-block:: python
 
