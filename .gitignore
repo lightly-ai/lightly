@@ -7,6 +7,7 @@ docs/source/tutorials/package/*
 docs/source/tutorials/platform/*
 docs/source/tutorials_source/platform/data
 docs/source/tutorials_source/platform/pizzas
+docs/source/tutorials_source/platform/__MACOSX
 docs/source/docker/resources
 docs/source/docker/__MACOSX
 !docs/source/tutorials/package.rst
