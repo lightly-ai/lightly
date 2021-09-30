@@ -37,7 +37,7 @@ Here are some of the limitations pointed out in the GitHub readme:
   - no hard links
   - inotify detects only local modifications, not external ones by other clients or tools
 
-Get an AWS Bucket and credentials
+Get an AWS Bucket and Credentials
 -----------------------------------
 
 From the AWS dashboard go the **S3** service (https://s3.console.aws.amazon.com/s3/home)
@@ -93,7 +93,7 @@ Below we show the output for installing s3fs on a Google Cloud Compute instance.
     Processing triggers for man-db (2.8.5-2) ...
 
 
-Configure S3 credentials
+Configure S3 Credentials
 --------------------------
 
 Our freshly installed `s3fs-fuse <https://github.com/s3fs-fuse/s3fs-fuse>`_ 
@@ -151,7 +151,7 @@ Now we can mount the S3 bucket using the following command in the terminal.
 
   s3fs simple-test-bucket-igor /s3-mount -o passwd_file=${HOME}/.passwd-s3fs
 
-Use the S3 storage for Lightly Docker
+Use S3 Storage with Lightly Docker
 ---------------------------------------
 
 Now we can use the docker run command and use the `/s3-mount` directory as the
