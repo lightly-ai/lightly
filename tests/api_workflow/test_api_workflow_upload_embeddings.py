@@ -75,9 +75,10 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
 
     def tearDown(self) -> None:
         for filename in ["embeddings.csv", "embeddings_sorted.csv"]:
-            try:
-                filepath = os.path.join(self.folder_path, filename)
-                os.remove(filepath)
-            except FileNotFoundError:
-                pass
+            if hasattr(self, 'folder_path'):
+                try:
+                    filepath = os.path.join(self.folder_path, filename)
+                    os.remove(filepath)
+                except FileNotFoundError:
+                    pass
 
