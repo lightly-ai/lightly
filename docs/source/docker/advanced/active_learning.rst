@@ -1,20 +1,31 @@
+.. _ref-docker-active-learning:
+
 Active learning
 ==============================================
 
 For running an active learning step with the Lightly docker, we need to perform
 3 steps:
 
-1. Create an `embeddings.csv` file with the Lightly docker.
-2. Add your active learning scores as an additional column.
+1. Create an `embeddings.csv` file. You can use your own models or the Lightly docker for this.
+2. Add your active learning scores as an additional column to the embeddings file.
 3. Use the Lightly docker to perform a active learning sampling on the scores.
 
+Learn more about the concept of active learning 
+:ref:`lightly-active-learning-scorers`.
 
 
-Step 1: Create an embeddings.csv file with the Lightly docker.
----------------
-Run the docker as usual and as described in the getting started section.
-The only difference is that you set the number of samples to be sampled to 1.0,
-this prevents sampling.
+Create Embeddings
+--------------------------
+
+You can create embeddings using your own model. Just make sure the resulting
+`embeddings.csv` file matches the format of the one from
+:ref:`ref-cli-embeddings-lightly`. 
+
+Alternatively, you can run the docker as usual and as described in the 
+:ref:`rst-docker-first-steps` section.
+The only difference is that you set the number of samples to be sampled to `1.0`,
+as this prevents sampling and just creates the embedding of the full dataset.
+
 E.g. create and run a bash script with the following content:
 
 .. code::
@@ -36,12 +47,8 @@ E.g. create and run a bash script with the following content:
       lightly.loader.num_workers=4     \
       stopping_condition.n_samples=${N_SAMPLES}\
       method=coreset \
-      remove_exact_duplicates=True     \
-      enable_corruptness_check=True \
       enable_training=True     \
-      lightly.trainer.max_epochs=20 \
-      dump_dataset=False \
-      upload_dataset=False
+      lightly.trainer.max_epochs=20
 
 Running it will create a terminal output similar to the following:
 
@@ -72,8 +79,6 @@ Running it will create a terminal output similar to the following:
     [2021-09-29 13:34:29] Embedding images.
     Compute efficiency: 0.90: 100%|█████████████████████████| 24/24 [00:01<00:00, 21.85it/s]
     [2021-09-29 13:34:31] Saving embeddings to output_dir/2021-09-29/13:32:11/data/embeddings.csv.
-    [2021-09-29 13:34:31] Removing exact duplicates (disable with remove_exact_duplicates=False).
-    [2021-09-29 13:34:31] Found 0 exact duplicates.
     [2021-09-29 13:34:31] Unique embeddings are stored in output_dir/2021-09-29/13:32:11/data/embeddings.csv
     [2021-09-29 13:34:31] Normalizing embeddings to unit length (disable with normalize_embeddings=False).
     [2021-09-29 13:34:31] Normalized embeddings are stored in output_dir/2021-09-29/13:32:11/data/normalized_embeddings.csv
@@ -83,7 +88,7 @@ Running it will create a terminal output similar to the following:
     [2021-09-29 13:35:04] Writing csv with information about removed samples to output_dir/2021-09-29/13:32:11/removed_samples.csv
     [2021-09-29 13:35:04] Done!
 
-By running it, this will create an embeddings.csv file
+By running it, this will create an `embeddings.csv` file
 in the output directory. Locate it and save the path to it.
 E.g. It may be found under
 `/path/to/output/2021-09-28/15:47:34/data/embeddings.csv`
@@ -101,11 +106,18 @@ It should look similar to this:
 +----------------+--------------+--------------+--------------+--------------+---------+
 
 
-Step 2. Add your active learning scores as an additonal column.
----------------
-If you want to use the predictions from your model as active learning scores,
-you can use the `scorers from the lightly pip package <https://docs.lightly.ai/getting_started/active_learning.html#scorers>`_ .
+Add Active Learning Scores
+--------------------------------
 
+If you want to use the predictions from your model as active learning scores,
+you can use the :ref:`lightly-active-learning-scorers` from the lightly pip package.
+
+.. note:: You can also use your own scorers. Just make sure that you get a value
+          between `0.0` and `1.0` for each sample. A number close to `1.0` should
+          indicate a very important sample you want to be selected with a higher
+          probability.
+
+We provide a simple Python script to append a list of `scores` to the `embeddings.csv` file.
 
 .. code-block:: python
 
@@ -176,12 +188,18 @@ Your embeddings_al.csv should look similar to this:
 +----------------+--------------+--------------+--------------+--------------+---------+-----------+
 
 
-Step 3. Use the Lightly docker to perform a sampling on the scores.
----------------
-Run the docker and use the generated embedding file from the last step.
-Then perform an active learning sampling using the `CORAL` sampler.
-E.g. use the following bash script.
+Run Active Learning using the Docker
+---------------------------------------
 
+At this point you should have an `embeddings.csv` file with the active learning 
+scores in a column. 
+
+We can now perform an active learning sampling using the `CORAL` sampler. In order
+to do the sampling on the `embeddings.csv` file we need to make this file
+accessible to the docker. An easy way is to use the `shared_dir` feature of the
+docker as described in :ref:`docker-sampling-from-embeddings`. 
+
+E.g. use the following bash script.
 
 .. code-block:: bash
 
