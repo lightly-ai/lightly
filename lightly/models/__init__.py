@@ -1,9 +1,9 @@
 """The lightly.models package provides model implementations.
 
 *Note that the high-level building blocks will be deprecated with 
-lightly version 1.2.0. Instead use low-level building blocks to build the
+lightly version 1.2.0. Instead, use low-level building blocks to build the
 models yourself. 
-Have a look at the benchmark code to see a reference implmentation:*
+Have a look at the benchmark code to see a reference implementation:*
 `lightly benchmarks <https://github.com/lightly-ai/lightly/tree/master/docs/source/getting_started/benchmarks>`_
 
 The package contains an implementation of the commonly used ResNet and
