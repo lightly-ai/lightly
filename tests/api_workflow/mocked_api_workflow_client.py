@@ -1,3 +1,4 @@
+import tempfile
 import unittest
 from io import IOBase
 
@@ -214,7 +215,9 @@ class MockedQuotaApi(QuotaApi):
 
 def mocked_request_put(dst_url: str, data=IOBase) -> Response:
     assert isinstance(dst_url, str)
-    assert isinstance(data, IOBase)
+    content_bytes: bytes = data.read()
+    content_str: str = content_bytes.decode('utf-8')
+    assert content_str.startswith('filenames')
     response_ = Response()
     response_.status_code = 200
     return response_

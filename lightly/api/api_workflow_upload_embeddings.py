@@ -1,4 +1,5 @@
 import csv
+import tempfile
 from typing import List
 
 from lightly.openapi_generated.swagger_client.models.dataset_embedding_data \
@@ -58,7 +59,7 @@ class _UploadEmbeddingsMixin:
             return
 
         # create a new csv with the filenames in the desired order
-        path_to_ordered_embeddings_csv = self._order_csv_by_filenames(
+        rows_csv = self._order_csv_by_filenames(
             path_to_embeddings_csv=path_to_embeddings_csv)
 
         # get the URL to upload the csv to
@@ -67,11 +68,21 @@ class _UploadEmbeddingsMixin:
         self.embedding_id = response.embedding_id
         signed_write_url = response.signed_write_url
 
-        # upload the csv to the URL
-        with open(path_to_ordered_embeddings_csv, 'rb') as file_ordered_embeddings_csv:
-            self.upload_file_with_signed_url(file=file_ordered_embeddings_csv, signed_write_url=signed_write_url)
+        # save the csv rows in a temporary in-memory string file
+        # using a csv writer and then read them as bytes
+        with tempfile.SpooledTemporaryFile(mode="rw") as f:
+            writer = csv.writer(f)
+            writer.writerows(rows_csv)
+            f.seek(0)
+            embeddings_csv_as_bytes = f.read().encode('utf-8')
 
-    def _order_csv_by_filenames(self, path_to_embeddings_csv: str) -> str:
+        # write the bytes to a temporary in-memory byte file
+        with tempfile.SpooledTemporaryFile(mode='r+b') as f_bytes:
+            f_bytes.write(embeddings_csv_as_bytes)
+            f_bytes.seek(0)
+            self.upload_file_with_signed_url(file=f_bytes, signed_write_url=signed_write_url)
+
+    def _order_csv_by_filenames(self, path_to_embeddings_csv: str) -> List[str]:
         """Orders the rows in a csv according to the order specified on the server and saves it as a new file.
 
         Args:
@@ -102,12 +113,7 @@ class _UploadEmbeddingsMixin:
             rows_without_header_ordered = \
                 self._order_list_by_filenames(filenames, rows_without_header)
 
-            rows_to_write = [header_row]
-            rows_to_write += rows_without_header_ordered
+            rows_csv = [header_row]
+            rows_csv += rows_without_header_ordered
 
-        path_to_ordered_embeddings_csv = path_to_embeddings_csv.replace('.csv', '_sorted.csv')
-        with open(path_to_ordered_embeddings_csv, 'w') as f:
-            writer = csv.writer(f)
-            writer.writerows(rows_to_write)
-
-        return path_to_ordered_embeddings_csv
+        return rows_csv

@@ -92,7 +92,9 @@ def create_new_dataset_with_embeddings(path_to_dataset: str,
         print("Finished save of embeddings")
 
     # upload the embeddings
+    print("Starting embedding upload")
     api_workflow_client.upload_embeddings(path_to_embeddings_csv=path_to_embeddings_csv, name="embedding_1")
+    print("Finished embedding upload")
 
     return api_workflow_client
 
