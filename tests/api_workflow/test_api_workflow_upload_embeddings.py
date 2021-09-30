@@ -8,7 +8,7 @@ import lightly
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
-class TestApiWorkflowUploadEmbeddigns(MockedApiWorkflowSetup):
+class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
     def t_ester_upload_embedding(self,
                                  n_data,
                                  special_name_first_sample: bool = False,
