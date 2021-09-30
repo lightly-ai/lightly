@@ -169,7 +169,7 @@ You can do the same for the docker output directory (in this example I used
 `/docker/output`). We can either use the same bucket and work on subfolders
 or use another bucket and repeat the procedure.
 
-If you use a mounted S3 bucket for the docker output can be very handy.
+Using a mounted S3 bucket for the docker output can be very handy.
 Using this approach the pdf report as well as all output files
 will directly be uploaded to the S3 storage and can be shared with your team.
 
