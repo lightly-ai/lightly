@@ -15,7 +15,7 @@ import warnings
 
 from torch.utils.hipify.hipify_python import bcolors
 
-from lightly.cli._checkpoint_cli_simclr import _SimCLR
+from lightly.cli._cli_simclr import _SimCLR
 from lightly.data import ImageCollateFunction
 from lightly.data import LightlyDataset
 from lightly.embedding import SelfSupervisedEmbedding

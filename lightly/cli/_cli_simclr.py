@@ -12,9 +12,9 @@ from lightly.models.modules import SimCLRProjectionHead
 
 
 class _SimCLR(nn.Module):
-    """Implementation of the SimCLR architecture for using the checkpoint
+    """Implementation of SimCLR used by the command-line interface.
 
-        Only used by the CLI for creating and loading checkpoints
+        Provides backwards compatability with old checkpoints.
     """
 
     def __init__(self, backbone: nn.Module, num_ftrs: int = 32,
