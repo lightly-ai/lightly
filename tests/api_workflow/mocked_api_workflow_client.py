@@ -258,6 +258,13 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
 
         self.wait_time_till_next_poll = 0.001  # for api_workflow_sampling
 
+    def upload_file_with_signed_url(
+            self, file: IOBase, signed_write_url: str,
+            max_backoff: int = 32, max_retries: int = 5
+    ) -> Response:
+        res = Response()
+        return res
+
 
 class MockedApiWorkflowSetup(unittest.TestCase):
     def setUp(self, token="token_xyz",  dataset_id="dataset_id_xyz") -> None:
