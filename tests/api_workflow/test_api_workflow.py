@@ -47,7 +47,8 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
             api_workflow_client = MockedApiWorkflowClient(token="token_xyz", dataset_id="dataset_id_xyz")
             api_workflow_client.mappings_api.sample_names = filenames_on_server
 
-            numbers_in_tag = list(np.random.choice(numbers_to_choose_from, 50))
+            numbers_in_tag = np.copy(numbers_all)
+            np.random.shuffle(numbers_in_tag)
             filenames_for_list = [f"img_{i}" for i in numbers_in_tag]
 
             list_ordered = api_workflow_client._order_list_by_filenames(filenames_for_list,
@@ -59,10 +60,10 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
         filenames_on_server = ['a', 'b', 'c']
         api_workflow_client = MockedApiWorkflowClient(token="token_xyz", dataset_id="dataset_id_xyz")
         api_workflow_client.mappings_api.sample_names = filenames_on_server
-        filenames_for_list = ['c', 'a']
-        list_to_order = ['cccc', 'aaaa']
+        filenames_for_list = ['c', 'a', 'b']
+        list_to_order = ['cccc', 'aaaa', 'bbbb']
         list_ordered = api_workflow_client._order_list_by_filenames(filenames_for_list, list_to_order=list_to_order)
-        list_desired_order = ['aaaa', 'cccc']
+        list_desired_order = ['aaaa', 'bbbb', 'cccc']
         assert list_ordered == list_desired_order
 
 
