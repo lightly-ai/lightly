@@ -73,7 +73,7 @@ docker:
 
 .. figure:: images/sequence_selection_pca.png
     :align: center
-    :alt: Custom metadata weather configuration
+    :alt: PCA of embeddings of frames
     :figwidth: 80%
 
     PCA of the embeddings of the frames in the selected sequences from the two
