@@ -37,6 +37,18 @@ Here are some of the limitations pointed out in the GitHub readme:
   - no hard links
   - inotify detects only local modifications, not external ones by other clients or tools
 
+Get an AWS Bucket and credentials
+-----------------------------------
+
+From the AWS dashboard go the **S3** service (https://s3.console.aws.amazon.com/s3/home)
+and create an S3 bucket if you don't have one yet. 
+
+If you don't have credentials yet you need to go to the **IAM** service 
+(https://console.aws.amazon.com/iam/home) on AWS and create
+a new user. Make sure you add the **AmazonS3FullAccess** permission. Then create
+and download the credentials (.csv file). In the credentials file you should find
+the **Access key ID** and **Secret access key** we will use later.
+
 Install s3fs-fuse
 -------------------
 
@@ -51,7 +63,7 @@ On `Debian 9 or newer` or `Ubuntu 16.04 or newer` we can use the following termi
 Below we show the output for installing s3fs on a Google Cloud Compute instance.
 
 .. code-block:: console
-    :caption: Example output of the install command
+    :caption: Output of the install command
 
     $ sudo apt install s3fs
 
@@ -139,6 +151,23 @@ Now we can mount the S3 bucket using the following command in the terminal.
 
   s3fs simple-test-bucket-igor /s3-mount -o passwd_file=${HOME}/.passwd-s3fs
 
+Use the S3 storage for Lightly Docker
+---------------------------------------
+
+Now we can use the docker run command and use the `/s3-mount` directory as the
+input dir.
+
+.. code-block:: console
+
+    docker run --gpus all --rm -it \
+        -v /s3-mount:/home/input_dir:ro \
+        -v /docker/output:/home/output_dir \
+        lightly/sampling:latest \
+        token=MYAWESOMETOKEN
+
+You can do the same for the docker output directory (in this example I used 
+`/docker/output`). Using this approach the pdf report as well as all output files
+will directly be uploaded to the S3 storage.
 
 Use Caching
 --------------
