@@ -16,9 +16,9 @@ import torch.nn as nn
 import torchvision
 from torch.utils.hipify.hipify_python import bcolors
 
+from lightly.cli._cli_simclr import _SimCLR
 from lightly.data import LightlyDataset
 from lightly.embedding import SelfSupervisedEmbedding
-from lightly.models import SimCLR
 
 from lightly.models import ResNetGenerator
 from lightly.models.batchnorm import get_norm_layer
@@ -100,7 +100,7 @@ def _embed_cli(cfg, is_cli_call=True):
         nn.AdaptiveAvgPool2d(1),
     )
 
-    model = SimCLR(
+    model = _SimCLR(
         features,
         num_ftrs=cfg['model']['num_ftrs'],
         out_dim=cfg['model']['out_dim']
