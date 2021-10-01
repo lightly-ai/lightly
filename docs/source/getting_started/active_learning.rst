@@ -57,7 +57,7 @@ Lightly makes use of the following concepts for active learning:
    performing a sampling, the scores are passed to the API so the sampler can use
    them with Coral.
 
-   Active learning scores are scalar values (per sample) between 0.0 and 1.0 whereas values
+   Active learning scores are scalar values (per sample) between 0.0 and 1.0 where values
    closer to 1.0 indicate very important samples.
    
 

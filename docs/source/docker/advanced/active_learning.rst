@@ -18,7 +18,7 @@ Create Embeddings
 --------------------------
 
 You can create embeddings using your own model. Just make sure the resulting
-`embeddings.csv` file matches the format of the one from
+`embeddings.csv` file matches the required format:
 :ref:`ref-cli-embeddings-lightly`. 
 
 Alternatively, you can run the docker as usual and as described in the 
@@ -192,11 +192,11 @@ Run Active Learning using the Docker
 ---------------------------------------
 
 At this point you should have an `embeddings.csv` file with the active learning 
-scores in a column. 
+scores in a column named `al_scores`. 
 
 We can now perform an active learning sampling using the `CORAL` sampler. In order
 to do the sampling on the `embeddings.csv` file we need to make this file
-accessible to the docker. An easy way is to use the `shared_dir` feature of the
+accessible to the docker. We can do this by using the `shared_dir` feature of the
 docker as described in :ref:`docker-sampling-from-embeddings`. 
 
 E.g. use the following bash script.

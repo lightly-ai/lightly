@@ -63,7 +63,7 @@ We worked hard to make this happen and are very proud to present you with the fo
   
   * 8 CPU cores or more
 
-  * 16GB free RAM (>32GB for datasets above 10m samples)
+  * 16GB free RAM (>64GB for datasets above 10m samples)
  
   * 1 Nvidia Tesla P100, T4, V100 or A100 GPU with CUDA 10.0+
 
