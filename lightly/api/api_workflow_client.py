@@ -129,13 +129,13 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             filenames_for_list.
 
         """
-        if not len(filenames_for_list) == len(list_to_order) or \
-                not len(filenames_for_list) == len(self.filenames_on_server):
+        if len(filenames_for_list) != len(list_to_order) or \
+                len(filenames_for_list) != len(self.filenames_on_server):
             raise ValueError(
                 f"All inputs (filenames_for_list,  list_to_order and "
                 f"self.filenames_on_server) must have the same length, "
-                f"but they have lengths of: ({len(filenames_for_list)},"
-                f"{len(list_to_order)} and {len(self.filenames_on_server)}."
+                f"but their lengths are: ({len(filenames_for_list)},"
+                f"{len(list_to_order)} and {len(self.filenames_on_server)})."
             )
         dict_by_filenames = dict(zip(filenames_for_list, list_to_order))
         list_ordered = [dict_by_filenames[filename] for filename in self.filenames_on_server]
