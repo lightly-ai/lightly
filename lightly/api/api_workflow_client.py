@@ -109,7 +109,10 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
     def _get_all_tags(self) -> List[TagData]:
         return self.tags_api.get_tags_by_dataset_id(self.dataset_id)
 
-    def _order_list_by_filenames(self, filenames_for_list: List[str], list_to_order: List[object]) -> List[object]:
+    def _order_list_by_filenames(
+            self, filenames_for_list: List[str],
+            list_to_order: List[object]
+    ) -> List[object]:
         """Orders a list such that it is in the order of the filenames specified on the server.
 
         Args:
@@ -119,14 +122,23 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                 Some values belonging to the samples
 
         Returns:
-            The list reordered. The same reorder applied on the filenames_for_list
-            would put them in the order of the filenames in self.filenames_on_server
+            The list reordered.
+            The same reorder applied on the filenames_for_list would put them
+            in the order of the filenames in self.filenames_on_server.
+            every filename in self.filenames_on_server must be in the
+            filenames_for_list.
 
         """
-        assert len(filenames_for_list) == len(list_to_order)
+        if len(filenames_for_list) != len(list_to_order) or \
+                len(filenames_for_list) != len(self.filenames_on_server):
+            raise ValueError(
+                f"All inputs (filenames_for_list,  list_to_order and "
+                f"self.filenames_on_server) must have the same length, "
+                f"but their lengths are: ({len(filenames_for_list)},"
+                f"{len(list_to_order)} and {len(self.filenames_on_server)})."
+            )
         dict_by_filenames = dict(zip(filenames_for_list, list_to_order))
-        list_ordered = [dict_by_filenames[filename] for filename in self.filenames_on_server
-                        if filename in filenames_for_list]
+        list_ordered = [dict_by_filenames[filename] for filename in self.filenames_on_server]
         return list_ordered
 
     @property
