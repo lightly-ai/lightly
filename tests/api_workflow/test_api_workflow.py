@@ -66,6 +66,32 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
         list_desired_order = ['aaaa', 'bbbb', 'cccc']
         assert list_ordered == list_desired_order
 
+    def test_reorder_wrong_lengths(self):
+        filenames_on_server = ['a', 'b', 'c']
+        api_workflow_client = MockedApiWorkflowClient(
+            token="token_xyz", dataset_id="dataset_id_xyz"
+        )
+        api_workflow_client.mappings_api.sample_names = filenames_on_server
+        filenames_for_list = ['c', 'a', 'b']
+        list_to_order = ['cccc', 'aaaa', 'bbbb']
+
+        with self.subTest("filenames_for_list wrong length"):
+            with self.assertRaises(ValueError):
+                api_workflow_client._order_list_by_filenames(
+                    filenames_for_list[:-1], list_to_order)
+
+        with self.subTest("list_to_order wrong length"):
+            with self.assertRaises(ValueError):
+                api_workflow_client._order_list_by_filenames(
+                    filenames_for_list, list_to_order[:-1])
+
+        with self.subTest("filenames_for_list and list_to_order wrong length"):
+            with self.assertRaises(ValueError):
+                api_workflow_client._order_list_by_filenames(
+                    filenames_for_list[:-1], list_to_order[:-1])
+
+
+
 
 
 
