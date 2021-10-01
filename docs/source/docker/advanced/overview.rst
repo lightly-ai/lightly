@@ -10,3 +10,4 @@ Here you learn more advanced usage patterns of Lightly Docker.
    datapool.rst
    pretagging.rst
    active_learning.rst
+   sequence_selection.rst
