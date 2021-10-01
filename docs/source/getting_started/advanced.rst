@@ -127,6 +127,13 @@ learning:
 
   - Check the documentation: :py:class:`lightly.models.barlowtwins.BarlowTwins`
 
+- `NNCLR: With a Little Help from My Friends: Nearest-Neighbor Contrastive Learning of Visual Representations, D. Dwibedi, 2021 <https://arxiv.org/abs/2104.14548>`_
+
+- `BYOL: Bootstrap your own latent: A new approach to self-supervised Learning, J. Grill, 2020 <https://arxiv.org/abs/2006.07733>`_
+
+- `SwAV: Unsupervised Learning of Visual Features by Contrasting Cluster Assignments, M. Caron, 2020 <https://arxiv.org/abs/2006.09882>`_
+
+
 Do you know a model that should be on this list? Please add an issue on GitHub :)
 
 All models have a backbone component. This could be a ResNet.
