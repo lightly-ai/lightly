@@ -226,6 +226,8 @@ do so.
 A list of all input parameters can be found here: :ref:`rst-docker-parameters`
 
 
+.. _docker-sampling-from-embeddings:
+
 Sampling from Embeddings File
 ----------------------------------
 

@@ -220,6 +220,7 @@ class SimSiamPredictionHead(ProjectionHead):
 class SwaVProjectionHead(ProjectionHead):
     """Projection head used for SwaV.
 
+    [0]: SwAV, 2020, https://arxiv.org/abs/2006.09882
     """
     def __init__(self,
                  input_dim: int,
