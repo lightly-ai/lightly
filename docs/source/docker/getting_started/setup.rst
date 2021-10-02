@@ -93,6 +93,19 @@ You should see an output similar to this one:
 
 Head on to :ref:`rst-docker-first-steps`  to see how to sample your dataset!
 
-.. note:: To update the Lightly Docker to the latest version you can can do
-          a **docker pull ...** followed by a new **docker tag ...** as described
-          above.
+
+Update Lightly Docker
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To update the docker we simply need to pull the latest docker image.
+
+.. code-block:: console
+
+    docker pull eu.gcr.io/boris-250909/lightly/sampling:latest
+
+Don't forget to tag the image again after pulling it.
+
+.. code-block:: console
+
+    docker tag eu.gcr.io/boris-250909/lightly/sampling:latest lightly/sampling:latest
+

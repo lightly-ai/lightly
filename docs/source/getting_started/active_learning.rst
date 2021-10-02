@@ -56,6 +56,9 @@ Lightly makes use of the following concepts for active learning:
    different scores based on how certain the model is about the images. When
    performing a sampling, the scores are passed to the API so the sampler can use
    them with Coral.
+
+   Active learning scores are scalar values (per sample) between 0.0 and 1.0 where values
+   closer to 1.0 indicate very important samples.
    
 
 Continue reading to see how these components interact and how active learning is
@@ -192,11 +195,19 @@ but without performing a sampling. This is also easily possible:
 
    al_agent.upload_scores(scorer)
 
+
+.. _lightly-active-learning-scorers:
+
 Scorers
 -----------------
 Lightly has so called scorers for the common computer vision tasks such as 
 image classification, detection and others. Depending on the task you are working
 on you can use a different scorer.
+
+Active learning scores are scalar values (per sample) between `0.0` and `1.0`.
+Values closer to `1.0` typically indicate very important samples. For example,
+for an image classification model a high score indicates that the sample is hard
+to classify.
 
 Image Classification
 ^^^^^^^^^^^^^^^^^^^^^
@@ -211,17 +222,18 @@ same confidence and are 0 if the model assigns 100% probability to a single clas
 The differ in the number of class confidences they take into account.
 
 - **uncertainty_least_confidence**:
-    This score is 1 - the highest confidence prediction. It is high
+    This score is 1 - the highest confidence prediction. It is high (close to `1.0`)
     when the confidence about the most probable class is low.
 
 - **uncertainty_margin**
     This score is 1 - the margin between the highest confidence
-    and second highest confidence prediction. It is high when the model
-    cannot decide between the two most probable classes.
+    and second highest confidence prediction. It is high (close to `1.0`) 
+    when the model cannot decide between the two most probable classes.
 
 - **uncertainty_entropy**
     This scorer computes the entropy of the prediction. The confidences
-    for all classes are considered to compute the entropy of a sample.
+    for all classes are considered to compute the entropy of a sample. 
+    It is high (close to `1.0`) when the model cannot decide between the all classes.
 
 For more information about how to use the classification scorer have a look here:
 :py:class:`lightly.active_learning.scorers.classification.ScorerClassification`
@@ -252,12 +264,14 @@ Currently, the following scorers are available:
 - **object_frequency**
   This score measures the number of objects in the image. Use this scorer if
   you want scenes with lots of objects in them. This is suited for computer vision
-  tasks such as perception in autonomous driving.
+  tasks such as perception in autonomous driving. Samples with high values (close to `1.0`)
+  contain the most objects within a dataset.
 
 - **objectness_least_confidence**
   This score is 1 - the mean of the highest confidence prediction. Use this scorer
   to select images where the model is insecure about both whether it found an object
-  at all and the class of the object.
+  at all and the class of the object. Samples with high values (close to `1.0`) are the
+  ones where the model has lowest confidence predicting good bounding boxes.
 
 - **classification_scores**
   These scores are computed for each object detection per image out of
