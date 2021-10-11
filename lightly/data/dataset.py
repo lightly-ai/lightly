@@ -291,13 +291,16 @@ class LightlyDataset:
         for i, filename in zip(indices, filenames):
             _dump_image(self.dataset, output_dir, filename, i, fmt=format)
 
+
     def get_filepath_from_filename(self, filename: str, image: PIL.Image.Image = None):
         """Returns the filepath given the filename of the image
 
         There are three cases:
         - The dataset is a regular dataset with the images in the input dir.
-        - The dataset is a video dataset, thus the images have to be saved in a temporary folder.
-        - The dataset is a torch dataset, thus the images have to be saved in a temporary folder.
+        - The dataset is a video dataset, thus the images have to be saved in a
+        temporary folder.
+        - The dataset is a torch dataset, thus the images have to be saved in a
+        temporary folder.
         Args:
             filename:
                 The filename of the image
@@ -305,23 +308,32 @@ class LightlyDataset:
                 The image corresponding to the filename
 
         Returns:
-            The filename to the image, either the exiting one (case 1) or a newly created jpg (case 2, 3)
+            The filename to the image, either the existing one (case 1) or a
+            newly created jpg (case 2, 3)
 
         """
 
-        has_input_dir = hasattr(self, 'input_dir') and isinstance(self.input_dir, str)
+        has_input_dir = hasattr(self, 'input_dir') and \
+            isinstance(self.input_dir, str)
         if has_input_dir:
             path_to_image = os.path.join(self.input_dir, filename)
             if os.path.isfile(path_to_image):
-                # Case 1
+                # the file exists, return its filepath
                 return path_to_image
 
         if image is None:
-            raise ValueError("The parameter image must not be None for VideoDatasets and TorchDatasets")
+            raise ValueError(
+                'The parameter image must not be None for'
+                'VideoDatasets and TorchDatasets'
+            )
 
-        # Case 2 and 3
+        # the file doesn't exist, save it as a jpg and return filepath
         folder_path = tempfile.mkdtemp()
-        filepath = os.path.join(folder_path,filename) + '.jpg'
+        filepath = os.path.join(folder_path, filename) + '.jpg'
+        
+        if os.path.dirname(filepath):
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
         image.save(filepath)
         return filepath
 
