@@ -177,15 +177,16 @@ def _make_dataset(directory,
 
     # find all video instances (no subdirectories)
     video_instances = []
-    for fname in os.listdir(directory):
+    for root, _, files in os.walk(directory):
 
-        # skip invalid files
-        if not _is_valid_file(fname):
-            continue
+        for fname in files:
+            # skip invalid files
+            if not _is_valid_file(fname):
+                continue
 
-        # keep track of valid files
-        path = os.path.join(directory, fname)
-        video_instances.append(path)
+            # keep track of valid files
+            path = os.path.join(root, fname)
+            video_instances.append(path)
 
     # get timestamps
     timestamps, fpss = [], []
