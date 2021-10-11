@@ -38,17 +38,20 @@ def _dir_contains_videos(root: str, extensions: tuple):
 
 
 def _contains_videos(root: str, extensions: tuple):
-    """Checks whether directory or subdirectory contains video files.
+    """Checks whether directory or any subdirectory contains video files.
+
+    Iterates over all subdirectories of "root" recursively and returns True
+    if any of the subdirectories contains a file with a VIDEO_EXTENSION.
 
     Args:
         root: Root directory path.
 
     Returns:
-        True if root or any subdir contains video files.
+        True if "root" or any subdir contains video files.
 
     """
-    for root, _, _ in os.walk(root):
-        if _dir_contains_videos(root, extensions):
+    for subdir, _, _ in os.walk(root):
+        if _dir_contains_videos(subdir, extensions):
             return True
     return False
 
