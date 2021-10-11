@@ -18,6 +18,7 @@ from torchvision import transforms
 
 from lightly.data._helpers import _load_dataset
 from lightly.data._helpers import DatasetFolder
+from lightly.data._image import FilenamesDataset
 from lightly.data._video import VideoDataset
 from lightly.utils.io import check_filenames
 
@@ -37,6 +38,8 @@ def _get_filename_by_index(dataset, index):
     elif isinstance(dataset, VideoDataset):
         # filename is constructed by the video dataset
         return dataset.get_filename(index)
+    elif isinstance(dataset, FilenamesDataset):
+        return dataset.filenames[index]
     else:
         # dummy to prevent crashes
         return str(index)
@@ -165,6 +168,18 @@ class LightlyDataset:
         # are valid
         if input_dir:
             check_filenames(self.get_filenames())
+
+    @classmethod
+    def from_filenames(
+            cls, root: str, filenames: List[str],
+            transform: transforms.Compose = None
+    ):
+        dataset_obj = cls(None)
+        dataset_obj.dataset = FilenamesDataset(
+            root, filenames, transform=transform
+        )
+        return dataset_obj
+
 
     @classmethod
     def from_torch_dataset(cls,

@@ -7,6 +7,7 @@ from typing import List, Tuple
 
 import os
 import torchvision.datasets as datasets
+from torchvision import transforms
 
 from lightly.data._image_loaders import default_loader
 
@@ -133,3 +134,61 @@ class DatasetFolder(datasets.VisionDataset):
 
         """
         return len(self.samples)
+
+
+class FilenamesDataset(datasets.VisionDataset):
+    """Implements a dataset defined by filenames.
+
+        DatasetFolder based on torchvisions implementation.
+        (https://pytorch.org/docs/stable/torchvision/datasets.html#datasetfolder)
+
+        Attributes:
+            root:
+                The root directory the filenames are relative to.
+            filenames:
+                The filenames of the files to load.
+            loader:
+                Function that loads file at path.
+            transform:
+                Function that takes a PIL image and returns transformed version.
+
+    """
+    def __init__(self,
+                 root: str,
+                 filenames: List[str],
+                 loader=default_loader,
+                 transform: transforms.Compose = None
+                 ):
+        super(FilenamesDataset, self).__init__(root, transform=transform)
+        self.root = root
+        self.filenames = filenames
+        self.loader = loader
+        self.transform = transform
+
+    def __getitem__(self, index: int) -> Tuple[object, int]:
+        """Returns item at index.
+
+        Args:
+            index:
+                Index of the sample to retrieve.
+
+        Returns:
+            A tuple (sample, target) where target is 0.
+
+        """
+
+        filename = self.filenames[index]
+        path = os.path.join(self.root, filename)
+        sample = self.loader(path)
+        if self.transform is not None:
+            sample = self.transform(sample)
+
+        target = 0
+
+        return sample, target
+
+    def __len__(self) -> int:
+        """Returns the number of samples in the dataset.
+
+        """
+        return len(self.filenames)

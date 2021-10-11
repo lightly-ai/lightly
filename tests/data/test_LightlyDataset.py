@@ -2,10 +2,14 @@ import unittest
 import os
 import random
 import shutil
+
+import torch
 import torchvision
 import tempfile
 import warnings
 import numpy as np
+from PIL.Image import Image
+
 from lightly.data import LightlyDataset
 
 from lightly.data._utils import check_images
@@ -192,6 +196,34 @@ class TestLightlyDataset(unittest.TestCase):
         dataset = LightlyDataset.from_torch_dataset(_dataset)
         self.assertEqual(len(_dataset), len(dataset))
         self.assertEqual(len(dataset.get_filenames()), len(dataset))
+
+    def test_filenames_dataset(self):
+        tmp_dir, folder_names, sample_names = self.create_dataset()
+        all_filenames = [
+            os.path.join(folder_name, sample_name)
+            for folder_name in folder_names
+            for sample_name in sample_names
+        ]
+        n_samples = int(len(all_filenames) / 2)
+        for i in range(5):
+            np.random.seed(i)
+            filenames = np.random.choice(all_filenames, n_samples, replace=False)
+
+            dataset = LightlyDataset.from_filenames(
+                root=tmp_dir,
+                filenames=filenames
+            )
+            filenames_dataset = dataset.get_filenames()
+            self.assertEqual(len(filenames_dataset), len(dataset))
+            self.assertEqual(len(filenames_dataset), len(filenames))
+            self.assertEqual(set(filenames_dataset), set(filenames))
+            filenames_dataset = set(filenames_dataset)
+            for image, target, filename in dataset:
+                self.assertIsInstance(image, Image)
+                self.assertEqual(target, 0)
+                self.assertIsInstance(filename, str)
+                assert filename in filenames_dataset
+
 
 
 
