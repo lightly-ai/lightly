@@ -1,3 +1,4 @@
+import re
 import unittest
 import os
 import random
@@ -72,11 +73,13 @@ class TestLightlyDataset(unittest.TestCase):
         self.input_dir = tempfile.mkdtemp()
         self.ensure_dir(self.input_dir)
         self.frames = (np.random.randn(n_frames_per_video, w, h, c) * 255).astype(np.uint8)
-        self.extensions = ('.avi')
+        self.extensions = ('.avi',)
+        self.filenames = []
 
         for i in range(5):
-            path = os.path.join(self.input_dir, f'output-{i}.avi')
-            print(path)
+            filename = f'output-{i}.avi'
+            self.filenames.append(filename)
+            path = os.path.join(self.input_dir, filename)
             out = cv2.VideoWriter(path, 0, 1, (w, h))
             for frame in self.frames:
                 out.write(frame)
@@ -261,9 +264,6 @@ class TestLightlyDataset(unittest.TestCase):
                 self.assertIsInstance(filename, str)
                 assert filename in filenames_dataset
 
-
-
-
     def test_video_dataset(self):
 
         if not VIDEO_DATASET_AVAILABLE:
@@ -291,8 +291,32 @@ class TestLightlyDataset(unittest.TestCase):
         dataset.dump(out_dir, dataset.get_filenames()[(len(dataset) // 2):])
         self.assertEqual(len(os.listdir(out_dir)), len(dataset) // 2)
         for filename in os.listdir(out_dir):
-            self.assertIn(filename, dataset.get_filenames()[(len(dataset) // 2):])  
+            self.assertIn(filename, dataset.get_filenames()[(len(dataset) // 2):])
 
+    def test_video_dataset_filenames(self):
+        self.create_video_dataset()
+        all_filenames = self.filenames
+
+        def filename_img_fits_video(filename_img: str):
+            for filename_video in all_filenames:
+                filename_video = filename_video[:-1*len('.avi')]
+                if filename_video in filename_img:
+                    return True
+            return False
+
+        n_samples = int(len(all_filenames) / 2)
+        np.random.seed(42)
+        filenames = np.random.choice(all_filenames, n_samples, replace=False)
+
+        dataset = LightlyDataset(input_dir=self.input_dir, filenames=filenames)
+
+        filenames_dataset = dataset.get_filenames()
+        for image, target, filename in dataset:
+            self.assertIsInstance(image, Image)
+            self.assertTrue(filename_img_fits_video(filename))
+
+            self.assertIsInstance(filename, str)
+            self.assertIn(filename, filenames_dataset)
 
     def test_transform_setter(self, dataset: LightlyDataset = None):
 

@@ -16,7 +16,6 @@ from torchvision import transforms
 
 from lightly.data._helpers import _load_dataset_from_folder
 from lightly.data._helpers import DatasetFolder
-from lightly.data._image import FilenamesDataset
 from lightly.data._video import VideoDataset
 from lightly.utils.io import check_filenames
 
@@ -36,8 +35,6 @@ def _get_filename_by_index(dataset, index):
     elif isinstance(dataset, VideoDataset):
         # filename is constructed by the video dataset
         return dataset.get_filename(index)
-    elif isinstance(dataset, FilenamesDataset):
-        return dataset.filenames[index]
     else:
         # dummy to prevent crashes
         return str(index)
