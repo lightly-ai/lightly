@@ -197,8 +197,11 @@ class TestLightlyDataset(unittest.TestCase):
         self.assertEqual(len(_dataset), len(dataset))
         self.assertEqual(len(dataset.get_filenames()), len(dataset))
 
-    def test_filenames_dataset(self):
+    def test_filenames_dataset_with_subdir(self):
         tmp_dir, folder_names, sample_names = self.create_dataset()
+        folder_name_to_target = {
+            folder_name: i for i, folder_name in enumerate(folder_names)
+        }
         all_filenames = [
             os.path.join(folder_name, sample_name)
             for folder_name in folder_names
@@ -209,8 +212,42 @@ class TestLightlyDataset(unittest.TestCase):
             np.random.seed(i)
             filenames = np.random.choice(all_filenames, n_samples, replace=False)
 
-            dataset = LightlyDataset.from_filenames(
-                root=tmp_dir,
+            dataset = LightlyDataset(
+                input_dir=tmp_dir,
+                filenames=filenames
+            )
+            filenames_dataset = dataset.get_filenames()
+            self.assertEqual(len(filenames_dataset), len(dataset))
+            self.assertEqual(len(filenames_dataset), len(filenames))
+            self.assertEqual(set(filenames_dataset), set(filenames))
+            filenames_dataset = set(filenames_dataset)
+            for image, target, filename in dataset:
+                self.assertIsInstance(image, Image)
+                folder_name = filename.split(sep=os.sep)[0]
+                self.assertEqual(target, folder_name_to_target[folder_name])
+                self.assertIsInstance(filename, str)
+                assert filename in filenames_dataset
+
+    def test_filenames_dataset_no_subdir(self):
+        # create a dataset
+        n_tot = 100
+        dataset = torchvision.datasets.FakeData(size=n_tot,
+                                                image_size=(3, 32, 32))
+
+        tmp_dir = tempfile.mkdtemp()
+        all_filenames = [f'img_{i}.jpg' for i in range(n_tot)]
+        for sample_idx in range(n_tot):
+            data = dataset[sample_idx]
+            path = os.path.join(tmp_dir, all_filenames[sample_idx])
+            data[0].save(path)
+
+        n_samples = int(len(all_filenames) / 2)
+        for i in range(5):
+            np.random.seed(i)
+            filenames = np.random.choice(all_filenames, n_samples, replace=False)
+
+            dataset = LightlyDataset(
+                input_dir=tmp_dir,
                 filenames=filenames
             )
             filenames_dataset = dataset.get_filenames()
