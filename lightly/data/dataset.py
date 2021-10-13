@@ -8,15 +8,13 @@ import bisect
 import shutil
 import tempfile
 
-import PIL.Image
 from PIL import Image
 from typing import List, Union, Callable
 
-import torch.utils.data as data
 import torchvision.datasets as datasets
 from torchvision import transforms
 
-from lightly.data._helpers import _load_dataset
+from lightly.data._helpers import _load_dataset_from_folder
 from lightly.data._helpers import DatasetFolder
 from lightly.data._video import VideoDataset
 from lightly.utils.io import check_filenames
@@ -104,8 +102,9 @@ class LightlyDataset:
 
     The LightlyDataset supports different input sources. You can use it
     on a folder of images. You can also use it on a folder with subfolders
-    with images (ImageNet style). If the input_dir has subfolders each subfolder
-    gets its own target label. You can also work with videos (requires pyav).
+    with images (ImageNet style). If the input_dir has subfolders,
+    each subfolder gets its own target label.
+    You can also work with videos (requires pyav).
     If there are multiple videos in the input_dir each video gets a different
     target label assigned. If input_dir contains images and videos
     only the videos are used.
@@ -121,6 +120,9 @@ class LightlyDataset:
         index_to_filename:
             Function which takes the dataset and index as input and returns
             the filename of the file at the index. If None, uses default.
+        filenames:
+            If not None, it filters the dataset in the input directory
+            by the given filenames.
 
     Examples:
         >>> # load a dataset consisting of images from a local folder
@@ -147,14 +149,30 @@ class LightlyDataset:
     """
 
     def __init__(self,
-                 input_dir: str,
+                 input_dir: Union[str, None],
                  transform: transforms.Compose = None,
-                 index_to_filename: Callable[[datasets.VisionDataset, int], str] = None):
+                 index_to_filename:
+                 Callable[[datasets.VisionDataset, int], str] = None,
+                 filenames: List[str] = None,
+                 ):
 
         # can pass input_dir=None to create an "empty" dataset
         self.input_dir = input_dir
+        if filenames is not None:
+            filepaths = [
+                os.path.join(input_dir, filename)
+                for filename in filenames
+            ]
+            filepaths = set(filepaths)
+
+            def is_valid_file(filepath: str):
+                return filepath in filepaths
+        else:
+            is_valid_file = None
         if self.input_dir is not None:
-            self.dataset = _load_dataset(self.input_dir, transform)
+            self.dataset = _load_dataset_from_folder(
+                self.input_dir, transform, is_valid_file=is_valid_file
+            )
 
         # initialize function to get filename of image
         self.index_to_filename = _get_filename_by_index
@@ -284,15 +302,14 @@ class LightlyDataset:
                 filename_index = bisect.bisect_left(filenames, filename)
                 # make sure the filename exists in filenames
                 if filename_index < len(filenames) and \
-                    filenames[filename_index] == filename:
+                        filenames[filename_index] == filename:
                     indices.append(index)
 
         # dump images
         for i, filename in zip(indices, filenames):
             _dump_image(self.dataset, output_dir, filename, i, fmt=format)
 
-
-    def get_filepath_from_filename(self, filename: str, image: PIL.Image.Image = None):
+    def get_filepath_from_filename(self, filename: str, image: Image = None):
         """Returns the filepath given the filename of the image
 
         There are three cases:
@@ -336,7 +353,6 @@ class LightlyDataset:
 
         image.save(filepath)
         return filepath
-
 
     @property
     def transform(self):
