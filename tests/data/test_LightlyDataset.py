@@ -200,6 +200,11 @@ class TestLightlyDataset(unittest.TestCase):
         self.assertEqual(len(_dataset), len(dataset))
         self.assertEqual(len(dataset.get_filenames()), len(dataset))
 
+    def test_filenames_dataset_no_samples(self):
+        tmp_dir, folder_names, sample_names = self.create_dataset()
+        with self.assertRaises(RuntimeError):
+            dataset = LightlyDataset(input_dir=tmp_dir, filenames=[])
+
     def test_filenames_dataset_with_subdir(self):
         tmp_dir, folder_names, sample_names = self.create_dataset()
         folder_name_to_target = {
@@ -244,7 +249,7 @@ class TestLightlyDataset(unittest.TestCase):
             path = os.path.join(tmp_dir, all_filenames[sample_idx])
             data[0].save(path)
 
-        n_samples = int(len(all_filenames) / 2)
+        n_samples = len(all_filenames) // 2
         for i in range(5):
             np.random.seed(i)
             filenames = np.random.choice(all_filenames, n_samples, replace=False)
@@ -262,7 +267,7 @@ class TestLightlyDataset(unittest.TestCase):
                 self.assertIsInstance(image, Image)
                 self.assertEqual(target, 0)
                 self.assertIsInstance(filename, str)
-                assert filename in filenames_dataset
+                self.assertIn(filename, filenames_dataset)
 
     def test_video_dataset(self):
 
