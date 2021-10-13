@@ -164,11 +164,14 @@ class LightlyDataset:
                 for filename in filenames
             ]
             filepaths = set(filepaths)
+
+            def is_valid_file(filepath: str):
+                return filepath in filepaths
         else:
-            filepaths = None
+            is_valid_file = None
         if self.input_dir is not None:
             self.dataset = _load_dataset_from_folder(
-                self.input_dir, transform, filepaths=filepaths
+                self.input_dir, transform, is_valid_file=is_valid_file
             )
 
         # initialize function to get filename of image

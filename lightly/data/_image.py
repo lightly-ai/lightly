@@ -88,7 +88,6 @@ class DatasetFolder(datasets.VisionDataset):
                  transform=None,
                  target_transform=None,
                  is_valid_file=None,
-                 filenames: Set[str] = None,
                  ):
 
         super(DatasetFolder, self).__init__(root,

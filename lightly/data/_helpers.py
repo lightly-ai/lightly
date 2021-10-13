@@ -4,7 +4,7 @@
 # All Rights Reserved
 
 import os
-from typing import List, Set
+from typing import List, Set, Optional, Callable
 
 from torchvision import datasets
 
@@ -86,7 +86,10 @@ def _contains_subdirs(root: str):
             if f.is_dir())
 
 
-def _load_dataset_from_folder(root: str, transform, filepaths: Set[str]):
+def _load_dataset_from_folder(
+        root: str, transform,
+        is_valid_file: Optional[Callable[[str], bool]] = None
+    ):
     """Initializes dataset from folder.
 
     Args:
@@ -113,11 +116,6 @@ def _load_dataset_from_folder(root: str, transform, filepaths: Set[str]):
                          'dependencies. The error from the imported '
                          f'module was: {VIDEO_DATASET_ERRORMSG}')
 
-    if filepaths:
-        def is_valid_file(filepath: str):
-            return filepath in filepaths
-    else:
-        is_valid_file = None
 
     if contains_videos:
         # root contains videos -> create a video dataset
