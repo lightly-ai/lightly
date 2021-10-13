@@ -158,22 +158,19 @@ def _make_dataset(directory,
 
     """
 
-    # handle is_valid_file and extensions the same way torchvision handles them:
-    # https://pytorch.org/docs/stable/_modules/torchvision/datasets/folder.html#ImageFolder
-    both_none = extensions is None and is_valid_file is None
-    both_something = extensions is not None and is_valid_file is not None
-    if both_none or both_something:
-        raise ValueError('Both extensions and is_valid_file cannot be None or '
-                         'not None at the same time')
-
-    # use filename to find valid files
-    if extensions is not None:
-        def _is_valid_file(filename):
-            return filename.lower().endswith(extensions)
-
-    # overwrite function to find valid files
-    if is_valid_file is not None:
-        _is_valid_file = is_valid_file
+    if extensions is None:
+        if is_valid_file is None:
+            ValueError('Both extensions and is_valid_file cannot be None')
+        else:
+            _is_valid_file = is_valid_file
+    else:
+        def is_valid_file_extension(filepath):
+            return filepath.lower().endswith(extensions)
+        if is_valid_file is None:
+            _is_valid_file = is_valid_file_extension
+        else:
+            def _is_valid_file(filepath):
+                return is_valid_file_extension(filepath) and is_valid_file(filepath)
 
     # find all video instances (no subdirectories)
     video_instances = []
@@ -181,7 +178,7 @@ def _make_dataset(directory,
 
         for fname in files:
             # skip invalid files
-            if not _is_valid_file(fname):
+            if not _is_valid_file(os.path.join(root, fname)):
                 continue
 
             # keep track of valid files
