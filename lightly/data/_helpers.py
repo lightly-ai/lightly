@@ -116,7 +116,6 @@ def _load_dataset_from_folder(
                          'dependencies. The error from the imported '
                          f'module was: {VIDEO_DATASET_ERRORMSG}')
 
-
     if contains_videos:
         # root contains videos -> create a video dataset
         dataset = VideoDataset(root,

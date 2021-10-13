@@ -202,7 +202,7 @@ class TestLightlyDataset(unittest.TestCase):
 
     def test_filenames_dataset_no_samples(self):
         tmp_dir, folder_names, sample_names = self.create_dataset()
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises((RuntimeError, FileNotFoundError)):
             dataset = LightlyDataset(input_dir=tmp_dir, filenames=[])
 
     def test_filenames_dataset_with_subdir(self):
