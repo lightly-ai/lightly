@@ -33,6 +33,7 @@ Lightly offers features like
 - [Barlow Twins, 2021](https://arxiv.org/abs/2103.03230)
 - [BYOL, 2020](https://arxiv.org/abs/2006.07733)
 - [NNCLR, 2021](https://arxiv.org/abs/2104.14548)
+- [SwaV, 2020](https://arxiv.org/abs/2006.09882)
 
 
 ### Tutorials
