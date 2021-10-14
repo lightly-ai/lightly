@@ -4,7 +4,7 @@
 
 ![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)
 ![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)
-![codecov](https://codecov.io/gh/lightly-ai/lightly/branch/develop/graph/badge.svg?token=1NEAVROK3W)
+![codecov](https://codecov.io/gh/lightly-ai/lightly/branch/master/graph/badge.svg?token=1NEAVROK3W)
 
 Lightly is a computer vision framework for self-supervised learning.
 
@@ -33,6 +33,7 @@ Lightly offers features like
 - [Barlow Twins, 2021](https://arxiv.org/abs/2103.03230)
 - [BYOL, 2020](https://arxiv.org/abs/2006.07733)
 - [NNCLR, 2021](https://arxiv.org/abs/2104.14548)
+- [SwaV, 2020](https://arxiv.org/abs/2006.09882)
 
 
 ### Tutorials
