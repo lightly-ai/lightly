@@ -1,25 +1,28 @@
 import os
 import warnings
+from typing import Union, Dict
+from datetime import datetime
 from concurrent.futures.thread import ThreadPoolExecutor
-from typing import Union, List, Dict
 
-import lightly_utils.image_processing
-from torch.utils import data
 import tqdm
-
-from lightly.openapi_generated.swagger_client import TagCreator, SamplesApi, SampleWriteUrls, SampleData
-from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
-from lightly.api.utils import check_filename, PIL_to_bytes, MAXIMUM_FILENAME_LENGTH
-from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
-from lightly.openapi_generated.swagger_client.models.job_status_meta import JobStatusMeta
-from lightly.openapi_generated.swagger_client.models.job_status_upload_method import JobStatusUploadMethod
-
-from lightly.data.dataset import LightlyDataset
-
-from lightly.api.utils import retry
-
 from lightly_utils import image_processing
 
+from lightly.data.dataset import LightlyDataset
+from lightly.api.utils import check_filename
+from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
+from lightly.api.utils import retry
+from lightly.openapi_generated.swagger_client import TagCreator
+from lightly.openapi_generated.swagger_client import SampleWriteUrls
+from lightly.openapi_generated.swagger_client.models.sample_create_request \
+    import SampleCreateRequest
+from lightly.openapi_generated.swagger_client.models.tag_upsize_request \
+    import TagUpsizeRequest
+from lightly.openapi_generated.swagger_client.models.initial_tag_create_request \
+    import InitialTagCreateRequest
+from lightly.openapi_generated.swagger_client.models.job_status_meta \
+    import JobStatusMeta
+from lightly.openapi_generated.swagger_client.models.job_status_upload_method \
+    import JobStatusUploadMethod
 
 
 class _UploadDatasetMixin:
@@ -51,27 +54,25 @@ class _UploadDatasetMixin:
             RuntimeError if the connection to the server failed.
 
         """
-        no_tags_on_server = len(self._get_all_tags())
-        if no_tags_on_server > 0:
-            warnings.warn(f"Dataset with id {self.dataset_id} has already been completely uploaded to the platform. Skipping upload.")
-            return
 
-        # Check input variable 'input'
+        # get all tags of the dataset
+        tags = self._get_all_tags()
+        if len(tags) > 0:
+            print(
+                f'Dataset with id {self.dataset_id} has {len(tags)} tags.',
+                flush=True
+            )
+
+        # parse "input" variable
         if isinstance(input, str):
             dataset = LightlyDataset(input_dir=input)
         elif isinstance(input, LightlyDataset):
             dataset = input
         else:
-            raise ValueError(f"input must either be a LightlyDataset or the path to the dataset as str, "
-                             f"but is of type {type(input)}")
-
-        # check the allowed dataset size
-        max_dataset_size_str = self.quota_api.get_quota_maximum_dataset_size()
-        max_dataset_size = int(max_dataset_size_str)
-        if len(dataset) > max_dataset_size:
-            msg = f'Your dataset has {len(dataset)} samples which'
-            msg += f' is more than the allowed maximum of {max_dataset_size}'
-            raise ValueError(msg)
+            raise ValueError(
+                f'input must either be a LightlyDataset or the path to the'
+                f'dataset as str, but has type {type(input)}'
+            )
 
         # handle the case where len(dataset) < max_workers
         max_workers = min(len(dataset), max_workers)
@@ -79,19 +80,31 @@ class _UploadDatasetMixin:
 
         # upload the samples
         if verbose:
-            print(f'Uploading images (with {max_workers} workers).', flush=True)
+            print(
+                f'Uploading images (with {max_workers} workers).',
+                flush=True
+            )
 
-
-        # calculate the files size more efficiently
-        lightly_utils.image_processing.metadata._size_in_bytes = lambda img: 0
+        # TODO: remove _size_in_bytes from image_processing
+        image_processing.metadata._size_in_bytes = \
+            lambda img: 0 # pylint: disable=protected-access
 
         # get the filenames of the samples already on the server
-        self.samples_api: SamplesApi
-        samples: List[SampleData] = self.samples_api.get_samples_by_dataset_id(dataset_id=self.dataset_id)
-        filenames = [sample.file_name for sample in samples]
+        filenames = self.filenames_on_server
         if len(filenames) > 0:
-            print(f"Found {len(filenames)} images already on the server, they are skipped during the upload.")
+            print(
+                f'Found {len(filenames)} images already on the server, they are'
+                ' skipped during the upload.'
+            )
         filenames_set = set(filenames)
+
+        # check the maximum allowed dataset size
+        max_dataset_size = \
+            int(self.quota_api.get_quota_maximum_dataset_size())
+        if len(dataset) + len(filenames) > max_dataset_size:
+            msg = f'Your dataset has {len(dataset)} samples which'
+            msg += f' is more than the allowed maximum of {max_dataset_size}'
+            raise ValueError(msg)
 
         # index custom metadata by filename (only if it exists)
         filename_to_metadata = {}
@@ -103,22 +116,18 @@ class _UploadDatasetMixin:
             )
 
         # register dataset upload
-        try:
-            job_status_meta = JobStatusMeta(
-                total=len(dataset),
-                processed=len(filenames),
-                is_registered=True,
-                upload_method=JobStatusUploadMethod.USER_PIP,
-            )
-            self.datasets_api.register_dataset_upload_by_id(
-                job_status_meta,
-                self.dataset_id
-            )
-        except Exception:
-            # TODO: remove try/catch after release of latest API
-            pass
+        job_status_meta = JobStatusMeta(
+            total=len(dataset) + len(filenames),
+            processed=len(filenames),
+            is_registered=True,
+            upload_method=JobStatusUploadMethod.USER_PIP,
+        )
+        self.datasets_api.register_dataset_upload_by_id(
+            job_status_meta,
+            self.dataset_id
+        )
 
-        pbar = tqdm.tqdm(unit='imgs', total=len(dataset)-len(filenames))
+        pbar = tqdm.tqdm(unit='imgs', total=len(dataset) - len(filenames))
         tqdm_lock = tqdm.tqdm.get_lock()
 
         # define lambda function for concurrent upload
@@ -145,14 +154,16 @@ class _UploadDatasetMixin:
                     custom_metadata=custom_metadata_item,
                 )
                 success = True
-            except Exception as e:
-                warnings.warn(f"Upload of image {filename} failed with error {e}")
+            except Exception as e: # pylint: disable=broad-except
+                warnings.warn(
+                    f'Upload of image {filename} failed with error {e}'
+                )
                 success = False
 
             # update the progress bar
-            tqdm_lock.acquire()  # lock
-            pbar.update(1)  # update
-            tqdm_lock.release()  # unlock
+            tqdm_lock.acquire()
+            pbar.update(1)
+            tqdm_lock.release()
             # return whether the upload was successful
             return success
 
@@ -174,8 +185,26 @@ class _UploadDatasetMixin:
         else:
             img_type = 'meta'
 
-        initial_tag_create_request = InitialTagCreateRequest(img_type=img_type, creator=TagCreator.USER_PIP)
-        self.tags_api.create_initial_tag_by_dataset_id(body=initial_tag_create_request, dataset_id=self.dataset_id)
+        if len(tags) == 0:
+            # create initial tag
+            initial_tag_create_request = InitialTagCreateRequest(
+                img_type=img_type,
+                creator=TagCreator.USER_PIP
+            )
+            self.tags_api.create_initial_tag_by_dataset_id(
+                body=initial_tag_create_request,
+                dataset_id=self.dataset_id,
+            )
+        else:
+            # upsize existing tags
+            upsize_tags_request = TagUpsizeRequest(
+                upsize_tag_name=datetime.now().strftime('%Y%m%d_%Hh%Mm%Ss'),
+                upsize_tag_creator=TagCreator.USER_PIP,
+            )
+            self.tags_api.upsize_tags_by_dataset_id(
+                body=upsize_tags_request,
+                dataset_id=self.dataset_id,
+            )
 
     def _upload_single_image(self,
                              image,
@@ -187,8 +216,6 @@ class _UploadDatasetMixin:
         """Uploads a single image to the Lightly platform.
 
         """
-        self.samples_api: SamplesApi
-
         # check whether the filepath is too long
         if not check_filename(filepath):
             msg = (f'Filepath {filepath} is longer than the allowed maximum of {MAXIMUM_FILENAME_LENGTH}'

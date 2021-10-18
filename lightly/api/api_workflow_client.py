@@ -71,6 +71,8 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         if embedding_id is not None:
             self.embedding_id = embedding_id
 
+        self._filenames_on_server = []
+
         self.datasets_api = DatasetsApi(api_client=self.api_client)
         self.samplings_api = SamplingsApi(api_client=self.api_client)
         self.jobs_api = JobsApi(api_client=self.api_client)
@@ -146,13 +148,25 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         '''The list of the filenames in the dataset.
 
         '''
-        if not hasattr(self, "_filenames_on_server"):
-            self._filenames_on_server = self.mappings_api. \
-                get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
+        # always get the current dataset
+        dataset = self.datasets_api.get_dataset_by_id(
+            dataset_id=self.dataset_id
+        )
+        
+        # check if we need to update the _filenames_on_server
+        if len(self._filenames_on_server) != dataset.n_samples:
+            self._filenames_on_server = \
+                self.mappings_api.get_sample_mappings_by_dataset_id(
+                    dataset_id=self.dataset_id,
+                    field="fileName"
+                )
+
         return self._filenames_on_server
 
-    def upload_file_with_signed_url(self, file: IOBase, signed_write_url: str,
-                                    max_backoff: int = 32, max_retries: int = 5) -> Response:
+
+    def upload_file_with_signed_url(self,
+                                    file: IOBase,
+                                    signed_write_url: str) -> Response:
         """Uploads a file to a url via a put request.
 
         Args:
@@ -161,10 +175,6 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             signed_write_url:
                 The url to upload the file to. As no authorization is used,
                 the url must be a signed write url.
-            max_backoff:
-                Maximal backoff before retrying.
-            max_retries:
-                Maximum number of retries before timing out.
 
         Returns:
             The response of the put request, usually a 200 for the success case.
