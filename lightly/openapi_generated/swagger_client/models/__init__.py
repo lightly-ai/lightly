@@ -75,6 +75,8 @@ from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreat
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from lightly.openapi_generated.swagger_client.models.tag_filenames_data import TagFilenamesData
 from lightly.openapi_generated.swagger_client.models.tag_name import TagName
+from lightly.openapi_generated.swagger_client.models.tag_update_request import TagUpdateRequest
+from lightly.openapi_generated.swagger_client.models.tag_upsize_request import TagUpsizeRequest
 from lightly.openapi_generated.swagger_client.models.timestamp import Timestamp
 from lightly.openapi_generated.swagger_client.models.version_number import VersionNumber
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
