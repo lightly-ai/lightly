@@ -1,3 +1,5 @@
+""" Upload Dataset Mixin """
+
 import os
 import warnings
 from typing import Union, Dict
@@ -17,7 +19,7 @@ from lightly.openapi_generated.swagger_client.models.sample_create_request \
     import SampleCreateRequest
 from lightly.openapi_generated.swagger_client.models.tag_upsize_request \
     import TagUpsizeRequest
-from lightly.openapi_generated.swagger_client.models.initial_tag_create_request \
+from lightly.openapi_generated.swagger_client.models.initial_tag_create_request\
     import InitialTagCreateRequest
 from lightly.openapi_generated.swagger_client.models.job_status_meta \
     import JobStatusMeta
@@ -26,6 +28,9 @@ from lightly.openapi_generated.swagger_client.models.job_status_upload_method \
 
 
 class _UploadDatasetMixin:
+    """Mixin to upload datasets to the Lightly Api.
+
+    """
 
     def upload_dataset(self,
                        input: Union[str, LightlyDataset],
@@ -46,8 +51,8 @@ class _UploadDatasetMixin:
                 Maximum number of requests a single worker can do before he has
                 to wait for the others.
             mode:
-                One of [full, thumbnails, metadata]. Whether to upload thumbnails,
-                full images, or metadata only.
+                One of [full, thumbnails, metadata]. Whether to upload
+                thumbnails, full images, or metadata only.
 
         Raises:
             ValueError if dataset is too large or input has the wrong type
@@ -133,7 +138,7 @@ class _UploadDatasetMixin:
         # define lambda function for concurrent upload
         def lambda_(i):
             # load image
-            image, label, filename = dataset[i]
+            image, _, filename = dataset[i]
             if filename in filenames_set:
                 # the sample was already uploaded
                 return True
@@ -147,7 +152,6 @@ class _UploadDatasetMixin:
             try:
                 self._upload_single_image(
                     image=image,
-                    label=label,
                     filename=filename,
                     filepath=filepath,
                     mode=mode,
@@ -208,7 +212,6 @@ class _UploadDatasetMixin:
 
     def _upload_single_image(self,
                              image,
-                             label: int,
                              filename: str,
                              filepath: str,
                              mode: str,
@@ -218,23 +221,23 @@ class _UploadDatasetMixin:
         """
         # check whether the filepath is too long
         if not check_filename(filepath):
-            msg = (f'Filepath {filepath} is longer than the allowed maximum of {MAXIMUM_FILENAME_LENGTH}'
-                   'characters and will be skipped.')
+            msg = ('Filepath {filepath} is longer than the allowed maximum of '
+                   f'{MAXIMUM_FILENAME_LENGTH} characters and will be skipped.')
             raise ValueError(msg)
 
         # calculate metadata, and check if corrupted
         metadata = image_processing.Metadata(image).to_dict()
-        metadata["sizeInBytes"] = os.path.getsize(filepath)
+        metadata['sizeInBytes'] = os.path.getsize(filepath)
 
         # try to get exif data
         try:
             exifdata = image_processing.Exifdata(image)
-        except Exception:
+        except Exception: # pylint disable=broad-except
             exifdata = None
 
         # generate thumbnail if necessary
         thumbname = None
-        if not metadata['is_corrupted'] and mode in ["thumbnails", "full"]:
+        if not metadata['is_corrupted'] and mode in ['thumbnails', 'full']:
             thumbname = '.'.join(filename.split('.')[:-1]) + '_thumb.webp'
 
         body = SampleCreateRequest(
@@ -250,7 +253,7 @@ class _UploadDatasetMixin:
             dataset_id=self.dataset_id
         ).id
 
-        if not metadata['is_corrupted'] and mode in ["thumbnails", "full"]:
+        if not metadata['is_corrupted'] and mode in ['thumbnails', 'full']:
 
             def upload_thumbnail(image, signed_url):
                 thumbnail = image_processing.Thumbnail(image)
@@ -270,7 +273,7 @@ class _UploadDatasetMixin:
                         signed_url
                     )
 
-            if mode == "thumbnails":
+            if mode == 'thumbnails':
                 thumbnail_url = retry(
                     self.samples_api.get_sample_image_write_url_by_id,
                     dataset_id=self.dataset_id,
@@ -278,15 +281,13 @@ class _UploadDatasetMixin:
                     is_thumbnail=True
                 )
                 upload_thumbnail(image, thumbnail_url)
-            elif mode == "full":
+            elif mode == 'full':
                 sample_write_urls: SampleWriteUrls = retry(
-                    self.samples_api.get_sample_image_write_urls_by_id, dataset_id=self.dataset_id, sample_id=sample_id
+                    self.samples_api.get_sample_image_write_urls_by_id,
+                    dataset_id=self.dataset_id,
+                    sample_id=sample_id
                 )
                 upload_thumbnail(image, sample_write_urls.thumb)
                 upload_full_image(filepath, sample_write_urls.full)
 
-
-
         image.close()
-
-
