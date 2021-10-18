@@ -1,6 +1,8 @@
+import io
 import csv
 import tempfile
 from typing import List
+from urllib.request import Request, urlopen
 
 from lightly.openapi_generated.swagger_client import \
     DimensionalityReductionMethod, EmbeddingIdTrigger2dEmbeddingsJobBody
@@ -11,7 +13,20 @@ from lightly.openapi_generated.swagger_client.models.write_csv_url_data \
 from lightly.utils.io import check_filenames
 
 
+def _get_csv_reader_from_read_url(read_url: str):
+    """Makes a get request to the signed read url and returns the .csv file.
+
+    """
+    request = Request(read_url, method='GET')
+    with urlopen(request) as response:
+        buffer = io.StringIO(response.read().decode('utf-8'))
+        reader = csv.reader(buffer)
+
+    return reader
+
+
 class _UploadEmbeddingsMixin:
+
 
     def set_embedding_id_by_name(self, embedding_name: str = None):
         """Sets the embedding id of the client by embedding name.
@@ -34,6 +49,7 @@ class _UploadEmbeddingsMixin:
             self.embedding_id = next(embedding.id for embedding in embeddings if embedding.name == embedding_name)
         except StopIteration:
             raise ValueError(f"No embedding with name {embedding_name} found on the server.")
+
 
     def upload_embeddings(self, path_to_embeddings_csv: str, name: str):
         """Uploads embeddings to the server.
@@ -99,7 +115,36 @@ class _UploadEmbeddingsMixin:
                 embedding_id=self.embedding_id
             )
 
-    def _order_csv_by_filenames(self, path_to_embeddings_csv: str) -> str:
+
+    def append_embeddings(self,
+                          path_to_embeddings_csv: str,
+                          embedding_id: str):
+        """TODO
+        
+        """
+
+        # read embedding from API
+        embedding_read_url = self.embeddings_api \
+            .get_embeddings_csv_read_url_by_id(self.dataset_id, embedding_id)
+        embedding_reader = _get_csv_reader_from_read_url(embedding_read_url)
+        rows = list(embedding_reader)
+
+        # read local embedding
+        with open(path_to_embeddings_csv, 'r') as f:
+            data = list(csv.reader(f))
+
+            if len(data[0]) != len(rows[0]):
+                raise RuntimeError('TODO')
+
+            rows += data[1:] # skip header
+
+        # save embeddings again
+        with open(path_to_embeddings_csv, 'w') as f:
+            writer = csv.writer(f)
+            writer.writerows(rows)
+        
+
+    def _order_csv_by_filenames(self, path_to_embeddings_csv: str) -> List[str]:
         """Orders the rows in a csv according to the order specified on the server and saves it as a new file.
 
         Args:

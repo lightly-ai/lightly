@@ -7,7 +7,9 @@ command-line interface.
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+import csv
 import json
+from datetime import datetime
 
 import hydra
 
@@ -16,7 +18,6 @@ from torch.utils.hipify.hipify_python import bcolors
 
 from lightly.cli._helpers import fix_input_path, print_as_warning, cpu_count
 
-from lightly.api.utils import getenv
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.data import LightlyDataset
 
@@ -45,9 +46,15 @@ def _upload_cli(cfg, is_cli_call=True):
         api_workflow_client = ApiWorkflowClient(token=token)
         api_workflow_client.create_dataset(dataset_name=new_dataset_name)
     elif dataset_id_ok and not new_dataset_name_ok:
-        api_workflow_client = ApiWorkflowClient(token=token, dataset_id=dataset_id)
+        api_workflow_client = ApiWorkflowClient(
+            token=token,
+            dataset_id=dataset_id
+        )
     else:
-        print_as_warning('Please specify either the dataset_id of an existing dataset or a new_dataset_name.')
+        print_as_warning(
+            'Please specify either the dataset_id of an existing dataset or a '
+            'new_dataset_name.'
+        )
         cli_api_args_wrong = True
 
     if cli_api_args_wrong:
@@ -58,7 +65,10 @@ def _upload_cli(cfg, is_cli_call=True):
     custom_metadata = None
     if cfg['custom_metadata']:
         path_to_custom_metadata = fix_input_path(cfg['custom_metadata'])
-        print(f'Loading custom metadata from {bcolors.OKBLUE}{path_to_custom_metadata}{bcolors.ENDC}')
+        print(
+            'Loading custom metadata from '
+            f'{bcolors.OKBLUE}{path_to_custom_metadata}{bcolors.ENDC}'
+        )
         with open(path_to_custom_metadata, 'r') as f:
             custom_metadata = json.load(f)
 
@@ -82,19 +92,56 @@ def _upload_cli(cfg, is_cli_call=True):
             max_workers=cfg['loader']['num_workers'],
             custom_metadata=custom_metadata,
         )
-        print(f"Finished the upload of the dataset.")
+        print('Finished the upload of the dataset.')
 
     if path_to_embeddings:
         name = cfg['embedding_name']
-        print("Starting upload of embeddings.")
+        print('Starting upload of embeddings.')
+        try:
+            embeddings = api_workflow_client.embeddings_api \
+                .get_embeddings_by_dataset_id(dataset_id=dataset_id)
+            # use latest embedding first
+            embeddings = sorted(
+                embeddings,
+                key=lambda x: x.created_at,
+                reverse=True
+            )
+            # find the latest embedding that starts with the name
+            # e.g. default_20211018_12h00m00s
+            embedding = next(
+                embedding for embedding in embeddings
+                if embedding.name.startswith(name)
+            )
+        except StopIteration:
+            embedding = None
+
+        if embedding is not None:
+
+            with open(path_to_embeddings, 'r') as f:
+                n_rows = sum(1 for _ in csv.reader(f))
+
+            if n_rows < len(api_workflow_client.filenames_on_server): 
+                # more filenames than rows in the embedding file
+                # -> append rows from server
+                print('Appending embeddings from server.')
+                api_workflow_client.append_embeddings(
+                    path_to_embeddings,
+                    embedding.id,
+                )
+                now = datetime.now().strftime('%Y%m%d_%Hh%Mm%Ss')
+                name = f'{name}_{now}'
+
         api_workflow_client.upload_embeddings(
             path_to_embeddings_csv=path_to_embeddings, name=name
         )
-        print("Finished upload of embeddings.")
+        print('Finished upload of embeddings.')
 
     if custom_metadata is not None and not input_dir:
         # upload custom metadata separately
-        api_workflow_client.upload_custom_metadata(custom_metadata, verbose=True)
+        api_workflow_client.upload_custom_metadata(
+            custom_metadata,
+            verbose=True
+        )
 
     if new_dataset_name_ok:
         print(f'The dataset_id of the newly created dataset is '
@@ -108,9 +155,9 @@ def upload_cli(cfg):
     Args:
         cfg:
             The default configs are loaded from the config file.
-            To overwrite them please see the section on the config file 
+            To overwrite them please see the section on the config file
             (.config.config.yaml).
-    
+
     Command-Line Args:
         input_dir:
             Path to the input directory where images are stored.
@@ -129,24 +176,25 @@ def upload_cli(cfg):
             Either the dataset_id or the new_dataset_name need to be
             specified.
         upload:
-            String to determine whether to upload the full images, 
+            String to determine whether to upload the full images,
             thumbnails only, or metadata only.
 
             Must be one of ['full', 'thumbnails', 'metadata']
         embedding_name:
-            Assign the embedding a name in order to identify it on the 
+            Assign the embedding a name in order to identify it on the
             Lightly platform.
         resize:
-            Desired size of the uploaded images. If negative, default size is used.
-            If size is a sequence like (h, w), output size will be matched to 
-            this. If size is an int, smaller edge of the image will be matched 
-            to this number. i.e, if height > width, then image will be rescaled
-            to (size * height / width, size).
+            Desired size of the uploaded images. If negative, default size is
+            used. If size is a sequence like (h, w), output size will be matched
+            to this. If size is an int, smaller edge of the image will be
+            matched to this number. i.e, if height > width, then image will be
+            rescaled to (size * height / width, size).
         custom_metadata:
             Path to a .json file containing custom metadata. The file must be in
             the COCO annotations (although annotations can be empty) format and
-            contain an additional field `metadata` storing a list of metadata entries.
-            The metadata entries are matched with the images via `image_id`.
+            contain an additional field `metadata` storing a list of metadata
+            entries. The metadata entries are matched with the images via
+            `image_id`.
 
     Examples:
         >>> # create a new dataset on the Lightly platform and upload thumbnails to it
@@ -154,7 +202,7 @@ def upload_cli(cfg):
         >>>
         >>> # upload thumbnails to the Lightly platform to an existing dataset
         >>> lightly-upload input_dir=data/ token='123' dataset_id='XYZ'
-        >>> 
+        >>>
         >>> # create a new dataset on the Lightly platform and upload full images to it
         >>> lightly-upload input_dir=data/ token='123' new_dataset_name='new_dataset_name_xyz' upload='full'
         >>>
@@ -174,7 +222,7 @@ def upload_cli(cfg):
         >>>
         >>> # upload a dataset with custom metadata
         >>> lightly-upload input_dir=data/ token='123' dataset_id='XYZ' custom_metadata=custom_metadata.json
-        >>> 
+        >>>
         >>> # upload custom metadata to an existing dataset
         >>> lightly-upload token='123' dataset_id='XYZ' custom_metadata=custom_metadata.json
 
