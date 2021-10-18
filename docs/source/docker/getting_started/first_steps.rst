@@ -110,6 +110,46 @@ Now, let's see how this will look in action!
              path after the **:** since this path is describing the internal
              file system within the container!
 
+
+Specify Relevant Files
+----------------------------
+Oftentimes not all files in a directory are relevant. In that case, it's possible
+to pass a list of filenames to the Lightly docker. The docker will then ignore all other files
+in the root directory. To do so, you will have to place a text files in the shared directory which
+contains one relevant filename per line and then pass the path to the text file to the docker run
+command. This works for videos and images.
+
+For example, if this is your input directory:
+
+.. code-block:: console
+
+    /path/to/my/data/
+    L my-video.mp4
+    L my-other-video.mp4
+    L some/subfolder/
+        L my-third-video.mp4
+
+And you put the following **filenames.txt** in the shared directory:
+
+.. code-block:: console
+
+    my-video.mp4
+    some/subfolder/my-third-video.mp4
+
+Then you can use the following docker run command and the Lightly docker will only consider **my-video.mp4** and **my-third-video.mp4**.
+
+.. code-block:: console
+
+    docker run --gpus all --rm -it \
+        -v INPUT_DIR:/home/input_dir:ro \
+        -v SHARED_DIR:/home/shared_dir \
+        -v OUTPUT_DIR:/home/output_dir \
+        lightly/sampling:latest \
+        token=MYAWESOMETOKEN \
+        relevant_filenames_file='filenames.txt'
+
+
+
 Embedding and Sampling a Dataset
 -----------------------------------
 
@@ -185,7 +225,7 @@ a checkpoint by copying the checkpoint to the shared directory and then passing 
 
     docker run --gpus all --rm -it \
         -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir:ro \
+        -v SHARED_DIR:/home/shared_dir \
         -v OUTPUT_DIR:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
@@ -238,7 +278,7 @@ move the embeddings file to the shared directory, and specify the filename like 
 
     docker run --gpus all --rm -it \
         -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir:ro \
+        -v SHARED_DIR:/home/shared_dir \
         -v OUTPUT_DIR:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
@@ -292,7 +332,7 @@ structure as shown above could then look like this:
 
     docker run --gpus all --rm -it \
         -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir:ro \
+        -v SHARED_DIR:/home/shared_dir \
         -v OUTPUT_DIR:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
@@ -307,7 +347,7 @@ them in the output folder using `dump_dataset=True`.
 
     docker run --gpus all --rm -it \
         -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir:ro \
+        -v SHARED_DIR:/home/shared_dir \
         -v OUTPUT_DIR:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
@@ -329,7 +369,7 @@ simply set the stopping condition `n_samples` to 1.0 (which translates to 100% o
 
     docker run --gpus all --rm -it \
         -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir:ro \
+        -v SHARED_DIR:/home/shared_dir \
         -v OUTPUT_DIR:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
@@ -364,7 +404,7 @@ E.g.
 
     docker run --gpus all --rm -it \
         -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir:ro \
+        -v SHARED_DIR:/home/shared_dir \
         -v OUTPUT_DIR:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
