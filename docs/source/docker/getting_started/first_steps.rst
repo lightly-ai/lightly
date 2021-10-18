@@ -114,8 +114,8 @@ Now, let's see how this will look in action!
 Specify Relevant Files
 ----------------------------
 Oftentimes not all files in a directory are relevant. In that case, it's possible
-to pass a list of filenames to the Lightly docker. The docker will then ignore all other files
-in the root directory. To do so, you will have to place a text files in the shared directory which
+to pass a list of filenames to the Lightly docker. It will then only consider the listed filenames
+and ignore all other. To do so, you will have to place a text file in the shared directory which
 contains one relevant filename per line and then pass the path to the text file to the docker run
 command. This works for videos and images.
 
