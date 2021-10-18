@@ -119,7 +119,21 @@ class _UploadEmbeddingsMixin:
     def append_embeddings(self,
                           path_to_embeddings_csv: str,
                           embedding_id: str):
-        """TODO
+        """Concatenates the embeddings from the server to the local ones.
+
+        Loads the embedding csv file belonging to the embedding_id, and
+        appends all of its rows to the local embeddings file located at
+        'path_to_embeddings_csv'.
+
+        Args:
+            path_to_embeddings_csv:
+                The path to the csv containing the local embeddings.
+            embedding_id:
+                Id of the embedding summary of the embeddings on the server.
+
+        Raises:
+            RuntimeError if the number of columns in the local and the remote
+            embeddings file mismatch.
         
         """
 
@@ -134,7 +148,11 @@ class _UploadEmbeddingsMixin:
             data = list(csv.reader(f))
 
             if len(data[0]) != len(rows[0]):
-                raise RuntimeError('TODO')
+                raise RuntimeError(
+                    'Column mismatch! Number of columns in local and remote'
+                    f'embeddings files must match but are {len(data[0])}'
+                    f'and {len(rows[0])} respectively.'
+                )
 
             rows += data[1:] # skip header
 

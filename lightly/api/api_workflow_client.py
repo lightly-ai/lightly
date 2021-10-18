@@ -143,8 +143,9 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
 
     @property
     def filenames_on_server(self):
-        '''The list of the filenames in the dataset.
-        '''
+        """The list of the filenames in the dataset.
+        
+        """
         self._filenames_on_server = self.mappings_api. \
             get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
         return self._filenames_on_server
