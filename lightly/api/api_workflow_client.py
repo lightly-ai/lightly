@@ -141,26 +141,6 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         list_ordered = [dict_by_filenames[filename] for filename in self.filenames_on_server]
         return list_ordered
 
-    # @property
-    # def filenames_on_server(self):
-    #     '''The list of the filenames in the dataset.
-
-    #     '''
-    #     # always get the current dataset
-    #     dataset = self.datasets_api.get_dataset_by_id(
-    #         dataset_id=self.dataset_id
-    #     )
-
-    #     # check if we need to update the _filenames_on_server
-    #     if len(self._filenames_on_server) != dataset.n_samples:
-    #         self._filenames_on_server = \
-    #             self.mappings_api.get_sample_mappings_by_dataset_id(
-    #                 dataset_id=self.dataset_id,
-    #                 field="fileName"
-    #             )
-
-    #     return self._filenames_on_server
-
     @property
     def filenames_on_server(self):
         '''The list of the filenames in the dataset.
