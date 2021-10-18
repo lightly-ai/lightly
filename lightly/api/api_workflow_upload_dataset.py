@@ -95,7 +95,11 @@ class _UploadDatasetMixin:
             lambda img: 0 # pylint: disable=protected-access
 
         # get the filenames of the samples already on the server
-        filenames = self.filenames_on_server
+        samples = self.samples_api.get_samples_by_dataset_id(
+            dataset_id=self.dataset_id
+        )
+        filenames = [sample.file_name for sample in samples]
+        filenames_set = set(filenames)
         if len(filenames) > 0:
             print(
                 f'Found {len(filenames)} images already on the server, they are'

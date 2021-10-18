@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from io import IOBase
+from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
 
 from requests import Response
 
@@ -118,6 +119,9 @@ class MockedTagsApi(TagsApi):
 
     def perform_tag_arithmetics(self, body: TagArithmeticsRequest, dataset_id, **kwargs):
         return TagBitMaskResponse(bit_mask_data="0x2")
+
+    def upsize_tags_by_dataset_id(self, body, dataset_id, **kwargs):
+        assert body.upsize_tag_creator == TagCreator.USER_PIP
 
 
 class MockedScoresApi(ScoresApi):

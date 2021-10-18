@@ -68,10 +68,9 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
     def test_upload_dataset_from_folder_only_metadata(self):
         self.api_workflow_client.upload_dataset(input=self.folder_path, mode="metadata")
 
-    def test_upload_existing_dataset(self):
-        self.api_workflow_client.tags_api.no_tags = 2
-        with self.assertWarns(Warning):
-            self.api_workflow_client.upload_dataset(input=self.folder_path)
+    def test_upsize_existing_dataset(self):
+        self.api_workflow_client.tags_api.no_tags = 1
+        self.api_workflow_client.upload_dataset(input=self.folder_path)
 
     def test_upload_dataset_from_dataset(self):
         dataset = LightlyDataset.from_torch_dataset(self.dataset)
