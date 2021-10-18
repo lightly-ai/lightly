@@ -149,7 +149,9 @@ An example for an input directory with videos could look like this:
     data/
     +-- my_video_1.mov
     +-- my_video_2.mp4
-    +-- my_video_3.avi
+    +-- subdir/
+        +-- my_video_3.avi
+        +-- my_video_4.avi
 
 We assign a weak label to each video.
 To upload the three videos from above to the platform, you can use
