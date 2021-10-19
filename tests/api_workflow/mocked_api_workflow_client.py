@@ -41,8 +41,21 @@ from lightly.openapi_generated.swagger_client.models.write_csv_url_data import W
 class MockedEmbeddingsApi(EmbeddingsApi):
     def __init__(self, api_client):
         EmbeddingsApi.__init__(self, api_client=api_client)
-        self.embeddings = [DatasetEmbeddingData(id="embedding_id_xyz", name="embedding_name_xxyyzz",
-                                                is_processed=True, created_at=0)]
+        self.embeddings = [
+            DatasetEmbeddingData(
+                id='embedding_id_xyz',
+                name='embedding_name_xxyyzz',
+                is_processed=True,
+                created_at=0,
+            ),
+            DatasetEmbeddingData(
+                id='embedding_id_xyz_2',
+                name='default',
+                is_processed=True,
+                created_at=0,
+            )
+        
+        ]
 
     def get_embeddings_csv_write_url_by_id(self, dataset_id: str, **kwargs):
         assert isinstance(dataset_id, str)
@@ -55,6 +68,9 @@ class MockedEmbeddingsApi(EmbeddingsApi):
 
     def trigger2d_embeddings_job(self, body, dataset_id, embedding_id, **kwargs):
         assert isinstance(body, EmbeddingIdTrigger2dEmbeddingsJobBody)
+
+    def get_embeddings_csv_read_url_by_id(self, dataset_id, embedding_id, **kwargs):
+        return 'my-embedding-read-url'
 
 
 class MockedSamplingsApi(SamplingsApi):
