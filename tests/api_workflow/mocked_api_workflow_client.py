@@ -19,8 +19,8 @@ from typing import *
 from lightly.openapi_generated.swagger_client import ScoresApi, \
     CreateEntityResponse, SamplesApi, SampleCreateRequest, \
     InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, \
-    TagArithmeticsRequest, TagBitMaskResponse, \
-    SampleWriteUrls, SampleData, Body1
+    TagArithmeticsRequest, TagBitMaskResponse, SampleWriteUrls, SampleData, \
+    EmbeddingIdTrigger2dEmbeddingsJobBody
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -53,7 +53,7 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         return self.embeddings
 
     def trigger2d_embeddings_job(self, body, dataset_id, embedding_id, **kwargs):
-        assert isinstance(body, Body1)
+        assert isinstance(body, EmbeddingIdTrigger2dEmbeddingsJobBody)
 
 
 class MockedSamplingsApi(SamplingsApi):
