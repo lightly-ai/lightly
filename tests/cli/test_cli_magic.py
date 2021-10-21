@@ -8,6 +8,7 @@ from hydra.experimental import compose, initialize
 
 import lightly
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
+from tests.api_workflow.test_api_workflow_upload_embeddings import mock_get_embeddings_from_api
 
 
 class TestCLIMagic(MockedApiWorkflowSetup):
@@ -56,12 +57,14 @@ class TestCLIMagic(MockedApiWorkflowSetup):
         assert self.cfg["upload"] == 'thumbnails'
 
     def test_magic_new_dataset_name(self):
-        cli_string = "lightly-magic new_dataset_name='new_dataset_name_xyz'"
+        lightly.api.api_workflow_upload_embeddings._get_csv_reader_from_read_url = mock_get_embeddings_from_api
+        cli_string = "lightly-magic new_dataset_name='xyz-no-tags'"
         self.parse_cli_string(cli_string)
         lightly.cli.lightly_cli(self.cfg)
 
     def test_magic_new_dataset_id(self):
-        cli_string = "lightly-magic dataset_id='xyz'"
+        lightly.api.api_workflow_upload_embeddings._get_csv_reader_from_read_url = mock_get_embeddings_from_api
+        cli_string = "lightly-magic dataset_id='xyz-no-tags'"
         self.parse_cli_string(cli_string)
         lightly.cli.lightly_cli(self.cfg)
 

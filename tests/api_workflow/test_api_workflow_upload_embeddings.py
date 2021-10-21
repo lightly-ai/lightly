@@ -14,7 +14,7 @@ from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 def mock_get_embeddings_from_api(read_url, n_rows: int = 10, n_dims: int = 32):
 
-    rows_csv = []
+    rows_csv = [['filenames'] + [f'embeddings_{i}' for i in range(n_dims)] + ['labels']]
     for i in range(n_rows):
         row = [f'sample_{i}.png']
         for _ in range(n_dims):

@@ -70,7 +70,7 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         assert isinstance(body, EmbeddingIdTrigger2dEmbeddingsJobBody)
 
     def get_embeddings_csv_read_url_by_id(self, dataset_id, embedding_id, **kwargs):
-        return 'my-embedding-read-url'
+        return 'https://my-embedding-read-url.com'
 
 
 class MockedSamplingsApi(SamplingsApi):
@@ -116,6 +116,8 @@ class MockedTagsApi(TagsApi):
         return response_
 
     def get_tags_by_dataset_id(self, dataset_id, **kwargs):
+        if dataset_id == 'xyz-no-tags':
+            return []
         tag_1 = TagData(id='inital_tag_id', dataset_id=dataset_id, prev_tag_id=None,
                         bit_mask_data="0xF", name='initial-tag', tot_size=4,
                         created_at=1577836800, changes=dict())
@@ -151,13 +153,17 @@ class MockedScoresApi(ScoresApi):
 
 class MockedMappingsApi(MappingsApi):
     def __init__(self, *args, **kwargs):
-        sample_names = [f'img_{i}.jpg' for i in range(100)]
+        self.n_samples = 100
+        sample_names = [f'img_{i}.jpg' for i in range(self.n_samples)]
         sample_names.reverse()
         self.sample_names = sample_names
         MappingsApi.__init__(self, *args, **kwargs)
+        
 
     def get_sample_mappings_by_dataset_id(self, dataset_id, field, **kwargs):
-        return self.sample_names
+        if dataset_id == 'xyz-no-tags':
+            return []
+        return self.sample_names[:self.n_samples]
 
 
 class MockedSamplesApi(SamplesApi):
@@ -210,6 +216,8 @@ class MockedDatasetsApi(DatasetsApi):
     def create_dataset(self, body: DatasetCreateRequest, **kwargs):
         assert isinstance(body, DatasetCreateRequest)
         id = body.name + "_id"
+        if body.name == 'xyz-no-tags':
+            id = 'xyz-no-tags'
         dataset = DatasetData(id=id, name=body.name, last_modified_at=len(self.datasets) + 1,
                               type="", size_in_bytes=-1, n_samples=-1, created_at=-1)
         self.datasets += [dataset]
