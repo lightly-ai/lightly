@@ -34,6 +34,9 @@ class _HashableRow(list):
     def __hash__(self):
         return ord(hashlib.sha1(self[0].encode('utf-8')).hexdigest()[0])
 
+    def __eq__(self, other):
+        return self[0] == other[0]
+
 
 class _UploadEmbeddingsMixin:
 
@@ -152,6 +155,7 @@ class _UploadEmbeddingsMixin:
             .get_embeddings_csv_read_url_by_id(self.dataset_id, embedding_id)
         embedding_reader = _get_csv_reader_from_read_url(embedding_read_url)
         rows = list(embedding_reader)
+        header, rows = rows[0], rows[1:]
 
         # read local embedding
         with open(path_to_embeddings_csv, 'r') as f:
@@ -168,6 +172,8 @@ class _UploadEmbeddingsMixin:
 
         rows = [_HashableRow(row) for row in rows]
         rows = list(set(rows))
+        rows = [header] + rows
+
 
         # save embeddings again
         with open(path_to_embeddings_csv, 'w') as f:

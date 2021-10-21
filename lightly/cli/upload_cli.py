@@ -117,10 +117,15 @@ def _upload_cli(cfg, is_cli_call=True):
 
         if embedding is not None:
 
+            filenames_on_server = api_workflow_client.filenames_on_server
             with open(path_to_embeddings, 'r') as f:
-                n_rows = sum(1 for _ in csv.reader(f))
+                # count number of new embedding rows
+                n_rows = -1 + sum(
+                    1 for row in csv.reader(f)
+                    if list(row)[0] not in set(filenames_on_server)
+                )
 
-            if n_rows < len(api_workflow_client.filenames_on_server): 
+            if n_rows < len(filenames_on_server): 
                 # more filenames than rows in the embedding file
                 # -> append rows from server
                 print('Appending embeddings from server.')
