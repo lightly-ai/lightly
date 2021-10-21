@@ -105,12 +105,12 @@ class _UploadDatasetMixin:
                 f'Found {len(filenames)} images already on the server, they are'
                 ' skipped during the upload.'
             )
-        filenames_set = set(filenames)
 
         # check the maximum allowed dataset size
+        total_filenames = set(dataset.get_filenames()).union(filenames_set)
         max_dataset_size = \
             int(self.quota_api.get_quota_maximum_dataset_size())
-        if len(dataset) + len(filenames) > max_dataset_size:
+        if len(total_filenames) > max_dataset_size:
             msg = f'Your dataset has {len(dataset)} samples which'
             msg += f' is more than the allowed maximum of {max_dataset_size}'
             raise ValueError(msg)
@@ -126,7 +126,7 @@ class _UploadDatasetMixin:
 
         # register dataset upload
         job_status_meta = JobStatusMeta(
-            total=len(dataset) + len(filenames),
+            total=len(total_filenames),
             processed=len(filenames),
             is_registered=True,
             upload_method=JobStatusUploadMethod.USER_PIP,
@@ -136,7 +136,10 @@ class _UploadDatasetMixin:
             self.dataset_id
         )
 
-        pbar = tqdm.tqdm(unit='imgs', total=len(dataset) - len(filenames))
+        pbar = tqdm.tqdm(
+            unit='imgs',
+            total=len(total_filenames) - len(filenames),
+        )
         tqdm_lock = tqdm.tqdm.get_lock()
 
         # define lambda function for concurrent upload

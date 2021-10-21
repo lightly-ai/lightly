@@ -1,6 +1,7 @@
 import io
 import csv
 import tempfile
+import hashlib
 from typing import List
 from urllib.request import Request, urlopen
 
@@ -23,6 +24,15 @@ def _get_csv_reader_from_read_url(read_url: str):
         reader = csv.reader(buffer)
 
     return reader
+
+
+class _HashableRow(list):
+    """Implementation of a list which can be hashed based on the first entry.
+    
+    """
+
+    def __hash__(self):
+        return ord(hashlib.sha1(self[0].encode('utf-8')).hexdigest()[0])
 
 
 class _UploadEmbeddingsMixin:
@@ -155,6 +165,9 @@ class _UploadEmbeddingsMixin:
                 )
 
             rows += data[1:] # skip header
+
+        rows = [_HashableRow(row) for row in rows]
+        rows = list(set(rows))
 
         # save embeddings again
         with open(path_to_embeddings_csv, 'w') as f:
