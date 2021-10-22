@@ -194,36 +194,37 @@ class TestLightlyDataset(unittest.TestCase):
         with self.assertRaises((RuntimeError, FileNotFoundError)):
             dataset = LightlyDataset(input_dir=tmp_dir, filenames=[])
 
-    # def test_filenames_dataset_with_subdir(self):
-    #     tmp_dir, folder_names, sample_names = self.create_dataset()
-    #     folder_name_to_target = {
-    #         folder_name: i for i, folder_name in enumerate(folder_names)
-    #     }
-    #     all_filenames = [
-    #         os.path.join(folder_name, sample_name)
-    #         for folder_name in folder_names
-    #         for sample_name in sample_names
-    #     ]
-    #     n_samples = int(len(all_filenames) / 2)
-    #     for i in range(5):
-    #         np.random.seed(i)
-    #         filenames = np.random.choice(all_filenames, n_samples, replace=False)
+    @unittest.skip("https://github.com/lightly-ai/lightly/issues/535")
+    def test_filenames_dataset_with_subdir(self):
+        tmp_dir, folder_names, sample_names = self.create_dataset()
+        folder_name_to_target = {
+            folder_name: i for i, folder_name in enumerate(folder_names)
+        }
+        all_filenames = [
+            os.path.join(folder_name, sample_name)
+            for folder_name in folder_names
+            for sample_name in sample_names
+        ]
+        n_samples = int(len(all_filenames) / 2)
+        for i in range(5):
+            np.random.seed(i)
+            filenames = np.random.choice(all_filenames, n_samples, replace=False)
 
-    #         dataset = LightlyDataset(
-    #             input_dir=tmp_dir,
-    #             filenames=filenames
-    #         )
-    #         filenames_dataset = dataset.get_filenames()
-    #         self.assertEqual(len(filenames_dataset), len(dataset))
-    #         self.assertEqual(len(filenames_dataset), len(filenames))
-    #         self.assertEqual(set(filenames_dataset), set(filenames))
-    #         filenames_dataset = set(filenames_dataset)
-    #         for image, target, filename in dataset:
-    #             self.assertIsInstance(image, Image)
-    #             folder_name = filename.split(sep=os.sep)[0]
-    #             self.assertEqual(target, folder_name_to_target[folder_name])
-    #             self.assertIsInstance(filename, str)
-    #             assert filename in filenames_dataset
+            dataset = LightlyDataset(
+                input_dir=tmp_dir,
+                filenames=filenames
+            )
+            filenames_dataset = dataset.get_filenames()
+            self.assertEqual(len(filenames_dataset), len(dataset))
+            self.assertEqual(len(filenames_dataset), len(filenames))
+            self.assertEqual(set(filenames_dataset), set(filenames))
+            filenames_dataset = set(filenames_dataset)
+            for image, target, filename in dataset:
+                self.assertIsInstance(image, Image)
+                folder_name = filename.split(sep=os.sep)[0]
+                self.assertEqual(target, folder_name_to_target[folder_name])
+                self.assertIsInstance(filename, str)
+                assert filename in filenames_dataset
 
     def test_filenames_dataset_no_subdir(self):
         # create a dataset
