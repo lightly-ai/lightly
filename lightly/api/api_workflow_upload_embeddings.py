@@ -26,18 +26,6 @@ def _get_csv_reader_from_read_url(read_url: str):
     return reader
 
 
-class _HashableRow(list):
-    """Implementation of a list which can be hashed based on the first entry.
-    
-    """
-
-    def __hash__(self):
-        return ord(hashlib.sha1(self[0].encode('utf-8')).hexdigest()[0])
-
-    def __eq__(self, other):
-        return self[0] == other[0]
-
-
 class _UploadEmbeddingsMixin:
 
 
@@ -155,30 +143,34 @@ class _UploadEmbeddingsMixin:
             .get_embeddings_csv_read_url_by_id(self.dataset_id, embedding_id)
         embedding_reader = _get_csv_reader_from_read_url(embedding_read_url)
         rows = list(embedding_reader)
-        header, rows = rows[0], rows[1:]
+        header, online_rows = rows[0], rows[1:]
 
         # read local embedding
         with open(path_to_embeddings_csv, 'r') as f:
-            data = list(csv.reader(f))
+            local_rows = list(csv.reader(f))
 
-            if len(data[0]) != len(rows[0]):
+            if len(local_rows[0]) != len(header):
                 raise RuntimeError(
                     'Column mismatch! Number of columns in local and remote'
-                    f'embeddings files must match but are {len(data[0])}'
-                    f'and {len(rows[0])} respectively.'
+                    f'embeddings files must match but are {len(local_rows[0])}'
+                    f'and {len(header[0])} respectively.'
                 )
 
-            rows += data[1:] # skip header
+            local_rows = local_rows[1:]
 
-        rows = [_HashableRow(row) for row in rows]
-        rows = list(set(rows))
-        rows = [header] + rows
-
-
+        # combine online and local embeddings
+        total_rows = [header]
+        filename_to_local_row = { row[0]: row for row in local_rows }
+        for row in online_rows:
+            # pick local over online filename if it exists
+            total_rows.append(filename_to_local_row.pop(row[0], row))
+        # add all local rows which were not added yet
+        total_rows.extend(list(filename_to_local_row.values()))
+        
         # save embeddings again
         with open(path_to_embeddings_csv, 'w') as f:
             writer = csv.writer(f)
-            writer.writerows(rows)
+            writer.writerows(total_rows)
         
 
     def _order_csv_by_filenames(self, path_to_embeddings_csv: str) -> List[str]:

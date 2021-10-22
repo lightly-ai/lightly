@@ -98,16 +98,18 @@ class _UploadDatasetMixin:
         samples = self.samples_api.get_samples_by_dataset_id(
             dataset_id=self.dataset_id
         )
-        filenames = [sample.file_name for sample in samples]
-        filenames_set = set(filenames)
-        if len(filenames) > 0:
+        filenames_on_server = [sample.file_name for sample in samples]
+        filenames_on_server_set = set(filenames_on_server)
+        if len(filenames_on_server) > 0:
             print(
-                f'Found {len(filenames)} images already on the server, they are'
-                ' skipped during the upload.'
+                f'Found {len(filenames_on_server)} images already on the server'
+                ', they are skipped during the upload.'
             )
 
         # check the maximum allowed dataset size
-        total_filenames = set(dataset.get_filenames()).union(filenames_set)
+        total_filenames = set(dataset.get_filenames()).union(
+            filenames_on_server_set
+        )
         max_dataset_size = \
             int(self.quota_api.get_quota_maximum_dataset_size())
         if len(total_filenames) > max_dataset_size:
@@ -127,7 +129,7 @@ class _UploadDatasetMixin:
         # register dataset upload
         job_status_meta = JobStatusMeta(
             total=len(total_filenames),
-            processed=len(filenames),
+            processed=len(filenames_on_server),
             is_registered=True,
             upload_method=JobStatusUploadMethod.USER_PIP,
         )
@@ -138,7 +140,7 @@ class _UploadDatasetMixin:
 
         pbar = tqdm.tqdm(
             unit='imgs',
-            total=len(total_filenames) - len(filenames),
+            total=len(total_filenames) - len(filenames_on_server),
         )
         tqdm_lock = tqdm.tqdm.get_lock()
 
@@ -146,7 +148,7 @@ class _UploadDatasetMixin:
         def lambda_(i):
             # load image
             image, _, filename = dataset[i]
-            if filename in filenames_set:
+            if filename in filenames_on_server_set:
                 # the sample was already uploaded
                 return True
 
