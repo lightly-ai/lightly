@@ -1,3 +1,4 @@
+from json import load
 import os
 import io
 import csv
@@ -5,36 +6,36 @@ import random
 import tempfile
 
 import numpy as np
-from lightly.utils.io import save_embeddings, INVALID_FILENAME_CHARACTERS
+from lightly.utils.io import save_embeddings, load_embeddings, INVALID_FILENAME_CHARACTERS
 
 import lightly
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
-
-def mock_get_embeddings_from_api(read_url, n_rows: int = 10, n_dims: int = 32):
-
-    rows_csv = [['filenames'] + [f'embeddings_{i}' for i in range(n_dims)] + ['labels']]
-    for i in range(n_rows):
-        row = [f'sample_{i}.png']
-        for _ in range(n_dims):
-            row.append(random.uniform(0, 1))
-        row.append(random.randint(0, 5))
-        rows_csv.append(row)
-
-    # save the csv rows in a temporary in-memory string file
-    # using a csv writer and then read them as bytes
-    f = tempfile.SpooledTemporaryFile(mode="rw")
-    writer = csv.writer(f)
-    writer.writerows(rows_csv)
-    f.seek(0)
-    buffer = io.StringIO(f.read())
-    reader = csv.reader(buffer)
-
-    return reader
-
-
 class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
+
+    EMBEDDINGS_FILENAME_BASE: str = 'sample'
+
+    def mock_get_embeddings_from_api(self, read_url, n_rows: int = 10, n_dims: int = 32):
+
+        rows_csv = [['filenames'] + [f'embeddings_{i}' for i in range(n_dims)] + ['labels']]
+        for i in range(n_rows):
+            row = [f'{TestApiWorkflowUploadEmbeddings.EMBEDDINGS_FILENAME_BASE}_{i}.jpg']
+            for _ in range(n_dims):
+                row.append(random.uniform(0, 1))
+            row.append(i)
+            rows_csv.append(row)
+
+        # save the csv rows in a temporary in-memory string file
+        # using a csv writer and then read them as bytes
+        f = tempfile.SpooledTemporaryFile(mode="rw")
+        writer = csv.writer(f)
+        writer.writerows(rows_csv)
+        f.seek(0)
+        buffer = io.StringIO(f.read())
+        reader = csv.reader(buffer)
+
+        return reader
 
 
     def create_fake_embeddings(self,
@@ -48,18 +49,19 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
             self.folder_path,
             'embeddings.csv'
         )
-        sample_names = [f'img_{i}.jpg' for i in range(n_data)]
+
+        self.sample_names = [f'img_{i}.jpg' for i in range(n_data)]
         if special_name_first_sample:
-            sample_names[0] = "bliblablub"
+            self.sample_names[0] = "bliblablub"
         if special_char_in_first_filename:
-            sample_names[0] = f'_{special_char_in_first_filename}' \
-                              f'{sample_names[0]}'
-        labels = [0] * len(sample_names)
+            self.sample_names[0] = f'_{special_char_in_first_filename}' \
+                              f'{self.sample_names[0]}'
+        labels = [0] * len(self.sample_names)
         save_embeddings(
             self.path_to_embeddings,
             np.random.randn(n_data, n_dims),
             labels,
-            sample_names
+            self.sample_names
         )
 
 
@@ -73,7 +75,7 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
             n_data,
             n_dims=n_dims,
             special_name_first_sample=special_name_first_sample,
-            special_char_in_first_filename=special_char_in_first_filename
+            special_char_in_first_filename=special_char_in_first_filename,
         )
 
         # perform the workflow to upload the embeddings
@@ -85,7 +87,7 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         filepath_embeddings_sorted = os.path.join(self.folder_path, "embeddings_sorted.csv")
         self.assertFalse(os.path.isfile(filepath_embeddings_sorted))
 
-    def test_upload_wrong_lenght(self):
+    def test_upload_wrong_length(self):
         n_data = 42 + len(self.api_workflow_client.mappings_api.sample_names)
         with self.assertRaises(ValueError):
             self.t_ester_upload_embedding(n_data=n_data)
@@ -125,11 +127,49 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         # create a new set of embeddings
         self.create_fake_embeddings(10)
 
-        lightly.api.api_workflow_upload_embeddings._get_csv_reader_from_read_url = mock_get_embeddings_from_api
+        lightly.api.api_workflow_upload_embeddings._get_csv_reader_from_read_url = self.mock_get_embeddings_from_api
         self.api_workflow_client.append_embeddings(
             self.path_to_embeddings,
             'embedding_id_xyz_2',
         )
+
+
+    def test_append_embeddings_with_overlap(self):
+    
+        # first upload embeddings
+        n_data = len(self.api_workflow_client.mappings_api.sample_names)
+        self.t_ester_upload_embedding(n_data=n_data)
+
+        # create a new set of embeddings overlapping with current embeddings
+        self.create_fake_embeddings(100)
+
+        # the mock embeddings function returns embeddings which overlap with the ones generated above
+        TestApiWorkflowUploadEmbeddings.EMBEDDINGS_FILENAME_BASE: str = 'img'
+        lightly.api.api_workflow_upload_embeddings._get_csv_reader_from_read_url = self.mock_get_embeddings_from_api
+        self.api_workflow_client.append_embeddings(
+            self.path_to_embeddings,
+            'embedding_id_xyz_2',
+        )
+        TestApiWorkflowUploadEmbeddings.EMBEDDINGS_FILENAME_BASE: str = 'sample'
+
+        # load embeddings
+        _, labels, filenames = load_embeddings(self.path_to_embeddings)
+
+        # make sure the list of filenames is equal
+        self.assertListEqual(
+            sorted(self.sample_names),
+            sorted(filenames),
+        )
+
+        # make sure that only new embeddings were added
+        # all local labels are 0 (see "create_fake_embeddings") and all online
+        # labels are the line, therefore the labels of the updated embeddings
+        # must be 20 * [0] + [20, 11, 12, ..., 98, 99]
+        self.assertListEqual(
+            sorted(labels),
+            sorted([0] * n_data + [i for i in range(n_data, 100)])
+        )
+
 
     def test_append_embeddings_different_shape(self):
 
@@ -141,7 +181,7 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         self.create_fake_embeddings(10, n_dims=16) # default is 32
 
         with self.assertRaises(RuntimeError):
-            lightly.api.api_workflow_upload_embeddings._get_csv_reader_from_read_url = mock_get_embeddings_from_api
+            lightly.api.api_workflow_upload_embeddings._get_csv_reader_from_read_url = self.mock_get_embeddings_from_api
             self.api_workflow_client.append_embeddings(
                 self.path_to_embeddings,
                 'embedding_id_xyz_2',

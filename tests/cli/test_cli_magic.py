@@ -8,7 +8,11 @@ from hydra.experimental import compose, initialize
 
 import lightly
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
-from tests.api_workflow.test_api_workflow_upload_embeddings import mock_get_embeddings_from_api
+
+
+# get the mock embeddings function
+from tests.api_workflow.test_api_workflow_upload_embeddings import TestApiWorkflowUploadEmbeddings
+mock_get_embeddings_from_api = TestApiWorkflowUploadEmbeddings().mock_get_embeddings_from_api
 
 
 class TestCLIMagic(MockedApiWorkflowSetup):
