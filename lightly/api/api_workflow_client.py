@@ -143,16 +143,16 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
 
     @property
     def filenames_on_server(self):
-        '''The list of the filenames in the dataset.
-
-        '''
-        if not hasattr(self, "_filenames_on_server"):
-            self._filenames_on_server = self.mappings_api. \
-                get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
+        """The list of the filenames in the dataset.
+        
+        """
+        self._filenames_on_server = self.mappings_api. \
+            get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
         return self._filenames_on_server
 
-    def upload_file_with_signed_url(self, file: IOBase, signed_write_url: str,
-                                    max_backoff: int = 32, max_retries: int = 5) -> Response:
+    def upload_file_with_signed_url(self,
+                                    file: IOBase,
+                                    signed_write_url: str) -> Response:
         """Uploads a file to a url via a put request.
 
         Args:
@@ -161,10 +161,6 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             signed_write_url:
                 The url to upload the file to. As no authorization is used,
                 the url must be a signed write url.
-            max_backoff:
-                Maximal backoff before retrying.
-            max_retries:
-                Maximum number of retries before timing out.
 
         Returns:
             The response of the put request, usually a 200 for the success case.

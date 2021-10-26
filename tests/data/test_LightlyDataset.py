@@ -31,17 +31,6 @@ class TestLightlyDataset(unittest.TestCase):
     def ensure_dir(self, path_to_folder: str):
         os.makedirs(path_to_folder, exist_ok=True)
 
-    def setUp(self):
-        self.available_dataset_names = ['cifar10',
-                                        # 'cifar100',
-                                        # 'cityscapes',
-                                        # 'stl10',
-                                        # 'voc07-seg',
-                                        # 'voc12-seg',
-                                        # 'voc07-det',
-                                        # 'voc12-det]
-                                        ]
-
     def create_dataset(self, n_subfolders=5, n_samples_per_subfolder=20):
         n_tot = n_subfolders * n_samples_per_subfolder
         dataset = torchvision.datasets.FakeData(size=n_tot,
@@ -205,6 +194,7 @@ class TestLightlyDataset(unittest.TestCase):
         with self.assertRaises((RuntimeError, FileNotFoundError)):
             dataset = LightlyDataset(input_dir=tmp_dir, filenames=[])
 
+    @unittest.skip("https://github.com/lightly-ai/lightly/issues/535")
     def test_filenames_dataset_with_subdir(self):
         tmp_dir, folder_names, sample_names = self.create_dataset()
         folder_name_to_target = {
