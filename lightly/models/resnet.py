@@ -275,4 +275,4 @@ def ResNetGenerator(name: str = 'resnet-18',
         raise ValueError('Illegal name: {%s}. \
         Try resnet-9, resnet-18, resnet-34, resnet-50, resnet-101, resnet-152.' % (name))
 
-    return ResNet(**model_params[name], width=width, num_classes=10, num_splits=num_splits)
+    return ResNet(**model_params[name], width=width, num_classes=num_classes, num_splits=num_splits)
