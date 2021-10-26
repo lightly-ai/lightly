@@ -22,19 +22,18 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
         self.create_fake_dataset()
         self.api_workflow_client.tags_api.no_tags = 0
 
-    def create_fake_dataset(self, length_of_filepath: int = -1):
-        n_data = self.n_data
+    def create_fake_dataset(self, length_of_filepath: int = -1, sample_names=None):
+        n_data = self.n_data if sample_names is None else len(sample_names)
         self.dataset = torchvision.datasets.FakeData(size=n_data,
                                                      image_size=(3, 32, 32))
 
         self.folder_path = tempfile.mkdtemp()
         image_extension = '.jpg'
-        sample_names = [f'img_{i}{image_extension}' for i in range(n_data)]
+        sample_names = sample_names if sample_names is not None else [f'img_{i}{image_extension}' for i in range(n_data)]
         for sample_idx in range(n_data):
             data = self.dataset[sample_idx]
             sample_name = sample_names[sample_idx]
             path = os.path.join(self.folder_path, sample_name)
-
 
             if length_of_filepath > len(path):
                 assert path.endswith(image_extension)
@@ -48,6 +47,10 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
         sample_names = [f'img_{i}.jpg' for i in range(n_data)]
         for sample_name in sample_names:
             pathlib.Path(os.path.join(self.folder_path, sample_name)).touch()
+
+    def test_upload_dataset_no_dataset(self):
+        with self.assertRaises(ValueError):
+            self.api_workflow_client.upload_dataset(1)
 
     def test_upload_dataset_over_quota(self):
         quota = self.n_data - 1
@@ -68,10 +71,9 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
     def test_upload_dataset_from_folder_only_metadata(self):
         self.api_workflow_client.upload_dataset(input=self.folder_path, mode="metadata")
 
-    def test_upload_existing_dataset(self):
-        self.api_workflow_client.tags_api.no_tags = 2
-        with self.assertWarns(Warning):
-            self.api_workflow_client.upload_dataset(input=self.folder_path)
+    def test_upsize_existing_dataset(self):
+        self.api_workflow_client.tags_api.no_tags = 1
+        self.api_workflow_client.upload_dataset(input=self.folder_path)
 
     def test_upload_dataset_from_dataset(self):
         dataset = LightlyDataset.from_torch_dataset(self.dataset)
@@ -138,3 +140,25 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
         # Ensure that now all samples were uploaded exactly once
         samples = self.api_workflow_client.samples_api.get_samples_by_dataset_id(dataset_id="does not matter")
         self.assertEqual(self.n_data, len(samples))
+
+
+    def test_upload_dataset_twice_with_overlap(self):
+
+        all_sample_names = [f'sample_{i}.jpg' for i in range(10)]
+
+        # upload first part of the dataset (sample_0 - sample_6)
+        self.create_fake_dataset(sample_names=all_sample_names[:7])
+        self.api_workflow_client.upload_dataset(input=self.folder_path)
+
+        # upload second part of the dataset (sample_3 - sample_9)
+        self.create_fake_dataset(sample_names=all_sample_names[3:])
+        self.api_workflow_client.upload_dataset(input=self.folder_path)
+
+        # always returns all samples so dataset_id doesn't matter
+        samples = self.api_workflow_client.samples_api.get_samples_by_dataset_id(dataset_id='')
+
+        # assert the filenames are the same
+        self.assertListEqual(
+            sorted(all_sample_names), 
+            sorted([s.file_name for s in samples]),
+        )

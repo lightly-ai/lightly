@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from io import IOBase
+from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
 
 from requests import Response
 
@@ -40,8 +41,21 @@ from lightly.openapi_generated.swagger_client.models.write_csv_url_data import W
 class MockedEmbeddingsApi(EmbeddingsApi):
     def __init__(self, api_client):
         EmbeddingsApi.__init__(self, api_client=api_client)
-        self.embeddings = [DatasetEmbeddingData(id="embedding_id_xyz", name="embedding_name_xxyyzz",
-                                                is_processed=True, created_at=0)]
+        self.embeddings = [
+            DatasetEmbeddingData(
+                id='embedding_id_xyz',
+                name='embedding_name_xxyyzz',
+                is_processed=True,
+                created_at=0,
+            ),
+            DatasetEmbeddingData(
+                id='embedding_id_xyz_2',
+                name='default',
+                is_processed=True,
+                created_at=0,
+            )
+        
+        ]
 
     def get_embeddings_csv_write_url_by_id(self, dataset_id: str, **kwargs):
         assert isinstance(dataset_id, str)
@@ -54,6 +68,9 @@ class MockedEmbeddingsApi(EmbeddingsApi):
 
     def trigger2d_embeddings_job(self, body, dataset_id, embedding_id, **kwargs):
         assert isinstance(body, EmbeddingIdTrigger2dEmbeddingsJobBody)
+
+    def get_embeddings_csv_read_url_by_id(self, dataset_id, embedding_id, **kwargs):
+        return 'https://my-embedding-read-url.com'
 
 
 class MockedSamplingsApi(SamplingsApi):
@@ -99,6 +116,8 @@ class MockedTagsApi(TagsApi):
         return response_
 
     def get_tags_by_dataset_id(self, dataset_id, **kwargs):
+        if dataset_id == 'xyz-no-tags':
+            return []
         tag_1 = TagData(id='inital_tag_id', dataset_id=dataset_id, prev_tag_id=None,
                         bit_mask_data="0xF", name='initial-tag', tot_size=4,
                         created_at=1577836800, changes=dict())
@@ -119,6 +138,9 @@ class MockedTagsApi(TagsApi):
     def perform_tag_arithmetics(self, body: TagArithmeticsRequest, dataset_id, **kwargs):
         return TagBitMaskResponse(bit_mask_data="0x2")
 
+    def upsize_tags_by_dataset_id(self, body, dataset_id, **kwargs):
+        assert body.upsize_tag_creator == TagCreator.USER_PIP
+
 
 class MockedScoresApi(ScoresApi):
     def create_or_update_active_learning_score_by_tag_id(self, body, dataset_id, tag_id, **kwargs) -> \
@@ -131,13 +153,17 @@ class MockedScoresApi(ScoresApi):
 
 class MockedMappingsApi(MappingsApi):
     def __init__(self, *args, **kwargs):
-        sample_names = [f'img_{i}.jpg' for i in range(100)]
+        self.n_samples = 100
+        sample_names = [f'img_{i}.jpg' for i in range(self.n_samples)]
         sample_names.reverse()
         self.sample_names = sample_names
         MappingsApi.__init__(self, *args, **kwargs)
+        
 
     def get_sample_mappings_by_dataset_id(self, dataset_id, field, **kwargs):
-        return self.sample_names
+        if dataset_id == 'xyz-no-tags':
+            return []
+        return self.sample_names[:self.n_samples]
 
 
 class MockedSamplesApi(SamplesApi):
@@ -190,6 +216,8 @@ class MockedDatasetsApi(DatasetsApi):
     def create_dataset(self, body: DatasetCreateRequest, **kwargs):
         assert isinstance(body, DatasetCreateRequest)
         id = body.name + "_id"
+        if body.name == 'xyz-no-tags':
+            id = 'xyz-no-tags'
         dataset = DatasetData(id=id, name=body.name, last_modified_at=len(self.datasets) + 1,
                               type="", size_in_bytes=-1, n_samples=-1, created_at=-1)
         self.datasets += [dataset]

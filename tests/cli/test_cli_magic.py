@@ -10,6 +10,11 @@ import lightly
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
 
 
+# get the mock embeddings function
+from tests.api_workflow.test_api_workflow_upload_embeddings import TestApiWorkflowUploadEmbeddings
+mock_get_embeddings_from_api = TestApiWorkflowUploadEmbeddings().mock_get_embeddings_from_api
+
+
 class TestCLIMagic(MockedApiWorkflowSetup):
 
     @classmethod
@@ -26,12 +31,12 @@ class TestCLIMagic(MockedApiWorkflowSetup):
                 "trainer.max_epochs=0"
             ])
 
-    def create_fake_dataset(self):
+    def create_fake_dataset(self, filename_appendix: str = ''):
         n_data = len(self.api_workflow_client.filenames_on_server)
         self.dataset = torchvision.datasets.FakeData(size=n_data, image_size=(3, 32, 32))
 
         self.folder_path = tempfile.mkdtemp()
-        sample_names = [f'img_{i}.jpg' for i in range(n_data)]
+        sample_names = [f'img_{i}{filename_appendix}.jpg' for i in range(n_data)]
         self.sample_names = sample_names
         for sample_idx in range(n_data):
             data = self.dataset[sample_idx]
@@ -56,12 +61,14 @@ class TestCLIMagic(MockedApiWorkflowSetup):
         assert self.cfg["upload"] == 'thumbnails'
 
     def test_magic_new_dataset_name(self):
-        cli_string = "lightly-magic new_dataset_name='new_dataset_name_xyz'"
+        lightly.api.api_workflow_upload_embeddings._get_csv_reader_from_read_url = mock_get_embeddings_from_api
+        cli_string = "lightly-magic new_dataset_name='xyz-no-tags'"
         self.parse_cli_string(cli_string)
         lightly.cli.lightly_cli(self.cfg)
 
     def test_magic_new_dataset_id(self):
-        cli_string = "lightly-magic dataset_id='xyz'"
+        lightly.api.api_workflow_upload_embeddings._get_csv_reader_from_read_url = mock_get_embeddings_from_api
+        cli_string = "lightly-magic dataset_id='xyz-no-tags'"
         self.parse_cli_string(cli_string)
         lightly.cli.lightly_cli(self.cfg)
 
