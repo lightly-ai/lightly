@@ -189,6 +189,15 @@ class TestLightlyDataset(unittest.TestCase):
         self.assertEqual(len(_dataset), len(dataset))
         self.assertEqual(len(dataset.get_filenames()), len(dataset))
 
+    def test_from_torch_dataset_with_transform(self):
+        dataset_ = torchvision.datasets.FakeData(size=1, image_size=(3, 32, 32))
+        dataset = LightlyDataset.from_torch_dataset(
+            dataset_,
+            transform=torchvision.transforms.ToTensor()
+        )
+        self.assertIsNotNone(dataset.transform)
+        self.assertIsNotNone(dataset.dataset.transform)
+
     def test_filenames_dataset_no_samples(self):
         tmp_dir, folder_names, sample_names = self.create_dataset()
         with self.assertRaises((RuntimeError, FileNotFoundError)):
@@ -326,3 +335,7 @@ class TestLightlyDataset(unittest.TestCase):
         # assert that the transform is set in the nested dataset
         self.assertIsNotNone(dataset.transform)
         self.assertIsNotNone(dataset.dataset.transform)
+
+    def test_no_dir_no_transform_fails(self):
+        with self.assertRaises(ValueError):
+            LightlyDataset(None, transform=torchvision.transforms.ToTensor())

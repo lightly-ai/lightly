@@ -10,6 +10,7 @@ import tempfile
 
 from PIL import Image
 from typing import List, Union, Callable
+from torch._C import Value
 
 import torchvision.datasets as datasets
 from torchvision import transforms
@@ -153,8 +154,7 @@ class LightlyDataset:
                  transform: transforms.Compose = None,
                  index_to_filename:
                  Callable[[datasets.VisionDataset, int], str] = None,
-                 filenames: List[str] = None,
-                 ):
+                 filenames: List[str] = None):
 
         # can pass input_dir=None to create an "empty" dataset
         self.input_dir = input_dir
@@ -169,9 +169,15 @@ class LightlyDataset:
                 return filepath in filepaths
         else:
             is_valid_file = None
+
         if self.input_dir is not None:
             self.dataset = _load_dataset_from_folder(
                 self.input_dir, transform, is_valid_file=is_valid_file
+            )
+        elif transform is not None:
+            raise ValueError(
+                'transform must be None when input_dir is None but is '
+                f'{transform}',
             )
 
         # initialize function to get filename of image
@@ -214,12 +220,12 @@ class LightlyDataset:
         # create an "empty" dataset object
         dataset_obj = cls(
             None,
-            transform=transform,
-            index_to_filename=index_to_filename
+            index_to_filename=index_to_filename,
         )
 
         # populate it with the torch dataset
         dataset_obj.dataset = dataset
+        dataset_obj.transform = transform
         return dataset_obj
 
     def __getitem__(self, index: int):
