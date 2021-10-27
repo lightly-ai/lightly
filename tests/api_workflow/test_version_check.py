@@ -1,4 +1,5 @@
 import os
+import sys
 import unittest
 import time
 
@@ -16,20 +17,28 @@ class TestVersionCheck(unittest.TestCase):
     """
 
     def test_version_check_timout_mocked(self):
+        try:
+            old_get_versioning_api = lightly.api.version_checking.get_versioning_api
 
-        def mocked_get_versioning_api_timeout():
-            time.sleep(10)
+            def mocked_get_versioning_api_timeout():
+                time.sleep(10)
+                print("This line should never be reached, calling sys.exti()")
+                sys.exit()
 
-        lightly.api.version_checking.get_versioning_api = mocked_get_versioning_api_timeout
+            lightly.api.version_checking.get_versioning_api = mocked_get_versioning_api_timeout
 
-        start_time = time.time()
+            start_time = time.time()
 
-        with self.assertRaises(LightlyTimeoutException):
-            lightly.do_version_check(lightly.__version__)
+            with self.assertRaises(LightlyTimeoutException):
+                lightly.do_version_check(lightly.__version__)
 
-        duration = time.time() - start_time
+            duration = time.time() - start_time
 
-        self.assertLess(duration, 1.5)
+            self.assertLess(duration, 1.5)
+
+        finally:
+            lightly.api.version_checking.get_versioning_api = old_get_versioning_api
+
 
 
 
