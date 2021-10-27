@@ -3,6 +3,7 @@ import unittest
 import time
 
 import lightly
+from lightly.api.version_checking import LightlyTimeoutException
 
 
 class TestVersionCheck(unittest.TestCase):
@@ -10,7 +11,8 @@ class TestVersionCheck(unittest.TestCase):
     def assert_version_check_is_fast(self):
         start_time = time.time()
 
-        lightly.do_version_check(lightly.__version__)
+        with self.assertRaises(LightlyTimeoutException):
+            lightly.do_version_check(lightly.__version__)
 
         duration = time.time() - start_time
 

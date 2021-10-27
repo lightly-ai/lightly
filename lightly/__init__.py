@@ -118,7 +118,11 @@ else:
     from lightly import utils
 
     from lightly.api.version_checking import do_version_check
-    do_version_check(current_version=__version__)
+
+    try:
+        do_version_check(current_version=__version__)
+    except Exception as e:
+        pass
 
 
 
