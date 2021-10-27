@@ -1,25 +1,45 @@
-import sys
+import os
 import unittest
-from time import sleep
+import time
 
-from tqdm import tqdm
+import lightly
 
 
 class TestVersionCheck(unittest.TestCase):
 
+    def assert_version_check_is_fast(self):
+        start_time = time.time()
 
-    def test_version_check_timeout(self):
-        print("Starting test")
+        lightly.do_version_check(lightly.__version__)
 
-        def mocked_version_checking(self, current_version):
-            sleep(10)
-            print("Waiting endlessly.......")
-            print("Because this code is protected by a try-catch, we need to call sys.exit()")
-            sys.exit()
+        duration = time.time() - start_time
 
-        import lightly.api.version_checking
-        lightly.api.version_checking.VersioningApi.get_latest_pip_version = mocked_version_checking
+        self.assertLess(duration, 1.5)
 
-        lightly.api.version_checking.get_latest_version("blub")
+    def test_version_check_timeout_url(self):
+        self.old_server_location = os.environ.get('LIGHTLY_SERVER_LOCATION', None)
+        os.environ['LIGHTLY_SERVER_LOCATION'] = 'http://example.com:81'
 
-        print("Finished test")
+        self.assert_version_check_is_fast()
+
+        if self.old_server_location is not None:
+            os.environ['LIGHTLY_SERVER_LOCATION'] = self.old_server_location
+
+    def test_version_check_timout_mocked(self):
+
+        def mocked_get_versioning_api_timeout():
+            time.sleep(10)
+
+        def mocked_get_versioning_api_error():
+            raise ValueError
+
+        mocked_get_versioning_api_functions = [
+            mocked_get_versioning_api_error,
+            mocked_get_versioning_api_timeout
+        ]
+
+        for i, mocked_get_versioning_api in enumerate(mocked_get_versioning_api_functions):
+            with self.subTest(f"test_{i}"):
+
+                self.assert_version_check_is_fast()
+
