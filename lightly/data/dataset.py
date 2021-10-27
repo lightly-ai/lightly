@@ -214,12 +214,12 @@ class LightlyDataset:
         # create an "empty" dataset object
         dataset_obj = cls(
             None,
-            transform=transform,
-            index_to_filename=index_to_filename
+            index_to_filename=index_to_filename,
         )
 
         # populate it with the torch dataset
         dataset_obj.dataset = dataset
+        dataset_obj.transform = transform
         return dataset_obj
 
     def __getitem__(self, index: int):
