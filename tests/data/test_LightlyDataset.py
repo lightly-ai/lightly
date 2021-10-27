@@ -326,3 +326,7 @@ class TestLightlyDataset(unittest.TestCase):
         # assert that the transform is set in the nested dataset
         self.assertIsNotNone(dataset.transform)
         self.assertIsNotNone(dataset.dataset.transform)
+
+    def test_no_dir_no_transform_fails(self):
+        with self.assertRaises(ValueError):
+            LightlyDataset(None, transform=torchvision.transforms.ToTensor())
