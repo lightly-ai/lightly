@@ -7,8 +7,21 @@ from lightly.api.version_checking import LightlyTimeoutException
 
 
 class TestVersionCheck(unittest.TestCase):
+    """
+    We cannot check for other errors as we don't know whether the
+    current LIGHTLY_SERVER_URL is
+    - unreachable (error in < 1 second)
+    - causing a timeout and thus raising a LightlyTimeoutException
+    - reachable (success in < 1 second
+    """
 
-    def assert_version_check_is_fast(self):
+    def test_version_check_timout_mocked(self):
+
+        def mocked_get_versioning_api_timeout():
+            time.sleep(10)
+
+        lightly.api.version_checking.get_versioning_api = mocked_get_versioning_api_timeout
+
         start_time = time.time()
 
         with self.assertRaises(LightlyTimeoutException):
@@ -18,30 +31,5 @@ class TestVersionCheck(unittest.TestCase):
 
         self.assertLess(duration, 1.5)
 
-    def test_version_check_timeout_url(self):
-        self.old_server_location = os.environ.get('LIGHTLY_SERVER_LOCATION', None)
-        os.environ['LIGHTLY_SERVER_LOCATION'] = 'http://example.com:81'
 
-        self.assert_version_check_is_fast()
-
-        if self.old_server_location is not None:
-            os.environ['LIGHTLY_SERVER_LOCATION'] = self.old_server_location
-
-    def test_version_check_timout_mocked(self):
-
-        def mocked_get_versioning_api_timeout():
-            time.sleep(10)
-
-        def mocked_get_versioning_api_error():
-            raise ValueError
-
-        mocked_get_versioning_api_functions = [
-            mocked_get_versioning_api_error,
-            mocked_get_versioning_api_timeout
-        ]
-
-        for i, mocked_get_versioning_api in enumerate(mocked_get_versioning_api_functions):
-            with self.subTest(f"test_{i}"):
-
-                self.assert_version_check_is_fast()
 
