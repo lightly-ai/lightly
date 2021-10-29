@@ -11,8 +11,6 @@ from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
 from lightly.api.utils import getenv
 
-print("importing version_checking")
-
 
 class LightlyTimeoutException(Exception):
     pass
