@@ -5,7 +5,7 @@ import unittest
 import lightly
 from lightly.api.version_checking import get_latest_version, version_compare, \
     get_minimum_compatible_version, pretty_print_latest_version, \
-    LightlyTimeoutException
+    LightlyTimeoutException, do_version_check
 from tests.api_workflow.mocked_api_workflow_client import MockedVersioningApi
 
 
@@ -56,7 +56,7 @@ class TestVersionChecking(unittest.TestCase):
             start_time = time.time()
 
             with self.assertRaises(LightlyTimeoutException):
-                lightly.do_version_check(lightly.__version__)
+                do_version_check(lightly.__version__)
 
             duration = time.time() - start_time
 
