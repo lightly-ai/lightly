@@ -33,6 +33,16 @@ class TestVersionChecking(unittest.TestCase):
         pretty_print_latest_version(current_verion="curr", latest_version="1.1.1")
 
     def test_version_check_timout_mocked(self):
+        """
+            We cannot check for other errors as we don't know whether the
+            current LIGHTLY_SERVER_URL is
+            - unreachable (error in < 1 second)
+            - causing a timeout and thus raising a LightlyTimeoutException
+            - reachable (success in < 1 second
+
+            Thus this only checks that the actual lightly.do_version_check()
+            with needing >1s internally causes a LightlyTimeoutException
+        """
         try:
             old_get_versioning_api = lightly.api.version_checking.get_versioning_api
 
