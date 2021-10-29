@@ -11,7 +11,7 @@ from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
 from lightly.api.utils import getenv
 
-from lightly import __version__
+print("importing version_checking")
 
 
 class LightlyTimeoutException(Exception):
@@ -41,7 +41,7 @@ def do_version_check(current_version: str):
             latest_version: str = versioning_api.get_minimum_compatible_pip_version()
             if version_compare(current_version, latest_version) < 0:
                 # local version is behind latest version
-                pretty_print_latest_version(latest_version)
+                pretty_print_latest_version(current_version, latest_version)
 
 
 
@@ -82,8 +82,8 @@ def version_compare(v0, v1):
     return 0
 
 
-def pretty_print_latest_version(latest_version, width=70):
-    warning = f"You are using lightly version {__version__}. " \
+def pretty_print_latest_version(current_verion, latest_version, width=70):
+    warning = f"You are using lightly version {current_verion}. " \
               f"There is a newer version of the package available. " \
               f"For compatability reasons, please upgrade your current version: " \
               f"pip install lightly=={latest_version}"
