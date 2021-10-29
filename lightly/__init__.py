@@ -80,6 +80,8 @@ The framework is structured into the following modules:
 __name__ = 'lightly'
 __version__ = '1.1.21'
 
+import os
+
 try:
     # See (https://github.com/PyTorchLightning/pytorch-lightning)
     # This variable is injected in the __builtins__ by the build
@@ -116,13 +118,16 @@ else:
     from lightly import openapi_generated
     from lightly import transforms
     from lightly import utils
-
+    
     from lightly.api.version_checking import do_version_check
 
-    try:
-        do_version_check(current_version=__version__)
-    except Exception as e:
-        pass
+    if os.getenv('LIGHTLY_DID_VERSION_CHECK', 'False') == 'False':
+        os.environ['LIGHTLY_DID_VERSION_CHECK'] = 'True'
+
+        try:
+            do_version_check(current_version=__version__)
+        except Exception as e:
+            pass
 
 
 
