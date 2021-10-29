@@ -30,7 +30,7 @@ class TestVersionChecking(unittest.TestCase):
         get_minimum_compatible_version()
 
     def test_pretty_print(self):
-        pretty_print_latest_version(current_verion="curr", latest_version="1.1.1")
+        pretty_print_latest_version(current_version="curr", latest_version="1.1.1")
 
     def test_version_check_timout_mocked(self):
         """

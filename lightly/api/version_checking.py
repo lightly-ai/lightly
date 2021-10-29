@@ -80,8 +80,8 @@ def version_compare(v0, v1):
     return 0
 
 
-def pretty_print_latest_version(current_verion, latest_version, width=70):
-    warning = f"You are using lightly version {current_verion}. " \
+def pretty_print_latest_version(current_version, latest_version, width=70):
+    warning = f"You are using lightly version {current_version}. " \
               f"There is a newer version of the package available. " \
               f"For compatability reasons, please upgrade your current version: " \
               f"pip install lightly=={latest_version}"
