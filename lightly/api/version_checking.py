@@ -38,8 +38,7 @@ def do_version_check(current_version: str):
             versioning_api = get_versioning_api()
             current_version: str = versioning_api.get_latest_pip_version(
                 current_version=current_version)
-            latest_version: str = versioning_api.get_minimum_compatible_pip_version(
-                _request_timeout=1)
+            latest_version: str = versioning_api.get_minimum_compatible_pip_version()
             if version_compare(current_version, latest_version) < 0:
                 # local version is behind latest version
                 pretty_print_latest_version(latest_version)
@@ -65,7 +64,7 @@ def get_latest_version(current_version: str) -> Tuple[None, str]:
 
 def get_minimum_compatible_version():
     versioning_api = get_versioning_api()
-    version_number: str = versioning_api.get_minimum_compatible_pip_version(_request_timeout=1)
+    version_number: str = versioning_api.get_minimum_compatible_pip_version()
     return version_number
 
 
