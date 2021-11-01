@@ -80,7 +80,7 @@ The framework is structured into the following modules:
 __name__ = 'lightly'
 __version__ = '1.1.21'
 
-from multiprocessing import current_process
+import os
 
 try:
     # See (https://github.com/PyTorchLightning/pytorch-lightning)
@@ -118,16 +118,16 @@ else:
     from lightly import openapi_generated
     from lightly import transforms
     from lightly import utils
+    
+    from lightly.api.version_checking import do_version_check
 
-    if current_process().name == 'MainProcess':
-        # check for latest version
-        from lightly.api.version_checking import get_latest_version
-        from lightly.api.version_checking import version_compare
-        from lightly.api.version_checking import pretty_print_latest_version
+    if os.getenv('LIGHTLY_DID_VERSION_CHECK', 'False') == 'False':
+        os.environ['LIGHTLY_DID_VERSION_CHECK'] = 'True'
 
-        latest_version = get_latest_version(__version__)
-        if latest_version is not None:
-            if version_compare(__version__, latest_version) < 0:
-                # local version is behind latest version
-                pretty_print_latest_version(latest_version)
+        try:
+            do_version_check(current_version=__version__)
+        except Exception as e:
+            pass
+
+
 
