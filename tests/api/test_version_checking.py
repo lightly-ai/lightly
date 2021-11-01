@@ -5,7 +5,7 @@ import unittest
 import lightly
 from lightly.api.version_checking import get_latest_version, version_compare, \
     get_minimum_compatible_version, pretty_print_latest_version, \
-    LightlyTimeoutException, do_version_check
+    LightlyAPITimeoutException, do_version_check
 from tests.api_workflow.mocked_api_workflow_client import MockedVersioningApi
 
 
@@ -37,25 +37,25 @@ class TestVersionChecking(unittest.TestCase):
             We cannot check for other errors as we don't know whether the
             current LIGHTLY_SERVER_URL is
             - unreachable (error in < 1 second)
-            - causing a timeout and thus raising a LightlyTimeoutException
+            - causing a timeout and thus raising a LightlyAPITimeoutException
             - reachable (success in < 1 second
 
             Thus this only checks that the actual lightly.do_version_check()
-            with needing >1s internally causes a LightlyTimeoutException
+            with needing >1s internally causes a LightlyAPITimeoutException
         """
         try:
             old_get_versioning_api = lightly.api.version_checking.get_versioning_api
 
             def mocked_get_versioning_api_timeout():
                 time.sleep(10)
-                print("This line should never be reached, calling sys.exti()")
+                print("This line should never be reached, calling sys.exit()")
                 sys.exit()
 
             lightly.api.version_checking.get_versioning_api = mocked_get_versioning_api_timeout
 
             start_time = time.time()
 
-            with self.assertRaises(LightlyTimeoutException):
+            with self.assertRaises(LightlyAPITimeoutException):
                 do_version_check(lightly.__version__)
 
             duration = time.time() - start_time

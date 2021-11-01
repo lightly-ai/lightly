@@ -12,7 +12,7 @@ from lightly.openapi_generated.swagger_client.configuration import Configuration
 from lightly.api.utils import getenv
 
 
-class LightlyTimeoutException(Exception):
+class LightlyAPITimeoutException(Exception):
     pass
 
 class TimeoutDecorator:
@@ -20,7 +20,7 @@ class TimeoutDecorator:
         self.seconds = seconds
 
     def handle_timeout_method(self, *args, **kwargs):
-        raise LightlyTimeoutException
+        raise LightlyAPITimeoutException
 
     def __enter__(self):
         signal.signal(signal.SIGALRM, self.handle_timeout_method)
