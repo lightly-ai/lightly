@@ -7,12 +7,8 @@ import torchvision
 from hydra.experimental import compose, initialize
 
 import lightly
-from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
-
-
-# get the mock embeddings function
-from tests.api_workflow.test_api_workflow_upload_embeddings import TestApiWorkflowUploadEmbeddings
-mock_get_embeddings_from_api = TestApiWorkflowUploadEmbeddings().mock_get_embeddings_from_api
+from tests.api_workflow.mocked_api_workflow_client import \
+    MockedApiWorkflowSetup, MockedApiWorkflowClient, N_FILES_ON_SERVER
 
 
 class TestCLIMagic(MockedApiWorkflowSetup):
@@ -61,13 +57,15 @@ class TestCLIMagic(MockedApiWorkflowSetup):
         assert self.cfg["upload"] == 'thumbnails'
 
     def test_magic_new_dataset_name(self):
-        lightly.api.api_workflow_upload_embeddings._get_csv_reader_from_read_url = mock_get_embeddings_from_api
+        MockedApiWorkflowClient.n_rows = N_FILES_ON_SERVER
+        MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
         cli_string = "lightly-magic new_dataset_name='xyz-no-tags'"
         self.parse_cli_string(cli_string)
         lightly.cli.lightly_cli(self.cfg)
 
     def test_magic_new_dataset_id(self):
-        lightly.api.api_workflow_upload_embeddings._get_csv_reader_from_read_url = mock_get_embeddings_from_api
+        MockedApiWorkflowClient.n_dims_embeddings_on_server = N_FILES_ON_SERVER
+        MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
         cli_string = "lightly-magic dataset_id='xyz-no-tags'"
         self.parse_cli_string(cli_string)
         lightly.cli.lightly_cli(self.cfg)

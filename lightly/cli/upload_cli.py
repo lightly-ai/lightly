@@ -40,8 +40,12 @@ def _upload_cli(cfg, is_cli_call=True):
         print_as_warning('Please specify your access token.')
         cli_api_args_wrong = True
 
-    dataset_id_ok = dataset_id and len(dataset_id) > 0
-    new_dataset_name_ok = new_dataset_name and len(new_dataset_name) > 0
+    if dataset_id and len(dataset_id) > 0:
+        dataset_id_ok = True
+    else:
+        dataset_id_ok = False
+        del dataset_id
+    new_dataset_name_ok = bool(new_dataset_name and len(new_dataset_name) > 0)
     if new_dataset_name_ok and not dataset_id_ok:
         api_workflow_client = ApiWorkflowClient(token=token)
         api_workflow_client.create_dataset(dataset_name=new_dataset_name)
@@ -99,7 +103,7 @@ def _upload_cli(cfg, is_cli_call=True):
         print('Starting upload of embeddings.')
         try:
             embeddings = api_workflow_client.embeddings_api \
-                .get_embeddings_by_dataset_id(dataset_id=dataset_id)
+                .get_embeddings_by_dataset_id(dataset_id=api_workflow_client.dataset_id)
             # use latest embedding first
             embeddings = sorted(
                 embeddings,
