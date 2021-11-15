@@ -4,10 +4,12 @@ import sys
 import json
 import tempfile
 
+import numpy as np
 import torchvision
 from hydra.experimental import compose, initialize
 
 import lightly
+from lightly.utils import save_embeddings
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
 
 
@@ -46,6 +48,17 @@ class TestCLIUpload(MockedApiWorkflowSetup):
         json.dump(coco_json, self.tfile)
         self.tfile.flush()
 
+        # create fake embeddings
+        n_dims = 4
+        self.path_to_embeddings = os.path.join(self.folder_path, 'embeddings.csv')
+        labels = [0] * len(sample_names)
+        save_embeddings(
+            self.path_to_embeddings,
+            np.random.randn(n_data, n_dims),
+            labels,
+            sample_names
+        )
+
 
     def parse_cli_string(self, cli_words: str):
         cli_words = cli_words.replace("lightly-upload ", "")
@@ -71,6 +84,11 @@ class TestCLIUpload(MockedApiWorkflowSetup):
 
     def test_upload_new_dataset_name(self):
         cli_string = "lightly-upload new_dataset_name='new_dataset_name_xyz'"
+        self.parse_cli_string(cli_string)
+        lightly.cli.upload_cli(self.cfg)
+
+    def test_upload_new_dataset_name_and_embeddings(self):
+        cli_string = f"lightly-upload new_dataset_name='new_dataset_name_xyz' embeddings={self.path_to_embeddings}"
         self.parse_cli_string(cli_string)
         lightly.cli.upload_cli(self.cfg)
 
