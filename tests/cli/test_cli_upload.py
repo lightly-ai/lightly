@@ -93,23 +93,25 @@ class TestCLIUpload(MockedApiWorkflowSetup):
         dims_embeddings_options = [8, 32]
         n_embedding_rows_on_server = 80
         for n_dims_embeddings in dims_embeddings_options:
-            with self.subTest(
-                    f"test_{n_dims_embeddings}"
-            ):
+            for n_dims_embeddings_server in dims_embeddings_options:
+                with self.subTest(
+                        f"test_{n_dims_embeddings}_{n_dims_embeddings_server}"
+                ):
 
-                def upload_dataset(n_dims_embeddings):
                     self.create_fake_dataset(
                         n_data=N_FILES_ON_SERVER-n_embedding_rows_on_server,
                         n_rows_embeddings=N_FILES_ON_SERVER,
                         n_dims_embeddings=n_dims_embeddings
                     )
                     MockedApiWorkflowClient.n_embedding_rows_on_server = n_embedding_rows_on_server
-                    MockedApiWorkflowClient.n_dims_embeddings_on_server = n_dims_embeddings
+                    MockedApiWorkflowClient.n_dims_embeddings_on_server = n_dims_embeddings_server
                     cli_string = f"lightly-upload new_dataset_name='new_dataset_name_xyz' embeddings={self.path_to_embeddings}"
                     self.parse_cli_string(cli_string)
-                    lightly.cli.upload_cli(self.cfg)
-
-                upload_dataset(n_dims_embeddings)
+                    if n_dims_embeddings != n_dims_embeddings_server:
+                        with self.assertRaises(ValueError):
+                            lightly.cli.upload_cli(self.cfg)
+                    else:
+                        lightly.cli.upload_cli(self.cfg)
 
     def test_upload_new_dataset_id(self):
         cli_string = "lightly-upload dataset_id='xyz'"
