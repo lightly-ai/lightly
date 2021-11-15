@@ -38,6 +38,11 @@ from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
 
 
+def _check_dataset_id(dataset_id: str):
+    assert isinstance(dataset_id, str)
+    assert len(dataset_id) > 0
+
+
 class MockedEmbeddingsApi(EmbeddingsApi):
     def __init__(self, api_client):
         EmbeddingsApi.__init__(self, api_client=api_client)
@@ -58,23 +63,28 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         ]
 
     def get_embeddings_csv_write_url_by_id(self, dataset_id: str, **kwargs):
+        _check_dataset_id(dataset_id)
         assert isinstance(dataset_id, str)
         response_ = WriteCSVUrlData(signed_write_url="signed_write_url_valid", embedding_id="embedding_id_xyz")
         return response_
 
     def get_embeddings_by_dataset_id(self, dataset_id, **kwargs) -> List[DatasetEmbeddingData]:
+        _check_dataset_id(dataset_id)
         assert isinstance(dataset_id, str)
         return self.embeddings
 
     def trigger2d_embeddings_job(self, body, dataset_id, embedding_id, **kwargs):
+        _check_dataset_id(dataset_id)
         assert isinstance(body, EmbeddingIdTrigger2dEmbeddingsJobBody)
 
     def get_embeddings_csv_read_url_by_id(self, dataset_id, embedding_id, **kwargs):
+        _check_dataset_id(dataset_id)
         return 'https://my-embedding-read-url.com'
 
 
 class MockedSamplingsApi(SamplingsApi):
     def trigger_sampling_by_id(self, body: SamplingCreateRequest, dataset_id, embedding_id, **kwargs):
+        _check_dataset_id(dataset_id)
         assert isinstance(body, SamplingCreateRequest)
         assert isinstance(dataset_id, str)
         assert isinstance(embedding_id, str)
@@ -103,12 +113,14 @@ class MockedJobsApi(JobsApi):
 
 class MockedTagsApi(TagsApi):
     def create_initial_tag_by_dataset_id(self, body, dataset_id, **kwargs):
+        _check_dataset_id(dataset_id)
         assert isinstance(body, InitialTagCreateRequest)
         assert isinstance(dataset_id, str)
         response_ = CreateEntityResponse(id="xyz")
         return response_
 
     def get_tag_by_tag_id(self, dataset_id, tag_id, **kwargs):
+        _check_dataset_id(dataset_id)
         assert isinstance(dataset_id, str)
         assert isinstance(tag_id, str)
         response_ = TagData(id=tag_id, dataset_id=dataset_id, prev_tag_id="initial-tag", bit_mask_data="0x80bda23e9",
@@ -116,6 +128,7 @@ class MockedTagsApi(TagsApi):
         return response_
 
     def get_tags_by_dataset_id(self, dataset_id, **kwargs):
+        _check_dataset_id(dataset_id)
         if dataset_id == 'xyz-no-tags':
             return []
         tag_1 = TagData(id='inital_tag_id', dataset_id=dataset_id, prev_tag_id=None,
@@ -136,15 +149,18 @@ class MockedTagsApi(TagsApi):
         return tags
 
     def perform_tag_arithmetics(self, body: TagArithmeticsRequest, dataset_id, **kwargs):
+        _check_dataset_id(dataset_id)
         return TagBitMaskResponse(bit_mask_data="0x2")
 
     def upsize_tags_by_dataset_id(self, body, dataset_id, **kwargs):
+        _check_dataset_id(dataset_id)
         assert body.upsize_tag_creator == TagCreator.USER_PIP
 
 
 class MockedScoresApi(ScoresApi):
     def create_or_update_active_learning_score_by_tag_id(self, body, dataset_id, tag_id, **kwargs) -> \
             CreateEntityResponse:
+        _check_dataset_id(dataset_id)
         if len(body.scores) > 0 and not isinstance(body.scores[0], float):
             raise AttributeError
         response_ = CreateEntityResponse(id="sampled_tag_id_xyz")
@@ -179,20 +195,24 @@ class MockedSamplesApi(SamplesApi):
         return samples
 
     def create_sample_by_dataset_id(self, body, dataset_id, **kwargs):
+        _check_dataset_id(dataset_id)
         assert isinstance(body, SampleCreateRequest)
         response_ = CreateEntityResponse(id="xyz")
         self.sample_create_requests.append(body)
         return response_
 
     def get_sample_image_write_url_by_id(self, dataset_id, sample_id, is_thumbnail, **kwargs):
+        _check_dataset_id(dataset_id)
         url = f"{sample_id}_write_url"
         return url
 
     def get_sample_image_read_url_by_id(self, dataset_id, sample_id, type, **kwargs):
+        _check_dataset_id(dataset_id)
         url = f"{sample_id}_write_url"
         return url
 
     def get_sample_image_write_urls_by_id(self, dataset_id, sample_id, **kwargs) -> SampleWriteUrls:
+        _check_dataset_id(dataset_id)
         thumb_url = f"{sample_id}_thumb_write_url"
         full_url = f"{sample_id}_full_write_url"
         ret = SampleWriteUrls(full=full_url, thumb=thumb_url)
@@ -225,12 +245,15 @@ class MockedDatasetsApi(DatasetsApi):
         return response_
 
     def get_dataset_by_id(self, dataset_id):
+        _check_dataset_id(dataset_id)
         return next(dataset for dataset in self.default_datasets if dataset_id == dataset.id)
 
     def register_dataset_upload_by_id(self, body, dataset_id):
+        _check_dataset_id(dataset_id)
         return True
 
     def delete_dataset_by_id(self, dataset_id, **kwargs):
+        _check_dataset_id(dataset_id)
         datasets_without_that_id = [dataset for dataset in self.datasets if dataset.id != dataset_id]
         assert len(datasets_without_that_id) == len(self.datasets) - 1
         self.datasets = datasets_without_that_id
