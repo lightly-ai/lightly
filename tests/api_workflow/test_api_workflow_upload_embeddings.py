@@ -96,8 +96,10 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
             self.api_workflow_client.set_embedding_id_by_name(embedding_name)
 
     def test_upload_existing_embedding(self):
-        embedding_name = self.api_workflow_client.embeddings_api.\
+        embeddings = self.api_workflow_client.embeddings_api.\
             get_embeddings_by_dataset_id(self.api_workflow_client.dataset_id)
+
+        embedding_name = embeddings[0].name
 
         n_data = len(self.api_workflow_client.mappings_api.sample_names)
         self.t_ester_upload_embedding(n_data=n_data, name=embedding_name)
