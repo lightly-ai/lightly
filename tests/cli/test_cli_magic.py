@@ -57,16 +57,14 @@ class TestCLIMagic(MockedApiWorkflowSetup):
         assert self.cfg["upload"] == 'thumbnails'
 
     def test_magic_new_dataset_name(self):
-        MockedApiWorkflowClient.n_rows = N_FILES_ON_SERVER
         MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
-        cli_string = "lightly-magic new_dataset_name='xyz-no-tags'"
+        cli_string = "lightly-magic new_dataset_name='dataset_name_xyz'"
         self.parse_cli_string(cli_string)
         lightly.cli.lightly_cli(self.cfg)
 
     def test_magic_new_dataset_id(self):
-        MockedApiWorkflowClient.n_dims_embeddings_on_server = N_FILES_ON_SERVER
         MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
-        cli_string = "lightly-magic dataset_id='xyz-no-tags'"
+        cli_string = "lightly-magic dataset_id='dataset_id_xyz'"
         self.parse_cli_string(cli_string)
         lightly.cli.lightly_cli(self.cfg)
 

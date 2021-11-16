@@ -306,7 +306,8 @@ class MockedApiClient(ApiClient):
 
 class MockedApiWorkflowClient(ApiWorkflowClient):
 
-    embeddings_filename_base = 'sample'
+    embeddings_filename_base = 'img'
+    n_embedding_rows_on_server = N_FILES_ON_SERVER
 
     def __init__(self, *args, **kwargs):
         lightly.api.api_workflow_client.ApiClient = MockedApiClient

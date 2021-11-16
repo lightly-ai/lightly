@@ -106,7 +106,6 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         self.create_fake_embeddings(10)
 
         # mock the embeddings on the server
-        self.api_workflow_client.n_embedding_rows_on_server = N_FILES_ON_SERVER
         self.api_workflow_client.n_dims_embeddings_on_server = 32
 
         self.api_workflow_client.append_embeddings(
@@ -125,9 +124,7 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         self.create_fake_embeddings(100)
 
         # mock the embeddings on the server
-        self.api_workflow_client.n_embedding_rows_on_server = N_FILES_ON_SERVER
         self.api_workflow_client.n_dims_embeddings_on_server = 32
-        self.api_workflow_client.embeddings_filename_base = 'img'
 
         # the mock embeddings function returns embeddings which overlap with the ones generated above
         self.api_workflow_client.append_embeddings(
@@ -164,7 +161,6 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         # create a new set of embeddings
         self.create_fake_embeddings(10, n_dims=16) # default is 32
 
-        self.api_workflow_client.n_embedding_rows_on_server = N_FILES_ON_SERVER
         self.api_workflow_client.n_dims_embeddings_on_server = 32
 
         with self.assertRaises(RuntimeError):
