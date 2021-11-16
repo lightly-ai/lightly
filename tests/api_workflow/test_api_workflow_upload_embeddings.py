@@ -46,7 +46,9 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
                                  n_data,
                                  n_dims: int = 32,
                                  special_name_first_sample: bool = False,
-                                 special_char_in_first_filename: str = None):
+                                 special_char_in_first_filename: str = None,
+                                 name: str = "embedding_xyz"
+                                 ):
 
         self.create_fake_embeddings(
             n_data,
@@ -56,7 +58,7 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         )
 
         # perform the workflow to upload the embeddings
-        self.api_workflow_client.upload_embeddings(path_to_embeddings_csv=self.path_to_embeddings, name="embedding_xyz")
+        self.api_workflow_client.upload_embeddings(path_to_embeddings_csv=self.path_to_embeddings, name=name)
         self.api_workflow_client.n_dims_embeddings_on_server = n_dims
 
     def test_upload_success(self):
@@ -92,6 +94,13 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         embedding_name = "blibblabblub"
         with self.assertRaises(ValueError):
             self.api_workflow_client.set_embedding_id_by_name(embedding_name)
+
+    def test_upload_existing_embedding(self):
+        embedding_name = self.api_workflow_client.embeddings_api.\
+            get_embeddings_by_dataset_id(self.api_workflow_client.dataset_id)
+
+        n_data = len(self.api_workflow_client.mappings_api.sample_names)
+        self.t_ester_upload_embedding(n_data=n_data, name=embedding_name)
 
     def test_set_embedding_id_default(self):
         self.api_workflow_client.set_embedding_id_by_name()
