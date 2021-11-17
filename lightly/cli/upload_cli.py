@@ -59,6 +59,7 @@ def _upload_cli(cfg, is_cli_call=True):
                 'Please specify either the dataset_id of an existing dataset '
                 'or a new_dataset_name.')
             cli_api_args_wrong = True
+    del dataset_id
 
     if cli_api_args_wrong:
         print_as_warning('For help, try: lightly-upload --help')
