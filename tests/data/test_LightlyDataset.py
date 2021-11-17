@@ -268,26 +268,8 @@ class TestLightlyDataset(unittest.TestCase):
                 self.assertIsInstance(filename, str)
                 self.assertIn(filename, filenames_dataset)
 
-    def test_video_dataset(self):
-
-        if not VIDEO_DATASET_AVAILABLE:
-            tmp_dir = tempfile.mkdtemp()
-            # simulate a video
-            # the video dataset will check to see whether there exists a file
-            # with a video extension, it's enough to fake a video file here
-            path = os.path.join(tmp_dir, 'my_file.png')
-            dataset = torchvision.datasets.FakeData(size=1, image_size=(3, 32, 32))
-            image, _ = dataset[0]
-            image.save(path)
-            os.rename(path, os.path.join(tmp_dir, 'my_file.avi'))
-            with self.assertRaises(ImportError):
-                dataset = LightlyDataset(input_dir=tmp_dir)
-
-            warnings.warn(
-                'Did not test video dataset because of missing requirements')
-            shutil.rmtree(tmp_dir)
-            return
-
+    @unittest.skipUnless(VIDEO_DATASET_AVAILABLE, "PyAV and CV2 are both installed")
+    def test_video_dataset_available(self):
         self.create_video_dataset()
         dataset = LightlyDataset(input_dir=self.input_dir)
 
@@ -296,6 +278,23 @@ class TestLightlyDataset(unittest.TestCase):
         self.assertEqual(len(os.listdir(out_dir)), len(dataset) // 2)
         for filename in os.listdir(out_dir):
             self.assertIn(filename, dataset.get_filenames()[(len(dataset) // 2):])
+    
+    @unittest.skipIf(VIDEO_DATASET_AVAILABLE, "PyAV or CV2 is/are not installed")
+    def test_video_dataset_unavailable(self):
+        tmp_dir = tempfile.mkdtemp()
+        # simulate a video
+        # the video dataset will check to see whether there exists a file
+        # with a video extension, it's enough to fake a video file here
+        path = os.path.join(tmp_dir, 'my_file.png')
+        dataset = torchvision.datasets.FakeData(size=1, image_size=(3, 32, 32))
+        image, _ = dataset[0]
+        image.save(path)
+        os.rename(path, os.path.join(tmp_dir, 'my_file.avi'))
+        with self.assertRaises(ImportError):
+            dataset = LightlyDataset(input_dir=tmp_dir)
+
+        shutil.rmtree(tmp_dir)
+        return
 
     @unittest.skipUnless(VIDEO_DATASET_AVAILABLE, "PyAV or CV2 are not available")
     def test_video_dataset_filenames(self):
