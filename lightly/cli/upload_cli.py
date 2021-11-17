@@ -40,26 +40,25 @@ def _upload_cli(cfg, is_cli_call=True):
         print_as_warning('Please specify your access token.')
         cli_api_args_wrong = True
 
-    if dataset_id and len(dataset_id) > 0:
-        dataset_id_ok = True
+    if dataset_id:
+        if new_dataset_name:
+            print_as_warning(
+                'Please specify either the dataset_id of an existing dataset '
+                'or a new_dataset_name, but not both.'
+            )
+            cli_api_args_wrong = True
+        else:
+            api_workflow_client = \
+                ApiWorkflowClient(token=token,dataset_id=dataset_id)
     else:
-        dataset_id_ok = False
-        del dataset_id
-    new_dataset_name_ok = bool(new_dataset_name and len(new_dataset_name) > 0)
-    if new_dataset_name_ok and not dataset_id_ok:
-        api_workflow_client = ApiWorkflowClient(token=token)
-        api_workflow_client.create_dataset(dataset_name=new_dataset_name)
-    elif dataset_id_ok and not new_dataset_name_ok:
-        api_workflow_client = ApiWorkflowClient(
-            token=token,
-            dataset_id=dataset_id
-        )
-    else:
-        print_as_warning(
-            'Please specify either the dataset_id of an existing dataset or a '
-            'new_dataset_name.'
-        )
-        cli_api_args_wrong = True
+        if new_dataset_name:
+            api_workflow_client = ApiWorkflowClient(token=token)
+            api_workflow_client.create_dataset(dataset_name=new_dataset_name)
+        else:
+            print_as_warning(
+                'Please specify either the dataset_id of an existing dataset '
+                'or a new_dataset_name.')
+            cli_api_args_wrong = True
 
     if cli_api_args_wrong:
         print_as_warning('For help, try: lightly-upload --help')
