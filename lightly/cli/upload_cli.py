@@ -142,7 +142,7 @@ def _upload_cli(cfg, is_cli_call=True):
             verbose=True
         )
 
-    if new_dataset_name_ok:
+    if new_dataset_name:
         print(f'The dataset_id of the newly created dataset is '
               f'{bcolors.OKBLUE}{api_workflow_client.dataset_id}{bcolors.ENDC}')
 
