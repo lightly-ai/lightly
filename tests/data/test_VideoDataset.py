@@ -13,7 +13,7 @@ import cv2
 try:
     import av
     PYAV_AVAILABLE = True
-except:
+except ModuleNotFoundError:
     PYAV_AVAILABLE = False
 
 class TestVideoDataset(unittest.TestCase):

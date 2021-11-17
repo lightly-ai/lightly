@@ -22,7 +22,7 @@ try:
     import cv2
 
     VIDEO_DATASET_AVAILABLE = True
-except Exception:
+except ModuleNotFoundError:
     VIDEO_DATASET_AVAILABLE = False
 
 
