@@ -17,6 +17,7 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
 
     def create_fake_embeddings(self,
                                n_data,
+                               n_data_start: int = 0,
                                n_dims: int = 32,
                                special_name_first_sample: bool = False,
                                special_char_in_first_filename: str = None):
@@ -27,7 +28,7 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
             'embeddings.csv'
         )
 
-        self.sample_names = [f'img_{i}.jpg' for i in range(n_data)]
+        self.sample_names = [f'img_{i}.jpg' for i in range(n_data_start, n_data_start + n_data)]
         if special_name_first_sample:
             self.sample_names[0] = "bliblablub"
         if special_char_in_first_filename:
@@ -126,41 +127,53 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
 
 
     def test_append_embeddings_with_overlap(self):
-    
-        # first upload embeddings
-        n_data = len(self.api_workflow_client.mappings_api.sample_names)
-        self.t_ester_upload_embedding(n_data=n_data)
-
-        # create a new set of embeddings overlapping with current embeddings
-        self.create_fake_embeddings(100)
 
         # mock the embeddings on the server
+        n_data_server = len(self.api_workflow_client.mappings_api.sample_names)
         self.api_workflow_client.n_dims_embeddings_on_server = 32
 
-        # the mock embeddings function returns embeddings which overlap with the ones generated above
+        # create new local embeddings overlapping with server embeddings
+        n_data_start_local = n_data_server // 3
+        n_data_local = n_data_server * 2
+        self.create_fake_embeddings(n_data=n_data_local, n_data_start=n_data_start_local)
+
+        """
+        Assumptions:
+            n_data_server = 100
+            n_data_start_local = 33
+            n_data_local = 200
+        
+        Server embeddings file:
+            filenames: 0 ... 99
+            labels: 0 ... 99
+            
+        Local embeddings file:
+            filenames: 33 ... 232
+            labels: 0 ... 0 (all zero)
+            
+        Appended embedding file must thus be:
+            filenames: 0 ... 232
+            labels: 0 ... 32 (from server) + 0 ... 0 (from local)
+        """
+
+        # append the local embeddings to the server embeddings
         self.api_workflow_client.append_embeddings(
             self.path_to_embeddings,
             'embedding_id_xyz_2',
         )
-        TestApiWorkflowUploadEmbeddings.EMBEDDINGS_FILENAME_BASE: str = 'sample'
 
-        # load embeddings
-        _, labels, filenames = load_embeddings(self.path_to_embeddings)
+        # load the new (appended) embeddings
+        _, labels_appended, filenames_appended = \
+            load_embeddings(self.path_to_embeddings)
 
-        # make sure the list of filenames is equal
-        self.assertListEqual(
-            sorted(self.sample_names),
-            sorted(filenames),
-        )
+        # define the expected filenames and labels
+        self.create_fake_embeddings(n_data=n_data_local + n_data_start_local)
+        _, _, filenames_expected = load_embeddings(self.path_to_embeddings)
+        labels_expected = list(range(n_data_start_local)) + [0] * n_data_local
 
-        # make sure that only new embeddings were added
-        # all local labels are 0 (see "create_fake_embeddings") and all online
-        # labels are the line, therefore the labels of the updated embeddings
-        # must be 20 * [0] + [20, 11, 12, ..., 98, 99]
-        self.assertListEqual(
-            sorted(labels),
-            sorted([0] * n_data + [i for i in range(n_data, 100)])
-        )
+        # make sure the list of filenames and labels equal
+        self.assertListEqual(filenames_appended, filenames_expected)
+        self.assertListEqual(labels_appended, labels_expected)
 
 
     def test_append_embeddings_different_shape(self):
