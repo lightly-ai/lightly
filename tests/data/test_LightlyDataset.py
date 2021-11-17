@@ -297,6 +297,7 @@ class TestLightlyDataset(unittest.TestCase):
         for filename in os.listdir(out_dir):
             self.assertIn(filename, dataset.get_filenames()[(len(dataset) // 2):])
 
+    @unittest.skipUnless(VIDEO_DATASET_AVAILABLE, "PyAV or CV2 are not available")
     def test_video_dataset_filenames(self):
         self.create_video_dataset()
         all_filenames = self.filenames
