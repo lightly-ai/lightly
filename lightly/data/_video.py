@@ -334,8 +334,18 @@ class VideoDataset(datasets.VisionDataset):
     def __len__(self):
         """Returns the number of samples (frames) in the dataset.
 
+        This can be precomputed, because self.video_timestamps is only
+        set in the __init__
         """
-        return sum((len(ts) for ts in self.video_timestamps))
+        try:
+            #raise AttributeError
+            return self._precomputed_length
+        except AttributeError:
+            self._precomputed_length = sum((
+                len(ts) for ts
+                 in self.video_timestamps
+            ))
+            return self._precomputed_length
 
     def get_filename(self, index):
         """Returns a filename for the frame at index.
