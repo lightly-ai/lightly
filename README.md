@@ -213,7 +213,7 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 
 Below you can see a schematic overview of the different concepts present in the lightly Python package. The terms in bold are explained in more detail in our [documentation](https://docs.lightly.ai).
 
-<img src="docs/source/images/lightly_overview.png" alt="Overview of the lightly pip package"/></a>
+<img src="/docs/source/getting_started/images/lightly_overview.png" alt="Overview of the lightly pip package"/></a>
 
 
 ### Next Steps
