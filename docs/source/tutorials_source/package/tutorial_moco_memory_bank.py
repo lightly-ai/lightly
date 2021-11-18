@@ -341,12 +341,12 @@ class Classifier(pl.LightningModule):
     def validation_epoch_end(self, outputs):
         # calculate and log top1 accuracy
         if outputs:
-            total_num = torch.Tensor([0],).to(self.device)
-            total_correct = torch.Tensor([0.0],).to(self.device)
+            total_num = 0
+            total_correct = 0
             for num, correct in outputs:
                 total_num += num
                 total_correct += correct
-            acc = total_correct.item() / total_num.item()
+            acc = total_correct / total_num
             self.log("val_acc", acc, on_epoch=True, prog_bar=True)
 
     def configure_optimizers(self):
