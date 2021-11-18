@@ -59,6 +59,8 @@ def _upload_cli(cfg, is_cli_call=True):
                 'Please specify either the dataset_id of an existing dataset '
                 'or a new_dataset_name.')
             cli_api_args_wrong = True
+    # delete the dataset_id as it might be an empty string
+    # Use api_workflow_client.dataset_id instead
     del dataset_id
 
     if cli_api_args_wrong:
