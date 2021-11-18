@@ -271,9 +271,9 @@ class VideoDataset(datasets.VisionDataset):
 
         self.videos = videos
         self.video_timestamps = video_timestamps
-        self._precomputed_length = sum((
+        self._length = sum((
             len(ts) for ts in self.video_timestamps
-            ))
+        ))
         # offsets[i] indicates the index of the first frame of the i-th video.
         # e.g. for two videos of length 10 and 20, the offsets will be [0, 10].
         self.offsets = offsets
@@ -340,7 +340,7 @@ class VideoDataset(datasets.VisionDataset):
         This can be precomputed, because self.video_timestamps is only
         set in the __init__
         """
-        return self._precomputed_length
+        return self._length
 
     def get_filename(self, index):
         """Returns a filename for the frame at index.
