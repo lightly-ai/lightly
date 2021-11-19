@@ -17,15 +17,13 @@ class NegativeCosineSimilarity(torch.nn.Module):
         >>> # initialize loss function
         >>> loss_fn = NegativeCosineSimilarity()
         >>>
-        >>> # generate two random transforms of images
-        >>> t0 = transforms(images)
-        >>> t1 = transforms(images)
-        >>>
-        >>> # feed through a SimSiam model
-        >>> p0, p1, z0, z1 = model(t0, t1)
+        >>> # generate two representation tensors
+        >>> # with batch size 10 and dimension 128
+        >>> x0 = torch.randn(10, 128)
+        >>> x1 = torch.randn(10, 128)
         >>>
         >>> # calculate loss
-        >>> loss = 0.5 * (loss_fn(p0, z0) + loss_fn(p1, z1))
+        >>> loss = loss_fn(x0, x1)
     """
 
     def __init__(self, dim: int = 1, eps: float = 1e-8) -> None:
