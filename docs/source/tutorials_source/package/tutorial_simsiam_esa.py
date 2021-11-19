@@ -37,10 +37,11 @@ In this tutorial you will learn:
 import math
 import torch
 import torch.nn as nn
-from torch.nn.modules.batchnorm import BatchNorm1d
 import torchvision
 import numpy as np
 import lightly
+from lightly.models.modules.heads import SimSiamPredictionHead
+from lightly.models.modules.heads import SimSiamProjectionHead
 
 
 # %%
@@ -132,15 +133,11 @@ test_transforms = torchvision.transforms.Compose([
     )
 ])
 
-
-
 # create a lightly dataset for embedding
 dataset_test = lightly.data.LightlyDataset(
     input_dir=path_to_data,
     transform=test_transforms
 )
-
-
 
 # create a dataloader for embedding
 dataloader_test = torch.utils.data.DataLoader(
@@ -157,33 +154,47 @@ dataloader_test = torch.utils.data.DataLoader(
 #
 # Create a ResNet backbone and remove the classification head
 
+class SimSiam(nn.Module):
+    def __init__(
+        self, backbone, num_ftrs, proj_hidden_dim, pred_hidden_dim, out_dim
+    ):
+        super().__init__()
+        self.backbone = backbone
+        self.projection_head = SimSiamProjectionHead(
+            num_ftrs, proj_hidden_dim, out_dim
+        )
+        self.prediction_head = SimSiamPredictionHead(
+            out_dim, pred_hidden_dim, out_dim
+        )
+
+    def forward(self, x0, x1):
+        # get representations
+        f0 = self.backbone(x0).flatten(start_dim=1)
+        f1 = self.backbone(x1).flatten(start_dim=1)
+        # get projections
+        z0 = self.projection_head(f0)
+        z1 = self.projection_head(f1)
+        # get predictions
+        p0 = self.prediction_head(z0)
+        p1 = self.prediction_head(z1)
+        # stop gradient
+        z0 = z0.detach()
+        z1 = z1.detach()
+        return p0, p1, z0, z1
+
+
 # we use a pretrained resnet for this tutorial to speed
 # up training time but you can also train one from scratch
 resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(*list(resnet.children())[:-1])
-
-# create the SimSiam model using the backbone from above
-model = lightly.models.SimSiam(
-    backbone,
-    num_ftrs=num_ftrs,
-    proj_hidden_dim=proj_hidden_dim,
-    pred_hidden_dim=pred_hidden_dim,
-    out_dim=out_dim,
-)
-
-# replace the 3-layer projection head by a 2-layer projection head
-# (similar to how it's done for SimSiam on Cifar10)
-model.projection_mlp = lightly.models.modules.heads.ProjectionHead([
-    (num_ftrs, proj_hidden_dim, nn.BatchNorm1d(proj_hidden_dim), nn.ReLU()),
-    (proj_hidden_dim, out_dim, nn.BatchNorm1d(out_dim), None)
-])
+model = SimSiam(backbone, num_ftrs, proj_hidden_dim, pred_hidden_dim, out_dim)
 
 # %%
 # SimSiam uses a symmetric negative cosine similarity loss and does therefore
 # not require any negative samples. We build a criterion and an optimizer.
 
 # SimSiam uses a symmetric negative cosine similarity loss
-criterion = lightly.loss.SymNegCosineSimilarityLoss()
+criterion = lightly.loss.NegativeCosineSimilarity()
 
 # scale the learning rate 
 lr = 0.05 * batch_size / 256
@@ -227,12 +238,12 @@ for e in range(epochs):
         x1 = x1.to(device)
 
         # run the model on both transforms of the images
-        # the output of the simsiam model is a y containing the predictions
-        # and projections for each input x
-        y0, y1 = model(x0, x1)
+        # we get predictions and projections as output
+        p0, p1, z0, z1 = model(x0, x1)
 
-        # backpropagation
-        loss = criterion(y0, y1)
+        # apply the symmetric negatice cosine similarity
+        # and run backpropagation
+        loss = 0.5 * (criterion(p0, z0) + criterion(p1, z1))
         loss.backward()
 
         optimizer.step()
@@ -240,8 +251,7 @@ for e in range(epochs):
 
         # calculate the per-dimension standard deviation of the outputs
         # we can use this later to check whether the embeddings are collapsing
-        output, _ = y0
-        output = output.detach()
+        output = p0.detach()
         output = torch.nn.functional.normalize(output, dim=1)
         
         output_std = torch.std(output, 0)
@@ -266,7 +276,6 @@ for e in range(epochs):
 # and feed the images to the model backbone. Make sure to disable gradients for
 # this part.
 
-
 embeddings = []
 filenames = []
 
@@ -277,8 +286,7 @@ with torch.no_grad():
         # move the images to the gpu
         x = x.to(device)
         # embed the images with the pre-trained backbone
-        y = model.backbone(x)
-        y = y.squeeze()
+        y = model.backbone(x).flatten(start_dim=1)
         # store the embeddings and filenames in lists
         embeddings.append(y)
         filenames = filenames + list(fnames)
@@ -295,7 +303,6 @@ embeddings = embeddings.cpu().numpy()
 # Further down, we also check out the nearest neighbors of a few example images.
 #
 # As a first step, we make a few additional imports. 
-
 
 # for plotting
 import os
@@ -330,7 +337,6 @@ embeddings_2d = (embeddings_2d - m) / (M - m)
 # %%
 # Let's start with a nice scatter plot of our dataset! The helper function
 # below will create one.
-
 
 def get_scatter_plot_with_thumbnails():
     """Creates a scatter plot with image overlays.
