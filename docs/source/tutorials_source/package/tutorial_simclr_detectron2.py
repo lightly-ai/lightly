@@ -71,7 +71,7 @@ num_ftrs = 2048
 lr = 0.001
 
 seed = 1
-max_epochs = 0
+max_epochs = 20
 
 # use cuda if possible
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -128,11 +128,16 @@ backbone = torch.nn.Sequential(
     detmodel.backbone.bottom_up,
     SelectFeatures('res5'),
     torch.nn.AdaptiveAvgPool2d(1),
-)
+).to(device)
 
+# %%
 # Finally, let's build SimCLR around the backbone as shown in the other
-# tutorials.
-simclr = lightly.models.simclr.SimCLR(backbone, num_ftrs=num_ftrs)
+# tutorials. For this, we only require an additional projection head.
+projection_head = lightly.models.modules.SimCLRProjectionHead(
+    input_dim=num_ftrs,
+    hidden_dim=num_ftrs,
+    output_dim=128,
+).to(device)
 
 # %%
 # Setup data augmentations and loaders
@@ -167,19 +172,35 @@ dataloader_train_simclr = torch.utils.data.DataLoader(
 # Now all we need to do is define a loss and optimizer and start training!
 
 criterion = lightly.loss.NTXentLoss()
-optimizer = torch.optim.SGD(simclr.parameters(), lr=lr, momentum=0.9)
-
-gpus = 1 if device == 'cuda' else 0
-encoder = lightly.embedding.SelfSupervisedEmbedding(
-    simclr,
-    criterion,
-    optimizer,
-    dataloader_train_simclr
+optimizer = torch.optim.SGD(
+    list(backbone.parameters()) + list(projection_head.parameters()),
+    lr=lr,
+    momentum=0.9
 )
 
-encoder.train_embedding(gpus=gpus,
-                        progress_bar_refresh_rate=100,
-                        max_epochs=max_epochs)
+
+for e in range(max_epochs):
+
+    mean_loss = 0.
+    for (x0, x1), _, _ in dataloader_train_simclr:
+
+        x0 = x0.to(device)
+        x1 = x1.to(device)
+
+        y0 = projection_head(backbone(x0).flatten(start_dim=1))
+        y1 = projection_head(backbone(x1).flatten(start_dim=1))
+
+        # backpropagation
+        loss = criterion(y0, y1)
+        loss.backward()
+
+        optimizer.step()
+        optimizer.zero_grad()
+
+        # update average loss
+        mean_loss += loss.detach().cpu().item() / len(dataloader_train_simclr)
+
+    print(f'[Epoch {e:2d}] Mean Loss = {mean_loss:.2f}')
 
 
 # %%
@@ -187,7 +208,7 @@ encoder.train_embedding(gpus=gpus,
 # -----------------------
 # Now, we can use the pre-trained backbone from the Detectron2 model. The code
 # below shows how to save it as a Detectron2 checkpoint called `my_model.pth`.
-detmodel.backbone.bottom_up = simclr.backbone[0]
+detmodel.backbone.bottom_up = backbone[0]
 
 checkpointer = DetectionCheckpointer(detmodel, save_dir='./')
 checkpointer.save('my_model')
