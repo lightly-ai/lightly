@@ -32,7 +32,7 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
         super().__init__()
         warnings.warn(
             Warning(
-                "SymNegCosineSimiliarityLoss will be deprecated in favor of"
+                "SymNegCosineSimiliarityLoss will be deprecated in favor of "
                 + "NegativeCosineSimilarity in the future."
             ),
             PendingDeprecationWarning,
