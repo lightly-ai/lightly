@@ -63,6 +63,9 @@ from detectron2.checkpoint import DetectionCheckpointer
 # We use a batch size of 64 and an input size of 128 in order to fit everything
 # on the available amount of memory on our GPU (16GB). The number of features
 # is set to the default output size of the ResNet50 backbone.
+#
+# We only train for 5 epochs because the focus of this tutorial is on the
+# integration with Detectron2.
 
 num_workers = 8
 batch_size = 64
@@ -71,7 +74,7 @@ num_ftrs = 2048
 lr = 0.001
 
 seed = 1
-max_epochs = 20
+max_epochs = 5
 
 # use cuda if possible
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -85,7 +88,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 # Set the path to the dataset accordingly. Additionally, make sure to set the
 # path to the config file of the Detectron2 model you want to use.
 # We will be using an RCNN with a feature pyramid network (FPN).
-data_path = '/datasets/SKU110K_fixed/resized'
+data_path = '/datasets/SKU110K_fixed/images'
 cfg_path = './Base-RCNN-FPN.yaml'
 
 # %%
