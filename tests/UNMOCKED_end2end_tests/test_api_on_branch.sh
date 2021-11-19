@@ -37,7 +37,7 @@ lightly-upload token=${TOKEN} input_dir=${INPUT_DIR} new_dataset_name=test_unmoc
 
 
 
-echo "SUCCESS!SUCCESS!SUCCESS!SUCCESS!SUCCESS!SUCCESS!SUCCESS!"
+echo "SUCCESS!"
 
 
 
