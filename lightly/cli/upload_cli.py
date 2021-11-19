@@ -40,22 +40,28 @@ def _upload_cli(cfg, is_cli_call=True):
         print_as_warning('Please specify your access token.')
         cli_api_args_wrong = True
 
-    dataset_id_ok = dataset_id and len(dataset_id) > 0
-    new_dataset_name_ok = new_dataset_name and len(new_dataset_name) > 0
-    if new_dataset_name_ok and not dataset_id_ok:
-        api_workflow_client = ApiWorkflowClient(token=token)
-        api_workflow_client.create_dataset(dataset_name=new_dataset_name)
-    elif dataset_id_ok and not new_dataset_name_ok:
-        api_workflow_client = ApiWorkflowClient(
-            token=token,
-            dataset_id=dataset_id
-        )
+    if dataset_id:
+        if new_dataset_name:
+            print_as_warning(
+                'Please specify either the dataset_id of an existing dataset '
+                'or a new_dataset_name, but not both.'
+            )
+            cli_api_args_wrong = True
+        else:
+            api_workflow_client = \
+                ApiWorkflowClient(token=token, dataset_id=dataset_id)
     else:
-        print_as_warning(
-            'Please specify either the dataset_id of an existing dataset or a '
-            'new_dataset_name.'
-        )
-        cli_api_args_wrong = True
+        if new_dataset_name:
+            api_workflow_client = ApiWorkflowClient(token=token)
+            api_workflow_client.create_dataset(dataset_name=new_dataset_name)
+        else:
+            print_as_warning(
+                'Please specify either the dataset_id of an existing dataset '
+                'or a new_dataset_name.')
+            cli_api_args_wrong = True
+    # delete the dataset_id as it might be an empty string
+    # Use api_workflow_client.dataset_id instead
+    del dataset_id
 
     if cli_api_args_wrong:
         print_as_warning('For help, try: lightly-upload --help')
@@ -99,7 +105,7 @@ def _upload_cli(cfg, is_cli_call=True):
         print('Starting upload of embeddings.')
         try:
             embeddings = api_workflow_client.embeddings_api \
-                .get_embeddings_by_dataset_id(dataset_id=dataset_id)
+                .get_embeddings_by_dataset_id(dataset_id=api_workflow_client.dataset_id)
             # use latest embedding first
             embeddings = sorted(
                 embeddings,
@@ -117,24 +123,14 @@ def _upload_cli(cfg, is_cli_call=True):
 
         if embedding is not None:
 
-            filenames_on_server = api_workflow_client.filenames_on_server
-            with open(path_to_embeddings, 'r') as f:
-                # count number of new embedding rows
-                n_rows = -1 + sum(
-                    1 for row in csv.reader(f)
-                    if list(row)[0] not in set(filenames_on_server)
-                )
-
-            if n_rows < len(filenames_on_server): 
-                # more filenames than rows in the embedding file
-                # -> append rows from server
-                print('Appending embeddings from server.')
-                api_workflow_client.append_embeddings(
-                    path_to_embeddings,
-                    embedding.id,
-                )
-                now = datetime.now().strftime('%Y%m%d_%Hh%Mm%Ss')
-                name = f'{name}_{now}'
+            # -> append rows from server
+            print('Appending embeddings from server.')
+            api_workflow_client.append_embeddings(
+                path_to_embeddings,
+                embedding.id,
+            )
+            now = datetime.now().strftime('%Y%m%d_%Hh%Mm%Ss')
+            name = f'{name}_{now}'
 
         api_workflow_client.upload_embeddings(
             path_to_embeddings_csv=path_to_embeddings, name=name
@@ -148,7 +144,7 @@ def _upload_cli(cfg, is_cli_call=True):
             verbose=True
         )
 
-    if new_dataset_name_ok:
+    if new_dataset_name:
         print(f'The dataset_id of the newly created dataset is '
               f'{bcolors.OKBLUE}{api_workflow_client.dataset_id}{bcolors.ENDC}')
 
