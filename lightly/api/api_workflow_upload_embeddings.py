@@ -14,19 +14,20 @@ from lightly.openapi_generated.swagger_client.models.write_csv_url_data \
 from lightly.utils.io import check_filenames
 
 
-def _get_csv_reader_from_read_url(read_url: str):
-    """Makes a get request to the signed read url and returns the .csv file.
-
-    """
-    request = Request(read_url, method='GET')
-    with urlopen(request) as response:
-        buffer = io.StringIO(response.read().decode('utf-8'))
-        reader = csv.reader(buffer)
-
-    return reader
 
 
 class _UploadEmbeddingsMixin:
+
+    def _get_csv_reader_from_read_url(self, read_url: str):
+        """Makes a get request to the signed read url and returns the .csv file.
+
+        """
+        request = Request(read_url, method='GET')
+        with urlopen(request) as response:
+            buffer = io.StringIO(response.read().decode('utf-8'))
+            reader = csv.reader(buffer)
+
+        return reader
 
 
     def set_embedding_id_by_name(self, embedding_name: str = None):
@@ -141,7 +142,7 @@ class _UploadEmbeddingsMixin:
         # read embedding from API
         embedding_read_url = self.embeddings_api \
             .get_embeddings_csv_read_url_by_id(self.dataset_id, embedding_id)
-        embedding_reader = _get_csv_reader_from_read_url(embedding_read_url)
+        embedding_reader = self._get_csv_reader_from_read_url(embedding_read_url)
         rows = list(embedding_reader)
         header, online_rows = rows[0], rows[1:]
 
@@ -152,8 +153,8 @@ class _UploadEmbeddingsMixin:
             if len(local_rows[0]) != len(header):
                 raise RuntimeError(
                     'Column mismatch! Number of columns in local and remote'
-                    f'embeddings files must match but are {len(local_rows[0])}'
-                    f'and {len(header[0])} respectively.'
+                    f' embeddings files must match but are {len(local_rows[0])}'
+                    f' and {len(header)} respectively.'
                 )
 
             local_rows = local_rows[1:]
@@ -193,10 +194,12 @@ class _UploadEmbeddingsMixin:
             index_filenames = header_row.index('filenames')
             filenames = [row[index_filenames] for row in rows_without_header]
 
-            if len(filenames) != len(self.filenames_on_server):
+            filenames_on_server = self.filenames_on_server
+
+            if len(filenames) != len(filenames_on_server):
                 raise ValueError(f'There are {len(filenames)} rows in the embedding file, but '
-                                 f'{len(self.filenames_on_server)} filenames/samples on the server.')
-            if set(filenames) != set(self.filenames_on_server):
+                                 f'{len(filenames_on_server)} filenames/samples on the server.')
+            if set(filenames) != set(filenames_on_server):
                 raise ValueError(f'The filenames in the embedding file and '
                                  f'the filenames on the server do not align')
             check_filenames(filenames)

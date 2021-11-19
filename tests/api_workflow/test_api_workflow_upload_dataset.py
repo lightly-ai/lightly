@@ -144,7 +144,7 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
 
     def test_upload_dataset_twice_with_overlap(self):
 
-        all_sample_names = [f'sample_{i}.jpg' for i in range(10)]
+        all_sample_names = [f'img_upload_twice_{i}.jpg' for i in range(10)]
 
         # upload first part of the dataset (sample_0 - sample_6)
         self.create_fake_dataset(sample_names=all_sample_names[:7])
