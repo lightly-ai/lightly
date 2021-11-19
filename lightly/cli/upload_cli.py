@@ -49,7 +49,7 @@ def _upload_cli(cfg, is_cli_call=True):
             cli_api_args_wrong = True
         else:
             api_workflow_client = \
-                ApiWorkflowClient(token=token,dataset_id=dataset_id)
+                ApiWorkflowClient(token=token, dataset_id=dataset_id)
     else:
         if new_dataset_name:
             api_workflow_client = ApiWorkflowClient(token=token)
