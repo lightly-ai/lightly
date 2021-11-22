@@ -8,10 +8,10 @@ Tutorial 6: Pre-train a Detectron2 Backbone with Lightly
 ==========================================================
 
 In this tutorial we show how you can do self-supervised pre-training of a
-Detectron2 backbone with lightly. The focus of this tutorial is on how to get
-and store a pre-trained ResNet50 backbone of the popular Detectron2 framework.
-If you want to learn more about self-supervised learning in general, go check
-out the following tutorials:
+`Detectron2 <https://github.com/facebookresearch/detectron2>`_ backbone with lightly.
+The focus of this tutorial is on how to get and store a pre-trained ResNet50
+backbone of the popular Detectron2 framework. If you want to learn more about
+self-supervised learning in general, go check out the following tutorials:
 
  - :ref:`lightly-moco-tutorial-2`
  - :ref:`lightly-simclr-tutorial-3`:
@@ -23,21 +23,30 @@ What you will learn:
 - How to do self-supervised learning with the backbone
 - How to store the backbone in a checkpoint file which can be used by Detectron2
 
+Introduction
+----------------
+
+For many tasks in computer vision it can be beneficial to pre-train a neural network
+on a domain-specific dataset prior to finetuning it. For example, a retail detection
+network can be pre-trained with self-supervised learning on a large retail detection
+dataset. This way the neural network learns to extract relevant features from the images
+without requiring any annotations at all. As a consequence, it's possible to finetune
+the network with only a handful of annotated images. This tutorial will guide you
+through the steps to pre-train a detection backbone from the popular
+`Detectron2 <https://github.com/facebookresearch/detectron2>`_ framework.
+
 Prerequisites:
 ----------------
 For the purpose of this tutorial you will need to:
 
 - Install Lightly: Follow the `instructions <https://docs.lightly.ai/getting_started/install.html>`_.
 - Install Detectron2: Follow the `instructions <https://detectron2.readthedocs.io/en/latest/tutorials/install.html>`_.
-- Download a dataset for pre-training (we will use the `SKU-110K <https://github.com/eg4000/SKU110K_CVPR19>`_ dataset).
+- Download a dataset for pre-training (we will use the `Freiburg Groceries Dataset <https://github.com/PhilJd/freiburg_groceries_dataset>`_ dataset). You can download it by cloning the Github repository and running `download_dataset.py`. Alternatively, you can use this `download link <http://aisdatasets.informatik.uni-freiburg.de/freiburg_groceries_dataset/freiburg_groceries_dataset.tar.gz>`_
 
 .. note::
 
-    The SKU-110K dataset is an object detection benchmark for densely packed scenes. It consists of more than 10'000
-    images showing retail shelves from varying angles and different camera models. Since contrastive learning works
-    especially well on object-centric images, cropping the objects prior to pre-training would be beneficial. However,
-    we will use the original images for simplicity. Take a look at `lightly-crop` (:ref:`lightly-command-line-tool`)
-    for more info on how to easily extract bounding box crops from your dataset.
+    The `Freiburg Groceries Dataset <https://github.com/PhilJd/freiburg_groceries_dataset>`_ consists of 5000 256x256 RGB images of 25 food classes.
+    Images show one or multiple instances of grocery products in shelves or similar scenarios.
 
 Finally, you will need the Detectron2 configuration files. They are available `here <https://github.com/facebookresearch/detectron2/tree/main/configs>`_.
 In this tutorial we use a Faster RCNN with a feature pyramid network (FPN), so make sure you have the relevant file (Base-RCNN-FPN.yaml) in your directory.
@@ -60,52 +69,52 @@ from detectron2.checkpoint import DetectionCheckpointer
 # -------------
 # Let's set the configuration parameters for our experiments.
 #
-# We use a batch size of 64 and an input size of 128 in order to fit everything
+# We use a batch size of 512 and an input size of 128 in order to fit everything
 # on the available amount of memory on our GPU (16GB). The number of features
 # is set to the default output size of the ResNet50 backbone.
 #
-# We only train for 5 epochs because the focus of this tutorial is on the
+# We only train for 10 epochs because the focus of this tutorial is on the
 # integration with Detectron2.
 
 num_workers = 8
-batch_size = 64
+batch_size = 512
 input_size = 128
 num_ftrs = 2048
-lr = 0.001
+lr = 0.1
 
 seed = 1
-max_epochs = 5
+max_epochs = 10
 
 # use cuda if possible
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-# some images in the dataset are truncated, use this to prevent errors
-from PIL import ImageFile
-ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # %%
 # You might have downloaded the dataset somewhere else or are using a different one.
 # Set the path to the dataset accordingly. Additionally, make sure to set the
 # path to the config file of the Detectron2 model you want to use.
 # We will be using an RCNN with a feature pyramid network (FPN).
-data_path = '/datasets/SKU110K_fixed/images'
+data_path = '/datasets/freiburg_groceries_dataset/images'
 cfg_path = './Base-RCNN-FPN.yaml'
 
 # %%
 # Initialize the Detectron2 Model
 # --------------------------------
 # 
-# Since the output of the Detectron2 ResNet50 backbone is a dictionary with the keys
-# `res1` through `res5`, we have to add an additional layer which picks the right output.
-class SelectFeatures(torch.nn.Module):
-    """Selects features from a given output layer"""
-    
-    def __init__(self, features):
+# The output of the Detectron2 ResNet50 backbone is a dictionary with the keys
+# `res1` through `res5` (see the `documentation <https://detectron2.readthedocs.io/en/latest/modules/modeling.html#detectron2.modeling.ResNet>`_).
+# The keys correspond to the different stages of the ResNet. In this tutorial, we are only
+# interested in the high-level abstractions from the last layer, `res5`. Therefore,
+# we have to add an additional layer which picks the right output from the dictionary.
+class SelectStage(torch.nn.Module):
+    """Selects features from a given stage."""
+
+    def __init__(self, stage: str = 'res5'):
         super().__init__()
-        self.features = features
-    
+        self.stage = stage
+
     def forward(self, x):
-        return x[self.features]
+        return x[self.stage]
 
 # %%
 # Let's load the config file and make some adjustments to ensure smooth training.
@@ -129,7 +138,7 @@ detmodel = modeling.build_model(cfg)
 
 backbone = torch.nn.Sequential(
     detmodel.backbone.bottom_up,
-    SelectFeatures('res5'),
+    SelectStage('res5'),
     torch.nn.AdaptiveAvgPool2d(1),
 ).to(device)
 
@@ -153,10 +162,7 @@ projection_head = lightly.models.modules.SimCLRProjectionHead(
 # We don't go into detail here about using the optimal augmentations.
 # You can learn more about the different augmentations and learned invariances
 # here: :ref:`lightly-advanced`.
-collate_fn = lightly.data.SimCLRCollateFunction(
-    input_size=input_size,
-    min_scale=0.85,
-)
+collate_fn = lightly.data.SimCLRCollateFunction(input_size=input_size)
 
 dataset_train_simclr = lightly.data.LightlyDataset(input_dir=data_path)
 
@@ -178,7 +184,8 @@ criterion = lightly.loss.NTXentLoss()
 optimizer = torch.optim.SGD(
     list(backbone.parameters()) + list(projection_head.parameters()),
     lr=lr,
-    momentum=0.9
+    momentum=0.9,
+    weight_decay=1e-6,
 )
 
 
@@ -211,6 +218,8 @@ for e in range(max_epochs):
 # -----------------------
 # Now, we can use the pre-trained backbone from the Detectron2 model. The code
 # below shows how to save it as a Detectron2 checkpoint called `my_model.pth`.
+
+# get the first module from the backbone (i.e. the detectron2 ResNet)
 detmodel.backbone.bottom_up = backbone[0]
 
 checkpointer = DetectionCheckpointer(detmodel, save_dir='./')
@@ -239,6 +248,8 @@ checkpointer.save('my_model')
 #
 #   Since the model was pre-trained with images in the RGB input format, it's
 #   necessary to set the input format, pixel mean, and pixel std as shown above.
+#   The mean and std are the same ones as in the config file but reordered to
+#   match the RGB format.
 
 
 # %%
