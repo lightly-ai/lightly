@@ -44,15 +44,15 @@ class _TagsMixin:
                 The filenames of all samples in the tag.
 
         """
+        tag_name_id_dict = {tag.name: tag.id for tag in self._get_all_tags()}
         if tag_name:
-            tag_name_id_dict = {
-                tag.name: tag.id for tag in self._get_all_tags()
-            }
+
             tag_id = tag_name_id_dict.get(tag_name, None)
             if tag_id is None:
                 raise ValueError(f'Your tag_name is invalid: {tag_name}.')
-        elif tag_id is None:
+        elif tag_id is None or tag_id not in tag_name_id_dict.values():
             raise ValueError(f'Your tag_id is invalid: {tag_id}')
+
         tag_data = self._tags_api.get_tag_by_tag_id(self.dataset_id, tag_id)
 
         if exclude_parent_tag:
