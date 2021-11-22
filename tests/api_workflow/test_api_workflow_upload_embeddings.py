@@ -96,19 +96,10 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         with self.assertRaises(ValueError):
             self.api_workflow_client.set_embedding_id_by_name(embedding_name)
 
-    def test_upload_existing_embedding(self):
-        embeddings = self.api_workflow_client._embeddings_api.\
-            get_embeddings_by_dataset_id(self.api_workflow_client.dataset_id)
-
-        embedding_name = embeddings[0].name
-
-        n_data = len(self.api_workflow_client._mappings_api.sample_names)
-        self.t_ester_upload_embedding(n_data=n_data, name=embedding_name)
-
     def test_set_embedding_id_default(self):
         self.api_workflow_client.set_embedding_id_by_name()
 
-    def test_append_embeddings(self):
+    def test_upload_existing_embedding(self):
     
         # first upload embeddings
         n_data = len(self.api_workflow_client._mappings_api.sample_names)
@@ -124,7 +115,6 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
             self.path_to_embeddings,
             'embedding_id_xyz_2',
         )
-
 
     def test_append_embeddings_with_overlap(self):
 

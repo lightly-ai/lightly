@@ -2,6 +2,7 @@ import io
 import csv
 import tempfile
 import hashlib
+from datetime import datetime
 from typing import List
 from urllib.request import Request, urlopen
 
@@ -70,13 +71,21 @@ class _UploadEmbeddingsMixin:
         """
         # get the names of the current embeddings on the server:
         embeddings_on_server: List[DatasetEmbeddingData] = \
-            self._embeddings_api.get_embeddings_by_dataset_id(dataset_id=self.dataset_id)
-        names_embeddings_on_server = [embedding.name for embedding in embeddings_on_server]
+            self._embeddings_api.get_embeddings_by_dataset_id(
+                dataset_id=self.dataset_id
+            )
+        embeddings_on_server_dict = {
+            embedding.name: embedding
+            for embedding in embeddings_on_server
+        }
 
-        if name in names_embeddings_on_server:
-            print(f"Aborting upload, embedding with name='{name}' already exists.")
-            self.embedding_id = next(embedding for embedding in embeddings_on_server if embedding.name == name).id
-            return
+        if name in embeddings_on_server_dict.keys():
+            # -> append rows from server
+            print('Appending embeddings from server.')
+            embedding_id = embeddings_on_server_dict[name]
+            self.append_embeddings(path_to_embeddings_csv, embedding_id)
+            now = datetime.now().strftime('%Y%m%d_%Hh%Mm%Ss')
+            name = f'{name}_{now}'
 
         # create a new csv with the filenames in the desired order
         rows_csv = self._order_csv_by_filenames(

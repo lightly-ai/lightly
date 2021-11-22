@@ -103,35 +103,6 @@ def _upload_cli(cfg, is_cli_call=True):
     if path_to_embeddings:
         name = cfg['embedding_name']
         print('Starting upload of embeddings.')
-        try:
-            embeddings = api_workflow_client._embeddings_api \
-                .get_embeddings_by_dataset_id(dataset_id=api_workflow_client.dataset_id)
-            # use latest embedding first
-            embeddings = sorted(
-                embeddings,
-                key=lambda x: x.created_at,
-                reverse=True
-            )
-            # find the latest embedding that starts with the name
-            # e.g. default_20211018_12h00m00s
-            embedding = next(
-                embedding for embedding in embeddings
-                if embedding.name.startswith(name)
-            )
-        except StopIteration:
-            embedding = None
-
-        if embedding is not None:
-
-            # -> append rows from server
-            print('Appending embeddings from server.')
-            api_workflow_client.append_embeddings(
-                path_to_embeddings,
-                embedding.id,
-            )
-            now = datetime.now().strftime('%Y%m%d_%Hh%Mm%Ss')
-            name = f'{name}_{now}'
-
         api_workflow_client.upload_embeddings(
             path_to_embeddings_csv=path_to_embeddings, name=name
         )
