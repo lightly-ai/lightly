@@ -104,7 +104,7 @@ def _upload_cli(cfg, is_cli_call=True):
         name = cfg['embedding_name']
         print('Starting upload of embeddings.')
         try:
-            embeddings = api_workflow_client.embeddings_api \
+            embeddings = api_workflow_client._embeddings_api \
                 .get_embeddings_by_dataset_id(dataset_id=api_workflow_client.dataset_id)
             # use latest embedding first
             embeddings = sorted(
