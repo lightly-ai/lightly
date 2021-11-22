@@ -70,8 +70,8 @@ with the normalized temperature-scaled cross entropy loss and simple stochastic 
 
     import torchvision
 
-    import lightly.models as models
-    import lightly.loss as loss
+    from lightly.loss import NTXentLoss
+    from lightly.models.modules.heads import SimCLRProjectionHead
 
     # use a resnet backbone
     resnet = torchvision.models.resnet18()
@@ -93,7 +93,7 @@ with the normalized temperature-scaled cross entropy loss and simple stochastic 
 
     # use a criterion for self-supervised learning
     # (normalized temperature-scaled cross entropy loss)
-    criterion = loss.NTXentLoss(temperature=0.5)
+    criterion = NTXentLoss(temperature=0.5)
 
     # get a PyTorch optimizer
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-0, weight_decay=1e-5)
@@ -135,7 +135,7 @@ You can of course also use `PyTorch Lightning <https://www.pytorchlightning.ai/>
         def __init__(self, backbone, hidden_dim, out_dim):
             self.backbone = backbone
             self.projection_head = SimCLRProjectionHead(hidden_dim, hidden_dim, out_dim)
-            self.criterion = loss.NTXentLoss(temperature=0.5)
+            self.criterion = NTXentLoss(temperature=0.5)
 
         def forward(self, x):
             h = self.backbone(x).flatten(start_dim=1)
