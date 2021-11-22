@@ -46,7 +46,7 @@ class _SamplingMixin:
                 score_type=score_type,
                 scores=_parse_active_learning_scores(score_values)
             )
-            self.scores_api.create_or_update_active_learning_score_by_tag_id(
+            self._scores_api.create_or_update_active_learning_score_by_tag_id(
                 body,
                 dataset_id=self.dataset_id,
                 tag_id=query_tag_id,

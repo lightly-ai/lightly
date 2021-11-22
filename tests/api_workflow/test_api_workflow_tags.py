@@ -13,7 +13,7 @@ from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowClient, MockedApiWorkflowSetup
 
 
-class TestApiWorkflow(MockedApiWorkflowSetup):
+class TestApiWorkflowTags(MockedApiWorkflowSetup):
 
     def setUp(self) -> None:
         lightly.api.api_workflow_client.__version__ = lightly.__version__
@@ -50,10 +50,10 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
 
     def test_get_tag_filenames(self):
         filenames = self.api_workflow_client.download_filenames_from_server()
-        self.api_workflow_client.get_tag_and_filenames(tag_id="sfdsdf", filenames_on_server=filenames)
+        self.api_workflow_client.get_tag_and_filenames(tag_id=self.valid_tag_id, filenames_on_server=filenames)
 
     def test_get_tag_exclude_parent(self):
-        self.api_workflow_client.get_tag_and_filenames(tag_id="sfdsdf", exclude_parent_tag=True)
+        self.api_workflow_client.get_tag_and_filenames(tag_id=self.valid_tag_id, exclude_parent_tag=True)
 
 
 
