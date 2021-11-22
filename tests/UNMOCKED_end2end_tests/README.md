@@ -1,11 +1,18 @@
 This repository contains scripts to test the python package with a server. 
 
-## Testing the Server API with active lerning
+## Testing the Server API with CLI commands
+You only need an account on the server and a dataset.
+Once you have a token from our production server `https://app.lightly.ai`, you can run:
+```bash
+bash test_api_on_branch.sh path/to/dataset TOKEN
+```
+
+## Testing the Server API with active learning
 You only need an account on the server and a dataset.
 Once you have a token from our production server `https://app.lightly.ai`, you can run:
 
 ```bash
-python tests/UNMOCKED_end2end_tests/test_api.py path/to/dataset TOKEN_FROM_PRODUCTION
+python tests/UNMOCKED_end2end_tests/test_api.py path/to/dataset TOKEN
 ```
 
 If you want to test on another server, e.g. staging, get your token from there and then run:
