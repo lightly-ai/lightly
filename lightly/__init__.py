@@ -29,11 +29,6 @@ The framework is structured into the following modules:
   collate functions are in charge of the data augmentations which are crucial for
   self-supervised learning.
 
-- **embedding**:
-
-  The lightly.embedding module combines the self-supervised models with a dataloader,
-  optimizer, and loss function to provide a simple pytorch-lightning trainable.
-
 - **loss**:
 
   The lightly.loss module contains implementations of popular self-supervised training
@@ -41,20 +36,22 @@ The framework is structured into the following modules:
 
 - **models**:
 
-  The lightly.models module holds the implementation of the ResNet as well as self-
-  supervised methods. Currently implements:
-
-  - SimCLR
-
-  - MoCo
-
-  - SimSiam
+  The lightly.models module holds the implementation of the ResNet as well as heads
+  for self-supervised methods. It currently implements the heads of:
 
   - Barlow Twins
 
   - BYOL
-
+  
+  - MoCo
+  
   - NNCLR
+  
+  - SimCLR
+  
+  - SimSiam
+  
+  - SwaV
 
 - **transforms**:
 
