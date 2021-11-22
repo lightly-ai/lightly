@@ -130,6 +130,7 @@ Congrats, you just trained your first model using self-supervised learning!
 You can of course also use `PyTorch Lightning <https://www.pytorchlightning.ai/>`_ to implement and train your model.
 
 .. code-block:: python
+    import pytorch_lightning as pl
 
     class SimCLR(pl.LightningModule):
         def __init__(self, backbone, hidden_dim, out_dim):
@@ -153,7 +154,7 @@ You can of course also use `PyTorch Lightning <https://www.pytorchlightning.ai/>
             optimizer = torch.optim.SGD(self.parameters())
             return optimizer
     
-    model = SimCLRModule(resnet, hidden_dim=512, out_dim=128)
+    model = SimCLR(resnet, hidden_dim=512, out_dim=128)
     trainer = pl.Trainer(max_epochs=max_epochs, gpus=1)
     trainer.fit(
         model,
