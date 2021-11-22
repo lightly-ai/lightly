@@ -1,11 +1,9 @@
-import time
-import random
-import time
 import warnings
 from io import IOBase
 from typing import *
 
 import requests
+from lightly.api.api_workflow_tags import _TagsMixin
 from requests import Response
 
 from lightly.__init__ import __version__
@@ -15,19 +13,29 @@ from lightly.api.api_workflow_sampling import _SamplingMixin
 from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
+from lightly.api.bitmask import BitMask
 from lightly.api.utils import getenv
-from lightly.api.version_checking import get_minimum_compatible_version, version_compare
-from lightly.openapi_generated.swagger_client import TagData, ScoresApi, QuotaApi
-from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
-from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
+from lightly.api.version_checking import get_minimum_compatible_version, \
+    version_compare
+from lightly.openapi_generated.swagger_client import TagData, ScoresApi, \
+    QuotaApi, TagArithmeticsRequest, TagArithmeticsOperation, \
+    TagBitMaskResponse
+from lightly.openapi_generated.swagger_client.api.datasets_api import \
+    DatasetsApi
+from lightly.openapi_generated.swagger_client.api.embeddings_api import \
+    EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
-from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
+from lightly.openapi_generated.swagger_client.api.mappings_api import \
+    MappingsApi
 from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
-from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
+from lightly.openapi_generated.swagger_client.api.samplings_api import \
+    SamplingsApi
 from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
-from lightly.openapi_generated.swagger_client.configuration import Configuration
-from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
+from lightly.openapi_generated.swagger_client.configuration import \
+    Configuration
+from lightly.openapi_generated.swagger_client.models.dataset_data import \
+    DatasetData
 
 
 class ApiWorkflowClient(_UploadEmbeddingsMixin,
@@ -35,7 +43,9 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                         _UploadDatasetMixin,
                         _DownloadDatasetMixin,
                         _DatasetsMixin,
-                        _UploadCustomMetadataMixin):
+                        _UploadCustomMetadataMixin,
+                        _TagsMixin
+                        ):
     """Provides a uniform interface to communicate with the api 
     
     The APIWorkflowClient is used to communicaate with the Lightly API. The client
@@ -106,9 +116,6 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                                       f"taking the last modified dataset {last_modified_dataset.name} as default dataset."))
             return self._dataset_id
 
-    def _get_all_tags(self) -> List[TagData]:
-        return self._tags_api.get_tags_by_dataset_id(self.dataset_id)
-
     def _order_list_by_filenames(
             self, filenames_for_list: List[str],
             list_to_order: List[object]
@@ -129,26 +136,89 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             filenames_for_list.
 
         """
+        filenames_on_server = self.download_filenames_from_server()
         if len(filenames_for_list) != len(list_to_order) or \
-                len(filenames_for_list) != len(self.filenames_on_server):
+                len(filenames_for_list) != len(filenames_on_server):
             raise ValueError(
                 f"All inputs (filenames_for_list,  list_to_order and "
                 f"self.filenames_on_server) must have the same length, "
                 f"but their lengths are: ({len(filenames_for_list)},"
-                f"{len(list_to_order)} and {len(self.filenames_on_server)})."
+                f"{len(list_to_order)} and {len(filenames_on_server)})."
             )
         dict_by_filenames = dict(zip(filenames_for_list, list_to_order))
-        list_ordered = [dict_by_filenames[filename] for filename in self.filenames_on_server]
+        list_ordered = [dict_by_filenames[filename] for filename in filenames_on_server]
         return list_ordered
 
-    @property
-    def filenames_on_server(self):
-        """The list of the filenames in the dataset.
-        
+    def download_filenames_from_server(self) -> List[str]:
+        """Downloads the list of filenames from the server.
+
+        This is an expensive operation, especially for large datasets.
         """
-        self._filenames_on_server = self._mappings_api. \
+        filenames_on_server = self._mappings_api. \
             get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
-        return self._filenames_on_server
+        return filenames_on_server
+
+    def get_tag_and_filenames(
+            self,
+            tag_name: str = None,
+            tag_id: str = None,
+            filenames_on_server: List[str] = None,
+            exclude_parent_tag: bool = False
+    ) -> Tuple[TagData, List[str]]:
+        """Gets the TagData of a tag and the filenames in it
+
+        The tag_name or the tag_id must be passed.
+        The tag_name overwrites the tag_id.
+        Args:
+            tag_name:
+                The name of the tag.
+            tag_id:
+                The id of the tag.
+            filenames_on_server:
+                List of all filenames on the server. If they are not given,
+                they need to be download newly, which is quite expensive.
+            exclude_parent_tag:
+                Excludes the parent tag in the returned filenames.
+
+        Returns:
+            tag_data:
+                The tag_data, raw from the API
+            filenames_tag:
+                The filenames of all samples in the tag.
+
+        """
+        tag_name_id_dict = {tag.name: tag.id for tag in self._get_all_tags()}
+        if tag_name:
+            tag_name_id_dict = {
+                tag.name: tag.id for tag in self._get_all_tags()
+            }
+            tag_id = tag_name_id_dict.get(tag_name, None)
+            if tag_id is None:
+                raise ValueError(f'Your tag_name is invalid: {tag_name}.')
+        elif tag_id is None or tag_id not in tag_name_id_dict.values():
+            raise ValueError(f'Your tag_id is invalid: {tag_id}')
+        tag_data = self._tags_api.get_tag_by_tag_id(self.dataset_id, tag_id)
+
+        if exclude_parent_tag:
+            parent_tag_id = tag_data.prev_tag_id
+            tag_arithmetics_request = TagArithmeticsRequest(
+                tag_id1=tag_data.id, tag_id2=parent_tag_id,
+                operation=TagArithmeticsOperation.DIFFERENCE)
+            bit_mask_response: TagBitMaskResponse = \
+                self._tags_api.perform_tag_arithmetics(
+                    body=tag_arithmetics_request, dataset_id=self.dataset_id
+                )
+            bit_mask_data = bit_mask_response.bit_mask_data
+        else:
+            bit_mask_data = tag_data.bit_mask_data
+
+        if not filenames_on_server:
+            filenames_on_server = self.download_filenames_from_server()
+
+        chosen_samples_ids = BitMask.from_hex(bit_mask_data).to_indices()
+        filenames_tag = [filenames_on_server[i] for i in chosen_samples_ids]
+
+        return tag_data, filenames_tag
 
     def upload_file_with_signed_url(self,
                                     file: IOBase,

@@ -64,7 +64,7 @@ class TestCLIDownload(MockedApiWorkflowSetup):
     def test_download_tag_name_nonexisting(self):
         cli_string = "lightly-download token='123' dataset_id='XYZ' tag_name='nonexisting_xyz'"
         self.parse_cli_string(cli_string)
-        with self.assertWarns(Warning):
+        with self.assertRaises(ValueError):
             lightly.cli.download_cli(self.cfg)
 
     def test_download_tag_name_exclude_parent(self):

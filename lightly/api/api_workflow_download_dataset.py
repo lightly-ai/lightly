@@ -88,7 +88,8 @@ class _DownloadDatasetMixin:
 
         indices = BitMask.from_hex(tag.bit_mask_data).to_indices()
         sample_ids = [sample_ids[i] for i in indices]
-        filenames = [self.filenames_on_server[i] for i in indices]
+        filenames_on_server = self.download_filenames_from_server()
+        filenames = [filenames_on_server[i] for i in indices]
 
         if verbose:
             print(f'Downloading {len(sample_ids)} images:', flush=True)

@@ -106,7 +106,7 @@ class _SamplingMixin:
             time.sleep(wait_time_till_next_poll)
             # try to read the sleep time until the next poll from the status data
             try:
-                job_status_data: JobStatusData = self.jobs_api.get_job_status_by_id(job_id=job_id)
+                job_status_data: JobStatusData = self._jobs_api.get_job_status_by_id(job_id=job_id)
                 wait_time_till_next_poll = job_status_data.wait_time_till_next_poll
             except Exception as err:
                 exception_counter += 1
@@ -121,7 +121,7 @@ class _SamplingMixin:
         new_tag_id = job_status_data.result.data
         if new_tag_id is None:
             raise RuntimeError(f"TagId returned by job with job_id {job_id} is None.")
-        new_tag_data = self.tags_api.get_tag_by_tag_id(self.dataset_id, tag_id=new_tag_id)
+        new_tag_data = self._tags_api.get_tag_by_tag_id(self.dataset_id, tag_id=new_tag_id)
 
         return new_tag_data
 

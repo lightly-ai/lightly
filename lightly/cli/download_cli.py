@@ -42,37 +42,15 @@ def _download_cli(cfg, is_cli_call=True):
     )
 
     # get tag id
-    tag_name_id_dict = dict([tag.name, tag.id] for tag in api_workflow_client._get_all_tags())
-    tag_id = tag_name_id_dict.get(tag_name, None)
-    if tag_id is None:
-        warnings.warn(f'The specified tag {tag_name} does not exist.')
-        return
-
-    # get tag data
-    tag_data: TagData = api_workflow_client.tags_api.get_tag_by_tag_id(
-        dataset_id=dataset_id, tag_id=tag_id
+    tag, filenames_tag = api_workflow_client.get_tag_and_filenames(
+        tag_name=cfg['tag_name'],
+        exclude_parent_tag=cfg['exclude_parent_tag']
     )
-
-    if cfg["exclude_parent_tag"]:
-        parent_tag_id = tag_data.prev_tag_id
-        tag_arithmetics_request = TagArithmeticsRequest(
-            tag_id1=tag_data.id,
-            tag_id2=parent_tag_id,
-            operation=TagArithmeticsOperation.DIFFERENCE)
-        bit_mask_response: TagBitMaskResponse \
-            = api_workflow_client.tags_api.perform_tag_arithmetics(body=tag_arithmetics_request, dataset_id=dataset_id)
-        bit_mask_data = bit_mask_response.bit_mask_data
-    else:
-        bit_mask_data = tag_data.bit_mask_data
-
-    # get samples
-    chosen_samples_ids = BitMask.from_hex(bit_mask_data).to_indices()
-    samples = [api_workflow_client.filenames_on_server[i] for i in chosen_samples_ids]
 
     # store sample names in a .txt file
     filename = tag_name + '.txt'
     with open(filename, 'w') as f:
-        for item in samples:
+        for item in filenames_tag:
             f.write("%s\n" % item)
 
     filepath = os.path.join(os.getcwd(), filename)
@@ -93,7 +71,7 @@ def _download_cli(cfg, is_cli_call=True):
         dataset = data.LightlyDataset(input_dir=input_dir)
 
         # dump the dataset in the output directory
-        dataset.dump(output_dir, samples)
+        dataset.dump(output_dir, filenames_tag)
 
 
 @hydra.main(config_path='config', config_name='config')

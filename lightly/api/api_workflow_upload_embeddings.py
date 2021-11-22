@@ -194,7 +194,7 @@ class _UploadEmbeddingsMixin:
             index_filenames = header_row.index('filenames')
             filenames = [row[index_filenames] for row in rows_without_header]
 
-            filenames_on_server = self.filenames_on_server
+            filenames_on_server = self.download_filenames_from_server()
 
             if len(filenames) != len(filenames_on_server):
                 raise ValueError(f'There are {len(filenames)} rows in the embedding file, but '
