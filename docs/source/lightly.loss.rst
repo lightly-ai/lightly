@@ -8,6 +8,11 @@ lightly.loss
 .. autoclass:: lightly.loss.ntx_ent_loss.NTXentLoss
    :members:
 
+.negative_cosine_similarity
+---------------------------
+.. autoclass:: lightly.loss.negative_cosine_similarity.NegativeCosineSimilarity
+   :members:
+
 .sym_neg_cos_sim_loss
 ----------------------
 .. autoclass:: lightly.loss.sym_neg_cos_sim_loss.SymNegCosineSimilarityLoss
