@@ -41,7 +41,7 @@ class _UploadEmbeddingsMixin:
             ValueError if the embedding does not exist.
         """
         embeddings: List[DatasetEmbeddingData] = \
-            self.embeddings_api.get_embeddings_by_dataset_id(dataset_id=self.dataset_id)
+            self._embeddings_api.get_embeddings_by_dataset_id(dataset_id=self.dataset_id)
 
         if embedding_name is None:
             self.embedding_id = embeddings[-1].id
@@ -70,7 +70,7 @@ class _UploadEmbeddingsMixin:
         """
         # get the names of the current embeddings on the server:
         embeddings_on_server: List[DatasetEmbeddingData] = \
-            self.embeddings_api.get_embeddings_by_dataset_id(dataset_id=self.dataset_id)
+            self._embeddings_api.get_embeddings_by_dataset_id(dataset_id=self.dataset_id)
         names_embeddings_on_server = [embedding.name for embedding in embeddings_on_server]
 
         if name in names_embeddings_on_server:
@@ -84,7 +84,7 @@ class _UploadEmbeddingsMixin:
 
         # get the URL to upload the csv to
         response: WriteCSVUrlData = \
-            self.embeddings_api.get_embeddings_csv_write_url_by_id(self.dataset_id, name=name)
+            self._embeddings_api.get_embeddings_csv_write_url_by_id(self.dataset_id, name=name)
         self.embedding_id = response.embedding_id
         signed_write_url = response.signed_write_url
 
@@ -111,7 +111,7 @@ class _UploadEmbeddingsMixin:
 
             body = EmbeddingIdTrigger2dEmbeddingsJobBody(
                 dimensionality_reduction_method=dimensionality_reduction_method)
-            self.embeddings_api.trigger2d_embeddings_job(
+            self._embeddings_api.trigger2d_embeddings_job(
                 body=body,
                 dataset_id=self.dataset_id,
                 embedding_id=self.embedding_id
@@ -140,7 +140,7 @@ class _UploadEmbeddingsMixin:
         """
 
         # read embedding from API
-        embedding_read_url = self.embeddings_api \
+        embedding_read_url = self._embeddings_api \
             .get_embeddings_csv_read_url_by_id(self.dataset_id, embedding_id)
         embedding_reader = self._get_csv_reader_from_read_url(embedding_read_url)
         rows = list(embedding_reader)

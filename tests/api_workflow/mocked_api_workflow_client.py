@@ -317,16 +317,16 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         lightly.api.version_checking.VersioningApi = MockedVersioningApi
         ApiWorkflowClient.__init__(self, *args, **kwargs)
 
-        self.samplings_api = MockedSamplingsApi(api_client=self.api_client)
-        self.jobs_api = MockedJobsApi(api_client=self.api_client)
-        self.tags_api = MockedTagsApi(api_client=self.api_client)
-        self.embeddings_api = MockedEmbeddingsApi(api_client=self.api_client)
-        self.samples_api = MockedSamplesApi(api_client=self.api_client)
-        self.mappings_api = MockedMappingsApi(api_client=self.api_client,
-                                              samples_api=self.samples_api)
-        self.scores_api = MockedScoresApi(api_client=self.api_client)
-        self.datasets_api = MockedDatasetsApi(api_client=self.api_client)
-        self.quota_api = MockedQuotaApi(api_client=self.api_client)
+        self._samplings_api = MockedSamplingsApi(api_client=self.api_client)
+        self._jobs_api = MockedJobsApi(api_client=self.api_client)
+        self._tags_api = MockedTagsApi(api_client=self.api_client)
+        self._embeddings_api = MockedEmbeddingsApi(api_client=self.api_client)
+        self._samples_api = MockedSamplesApi(api_client=self.api_client)
+        self._mappings_api = MockedMappingsApi(api_client=self.api_client,
+                                              samples_api=self._samples_api)
+        self._scores_api = MockedScoresApi(api_client=self.api_client)
+        self._datasets_api = MockedDatasetsApi(api_client=self.api_client)
+        self._quota_api = MockedQuotaApi(api_client=self.api_client)
 
         lightly.api.api_workflow_client.requests.put = mocked_request_put
 

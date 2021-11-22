@@ -90,7 +90,7 @@ class _SamplingMixin:
         # trigger the sampling
         payload = self._create_sampling_create_request(sampler_config, preselected_tag_id, query_tag_id)
         payload.row_count = self._get_all_tags()[0].tot_size
-        response = self.samplings_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
+        response = self._samplings_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
         job_id = response.job_id
 
         # poll the job status till the job is not running anymore

@@ -71,15 +71,15 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         if embedding_id is not None:
             self.embedding_id = embedding_id
 
-        self.datasets_api = DatasetsApi(api_client=self.api_client)
-        self.samplings_api = SamplingsApi(api_client=self.api_client)
-        self.jobs_api = JobsApi(api_client=self.api_client)
-        self.tags_api = TagsApi(api_client=self.api_client)
-        self.embeddings_api = EmbeddingsApi(api_client=api_client)
-        self.mappings_api = MappingsApi(api_client=api_client)
-        self.scores_api = ScoresApi(api_client=api_client)
-        self.samples_api = SamplesApi(api_client=api_client)
-        self.quota_api = QuotaApi(api_client=api_client)
+        self._datasets_api = DatasetsApi(api_client=self.api_client)
+        self._samplings_api = SamplingsApi(api_client=self.api_client)
+        self._jobs_api = JobsApi(api_client=self.api_client)
+        self._tags_api = TagsApi(api_client=self.api_client)
+        self._embeddings_api = EmbeddingsApi(api_client=api_client)
+        self._mappings_api = MappingsApi(api_client=api_client)
+        self._scores_api = ScoresApi(api_client=api_client)
+        self._samples_api = SamplesApi(api_client=api_client)
+        self._quota_api = QuotaApi(api_client=api_client)
 
     def check_version_compatibility(self):
         minimum_version = get_minimum_compatible_version()
@@ -98,7 +98,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         try:
             return self._dataset_id
         except AttributeError:
-            all_datasets: List[DatasetData] = self.datasets_api.get_datasets()
+            all_datasets: List[DatasetData] = self._datasets_api.get_datasets()
             datasets_sorted = sorted(all_datasets, key=lambda dataset: dataset.last_modified_at)
             last_modified_dataset = datasets_sorted[-1]
             self._dataset_id = last_modified_dataset.id
@@ -107,7 +107,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             return self._dataset_id
 
     def _get_all_tags(self) -> List[TagData]:
-        return self.tags_api.get_tags_by_dataset_id(self.dataset_id)
+        return self._tags_api.get_tags_by_dataset_id(self.dataset_id)
 
     def _order_list_by_filenames(
             self, filenames_for_list: List[str],
@@ -146,7 +146,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         """The list of the filenames in the dataset.
         
         """
-        self._filenames_on_server = self.mappings_api. \
+        self._filenames_on_server = self._mappings_api. \
             get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
         return self._filenames_on_server
 
