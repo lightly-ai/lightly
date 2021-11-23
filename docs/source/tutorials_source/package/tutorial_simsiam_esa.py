@@ -238,10 +238,11 @@ for e in range(epochs):
         x1 = x1.to(device)
 
         # run the model on both transforms of the images
-        # we get predictions and projections as output
+        # we get predictions (p0 and p1) and 
+        # projections (z0 and z1) as output
         p0, p1, z0, z1 = model(x0, x1)
 
-        # apply the symmetric negatice cosine similarity
+        # apply the symmetric negative cosine similarity
         # and run backpropagation
         loss = 0.5 * (criterion(p0, z0) + criterion(p1, z1))
         loss.backward()
