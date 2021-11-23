@@ -73,7 +73,7 @@ from detectron2.checkpoint import DetectionCheckpointer
 # on the available amount of memory on our GPU (16GB). The number of features
 # is set to the default output size of the ResNet50 backbone.
 #
-# We only train for 10 epochs because the focus of this tutorial is on the
+# We only train for 20 epochs because the focus of this tutorial is on the
 # integration with Detectron2.
 
 num_workers = 8
@@ -83,7 +83,7 @@ num_ftrs = 2048
 lr = 0.1
 
 seed = 1
-max_epochs = 10
+max_epochs = 20
 
 # use cuda if possible
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -139,6 +139,7 @@ detmodel = modeling.build_model(cfg)
 backbone = torch.nn.Sequential(
     detmodel.backbone.bottom_up,
     SelectStage('res5'),
+    # res5 has shape 512 x 2048 x 4 x 4
     torch.nn.AdaptiveAvgPool2d(1),
 ).to(device)
 
@@ -220,6 +221,10 @@ for e in range(max_epochs):
 # below shows how to save it as a Detectron2 checkpoint called `my_model.pth`.
 
 # get the first module from the backbone (i.e. the detectron2 ResNet)
+# backbone:
+#     L ResNet50
+#     L SelectStage
+#     L AdaptiveAvgPool2d
 detmodel.backbone.bottom_up = backbone[0]
 
 checkpointer = DetectionCheckpointer(detmodel, save_dir='./')
