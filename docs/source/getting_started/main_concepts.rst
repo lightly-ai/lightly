@@ -1,12 +1,12 @@
 .. _lightly-main-concepts:
 
 Main concepts
-===================
+=============
 
 Self-supervised Learning
---------------------------
+------------------------
 
-The figure below shows an overview of the different used by the ligthly PIP package
+The figure below shows an overview of the different concepts used by the ligthly PIP package
 and a schema of how they interact. The expressions in **bold** are explained further
 below.
 
@@ -18,9 +18,12 @@ below.
     how they interact.
 
 * **Dataset**
-   In lightly, datasets are accessed through the :py:class:`lightly.data.dataset.LightlyDataset`.
+   In lightly, datasets are accessed through :py:class:`lightly.data.dataset.LightlyDataset`.
    You can create a `LightlyDataset` from a folder of images, videos, or simply from
-   a torchvision dataset. You can learn more about this here: :ref:`input-structure-label`.
+   a torchvision dataset. You can learn more about this here: 
+   
+   * :ref:`input-structure-label`
+   
 * **Collate Function**
    The collate function is the place where lightly applies augmentations which are crucial
    for self-supervised learning. You can use our pre-defined augmentations or write your own
@@ -37,7 +40,7 @@ below.
    backbone you want! If you don't know where to start, our tutorials show how you
    can get a backbone neural network from a :py:class:`lightly.models.resnet.ResNet`.
 * **Model**
-   The model combines your backbone neural network with a projection head and, if
+   The model combines your backbone neural network with one or multiple heads and, if
    required, a momentum encoder to provide an easy-to-use interface to the most
    popular self-supervised learning frameworks. Learn more in our tutorials:
 
@@ -47,22 +50,29 @@ below.
 
 * **Loss**
    The loss function plays a crucial role in self-supervised learning. Currently,
-   lightly supports a contrastive and a similarity based loss function.
+   lightly supports contrastive and similarity based loss functions.
 * **Optimizer**
    With lightly, you can use any PyTorch optimizer to train your model.
-* **Self-supervised Embedding**
-   The :py:class:`lightly.embedding.embedding.SelfSupervisedEmbedding` connects the concepts
-   from above in an easy-to-use `PyTorch-Lightning <https://www.pytorchlightning.ai/>`_ module.
-   After creating a `SelfSupervisedEmbedding`, it can be trained with a single line:
+* **Training**
+   The model can either be trained using a plain PyTorch training loop or
+   with a dedicated framework such as PyTorch Lightning. Lightly lets you
+   choose what is best for you. Check out our `tutorials section <https://docs.lightly.ai/tutorials/package.html>`_ 
+   for examples.
+* **Image Embeddings**
+   During the training process, the model learns to create compact embeddings from images.
+   The embeddings, also often called representations, can then be used for tasks such as
+   identifying similar images or creating a diverse subset from your data:
 
-   .. code-block:: Python
+   * :ref:`lightly-tutorial-sunflowers`
+   * :ref:`lightly-simsiam-tutorial-4`  
 
-      # build a self-supervised embedding and train it
-      encoder = lightly.embedding.SelfSupervisedEmbedding(model, loss, optimizer, dataloader)
-      encoder.train(gpus=1, max_epochs=10)
+* **Pre-trained Backbone**
+   The backbone can be reused after self-supervised training. We can transfer it
+   to any other task that requires a similar network architecture, including 
+   image classification, object detection and segmentation tasks. You can learn more in
+   our object detection tutorial:
 
-   However, you can still write the training loop in plain PyTorch code.
-   See :ref:`sphx_glr_tutorials_package_tutorial_simsiam_esa.py` for an example
+   * :ref:`lightly-detectron-tutorial-6`
 
 Active Learning
 -------------------
