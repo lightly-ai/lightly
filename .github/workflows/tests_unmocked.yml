@@ -1,18 +1,16 @@
 name: check setup.py
-on:
-  workflow_dispatch:
-    inputs:
-      token:
-        description: 'API token'
-        required: true
+on: [workflow_dispatch]
 
 jobs:
   test:
     name: Run unmocked tests
     runs-on: ubuntu-latest
     steps:
-    - name: echo token
-      run: echo ${{ github.event.inputs.token }}
+    - name: set token and server location
+      run: |
+        LIGHTLY_SERVER_LOCATION=${{ secretsLIGHTLY_SERVER_LOCATION }}
+        TOKEN=${{ secrets.DUMMY_USER_TOKEN_STAGING }}
+        echo $LIGHTLY_SERVER_LOCATION && echo $TOKEN
     - name: Checkout Code
       uses: actions/checkout@v2
     - name: Set up Python 3.7
@@ -27,4 +25,4 @@ jobs:
       run: pip install . --use-feature=in-tree-build
     - name: run unmocked tests
       run: |
-        bash tests/UNMOCKED_end2end_tests/run_all_unmocked_tests.sh ${{ github.event.inputs.token }}
+        bash tests/UNMOCKED_end2end_tests/run_all_unmocked_tests.sh $TOKEN
