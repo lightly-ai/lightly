@@ -1,13 +1,14 @@
 import os
-import re
 import sys
 import tempfile
 
+import pytest
 import torchvision
 from hydra.experimental import compose, initialize
 
 import lightly
-from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
+from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
+from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowClient
 
 
 class TestCLIDownload(MockedApiWorkflowSetup):
@@ -36,15 +37,13 @@ class TestCLIDownload(MockedApiWorkflowSetup):
         self.output_dir = tempfile.mkdtemp()
 
     def parse_cli_string(self, cli_words: str):
-        cli_words = cli_words.replace("lightly-download ", "")
-        cli_words = re.split("=| ", cli_words)
-        assert len(cli_words) % 2 == 0
-        dict_keys = cli_words[0::2]
-        dict_values = cli_words[1::2]
-        for key, value in zip(dict_keys, dict_values):
-            value = value.strip('\"')
-            value = value.strip('\'')
-            self.cfg[key] = value
+        cli_words = cli_words.replace('lightly-download ', '')
+        overrides = cli_words.split(' ')
+        with initialize(config_path='../../lightly/cli/config/'):
+            self.cfg = compose(
+                config_name='config',
+                overrides=overrides,
+            )
 
     def test_parse_cli_string(self):
         cli_string = "lightly-download token='123' dataset_id='XYZ'"
@@ -97,6 +96,18 @@ class TestCLIDownload(MockedApiWorkflowSetup):
                      f"input_dir={self.input_dir} output_dir={self.output_dir}"
         self.parse_cli_string(cli_string)
         lightly.cli.download_cli(self.cfg)
+
+    def test_download_from_tag_with_integer_name(self):
+        """Test to reproduce issue #575."""
+        # use tag name "1000"
+        cli_string = "lightly-download token='123' dataset_id='dataset_1_id' tag_name=1000"
+        self.parse_cli_string(cli_string)
+        with pytest.warns(None) as record:
+            lightly.cli.download_cli(self.cfg)
+        # check if the warning "Tag with name 1000 does not exist" is raised
+        # if so, the cli string was not parsed correctly
+        # (i.e. as int instead of str)
+        self.assertEqual(len(record), 0)
 
     def tearDown(self) -> None:
         try:
