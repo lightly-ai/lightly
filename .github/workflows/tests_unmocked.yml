@@ -11,6 +11,8 @@ jobs:
     name: Run unmocked tests
     runs-on: ubuntu-latest
     steps:
+    - name: echo token
+      run: echo ${{ github.event.inputs.token }}
     - name: Checkout Code
       uses: actions/checkout@v2
     - name: Set up Python 3.7
@@ -25,4 +27,4 @@ jobs:
       run: pip install . --use-feature=in-tree-build
     - name: run unmocked tests
       run: |
-        tests/UNMOCKED_end2end_tests/run_all_unmocked_tests.sh $TOKEN
+        bash tests/UNMOCKED_end2end_tests/run_all_unmocked_tests.sh ${{ github.event.inputs.token }}
