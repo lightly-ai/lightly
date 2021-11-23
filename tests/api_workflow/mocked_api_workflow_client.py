@@ -151,8 +151,11 @@ class MockedTagsApi(TagsApi):
         tag_4 = TagData(id='sampled_tag_xyz', dataset_id=dataset_id, prev_tag_id="preselected_tag_id_xyz",
                         bit_mask_data="0x3", name='sampled_tag_xyz', tot_size=4,
                         created_at=1577836800, changes=dict())
-        tags = [tag_1, tag_2, tag_3, tag_4]
-        no_tags_to_return = getattr(self, "no_tags", 4)
+        tag_5 = TagData(id='tag_with_integer_name', dataset_id=dataset_id, prev_tag_id=None,
+                        bit_mask_data='0x1', name='1000', tot_size=4,
+                        created_at=1577836800, changes=dict())
+        tags = [tag_1, tag_2, tag_3, tag_4, tag_5]
+        no_tags_to_return = getattr(self, "no_tags", 5)
         tags = tags[:no_tags_to_return]
         return tags
 

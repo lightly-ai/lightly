@@ -27,9 +27,10 @@ from lightly.openapi_generated.swagger_client import TagData, TagArithmeticsRequ
 
 
 def _download_cli(cfg, is_cli_call=True):
-    tag_name = cfg['tag_name']
-    dataset_id = cfg['dataset_id']
-    token = cfg['token']
+
+    tag_name = str(cfg['tag_name'])
+    dataset_id = str(cfg['dataset_id'])
+    token = str(cfg['token'])
 
     if not tag_name or not token or not dataset_id:
         print_as_warning('Please specify all of the parameters tag_name, token and dataset_id')
@@ -69,7 +70,7 @@ def _download_cli(cfg, is_cli_call=True):
     samples = [api_workflow_client.filenames_on_server[i] for i in chosen_samples_ids]
 
     # store sample names in a .txt file
-    filename = cfg['tag_name'] + '.txt'
+    filename = tag_name + '.txt'
     with open(filename, 'w') as f:
         for item in samples:
             f.write("%s\n" % item)
