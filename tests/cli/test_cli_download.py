@@ -104,7 +104,10 @@ class TestCLIDownload(MockedApiWorkflowSetup):
         self.parse_cli_string(cli_string)
         with pytest.warns(None) as record:
             lightly.cli.download_cli(self.cfg)
-        self.assertEqual(len(record), 0) # no warning was raised
+        # check if the warning "Tag with name 1000 does not exist" is raised
+        # if so, the cli string was not parsed correctly
+        # (i.e. as int instead of str)
+        self.assertEqual(len(record), 0)
 
     def tearDown(self) -> None:
         try:
