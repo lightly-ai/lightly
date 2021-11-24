@@ -12,7 +12,8 @@ if __name__ == "__main__":
 
     api_workflow_client = ApiWorkflowClient(token=token)
 
-    for i in range(num_datasets):
+    num_datasets = int(num_datasets)
+    for i in range(1, num_datasets+1):
         dataset_name = f"test_unmocked_cli_{i}"
         api_workflow_client.create_dataset(dataset_name)
         api_workflow_client.delete_dataset_by_id(api_workflow_client.dataset_id)

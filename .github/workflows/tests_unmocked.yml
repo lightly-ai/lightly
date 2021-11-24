@@ -6,10 +6,10 @@ jobs:
     name: Run unmocked tests
     runs-on: ubuntu-latest
     steps:
-    - name: set token and server location
+    - name: Set token and server location
       run: |
-        LIGHTLY_SERVER_LOCATION=${{ secretsLIGHTLY_SERVER_LOCATION }}
-        TOKEN=${{ secrets.DUMMY_USER_TOKEN_STAGING }}
+        export LIGHTLY_SERVER_LOCATION=${{ secrets.LIGHTLY_SERVER_LOCATION }}
+        export TOKEN=${{ secrets.DUMMY_USER_TOKEN_STAGING }}
         echo $LIGHTLY_SERVER_LOCATION && echo $TOKEN
     - name: Checkout Code
       uses: actions/checkout@v2
@@ -25,4 +25,6 @@ jobs:
       run: pip install . --use-feature=in-tree-build
     - name: run unmocked tests
       run: |
+        export LIGHTLY_SERVER_LOCATION=${{ secrets.LIGHTLY_SERVER_LOCATION }}
+        export TOKEN=${{ secrets.DUMMY_USER_TOKEN_STAGING }}
         bash tests/UNMOCKED_end2end_tests/run_all_unmocked_tests.sh $TOKEN
