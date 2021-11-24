@@ -73,17 +73,16 @@ from detectron2.checkpoint import DetectionCheckpointer
 # on the available amount of memory on our GPU (16GB). The number of features
 # is set to the default output size of the ResNet50 backbone.
 #
-# We only train for 20 epochs because the focus of this tutorial is on the
+# We only train for 5 epochs because the focus of this tutorial is on the
 # integration with Detectron2.
 
 num_workers = 8
 batch_size = 512
 input_size = 128
 num_ftrs = 2048
-lr = 0.1
 
 seed = 1
-max_epochs = 20
+max_epochs = 5
 
 # use cuda if possible
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -182,11 +181,9 @@ dataloader_train_simclr = torch.utils.data.DataLoader(
 # Now all we need to do is define a loss and optimizer and start training!
 
 criterion = lightly.loss.NTXentLoss()
-optimizer = torch.optim.SGD(
+optimizer = torch.optim.Adam(
     list(simclr_backbone.parameters()) + list(projection_head.parameters()),
-    lr=lr,
-    momentum=0.9,
-    weight_decay=1e-6,
+    lr=1e-4,
 )
 
 
