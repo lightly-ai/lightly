@@ -154,7 +154,7 @@ class NNCLR(nn.Module):
         )
 
         warnings.warn(Warning(
-            'The high-level building block NNCLR will be deprecated in version 1.2.0. '
+            'The high-level building block NNCLR will be deprecated in version 1.3.0. '
             + 'Use low-level building blocks instead. '
             + 'See https://docs.lightly.ai/lightly.models.html for more information'),
             PendingDeprecationWarning)
