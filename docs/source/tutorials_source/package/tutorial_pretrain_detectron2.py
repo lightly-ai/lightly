@@ -136,10 +136,10 @@ cfg.INPUT.FORMAT = "RGB"
 
 detmodel = modeling.build_model(cfg)
 
-backbone = torch.nn.Sequential(
+simclr_backbone = torch.nn.Sequential(
     detmodel.backbone.bottom_up,
     SelectStage('res5'),
-    # res5 has shape 512 x 2048 x 4 x 4
+    # res5 has shape bsz x 2048 x 4 x 4
     torch.nn.AdaptiveAvgPool2d(1),
 ).to(device)
 
@@ -183,7 +183,7 @@ dataloader_train_simclr = torch.utils.data.DataLoader(
 
 criterion = lightly.loss.NTXentLoss()
 optimizer = torch.optim.SGD(
-    list(backbone.parameters()) + list(projection_head.parameters()),
+    list(simclr_backbone.parameters()) + list(projection_head.parameters()),
     lr=lr,
     momentum=0.9,
     weight_decay=1e-6,
@@ -198,8 +198,8 @@ for e in range(max_epochs):
         x0 = x0.to(device)
         x1 = x1.to(device)
 
-        y0 = projection_head(backbone(x0).flatten(start_dim=1))
-        y1 = projection_head(backbone(x1).flatten(start_dim=1))
+        y0 = projection_head(simclr_backbone(x0).flatten(start_dim=1))
+        y1 = projection_head(simclr_backbone(x1).flatten(start_dim=1))
 
         # backpropagation
         loss = criterion(y0, y1)
@@ -225,7 +225,7 @@ for e in range(max_epochs):
 #     L ResNet50
 #     L SelectStage
 #     L AdaptiveAvgPool2d
-detmodel.backbone.bottom_up = backbone[0]
+detmodel.backbone.bottom_up = simclr_backbone[0]
 
 checkpointer = DetectionCheckpointer(detmodel, save_dir='./')
 checkpointer.save('my_model')
@@ -253,9 +253,8 @@ checkpointer.save('my_model')
 #
 #   Since the model was pre-trained with images in the RGB input format, it's
 #   necessary to set the input format, pixel mean, and pixel std as shown above.
-#   The mean and std are the same ones as in the config file but reordered to
-#   match the RGB format.
-
+#   The mean and std are taken from ImageNet. If your dataset has different
+#   statistics we recommend to adapt the numbers.
 
 # %%
 # Next Steps
