@@ -1,0 +1,25 @@
+name: check setup.py
+on: [workflow_dispatch]
+
+jobs:
+  test:
+    name: Run unmocked tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - uses: actions/cache@v2
+      with:
+        path: ${{ env.pythonLocation }}
+        key: cache_v1_${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}
+    - name: Install Dependencies and lightly
+      run: pip install . 
+    - name: run unmocked tests
+      run: |
+        export LIGHTLY_SERVER_LOCATION=${{ secrets.LIGHTLY_SERVER_LOCATION }}
+        export TOKEN=${{ secrets.DUMMY_USER_TOKEN_STAGING }}
+        bash tests/UNMOCKED_end2end_tests/run_all_unmocked_tests.sh $TOKEN
