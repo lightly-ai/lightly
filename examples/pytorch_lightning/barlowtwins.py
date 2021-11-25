@@ -6,9 +6,7 @@ import pytorch_lightning as pl
 import lightly
 from lightly.models.modules import BarlowTwinsProjectionHead
 
-dataset_dir = "/datasets/clothing-dataset"
-batch_size = 128
-num_workers = 8
+dataset_dir = "/datasets/clothing-dataset/images"
 
 
 class BarlowTwins(pl.LightningModule):
@@ -24,7 +22,7 @@ class BarlowTwins(pl.LightningModule):
         return z
 
     def training_step(self, batch, batch_index):
-        (x0, x1), _, _ = batch
+        (x0, x1), filename, label = batch
         z0 = self.forward(x0)
         z1 = self.forward(x1)
         loss = self.criterion(z0, z1)
@@ -44,11 +42,11 @@ collate_fn = lightly.data.ImageCollateFunction(input_size=224)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
-    batch_size=batch_size,
+    batch_size=128,
     collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
-    num_workers=num_workers,
+    num_workers=8,
 )
 
 gpus = 1 if torch.cuda.is_available() else 0

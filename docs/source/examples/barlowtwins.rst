@@ -18,7 +18,7 @@ Reference:
 
             python lightly/examples/pytorch/barlowtwins.py
 
-        .. literalinclude:: ../../../lightly/examples/pytorch/barlowtwins.py
+        .. literalinclude:: ../../../examples/pytorch/barlowtwins.py
 
     .. tab:: Lightning
 
@@ -26,7 +26,8 @@ Reference:
 
             python lightly/examples/pytorch_lightning/barlowtwins.py
 
-        .. literalinclude:: ../../../lightly/examples/pytorch_lightning/barlowtwins.py
+        .. literalinclude:: ../../../examples/pytorch_lightning/barlowtwins.py
+
 
 .. note::
     We adapted the parameters to make the example easily run on a machine with a single GPU.

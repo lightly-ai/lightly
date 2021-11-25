@@ -12,12 +12,28 @@ References:
 
     MoCo v3: `An Empirical Study of Training Self-Supervised Vision Transformers, 2021 <https://arxiv.org/abs/2104.02057>`_
 
-This example can be run from the command line with::
+Tutorials:
+    :ref:`lightly-moco-tutorial-2`
 
-    python lightly/examples/moco.py
 
+.. tabs::
 
-.. literalinclude:: ../../../lightly/examples/pytorch/moco.py
+    .. tab:: PyTorch
+
+        This example can be run from the command line with::
+
+            python lightly/examples/pytorch/moco.py
+
+        .. literalinclude:: ../../../examples/pytorch/moco.py
+
+    .. tab:: Lightning
+
+        This example can be run from the command line with::
+
+            python lightly/examples/pytorch_lightning/moco.py
+
+        .. literalinclude:: ../../../examples/pytorch_lightning/moco.py
+
 
 .. note::
     We adapted the parameters to make the example easily run on a machine with a single GPU.

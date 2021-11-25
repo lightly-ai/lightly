@@ -38,6 +38,7 @@ extensions = [
     #'sphinx.ext.napoleon',
     "sphinx.ext.autosummary",
     'sphinx_tabs.tabs',
+    'sphinx_copybutton'
 ]
 
 sphinx_gallery_conf = {

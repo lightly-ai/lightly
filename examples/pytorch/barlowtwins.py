@@ -5,10 +5,7 @@ import torchvision
 import lightly
 from lightly.models.modules import BarlowTwinsProjectionHead
 
-dataset_dir = "/datasets/clothing-dataset"
-batch_size = 128
-num_workers = 8
-lr = 0.06
+dataset_dir = "/datasets/clothing-dataset/images"
 
 
 class BarlowTwins(nn.Module):
@@ -35,17 +32,17 @@ collate_fn = lightly.data.ImageCollateFunction(input_size=224)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
-    batch_size=batch_size,
+    batch_size=128,
     collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
-    num_workers=num_workers,
+    num_workers=8,
 )
 
 criterion = lightly.loss.BarlowTwinsLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=lr)
+optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
 
-print('Starting Training')
+print("Starting Training")
 for epoch in range(10):
     total_loss = 0
     for (x0, x1), file_name, label in dataloader:

@@ -7,11 +7,7 @@ from lightly.models.modules import NNCLRProjectionHead
 from lightly.models.modules import NNCLRPredictionHead
 from lightly.models.modules import NNMemoryBankModule
 
-dataset_dir = "/datasets/clothing-dataset"
-batch_size = 128
-num_workers = 8
-lr = 0.06
-memory_bank_size = 4096
+dataset_dir = "/datasets/clothing-dataset/images"
 
 
 class NNCLR(nn.Module):
@@ -37,7 +33,7 @@ model = NNCLR(backbone)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-memory_bank = NNMemoryBankModule(size=memory_bank_size)
+memory_bank = NNMemoryBankModule(size=4096)
 memory_bank.to(device)
 
 dataset = lightly.data.LightlyDataset(input_dir=dataset_dir)
@@ -45,15 +41,15 @@ collate_fn = lightly.data.SimCLRCollateFunction()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
-    batch_size=batch_size,
+    batch_size=128,
     collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
-    num_workers=num_workers,
+    num_workers=8,
 )
 
 criterion = lightly.loss.NTXentLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=lr)
+optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
 
 print("Starting Training")
 for epoch in range(10):

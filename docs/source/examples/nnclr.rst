@@ -8,11 +8,23 @@ Example implementation of the NNCLR architecture.
 Reference:
     `With a Little Help from My Friends: Nearest-Neighbor Contrastive Learning of Visual Representations, 2021 <https://arxiv.org/abs/2104.14548>`_
 
-This example can be run from the command line with::
+.. tabs::
+    .. tab:: PyTorch
 
-    python lightly/examples/pytorch/nnclr.py
+        This example can be run from the command line with::
 
-.. literalinclude:: ../../../lightly/examples/pytorch/nnclr.py
+            python lightly/examples/pytorch/nnclr.py
+
+        .. literalinclude:: ../../../examples/pytorch/nnclr.py
+
+    .. tab:: Lightning
+
+        This example can be run from the command line with::
+
+            python lightly/examples/pytorch_lightning/nnclr.py
+
+        .. literalinclude:: ../../../examples/pytorch_lightning/nnclr.py
+
 
 .. note::
     We adapted the parameters to make the example easily run on a machine with a single GPU.

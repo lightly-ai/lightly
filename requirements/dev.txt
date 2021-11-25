@@ -4,6 +4,7 @@ pytest
 pytest-forked
 pytest-xdist
 responses
+sphinx-copybutton
 sphinx-gallery
 sphinx-tabs
 sphinx_rtd_theme
