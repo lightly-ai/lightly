@@ -17,7 +17,7 @@ jobs:
         path: ${{ env.pythonLocation }}
         key: cache_v1_${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}
     - name: Install Dependencies and lightly
-      run: pip install . --use-feature=in-tree-build
+      run: pip install . 
     - name: run unmocked tests
       run: |
         export LIGHTLY_SERVER_LOCATION=${{ secrets.LIGHTLY_SERVER_LOCATION }}
