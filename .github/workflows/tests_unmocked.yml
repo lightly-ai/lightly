@@ -6,11 +6,6 @@ jobs:
     name: Run unmocked tests
     runs-on: ubuntu-latest
     steps:
-    - name: Set token and server location
-      run: |
-        export LIGHTLY_SERVER_LOCATION=${{ secrets.LIGHTLY_SERVER_LOCATION }}
-        export TOKEN=${{ secrets.DUMMY_USER_TOKEN_STAGING }}
-        echo $LIGHTLY_SERVER_LOCATION && echo $TOKEN
     - name: Checkout Code
       uses: actions/checkout@v2
     - name: Set up Python 3.7

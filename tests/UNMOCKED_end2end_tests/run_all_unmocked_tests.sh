@@ -37,8 +37,10 @@ lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_
 echo "############################### Test 6"
 lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_6 upload=thumbnails
 
-echo "############################### Deleting all datasets again"
+# If you create new tests, don't forget to increase the NUMBER_OF_DATASETS
 NUMBER_OF_DATASETS=6
+
+echo "############################### Deleting all datasets again"
 python tests/UNMOCKED_end2end_tests/delete_datasets_test_unmocked_cli.py $NUMBER_OF_DATASETS $TOKEN
 
 echo "############################### Test active learning"
