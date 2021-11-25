@@ -10,9 +10,9 @@ Reference:
 
 This example can be run from the command line with::
 
-    python lightly/examples/byol.py
+    python lightly/examples/pytorch/byol.py
 
-.. literalinclude:: ../../../lightly/examples/byol.py
+.. literalinclude:: ../../../lightly/examples/pytorch/byol.py
 
 .. note::
     We adapted the parameters to make the example easily run on a machine with a single GPU.

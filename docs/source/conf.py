@@ -35,9 +35,9 @@ master_doc = 'index'
 # ones.
 extensions = [
     "sphinx_rtd_theme",
-   	#'sphinx.ext.napoleon',
-    'sphinx.ext.autosummary',
-    'sphinx_gallery.gen_gallery',
+    #'sphinx.ext.napoleon',
+    "sphinx.ext.autosummary",
+    'sphinx_tabs.tabs',
 ]
 
 sphinx_gallery_conf = {

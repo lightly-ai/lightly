@@ -5,6 +5,7 @@ pytest-forked
 pytest-xdist
 responses
 sphinx-gallery
+sphinx-tabs
 sphinx_rtd_theme
 matplotlib
 pre-commit

@@ -16,7 +16,8 @@ This example can be run from the command line with::
 
     python lightly/examples/moco.py
 
-.. literalinclude:: ../../../lightly/examples/moco.py
+
+.. literalinclude:: ../../../lightly/examples/pytorch/moco.py
 
 .. note::
     We adapted the parameters to make the example easily run on a machine with a single GPU.
