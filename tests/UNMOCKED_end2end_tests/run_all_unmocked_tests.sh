@@ -16,29 +16,34 @@ else
 fi
 INPUT_DIR="${DIR_DATASET}/test/dress"
 
+NUMBER_OF_DATASETS=0
 # Run the tests
 echo "############################### Test 1"
 lightly-magic token=$TOKEN input_dir=$INPUT_DIR trainer.max_epochs=0 new_dataset_name=test_unmocked_cli_1
+((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
 echo "############################### Test 2"
 lightly-magic token=$TOKEN input_dir=$INPUT_DIR trainer.max_epochs=1 new_dataset_name=test_unmocked_cli_2
+((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
 echo "############################### Test 3"
 lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_3
 lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_3
+((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
 echo "############################### Test 4"
 lightly-magic token=$TOKEN input_dir=$INPUT_DIR trainer.max_epochs=0 new_dataset_name=test_unmocked_cli_4
 lightly-magic token=$TOKEN input_dir=$INPUT_DIR trainer.max_epochs=0 new_dataset_name=test_unmocked_cli_4
+((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
 echo "############################### Test 5"
 lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_5 upload=metadata
+((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
 echo "############################### Test 6"
 lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_6 upload=thumbnails
+((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
-# If you create new tests, don't forget to increase the NUMBER_OF_DATASETS
-NUMBER_OF_DATASETS=6
 
 echo "############################### Deleting all datasets again"
 python tests/UNMOCKED_end2end_tests/delete_datasets_test_unmocked_cli.py $NUMBER_OF_DATASETS $TOKEN

@@ -7,7 +7,7 @@ Once you have a token from our production server `https://app.lightly.ai`, you c
 cd ../../../lightly # ensure you are in the top directory
 pip uninstall lightly -y
 
-pip install . --use-feature=in-tree-build
+pip install . 
 bash tests/UNMOCKED_end2end_tests/run_all_unmocked_tests.sh TOKEN
 ```
 
