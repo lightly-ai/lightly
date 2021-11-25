@@ -4,6 +4,7 @@ on: [workflow_dispatch]
 jobs:
   test:
     name: Run unmocked tests
+    environment: UNMOCKED_TESTS_STAGING
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Code
@@ -16,8 +17,6 @@ jobs:
       with:
         path: ${{ env.pythonLocation }}
         key: cache_v1_${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}
-    - name: Install Dependencies and lightly
-      run: pip install . 
     - name: run unmocked tests
       run: |
         export LIGHTLY_SERVER_LOCATION=${{ secrets.LIGHTLY_SERVER_LOCATION }}
