@@ -8,8 +8,6 @@ from lightly.models.modules import MoCoProjectionHead
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
 
-dataset_dir = "/datasets/clothing-dataset/images"
-
 
 class MoCo(nn.Module):
     def __init__(self, backbone):
@@ -40,12 +38,16 @@ model = MoCo(backbone)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-dataset = lightly.data.LightlyDataset(input_dir=dataset_dir)
-collate_fn = lightly.data.MoCoCollateFunction()
+cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
+dataset = lightly.data.LightlyDataset.from_torch_dataset(cifar10)
+# or create a dataset from a folder containing images or videos:
+# dataset = lightly.data.LightlyDataset("path/to/folder")
+
+collate_fn = lightly.data.MoCoCollateFunction(input_size=32)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
-    batch_size=128,
+    batch_size=256,
     collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,

@@ -7,13 +7,12 @@ import lightly
 from lightly.models.modules import SwaVProjectionHead
 from lightly.models.modules import SwaVPrototypes
 
-dataset_dir = "/datasets/clothing-dataset/images"
-
 
 class SwaV(pl.LightningModule):
-    def __init__(self, backbone):
+    def __init__(self):
         super().__init__()
-        self.backbone = backbone
+        resnet = torchvision.models.resnet18()
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = SwaVProjectionHead(512, 512, 128)
         self.prototypes = SwaVPrototypes(128, 512)
         self.criterion = lightly.loss.SwaVLoss()
@@ -38,16 +37,18 @@ class SwaV(pl.LightningModule):
         return optim
 
 
-resnet = torchvision.models.resnet18()
-backbone = nn.Sequential(*list(resnet.children())[:-1])
-model = SwaV(backbone)
+model = SwaV()
 
-dataset = lightly.data.LightlyDataset(input_dir=dataset_dir)
-collate_fn = lightly.data.SwaVCollateFunction()
+cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
+dataset = lightly.data.LightlyDataset.from_torch_dataset(cifar10)
+# or create a dataset from a folder containing images or videos:
+# dataset = lightly.data.LightlyDataset("path/to/folder")
+
+collate_fn = lightly.data.SwaVCollateFunction(crop_sizes=[32], crop_counts=[2])
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
-    batch_size=128,
+    batch_size=256,
     collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,

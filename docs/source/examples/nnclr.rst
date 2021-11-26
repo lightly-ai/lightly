@@ -25,7 +25,3 @@ Reference:
 
         .. literalinclude:: ../../../examples/pytorch_lightning/nnclr.py
 
-
-.. note::
-    We adapted the parameters to make the example easily run on a machine with a single GPU.
-    Please consult the paper if you want to follow the original training settings.

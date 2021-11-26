@@ -7,8 +7,6 @@ from lightly.models.modules import NNCLRProjectionHead
 from lightly.models.modules import NNCLRPredictionHead
 from lightly.models.modules import NNMemoryBankModule
 
-dataset_dir = "/datasets/clothing-dataset/images"
-
 
 class NNCLR(nn.Module):
     def __init__(self, backbone):
@@ -36,12 +34,16 @@ model.to(device)
 memory_bank = NNMemoryBankModule(size=4096)
 memory_bank.to(device)
 
-dataset = lightly.data.LightlyDataset(input_dir=dataset_dir)
-collate_fn = lightly.data.SimCLRCollateFunction()
+cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
+dataset = lightly.data.LightlyDataset.from_torch_dataset(cifar10)
+# or create a dataset from a folder containing images or videos:
+# dataset = lightly.data.LightlyDataset("path/to/folder")
+
+collate_fn = lightly.data.SimCLRCollateFunction(input_size=32)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
-    batch_size=128,
+    batch_size=256,
     collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
