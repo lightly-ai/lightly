@@ -82,7 +82,7 @@ input_size = 128
 num_ftrs = 2048
 
 seed = 1
-max_epochs = 5
+max_epochs = 0
 
 # use cuda if possible
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -141,6 +141,15 @@ simclr_backbone = torch.nn.Sequential(
     # res5 has shape bsz x 2048 x 4 x 4
     torch.nn.AdaptiveAvgPool2d(1),
 ).to(device)
+
+# %%
+#
+#
+#.. note::
+#
+#   The Detectron2 ResNet is missing the average pooling layer used to get a tensor of shape bsz x 2048.
+#   Therefore, we add an average pooling as in the `PyTorch ResNet <https://github.com/pytorch/pytorch/blob/1022443168b5fad55bbd03d087abf574c9d2e9df/benchmarks/functional_autograd_benchmark/torchvision_models.py#L147>`_.
+#
 
 # %%
 # Finally, let's build SimCLR around the backbone as shown in the other
@@ -246,12 +255,21 @@ checkpointer.save('my_model')
 #       MODEL.PIXEL_STD 58.395,57.120,57.375 \
 #       INPUT.FORMAT RGB
 #
+
+# %%
+# 
+# The :py:class:`lightly.data.collate.SimCLRCollateFunction` applies an ImageNet
+# normalization of the input images by default. Therefore, we have to normalize
+# the input images at training time, too. Since Detectron2 uses an input space
+# in the range 0 - 255, we use the numbers above.
+# 
+
+# %%
+#
 #.. note::
 #
 #   Since the model was pre-trained with images in the RGB input format, it's
-#   necessary to set the input format, pixel mean, and pixel std as shown above.
-#   The mean and std are taken from ImageNet. If your dataset has different
-#   statistics we recommend to adapt the numbers.
+#   necessary to set the permute the order of the pixel mean, and pixel std as shown above.
 
 # %%
 # Next Steps
