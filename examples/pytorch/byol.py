@@ -25,13 +25,17 @@ class BYOL(nn.Module):
         deactivate_requires_grad(self.backbone_momentum)
         deactivate_requires_grad(self.projection_head_momentum)
 
-    def forward(self, x0, x1):
-        y0 = self.backbone(x0).flatten(start_dim=1)
-        z0 = self.projection_head(y0)
-        p0 = self.prediction_head(z0)
-        y1 = self.backbone_momentum(x1).flatten(start_dim=1)
-        z1 = self.projection_head_momentum(y1).detach()
-        return p0, z1
+    def forward(self, x):
+        y = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(y)
+        p = self.prediction_head(z)
+        return p
+
+    def forward_momentum(self, x):
+        y = self.backbone_momentum(x).flatten(start_dim=1)
+        z = self.projection_head_momentum(y)
+        z = z.detach()
+        return z
 
 
 resnet = torchvision.models.resnet18()
@@ -66,8 +70,10 @@ for epoch in range(10):
     for (x0, x1), _, _ in dataloader:
         x0 = x0.to(device)
         x1 = x1.to(device)
-        p0, z1 = model(x0, x1)
-        p1, z0 = model(x1, x0)
+        p0 = model(x0)
+        z0 = model.forward_momentum(x0)
+        p1 = model(x1)
+        z1 = model.forward_momentum(x1)
         loss = 0.5 * (criterion(p0, z1) + criterion(p1, z0))
         total_loss += loss
         loss.backward()

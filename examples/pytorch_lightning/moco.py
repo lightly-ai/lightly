@@ -27,13 +27,15 @@ class MoCo(pl.LightningModule):
 
         self.criterion = NTXentLoss(memory_bank_size=4096)
 
-    def forward(self, x_query, x_key):
-        query = self.backbone(x_query).flatten(start_dim=1)
+    def forward(self, x):
+        query = self.backbone(x).flatten(start_dim=1)
         query = self.projection_head(query)
+        return query
 
-        key = self.backbone_momentum(x_key).flatten(start_dim=1)
+    def forward_momentum(self, x):
+        key = self.backbone_momentum(x).flatten(start_dim=1)
         key = self.projection_head_momentum(key).detach()
-        return query, key
+        return key
 
     def training_step(self, batch, batch_idx):
         update_momentum(self.backbone, self.backbone_momentum, m=0.99)
@@ -41,7 +43,8 @@ class MoCo(pl.LightningModule):
             self.projection_head, self.projection_head_momentum, m=0.99
         )
         (x_query, x_key), _, _ = batch
-        query, key = self.forward(x_query, x_key)
+        query = self.forward(x_query)
+        key = self.forward_momentum(x_key)
         loss = self.criterion(query, key)
         return loss
 

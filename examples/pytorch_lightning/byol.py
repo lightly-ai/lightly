@@ -28,13 +28,17 @@ class BYOL(pl.LightningModule):
 
         self.criterion = NegativeCosineSimilarity()
 
-    def forward(self, x0, x1):
-        y0 = self.backbone(x0).flatten(start_dim=1)
-        z0 = self.projection_head(y0)
-        p0 = self.prediction_head(z0)
-        y1 = self.backbone_momentum(x1).flatten(start_dim=1)
-        z1 = self.projection_head_momentum(y1).detach()
-        return p0, z1
+    def forward(self, x):
+        y = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(y)
+        p = self.prediction_head(z)
+        return p
+
+    def forward_momentum(self, x):
+        y = self.backbone_momentum(x).flatten(start_dim=1)
+        z = self.projection_head_momentum(y)
+        z = z.detach()
+        return z
 
     def training_step(self, batch, batch_idx):
         update_momentum(model.backbone, model.backbone_momentum, m=0.99)
@@ -42,8 +46,10 @@ class BYOL(pl.LightningModule):
             model.projection_head, model.projection_head_momentum, m=0.99
         )
         (x0, x1), _, _ = batch
-        p0, z1 = self.forward(x0, x1)
-        p1, z0 = self.forward(x1, x0)
+        p0 = self.forward(x0)
+        z0 = self.forward_momentum(x0)
+        p1 = self.forward(x1)
+        z1 = self.forward_momentum(x1)
         loss = 0.5 * (self.criterion(p0, z1) + self.criterion(p1, z0))
         return loss
 

@@ -23,13 +23,15 @@ class MoCo(nn.Module):
         deactivate_requires_grad(self.backbone_momentum)
         deactivate_requires_grad(self.projection_head_momentum)
 
-    def forward(self, x_q, x_k):
-        q = self.backbone(x_q).flatten(start_dim=1)
-        q = self.projection_head(q)
+    def forward(self, x):
+        query = self.backbone(x).flatten(start_dim=1)
+        query = self.projection_head(query)
+        return query
 
-        k = self.backbone_momentum(x_k).flatten(start_dim=1)
-        k = self.projection_head_momentum(k).detach()
-        return q, k
+    def forward_momentum(self, x):
+        key = self.backbone_momentum(x).flatten(start_dim=1)
+        key = self.projection_head_momentum(key).detach()
+        return key
 
 
 resnet = torchvision.models.resnet18()
@@ -61,11 +63,12 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for (x0, x1), _, _ in dataloader:
-        x0 = x0.to(device)
-        x1 = x1.to(device)
-        q, k = model(x0, x1)
-        loss = criterion(q, k)
+    for (x_query, x_key), _, _ in dataloader:
+        x_query = x_query.to(device)
+        x_key = x_key.to(device)
+        query = model(x_query)
+        key = model.forward_momentum(x_key)
+        loss = criterion(query, key)
         total_loss += loss
         loss.backward()
         optimizer.step()
