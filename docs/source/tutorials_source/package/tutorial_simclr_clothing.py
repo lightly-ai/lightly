@@ -337,3 +337,4 @@ backbone_new.load_state_dict(ckpt['resnet18_parameters'])
 # - :ref:`lightly-moco-tutorial-2`
 # - :ref:`lightly-simsiam-tutorial-4`
 # - :ref:`lightly-custom-augmentation-5`
+# - :ref:`lightly-detectron-tutorial-6`
