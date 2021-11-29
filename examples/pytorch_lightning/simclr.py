@@ -3,7 +3,9 @@ from torch import nn
 import torchvision
 import pytorch_lightning as pl
 
-import lightly
+from lightly.data import LightlyDataset
+from lightly.data import SimCLRCollateFunction
+from lightly.loss import NTXentLoss
 from lightly.models.modules import SimCLRProjectionHead
 
 
@@ -13,7 +15,7 @@ class SimCLR(pl.LightningModule):
         resnet = torchvision.models.resnet18()
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = SimCLRProjectionHead(512, 2048, 2048)
-        self.criterion = lightly.loss.NTXentLoss()
+        self.criterion = NTXentLoss()
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -35,11 +37,11 @@ class SimCLR(pl.LightningModule):
 model = SimCLR()
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = lightly.data.LightlyDataset.from_torch_dataset(cifar10)
+dataset = LightlyDataset.from_torch_dataset(cifar10)
 # or create a dataset from a folder containing images or videos:
-# dataset = lightly.data.LightlyDataset("path/to/folder")
+# dataset = LightlyDataset("path/to/folder")
 
-collate_fn = lightly.data.SimCLRCollateFunction(input_size=32)
+collate_fn = SimCLRCollateFunction(input_size=32)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,

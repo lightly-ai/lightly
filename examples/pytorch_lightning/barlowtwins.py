@@ -3,7 +3,9 @@ from torch import nn
 import torchvision
 import pytorch_lightning as pl
 
-import lightly
+from lightly.data import LightlyDataset
+from lightly.data import ImageCollateFunction
+from lightly.loss import BarlowTwinsLoss
 from lightly.models.modules import BarlowTwinsProjectionHead
 
 
@@ -13,7 +15,7 @@ class BarlowTwins(pl.LightningModule):
         resnet = torchvision.models.resnet18()
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = BarlowTwinsProjectionHead(512, 2048, 2048)
-        self.criterion = lightly.loss.BarlowTwinsLoss()
+        self.criterion = BarlowTwinsLoss()
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -35,11 +37,11 @@ class BarlowTwins(pl.LightningModule):
 model = BarlowTwins()
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = lightly.data.LightlyDataset.from_torch_dataset(cifar10)
+dataset = LightlyDataset.from_torch_dataset(cifar10)
 # or create a dataset from a folder containing images or videos:
-# dataset = lightly.data.LightlyDataset("path/to/folder")
+# dataset = LightlyDataset("path/to/folder")
 
-collate_fn = lightly.data.ImageCollateFunction(input_size=224)
+collate_fn = ImageCollateFunction(input_size=224)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,

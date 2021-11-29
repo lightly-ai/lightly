@@ -3,7 +3,9 @@ from torch import nn
 import torchvision
 import copy
 
-import lightly
+from lightly.data import LightlyDataset
+from lightly.data import SimCLRCollateFunction
+from lightly.loss import NegativeCosineSimilarity
 from lightly.models.modules import BYOLProjectionHead
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
@@ -40,11 +42,11 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = lightly.data.LightlyDataset.from_torch_dataset(cifar10)
+dataset = LightlyDataset.from_torch_dataset(cifar10)
 # or create a dataset from a folder containing images or videos:
-# dataset = lightly.data.LightlyDataset("path/to/folder")
+# dataset = LightlyDataset("path/to/folder")
 
-collate_fn = lightly.data.SimCLRCollateFunction(input_size=32)
+collate_fn = SimCLRCollateFunction(input_size=32)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
@@ -55,7 +57,7 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-criterion = lightly.loss.NegativeCosineSimilarity()
+criterion = NegativeCosineSimilarity()
 optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
 
 print("Starting Training")

@@ -3,7 +3,9 @@ from torch import nn
 import torchvision
 import pytorch_lightning as pl
 
-import lightly
+from lightly.data import LightlyDataset
+from lightly.data import SwaVCollateFunction
+from lightly.loss import SwaVLoss
 from lightly.models.modules import SwaVProjectionHead
 from lightly.models.modules import SwaVPrototypes
 
@@ -15,7 +17,7 @@ class SwaV(pl.LightningModule):
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = SwaVProjectionHead(512, 512, 128)
         self.prototypes = SwaVPrototypes(128, 512)
-        self.criterion = lightly.loss.SwaVLoss()
+        self.criterion = SwaVLoss()
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -43,11 +45,11 @@ model = SwaV()
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-dataset = lightly.data.LightlyDataset.from_torch_dataset(pascal_voc)
+dataset = LightlyDataset.from_torch_dataset(pascal_voc)
 # or create a dataset from a folder containing images or videos:
-# dataset = lightly.data.LightlyDataset("path/to/folder")
+# dataset = LightlyDataset("path/to/folder")
 
-collate_fn = lightly.data.SwaVCollateFunction()
+collate_fn = SwaVCollateFunction()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,

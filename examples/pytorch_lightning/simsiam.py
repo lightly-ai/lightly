@@ -3,7 +3,9 @@ from torch import nn
 import torchvision
 import pytorch_lightning as pl
 
-import lightly
+from lightly.data import LightlyDataset
+from lightly.data import SimCLRCollateFunction
+from lightly.loss import NegativeCosineSimilarity
 from lightly.models.modules import SimSiamProjectionHead
 from lightly.models.modules import SimSiamPredictionHead
 
@@ -15,7 +17,7 @@ class SimSiam(pl.LightningModule):
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = SimSiamProjectionHead(512, 512, 128)
         self.prediction_head = SimSiamPredictionHead(128, 64, 128)
-        self.criterion = lightly.loss.NegativeCosineSimilarity()
+        self.criterion = NegativeCosineSimilarity()
 
     def forward(self, x):
         f = self.backbone(x).flatten(start_dim=1)
@@ -41,11 +43,11 @@ backbone = nn.Sequential(*list(resnet.children())[:-1])
 model = SimSiam()
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = lightly.data.LightlyDataset.from_torch_dataset(cifar10)
+dataset = LightlyDataset.from_torch_dataset(cifar10)
 # or create a dataset from a folder containing images or videos:
-# dataset = lightly.data.LightlyDataset("path/to/folder")
+# dataset = LightlyDataset("path/to/folder")
 
-collate_fn = lightly.data.SimCLRCollateFunction(input_size=32)
+collate_fn = SimCLRCollateFunction(input_size=32)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,

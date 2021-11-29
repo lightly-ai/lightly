@@ -2,7 +2,9 @@ import torch
 from torch import nn
 import torchvision
 
-import lightly
+from lightly.data import LightlyDataset
+from lightly.data import SwaVCollateFunction
+from lightly.loss import SwaVLoss
 from lightly.models.modules import SwaVProjectionHead
 from lightly.models.modules import SwaVPrototypes
 
@@ -33,11 +35,11 @@ model.to(device)
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-dataset = lightly.data.LightlyDataset.from_torch_dataset(pascal_voc)
+dataset = LightlyDataset.from_torch_dataset(pascal_voc)
 # or create a dataset from a folder containing images or videos:
-# dataset = lightly.data.LightlyDataset("path/to/folder")
+# dataset = LightlyDataset("path/to/folder")
 
-collate_fn = lightly.data.SwaVCollateFunction()
+collate_fn = SwaVCollateFunction()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
@@ -48,7 +50,7 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-criterion = lightly.loss.SwaVLoss()
+criterion = SwaVLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 print("Starting Training")
