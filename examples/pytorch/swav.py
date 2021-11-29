@@ -29,18 +29,19 @@ model = SwaV(backbone)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = lightly.data.LightlyDataset.from_torch_dataset(cifar10)
+# we ignore object detection annotations by setting target_transform to return 0
+pascal_voc = torchvision.datasets.VOCDetection(
+    "datasets/pascal_voc", download=True, target_transform=lambda t: 0
+)
+dataset = lightly.data.LightlyDataset.from_torch_dataset(pascal_voc)
 # or create a dataset from a folder containing images or videos:
 # dataset = lightly.data.LightlyDataset("path/to/folder")
 
-collate_fn = lightly.data.SwaVCollateFunction(
-    crop_sizes=[32, 16], crop_counts=[2, 6]
-)
+collate_fn = lightly.data.SwaVCollateFunction()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
-    batch_size=256,
+    batch_size=128,
     collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
