@@ -37,10 +37,6 @@ class TestApiWorkflowTags(MockedApiWorkflowSetup):
     def test_get_tag_id(self):
         self.api_workflow_client.get_tag_by_id(tag_id=self.valid_tag_id)
 
-    def test_get_tag_id_nonexisting(self):
-        with self.assertRaises(ValueError):
-            self.api_workflow_client.get_tag_by_id(tag_id=self.invalid_tag_id)
-
     def test_get_filenames_in_tag(self):
         tag_data = self.api_workflow_client.get_tag_by_name(tag_name=self.valid_tag_name)
         self.api_workflow_client.get_filenames_in_tag(tag_data)

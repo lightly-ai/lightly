@@ -131,10 +131,6 @@ class MockedTagsApi(TagsApi):
         _check_dataset_id(dataset_id)
         assert isinstance(dataset_id, str)
         assert isinstance(tag_id, str)
-        tags_on_server = self.get_tags_by_dataset_id(dataset_id)
-        tag_ids_on_server = set(tag.id for tag in tags_on_server)
-        if tag_id not in tag_ids_on_server:
-            raise ValueError("Unknown tag id")
         response_ = TagData(id=tag_id, dataset_id=dataset_id, prev_tag_id="initial-tag", bit_mask_data="0x80bda23e9",
                             name='second-tag', tot_size=15, created_at=1577836800, changes=dict())
         return response_
