@@ -85,7 +85,7 @@ class _SamplingMixin:
         try:
             self.embedding_id
         except AttributeError:
-            self.set_embedding_id_by_name()
+            self.set_embedding_id()
 
         # trigger the sampling
         payload = self._create_sampling_create_request(sampler_config, preselected_tag_id, query_tag_id)
