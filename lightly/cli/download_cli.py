@@ -42,9 +42,10 @@ def _download_cli(cfg, is_cli_call=True):
     )
 
     # get tag id
-    tag, filenames_tag = api_workflow_client.get_tag_and_filenames(
-        tag_name=cfg['tag_name'],
-        exclude_parent_tag=cfg['exclude_parent_tag']
+    tag_data = api_workflow_client.get_tag_by_name(cfg['tag_name'])
+    filenames_tag = api_workflow_client.get_filenames_in_tag(
+        tag_data,
+        exclude_parent_tag=cfg['exclude_parent_tag'],
     )
 
     # store sample names in a .txt file

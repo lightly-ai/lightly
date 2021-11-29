@@ -136,7 +136,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             filenames_for_list.
 
         """
-        filenames_on_server = self.download_filenames_from_server()
+        filenames_on_server = self.get_filenames()
         if len(filenames_for_list) != len(list_to_order) or \
                 len(filenames_for_list) != len(filenames_on_server):
             raise ValueError(
@@ -149,7 +149,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         list_ordered = [dict_by_filenames[filename] for filename in filenames_on_server]
         return list_ordered
 
-    def download_filenames_from_server(self) -> List[str]:
+    def get_filenames(self) -> List[str]:
         """Downloads the list of filenames from the server.
 
         This is an expensive operation, especially for large datasets.
