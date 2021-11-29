@@ -69,7 +69,7 @@ for epoch in range(10):
         query = model(x_query)
         key = model.forward_momentum(x_key)
         loss = criterion(query, key)
-        total_loss += loss
+        total_loss += loss.detach()
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()

@@ -61,7 +61,7 @@ for epoch in range(10):
         high_resolution = multi_crop_features[:2]
         low_resolution = multi_crop_features[2:]
         loss = criterion(high_resolution, low_resolution)
-        total_loss += loss
+        total_loss += loss.detach()
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()

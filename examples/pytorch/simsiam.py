@@ -59,7 +59,7 @@ for epoch in range(10):
         z0, p0 = model(x0)
         z1, p1 = model(x1)
         loss = 0.5 * (criterion(z0, p1) + criterion(z1, p0))
-        total_loss += loss
+        total_loss += loss.detach()
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()

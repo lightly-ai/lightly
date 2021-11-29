@@ -75,7 +75,7 @@ for epoch in range(10):
         p1 = model(x1)
         z1 = model.forward_momentum(x1)
         loss = 0.5 * (criterion(p0, z1) + criterion(p1, z0))
-        total_loss += loss
+        total_loss += loss.detach()
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()

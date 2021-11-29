@@ -66,7 +66,7 @@ for epoch in range(10):
         z0 = memory_bank(z0, update=False)
         z1 = memory_bank(z1, update=True)
         loss = 0.5 * (criterion(z0, p1) + criterion(z1, p0))
-        total_loss += loss
+        total_loss += loss.detach()
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
