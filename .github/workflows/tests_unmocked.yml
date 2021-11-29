@@ -21,5 +21,4 @@ jobs:
     - name: run unmocked tests
       run: |
         export LIGHTLY_SERVER_LOCATION=${{ secrets.LIGHTLY_SERVER_LOCATION }}
-        TOKEN=${{ secrets.DUMMY_USER_TOKEN_STAGING }}
-        bash tests/UNMOCKED_end2end_tests/run_all_unmocked_tests.sh $TOKEN
+        bash tests/UNMOCKED_end2end_tests/run_all_unmocked_tests.sh ${{ secrets.DUMMY_USER_TOKEN_STAGING }}
