@@ -87,17 +87,8 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
                         n_data=n_data,
                         special_char_in_first_filename=invalid_char)
 
-    def test_set_embedding_id_success(self):
-        embedding_name = self.api_workflow_client._embeddings_api.embeddings[0].name
-        self.api_workflow_client.set_embedding_id_by_name(embedding_name)
-
-    def test_set_embedding_id_failure(self):
-        embedding_name = "blibblabblub"
-        with self.assertRaises(ValueError):
-            self.api_workflow_client.set_embedding_id_by_name(embedding_name)
-
     def test_set_embedding_id_default(self):
-        self.api_workflow_client.set_embedding_id_by_name()
+        self.api_workflow_client.set_embedding_id()
 
     def test_upload_existing_embedding(self):
     
