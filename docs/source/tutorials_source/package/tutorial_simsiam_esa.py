@@ -167,20 +167,16 @@ class SimSiam(nn.Module):
             out_dim, pred_hidden_dim, out_dim
         )
 
-    def forward(self, x0, x1):
+    def forward(self, x):
         # get representations
-        f0 = self.backbone(x0).flatten(start_dim=1)
-        f1 = self.backbone(x1).flatten(start_dim=1)
+        f = self.backbone(x).flatten(start_dim=1)
         # get projections
-        z0 = self.projection_head(f0)
-        z1 = self.projection_head(f1)
+        z = self.projection_head(f)
         # get predictions
-        p0 = self.prediction_head(z0)
-        p1 = self.prediction_head(z1)
+        p = self.prediction_head(z)
         # stop gradient
-        z0 = z0.detach()
-        z1 = z1.detach()
-        return p0, p1, z0, z1
+        z = z.detach()
+        return z, p
 
 
 # we use a pretrained resnet for this tutorial to speed
@@ -238,13 +234,14 @@ for e in range(epochs):
         x1 = x1.to(device)
 
         # run the model on both transforms of the images
-        # we get predictions (p0 and p1) and 
-        # projections (z0 and z1) as output
-        p0, p1, z0, z1 = model(x0, x1)
+        # we get projections (z0 and z1) and
+        # predictions (p0 and p1) as output
+        z0, p0 = model(x0)
+        z1, p1 = model(x1)
 
         # apply the symmetric negative cosine similarity
         # and run backpropagation
-        loss = 0.5 * (criterion(p0, z0) + criterion(p1, z1))
+        loss = 0.5 * (criterion(z0, p1) + criterion(z1, p0))
         loss.backward()
 
         optimizer.step()
