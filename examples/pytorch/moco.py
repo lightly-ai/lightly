@@ -4,6 +4,7 @@ import torchvision
 import copy
 
 from lightly.data import LightlyDataset
+from lightly.data import MoCoCollateFunction
 from lightly.loss import NTXentLoss
 from lightly.models.modules import MoCoProjectionHead
 from lightly.models.utils import deactivate_requires_grad
