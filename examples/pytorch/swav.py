@@ -14,7 +14,7 @@ class SwaV(nn.Module):
         super().__init__()
         self.backbone = backbone
         self.projection_head = SwaVProjectionHead(512, 512, 128)
-        self.prototypes = SwaVPrototypes(128, 512)
+        self.prototypes = SwaVPrototypes(128, n_prototypes=512)
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)

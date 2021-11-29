@@ -16,7 +16,7 @@ class SwaV(pl.LightningModule):
         resnet = torchvision.models.resnet18()
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = SwaVProjectionHead(512, 512, 128)
-        self.prototypes = SwaVPrototypes(128, 512)
+        self.prototypes = SwaVPrototypes(128, n_prototypes=512)
         self.criterion = SwaVLoss()
 
     def forward(self, x):
