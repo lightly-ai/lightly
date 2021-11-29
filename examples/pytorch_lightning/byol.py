@@ -41,7 +41,7 @@ class BYOL(pl.LightningModule):
         update_momentum(
             model.projection_head, model.projection_head_momentum, m=0.99
         )
-        (x0, x1), filename, label = batch
+        (x0, x1), _, _ = batch
         p0, z1 = self.forward(x0, x1)
         p1, z0 = self.forward(x1, x0)
         loss = 0.5 * (self.criterion(p0, z1) + self.criterion(p1, z0))

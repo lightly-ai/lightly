@@ -27,7 +27,7 @@ class SwaV(pl.LightningModule):
         return p
 
     def training_step(self, batch, batch_idx):
-        crops, filename, label = batch
+        crops, _, _ = batch
         multi_crop_features = [model(x.to(self.device)) for x in crops]
         high_resolution = multi_crop_features[:2]
         low_resolution = multi_crop_features[2:]

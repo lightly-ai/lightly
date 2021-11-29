@@ -53,7 +53,7 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for (x0, x1), file_name, label in dataloader:
+    for (x0, x1), _, _ in dataloader:
         x0 = x0.to(device)
         x1 = x1.to(device)
         z0, p0 = model(x0)

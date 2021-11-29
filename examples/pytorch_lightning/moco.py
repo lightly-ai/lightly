@@ -40,7 +40,7 @@ class MoCo(pl.LightningModule):
         update_momentum(
             self.projection_head, self.projection_head_momentum, m=0.99
         )
-        (x_query, x_key), filename, label = batch
+        (x_query, x_key), _, _ = batch
         query, key = self.forward(x_query, x_key)
         loss = self.criterion(query, key)
         return loss
