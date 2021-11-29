@@ -54,6 +54,12 @@ Check it out here: :ref:`lightly-tutorial-active-learning-detectron2`
 
 .. toctree::
    :maxdepth: 1
+   :caption: Examples
+
+   examples/models.rst
+
+.. toctree::
+   :maxdepth: 1
    :caption: Python API
 
    lightly
