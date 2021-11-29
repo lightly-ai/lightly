@@ -72,7 +72,7 @@ class _DownloadDatasetMixin:
             )
 
         # check if tag exists
-        available_tags = self._get_all_tags()
+        available_tags = self.get_all_tags()
         try:
             tag = next(tag for tag in available_tags if tag.name == tag_name)
         except StopIteration:

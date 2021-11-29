@@ -61,7 +61,7 @@ class _UploadDatasetMixin:
         """
 
         # get all tags of the dataset
-        tags = self._get_all_tags()
+        tags = self.get_all_tags()
         if len(tags) > 0:
             print(
                 f'Dataset with id {self.dataset_id} has {len(tags)} tags.',

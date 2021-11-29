@@ -30,7 +30,7 @@ class _SamplingMixin:
 
     def upload_scores(self, al_scores: Dict[str, np.ndarray], query_tag_id: str = None):
 
-        tags = self._get_all_tags()
+        tags = self.get_all_tags()
 
         # upload the active learning scores to the api
         # change @20210422: we store the active learning scores with the query
@@ -75,7 +75,7 @@ class _SamplingMixin:
         """
 
         # make sure the tag name does not exist yet
-        tags = self._get_all_tags()
+        tags = self.get_all_tags()
         if sampler_config.name in [tag.name for tag in tags]:
             raise RuntimeError(f'There already exists a tag with tag_name {sampler_config.name}.')
         if len(tags) == 0:
@@ -89,7 +89,7 @@ class _SamplingMixin:
 
         # trigger the sampling
         payload = self._create_sampling_create_request(sampler_config, preselected_tag_id, query_tag_id)
-        payload.row_count = self._get_all_tags()[0].tot_size
+        payload.row_count = self.get_all_tags()[0].tot_size
         response = self._samplings_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
         job_id = response.job_id
 

@@ -70,7 +70,7 @@ class ActiveLearningAgent:
 
         # build lookup table for tag_name to tag_id
         tag_name_id_dict = {}
-        for tag in self.api_workflow_client._get_all_tags():
+        for tag in self.api_workflow_client.get_all_tags():
             tag_name_id_dict[tag.name] = tag.id
         # use lookup table to set ids
         self._query_tag_id = tag_name_id_dict[query_tag_name]
