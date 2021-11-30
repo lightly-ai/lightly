@@ -88,7 +88,7 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
                         special_char_in_first_filename=invalid_char)
 
     def test_set_embedding_id_default(self):
-        self.api_workflow_client.set_latest_embedding_id()
+        self.api_workflow_client.set_embedding_id_to_latest()
 
     def test_upload_existing_embedding(self):
     

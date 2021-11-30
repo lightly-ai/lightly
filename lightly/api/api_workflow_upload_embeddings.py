@@ -32,7 +32,7 @@ class _UploadEmbeddingsMixin:
 
         return reader
 
-    def set_latest_embedding_id(self):
+    def set_embedding_id_to_latest(self):
         """Sets the self.embedding_id to the one of the latest on the server.
 
         """
