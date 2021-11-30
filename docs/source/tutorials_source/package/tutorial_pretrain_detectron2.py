@@ -282,4 +282,5 @@ checkpointer.save('my_model')
 # - :ref:`lightly-moco-tutorial-2`
 # - :ref:`lightly-simclr-tutorial-3`
 # - :ref:`lightly-simsiam-tutorial-4`
-# - :ref:`lightly-custom-augmentation-5`
+# - :ref:`lightly-detectron-tutorial-6`
+#
