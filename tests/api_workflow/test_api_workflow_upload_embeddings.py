@@ -63,23 +63,23 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         self.api_workflow_client.n_dims_embeddings_on_server = n_dims
 
     def test_upload_success(self):
-        n_data = len(self.api_workflow_client.mappings_api.sample_names)
+        n_data = len(self.api_workflow_client._mappings_api.sample_names)
         self.t_ester_upload_embedding(n_data=n_data)
         filepath_embeddings_sorted = os.path.join(self.folder_path, "embeddings_sorted.csv")
         self.assertFalse(os.path.isfile(filepath_embeddings_sorted))
 
     def test_upload_wrong_length(self):
-        n_data = 42 + len(self.api_workflow_client.mappings_api.sample_names)
+        n_data = 42 + len(self.api_workflow_client._mappings_api.sample_names)
         with self.assertRaises(ValueError):
             self.t_ester_upload_embedding(n_data=n_data)
 
     def test_upload_wrong_filenames(self):
-        n_data = len(self.api_workflow_client.mappings_api.sample_names)
+        n_data = len(self.api_workflow_client._mappings_api.sample_names)
         with self.assertRaises(ValueError):
             self.t_ester_upload_embedding(n_data=n_data, special_name_first_sample=True)
 
     def test_upload_comma_filenames(self):
-        n_data = len(self.api_workflow_client.mappings_api.sample_names)
+        n_data = len(self.api_workflow_client._mappings_api.sample_names)
         for invalid_char in INVALID_FILENAME_CHARACTERS:
             with self.subTest(msg=f"invalid_char: {invalid_char}"):
                 with self.assertRaises(ValueError):
@@ -87,31 +87,13 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
                         n_data=n_data,
                         special_char_in_first_filename=invalid_char)
 
-    def test_set_embedding_id_success(self):
-        embedding_name = self.api_workflow_client.embeddings_api.embeddings[0].name
-        self.api_workflow_client.set_embedding_id_by_name(embedding_name)
-
-    def test_set_embedding_id_failure(self):
-        embedding_name = "blibblabblub"
-        with self.assertRaises(ValueError):
-            self.api_workflow_client.set_embedding_id_by_name(embedding_name)
+    def test_set_embedding_id_default(self):
+        self.api_workflow_client.set_embedding_id_to_latest()
 
     def test_upload_existing_embedding(self):
-        embeddings = self.api_workflow_client.embeddings_api.\
-            get_embeddings_by_dataset_id(self.api_workflow_client.dataset_id)
-
-        embedding_name = embeddings[0].name
-
-        n_data = len(self.api_workflow_client.mappings_api.sample_names)
-        self.t_ester_upload_embedding(n_data=n_data, name=embedding_name)
-
-    def test_set_embedding_id_default(self):
-        self.api_workflow_client.set_embedding_id_by_name()
-
-    def test_append_embeddings(self):
     
         # first upload embeddings
-        n_data = len(self.api_workflow_client.mappings_api.sample_names)
+        n_data = len(self.api_workflow_client._mappings_api.sample_names)
         self.t_ester_upload_embedding(n_data=n_data)
 
         # create a new set of embeddings
@@ -125,11 +107,10 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
             'embedding_id_xyz_2',
         )
 
-
     def test_append_embeddings_with_overlap(self):
 
         # mock the embeddings on the server
-        n_data_server = len(self.api_workflow_client.mappings_api.sample_names)
+        n_data_server = len(self.api_workflow_client._mappings_api.sample_names)
         self.api_workflow_client.n_dims_embeddings_on_server = 32
 
         # create new local embeddings overlapping with server embeddings
@@ -179,7 +160,7 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
     def test_append_embeddings_different_shape(self):
 
         # first upload embeddings
-        n_data = len(self.api_workflow_client.mappings_api.sample_names)
+        n_data = len(self.api_workflow_client._mappings_api.sample_names)
         self.t_ester_upload_embedding(n_data=n_data)
 
         # create a new set of embeddings
