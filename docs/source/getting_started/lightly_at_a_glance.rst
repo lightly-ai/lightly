@@ -108,7 +108,7 @@ with the normalized temperature-scaled cross entropy loss and simple stochastic 
 Train the model for 10 epochs.
 
 .. code-block:: python
-    
+
     for epoch in range(10):
         for (x0, x1), _, _ in dataloader:
             
@@ -130,6 +130,7 @@ Congrats, you just trained your first model using self-supervised learning!
 You can of course also use `PyTorch Lightning <https://www.pytorchlightning.ai/>`_ to implement and train your model.
 
 .. code-block:: python
+
     import pytorch_lightning as pl
 
     class SimCLR(pl.LightningModule):
@@ -206,10 +207,12 @@ Done! You can continue to use the embeddings to find nearest neighbors or do sim
 Furthermore, the ResNet backbone can be used for transfer and few-shot learning.
 
 .. code-block:: python
+
     # access the ResNet backbone
     resnet = model.backbone
 
 .. note::
+
     Self-supervised learning does not require labels for a model to be trained on. Lightly,
     however, supports the use of additional labels. For example, if you train a model
     on a folder 'cats' with subfolders 'Maine Coon', 'Bengal' and 'British Shorthair'
