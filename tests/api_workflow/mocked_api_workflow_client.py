@@ -161,6 +161,13 @@ class MockedTagsApi(TagsApi):
 
     def perform_tag_arithmetics(self, body: TagArithmeticsRequest, dataset_id, **kwargs):
         _check_dataset_id(dataset_id)
+        if body.new_tag_name is None or body.new_tag_name is '':
+            return TagBitMaskResponse(bit_mask_data="0x2")
+        else:
+            return CreateEntityResponse(id="tag-arithmetic-created")
+
+    def perform_tag_arithmetics_bitmask(self, body: TagArithmeticsRequest, dataset_id, **kwargs):
+        _check_dataset_id(dataset_id)
         return TagBitMaskResponse(bit_mask_data="0x2")
 
     def upsize_tags_by_dataset_id(self, body, dataset_id, **kwargs):
