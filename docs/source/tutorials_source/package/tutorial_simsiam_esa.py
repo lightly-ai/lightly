@@ -463,4 +463,5 @@ for i, example_image in enumerate(example_images):
 # - :ref:`lightly-moco-tutorial-2`
 # - :ref:`lightly-simclr-tutorial-3`
 # - :ref:`lightly-custom-augmentation-5`
-# - :ref:`lightly-detectron-tutorial-6`
+# - :ref:`lightly-detectron-tutorial-6`
+#
