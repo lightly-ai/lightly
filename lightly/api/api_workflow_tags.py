@@ -5,6 +5,9 @@ from lightly.openapi_generated.swagger_client import TagData, \
     TagArithmeticsRequest, TagArithmeticsOperation, TagBitMaskResponse
 
 
+class TagDoesNotExistError(ValueError):
+    pass
+
 class _TagsMixin:
 
     def get_all_tags(self) -> List[TagData]:
@@ -24,7 +27,7 @@ class _TagsMixin:
         tag_name_id_dict = {tag.name: tag.id for tag in self.get_all_tags()}
         tag_id = tag_name_id_dict.get(tag_name, None)
         if tag_id is None:
-            raise ValueError(f'Your tag_name is invalid: {tag_name}.')
+            raise TagDoesNotExistError(f'Your tag_name does not exist: {tag_name}.')
         return self.get_tag_by_id(tag_id)
 
     def get_filenames_in_tag(
@@ -40,7 +43,7 @@ class _TagsMixin:
                 The data of the tag.
             filenames_on_server:
                 List of all filenames on the server. If they are not given,
-                they need to be download newly, which is quite expensive.
+                they need to be downloaded, which is quite expensive.
             exclude_parent_tag:
                 Excludes the parent tag in the returned filenames.
 
@@ -66,7 +69,7 @@ class _TagsMixin:
         if not filenames_on_server:
             filenames_on_server = self.get_filenames()
 
-        chosen_samples_ids = BitMask.from_hex(bit_mask_data).to_indices()
-        filenames_tag = [filenames_on_server[i] for i in chosen_samples_ids]
+        filenames_tag = BitMask.from_hex(bit_mask_data).\
+            masked_select_from_list(filenames_on_server)
 
         return filenames_tag

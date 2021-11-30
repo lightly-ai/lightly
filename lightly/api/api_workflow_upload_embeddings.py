@@ -32,16 +32,37 @@ class _UploadEmbeddingsMixin:
 
         return reader
 
-    def set_embedding_id(self):
+    def set_latest_embedding_id(self):
+        """Sets the self.embedding_id to the one of the latest on the server.
+
+        """
         embeddings_on_server: List[DatasetEmbeddingData] = \
             self._embeddings_api.get_embeddings_by_dataset_id(
                 dataset_id=self.dataset_id
             )
-        self.embedding_id = embeddings_on_server[0].id
+        self.embedding_id = embeddings_on_server[-1].id
 
     def get_embedding_by_name(
             self, name: str, ignore_suffix: bool = True
     ) -> DatasetEmbeddingData:
+        """Gets an embedding form the server by name.
+
+        Args:
+            name:
+                The name of the embedding to get.
+            ignore_suffix:
+                If true, a suffix of the embedding name on the server
+                is ignored.
+
+        Returns:
+            The embedding data.
+
+        Raises:
+            EmbeddingDoesNotExistError:
+                If the name does not match the name of an embedding
+                on the server.
+
+        """
         embeddings_on_server: List[DatasetEmbeddingData] = \
             self._embeddings_api.get_embeddings_by_dataset_id(
                 dataset_id=self.dataset_id
@@ -82,7 +103,7 @@ class _UploadEmbeddingsMixin:
 
         # Try to append the embeddings on the server, if they exist
         try:
-            embedding = self.get_embedding_by_name(name)
+            embedding = self.get_embedding_by_name(name, ignore_suffix=True)
             # -> append rows from server
             print('Appending embeddings from server.')
             self.append_embeddings(path_to_embeddings_csv, embedding.id)
