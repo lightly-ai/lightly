@@ -23,7 +23,11 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python }}
-    - name: Install Dependencies
+    - uses: actions/cache@v2
+      with:
+        path: ${{ env.pythonLocation }}
+        key: cache_v1_${{ env.pythonLocation }}-${{ hashFiles('requirements/**') }}
+    - name: Install Dependencies and lightly
       run: pip install -e '.[all]'
     - name: Run Pytest
       run: |

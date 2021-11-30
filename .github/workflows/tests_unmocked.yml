@@ -15,7 +15,7 @@ jobs:
     - uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
-        key: cache_v1_${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}
+        key: cache_v1_${{ env.pythonLocation }}-${{ hashFiles('requirements/**') }}
     - name: Install Dependencies and lightly
       run: pip install .
     - name: run unmocked tests
