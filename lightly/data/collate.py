@@ -417,7 +417,6 @@ class SwaVCollateFunction(MultiCropCollateFunction):
             Probability that color jitter is applied.
         cj_strength:
             Strength of the color jitter.
-        min_scale:
         random_gray_scale:
             Probability of conversion to grayscale.
         gaussian_blur:

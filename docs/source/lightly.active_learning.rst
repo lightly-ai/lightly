@@ -7,6 +7,12 @@ lightly.active_learning
 ---------------
 .. automodule:: lightly.active_learning.agents.agent
    :members:
+   :exclude-members: added_set, labeled_set, query_set, unlabeled_set
+
+.. only:: comment
+
+   added_set, labeled_set, query_set and unlabeled_set are ignored 
+   because they are already described in the attributes of the class
 
 .config
 ---------------

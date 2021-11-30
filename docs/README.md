@@ -14,6 +14,11 @@ pip install sphinx_gallery
 make html
 ```
 
+To build docs without running python files (tutorials) use
+``` 
+make html-noplot
+```
+
 Shortcut to build the docs (with env variables for active-learning tutorial) use:
 ```
 LIGHTLY_SERVER_LOCATION='https://api.lightly.ai' TOKEN='YOUR_TOKEN' AL_TUTORIAL_DATASET_ID='YOUR_DATASET_ID' make html && python -m http.server 1234 -d build/html
@@ -22,6 +27,8 @@ LIGHTLY_SERVER_LOCATION='https://api.lightly.ai' TOKEN='YOUR_TOKEN' AL_TUTORIAL_
 You can host the docs after building using the following python command `python -m http.server 1234 -d build/html` from the docs folder.
 Open a browser and go to `http://localhost:1234` to see the documentation.
 
+Once the docs are built they are cached in `docs/build`. A new build will only recompile changed files.
+The cache can be cleared with `make clean`.
 
 ## Deploy the Docs
 

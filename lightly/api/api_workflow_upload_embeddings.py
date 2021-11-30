@@ -38,7 +38,8 @@ class _UploadEmbeddingsMixin:
                 Name under which the embedding was uploaded.
     
         Raises:
-            ValueError if the embedding does not exist.
+            ValueError:
+                If the embedding does not exist.
         """
         embeddings: List[DatasetEmbeddingData] = \
             self.embeddings_api.get_embeddings_by_dataset_id(dataset_id=self.dataset_id)
@@ -134,8 +135,9 @@ class _UploadEmbeddingsMixin:
                 Id of the embedding summary of the embeddings on the server.
 
         Raises:
-            RuntimeError if the number of columns in the local and the remote
-            embeddings file mismatch.
+            RuntimeError:
+                If the number of columns in the local and the remote
+                embeddings file mismatch.
         
         """
 

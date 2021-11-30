@@ -26,6 +26,9 @@ class ActiveLearningAgent:
         added_set:
             Set of filenames corresponding to samples which were added to the 
             labeled set in the last query.
+            
+            Raises:
+                RuntimeError: If executed before a query.
 
     Examples:
         >>> # set the token and dataset id
@@ -148,7 +151,7 @@ class ActiveLearningAgent:
         """List of filenames of newly added samples (in the last query).
 
         Raises:
-            RuntimeError if executed before a query.
+            RuntimeError: If executed before a query.
 
         """
         # the added set only exists after a query

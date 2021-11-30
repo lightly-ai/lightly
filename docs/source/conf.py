@@ -34,8 +34,8 @@ master_doc = 'index'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.napoleon",
     "sphinx_rtd_theme",
-    #'sphinx.ext.napoleon',
     "sphinx.ext.autosummary",
     "sphinx_gallery.gen_gallery",
     "sphinx_tabs.tabs",

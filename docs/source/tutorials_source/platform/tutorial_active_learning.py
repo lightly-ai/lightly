@@ -46,7 +46,7 @@ What you will learn
 * You learn how to do active learning with Lightly.
 
 Define your dataset
-------------
+-------------------
 - To make the definition of the dataset for training the classifier easy,
   we recommend using a dataset where the images are grouped in folders by class.
   We use the clothing-dataset-small. You can download it using

@@ -24,7 +24,7 @@ lightly.loss
    :members:
 
 .barlow_twins_loss
------------------
+------------------
 .. autoclass:: lightly.loss.barlow_twins_loss.BarlowTwinsLoss
    :members:
 

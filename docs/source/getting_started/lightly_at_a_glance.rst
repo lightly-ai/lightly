@@ -1,7 +1,7 @@
 .. _lightly-at-a-glance:
 
 Self-supervised learning
-===================
+========================
 
 Lightly is a computer vision framework for training deep learning models using self-supervised learning.
 The framework can be used for a wide range of useful applications such as finding the nearest 

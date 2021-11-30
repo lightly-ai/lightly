@@ -43,7 +43,7 @@ The video below gives you a quick tour through the platform:
 
 
 Basic Concepts
------------------------------------
+--------------
 
 The Lightly Platform is built around datasets, tags, embeddings, samples and their metadata.
 
@@ -53,7 +53,7 @@ Learn more about the different concepts in our `Glossary <https://app.lightly.ai
 
 
 Create a Dataset
--------------------------
+----------------
 
 
 To create a new dataset of images with embeddings use the lightly :ref:`lightly-command-line-tool`:
@@ -223,11 +223,8 @@ need to look like this:
 Sampling
 ----------------
 
-Before you start sampling make sure you have
-
-#. Created a dataset --> `Create a Dataset`_
-
-#. Uploaded images and embeddings --> `Upload Images`_ & `Upload Embeddings`_
+Before you start sampling make sure you have created a dataset 
+and uploaded images and embeddings. See `Create a Dataset`_.
 
 Now, let's get started with sampling!
 

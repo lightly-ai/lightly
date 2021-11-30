@@ -6,7 +6,7 @@ This documentation accompanies the video tutorial: `youtube link <https://youtu.
 ##############################################################################
 
 Tutorial 1: Curate Pizza Images
-========================
+===============================
 
 In this tutorial, you will learn how to upload a dataset to the Lightly platform,
 curate the data, and finally use the curated data to train a model.

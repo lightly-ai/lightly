@@ -15,7 +15,8 @@ class _DatasetsMixin:
                 The name of the dataset for which the dataset_id
                 should be set as attribute
 
-        Raises: ValueError
+        Raises:
+            ValueError
 
         """
         current_datasets: List[DatasetData] \
@@ -32,6 +33,7 @@ class _DatasetsMixin:
         """Creates a dataset on the webplatform
 
         If a dataset with that name already exists, instead the dataset_id is set.
+
         Args:
             dataset_name:
                 The name of the dataset to be created.
@@ -46,6 +48,7 @@ class _DatasetsMixin:
         """Creates a dataset on the webplatform
 
         No checking if a dataset with such a name already exists is performed.
+
         Args:
             dataset_name:
                 The name of the dataset to be created.
@@ -60,6 +63,7 @@ class _DatasetsMixin:
 
         If a dataset with the specified name already exists,
         a counter is added to the name to be able to still create it.
+
         Args:
             dataset_basename:
                 The name of the dataset to be created.

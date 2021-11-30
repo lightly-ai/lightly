@@ -24,5 +24,5 @@ lightly.api
 .. automodule:: lightly.api.api_workflow_upload_embeddings
    :members:
 
-.. automodule:: lightly.api.api_worflow_upload_metadata
+.. automodule:: lightly.api.api_workflow_upload_metadata
    :members:

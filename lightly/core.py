@@ -1,4 +1,4 @@
-""" Contains the core functionality of the lightly Python package. """
+"""Contains the core functionality of the lightly Python package"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
@@ -22,7 +22,7 @@ def _get_config_path(config_path):
         Path to config.yaml if specified else default config.yaml
 
     Raises:
-        ValueError if the config_path is not None but doesn't exist
+        ValueError: If the config_path is not None but doesn't exist
 
     """
     if config_path is None:
