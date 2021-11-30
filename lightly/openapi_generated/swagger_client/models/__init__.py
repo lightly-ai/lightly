@@ -41,7 +41,6 @@ from lightly.openapi_generated.swagger_client.models.embedding2d_create_request 
 from lightly.openapi_generated.swagger_client.models.embedding2d_data import Embedding2dData
 from lightly.openapi_generated.swagger_client.models.embedding_data import EmbeddingData
 from lightly.openapi_generated.swagger_client.models.embedding_id_is_processed_body import EmbeddingIdIsProcessedBody
-from lightly.openapi_generated.swagger_client.models.embedding_id_trigger2d_embeddings_job_body import EmbeddingIdTrigger2dEmbeddingsJobBody
 from lightly.openapi_generated.swagger_client.models.entity_body import EntityBody
 from lightly.openapi_generated.swagger_client.models.general_job_result import GeneralJobResult
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
@@ -53,8 +52,12 @@ from lightly.openapi_generated.swagger_client.models.job_status_data_result impo
 from lightly.openapi_generated.swagger_client.models.job_status_meta import JobStatusMeta
 from lightly.openapi_generated.swagger_client.models.job_status_upload_method import JobStatusUploadMethod
 from lightly.openapi_generated.swagger_client.models.jobs_data import JobsData
+from lightly.openapi_generated.swagger_client.models.label_studio_task import LabelStudioTask
+from lightly.openapi_generated.swagger_client.models.label_studio_task_data import LabelStudioTaskData
+from lightly.openapi_generated.swagger_client.models.label_studio_tasks import LabelStudioTasks
 from lightly.openapi_generated.swagger_client.models.mongo_object_id import MongoObjectID
 from lightly.openapi_generated.swagger_client.models.object_id import ObjectId
+from lightly.openapi_generated.swagger_client.models.one_of_tag_arithmetics_response import OneOfTagArithmeticsResponse
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
 from lightly.openapi_generated.swagger_client.models.sample_data import SampleData
 from lightly.openapi_generated.swagger_client.models.sample_meta_data import SampleMetaData
@@ -67,6 +70,7 @@ from lightly.openapi_generated.swagger_client.models.sampling_method import Samp
 from lightly.openapi_generated.swagger_client.models.tag_active_learning_scores_data import TagActiveLearningScoresData
 from lightly.openapi_generated.swagger_client.models.tag_arithmetics_operation import TagArithmeticsOperation
 from lightly.openapi_generated.swagger_client.models.tag_arithmetics_request import TagArithmeticsRequest
+from lightly.openapi_generated.swagger_client.models.tag_arithmetics_response import TagArithmeticsResponse
 from lightly.openapi_generated.swagger_client.models.tag_bit_mask_data import TagBitMaskData
 from lightly.openapi_generated.swagger_client.models.tag_bit_mask_response import TagBitMaskResponse
 from lightly.openapi_generated.swagger_client.models.tag_change_data import TagChangeData
@@ -78,5 +82,6 @@ from lightly.openapi_generated.swagger_client.models.tag_name import TagName
 from lightly.openapi_generated.swagger_client.models.tag_update_request import TagUpdateRequest
 from lightly.openapi_generated.swagger_client.models.tag_upsize_request import TagUpsizeRequest
 from lightly.openapi_generated.swagger_client.models.timestamp import Timestamp
+from lightly.openapi_generated.swagger_client.models.trigger2d_embedding_job_request import Trigger2dEmbeddingJobRequest
 from lightly.openapi_generated.swagger_client.models.version_number import VersionNumber
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
