@@ -141,7 +141,7 @@ As with images and embeddings before, it's also possible to upload custom metada
 Configuration
 ^^^^^^^^^^^^^^^
 
-In order to use the custom metadata on the Lightly Platform, it must be configured first. For this,
+To use the custom metadata on the Lightly Platform, it must be configured first. For this,
 follow these steps:
 
 1. Go to your dataset and click on "Configurator" on the left side.
@@ -162,7 +162,7 @@ Done! You can now use the custom metadata in the "Explore" and "Analyze & Filter
 Format
 ^^^^^^^^^^^
 
-In order to upload the custom metadata, you need to save it to a `.json` file in a COCO-like format.
+To upload the custom metadata, you need to save it to a `.json` file in a COCO-like format.
 The following things are important:
 
 - Information about the images is stored under the key `images`.
@@ -272,7 +272,7 @@ section by clicking on it.
 Dataset Identifier
 -------------------------
 
-Every dataset has a unique identifier called 'Dataset ID'. You find it in the dataset overview page.
+Every dataset has a unique identifier called 'Dataset ID'. You find it on the dataset overview page.
 
 .. figure:: images/webapp_dataset_id.jpg
     :align: center
@@ -303,7 +303,7 @@ account (top right)-> preferences on the
           token could access your datasets!
 
 
-How to use S3 with lightly
+How to use S3 with Lightly
 ------------------------------
 
 
@@ -313,16 +313,16 @@ Lightly allows you to configure a remote datasource like Amazon S3 (Amazon Simpl
 **What you will learn**
 
 
-In this guide we will show you how to setup your S3 bucket, configure your dataset to use said bucket and to only upload metadata to lightly while preserving the privacy of your data
+In this guide, we will show you how to setup your S3 bucket, configure your dataset to use said bucket, and only upload metadata to Lightly while preserving the privacy of your data
 
 
 Setting up Amazon S3
 ^^^^^^^^^^^^^^^^^^^^^^
 For Lightly to be able to create so-called `presigned URLs/read URLs <https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html>`_ to be used for displaying your data in your browser, Lightly needs at minimum to be able to read and list permissions on your bucket. If you want Lightly to create optimal thumbnails for you while uploading the metadata of your images, write permissions are also needed.
 
-Let us assume your bucket is called datalake. And let us assume the folder you want to use with Lightly is located at projects/farm-animals/
+Let us assume your bucket is called `datalake`. And let us assume the folder you want to use with Lightly is located at projects/farm-animals/
 
-Creating an IAM
+**Creating an IAM**
 
 1. Go to the `Identity and Access Management IAM page <https://console.aws.amazon.com/iamv2/home?#/users>`_ and create a new user for Lightly.
 2. Choose a unique name of your choice and select "Programmatic access" as "Access type". Click next
@@ -333,7 +333,7 @@ Creating an IAM
 
         Create AWS User
 
-3. We will want to create very restrictive permissions for this new user so that it cant access other resources of your company. Click on "Attach existing policies directly" and then on "Create policy". This will bring you to new page
+3. We will want to create very restrictive permissions for this new user so that it can't access other resources of your company. Click on "Attach existing policies directly" and then on "Create policy". This will bring you to a new page
     
     .. figure:: resources/AWSCreateUser3.png
         :align: center
@@ -372,21 +372,21 @@ Creating an IAM
         :alt: Permission policy in AWS
 
         Permission policy in AWS
-5. Go to the next page and create tags as you see fit (e.g `external` or `lightly`) and give a name to your new policy prior to creating it.
+5. Go to the next page and create tags as you see fit (e.g `external` or `lightly`) and give a name to your new policy before creating it.
 
     .. figure:: resources/AWSCreateUser5.png
         :align: center
         :alt: Review and name permission policy in AWS
 
         Review and name permission policy in AWS
-6. Return to the prior page and reload. Now when filtering policies your newly created policy will show up. Select it and continue setting up your new user.
+6. Return to the previous page as shown in the screenshot below and reload. Now when filtering policies your newly created policy will show up. Select it and continue setting up your new user.
     
     .. figure:: resources/AWSCreateUser6.png
         :align: center
         :alt: Attach permission policy to user in AWS
 
         Attach permission policy to user in AWS
-7. Write down the `Access key ID` and the `Secret access key` in a secure location (such as a password manager) as you will not be able to access these information again (you can generate new keys and revoke old keys under `Security credentials` of a users detail page)
+7. Write down the `Access key ID` and the `Secret access key` in a secure location (such as a password manager) as you will not be able to access this information again (you can generate new keys and revoke old keys under `Security credentials` of a users detail page)
     
     .. figure:: resources/AWSCreateUser7.png
         :align: center
@@ -397,7 +397,7 @@ Creating an IAM
 **Preparing your data**
 
 
-For Lightly to be able to create embeddings and extract metadata from your data `lightly-magic` needs to be able to access your data. You can either download/sync your data from S3 or you can mount S3 as a drive. We recommend downloading your data from S3 as it makes the overall process faster.
+For Lightly to be able to create embeddings and extract metadata from your data, `lightly-magic` needs to be able to access your data. You can either download/sync your data from S3 or you can mount S3 as a drive. We recommend downloading your data from S3 as it makes the overall process faster.
 
 **Downloading from S3 (recommended)**
 
