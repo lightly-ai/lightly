@@ -322,7 +322,7 @@ For Lightly to be able to create so-called `presigned URLs/read URLs <https://do
 
 Let us assume your bucket is called `datalake`. And let us assume the folder you want to use with Lightly is located at projects/farm-animals/
 
-**Creating an IAM**
+**Setting up IAM**
 
 1. Go to the `Identity and Access Management IAM page <https://console.aws.amazon.com/iamv2/home?#/users>`_ and create a new user for Lightly.
 2. Choose a unique name of your choice and select "Programmatic access" as "Access type". Click next
@@ -407,7 +407,9 @@ For Lightly to be able to create embeddings and extract metadata from your data,
 
 **Mount S3 as a drive**
 
-Please follow official guidance or for Linux and MacOS use `s3fs-fuse <https://github.com/s3fs-fuse/s3fs-fuse>`_
+For Linux and MacOS we recommend using `s3fs-fuse <https://github.com/s3fs-fuse/s3fs-fuse>`_ to mount S3 buckets to a local file storage. 
+You can have a look at our step-by-step guide: :ref:`ref-docker-integration-s3fs-fuse`. 
+
 
 Uploading your data
 ^^^^^^^^^^^^^^^^^^^^^^
