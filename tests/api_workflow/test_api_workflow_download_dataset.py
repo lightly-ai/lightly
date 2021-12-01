@@ -19,7 +19,7 @@ from lightly.openapi_generated.swagger_client.models.dataset_data import Dataset
 class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
     def setUp(self) -> None:
         MockedApiWorkflowSetup.setUp(self, dataset_id='dataset_0_id')
-        self.api_workflow_client.tags_api.no_tags = 3
+        self.api_workflow_client._tags_api.no_tags = 3
 
     def test_download_non_existing_tag(self):
         with self.assertRaises(ValueError):
@@ -29,7 +29,7 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
         def get_thumbnail_dataset_by_id(*args):
             return DatasetData(name=f'dataset', id='dataset_id', last_modified_at=0,
                                type='thumbnails', size_in_bytes=-1, n_samples=-1, created_at=-1)
-        self.api_workflow_client.datasets_api.get_dataset_by_id = get_thumbnail_dataset_by_id
+        self.api_workflow_client._datasets_api.get_dataset_by_id = get_thumbnail_dataset_by_id
         with self.assertRaises(ValueError):
             self.api_workflow_client.download_dataset('path/to/dir')
 

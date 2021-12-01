@@ -74,8 +74,8 @@ The framework is structured into the following modules:
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-__name__ = "lightly"
-__version__ = "1.2.0"
+__name__ = 'lightly'
+__version__ = '1.2.0'
 
 import os
 
