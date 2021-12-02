@@ -88,6 +88,4 @@ html_static_path = ['_static']
 
 html_favicon = 'favicon.png'
 
-#html_logo = "../logos/lightly_logo_crop.png"
-def setup(app):
-    app.add_css_file('css/my-styles.css')
+# html_logo = "../logos/lightly_logo_crop.png"

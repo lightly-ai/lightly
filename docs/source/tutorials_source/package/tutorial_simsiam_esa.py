@@ -56,7 +56,7 @@ from lightly.models.modules.heads import SimSiamProjectionHead
 num_workers = 8
 batch_size = 128
 seed = 1
-epochs = 50
+epochs = 1
 input_size = 256
 
 # dimension of the embeddings

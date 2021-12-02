@@ -66,7 +66,7 @@ num_workers = 8
 batch_size = 128
 input_size = 128
 seed = 1
-max_epochs = 50
+max_epochs = 1
 
 # %%
 # Let's set the seed for our experiments
