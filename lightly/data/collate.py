@@ -433,7 +433,7 @@ class SwaVCollateFunction(MultiCropCollateFunction):
         >>> collate_fn = SwaVCollateFunction()
         >>> 
         >>> # SwaV w/ 2x160 and 4x96 crops 
-        >>> collate_fn = MoCoCollateFunction(
+        >>> collate_fn = SwaVCollateFunction(
         >>>     crop_sizes=[160, 96],
         >>>     crop_counts=[2, 4],
         >>> )
