@@ -15,12 +15,15 @@ import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
 import sphinx_rtd_theme
+import lightly
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'lightly'
-copyright = '2020, Lightly AG'
+copyright_year = '2020'
+company_name = 'Lightly AG'
+website = 'https://www.lightly.ai/'
 author = 'Philipp Wirth, Igor Susmelj'
 
 # The full version, including alpha/beta/rc tags
@@ -79,6 +82,7 @@ html_theme = 'sphinx_rtd_theme'
 
 html_theme_options = {
     'collapse_navigation': False, # set to false to prevent menu item collapse
+    'logo_only': True,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
