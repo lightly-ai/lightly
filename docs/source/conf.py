@@ -22,12 +22,12 @@ import lightly
 
 project = 'lightly'
 copyright_year = '2020'
-company_name = 'Lightly AG'
-website = 'https://www.lightly.ai/'
+copyright = "Lightly AG"
+website_url = 'https://www.lightly.ai/'
 author = 'Philipp Wirth, Igor Susmelj'
 
 # The full version, including alpha/beta/rc tags
-release = '1.2.0'
+release = lightly.__version__
 master_doc = 'index'
 
 
@@ -82,7 +82,7 @@ html_theme = 'sphinx_rtd_theme'
 
 html_theme_options = {
     'collapse_navigation': False, # set to false to prevent menu item collapse
-    'logo_only': True,
+    'logo_only': True
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -92,8 +92,9 @@ html_static_path = ['_static']
 
 html_favicon = 'favicon.png'
 
-html_js_files = ['custom.js']
+html_logo = '../logos/lightly_logo_crop_white_text.png'
 
-#html_logo = "../logos/lightly_logo_crop.png"
-def setup(app):
-    app.add_css_file('css/my-styles.css')
+html_context = {
+    'copyright_year': copyright_year,
+    'website_url': website_url,
+}
