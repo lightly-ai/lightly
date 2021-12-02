@@ -3,6 +3,10 @@
 {# Custom CSS overrides #}
 {% set bootswatch_css_custom = ['/_static/my-styles.css'] %}
 
+<!-- 
+  Copy from https://github.com/readthedocs/sphinx_rtd_theme/blob/ddf840cb7206d7c45270560f077b12daa147f915/sphinx_rtd_theme/layout.html#L184-L205 
+  We need this to override the footer
+-->
 {%- block content %}
   {% if theme_style_external_links|tobool %}
   <div class="rst-content style-external-links">

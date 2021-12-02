@@ -94,6 +94,7 @@ html_favicon = 'favicon.png'
 
 html_logo = '../logos/lightly_logo_crop_white_text.png'
 
+# Exposes variables so that they can be used by django
 html_context = {
     'copyright_year': copyright_year,
     'website_url': website_url,
