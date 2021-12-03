@@ -1,4 +1,5 @@
 """
+.. _lightly-tutorial-aquarium-custom-metadata:
 
 .. note:: 
     In many real world applications of machine learning datasets are heavily biased.

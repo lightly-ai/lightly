@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
+.. _lightly-tutorial-pizza-filter:
+
 This documentation accompanies the video tutorial: `youtube link <https://youtu.be/imQWZ0HhYjk>`_
 
 ##############################################################################
@@ -79,6 +81,7 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 from torchvision.models import resnet18
+import torchmetrics
 
 
 # %%
@@ -150,7 +153,7 @@ class MyModel(pl.LightningModule):
         num_ftrs = self.model.fc.in_features
         self.model.fc = torch.nn.Linear(num_ftrs, 2)
 
-        self.accuracy = pl.metrics.Accuracy()
+        self.accuracy = torchmetrics.Accuracy()
 
     def forward(self, x):
         return self.model(x)
