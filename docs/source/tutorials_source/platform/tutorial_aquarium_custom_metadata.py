@@ -1,5 +1,4 @@
 """
-.. _lightly-tutorial-aquarium-custom-metadata:
 
 .. note:: 
     In many real world applications of machine learning datasets are heavily biased.
@@ -7,6 +6,7 @@
     which itself is biased as well. In this tutorial, we show how such dataset biases
     can be mitigated through clever rebalancing.
 
+.. _lightly-tutorial-aquarium-custom-metadata:
 
 Tutorial 5: Custom Metadata and Rebalancing
 =============================================

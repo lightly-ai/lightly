@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-.. _lightly-tutorial-pizza-filter:
-
 This documentation accompanies the video tutorial: `youtube link <https://youtu.be/imQWZ0HhYjk>`_
 
 ##############################################################################
+
+.. _lightly-tutorial-pizza-filter:
 
 Tutorial 1: Curate Pizza Images
 ===============================
