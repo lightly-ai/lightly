@@ -239,6 +239,13 @@ class Configuration(object):
                     'key': 'token',
                     'value': self.get_api_key_with_prefix('token')
                 },
+            'ApiPublicJWTAuth':
+                {
+                    'type': 'api_key',
+                    'in': 'query',
+                    'key': 'publicToken',
+                    'value': self.get_api_key_with_prefix('publicToken')
+                },
             'InternalKeyAuth':
                 {
                     'type': 'api_key',

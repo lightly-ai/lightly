@@ -7,7 +7,7 @@ from typing import List
 from urllib.request import Request, urlopen
 
 from lightly.openapi_generated.swagger_client import \
-    DimensionalityReductionMethod, EmbeddingIdTrigger2dEmbeddingsJobBody
+    DimensionalityReductionMethod, Trigger2dEmbeddingJobRequest
 from lightly.openapi_generated.swagger_client.models.dataset_embedding_data \
     import DatasetEmbeddingData
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data \
@@ -143,7 +143,7 @@ class _UploadEmbeddingsMixin:
             DimensionalityReductionMethod.UMAP
         ]:
 
-            body = EmbeddingIdTrigger2dEmbeddingsJobBody(
+            body = Trigger2dEmbeddingJobRequest(
                 dimensionality_reduction_method=dimensionality_reduction_method)
             self._embeddings_api.trigger2d_embeddings_job(
                 body=body,

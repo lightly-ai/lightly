@@ -59,7 +59,7 @@ class _TagsMixin:
                 tag_id1=tag_data.id, tag_id2=parent_tag_id,
                 operation=TagArithmeticsOperation.DIFFERENCE)
             bit_mask_response: TagBitMaskResponse = \
-                self._tags_api.perform_tag_arithmetics(
+                self._tags_api.perform_tag_arithmetics_bitmask(
                     body=tag_arithmetics_request, dataset_id=self.dataset_id
                 )
             bit_mask_data = bit_mask_response.bit_mask_data
