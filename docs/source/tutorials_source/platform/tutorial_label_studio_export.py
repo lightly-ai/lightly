@@ -16,9 +16,9 @@ What you will learn
 
 Requirements
 ------------
-You have a dataset in the `Lightly Platform <https://app.lightly.ai>`_ and optionally already chosen
-a subset of it and created a tag for it. Now you want to label all images
-of this tag using LabelStudio.
+You have a dataset in the `Lightly Platform <https://app.lightly.ai>`_
+and optionally already chosen a subset of it and created a tag for it.
+Now you want to label all images of this tag using LabelStudio.
 
 If you have not created your own dataset yet, you can use any dataset
 (e.g. the playground dataset) or follow one of the other tutorials to create one.
@@ -37,9 +37,10 @@ import screen.
 
 Export from Lightly in the LabelStudio format
 ---------------------------------------------
-Now go again to the tab with the `Lightly Platform <https://app.lightly.ai>`_.
-Just head over to the *Download* tab to see the different download options.
-Within 'Export Reduced Dataset', select 'LabelStudio Tasks' from the dropdown
+Now open your dataset in the `Lightly Platform <https://app.lightly.ai>`_.
+and select the tag you want to export.
+Navigate to the *Download* page to see the different download options.
+Within *Export Reduced Dataset*, select *LabelStudio Tasks* from the dropdown
 of the list of supported export formats. Specify an expiration duration
 giving you enough time to label all images.
 The tasks include a url pointing to the real images, thus allowing everyone
@@ -52,10 +53,10 @@ before exporting.
 
 
 Import the tasks into LabelStudio
--------------------------------
+---------------------------------
 
-Head over to the tab with LabelStudio open and import the file you just
-downloaded. Either per drag-n-drop or browse your local images. Then finish
+Now head back to LabelStudio and import the file you just
+downloaded. Either per drag-n-drop or browse your local files. Then finish
 the import.
 
 .. figure:: ../../tutorials_source/platform/images/tutorial_export_labelstudio/labelstudio_imported_file.jpg
