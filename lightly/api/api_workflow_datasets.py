@@ -20,7 +20,7 @@ class _DatasetsMixin:
 
         """
         current_datasets: List[DatasetData] \
-            = self.datasets_api.get_datasets()
+            = self._datasets_api.get_datasets()
 
         try:
             dataset_with_specified_name = next(dataset for dataset in current_datasets if dataset.name == dataset_name)
@@ -55,7 +55,7 @@ class _DatasetsMixin:
 
         """
         body = DatasetCreateRequest(name=dataset_name)
-        response: CreateEntityResponse = self.datasets_api.create_dataset(body=body)
+        response: CreateEntityResponse = self._datasets_api.create_dataset(body=body)
         self._dataset_id = response.id
 
     def create_new_dataset_with_unique_name(self, dataset_basename: str):
@@ -70,7 +70,7 @@ class _DatasetsMixin:
 
         """
         current_datasets: List[DatasetData] \
-            = self.datasets_api.get_datasets()
+            = self._datasets_api.get_datasets()
         current_datasets_names = [dataset.name for dataset in current_datasets]
 
         if dataset_basename not in current_datasets_names:
@@ -92,5 +92,5 @@ class _DatasetsMixin:
                 The id of the dataset to be deleted.
 
         """
-        self.datasets_api.delete_dataset_by_id(dataset_id=dataset_id)
+        self._datasets_api.delete_dataset_by_id(dataset_id=dataset_id)
         del self._dataset_id

@@ -28,7 +28,7 @@ class TestCLIMagic(MockedApiWorkflowSetup):
             ])
 
     def create_fake_dataset(self, filename_appendix: str = ''):
-        n_data = len(self.api_workflow_client.filenames_on_server)
+        n_data = len(self.api_workflow_client.get_filenames())
         self.dataset = torchvision.datasets.FakeData(size=n_data, image_size=(3, 32, 32))
 
         self.folder_path = tempfile.mkdtemp()

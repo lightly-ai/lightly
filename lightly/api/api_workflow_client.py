@@ -1,11 +1,9 @@
-import time
-import random
-import time
 import warnings
 from io import IOBase
 from typing import *
 
 import requests
+from lightly.api.api_workflow_tags import _TagsMixin
 from requests import Response
 
 from lightly.__init__ import __version__
@@ -15,19 +13,29 @@ from lightly.api.api_workflow_sampling import _SamplingMixin
 from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
+from lightly.api.bitmask import BitMask
 from lightly.api.utils import getenv
-from lightly.api.version_checking import get_minimum_compatible_version, version_compare
-from lightly.openapi_generated.swagger_client import TagData, ScoresApi, QuotaApi
-from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
-from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
+from lightly.api.version_checking import get_minimum_compatible_version, \
+    version_compare
+from lightly.openapi_generated.swagger_client import TagData, ScoresApi, \
+    QuotaApi, TagArithmeticsRequest, TagArithmeticsOperation, \
+    TagBitMaskResponse
+from lightly.openapi_generated.swagger_client.api.datasets_api import \
+    DatasetsApi
+from lightly.openapi_generated.swagger_client.api.embeddings_api import \
+    EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
-from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
+from lightly.openapi_generated.swagger_client.api.mappings_api import \
+    MappingsApi
 from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
-from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
+from lightly.openapi_generated.swagger_client.api.samplings_api import \
+    SamplingsApi
 from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
-from lightly.openapi_generated.swagger_client.configuration import Configuration
-from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
+from lightly.openapi_generated.swagger_client.configuration import \
+    Configuration
+from lightly.openapi_generated.swagger_client.models.dataset_data import \
+    DatasetData
 
 
 class ApiWorkflowClient(_UploadEmbeddingsMixin,
@@ -35,7 +43,9 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                         _UploadDatasetMixin,
                         _DownloadDatasetMixin,
                         _DatasetsMixin,
-                        _UploadCustomMetadataMixin):
+                        _UploadCustomMetadataMixin,
+                        _TagsMixin
+                        ):
     """Provides a uniform interface to communicate with the api 
     
     The APIWorkflowClient is used to communicaate with the Lightly API. The client
@@ -71,15 +81,15 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         if embedding_id is not None:
             self.embedding_id = embedding_id
 
-        self.datasets_api = DatasetsApi(api_client=self.api_client)
-        self.samplings_api = SamplingsApi(api_client=self.api_client)
-        self.jobs_api = JobsApi(api_client=self.api_client)
-        self.tags_api = TagsApi(api_client=self.api_client)
-        self.embeddings_api = EmbeddingsApi(api_client=api_client)
-        self.mappings_api = MappingsApi(api_client=api_client)
-        self.scores_api = ScoresApi(api_client=api_client)
-        self.samples_api = SamplesApi(api_client=api_client)
-        self.quota_api = QuotaApi(api_client=api_client)
+        self._datasets_api = DatasetsApi(api_client=self.api_client)
+        self._samplings_api = SamplingsApi(api_client=self.api_client)
+        self._jobs_api = JobsApi(api_client=self.api_client)
+        self._tags_api = TagsApi(api_client=self.api_client)
+        self._embeddings_api = EmbeddingsApi(api_client=api_client)
+        self._mappings_api = MappingsApi(api_client=api_client)
+        self._scores_api = ScoresApi(api_client=api_client)
+        self._samples_api = SamplesApi(api_client=api_client)
+        self._quota_api = QuotaApi(api_client=api_client)
 
     def check_version_compatibility(self):
         minimum_version = get_minimum_compatible_version()
@@ -98,16 +108,13 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         try:
             return self._dataset_id
         except AttributeError:
-            all_datasets: List[DatasetData] = self.datasets_api.get_datasets()
+            all_datasets: List[DatasetData] = self._datasets_api.get_datasets()
             datasets_sorted = sorted(all_datasets, key=lambda dataset: dataset.last_modified_at)
             last_modified_dataset = datasets_sorted[-1]
             self._dataset_id = last_modified_dataset.id
             warnings.warn(UserWarning(f"Dataset has not been specified, "
                                       f"taking the last modified dataset {last_modified_dataset.name} as default dataset."))
             return self._dataset_id
-
-    def _get_all_tags(self) -> List[TagData]:
-        return self.tags_api.get_tags_by_dataset_id(self.dataset_id)
 
     def _order_list_by_filenames(
             self, filenames_for_list: List[str],
@@ -129,26 +136,27 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             filenames_for_list.
 
         """
+        filenames_on_server = self.get_filenames()
         if len(filenames_for_list) != len(list_to_order) or \
-                len(filenames_for_list) != len(self.filenames_on_server):
+                len(filenames_for_list) != len(filenames_on_server):
             raise ValueError(
                 f"All inputs (filenames_for_list,  list_to_order and "
                 f"self.filenames_on_server) must have the same length, "
                 f"but their lengths are: ({len(filenames_for_list)},"
-                f"{len(list_to_order)} and {len(self.filenames_on_server)})."
+                f"{len(list_to_order)} and {len(filenames_on_server)})."
             )
         dict_by_filenames = dict(zip(filenames_for_list, list_to_order))
-        list_ordered = [dict_by_filenames[filename] for filename in self.filenames_on_server]
+        list_ordered = [dict_by_filenames[filename] for filename in filenames_on_server]
         return list_ordered
 
-    @property
-    def filenames_on_server(self):
-        """The list of the filenames in the dataset.
-        
+    def get_filenames(self) -> List[str]:
+        """Downloads the list of filenames from the server.
+
+        This is an expensive operation, especially for large datasets.
         """
-        self._filenames_on_server = self.mappings_api. \
+        filenames_on_server = self._mappings_api. \
             get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
-        return self._filenames_on_server
+        return filenames_on_server
 
     def upload_file_with_signed_url(self,
                                     file: IOBase,

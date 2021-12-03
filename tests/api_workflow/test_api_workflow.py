@@ -26,11 +26,11 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
         lightly.api.api_workflow_client.__version__ = lightly.__version__
 
     def test_dataset_id_nonexisting(self):
-        self.api_workflow_client.datasets_api.reset()
+        self.api_workflow_client._datasets_api.reset()
         assert not hasattr(self.api_workflow_client, "_dataset_id")
         with self.assertWarns(UserWarning):
             dataset_id = self.api_workflow_client.dataset_id
-        assert dataset_id == self.api_workflow_client.datasets_api.datasets[-1].id
+        assert dataset_id == self.api_workflow_client._datasets_api.datasets[-1].id
 
     def test_dataset_id_existing(self):
         id = "random_dataset_id"
@@ -45,7 +45,7 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
             filenames_on_server = [f"img_{i}" for i in numbers_all]
 
             api_workflow_client = MockedApiWorkflowClient(token="token_xyz", dataset_id="dataset_id_xyz")
-            api_workflow_client.mappings_api.sample_names = filenames_on_server
+            api_workflow_client._mappings_api.sample_names = filenames_on_server
 
             numbers_in_tag = np.copy(numbers_all)
             np.random.shuffle(numbers_in_tag)
@@ -59,7 +59,7 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
     def test_reorder_manual(self):
         filenames_on_server = ['a', 'b', 'c']
         api_workflow_client = MockedApiWorkflowClient(token="token_xyz", dataset_id="dataset_id_xyz")
-        api_workflow_client.mappings_api.sample_names = filenames_on_server
+        api_workflow_client._mappings_api.sample_names = filenames_on_server
         filenames_for_list = ['c', 'a', 'b']
         list_to_order = ['cccc', 'aaaa', 'bbbb']
         list_ordered = api_workflow_client._order_list_by_filenames(filenames_for_list, list_to_order=list_to_order)
@@ -71,7 +71,7 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
         api_workflow_client = MockedApiWorkflowClient(
             token="token_xyz", dataset_id="dataset_id_xyz"
         )
-        api_workflow_client.mappings_api.sample_names = filenames_on_server
+        api_workflow_client._mappings_api.sample_names = filenames_on_server
         filenames_for_list = ['c', 'a', 'b']
         list_to_order = ['cccc', 'aaaa', 'bbbb']
 

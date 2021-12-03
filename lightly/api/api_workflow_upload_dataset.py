@@ -62,7 +62,7 @@ class _UploadDatasetMixin:
         """
 
         # get all tags of the dataset
-        tags = self._get_all_tags()
+        tags = self.get_all_tags()
         if len(tags) > 0:
             print(
                 f'Dataset with id {self.dataset_id} has {len(tags)} tags.',
@@ -96,7 +96,7 @@ class _UploadDatasetMixin:
             lambda img: 0 # pylint: disable=protected-access
 
         # get the filenames of the samples already on the server
-        samples = self.samples_api.get_samples_by_dataset_id(
+        samples = self._samples_api.get_samples_by_dataset_id(
             dataset_id=self.dataset_id
         )
         filenames_on_server = [sample.file_name for sample in samples]
@@ -112,7 +112,7 @@ class _UploadDatasetMixin:
             filenames_on_server_set
         )
         max_dataset_size = \
-            int(self.quota_api.get_quota_maximum_dataset_size())
+            int(self._quota_api.get_quota_maximum_dataset_size())
         if len(total_filenames) > max_dataset_size:
             msg = f'Your dataset has {len(dataset)} samples which'
             msg += f' is more than the allowed maximum of {max_dataset_size}'
@@ -134,7 +134,7 @@ class _UploadDatasetMixin:
             is_registered=True,
             upload_method=JobStatusUploadMethod.USER_PIP,
         )
-        self.datasets_api.register_dataset_upload_by_id(
+        self._datasets_api.register_dataset_upload_by_id(
             job_status_meta,
             self.dataset_id
         )
@@ -205,7 +205,7 @@ class _UploadDatasetMixin:
                 img_type=img_type,
                 creator=TagCreator.USER_PIP
             )
-            self.tags_api.create_initial_tag_by_dataset_id(
+            self._tags_api.create_initial_tag_by_dataset_id(
                 body=initial_tag_create_request,
                 dataset_id=self.dataset_id,
             )
@@ -215,7 +215,7 @@ class _UploadDatasetMixin:
                 upsize_tag_name=datetime.now().strftime('%Y%m%d_%Hh%Mm%Ss'),
                 upsize_tag_creator=TagCreator.USER_PIP,
             )
-            self.tags_api.upsize_tags_by_dataset_id(
+            self._tags_api.upsize_tags_by_dataset_id(
                 body=upsize_tags_request,
                 dataset_id=self.dataset_id,
             )
@@ -258,7 +258,7 @@ class _UploadDatasetMixin:
             custom_meta_data=custom_metadata,
         )
         sample_id = retry(
-            self.samples_api.create_sample_by_dataset_id,
+            self._samples_api.create_sample_by_dataset_id,
             body=body,
             dataset_id=self.dataset_id
         ).id
@@ -285,7 +285,7 @@ class _UploadDatasetMixin:
 
             if mode == 'thumbnails':
                 thumbnail_url = retry(
-                    self.samples_api.get_sample_image_write_url_by_id,
+                    self._samples_api.get_sample_image_write_url_by_id,
                     dataset_id=self.dataset_id,
                     sample_id=sample_id,
                     is_thumbnail=True
@@ -293,7 +293,7 @@ class _UploadDatasetMixin:
                 upload_thumbnail(image, thumbnail_url)
             elif mode == 'full':
                 sample_write_urls: SampleWriteUrls = retry(
-                    self.samples_api.get_sample_image_write_urls_by_id,
+                    self._samples_api.get_sample_image_write_urls_by_id,
                     dataset_id=self.dataset_id,
                     sample_id=sample_id
                 )

@@ -30,7 +30,7 @@ class _SamplingMixin:
 
     def upload_scores(self, al_scores: Dict[str, np.ndarray], query_tag_id: str = None):
 
-        tags = self._get_all_tags()
+        tags = self.get_all_tags()
 
         # upload the active learning scores to the api
         # change @20210422: we store the active learning scores with the query
@@ -46,7 +46,7 @@ class _SamplingMixin:
                 score_type=score_type,
                 scores=_parse_active_learning_scores(score_values)
             )
-            self.scores_api.create_or_update_active_learning_score_by_tag_id(
+            self._scores_api.create_or_update_active_learning_score_by_tag_id(
                 body,
                 dataset_id=self.dataset_id,
                 tag_id=query_tag_id,
@@ -77,7 +77,7 @@ class _SamplingMixin:
         """
 
         # make sure the tag name does not exist yet
-        tags = self._get_all_tags()
+        tags = self.get_all_tags()
         if sampler_config.name in [tag.name for tag in tags]:
             raise RuntimeError(f'There already exists a tag with tag_name {sampler_config.name}.')
         if len(tags) == 0:
@@ -87,12 +87,12 @@ class _SamplingMixin:
         try:
             self.embedding_id
         except AttributeError:
-            self.set_embedding_id_by_name()
+            self.set_embedding_id_to_latest()
 
         # trigger the sampling
         payload = self._create_sampling_create_request(sampler_config, preselected_tag_id, query_tag_id)
-        payload.row_count = self._get_all_tags()[0].tot_size
-        response = self.samplings_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
+        payload.row_count = self.get_all_tags()[0].tot_size
+        response = self._samplings_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
         job_id = response.job_id
 
         # poll the job status till the job is not running anymore
@@ -108,7 +108,7 @@ class _SamplingMixin:
             time.sleep(wait_time_till_next_poll)
             # try to read the sleep time until the next poll from the status data
             try:
-                job_status_data: JobStatusData = self.jobs_api.get_job_status_by_id(job_id=job_id)
+                job_status_data: JobStatusData = self._jobs_api.get_job_status_by_id(job_id=job_id)
                 wait_time_till_next_poll = job_status_data.wait_time_till_next_poll
             except Exception as err:
                 exception_counter += 1
@@ -123,7 +123,7 @@ class _SamplingMixin:
         new_tag_id = job_status_data.result.data
         if new_tag_id is None:
             raise RuntimeError(f"TagId returned by job with job_id {job_id} is None.")
-        new_tag_data = self.tags_api.get_tag_by_tag_id(self.dataset_id, tag_id=new_tag_id)
+        new_tag_data = self._tags_api.get_tag_by_tag_id(self.dataset_id, tag_id=new_tag_id)
 
         return new_tag_data
 

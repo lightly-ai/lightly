@@ -5,7 +5,7 @@ lightly version 1.3.0. Instead, use low-level building blocks to build the
 models yourself.
 
 Example implementations for all models can be found here:
-`Model Examples <https://docs.lightly.ai/examples/models.html>`
+`Model Examples <https://docs.lightly.ai/examples/models.html>`_
 
 The package contains an implementation of the commonly used ResNet and
 adaptations of the architecture which make self-supervised learning simpler.

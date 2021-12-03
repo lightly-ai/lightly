@@ -26,7 +26,7 @@ from lightly.openapi_generated.swagger_client import ScoresApi, \
     CreateEntityResponse, SamplesApi, SampleCreateRequest, \
     InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, \
     TagArithmeticsRequest, TagBitMaskResponse, SampleWriteUrls, SampleData, \
-    EmbeddingIdTrigger2dEmbeddingsJobBody
+    Trigger2dEmbeddingJobRequest
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -83,7 +83,7 @@ class MockedEmbeddingsApi(EmbeddingsApi):
 
     def trigger2d_embeddings_job(self, body, dataset_id, embedding_id, **kwargs):
         _check_dataset_id(dataset_id)
-        assert isinstance(body, EmbeddingIdTrigger2dEmbeddingsJobBody)
+        assert isinstance(body, Trigger2dEmbeddingJobRequest)
 
     def get_embeddings_csv_read_url_by_id(self, dataset_id, embedding_id, **kwargs):
         _check_dataset_id(dataset_id)
@@ -160,6 +160,13 @@ class MockedTagsApi(TagsApi):
         return tags
 
     def perform_tag_arithmetics(self, body: TagArithmeticsRequest, dataset_id, **kwargs):
+        _check_dataset_id(dataset_id)
+        if body.new_tag_name is None or body.new_tag_name is '':
+            return TagBitMaskResponse(bit_mask_data="0x2")
+        else:
+            return CreateEntityResponse(id="tag-arithmetic-created")
+
+    def perform_tag_arithmetics_bitmask(self, body: TagArithmeticsRequest, dataset_id, **kwargs):
         _check_dataset_id(dataset_id)
         return TagBitMaskResponse(bit_mask_data="0x2")
 
@@ -317,16 +324,16 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         lightly.api.version_checking.VersioningApi = MockedVersioningApi
         ApiWorkflowClient.__init__(self, *args, **kwargs)
 
-        self.samplings_api = MockedSamplingsApi(api_client=self.api_client)
-        self.jobs_api = MockedJobsApi(api_client=self.api_client)
-        self.tags_api = MockedTagsApi(api_client=self.api_client)
-        self.embeddings_api = MockedEmbeddingsApi(api_client=self.api_client)
-        self.samples_api = MockedSamplesApi(api_client=self.api_client)
-        self.mappings_api = MockedMappingsApi(api_client=self.api_client,
-                                              samples_api=self.samples_api)
-        self.scores_api = MockedScoresApi(api_client=self.api_client)
-        self.datasets_api = MockedDatasetsApi(api_client=self.api_client)
-        self.quota_api = MockedQuotaApi(api_client=self.api_client)
+        self._samplings_api = MockedSamplingsApi(api_client=self.api_client)
+        self._jobs_api = MockedJobsApi(api_client=self.api_client)
+        self._tags_api = MockedTagsApi(api_client=self.api_client)
+        self._embeddings_api = MockedEmbeddingsApi(api_client=self.api_client)
+        self._samples_api = MockedSamplesApi(api_client=self.api_client)
+        self._mappings_api = MockedMappingsApi(api_client=self.api_client,
+                                              samples_api=self._samples_api)
+        self._scores_api = MockedScoresApi(api_client=self.api_client)
+        self._datasets_api = MockedDatasetsApi(api_client=self.api_client)
+        self._quota_api = MockedQuotaApi(api_client=self.api_client)
 
         lightly.api.api_workflow_client.requests.put = mocked_request_put
 
