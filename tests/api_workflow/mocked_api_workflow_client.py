@@ -26,7 +26,7 @@ from lightly.openapi_generated.swagger_client import ScoresApi, \
     CreateEntityResponse, SamplesApi, SampleCreateRequest, \
     InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, \
     TagArithmeticsRequest, TagBitMaskResponse, SampleWriteUrls, SampleData, \
-    EmbeddingIdTrigger2dEmbeddingsJobBody
+    Trigger2dEmbeddingJobRequest
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -83,7 +83,7 @@ class MockedEmbeddingsApi(EmbeddingsApi):
 
     def trigger2d_embeddings_job(self, body, dataset_id, embedding_id, **kwargs):
         _check_dataset_id(dataset_id)
-        assert isinstance(body, EmbeddingIdTrigger2dEmbeddingsJobBody)
+        assert isinstance(body, Trigger2dEmbeddingJobRequest)
 
     def get_embeddings_csv_read_url_by_id(self, dataset_id, embedding_id, **kwargs):
         _check_dataset_id(dataset_id)
@@ -160,6 +160,13 @@ class MockedTagsApi(TagsApi):
         return tags
 
     def perform_tag_arithmetics(self, body: TagArithmeticsRequest, dataset_id, **kwargs):
+        _check_dataset_id(dataset_id)
+        if body.new_tag_name is None or body.new_tag_name is '':
+            return TagBitMaskResponse(bit_mask_data="0x2")
+        else:
+            return CreateEntityResponse(id="tag-arithmetic-created")
+
+    def perform_tag_arithmetics_bitmask(self, body: TagArithmeticsRequest, dataset_id, **kwargs):
         _check_dataset_id(dataset_id)
         return TagBitMaskResponse(bit_mask_data="0x2")
 
