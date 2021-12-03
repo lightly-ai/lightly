@@ -42,3 +42,5 @@ jobs:
         INPUT_DIR_1="clothing_dataset_small/test/dress"
         lightly-train input_dir=$INPUT_DIR_1 trainer.max_epochs=1 loader.num_workers=6
         lightly-embed input_dir=$INPUT_DIR_1
+        echo $LIGHTLY_LAST_CHECKPOINT_PATH
+        echo $LIGHTLY_LAST_EMBEDDING_PATH

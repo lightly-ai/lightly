@@ -7,6 +7,7 @@ command-line interface.
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+import os
 
 import hydra
 import torch
@@ -131,6 +132,9 @@ def _train_cli(cfg, is_cli_call=True):
     encoder.train_embedding(**cfg['trainer'])
 
     print(f'Best model is stored at: {bcolors.OKBLUE}{encoder.checkpoint}{bcolors.ENDC}')
+    os.environ[
+        cfg['environment_variable_names']['lightly_last_checkpoint_path']
+    ] = encoder.checkpoint
     return encoder.checkpoint
 
 

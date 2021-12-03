@@ -85,6 +85,12 @@ checkpoint_callback:
   dirpath:                    # Where to store the checkpoints (empty field resolves to None).
                               # If not set, checkpoints are stored in the hydra output dir.
 
+# environment variable namespace for saving artifacts
+environment_variable_names:
+  lightly_last_checkpoint_path: LIGHTLY_LAST_CHECKPOINT_PATH
+  lightly_last_embedding_path: LIGHTLY_LAST_EMBEDDING_PATH
+  lightly_last_dataset_id: LIGHTLY_LAST_DATASET_ID
+
 # seed
 seed: 1
 

@@ -9,6 +9,7 @@ command-line interface.
 # All Rights Reserved
 import csv
 import json
+import os
 from datetime import datetime
 
 import hydra
@@ -118,6 +119,10 @@ def _upload_cli(cfg, is_cli_call=True):
     if new_dataset_name:
         print(f'The dataset_id of the newly created dataset is '
               f'{bcolors.OKBLUE}{api_workflow_client.dataset_id}{bcolors.ENDC}')
+
+    os.environ[
+        cfg['environment_variable_names']['lightly_last_dataset_id']
+    ] = api_workflow_client.dataset_id
 
 
 @hydra.main(config_path='config', config_name='config')
