@@ -37,19 +37,17 @@ import screen.
 
 Export from Lightly in the LabelStudio format
 ---------------------------------------------
-Now open your dataset in the `Lightly Platform <https://app.lightly.ai>`_.
-and select the tag you want to export.
-Navigate to the *Download* page to see the different download options.
-Within *Export Reduced Dataset*, select *LabelStudio Tasks* from the dropdown
-of the list of supported export formats. Specify an expiration duration
-giving you enough time to label all images.
-The tasks include a url pointing to the real images, thus allowing everyone
-with the link to access the images. This is needed for LabelStudio to access the
+- Now open your dataset in the `Lightly Platform <https://app.lightly.ai>`_.
+- Select the tag you want to export at the top. By default, the initial tag is already chosen.
+- Navigate to the *Download* page to see the different download options.
+- Within *Export Reduced Dataset*, select *LabelStudio Tasks* from the dropdown \
+of the list of supported export formats. Specify an expiration duration \
+giving you enough time to label all images. \
+The tasks include a url pointing to the real images, thus allowing everyone \
+with the link to access the images. This is needed for LabelStudio to access the \
 images without needing to login.
-After clicking the button 'Export to LabelStudio Tasks', they are downloaded
+- After clicking the button 'Export to LabelStudio Tasks', they are downloaded \
 as a single json file to your PC.
-If you only want to export from a specific tag, just select the tag on the top
-before exporting.
 
 
 Import the tasks into LabelStudio
