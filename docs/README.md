@@ -1,7 +1,7 @@
 # Documentation Guide
 
 ## Prerequisites
-Make sure you insatlled dev dependencies:
+Make sure you installed dev dependencies:
 ```
 pip install -r ../requirements/dev.txt
 ```

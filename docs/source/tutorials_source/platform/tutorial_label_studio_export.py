@@ -5,24 +5,24 @@
 Tutorial 10: Export to LabelStudio
 =============================================
 
-This tutorial shows how you can easily label all images of a tag in Lightly
-using the open-source data labeling tool `LabelStudio <labelstud.io>`_
+This tutorial shows how you can easily label all images of a tag from Lightly
+using the open-source data labeling tool `LabelStudio <https://labelstud.io>`_.
 
 What you will learn
 --------------------
 
-* Export a tag in the LabelStudio-compatible task description format
-* Import the task description into LabelStudio
+* Export a tag from Lightly in the `LabelStudio format <https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format>`_.
+* Import the tag into LabelStudio.
 
 Requirements
--------------
-You have a dataset in the Lightly Webapp and optionally already chosen
+------------
+You have a dataset in the `Lightly Platform <https://app.lightly.ai>`_ and optionally already chosen
 a subset of it and created a tag for it. Now you want to label all images
-in this tag using LabelStudio.
+of this tag using LabelStudio.
 
-If you don't have such a dataset yet, you can use any dataset (e.g. the
-playground dataset) or follow one of the other tutorials to create one.
-The `tutorial on how to diversify your dataset <./tutorial_sunflowers.rst>`_
+If you have not created your own dataset yet, you can use any dataset
+(e.g. the playground dataset) or follow one of the other tutorials to create one.
+The :ref:`lightly-tutorial-sunflowers`
 is particularly well-suited.
 
 Launch LabelStudio
@@ -35,24 +35,27 @@ import screen.
     :align: center
     :alt: Import dialog of LabelStudio.
 
-Export a tag in the LabelStudio format
-------------------
-Now go again to the tab with the Lightly webapp.
-Just head over to the *Download* tag to see the different download options.
-Choose 'Export Reduced Dataset', an expiration duration giving you
-enough time to label all image and choose the form 'json'.
+Export from Lightly in the LabelStudio format
+---------------------------------------------
+Now go again to the tab with the `Lightly Platform <https://app.lightly.ai>`_.
+Just head over to the *Download* tab to see the different download options.
+Within 'Export Reduced Dataset', select 'LabelStudio Tasks' from the dropdown
+of the list of supported export formats. Specify an expiration duration
+giving you enough time to label all images.
 The tasks include a url pointing to the real images, thus allowing everyone
 with the link to access the images. This is needed for LabelStudio to access the
 images without needing to login.
-After clicking on 'Export to LabelStudio Tasks', they are downloaded
+After clicking the button 'Export to LabelStudio Tasks', they are downloaded
 as a single json file to your PC.
+If you only want to export from a specific tag, just select the tag on the top
+before exporting.
 
 
-Import the tag into LabelStudio
-------------------
+Import the tasks into LabelStudio
+-------------------------------
 
 Head over to the tab with LabelStudio open and import the file you just
-downloaded. Either per drag-n-drop or the import dialogue. Then finish
+downloaded. Either per drag-n-drop or browse your local images. Then finish
 the import.
 
 .. figure:: ../../tutorials_source/platform/images/tutorial_export_labelstudio/labelstudio_imported_file.jpg
@@ -60,7 +63,7 @@ the import.
     :alt: Imported file into LabelStudio.
 
 Start labeling
-------------------
+--------------
 
 Now you can start labeling your images! To see them, you might need
 to change the type of the image column to 'img'.
