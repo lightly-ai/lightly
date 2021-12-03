@@ -118,7 +118,7 @@ to see differences between the results.
 
 
 Download a sampling
-------------------
+-------------------
 
 Now you can use this diverse subset for your machine learning project.
 Just head over to the *Download* tag to see the different download options.
