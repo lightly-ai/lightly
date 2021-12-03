@@ -1,11 +1,9 @@
 # Documentation Guide
 
 ## Prerequisites
-Make sure you insatlled `sphinx` and `sphinx_rtd_theme`:
+Make sure you installed dev dependencies:
 ```
-pip install sphinx
-pip install sphinx_rtd_theme
-pip install sphinx_gallery
+pip install -r ../requirements/dev.txt
 ```
 
 ## Build the Docs
