@@ -57,7 +57,7 @@ import numpy as np
 num_workers = 8
 batch_size = 256
 seed = 1
-max_epochs = 1
+max_epochs = 20
 input_size = 128
 num_ftrs = 32
 

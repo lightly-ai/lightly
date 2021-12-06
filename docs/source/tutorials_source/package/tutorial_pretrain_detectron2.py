@@ -82,7 +82,7 @@ input_size = 128
 num_ftrs = 2048
 
 seed = 1
-max_epochs = 1
+max_epochs = 5
 
 # use cuda if possible
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
