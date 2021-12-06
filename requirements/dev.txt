@@ -13,3 +13,4 @@ pre-commit
 opencv-python
 scikit-learn
 pandas
+torchmetrics
