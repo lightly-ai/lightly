@@ -49,25 +49,26 @@ class ScorerClassification(Scorer):
 
     Currently supports the following scorers:
 
-        The following three uncertainty scores are taken from
-        http://burrsettles.com/pub/settles.activelearning.pdf, Section 3.1, page 12f
-        and also explained in https://towardsdatascience.com/uncertainty-sampling-cheatsheet-ec57bc067c0b
+        The following three uncertainty scores are taken from [1] and also explained in [2].
         They all have in common, that the score is highest if all classes have the
         same confidence and are 0 if the model assigns 100% probability to a single class.
         The differ in the number of class confidences they take into account.
 
-        `uncertainty_least_confidence`:
+        - [1]: http://burrsettles.com/pub/settles.activelearning.pdf, Section 3.1, page 12f
+        - [2]: https://towardsdatascience.com/uncertainty-sampling-cheatsheet-ec57bc067c0b
+
+        uncertainty_least_confidence:
             This score is 1 - the highest confidence prediction. It is high
             when the confidence about the most probable class is low.
 
-        `uncertainty_margin`
-            This score is 1- the margin between the highest conficence
+        uncertainty_margin:
+            This score is 1 - the margin between the highest conficence
             and second highest confidence prediction. It is high when the model
             cannot decide between the two most probable classes.
 
-        `uncertainty_entropy`:
+        uncertainty_entropy:
             This scorer computes the entropy of the prediction. The confidences
-             for all classes are considered to compute the entropy of a sample.
+            for all classes are considered to compute the entropy of a sample.
 
     Attributes:
         model_output:

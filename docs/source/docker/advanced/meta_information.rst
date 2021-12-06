@@ -14,7 +14,7 @@ Depending on your current setup one of the following topics might interest you:
 
 - | You have your own (weak) labels. Can lightly use this information to improve
     the selection? 
-  | --> `Custom Labels`_
+  | --> `Custom Weak Labels`_
 
 
 Mask Samples

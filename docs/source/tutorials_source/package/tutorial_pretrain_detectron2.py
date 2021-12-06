@@ -39,8 +39,8 @@ Prerequisites:
 ----------------
 For the purpose of this tutorial you will need to:
 
-- Install Lightly: Follow the `instructions <https://docs.lightly.ai/getting_started/install.html>`_.
-- Install Detectron2: Follow the `instructions <https://detectron2.readthedocs.io/en/latest/tutorials/install.html>`_.
+- Install Lightly: Follow the `instructions <https://docs.lightly.ai/getting_started/install.html>`__.
+- Install Detectron2: Follow the `instructions <https://detectron2.readthedocs.io/en/latest/tutorials/install.html>`__.
 - Download a dataset for pre-training (we will use the `Freiburg Groceries Dataset <https://github.com/PhilJd/freiburg_groceries_dataset>`_ dataset). You can download it by cloning the Github repository and running `download_dataset.py`. Alternatively, you can use this `download link <http://aisdatasets.informatik.uni-freiburg.de/freiburg_groceries_dataset/freiburg_groceries_dataset.tar.gz>`_
 
 .. note::
@@ -82,7 +82,7 @@ input_size = 128
 num_ftrs = 2048
 
 seed = 1
-max_epochs = 0
+max_epochs = 5
 
 # use cuda if possible
 device = 'cuda' if torch.cuda.is_available() else 'cpu'

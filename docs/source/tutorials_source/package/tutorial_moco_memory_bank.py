@@ -202,7 +202,7 @@ dataloader_test = torch.utils.data.DataLoader(
 
 # %%
 # Create the MoCo Lightning Module
-# ---------------------------
+# --------------------------------
 # Now we create our MoCo model. We use PyTorch Lightning to train
 # our model. We follow the specification of the lightning module.
 # In this example we set the number of features for the hidden dimension to 512.
@@ -286,7 +286,7 @@ class MocoModel(pl.LightningModule):
 
 # %%
 # Create the Classifier Lightning Module
-# ---------------------------
+# --------------------------------------
 # We create a linear classifier using the features we extract using MoCo
 # and train it on the dataset
 
@@ -357,7 +357,7 @@ class Classifier(pl.LightningModule):
 
 # %%
 # Train the MoCo model
-# ---------------
+# --------------------
 #
 # We can instantiate the model and train it using the
 # lightning trainer.

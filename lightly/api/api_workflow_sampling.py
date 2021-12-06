@@ -70,7 +70,9 @@ class _SamplingMixin:
             The newly created tag of the sampling.
 
         Raises:
-            ApiException, ValueError, RuntimeError
+            ApiException
+            ValueError
+            RuntimeError
 
         """
 

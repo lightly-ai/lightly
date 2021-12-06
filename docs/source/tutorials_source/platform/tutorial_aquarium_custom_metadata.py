@@ -6,6 +6,7 @@
     which itself is biased as well. In this tutorial, we show how such dataset biases
     can be mitigated through clever rebalancing.
 
+.. _lightly-tutorial-aquarium-custom-metadata:
 
 Tutorial 5: Custom Metadata and Rebalancing
 =============================================
@@ -30,7 +31,7 @@ Requirements
 You can use your own dataset or the one we provide for this tutorial. The dataset
 we will use is the training set of `Roboflow's Aquarium Dataset <https://public.roboflow.com/object-detection/aquarium>`_.
 It consists of 448 images from two aquariums in the United States and was made for object detection.
-You can download it here :download:`Aquarium.zip <../../../_data/Aquarium.zip>`.
+You can download it here :download:`Aquarium.zip <../../../_data/aquarium.zip>`.
 
 For this tutorial the `lightly` pip package needs to be installed:
 
@@ -56,7 +57,7 @@ Let's take a look at the dataset statistics from the `Roboflow website <https://
 The table below contains the category names and instance counts of the dataset
 
 +---------------+----------------+
-| Category Name    | Instance Count |
+| Category Name | Instance Count |
 +===============+================+
 | fish          | 2669           |
 +---------------+----------------+
@@ -95,7 +96,7 @@ lightly-friendly format. If you want to skip this step, you can use the provided
     import json
     from lightly.utils import save_custom_metadata
 
-    PATH_TO_COCO_ANNOTATIONS = './aquarium/_annotations.cooo.json'
+    PATH_TO_COCO_ANNOTATIONS = './aquarium/_annotations.coco.json'
     OUTPUT_FILE = '_annotations.coco.metadata.json'
 
     # read coco annotations

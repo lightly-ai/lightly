@@ -68,7 +68,6 @@ Check it out here: :ref:`lightly-tutorial-active-learning-detectron2`
    lightly.cli
    lightly.core
    lightly.data
-   lightly.embedding
    lightly.loss
    lightly.models
    lightly.transforms

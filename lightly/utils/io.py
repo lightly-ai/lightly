@@ -55,7 +55,7 @@ def save_embeddings(path: str,
             List of filenames.
 
     Raises:
-        ValueError if embeddings, labels, and filenames have different lengths.
+        ValueError: If embeddings, labels, and filenames have different lengths.
 
     Examples:
         >>> import lightly.utils.io as io

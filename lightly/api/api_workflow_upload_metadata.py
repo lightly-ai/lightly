@@ -33,7 +33,8 @@ class _UploadCustomMetadataMixin:
                 the required format.
 
         Raises:
-            KeyError if "images" or "metadata" aren't a key of custom_metadata.
+            KeyError:
+                If "images" or "metadata" aren't a key of custom_metadata.
 
         """
         _assert_key_exists_in_custom_metadata(

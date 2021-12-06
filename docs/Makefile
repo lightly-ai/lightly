@@ -27,6 +27,9 @@ help:
 	make download
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -v
 
+html-noplot:
+	$(SPHINXBUILD) -D plot_gallery=0 -b html $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)/html"
+
 download:
 	# inspired by https://github.com/pytorch/tutorials/blob/master/Makefile
 	echo "start downloading datasets..."
@@ -54,6 +57,9 @@ download:
 	# download images and report for docker
 	wget -N https://storage.googleapis.com/datasets_boris/resources.zip -P $(DATADIR)
 	unzip $(ZIPOPTS) $(DATADIR)/resources.zip  -d $(DOCKERSOURCE)
+
+	# aquarium dataset
+	wget -N https://storage.googleapis.com/datasets_boris/aquarium.zip -P $(DATADIR)
 
 clean-tutorials:
 	rm -fr source/tutorials/package

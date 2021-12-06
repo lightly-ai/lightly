@@ -58,8 +58,10 @@ class _DownloadDatasetMixin:
                 Whether or not to show the progress bar.
 
         Raises:
-            ValueError if the specified tag does not exist on the dataset.
-            RuntimeError if the connection to the server failed.
+            ValueError:
+                If the specified tag does not exist on the dataset.
+            RuntimeError:
+                If the connection to the server failed.
 
         """
 
