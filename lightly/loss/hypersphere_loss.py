@@ -47,6 +47,19 @@ class HypersphereLoss(torch.nn.Module):
     """
 
     def __init__(self, t=1., lam=1., alpha=2.):
+        """Parameters as described in [0]
+
+        Args:
+            t : float
+                Temperature parameter;
+                proportional to the inverse variance of the Gaussians used to measure uniformity
+            lam : float:
+                Weight balancing the alignment and uniformity loss terms
+            alpha : float
+                Power applied to the alignment term of the loss. At its default value of 2,
+                distances between positive samples are penalized in an l-2 sense.
+
+        """
         super(HypersphereLoss, self).__init__()
         self.t = t
         self.lam = lam

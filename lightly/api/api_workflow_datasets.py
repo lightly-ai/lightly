@@ -15,8 +15,7 @@ class _DatasetsMixin:
                 The name of the dataset for which the dataset_id
                 should be set as attribute
 
-        Raises:
-            ValueError
+        Raises: ValueError
 
         """
         current_datasets: List[DatasetData] \

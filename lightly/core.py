@@ -1,4 +1,4 @@
-"""Contains the core functionality of the lightly Python package"""
+""" Contains the core functionality of the lightly Python package. """
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
