@@ -168,8 +168,9 @@ class _UploadEmbeddingsMixin:
                 Id of the embedding summary of the embeddings on the server.
 
         Raises:
-            RuntimeError if the number of columns in the local and the remote
-            embeddings file mismatch.
+            RuntimeError:
+                If the number of columns in the local and the remote
+                embeddings file mismatch.
         
         """
 

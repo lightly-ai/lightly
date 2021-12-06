@@ -42,9 +42,8 @@ class _UploadDatasetMixin:
 
         Args:
             input:
-                one of the following:
-                    - the path to the dataset, e.g. "path/to/dataset"
-                    - the dataset in form of a LightlyDataset
+                Either the path to the dataset, e.g. "path/to/dataset",
+                or the dataset in form of a LightlyDataset
             max_workers:
                 Maximum number of workers uploading images in parallel.
             max_requests:
@@ -55,8 +54,10 @@ class _UploadDatasetMixin:
                 thumbnails, full images, or metadata only.
 
         Raises:
-            ValueError if dataset is too large or input has the wrong type
-            RuntimeError if the connection to the server failed.
+            ValueError:
+                If dataset is too large or input has the wrong type
+            RuntimeError:
+                If the connection to the server failed.
 
         """
 

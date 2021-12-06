@@ -72,7 +72,7 @@ There are **three** types of volume mappings:
    The container requires only **read access** to this directory.
 * **Output Directory:**
    The output directory is the place where the results from all computations made by the container are stored.
-   See :ref:`Reporting` and :ref:`Docker Output` for additional information. The container requires **read and 
+   See `Reporting`_ and `Docker Output`_ for additional information. The container requires **read and 
    write access** to this directory.
 
 .. note:: Docker volume or port mappings always follow the scheme that you first
@@ -475,11 +475,10 @@ The output directory is structured in the following way:
 * data:
    The data directory contains everything to do with data. 
    
-   * If `enable_corruptness_check=True`, it will contain a "clean" version of 
-     the dataset. 
-   * If `remove_exact_duplicates=True`, it will contain a copy of the 
-     `embeddings.csv` where all duplicates are removed. Otherwise, it will 
-   simply store the embeddings computed by the model.
+    * If `enable_corruptness_check=True`, it will contain a "clean" version of the dataset. 
+    * If `remove_exact_duplicates=True`, it will contain a copy of the `embeddings.csv` 
+        where all duplicates are removed. Otherwise, it will 
+        simply store the embeddings computed by the model.
    
 * filenames:
    This directory contains lists of filenames of the corrupt images, removed images, sampled

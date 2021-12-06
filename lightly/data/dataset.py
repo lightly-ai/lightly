@@ -113,7 +113,7 @@ class LightlyDataset:
     Can also be used in combination with the `from_torch_dataset` method
     to load a dataset offered by torchvision (e.g. cifar10).
 
-    Args:
+    Parameters:
         input_dir:
             Path to directory holding the images or videos to load.
         transform:
@@ -319,11 +319,12 @@ class LightlyDataset:
         """Returns the filepath given the filename of the image
 
         There are three cases:
-        - The dataset is a regular dataset with the images in the input dir.
-        - The dataset is a video dataset, thus the images have to be saved in a
-        temporary folder.
-        - The dataset is a torch dataset, thus the images have to be saved in a
-        temporary folder.
+            - The dataset is a regular dataset with the images in the input dir.
+            - The dataset is a video dataset, thus the images have to be saved in a
+              temporary folder.
+            - The dataset is a torch dataset, thus the images have to be saved in a
+              temporary folder.
+
         Args:
             filename:
                 The filename of the image

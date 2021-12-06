@@ -150,7 +150,7 @@ dataloader_test = torch.utils.data.DataLoader(
 
 # %%
 # Create the SimSiam model
-# -----------------------
+# ------------------------
 #
 # Create a ResNet backbone and remove the classification head
 
@@ -296,7 +296,7 @@ embeddings = embeddings.cpu().numpy()
 
 # %%
 # Scatter Plot and Nearest Neighbors
-# ----------------------------
+# ----------------------------------
 # Now that we have the embeddings, we can visualize the data with a scatter plot.
 # Further down, we also check out the nearest neighbors of a few example images.
 #

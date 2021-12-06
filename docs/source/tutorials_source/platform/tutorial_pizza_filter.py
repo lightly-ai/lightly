@@ -5,8 +5,10 @@ This documentation accompanies the video tutorial: `youtube link <https://youtu.
 
 ##############################################################################
 
+.. _lightly-tutorial-pizza-filter:
+
 Tutorial 1: Curate Pizza Images
-========================
+===============================
 
 In this tutorial, you will learn how to upload a dataset to the Lightly platform,
 curate the data, and finally use the curated data to train a model.
@@ -79,6 +81,7 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 from torchvision.models import resnet18
+import torchmetrics
 
 
 # %%
@@ -150,7 +153,7 @@ class MyModel(pl.LightningModule):
         num_ftrs = self.model.fc.in_features
         self.model.fc = torch.nn.Linear(num_ftrs, 2)
 
-        self.accuracy = pl.metrics.Accuracy()
+        self.accuracy = torchmetrics.Accuracy()
 
     def forward(self, x):
         return self.model(x)

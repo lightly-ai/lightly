@@ -79,7 +79,7 @@ def fit_pca(embeddings: np.ndarray, n_components: int = 2, fraction: float = Non
         to lower dimensions.
 
     Raises:
-        ValueError if fraction < 0 or fraction > 1.
+        ValueError: If fraction < 0 or fraction > 1.
 
     """
     if fraction is not None:

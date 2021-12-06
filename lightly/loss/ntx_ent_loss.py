@@ -15,8 +15,8 @@ class NTXentLoss(MemoryBankModule):
     bank by setting the `memory_bank_size` value > 0 the loss behaves like 
     the one described in the MoCo[1] paper.
 
-    [0] SimCLR, 2020, https://arxiv.org/abs/2002.05709
-    [1] MoCo, 2020, https://arxiv.org/abs/1911.05722
+    - [0] SimCLR, 2020, https://arxiv.org/abs/2002.05709
+    - [1] MoCo, 2020, https://arxiv.org/abs/1911.05722
     
     Attributes:
         temperature:
@@ -26,7 +26,7 @@ class NTXentLoss(MemoryBankModule):
             Use 0 for SimCLR. For MoCo we typically use numbers like 4096 or 65536.
 
     Raises:
-        ValueError if abs(temperature) < 1e-8 to prevent divide by zero.
+        ValueError: If abs(temperature) < 1e-8 to prevent divide by zero.
 
     Examples:
 
@@ -67,16 +67,16 @@ class NTXentLoss(MemoryBankModule):
         as negative examples. Otherwise, within-batch samples are used as 
         negative samples.
 
-            Args:
-                out0:
-                    Output projections of the first set of transformed images.
-                    Shape: (batch_size, embedding_size)
-                out1:
-                    Output projections of the second set of transformed images.
-                    Shape: (batch_size, embedding_size)
+        Args:
+            out0:
+                Output projections of the first set of transformed images.
+                Shape: (batch_size, embedding_size)
+            out1:
+                Output projections of the second set of transformed images.
+                Shape: (batch_size, embedding_size)
 
-            Returns:
-                Contrastive Cross Entropy Loss value.
+        Returns:
+            Contrastive Cross Entropy Loss value.
 
         """
 
