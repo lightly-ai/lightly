@@ -253,7 +253,7 @@ def convert_bbox_detectron2lightly(outputs):
 # in the `query_set`. Otherwise, we could upload a prediction to the wrong sample!
 
 obj_detection_outputs = []
-pbar = tqdm.tqdm(al_agent.query_set)
+pbar = tqdm.tqdm(al_agent.query_set, miniters=500, mininterval=60, maxinterval=120)
 for fname in pbar:
   fname_full = os.path.join(DATASET_ROOT, fname)
   im = cv2.imread(fname_full)
