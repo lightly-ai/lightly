@@ -31,7 +31,7 @@ Requirements
 You can use your own dataset or the one we provide for this tutorial. The dataset
 we will use is the training set of `Roboflow's Aquarium Dataset <https://public.roboflow.com/object-detection/aquarium>`_.
 It consists of 448 images from two aquariums in the United States and was made for object detection.
-You can download it here :download:`Aquarium.zip <../../../_data/aquarium.zip>`.
+You can download it here `aquarium.zip <https://storage.googleapis.com/datasets_boris/aquarium.zip>`_.
 
 For this tutorial the `lightly` pip package needs to be installed:
 
