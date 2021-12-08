@@ -17,6 +17,7 @@ from __future__ import absolute_import
 
 # import apis into sdk package
 from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
+from lightly.openapi_generated.swagger_client.api.datasources_api import DatasourcesApi
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.embeddings2d_api import Embeddings2dApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
@@ -41,6 +42,7 @@ from lightly.openapi_generated.swagger_client.models.active_learning_scores impo
 from lightly.openapi_generated.swagger_client.models.api_error_code import ApiErrorCode
 from lightly.openapi_generated.swagger_client.models.api_error_response import ApiErrorResponse
 from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData
+from lightly.openapi_generated.swagger_client.models.body import Body
 from lightly.openapi_generated.swagger_client.models.configuration_data import ConfigurationData
 from lightly.openapi_generated.swagger_client.models.configuration_entry import ConfigurationEntry
 from lightly.openapi_generated.swagger_client.models.configuration_set_request import ConfigurationSetRequest
@@ -54,12 +56,22 @@ from lightly.openapi_generated.swagger_client.models.dataset_embedding_data impo
 from lightly.openapi_generated.swagger_client.models.dataset_name import DatasetName
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.dataset_update_request import DatasetUpdateRequest
+from lightly.openapi_generated.swagger_client.models.datasource_config import DatasourceConfig
+from lightly.openapi_generated.swagger_client.models.datasource_config_azure import DatasourceConfigAzure
+from lightly.openapi_generated.swagger_client.models.datasource_config_base import DatasourceConfigBase
+from lightly.openapi_generated.swagger_client.models.datasource_config_gcs import DatasourceConfigGCS
+from lightly.openapi_generated.swagger_client.models.datasource_config_lightly import DatasourceConfigLIGHTLY
+from lightly.openapi_generated.swagger_client.models.datasource_config_local import DatasourceConfigLOCAL
+from lightly.openapi_generated.swagger_client.models.datasource_config_s3 import DatasourceConfigS3
+from lightly.openapi_generated.swagger_client.models.datasource_config_verify_data import DatasourceConfigVerifyData
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import DatasourceRawSamplesData
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import DatasourceRawSamplesDataRow
+from lightly.openapi_generated.swagger_client.models.datasource_update_last_resource_request import DatasourceUpdateLastResourceRequest
 from lightly.openapi_generated.swagger_client.models.dimensionality_reduction_method import DimensionalityReductionMethod
 from lightly.openapi_generated.swagger_client.models.embedding2d_coordinates import Embedding2dCoordinates
 from lightly.openapi_generated.swagger_client.models.embedding2d_create_request import Embedding2dCreateRequest
 from lightly.openapi_generated.swagger_client.models.embedding2d_data import Embedding2dData
 from lightly.openapi_generated.swagger_client.models.embedding_data import EmbeddingData
-from lightly.openapi_generated.swagger_client.models.embedding_id_is_processed_body import EmbeddingIdIsProcessedBody
 from lightly.openapi_generated.swagger_client.models.entity_body import EntityBody
 from lightly.openapi_generated.swagger_client.models.general_job_result import GeneralJobResult
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
@@ -71,12 +83,17 @@ from lightly.openapi_generated.swagger_client.models.job_status_data_result impo
 from lightly.openapi_generated.swagger_client.models.job_status_meta import JobStatusMeta
 from lightly.openapi_generated.swagger_client.models.job_status_upload_method import JobStatusUploadMethod
 from lightly.openapi_generated.swagger_client.models.jobs_data import JobsData
+from lightly.openapi_generated.swagger_client.models.label_box_data_row import LabelBoxDataRow
+from lightly.openapi_generated.swagger_client.models.label_box_data_rows import LabelBoxDataRows
 from lightly.openapi_generated.swagger_client.models.label_studio_task import LabelStudioTask
 from lightly.openapi_generated.swagger_client.models.label_studio_task_data import LabelStudioTaskData
 from lightly.openapi_generated.swagger_client.models.label_studio_tasks import LabelStudioTasks
 from lightly.openapi_generated.swagger_client.models.mongo_object_id import MongoObjectID
 from lightly.openapi_generated.swagger_client.models.object_id import ObjectId
+from lightly.openapi_generated.swagger_client.models.one_of_datasource_config import OneOfDatasourceConfig
 from lightly.openapi_generated.swagger_client.models.one_of_tag_arithmetics_response import OneOfTagArithmeticsResponse
+from lightly.openapi_generated.swagger_client.models.read_url import ReadUrl
+from lightly.openapi_generated.swagger_client.models.redirected_read_url import RedirectedReadUrl
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
 from lightly.openapi_generated.swagger_client.models.sample_data import SampleData
 from lightly.openapi_generated.swagger_client.models.sample_meta_data import SampleMetaData
