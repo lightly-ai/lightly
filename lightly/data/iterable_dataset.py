@@ -73,13 +73,13 @@ class VideoIterableDataset(IterableDataset):
 
     def _load_video(self, file_info):
         """Generates (frame, filename, frame_idx) tuples for a video"""
-        filename = file_info['filename']
-        url = file_info['url']
+        filename, url = file_info
         video = cv2.VideoCapture(url)
-        frame_exists = True
         frame_idx = 0
-        while frame_exists:
+        while True:
             frame_exists, frame = video.read()
-            frame = np.array(frame)
-            yield frame, filename, frame_idx
-            frame_idx += 1
+            if frame_exists:
+                yield frame, filename, frame_idx
+                frame_idx += 1
+            else:
+                break
