@@ -128,40 +128,40 @@ class DatasourcesApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def get_last_resource_timestamp_of_datasource_by_dataset_id(self, dataset_id, **kwargs):  # noqa: E501
-        """get_last_resource_timestamp_of_datasource_by_dataset_id  # noqa: E501
+    def get_datasource_processed_until_timestamp_by_dataset_id(self, dataset_id, **kwargs):  # noqa: E501
+        """get_datasource_processed_until_timestamp_by_dataset_id  # noqa: E501
 
         Get timestamp of last treated resource  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_last_resource_timestamp_of_datasource_by_dataset_id(dataset_id, async_req=True)
+        >>> thread = api.get_datasource_processed_until_timestamp_by_dataset_id(dataset_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
-        :return: Timestamp
+        :return: DatasourceProcessedUntilTimestampResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.get_last_resource_timestamp_of_datasource_by_dataset_id_with_http_info(dataset_id, **kwargs)  # noqa: E501
+            return self.get_datasource_processed_until_timestamp_by_dataset_id_with_http_info(dataset_id, **kwargs)  # noqa: E501
         else:
-            (data) = self.get_last_resource_timestamp_of_datasource_by_dataset_id_with_http_info(dataset_id, **kwargs)  # noqa: E501
+            (data) = self.get_datasource_processed_until_timestamp_by_dataset_id_with_http_info(dataset_id, **kwargs)  # noqa: E501
             return data
 
-    def get_last_resource_timestamp_of_datasource_by_dataset_id_with_http_info(self, dataset_id, **kwargs):  # noqa: E501
-        """get_last_resource_timestamp_of_datasource_by_dataset_id  # noqa: E501
+    def get_datasource_processed_until_timestamp_by_dataset_id_with_http_info(self, dataset_id, **kwargs):  # noqa: E501
+        """get_datasource_processed_until_timestamp_by_dataset_id  # noqa: E501
 
         Get timestamp of last treated resource  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_last_resource_timestamp_of_datasource_by_dataset_id_with_http_info(dataset_id, async_req=True)
+        >>> thread = api.get_datasource_processed_until_timestamp_by_dataset_id_with_http_info(dataset_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
-        :return: Timestamp
+        :return: DatasourceProcessedUntilTimestampResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -177,14 +177,14 @@ class DatasourcesApi(object):
             if key not in all_params:
                 raise TypeError(
                     "Got an unexpected keyword argument '%s'"
-                    " to method get_last_resource_timestamp_of_datasource_by_dataset_id" % key
+                    " to method get_datasource_processed_until_timestamp_by_dataset_id" % key
                 )
             params[key] = val
         del params['kwargs']
         # verify the required parameter 'dataset_id' is set
         if self.api_client.client_side_validation and ('dataset_id' not in params or
                                                        params['dataset_id'] is None):  # noqa: E501
-            raise ValueError("Missing the required parameter `dataset_id` when calling `get_last_resource_timestamp_of_datasource_by_dataset_id`")  # noqa: E501
+            raise ValueError("Missing the required parameter `dataset_id` when calling `get_datasource_processed_until_timestamp_by_dataset_id`")  # noqa: E501
 
         collection_formats = {}
 
@@ -208,14 +208,14 @@ class DatasourcesApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/datasource/lastResourceAt', 'GET',
+            '/v1/datasets/{datasetId}/datasource/processedUntilTimestamp', 'GET',
             path_params,
             query_params,
             header_params,
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='Timestamp',  # noqa: E501
+            response_type='DatasourceProcessedUntilTimestampResponse',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -437,17 +437,17 @@ class DatasourcesApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def update_last_resource_timestamp_of_datasource_by_dataset_id(self, body, dataset_id, **kwargs):  # noqa: E501
-        """update_last_resource_timestamp_of_datasource_by_dataset_id  # noqa: E501
+    def update_datasource_processed_until_timestamp_by_dataset_id(self, body, dataset_id, **kwargs):  # noqa: E501
+        """update_datasource_processed_until_timestamp_by_dataset_id  # noqa: E501
 
         Update timestamp of last resource in datapool  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.update_last_resource_timestamp_of_datasource_by_dataset_id(body, dataset_id, async_req=True)
+        >>> thread = api.update_datasource_processed_until_timestamp_by_dataset_id(body, dataset_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param DatasourceUpdateLastResourceRequest body: The updated timestamp to set (required)
+        :param DatasourceProcessedUntilTimestampRequest body: The updated timestamp to set (required)
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :return: None
                  If the method is called asynchronously,
@@ -455,22 +455,22 @@ class DatasourcesApi(object):
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.update_last_resource_timestamp_of_datasource_by_dataset_id_with_http_info(body, dataset_id, **kwargs)  # noqa: E501
+            return self.update_datasource_processed_until_timestamp_by_dataset_id_with_http_info(body, dataset_id, **kwargs)  # noqa: E501
         else:
-            (data) = self.update_last_resource_timestamp_of_datasource_by_dataset_id_with_http_info(body, dataset_id, **kwargs)  # noqa: E501
+            (data) = self.update_datasource_processed_until_timestamp_by_dataset_id_with_http_info(body, dataset_id, **kwargs)  # noqa: E501
             return data
 
-    def update_last_resource_timestamp_of_datasource_by_dataset_id_with_http_info(self, body, dataset_id, **kwargs):  # noqa: E501
-        """update_last_resource_timestamp_of_datasource_by_dataset_id  # noqa: E501
+    def update_datasource_processed_until_timestamp_by_dataset_id_with_http_info(self, body, dataset_id, **kwargs):  # noqa: E501
+        """update_datasource_processed_until_timestamp_by_dataset_id  # noqa: E501
 
         Update timestamp of last resource in datapool  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.update_last_resource_timestamp_of_datasource_by_dataset_id_with_http_info(body, dataset_id, async_req=True)
+        >>> thread = api.update_datasource_processed_until_timestamp_by_dataset_id_with_http_info(body, dataset_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param DatasourceUpdateLastResourceRequest body: The updated timestamp to set (required)
+        :param DatasourceProcessedUntilTimestampRequest body: The updated timestamp to set (required)
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :return: None
                  If the method is called asynchronously,
@@ -488,18 +488,18 @@ class DatasourcesApi(object):
             if key not in all_params:
                 raise TypeError(
                     "Got an unexpected keyword argument '%s'"
-                    " to method update_last_resource_timestamp_of_datasource_by_dataset_id" % key
+                    " to method update_datasource_processed_until_timestamp_by_dataset_id" % key
                 )
             params[key] = val
         del params['kwargs']
         # verify the required parameter 'body' is set
         if self.api_client.client_side_validation and ('body' not in params or
                                                        params['body'] is None):  # noqa: E501
-            raise ValueError("Missing the required parameter `body` when calling `update_last_resource_timestamp_of_datasource_by_dataset_id`")  # noqa: E501
+            raise ValueError("Missing the required parameter `body` when calling `update_datasource_processed_until_timestamp_by_dataset_id`")  # noqa: E501
         # verify the required parameter 'dataset_id' is set
         if self.api_client.client_side_validation and ('dataset_id' not in params or
                                                        params['dataset_id'] is None):  # noqa: E501
-            raise ValueError("Missing the required parameter `dataset_id` when calling `update_last_resource_timestamp_of_datasource_by_dataset_id`")  # noqa: E501
+            raise ValueError("Missing the required parameter `dataset_id` when calling `update_datasource_processed_until_timestamp_by_dataset_id`")  # noqa: E501
 
         collection_formats = {}
 
@@ -529,7 +529,7 @@ class DatasourcesApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/datasource/lastResourceAt', 'PUT',
+            '/v1/datasets/{datasetId}/datasource/processedUntilTimestamp', 'PUT',
             path_params,
             query_params,
             header_params,
