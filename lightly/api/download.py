@@ -115,10 +115,10 @@ def download_and_write_file(
             Make request using the given session
     """
     req = requests if session is None else session
-    output_path = pathlib.Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path = pathlib.Path(output_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     with req.get(url, stream=True) as response:
-        with open(output_path, "wb") as file:
+        with open(out_path, "wb") as file:
             shutil.copyfileobj(response.raw, file)
 
 
