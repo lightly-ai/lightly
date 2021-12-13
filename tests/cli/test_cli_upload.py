@@ -88,6 +88,10 @@ class TestCLIUpload(MockedApiWorkflowSetup):
         cli_string = "lightly-upload new_dataset_name='new_dataset_name_xyz'"
         self.parse_cli_string(cli_string)
         lightly.cli.upload_cli(self.cfg)
+        self.assertGreater(len(os.getenv(
+            self.cfg['environment_variable_names'][
+            'lightly_last_dataset_id']
+        )), 0)
 
     def test_upload_new_dataset_name_and_embeddings(self):
         """
