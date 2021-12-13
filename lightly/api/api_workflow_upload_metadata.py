@@ -168,6 +168,9 @@ class _UploadCustomMetadataMixin:
             [sample.file_name for sample in samples],
             custom_metadata,
         )
+        if len(filename_to_metadata) != len(custom_metadata[COCO_ANNOTATION_KEYS.images]):
+            raise ValueError("There exist image names in the custom metadata "
+                             "without corresponding filenames on the server.")
 
         if verbose:
             # wrap samples in a progress bar
