@@ -187,7 +187,7 @@ class MockedScoresApi(ScoresApi):
 
 class MockedMappingsApi(MappingsApi):
     def __init__(self, samples_api, *args, **kwargs):
-        self.samples_api = samples_api
+        self._samples_api = samples_api
         MappingsApi.__init__(self, *args, **kwargs)
 
         self.n_samples = N_FILES_ON_SERVER

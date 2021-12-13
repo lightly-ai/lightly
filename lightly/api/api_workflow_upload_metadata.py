@@ -183,7 +183,7 @@ class _UploadCustomMetadataMixin:
                     custom_meta_data=metadata
                 )
                 # send the request to the api
-                self.samples_api.update_sample_by_id(
+                self._samples_api.update_sample_by_id(
                     update_sample_request,
                     self.dataset_id,
                     sample.id
