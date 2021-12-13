@@ -49,6 +49,13 @@ class TestApiWorkflowUploadCustomMetadata(MockedApiWorkflowSetup):
             custom_metadata = json.load(f)
             self.api_workflow_client.upload_dataset(input=self.folder_path, custom_metadata=custom_metadata)
 
+    def test_upload_custom_metadata_two_steps_verbose(self):
+        self.create_fake_dataset()
+        self.api_workflow_client.upload_dataset(input=self.folder_path)
+        with open(self.custom_metadata_file.name, 'r') as f:
+            custom_metadata = json.load(f)
+            self.api_workflow_client.upload_custom_metadata(custom_metadata, verbose=True)
+
     def test_upload_custom_metadata_two_steps(self):
         self.create_fake_dataset()
         self.api_workflow_client.upload_dataset(input=self.folder_path)
