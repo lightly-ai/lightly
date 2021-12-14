@@ -26,7 +26,7 @@ from lightly.openapi_generated.swagger_client import ScoresApi, \
     CreateEntityResponse, SamplesApi, SampleCreateRequest, \
     InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, \
     TagArithmeticsRequest, TagBitMaskResponse, SampleWriteUrls, SampleData, \
-    Trigger2dEmbeddingJobRequest
+    Trigger2dEmbeddingJobRequest, SampleUpdateRequest
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -187,7 +187,7 @@ class MockedScoresApi(ScoresApi):
 
 class MockedMappingsApi(MappingsApi):
     def __init__(self, samples_api, *args, **kwargs):
-        self.samples_api = samples_api
+        self._samples_api = samples_api
         MappingsApi.__init__(self, *args, **kwargs)
 
         self.n_samples = N_FILES_ON_SERVER
@@ -237,6 +237,10 @@ class MockedSamplesApi(SamplesApi):
         full_url = f"{sample_id}_full_write_url"
         ret = SampleWriteUrls(full=full_url, thumb=thumb_url)
         return ret
+
+    def update_sample_by_id(self, body, dataset_id, sample_id, **kwargs):
+        _check_dataset_id(dataset_id)
+        assert isinstance(body, SampleUpdateRequest)
 
 
 class MockedDatasetsApi(DatasetsApi):
