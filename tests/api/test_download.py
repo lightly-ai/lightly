@@ -3,14 +3,9 @@ import sys
 import tempfile
 import unittest
 
+import cv2
 import numpy as np
 from PIL import Image
-
-try:
-    import cv2
-    CV2_AVAILABLE = True
-except ImportError:
-    CV2_ABAILABLE = False
 
 # mock requests module so that files are read from 
 # disk instead of loading them from a remote url
@@ -46,9 +41,11 @@ class MockedResponse:
 # will be loaded by lightly.api.download and use the mocked
 # requests module instead of the real one.
 import lightly.api
+
 requests = sys.modules["requests"]
 sys.modules["requests"] = MockedRequestsModule()
 from lightly.api import download
+
 sys.modules["requests"] = requests
 
 
@@ -69,7 +66,6 @@ class TestDownload(unittest.TestCase):
             image = download.download_image(file.name, session=session)
             assert _images_equal(image, original)
 
-    @unittest.skipUnless(CV2_AVAILABLE, "Opencv not installed")
     def test_download_all_video_frames(self):
         with tempfile.NamedTemporaryFile(suffix='.avi') as file:
             original = _generate_video(file.name)
