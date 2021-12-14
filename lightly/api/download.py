@@ -15,19 +15,19 @@ from PIL import Image
 
 
 def cv2_to_pil(image):
-    """Convert cv2 image to PIL.Image"""
+    """Convert cv2 image to PIL.Image."""
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     return Image.fromarray(image)
 
 
 def download_image(url: str, session: requests.Session = None):
-    """Downloads an image from an url
+    """Downloads an image from an url.
 
     Args:
         url (str):
-            Url where image is stored
+            Url where image is stored.
         session (requests.Session):
-            Make request using the given session
+            Make request using the given session.
 
     Returns:
         PIL.Image
@@ -38,19 +38,19 @@ def download_image(url: str, session: requests.Session = None):
 
 
 def download_all_video_frames(url: str, as_pil_image: int = True):
-    """Lazily retrieves all frames from a video
+    """Lazily retrieves all frames from a video.
 
     Args:
         url (str):
-            Url where video is stored
+            Url where video is stored.
         as_pil_image (bool):
-            Whether to return the frame as PIL.Image
+            Whether to return the frame as PIL.Image.
 
     Returns:
         generator:
             Loads and returns a single frame per step.
             Frames are of type PIL.Image if `as_pil_image` is `True`,
-            otherwise a np.array is returned
+            otherwise a np.array is returned.
 
     """
     video = cv2.VideoCapture(url)
@@ -66,21 +66,21 @@ def download_all_video_frames(url: str, as_pil_image: int = True):
 
 
 def download_video_frame(url: str, frame_index: int, as_pil_image: int = True):
-    """Retrieves a specific frame from a video stored at `url`
+    """Retrieves a specific frame from a video stored at `url`.
 
     Warning: This is pretty slow
 
     Args:
         url (str):
-            The url where the video is stored
+            The url where the video is stored.
         frame_index (int):
-            Zero based index of the frame to retrieve
+            Zero based index of the frame to retrieve.
         as_pil_image (bool):
-            Whether to return the frame as PIL.Image
+            Whether to return the frame as PIL.Image.
 
     Returns:
-        PIL.Image: If `as_pil_image` is `True`
-        np.array: If `as_pil_image` is `False`
+        PIL.Image: If `as_pil_image` is `True`.
+        np.array: If `as_pil_image` is `False`.
     """
     if frame_index < 0:
         raise IndexError(f"Negative frame_index: {frame_index}")
@@ -108,11 +108,11 @@ def download_and_write_file(
 
     Args:
         url (str):
-            Url of the file to download
+            Url of the file to download.
         output_path (str):
-            Where to store the file, including filename and extension
+            Where to store the file, including filename and extension.
         session (requests.Session):
-            Make request using the given session
+            Make request using the given session.
     """
     req = requests if session is None else session
     out_path = pathlib.Path(output_path)
@@ -132,15 +132,15 @@ def download_and_write_all_files(
 
     Args:
         file_infos (list(tuple)):
-            List containing (filename, url) tuples
+            List containing (filename, url) tuples.
         output_dir (str):
-            Output directory where files will stored in
+            Output directory where files will stored in.
         max_workers (int):
             Maximum number of workers
             If `None` the number of workers is chosen based
-            on the number of available cores
+            on the number of available cores.
         verbose (bool):
-            Shows progress bar if set to `True`
+            Shows progress bar if set to `True`.
     """
 
     def thread_download_and_write(

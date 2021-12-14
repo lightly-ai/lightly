@@ -17,12 +17,12 @@ def _convert_raw_data_to_list(data: List[DatasourceRawSamplesDataRow]):
 
 class _DatasourcesMixin:
 
-    def download_raw_samples(self, _from: int = 0, to: int = None):
+    def download_raw_samples(self, from_: int = 0, to: int = None):
         if to is None:
             to = int(time.time())
         response: DatasourceRawSamplesData = self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id(
             dataset_id=self.dataset_id,
-            _from=_from,
+            _from=from_,
             to=to,
         )
         cursor = response.cursor
@@ -38,16 +38,16 @@ class _DatasourcesMixin:
 
     def download_new_raw_samples(self):
         response = self.get_processed_until_timestamp()
-        _from = int(response)
+        from_ = int(response)
         
-        if _from != 0:
+        if from_ != 0:
             # We already processed samples at some point.
-            # Add 1 because the samples with timestamp == _from
+            # Add 1 because the samples with timestamp == from_
             # have already been processed
-            _from += 1
+            from_ += 1
 
         to = int(time.time())
-        data = self.download_raw_samples(_from=_from, to=to)
+        data = self.download_raw_samples(from_=from_, to=to)
         self.update_processed_until_timestamp(timestamp=to)
         return data
 
