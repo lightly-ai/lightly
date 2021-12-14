@@ -20,7 +20,6 @@ class _DatasourcesMixin:
     def download_raw_samples(self, _from: int = 0, to: int = None):
         if to is None:
             to = int(time.time())
-        
         response: DatasourceRawSamplesData = self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id(
             dataset_id=self.dataset_id,
             _from=_from,
@@ -38,15 +37,18 @@ class _DatasourcesMixin:
         return data
 
     def download_new_raw_samples(self):
-        # get lastResourceAt
         response = self.get_processed_until_timestamp()
-
         _from = int(response)
-        to = int(time.time())
-        data = self.download_raw_samples(dataset_id=dataset_id, _from=_from, to=to)
+        
+        if _from != 0:
+            # We already processed samples at some point.
+            # Add 1 because the samples with timestamp == _from
+            # have already been processed
+            _from += 1
 
-        # update lastResourceAt
-        self.update_last_resource_at(dataset_id=dataset_id, timestamp=to)
+        to = int(time.time())
+        data = self.download_raw_samples(_from=_from, to=to)
+        self.update_processed_until_timestamp(timestamp=to)
         return data
 
     def get_processed_until_timestamp(self):

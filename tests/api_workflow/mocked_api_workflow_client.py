@@ -3,18 +3,17 @@ import io
 import tempfile
 import unittest
 from io import IOBase
+from collections import defaultdict
+import json
 
 import numpy as np
-
-from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
-
 from requests import Response
 
+from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
-
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
-
 from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
+from lightly.openapi_generated.swagger_client.api.datasources_api import DatasourcesApi
 
 import lightly
 
@@ -41,6 +40,11 @@ from lightly.openapi_generated.swagger_client.models.job_status_data_result impo
 from lightly.openapi_generated.swagger_client.models.sampling_create_request import SamplingCreateRequest
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
+from lightly.openapi_generated.swagger_client.models.datasource_config import DatasourceConfig
+from lightly.openapi_generated.swagger_client.models.datasource_config_local import DatasourceConfigLOCAL
+from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import DatasourceProcessedUntilTimestampRequest
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import DatasourceRawSamplesData
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import DatasourceRawSamplesDataRow
 
 
 def _check_dataset_id(dataset_id: str):
@@ -278,6 +282,79 @@ class MockedDatasetsApi(DatasetsApi):
         assert len(datasets_without_that_id) == len(self.datasets) - 1
         self.datasets = datasets_without_that_id
 
+
+class MockedDatasourcesApi(DatasourcesApi):
+    def __init__(self, api_client=None):
+        super().__init__(api_client=api_client)
+        # maximum numbers of samples returned by list raw samples request
+        self._max_return_samples = 2
+        # default number of samples in every datasource
+        self._num_samples = 5
+
+    def reset(self):
+        self._datasources = {
+            "dataset_id_xyz": DatasourceConfigLOCAL(),
+        }
+        self._processed_until_timestamp = defaultdict(lambda: 0)
+        self._samples = defaultdict(self._default_samples)
+
+    def _default_samples(self):
+        return [
+            DatasourceRawSamplesDataRow(
+                file_name=f"file_{i}", read_url=f"url_{i}"
+            )
+            for i in range(self._num_samples)
+        ]
+
+    def get_datasource_by_dataset_id(self, dataset_id: str, **kwargs):
+        return self._datasources[dataset_id]
+
+    def get_datasource_processed_until_timestamp_by_dataset_id(
+        self, dataset_id: str, **kwargs
+    ):
+        return self._processed_until_timestamp[dataset_id]
+
+    def get_list_of_raw_samples_from_datasource_by_dataset_id(
+        self, dataset_id, cursor: str = None, _from: int = None, to: int = None, **kwargs
+    ):
+        if cursor is None:
+            # initial request
+            assert _from is not None
+            assert to is not None
+            cursor_dict = {"from": _from, "to": to}
+            current = _from
+        else:
+            # follow up request
+            cursor_dict = json.loads(cursor)
+            current = cursor_dict["current"]
+            to = cursor_dict["to"]
+
+        next_current = min(current + self._max_return_samples, to + 1)
+        samples = self._samples[dataset_id][current:next_current]
+        cursor_dict["current"] = next_current
+        cursor = json.dumps(cursor_dict)
+        has_more = len(samples) > 0
+
+        return DatasourceRawSamplesData(
+            has_more=has_more,
+            cursor=cursor,
+            data=samples,
+        )
+
+    def update_datasource_by_dataset_id(
+        self, body: DatasourceConfig, dataset_id: str, **kwargs
+    ):
+        assert isinstance(body, DatasourceConfig)
+        self._datasources[dataset_id] = body
+
+    def update_datasource_processed_until_timestamp_by_dataset_id(
+        self, body, dataset_id, **kwargs
+    ):
+        assert isinstance(body, DatasourceProcessedUntilTimestampRequest)
+        to = body.processed_until_timestamp
+        self._processed_until_timestamp[dataset_id] = to
+
+
 class MockedVersioningApi(VersioningApi):
     def get_latest_pip_version(self, **kwargs):
         return "1.0.8"
@@ -333,6 +410,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
                                               samples_api=self._samples_api)
         self._scores_api = MockedScoresApi(api_client=self.api_client)
         self._datasets_api = MockedDatasetsApi(api_client=self.api_client)
+        self._datasources_api = MockedDatasourcesApi(api_client=self.api_client)
         self._quota_api = MockedQuotaApi(api_client=self.api_client)
 
         lightly.api.api_workflow_client.requests.put = mocked_request_put

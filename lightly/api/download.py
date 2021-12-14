@@ -111,7 +111,7 @@ def download_and_write_file(
             Url of the file to download
         output_path (str):
             Where to store the file, including filename and extension
-        session (str):
+        session (requests.Session):
             Make request using the given session
     """
     req = requests if session is None else session
