@@ -9,7 +9,7 @@ if __name__ == "__main__":
             (sys.argv[1 + i] for i in range(2))
     else:
         raise ValueError("ERROR in number of command line arguments, must be 2."
-                         "Example: python create_custom_metadata_from_input_dir input_dir metadata_filename")
+                         "Example: python create_custom_metadata_from_input_dir.py input_dir metadata_filename")
 
     dataset = LightlyDataset(input_dir)
 

@@ -10,6 +10,7 @@ import torchvision
 
 from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
 from lightly.data.dataset import LightlyDataset
+from lightly.utils.io import COCO_ANNOTATION_KEYS
 
 from tests.api_workflow.mocked_api_workflow_client import \
     MockedApiWorkflowSetup
@@ -34,9 +35,9 @@ class TestApiWorkflowUploadCustomMetadata(MockedApiWorkflowSetup):
             data[0].save(path)
 
         coco_json = dict()
-        coco_json['images'] = [{'id': i, 'file_name': fname} for i, fname in
+        coco_json[COCO_ANNOTATION_KEYS.images] = [{'id': i, 'file_name': fname} for i, fname in
                                enumerate(sample_names)]
-        coco_json['metadata'] = [{'id': i, 'image_id': i, 'custom_metadata': 0}
+        coco_json[COCO_ANNOTATION_KEYS.custom_metadata] = [{'id': i, 'image_id': i, 'custom_metadata': 0}
                                  for i, _ in enumerate(sample_names)]
 
         self.custom_metadata_file = tempfile.NamedTemporaryFile(mode="w+")
