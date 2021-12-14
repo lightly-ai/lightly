@@ -151,11 +151,3 @@ class TestCLIUpload(MockedApiWorkflowSetup):
         cli_string = f"lightly-upload token='123' dataset_id='xyz' custom_metadata='{self.tfile.name}'"
         self.parse_cli_string(cli_string)
         lightly.cli.upload_cli(self.cfg)
-
-    def test_upload_custom_metadata_only(self):
-        cli_string = f"lightly-upload token='123' dataset_id='xyz' custom_metadata='{self.tfile.name}'"
-        self.parse_cli_string(cli_string)
-        input_dir = self.cfg['input_dir']
-        self.cfg['input_dir'] = ''
-        lightly.cli.upload_cli(self.cfg)
-        self.cfg['input_dir'] = input_dir
