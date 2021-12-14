@@ -447,7 +447,7 @@ class EmbeddingsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param Body body: (required)
+        :param EmbeddingIdIsProcessedBody body: (required)
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID embedding_id: ObjectId of the embedding (required)
         :return: None
@@ -471,7 +471,7 @@ class EmbeddingsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param Body body: (required)
+        :param EmbeddingIdIsProcessedBody body: (required)
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID embedding_id: ObjectId of the embedding (required)
         :return: None
