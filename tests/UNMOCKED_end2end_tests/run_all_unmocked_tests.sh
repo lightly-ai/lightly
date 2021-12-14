@@ -50,6 +50,11 @@ echo "############################### Test 7"
 lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_7 upload=metadata custom_metadata=$CUSTOM_METADATA_FILENAME
 ((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
+echo "############################### Test 8"
+lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_8 upload=metadata
+lightly-upload token=$TOKEN new_dataset_name=test_unmocked_cli_8 custom_metadata=$CUSTOM_METADATA_FILENAME
+((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
+
 
 echo "############################### Deleting all datasets again"
 python tests/UNMOCKED_end2end_tests/delete_datasets_test_unmocked_cli.py $NUMBER_OF_DATASETS $TOKEN
