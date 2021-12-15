@@ -90,7 +90,9 @@ class TestDownload(unittest.TestCase):
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_fps(self):
         for fps in range(1, 5):
-            with tempfile.NamedTemporaryFile(suffix='.avi') as file:
+            with self.subTest(msg=f"fps={fps}"), \
+                tempfile.NamedTemporaryFile(suffix='.avi') as file:
+
                 original = _generate_video(file.name, fps=fps)
                 for timestamp, orig in enumerate(original):
                     frame = download.download_video_frame(file.name, timestamp / fps)
@@ -99,7 +101,9 @@ class TestDownload(unittest.TestCase):
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_timestamp_exception(self):
         for fps in range(1, 5):
-            with tempfile.NamedTemporaryFile(suffix='.avi') as file:
+            with self.subTest(msg=f"fps={fps}"), \
+                tempfile.NamedTemporaryFile(suffix='.avi') as file:
+
                 original = _generate_video(file.name, fps=fps)
 
                 # this should be the last frame and exist
@@ -113,7 +117,9 @@ class TestDownload(unittest.TestCase):
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_negative_timestamp_exception(self):
         for fps in range(1, 5):
-            with tempfile.NamedTemporaryFile(suffix='.avi') as file:
+            with self.subTest(msg=f"fps={fps}"), \
+                tempfile.NamedTemporaryFile(suffix='.avi') as file:
+                
                 _generate_video(file.name, fps=fps)
                 with self.assertRaises(ValueError):
                     download.download_video_frame(file.name, -1 / fps)
