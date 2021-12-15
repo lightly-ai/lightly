@@ -67,27 +67,13 @@ It will keep all images and videos in your own bucket and only stream them from 
 This has the advantage that you don't need to upload your data to Lightly and can preserve its privacy.
 
 
-.. tabs::
+.. toctree::
+    :maxdepth: 1
 
-    .. tab:: Upload from local files
-
-        .. _platform-dataset-creation-local-upload:
-
-        .. include::  dataset_creation/dataset_creation_local_upload.rst
-
-    .. tab:: AWS S3
-
-        .. _platform-dataset-creation-aws-bucket:
-
-        .. include::  dataset_creation/dataset_creation_aws_bucket.rst
-
-    .. tab:: GCloud
-
-        .. include::  dataset_creation/dataset_creation_gcloud_bucket.rst
-
-    .. tab:: Azure
-
-        .. include::  dataset_creation/dataset_creation_azure_bucket.rst
+    dataset_creation/dataset_creation_local_upload.rst
+    dataset_creation/dataset_creation_aws_bucket.rst
+    dataset_creation/dataset_creation_gcloud_bucket.rst
+    dataset_creation/dataset_creation_azure_bucket.rst
 
 
 .. _platform-custom-metadata:

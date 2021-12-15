@@ -1,3 +1,8 @@
+.. _dataset-creation-local-upload:
+
+Create dataset with local upload
+--------------------------------
+
 To create a new dataset of images with embeddings use the lightly :ref:`lightly-command-line-tool`:
 
 .. code-block:: bash
