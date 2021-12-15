@@ -5,22 +5,16 @@ import shutil
 import threading
 import warnings
 from concurrent.futures import ThreadPoolExecutor
-from typing import List
+from typing import List, Iterable, Union
 
-import cv2
+import av
 import requests
 import tqdm
 from lightly.api import utils
-from PIL import Image
+import PIL
 
 
-def cv2_to_pil(image):
-    """Convert cv2 image to PIL.Image."""
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    return Image.fromarray(image)
-
-
-def download_image(url: str, session: requests.Session = None):
+def download_image(url: str, session: requests.Session = None) -> PIL.Image.Image:
     """Downloads an image from an url.
 
     Args:
@@ -34,10 +28,12 @@ def download_image(url: str, session: requests.Session = None):
     """
     req = requests if session is None else session
     response = req.get(url, stream=True)
-    return Image.open(response.raw)
+    return PIL.Image.open(response.raw)
 
 
-def download_all_video_frames(url: str, as_pil_image: int = True):
+def download_all_video_frames(
+    url: str, as_pil_image: int = True
+) -> Iterable[Union[PIL.Image.Image, av.VideoFrame]]:
     """Lazily retrieves all frames from a video.
 
     Args:
@@ -49,61 +45,69 @@ def download_all_video_frames(url: str, as_pil_image: int = True):
     Returns:
         generator:
             Loads and returns a single frame per step.
-            Frames are of type PIL.Image if `as_pil_image` is `True`,
-            otherwise a np.array is returned.
+            Frames are of type PIL.Image.Image if `as_pil_image` is `True`,
+            otherwise an av.VideoFrame is returned.
 
     """
-    video = cv2.VideoCapture(url)
-    while True:
-        frame_exists, frame = video.read()
-        if not frame_exists:
-            break
+    container = av.open(url)
+    stream = container.streams.video[0]
+    stream.thread_type = 'AUTO'
+    for frame in container.decode(stream):
         if as_pil_image:
-            yield cv2_to_pil(frame)
+            yield frame.to_image()
         else:
             yield frame
-    video.release()
+    container.close()
 
 
-def download_video_frame(url: str, frame_index: int, as_pil_image: int = True):
+def download_video_frame(
+    url: str, timestamp: float, as_pil_image: int = True
+) -> Union[PIL.Image.Image, av.VideoFrame]:
     """Retrieves a specific frame from a video stored at `url`.
-
-    Warning: This is pretty slow
 
     Args:
         url (str):
             The url where the video is stored.
-        frame_index (int):
-            Zero based index of the frame to retrieve.
+        timestamp (float):
+            Timestamp in seconds from the start of the video at
+            which the frame should be retrieved.
         as_pil_image (bool):
             Whether to return the frame as PIL.Image.
 
     Returns:
-        PIL.Image: If `as_pil_image` is `True`.
-        np.array: If `as_pil_image` is `False`.
+        PIL.Image.Image: If `as_pil_image` is `True`.
+        av.VideoFrame: If `as_pil_image` is `False`.
     """
-    if frame_index < 0:
-        raise IndexError(f"Negative frame_index: {frame_index}")
+    if timestamp < 0:
+        raise ValueError(f"Negative timestamp is not allowed: {timestamp}")
 
-    video = cv2.VideoCapture(url)
-    num_frames = video.get(cv2.CAP_PROP_FRAME_COUNT)
-    if frame_index >= num_frames:
-        raise IndexError(
-            f"frame_index too large: f{frame_index}, video has {num_frames} frames"
+    container = av.open(url)
+    stream = container.streams.video[0]
+    stream.thread_type = 'AUTO'
+    offset = int(timestamp / stream.time_base)
+    duration = stream.duration
+    if offset >= duration:
+        duration_seconds = duration * stream.time_base
+        raise ValueError(
+            f"Timestamp ({timestamp}) larger than"
+            f"video duration ({duration_seconds})"
         )
-
-    video.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
-    frame_exists, frame = video.read()
-    video.release()
-
+    # seek to last keyframe before the timestamp
+    container.seek(offset, any_frame=False, backward=True, stream=stream)
+    # advance from keyframe until correct offset is reached
+    frame = None
+    for frame in container.decode(stream):
+        if frame.pts > offset:
+            break
+    container.close()
     if as_pil_image:
-        return cv2_to_pil(frame)
+        return frame.to_image()
     return frame
 
 
 def download_and_write_file(
     url: str, output_path: str, session: requests.Session = None
-):
+) -> None:
     """Downloads a file from url and saves it to disk
 
     Args:
@@ -127,7 +131,7 @@ def download_and_write_all_files(
     output_dir: str,
     max_workers: int = None,
     verbose: bool = False,
-):
+) -> None:
     """Downloads all files and writes them to disk.
 
     Args:

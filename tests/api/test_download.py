@@ -3,7 +3,7 @@ import sys
 import tempfile
 import unittest
 
-import cv2
+import av
 import numpy as np
 from PIL import Image
 
@@ -69,9 +69,44 @@ class TestDownload(unittest.TestCase):
     def test_download_all_video_frames(self):
         with tempfile.NamedTemporaryFile(suffix='.avi') as file:
             original = _generate_video(file.name)
-            frames = list(download.download_all_video_frames(file.name, as_pil_image=False))
+            frames = list(download.download_all_video_frames(file.name))
             for frame, orig in zip(frames, original):
                 assert _images_equal(frame, orig)
+
+    def test_download_video_frame(self):
+        with tempfile.NamedTemporaryFile(suffix='.avi') as file:
+            original = _generate_video(file.name)
+            for timestamp, orig in enumerate(original):
+                frame = download.download_video_frame(file.name, timestamp)
+                assert _images_equal(frame, orig)
+
+    def test_download_video_frame_fps(self):
+        for fps in range(1, 5):
+            with tempfile.NamedTemporaryFile(suffix='.avi') as file:
+                original = _generate_video(file.name, fps=fps)
+                for timestamp, orig in enumerate(original):
+                    frame = download.download_video_frame(file.name, timestamp / fps)
+                    assert _images_equal(frame, orig)
+
+    def test_download_video_frame_timestamp_exception(self):
+        for fps in range(1, 5):
+            with tempfile.NamedTemporaryFile(suffix='.avi') as file:
+                original = _generate_video(file.name, fps=fps)
+
+                # this should be the last frame and exist
+                frame = download.download_video_frame(file.name, (len(original) - 1) / fps)
+                assert _images_equal(frame, original[-1])
+
+                # timestamp after last frame
+                with self.assertRaises(ValueError):
+                    download.download_video_frame(file.name, len(original) / fps)
+
+    def test_download_video_frame_negative_timestamp_exception(self):
+        for fps in range(1, 5):
+            with tempfile.NamedTemporaryFile(suffix='.avi') as file:
+                _generate_video(file.name, fps=fps)
+                with self.assertRaises(ValueError):
+                    download.download_video_frame(file.name, -1 / fps)
 
     def test_download_and_write_file(self):
         original = _pil_image()
@@ -127,13 +162,25 @@ def _pil_image(width=100, height=50, seed=0):
     image = Image.fromarray(image, mode='RGB')
     return image
 
-def _generate_video(out_file, n_frames=5, width=100, height=50, codec=cv2.VideoWriter_fourcc(*'LAGS'), seed=0):
+def _generate_video(out_file, n_frames=5, width=100, height=50, seed=0, fps=1):
     np.random.seed(seed)
-    frames = (np.random.randn(n_frames, width, height, 3) * 255).astype(np.uint8)
-    out = cv2.VideoWriter(out_file, codec, 0, (width, height))
+    container = av.open(out_file, mode='w')
+    stream = container.add_stream('libx264rgb', rate=fps)
+    stream.width = width
+    stream.height = height
+    stream.options["crf"] = "0"
+    stream.pix_fmt = "rgb24"
+    images = (np.random.randn(n_frames, height, width, 3) * 255).astype(np.uint8)
+    frames = [av.VideoFrame.from_ndarray(image, format='rgb24') for image in images]
+    
     for frame in frames:
-        out.write(frame)
-    out.release()
-    return frames
+        for packet in stream.encode(frame):
+            container.mux(packet)
+        
+    # flush and close
+    packet = stream.encode(None)
+    container.mux(packet)
+    container.close()
 
-
+    pil_images = [frame.to_image() for frame in frames]
+    return pil_images
