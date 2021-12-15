@@ -5,7 +5,7 @@ import shutil
 import threading
 import warnings
 from concurrent.futures import ThreadPoolExecutor
-from typing import List, Iterable, Union
+from typing import List, Iterable, Union, Tuple, Dict
 
 import av
 import requests
@@ -125,7 +125,7 @@ def download_and_write_file(
 
 
 def download_and_write_all_files(
-    file_infos: List[tuple],
+    file_infos: List[Tuple[str, str]],
     output_dir: str,
     max_workers: int = None,
     verbose: bool = False,
@@ -147,7 +147,10 @@ def download_and_write_all_files(
     """
 
     def thread_download_and_write(
-        file_info: tuple, output_dir: str, lock: threading.Lock, sessions: dict
+        file_info: Tuple[str, str], 
+        output_dir: str, 
+        lock: threading.Lock, 
+        sessions: Dict[str, requests.Session]
     ):
         filename, url = file_info
         output_path = os.path.join(output_dir, filename)
