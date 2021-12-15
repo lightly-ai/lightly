@@ -3,9 +3,14 @@ import sys
 import tempfile
 import unittest
 
-import av
 import numpy as np
 from PIL import Image
+
+try:
+    import av
+    AV_AVAILABLE = True
+except ImportError:
+    AV_AVAILABLE = False
 
 # mock requests module so that files are read from 
 # disk instead of loading them from a remote url
@@ -66,6 +71,7 @@ class TestDownload(unittest.TestCase):
             image = download.download_image(file.name, session=session)
             assert _images_equal(image, original)
 
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_all_video_frames(self):
         with tempfile.NamedTemporaryFile(suffix='.avi') as file:
             original = _generate_video(file.name)
@@ -73,6 +79,7 @@ class TestDownload(unittest.TestCase):
             for frame, orig in zip(frames, original):
                 assert _images_equal(frame, orig)
 
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame(self):
         with tempfile.NamedTemporaryFile(suffix='.avi') as file:
             original = _generate_video(file.name)
@@ -80,6 +87,7 @@ class TestDownload(unittest.TestCase):
                 frame = download.download_video_frame(file.name, timestamp)
                 assert _images_equal(frame, orig)
 
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_fps(self):
         for fps in range(1, 5):
             with tempfile.NamedTemporaryFile(suffix='.avi') as file:
@@ -88,6 +96,7 @@ class TestDownload(unittest.TestCase):
                     frame = download.download_video_frame(file.name, timestamp / fps)
                     assert _images_equal(frame, orig)
 
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_timestamp_exception(self):
         for fps in range(1, 5):
             with tempfile.NamedTemporaryFile(suffix='.avi') as file:
@@ -101,6 +110,7 @@ class TestDownload(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     download.download_video_frame(file.name, len(original) / fps)
 
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_negative_timestamp_exception(self):
         for fps in range(1, 5):
             with tempfile.NamedTemporaryFile(suffix='.avi') as file:
