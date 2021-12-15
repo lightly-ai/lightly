@@ -15,11 +15,13 @@ class _DatasourcesMixin:
         Samples which have timestamp == `from_` or timestamp == `to` will also be included.
         
         Args:
-            from_ (int): Unix timestamp from which on samples are downloaded.
-            to (int): Unix timestamp up to and including which samples are downloaded.
+            from_: 
+                Unix timestamp from which on samples are downloaded.
+            to: 
+                Unix timestamp up to and including which samples are downloaded.
         
         Returns:
-            Samples (list(tuple)): Each tuple contains (filename, url) of the respective sample
+           A list of (filename, url) tuples, where each tuple represents a sample
 
         """
         if to is None:
@@ -48,7 +50,7 @@ class _DatasourcesMixin:
         This function can be repeatedly called to retrieve new samples from the datasource.
         
         Returns:
-            Samples (list(tuple)): Each tuple contains (filename, url) of the respective sample
+            A list of (filename, url) tuples, where each tuple represents a sample
 
         """
         response = self.get_processed_until_timestamp()
@@ -69,7 +71,7 @@ class _DatasourcesMixin:
         """Returns the timestamp until which samples have been processed.
         
         Returns:
-            timestamp (int): Unix timestamp of last processed sample
+            Unix timestamp of last processed sample
         """
         return self._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id(
             dataset_id=self.dataset_id
@@ -79,7 +81,8 @@ class _DatasourcesMixin:
         """Sets the timestamp until which samples have been processed.
         
         Args:
-            timestamp (int): Unix timestamp of last processed sample
+            timestamp: 
+                Unix timestamp of last processed sample
         """
         body = DatasourceProcessedUntilTimestampRequest(
             processed_until_timestamp=timestamp

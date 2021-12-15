@@ -18,13 +18,14 @@ def download_image(url: str, session: requests.Session = None) -> PIL.Image.Imag
     """Downloads an image from an url.
 
     Args:
-        url (str):
+        url: 
             Url where image is stored.
-        session (requests.Session):
+        session: 
             Make request using the given session.
 
     Returns:
-        PIL.Image
+        The downloaded image.
+
     """
     req = requests if session is None else session
     response = req.get(url, stream=True)
@@ -37,16 +38,13 @@ def download_all_video_frames(
     """Lazily retrieves all frames from a video.
 
     Args:
-        url (str):
+        url: 
             Url where video is stored.
-        as_pil_image (bool):
+        as_pil_image: 
             Whether to return the frame as PIL.Image.
 
     Returns:
-        generator:
-            Loads and returns a single frame per step.
-            Frames are of type PIL.Image.Image if `as_pil_image` is `True`,
-            otherwise an av.VideoFrame is returned.
+        A generator that loads and returns a single frame per step.
 
     """
     container = av.open(url)
@@ -66,17 +64,17 @@ def download_video_frame(
     """Retrieves a specific frame from a video stored at `url`.
 
     Args:
-        url (str):
+        url: 
             The url where the video is stored.
-        timestamp (float):
+        timestamp:
             Timestamp in seconds from the start of the video at
             which the frame should be retrieved.
-        as_pil_image (bool):
+        as_pil_image:
             Whether to return the frame as PIL.Image.
 
     Returns:
-        PIL.Image.Image: If `as_pil_image` is `True`.
-        av.VideoFrame: If `as_pil_image` is `False`.
+        The downloaded video frame
+
     """
     if timestamp < 0:
         raise ValueError(f"Negative timestamp is not allowed: {timestamp}")
@@ -111,11 +109,11 @@ def download_and_write_file(
     """Downloads a file from url and saves it to disk
 
     Args:
-        url (str):
+        url: 
             Url of the file to download.
-        output_path (str):
+        output_path: 
             Where to store the file, including filename and extension.
-        session (requests.Session):
+        session: 
             Make request using the given session.
     """
     req = requests if session is None else session
@@ -135,16 +133,17 @@ def download_and_write_all_files(
     """Downloads all files and writes them to disk.
 
     Args:
-        file_infos (list(tuple)):
+        file_infos:
             List containing (filename, url) tuples.
-        output_dir (str):
+        output_dir:
             Output directory where files will stored in.
-        max_workers (int):
+        max_workers:
             Maximum number of workers
             If `None` the number of workers is chosen based
             on the number of available cores.
-        verbose (bool):
+        verbose:
             Shows progress bar if set to `True`.
+
     """
 
     def thread_download_and_write(
