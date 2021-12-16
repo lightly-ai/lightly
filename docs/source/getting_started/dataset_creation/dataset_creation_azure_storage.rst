@@ -1,4 +1,4 @@
-.. _dataset-creation-azure-bucket:
+.. _dataset-creation-azure-storage:
 
 Create dataset from azure blob storage
 --------------------------------------
