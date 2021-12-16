@@ -61,8 +61,8 @@ The baseline way is to upload your local dataset including all images or
 videos to the Lightly platform.
 
 If you don't have your data locally, but rather stored at a cloud provider like
-in an AWS S3 bucket, GCloud bucket or at Azure, you can create a dataset directly
-from your bucket.
+in an AWS S3 bucket, GCloud bucket or at Azure,
+you can create a dataset directly referencing the images in your bucket.
 It will keep all images and videos in your own bucket and only stream them from there if they are needed.
 This has the advantage that you don't need to upload your data to Lightly and can preserve its privacy.
 
