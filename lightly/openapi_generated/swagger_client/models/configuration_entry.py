@@ -35,7 +35,7 @@ class ConfigurationEntry(object):
     swagger_types = {
         'name': 'str',
         'path': 'str',
-        'default_value': 'object',
+        'default_value': 'Object',
         'value_data_type': 'ConfigurationValueDataType'
     }
 
@@ -120,7 +120,7 @@ class ConfigurationEntry(object):
         the default value used if its not possible to extract the value using the path or if the value extracted is nullish  # noqa: E501
 
         :return: The default_value of this ConfigurationEntry.  # noqa: E501
-        :rtype: object
+        :rtype: Object
         """
         return self._default_value
 
@@ -131,7 +131,7 @@ class ConfigurationEntry(object):
         the default value used if its not possible to extract the value using the path or if the value extracted is nullish  # noqa: E501
 
         :param default_value: The default_value of this ConfigurationEntry.  # noqa: E501
-        :type: object
+        :type: Object
         """
         if self._configuration.client_side_validation and default_value is None:
             raise ValueError("Invalid value for `default_value`, must not be `None`")  # noqa: E501
