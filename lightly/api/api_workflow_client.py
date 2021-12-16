@@ -8,6 +8,7 @@ from requests import Response
 
 from lightly.__init__ import __version__
 from lightly.api.api_workflow_datasets import _DatasetsMixin
+from lightly.api.api_workflow_datasources import _DatasourcesMixin
 from lightly.api.api_workflow_download_dataset import _DownloadDatasetMixin
 from lightly.api.api_workflow_sampling import _SamplingMixin
 from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
@@ -22,6 +23,8 @@ from lightly.openapi_generated.swagger_client import TagData, ScoresApi, \
     TagBitMaskResponse
 from lightly.openapi_generated.swagger_client.api.datasets_api import \
     DatasetsApi
+from lightly.openapi_generated.swagger_client.api.datasources_api import \
+    DatasourcesApi
 from lightly.openapi_generated.swagger_client.api.embeddings_api import \
     EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
@@ -44,7 +47,8 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                         _DownloadDatasetMixin,
                         _DatasetsMixin,
                         _UploadCustomMetadataMixin,
-                        _TagsMixin
+                        _TagsMixin,
+                        _DatasourcesMixin
                         ):
     """Provides a uniform interface to communicate with the api 
     
@@ -82,6 +86,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             self.embedding_id = embedding_id
 
         self._datasets_api = DatasetsApi(api_client=self.api_client)
+        self._datasources_api = DatasourcesApi(api_client=self.api_client)
         self._samplings_api = SamplingsApi(api_client=self.api_client)
         self._jobs_api = JobsApi(api_client=self.api_client)
         self._tags_api = TagsApi(api_client=self.api_client)

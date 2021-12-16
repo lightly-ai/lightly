@@ -33,32 +33,41 @@ class LabelStudioTaskData(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'image': 'str'
+        'image': 'RedirectedReadUrl',
+        'lightly_file_name': 'str',
+        'lightly_meta_info': 'SampleData'
     }
 
     attribute_map = {
-        'image': 'image'
+        'image': 'image',
+        'lightly_file_name': 'lightlyFileName',
+        'lightly_meta_info': 'lightlyMetaInfo'
     }
 
-    def __init__(self, image=None, _configuration=None):  # noqa: E501
+    def __init__(self, image=None, lightly_file_name=None, lightly_meta_info=None, _configuration=None):  # noqa: E501
         """LabelStudioTaskData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._image = None
+        self._lightly_file_name = None
+        self._lightly_meta_info = None
         self.discriminator = None
 
         self.image = image
+        if lightly_file_name is not None:
+            self.lightly_file_name = lightly_file_name
+        if lightly_meta_info is not None:
+            self.lightly_meta_info = lightly_meta_info
 
     @property
     def image(self):
         """Gets the image of this LabelStudioTaskData.  # noqa: E501
 
-        Signed read URL to an image.  # noqa: E501
 
         :return: The image of this LabelStudioTaskData.  # noqa: E501
-        :rtype: str
+        :rtype: RedirectedReadUrl
         """
         return self._image
 
@@ -66,15 +75,58 @@ class LabelStudioTaskData(object):
     def image(self, image):
         """Sets the image of this LabelStudioTaskData.
 
-        Signed read URL to an image.  # noqa: E501
 
         :param image: The image of this LabelStudioTaskData.  # noqa: E501
-        :type: str
+        :type: RedirectedReadUrl
         """
         if self._configuration.client_side_validation and image is None:
             raise ValueError("Invalid value for `image`, must not be `None`")  # noqa: E501
 
         self._image = image
+
+    @property
+    def lightly_file_name(self):
+        """Gets the lightly_file_name of this LabelStudioTaskData.  # noqa: E501
+
+        The original fileName of the sample. This is unique within a dataset  # noqa: E501
+
+        :return: The lightly_file_name of this LabelStudioTaskData.  # noqa: E501
+        :rtype: str
+        """
+        return self._lightly_file_name
+
+    @lightly_file_name.setter
+    def lightly_file_name(self, lightly_file_name):
+        """Sets the lightly_file_name of this LabelStudioTaskData.
+
+        The original fileName of the sample. This is unique within a dataset  # noqa: E501
+
+        :param lightly_file_name: The lightly_file_name of this LabelStudioTaskData.  # noqa: E501
+        :type: str
+        """
+
+        self._lightly_file_name = lightly_file_name
+
+    @property
+    def lightly_meta_info(self):
+        """Gets the lightly_meta_info of this LabelStudioTaskData.  # noqa: E501
+
+
+        :return: The lightly_meta_info of this LabelStudioTaskData.  # noqa: E501
+        :rtype: SampleData
+        """
+        return self._lightly_meta_info
+
+    @lightly_meta_info.setter
+    def lightly_meta_info(self, lightly_meta_info):
+        """Sets the lightly_meta_info of this LabelStudioTaskData.
+
+
+        :param lightly_meta_info: The lightly_meta_info of this LabelStudioTaskData.  # noqa: E501
+        :type: SampleData
+        """
+
+        self._lightly_meta_info = lightly_meta_info
 
     def to_dict(self):
         """Returns the model properties as a dict"""
