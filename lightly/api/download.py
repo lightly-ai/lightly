@@ -7,21 +7,32 @@ import warnings
 from concurrent.futures import ThreadPoolExecutor
 from typing import List, Iterable, Union, Tuple, Dict
 
-import av
 import requests
 import tqdm
 from lightly.api import utils
 import PIL
 
+try:
+    import av
+except ModuleNotFoundError:
+    av = ModuleNotFoundError(
+        "PyAV is not installed on your system. Please install it to use the video"
+        "functionalities. See https://github.com/mikeboers/PyAV#installation for"
+        "installation instructions."
+    )
+
+def _check_av_available() -> None:
+    if isinstance(av, Exception):
+        raise av
 
 def download_image(url: str, session: requests.Session = None) -> PIL.Image.Image:
-    """Downloads an image from an url.
+    """Downloads an image from a url.
 
     Args:
         url: 
-            Url where image is stored.
+            The url where the image is downloaded from.
         session: 
-            Make request using the given session.
+            Session object to persist certain parameters across requests.
 
     Returns:
         The downloaded image.
@@ -33,23 +44,33 @@ def download_image(url: str, session: requests.Session = None) -> PIL.Image.Imag
 
 
 def download_all_video_frames(
-    url: str, as_pil_image: int = True
+    url: str, 
+    as_pil_image: int = True, 
+    thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
+    video_channel: int = 0,
 ) -> Iterable[Union[PIL.Image.Image, av.VideoFrame]]:
-    """Lazily retrieves all frames from a video.
+    """Lazily retrieves all frames from a video stored at the given url.
 
     Args:
         url: 
-            Url where video is stored.
+            The url where video is downloaded from.
         as_pil_image: 
             Whether to return the frame as PIL.Image.
+        thread_type:
+            Which multithreading method to use for decoding the video.
+            See https://pyav.org/docs/stable/api/codec.html#av.codec.context.ThreadType
+            for details.
+        video_channel:
+            The video channel from which frames are loaded.
 
     Returns:
         A generator that loads and returns a single frame per step.
 
     """
+    _check_av_available()
     container = av.open(url)
-    stream = container.streams.video[0]
-    stream.thread_type = 'AUTO'
+    stream = container.streams.video[video_channel]
+    stream.thread_type = thread_type
     for frame in container.decode(stream):
         if as_pil_image:
             yield frame.to_image()
@@ -59,29 +80,40 @@ def download_all_video_frames(
 
 
 def download_video_frame(
-    url: str, timestamp: float, as_pil_image: int = True
+    url: str, 
+    timestamp: float, 
+    as_pil_image: int = True,
+    thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
+    video_channel: int = 0,
 ) -> Union[PIL.Image.Image, av.VideoFrame]:
-    """Retrieves a specific frame from a video stored at `url`.
+    """Retrieves a specific frame from a video stored at the given url.
 
     Args:
         url: 
-            The url where the video is stored.
+            The url where the video is downloaded from.
         timestamp:
             Timestamp in seconds from the start of the video at
             which the frame should be retrieved.
         as_pil_image:
             Whether to return the frame as PIL.Image.
+        thread_type:
+            Which multithreading method to use for decoding the video.
+            See https://pyav.org/docs/stable/api/codec.html#av.codec.context.ThreadType
+            for details.
+        video_channel:
+            The video channel from which frames are loaded.
 
     Returns:
-        The downloaded video frame
+        The downloaded video frame.
 
     """
+    _check_av_available()
     if timestamp < 0:
         raise ValueError(f"Negative timestamp is not allowed: {timestamp}")
 
     container = av.open(url)
-    stream = container.streams.video[0]
-    stream.thread_type = 'AUTO'
+    stream = container.streams.video[video_channel]
+    stream.thread_type = thread_type
     offset = int(timestamp / stream.time_base)
     duration = stream.duration
     if offset >= duration:
@@ -106,7 +138,7 @@ def download_video_frame(
 def download_and_write_file(
     url: str, output_path: str, session: requests.Session = None
 ) -> None:
-    """Downloads a file from url and saves it to disk
+    """Downloads a file from a url and saves it to disk
 
     Args:
         url: 
@@ -114,7 +146,7 @@ def download_and_write_file(
         output_path: 
             Where to store the file, including filename and extension.
         session: 
-            Make request using the given session.
+            Session object to persist certain parameters across requests.
     """
     req = requests if session is None else session
     out_path = pathlib.Path(output_path)
