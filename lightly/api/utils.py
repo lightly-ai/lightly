@@ -122,7 +122,7 @@ def build_azure_signed_url_write_headers(content_length: str,
     headers = {
         'x-ms-blob-type': x_ms_blob_type,
         'Accept': accept,
-        'Content-length': content_length,
+        'Content-Length': content_length,
         'x-ms-original-content-length': content_length,
         'Accept-Encoding': accept_encoding,
     }

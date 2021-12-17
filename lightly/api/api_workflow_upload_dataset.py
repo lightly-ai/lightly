@@ -301,7 +301,9 @@ class _UploadDatasetMixin:
                     headers = None
                     if datasource_type == 'AZURE':
                         # build headers for Azure blob storage
-                        size_in_bytes = metadata['sizeInBytes']
+                        image_to_upload.seek(0, 2)
+                        size_in_bytes = str(image_to_upload.tell())
+                        image_to_upload.seek(0, 0)
                         headers = build_azure_signed_url_write_headers(
                             size_in_bytes
                         )
