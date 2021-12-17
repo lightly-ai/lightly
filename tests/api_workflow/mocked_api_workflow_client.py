@@ -14,6 +14,7 @@ from lightly.openapi_generated.swagger_client.models.dataset_create_request impo
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
 from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
 from lightly.openapi_generated.swagger_client.api.datasources_api import DatasourcesApi
+from lightly.openapi_generated.swagger_client.rest import ApiException
 
 import lightly
 
@@ -42,6 +43,7 @@ from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
 from lightly.openapi_generated.swagger_client.models.datasource_config import DatasourceConfig
 from lightly.openapi_generated.swagger_client.models.datasource_config_local import DatasourceConfigLOCAL
+from lightly.openapi_generated.swagger_client.models.datasource_config_base import DatasourceConfigBase
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import DatasourceProcessedUntilTimestampRequest
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import DatasourceRawSamplesData
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import DatasourceRawSamplesDataRow
@@ -294,10 +296,16 @@ class MockedDatasourcesApi(DatasourcesApi):
         self._max_return_samples = 2
         # default number of samples in every datasource
         self._num_samples = 5
+        self.reset()
 
     def reset(self):
+
+        local_datasource = DatasourceConfigBase(type='LOCAL', full_path='').to_dict()
+        azure_datasource = DatasourceConfigBase(type='AZURE', full_path='').to_dict()
+
         self._datasources = {
-            "dataset_id_xyz": DatasourceConfigLOCAL(),
+            "dataset_id_xyz": local_datasource,
+            "dataset_id_xyz_AZURE": azure_datasource,
         }
         self._processed_until_timestamp = defaultdict(lambda: 0)
         self._samples = defaultdict(self._default_samples)
@@ -311,7 +319,11 @@ class MockedDatasourcesApi(DatasourcesApi):
         ]
 
     def get_datasource_by_dataset_id(self, dataset_id: str, **kwargs):
-        return self._datasources[dataset_id]
+        try:
+            datasource = self._datasources[dataset_id]
+        except Exception:
+            raise ApiException()
+        return datasource
 
     def get_datasource_processed_until_timestamp_by_dataset_id(
         self, dataset_id: str, **kwargs
@@ -423,7 +435,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
 
     def upload_file_with_signed_url(
             self, file: IOBase, signed_write_url: str,
-            max_backoff: int = 32, max_retries: int = 5
+            max_backoff: int = 32, max_retries: int = 5, headers: Dict = None,
     ) -> Response:
         res = Response()
         return res
