@@ -22,7 +22,7 @@ And let us assume the folder you want to use with Lightly is located at `project
 **Setting Up a Service Account in IAM**
 
 1. Write down your project ID.
-You find it in the `gcloud console <console.cloud.google.com/home/dashboard>` under `Project Info`.
+You find it in the `gcloud console <console.cloud.google.com/home/dashboard>`_ under `Project Info`.
 
 2. Navigate to your bucket in the `google cloud storage browser <https://console.cloud.google.com/storage/browser>`_
 and from there to `projects/wild-animals/`. Copy the path somewhere, in this case
@@ -68,11 +68,16 @@ one you copied in the first step and use your Project ID.
 
     (
         resource.type == 'storage.googleapis.com/Object' &&
-        resource.name.startsWith("projects/PROJECT_ID/buckets/lightly-datalake/projects/wild-animals")
+        resource.name.startsWith("projects/_/buckets/lightly-datalake/projects/wild-animals")
     )
-
+Continue to the next step `Grant users access to this service account`.
+There add yourself (in form of your mail address) to both service account roles.
+Otherwise you won't be able to change this service account.
 Then click on `Done` to create the service account.
-After creation, you can find it in the list of all service accounts.
+You can change the roles of the service account in the
+`IAM <https://console.cloud.google.com/iam-admin/iam>`.
+
+6. After creation, you can find it in the list of all service accounts.
 Click on it, then change to the tab `keys`. Click on `Add key` and create a new
 private key in JSON Format. It will download the corresponding key file.
 

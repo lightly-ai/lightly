@@ -73,6 +73,7 @@ This has the advantage that you don't need to upload your data to Lightly and ca
     dataset_creation/dataset_creation_local_upload.rst
     dataset_creation/dataset_creation_aws_bucket.rst
     dataset_creation/dataset_creation_local_server.rst
+    dataset_creation/dataset_creation_gcloud_bucket.rst
 
 
 .. _platform-custom-metadata:
