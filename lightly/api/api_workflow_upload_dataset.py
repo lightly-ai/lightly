@@ -13,6 +13,7 @@ from lightly.data.dataset import LightlyDataset
 from lightly.api.utils import check_filename
 from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
 from lightly.api.utils import retry
+from lightly.api.utils import build_azure_signed_url_write_headers
 from lightly.openapi_generated.swagger_client import TagCreator
 from lightly.openapi_generated.swagger_client import SampleWriteUrls
 from lightly.openapi_generated.swagger_client.models.sample_create_request \
@@ -25,6 +26,9 @@ from lightly.openapi_generated.swagger_client.models.job_status_meta \
     import JobStatusMeta
 from lightly.openapi_generated.swagger_client.models.job_status_upload_method \
     import JobStatusUploadMethod
+
+from lightly.openapi_generated.swagger_client.models.datasource_config_base import DatasourceConfigBase
+from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class _UploadDatasetMixin:
@@ -127,6 +131,13 @@ class _UploadDatasetMixin:
                 custom_metadata,
             )
 
+        # get the datasource
+        try:
+            datasource_config: DatasourceConfigBase = self.get_datasource()
+            datasource_type = datasource_config['type']
+        except ApiException:
+            datasource_type = 'LIGHTLY' # default to lightly datasource
+
         # register dataset upload
         job_status_meta = JobStatusMeta(
             total=len(total_filenames),
@@ -166,6 +177,7 @@ class _UploadDatasetMixin:
                     filepath=filepath,
                     mode=mode,
                     custom_metadata=custom_metadata_item,
+                    datasource_type=datasource_type,
                 )
                 success = True
             except Exception as e: # pylint: disable=broad-except
@@ -225,7 +237,8 @@ class _UploadDatasetMixin:
                              filename: str,
                              filepath: str,
                              mode: str,
-                             custom_metadata: Union[Dict, None] = None):
+                             custom_metadata: Union[Dict, None] = None,
+                             datasource_type: str = 'LIGHTLY'):
         """Uploads a single image to the Lightly platform.
 
         """
@@ -268,19 +281,37 @@ class _UploadDatasetMixin:
             def upload_thumbnail(image, signed_url):
                 thumbnail = image_processing.Thumbnail(image)
                 image_to_upload = thumbnail.to_bytes()
+                headers = None
+                if datasource_type == 'AZURE':
+                    # build headers for Azure blob storage
+                    size_in_bytes = str(image_to_upload.getbuffer().nbytes)
+                    headers = build_azure_signed_url_write_headers(
+                        size_in_bytes
+                    )
                 retry(
                     self.upload_file_with_signed_url,
                     image_to_upload,
-                    signed_url
+                    signed_url,
+                    headers=headers,
                 )
                 thumbnail.thumbnail.close()
 
             def upload_full_image(filepath, signed_url):
                 with open(filepath, 'rb') as image_to_upload:
+                    headers = None
+                    if datasource_type == 'AZURE':
+                        # build headers for Azure blob storage
+                        image_to_upload.seek(0, 2)
+                        size_in_bytes = str(image_to_upload.tell())
+                        image_to_upload.seek(0, 0)
+                        headers = build_azure_signed_url_write_headers(
+                            size_in_bytes
+                        )
                     retry(
                         self.upload_file_with_signed_url,
                         image_to_upload,
-                        signed_url
+                        signed_url,
+                        headers=headers
                     )
 
             if mode == 'thumbnails':
