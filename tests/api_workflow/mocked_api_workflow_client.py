@@ -306,7 +306,7 @@ class MockedDatasourcesApi(DatasourcesApi):
 
         self._datasources = {
             "dataset_id_xyz": local_datasource,
-            "dataset_id_xyz_AZURE": azure_datasource,
+            "dataset_0": azure_datasource,
         }
         self._processed_until_timestamp = defaultdict(lambda: 0)
         self._samples = defaultdict(self._default_samples)
@@ -322,6 +322,7 @@ class MockedDatasourcesApi(DatasourcesApi):
     def get_datasource_by_dataset_id(self, dataset_id: str, **kwargs):
         try:
             datasource = self._datasources[dataset_id]
+            return datasource
         except Exception:
             raise ApiException()
 
