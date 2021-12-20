@@ -8,6 +8,7 @@ import json
 
 import numpy as np
 from requests import Response
+from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import DatasourceProcessedUntilTimestampResponse
 
 from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
@@ -167,7 +168,7 @@ class MockedTagsApi(TagsApi):
 
     def perform_tag_arithmetics(self, body: TagArithmeticsRequest, dataset_id, **kwargs):
         _check_dataset_id(dataset_id)
-        if body.new_tag_name is None or body.new_tag_name is '':
+        if (body.new_tag_name is None) or (body.new_tag_name == ''):
             return TagBitMaskResponse(bit_mask_data="0x2")
         else:
             return CreateEntityResponse(id="tag-arithmetic-created")
@@ -323,16 +324,16 @@ class MockedDatasourcesApi(DatasourcesApi):
             datasource = self._datasources[dataset_id]
         except Exception:
             raise ApiException()
-        return datasource
 
     def get_datasource_processed_until_timestamp_by_dataset_id(
         self, dataset_id: str, **kwargs
-    ):
-        return self._processed_until_timestamp[dataset_id]
+    ) -> DatasourceProcessedUntilTimestampResponse:
+        timestamp = self._processed_until_timestamp[dataset_id]
+        return DatasourceProcessedUntilTimestampResponse(timestamp)
 
     def get_list_of_raw_samples_from_datasource_by_dataset_id(
         self, dataset_id, cursor: str = None, _from: int = None, to: int = None, **kwargs
-    ):
+    ) -> DatasourceRawSamplesData:
         if cursor is None:
             # initial request
             assert _from is not None
@@ -359,16 +360,16 @@ class MockedDatasourcesApi(DatasourcesApi):
 
     def update_datasource_by_dataset_id(
         self, body: DatasourceConfig, dataset_id: str, **kwargs
-    ):
+    ) -> None:
         assert isinstance(body, DatasourceConfig)
-        self._datasources[dataset_id] = body
+        self._datasources[dataset_id] = body # type: ignore
 
     def update_datasource_processed_until_timestamp_by_dataset_id(
         self, body, dataset_id, **kwargs
-    ):
+    ) -> None:
         assert isinstance(body, DatasourceProcessedUntilTimestampRequest)
         to = body.processed_until_timestamp
-        self._processed_until_timestamp[dataset_id] = to
+        self._processed_until_timestamp[dataset_id] = to # type: ignore
 
 
 class MockedVersioningApi(VersioningApi):
