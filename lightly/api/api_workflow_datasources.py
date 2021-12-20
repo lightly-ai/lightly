@@ -2,7 +2,10 @@ import time
 from typing import List, Tuple
 
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import DatasourceProcessedUntilTimestampRequest
+from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import DatasourceProcessedUntilTimestampResponse
+
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import DatasourceRawSamplesData
+
 
 
 class _DatasourcesMixin:
@@ -53,8 +56,7 @@ class _DatasourcesMixin:
             A list of (filename, url) tuples, where each tuple represents a sample
 
         """
-        response = self.get_processed_until_timestamp()
-        from_ = int(response)
+        from_ = self.get_processed_until_timestamp()
         
         if from_ != 0:
             # We already processed samples at some point.
@@ -73,9 +75,13 @@ class _DatasourcesMixin:
         Returns:
             Unix timestamp of last processed sample
         """
-        return self._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id(
-            dataset_id=self.dataset_id
+        response: DatasourceProcessedUntilTimestampResponse = (
+            self._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id(
+                dataset_id=self.dataset_id
+            )
         )
+        timestamp = int(response.processed_until_timestamp)
+        return timestamp
 
     def update_processed_until_timestamp(self, timestamp: int) -> None:
         """Sets the timestamp until which samples have been processed.
