@@ -45,7 +45,6 @@ If it is not, change it to uniform.
     :alt: Ensuring a google cloud bucket has uniform access.
     :width: 60%
 
-
 4. Navigate to `IAM & Admin -> Roles <https://console.cloud.google.com/iam-admin/roles>`_.
 
 - There create a new role, with the title and ID `STORAGE_READ_WRITE_LIST`.
@@ -76,20 +75,22 @@ If it is not, change it to uniform.
         resource.type == 'storage.googleapis.com/Object' &&
         resource.name.startsWith("projects/_/buckets/lightly-datalake/projects/wild-animals")
     )
-- Continue to the next step `Grant users access to this service account`.
-- Add yourself (in form of your mail address) to both service account roles.
 - Click on `Done` to create the service account.
 - You can change the roles of the service account later in the
-  `IAM <https://console.cloud.google.com/iam-admin/iam>`.
+  `IAM <https://console.cloud.google.com/iam-admin/iam>`_.
 
-6. After creation, you can find it in the list of all service accounts.
-Click on the user and navigate to the `keys` tab. Click on `Add key` and create a new
-private key in JSON Format. It will download the corresponding key file.
+6. Navigate to `APIs -> Credentials <https://console.cloud.google.com/apis/credentials>`_
+   again if you are not already there.
 
-    .. figure:: images_gcloud_bucket/screenshot_gcloud_service_account_key_creation.png
-        :align: center
-        :alt: Google Cloud Service Account Key Creation
-        :width: 60%
+- Find the just created user in the list of all service accounts.
+- Click on the user and navigate to the `keys` tab.
+- Click on `Add key` and create a new private key in JSON Format.
+  It will download the corresponding key file.
+
+.. figure:: images_gcloud_bucket/screenshot_gcloud_service_account_key_creation.png
+    :align: center
+    :alt: Google Cloud Service Account Key Creation
+    :width: 60%
 
 
 
@@ -105,6 +106,7 @@ Create and configure a dataset
 .. figure:: images_gcloud_bucket/screenshot_gcloud_create_dataset.png
     :align: center
     :alt: Configure google cloud bucket datasource in Lightly Webapp
+    :width: 60%
 
 
 3. As the resource path, enter the full URI to your resource eg. `gs://lightly-datalake/projects/wild-animals`
@@ -112,10 +114,10 @@ Create and configure a dataset
 5. Click on `Select Credentials File` to add the key file you downloaded in the previous step.
 5. The thumbnail suffix allows you to configure
 
-    - where your thumbnails are stored when you already have generated thumbnails in your S3 bucket
-    - where your thumbnails will be stored when you want Lightly to create thumbnails for you.
-      For this to work, the user policy you created must be granted write permissions.
-    - when the thumbnail suffix is not defined/empty, we will load the full image even when requesting the thumbnail.
+- where your thumbnails are stored when you already have generated thumbnails in your S3 bucket
+- where your thumbnails will be stored when you want Lightly to create thumbnails for you.
+  For this to work, the user policy you created must be granted write permissions.
+- when the thumbnail suffix is not defined/empty, we will load the full image even when requesting the thumbnail.
 
 
 6. Press save and ensure that at least the lights for List and Read turn green.
@@ -126,10 +128,16 @@ Upload metadata and embeddings for your dataset.
 
 For Lightly to be able to create embeddings and extract metadata from your data,
 `lightly-magic` needs to be able to access your data.
-You can either download/sync your data from GCS
+This can be done easiest by using the `gsutil tool <https://cloud.google.com/storage/docs/gsutil>`_
+and its `rsync command <https://cloud.google.com/storage/docs/gsutil/commands/rsync>`_:
+
+.. code::
+
+    gsutil -m rsync -r /local/projects/wild-animals gs://datalake-lightly/projects/wild-animals
 
 
-Use `lightly-magic` and `lightly-upload` just as you always would with the following considerations;
+Use `lightly-magic` and `lightly-upload` just as you always would with the following considerations:
 
+- use `input_dir=/local/projects/wild-animals`
 - If you have already generated thumbnails, don't want to see thumbnails or just want to use the full image for a thumbnail (by setting the thumbnail suffix to empty), add `upload=metadata` to the `lightly-magic` command.
 - If you want Lightly to create thumbnails for you, you can add `upload=thumbnails` to the `lightly-magic` command.
