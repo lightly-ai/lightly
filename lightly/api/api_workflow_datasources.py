@@ -96,3 +96,17 @@ class _DatasourcesMixin:
         self._datasources_api.update_datasource_processed_until_timestamp_by_dataset_id(
             dataset_id=self.dataset_id, body=body
         )
+
+    def get_datasource(self):
+        """Calls the api to return the datasource of the current dataset.
+
+        Returns:
+            Datasource data of the datasource of the current dataset.
+
+        Raises:
+            ApiException if no datasource was configured.
+
+        """
+        return self._datasources_api.get_datasource_by_dataset_id(
+            self.dataset_id
+        )
