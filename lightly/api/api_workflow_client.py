@@ -186,7 +186,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         else:
             response = requests.put(signed_write_url, data=file)
 
-        if response.status_code not in [200, 201]:
+        if response.status_code < 200 or response.status_code >= 300:
             msg = f'Failed PUT request to {signed_write_url} with status_code'
             msg += f'{response.status__code}!'
             raise RuntimeError(msg)
