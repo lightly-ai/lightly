@@ -1,7 +1,7 @@
 .. _dataset-creation-gcloud-bucket:
 
 Create a dataset from Google Cloud Storage
-----------------------------------------
+------------------------------------------
 
 Lightly allows you to configure a remote datasource like
 `Google Cloud Storage <https://cloud.google.com/storage>`_ .
