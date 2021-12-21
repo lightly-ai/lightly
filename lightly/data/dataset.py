@@ -260,6 +260,9 @@ class LightlyDataset:
         """Returns all filenames in the dataset.
 
         """
+        if hasattr(self.dataset, 'get_filenames'):
+            return self.dataset.get_filenames()
+            
         list_of_filenames = []
         for index in range(len(self)):
             fname = self.index_to_filename(self.dataset, index)

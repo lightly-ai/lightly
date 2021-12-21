@@ -389,3 +389,25 @@ class VideoDataset(datasets.VisionDataset):
             n_frames = self.__len__() - self.offsets[i]
         
         return f'{video_name}-{frame_number:0{len(str(n_frames))}}-{video_format}.png'
+
+    def get_filenames(self) -> List[str]:
+        """Returns a list of all frames in the dataset.
+        
+        """
+        filenames = []
+        for i, filename in enumerate(self.videos):
+            filename = os.path.relpath(filename, self.root)
+            splits = filename.split('.')
+            video_format = splits[-1]
+            video_name = '.'.join(splits[:-1])
+
+            if i < len(self.offsets) - 1:
+                n_frames = self.offsets[i+1] - self.offsets[i]
+            else:
+                n_frames = len(self) - self.offsets[i]
+
+            for frame_number in range(n_frames):
+                filenames.append(
+                    f'{video_name}-{frame_number:0{len(str(n_frames))}}-{video_format}.png'
+                )
+        return filenames
