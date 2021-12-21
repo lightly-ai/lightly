@@ -166,6 +166,29 @@ class TestDownload(unittest.TestCase):
                 image = Image.open(os.path.join(tempdir2, filename))
                 assert _images_equal(orig, image)
 
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
+    def test_download_video_frame_count(self):
+        for true_n_frames in range(1, 5):
+            with tempfile.NamedTemporaryFile(suffix='.avi') as file, \
+                self.subTest(msg=f'n_frames={true_n_frames}'):
+
+                _generate_video(file.name, n_frames=true_n_frames)
+                n_frames = download.video_frame_count(file.name)
+                assert n_frames == true_n_frames
+
+    def test_download_all_video_frame_counts(self):
+        true_n_frames = [3, 5]
+        with tempfile.NamedTemporaryFile(suffix='.avi') as file1, \
+            tempfile.NamedTemporaryFile(suffix='.avi') as file2:
+
+            _generate_video(file1.name, n_frames=true_n_frames[0])
+            _generate_video(file2.name, n_frames=true_n_frames[1])
+            total_frames, frame_counts = download.all_video_frame_counts(
+                urls=[file1.name, file2.name],
+            )
+            assert total_frames == sum(true_n_frames)
+            assert frame_counts == true_n_frames
+
 
 def _images_equal(image1, image2):
     # note that images saved and loaded from disk must
