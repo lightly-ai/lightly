@@ -391,7 +391,7 @@ class VideoDataset(datasets.VisionDataset):
         return f'{video_name}-{frame_number:0{len(str(n_frames))}}-{video_format}.png'
 
     def get_filenames(self) -> List[str]:
-        """Returns a list of all frames in the dataset.
+        """Returns a list filenames for all frames in the dataset.
         
         """
         filenames = []

@@ -17,7 +17,7 @@ from lightly.data._utils import check_images
 from lightly.utils.io import INVALID_FILENAME_CHARACTERS
 
 try:
-    from lightly.data._video import VideoDataset
+    from lightly.data._video import VideoDataset    
     import av
     import cv2
 
@@ -339,3 +339,19 @@ class TestLightlyDataset(unittest.TestCase):
     def test_no_dir_no_transform_fails(self):
         with self.assertRaises(ValueError):
             LightlyDataset(None, transform=torchvision.transforms.ToTensor())
+
+    @unittest.skipUnless(VIDEO_DATASET_AVAILABLE, "PyAV or CV2 is/are not installed")
+    def test_dataset_get_filenames(self):
+        self.create_video_dataset()
+        dataset = LightlyDataset(input_dir=self.input_dir)
+        
+        # get filenames using VideoDataset.get_filenames
+        video_dataset_filenames = dataset.dataset.get_filenames()
+        
+        # get filenames using calls to VideoDataset.get_filename(index)
+        get_filenames = VideoDataset.get_filenames
+        del VideoDataset.get_filenames
+        lightly_dataset_filenames = dataset.get_filenames()
+        VideoDataset.get_filenames = get_filenames
+
+        assert video_dataset_filenames == lightly_dataset_filenames
