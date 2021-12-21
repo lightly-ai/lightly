@@ -31,7 +31,7 @@ You find it in the `gcloud console <console.cloud.google.com/home/dashboard>`_ u
 and from there to `projects/wild-animals/`. Copy the path, in this case
 `lightly-datalake/projects/wild-animals`.
 
-.. figure:: ./images_gcloud_bucket/screenshot_gcloud_bucket_project.png
+.. figure:: ./images_gcloud_bucket/screenshot_gcloud_bucket_project.jpg
     :align: center
     :alt: Browsing a google cloud storage bucket.
     :width: 60%
@@ -40,7 +40,7 @@ and from there to `projects/wild-animals/`. Copy the path, in this case
 Make sure that your access control is uniform.
 If it is not, change it to uniform.
 
-.. figure:: ./images_gcloud_bucket/screenshot_gcloud_uniform_access.png
+.. figure:: ./images_gcloud_bucket/screenshot_gcloud_uniform_access.jpg
     :align: center
     :alt: Ensuring a google cloud bucket has uniform access.
     :width: 60%
@@ -53,7 +53,7 @@ If it is not, change it to uniform.
   The create permissions are needed so that Lightly can create thumbnails in your bucket.
 - After adding the permissions, create the role.
 
-.. figure:: ./images_gcloud_bucket/screenshot_gcloud_storage_role.png
+.. figure:: ./images_gcloud_bucket/screenshot_gcloud_storage_role.jpg
     :align: center
     :alt: Creating a role for accessing google cloud storage.
     :width: 60%
@@ -84,6 +84,12 @@ If it is not, change it to uniform.
         resource.type == 'storage.googleapis.com/Object' &&
         resource.name.startsWith("projects/_/buckets/lightly-datalake/objects/projects/wild-animals")
     )
+
+.. figure:: images_gcloud_bucket/screenshot_gcloud_create_service.jpg
+    :align: center
+    :alt: Google Cloud Service Account
+    :width: 60%
+
 - Click on `Done` to create the service account.
 - You can change the roles of the service account later in the
   `IAM <https://console.cloud.google.com/iam-admin/iam>`_.
@@ -96,7 +102,7 @@ If it is not, change it to uniform.
 - Click on `Add key` and create a new private key in JSON Format.
   It will download the corresponding key file.
 
-.. figure:: images_gcloud_bucket/screenshot_gcloud_service_account_key_creation.png
+.. figure:: images_gcloud_bucket/screenshot_gcloud_service_account_key_creation.jpg
     :align: center
     :alt: Google Cloud Service Account Key Creation
     :width: 60%
@@ -112,7 +118,7 @@ Create and configure a dataset
 1. `Create a new dataset <https://app.lightly.ai/dataset/create>`_ in Lightly
 2. Edit your dataset and select `Google Cloud Storage` as your datasource
 
-.. figure:: images_gcloud_bucket/screenshot_gcloud_create_dataset.png
+.. figure:: images_gcloud_bucket/screenshot_gcloud_create_dataset.jpg
     :align: center
     :alt: Configure google cloud bucket datasource in Lightly Webapp
     :width: 60%
