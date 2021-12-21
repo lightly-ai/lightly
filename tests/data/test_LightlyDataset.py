@@ -344,9 +344,10 @@ class TestLightlyDataset(unittest.TestCase):
     def test_dataset_get_filenames(self):
         self.create_video_dataset()
         dataset = LightlyDataset(input_dir=self.input_dir)
+        video_dataset = dataset.dataset
         
         # get filenames using VideoDataset.get_filenames
-        video_dataset_filenames = dataset.dataset.get_filenames()
+        video_dataset_filenames = video_dataset.get_filenames()
         
         # get filenames using calls to VideoDataset.get_filename(index)
         get_filenames = VideoDataset.get_filenames

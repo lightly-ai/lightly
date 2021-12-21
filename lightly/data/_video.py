@@ -373,41 +373,74 @@ class VideoDataset(datasets.VisionDataset):
             i = i - 1
 
         # get filename of the video file
-        filename = self.videos[i]
-        filename = os.path.relpath(filename, self.root)
-
-        # get video format and video name
-        splits = filename.split('.')
-        video_format = splits[-1]
-        video_name = '.'.join(splits[:-1])
+        video = self.videos[i]
+        video_name, video_format = self._video_name_format(video)
 
         # get frame number
         frame_number = index - self.offsets[i]
-        if i < len(self.offsets) - 1:
-            n_frames = self.offsets[i+1] - self.offsets[i]
-        else:
-            n_frames = self.__len__() - self.offsets[i]
         
-        return f'{video_name}-{frame_number:0{len(str(n_frames))}}-{video_format}.png'
+        n_frames = self._video_frame_count(i)
+        zero_padding = len(str(n_frames))
+
+        return self._format_filename(
+            video_name=video_name,
+            video_format=video_format,
+            frame_number=frame_number,
+            zero_padding=zero_padding,
+        )
 
     def get_filenames(self) -> List[str]:
         """Returns a list filenames for all frames in the dataset.
         
         """
         filenames = []
-        for i, filename in enumerate(self.videos):
-            filename = os.path.relpath(filename, self.root)
-            splits = filename.split('.')
-            video_format = splits[-1]
-            video_name = '.'.join(splits[:-1])
+        for i, video in enumerate(self.videos):
+            video_name, video_format = self._video_name_format(video)
+            n_frames = self._video_frame_count(i)
 
-            if i < len(self.offsets) - 1:
-                n_frames = self.offsets[i+1] - self.offsets[i]
-            else:
-                n_frames = len(self) - self.offsets[i]
-
+            zero_padding = len(str(n_frames))
             for frame_number in range(n_frames):
                 filenames.append(
-                    f'{video_name}-{frame_number:0{len(str(n_frames))}}-{video_format}.png'
+                    self._format_filename(
+                        video_name=video_name,
+                        frame_number=frame_number,
+                        video_format=video_format,
+                        zero_padding=zero_padding,
+                    )
                 )
         return filenames
+
+    def _video_frame_count(self, video_index: int) -> int:
+        """Returns the number of frames in the video with the given index.
+        
+        """
+        if video_index < len(self.offsets) - 1:
+            n_frames = self.offsets[video_index+1] - self.offsets[video_index]
+        else:
+            n_frames = len(self) - self.offsets[video_index]
+        return n_frames
+
+    def _video_name_format(self, video_filename: str) -> Tuple[str, str]:
+        """Extracts name and format from the filename of the video.
+
+        Returns:
+            A (video_name, video_format) tuple where video_name is the filename
+            relative to self.root and video_format is the file extension, for 
+            example 'mp4'.
+
+        """
+        video_filename = os.path.relpath(video_filename, self.root)
+        splits = video_filename.split('.')
+        video_format = splits[-1]
+        video_name = '.'.join(splits[:-1])
+        return video_name, video_format
+
+    def _format_filename(
+        self,
+        video_name: str, 
+        frame_number: int, 
+        video_format: str, 
+        zero_padding: int = 8, 
+        extension: str = 'png'
+    ) -> str:
+        return f'{video_name}-{frame_number:0{zero_padding}}-{video_format}.{extension}'
