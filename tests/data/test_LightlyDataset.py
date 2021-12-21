@@ -346,10 +346,12 @@ class TestLightlyDataset(unittest.TestCase):
         dataset = LightlyDataset(input_dir=self.input_dir)
         video_dataset = dataset.dataset
         
-        # get filenames using VideoDataset.get_filenames
+        # Get filenames using VideoDataset.get_filenames.
         video_dataset_filenames = video_dataset.get_filenames()
         
-        # get filenames using calls to VideoDataset.get_filename(index)
+        # Get filenames using calls to VideoDataset.get_filename(index). 
+        # This removes the optimization introduced in VideoDatset.get_filenames. 
+        # Both methods should give the same result.
         get_filenames = VideoDataset.get_filenames
         del VideoDataset.get_filenames
         lightly_dataset_filenames = dataset.get_filenames()
