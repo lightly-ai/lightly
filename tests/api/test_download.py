@@ -256,7 +256,7 @@ def _generate_video(
     pixel_format = 'rgb24'
 
     if is_webm:
-        video_format = 'vp8'
+        video_format = 'av1'
         pixel_format = 'yuv420p'
 
     if broken:
