@@ -9,15 +9,34 @@ In this guide, we will show you how to setup your Google Cloud Storage,
 configure your dataset to use said bucket, and only upload metadata to Lightly
 while keeping your data private.
 
+One decision you need to make first is whether you want to use thumbnails.
+Using thumbnails makes the Lightly Platform more responsive, as not always
+the full images will be loaded.
+However, the thumbnails will be stored in you bucket and thus need storage.
+You have three options:
+
+A) You want to use thumbnails, but don't have them yet. Then you need to give
+Lightly write access to your bucket to create the thumbnails there for you.
+The write access can be configured not to allow overwriting and
+deleting, thus existing data cannot get lost.
+
+B) You already have thumbnails in your bucket with a consistent name scheme, e.g.
+an image called `img.jpg` has a corresponding thumbnail called `img_thumb.jpg`.
+In this case, a read access to your bucket is sufficient.
+
+C) You don't want to use thumbnails. Then a read access to your bucket
+is sufficient. The Lightly Platform will load the full image
+even when requesting the thumbnail.
+
+Depending on this decision, the following steps will differ slightly.
+
 
 Setting up Google Cloud Storage
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Lightly needs to be able to create so-called
 `presigned URLs/read URLs <https://cloud.google.com/storage/docs/access-control/signed-urls>`_
 for displaying your data in your browser.
-Thus it needs at minimum to be able to read and list permissions on your bucket.
-If you want Lightly to create optimal thumbnails for you
-while uploading the metadata of your images, write permissions are also needed.
+Thus it needs at minimum read and list permissions on your bucket.
 
 Let us assume the bucket is called `lightly-datalake`.
 And let us assume the folder you want to use with Lightly is located at `projects/wild-animals/`
@@ -47,10 +66,12 @@ If it is not, change it to uniform.
 
 4. Navigate to `IAM & Admin -> Roles <https://console.cloud.google.com/iam-admin/roles>`_.
 
-- There create a new role, with the title and ID `STORAGE_READ_WRITE_LIST`.
+- Create a new role, with the same title and ID.
+  E.g. call it `LIGHTLY_DATASET_ACCESS`.
 - Click on `Add Permissions`, search for `storage.objects`
 - Add the permissions `storage.objects.get`, `storage.objects.list`, and `storage.objects.create`.
-  The create permissions are needed so that Lightly can create thumbnails in your bucket.
+  The create permissions are needed if you want Lightly to create thumbnails
+  in your bucket (Option A). Otherwise (Option B and C) you can leave them away.
 - After adding the permissions, create the role.
 
 .. figure:: ./images_gcloud_bucket/screenshot_gcloud_storage_role.jpg
@@ -64,16 +85,10 @@ If it is not, change it to uniform.
   `LIGHTLY_USER_WILD_ANIMALS`.
 - The description can be `service account for the Lightly API to access the wild animals dataset`.
 - Click on `Create and Continue`.
-- Choose the Role you just created, i.e. `STORAGE_READ_WRITE_LIST`.
+- Choose the Role you just created, i.e. `LIGHTLY_DATASET_ACCESS`.
 - Add a condition with the title `BUCKET_PROJECTS_WILD_ANIMALS`
   and insert the condition below in the Condition editor. Remember to change the bucket name
   and path to the folder. However, you must keep the "objects" inbetween.
-  For more information, head to the `IAM conditions
-  <https://cloud.google.com/storage/docs/access-control/iam#conditions>`_.
-  The first part of the condition adds listing rights to the whole bucket,
-  as they can only be handled on the bucket level. The second part adds object-level
-  access rights (i.e. read and create) for all objects in the bucket `lightly-datalake`
-  whose name starts with `projects/wild-animals`.
 
 .. code::
 
@@ -85,10 +100,19 @@ If it is not, change it to uniform.
         resource.name.startsWith("projects/_/buckets/lightly-datalake/objects/projects/wild-animals")
     )
 
+For more information, head to the `IAM conditions
+<https://cloud.google.com/storage/docs/access-control/iam#conditions>`_.
+The first part of the condition adds listing rights to the whole bucket,
+as they can only be handled on the bucket level. The second part adds object-level
+access rights (i.e. read and create) for all objects in the bucket `lightly-datalake`
+whose name starts with `projects/wild-animals`.
+
 .. figure:: images_gcloud_bucket/screenshot_gcloud_create_service.jpg
     :align: center
     :alt: Google Cloud Service Account
     :width: 60%
+
+
 
 - Click on `Done` to create the service account.
 - You can change the roles of the service account later in the
@@ -120,32 +144,35 @@ Create and configure a dataset
 
 .. figure:: images_gcloud_bucket/screenshot_gcloud_create_dataset.jpg
     :align: center
-    :alt: Configure google cloud bucket datasource in Lightly Webapp
+    :alt: Configure google cloud bucket datasource in Lightly Platform
     :width: 60%
 
 
 3. As the resource path, enter the full URI to your resource eg. `gs://lightly-datalake/projects/wild-animals`
 4. Enter the Google Project ID you wrote down in the first step.
 5. Click on `Select Credentials File` to add the key file you downloaded in the previous step.
-6. The thumbnail suffix allows you to configure
+6. The thumbnail suffix depends on the option you chose in the first step
 
-- where your thumbnails are stored when you already have generated thumbnails in your S3 bucket
-- where your thumbnails will be stored when you want Lightly to create thumbnails for you.
-  For this to work, the user policy you created must be granted write permissions.
-- when the thumbnail suffix is not defined/empty,
-  the Lightly Webapp will load the full image even when requesting the thumbnail.
+- Option A: You want Lightly to create the thumbnail for you.
+  Then choose the naming scheme to your liking.
+- Option B: You have already generated thumbnails in your bucket.
+  Then choose the thumbnail suffix such that it reflects you naming scheme.
+- Option C: You don't want to use thumbnails.
+  Then leave the thumbnail suffix undefined/empty.
+
 
 
 6. Press save and ensure that at least the lights for List and Read turn green.
-If you added permissions for writing, this lights should also turn green.
+If you added permissions for writing to use option A, this light should also turn green.
 
 7. Now you should be on the dataset creation page again.
 
 Create the dataset and upload embeddings and metadata.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For creating the dataset and uploading embeddings and metadta to it, you need
-the :ref:`lightly-command-line-tool`. Furthermore, you need to have your data locally.
+For creating the dataset and uploading embeddings and metadata to it, you need
+the :ref:`lightly-command-line-tool`.
+Furthermore, you need to have your data locally on your machine.
 This can be done easiest by using the `gsutil tool <https://cloud.google.com/storage/docs/gsutil>`_
 and its `rsync command <https://cloud.google.com/storage/docs/gsutil/commands/rsync>`_:
 
@@ -154,11 +181,9 @@ and its `rsync command <https://cloud.google.com/storage/docs/gsutil/commands/rs
     gsutil -m rsync -r /local/projects/wild-animals gs://datalake-lightly/projects/wild-animals
 
 
-Use `lightly-magic` and `lightly-upload` with the following considerations:
+Use `lightly-magic` and `lightly-upload` with the following parameters:
 
-- use `input_dir=/local/projects/wild-animals`
-- If you want to use thumbnails for a more responsive Lightly Webapp,
-  add `upload=thumbnails` to the `lightly-magic` command. They will be written
-  to your Google Cloud Bucket if you have given write access to it.
-- If you have already generated thumbnails in your bucket or don't want to use
-  thumbnails, use `upload=metadata` instead.
+- Use `input_dir=/local/projects/wild-animals`
+- If you chose option A to generate thumbnails in your bucket,
+  use `upload=thumbnails`
+- If you chose option B or C, use `upload=metadata` instead.
