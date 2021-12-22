@@ -270,7 +270,7 @@ def all_video_frame_counts(
     max_workers: int = None,
     video_channel: int = 0,
     thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
-) -> Tuple[int, List[int]]:
+) -> List[int]:
     """Finds the number of frames in the videos at the given urls.
 
     Videos are only decoded if no information about the number of frames is
@@ -290,9 +290,7 @@ def all_video_frame_counts(
             for details.
 
     Returns:
-        A (total_frames, frame_counts) tuple where total_frames is the sum of 
-        all frames in all videos and frame_counts is a list with the number of
-        frames per video.
+        A list with the number of frames per video.
 
     Raises:
         RuntimeError:
@@ -327,5 +325,4 @@ def all_video_frame_counts(
                 f"Could not find the number of frames for {num_failed} videos!"
             )
 
-        total_frames = sum(frame_counts)
-        return total_frames, frame_counts
+        return frame_counts
