@@ -206,10 +206,10 @@ class TestDownload(unittest.TestCase):
 
                 _generate_video(file1.name, n_frames=true_n_frames[0], fps=fps)
                 _generate_video(file2.name, n_frames=true_n_frames[1], fps=fps)
-                total_frames, frame_counts = download.all_video_frame_counts(
+                frame_counts = download.all_video_frame_counts(
                     urls=[file1.name, file2.name],
                 )
-                assert total_frames == sum(true_n_frames)
+                assert sum(frame_counts) == sum(true_n_frames)
                 assert frame_counts == true_n_frames
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
