@@ -56,6 +56,16 @@ sys.modules["requests"] = requests
 
 class TestDownload(unittest.TestCase):
 
+    def setUp(self):
+        self._max_retries = lightly.api.utils.RETRY_MAX_RETRIES
+        self._max_backoff = lightly.api.utils.RETRY_MAX_BACKOFF
+        lightly.api.utils.RETRY_MAX_RETRIES = 1
+        lightly.api.utils.RETRY_MAX_BACKOFF = 0
+    
+    def tearDown(self):
+        lightly.api.utils.RETRY_MAX_RETRIES = self._max_retries
+        lightly.api.utils.RETRY_MAX_BACKOFF = self._max_backoff
+
     def test_download_image(self):
         original = _pil_image()
         with tempfile.NamedTemporaryFile(suffix='.png') as file:
@@ -160,7 +170,11 @@ class TestDownload(unittest.TestCase):
 
             # download images from remote to local
             file_infos = list(zip(filenames, urls))
-            download.download_and_write_all_files(file_infos, output_dir=tempdir2, max_workers=max_workers)
+            download.download_and_write_all_files(
+                file_infos, 
+                output_dir=tempdir2, 
+                max_workers=max_workers
+            )
 
             for orig, filename in zip(originals, filenames):
                 image = Image.open(os.path.join(tempdir2, filename))
@@ -169,25 +183,56 @@ class TestDownload(unittest.TestCase):
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_count(self):
         for true_n_frames in range(1, 5):
-            with tempfile.NamedTemporaryFile(suffix='.avi') as file, \
-                self.subTest(msg=f'n_frames={true_n_frames}'):
+            for frames_meta in [True, False]:
+                with tempfile.NamedTemporaryFile(suffix='.avi') as file, \
+                    self.subTest(msg=f'n_frames={true_n_frames}, frames_meta={frames_meta}'):
+                    
+                    _generate_video(
+                        file.name, 
+                        n_frames=true_n_frames,
+                        frames_meta=frames_meta,
+                    )
+                    n_frames = download.video_frame_count(file.name)
+                    assert n_frames == true_n_frames
 
-                _generate_video(file.name, n_frames=true_n_frames)
-                n_frames = download.video_frame_count(file.name)
-                assert n_frames == true_n_frames
-
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_all_video_frame_counts(self):
         true_n_frames = [3, 5]
-        with tempfile.NamedTemporaryFile(suffix='.avi') as file1, \
-            tempfile.NamedTemporaryFile(suffix='.avi') as file2:
+        for frames_meta in [True, False]:
+            with tempfile.NamedTemporaryFile(suffix='.avi') as file1, \
+                tempfile.NamedTemporaryFile(suffix='.avi') as file2, \
+                self.subTest(msg=f'frames_meta={frames_meta}'):
 
-            _generate_video(file1.name, n_frames=true_n_frames[0])
-            _generate_video(file2.name, n_frames=true_n_frames[1])
-            total_frames, frame_counts = download.all_video_frame_counts(
-                urls=[file1.name, file2.name],
-            )
-            assert total_frames == sum(true_n_frames)
-            assert frame_counts == true_n_frames
+                _generate_video(file1.name, n_frames=true_n_frames[0])
+                _generate_video(file2.name, n_frames=true_n_frames[1])
+                total_frames, frame_counts = download.all_video_frame_counts(
+                    urls=[file1.name, file2.name],
+                )
+                assert total_frames == sum(true_n_frames)
+                assert frame_counts == true_n_frames
+
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
+    def test_download_all_video_frame_counts_broken(self):
+        true_n_frames = [3, 5]
+        for frames_meta in [True, False]:
+            with tempfile.NamedTemporaryFile(suffix='.avi') as file1, \
+                tempfile.NamedTemporaryFile(suffix='.avi') as file2, \
+                self.subTest(msg=f'frames_meta={frames_meta}'):
+
+                _generate_video(
+                    file1.name, 
+                    n_frames=true_n_frames[0],
+                )
+                _generate_video(
+                    file2.name, 
+                    n_frames=true_n_frames[1],
+                    broken=True,
+                )
+
+                with self.assertRaises(RuntimeError):
+                    urls = [file1.name, file2.name]
+                    result = download.all_video_frame_counts(urls)
+                    print(result)
 
 
 def _images_equal(image1, image2):
@@ -201,13 +246,27 @@ def _pil_image(width=100, height=50, seed=0):
     image = Image.fromarray(image, mode='RGB')
     return image
 
-def _generate_video(out_file, n_frames=5, width=100, height=50, seed=0, fps=1):
+def _generate_video(
+    out_file, 
+    n_frames=5, 
+    width=100, 
+    height=50, 
+    seed=0, 
+    fps=1,
+    frames_meta=True,
+    broken=False,
+):
+    if broken:
+        n_frames = 1
+
     np.random.seed(seed)
     container = av.open(out_file, mode='w')
     stream = container.add_stream('libx264rgb', rate=fps)
     stream.width = width
     stream.height = height
     stream.options["crf"] = "0"
+    if not frames_meta:
+        stream.options["frames"] = "0"
     stream.pix_fmt = "rgb24"
     images = (np.random.randn(n_frames, height, width, 3) * 255).astype(np.uint8)
     frames = [av.VideoFrame.from_ndarray(image, format='rgb24') for image in images]
@@ -215,10 +274,12 @@ def _generate_video(out_file, n_frames=5, width=100, height=50, seed=0, fps=1):
     for frame in frames:
         for packet in stream.encode(frame):
             container.mux(packet)
-        
-    # flush and close
-    packet = stream.encode(None)
-    container.mux(packet)
+
+    if not broken:
+        # flush the stream
+        # video cannot be loaded if this is omitted
+        packet = stream.encode(None)
+        container.mux(packet)
     container.close()
 
     pil_images = [frame.to_image() for frame in frames]
