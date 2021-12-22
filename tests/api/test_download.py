@@ -185,25 +185,27 @@ class TestDownload(unittest.TestCase):
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_count(self):
+        fps = 24
         for true_n_frames in range(1, 5):
-            for suffix in ['.avi', '.webm']:
+            for suffix in ['.avi', '.mpeg']:
                 with tempfile.NamedTemporaryFile(suffix=suffix) as file, \
                     self.subTest(msg=f'n_frames={true_n_frames}, extension={suffix}'):
 
-                    _generate_video(file.name, n_frames=true_n_frames)
+                    _generate_video(file.name, n_frames=true_n_frames, fps=fps)
                     n_frames = download.video_frame_count(file.name)
                     assert n_frames == true_n_frames
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_all_video_frame_counts(self):
         true_n_frames = [3, 5]
-        for suffix in ['.avi', '.webm']:
+        fps = 24
+        for suffix in ['.avi', '.mpeg']:
             with tempfile.NamedTemporaryFile(suffix=suffix) as file1, \
                 tempfile.NamedTemporaryFile(suffix=suffix) as file2, \
                 self.subTest(msg=f'extension={suffix}'):
 
-                _generate_video(file1.name, n_frames=true_n_frames[0])
-                _generate_video(file2.name, n_frames=true_n_frames[1])
+                _generate_video(file1.name, n_frames=true_n_frames[0], fps=fps)
+                _generate_video(file2.name, n_frames=true_n_frames[1], fps=fps)
                 total_frames, frame_counts = download.all_video_frame_counts(
                     urls=[file1.name, file2.name],
                 )
@@ -212,11 +214,12 @@ class TestDownload(unittest.TestCase):
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_all_video_frame_counts_broken(self):
-        with tempfile.NamedTemporaryFile(suffix='.webm') as file1, \
-            tempfile.NamedTemporaryFile(suffix='.webm') as file2:
+        fps = 24
+        with tempfile.NamedTemporaryFile(suffix='.mpeg') as file1, \
+            tempfile.NamedTemporaryFile(suffix='.mpeg') as file2:
 
-            _generate_video(file1.name)
-            _generate_video(file2.name, broken=True)
+            _generate_video(file1.name, fps=fps)
+            _generate_video(file2.name, fps=fps, broken=True)
             
             urls = [file1.name, file2.name]
             with self.assertRaises(RuntimeError):
@@ -246,17 +249,18 @@ def _generate_video(
 ):
     """Generate a video.
 
-    Use .avi extension if you want to save a lossless video. Use '.webm' for
+    Use .avi extension if you want to save a lossless video. Use '.mpeg' for
     videos which should have streams.frames = 0, so that the whole video must
-    be loaded to find the total number of frames.
+    be loaded to find the total number of frames. Note that mpeg requires
+    fps = 24.
 
     """
-    is_webm = out_file.endswith('.webm')
+    is_mpeg = out_file.endswith('.mpeg')
     video_format = 'libx264rgb'
     pixel_format = 'rgb24'
 
-    if is_webm:
-        video_format = 'av1'
+    if is_mpeg:
+        video_format = 'mpeg1video'
         pixel_format = 'yuv420p'
 
     if broken:
@@ -269,7 +273,7 @@ def _generate_video(
     stream.height = height
     stream.pix_fmt = pixel_format
 
-    if is_webm:
+    if is_mpeg:
         frames = [av.VideoFrame(width, height, pixel_format) for i in range(n_frames)]
     else:
         # save lossless video
