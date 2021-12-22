@@ -45,8 +45,8 @@ Create the dataset and upload embeddings and metadata.
 For creating the dataset and uploading embeddings and metadata to it, you need
 to install the :ref:`lightly-command-line-tool`, e.g. via pip.
 Then use one of the commands proposed in the dataset creation wizard.
-Use a new terminal for this, so that your command for the hosting the http
-server can still run.
+Use a new terminal for this, so that your command for hosting the http
+server can continue running.
 
 .. code-block:: bash
 
