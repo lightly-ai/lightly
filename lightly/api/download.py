@@ -290,12 +290,15 @@ def all_video_frame_counts(
     """
 
     def job(url):
-        return utils.retry(
-            video_frame_count, 
-            url=url,
-            video_channel=video_channel,
-            thread_type=thread_type,
-        )
+        try:
+            return utils.retry(
+                video_frame_count, 
+                url=url,
+                video_channel=video_channel,
+                thread_type=thread_type,
+            )
+        except RuntimeError:
+            return
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         frame_counts = list(executor.map(job, urls))

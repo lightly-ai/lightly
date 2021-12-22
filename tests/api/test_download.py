@@ -2,6 +2,7 @@ import os
 import sys
 import tempfile
 import unittest
+import warnings
 
 import numpy as np
 from PIL import Image
@@ -61,10 +62,12 @@ class TestDownload(unittest.TestCase):
         self._max_backoff = lightly.api.utils.RETRY_MAX_BACKOFF
         lightly.api.utils.RETRY_MAX_RETRIES = 1
         lightly.api.utils.RETRY_MAX_BACKOFF = 0
+        warnings.filterwarnings("ignore")
     
     def tearDown(self):
         lightly.api.utils.RETRY_MAX_RETRIES = self._max_retries
         lightly.api.utils.RETRY_MAX_BACKOFF = self._max_backoff
+        warnings.filterwarnings("default")
 
     def test_download_image(self):
         original = _pil_image()
@@ -183,25 +186,21 @@ class TestDownload(unittest.TestCase):
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_count(self):
         for true_n_frames in range(1, 5):
-            for frames_meta in [True, False]:
-                with tempfile.NamedTemporaryFile(suffix='.avi') as file, \
-                    self.subTest(msg=f'n_frames={true_n_frames}, frames_meta={frames_meta}'):
-                    
-                    _generate_video(
-                        file.name, 
-                        n_frames=true_n_frames,
-                        frames_meta=frames_meta,
-                    )
+            for suffix in ['.avi', '.webm']:
+                with tempfile.NamedTemporaryFile(suffix=suffix) as file, \
+                    self.subTest(msg=f'n_frames={true_n_frames}, extension={suffix}'):
+
+                    _generate_video(file.name, n_frames=true_n_frames)
                     n_frames = download.video_frame_count(file.name)
                     assert n_frames == true_n_frames
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_all_video_frame_counts(self):
         true_n_frames = [3, 5]
-        for frames_meta in [True, False]:
-            with tempfile.NamedTemporaryFile(suffix='.avi') as file1, \
-                tempfile.NamedTemporaryFile(suffix='.avi') as file2, \
-                self.subTest(msg=f'frames_meta={frames_meta}'):
+        for suffix in ['.avi', '.webm']:
+            with tempfile.NamedTemporaryFile(suffix=suffix) as file1, \
+                tempfile.NamedTemporaryFile(suffix=suffix) as file2, \
+                self.subTest(msg=f'extension={suffix}'):
 
                 _generate_video(file1.name, n_frames=true_n_frames[0])
                 _generate_video(file2.name, n_frames=true_n_frames[1])
@@ -213,26 +212,16 @@ class TestDownload(unittest.TestCase):
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_all_video_frame_counts_broken(self):
-        true_n_frames = [3, 5]
-        for frames_meta in [True, False]:
-            with tempfile.NamedTemporaryFile(suffix='.avi') as file1, \
-                tempfile.NamedTemporaryFile(suffix='.avi') as file2, \
-                self.subTest(msg=f'frames_meta={frames_meta}'):
+        with tempfile.NamedTemporaryFile(suffix='.webm') as file1, \
+            tempfile.NamedTemporaryFile(suffix='.webm') as file2:
 
-                _generate_video(
-                    file1.name, 
-                    n_frames=true_n_frames[0],
-                )
-                _generate_video(
-                    file2.name, 
-                    n_frames=true_n_frames[1],
-                    broken=True,
-                )
-
-                with self.assertRaises(RuntimeError):
-                    urls = [file1.name, file2.name]
-                    result = download.all_video_frame_counts(urls)
-                    print(result)
+            _generate_video(file1.name)
+            _generate_video(file2.name, broken=True)
+            
+            urls = [file1.name, file2.name]
+            with self.assertRaises(RuntimeError):
+                result = download.all_video_frame_counts(urls)
+                print(result)
 
 
 def _images_equal(image1, image2):
@@ -253,24 +242,41 @@ def _generate_video(
     height=50, 
     seed=0, 
     fps=1,
-    frames_meta=True,
     broken=False,
 ):
+    """Generate a video.
+
+    Use .avi extension if you want to save a lossless video. Use '.webm' for
+    videos which should have streams.frames = 0, so that the whole video must
+    be loaded to find the total number of frames.
+
+    """
+    is_webm = out_file.endswith('.webm')
+    video_format = 'libx264rgb'
+    pixel_format = 'rgb24'
+
+    if is_webm:
+        video_format = 'vp8'
+        pixel_format = 'yuv420p'
+
     if broken:
-        n_frames = 1
+        n_frames = 0
 
     np.random.seed(seed)
     container = av.open(out_file, mode='w')
-    stream = container.add_stream('libx264rgb', rate=fps)
+    stream = container.add_stream(video_format, rate=fps)
     stream.width = width
     stream.height = height
-    stream.options["crf"] = "0"
-    if not frames_meta:
-        stream.options["frames"] = "0"
-    stream.pix_fmt = "rgb24"
-    images = (np.random.randn(n_frames, height, width, 3) * 255).astype(np.uint8)
-    frames = [av.VideoFrame.from_ndarray(image, format='rgb24') for image in images]
-    
+    stream.pix_fmt = pixel_format
+
+    if is_webm:
+        frames = [av.VideoFrame(width, height, pixel_format) for i in range(n_frames)]
+    else:
+        # save lossless video
+        stream.options["crf"] = "0"
+        images = (np.random.randn(n_frames, height, width, 3) * 255).astype(np.uint8)
+        frames = [av.VideoFrame.from_ndarray(image, format=pixel_format) for image in images]
+        
     for frame in frames:
         for packet in stream.encode(frame):
             container.mux(packet)
@@ -280,6 +286,7 @@ def _generate_video(
         # video cannot be loaded if this is omitted
         packet = stream.encode(None)
         container.mux(packet)
+        
     container.close()
 
     pil_images = [frame.to_image() for frame in frames]
