@@ -152,7 +152,7 @@ class TestDownload(unittest.TestCase):
                 )
                 frame_pts = download.download_video_frame(
                     file.name, 
-                    timestamp=fps, # pts == fps after 1 second
+                    timestamp=fps + 1, # pts = sec * fps + 1
                     time_unit='pts'
                 )
                 assert _images_equal(frame_pts, frame_sec)

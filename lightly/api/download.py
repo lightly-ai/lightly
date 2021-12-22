@@ -121,23 +121,24 @@ def download_video_frame(
     stream.thread_type = thread_type
     
     if time_unit == 'sec':
-        offset = int(timestamp / stream.time_base)
+        offset = int(timestamp / stream.time_base) + 1
     else:
-        offset = int(timestamp)
+        offset = timestamp
 
     duration = stream.duration
-    if offset >= duration:
-        duration_seconds = duration * stream.time_base
+    if offset > duration:
+        if time_unit == 'sec':
+            duration = duration * stream.time_base
         raise ValueError(
-            f"Timestamp ({timestamp}) larger than"
-            f"video duration ({duration_seconds})"
+            f"Timestamp ({timestamp}) larger than "
+            f"video duration ({duration} {time_unit})."
         )
     # seek to last keyframe before the timestamp
-    container.seek(offset, any_frame=False, backward=True, stream=stream)
+    container.seek(offset - 1, any_frame=False, backward=True, stream=stream)
     # advance from keyframe until correct offset is reached
     frame = None
     for frame in container.decode(stream):
-        if frame.pts > offset:
+        if frame.pts >= offset:
             break
     container.close()
     if as_pil_image:
