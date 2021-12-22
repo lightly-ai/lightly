@@ -170,9 +170,8 @@ def download_and_write_all_files(
         output_dir:
             Output directory where files will stored in.
         max_workers:
-            Maximum number of workers
-            If `None` the number of workers is chosen based
-            on the number of available cores.
+            Maximum number of workers. If `None` the number of workers is chosen 
+            based on the number of available cores.
         verbose:
             Shows progress bar if set to `True`.
 
@@ -222,3 +221,97 @@ def download_and_write_all_files(
                 future.result()
             except Exception as ex:
                 warnings.warn(f"Could not download {filename} from {url}")
+
+def video_frame_count(
+    url: str,
+    video_channel: int = 0,
+    thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
+) -> int:
+    """Returns the number of frames in the video from the given url.
+
+    The video is only decoded if no information about the number of frames is
+    stored in the video metadata.
+    
+    Args:
+        url:
+            The url of the video.
+        video_channel:
+            The video stream channel from which to find the number of frames.
+        thread_type:
+            Which multithreading method to use for decoding the video.
+            See https://pyav.org/docs/stable/api/codec.html#av.codec.context.ThreadType
+            for details.
+
+    """
+    container = av.open(url)
+    stream = container.streams.video[video_channel]
+    num_frames = stream.frames
+    # If number of frames not stored in the video file we have to decode all
+    # frames and count them.
+    if num_frames == 0:
+        stream.thread_type = thread_type
+        for _ in container.decode(stream):
+            num_frames += 1
+    return num_frames
+
+def all_video_frame_counts(
+    urls: List[str],
+    max_workers: int = None,
+    video_channel: int = 0,
+    thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
+) -> List[int]:
+    """Finds the number of frames in the videos at the given urls.
+
+    Videos are only decoded if no information about the number of frames is
+    stored in the video metadata.
+
+    Args:
+        urls:
+            A list of video urls.
+        max_workers:
+            Maximum number of workers. If `None` the number of workers is chosen 
+            based on the number of available cores.
+        video_channel:
+            The video stream channel from which to find the number of frames.
+        thread_type:
+            Which multithreading method to use for decoding the video.
+            See https://pyav.org/docs/stable/api/codec.html#av.codec.context.ThreadType
+            for details.
+
+    Returns:
+        A list with the number of frames per video.
+
+    Raises:
+        RuntimeError:
+            If not all frame counts can be found for all videos.
+
+    """
+
+    def job(url):
+        try:
+            return utils.retry(
+                video_frame_count, 
+                url=url,
+                video_channel=video_channel,
+                thread_type=thread_type,
+            )
+        except RuntimeError:
+            return
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        frame_counts = list(executor.map(job, urls))
+        num_failed = 0
+        for count, url in zip(frame_counts, urls):
+            if count is None:
+                num_failed += 1
+                warnings.warn(
+                    f"Could not find the number of frames for video with "
+                    f"url: {url}"
+                )
+
+        if num_failed > 0:
+            raise RuntimeError(
+                f"Could not find the number of frames for {num_failed} videos!"
+            )
+
+        return frame_counts

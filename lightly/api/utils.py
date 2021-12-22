@@ -17,7 +17,8 @@ from PIL import JpegImagePlugin
 JpegImagePlugin._getmp = lambda: None
 
 MAXIMUM_FILENAME_LENGTH = 255
-
+RETRY_MAX_BACKOFF = 32
+RETRY_MAX_RETRIES = 5
 
 def retry(func, *args, **kwargs):
     """Repeats a function until it completes successfully or fails too often.
@@ -40,8 +41,8 @@ def retry(func, *args, **kwargs):
 
     # config
     backoff = 1. + random.random() * 0.1
-    max_backoff = 32
-    max_retries = 5
+    max_backoff = RETRY_MAX_BACKOFF
+    max_retries = RETRY_MAX_RETRIES
 
     # try to make the request
     for i in range(max_retries):
