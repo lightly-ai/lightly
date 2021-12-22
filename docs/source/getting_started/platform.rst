@@ -194,6 +194,38 @@ need to look like this:
         ]
     }
 
+If you don't have your data in coco format yet, but e.g. as a pandas dataframe,
+you can use a simple script to translate it to the coco format:
+
+.. code-block:: python
+
+    import numpy as np
+    import pandas as pd
+
+    from lightly.utils import save_custom_metadata
+
+    # Let's assume you have your data in form of a pandas dataframe
+    df = pd.DataFrame({
+        "image0.jpg": [3, "cloudy", 20.3],
+        "image1.jpg": [1, "rainy", 15.0]
+    })
+    output_file = "custom_metadata.json"
+
+    # create a list of pairs of (filename, metadata)
+    custom_metadata = []
+    for filename, data in df.items():
+        metadata = {
+         "number_of_pedestrians": int(data[0]),
+         "weather": {
+            "scenario": str(data[1]),
+            "temperature": float(data[2])
+         }
+        }
+        custom_metadata.append((filename, metadata))
+
+    # save custom metadata in the correct json format
+    save_custom_metadata(output_file, custom_metadata)
+
 
 .. note:: Make sure that the custom metadata is present for every image. The metadata
           must not necessarily include the same keys for all images but it is strongly
@@ -201,6 +233,8 @@ need to look like this:
 
 .. note:: Lightly supports integers, floats, strings, booleans, and even nested objects for
           custom metadata. Every metadata item must be a valid JSON object.
+          Thus numpy datatypes are not supported and must be cast to `float`
+          or `int` before saving.
 
 
 
