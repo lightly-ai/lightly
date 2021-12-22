@@ -155,6 +155,9 @@ Once you have a trained model checkpoint, you can create an embedding of a datas
     # use custom checkpoint
     lightly-embed input_dir=cat checkpoint=mycheckpoint.ckpt
 
+    # use the last checkpoint you created
+    lightly-embed input_dir=cat checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH
+
 
 The embeddings.csv file should look like the following:
 
@@ -191,6 +194,10 @@ by providing the *new_dataset_name* instead of the *dataset_id*.
     # create a new dataset and upload to it
     lightly-upload input_dir=cat token=your_token new_dataset_name=your_dataset_name
 
+    # upload the dataset together with the last embeddings you created
+    lightly-upload input_dir=cat embeddings=$LIGHTLY_LAST_EMBEDDING_PATH \
+                       token=your_token dataset_id=your_dataset_id
+
 .. note:: To obtain your *token* and *dataset_id* check: 
           :ref:`ref-authentication-token` and :ref:`ref-webapp-dataset-id`.
 
@@ -212,6 +219,14 @@ Again, you can use the *dataset_id* and *new_dataset_name* interchangeably.
     # you can upload the dataset together with the embeddings
     lightly-upload input_dir=cat embeddings=your_embedding.csv \
                    token=your_token new_dataset_name=your_dataset_name
+
+    # you can upload the embeddings under a specific name
+    lightly-upload embeddings=your_embedding.csv token=your_token \
+                   new_dataset_name=your_dataset_name embedding_name=embedding_1
+
+    # you can upload the latest embeddings you created to the latest dataset you created
+    lightly-upload embeddings=$LIGHTLY_LAST_EMBEDDING_PATH token=your_token \
+                       dataset_id=$LIGHTLY_LAST_DATASET_ID
 
 
 .. _ref-upload-custom-metadata-lightly:
@@ -266,6 +281,31 @@ without the need to download them explicitly.
     # copy images from an input directory to an output directory
     lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token \
                      input_dir=path/to/input/dir output_dir=path/to/output/dir
+
+.. _ref-breakdown-lightly-magic:
+
+Breakdown of lightly-magic
+--------------------------
+
+If you want to break the lightly-magic command into separate steps,
+you can use the following:
+
+.. code-block:: bash
+
+    # lightly-magic command
+    lightly-magic input_dir=data_dir token=yourToken new_dataset_name=myNewDataset
+
+    # equivalent breakdown into single commands
+
+    # train the embedding model
+    lightly-train input_dir=data_dir
+    # embed the images with the embedding model jsut trained
+    lightly-embed input_dir=data_dir checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH
+    # upload the dataset without embeddings
+    lightly-upload input_dir=data_dir token=yourToken new_dataset_name=myNewDataset
+    # upload the embeddings to the dataset just created
+    lightly-upload embeddings=$LIGHTLY_LAST_EMBEDDING_PATH token=yourToken \
+    dataset_id=$LIGHTLY_LAST_DATASET_ID
 
 
 
