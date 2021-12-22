@@ -124,6 +124,26 @@ class TestDownload(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     download.download_video_frame(file.name, -1 / fps)
 
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
+    def test_download_video_frame_time_unit(self):
+        n_frames = 10
+        for fps in range(1, 5):
+            with tempfile.NamedTemporaryFile(suffix='.avi') as file, \
+                self.subTest(msg=f'fps={fps}'):
+
+                _generate_video(file.name, n_frames=n_frames, fps=fps)
+                frame_sec = download.download_video_frame(
+                    file.name,
+                    timestamp=1,
+                    time_unit='sec'
+                )
+                frame_pts = download.download_video_frame(
+                    file.name, 
+                    timestamp=fps, # pts == fps after 1 second
+                    time_unit='pts'
+                )
+                assert _images_equal(frame_pts, frame_sec)
+
     def test_download_and_write_file(self):
         original = _pil_image()
         with tempfile.NamedTemporaryFile(suffix='.png') as file1, \

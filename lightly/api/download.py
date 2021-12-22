@@ -85,6 +85,7 @@ def download_video_frame(
     as_pil_image: int = True,
     thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
     video_channel: int = 0,
+    time_unit: str = 'sec',
 ) -> Union[PIL.Image.Image, av.VideoFrame]:
     """Retrieves a specific frame from a video stored at the given url.
 
@@ -92,7 +93,7 @@ def download_video_frame(
         url: 
             The url where the video is downloaded from.
         timestamp:
-            Timestamp in seconds from the start of the video at
+            Timestamp in time_unit from the start of the video at
             which the frame should be retrieved.
         as_pil_image:
             Whether to return the frame as PIL.Image.
@@ -102,6 +103,8 @@ def download_video_frame(
             for details.
         video_channel:
             The video channel from which frames are loaded.
+        time_unit:
+            One of 'sec' or 'pts'. Determines how timestamp is interpreted.
 
     Returns:
         The downloaded video frame.
@@ -110,11 +113,18 @@ def download_video_frame(
     _check_av_available()
     if timestamp < 0:
         raise ValueError(f"Negative timestamp is not allowed: {timestamp}")
+    if time_unit not in ('sec', 'pts'):
+        raise ValueError(f"time_unit must be 'sec' or 'pts' but is {time_unit}")
 
     container = av.open(url)
     stream = container.streams.video[video_channel]
     stream.thread_type = thread_type
-    offset = int(timestamp / stream.time_base)
+    
+    if time_unit == 'sec':
+        offset = int(timestamp / stream.time_base)
+    else:
+        offset = int(timestamp)
+
     duration = stream.duration
     if offset >= duration:
         duration_seconds = duration * stream.time_base
