@@ -7,6 +7,23 @@ from lightly.openapi_generated.swagger_client.models.dataset_data import Dataset
 
 class _DatasetsMixin:
 
+    @property
+    def dataset_type(self) -> str:
+        """Returns the dataset type of the current dataset.
+        
+        """
+        dataset = self._get_current_dataset()
+        return dataset.type # type: ignore
+
+    def _get_current_dataset(self) -> DatasetData:
+        """Returns the dataset with id == self.dataset_id.
+        
+        """
+        dataset_id = self.dataset_id
+        datasets: List[DatasetData] = self._datasets_api.get_datasets()
+        dataset = next(dataset for dataset in datasets if dataset.id == dataset_id)
+        return dataset
+
     def set_dataset_id_by_name(self, dataset_name: str):
         """Sets the dataset id given the name of the dataset
 

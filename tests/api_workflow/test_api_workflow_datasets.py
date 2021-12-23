@@ -44,4 +44,8 @@ class TestApiWorkflowDatasets(MockedApiWorkflowSetup):
         self.api_workflow_client.delete_dataset_by_id(self.api_workflow_client.dataset_id)
         assert not hasattr(self, "_dataset_id")
 
+    def test_dataset_type(self):
+        self.api_workflow_client._datasets_api.reset()
+        self.api_workflow_client.create_dataset(dataset_name="some_dataset")
+        assert self.api_workflow_client.dataset_type == "Images"
 
