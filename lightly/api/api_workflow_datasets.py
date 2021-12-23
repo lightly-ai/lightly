@@ -21,8 +21,8 @@ class _DatasetsMixin:
         """
         dataset_id = self.dataset_id
         datasets: List[DatasetData] = self._datasets_api.get_datasets()
-        datasets = [dataset for dataset in datasets if dataset.id == dataset_id]
-        return datasets[0]
+        dataset = next(dataset for dataset in datasets if dataset.id == dataset_id)
+        return dataset
 
     def set_dataset_id_by_name(self, dataset_name: str):
         """Sets the dataset id given the name of the dataset
