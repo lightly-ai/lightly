@@ -104,7 +104,9 @@ def download_video_frame(
         video_channel:
             The video channel from which frames are loaded.
         time_unit:
-            One of 'sec' or 'pts'. Determines how timestamp is interpreted.
+            One of 'sec' or 'pts'. Determines how timestamp is interpreted. See
+            https://pyav.org/docs/stable/api/time.html for more details on how
+            time is defined in videos.
 
     Returns:
         The downloaded video frame.
@@ -121,6 +123,9 @@ def download_video_frame(
     stream.thread_type = thread_type
     
     if time_unit == 'sec':
+        # Add 1 to offset because seconds are zero-based whereas pts are
+        # one-based. The first frame in a video has therefore always pts == 1,
+        # which should correspond to sec == 0.
         offset = int(timestamp / stream.time_base) + 1
     else:
         offset = timestamp
