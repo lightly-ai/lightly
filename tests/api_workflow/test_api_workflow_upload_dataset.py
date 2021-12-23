@@ -13,14 +13,20 @@ from lightly.data.dataset import LightlyDataset
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 import cv2
+import warnings
 
 
 class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
     def setUp(self) -> None:
         MockedApiWorkflowSetup.setUp(self)
+        warnings.filterwarnings("ignore", category=UserWarning)
         self.n_data = 100
         self.create_fake_dataset()
         self.api_workflow_client._tags_api.no_tags = 0
+        
+
+    def tearDown(self) -> None:
+        warnings.resetwarnings()
 
     def create_fake_dataset(self, length_of_filepath: int = -1, sample_names=None):
         n_data = self.n_data if sample_names is None else len(sample_names)

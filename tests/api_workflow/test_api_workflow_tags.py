@@ -1,6 +1,7 @@
 import os
 import tempfile
 import unittest
+import warnings
 
 import numpy as np
 
@@ -17,12 +18,16 @@ class TestApiWorkflowTags(MockedApiWorkflowSetup):
 
     def setUp(self) -> None:
         lightly.api.api_workflow_client.__version__ = lightly.__version__
+        warnings.filterwarnings("ignore", category=UserWarning)
         self.api_workflow_client = MockedApiWorkflowClient(token="token_xyz")
 
         self.valid_tag_name = self.api_workflow_client.get_all_tags()[0].name
         self.invalid_tag_name = "invalid_tag_name_xyz"
         self.valid_tag_id = self.api_workflow_client.get_all_tags()[0].id
         self.invalid_tag_id = "invalid-tag_id_xyz"
+
+    def tearDown(self) -> None:
+        warnings.resetwarnings()
 
     def test_get_all_tags(self):
         self.api_workflow_client.get_all_tags()
