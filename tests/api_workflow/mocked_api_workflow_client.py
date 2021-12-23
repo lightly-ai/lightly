@@ -277,7 +277,7 @@ class MockedDatasetsApi(DatasetsApi):
         if body.name == 'xyz-no-tags':
             id = 'xyz-no-tags'
         dataset = DatasetData(id=id, name=body.name, last_modified_at=len(self.datasets) + 1,
-                              type="", size_in_bytes=-1, n_samples=-1, created_at=-1)
+                              type="Images", size_in_bytes=-1, n_samples=-1, created_at=-1)
         self.datasets += [dataset]
         response_ = CreateEntityResponse(id=id)
         return response_
