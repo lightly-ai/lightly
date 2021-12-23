@@ -15,7 +15,7 @@ class _DatasetsMixin:
         dataset = self._get_current_dataset()
         return dataset.type # type: ignore
 
-    def _get_current_dataset(self):
+    def _get_current_dataset(self) -> DatasetData:
         """Returns the dataset with id == self.dataset_id.
         
         """
