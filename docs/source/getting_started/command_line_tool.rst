@@ -112,7 +112,6 @@ Lightly-magic is a singular command for training, embedding, and uploading to th
     lightly-magic input_dir=data_dir trainer.max_epochs=0 loader.batch_size=128 \
     loader.num_workers=8 token=yourToken new_dataset_name=myNewDataset
 
-
 Train a model using the CLI
 ---------------------------------------
 Training a model using default parameters can be done with just one command. Let's
@@ -129,6 +128,15 @@ You can use the following command to train a model and save the checkpoint:
 
     # continue training from a checkpoint for another 10 epochs
     lightly-train input_dir=cat trainer.max_epochs=10 checkpoint=mycheckpoint.ckpt
+
+    # continue training from the last checkpoint
+    lightly-train input_dir=cat trainer.max_epochs=10 \
+                  checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH
+
+The path to the latest checkpoint you created using the `lightly-train` command
+will be saved under an environment variable named LIGHTLY_LAST_CHECKPOINT_PATH.
+This can be useful for continuing training or for creating embeddings from
+a checkpoint.
 
 For a full list of supported arguments run
 
@@ -155,6 +163,13 @@ Once you have a trained model checkpoint, you can create an embedding of a datas
     # use custom checkpoint
     lightly-embed input_dir=cat checkpoint=mycheckpoint.ckpt
 
+    # use the last checkpoint you created
+    lightly-embed input_dir=cat checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH
+
+The path to the latest embeddings you created using the `lightly-embed` command
+will be saved under an environment variable named LIGHTLY_LAST_EMBEDDING_PATH.
+This can be useful if you want to use the embeddings in the next step,
+e.g. for uploading them to the Lightly Platform.
 
 The embeddings.csv file should look like the following:
 
@@ -191,6 +206,10 @@ by providing the *new_dataset_name* instead of the *dataset_id*.
     # create a new dataset and upload to it
     lightly-upload input_dir=cat token=your_token new_dataset_name=your_dataset_name
 
+    # upload the dataset together with the last embeddings you created
+    lightly-upload input_dir=cat embeddings=$LIGHTLY_LAST_EMBEDDING_PATH \
+                       token=your_token dataset_id=your_dataset_id
+
 .. note:: To obtain your *token* and *dataset_id* check: 
           :ref:`ref-authentication-token` and :ref:`ref-webapp-dataset-id`.
 
@@ -202,6 +221,8 @@ Upload embeddings using the CLI
 
 You can upload embeddings directly to the Lightly Platform using the CLI.
 Again, you can use the *dataset_id* and *new_dataset_name* interchangeably.
+Embeddings are uploaded under the name *default*.
+You can use a custom name for the embeddings using the *embedding_name* parameter.
 
 .. code-block:: bash
 
@@ -212,6 +233,19 @@ Again, you can use the *dataset_id* and *new_dataset_name* interchangeably.
     # you can upload the dataset together with the embeddings
     lightly-upload input_dir=cat embeddings=your_embedding.csv \
                    token=your_token new_dataset_name=your_dataset_name
+
+    # you can upload the embeddings under a specific name
+    lightly-upload embeddings=your_embedding.csv token=your_token \
+                   new_dataset_name=your_dataset_name embedding_name=embedding_1
+
+    # you can upload the latest embeddings you created to the latest dataset you created
+    lightly-upload embeddings=$LIGHTLY_LAST_EMBEDDING_PATH token=your_token \
+                       dataset_id=$LIGHTLY_LAST_DATASET_ID
+
+The dataset_id of the latest dataset you used in the `lightly-upload` command
+will always be saved under an environment variable named LIGHTLY_LAST_DATASET_ID.
+This can be useful if you created a new dataset with the argument `new_dataset_name`
+and want to use this dataset in the following.
 
 
 .. _ref-upload-custom-metadata-lightly:
@@ -266,6 +300,31 @@ without the need to download them explicitly.
     # copy images from an input directory to an output directory
     lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token \
                      input_dir=path/to/input/dir output_dir=path/to/output/dir
+
+.. _ref-breakdown-lightly-magic:
+
+Breakdown of lightly-magic
+--------------------------
+
+If you want to break the lightly-magic command into separate steps,
+you can use the following:
+
+.. code-block:: bash
+
+    # lightly-magic command
+    lightly-magic input_dir=data_dir token=yourToken new_dataset_name=myNewDataset
+
+    # equivalent breakdown into single commands
+
+    # train the embedding model
+    lightly-train input_dir=data_dir
+    # embed the images with the embedding model just trained
+    lightly-embed input_dir=data_dir checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH
+    # upload the dataset without embeddings
+    lightly-upload input_dir=data_dir token=yourToken new_dataset_name=myNewDataset
+    # upload the embeddings to the dataset just created
+    lightly-upload embeddings=$LIGHTLY_LAST_EMBEDDING_PATH token=yourToken \
+    dataset_id=$LIGHTLY_LAST_DATASET_ID embedding_name=embedding_1
 
 
 
