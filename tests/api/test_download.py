@@ -93,69 +93,49 @@ class TestDownload(unittest.TestCase):
                 assert _images_equal(frame, orig)
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
-    def test_download_video_frame(self):
-        with tempfile.NamedTemporaryFile(suffix='.avi') as file:
-            original = _generate_video(file.name)
-            for timestamp, orig in enumerate(original):
-                frame = download.download_video_frame(file.name, timestamp)
-                assert _images_equal(frame, orig)
-
-    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_fps(self):
-        for fps in range(1, 5):
+        for fps in [24, 30, 60]:
             with self.subTest(msg=f"fps={fps}"), \
                 tempfile.NamedTemporaryFile(suffix='.avi') as file:
 
                 original = _generate_video(file.name, fps=fps)
-                for timestamp, orig in enumerate(original):
-                    frame = download.download_video_frame(file.name, timestamp / fps)
-                    assert _images_equal(frame, orig)
+                all_frames = download.download_all_video_frames(
+                    file.name,
+                    as_pil_image=False,
+                )
+                for true_frame in all_frames:
+                    frame = download.download_video_frame(
+                        file.name,
+                        timestamp=true_frame.pts,
+                        as_pil_image=False,
+                    )
+                    assert frame.pts == true_frame.pts
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_timestamp_exception(self):
-        for fps in range(1, 5):
+        for fps in [24, 30, 60]:
             with self.subTest(msg=f"fps={fps}"), \
                 tempfile.NamedTemporaryFile(suffix='.avi') as file:
 
                 original = _generate_video(file.name, fps=fps)
 
                 # this should be the last frame and exist
-                frame = download.download_video_frame(file.name, (len(original) - 1) / fps)
+                frame = download.download_video_frame(file.name, len(original))
                 assert _images_equal(frame, original[-1])
 
                 # timestamp after last frame
                 with self.assertRaises(ValueError):
-                    download.download_video_frame(file.name, len(original) / fps)
+                    download.download_video_frame(file.name, len(original) + 1)
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_negative_timestamp_exception(self):
-        for fps in range(1, 5):
+        for fps in [24, 30, 60]:
             with self.subTest(msg=f"fps={fps}"), \
                 tempfile.NamedTemporaryFile(suffix='.avi') as file:
                 
                 _generate_video(file.name, fps=fps)
                 with self.assertRaises(ValueError):
-                    download.download_video_frame(file.name, -1 / fps)
-
-    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
-    def test_download_video_frame_time_unit(self):
-        n_frames = 10
-        for fps in range(1, 5):
-            with tempfile.NamedTemporaryFile(suffix='.avi') as file, \
-                self.subTest(msg=f'fps={fps}'):
-
-                _generate_video(file.name, n_frames=n_frames, fps=fps)
-                frame_sec = download.download_video_frame(
-                    file.name,
-                    timestamp=1,
-                    time_unit='sec'
-                )
-                frame_pts = download.download_video_frame(
-                    file.name, 
-                    timestamp=fps + 1, # pts = sec * fps + 1
-                    time_unit='pts'
-                )
-                assert _images_equal(frame_pts, frame_sec)
+                    download.download_video_frame(file.name, -1)
 
     def test_download_and_write_file(self):
         original = _pil_image()
@@ -206,7 +186,7 @@ class TestDownload(unittest.TestCase):
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_count(self):
         fps = 24
-        for true_n_frames in range(1, 5):
+        for true_n_frames in [24, 30, 60]:
             for suffix in ['.avi', '.mpeg']:
                 with tempfile.NamedTemporaryFile(suffix=suffix) as file, \
                     self.subTest(msg=f'n_frames={true_n_frames}, extension={suffix}'):
@@ -264,7 +244,7 @@ def _generate_video(
     width=100, 
     height=50, 
     seed=0, 
-    fps=1,
+    fps=24,
     broken=False,
 ):
     """Generate a video.
