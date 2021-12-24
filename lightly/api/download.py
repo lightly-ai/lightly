@@ -5,12 +5,12 @@ import shutil
 import threading
 import warnings
 from concurrent.futures import ThreadPoolExecutor
-from typing import List, Iterable, Union, Tuple, Dict
+from typing import Dict, Iterable, List, Tuple, Union
 
+import PIL
 import requests
 import tqdm
 from lightly.api import utils
-import PIL
 
 try:
     import av
@@ -81,20 +81,23 @@ def download_all_video_frames(
 
 def download_video_frame(
     url: str, 
-    timestamp: float, 
+    timestamp: int, 
     as_pil_image: int = True,
     thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
     video_channel: int = 0,
-    time_unit: str = 'sec',
-) -> Union[PIL.Image.Image, av.VideoFrame]:
+) -> Union[PIL.Image.Image, av.VideoFrame, None]:
     """Retrieves a specific frame from a video stored at the given url.
+
+    Finds the first frame in the video that has a timestamp equal or larger than
+    the timestamp argument.
 
     Args:
         url: 
             The url where the video is downloaded from.
         timestamp:
-            Timestamp in time_unit from the start of the video at
-            which the frame should be retrieved.
+            Timestamp in pts from the start of the video at which the frame 
+            should be retrieved. See https://pyav.org/docs/develop/api/time.html#time
+            for details on pts.
         as_pil_image:
             Whether to return the frame as PIL.Image.
         thread_type:
@@ -103,49 +106,37 @@ def download_video_frame(
             for details.
         video_channel:
             The video channel from which frames are loaded.
-        time_unit:
-            One of 'sec' or 'pts'. Determines how timestamp is interpreted. See
-            https://pyav.org/docs/stable/api/time.html for more details on how
-            time is defined in videos.
 
     Returns:
-        The downloaded video frame.
+        The downloaded video frame or None if no frame could be found.
 
     """
     _check_av_available()
     if timestamp < 0:
         raise ValueError(f"Negative timestamp is not allowed: {timestamp}")
-    if time_unit not in ('sec', 'pts'):
-        raise ValueError(f"time_unit must be 'sec' or 'pts' but is {time_unit}")
 
     container = av.open(url)
     stream = container.streams.video[video_channel]
     stream.thread_type = thread_type
     
-    if time_unit == 'sec':
-        # Add 1 to offset because seconds are zero-based whereas pts are
-        # one-based. The first frame in a video has therefore always pts == 1,
-        # which should correspond to sec == 0.
-        offset = int(timestamp / stream.time_base) + 1
-    else:
-        offset = timestamp
-
     duration = stream.duration
-    if offset > duration:
-        if time_unit == 'sec':
-            duration = duration * stream.time_base
-        raise ValueError(
-            f"Timestamp ({timestamp}) larger than "
-            f"video duration ({duration} {time_unit})."
-        )
+    start_time = stream.start_time
+    if (duration is not None) and (start_time is not None):
+        end_time = duration + start_time
+        if timestamp > end_time:
+            raise ValueError(
+                f"Timestamp ({timestamp} pts) exceeds maximum video timestamp "
+                f"({end_time} pts)."
+            )
     # seek to last keyframe before the timestamp
-    container.seek(offset - 1, any_frame=False, backward=True, stream=stream)
-    # advance from keyframe until correct offset is reached
+    container.seek(timestamp, any_frame=False, backward=True, stream=stream)
+    # advance from keyframe until correct timestamp is reached
     frame = None
     for frame in container.decode(stream):
-        if frame.pts >= offset:
+        if frame.pts >= timestamp:
             break
     container.close()
+
     if as_pil_image:
         return frame.to_image()
     return frame
