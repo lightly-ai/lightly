@@ -199,32 +199,62 @@ you can use a simple script to translate it to the coco format:
 
 .. code-block:: python
 
-    import numpy as np
+    ## OPTION 1: pandas dataframe with named columns
+    # This works well if you have many columns and column names
+    import pandas as pd
+    from lightly.utils import save_custom_metadata
+
+    # Define the pandas dataframe
+    column_names = ["filename", "number_of_pedestrians", "scenario", "temperature"]
+    rows = [
+        ["image0.jpg", 3, "cloudy", 20.3],
+        ["image1.jpg", 1, "rainy", 15.0]
+    ]
+    df = pd.DataFrame(rows, columns=column_names)
+
+    # create a list of pairs of (filename, metadata)
+    # metadata must be a dictionary
+    custom_metadata = []
+    for data in df.itertuples():
+        filename = data.filename
+        metadata = data._asdict()
+        del metadata['filename']
+        del metadata['Index']
+        custom_metadata.append((filename, metadata))
+
+    # save custom metadata in the correct json format
+    output_file = "custom_metadata.json"
+    save_custom_metadata(output_file, custom_metadata)
+
+
+    ## OPTION 2: pandas dataframe without named columns
+    # As the metadata has to be defined by hand anyway,
+    # it can easily put into nested dictionaries
     import pandas as pd
 
     from lightly.utils import save_custom_metadata
 
-    # Let's assume you have your data in form of a pandas dataframe
-    df = pd.DataFrame({
-        "image0.jpg": [3, "cloudy", 20.3],
-        "image1.jpg": [1, "rainy", 15.0]
-    })
-    output_file = "custom_metadata.json"
+     # Define the pandas dataframe
+     df = pd.DataFrame({
+         "image0.jpg": [3, "cloudy", 20.3],
+         "image1.jpg": [1, "rainy", 15.0]
+     })
 
-    # create a list of pairs of (filename, metadata)
-    custom_metadata = []
-    for filename, data in df.items():
-        metadata = {
-         "number_of_pedestrians": int(data[0]),
-         "weather": {
-            "scenario": str(data[1]),
-            "temperature": float(data[2])
+     # create a list of pairs of (filename, metadata)
+     custom_metadata = []
+     for filename, data in df.items():
+         metadata = {
+          "number_of_pedestrians": int(data[0]),
+          "weather": {
+             "scenario": str(data[1]),
+             "temperature": float(data[2])
+          }
          }
-        }
-        custom_metadata.append((filename, metadata))
+         custom_metadata.append((filename, metadata))
 
-    # save custom metadata in the correct json format
-    save_custom_metadata(output_file, custom_metadata)
+     # save custom metadata in the correct json format
+     output_file = "custom_metadata.json"
+     save_custom_metadata(output_file, custom_metadata)
 
 
 .. note:: Make sure that the custom metadata is present for every image. The metadata
