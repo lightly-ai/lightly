@@ -1,11 +1,12 @@
 import time
 from typing import List, Tuple
 
-from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import DatasourceProcessedUntilTimestampRequest
-from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import DatasourceProcessedUntilTimestampResponse
-
-from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import DatasourceRawSamplesData
-
+from lightly.api.openapi_generated.swagger_client.model.datasource_processed_until_timestamp_request import \
+    DatasourceProcessedUntilTimestampRequest
+from lightly.api.openapi_generated.swagger_client.model.datasource_processed_until_timestamp_response import \
+    DatasourceProcessedUntilTimestampResponse
+from lightly.api.openapi_generated.swagger_client.model.datasource_raw_samples_data import \
+    DatasourceRawSamplesData
 
 
 class _DatasourcesMixin:

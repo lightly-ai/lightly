@@ -1,8 +1,13 @@
 from typing import *
 
 from lightly.api.bitmask import BitMask
-from lightly.openapi_generated.swagger_client import TagData, \
-    TagArithmeticsRequest, TagArithmeticsOperation, TagBitMaskResponse
+from lightly.api.openapi_generated.swagger_client.model.tag_arithmetics_operation import \
+    TagArithmeticsOperation
+from lightly.api.openapi_generated.swagger_client.model.tag_arithmetics_request import \
+    TagArithmeticsRequest
+from lightly.api.openapi_generated.swagger_client.model.tag_bit_mask_response import \
+    TagBitMaskResponse
+from lightly.api.openapi_generated.swagger_client.model.tag_data import TagData
 
 
 class TagDoesNotExistError(ValueError):

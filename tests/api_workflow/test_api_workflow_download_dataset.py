@@ -12,7 +12,7 @@ import lightly
 from lightly.data.dataset import LightlyDataset
 
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
-from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
+from lightly.api.openapi_generated.swagger_client.model.dataset_data import DatasetData
 
 
 

@@ -3,7 +3,7 @@ from bisect import bisect_left
 
 import tqdm
 
-from lightly.openapi_generated.swagger_client.models.sample_update_request import \
+from lightly.api.openapi_generated.swagger_client.model.sample_update_request import \
     SampleUpdateRequest
 from lightly.utils.io import COCO_ANNOTATION_KEYS
 

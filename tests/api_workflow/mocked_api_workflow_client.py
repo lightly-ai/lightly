@@ -8,11 +8,11 @@ import json
 
 import numpy as np
 from requests import Response
-from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import DatasourceProcessedUntilTimestampResponse
+from lightly.api.openapi_generated.swagger_client.model.datasource_processed_until_timestamp_response import DatasourceProcessedUntilTimestampResponse
 
-from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
-from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
-from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
+from lightly.api.openapi_generated.swagger_client.model.tag_creator import TagCreator
+from lightly.api.openapi_generated.swagger_client.model.dataset_create_request import DatasetCreateRequest
+from lightly.api.openapi_generated.swagger_client.model.dataset_data import DatasetData
 from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
 from lightly.openapi_generated.swagger_client.api.datasources_api import DatasourcesApi
 from lightly.openapi_generated.swagger_client.rest import ApiException
@@ -33,21 +33,21 @@ from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
 from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
 from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
-from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData
-from lightly.openapi_generated.swagger_client.models.dataset_embedding_data import DatasetEmbeddingData
-from lightly.openapi_generated.swagger_client.models.job_result_type import JobResultType
-from lightly.openapi_generated.swagger_client.models.job_state import JobState
-from lightly.openapi_generated.swagger_client.models.job_status_data import JobStatusData
-from lightly.openapi_generated.swagger_client.models.job_status_data_result import JobStatusDataResult
-from lightly.openapi_generated.swagger_client.models.sampling_create_request import SamplingCreateRequest
-from lightly.openapi_generated.swagger_client.models.tag_data import TagData
-from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
-from lightly.openapi_generated.swagger_client.models.datasource_config import DatasourceConfig
-from lightly.openapi_generated.swagger_client.models.datasource_config_local import DatasourceConfigLOCAL
-from lightly.openapi_generated.swagger_client.models.datasource_config_base import DatasourceConfigBase
-from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import DatasourceProcessedUntilTimestampRequest
-from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import DatasourceRawSamplesData
-from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import DatasourceRawSamplesDataRow
+from lightly.api.openapi_generated.swagger_client.model.async_task_data import AsyncTaskData
+from lightly.api.openapi_generated.swagger_client.model.dataset_embedding_data import DatasetEmbeddingData
+from lightly.api.openapi_generated.swagger_client.model.job_result_type import JobResultType
+from lightly.api.openapi_generated.swagger_client.model.job_state import JobState
+from lightly.api.openapi_generated.swagger_client.model.job_status_data import JobStatusData
+from lightly.api.openapi_generated.swagger_client.model.job_status_data_result import JobStatusDataResult
+from lightly.api.openapi_generated.swagger_client.model.sampling_create_request import SamplingCreateRequest
+from lightly.api.openapi_generated.swagger_client.model.tag_data import TagData
+from lightly.api.openapi_generated.swagger_client.model.write_csv_url_data import WriteCSVUrlData
+from lightly.api.openapi_generated.swagger_client.model.datasource_config import DatasourceConfig
+from lightly.api.openapi_generated.swagger_client.model.datasource_config_local import DatasourceConfigLOCAL
+from lightly.api.openapi_generated.swagger_client.model.datasource_config_base import DatasourceConfigBase
+from lightly.api.openapi_generated.swagger_client.model.datasource_processed_until_timestamp_request import DatasourceProcessedUntilTimestampRequest
+from lightly.api.openapi_generated.swagger_client.model.datasource_raw_samples_data import DatasourceRawSamplesData
+from lightly.api.openapi_generated.swagger_client.model.datasource_raw_samples_data_row import DatasourceRawSamplesDataRow
 
 
 def _check_dataset_id(dataset_id: str):

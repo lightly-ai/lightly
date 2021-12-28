@@ -112,7 +112,6 @@ else:
     from lightly import embedding
     from lightly import loss
     from lightly import models
-    from lightly import openapi_generated
     from lightly import transforms
     from lightly import utils
     

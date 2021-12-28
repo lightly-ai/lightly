@@ -15,10 +15,10 @@ from lightly.active_learning.config.sampler_config import SamplerConfig
 
 from lightly.api.bitmask import BitMask
 
-from lightly.openapi_generated.swagger_client.models.tag_create_request import TagCreateRequest
+from lightly.api.openapi_generated.swagger_client.model.tag_create_request import TagCreateRequest
 
 from lightly.active_learning.agents.agent import ActiveLearningAgent
-from lightly.openapi_generated.swagger_client.models.sampling_method import SamplingMethod
+from lightly.api.openapi_generated.swagger_client.model.sampling_method import SamplingMethod
 
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.utils import save_embeddings
@@ -79,6 +79,8 @@ def create_new_dataset_with_embeddings(path_to_dataset: str,
         f"dataset_id={api_workflow_client.dataset_id}"
         ])
     upload_cli(cfg)
+    if True:
+        upload_cli(cfg)
 
     # calculate and save the embeddings
     path_to_embeddings_csv = f"{path_to_dataset}/embeddings.csv"

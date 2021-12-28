@@ -3,15 +3,20 @@ from typing import Dict, List, Union
 
 import numpy as np
 
-from lightly.active_learning.config.sampler_config import SamplerConfig
-from lightly.openapi_generated.swagger_client import ActiveLearningScoreCreateRequest
-from lightly.openapi_generated.swagger_client.models.job_state import JobState
-from lightly.openapi_generated.swagger_client.models.job_status_data import JobStatusData
-from lightly.openapi_generated.swagger_client.models.tag_data import TagData
-from lightly.openapi_generated.swagger_client.models.sampling_config import SamplingConfig
-from lightly.openapi_generated.swagger_client.models.sampling_create_request import SamplingCreateRequest
-from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import \
+from lightly.active_learning.config import SamplerConfig
+from lightly.api.openapi_generated.swagger_client.model.active_learning_score_create_request import \
+    ActiveLearningScoreCreateRequest
+from lightly.api.openapi_generated.swagger_client.model.job_state import \
+    JobState
+from lightly.api.openapi_generated.swagger_client.model.job_status_data import \
+    JobStatusData
+from lightly.api.openapi_generated.swagger_client.model.sampling_config import \
+    SamplingConfig
+from lightly.api.openapi_generated.swagger_client.model.sampling_config_stopping_condition import \
     SamplingConfigStoppingCondition
+from lightly.api.openapi_generated.swagger_client.model.sampling_create_request import \
+    SamplingCreateRequest
+from lightly.api.openapi_generated.swagger_client.model.tag_data import TagData
 
 
 def _parse_active_learning_scores(scores: Union[np.ndarray, List]):
@@ -59,8 +64,6 @@ class _SamplingMixin:
         Args:
             sampler_config:
                 The configuration of the sampler.
-            al_scores:
-                The active learning scores for the sampler.
             preselected_tag_id:
                 The tag defining the already chosen samples (e.g. already labelled ones), default: None.
             query_tag_id:

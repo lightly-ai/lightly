@@ -9,7 +9,7 @@ from lightly.active_learning.agents.agent import ActiveLearningAgent
 from lightly.active_learning.config.sampler_config import SamplerConfig
 from lightly.active_learning.scorers.classification import ScorerClassification
 from lightly.openapi_generated.swagger_client import SamplingMethod
-from lightly.openapi_generated.swagger_client.models.tag_data import TagData
+from lightly.api.openapi_generated.swagger_client.model.tag_data import TagData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowClient, MockedApiWorkflowSetup
 
 

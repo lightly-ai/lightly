@@ -1,17 +1,18 @@
 import io
 import csv
 import tempfile
-import hashlib
 from datetime import datetime
 from typing import List
 from urllib.request import Request, urlopen
 
-from lightly.openapi_generated.swagger_client import \
-    DimensionalityReductionMethod, Trigger2dEmbeddingJobRequest
-from lightly.openapi_generated.swagger_client.models.dataset_embedding_data \
-    import DatasetEmbeddingData
-from lightly.openapi_generated.swagger_client.models.write_csv_url_data \
-    import WriteCSVUrlData
+from lightly.api.openapi_generated.swagger_client.model.dataset_embedding_data import \
+    DatasetEmbeddingData
+from lightly.api.openapi_generated.swagger_client.model.dimensionality_reduction_method import \
+    DimensionalityReductionMethod
+from lightly.api.openapi_generated.swagger_client.model.trigger2d_embedding_job_request import \
+    Trigger2dEmbeddingJobRequest
+from lightly.api.openapi_generated.swagger_client.model.write_csv_url_data import \
+    WriteCSVUrlData
 from lightly.utils.io import check_filenames
 
 

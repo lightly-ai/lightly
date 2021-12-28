@@ -19,14 +19,10 @@ from tqdm import tqdm
 import lightly.data as data
 from lightly.cli._helpers import fix_input_path, print_as_warning
 
-from lightly.api.utils import getenv
 from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.api.bitmask import BitMask
-from lightly.openapi_generated.swagger_client import TagData, TagArithmeticsRequest, TagArithmeticsOperation, \
-    TagBitMaskResponse
 
 
-def _download_cli(cfg, is_cli_call=True):
+def _download_cli(cfg):
 
     tag_name = str(cfg['tag_name'])
     dataset_id = str(cfg['dataset_id'])

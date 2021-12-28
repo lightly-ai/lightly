@@ -3,12 +3,10 @@ import warnings
 from multiprocessing import current_process
 from typing import Tuple
 
-import requests
-
-from lightly.openapi_generated.swagger_client import VersioningApi, VersionNumber
-from lightly.openapi_generated.swagger_client.api_client import ApiClient
-
-from lightly.openapi_generated.swagger_client.configuration import Configuration
+from lightly.api.openapi_generated.swagger_client import Configuration, \
+    ApiClient
+from lightly.api.openapi_generated.swagger_client.api.versioning_api import \
+    VersioningApi
 from lightly.api.utils import getenv
 
 
@@ -62,7 +60,8 @@ def get_latest_version(current_version: str) -> Tuple[None, str]:
 
 def get_minimum_compatible_version():
     versioning_api = get_versioning_api()
-    version_number: str = versioning_api.get_minimum_compatible_pip_version()
+    version_number = versioning_api.get_minimum_compatible_pip_version()
+    version_number = str(version_number)
     return version_number
 
 

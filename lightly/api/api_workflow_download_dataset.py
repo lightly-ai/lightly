@@ -1,19 +1,12 @@
-import warnings
-from concurrent.futures.thread import ThreadPoolExecutor
-from typing import Union
 import io
 import os
 import tqdm
 from urllib.request import Request, urlopen
 from PIL import Image
 
-from lightly.openapi_generated.swagger_client import TagCreator
-from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
 from lightly.api.bitmask import BitMask
-from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
-from lightly.openapi_generated.swagger_client.models.image_type import ImageType
-from lightly.data.dataset import LightlyDataset
-
+from lightly.api.openapi_generated.swagger_client.model.image_type import \
+    ImageType
 
 
 def _make_dir_and_save_image(output_dir: str, filename: str, img: Image):
