@@ -6,6 +6,10 @@ from lightly.api.openapi_generated.swagger_client.model.dataset_create_request i
     DatasetCreateRequest
 from lightly.api.openapi_generated.swagger_client.model.dataset_data import \
     DatasetData
+from lightly.api.openapi_generated.swagger_client.model.dataset_name import \
+    DatasetName
+from lightly.api.openapi_generated.swagger_client.model.mongo_object_id import \
+    MongoObjectID
 
 
 class _DatasetsMixin:
@@ -73,8 +77,8 @@ class _DatasetsMixin:
                 The name of the dataset to be created.
 
         """
-        body = DatasetCreateRequest(name=dataset_name)
-        response: CreateEntityResponse = self._datasets_api.create_dataset(body=body)
+        body = DatasetCreateRequest(name=DatasetName(dataset_name))
+        response: CreateEntityResponse = self._datasets_api.create_dataset(body)
         self._dataset_id = response.id
 
     def create_new_dataset_with_unique_name(self, dataset_basename: str):
@@ -90,7 +94,7 @@ class _DatasetsMixin:
         """
         current_datasets: List[DatasetData] \
             = self._datasets_api.get_datasets()
-        current_datasets_names = [dataset.name for dataset in current_datasets]
+        current_datasets_names = [dataset.name.value for dataset in current_datasets]
 
         if dataset_basename not in current_datasets_names:
             self._create_dataset_without_check_existing(dataset_name=dataset_basename)

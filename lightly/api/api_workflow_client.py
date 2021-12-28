@@ -73,8 +73,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
 
         configuration = Configuration(
             host=getenv('LIGHTLY_SERVER_LOCATION', 'https://api.lightly.ai'),
-            api_key={'token': token},
-            access_token=token
+            api_key={'ApiKeyAuth': token},
         )
         api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
