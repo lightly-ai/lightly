@@ -15,18 +15,18 @@ the full images will be loaded.
 However, the thumbnails will be stored in you bucket and thus need storage.
 You have three options:
 
-A) You want to use thumbnails, but don't have them yet. Then you need to give
-Lightly write access to your bucket to create the thumbnails there for you.
-The write access can be configured not to allow overwriting and
-deleting, thus existing data cannot get lost.
+-   You want to use thumbnails, but don't have them yet. Then you need to give
+    Lightly write access to your bucket to create the thumbnails there for you.
+    The write access can be configured not to allow overwriting and
+    deleting, thus existing data cannot get lost.
 
-B) You already have thumbnails in your bucket with a consistent name scheme, e.g.
-an image called `img.jpg` has a corresponding thumbnail called `img_thumb.jpg`.
-In this case, a read access to your bucket is sufficient.
+-   You already have thumbnails in your bucket with a consistent name scheme, e.g.
+    an image called `img.jpg` has a corresponding thumbnail called `img_thumb.jpg`.
+    In this case, a read access to your bucket is sufficient.
 
-C) You don't want to use thumbnails. Then a read access to your bucket
-is sufficient. The Lightly Platform will load the full image
-even when requesting the thumbnail.
+-   You don't want to use thumbnails. Then a read access to your bucket
+    is sufficient. The Lightly Platform will load the full image
+    even when requesting the thumbnail.
 
 Depending on this decision, the following steps will differ slightly.
 
@@ -71,7 +71,7 @@ If it is not, change it to uniform.
 - Click on `Add Permissions`, search for `storage.objects`
 - Add the permissions `storage.objects.get`, `storage.objects.list`, and `storage.objects.create`.
   The create permissions are needed if you want Lightly to create thumbnails
-  in your bucket (Option A). Otherwise (Option B and C) you can leave them away.
+  in your bucket . Otherwise you can leave them away.
 - After adding the permissions, create the role.
 
 .. figure:: ./images_gcloud_bucket/screenshot_gcloud_storage_role.jpg
@@ -153,19 +153,19 @@ Create and configure a dataset
 5. Click on `Select Credentials File` to add the key file you downloaded in the previous step.
 6. The thumbnail suffix depends on the option you chose in the first step
 
-- Option A: You want Lightly to create the thumbnail for you.
+- You want Lightly to create the thumbnail for you.
   Then choose the naming scheme to your liking.
-- Option B: You have already generated thumbnails in your bucket.
-  Then choose the thumbnail suffix such that it reflects you naming scheme.
-- Option C: You don't want to use thumbnails.
+- You already have thumbnails in your bucket.
+  Then choose the thumbnail suffix such that it reflects your naming scheme.
+- You don't want to use thumbnails.
   Then leave the thumbnail suffix undefined/empty.
 
 
 
 6. Press save and ensure that at least the lights for List and Read turn green.
-If you added permissions for writing to use option A, this light should also turn green.
+If you added permissions for writing, this light should also turn green.
 
-7. Now you should be on the dataset creation page again.
+7. After closing the pop-up by clicking the X, you should be on the dataset creation page again.
 
 Create the dataset and upload embeddings and metadata.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -184,6 +184,6 @@ and its `rsync command <https://cloud.google.com/storage/docs/gsutil/commands/rs
 Use `lightly-magic` and `lightly-upload` with the following parameters:
 
 - Use `input_dir=/local/projects/wild-animals`
-- If you chose option A to generate thumbnails in your bucket,
+- If you chose the option to generate thumbnails in your bucket,
   use `upload=thumbnails`
-- If you chose option B or C, use `upload=metadata` instead.
+- Otherwise, use `upload=metadata` instead.
