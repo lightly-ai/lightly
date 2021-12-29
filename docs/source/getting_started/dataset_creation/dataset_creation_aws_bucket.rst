@@ -1,7 +1,7 @@
 .. _dataset-creation-aws-bucket:
 
-Create dataset from AWS S3 bucket
----------------------------------
+Create a dataset from an AWS S3 bucket
+--------------------------------------
 
 
 Lightly allows you to configure a remote datasource like Amazon S3 (Amazon Simple Storage Service).
