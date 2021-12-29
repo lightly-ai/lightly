@@ -27,7 +27,7 @@ from lightly.openapi_generated.swagger_client import ScoresApi, \
     CreateEntityResponse, SamplesApi, SampleCreateRequest, \
     InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, \
     TagArithmeticsRequest, TagBitMaskResponse, SampleWriteUrls, SampleData, \
-    Trigger2dEmbeddingJobRequest, SampleUpdateRequest, SampleDataBase
+    Trigger2dEmbeddingJobRequest, SampleUpdateRequest
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -216,10 +216,10 @@ class MockedSamplesApi(SamplesApi):
 
     def get_samples_by_dataset_id(
         self, dataset_id, **kwargs
-    ) -> List[SampleDataBase]:
+    ) -> List[SampleData]:
         samples = []
         for i, body in enumerate(self.sample_create_requests):
-            sample = SampleDataBase(
+            sample = SampleData(
                 id=f'{i}_xyz', 
                 dataset_id='dataset_id_xyz', 
                 file_name=body.file_name,
