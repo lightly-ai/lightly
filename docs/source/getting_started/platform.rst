@@ -194,6 +194,41 @@ need to look like this:
         ]
     }
 
+If you don't have your data in coco format yet, but e.g. as a pandas dataframe,
+you can use a simple script to translate it to the coco format:
+
+.. code-block:: python
+
+    import pandas as pd
+
+    from lightly.utils import save_custom_metadata
+
+    # Define the pandas dataframe
+    column_names = ["filename", "number_of_pedestrians", "scenario", "temperature"]
+    rows = [
+        ["image0.jpg", 3, "cloudy", 20.3],
+        ["image1.jpg", 1, "rainy", 15.0]
+    ]
+    df = pd.DataFrame(rows, columns=column_names)
+
+    # create a list of pairs of (filename, metadata)
+    custom_metadata = []
+    for index, row in df.iterrows():
+        filename = row.filename
+        metadata = {
+            "number_of_pedestrians": int(row.number_of_pedestrians),
+            "weather": {
+                "scenario": str(row.scenario),
+                "temperature": float(row.temperature),
+            }
+        }
+        custom_metadata.append((filename, metadata))
+
+    # save custom metadata in the correct json format
+    output_file = "custom_metadata.json"
+    save_custom_metadata(output_file, custom_metadata)
+
+
 
 .. note:: Make sure that the custom metadata is present for every image. The metadata
           must not necessarily include the same keys for all images but it is strongly
@@ -201,6 +236,9 @@ need to look like this:
 
 .. note:: Lightly supports integers, floats, strings, booleans, and even nested objects for
           custom metadata. Every metadata item must be a valid JSON object.
+          Thus numpy datatypes are not supported and must be cast to `float`
+          or `int` before saving. Otherwise there will be an error similar to
+          `TypeError: Object of type ndarray is not JSON serializable`.
 
 
 
