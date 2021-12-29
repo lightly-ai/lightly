@@ -42,6 +42,7 @@ from lightly.openapi_generated.swagger_client.models.active_learning_scores impo
 from lightly.openapi_generated.swagger_client.models.api_error_code import ApiErrorCode
 from lightly.openapi_generated.swagger_client.models.api_error_response import ApiErrorResponse
 from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData
+from lightly.openapi_generated.swagger_client.models.body import Body
 from lightly.openapi_generated.swagger_client.models.configuration_data import ConfigurationData
 from lightly.openapi_generated.swagger_client.models.configuration_entry import ConfigurationEntry
 from lightly.openapi_generated.swagger_client.models.configuration_set_request import ConfigurationSetRequest
@@ -72,7 +73,6 @@ from lightly.openapi_generated.swagger_client.models.embedding2d_coordinates imp
 from lightly.openapi_generated.swagger_client.models.embedding2d_create_request import Embedding2dCreateRequest
 from lightly.openapi_generated.swagger_client.models.embedding2d_data import Embedding2dData
 from lightly.openapi_generated.swagger_client.models.embedding_data import EmbeddingData
-from lightly.openapi_generated.swagger_client.models.embedding_id_is_processed_body import EmbeddingIdIsProcessedBody
 from lightly.openapi_generated.swagger_client.models.entity_body import EntityBody
 from lightly.openapi_generated.swagger_client.models.general_job_result import GeneralJobResult
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
@@ -92,16 +92,13 @@ from lightly.openapi_generated.swagger_client.models.label_studio_tasks import L
 from lightly.openapi_generated.swagger_client.models.mongo_object_id import MongoObjectID
 from lightly.openapi_generated.swagger_client.models.object_id import ObjectId
 from lightly.openapi_generated.swagger_client.models.one_of_datasource_config import OneOfDatasourceConfig
-from lightly.openapi_generated.swagger_client.models.one_of_sample_data import OneOfSampleData
 from lightly.openapi_generated.swagger_client.models.one_of_tag_arithmetics_response import OneOfTagArithmeticsResponse
 from lightly.openapi_generated.swagger_client.models.read_url import ReadUrl
 from lightly.openapi_generated.swagger_client.models.redirected_read_url import RedirectedReadUrl
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
 from lightly.openapi_generated.swagger_client.models.sample_data import SampleData
-from lightly.openapi_generated.swagger_client.models.sample_data_base import SampleDataBase
-from lightly.openapi_generated.swagger_client.models.sample_data_image import SampleDataImage
-from lightly.openapi_generated.swagger_client.models.sample_data_video_frame import SampleDataVideoFrame
 from lightly.openapi_generated.swagger_client.models.sample_meta_data import SampleMetaData
+from lightly.openapi_generated.swagger_client.models.sample_type import SampleType
 from lightly.openapi_generated.swagger_client.models.sample_update_request import SampleUpdateRequest
 from lightly.openapi_generated.swagger_client.models.sample_write_urls import SampleWriteUrls
 from lightly.openapi_generated.swagger_client.models.sampling_config import SamplingConfig
