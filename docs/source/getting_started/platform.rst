@@ -199,9 +199,8 @@ you can use a simple script to translate it to the coco format:
 
 .. code-block:: python
 
-    ## OPTION 1: pandas dataframe with named columns
-    # This works well if you have many columns and column names
     import pandas as pd
+
     from lightly.utils import save_custom_metadata
 
     # Define the pandas dataframe
@@ -213,48 +212,22 @@ you can use a simple script to translate it to the coco format:
     df = pd.DataFrame(rows, columns=column_names)
 
     # create a list of pairs of (filename, metadata)
-    # metadata must be a dictionary
     custom_metadata = []
-    for data in df.itertuples():
-        filename = data.filename
-        metadata = data._asdict()
-        del metadata['filename']
-        del metadata['Index']
+    for index, row in df.iterrows():
+        filename = row.filename
+        metadata = {
+            "number_of_pedestrians": int(row.number_of_pedestrians),
+            "weather": {
+                "scenario": str(row.scenario),
+                "temperature": float(row.temperature),
+            }
+        }
         custom_metadata.append((filename, metadata))
 
     # save custom metadata in the correct json format
     output_file = "custom_metadata.json"
     save_custom_metadata(output_file, custom_metadata)
 
-
-    ## OPTION 2: pandas dataframe without named columns
-    # As the metadata has to be defined by hand anyway,
-    # it can easily put into nested dictionaries
-    import pandas as pd
-
-    from lightly.utils import save_custom_metadata
-
-     # Define the pandas dataframe
-     df = pd.DataFrame({
-         "image0.jpg": [3, "cloudy", 20.3],
-         "image1.jpg": [1, "rainy", 15.0]
-     })
-
-     # create a list of pairs of (filename, metadata)
-     custom_metadata = []
-     for filename, data in df.items():
-         metadata = {
-          "number_of_pedestrians": int(data[0]),
-          "weather": {
-             "scenario": str(data[1]),
-             "temperature": float(data[2])
-          }
-         }
-         custom_metadata.append((filename, metadata))
-
-     # save custom metadata in the correct json format
-     output_file = "custom_metadata.json"
-     save_custom_metadata(output_file, custom_metadata)
 
 
 .. note:: Make sure that the custom metadata is present for every image. The metadata
@@ -264,7 +237,8 @@ you can use a simple script to translate it to the coco format:
 .. note:: Lightly supports integers, floats, strings, booleans, and even nested objects for
           custom metadata. Every metadata item must be a valid JSON object.
           Thus numpy datatypes are not supported and must be cast to `float`
-          or `int` before saving.
+          or `int` before saving. Otherwise there will be an error similar to
+          `TypeError: Object of type ndarray is not JSON serializable`.
 
 
 
