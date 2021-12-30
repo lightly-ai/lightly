@@ -113,9 +113,8 @@ Create and configure a dataset
 
     .. figure:: ../resources/LightlyEdit1.png
         :align: center
-        :alt: Get security credentials (access key id, secret access key) from AWS
+        :alt: Edit your dataset.
 
-        Get security credentials (access key id, secret access key) from AWS
 
 3. As the resource path, enter the full S3 URI to your resource eg. `s3://datalake/projects/farm-animals/`
 4. Enter the `access key` and the `secret access key` we obtained from creating a new user in the previous step and select the AWS region in which you created your bucket in
