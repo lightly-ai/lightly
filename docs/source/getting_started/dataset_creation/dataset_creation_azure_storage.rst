@@ -11,19 +11,8 @@ One decision you need to make first is whether you want to use thumbnails.
 Using thumbnails makes the Lightly Platform more responsive, as it's enough to
 load the thumbnails instead of the full images in many cases.
 As a drawback, the thumbnails will be stored in your bucket and thus need storage.
-You have the following three options:
-
-
-- You want to use thumbnails, but don't have them yet. Then you need to give
-  Lightly write access to your bucket to create the thumbnails there for you.
-- You already have thumbnails in your bucket with a consistent name scheme, e.g.
-  an image called `img.jpg` has a corresponding thumbnail called `img_thumb.jpg`.
-  In this case, a read access to your bucket is sufficient.
-- You don't want to use thumbnails. Then a read access to your bucket
-  is sufficient. The Lightly Platform will load the full image
-  even when requesting the thumbnail.
-
 Depending on this decision, the following steps will differ slightly.
+
 
 Setting up Azure
 ^^^^^^^^^^^^^^^^^
@@ -31,7 +20,6 @@ Setting up Azure
 For the purpose of this guide we assume you have a storage account called `lightlydatalake`.
 We further assume the container you want to use with lightly is called `farm-animals` and already contains images.
 If you don't have a storage account or container yet follow the instructions `here <https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal>`_.
-
 
 Go to "Security + networking > Access keys". Copy the Key and store it in a secure location. Head to the next section to see how you can configure the Lightly dataset.
 
@@ -55,7 +43,7 @@ Configuring a Lightly dataset to access the Azure storage
     - You want Lightly to create the thumbnail for you.
       Then choose the naming scheme to your liking.
     - You have already generated thumbnails in your bucket.
-      Then choose the thumbnail suffix such that it reflects you naming scheme.
+      Then choose the thumbnail suffix such that it reflects your naming scheme.
     - You don't want to use thumbnails.
       Then leave the thumbnail suffix undefined/empty.
 
@@ -66,7 +54,7 @@ Configuring a Lightly dataset to access the Azure storage
 
         Lightly Azure Blob Storage config.
 
-6. Press save and ensure that at least the lights for List and Read turn green.
+6. Press save and ensure that all lights turn green.
 
 
 Uploading your data
