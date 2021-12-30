@@ -54,6 +54,10 @@ download:
 	wget -N https://storage.googleapis.com/datasets_boris/resources_s3_integration.zip -P $(DATADIR)
 	unzip $(ZIPOPTS) $(DATADIR)/resources_s3_integration.zip  -d $(GETTING_STARTED_IMAGES)
 
+	# download resources for azure integration
+	wget -N https://storage.googleapis.com/datasets_boris/resources_azure_integration.zip -P $(DATADIR)
+	unzip ${ZIPOPTS} $(DATADIR)/resources_azure_integration.zip -d $(GETTING_STARTED_IMAGES)
+
 	# download images and report for docker
 	wget -N https://storage.googleapis.com/datasets_boris/resources.zip -P $(DATADIR)
 	unzip $(ZIPOPTS) $(DATADIR)/resources.zip  -d $(DOCKERSOURCE)
