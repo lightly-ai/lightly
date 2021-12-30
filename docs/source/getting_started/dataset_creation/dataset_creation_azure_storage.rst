@@ -31,7 +31,9 @@ Setting up Azure
 For the purpose of this guide we assume you have a storage account called `lightlydatalake`.
 We further assume the container you want to use with lightly is called `farm-animals` and already contains images.
 If you don't have a storage account or container yet follow the instructions `here <https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal>`_.
-Head to the next section to see how you can configure the Lightly dataset.
+
+
+Go to "Security + networking > Access keys". Copy the Key and store it in a secure location. Head to the next section to see how you can configure the Lightly dataset.
 
 
 Configuring a Lightly dataset to access the Azure storage
