@@ -90,7 +90,7 @@ Let us assume your bucket is called `datalake`. And let us assume the folder you
 Preparing your data
 ^^^^^^^^^^^^^^^^^^^^^
 
-For Lightly to be able to create embeddings and extract metadata from your data, `lightly-magic` needs to be able to access your data. You can either download/sync your data from S3 or you can mount S3 as a drive. We recommend downloading your data from S3 as it makes the overall process faster.
+For the :ref:`lightly-command-line-tool` to be able to create embeddings and extract metadata from your data, `lightly-magic` needs to be able to access your data. You can either download/sync your data from S3 or you can mount S3 as a drive. We recommend downloading your data from S3 as it makes the overall process faster.
 
 Prepare data by downloading from S3 (recommended)
 """"""""""""""""""""""""""""""""""""""""""""""""""
