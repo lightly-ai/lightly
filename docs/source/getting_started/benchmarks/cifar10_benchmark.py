@@ -231,7 +231,7 @@ class SimCLRModel(BenchmarkModule):
         resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1),
+            nn.AdaptiveAvgPool2d(1)
         )
         # create a simclr model based on ResNet
         self.resnet_simclr = \
@@ -262,7 +262,7 @@ class SimSiamModel(BenchmarkModule):
         resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1),
+            nn.AdaptiveAvgPool2d(1)
         )
         # create a simsiam model based on ResNet
         self.resnet_simsiam = \
@@ -304,10 +304,11 @@ class BarlowTwinsModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = torchvision.models.resnet18()
+        resnet = lightly.models.ResNetGenerator('resnet-18')
         last_conv_channels = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
         )
         # create a barlow twins model based on ResNet
         self.resnet_barlowtwins = \
@@ -354,7 +355,7 @@ class BYOLModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = torchvision.models.resnet18()
+        resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
@@ -412,7 +413,7 @@ class SwaVModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = torchvision.models.resnet18()
+        resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
