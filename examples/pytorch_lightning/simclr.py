@@ -41,7 +41,10 @@ dataset = LightlyDataset.from_torch_dataset(cifar10)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = SimCLRCollateFunction(input_size=32)
+collate_fn = SimCLRCollateFunction(
+    input_size=32,
+    gaussian_blur=0.,
+)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
