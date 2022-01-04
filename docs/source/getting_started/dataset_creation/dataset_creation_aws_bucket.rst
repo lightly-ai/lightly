@@ -1,7 +1,7 @@
 .. _dataset-creation-aws-bucket:
 
 Create a dataset from an AWS S3 bucket
---------------------------------------
+=======================================
 
 
 Lightly allows you to configure a remote datasource like Amazon S3 (Amazon Simple Storage Service).
@@ -9,7 +9,8 @@ In this guide, we will show you how to setup your S3 bucket, configure your data
 
 
 Setting up Amazon S3
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------
+
 For Lightly to be able to create so-called `presigned URLs/read URLs <https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html>`_ to be used for displaying your data in your browser, Lightly needs at minimum to be able to read and list permissions on your bucket. If you want Lightly to create optimal thumbnails for you while uploading the metadata of your images, write permissions are also needed.
 
 Let us assume your bucket is called `datalake`. And let us assume the folder you want to use with Lightly is located at projects/farm-animals/
@@ -86,25 +87,32 @@ Let us assume your bucket is called `datalake`. And let us assume the folder you
 
         Get security credentials (access key id, secret access key) from AWS
 
-**Preparing your data**
-
+Preparing your data
+^^^^^^^^^^^^^^^^^^^^^
 
 For Lightly to be able to create embeddings and extract metadata from your data, `lightly-magic` needs to be able to access your data. You can either download/sync your data from S3 or you can mount S3 as a drive. We recommend downloading your data from S3 as it makes the overall process faster.
 
-**Downloading from S3 (recommended)**
+Prepare data by downloading from S3 (recommended)
+""""""""""""""""""""""""""""""""""""""""""""""""""
 
 1. Install AWS cli by following the `guide of Amazon <https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html>`_
 2. Run `aws configure` and set the credentials
-3. Download/synchronize the folder located on S3 to your current directory `aws s3 sync s3://datalake/projects/farm-animals ./farm`
+3. Download/synchronize the folder located on S3 to your current directory
 
-**Mount S3 as a drive**
+    .. code-block:: console
+
+        aws s3 sync s3://datalake/projects/farm-animals ./farm
+
+
+Prepare data by mounting S3 as a drive
+"""""""""""""""""""""""""""""""""""""""
 
 For Linux and MacOS we recommend using `s3fs-fuse <https://github.com/s3fs-fuse/s3fs-fuse>`_ to mount S3 buckets to a local file storage. 
 You can have a look at our step-by-step guide: :ref:`ref-docker-integration-s3fs-fuse`. 
 
 
 Uploading your data
-^^^^^^^^^^^^^^^^^^^^^^
+---------------------
 
 Create and configure a dataset
 
