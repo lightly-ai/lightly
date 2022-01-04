@@ -1,7 +1,7 @@
 .. _dataset-creation-gcloud-bucket:
 
 Create a dataset from Google Cloud Storage
-------------------------------------------
+===========================================
 
 Lightly allows you to configure a remote datasource like
 `Google Cloud Storage <https://cloud.google.com/storage>`_ .
@@ -32,7 +32,8 @@ Depending on this decision, the following steps will differ slightly.
 
 
 Setting up Google Cloud Storage
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------
+
 Lightly needs to be able to create so-called
 `presigned URLs/read URLs <https://cloud.google.com/storage/docs/access-control/signed-urls>`_
 for displaying your data in your browser.
@@ -132,10 +133,24 @@ whose name starts with `projects/wild-animals`.
     :width: 60%
 
 
+Preparing your data
+^^^^^^^^^^^^^^^^^^^^^
+
+For creating the dataset and uploading embeddings and metadata to it, you need
+the :ref:`lightly-command-line-tool`.
+
+Furthermore, you need to have your data locally on your machine.
+
+1. Install the `gsutil tool <https://cloud.google.com/storage/docs/gsutil>`_
+2. Use the rsync command <https://cloud.google.com/storage/docs/gsutil/commands/rsync>`_ to sync the files
+
+    .. code::
+
+        gsutil -m rsync -r /local/projects/wild-animals gs://datalake-lightly/projects/wild-animals
 
 
-Configuring a Lightly dataset to access the Google Cloud Storage
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Uploading your data
+--------------------
 
 Create and configure a dataset
 
@@ -166,19 +181,6 @@ Create and configure a dataset
 If you added permissions for writing, this light should also turn green.
 
 7. After closing the pop-up by clicking the X, you should be on the dataset creation page again.
-
-Create the dataset and upload embeddings and metadata.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-For creating the dataset and uploading embeddings and metadata to it, you need
-the :ref:`lightly-command-line-tool`.
-Furthermore, you need to have your data locally on your machine.
-This can be done easiest by using the `gsutil tool <https://cloud.google.com/storage/docs/gsutil>`_
-and its `rsync command <https://cloud.google.com/storage/docs/gsutil/commands/rsync>`_:
-
-.. code::
-
-    gsutil -m rsync -r /local/projects/wild-animals gs://datalake-lightly/projects/wild-animals
 
 
 Use `lightly-magic` and `lightly-upload` with the following parameters:
