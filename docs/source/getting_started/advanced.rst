@@ -27,7 +27,7 @@ the model to ignore the color augmentations.
 **Shape Invariances**
 
 - **Random cropping** E.g. We don't care if an object is small or large 
-  or only partially in the image
+  or only partially in the image.
 
 - **Random Horizontal Flip** E.g. We don't care about "left and right" in 
   images.
@@ -77,6 +77,10 @@ The built-in collate class
 common augmentations used in SimCLR and MoCo. Instead of a single batch of images,
 it returns a tuple of two batches of randomly transformed images.
 
+If you use the :ref:`lightly-command-line-tool` you have access to all the SimCLR
+collate augmentations. 
+You find the default parameters here: :ref:`ref-cli-config-default`. 
+
 Since **gaussian blur**, **solarization** and **random rotations** by 90 degrees 
 are not supported in torchvision, we added them to lightly 
 :py:class:`lightly.transforms`
@@ -104,11 +108,15 @@ You can build your own collate function by inheriting from
   )
 
 
+.. note:: You can disable the augmentations by either setting the probability to `0.0`
+    or making sure the augmentation has no effect. For example, random cropping 
+    can be disabled by setting `min_scale=1.0`.
+
 
 Models
 -------------------
 
-Lightly supports at the moment the following two models for self-supervised
+Lightly supports at the moment the following models for self-supervised
 learning:
 
 - `SimCLR: A Simple Framework for Contrastive Learning of Visual Representations, T. Chen, 2020 <https://arxiv.org/abs/2002.05709>`_
