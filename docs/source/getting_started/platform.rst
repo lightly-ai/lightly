@@ -52,8 +52,8 @@ Learn more about the different concepts in our `Glossary <https://app.lightly.ai
 
 
 
-Create a Dataset
-----------------
+Create a Dataset from a local folder or cloud bucket
+------------------------------------------------------
 
 There are several different ways to create a dataset on the lightly platform.
 
@@ -67,14 +67,33 @@ It will keep all images and videos in your own bucket and only stream them from 
 This has the advantage that you don't need to upload your data to Lightly and can preserve its privacy.
 
 
+If you want to let Lighlty take care of the data handling and upload to our servers (European location).
+
 .. toctree::
     :maxdepth: 1
 
     dataset_creation/dataset_creation_local_upload.rst
+    
+
+For datasets stored in your cloud bucket: 
+
+.. toctree::
+    :maxdepth: 1
+
     dataset_creation/dataset_creation_aws_bucket.rst
     dataset_creation/dataset_creation_azure_storage.rst
-    dataset_creation/dataset_creation_local_server.rst
     dataset_creation/dataset_creation_gcloud_bucket.rst
+
+
+There is a another option of using Lightly. In case you don't want to upload any
+data to the cloud nor to Lightly but still use all the features we can stream the 
+data from a local fileserver:
+
+.. toctree::
+    :maxdepth: 1
+
+    dataset_creation/dataset_creation_local_server.rst
+
 
 
 .. _platform-custom-metadata:
