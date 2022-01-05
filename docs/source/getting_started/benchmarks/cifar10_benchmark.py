@@ -65,7 +65,6 @@ batch_sizes = [128, 512]
 
 # use a GPU if available
 gpus = -1 if torch.cuda.is_available() else 0
-distributed_backend = 'ddp' if torch.cuda.device_count() > 1 else None
 
 # Adapted from our MoCo Tutorial on CIFAR-10
 #
@@ -103,6 +102,7 @@ collate_fn = lightly.data.SimCLRCollateFunction(
 swav_collate_fn = lightly.data.SwaVCollateFunction(
     crop_sizes=[32],
     crop_counts=[2], # 2 crops @ 32x32px
+    crop_min_scales=[0.14]
 )
 
 # No additional augmentations for the test set
@@ -231,7 +231,7 @@ class SimCLRModel(BenchmarkModule):
         resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1),
+            nn.AdaptiveAvgPool2d(1)
         )
         # create a simclr model based on ResNet
         self.resnet_simclr = \
@@ -262,7 +262,7 @@ class SimSiamModel(BenchmarkModule):
         resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1),
+            nn.AdaptiveAvgPool2d(1)
         )
         # create a simsiam model based on ResNet
         self.resnet_simsiam = \
@@ -304,10 +304,11 @@ class BarlowTwinsModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = torchvision.models.resnet18()
+        resnet = lightly.models.ResNetGenerator('resnet-18')
         last_conv_channels = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
         )
         # create a barlow twins model based on ResNet
         self.resnet_barlowtwins = \
@@ -354,7 +355,7 @@ class BYOLModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = torchvision.models.resnet18()
+        resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
@@ -412,7 +413,7 @@ class SwaVModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = torchvision.models.resnet18()
+        resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
@@ -483,12 +484,10 @@ for batch_size in batch_sizes:
 
             trainer = pl.Trainer(max_epochs=max_epochs, 
                                 gpus=gpus,
-                                progress_bar_refresh_rate=100,
-                                distributed_backend=distributed_backend,
                                 default_root_dir=logs_root_dir)
             trainer.fit(
                 benchmark_model,
-                train_dataloader=dataloader_train_ssl,
+                train_dataloaders=dataloader_train_ssl,
                 val_dataloaders=dataloader_test
             )
             gpu_memory_usage.append(torch.cuda.max_memory_allocated())
