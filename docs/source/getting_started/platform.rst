@@ -52,8 +52,8 @@ Learn more about the different concepts in our `Glossary <https://app.lightly.ai
 
 
 
-Create a Dataset
-----------------
+Create a Dataset from a local folder or cloud bucket
+------------------------------------------------------
 
 There are several different ways to create a dataset on the lightly platform.
 
@@ -61,18 +61,39 @@ The baseline way is to upload your local dataset including all images or
 videos to the Lightly platform.
 
 If you don't have your data locally, but rather stored at a cloud provider like
-in an AWS S3 bucket, GCloud bucket or at Azure,
+AWS S3, Google Cloud Storage or Azure,
 you can create a dataset directly referencing the images in your bucket.
 It will keep all images and videos in your own bucket and only stream them from there if they are needed.
 This has the advantage that you don't need to upload your data to Lightly and can preserve its privacy.
 
 
+If you want to let Lighlty take care of the data handling and upload to our servers (European location).
+
 .. toctree::
     :maxdepth: 1
 
     dataset_creation/dataset_creation_local_upload.rst
+    
+
+For datasets stored in your cloud bucket: 
+
+.. toctree::
+    :maxdepth: 1
+
     dataset_creation/dataset_creation_aws_bucket.rst
+    dataset_creation/dataset_creation_azure_storage.rst
+    dataset_creation/dataset_creation_gcloud_bucket.rst
+
+
+There is a another option of using Lightly. In case you don't want to upload any
+data to the cloud nor to Lightly but still use all the features we can stream the 
+data from a local fileserver:
+
+.. toctree::
+    :maxdepth: 1
+
     dataset_creation/dataset_creation_local_server.rst
+
 
 
 .. _platform-custom-metadata:
@@ -194,6 +215,41 @@ need to look like this:
         ]
     }
 
+If you don't have your data in coco format yet, but e.g. as a pandas dataframe,
+you can use a simple script to translate it to the coco format:
+
+.. code-block:: python
+
+    import pandas as pd
+
+    from lightly.utils import save_custom_metadata
+
+    # Define the pandas dataframe
+    column_names = ["filename", "number_of_pedestrians", "scenario", "temperature"]
+    rows = [
+        ["image0.jpg", 3, "cloudy", 20.3],
+        ["image1.jpg", 1, "rainy", 15.0]
+    ]
+    df = pd.DataFrame(rows, columns=column_names)
+
+    # create a list of pairs of (filename, metadata)
+    custom_metadata = []
+    for index, row in df.iterrows():
+        filename = row.filename
+        metadata = {
+            "number_of_pedestrians": int(row.number_of_pedestrians),
+            "weather": {
+                "scenario": str(row.scenario),
+                "temperature": float(row.temperature),
+            }
+        }
+        custom_metadata.append((filename, metadata))
+
+    # save custom metadata in the correct json format
+    output_file = "custom_metadata.json"
+    save_custom_metadata(output_file, custom_metadata)
+
+
 
 .. note:: Make sure that the custom metadata is present for every image. The metadata
           must not necessarily include the same keys for all images but it is strongly
@@ -201,6 +257,9 @@ need to look like this:
 
 .. note:: Lightly supports integers, floats, strings, booleans, and even nested objects for
           custom metadata. Every metadata item must be a valid JSON object.
+          Thus numpy datatypes are not supported and must be cast to `float`
+          or `int` before saving. Otherwise there will be an error similar to
+          `TypeError: Object of type ndarray is not JSON serializable`.
 
 
 

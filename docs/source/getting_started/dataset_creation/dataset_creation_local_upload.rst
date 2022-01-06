@@ -1,6 +1,6 @@
 .. _dataset-creation-local-upload:
 
-Create a dataset from a local dataset
+Create a dataset from a local folder
 -------------------------------------
 
 To create a new dataset of images with embeddings use the lightly :ref:`lightly-command-line-tool`:
