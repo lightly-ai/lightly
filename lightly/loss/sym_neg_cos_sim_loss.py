@@ -4,6 +4,7 @@
 # All Rights Reserved
 
 import torch
+import warnings
 
 class SymNegCosineSimilarityLoss(torch.nn.Module):
     """Implementation of the Symmetrized Loss used in the SimSiam[0] paper.
@@ -26,6 +27,16 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
         >>> loss = loss_fn(out0, out1)
 
     """
+
+    def __init__(self) -> None:
+        super().__init__()
+        warnings.warn(
+            Warning(
+                "SymNegCosineSimiliarityLoss will be deprecated in favor of "
+                + "NegativeCosineSimilarity in the future."
+            ),
+            PendingDeprecationWarning,
+        )
 
     def _neg_cosine_simililarity(self, x, y):
         v = - torch.nn.functional.cosine_similarity(x, y.detach(), dim=-1).mean()

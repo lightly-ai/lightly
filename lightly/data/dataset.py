@@ -4,18 +4,18 @@
 # All Rights Reserved
 
 import os
+import bisect
 import shutil
 import tempfile
 
-import PIL.Image
 from PIL import Image
 from typing import List, Union, Callable
+from torch._C import Value
 
-import torch.utils.data as data
 import torchvision.datasets as datasets
 from torchvision import transforms
 
-from lightly.data._helpers import _load_dataset
+from lightly.data._helpers import _load_dataset_from_folder
 from lightly.data._helpers import DatasetFolder
 from lightly.data._video import VideoDataset
 from lightly.utils.io import check_filenames
@@ -103,8 +103,9 @@ class LightlyDataset:
 
     The LightlyDataset supports different input sources. You can use it
     on a folder of images. You can also use it on a folder with subfolders
-    with images (ImageNet style). If the input_dir has subfolders each subfolder
-    gets its own target label. You can also work with videos (requires pyav).
+    with images (ImageNet style). If the input_dir has subfolders,
+    each subfolder gets its own target label.
+    You can also work with videos (requires pyav).
     If there are multiple videos in the input_dir each video gets a different
     target label assigned. If input_dir contains images and videos
     only the videos are used.
@@ -112,7 +113,7 @@ class LightlyDataset:
     Can also be used in combination with the `from_torch_dataset` method
     to load a dataset offered by torchvision (e.g. cifar10).
 
-    Args:
+    Parameters:
         input_dir:
             Path to directory holding the images or videos to load.
         transform:
@@ -120,6 +121,9 @@ class LightlyDataset:
         index_to_filename:
             Function which takes the dataset and index as input and returns
             the filename of the file at the index. If None, uses default.
+        filenames:
+            If not None, it filters the dataset in the input directory
+            by the given filenames.
 
     Examples:
         >>> # load a dataset consisting of images from a local folder
@@ -146,14 +150,35 @@ class LightlyDataset:
     """
 
     def __init__(self,
-                 input_dir: str,
+                 input_dir: Union[str, None],
                  transform: transforms.Compose = None,
-                 index_to_filename: Callable[[datasets.VisionDataset, int], str] = None):
+                 index_to_filename:
+                 Callable[[datasets.VisionDataset, int], str] = None,
+                 filenames: List[str] = None):
 
         # can pass input_dir=None to create an "empty" dataset
         self.input_dir = input_dir
+        if filenames is not None:
+            filepaths = [
+                os.path.join(input_dir, filename)
+                for filename in filenames
+            ]
+            filepaths = set(filepaths)
+
+            def is_valid_file(filepath: str):
+                return filepath in filepaths
+        else:
+            is_valid_file = None
+
         if self.input_dir is not None:
-            self.dataset = _load_dataset(self.input_dir, transform)
+            self.dataset = _load_dataset_from_folder(
+                self.input_dir, transform, is_valid_file=is_valid_file
+            )
+        elif transform is not None:
+            raise ValueError(
+                'transform must be None when input_dir is None but is '
+                f'{transform}',
+            )
 
         # initialize function to get filename of image
         self.index_to_filename = _get_filename_by_index
@@ -195,12 +220,12 @@ class LightlyDataset:
         # create an "empty" dataset object
         dataset_obj = cls(
             None,
-            transform=transform,
-            index_to_filename=index_to_filename
+            index_to_filename=index_to_filename,
         )
 
         # populate it with the torch dataset
         dataset_obj.dataset = dataset
+        dataset_obj.transform = transform
         return dataset_obj
 
     def __getitem__(self, index: int):
@@ -235,6 +260,9 @@ class LightlyDataset:
         """Returns all filenames in the dataset.
 
         """
+        if hasattr(self.dataset, 'get_filenames'):
+            return self.dataset.get_filenames()
+
         list_of_filenames = []
         for index in range(len(self)):
             fname = self.index_to_filename(self.dataset, index)
@@ -277,22 +305,29 @@ class LightlyDataset:
             filenames = self.get_filenames()
         else:
             indices = []
+            filenames = sorted(filenames)
             all_filenames = self.get_filenames()
-            for i in range(len(filenames)):
-                if filenames[i] in all_filenames:
-                    indices.append(i)
+            for index, filename in enumerate(all_filenames):
+                filename_index = bisect.bisect_left(filenames, filename)
+                # make sure the filename exists in filenames
+                if filename_index < len(filenames) and \
+                        filenames[filename_index] == filename:
+                    indices.append(index)
 
         # dump images
         for i, filename in zip(indices, filenames):
             _dump_image(self.dataset, output_dir, filename, i, fmt=format)
 
-    def get_filepath_from_filename(self, filename: str, image: PIL.Image.Image = None):
+    def get_filepath_from_filename(self, filename: str, image: Image = None):
         """Returns the filepath given the filename of the image
 
         There are three cases:
-        - The dataset is a regular dataset with the images in the input dir.
-        - The dataset is a video dataset, thus the images have to be saved in a temporary folder.
-        - The dataset is a torch dataset, thus the images have to be saved in a temporary folder.
+            - The dataset is a regular dataset with the images in the input dir.
+            - The dataset is a video dataset, thus the images have to be saved in a
+              temporary folder.
+            - The dataset is a torch dataset, thus the images have to be saved in a
+              temporary folder.
+
         Args:
             filename:
                 The filename of the image
@@ -300,26 +335,34 @@ class LightlyDataset:
                 The image corresponding to the filename
 
         Returns:
-            The filename to the image, either the exiting one (case 1) or a newly created jpg (case 2, 3)
+            The filename to the image, either the existing one (case 1) or a
+            newly created jpg (case 2, 3)
 
         """
 
-        has_input_dir = hasattr(self, 'input_dir') and isinstance(self.input_dir, str)
+        has_input_dir = hasattr(self, 'input_dir') and \
+            isinstance(self.input_dir, str)
         if has_input_dir:
             path_to_image = os.path.join(self.input_dir, filename)
             if os.path.isfile(path_to_image):
-                # Case 1
+                # the file exists, return its filepath
                 return path_to_image
 
         if image is None:
-            raise ValueError("The parameter image must not be None for VideoDatasets and TorchDatasets")
+            raise ValueError(
+                'The parameter image must not be None for'
+                'VideoDatasets and TorchDatasets'
+            )
 
-        # Case 2 and 3
+        # the file doesn't exist, save it as a jpg and return filepath
         folder_path = tempfile.mkdtemp()
-        filepath = os.path.join(folder_path,filename) + '.jpg'
+        filepath = os.path.join(folder_path, filename) + '.jpg'
+        
+        if os.path.dirname(filepath):
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
         image.save(filepath)
         return filepath
-
 
     @property
     def transform(self):

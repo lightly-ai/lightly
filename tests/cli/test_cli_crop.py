@@ -35,7 +35,7 @@ class TestCLICrop(MockedApiWorkflowSetup):
             ])
 
     def create_fake_dataset(self):
-        n_data = len(self.api_workflow_client.filenames_on_server)
+        n_data = len(self.api_workflow_client.get_filenames())
         self.dataset = torchvision.datasets.FakeData(size=n_data, image_size=(3, 32, 32))
 
         self.folder_path = tempfile.mkdtemp()
@@ -49,7 +49,7 @@ class TestCLICrop(MockedApiWorkflowSetup):
     def create_fake_yolo_labels(self, no_classes: int = 10, objects_per_image: int = 13):
         random.seed(42)
 
-        n_data = len(self.api_workflow_client.filenames_on_server)
+        n_data = len(self.api_workflow_client.get_filenames())
 
         self.folder_path_labels = tempfile.mkdtemp()
         label_names = [f'img_{i}.txt' for i in range(n_data)]

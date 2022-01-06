@@ -19,17 +19,17 @@ class BoundingBox:
             y1 coordinate (normalized to [0, 1])
 
     Examples:
-    >>> # simple case, format (x0, y0, x1, y1)
-    >>> bbox = BoundingBox(0.1, 0.2, 0.3, 0.4)
-    >>>
-    >>> # same bounding box in x, y, w, h format
-    >>> bbox = BoundingBox.from_x_y_w_h(0.1, 0.2, 0.2, 0.2)
-    >>>
-    >>> # often the coordinates are not yet normalized by image size
-    >>> # for example, for a 100 x 100 image, the coordinates could be
-    >>> # (x0, y0, x1, y1) = (10, 20, 30, 40)
-    >>> W, H = 100, 100 # get image shape
-    >>> bbox = BoundingBox(10 / W, 20 / H, 30 / W, 40 / H)
+        >>> # simple case, format (x0, y0, x1, y1)
+        >>> bbox = BoundingBox(0.1, 0.2, 0.3, 0.4)
+        >>>
+        >>> # same bounding box in x, y, w, h format
+        >>> bbox = BoundingBox.from_x_y_w_h(0.1, 0.2, 0.2, 0.2)
+        >>>
+        >>> # often the coordinates are not yet normalized by image size
+        >>> # for example, for a 100 x 100 image, the coordinates could be
+        >>> # (x0, y0, x1, y1) = (10, 20, 30, 40)
+        >>> W, H = 100, 100 # get image shape
+        >>> bbox = BoundingBox(10 / W, 20 / H, 30 / W, 40 / H)
 
     """
 
@@ -77,7 +77,7 @@ class BoundingBox:
         """Helper to convert from bounding box format with width and height.
 
         Examples:
-        >>> bbox = BoundingBox.from_x_y_w_h(0.1, 0.2, 0.2, 0.2)
+            >>> bbox = BoundingBox.from_x_y_w_h(0.1, 0.2, 0.2, 0.2)
 
         """
         return cls(x, y, x + w, y + h)
@@ -88,7 +88,7 @@ class BoundingBox:
         x_center, y_center, w, h --> x0, y0, x1, y1
 
         Examples:
-        >>> bbox = BoundingBox.from_yolo(0.5, 0.4, 0.2, 0.3)
+            >>> bbox = BoundingBox.from_yolo(0.5, 0.4, 0.2, 0.3)
 
         """
         return cls(x_center - w / 2, y_center - h / 2, x_center + w / 2, y_center + h / 2, clip_values=True)

@@ -26,6 +26,9 @@ class ActiveLearningAgent:
         added_set:
             Set of filenames corresponding to samples which were added to the 
             labeled set in the last query.
+            
+            Raises:
+                RuntimeError: If executed before a query.
 
     Examples:
         >>> # set the token and dataset id
@@ -70,7 +73,7 @@ class ActiveLearningAgent:
 
         # build lookup table for tag_name to tag_id
         tag_name_id_dict = {}
-        for tag in self.api_workflow_client._get_all_tags():
+        for tag in self.api_workflow_client.get_all_tags():
             tag_name_id_dict[tag.name] = tag.id
         # use lookup table to set ids
         self._query_tag_id = tag_name_id_dict[query_tag_name]
@@ -89,7 +92,7 @@ class ActiveLearningAgent:
 
         """
         # get query tag from api and set bitmask accordingly
-        query_tag_data = self.api_workflow_client.tags_api.get_tag_by_tag_id(
+        query_tag_data = self.api_workflow_client._tags_api.get_tag_by_tag_id(
             self.api_workflow_client.dataset_id,
             tag_id=self._query_tag_id
         )
@@ -106,7 +109,7 @@ class ActiveLearningAgent:
             preselected_tag_bitmask = BitMask.from_hex('0x0')
         else:
             # get preselected tag from api and set bitmask accordingly
-            preselected_tag_data = self.api_workflow_client.tags_api.get_tag_by_tag_id(
+            preselected_tag_data = self.api_workflow_client._tags_api.get_tag_by_tag_id(
                 self.api_workflow_client.dataset_id,
                 tag_id=self._preselected_tag_id
             )
@@ -120,7 +123,7 @@ class ActiveLearningAgent:
 
         """
         return self._query_tag_bitmask.masked_select_from_list(
-            self.api_workflow_client.filenames_on_server
+            self.api_workflow_client.get_filenames()
         )
 
     @property
@@ -129,7 +132,7 @@ class ActiveLearningAgent:
 
         """
         return self._preselected_tag_bitmask.masked_select_from_list(
-            self.api_workflow_client.filenames_on_server
+            self.api_workflow_client.get_filenames()
         )
 
     @property
@@ -140,7 +143,7 @@ class ActiveLearningAgent:
         # unlabeled set is the query set minus the preselected set
         unlabeled_tag_bitmask = self._query_tag_bitmask - self._preselected_tag_bitmask
         return unlabeled_tag_bitmask.masked_select_from_list(
-            self.api_workflow_client.filenames_on_server
+            self.api_workflow_client.get_filenames()
         )
 
     @property
@@ -148,7 +151,7 @@ class ActiveLearningAgent:
         """List of filenames of newly added samples (in the last query).
 
         Raises:
-            RuntimeError if executed before a query.
+            RuntimeError: If executed before a query.
 
         """
         # the added set only exists after a query
@@ -157,7 +160,7 @@ class ActiveLearningAgent:
         # added set is new preselected set minus the old one
         added_tag_bitmask = self._preselected_tag_bitmask - self._old_preselected_tag_bitmask
         return added_tag_bitmask.masked_select_from_list(
-            self.api_workflow_client.filenames_on_server
+            self.api_workflow_client.get_filenames()
         )
 
 

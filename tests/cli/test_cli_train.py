@@ -67,6 +67,10 @@ class TestCLITrain(MockedApiWorkflowSetup):
                 self.parse_cli_string(cli_string)
                 lightly.cli.train_cli(self.cfg)
 
+                self.assertGreater(len(os.getenv(
+                    self.cfg['environment_variable_names'][
+                        'lightly_last_checkpoint_path'])), 0)
+
     def tearDown(self) -> None:
         for filename in ["embeddings.csv", "embeddings_sorted.csv"]:
             try:

@@ -1,6 +1,13 @@
+import io
 import csv
+import tempfile
+import hashlib
+from datetime import datetime
 from typing import List
+from urllib.request import Request, urlopen
 
+from lightly.openapi_generated.swagger_client import \
+    DimensionalityReductionMethod, Trigger2dEmbeddingJobRequest
 from lightly.openapi_generated.swagger_client.models.dataset_embedding_data \
     import DatasetEmbeddingData
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data \
@@ -8,29 +15,75 @@ from lightly.openapi_generated.swagger_client.models.write_csv_url_data \
 from lightly.utils.io import check_filenames
 
 
+class EmbeddingDoesNotExistError(ValueError):
+    pass
+
+
 class _UploadEmbeddingsMixin:
 
-    def set_embedding_id_by_name(self, embedding_name: str = None):
-        """Sets the embedding id of the client by embedding name.
+    def _get_csv_reader_from_read_url(self, read_url: str):
+        """Makes a get request to the signed read url and returns the .csv file.
+
+        """
+        request = Request(read_url, method='GET')
+        with urlopen(request) as response:
+            buffer = io.StringIO(response.read().decode('utf-8'))
+            reader = csv.reader(buffer)
+
+        return reader
+
+    def set_embedding_id_to_latest(self):
+        """Sets the self.embedding_id to the one of the latest on the server.
+
+        """
+        embeddings_on_server: List[DatasetEmbeddingData] = \
+            self._embeddings_api.get_embeddings_by_dataset_id(
+                dataset_id=self.dataset_id
+            )
+        self.embedding_id = embeddings_on_server[-1].id
+
+    def get_embedding_by_name(
+            self, name: str, ignore_suffix: bool = True
+    ) -> DatasetEmbeddingData:
+        """Gets an embedding form the server by name.
 
         Args:
-            embedding_name:
-                Name under which the embedding was uploaded.
-    
+            name:
+                The name of the embedding to get.
+            ignore_suffix:
+                If true, a suffix of the embedding name on the server
+                is ignored.
+
+        Returns:
+            The embedding data.
+
         Raises:
-            ValueError if the embedding does not exist.
+            EmbeddingDoesNotExistError:
+                If the name does not match the name of an embedding
+                on the server.
+
         """
-        embeddings: List[DatasetEmbeddingData] = \
-            self.embeddings_api.get_embeddings_by_dataset_id(dataset_id=self.dataset_id)
-
-        if embedding_name is None:
-            self.embedding_id = embeddings[-1].id
-            return
-
+        embeddings_on_server: List[DatasetEmbeddingData] = \
+            self._embeddings_api.get_embeddings_by_dataset_id(
+                dataset_id=self.dataset_id
+            )
         try:
-            self.embedding_id = next(embedding.id for embedding in embeddings if embedding.name == embedding_name)
+            if ignore_suffix:
+                embedding = next(
+                    embedding for embedding in embeddings_on_server if
+                    embedding.name.startswith(name)
+                )
+            else:
+                embedding = next(
+                    embedding for embedding in embeddings_on_server if
+                    embedding.name == name
+                )
         except StopIteration:
-            raise ValueError(f"No embedding with name {embedding_name} found on the server.")
+            raise EmbeddingDoesNotExistError(
+                f"Embedding with the specified name "
+                f"does not exist on the server: {name}"
+            )
+        return embedding
 
     def upload_embeddings(self, path_to_embeddings_csv: str, name: str):
         """Uploads embeddings to the server.
@@ -47,31 +100,116 @@ class _UploadEmbeddingsMixin:
                 the upload is aborted.
 
         """
-        # get the names of the current embeddings on the server:
-        embeddings_on_server: List[DatasetEmbeddingData] = \
-            self.embeddings_api.get_embeddings_by_dataset_id(dataset_id=self.dataset_id)
-        names_embeddings_on_server = [embedding.name for embedding in embeddings_on_server]
 
-        if name in names_embeddings_on_server:
-            print(f"Aborting upload, embedding with name='{name}' already exists.")
-            self.embedding_id = next(embedding for embedding in embeddings_on_server if embedding.name == name).id
-            return
+        # Try to append the embeddings on the server, if they exist
+        try:
+            embedding = self.get_embedding_by_name(name, ignore_suffix=True)
+            # -> append rows from server
+            print('Appending embeddings from server.')
+            self.append_embeddings(path_to_embeddings_csv, embedding.id)
+            now = datetime.now().strftime('%Y%m%d_%Hh%Mm%Ss')
+            name = f'{name}_{now}'
+        except EmbeddingDoesNotExistError:
+            pass
 
         # create a new csv with the filenames in the desired order
-        path_to_ordered_embeddings_csv = self._order_csv_by_filenames(
+        rows_csv = self._order_csv_by_filenames(
             path_to_embeddings_csv=path_to_embeddings_csv)
 
         # get the URL to upload the csv to
         response: WriteCSVUrlData = \
-            self.embeddings_api.get_embeddings_csv_write_url_by_id(self.dataset_id, name=name)
+            self._embeddings_api.get_embeddings_csv_write_url_by_id(self.dataset_id, name=name)
         self.embedding_id = response.embedding_id
         signed_write_url = response.signed_write_url
 
-        # upload the csv to the URL
-        with open(path_to_ordered_embeddings_csv, 'rb') as file_ordered_embeddings_csv:
-            self.upload_file_with_signed_url(file=file_ordered_embeddings_csv, signed_write_url=signed_write_url)
+        # save the csv rows in a temporary in-memory string file
+        # using a csv writer and then read them as bytes
+        with tempfile.SpooledTemporaryFile(mode="rw") as f:
+            writer = csv.writer(f)
+            writer.writerows(rows_csv)
+            f.seek(0)
+            embeddings_csv_as_bytes = f.read().encode('utf-8')
 
-    def _order_csv_by_filenames(self, path_to_embeddings_csv: str) -> str:
+        # write the bytes to a temporary in-memory byte file
+        with tempfile.SpooledTemporaryFile(mode='r+b') as f_bytes:
+            f_bytes.write(embeddings_csv_as_bytes)
+            f_bytes.seek(0)
+            self.upload_file_with_signed_url(file=f_bytes, signed_write_url=signed_write_url)
+
+        # trigger the 2d embeddings job
+        for dimensionality_reduction_method in [
+            DimensionalityReductionMethod.PCA,
+            DimensionalityReductionMethod.TSNE,
+            DimensionalityReductionMethod.UMAP
+        ]:
+
+            body = Trigger2dEmbeddingJobRequest(
+                dimensionality_reduction_method=dimensionality_reduction_method)
+            self._embeddings_api.trigger2d_embeddings_job(
+                body=body,
+                dataset_id=self.dataset_id,
+                embedding_id=self.embedding_id
+            )
+
+
+    def append_embeddings(self,
+                          path_to_embeddings_csv: str,
+                          embedding_id: str):
+        """Concatenates the embeddings from the server to the local ones.
+
+        Loads the embedding csv file belonging to the embedding_id, and
+        appends all of its rows to the local embeddings file located at
+        'path_to_embeddings_csv'.
+
+        Args:
+            path_to_embeddings_csv:
+                The path to the csv containing the local embeddings.
+            embedding_id:
+                Id of the embedding summary of the embeddings on the server.
+
+        Raises:
+            RuntimeError:
+                If the number of columns in the local and the remote
+                embeddings file mismatch.
+        
+        """
+
+        # read embedding from API
+        embedding_read_url = self._embeddings_api \
+            .get_embeddings_csv_read_url_by_id(self.dataset_id, embedding_id)
+        embedding_reader = self._get_csv_reader_from_read_url(embedding_read_url)
+        rows = list(embedding_reader)
+        header, online_rows = rows[0], rows[1:]
+
+        # read local embedding
+        with open(path_to_embeddings_csv, 'r') as f:
+            local_rows = list(csv.reader(f))
+
+            if len(local_rows[0]) != len(header):
+                raise RuntimeError(
+                    'Column mismatch! Number of columns in local and remote'
+                    f' embeddings files must match but are {len(local_rows[0])}'
+                    f' and {len(header)} respectively.'
+                )
+
+            local_rows = local_rows[1:]
+
+        # combine online and local embeddings
+        total_rows = [header]
+        filename_to_local_row = { row[0]: row for row in local_rows }
+        for row in online_rows:
+            # pick local over online filename if it exists
+            total_rows.append(filename_to_local_row.pop(row[0], row))
+        # add all local rows which were not added yet
+        total_rows.extend(list(filename_to_local_row.values()))
+        
+        # save embeddings again
+        with open(path_to_embeddings_csv, 'w') as f:
+            writer = csv.writer(f)
+            writer.writerows(total_rows)
+        
+
+    def _order_csv_by_filenames(self, path_to_embeddings_csv: str) -> List[str]:
         """Orders the rows in a csv according to the order specified on the server and saves it as a new file.
 
         Args:
@@ -91,10 +229,12 @@ class _UploadEmbeddingsMixin:
             index_filenames = header_row.index('filenames')
             filenames = [row[index_filenames] for row in rows_without_header]
 
-            if len(filenames) != len(self.filenames_on_server):
+            filenames_on_server = self.get_filenames()
+
+            if len(filenames) != len(filenames_on_server):
                 raise ValueError(f'There are {len(filenames)} rows in the embedding file, but '
-                                 f'{len(self.filenames_on_server)} filenames/samples on the server.')
-            if set(filenames) != set(self.filenames_on_server):
+                                 f'{len(filenames_on_server)} filenames/samples on the server.')
+            if set(filenames) != set(filenames_on_server):
                 raise ValueError(f'The filenames in the embedding file and '
                                  f'the filenames on the server do not align')
             check_filenames(filenames)
@@ -102,12 +242,7 @@ class _UploadEmbeddingsMixin:
             rows_without_header_ordered = \
                 self._order_list_by_filenames(filenames, rows_without_header)
 
-            rows_to_write = [header_row]
-            rows_to_write += rows_without_header_ordered
+            rows_csv = [header_row]
+            rows_csv += rows_without_header_ordered
 
-        path_to_ordered_embeddings_csv = path_to_embeddings_csv.replace('.csv', '_sorted.csv')
-        with open(path_to_ordered_embeddings_csv, 'w') as f:
-            writer = csv.writer(f)
-            writer.writerows(rows_to_write)
-
-        return path_to_ordered_embeddings_csv
+        return rows_csv

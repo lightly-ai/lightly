@@ -7,6 +7,23 @@ from lightly.openapi_generated.swagger_client.models.dataset_data import Dataset
 
 class _DatasetsMixin:
 
+    @property
+    def dataset_type(self) -> str:
+        """Returns the dataset type of the current dataset.
+        
+        """
+        dataset = self._get_current_dataset()
+        return dataset.type # type: ignore
+
+    def _get_current_dataset(self) -> DatasetData:
+        """Returns the dataset with id == self.dataset_id.
+        
+        """
+        dataset_id = self.dataset_id
+        datasets: List[DatasetData] = self._datasets_api.get_datasets()
+        dataset = next(dataset for dataset in datasets if dataset.id == dataset_id)
+        return dataset
+
     def set_dataset_id_by_name(self, dataset_name: str):
         """Sets the dataset id given the name of the dataset
 
@@ -19,7 +36,7 @@ class _DatasetsMixin:
 
         """
         current_datasets: List[DatasetData] \
-            = self.datasets_api.get_datasets()
+            = self._datasets_api.get_datasets()
 
         try:
             dataset_with_specified_name = next(dataset for dataset in current_datasets if dataset.name == dataset_name)
@@ -32,6 +49,7 @@ class _DatasetsMixin:
         """Creates a dataset on the webplatform
 
         If a dataset with that name already exists, instead the dataset_id is set.
+
         Args:
             dataset_name:
                 The name of the dataset to be created.
@@ -46,13 +64,14 @@ class _DatasetsMixin:
         """Creates a dataset on the webplatform
 
         No checking if a dataset with such a name already exists is performed.
+
         Args:
             dataset_name:
                 The name of the dataset to be created.
 
         """
         body = DatasetCreateRequest(name=dataset_name)
-        response: CreateEntityResponse = self.datasets_api.create_dataset(body=body)
+        response: CreateEntityResponse = self._datasets_api.create_dataset(body=body)
         self._dataset_id = response.id
 
     def create_new_dataset_with_unique_name(self, dataset_basename: str):
@@ -60,13 +79,14 @@ class _DatasetsMixin:
 
         If a dataset with the specified name already exists,
         a counter is added to the name to be able to still create it.
+
         Args:
             dataset_basename:
                 The name of the dataset to be created.
 
         """
         current_datasets: List[DatasetData] \
-            = self.datasets_api.get_datasets()
+            = self._datasets_api.get_datasets()
         current_datasets_names = [dataset.name for dataset in current_datasets]
 
         if dataset_basename not in current_datasets_names:
@@ -88,5 +108,5 @@ class _DatasetsMixin:
                 The id of the dataset to be deleted.
 
         """
-        self.datasets_api.delete_dataset_by_id(dataset_id=dataset_id)
+        self._datasets_api.delete_dataset_by_id(dataset_id=dataset_id)
         del self._dataset_id

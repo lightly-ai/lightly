@@ -1,53 +1,84 @@
 {% extends "!layout.html" %}
 
 {# Custom CSS overrides #}
-  {% set bootswatch_css_custom = ['/_static/my-styles.css'] %}
+{% set bootswatch_css_custom = ['/_static/my-styles.css'] %}
+
+<!-- 
+  Copy from https://github.com/readthedocs/sphinx_rtd_theme/blob/ddf840cb7206d7c45270560f077b12daa147f915/sphinx_rtd_theme/layout.html#L184-L205 
+  We need this to override the footer
+-->
+{%- block content %}
+  {% if theme_style_external_links|tobool %}
+  <div class="rst-content style-external-links">
+  {% else %}
+  <div class="rst-content">
+  {% endif %}
+    {% include "breadcrumbs.html" %}
+    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+    {%- block document %}
+      <div itemprop="articleBody">
+      {% block body %}{% endblock %}
+      </div>
+      {% if self.comments()|trim %}
+      <div class="articleComments">
+      {% block comments %}{% endblock %}
+      </div>
+      {% endif%}
+    </div>
+    {%- endblock %}
+    {% include "footer.html" %}
+  </div>
+{%- endblock %}
+
 
 {% block footer %}
-{{ super() }}
+  {{ super() }}
 
-<!-- Google Analytics -->
-<script>
+  <!-- Google Analytics -->
+  <script>
 
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    (function (i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 
-  var host = window.location.hostname;
-  if(host != "localhost")
-  {
-    ga('create', 'UA-147883152-5', 'auto');
-    ga('send', 'pageview');
-  }
+    var host = window.location.hostname;
+    if (host != "localhost") {
+      ga('create', 'UA-147883152-5', 'auto');
+      ga('send', 'pageview');
+    }
 
-</script>
+  </script>
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-147883152-5"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147883152-5"></script>
 
-<script>
+  <script>
 
-  window.dataLayer = window.dataLayer || [];
+    window.dataLayer = window.dataLayer || [];
 
-  function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
 
-  gtag('js', new Date());
-  gtag('config', 'UA-147883152-5');
+    gtag('js', new Date());
+    gtag('config', 'UA-147883152-5');
 
-</script>
+  </script>
 
-<style>
-  /* Sidebar header (and topbar for mobile) */
-  .wy-side-nav-search, .wy-nav-top {
-    background: #092643;
-  }
-  /* Sidebar */
-  .wy-nav-side {
-    background: #092643;
-  }
-  /*body{
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search,
+    .wy-nav-top {
+      background: #092643;
+    }
+
+    /* Sidebar */
+    .wy-nav-side {
+      background: #092643;
+    }
+
+    /*body{
     font-family: "Arial, Helvetica, sans-serif";
   }*/
-</style>
-
+  </style>
 {% endblock %}

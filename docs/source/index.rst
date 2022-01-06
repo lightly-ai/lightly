@@ -54,6 +54,12 @@ Check it out here: :ref:`lightly-tutorial-active-learning-detectron2`
 
 .. toctree::
    :maxdepth: 1
+   :caption: Examples
+
+   examples/models.rst
+
+.. toctree::
+   :maxdepth: 1
    :caption: Python API
 
    lightly
@@ -62,7 +68,6 @@ Check it out here: :ref:`lightly-tutorial-active-learning-detectron2`
    lightly.cli
    lightly.core
    lightly.data
-   lightly.embedding
    lightly.loss
    lightly.models
    lightly.transforms

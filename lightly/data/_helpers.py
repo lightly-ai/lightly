@@ -4,6 +4,8 @@
 # All Rights Reserved
 
 import os
+from typing import List, Set, Optional, Callable
+
 from torchvision import datasets
 
 from lightly.data._image import DatasetFolder
@@ -23,17 +25,37 @@ VIDEO_EXTENSIONS = ('.mp4', '.mov', '.avi', '.mpg',
                     '.hevc', '.m4v', '.webm', '.mpeg')
 
 
-def _contains_videos(root: str, extensions: tuple):
+def _dir_contains_videos(root: str, extensions: tuple):
     """Checks whether directory contains video files.
 
     Args:
         root: Root directory path.
 
     Returns:
-        True if root contains subdirectories else false.
+        True if root contains video files.
+
     """
     with os.scandir(root) as scan_dir:
         return any(f.name.lower().endswith(extensions) for f in scan_dir)
+
+
+def _contains_videos(root: str, extensions: tuple):
+    """Checks whether directory or any subdirectory contains video files.
+
+    Iterates over all subdirectories of "root" recursively and returns True
+    if any of the subdirectories contains a file with a VIDEO_EXTENSION.
+
+    Args:
+        root: Root directory path.
+
+    Returns:
+        True if "root" or any subdir contains video files.
+
+    """
+    for subdir, _, _ in os.walk(root):
+        if _dir_contains_videos(subdir, extensions):
+            return True
+    return False
 
 
 def _is_lightly_output_dir(dirname: str):
@@ -64,7 +86,10 @@ def _contains_subdirs(root: str):
             if f.is_dir())
 
 
-def _load_dataset_from_folder(root: str, transform):
+def _load_dataset_from_folder(
+        root: str, transform,
+        is_valid_file: Optional[Callable[[str], bool]] = None
+    ):
     """Initializes dataset from folder.
 
     Args:
@@ -72,9 +97,14 @@ def _load_dataset_from_folder(root: str, transform):
         transform: (torchvision.transforms.Compose) image transformations
 
     Returns:
-        Dataset consisting of images in the root directory.
+        Dataset consisting of images/videos in the root directory.
+
+    Raises:
+        ValueError: If the specified dataset doesn't exist
 
     """
+    if not os.path.exists(root):
+        raise ValueError(f'The input directory {root} does not exist!')
 
     # if there is a video in the input directory but we do not have
     # the right dependencies, raise a ValueError
@@ -90,41 +120,21 @@ def _load_dataset_from_folder(root: str, transform):
         # root contains videos -> create a video dataset
         dataset = VideoDataset(root,
                                extensions=VIDEO_EXTENSIONS,
-                               transform=transform)
+                               transform=transform,
+                               is_valid_file=is_valid_file
+                               )
     elif _contains_subdirs(root):
         # root contains subdirectories -> create an image folder dataset
         dataset = datasets.ImageFolder(root,
-                                       transform=transform)
+                                       transform=transform,
+                                       is_valid_file=is_valid_file
+                                       )
     else:
         # root contains plain images -> create a folder dataset
         dataset = DatasetFolder(root,
                                 extensions=IMG_EXTENSIONS,
-                                transform=transform)
+                                transform=transform,
+                                is_valid_file=is_valid_file
+                                )
 
     return dataset
-
-
-def _load_dataset(input_dir: str,
-                  transform=None):
-    """Initializes dataset from torchvision or from folder.
-
-    Args:
-        root: (str) Directory where dataset is stored
-        name: (str) Name of the dataset (e.g. cifar10, cifar100)
-        train: (bool) Use the training set
-        download: (bool) Download the dataset
-        transform: (torchvision.transforms.Compose) image transformations
-        from_folder: (str) Path to directory holding the images to load.
-
-    Returns:
-        A torchvision dataset
-
-    Raises:
-        ValueError: If the specified dataset doesn't exist
-
-    """
-
-    if not os.path.exists(input_dir):
-        raise ValueError(f'The input directory {input_dir} does not exist!')
-
-    return _load_dataset_from_folder(input_dir, transform)

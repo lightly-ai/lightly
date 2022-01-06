@@ -1,7 +1,7 @@
 .. _lightly-at-a-glance:
 
 Self-supervised learning
-===================
+========================
 
 Lightly is a computer vision framework for training deep learning models using self-supervised learning.
 The framework can be used for a wide range of useful applications such as finding the nearest 
@@ -70,19 +70,30 @@ with the normalized temperature-scaled cross entropy loss and simple stochastic 
 
     import torchvision
 
-    import lightly.models as models
-    import lightly.loss as loss
+    from lightly.loss import NTXentLoss
+    from lightly.models.modules.heads import SimCLRProjectionHead
 
     # use a resnet backbone
     resnet = torchvision.models.resnet18()
     resnet = nn.Sequential(*list(resnet.children())[:-1])
 
-    # build the simclr model
-    model = models.SimCLR(resnet, num_ftrs=512)
+    # build a SimCLR model
+    class SimCLR(torch.nn.Module):
+        def __init__(self, backbone, hidden_dim, out_dim):
+            super().__init__()
+            self.backbone = backbone
+            self.projection_head = SimCLRProjectionHead(hidden_dim, hidden_dim, out_dim)
+
+        def forward(self, x):
+            h = self.backbone(x).flatten(start_dim=1)
+            z = self.projection_head(h)
+            return z
+
+    model = SimCLR(resnet, hidden_dim=512, out_dim=128)
 
     # use a criterion for self-supervised learning
     # (normalized temperature-scaled cross entropy loss)
-    criterion = loss.NTXentLoss(temperature=0.5)
+    criterion = NTXentLoss(temperature=0.5)
 
     # get a PyTorch optimizer
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-0, weight_decay=1e-5)
@@ -94,28 +105,57 @@ with the normalized temperature-scaled cross entropy loss and simple stochastic 
           `colab playground <https://colab.research.google.com/drive/1ubepXnpANiWOSmq80e-mqAxjLx53m-zu?usp=sharing>`_.
 
 
-Put everything together in an embedding model and train it for 10 epochs on a single GPU.
+Train the model for 10 epochs.
 
 .. code-block:: python
 
-    import lightly.embedding as embedding
+    for epoch in range(10):
+        for (x0, x1), _, _ in dataloader:
+            
+            x0 = x0.to(device)
+            x1 = x1.to(device)
 
-    # put all the pieces together in a single pytorch_lightning trainable!
-    embedding_model = embedding.SelfSupervisedEmbedding(
-        model,
-        criterion,
-        optimizer,
-        dataloader)
+            z0 = model(x0)
+            z1 = model(x1)
 
-    # do self-supervised learning for 10 epochs
-    embedding_model.train_embedding(gpus=1, max_epochs=10)
+            loss = criterion(z0, z1)
+            loss.backward()
+
+            optimizer.step()
+            optimizer.zero_grad()
+
 
 Congrats, you just trained your first model using self-supervised learning!
 
-You can also train the model using PyTorch Lightning directly.
+You can of course also use `PyTorch Lightning <https://www.pytorchlightning.ai/>`_ to implement and train your model.
 
 .. code-block:: python
 
+    import pytorch_lightning as pl
+
+    class SimCLR(pl.LightningModule):
+        def __init__(self, backbone, hidden_dim, out_dim):
+            self.backbone = backbone
+            self.projection_head = SimCLRProjectionHead(hidden_dim, hidden_dim, out_dim)
+            self.criterion = NTXentLoss(temperature=0.5)
+
+        def forward(self, x):
+            h = self.backbone(x).flatten(start_dim=1)
+            z = self.projection_head(h)
+            return z
+
+        def training_step(self, batch, batch_idx):
+            (x0, x1), _, _ = batch
+            z0 = self.forward(x0)
+            z1 = self.forward(x1)
+            loss = self.criterion(z0, z1)
+            return loss
+
+        def configure_optimizers(self):
+            optimizer = torch.optim.SGD(self.parameters())
+            return optimizer
+    
+    model = SimCLR(resnet, hidden_dim=512, out_dim=128)
     trainer = pl.Trainer(max_epochs=max_epochs, gpus=1)
     trainer.fit(
         model,
@@ -138,7 +178,6 @@ To train on a machine with multiple GPUs we recommend using the
         dataloader
     )
 
-
 Embeddings
 ^^^^^^^^^^
 You can use the trained model to embed your images or even access the embedding
@@ -154,15 +193,26 @@ model directly.
     )
 
     # embed your image dataset
-    embeddings, labels, filenames = embedding_model.embed(dataloader)
+    embeddings = []
+    model.eval()
+    with torch.no_grad():
+        for img, label, fnames in dataloader:
+            img = img.to(model.device)
+            emb = model.backbone(img).flatten(start_dim=1)
+            embeddings.append(emb)
 
-    # access the ResNet backbone
-    resnet = embedding_model.model.backbone
+        embeddings = torch.cat(embeddings, 0)
 
 Done! You can continue to use the embeddings to find nearest neighbors or do similarity search.
 Furthermore, the ResNet backbone can be used for transfer and few-shot learning.
 
+.. code-block:: python
+
+    # access the ResNet backbone
+    resnet = model.backbone
+
 .. note::
+
     Self-supervised learning does not require labels for a model to be trained on. Lightly,
     however, supports the use of additional labels. For example, if you train a model
     on a folder 'cats' with subfolders 'Maine Coon', 'Bengal' and 'British Shorthair'

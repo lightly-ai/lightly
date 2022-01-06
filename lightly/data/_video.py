@@ -4,7 +4,7 @@
 # All Rights Reserved
 
 import os
-from typing import List
+from typing import List, Tuple
 from fractions import Fraction
 
 from PIL import Image
@@ -158,34 +158,32 @@ def _make_dataset(directory,
 
     """
 
-    # handle is_valid_file and extensions the same way torchvision handles them:
-    # https://pytorch.org/docs/stable/_modules/torchvision/datasets/folder.html#ImageFolder
-    both_none = extensions is None and is_valid_file is None
-    both_something = extensions is not None and is_valid_file is not None
-    if both_none or both_something:
-        raise ValueError('Both extensions and is_valid_file cannot be None or '
-                         'not None at the same time')
-
-    # use filename to find valid files
-    if extensions is not None:
-        def _is_valid_file(filename):
-            return filename.lower().endswith(extensions)
-
-    # overwrite function to find valid files
-    if is_valid_file is not None:
-        _is_valid_file = is_valid_file
+    if extensions is None:
+        if is_valid_file is None:
+            ValueError('Both extensions and is_valid_file cannot be None')
+        else:
+            _is_valid_file = is_valid_file
+    else:
+        def is_valid_file_extension(filepath):
+            return filepath.lower().endswith(extensions)
+        if is_valid_file is None:
+            _is_valid_file = is_valid_file_extension
+        else:
+            def _is_valid_file(filepath):
+                return is_valid_file_extension(filepath) and is_valid_file(filepath)
 
     # find all video instances (no subdirectories)
     video_instances = []
-    for fname in os.listdir(directory):
+    for root, _, files in os.walk(directory):
 
-        # skip invalid files
-        if not _is_valid_file(fname):
-            continue
+        for fname in files:
+            # skip invalid files
+            if not _is_valid_file(os.path.join(root, fname)):
+                continue
 
-        # keep track of valid files
-        path = os.path.join(directory, fname)
-        video_instances.append(path)
+            # keep track of valid files
+            path = os.path.join(root, fname)
+            video_instances.append(path)
 
     # get timestamps
     timestamps, fpss = [], []
@@ -273,6 +271,9 @@ class VideoDataset(datasets.VisionDataset):
 
         self.videos = videos
         self.video_timestamps = video_timestamps
+        self._length = sum((
+            len(ts) for ts in self.video_timestamps
+        ))
         # offsets[i] indicates the index of the first frame of the i-th video.
         # e.g. for two videos of length 10 and 20, the offsets will be [0, 10].
         self.offsets = offsets
@@ -336,8 +337,10 @@ class VideoDataset(datasets.VisionDataset):
     def __len__(self):
         """Returns the number of samples (frames) in the dataset.
 
+        This can be precomputed, because self.video_timestamps is only
+        set in the __init__
         """
-        return sum((len(ts) for ts in self.video_timestamps))
+        return self._length
 
     def get_filename(self, index):
         """Returns a filename for the frame at index.
@@ -370,19 +373,74 @@ class VideoDataset(datasets.VisionDataset):
             i = i - 1
 
         # get filename of the video file
-        filename = self.videos[i]
-        filename = os.path.relpath(filename, self.root)
-
-        # get video format and video name
-        splits = filename.split('.')
-        video_format = splits[-1]
-        video_name = '.'.join(splits[:-1])
+        video = self.videos[i]
+        video_name, video_format = self._video_name_format(video)
 
         # get frame number
         frame_number = index - self.offsets[i]
-        if i < len(self.offsets) - 1:
-            n_frames = self.offsets[i+1] - self.offsets[i]
-        else:
-            n_frames = self.__len__() - self.offsets[i]
         
-        return f'{video_name}-{frame_number:0{len(str(n_frames))}}-{video_format}.png'
+        n_frames = self._video_frame_count(i)
+        zero_padding = len(str(n_frames))
+
+        return self._format_filename(
+            video_name=video_name,
+            video_format=video_format,
+            frame_number=frame_number,
+            zero_padding=zero_padding,
+        )
+
+    def get_filenames(self) -> List[str]:
+        """Returns a list filenames for all frames in the dataset.
+        
+        """
+        filenames = []
+        for i, video in enumerate(self.videos):
+            video_name, video_format = self._video_name_format(video)
+            n_frames = self._video_frame_count(i)
+
+            zero_padding = len(str(n_frames))
+            for frame_number in range(n_frames):
+                filenames.append(
+                    self._format_filename(
+                        video_name=video_name,
+                        frame_number=frame_number,
+                        video_format=video_format,
+                        zero_padding=zero_padding,
+                    )
+                )
+        return filenames
+
+    def _video_frame_count(self, video_index: int) -> int:
+        """Returns the number of frames in the video with the given index.
+        
+        """
+        if video_index < len(self.offsets) - 1:
+            n_frames = self.offsets[video_index+1] - self.offsets[video_index]
+        else:
+            n_frames = len(self) - self.offsets[video_index]
+        return n_frames
+
+    def _video_name_format(self, video_filename: str) -> Tuple[str, str]:
+        """Extracts name and format from the filename of the video.
+
+        Returns:
+            A (video_name, video_format) tuple where video_name is the filename
+            relative to self.root and video_format is the file extension, for 
+            example 'mp4'.
+
+        """
+        video_filename = os.path.relpath(video_filename, self.root)
+        splits = video_filename.split('.')
+        video_format = splits[-1]
+        video_name = '.'.join(splits[:-1])
+        return video_name, video_format
+
+    def _format_filename(
+        self,
+        video_name: str, 
+        frame_number: int, 
+        video_format: str, 
+        zero_padding: int = 8, 
+        extension: str = 'png'
+    ) -> str:
+        return f'{video_name}-{frame_number:0{zero_padding}}-{video_format}.{extension}'

@@ -29,11 +29,6 @@ The framework is structured into the following modules:
   collate functions are in charge of the data augmentations which are crucial for
   self-supervised learning.
 
-- **embedding**:
-
-  The lightly.embedding module combines the self-supervised models with a dataloader,
-  optimizer, and loss function to provide a simple pytorch-lightning trainable.
-
 - **loss**:
 
   The lightly.loss module contains implementations of popular self-supervised training
@@ -41,20 +36,22 @@ The framework is structured into the following modules:
 
 - **models**:
 
-  The lightly.models module holds the implementation of the ResNet as well as self-
-  supervised methods. Currently implements:
-
-  - SimCLR
-
-  - MoCo
-
-  - SimSiam
+  The lightly.models module holds the implementation of the ResNet as well as heads
+  for self-supervised methods. It currently implements the heads of:
 
   - Barlow Twins
 
   - BYOL
-
+  
+  - MoCo
+  
   - NNCLR
+  
+  - SimCLR
+  
+  - SimSiam
+  
+  - SwaV
 
 - **transforms**:
 
@@ -78,9 +75,9 @@ The framework is structured into the following modules:
 # All Rights Reserved
 
 __name__ = 'lightly'
-__version__ = '1.1.18'
+__version__ = '1.2.2'
 
-from multiprocessing import current_process
+import os
 
 try:
     # See (https://github.com/PyTorchLightning/pytorch-lightning)
@@ -118,16 +115,16 @@ else:
     from lightly import openapi_generated
     from lightly import transforms
     from lightly import utils
+    
+    from lightly.api.version_checking import do_version_check
 
-    if current_process().name == 'MainProcess':
-        # check for latest version
-        from lightly.api.version_checking import get_latest_version
-        from lightly.api.version_checking import version_compare
-        from lightly.api.version_checking import pretty_print_latest_version
+    if os.getenv('LIGHTLY_DID_VERSION_CHECK', 'False') == 'False':
+        os.environ['LIGHTLY_DID_VERSION_CHECK'] = 'True'
 
-        latest_version = get_latest_version(__version__)
-        if latest_version is not None:
-            if version_compare(__version__, latest_version) < 0:
-                # local version is behind latest version
-                pretty_print_latest_version(latest_version)
+        try:
+            do_version_check(current_version=__version__)
+        except Exception as e:
+            pass
+
+
 

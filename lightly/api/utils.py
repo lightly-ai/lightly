@@ -17,7 +17,8 @@ from PIL import JpegImagePlugin
 JpegImagePlugin._getmp = lambda: None
 
 MAXIMUM_FILENAME_LENGTH = 255
-
+RETRY_MAX_BACKOFF = 32
+RETRY_MAX_RETRIES = 5
 
 def retry(func, *args, **kwargs):
     """Repeats a function until it completes successfully or fails too often.
@@ -40,8 +41,8 @@ def retry(func, *args, **kwargs):
 
     # config
     backoff = 1. + random.random() * 0.1
-    max_backoff = 32
-    max_retries = 5
+    max_backoff = RETRY_MAX_BACKOFF
+    max_retries = RETRY_MAX_RETRIES
 
     # try to make the request
     for i in range(max_retries):
@@ -96,3 +97,34 @@ def check_filename(basename):
 
     """
     return len(basename) <= MAXIMUM_FILENAME_LENGTH
+
+
+
+def build_azure_signed_url_write_headers(content_length: str,
+                                         x_ms_blob_type: str = 'BlockBlob',
+                                         accept: str = '*/*',
+                                         accept_encoding: str = '*'):
+    """Builds the headers required for a SAS PUT to Azure blob storage.
+
+    Args:
+        content_length:
+            Length of the content in bytes as string.
+        x_ms_blob_type:
+            Blob type (one of BlockBlob, PageBlob, AppendBlob)
+        accept:
+            Indicates which content types the client is able to understand.
+        accept_encoding:
+            Indicates the content encoding that the client can understand.
+
+    Returns:
+        Formatted header which should be passed to the PUT request.
+
+    """
+    headers = {
+        'x-ms-blob-type': x_ms_blob_type,
+        'Accept': accept,
+        'Content-Length': content_length,
+        'x-ms-original-content-length': content_length,
+        'Accept-Encoding': accept_encoding,
+    }
+    return headers

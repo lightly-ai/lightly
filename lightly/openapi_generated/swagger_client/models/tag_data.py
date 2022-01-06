@@ -42,6 +42,7 @@ class TagData(object):
         'bit_mask_data': 'TagBitMaskData',
         'tot_size': 'int',
         'created_at': 'Timestamp',
+        'last_modified_at': 'Timestamp',
         'changes': 'TagChangeData'
     }
 
@@ -55,10 +56,11 @@ class TagData(object):
         'bit_mask_data': 'bitMaskData',
         'tot_size': 'totSize',
         'created_at': 'createdAt',
+        'last_modified_at': 'lastModifiedAt',
         'changes': 'changes'
     }
 
-    def __init__(self, id=None, dataset_id=None, prev_tag_id=None, query_tag_id=None, preselected_tag_id=None, name=None, bit_mask_data=None, tot_size=None, created_at=None, changes=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, dataset_id=None, prev_tag_id=None, query_tag_id=None, preselected_tag_id=None, name=None, bit_mask_data=None, tot_size=None, created_at=None, last_modified_at=None, changes=None, _configuration=None):  # noqa: E501
         """TagData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -73,6 +75,7 @@ class TagData(object):
         self._bit_mask_data = None
         self._tot_size = None
         self._created_at = None
+        self._last_modified_at = None
         self._changes = None
         self.discriminator = None
 
@@ -87,6 +90,8 @@ class TagData(object):
         self.bit_mask_data = bit_mask_data
         self.tot_size = tot_size
         self.created_at = created_at
+        if last_modified_at is not None:
+            self.last_modified_at = last_modified_at
         if changes is not None:
             self.changes = changes
 
@@ -292,6 +297,27 @@ class TagData(object):
             raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
         self._created_at = created_at
+
+    @property
+    def last_modified_at(self):
+        """Gets the last_modified_at of this TagData.  # noqa: E501
+
+
+        :return: The last_modified_at of this TagData.  # noqa: E501
+        :rtype: Timestamp
+        """
+        return self._last_modified_at
+
+    @last_modified_at.setter
+    def last_modified_at(self, last_modified_at):
+        """Sets the last_modified_at of this TagData.
+
+
+        :param last_modified_at: The last_modified_at of this TagData.  # noqa: E501
+        :type: Timestamp
+        """
+
+        self._last_modified_at = last_modified_at
 
     @property
     def changes(self):

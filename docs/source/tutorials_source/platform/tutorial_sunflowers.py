@@ -88,7 +88,7 @@ create a sampling. You will need to configure the following settings:
 * **Stopping Condition:** Indicate how many samples you want to keep.
 * **Name:** Give your sampling a name. A new tag will be created under this name.
 
-.. figure:: ../../tutorials_source/platform/images/sampling_create_request.PNG
+.. figure:: ../../tutorials_source/platform/images/sampling_create_request.png
     :align: center
     :alt: Alt text
     :figclass: align-center
@@ -118,7 +118,7 @@ to see differences between the results.
 
 
 Download a sampling
-------------------
+-------------------
 
 Now you can use this diverse subset for your machine learning project.
 Just head over to the *Download* tag to see the different download options.

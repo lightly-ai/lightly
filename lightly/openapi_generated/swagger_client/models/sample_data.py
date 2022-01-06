@@ -34,49 +34,56 @@ class SampleData(object):
     """
     swagger_types = {
         'id': 'MongoObjectID',
+        'type': 'SampleType',
         'dataset_id': 'MongoObjectID',
         'file_name': 'str',
         'thumb_name': 'str',
         'exif': 'dict(str, object)',
-        'meta_data': 'SampleMetaData',
-        'custom_meta_data': 'CustomSampleMetaData',
         'index': 'int',
         'created_at': 'Timestamp',
-        'last_modified_at': 'Timestamp'
+        'last_modified_at': 'Timestamp',
+        'meta_data': 'SampleMetaData',
+        'custom_meta_data': 'CustomSampleMetaData',
+        'video_frame_data': 'VideoFrameData'
     }
 
     attribute_map = {
         'id': 'id',
+        'type': 'type',
         'dataset_id': 'datasetId',
         'file_name': 'fileName',
         'thumb_name': 'thumbName',
         'exif': 'exif',
-        'meta_data': 'metaData',
-        'custom_meta_data': 'customMetaData',
         'index': 'index',
         'created_at': 'createdAt',
-        'last_modified_at': 'lastModifiedAt'
+        'last_modified_at': 'lastModifiedAt',
+        'meta_data': 'metaData',
+        'custom_meta_data': 'customMetaData',
+        'video_frame_data': 'videoFrameData'
     }
 
-    def __init__(self, id=None, dataset_id=None, file_name=None, thumb_name=None, exif=None, meta_data=None, custom_meta_data=None, index=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, type=None, dataset_id=None, file_name=None, thumb_name=None, exif=None, index=None, created_at=None, last_modified_at=None, meta_data=None, custom_meta_data=None, video_frame_data=None, _configuration=None):  # noqa: E501
         """SampleData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._id = None
+        self._type = None
         self._dataset_id = None
         self._file_name = None
         self._thumb_name = None
         self._exif = None
-        self._meta_data = None
-        self._custom_meta_data = None
         self._index = None
         self._created_at = None
         self._last_modified_at = None
+        self._meta_data = None
+        self._custom_meta_data = None
+        self._video_frame_data = None
         self.discriminator = None
 
         self.id = id
+        self.type = type
         if dataset_id is not None:
             self.dataset_id = dataset_id
         self.file_name = file_name
@@ -84,16 +91,18 @@ class SampleData(object):
             self.thumb_name = thumb_name
         if exif is not None:
             self.exif = exif
-        if meta_data is not None:
-            self.meta_data = meta_data
-        if custom_meta_data is not None:
-            self.custom_meta_data = custom_meta_data
         if index is not None:
             self.index = index
         if created_at is not None:
             self.created_at = created_at
         if last_modified_at is not None:
             self.last_modified_at = last_modified_at
+        if meta_data is not None:
+            self.meta_data = meta_data
+        if custom_meta_data is not None:
+            self.custom_meta_data = custom_meta_data
+        if video_frame_data is not None:
+            self.video_frame_data = video_frame_data
 
     @property
     def id(self):
@@ -117,6 +126,29 @@ class SampleData(object):
             raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
         self._id = id
+
+    @property
+    def type(self):
+        """Gets the type of this SampleData.  # noqa: E501
+
+
+        :return: The type of this SampleData.  # noqa: E501
+        :rtype: SampleType
+        """
+        return self._type
+
+    @type.setter
+    def type(self, type):
+        """Sets the type of this SampleData.
+
+
+        :param type: The type of this SampleData.  # noqa: E501
+        :type: SampleType
+        """
+        if self._configuration.client_side_validation and type is None:
+            raise ValueError("Invalid value for `type`, must not be `None`")  # noqa: E501
+
+        self._type = type
 
     @property
     def dataset_id(self):
@@ -205,48 +237,6 @@ class SampleData(object):
         self._exif = exif
 
     @property
-    def meta_data(self):
-        """Gets the meta_data of this SampleData.  # noqa: E501
-
-
-        :return: The meta_data of this SampleData.  # noqa: E501
-        :rtype: SampleMetaData
-        """
-        return self._meta_data
-
-    @meta_data.setter
-    def meta_data(self, meta_data):
-        """Sets the meta_data of this SampleData.
-
-
-        :param meta_data: The meta_data of this SampleData.  # noqa: E501
-        :type: SampleMetaData
-        """
-
-        self._meta_data = meta_data
-
-    @property
-    def custom_meta_data(self):
-        """Gets the custom_meta_data of this SampleData.  # noqa: E501
-
-
-        :return: The custom_meta_data of this SampleData.  # noqa: E501
-        :rtype: CustomSampleMetaData
-        """
-        return self._custom_meta_data
-
-    @custom_meta_data.setter
-    def custom_meta_data(self, custom_meta_data):
-        """Sets the custom_meta_data of this SampleData.
-
-
-        :param custom_meta_data: The custom_meta_data of this SampleData.  # noqa: E501
-        :type: CustomSampleMetaData
-        """
-
-        self._custom_meta_data = custom_meta_data
-
-    @property
     def index(self):
         """Gets the index of this SampleData.  # noqa: E501
 
@@ -308,6 +298,69 @@ class SampleData(object):
         """
 
         self._last_modified_at = last_modified_at
+
+    @property
+    def meta_data(self):
+        """Gets the meta_data of this SampleData.  # noqa: E501
+
+
+        :return: The meta_data of this SampleData.  # noqa: E501
+        :rtype: SampleMetaData
+        """
+        return self._meta_data
+
+    @meta_data.setter
+    def meta_data(self, meta_data):
+        """Sets the meta_data of this SampleData.
+
+
+        :param meta_data: The meta_data of this SampleData.  # noqa: E501
+        :type: SampleMetaData
+        """
+
+        self._meta_data = meta_data
+
+    @property
+    def custom_meta_data(self):
+        """Gets the custom_meta_data of this SampleData.  # noqa: E501
+
+
+        :return: The custom_meta_data of this SampleData.  # noqa: E501
+        :rtype: CustomSampleMetaData
+        """
+        return self._custom_meta_data
+
+    @custom_meta_data.setter
+    def custom_meta_data(self, custom_meta_data):
+        """Sets the custom_meta_data of this SampleData.
+
+
+        :param custom_meta_data: The custom_meta_data of this SampleData.  # noqa: E501
+        :type: CustomSampleMetaData
+        """
+
+        self._custom_meta_data = custom_meta_data
+
+    @property
+    def video_frame_data(self):
+        """Gets the video_frame_data of this SampleData.  # noqa: E501
+
+
+        :return: The video_frame_data of this SampleData.  # noqa: E501
+        :rtype: VideoFrameData
+        """
+        return self._video_frame_data
+
+    @video_frame_data.setter
+    def video_frame_data(self, video_frame_data):
+        """Sets the video_frame_data of this SampleData.
+
+
+        :param video_frame_data: The video_frame_data of this SampleData.  # noqa: E501
+        :type: VideoFrameData
+        """
+
+        self._video_frame_data = video_frame_data
 
     def to_dict(self):
         """Returns the model properties as a dict"""

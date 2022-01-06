@@ -1,7 +1,7 @@
 .. _lightly-advanced:
 
 Advanced Concepts in Self-Supervised Learning
-===================
+=============================================
 
 In this section, we will have a look at some more advanced topics around lightly. 
 For the moment lightly focuses mostly on contrastive learning methods. 
@@ -27,7 +27,7 @@ the model to ignore the color augmentations.
 **Shape Invariances**
 
 - **Random cropping** E.g. We don't care if an object is small or large 
-  or only partially in the image
+  or only partially in the image.
 
 - **Random Horizontal Flip** E.g. We don't care about "left and right" in 
   images.
@@ -77,6 +77,10 @@ The built-in collate class
 common augmentations used in SimCLR and MoCo. Instead of a single batch of images,
 it returns a tuple of two batches of randomly transformed images.
 
+If you use the :ref:`lightly-command-line-tool` you have access to all the SimCLR
+collate augmentations. 
+You find the default parameters here: :ref:`ref-cli-config-default`. 
+
 Since **gaussian blur**, **solarization** and **random rotations** by 90 degrees 
 are not supported in torchvision, we added them to lightly 
 :py:class:`lightly.transforms`
@@ -104,35 +108,44 @@ You can build your own collate function by inheriting from
   )
 
 
+.. note:: You can disable the augmentations by either setting the probability to `0.0`
+    or making sure the augmentation has no effect. For example, random cropping 
+    can be disabled by setting `min_scale=1.0`.
+
 
 Models
 -------------------
 
-Lightly supports at the moment the following two models for self-supervised
+Lightly supports at the moment the following models for self-supervised
 learning:
 
 - `SimCLR: A Simple Framework for Contrastive Learning of Visual Representations, T. Chen, 2020 <https://arxiv.org/abs/2002.05709>`_
   
-  - Check the documentation: :py:class:`lightly.models.simclr.SimCLR`
+  - Check the tutorial: :ref:`lightly-simclr-tutorial-3`. 
 
 - `MoCo: Momentum Contrast for Unsupervised Visual Representation Learning, K. He, 2019 <https://arxiv.org/abs/1911.05722>`_
   
-  - Check the documentation: :py:class:`lightly.models.moco.MoCo`
+  - Check the tutorial: :ref:`lightly-moco-tutorial-2`
 
 - `SimSiam: Exploring Simple Siamese Representation Learning, K. He, 2020 <https://arxiv.org/abs/2011.10566>`_
 
-  - Check the documentation: :py:class:`lightly.models.simsiam.SimSiam`
+  - Check the tutorial: :ref:`lightly-simsiam-tutorial-4`
 
 - `Barlow Twins: Self-Supervised Learning via Redundancy Reduction, S. Deny, 2021 <https://arxiv.org/abs/2103.03230v1>`_
 
-  - Check the documentation: :py:class:`lightly.models.barlowtwins.BarlowTwins`
+- `NNCLR: With a Little Help from My Friends: Nearest-Neighbor Contrastive Learning of Visual Representations, D. Dwibedi, 2021 <https://arxiv.org/abs/2104.14548>`_
+
+- `BYOL: Bootstrap your own latent: A new approach to self-supervised Learning, J. Grill, 2020 <https://arxiv.org/abs/2006.07733>`_
+
+- `SwAV: Unsupervised Learning of Visual Features by Contrasting Cluster Assignments, M. Caron, 2020 <https://arxiv.org/abs/2006.09882>`_
+
 
 Do you know a model that should be on this list? Please add an issue on GitHub :)
 
 All models have a backbone component. This could be a ResNet.
 When creating a self-supervised learning model you pass it a backbone. You need
-to make sure the backbone output dimension matches the `num_ftrs` parameter 
-of the model.
+to make sure the backbone output dimension matches the input dimension of the
+head component for the respective self-supervised model.
 
 Lightly has a built-in generator for ResNets. However, the model architecture slightly differs from the official ResNet implementatation.
 The difference is in the first few layers. Whereas the official ResNet starts 
@@ -160,9 +173,20 @@ with a 7x7 convolution the one from lightly has a 3x3 convolution.
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1),
         )
-
+        
         # create a simclr model based on ResNet
-        self.resnet_simclr = lightly.models.SimCLR(backbone, num_ftrs=512)
+        class SimCLR(torch.nn.Module):
+            def __init__(self, backbone, hidden_dim, out_dim):
+                super().__init__()
+                self.backbone = backbone
+                self.projection_head = SimCLRProjectionHead(hidden_dim, hidden_dim, out_dim)
+
+            def forward(self, x):
+                h = self.backbone(x).flatten(start_dim=1)
+                z = self.projection_head(h)
+                return z
+        
+        resnet_simclr = SimCLR(backbone, hidden_dim=512, out_dim=128)
 
 You can also use **custom backbones** with lightly. We provide a 
 `colab notebook to show how you can use torchvision or timm models
@@ -180,9 +204,9 @@ loss for non-contrastive methods.
   - Check the documentation: :py:class:`lightly.loss.ntx_ent_loss.NTXentLoss`
   - This loss can be combined with a :ref:`lightly-advanced-memory-bank` 
 
-- `Symmetric Negative Cosine Similarity Loss <https://arxiv.org/abs/2011.10566>`_
+- `Negative Cosine Similarity <https://arxiv.org/abs/2011.10566>`_
 
-  - Check the documentation: :py:class:`lightly.loss.sym_neg_cos_sim_loss.SymNegCosineSimilarityLoss`
+  - Check the documentation: :py:class:`lightly.loss.negative_cosine_similarity.NegativeCosineSimilarity`
 
 - `Barlow Twin Loss <https://arxiv.org/abs/2103.03230v1>`_
 
@@ -221,13 +245,6 @@ For more information check the documentation:
   # the memory bank is used automatically for every forward pass
   y0, y1 = resnet_moco(x0, x1)
   loss = criterion(y0, y1)
-
-  # you can also use a symmetric loss instead (for faster convergence)
-  y0_a, y1_a = resnet_moco(x0, x1)
-  y0_b, y1_b = resnet_moco(x1, x0)
-  loss = 0.5 * (criterion(y0_a, y1_a) + criterion(y0_b, y1_b))
-
-
 
 Obtaining Good Embeddings
 ---------------------------

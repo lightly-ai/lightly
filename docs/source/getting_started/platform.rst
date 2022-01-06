@@ -43,7 +43,7 @@ The video below gives you a quick tour through the platform:
 
 
 Basic Concepts
------------------------------------
+--------------
 
 The Lightly Platform is built around datasets, tags, embeddings, samples and their metadata.
 
@@ -52,42 +52,48 @@ Learn more about the different concepts in our `Glossary <https://app.lightly.ai
 
 
 
-Create a Dataset
--------------------------
+Create a Dataset from a local folder or cloud bucket
+------------------------------------------------------
+
+There are several different ways to create a dataset on the lightly platform.
+
+The baseline way is to upload your local dataset including all images or
+videos to the Lightly platform.
+
+If you don't have your data locally, but rather stored at a cloud provider like
+AWS S3, Google Cloud Storage or Azure,
+you can create a dataset directly referencing the images in your bucket.
+It will keep all images and videos in your own bucket and only stream them from there if they are needed.
+This has the advantage that you don't need to upload your data to Lightly and can preserve its privacy.
 
 
-To create a new dataset of images with embeddings use the lightly :ref:`lightly-command-line-tool`:
+If you want to let Lighlty take care of the data handling and upload to our servers (European location).
 
-.. code-block:: bash
+.. toctree::
+    :maxdepth: 1
 
-    lightly-magic trainer.max_epochs=0 token='YOUR_API_TOKEN' new_dataset_name='my-dataset' input_dir='/path/to/my/dataset'
+    dataset_creation/dataset_creation_local_upload.rst
+    
+
+For datasets stored in your cloud bucket: 
+
+.. toctree::
+    :maxdepth: 1
+
+    dataset_creation/dataset_creation_aws_bucket.rst
+    dataset_creation/dataset_creation_azure_storage.rst
+    dataset_creation/dataset_creation_gcloud_bucket.rst
 
 
-Images and embeddings can also be uploaded from a Python script. For this, you need to 
-have a numpy array of image embeddings, the filenames of the images, and categorical pseudo-labels.
-You can use the `save_embeddings` function to store them in a lightly-compatible CSV format and
-upload them from your Python code:
+There is a another option of using Lightly. In case you don't want to upload any
+data to the cloud nor to Lightly but still use all the features we can stream the 
+data from a local fileserver:
 
-.. code-block:: python
+.. toctree::
+    :maxdepth: 1
 
-    from lightly.utils import save_embeddings
-    from lightly.api.api_workflow_client import ApiWorkflowClient
+    dataset_creation/dataset_creation_local_server.rst
 
-    client = ApiWorkflowClient(token='123', dataset_id='xyz')
-
-    # upload the images to the dataset
-    # change mode to 'thumbnails' or 'meta' if you're working with sensitive data
-    client.upload_dataset('path/to/your/images/', mode='full')
-
-    # store the embeddings in a lightly compatible CSV format
-    save_embeddings('embeddings.csv', embeddings, labels, filenames)
-
-    # upload the embeddings.csv file to the platform
-    client.upload_embeddings('embeddings.csv', name='my-embeddings')
-
-.. note::
-
-    Check out :ref:`ref-webapp-dataset-id` to see how to get the dataset identifier.
 
 
 .. _platform-custom-metadata:
@@ -141,7 +147,7 @@ As with images and embeddings before, it's also possible to upload custom metada
 Configuration
 ^^^^^^^^^^^^^^^
 
-In order to use the custom metadata on the Lightly Platform, it must be configured first. For this,
+To use the custom metadata on the Lightly Platform, it must be configured first. For this,
 follow these steps:
 
 1. Go to your dataset and click on "Configurator" on the left side.
@@ -162,7 +168,7 @@ Done! You can now use the custom metadata in the "Explore" and "Analyze & Filter
 Format
 ^^^^^^^^^^^
 
-In order to upload the custom metadata, you need to save it to a `.json` file in a COCO-like format.
+To upload the custom metadata, you need to save it to a `.json` file in a COCO-like format.
 The following things are important:
 
 - Information about the images is stored under the key `images`.
@@ -209,6 +215,41 @@ need to look like this:
         ]
     }
 
+If you don't have your data in coco format yet, but e.g. as a pandas dataframe,
+you can use a simple script to translate it to the coco format:
+
+.. code-block:: python
+
+    import pandas as pd
+
+    from lightly.utils import save_custom_metadata
+
+    # Define the pandas dataframe
+    column_names = ["filename", "number_of_pedestrians", "scenario", "temperature"]
+    rows = [
+        ["image0.jpg", 3, "cloudy", 20.3],
+        ["image1.jpg", 1, "rainy", 15.0]
+    ]
+    df = pd.DataFrame(rows, columns=column_names)
+
+    # create a list of pairs of (filename, metadata)
+    custom_metadata = []
+    for index, row in df.iterrows():
+        filename = row.filename
+        metadata = {
+            "number_of_pedestrians": int(row.number_of_pedestrians),
+            "weather": {
+                "scenario": str(row.scenario),
+                "temperature": float(row.temperature),
+            }
+        }
+        custom_metadata.append((filename, metadata))
+
+    # save custom metadata in the correct json format
+    output_file = "custom_metadata.json"
+    save_custom_metadata(output_file, custom_metadata)
+
+
 
 .. note:: Make sure that the custom metadata is present for every image. The metadata
           must not necessarily include the same keys for all images but it is strongly
@@ -216,6 +257,9 @@ need to look like this:
 
 .. note:: Lightly supports integers, floats, strings, booleans, and even nested objects for
           custom metadata. Every metadata item must be a valid JSON object.
+          Thus numpy datatypes are not supported and must be cast to `float`
+          or `int` before saving. Otherwise there will be an error similar to
+          `TypeError: Object of type ndarray is not JSON serializable`.
 
 
 
@@ -223,11 +267,8 @@ need to look like this:
 Sampling
 ----------------
 
-Before you start sampling make sure you have
-
-#. Created a dataset --> `Create a Dataset`_
-
-#. Uploaded images and embeddings --> `Upload Images`_ & `Upload Embeddings`_
+Before you start sampling make sure you have created a dataset 
+and uploaded images and embeddings. See `Create a Dataset`_.
 
 Now, let's get started with sampling!
 
@@ -272,7 +313,7 @@ section by clicking on it.
 Dataset Identifier
 -------------------------
 
-Every dataset has a unique identifier called 'Dataset ID'. You find it in the dataset overview page.
+Every dataset has a unique identifier called 'Dataset ID'. You find it on the dataset overview page.
 
 .. figure:: images/webapp_dataset_id.jpg
     :align: center
@@ -301,4 +342,7 @@ account (top right)-> preferences on the
 
 .. warning:: Keep the token for yourself and don't share it. Anyone with the
           token could access your datasets!
+
+
+
 

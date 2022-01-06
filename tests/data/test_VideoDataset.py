@@ -10,7 +10,17 @@ import torchvision
 from lightly.data._video import VideoDataset, _make_dataset
 import cv2
 
+try:
+    import av
+    PYAV_AVAILABLE = True
+except ModuleNotFoundError:
+    PYAV_AVAILABLE = False
+
 class TestVideoDataset(unittest.TestCase):
+
+    def setUp(self):
+        if not PYAV_AVAILABLE:
+            self.skipTest('PyAV not available')
 
     def ensure_dir(self, path_to_folder: str):
         if not os.path.exists(path_to_folder):

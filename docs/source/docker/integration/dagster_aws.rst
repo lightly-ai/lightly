@@ -35,7 +35,7 @@ Here, the first two steps simulate a data collection process.
 Dagster
 ---------
 Dagster is an open-source data orchestrator for machine learning. It enables building, deploying, and
-debugging data processing pipelines. Click `here <https://dagster.io/>`_ to learn more.
+debugging data processing pipelines. Click `here <https://dagster.io/>`__ to learn more.
 
 
 Setting up the EC2 Instance
@@ -45,7 +45,7 @@ it's recommended to pick an instance with a GPU (like the g4dn.xlarge) and the "
 See `this guide <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html>`_ to get started. Connect to the instance.
 
 
-Next, the Lightly Docker should be installed. Please follow the instructions `here <https://docs.lightly.ai/docker/getting_started/setup.html>`_.
+Next, the Lightly Docker should be installed. Please follow the instructions `here <https://docs.lightly.ai/docker/getting_started/setup.html>`__.
 You can test if the installation was successfull like this:
 
 .. code-block:: console

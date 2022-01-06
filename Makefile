@@ -39,11 +39,11 @@ lint: lint-lightly lint-tests
 
 ## check lightly style with flake8
 lint-lightly:
-	flake8 --ignore=F401 lightly
+	pylint --rcfile=pylintrc lightly
 
 ## check tests style with flake8
 lint-tests:
-	flake8 --ignore=F401 tests
+	pylint --rcfile=pylintrc tests
 
 ## run tests
 test:

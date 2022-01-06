@@ -41,6 +41,11 @@ class TestCLIEmbed(MockedApiWorkflowSetup):
 
     def test_embed(self):
         lightly.cli.embed_cli(self.cfg)
+        self.assertGreater(len(os.getenv(
+            self.cfg['environment_variable_names'][
+            'lightly_last_embedding_path']
+        )), 0)
+
 
     def tearDown(self) -> None:
         for filename in ["embeddings.csv", "embeddings_sorted.csv"]:

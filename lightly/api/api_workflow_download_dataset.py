@@ -58,13 +58,15 @@ class _DownloadDatasetMixin:
                 Whether or not to show the progress bar.
 
         Raises:
-            ValueError if the specified tag does not exist on the dataset.
-            RuntimeError if the connection to the server failed.
+            ValueError:
+                If the specified tag does not exist on the dataset.
+            RuntimeError:
+                If the connection to the server failed.
 
         """
 
         # check if images are available
-        dataset = self.datasets_api.get_dataset_by_id(self.dataset_id)
+        dataset = self._datasets_api.get_dataset_by_id(self.dataset_id)
         if dataset.img_type != ImageType.FULL:
             # only thumbnails or metadata available
             raise ValueError(
@@ -72,7 +74,7 @@ class _DownloadDatasetMixin:
             )
 
         # check if tag exists
-        available_tags = self._get_all_tags()
+        available_tags = self.get_all_tags()
         try:
             tag = next(tag for tag in available_tags if tag.name == tag_name)
         except StopIteration:
@@ -81,14 +83,15 @@ class _DownloadDatasetMixin:
             )
 
         # get sample ids
-        sample_ids = self.mappings_api.get_sample_mappings_by_dataset_id(
+        sample_ids = self._mappings_api.get_sample_mappings_by_dataset_id(
             self.dataset_id,
             field='_id'
         )
 
         indices = BitMask.from_hex(tag.bit_mask_data).to_indices()
         sample_ids = [sample_ids[i] for i in indices]
-        filenames = [self.filenames_on_server[i] for i in indices]
+        filenames_on_server = self.get_filenames()
+        filenames = [filenames_on_server[i] for i in indices]
 
         if verbose:
             print(f'Downloading {len(sample_ids)} images:', flush=True)
@@ -96,7 +99,7 @@ class _DownloadDatasetMixin:
 
         # download images
         for sample_id, filename in zip(sample_ids, filenames):
-            read_url = self.samples_api.get_sample_image_read_url_by_id(
+            read_url = self._samples_api.get_sample_image_read_url_by_id(
                 self.dataset_id, 
                 sample_id,
                 type="full",

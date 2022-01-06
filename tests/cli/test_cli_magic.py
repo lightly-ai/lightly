@@ -7,7 +7,8 @@ import torchvision
 from hydra.experimental import compose, initialize
 
 import lightly
-from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
+from tests.api_workflow.mocked_api_workflow_client import \
+    MockedApiWorkflowSetup, MockedApiWorkflowClient, N_FILES_ON_SERVER
 
 
 class TestCLIMagic(MockedApiWorkflowSetup):
@@ -26,12 +27,12 @@ class TestCLIMagic(MockedApiWorkflowSetup):
                 "trainer.max_epochs=0"
             ])
 
-    def create_fake_dataset(self):
-        n_data = len(self.api_workflow_client.filenames_on_server)
+    def create_fake_dataset(self, filename_appendix: str = ''):
+        n_data = len(self.api_workflow_client.get_filenames())
         self.dataset = torchvision.datasets.FakeData(size=n_data, image_size=(3, 32, 32))
 
         self.folder_path = tempfile.mkdtemp()
-        sample_names = [f'img_{i}.jpg' for i in range(n_data)]
+        sample_names = [f'img_{i}{filename_appendix}.jpg' for i in range(n_data)]
         self.sample_names = sample_names
         for sample_idx in range(n_data):
             data = self.dataset[sample_idx]
@@ -56,12 +57,14 @@ class TestCLIMagic(MockedApiWorkflowSetup):
         assert self.cfg["upload"] == 'thumbnails'
 
     def test_magic_new_dataset_name(self):
-        cli_string = "lightly-magic new_dataset_name='new_dataset_name_xyz'"
+        MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
+        cli_string = "lightly-magic new_dataset_name='dataset_name_xyz'"
         self.parse_cli_string(cli_string)
         lightly.cli.lightly_cli(self.cfg)
 
     def test_magic_new_dataset_id(self):
-        cli_string = "lightly-magic dataset_id='xyz'"
+        MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
+        cli_string = "lightly-magic dataset_id='dataset_id_xyz'"
         self.parse_cli_string(cli_string)
         lightly.cli.lightly_cli(self.cfg)
 

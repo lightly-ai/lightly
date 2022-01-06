@@ -3,6 +3,8 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
+import warnings
+
 import torch
 import torch.nn as nn
 
@@ -146,10 +148,16 @@ class NNCLR(nn.Module):
         )
         
         self.prediction_mlp = NNCLRPredictionHead(
-            num_ftrs,
+            out_dim,
             pred_hidden_dim,
             out_dim,
         )
+
+        warnings.warn(Warning(
+            'The high-level building block NNCLR will be deprecated in version 1.3.0. '
+            + 'Use low-level building blocks instead. '
+            + 'See https://docs.lightly.ai/lightly.models.html for more information'),
+            PendingDeprecationWarning)
 
     def forward(self,
                 x0: torch.Tensor,
@@ -194,7 +202,7 @@ class NNCLR(nn.Module):
         # forward pass of first input x0
         f0 = self.backbone(x0).flatten(start_dim=1)
         z0 = self.projection_mlp(f0)
-        p0 = self.prediction_mlp(f0)
+        p0 = self.prediction_mlp(z0)
 
         out0 = (z0, p0)
 
@@ -209,7 +217,7 @@ class NNCLR(nn.Module):
         # forward pass of second input x1
         f1 = self.backbone(x1).flatten(start_dim=1)
         z1 = self.projection_mlp(f1)
-        p1 = self.prediction_mlp(f1)
+        p1 = self.prediction_mlp(z1)
 
         out1 = (z1, p1)
 

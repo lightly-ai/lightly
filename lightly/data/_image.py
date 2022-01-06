@@ -3,10 +3,11 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import List, Tuple
+from typing import List, Tuple, Set
 
 import os
 import torchvision.datasets as datasets
+from torchvision import transforms
 
 from lightly.data._image_loaders import default_loader
 
@@ -27,25 +28,24 @@ def _make_dataset(directory, extensions=None, is_valid_file=None) -> List[Tuple[
 
     """
 
-    # handle is_valid_file and extensions the same way torchvision handles them:
-    # https://pytorch.org/docs/stable/_modules/torchvision/datasets/folder.html#ImageFolder
-    both_none = extensions is None and is_valid_file is None
-    both_something = extensions is not None and is_valid_file is not None
-    if both_none or both_something:
-        raise ValueError('Both extensions and is_valid_file cannot be None or '
-                         'not None at the same time')
-
-    if extensions is not None:
-        def _is_valid_file(filename):
-            return filename.lower().endswith(extensions)
-
-    if is_valid_file is not None:
-        _is_valid_file = is_valid_file
+    if extensions is None:
+        if is_valid_file is None:
+            ValueError('Both extensions and is_valid_file cannot be None')
+        else:
+            _is_valid_file = is_valid_file
+    else:
+        def is_valid_file_extension(filepath):
+            return filepath.lower().endswith(extensions)
+        if is_valid_file is None:
+            _is_valid_file = is_valid_file_extension
+        else:
+            def _is_valid_file(filepath):
+                return is_valid_file_extension(filepath) and is_valid_file(filepath)
 
     instances = []
     for f in os.scandir(directory):
 
-        if not _is_valid_file(f.name):
+        if not _is_valid_file(f.path):
             continue
 
         # convention: the label of all images is 0, based on the fact that
@@ -87,7 +87,8 @@ class DatasetFolder(datasets.VisionDataset):
                  extensions=None,
                  transform=None,
                  target_transform=None,
-                 is_valid_file=None):
+                 is_valid_file=None,
+                 ):
 
         super(DatasetFolder, self).__init__(root,
                                             transform=transform,

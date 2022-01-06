@@ -72,7 +72,7 @@ There are **three** types of volume mappings:
    The container requires only **read access** to this directory.
 * **Output Directory:**
    The output directory is the place where the results from all computations made by the container are stored.
-   See :ref:`Reporting` and :ref:`Docker Output` for additional information. The container requires **read and 
+   See `Reporting`_ and `Docker Output`_ for additional information. The container requires **read and 
    write access** to this directory.
 
 .. note:: Docker volume or port mappings always follow the scheme that you first
@@ -109,6 +109,46 @@ Now, let's see how this will look in action!
              to your local input and output directory. You must not change the 
              path after the **:** since this path is describing the internal
              file system within the container!
+
+
+Specify Relevant Files
+----------------------------
+Oftentimes not all files in a directory are relevant. In that case, it's possible
+to pass a list of filenames to the Lightly docker. It will then only consider the listed filenames
+and ignore all other. To do so, you will have to place a text file in the shared directory which
+contains one relevant filename per line and then pass the path to the text file to the docker run
+command. This works for videos and images.
+
+For example, if this is your input directory:
+
+.. code-block:: console
+
+    /path/to/my/data/
+    L my-video.mp4
+    L my-other-video.mp4
+    L some/subfolder/
+        L my-third-video.mp4
+
+And you put the following **filenames.txt** in the shared directory:
+
+.. code-block:: console
+
+    my-video.mp4
+    some/subfolder/my-third-video.mp4
+
+Then you can use the following docker run command and the Lightly docker will only consider **my-video.mp4** and **my-third-video.mp4**.
+
+.. code-block:: console
+
+    docker run --gpus all --rm -it \
+        -v INPUT_DIR:/home/input_dir:ro \
+        -v SHARED_DIR:/home/shared_dir \
+        -v OUTPUT_DIR:/home/output_dir \
+        lightly/sampling:latest \
+        token=MYAWESOMETOKEN \
+        relevant_filenames_file='filenames.txt'
+
+
 
 Embedding and Sampling a Dataset
 -----------------------------------
@@ -185,7 +225,7 @@ a checkpoint by copying the checkpoint to the shared directory and then passing 
 
     docker run --gpus all --rm -it \
         -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir:ro \
+        -v SHARED_DIR:/home/shared_dir \
         -v OUTPUT_DIR:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
@@ -226,6 +266,8 @@ do so.
 A list of all input parameters can be found here: :ref:`rst-docker-parameters`
 
 
+.. _docker-sampling-from-embeddings:
+
 Sampling from Embeddings File
 ----------------------------------
 
@@ -236,7 +278,7 @@ move the embeddings file to the shared directory, and specify the filename like 
 
     docker run --gpus all --rm -it \
         -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir:ro \
+        -v SHARED_DIR:/home/shared_dir \
         -v OUTPUT_DIR:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
@@ -290,7 +332,7 @@ structure as shown above could then look like this:
 
     docker run --gpus all --rm -it \
         -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir:ro \
+        -v SHARED_DIR:/home/shared_dir \
         -v OUTPUT_DIR:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
@@ -305,7 +347,7 @@ them in the output folder using `dump_dataset=True`.
 
     docker run --gpus all --rm -it \
         -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir:ro \
+        -v SHARED_DIR:/home/shared_dir \
         -v OUTPUT_DIR:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
@@ -327,7 +369,7 @@ simply set the stopping condition `n_samples` to 1.0 (which translates to 100% o
 
     docker run --gpus all --rm -it \
         -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir:ro \
+        -v SHARED_DIR:/home/shared_dir \
         -v OUTPUT_DIR:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
@@ -362,7 +404,7 @@ E.g.
 
     docker run --gpus all --rm -it \
         -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir:ro \
+        -v SHARED_DIR:/home/shared_dir \
         -v OUTPUT_DIR:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
@@ -433,11 +475,10 @@ The output directory is structured in the following way:
 * data:
    The data directory contains everything to do with data. 
    
-   * If `enable_corruptness_check=True`, it will contain a "clean" version of 
-     the dataset. 
-   * If `remove_exact_duplicates=True`, it will contain a copy of the 
-     `embeddings.csv` where all duplicates are removed. Otherwise, it will 
-   simply store the embeddings computed by the model.
+    * If `enable_corruptness_check=True`, it will contain a "clean" version of the dataset. 
+    * If `remove_exact_duplicates=True`, it will contain a copy of the `embeddings.csv` 
+        where all duplicates are removed. Otherwise, it will 
+        simply store the embeddings computed by the model.
    
 * filenames:
    This directory contains lists of filenames of the corrupt images, removed images, sampled

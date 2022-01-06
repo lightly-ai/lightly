@@ -22,10 +22,9 @@ In this tutorial you will learn:
 
 - How to create a SimCLR model
 
-- How different augmentations impact the learned representations
+- How to generate image representations
 
-- How to use the SelfSupervisedEmbedding class from the embedding module to train
-  a model and obtain embeddings
+- How different augmentations impact the learned representations
 
 """
 
@@ -35,7 +34,6 @@ In this tutorial you will learn:
 #
 # Import the Python frameworks we need for this tutorial.
 import os
-import glob
 import torch
 import torch.nn as nn
 import torchvision
@@ -131,57 +129,95 @@ dataloader_test = torch.utils.data.DataLoader(
 )
 
 # %%
-# Create the SimCLR model
+# Create the SimCLR Model
 # -----------------------
-# Create a ResNet backbone and remove the classification head
+# Now we create the SimCLR model. We implement it as a PyTorch Lightning Module
+# and use a ResNet-18 backbone from Torchvision. Lightly provides implementations
+# of the SimCLR projection head and loss function in the `SimCLRProjectionHead`
+# and `NTXentLoss` classes. We can simply import them and combine the building
+# blocks in the module.
+
+from lightly.models.modules.heads import SimCLRProjectionHead
+from lightly.loss import NTXentLoss
 
 
-resnet = torchvision.models.resnet18()
-last_conv_channels = list(resnet.children())[-1].in_features
-backbone = nn.Sequential(
-    *list(resnet.children())[:-1],
-    nn.Conv2d(last_conv_channels, num_ftrs, 1),
-)
+class SimCLRModel(pl.LightningModule):
+    def __init__(self):
+        super().__init__()
 
-# create the SimCLR model using the newly created backbone
-model = lightly.models.SimCLR(backbone, num_ftrs=num_ftrs)
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
+
+        hidden_dim = resnet.fc.in_features
+        self.projection_head = SimCLRProjectionHead(hidden_dim, hidden_dim, 128)
+
+        self.criterion = NTXentLoss()
+
+    def forward(self, x):
+        h = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(h)
+        return z
+
+    def training_step(self, batch, batch_idx):
+        (x0, x1), _, _ = batch
+        z0 = self.forward(x0)
+        z1 = self.forward(x1)
+        loss = self.criterion(z0, z1)
+        self.log("train_loss_ssl", loss)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.SGD(
+            self.parameters(), lr=6e-2, momentum=0.9, weight_decay=5e-4
+        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optim, max_epochs
+        )
+        return [optim], [scheduler]
+
 
 # %%
-# We now use the SelfSupervisedEmbedding class from the embedding module.
-# First, we create a criterion and an optimizer and then pass them together
-# with the model and the dataloader.
-criterion = lightly.loss.NTXentLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
-encoder = lightly.embedding.SelfSupervisedEmbedding(
-    model,
-    criterion,
-    optimizer,
-    dataloader_train_simclr
-)
+# We first check if a GPU is available and then train the module
+# using the PyTorch Lightning Trainer.
 
-# %% 
-# use a GPU if available
 gpus = 1 if torch.cuda.is_available() else 0
 
-# %%
-# Train the Embedding
-# --------------------
-# The encoder itself wraps a PyTorch-Lightning module. We can pass any 
-# lightning trainer parameter (e.g. gpus=, max_epochs=) to the train_embedding method.
-encoder.train_embedding(gpus=gpus, 
-                        progress_bar_refresh_rate=100,
-                        max_epochs=max_epochs)
+model = SimCLRModel()
+trainer = pl.Trainer(
+    max_epochs=max_epochs, gpus=gpus, progress_bar_refresh_rate=100
+)
+trainer.fit(model, dataloader_train_simclr)
 
 # %%
-# Now, let's make sure we move the trained model to the gpu if we have one
-device = 'cuda' if gpus==1 else 'cpu'
-encoder = encoder.to(device)
+# Next we create a helper function to generate embeddings
+# from our test images using the model we just trained.
+# Note that only the backbone is needed to generate embeddings,
+# the projection head is only required for the training.
+# Make sure to put the model into eval mode for this part!
 
-# %%
-# We can use the .embed method to create an embedding of the dataset. The method
-# returns a list of embedding vectors as well as a list of filenames.
-embeddings, _, fnames = encoder.embed(dataloader_test, device=device)
-embeddings = normalize(embeddings)
+
+def generate_embeddings(model, dataloader):
+    """Generates representations for all images in the dataloader with
+    the given model
+    """
+
+    embeddings = []
+    filenames = []
+    with torch.no_grad():
+        for img, label, fnames in dataloader:
+            img = img.to(model.device)
+            emb = model.backbone(img).flatten(start_dim=1)
+            embeddings.append(emb)
+            filenames.extend(fnames)
+
+    embeddings = torch.cat(embeddings, 0)
+    embeddings = normalize(embeddings)
+    return embeddings, filenames
+
+
+model.eval()
+embeddings, filenames = generate_embeddings(model, dataloader_test)
 
 # %%
 # Visualize Nearest Neighbors
@@ -197,7 +233,8 @@ def get_image_as_np_array(filename: str):
     img = Image.open(filename)
     return np.asarray(img)
 
-def plot_knn_examples(embeddings, n_neighbors=3, num_examples=6):
+
+def plot_knn_examples(embeddings, filenames, n_neighbors=3, num_examples=6):
     """Plots multiple rows of random images with their nearest neighbors
     """
     # lets look at the nearest neighbors for some samples
@@ -216,7 +253,7 @@ def plot_knn_examples(embeddings, n_neighbors=3, num_examples=6):
             # add the subplot
             ax = fig.add_subplot(1, len(indices[idx]), plot_x_offset + 1)
             # get the correponding filename for the current index
-            fname = os.path.join(path_to_data, fnames[neighbor_idx])
+            fname = os.path.join(path_to_data, filenames[neighbor_idx])
             # plot the image
             plt.imshow(get_image_as_np_array(fname))
             # set the title to the distance of the neighbor
@@ -229,7 +266,7 @@ def plot_knn_examples(embeddings, n_neighbors=3, num_examples=6):
 # Let's do the plot of the images. The leftmost image is the query image whereas
 # the ones next to it on the same row are the nearest neighbors.
 # In the title we see the distance of the neigbor.
-plot_knn_examples(embeddings)
+plot_knn_examples(embeddings, filenames)
 
 # %%
 # Color Invariance
@@ -247,35 +284,22 @@ new_collate_fn = lightly.data.SimCLRCollateFunction(
 )
 
 # let's update our collate method and reuse our dataloader
-dataloader_train_simclr.collate_fn=new_collate_fn
+dataloader_train_simclr.collate_fn = new_collate_fn
 
-# create a ResNet backbone and remove the classification head
-resnet = torchvision.models.resnet18()
-last_conv_channels = list(resnet.children())[-1].in_features
-backbone = nn.Sequential(
-    *list(resnet.children())[:-1],
-    nn.Conv2d(last_conv_channels, num_ftrs, 1),
+# then train a new model
+model = SimCLRModel()
+trainer = pl.Trainer(
+    max_epochs=max_epochs, gpus=gpus, progress_bar_refresh_rate=100
 )
-model = lightly.models.SimCLR(backbone, num_ftrs=num_ftrs)
-optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
-encoder = lightly.embedding.SelfSupervisedEmbedding(
-    model,
-    criterion,
-    optimizer,
-    dataloader_train_simclr
-)
+trainer.fit(model, dataloader_train_simclr)
 
-encoder.train_embedding(gpus=gpus,
-                        progress_bar_refresh_rate=100,
-                        max_epochs=max_epochs)
-encoder = encoder.to(device)
-
-embeddings, _, fnames = encoder.embed(dataloader_test, device=device)
-embeddings = normalize(embeddings)
+# and generate again embeddings from the test set
+model.eval()
+embeddings, filenames = generate_embeddings(model, dataloader_test)
 
 # %%
 # other example
-plot_knn_examples(embeddings)
+plot_knn_examples(embeddings, filenames)
 
 # %%
 # What's next?
@@ -290,18 +314,15 @@ state_dict = {
 torch.save(state_dict, 'model.pth')
 
 # %%
-# THIS COULD BE IN A NEW FILE (e.g. inference.py
+# THIS COULD BE IN A NEW FILE (e.g. inference.py)
 #
 # Make sure you place the `model.pth` file in the same folder as this code
 
 # load the model in a new file for inference
 resnet18_new = torchvision.models.resnet18()
-last_conv_channels = list(resnet.children())[-1].in_features
+
 # note that we need to create exactly the same backbone in order to load the weights
-backbone_new = nn.Sequential(
-    *list(resnet.children())[:-1],
-    nn.Conv2d(last_conv_channels, num_ftrs, 1),
-)
+backbone_new = nn.Sequential(*list(resnet18_new.children())[:-1])
 
 ckpt = torch.load('model.pth')
 backbone_new.load_state_dict(ckpt['resnet18_parameters'])
@@ -316,3 +337,5 @@ backbone_new.load_state_dict(ckpt['resnet18_parameters'])
 # - :ref:`lightly-moco-tutorial-2`
 # - :ref:`lightly-simsiam-tutorial-4`
 # - :ref:`lightly-custom-augmentation-5`
+# - :ref:`lightly-detectron-tutorial-6`
+#

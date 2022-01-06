@@ -29,6 +29,7 @@ class DatasetType(object):
     allowed enum values
     """
     IMAGES = "Images"
+    VIDEOS = "Videos"
 
     """
     Attributes:

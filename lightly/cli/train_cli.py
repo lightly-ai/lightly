@@ -7,6 +7,7 @@ command-line interface.
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+import os
 
 import hydra
 import torch
@@ -15,11 +16,11 @@ import warnings
 
 from torch.utils.hipify.hipify_python import bcolors
 
+from lightly.cli._cli_simclr import _SimCLR
 from lightly.data import ImageCollateFunction
 from lightly.data import LightlyDataset
 from lightly.embedding import SelfSupervisedEmbedding
 from lightly.loss import NTXentLoss
-from lightly.models import SimCLR
 
 from lightly.models import ResNetGenerator
 from lightly.models.batchnorm import get_norm_layer
@@ -103,7 +104,7 @@ def _train_cli(cfg, is_cli_call=True):
         nn.AdaptiveAvgPool2d(1),
     )
 
-    model = SimCLR(
+    model = _SimCLR(
         features,
         num_ftrs=cfg['model']['num_ftrs'],
         out_dim=cfg['model']['out_dim']
@@ -131,6 +132,9 @@ def _train_cli(cfg, is_cli_call=True):
     encoder.train_embedding(**cfg['trainer'])
 
     print(f'Best model is stored at: {bcolors.OKBLUE}{encoder.checkpoint}{bcolors.ENDC}')
+    os.environ[
+        cfg['environment_variable_names']['lightly_last_checkpoint_path']
+    ] = encoder.checkpoint
     return encoder.checkpoint
 
 

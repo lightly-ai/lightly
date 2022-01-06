@@ -1,9 +1,9 @@
 """
 
-.. _lightly-tutorial-cropped-objects-metadata
+.. _lightly-tutorial-cropped-objects-metadata:
 
 Tutorial 6: Find false negatives of object detection
-=============================================
+====================================================
 
     In object detection applications, it can happen that the detector does not detect an object
     because it did not see any examples of this or similar objects yet.
@@ -15,7 +15,7 @@ Tutorial 6: Find false negatives of object detection
 
     1. A human finds one false negative and adds it to the missing examples.
     2. Lightly finds all similar images which are also false negatives.
-    Thus it can propose to directly also add them as missing examples.
+        Thus it can propose to directly also add them as missing examples.
 
     If there are e.g. 9 similar images for each missing example found by a human,
     Lightly can speed up the process by a factor of 10.
