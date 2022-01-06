@@ -27,18 +27,25 @@ def sinkhorn(out: torch.Tensor, iterations: int = 3, epsilon: float = 0.05):
         Soft codes Q assigning each feature to a prototype.
     
     """
+    world_size = 1
+    if dist.is_initialized():
+        world_size = dist.get_world_size()
 
     # get the exponential matrix and make it sum to 1
     Q = torch.exp(out / epsilon).t()
     sum_Q = torch.sum(Q)
+    if world_size > 1:
+        dist.all_reduce(sum_Q)
     Q /= sum_Q
 
-    B = Q.shape[1]
+    B = Q.shape[1] * world_size
     K = Q.shape[0] # number of prototypes
 
-    for i in range(iterations):
+    for _ in range(iterations):
         # normalize rows
         sum_of_rows = torch.sum(Q, dim=1, keepdim=True)
+        if world_size > 1:
+            dist.all_reduce(sum_of_rows)
         Q /= sum_of_rows
         Q /= K
         # normalize columns
