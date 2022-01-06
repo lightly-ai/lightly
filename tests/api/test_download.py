@@ -215,16 +215,16 @@ class TestDownload(unittest.TestCase):
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_all_video_frame_counts_broken(self):
         fps = 24
+        n_frames = 5
         with tempfile.NamedTemporaryFile(suffix='.mpeg') as file1, \
             tempfile.NamedTemporaryFile(suffix='.mpeg') as file2:
 
-            _generate_video(file1.name, fps=fps)
+            _generate_video(file1.name, fps=fps, n_frames=n_frames)
             _generate_video(file2.name, fps=fps, broken=True)
             
             urls = [file1.name, file2.name]
-            with self.assertRaises(RuntimeError):
-                result = download.all_video_frame_counts(urls)
-                print(result)
+            result = download.all_video_frame_counts(urls)
+            assert result == [n_frames, None]
 
 
 def _images_equal(image1, image2):
