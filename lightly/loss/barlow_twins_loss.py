@@ -1,4 +1,5 @@
 import torch
+import torch.distributed as dist
 
 class BarlowTwinsLoss(torch.nn.Module):
     """Implementation of the Barlow Twins Loss from Barlow Twins[0] paper.
@@ -47,6 +48,14 @@ class BarlowTwinsLoss(torch.nn.Module):
 
         # cross-correlation matrix
         c = torch.mm(z_a_norm.T, z_b_norm) / N # DxD
+
+        # sum cross-correlation matrix between multiple gpus
+        if dist.is_initialized():
+            world_size = dist.get_world_size()
+            if world_size > 1:
+                c = c / world_size
+                dist.all_reduce(c)
+
         # loss
         c_diff = (c - torch.eye(D, device=device)).pow(2) # DxD
         # multiply off-diagonal elems of c_diff by lambda
