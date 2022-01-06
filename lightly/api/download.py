@@ -5,7 +5,7 @@ import shutil
 import threading
 import warnings
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, Iterable, List, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 import PIL
 import requests
@@ -68,15 +68,14 @@ def download_all_video_frames(
 
     """
     _check_av_available()
-    container = av.open(url)
-    stream = container.streams.video[video_channel]
-    stream.thread_type = thread_type
-    for frame in container.decode(stream):
-        if as_pil_image:
-            yield frame.to_image()
-        else:
-            yield frame
-    container.close()
+    with av.open(url) as container:
+        stream = container.streams.video[video_channel]
+        stream.thread_type = thread_type
+        for frame in container.decode(stream):
+            if as_pil_image:
+                yield frame.to_image()
+            else:
+                yield frame
 
 
 def download_video_frame(
@@ -115,27 +114,26 @@ def download_video_frame(
     if timestamp < 0:
         raise ValueError(f"Negative timestamp is not allowed: {timestamp}")
 
-    container = av.open(url)
-    stream = container.streams.video[video_channel]
-    stream.thread_type = thread_type
-    
-    duration = stream.duration
-    start_time = stream.start_time
-    if (duration is not None) and (start_time is not None):
-        end_time = duration + start_time
-        if timestamp > end_time:
-            raise ValueError(
-                f"Timestamp ({timestamp} pts) exceeds maximum video timestamp "
-                f"({end_time} pts)."
-            )
-    # seek to last keyframe before the timestamp
-    container.seek(timestamp, any_frame=False, backward=True, stream=stream)
-    # advance from keyframe until correct timestamp is reached
-    frame = None
-    for frame in container.decode(stream):
-        if frame.pts >= timestamp:
-            break
-    container.close()
+    with av.open(url) as container:
+        stream = container.streams.video[video_channel]
+        stream.thread_type = thread_type
+        
+        duration = stream.duration
+        start_time = stream.start_time
+        if (duration is not None) and (start_time is not None):
+            end_time = duration + start_time
+            if timestamp > end_time:
+                raise ValueError(
+                    f"Timestamp ({timestamp} pts) exceeds maximum video timestamp "
+                    f"({end_time} pts)."
+                )
+        # seek to last keyframe before the timestamp
+        container.seek(timestamp, any_frame=False, backward=True, stream=stream)
+        # advance from keyframe until correct timestamp is reached
+        frame = None
+        for frame in container.decode(stream):
+            if frame.pts >= timestamp:
+                break
 
     if as_pil_image:
         return frame.to_image()
@@ -233,7 +231,7 @@ def video_frame_count(
     url: str,
     video_channel: int = 0,
     thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
-) -> int:
+) -> Optional[int]:
     """Returns the number of frames in the video from the given url.
 
     The video is only decoded if no information about the number of frames is
@@ -249,16 +247,20 @@ def video_frame_count(
             See https://pyav.org/docs/stable/api/codec.html#av.codec.context.ThreadType
             for details.
 
+    Returns:
+        The number of frames in the video. Can be None if the video could not be
+        decoded.
+
     """
-    container = av.open(url)
-    stream = container.streams.video[video_channel]
-    num_frames = stream.frames
-    # If number of frames not stored in the video file we have to decode all
-    # frames and count them.
-    if num_frames == 0:
-        stream.thread_type = thread_type
-        for _ in container.decode(stream):
-            num_frames += 1
+    with av.open(url) as container:
+        stream = container.streams.video[video_channel]
+        num_frames = stream.frames
+        # If number of frames not stored in the video file we have to decode all
+        # frames and count them.
+        if num_frames == 0:
+            stream.thread_type = thread_type
+            for _ in container.decode(stream):
+                num_frames += 1
     return num_frames
 
 def all_video_frame_counts(
@@ -266,7 +268,7 @@ def all_video_frame_counts(
     max_workers: int = None,
     video_channel: int = 0,
     thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
-) -> List[int]:
+) -> List[Optional[int]]:
     """Finds the number of frames in the videos at the given urls.
 
     Videos are only decoded if no information about the number of frames is
@@ -286,11 +288,8 @@ def all_video_frame_counts(
             for details.
 
     Returns:
-        A list with the number of frames per video.
-
-    Raises:
-        RuntimeError:
-            If not all frame counts can be found for all videos.
+        A list with the number of frames per video. Contains None for all videos
+        that could not be decoded.
 
     """
 
@@ -306,19 +305,4 @@ def all_video_frame_counts(
             return
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        frame_counts = list(executor.map(job, urls))
-        num_failed = 0
-        for count, url in zip(frame_counts, urls):
-            if count is None:
-                num_failed += 1
-                warnings.warn(
-                    f"Could not find the number of frames for video with "
-                    f"url: {url}"
-                )
-
-        if num_failed > 0:
-            raise RuntimeError(
-                f"Could not find the number of frames for {num_failed} videos!"
-            )
-
-        return frame_counts
+        return list(executor.map(job, urls))
