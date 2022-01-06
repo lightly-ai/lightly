@@ -108,7 +108,6 @@ class NTXentLoss(MemoryBankModule):
             # use negatives from memory bank
             negatives = negatives.to(device)
 
-
             # sim_pos is of shape (batch_size, 1) and sim_pos[i] denotes the similarity
             # of the i-th sample in the batch to its positive pair
             sim_pos = torch.einsum('nc,nc->n', out0, out1).unsqueeze(-1)
@@ -123,39 +122,44 @@ class NTXentLoss(MemoryBankModule):
             labels = torch.zeros(logits.shape[0], device=device, dtype=torch.long)
 
         else:
-            
+            # user other samples from batch as negatives
             if dist.is_initialized() and dist.get_world_size() > 1:
                 # gather hidden representations from other processes
                 out0_large = torch.cat(GatherLayer.apply(out0), 0)
                 out1_large = torch.cat(GatherLayer.apply(out1), 0)
                 rank = dist.get_rank()
             else:
-                # TODO
+                # single process
                 out0_large = out0
                 out1_large = out1
                 rank = 0
 
-            # TODO
-            logits_aa = torch.einsum('nc,mc->nm', out0, out0_large) / self.temperature
-            logits_ab = torch.einsum('nc,mc->nm', out0, out1_large) / self.temperature
-            logits_ba = torch.einsum('nc,mc->nm', out1, out0_large) / self.temperature
-            logits_bb = torch.einsum('nc,mc->nm', out1, out1_large) / self.temperature
+            # calculate similiarities
+            # here n = batch_size and m = batch_size * world_size
+            # the resulting vectors have shape (n, m)
+            logits_00 = torch.einsum('nc,mc->nm', out0, out0_large) / self.temperature
+            logits_01 = torch.einsum('nc,mc->nm', out0, out1_large) / self.temperature
+            logits_10 = torch.einsum('nc,mc->nm', out1, out0_large) / self.temperature
+            logits_11 = torch.einsum('nc,mc->nm', out1, out1_large) / self.temperature
 
             # initialize labels and masks
             labels = torch.arange(batch_size, device=device, dtype=torch.long)
             labels = labels + rank * batch_size
-            masks = torch.ones_like(logits_aa).bool()
-            masks = masks.scatter_(0, labels.unsqueeze(0), False)
-
+            masks = torch.ones_like(logits_00).bool()
+            masks.scatter_(0, labels.unsqueeze(0), False)
+        
             # remove similarities of samples to themselves
-            logits_aa = logits_aa[masks].view(batch_size, -1)
-            logits_bb = logits_bb[masks].view(batch_size, -1)
+            logits_00 = logits_00[masks].view(batch_size, -1)
+            logits_11 = logits_11[masks].view(batch_size, -1)
 
-            # TODO
-            logits_abaa = torch.cat([logits_ab, logits_aa], 1)
-            logits_babb = torch.cat([logits_ba, logits_bb], 1)
-            logits = torch.cat([logits_abaa, logits_babb], 0)
-            labels = torch.cat([labels, labels])
+            # concatenate logits
+            # the logits tensor in the end has shape (2*n, 2*m)
+            logits_0100 = torch.cat([logits_01, logits_00], dim=1)
+            logits_1011 = torch.cat([logits_10, logits_11], dim=1)
+            logits = torch.cat([logits_0100, logits_1011], dim=0)
+
+            # repeat twice to match shape of logits
+            labels = labels.repeat(2)
 
         loss = self.cross_entropy(logits, labels)
 
