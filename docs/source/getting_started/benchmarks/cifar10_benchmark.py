@@ -54,17 +54,22 @@ memory_bank_size = 4096
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 200
+max_epochs = 1
 knn_k = 200
 knn_t = 0.1
 classes = 10
 
 # benchmark
 n_runs = 1 # optional, increase to create multiple runs and report mean + std
-batch_sizes = [128, 512]
+batch_sizes = [512]
 
 # use a GPU if available
-gpus = -1 if torch.cuda.is_available() else 0
+gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
+distributed_backend = 'ddp' if gpus > 1 else None
+
+# reduce learning rate if multiple gpus are used because 
+# effective batch size = batch_size * gpus
+lr_factor = 1 / (gpus + 1)
 
 # Adapted from our MoCo Tutorial on CIFAR-10
 #
@@ -218,8 +223,12 @@ class MocoModel(BenchmarkModule):
 
     def configure_optimizers(self):
         params = list(self.backbone.parameters()) + list(self.projection_head.parameters())
-        optim = torch.optim.SGD(params, lr=6e-2,
-                                momentum=0.9, weight_decay=5e-4)
+        optim = torch.optim.SGD(
+            params, 
+            lr=6e-2 * lr_factor,
+            momentum=0.9, 
+            weight_decay=5e-4,
+        )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
@@ -249,8 +258,12 @@ class SimCLRModel(BenchmarkModule):
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.SGD(self.resnet_simclr.parameters(), lr=6e-2,
-                                momentum=0.9, weight_decay=5e-4)
+        optim = torch.optim.SGD(
+            self.resnet_simclr.parameters(), 
+            lr=6e-2 * lr_factor,
+            momentum=0.9, 
+            weight_decay=5e-4
+        )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
@@ -295,8 +308,12 @@ class SimSiamModel(BenchmarkModule):
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.SGD(self.resnet_simsiam.parameters(), lr=6e-2,
-                                momentum=0.9, weight_decay=5e-4)
+        optim = torch.optim.SGD(
+            self.resnet_simsiam.parameters(), 
+            lr=6e-2 * lr_factor,
+            momentum=0.9, 
+            weight_decay=5e-4
+        )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
@@ -346,8 +363,12 @@ class BarlowTwinsModel(BenchmarkModule):
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.SGD(self.resnet_barlowtwins.parameters(), lr=6e-2,
-                                momentum=0.9, weight_decay=5e-4)
+        optim = torch.optim.SGD(
+            self.resnet_barlowtwins.parameters(), 
+            lr=6e-2 * lr_factor,
+            momentum=0.9, 
+            weight_decay=5e-4
+        )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
@@ -404,8 +425,12 @@ class BYOLModel(BenchmarkModule):
         params = list(self.backbone.parameters()) \
             + list(self.projection_head.parameters()) \
             + list(self.prediction_head.parameters())
-        optim = torch.optim.SGD(params, lr=6e-2,
-                                momentum=0.9, weight_decay=5e-4)
+        optim = torch.optim.SGD(
+            params, 
+            lr=6e-2 * lr_factor,
+            momentum=0.9, 
+            weight_decay=5e-4,
+        )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
@@ -459,7 +484,7 @@ class SwaVModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.Adam(
             self.parameters(),
-            lr=1e-3,
+            lr=1e-3 * lr_factor,
             weight_decay=1e-6,
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
@@ -484,7 +509,8 @@ for batch_size in batch_sizes:
 
             trainer = pl.Trainer(max_epochs=max_epochs, 
                                 gpus=gpus,
-                                default_root_dir=logs_root_dir)
+                                default_root_dir=logs_root_dir,
+                                strategy=distributed_backend)
             trainer.fit(
                 benchmark_model,
                 train_dataloaders=dataloader_train_ssl,
