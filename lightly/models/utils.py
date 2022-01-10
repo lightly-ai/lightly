@@ -3,9 +3,10 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-import copy
+from typing import Tuple
 
 import torch
+import torch.distributed as dist
 import torch.nn as nn
 
 @torch.no_grad()
@@ -36,6 +37,91 @@ def batch_unshuffle(batch: torch.Tensor, shuffle: torch.Tensor):
     """
     unshuffle = torch.argsort(shuffle)
     return batch[unshuffle]
+
+@torch.no_grad()
+def concat_all_gather(x: torch.Tensor) -> torch.Tensor:
+    """Returns concatenated instances of x gathered from all gpus.
+
+    This code was taken and adapted from here:
+    https://github.com/facebookresearch/moco.
+
+    """
+    output = [torch.empty_like(x) for _ in range(dist.get_world_size())]
+    dist.all_gather(output, x, async_op=False)
+    output = torch.cat(output, dim=0)
+    return output
+
+@torch.no_grad()
+def batch_shuffle_ddp(batch: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Shuffles batch over multiple gpus.
+
+    This code was taken and adapted from here:
+    https://github.com/facebookresearch/moco.
+
+    Args:
+        batch:
+            The tensor to shuffle.
+
+    Returns:
+        A (batch_gather, idx_unshuffle) tuple where batch_gather is the shuffled
+        version of batch and idx_unshuffle is an index to restore the original
+        tensor.
+    
+    """
+    # gather from all gpus
+    batch_size_this = batch.shape[0]
+    batch_gather = concat_all_gather(batch)
+    batch_size_all = batch_gather.shape[0]
+
+    num_gpus = batch_size_all // batch_size_this
+
+    # random shuffle index
+    idx_shuffle = torch.randperm(batch_size_all).cuda()
+
+    # broadcast to all gpus
+    dist.broadcast(idx_shuffle, src=0)
+
+    # index for restoring
+    idx_unshuffle = torch.argsort(idx_shuffle)
+
+    # shuffled index for this gpu
+    gpu_idx = dist.get_rank()
+    idx_this = idx_shuffle.view(num_gpus, -1)[gpu_idx]
+
+    return batch_gather[idx_this], idx_unshuffle
+
+@torch.no_grad()
+def batch_unshuffle_ddp(
+    batch: torch.Tensor, 
+    idx_unshuffle: torch.Tensor
+) -> torch.Tensor:
+    """Undo batch shuffle over multiple gpus.
+
+    This code was taken and adapted from here:
+    https://github.com/facebookresearch/moco.
+
+    Args:
+        batch:
+            The tensor to unshuffle.
+        idx_unshuffle:
+            Index to restore the original tensor.
+
+    Returns:
+        The unshuffled tensor.
+
+    """
+    # gather from all gpus
+    batch_size_this = batch.shape[0]
+    batch_gather = concat_all_gather(batch)
+    batch_size_all = batch_gather.shape[0]
+
+    num_gpus = batch_size_all // batch_size_this
+
+    # restored index for this gpu
+    gpu_idx = dist.get_rank()
+    idx_this = idx_unshuffle.view(num_gpus, -1)[gpu_idx]
+
+    return batch_gather[idx_this]
 
 def deactivate_requires_grad(model: nn.Module):
     """Deactivates the requires_grad flag for all parameters of a model.
