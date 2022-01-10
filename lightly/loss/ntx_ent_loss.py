@@ -4,9 +4,7 @@
 # All Rights Reserved
 
 import torch
-import torch.nn as nn
 import torch.distributed as dist
-
 
 from lightly.loss.memory_bank import MemoryBankModule
 from lightly.loss.gather import GatherLayer
@@ -28,6 +26,9 @@ class NTXentLoss(MemoryBankModule):
         memory_bank_size:
             Number of negative samples to store in the memory bank. 
             Use 0 for SimCLR. For MoCo we typically use numbers like 4096 or 65536.
+        gather_distributed:
+            If True then negatives from all gpus are gathered before the 
+            loss calculation. This flag has no effect if memory_bank_size > 0.
 
     Raises:
         ValueError: If abs(temperature) < 1e-8 to prevent divide by zero.
@@ -52,9 +53,11 @@ class NTXentLoss(MemoryBankModule):
 
     def __init__(self,
                  temperature: float = 0.5,
-                 memory_bank_size: int = 0):
+                 memory_bank_size: int = 0,
+                 gather_distributed: bool = False):
         super(NTXentLoss, self).__init__(size=memory_bank_size)
         self.temperature = temperature
+        self.gather_distributed = gather_distributed
         self.cross_entropy = torch.nn.CrossEntropyLoss(reduction="mean")
         self.eps = 1e-8
 
@@ -123,7 +126,11 @@ class NTXentLoss(MemoryBankModule):
 
         else:
             # user other samples from batch as negatives
-            if dist.is_initialized() and dist.get_world_size() > 1:
+            if (
+                self.gather_distributed 
+                and dist.is_initialized() 
+                and dist.get_world_size() > 1
+            ):
                 # gather hidden representations from other processes
                 out0_large = torch.cat(GatherLayer.apply(out0), 0)
                 out1_large = torch.cat(GatherLayer.apply(out1), 0)
@@ -146,8 +153,8 @@ class NTXentLoss(MemoryBankModule):
             labels = torch.arange(batch_size, device=device, dtype=torch.long)
             labels = labels + rank * batch_size
             masks = torch.ones_like(logits_00).bool()
-            masks.scatter_(0, labels.unsqueeze(0), False)
-        
+            masks.scatter_(dim=1, index=labels.unsqueeze(1), value=False)
+            
             # remove similarities of samples to themselves
             logits_00 = logits_00[masks].view(batch_size, -1)
             logits_11 = logits_11[masks].view(batch_size, -1)
