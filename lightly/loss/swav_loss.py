@@ -74,17 +74,22 @@ class SwaVLoss(nn.Module):
             Number of iterations of the sinkhorn algorithm.
         sinkhorn_epsilon:
             Temperature parameter used in the sinkhorn algorithm.
+        sinkhorn_gather_distributed:
+            If True then features from all gpus are gathered to calculate the
+            soft codes in the sinkhorn algorithm. 
     
     """
 
     def __init__(self,
                  temperature: float = 0.1,
                  sinkhorn_iterations: int = 3,
-                 sinkhorn_epsilon: float = 0.05):
+                 sinkhorn_epsilon: float = 0.05,
+                 sinkhorn_gather_distributed: bool = False):
         super(SwaVLoss, self).__init__()
         self.temperature = temperature
         self.sinkhorn_iterations = sinkhorn_iterations
         self.sinkhorn_epsilon = sinkhorn_epsilon
+        self.sinkhorn_gather_distributed = sinkhorn_gather_distributed
 
 
     def subloss(self, z: torch.Tensor, q: torch.Tensor):
@@ -135,7 +140,8 @@ class SwaVLoss(nn.Module):
                 q = sinkhorn(
                     high_resolution_outputs[i].detach(),
                     iterations=self.sinkhorn_iterations,
-                    epsilon=self.sinkhorn_epsilon
+                    epsilon=self.sinkhorn_epsilon,
+                    gather_distributed=self.sinkhorn_gather_distributed,
                 )
 
             # compute subloss for each pair of crops
