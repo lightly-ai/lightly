@@ -7,7 +7,12 @@ import torch.distributed as dist
 
 
 @torch.no_grad()
-def sinkhorn(out: torch.Tensor, iterations: int = 3, epsilon: float = 0.05):
+def sinkhorn(
+    out: torch.Tensor, 
+    iterations: int = 3, 
+    epsilon: float = 0.05,
+    gather_distributed: bool = False,
+) -> torch.Tensor:
     """Distributed sinkhorn algorithm.
 
     As outlined in [0] and implemented in [1].
@@ -22,13 +27,16 @@ def sinkhorn(out: torch.Tensor, iterations: int = 3, epsilon: float = 0.05):
             Number of sinkhorn iterations.
         epsilon:
             Temperature parameter.
+        gather_distributed:
+            If True then features from all gpus are gathered to calculate the
+            soft codes Q. 
 
     Returns:
         Soft codes Q assigning each feature to a prototype.
     
     """
     world_size = 1
-    if dist.is_initialized():
+    if gather_distributed and dist.is_initialized():
         world_size = dist.get_world_size()
 
     # get the exponential matrix and make it sum to 1
