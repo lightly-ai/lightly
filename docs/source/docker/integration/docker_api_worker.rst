@@ -13,20 +13,18 @@ all compute-intensive workloads in one single run:
 - sample a subset
 - compute the metadata of the images
 
-It will also handle the download of filenames from your cloud storage to your
+It will also handle the download of filenames from your AWS S3 bucket to your
 the machine and upload all artifacts. Thus it allows you to do the full
 Lightly workflow in one single run with minimal overhead.
 
 Requirements
 ------------
 
-This tutorial requires that you already have a dataset in the Lightly Platform.
-You can use one of our other tutorials to create such a dataset from
-cloud storage or local files.
+This tutorial requires that you already have a dataset in the Lightly Platform
+configured to use the data in your AWS S3 bucket.
 
-# TODO: Add links to these tutorials or the documentation
-# TODO: Even better: provide them directly in the webapp or make the configurator
-easier to use.
+Follow the steps in the `tutorial <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_aws_bucket.html>`_
+to create such a dataset.
 
 Furthermore, you should have access to a machine running docker.
 Ideally, it also has a CUDA-GPU.
@@ -41,7 +39,7 @@ Please follow the instructions `here <https://docs.lightly.ai/docker/getting_sta
 
 TODO: Provide the link to the instructions for using docker 3.0 directly in the webapp.
 
-You can test if the installation was successfull like this:
+You can test if the installation was successful like this:
 
 .. code-block:: console
 
