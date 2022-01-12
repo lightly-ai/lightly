@@ -32,9 +32,7 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torchvision
-from lightly.models.modules import NNMemoryBankModule
 from lightly.models.modules.heads import BYOLProjectionHead
 from lightly.models.modules.heads import MoCoProjectionHead
 from lightly.models.modules.heads import ProjectionHead
@@ -42,14 +40,10 @@ from lightly.models.modules.heads import SwaVProjectionHead
 from lightly.models.modules.heads import SwaVPrototypes
 from lightly.models.utils import batch_shuffle
 from lightly.models.utils import batch_unshuffle
-from lightly.models.utils import batch_shuffle_ddp
-from lightly.models.utils import batch_unshuffle_ddp
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
 from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
-from torchvision import transforms
-from torchvision.transforms.transforms import CenterCrop
 
 num_workers = 8
 memory_bank_size = 4096
@@ -215,13 +209,13 @@ class MocoModel(BenchmarkModule):
         update_momentum(self.projection_head, self.projection_head_momentum, 0.99)
 
         def step(x0_, x1_):
-            x1_, shuffle = self._batch_shuffle(x1_)
+            x1_, shuffle = batch_shuffle(x1_, distributed=distributed)
             x0_ = self.backbone(x0_).flatten(start_dim=1)
             x0_ = self.projection_head(x0_)
 
             x1_ = self.backbone_momentum(x1_).flatten(start_dim=1)
             x1_ = self.projection_head_momentum(x1_)
-            x1_ = self._batch_unshuffle(x1_, shuffle)
+            x1_ = batch_unshuffle(x1_, shuffle, distributed=distributed)
             return x0_, x1_
 
         # We use a symmetric loss (model trains faster at little compute overhead)
@@ -243,16 +237,6 @@ class MocoModel(BenchmarkModule):
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
-    
-    def _batch_shuffle(self, x):
-        if distributed_backend == 'ddp':
-            return batch_shuffle_ddp(x)
-        return batch_shuffle(x)
-    
-    def _batch_unshuffle(self, x, idx_unshuffle):
-        if distributed_backend == 'ddp':
-            return batch_unshuffle_ddp(x, idx_unshuffle)
-        return batch_unshuffle(x, idx_unshuffle)
 
 
 class SimCLRModel(BenchmarkModule):
