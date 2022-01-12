@@ -358,3 +358,14 @@ class TestLightlyDataset(unittest.TestCase):
         VideoDataset.get_filenames = get_filenames
 
         assert video_dataset_filenames == lightly_dataset_filenames
+
+    @unittest.skip("Fails currently with 'PermissionError: [Errno 13]' when iterating over the dataset.")
+    def test_dataset_no_read_rights(self):
+        tmp_dir, _, _ = self.create_dataset()
+        for subdir, dirs, files in os.walk(tmp_dir):
+            for filename in files:
+                filepath = os.path.join(subdir, filename)
+                os.chmod(filepath, 0o000)
+        dataset = LightlyDataset(input_dir=tmp_dir)
+        for _ in dataset:
+            pass
