@@ -366,6 +366,7 @@ class TestLightlyDataset(unittest.TestCase):
                 filepath = os.path.join(subdir, filename)
                 os.chmod(filepath, 0o000)
         dataset = LightlyDataset(input_dir=tmp_dir)
+        self.assertGreater(len(dataset.get_filenames()), 0)
         with self.assertRaises(PermissionError):
             for _ in dataset:
                 pass
