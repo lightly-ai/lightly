@@ -10,8 +10,21 @@ import torch.distributed as dist
 import torch.nn as nn
 
 @torch.no_grad()
-def batch_shuffle(batch: torch.Tensor):
-    """Returns the shuffled batch and the indices to undo.
+def batch_shuffle(
+    batch: torch.Tensor, 
+    distributed: bool = False
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Randomly shuffles all tensors in the batch.
+
+    Args:
+        batch:
+            The batch to shuffle.
+        distributed:
+            If True then batches are shuffles across multiple gpus.
+
+    Returns:
+        A (batch, shuffle) tuple where batch is the shuffled version of the 
+        input batch and shuffle is an index to restore the original order.
 
     Examples:
         >>> # forward pass through the momentum model with batch shuffling
@@ -20,13 +33,30 @@ def batch_shuffle(batch: torch.Tensor):
         >>> out0 = projection_head_momentum(f0)
         >>> out1 = batch_unshuffle(out1, shuffle)
     """
+    if distributed:
+        return batch_shuffle_distributed(batch)
     batch_size = batch.shape[0]
     shuffle = torch.randperm(batch_size, device=batch.device)
     return batch[shuffle], shuffle
 
 @torch.no_grad()
-def batch_unshuffle(batch: torch.Tensor, shuffle: torch.Tensor):
-    """Returns the unshuffled batch.
+def batch_unshuffle(
+    batch: torch.Tensor, 
+    shuffle: torch.Tensor,
+    distributed: bool = False,
+) -> torch.Tensor:
+    """Unshuffles a batch. 
+
+    Args:
+        batch:
+            The batch to unshuffle.
+        shuffle:
+            Index to unshuffle the batch.
+        distributed:
+            If True then the batch is unshuffled across multiple gpus.
+    
+    Returns:
+        The unshuffled batch.
 
     Examples:
         >>> # forward pass through the momentum model with batch shuffling
@@ -35,6 +65,8 @@ def batch_unshuffle(batch: torch.Tensor, shuffle: torch.Tensor):
         >>> out0 = projection_head_momentum(f0)
         >>> out1 = batch_unshuffle(out1, shuffle)
     """
+    if distributed:
+        return batch_unshuffle_distributed(batch, shuffle)
     unshuffle = torch.argsort(shuffle)
     return batch[unshuffle]
 
@@ -52,7 +84,7 @@ def concat_all_gather(x: torch.Tensor) -> torch.Tensor:
     return output
 
 @torch.no_grad()
-def batch_shuffle_ddp(batch: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+def batch_shuffle_distributed(batch: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
     """Shuffles batch over multiple gpus.
 
     This code was taken and adapted from here:
@@ -63,9 +95,8 @@ def batch_shuffle_ddp(batch: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
             The tensor to shuffle.
 
     Returns:
-        A (batch_gather, idx_unshuffle) tuple where batch_gather is the shuffled
-        version of batch and idx_unshuffle is an index to restore the original
-        tensor.
+        A (batch, shuffle) tuple where batch is the shuffled version of the 
+        input batch and shuffle is an index to restore the original order.
     
     """
     # gather from all gpus
@@ -82,18 +113,18 @@ def batch_shuffle_ddp(batch: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
     dist.broadcast(idx_shuffle, src=0)
 
     # index for restoring
-    idx_unshuffle = torch.argsort(idx_shuffle)
+    shuffle = torch.argsort(idx_shuffle)
 
     # shuffled index for this gpu
     gpu_idx = dist.get_rank()
     idx_this = idx_shuffle.view(num_gpus, -1)[gpu_idx]
 
-    return batch_gather[idx_this], idx_unshuffle
+    return batch_gather[idx_this], shuffle
 
 @torch.no_grad()
-def batch_unshuffle_ddp(
+def batch_unshuffle_distributed(
     batch: torch.Tensor, 
-    idx_unshuffle: torch.Tensor
+    shuffle: torch.Tensor
 ) -> torch.Tensor:
     """Undo batch shuffle over multiple gpus.
 
@@ -103,7 +134,7 @@ def batch_unshuffle_ddp(
     Args:
         batch:
             The tensor to unshuffle.
-        idx_unshuffle:
+        shuffle:
             Index to restore the original tensor.
 
     Returns:
@@ -119,7 +150,7 @@ def batch_unshuffle_ddp(
 
     # restored index for this gpu
     gpu_idx = dist.get_rank()
-    idx_this = idx_unshuffle.view(num_gpus, -1)[gpu_idx]
+    idx_this = shuffle.view(num_gpus, -1)[gpu_idx]
 
     return batch_gather[idx_this]
 

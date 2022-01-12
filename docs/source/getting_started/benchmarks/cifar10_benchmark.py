@@ -26,6 +26,7 @@ Code to reproduce the benchmark results:
 import copy
 import os
 
+import time
 import lightly
 import numpy as np
 import pytorch_lightning as pl
@@ -41,6 +42,8 @@ from lightly.models.modules.heads import SwaVProjectionHead
 from lightly.models.modules.heads import SwaVPrototypes
 from lightly.models.utils import batch_shuffle
 from lightly.models.utils import batch_unshuffle
+from lightly.models.utils import batch_shuffle_ddp
+from lightly.models.utils import batch_unshuffle_ddp
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
 from lightly.utils import BenchmarkModule
@@ -54,10 +57,15 @@ memory_bank_size = 4096
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 1
+max_epochs = 100
 knn_k = 200
 knn_t = 0.1
 classes = 10
+
+# distributed training settings
+distributed = False
+sync_batchnorm = False
+gather_distributed = False # gather features from all gpus before calculating loss
 
 # benchmark
 n_runs = 1 # optional, increase to create multiple runs and report mean + std
@@ -65,11 +73,15 @@ batch_sizes = [512]
 
 # use a GPU if available
 gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
-distributed_backend = 'ddp' if gpus > 1 else None
 
-# reduce learning rate if multiple gpus are used because 
-# effective batch size = batch_size * gpus
-lr_factor = 1 / (gpus + 1)
+if distributed:
+    distributed_backend = 'ddp'
+    # reduce batch size for distributed training
+    batch_sizes = [size // gpus for size in batch_sizes]
+else:
+    distributed_backend = None
+    # limit to single gpu if not using distributed training
+    gpus = min(gpus, 1)
 
 # Adapted from our MoCo Tutorial on CIFAR-10
 #
@@ -167,13 +179,13 @@ def get_data_loaders(batch_size: int, multi_crops: bool = False):
 
     return dataloader_train_ssl, dataloader_train_kNN, dataloader_test
 
-
 class MocoModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
 
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator('resnet-18', num_splits=8)
+        num_splits = 0 if sync_batchnorm else 8
+        resnet = lightly.models.ResNetGenerator('resnet-18', num_splits=num_splits)
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
@@ -203,13 +215,13 @@ class MocoModel(BenchmarkModule):
         update_momentum(self.projection_head, self.projection_head_momentum, 0.99)
 
         def step(x0_, x1_):
-            x1_, shuffle = batch_shuffle(x1_)
+            x1_, shuffle = self._batch_shuffle(x1_)
             x0_ = self.backbone(x0_).flatten(start_dim=1)
             x0_ = self.projection_head(x0_)
 
             x1_ = self.backbone_momentum(x1_).flatten(start_dim=1)
             x1_ = self.projection_head_momentum(x1_)
-            x1_ = batch_unshuffle(x1_, shuffle)
+            x1_ = self._batch_unshuffle(x1_, shuffle)
             return x0_, x1_
 
         # We use a symmetric loss (model trains faster at little compute overhead)
@@ -225,12 +237,22 @@ class MocoModel(BenchmarkModule):
         params = list(self.backbone.parameters()) + list(self.projection_head.parameters())
         optim = torch.optim.SGD(
             params, 
-            lr=6e-2 * lr_factor,
+            lr=6e-2,
             momentum=0.9, 
             weight_decay=5e-4,
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
+    
+    def _batch_shuffle(self, x):
+        if distributed_backend == 'ddp':
+            return batch_shuffle_ddp(x)
+        return batch_shuffle(x)
+    
+    def _batch_unshuffle(self, x, idx_unshuffle):
+        if distributed_backend == 'ddp':
+            return batch_unshuffle_ddp(x, idx_unshuffle)
+        return batch_unshuffle(x, idx_unshuffle)
 
 
 class SimCLRModel(BenchmarkModule):
@@ -245,7 +267,7 @@ class SimCLRModel(BenchmarkModule):
         # create a simclr model based on ResNet
         self.resnet_simclr = \
             lightly.models.SimCLR(self.backbone, num_ftrs=512)
-        self.criterion = lightly.loss.NTXentLoss()
+        self.criterion = lightly.loss.NTXentLoss(gather_distributed=gather_distributed)
             
     def forward(self, x):
         self.resnet_simclr(x)
@@ -260,7 +282,7 @@ class SimCLRModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.SGD(
             self.resnet_simclr.parameters(), 
-            lr=6e-2 * lr_factor,
+            lr=6e-2,
             momentum=0.9, 
             weight_decay=5e-4
         )
@@ -310,7 +332,7 @@ class SimSiamModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.SGD(
             self.resnet_simsiam.parameters(), 
-            lr=6e-2 * lr_factor,
+            lr=6e-2,
             momentum=0.9, 
             weight_decay=5e-4
         )
@@ -350,7 +372,7 @@ class BarlowTwinsModel(BenchmarkModule):
                 None
             )
         ])
-        self.criterion = lightly.loss.BarlowTwinsLoss()
+        self.criterion = lightly.loss.BarlowTwinsLoss(gather_distributed=gather_distributed)
 
     def forward(self, x):
         self.resnet_barlowtwins(x)
@@ -365,7 +387,7 @@ class BarlowTwinsModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.SGD(
             self.resnet_barlowtwins.parameters(), 
-            lr=6e-2 * lr_factor,
+            lr=6e-2,
             momentum=0.9, 
             weight_decay=5e-4
         )
@@ -427,7 +449,7 @@ class BYOLModel(BenchmarkModule):
             + list(self.prediction_head.parameters())
         optim = torch.optim.SGD(
             params, 
-            lr=6e-2 * lr_factor,
+            lr=6e-2,
             momentum=0.9, 
             weight_decay=5e-4,
         )
@@ -447,7 +469,7 @@ class SwaVModel(BenchmarkModule):
         self.projection_head = SwaVProjectionHead(512, 512, 128)
         self.prototypes = SwaVPrototypes(128, 512) # use 512 prototypes
 
-        self.criterion = lightly.loss.SwaVLoss()
+        self.criterion = lightly.loss.SwaVLoss(sinkhorn_gather_distributed=gather_distributed)
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -484,50 +506,65 @@ class SwaVModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.Adam(
             self.parameters(),
-            lr=1e-3 * lr_factor,
+            lr=1e-3,
             weight_decay=1e-6,
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
-model_names = ['MoCo_128', 'SimCLR_128', 'SimSiam_128', 'BarlowTwinsModel_128', 'BYOL_128', 'SwAV_128',
-               'MoCo_512', 'SimCLR_512', 'SimSiam_512', 'BarlowTwinsModel_512', 'BYOL_512', 'SwAV_512']
-models = [MocoModel, SimCLRModel, SimSiamModel, BarlowTwinsModel, BYOLModel, SwaVModel]
-bench_results = []
-gpu_memory_usage = []
+models = [MocoModel, SimCLRModel, SimSiamModel, BarlowTwinsModel, BYOLModel, SwaVModel] # MocoModel
+bench_results = dict()
 
 # loop through configurations and train models
 for batch_size in batch_sizes:
-    for model_name, BenchmarkModel in zip(model_names, models):
+    for BenchmarkModel in models:
         runs = []
+        model_name = BenchmarkModel.__name__
         for seed in range(n_runs):
             pl.seed_everything(seed)
             dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(batch_size)
             benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
 
-            logger = TensorBoardLogger('imagenette_runs', version=model_name)
+            logger = TensorBoardLogger('cifar10_runs', version=model_name)
 
-            trainer = pl.Trainer(max_epochs=max_epochs, 
-                                gpus=gpus,
-                                default_root_dir=logs_root_dir,
-                                strategy=distributed_backend)
+            trainer = pl.Trainer(
+                max_epochs=max_epochs, 
+                gpus=gpus,
+                default_root_dir=logs_root_dir,
+                strategy=distributed_backend,
+                sync_batchnorm=sync_batchnorm,
+            )
+            start = time.time()
             trainer.fit(
                 benchmark_model,
                 train_dataloaders=dataloader_train_ssl,
                 val_dataloaders=dataloader_test
             )
-            gpu_memory_usage.append(torch.cuda.max_memory_allocated())
-            torch.cuda.reset_peak_memory_stats()
-            runs.append(benchmark_model.max_accuracy)
-
+            end = time.time()
+            run = {
+                'seed': seed,
+                'runtime': end - start,
+                'max_accuracy': benchmark_model.max_accuracy,
+                'gpu_memory_usage': torch.cuda.max_memory_allocated(),
+            }
+            runs.append(run)
+            print(run)
             # delete model and trainer + free up cuda memory
             del benchmark_model
             del trainer
+            torch.cuda.reset_peak_memory_stats()
             torch.cuda.empty_cache()
-        bench_results.append(runs)
+        
+        bench_results[model_name] = runs
 
-for result, model, gpu_usage in zip(bench_results, model_names, gpu_memory_usage):
-    result_np = np.array(result)
-    mean = result_np.mean()
-    std = result_np.std()
-    print(f'{model}: {mean:.3f} +- {std:.3f}, GPU used: {gpu_usage / (1024.0**3):.1f} GByte', flush=True)
+for model, results in bench_results.items():
+    runtime = np.array([result['runtime'] for result in results])
+    accuracy = np.array([result['max_accuracy'] for result in results])
+    gpu_memory_usage = np.array([result['gpu_memory_usage'] for result in results])
+
+    print(
+        f'{model}: {accuracy.mean():.3f} +- {accuracy.std():.3f}'
+        f', GPU used: {gpu_memory_usage.mean() / (1024.0**3):.1f} GByte'
+        f', Time: {runtime.mean()} sec', 
+        flush=True
+    )
