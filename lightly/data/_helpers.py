@@ -25,6 +25,11 @@ VIDEO_EXTENSIONS = ('.mp4', '.mov', '.avi', '.mpg',
                     '.hevc', '.m4v', '.webm', '.mpeg')
 
 
+def walk_dir_not_ignoring_erors(root):
+    def on_error(error):
+        raise error
+    return os.walk(root, onerror=on_error)
+
 def _dir_contains_videos(root: str, extensions: tuple):
     """Checks whether directory contains video files.
 
@@ -52,7 +57,9 @@ def _contains_videos(root: str, extensions: tuple):
         True if "root" or any subdir contains video files.
 
     """
-    for subdir, _, _ in os.walk(root):
+    def on_error(error):
+        raise error
+    for subdir, _, _ in walk_dir_not_ignoring_erors(root):
         if _dir_contains_videos(subdir, extensions):
             return True
     return False

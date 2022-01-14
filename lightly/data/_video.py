@@ -13,6 +13,8 @@ import torchvision
 from torchvision import datasets
 from torchvision import io
 
+from lightly.data._helpers import walk_dir_not_ignoring_erors
+
 try:
     import av
     AV_AVAILABLE = True
@@ -174,7 +176,7 @@ def _make_dataset(directory,
 
     # find all video instances (no subdirectories)
     video_instances = []
-    for root, _, files in os.walk(directory):
+    for root, _, files in walk_dir_not_ignoring_erors(directory):
 
         for fname in files:
             # skip invalid files
