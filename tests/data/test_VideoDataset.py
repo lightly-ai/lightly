@@ -38,7 +38,6 @@ class TestVideoDataset(unittest.TestCase):
 
         for i in range(n_videos):
             path = os.path.join(self.input_dir, f'output-{i}.avi')
-            print(path)
             out = cv2.VideoWriter(path, 0, 1, (w, h))
             for frame in self.frames:
                 out.write(frame)
@@ -105,4 +104,30 @@ class TestVideoDataset(unittest.TestCase):
                 )
         
         shutil.rmtree(self.input_dir)
+
+    def test_video_dataset_no_read_rights_input_dir(self):
+        self.create_dataset()
+        os.chmod(self.input_dir, 0o000)
+        with self.assertRaises(PermissionError):
+            dataset = VideoDataset(self.input_dir, extensions=self.extensions)
+
+    def test_video_dataset_no_read_rights_subdir(self):
+        self.create_dataset()
+        for subdir, dirs, files in os.walk(self.input_dir):
+            os.chmod(subdir, 0o000)
+        with self.assertRaises(PermissionError):
+            dataset = VideoDataset(self.input_dir, extensions=self.extensions)
+
+    def test_video_dataset_no_read_rights_files(self):
+        self.create_dataset()
+        for subdir, dirs, files in os.walk(self.input_dir):
+            for filename in files:
+                filepath = os.path.join(self.input_dir, filename)
+                os.chmod(filepath, 0o000)
+        dataset = VideoDataset(self.input_dir, extensions=self.extensions)
+        self.assertGreater(len(dataset.get_filenames()), 0)
+        with self.assertRaises(PermissionError):
+            for _ in dataset:
+                pass
+
 
