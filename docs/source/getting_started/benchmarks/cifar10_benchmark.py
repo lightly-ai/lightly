@@ -62,7 +62,7 @@ sync_batchnorm = False
 gather_distributed = False # gather features from all gpus before calculating loss
 
 # benchmark
-n_runs = 5 # optional, increase to create multiple runs and report mean + std
+n_runs = 1 # optional, increase to create multiple runs and report mean + std
 batch_sizes = [128, 512]
 
 # use a GPU if available
