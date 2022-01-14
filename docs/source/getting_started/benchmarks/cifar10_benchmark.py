@@ -51,7 +51,7 @@ memory_bank_size = 4096
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 100
+max_epochs = 200
 knn_k = 200
 knn_t = 0.1
 classes = 10
@@ -62,8 +62,8 @@ sync_batchnorm = False
 gather_distributed = False # gather features from all gpus before calculating loss
 
 # benchmark
-n_runs = 1 # optional, increase to create multiple runs and report mean + std
-batch_sizes = [512]
+n_runs = 5 # optional, increase to create multiple runs and report mean + std
+batch_sizes = [128, 512]
 
 # use a GPU if available
 gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
@@ -496,7 +496,7 @@ class SwaVModel(BenchmarkModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
-models = [MocoModel, SimCLRModel, SimSiamModel, BarlowTwinsModel, BYOLModel, SwaVModel] # MocoModel
+models = [MocoModel, SimCLRModel, SimSiamModel, BarlowTwinsModel, BYOLModel, SwaVModel]
 bench_results = dict()
 
 # loop through configurations and train models
@@ -532,7 +532,7 @@ for batch_size in batch_sizes:
                 'gpu_memory_usage': torch.cuda.max_memory_allocated(),
             }
             runs.append(run)
-            print(run)
+
             # delete model and trainer + free up cuda memory
             del benchmark_model
             del trainer
@@ -548,7 +548,7 @@ for model, results in bench_results.items():
 
     print(
         f'{model}: {accuracy.mean():.3f} +- {accuracy.std():.3f}'
-        f', GPU used: {gpu_memory_usage.mean() / (1024.0**3):.1f} GByte'
-        f', Time: {runtime.mean()} sec', 
+        f', GPU used: {gpu_memory_usage.max() / (1024.0**3):.1f} GByte'
+        f', Time: {runtime.mean() // 60} min',
         flush=True
     )
