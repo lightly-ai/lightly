@@ -7,6 +7,7 @@ import warnings
 import PIL
 import torchvision
 
+from lightly.data import LightlyDataset
 from lightly.data._video import VideoDataset, _make_dataset
 import cv2
 
@@ -114,19 +115,19 @@ class TestVideoDataset(unittest.TestCase):
                     filepath = os.path.join(self.input_dir, filename)
                     os.chmod(filepath, 0o000)
             with self.assertRaises(PermissionError):
-                dataset = VideoDataset(self.input_dir, extensions=self.extensions)
+                dataset = LightlyDataset(self.input_dir)
+
 
         with self.subTest("no read rights subdirs"):
             for subdir, dirs, files in os.walk(self.input_dir):
                 os.chmod(subdir, 0o000)
             with self.assertRaises(PermissionError):
-                dataset = VideoDataset(self.input_dir,
-                                       extensions=self.extensions)
+                dataset = LightlyDataset(self.input_dir)
+
         with self.subTest("no read rights root"):
             os.chmod(self.input_dir, 0o000)
             with self.assertRaises(PermissionError):
-                dataset = VideoDataset(self.input_dir,
-                                       extensions=self.extensions)
+                dataset = LightlyDataset(self.input_dir)
 
 
 
