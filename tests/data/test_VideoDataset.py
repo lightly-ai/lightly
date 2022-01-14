@@ -113,11 +113,8 @@ class TestVideoDataset(unittest.TestCase):
                 for filename in files:
                     filepath = os.path.join(self.input_dir, filename)
                     os.chmod(filepath, 0o000)
-            dataset = VideoDataset(self.input_dir, extensions=self.extensions)
-            self.assertGreater(len(dataset.get_filenames()), 0)
             with self.assertRaises(PermissionError):
-                for _ in dataset:
-                    pass
+                dataset = VideoDataset(self.input_dir, extensions=self.extensions)
 
         with self.subTest("no read rights subdirs"):
             for subdir, dirs, files in os.walk(self.input_dir):
