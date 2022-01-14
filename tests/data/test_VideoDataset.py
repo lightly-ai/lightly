@@ -39,6 +39,7 @@ class TestVideoDataset(unittest.TestCase):
 
         for i in range(n_videos):
             path = os.path.join(self.input_dir, f'output-{i}.avi')
+            print(path)
             out = cv2.VideoWriter(path, 0, 1, (w, h))
             for frame in self.frames:
                 out.write(frame)
@@ -116,7 +117,6 @@ class TestVideoDataset(unittest.TestCase):
                     os.chmod(filepath, 0o000)
             with self.assertRaises(PermissionError):
                 dataset = LightlyDataset(self.input_dir)
-
 
         with self.subTest("no read rights subdirs"):
             for subdir, dirs, files in os.walk(self.input_dir):
