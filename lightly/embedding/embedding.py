@@ -58,20 +58,22 @@ class SelfSupervisedEmbedding(BaseEmbedding):
 
     """
 
-    def __init__(self,
-                 model: torch.nn.Module,
-                 criterion: torch.nn.Module,
-                 optimizer: torch.optim.Optimizer,
-                 dataloader: torch.utils.data.DataLoader,
-                 scheduler=None):
+    def __init__(
+        self,
+        model: torch.nn.Module,
+        criterion: torch.nn.Module,
+        optimizer: torch.optim.Optimizer,
+        dataloader: torch.utils.data.DataLoader,
+        scheduler=None,
+    ):
 
         super(SelfSupervisedEmbedding, self).__init__(
-            model, criterion, optimizer, dataloader, scheduler)
+            model, criterion, optimizer, dataloader, scheduler
+        )
 
-    def embed(self,
-              dataloader: torch.utils.data.DataLoader,
-              device: torch.device = None
-              ) -> Tuple[np.ndarray, np.ndarray, List[str]]:
+    def embed(
+        self, dataloader: torch.utils.data.DataLoader, device: torch.device = None
+    ) -> Tuple[np.ndarray, np.ndarray, List[str]]:
         """Embeds images in a vector space.
 
         Args:
@@ -102,12 +104,13 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         embeddings, labels, fnames = None, None, []
 
         if lightly._is_prefetch_generator_available():
-            pbar = tqdm(BackgroundGenerator(dataloader, max_prefetch=3),
-                        total=len(dataloader))
+            pbar = tqdm(
+                BackgroundGenerator(dataloader, max_prefetch=3), total=len(dataloader)
+            )
         else:
             pbar = tqdm(dataloader, total=len(dataloader))
 
-        efficiency = 0.
+        efficiency = 0.0
         embeddings = []
         labels = []
         with torch.no_grad():
@@ -130,10 +133,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
 
                 process_time = time.time()
 
-                efficiency = \
-                    (process_time - prepare_time) / (process_time - start_time)
-                pbar.set_description(
-                    "Compute efficiency: {:.2f}".format(efficiency))
+                efficiency = (process_time - prepare_time) / (process_time - start_time)
+                pbar.set_description("Compute efficiency: {:.2f}".format(efficiency))
                 start_time = time.time()
 
             embeddings = torch.cat(embeddings, 0)
@@ -146,7 +147,9 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         dict_by_filenames = dict(zip(fnames, list_to_order))
 
         filenames_correct_order = dataloader.dataset.get_filenames()
-        list_ordered = [dict_by_filenames[filename] for filename in filenames_correct_order]
+        list_ordered = [
+            dict_by_filenames[filename] for filename in filenames_correct_order
+        ]
 
         embeddings_ordered, labels_ordered = zip(*list_ordered)
         embeddings = np.stack(embeddings_ordered)
