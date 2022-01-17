@@ -1,20 +1,22 @@
 
-.. _ref-docker-api-worker:
+.. _ref-docker-with-datasource:
 
-Using the docker as worker for the API for embedding and sampling
-=================================================================
+Using the docker with an S3 bucket as remote datasource.
+========================================================
 
 Introduction
 --------------
-The Lightly Docker can be used as a worker for the Lightly Platform to do
-all compute-intensive workloads in one single run:
-- train an embedding model
+The Lightly Docker can be used with the Lightly Platform to do
+the following workloads in one single run:
+
+- stream the files from your AWS S3 bucket to your local machine
 - embed all images or video frames
 - sample a subset
 - compute the metadata of the images
+- create a dataset in the Lightly Platform from the sampled subset
 
-It will also handle the download of filenames from your AWS S3 bucket to your
-the machine and upload all artifacts. Thus it allows you to do the full
+It will also handle the download of files from your AWS S3 bucket to your
+machine and upload all artifacts. Thus it allows you to do the full
 Lightly workflow in one single run with minimal overhead.
 
 Requirements
@@ -53,7 +55,7 @@ E.g. run the docker with
         -v OUTPUT_DIR:/home/output_dir \
         lightly/sampling:latest \
         token=YOUR_LIGHTLY_PLATFORM_TOKEN \
-        datasource.id=YOUR_DATASET_ID
+        datasource.dataset_id=YOUR_DATASET_ID
 
 View the progress of the Lightly Docker
 ---------------------------------------
