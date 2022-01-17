@@ -32,7 +32,7 @@ class TestLightlyDataset(unittest.TestCase):
     def ensure_dir(self, path_to_folder: str):
         os.makedirs(path_to_folder, exist_ok=True)
 
-    def create_dataset_no_subdir(self, n_samples: int) -> Tuple[int, List[str]]:
+    def create_dataset_no_subdir(self, n_samples: int) -> Tuple[str, List[str]]:
         dataset = torchvision.datasets.FakeData(size=n_samples,
                                                 image_size=(3, 32, 32))
 
