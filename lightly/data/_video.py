@@ -174,7 +174,10 @@ def _make_dataset(directory,
 
     # find all video instances (no subdirectories)
     video_instances = []
-    for root, _, files in os.walk(directory):
+
+    def on_error(error):
+        raise error
+    for root, _, files in os.walk(directory, onerror=on_error):
 
         for fname in files:
             # skip invalid files
