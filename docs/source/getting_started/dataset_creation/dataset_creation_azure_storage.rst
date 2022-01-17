@@ -35,7 +35,7 @@ For the :ref:`lightly-command-line-tool` to be able to create embeddings and ext
 
     .. code-block::
 
-        azcopy sync '/local/lightlydatalake/farm-animals' 'https://lightlydatalake.blob.core.windows.net/farm-animals{YOUR_SAS_TOKEN}' --recursive
+        azcopy sync '/local/lightlydatalake/farm-animals' 'https://lightlydatalake.blob.core.windows.net/farm-animals/{YOUR_SAS_TOKEN}' --recursive
 
 
 
