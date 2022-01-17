@@ -35,28 +35,25 @@ especially for large datasets.
 Download the Lightly Docker
 ---------------------------------------------
 Next, the Lightly Docker should be installed.
-Please follow the instructions `here <https://docs.lightly.ai/docker/getting_started/setup.html>`__.
+Please follow the instructions for the :ref:`ref-docker-setup`.
 
-TODO: Provide the link to the instructions for using docker 3.0 directly in the webapp.
 
-You can test if the installation was successful like this:
+Run the Lightly Docker with the datasource
+------------------------------------------
+Head to the :ref:`rst-docker-first-steps` to get a general idea of what the docker
+can do.
+
+For running the docker with a remote datasouce, use the parameter `datasource.id=YOUR_DATASET_ID`.
+You find the dataset id in the Lightly Platform.
+E.g. run the docker with
 
 .. code-block:: console
 
-    docker run --rm -it lightly/sampling:latest sanity_check=True
-
-
-Run the Lightly Docker
-----------------------
-From the Lightly Webapp, copy the command to run the Lightly Docker on your machine.
-You can configure the parameters as you like,
-e.g. to sample a fixed number of samples or a different ratio.
-If you want to use a pretrained embedding model instead of
-training one on your dataset, change lightly.trainer.max_epochs to 0.
-
-Then run the command on your machine.
-
-TODO: screenshot of Lightly Webapp showing the command.
+    docker run --gpus all --rm -it \
+        -v OUTPUT_DIR:/home/output_dir \
+        lightly/sampling:latest \
+        token=YOUR_LIGHTLY_PLATFORM_TOKEN \
+        datasource.id=YOUR_DATASET_ID
 
 View the progress of the Lightly Docker
 ---------------------------------------
@@ -64,7 +61,7 @@ View the progress of the Lightly Docker
 To see the progress of your docker run, go to the Lightly Webapp and
 head to "My Docker Runs".
 
-TODO: screenshot of Lightly Webapp showing the progress of the docker.
+.. image:: ../getting_started/images/docker_runs_overview.png
 
 Use your subsampled dataset
 ---------------------------
@@ -76,6 +73,11 @@ subsample it further, or export it for labeling.
 Add new samples to your dataset
 -------------------------------
 You probably get new raw data from time to time and want to add any new samples in
-it to your LightlyDataset. This can also be done with the Lightly Docker:
+it to your LightlyDataset. The Lightly Platform remembers which raw data in your S3
+bucket has already been processed and will ignore it in future docker runs.
+This is way you can run the docker with the same command again. It will find
+you new raw data in the S3 bucket, download and subsample it and then add it to
+your existing dataset.
 
-TODO: Define the workflow of doing this.
+If you want to start from scratch again and process all data in you S3 bucket instead,
+then set `datasource.process_all=True` in your docker run command.

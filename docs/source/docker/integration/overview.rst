@@ -8,3 +8,4 @@ Here you learn how to integrate the Lightly Docker into data pre-processing pipe
    
    s3fs-fuse.rst
    dagster_aws.rst
+   docker_api_worker.rst
