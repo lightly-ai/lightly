@@ -32,13 +32,13 @@ from lightly.cli._helpers import load_from_state_dict
 from lightly.cli._helpers import cpu_count
 
 
-def get_model_from_config(cfg) -> SelfSupervisedEmbedding:
+def get_model_from_config(cfg, is_cli_call: bool = False) -> SelfSupervisedEmbedding:
     checkpoint = cfg['checkpoint']
     if torch.cuda.is_available():
         device = torch.device('cuda')
     else:
         device = torch.device('cpu')
-        
+
     if not checkpoint:
         checkpoint, key = get_ptmodel_from_config(cfg['model'])
         if not checkpoint:
@@ -55,22 +55,22 @@ def get_model_from_config(cfg) -> SelfSupervisedEmbedding:
     resnet = ResNetGenerator(cfg['model']['name'], cfg['model']['width'])
     last_conv_channels = list(resnet.children())[-1].in_features
     features = nn.Sequential(get_norm_layer(3, 0),
-        *list(resnet.children())[:-1],
-        nn.Conv2d(last_conv_channels, cfg['model']['num_ftrs'], 1),
-        nn.AdaptiveAvgPool2d(1), )
+                             *list(resnet.children())[:-1],
+                             nn.Conv2d(last_conv_channels,
+                                       cfg['model']['num_ftrs'], 1),
+                             nn.AdaptiveAvgPool2d(1), )
 
     model = _SimCLR(features, num_ftrs=cfg['model']['num_ftrs'],
-        out_dim=cfg['model']['out_dim']).to(device)
+                    out_dim=cfg['model']['out_dim']).to(device)
 
     if state_dict is not None:
         load_from_state_dict(model, state_dict)
 
     encoder = SelfSupervisedEmbedding(model, None, None, None)
     return encoder
-    
+
 
 def _embed_cli(cfg, is_cli_call=True):
-
     input_dir = cfg['input_dir']
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)
@@ -83,42 +83,36 @@ def _embed_cli(cfg, is_cli_call=True):
     else:
         device = torch.device('cpu')
 
-    transform = torchvision.transforms.Compose([
-        torchvision.transforms.Resize((cfg['collate']['input_size'],
-                                       cfg['collate']['input_size'])),
+    transform = torchvision.transforms.Compose([torchvision.transforms.Resize(
+        (cfg['collate']['input_size'], cfg['collate']['input_size'])),
         torchvision.transforms.ToTensor(),
-        torchvision.transforms.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225])
-    ])
+        torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225])])
 
     dataset = LightlyDataset(input_dir, transform=transform)
 
     # disable drop_last and shuffle
     cfg['loader']['drop_last'] = False
     cfg['loader']['shuffle'] = False
-    cfg['loader']['batch_size'] = min(
-        cfg['loader']['batch_size'],
-        len(dataset)
-    )
+    cfg['loader']['batch_size'] = min(cfg['loader']['batch_size'],
+        len(dataset))
 
     # determine the number of available cores
     if cfg['loader']['num_workers'] < 0:
         cfg['loader']['num_workers'] = cpu_count()
 
     dataloader = torch.utils.data.DataLoader(dataset, **cfg['loader'])
-    
-    encoder = get_model_from_config(cfg)
-    
+
+    encoder = get_model_from_config(cfg, is_cli_call)
+
     embeddings, labels, filenames = encoder.embed(dataloader, device=device)
 
     if is_cli_call:
         path = os.path.join(os.getcwd(), 'embeddings.csv')
         save_embeddings(path, embeddings, labels, filenames)
         print(f'Embeddings are stored at {bcolors.OKBLUE}{path}{bcolors.ENDC}')
-        os.environ[
-            cfg['environment_variable_names']['lightly_last_embedding_path']
-        ] = path
+        os.environ[cfg['environment_variable_names'][
+            'lightly_last_embedding_path']] = path
         return path
 
     return embeddings, labels, filenames
