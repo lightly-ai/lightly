@@ -3,6 +3,7 @@ import unittest
 import os
 import random
 import shutil
+from typing import Tuple, List
 
 import torch
 import torchvision
@@ -30,6 +31,18 @@ class TestLightlyDataset(unittest.TestCase):
 
     def ensure_dir(self, path_to_folder: str):
         os.makedirs(path_to_folder, exist_ok=True)
+
+    def create_dataset_no_subdir(self, n_samples: int) -> Tuple[int, List[str]]:
+        dataset = torchvision.datasets.FakeData(size=n_samples,
+                                                image_size=(3, 32, 32))
+
+        tmp_dir = tempfile.mkdtemp()
+        sample_names = [f'img_{i}.jpg' for i in range(n_samples)]
+        for sample_idx in range(n_samples):
+            data = dataset[sample_idx]
+            path = os.path.join(tmp_dir, sample_names[sample_idx])
+            data[0].save(path)
+        return tmp_dir, sample_names
 
     def create_dataset(self, n_subfolders=5, n_samples_per_subfolder=20):
         n_tot = n_subfolders * n_samples_per_subfolder
@@ -110,15 +123,7 @@ class TestLightlyDataset(unittest.TestCase):
 
         # create a dataset
         n_tot = 100
-        dataset = torchvision.datasets.FakeData(size=n_tot,
-                                                image_size=(3, 32, 32))
-
-        tmp_dir = tempfile.mkdtemp()
-        sample_names = [f'img_{i}.jpg' for i in range(n_tot)]
-        for sample_idx in range(n_tot):
-            data = dataset[sample_idx]
-            path = os.path.join(tmp_dir, sample_names[sample_idx])
-            data[0].save(path)
+        tmp_dir, sample_names = self.create_dataset_no_subdir(n_tot)
 
         # create lightly dataset
         dataset = LightlyDataset(input_dir=tmp_dir)
@@ -358,3 +363,51 @@ class TestLightlyDataset(unittest.TestCase):
         VideoDataset.get_filenames = get_filenames
 
         assert video_dataset_filenames == lightly_dataset_filenames
+
+    def test_dataset_with_subdirs(self):
+        tmp_dir, _, _ = self.create_dataset()
+
+        with self.subTest("no read rights files"):
+            for subdir, dirs, files in os.walk(tmp_dir):
+                for filename in files:
+                    filepath = os.path.join(subdir, filename)
+                    os.chmod(filepath, 0o000)
+            dataset = LightlyDataset(input_dir=tmp_dir)
+            self.assertGreater(len(dataset.get_filenames()), 0)
+            with self.assertRaises(PermissionError):
+                for _ in dataset:
+                    pass
+
+        with self.subTest("no read rights subfolders"):
+            for subdir, dirs, files in os.walk(tmp_dir):
+                os.chmod(subdir, 0o000)
+            with self.assertRaises(PermissionError):
+                dataset = LightlyDataset(input_dir=tmp_dir)
+
+        with self.subTest("no read rights root"):
+            os.chmod(tmp_dir, 0o000)
+            with self.assertRaises(PermissionError):
+                dataset = LightlyDataset(input_dir=tmp_dir)
+
+
+    def test_dataset_plain(self):
+        tmp_dir, _ = self.create_dataset_no_subdir(100)
+
+        with self.subTest("no read rights files"):
+            for subdir, dirs, files in os.walk(tmp_dir):
+                for filename in files:
+                    filepath = os.path.join(tmp_dir, filename)
+                    os.chmod(filepath, 0o000)
+            dataset = LightlyDataset(input_dir=tmp_dir)
+            self.assertGreater(len(dataset.get_filenames()), 0)
+            with self.assertRaises(PermissionError):
+                for _ in dataset:
+                    pass
+
+        with self.subTest("no read rights root"):
+            os.chmod(tmp_dir, 0o000)
+            with self.assertRaises(PermissionError):
+                dataset = LightlyDataset(input_dir=tmp_dir)
+
+
+
