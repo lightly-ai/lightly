@@ -4,7 +4,9 @@
 # All Rights Reserved
 
 import time
+from typing import List, Union, Tuple
 
+import numpy as np
 import torch
 import lightly
 from lightly.embedding._base import BaseEmbedding
@@ -68,8 +70,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
 
     def embed(self,
               dataloader: torch.utils.data.DataLoader,
-              device: torch.device = None,
-              to_numpy: bool = True):
+              device: torch.device = None
+              ) -> Tuple[List[np.ndarray], List[int], List[str]]:
         """Embeds images in a vector space.
 
         Args:
@@ -77,12 +79,19 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 A PyTorch dataloader.
             device:
                 Selected device (`cpu`, `cuda`, see PyTorch documentation)
-            to_numpy:
-                Whether to return the embeddings as numpy array.
 
         Returns:
-            A tuple consisting of a tensor or ndarray of embeddings
-            with shape n_images x num_ftrs and labels, fnames
+            A tuple of thre lists: embeddings, labels, filenames.
+            Each list element belongs to one sample.
+            The order is equal to the one in the dataset of the dataloader.
+                embeddings:
+                    One embedding (shape: (embedding_feature_size, )) for
+                    each sample.
+                labels:
+                    The label of each sample.
+                filenames:
+                    The filenames from dataloader.dataset.get_filenames().
+
 
         Examples:
             >>> # embed images in vector space
@@ -108,7 +117,6 @@ class SelfSupervisedEmbedding(BaseEmbedding):
             for (img, label, fname) in pbar:
 
                 img = img.to(device)
-                label = label.to(device)
 
                 fnames += [*fname]
 
@@ -131,8 +139,18 @@ class SelfSupervisedEmbedding(BaseEmbedding):
 
             embeddings = torch.cat(embeddings, 0)
             labels = torch.cat(labels, 0)
-            if to_numpy:
-                embeddings = embeddings.cpu().numpy()
-                labels = labels.cpu().numpy()
 
-        return embeddings, labels, fnames
+            embeddings = embeddings.cpu().numpy()
+            labels = labels.cpu().numpy()
+
+        list_to_order = zip(embeddings, labels)
+        dict_by_filenames = dict(zip(fnames, list_to_order))
+
+        filenames_correct_order = dataloader.dataset.get_filenames()
+        list_ordered = [dict_by_filenames[filename] for filename in filenames_correct_order]
+
+        embeddings_ordered, labels_ordered = zip(*list_ordered)
+        embeddings = list(embeddings_ordered)
+        labels = [int(label) for label in labels_ordered]
+
+        return embeddings, labels, filenames_correct_order

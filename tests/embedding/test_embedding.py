@@ -3,8 +3,10 @@ import tempfile
 import unittest
 from typing import Tuple, List
 
+import numpy as np
 import torchvision
 from hydra.experimental import initialize, compose
+from torch import manual_seed
 from torch.utils.data import DataLoader
 
 from lightly.cli.embed_cli import get_model_from_config
@@ -15,7 +17,7 @@ from lightly.embedding import SelfSupervisedEmbedding
 class TestLightlyDataset(unittest.TestCase):
 
     def setUp(self):
-        self.folder_path, self.sample_names = self.create_dataset_no_subdir(100)
+        self.folder_path, self.sample_names = self.create_dataset_no_subdir(10)
         with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
             self.cfg = compose(config_name="config", overrides=[
                 "token='123'",
@@ -35,15 +37,25 @@ class TestLightlyDataset(unittest.TestCase):
             data[0].save(path)
         return tmp_dir, sample_names
     
-    @unittest.skip("Failing for the moment")
     def test_embed_correct_order(self):
-        # get dataloader
+        # get dataset and encoder
         transform = torchvision.transforms.ToTensor()
         dataset = LightlyDataset(self.folder_path, transform=transform)
-        dataloader = DataLoader(dataset, shuffle=True)
-
         encoder = get_model_from_config(self.cfg)
-        
-        embeddings, labels, filenames = encoder.embed(dataloader)
 
-        self.assertListEqual(filenames, dataset.get_filenames())
+        manual_seed(42)
+        dataloader_1_worker = DataLoader(dataset, shuffle=True, num_workers=0, batch_size=4)
+        embeddings_1_worker, labels_1_worker, filenames_1_worker\
+            = encoder.embed(dataloader_1_worker)
+
+        manual_seed(43)
+        dataloader_4_worker = DataLoader(dataset, shuffle=True, num_workers=4, batch_size=4)
+        embeddings_4_worker, labels_4_worker, filenames_4_worker = \
+            encoder.embed(dataloader_4_worker)
+
+        for emb_a, emb_b in zip(embeddings_1_worker, embeddings_4_worker):
+            np.testing.assert_equal(emb_a, emb_b)
+        
+        self.assertListEqual(labels_1_worker, labels_4_worker)
+        self.assertListEqual(filenames_1_worker, filenames_4_worker)
+        self.assertListEqual(filenames_1_worker, dataset.get_filenames())
