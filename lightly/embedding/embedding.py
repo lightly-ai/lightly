@@ -71,7 +71,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
     def embed(self,
               dataloader: torch.utils.data.DataLoader,
               device: torch.device = None
-              ) -> Tuple[List[np.ndarray], List[int], List[str]]:
+              ) -> Tuple[np.ndarray, np.ndarray, List[str]]:
         """Embeds images in a vector space.
 
         Args:
@@ -81,14 +81,13 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 Selected device (`cpu`, `cuda`, see PyTorch documentation)
 
         Returns:
-            A tuple of thre lists: embeddings, labels, filenames.
-            Each list element belongs to one sample.
-            The order is equal to the one in the dataset of the dataloader.
+            The order of the return values is determined by the order of
+            samples in the dataset of the dataloader.
                 embeddings:
-                    One embedding (shape: (embedding_feature_size, )) for
-                    each sample.
+                    Embedding of shape (n_samples, embedding_feature_size).
+                    One embedding for each sample.
                 labels:
-                    The label of each sample.
+                    Labels of shape (n_samples, ).
                 filenames:
                     The filenames from dataloader.dataset.get_filenames().
 
@@ -150,7 +149,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         list_ordered = [dict_by_filenames[filename] for filename in filenames_correct_order]
 
         embeddings_ordered, labels_ordered = zip(*list_ordered)
-        embeddings = list(embeddings_ordered)
-        labels = [int(label) for label in labels_ordered]
+        embeddings = np.stack(embeddings_ordered)
+        labels = np.stack(labels_ordered)
 
         return embeddings, labels, filenames_correct_order

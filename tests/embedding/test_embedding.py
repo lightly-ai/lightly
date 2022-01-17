@@ -53,9 +53,8 @@ class TestLightlyDataset(unittest.TestCase):
         embeddings_4_worker, labels_4_worker, filenames_4_worker = \
             encoder.embed(dataloader_4_worker)
 
-        for emb_a, emb_b in zip(embeddings_1_worker, embeddings_4_worker):
-            np.testing.assert_equal(emb_a, emb_b)
-        
-        self.assertListEqual(labels_1_worker, labels_4_worker)
+        np.testing.assert_equal(embeddings_1_worker, embeddings_4_worker)
+        np.testing.assert_equal(labels_1_worker, labels_4_worker)
+
         self.assertListEqual(filenames_1_worker, filenames_4_worker)
         self.assertListEqual(filenames_1_worker, dataset.get_filenames())
