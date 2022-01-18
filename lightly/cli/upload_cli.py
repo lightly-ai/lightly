@@ -113,7 +113,8 @@ def _upload_cli(cfg, is_cli_call=True):
         # upload custom metadata separately
         api_workflow_client.upload_custom_metadata(
             custom_metadata,
-            verbose=True
+            verbose=True,
+            max_workers=cfg['loader']['num_workers'],
         )
 
     if new_dataset_name:
