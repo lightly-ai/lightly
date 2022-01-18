@@ -5,7 +5,7 @@ Using the docker with an S3 bucket as remote datasource.
 ========================================================
 
 Introduction
---------------
+------------
 The Lightly Docker can be used with the Lightly Platform to do
 the following workloads in one single run:
 
@@ -16,8 +16,18 @@ the following workloads in one single run:
 - compute the metadata of the images
 - create a dataset in the Lightly Platform from the sampled subset
 
-Thus the Lightly Docker allows you to do the full
-Lightly workflow in one single run with minimal overhead.
+Advantages
+----------
+
+- You can run the whole Lightly workflow with one single command.
+- You can process videos directly without needing to extract frames.
+- Your data is streamed from your S3 bucket on the go instead of being first downloaded
+  to you local disk and then read from there. Thus you save both a lot of time and
+  disk space and can process much larger datasets.
+- You can :ref:`ref-docker-with-datasource-datapool`
+  to continuously update and improve your subsampled dataset
+  everytime new data comes into your S3 bucket.
+
 
 Requirements
 ------------
@@ -72,7 +82,8 @@ Once the docker run has finished, you can use your subsampled dataset as you lik
 E.g. you can analyze it in the embedding and metadata view of the Lightly Platform,
 subsample it further, or export it for labeling.
 
-Process new samples in your S3 bucket using a datapool
+.. _ref-docker-with-datasource-datapool:
+Process new data in your S3 bucket using a datapool
 ------------------------------------------------------
 You probably get new raw data from time to time added to your S3 bucket.
 The new raw data might include samples which should be added to your dataset
