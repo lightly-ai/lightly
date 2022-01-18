@@ -12,6 +12,8 @@ import lightly
 from lightly.embedding._base import BaseEmbedding
 from tqdm import tqdm
 
+from lightly.utils.reordering import sort_items_by_keys
+
 if lightly._is_prefetch_generator_available():
     from prefetch_generator import BackgroundGenerator
 
@@ -149,16 +151,14 @@ class SelfSupervisedEmbedding(BaseEmbedding):
             embeddings = embeddings.cpu().numpy()
             labels = labels.cpu().numpy()
 
-        to_order = zip(embeddings, labels)
-        lookup_to_order_by_filenames = dict(zip(fnames, to_order))
+        sorted_filenames = dataloader.dataset.get_filenames()
+        sorted_embeddings = sort_items_by_keys(
+            fnames, embeddings, sorted_filenames
+        )
+        sorted_labels = sort_items_by_keys(
+            fnames, labels, sorted_filenames
+        )
+        embeddings = np.stack(sorted_embeddings)
+        labels = np.stack(sorted_labels)
 
-        filenames_correct_order = dataloader.dataset.get_filenames()
-        ordered = [
-            lookup_to_order_by_filenames[filename] for filename in filenames_correct_order
-        ]
-
-        embeddings_ordered, labels_ordered = zip(*ordered)
-        embeddings = np.stack(embeddings_ordered)
-        labels = np.stack(labels_ordered)
-
-        return embeddings, labels, filenames_correct_order
+        return embeddings, labels, sorted_filenames

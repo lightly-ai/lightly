@@ -39,6 +39,8 @@ from lightly.openapi_generated.swagger_client.configuration import \
     Configuration
 from lightly.openapi_generated.swagger_client.models.dataset_data import \
     DatasetData
+from lightly.utils.reordering import sort_items_by_keys
+
 
 class ApiWorkflowClient(_UploadEmbeddingsMixin,
                         _SamplingMixin,
@@ -141,16 +143,9 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
 
         """
         filenames_on_server = self.get_filenames()
-        if len(filenames_for_list) != len(list_to_order) or \
-                len(filenames_for_list) != len(filenames_on_server):
-            raise ValueError(
-                f"All inputs (filenames_for_list,  list_to_order and "
-                f"self.filenames_on_server) must have the same length, "
-                f"but their lengths are: ({len(filenames_for_list)},"
-                f"{len(list_to_order)} and {len(filenames_on_server)})."
-            )
-        dict_by_filenames = dict(zip(filenames_for_list, list_to_order))
-        list_ordered = [dict_by_filenames[filename] for filename in filenames_on_server]
+        list_ordered = sort_items_by_keys(
+            filenames_for_list, list_to_order, filenames_on_server
+        )
         return list_ordered
 
     def get_filenames(self) -> List[str]:
