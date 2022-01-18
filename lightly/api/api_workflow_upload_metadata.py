@@ -179,7 +179,8 @@ class _UploadCustomMetadataMixin:
                              "without corresponding filenames on the server.")
 
         # retry upload if it times out
-        def upload_sample_metadata(request, sample):
+        def upload_sample_metadata(args):
+            request, sample = args
             return retry(
                 self._samples_api.update_sample_by_id,
                 request,
@@ -187,25 +188,22 @@ class _UploadCustomMetadataMixin:
                 sample_id=sample.id,
             )
 
+        # create a list of all the requests and their corresponding samples
+        sample_requests = []
+        for sample in samples:
+            metadata = filename_to_metadata[sample.file_name]
+            if metadata is not None:
+                update_sample_request = SampleUpdateRequest(
+                    custom_meta_data=metadata
+                )
+                sample_requests.append((update_sample_request, sample))
+
         # limit number of concurrent requests
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = []
-            for sample in samples:
-                metadata = filename_to_metadata[sample.file_name]
-                update_sample_request = SampleUpdateRequest(
-                custom_meta_data=metadata
-            )
-                if metadata is not None:
-                    future = executor.submit(
-                        upload_sample_metadata,
-                        update_sample_request,
-                        sample,
-                    )
-                    futures.append(future)
-            
-            completed_futures = concurrent.futures.as_completed(futures)
+            # get iterator over results
+            results = executor.map(upload_sample_metadata, sample_requests)
             if verbose:
-                completed_futures = tqdm(completed_futures, total=len(futures))
-
-            for future in completed_futures:
-                future.result()
+                results = tqdm(results, total=len(sample_requests))
+            # iterate over results to make sure they are completed
+            for _ in results:
+                pass
