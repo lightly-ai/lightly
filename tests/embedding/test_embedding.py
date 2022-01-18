@@ -9,7 +9,7 @@ from hydra.experimental import initialize, compose
 from torch import manual_seed
 from torch.utils.data import DataLoader
 
-from lightly.cli.embed_cli import get_model_from_config
+from lightly.cli._helpers import get_model_from_config
 from lightly.data import LightlyDataset
 from lightly.embedding import SelfSupervisedEmbedding
 
