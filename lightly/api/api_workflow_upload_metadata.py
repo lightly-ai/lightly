@@ -1,8 +1,11 @@
+import concurrent
+from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List
 from bisect import bisect_left
 
-import tqdm
+from tqdm import tqdm
 
+from lightly.api.utils import retry
 from lightly.openapi_generated.swagger_client.models.sample_update_request import \
     SampleUpdateRequest
 from lightly.utils.io import COCO_ANNOTATION_KEYS
@@ -112,7 +115,8 @@ class _UploadCustomMetadataMixin:
 
     def upload_custom_metadata(self,
                                custom_metadata: Dict,
-                               verbose: bool = False):
+                               verbose: bool = False,
+                               max_workers: int = 8):
         """Uploads custom metadata to the Lightly platform.
 
         The custom metadata is expected in a format similar to the COCO annotations:
@@ -171,31 +175,35 @@ class _UploadCustomMetadataMixin:
         if len(filename_to_metadata) != len(custom_metadata[COCO_ANNOTATION_KEYS.images]):
             raise ValueError("There exist image names in the custom metadata "
                              "without corresponding filenames on the server.")
-        
-        # send all requests async to the api
-        results = []
-        for sample in samples:
 
-            metadata = filename_to_metadata[sample.file_name]
+        # retry upload if it times out
+        def upload_sample_metadata(request, sample):
+            return retry(
+                self._samples_api.update_sample_by_id,
+                request,
+                dataset_id=self.dataset_id,
+                sample_id=sample.id,
+            )
 
-            if metadata is not None:
-                # create a request to update the custom metadata of the sample
+        # limit number of concurrent requests
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = []
+            for sample in samples:
+                metadata = filename_to_metadata[sample.file_name]
                 update_sample_request = SampleUpdateRequest(
-                    custom_meta_data=metadata
-                )
-                # send the request
-                result = self._samples_api.update_sample_by_id(
-                    update_sample_request,
-                    self.dataset_id,
-                    sample.id,
-                    async_req=True,
-                )
-                results.append(result)
+                custom_meta_data=metadata
+            )
+                if metadata is not None:
+                    future = executor.submit(
+                        upload_sample_metadata,
+                        update_sample_request,
+                        sample,
+                    )
+                    futures.append(future)
+            
+            completed_futures = concurrent.futures.as_completed(futures)
+            if verbose:
+                completed_futures = tqdm(completed_futures, total=len(futures))
 
-        if verbose:
-            # wrap samples in a progress bar
-            results = tqdm.tqdm(results)
-        
-        # wait until all requests are processed
-        for result in results:
-            result.get()
+            for future in completed_futures:
+                future.result()
