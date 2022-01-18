@@ -9,24 +9,23 @@ Introduction
 The Lightly Docker can be used with the Lightly Platform to do
 the following workloads in one single run:
 
-- stream the files from your AWS S3 bucket to your local machine
+- stream your files directly from your AWS S3 bucket to your local machine without
+  needing to sync or download them
 - embed all images or video frames
-- sample a subset
+- sample a subset, e.g. using CORESET
 - compute the metadata of the images
 - create a dataset in the Lightly Platform from the sampled subset
 
-It will also handle the download of files from your AWS S3 bucket to your
-machine and upload all artifacts. Thus it allows you to do the full
+Thus the Lightly Docker allows you to do the full
 Lightly workflow in one single run with minimal overhead.
 
 Requirements
 ------------
 
-This tutorial requires that you already have a dataset in the Lightly Platform
+This recipe requires that you already have a dataset in the Lightly Platform
 configured to use the data in your AWS S3 bucket.
 
-Follow the steps in the `tutorial <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_aws_bucket.html>`_
-to create such a dataset.
+Follow the steps on how to `create a Lightly dataset connected to your S3 bucket <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_aws_bucket.html>`_.
 
 Furthermore, you should have access to a machine running docker.
 Ideally, it also has a CUDA-GPU.
@@ -45,7 +44,8 @@ Run the Lightly Docker with the datasource
 Head to the :ref:`rst-docker-first-steps` to get a general idea of what the docker
 can do.
 
-For running the docker with a remote datasouce, use the parameter `datasource.id=YOUR_DATASET_ID`.
+For running the docker with a remote datasouce,
+use the parameter `datasource.dataset_id=YOUR_DATASET_ID`.
 You find the dataset id in the Lightly Platform.
 E.g. run the docker with
 
@@ -60,8 +60,8 @@ E.g. run the docker with
 View the progress of the Lightly Docker
 ---------------------------------------
 
-To see the progress of your docker run, go to the Lightly Webapp and
-head to "My Docker Runs".
+To see the progress of your docker run, go to the Lightly Platform and
+head to `My Docker Runs <https://app.lightly.ai/docker/runs>`_
 
 .. image:: ../getting_started/images/docker_runs_overview.png
 
@@ -69,17 +69,22 @@ Use your subsampled dataset
 ---------------------------
 
 Once the docker run has finished, you can use your subsampled dataset as you like:
-E.g. you can analyze it in the embedding and metadata view of the webapp,
+E.g. you can analyze it in the embedding and metadata view of the Lightly Platform,
 subsample it further, or export it for labeling.
 
-Add new samples to your dataset
--------------------------------
-You probably get new raw data from time to time and want to add any new samples in
-it to your LightlyDataset. The Lightly Platform remembers which raw data in your S3
-bucket has already been processed and will ignore it in future docker runs.
-This is way you can run the docker with the same command again. It will find
-you new raw data in the S3 bucket, download and subsample it and then add it to
-your existing dataset.
+Process new samples in your S3 bucket using a datapool
+------------------------------------------------------
+You probably get new raw data from time to time added to your S3 bucket.
+The new raw data might include samples which should be added to your dataset
+in the Lightly Platform, so you want to add a subset of them to your dataset.
+
+This workflow is supported by the Lightly Platform using a datapool.
+It remembers which raw data in your S3 bucket has already been processed
+and will ignore it in future docker runs.
+Thus you can run the docker with the same command again. It will find
+your new raw data in the S3 bucket, stream, embed and subsample it and then add it to
+your existing dataset. The samplers will take the existing data in your dataset
+into account when sampling new data to be added to your dataset.
 
 If you want to start from scratch again and process all data in you S3 bucket instead,
 then set `datasource.process_all=True` in your docker run command.

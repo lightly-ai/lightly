@@ -65,7 +65,7 @@ There are **three** types of volume mappings:
    See the tutorial :ref:`input-structure-label`  for more information.
    The container has only **read access** to this directory (note the *:ro* at
    the end of the volume mapping).
-   Instead of using an input directory you can also use a S3 bucket as a remote datasource.
+   Instead of using a local input directory you can also use a S3 bucket as a remote datasource.
    For reference, head to :ref:`ref-docker-with-datasource`.
 * **Shared Directory:**
    The shared directory allows the user to pass additional inputs such as embeddings or model checkpoints
