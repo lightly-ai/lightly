@@ -71,8 +71,9 @@ class SelfSupervisedEmbedding(BaseEmbedding):
             model, criterion, optimizer, dataloader, scheduler
         )
 
-    def embed(
-        self, dataloader: torch.utils.data.DataLoader, device: torch.device = None
+    def embed(self,
+              dataloader: torch.utils.data.DataLoader,
+              device: torch.device = None
     ) -> Tuple[np.ndarray, np.ndarray, List[str]]:
         """Embeds images in a vector space.
 
@@ -83,7 +84,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 Selected device (`cpu`, `cuda`, see PyTorch documentation)
 
         Returns:
-            The order of the return values is determined by the order of
+            Tuple of (embeddings, labels, filenames) ordered by the
             samples in the dataset of the dataloader.
                 embeddings:
                     Embedding of shape (n_samples, embedding_feature_size).
@@ -105,7 +106,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
 
         if lightly._is_prefetch_generator_available():
             pbar = tqdm(
-                BackgroundGenerator(dataloader, max_prefetch=3), total=len(dataloader)
+                BackgroundGenerator(dataloader, max_prefetch=3),
+                total=len(dataloader)
             )
         else:
             pbar = tqdm(dataloader, total=len(dataloader))
@@ -115,7 +117,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         labels = []
         with torch.no_grad():
 
-            start_time = time.time()
+            start_timepoint = time.time()
             for (img, label, fname) in pbar:
 
                 img = img.to(device)
@@ -123,7 +125,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 fnames += [*fname]
 
                 batch_size = img.shape[0]
-                prepare_time = time.time()
+                prepared_timepoint = time.time()
 
                 emb = self.model.backbone(img)
                 emb = emb.detach().reshape(batch_size, -1)
@@ -131,11 +133,15 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 embeddings.append(emb)
                 labels.append(label)
 
-                process_time = time.time()
+                finished_timepoint = time.time()
 
-                efficiency = (process_time - prepare_time) / (process_time - start_time)
+                data_loading_time = prepared_timepoint - start_timepoint
+                inference_time = finished_timepoint - prepared_timepoint
+                total_batch_time = data_loading_time + inference_time
+
+                efficiency = inference_time / total_batch_time
                 pbar.set_description("Compute efficiency: {:.2f}".format(efficiency))
-                start_time = time.time()
+                start_timepoint = time.time()
 
             embeddings = torch.cat(embeddings, 0)
             labels = torch.cat(labels, 0)
@@ -143,15 +149,15 @@ class SelfSupervisedEmbedding(BaseEmbedding):
             embeddings = embeddings.cpu().numpy()
             labels = labels.cpu().numpy()
 
-        list_to_order = zip(embeddings, labels)
-        dict_by_filenames = dict(zip(fnames, list_to_order))
+        to_order = zip(embeddings, labels)
+        lookup_to_order_by_filenames = dict(zip(fnames, to_order))
 
         filenames_correct_order = dataloader.dataset.get_filenames()
-        list_ordered = [
-            dict_by_filenames[filename] for filename in filenames_correct_order
+        ordered = [
+            lookup_to_order_by_filenames[filename] for filename in filenames_correct_order
         ]
 
-        embeddings_ordered, labels_ordered = zip(*list_ordered)
+        embeddings_ordered, labels_ordered = zip(*ordered)
         embeddings = np.stack(embeddings_ordered)
         labels = np.stack(labels_ordered)
 
