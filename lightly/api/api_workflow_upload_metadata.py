@@ -205,5 +205,4 @@ class _UploadCustomMetadataMixin:
             if verbose:
                 results = tqdm(results, total=len(sample_requests))
             # iterate over results to make sure they are completed
-            for _ in results:
-                pass
+            list(results)
