@@ -171,11 +171,9 @@ class _UploadCustomMetadataMixin:
         if len(filename_to_metadata) != len(custom_metadata[COCO_ANNOTATION_KEYS.images]):
             raise ValueError("There exist image names in the custom metadata "
                              "without corresponding filenames on the server.")
-
-        if verbose:
-            # wrap samples in a progress bar
-            samples = tqdm.tqdm(samples)
-
+        
+        # send all requests async to the api
+        results = []
         for sample in samples:
 
             metadata = filename_to_metadata[sample.file_name]
@@ -185,9 +183,19 @@ class _UploadCustomMetadataMixin:
                 update_sample_request = SampleUpdateRequest(
                     custom_meta_data=metadata
                 )
-                # send the request to the api
-                self._samples_api.update_sample_by_id(
+                # send the request
+                result = self._samples_api.update_sample_by_id(
                     update_sample_request,
                     self.dataset_id,
-                    sample.id
+                    sample.id,
+                    async_req=True,
                 )
+                results.append(result)
+
+        if verbose:
+            # wrap samples in a progress bar
+            results = tqdm.tqdm(results)
+        
+        # wait until all requests are processed
+        for result in results:
+            result.get()
