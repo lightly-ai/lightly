@@ -161,6 +161,8 @@ class _UploadCustomMetadataMixin:
                 Custom metadata as described above.
             verbose:
                 If True displays a progress bar during the upload.
+            max_workers:
+                Maximum number of concurrent threads during upload.
 
         """
 
