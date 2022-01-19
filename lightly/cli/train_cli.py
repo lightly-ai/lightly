@@ -56,6 +56,10 @@ def _train_cli(cfg, is_cli_call=True):
         cfg['trainer']['gpus'] = 0
     else:
         device = 'cpu'
+    
+    distributed_strategy = None
+    if cfg['trainer']['gpus'] > 1:
+        distributed_strategy = 'ddp'
 
     if cfg['loader']['batch_size'] < 64:
         msg = 'Training a self-supervised model with a small batch size: {}! '
@@ -129,7 +133,7 @@ def _train_cli(cfg, is_cli_call=True):
 
     encoder = SelfSupervisedEmbedding(model, criterion, optimizer, dataloader)
     encoder.init_checkpoint_callback(**cfg['checkpoint_callback'])
-    encoder.train_embedding(**cfg['trainer'])
+    encoder.train_embedding(**cfg['trainer'], strategy=distributed_strategy)
 
     print(f'Best model is stored at: {bcolors.OKBLUE}{encoder.checkpoint}{bcolors.ENDC}')
     os.environ[
