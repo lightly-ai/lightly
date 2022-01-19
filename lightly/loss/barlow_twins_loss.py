@@ -1,4 +1,5 @@
 import torch
+import torch.distributed as dist
 
 class BarlowTwinsLoss(torch.nn.Module):
     """Implementation of the Barlow Twins Loss from Barlow Twins[0] paper.
@@ -23,18 +24,26 @@ class BarlowTwinsLoss(torch.nn.Module):
 
     """
 
-    def __init__(self, lambda_param=5e-3):
+    def __init__(
+        self, 
+        lambda_param: float = 5e-3, 
+        gather_distributed : bool = False
+    ):
         """Lambda param configuration with default value like in [0]
 
         Args:
-            lambda_param ([float], optional): parameter for importance of
-                redundancy reduction term.
-            Defaults to 5e-3 [0].
+            lambda_param: 
+                Parameter for importance of redundancy reduction term. 
+                Defaults to 5e-3 [0].
+            gather_distributed:
+                If True then the cross-correlation matrices from all gpus are 
+                gathered and summed before the loss calculation.
         """
         super(BarlowTwinsLoss, self).__init__()
         self.lambda_param = lambda_param
+        self.gather_distributed = gather_distributed
 
-    def forward(self, z_a: torch.Tensor, z_b: torch.Tensor):
+    def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
 
         device = z_a.device
 
@@ -47,6 +56,14 @@ class BarlowTwinsLoss(torch.nn.Module):
 
         # cross-correlation matrix
         c = torch.mm(z_a_norm.T, z_b_norm) / N # DxD
+
+        # sum cross-correlation matrix between multiple gpus
+        if self.gather_distributed and dist.is_initialized():
+            world_size = dist.get_world_size()
+            if world_size > 1:
+                c = c / world_size
+                dist.all_reduce(c)
+
         # loss
         c_diff = (c - torch.eye(D, device=device)).pow(2) # DxD
         # multiply off-diagonal elems of c_diff by lambda
