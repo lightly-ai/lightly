@@ -47,7 +47,6 @@ def sinkhorn(
     Q /= sum_Q
 
     B = Q.shape[1] * world_size
-    K = Q.shape[0] # number of prototypes
 
     for _ in range(iterations):
         # normalize rows
@@ -55,7 +54,6 @@ def sinkhorn(
         if world_size > 1:
             dist.all_reduce(sum_of_rows)
         Q /= sum_of_rows
-        Q /= K
         # normalize columns
         Q /= torch.sum(Q, dim=0, keepdim=True)
         Q /= B
