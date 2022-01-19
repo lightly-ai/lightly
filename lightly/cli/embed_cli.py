@@ -12,30 +12,19 @@ import os
 
 import hydra
 import torch
-import torch.nn as nn
 import torchvision
 from torch.utils.hipify.hipify_python import bcolors
 
-from lightly.cli._cli_simclr import _SimCLR
 from lightly.data import LightlyDataset
-from lightly.embedding import SelfSupervisedEmbedding
-
-from lightly.models import ResNetGenerator
-from lightly.models.batchnorm import get_norm_layer
 
 from lightly.utils import save_embeddings
 
-from lightly.cli._helpers import get_ptmodel_from_config
+from lightly.cli._helpers import get_model_from_config
 from lightly.cli._helpers import fix_input_path
-from lightly.cli._helpers import load_state_dict_from_url
-from lightly.cli._helpers import load_from_state_dict
 from lightly.cli._helpers import cpu_count
 
 
 def _embed_cli(cfg, is_cli_call=True):
-
-    checkpoint = cfg['checkpoint']
-
     input_dir = cfg['input_dir']
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)
@@ -48,24 +37,24 @@ def _embed_cli(cfg, is_cli_call=True):
     else:
         device = torch.device('cpu')
 
-    transform = torchvision.transforms.Compose([
-        torchvision.transforms.Resize((cfg['collate']['input_size'],
-                                       cfg['collate']['input_size'])),
-        torchvision.transforms.ToTensor(),
-        torchvision.transforms.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225])
-    ])
+    transform = torchvision.transforms.Compose(
+        [
+            torchvision.transforms.Resize(
+                (cfg['collate']['input_size'], cfg['collate']['input_size'])
+            ),
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+            ),
+        ]
+    )
 
     dataset = LightlyDataset(input_dir, transform=transform)
 
     # disable drop_last and shuffle
     cfg['loader']['drop_last'] = False
     cfg['loader']['shuffle'] = False
-    cfg['loader']['batch_size'] = min(
-        cfg['loader']['batch_size'],
-        len(dataset)
-    )
+    cfg['loader']['batch_size'] = min(cfg['loader']['batch_size'], len(dataset))
 
     # determine the number of available cores
     if cfg['loader']['num_workers'] < 0:
@@ -73,43 +62,8 @@ def _embed_cli(cfg, is_cli_call=True):
 
     dataloader = torch.utils.data.DataLoader(dataset, **cfg['loader'])
 
-    # load the PyTorch state dictionary and map it to the current device    
-    state_dict = None
-    if not checkpoint:
-        checkpoint, key = get_ptmodel_from_config(cfg['model'])
-        if not checkpoint:
-            msg = 'Cannot download checkpoint for key {} '.format(key)
-            msg += 'because it does not exist!'
-            raise RuntimeError(msg)
-        state_dict = load_state_dict_from_url(
-            checkpoint, map_location=device
-        )['state_dict']
-    else:
-        checkpoint = fix_input_path(checkpoint) if is_cli_call else checkpoint
-        state_dict = torch.load(
-            checkpoint, map_location=device
-        )['state_dict']
+    encoder = get_model_from_config(cfg, is_cli_call)
 
-    # load model
-    resnet = ResNetGenerator(cfg['model']['name'], cfg['model']['width'])
-    last_conv_channels = list(resnet.children())[-1].in_features
-    features = nn.Sequential(
-        get_norm_layer(3, 0),
-        *list(resnet.children())[:-1],
-        nn.Conv2d(last_conv_channels, cfg['model']['num_ftrs'], 1),
-        nn.AdaptiveAvgPool2d(1),
-    )
-
-    model = _SimCLR(
-        features,
-        num_ftrs=cfg['model']['num_ftrs'],
-        out_dim=cfg['model']['out_dim']
-    ).to(device)
-
-    if state_dict is not None:
-        load_from_state_dict(model, state_dict)
-
-    encoder = SelfSupervisedEmbedding(model, None, None, None)
     embeddings, labels, filenames = encoder.embed(dataloader, device=device)
 
     if is_cli_call:
@@ -131,9 +85,9 @@ def embed_cli(cfg):
     Args:
         cfg:
             The default configs are loaded from the config file.
-            To overwrite them please see the section on the config file 
+            To overwrite them please see the section on the config file
             (.config.config.yaml).
-    
+
     Command-Line Args:
         input_dir:
             Path to the input directory where images are stored.
