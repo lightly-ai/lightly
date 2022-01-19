@@ -30,12 +30,12 @@ Preparing your data
 For the :ref:`lightly-command-line-tool` to be able to create embeddings and extract metadata from your data, `lightly-magic` needs to be able to access your data. You can download/sync your data from Azure blob storage.
  
 1. Install AzCopy cli by following the `guide of Azure <https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10>`_
-2. To copy your data from the container to your local machine, go to "Security + networking > Shared access signature" on the storage account page in the Azure portal. Generate a shared access signature (SAS) which allows access to the container and objects.
-3. Copy the SAS token and use the following command:
+2. To sync your data from the container to your local machine (or vice versa), you need a shared access token. On your *storage account* page of the Azure portal, on the left, go to "Security + networking > Shared access signature". Generate a shared access signature (SAS) which allows access to the container and objects.
+3. Copy the SAS token and use the following command to sync the Azure blob storage with your local folder:
 
     .. code-block::
 
-        azcopy copy 'https://lightlydatalake.blob.core.windows.net/{YOUR_SAS_TOKEN}' '/local/lightlydatalake/farm-animals' --recursive
+        azcopy sync '/local/lightlydatalake/farm-animals' 'https://lightlydatalake.blob.core.windows.net/farm-animals/{YOUR_SAS_TOKEN}' --recursive
 
 
 

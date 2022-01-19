@@ -160,7 +160,7 @@ class NTXentLoss(MemoryBankModule):
             logits_11 = logits_11[masks].view(batch_size, -1)
 
             # concatenate logits
-            # the logits tensor in the end has shape (2*n, 2*m)
+            # the logits tensor in the end has shape (2*n, 2*m-1)
             logits_0100 = torch.cat([logits_01, logits_00], dim=1)
             logits_1011 = torch.cat([logits_10, logits_11], dim=1)
             logits = torch.cat([logits_0100, logits_1011], dim=0)
