@@ -7,7 +7,12 @@ import torch.distributed as dist
 
 
 @torch.no_grad()
-def sinkhorn(out: torch.Tensor, iterations: int = 3, epsilon: float = 0.05):
+def sinkhorn(
+    out: torch.Tensor, 
+    iterations: int = 3, 
+    epsilon: float = 0.05,
+    gather_distributed: bool = False,
+) -> torch.Tensor:
     """Distributed sinkhorn algorithm.
 
     As outlined in [0] and implemented in [1].
@@ -22,25 +27,33 @@ def sinkhorn(out: torch.Tensor, iterations: int = 3, epsilon: float = 0.05):
             Number of sinkhorn iterations.
         epsilon:
             Temperature parameter.
+        gather_distributed:
+            If True then features from all gpus are gathered to calculate the
+            soft codes Q. 
 
     Returns:
         Soft codes Q assigning each feature to a prototype.
     
     """
+    world_size = 1
+    if gather_distributed and dist.is_initialized():
+        world_size = dist.get_world_size()
 
     # get the exponential matrix and make it sum to 1
     Q = torch.exp(out / epsilon).t()
     sum_Q = torch.sum(Q)
+    if world_size > 1:
+        dist.all_reduce(sum_Q)
     Q /= sum_Q
 
-    B = Q.shape[1]
-    K = Q.shape[0] # number of prototypes
+    B = Q.shape[1] * world_size
 
-    for i in range(iterations):
+    for _ in range(iterations):
         # normalize rows
         sum_of_rows = torch.sum(Q, dim=1, keepdim=True)
+        if world_size > 1:
+            dist.all_reduce(sum_of_rows)
         Q /= sum_of_rows
-        Q /= K
         # normalize columns
         Q /= torch.sum(Q, dim=0, keepdim=True)
         Q /= B
@@ -59,17 +72,22 @@ class SwaVLoss(nn.Module):
             Number of iterations of the sinkhorn algorithm.
         sinkhorn_epsilon:
             Temperature parameter used in the sinkhorn algorithm.
+        sinkhorn_gather_distributed:
+            If True then features from all gpus are gathered to calculate the
+            soft codes in the sinkhorn algorithm. 
     
     """
 
     def __init__(self,
                  temperature: float = 0.1,
                  sinkhorn_iterations: int = 3,
-                 sinkhorn_epsilon: float = 0.05):
+                 sinkhorn_epsilon: float = 0.05,
+                 sinkhorn_gather_distributed: bool = False):
         super(SwaVLoss, self).__init__()
         self.temperature = temperature
         self.sinkhorn_iterations = sinkhorn_iterations
         self.sinkhorn_epsilon = sinkhorn_epsilon
+        self.sinkhorn_gather_distributed = sinkhorn_gather_distributed
 
 
     def subloss(self, z: torch.Tensor, q: torch.Tensor):
@@ -120,7 +138,8 @@ class SwaVLoss(nn.Module):
                 q = sinkhorn(
                     high_resolution_outputs[i].detach(),
                     iterations=self.sinkhorn_iterations,
-                    epsilon=self.sinkhorn_epsilon
+                    epsilon=self.sinkhorn_epsilon,
+                    gather_distributed=self.sinkhorn_gather_distributed,
                 )
 
             # compute subloss for each pair of crops
