@@ -6,12 +6,12 @@ from typing import Tuple, List
 import numpy as np
 import torchvision
 from hydra.experimental import initialize, compose
+import torch
 from torch import manual_seed
 from torch.utils.data import DataLoader
 
 from lightly.cli._helpers import get_model_from_config
 from lightly.data import LightlyDataset
-from lightly.embedding import SelfSupervisedEmbedding
 
 
 class TestLightlyDataset(unittest.TestCase):
@@ -43,13 +43,18 @@ class TestLightlyDataset(unittest.TestCase):
         transform = torchvision.transforms.ToTensor()
         dataset = LightlyDataset(self.folder_path, transform=transform)
         encoder = get_model_from_config(self.cfg)
+        if torch.cuda.is_available():
+            device = torch.device('cuda')
+        else:
+            device = torch.device('cpu')
 
         manual_seed(42)
         dataloader_1_worker = DataLoader(
             dataset, shuffle=True, num_workers=0, batch_size=4
         )
         embeddings_1_worker, labels_1_worker, filenames_1_worker = encoder.embed(
-            dataloader_1_worker
+            dataloader_1_worker,
+            device=device,
         )
 
         manual_seed(43)
@@ -57,11 +62,12 @@ class TestLightlyDataset(unittest.TestCase):
             dataset, shuffle=True, num_workers=4, batch_size=4
         )
         embeddings_4_worker, labels_4_worker, filenames_4_worker = encoder.embed(
-            dataloader_4_worker
+            dataloader_4_worker, 
+            device=device,
         )
 
-        np.testing.assert_equal(embeddings_1_worker, embeddings_4_worker)
-        np.testing.assert_equal(labels_1_worker, labels_4_worker)
+        np.testing.assert_allclose(embeddings_1_worker, embeddings_4_worker, rtol=1e-5)
+        np.testing.assert_allclose(labels_1_worker, labels_4_worker, rtol=1e-5)
 
         self.assertListEqual(filenames_1_worker, filenames_4_worker)
         self.assertListEqual(filenames_1_worker, dataset.get_filenames())
