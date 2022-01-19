@@ -16,17 +16,26 @@ the following workloads in one single run:
 - compute the metadata of the images
 - create a dataset in the Lightly Platform from the sampled subset
 
+Support for the following is planned but not implemented yet:
+
+- Training an embedding model is currently too slow and thus deactivated.
+- Streaming from a google cloud storage or azure storage is planned to be implemented.
+
+If you need any of these, write us so that we prioritize implementing it.
+
 Advantages
 ----------
 
 - You can run the whole Lightly workflow with one single command.
 - You can process videos directly without needing to extract frames.
 - Your data is streamed from your S3 bucket on the go instead of being first downloaded
-  to you local disk and then read from there. Thus you save both a lot of time and
+  to your local disk and then read from there. Thus you save both a lot of time and
   disk space and can process much larger datasets.
 - You can :ref:`ref-docker-with-datasource-datapool`
   to continuously update and improve your subsampled dataset
   everytime new data comes into your S3 bucket.
+- Your images and videos are never saved anywhere but in your S3 bucket,
+  maintaining your privacy and security.
 
 
 Requirements
@@ -35,7 +44,9 @@ Requirements
 This recipe requires that you already have a dataset in the Lightly Platform
 configured to use the data in your AWS S3 bucket.
 
-Follow the steps on how to `create a Lightly dataset connected to your S3 bucket <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_aws_bucket.html>`_.
+If you don`t have such a dataset yet,
+follow the steps on how to
+`create a Lightly dataset connected to your S3 bucket <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_aws_bucket.html>`_.
 
 Furthermore, you should have access to a machine running docker.
 Ideally, it also has a CUDA-GPU.
@@ -78,14 +89,23 @@ head to `My Docker Runs <https://app.lightly.ai/docker/runs>`_
 Use your subsampled dataset
 ---------------------------
 
-Once the docker run has finished, you can use your subsampled dataset as you like:
-E.g. you can analyze it in the embedding and metadata view of the Lightly Platform,
+Once the docker run has finished, you can see your subsampled dataset in the Lightly platform:
+
+.. image:: ./images/webapp-explore-after-docker.jpg
+
+In our case, we had 4 short street videos with about 1000 frames each in the S3 bucket
+and subsampled it to 50 frames.
+Now you can analyze your dataset in the embedding and metadata view of the Lightly Platform,
 subsample it further, or export it for labeling.
+In our case we come to the conclusion that the raw data we have
+does not cover enough cases and thus
+decide that we want to first collect more street videos.
 
 .. _ref-docker-with-datasource-datapool:
 Process new data in your S3 bucket using a datapool
 ------------------------------------------------------
 You probably get new raw data from time to time added to your S3 bucket.
+In our case we added 4 more street videos to the S3 bucket.
 The new raw data might include samples which should be added to your dataset
 in the Lightly Platform, so you want to add a subset of them to your dataset.
 
@@ -97,5 +117,23 @@ your new raw data in the S3 bucket, stream, embed and subsample it and then add 
 your existing dataset. The samplers will take the existing data in your dataset
 into account when sampling new data to be added to your dataset.
 
-If you want to start from scratch again and process all data in you S3 bucket instead,
+.. image:: ./images/webapp-embedding-after-2nd-docker.png
+
+After the docker run we can go to the embedding view of the Lightly Platform
+to see the newly added samples there in a new tag. We see that the new samples
+(in green) fill some gaps left by the images in the first iteration (in grey).
+However, there are still some gaps left, which could be filled by adding more videos
+to the S3 bucket and running the docker again.
+
+This workflow of iteratively growing your dataset with the Lightly Docker
+has the following advantages:
+
+- You can learn from your findings after the first iteration
+  to know which raw data you need to collect next.
+- Only your new data is processed, saving you time and compute cost.
+- You don't need to configure anything, just run the same command again.
+- Only samples which are different to the existing ones are added to the dataset.
+
+If you want to search all data in your S3 bucket for new samples
+instead of only newly added data,
 then set `datasource.process_all=True` in your docker run command.
