@@ -128,7 +128,7 @@ to the S3 bucket and running the docker again.
 This workflow of iteratively growing your dataset with the Lightly Docker
 has the following advantages:
 
-- You can learn from your findings after the first iteration
+- You can learn from your findings after each iteration
   to know which raw data you need to collect next.
 - Only your new data is processed, saving you time and compute cost.
 - You don't need to configure anything, just run the same command again.
