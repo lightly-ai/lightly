@@ -112,6 +112,9 @@ Lightly-magic is a singular command for training, embedding, and uploading to th
     lightly-magic input_dir=data_dir trainer.max_epochs=0 loader.batch_size=128 \
     loader.num_workers=8 token=yourToken new_dataset_name=myNewDataset
 
+
+.. _cli-train-lightly:
+
 Train a model using the CLI
 ---------------------------------------
 Training a model using default parameters can be done with just one command. Let's
@@ -132,6 +135,10 @@ You can use the following command to train a model and save the checkpoint:
     # continue training from the last checkpoint
     lightly-train input_dir=cat trainer.max_epochs=10 \
                   checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH
+
+    # train with multiple gpus
+    # the total batch size will be trainer.gpus * loader.batch_size
+    lightly-train input_dir=data_dir trainer.gpus=2
 
 The path to the latest checkpoint you created using the `lightly-train` command
 will be saved under an environment variable named LIGHTLY_LAST_CHECKPOINT_PATH.

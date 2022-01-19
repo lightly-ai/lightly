@@ -43,6 +43,7 @@ Check it out here: :ref:`lightly-tutorial-active-learning-detectron2`
    :caption: Advanced
 
    getting_started/advanced.rst
+   getting_started/distributed_training.rst
    getting_started/benchmarks.rst
 
 .. toctree::
