@@ -1,8 +1,11 @@
 import sys
 import tempfile
+import unittest
+
+import numpy as np
 
 from lightly.utils import save_custom_metadata
-from lightly.utils.io import check_filenames
+from lightly.utils.io import check_filenames, save_embeddings, check_embeddings
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
 
 
@@ -33,3 +36,32 @@ class TestCLICrop(MockedApiWorkflowSetup):
                 else:
                     with self.assertRaises(ValueError):
                         check_filenames(filenames)
+
+class TestEmbeddingsIO(unittest.TestCase):
+
+    def test_valid_embeddings(self):
+        # correct embedding file as created through lightly
+        embeddings_path = tempfile.mktemp('.csv', 'embeddings')
+        embeddings = np.random.rand(32, 2)
+        labels = [0 for i in range(len(embeddings))]
+        filenames = [f'img_{i}.jpg' for i in range(len(embeddings))]
+        save_embeddings(embeddings_path, embeddings, labels, filenames)
+        check_embeddings(embeddings_path)
+
+        # should fail because there whitespaces in the header columns
+        lines = ['filenames, embedding_0,embedding_1,labels\n',
+                 'img_1.jpg, 0.351,0.1231']
+        with open(embeddings_path, 'w') as f:
+            f.writelines(lines)
+        with self.assertRaises(RuntimeError) as context:
+            check_embeddings(embeddings_path)
+        self.assertTrue('must not contain whitespaces' in str(context.exception))
+
+        # should fail because there is no `labels` column in the header
+        lines = ['filenames,embedding_0,embedding_1\n',
+                 'img_1.jpg,0.351,0.1231']
+        with open(embeddings_path, 'w') as f:
+            f.writelines(lines)
+        with self.assertRaises(RuntimeError) as context:
+            check_embeddings(embeddings_path)
+        self.assertTrue('must end with `labels`' in str(context.exception))
