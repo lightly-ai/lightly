@@ -44,6 +44,8 @@ Reference:
         - Features are gathered from all GPUs before the loss is calculated
 
         Note that Synchronized Batch Norm and feature gathering are optional and
-        the model can also be trained without them.
+        the model can also be trained without them. Without Synchronized Batch
+        Norm and feature gathering the batch norm and loss for each GPU are 
+        only calculated based on the features on that specific GPU.
 
         .. literalinclude:: ../../../examples/pytorch_lightning_distributed/barlowtwins.py

@@ -42,7 +42,9 @@ Reference:
         - Distributed Sinkhorn is used in the loss calculation 
 
         Note that Synchronized Batch Norm and distributed Sinkhorn are optional 
-        and the model can also be trained without them.
+        and the model can also be trained without them. Without Synchronized 
+        Batch Norm and distributed Sinkhorn the batch norm and loss for each GPU 
+        are only calculated based on the features on that specific GPU.
 
         .. literalinclude:: ../../../examples/pytorch_lightning_distributed/swav.py
 

@@ -49,7 +49,8 @@ Tutorials:
         - Synchronized Batch Norm is used in place of standard Batch Norm
 
         Note that Synchronized Batch Norm is optional and the model can also be 
-        trained without it.
+        trained without it. Without Synchronized Batch Norm the batch norm for 
+        each GPU is only calculated based on the features on that specific GPU.
 
         .. literalinclude:: ../../../examples/pytorch_lightning_distributed/moco.py
 
