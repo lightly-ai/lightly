@@ -453,7 +453,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         n_rows: int = self.n_embedding_rows_on_server
         n_dims: int = self.n_dims_embeddings_on_server
 
-        rows_csv = [['filenames'] + [f'embeddings_{i}' for i in range(n_dims)] + ['labels']]
+        rows_csv = [['filenames'] + [f'embedding_{i}' for i in range(n_dims)] + ['labels']]
         for i in range(n_rows):
             row = [f'{self.embeddings_filename_base}_{i}.jpg']
             for _ in range(n_dims):
