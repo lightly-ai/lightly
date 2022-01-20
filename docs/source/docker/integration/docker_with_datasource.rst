@@ -76,7 +76,10 @@ E.g. run the docker with
         -v OUTPUT_DIR:/home/output_dir \
         lightly/sampling:latest \
         token=YOUR_LIGHTLY_PLATFORM_TOKEN \
-        datasource.dataset_id=YOUR_DATASET_ID
+        datasource.dataset_id=YOUR_DATASET_ID \
+        stopping_condition.n_samples=50 \
+        upload_dataset=True
+
 
 View the progress of the Lightly Docker
 ---------------------------------------
