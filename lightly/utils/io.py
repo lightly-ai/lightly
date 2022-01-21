@@ -6,6 +6,7 @@
 import json
 import csv
 from typing import List, Tuple, Dict
+import re
 
 import numpy as np
 
@@ -33,6 +34,49 @@ def check_filenames(filenames: List[str]):
     invalid_filenames = [f for f in filenames if not _is_valid_filename(f)]
     if len(invalid_filenames) > 0:
         raise ValueError(f'Invalid filename(s): {invalid_filenames}')
+
+
+def check_embeddings(path: str):
+    """Raises an error if the embeddings csv file has not the correct format
+    
+    Use this check whenever you want to upload an embedding to the Lightly 
+    Platform.
+    This method only checks whether the header row matches the specs:
+    https://docs.lightly.ai/getting_started/command_line_tool.html#id1
+
+    Args:
+        path:
+            Path to the embedding csv file
+
+    Raises:
+        RuntimeError
+    """
+    header = []
+    with open(path, 'r', newline='') as csv_file:
+        reader = csv.reader(csv_file, delimiter=',')
+        header: List[str] = next(reader)
+
+    # check for whitespace in the header (we don't allow this)
+    if any(x != x.strip() for x in header):
+        raise RuntimeError('Embeddings csv file must not contain whitespaces.')
+
+    # first col is `filenames`
+    if header[0] != 'filenames':
+        raise RuntimeError(f'Embeddings csv file must start with `filenames` '
+                           f'column but had {header[0]} instead.')
+    
+    # all cols except first and last are `embedding_x`
+    for embedding_header in header[1:-1]:
+        if not re.match(r'embedding_\d+', embedding_header):
+            raise RuntimeError(
+                f'Embeddings csv file must have `embedding_x` columns but '
+                f'found {embedding_header} instead.'
+                )
+    
+    # last column is `labels`
+    if header[-1] != 'labels':
+        raise RuntimeError(f'Embeddings csv file must end with `labels` '
+                           f'column but had {header[-1]} instead.')
 
 
 def save_embeddings(path: str,
@@ -105,6 +149,8 @@ def load_embeddings(path: str):
         >>>     'path/to/my/embeddings.csv')
 
     """
+    check_embeddings(path)
+
     filenames, labels = [], []
     embeddings = []
     with open(path, 'r', newline='') as csv_file:
