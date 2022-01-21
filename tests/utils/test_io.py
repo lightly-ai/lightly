@@ -39,29 +39,33 @@ class TestCLICrop(MockedApiWorkflowSetup):
 
 class TestEmbeddingsIO(unittest.TestCase):
 
-    def test_valid_embeddings(self):
+    def setUp(self):
         # correct embedding file as created through lightly
-        embeddings_path = tempfile.mktemp('.csv', 'embeddings')
+        self.embeddings_path = tempfile.mktemp('.csv', 'embeddings')
         embeddings = np.random.rand(32, 2)
         labels = [0 for i in range(len(embeddings))]
         filenames = [f'img_{i}.jpg' for i in range(len(embeddings))]
-        save_embeddings(embeddings_path, embeddings, labels, filenames)
-        check_embeddings(embeddings_path)
+        save_embeddings(self.embeddings_path, embeddings, labels, filenames)
 
+    def test_valid_embeddings(self):
+        check_embeddings(self.embeddings_path)
+
+    def test_whitespace_in_embeddings(self):
         # should fail because there whitespaces in the header columns
         lines = ['filenames, embedding_0,embedding_1,labels\n',
                  'img_1.jpg, 0.351,0.1231']
-        with open(embeddings_path, 'w') as f:
+        with open(self.embeddings_path, 'w') as f:
             f.writelines(lines)
         with self.assertRaises(RuntimeError) as context:
-            check_embeddings(embeddings_path)
+            check_embeddings(self.embeddings_path)
         self.assertTrue('must not contain whitespaces' in str(context.exception))
 
+    def test_no_labels_in_embeddings(self):
         # should fail because there is no `labels` column in the header
         lines = ['filenames,embedding_0,embedding_1\n',
                  'img_1.jpg,0.351,0.1231']
-        with open(embeddings_path, 'w') as f:
+        with open(self.embeddings_path, 'w') as f:
             f.writelines(lines)
         with self.assertRaises(RuntimeError) as context:
-            check_embeddings(embeddings_path)
+            check_embeddings(self.embeddings_path)
         self.assertTrue('must end with `labels`' in str(context.exception))
