@@ -11,6 +11,7 @@ can be transformed to a two-dimensional space for better visualization.
 
 from lightly.utils.io import save_embeddings
 from lightly.utils.io import load_embeddings
+from lightly.utils.io import check_embeddings
 from lightly.utils.io import load_embeddings_as_dict
 from lightly.utils.io import format_custom_metadata
 from lightly.utils.io import save_custom_metadata
