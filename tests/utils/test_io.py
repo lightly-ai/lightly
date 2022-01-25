@@ -68,7 +68,7 @@ class TestEmbeddingsIO(unittest.TestCase):
             f.writelines(lines)
         with self.assertRaises(RuntimeError) as context:
             check_embeddings(self.embeddings_path)
-        self.assertTrue('must end with `labels`' in str(context.exception))
+        self.assertTrue('has no `labels` column' in str(context.exception))
 
     def test_no_empty_rows_in_embeddings(self):
         # should fail because there are empty rows in the embeddings file
