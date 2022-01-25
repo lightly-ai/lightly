@@ -52,40 +52,44 @@ def check_embeddings(path: str):
         RuntimeError
     """
     header = []
-    # with open(path, 'r', newline='') as csv_file:
-    csv_file = open(path, 'r', newline='')
-    reader = csv.reader(csv_file, delimiter=',')
-    header: List[str] = next(reader)
+    with open(path, 'r', newline='') as csv_file:
+        reader = csv.reader(csv_file, delimiter=',')
+        header: List[str] = next(reader)
 
-    # check for whitespace in the header (we don't allow this)
-    if any(x != x.strip() for x in header):
-        raise RuntimeError('Embeddings csv file must not contain whitespaces.')
-
-    # first col is `filenames`
-    if header[0] != 'filenames':
-        raise RuntimeError(f'Embeddings csv file must start with `filenames` '
-                        f'column but had {header[0]} instead.')
-
-    # last column is `labels`
-    try:
-        header_labels_idx = header.index('labels')
-    except ValueError:
-        raise RuntimeError(f'Embeddings csv file must end with `labels` '
-                        f'column but had {header[-1]} instead.')
-
-    # all cols except first and last are `embedding_x`
-    for embedding_header in header[1:header_labels_idx]:
-        if not re.match(r'embedding_\d+', embedding_header):
+        # check for whitespace in the header (we don't allow this)
+        if any(x != x.strip() for x in header):
             raise RuntimeError(
-                f'Embeddings csv file must have `embedding_x` columns but '
-                f'found {embedding_header} instead.'
+                'Embeddings csv file must not contain whitespaces.'
                 )
-    
-    # check for empty rows in the body of the csv file
-    for row in reader:
-        if len(row) == 0:
-            raise RuntimeError('Embeddings csv file must not have empty rows.')
-    csv_file.close()
+
+        # first col is `filenames`
+        if header[0] != 'filenames':
+            raise RuntimeError(
+                f'Embeddings csv file must start with `filenames` '
+                f'column but had {header[0]} instead.'
+                )
+
+        # `labels` exists
+        try:
+            header_labels_idx = header.index('labels')
+        except ValueError:
+            raise RuntimeError(f'Embeddings csv file has no `labels` column.')
+
+        # cols between first and `labels` are `embedding_x`
+        for embedding_header in header[1:header_labels_idx]:
+            if not re.match(r'embedding_\d+', embedding_header):
+                raise RuntimeError(
+                    f'Embeddings csv file must have `embedding_x` columns but '
+                    f'found {embedding_header} instead.'
+                    )
+        
+        # check for empty rows in the body of the csv file
+        for i, row in enumerate(reader):
+            if len(row) == 0:
+                raise RuntimeError(
+                    f'Embeddings csv file must not have empty rows. '
+                    f'Found empty row on line {i}.'
+                    )
 
 def save_embeddings(path: str,
                     embeddings: np.ndarray,
