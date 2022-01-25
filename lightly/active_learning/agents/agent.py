@@ -175,6 +175,13 @@ class ActiveLearningAgent:
         # calculate active learning scores
         al_scores_dict = al_scorer.calculate_scores()
 
+        if al_scores_dict == {}:
+            raise ValueError(
+                'No scores found when calling `.calculate_scores()` of the ! '
+                'Scorer. If you use a generator, please make sure it is freshly '
+                ' initialized.'
+                )
+
         # Check if the length of the query_set and each of the scores are the same
         no_query_samples = len(self.query_set)
         for score in al_scores_dict.values():
