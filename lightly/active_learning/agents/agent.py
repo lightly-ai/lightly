@@ -177,8 +177,8 @@ class ActiveLearningAgent:
 
         if al_scores_dict == {}:
             raise ValueError(
-                'No scores found when calling `.calculate_scores()` of the ! '
-                'Scorer. If you use a generator, please make sure it is freshly '
+                'No scores found when calling `.calculate_scores()` of the '
+                'Scorer! If you use a generator, please make sure it is freshly '
                 ' initialized.'
                 )
 
