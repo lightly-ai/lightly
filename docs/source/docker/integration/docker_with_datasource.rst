@@ -42,10 +42,21 @@ Requirements
 ------------
 
 This recipe requires that you already have a dataset in the Lightly Platform
-configured to use the data in your AWS S3 bucket.
+configured to use the data in your AWS S3 bucket. Create such a dataset in 2 steps:
 
-If you don`t have such a dataset yet,
-follow the steps on how to
+1. `Create a new dataset <https://app.lightly.ai/dataset/create>`_ in Lightly.
+   Make sure that you choose the input type `Images` or `Videos` correctly,
+   depending on the type of files in your S3 bucket.
+2. Edit your dataset, select S3 as your datasource and fill out the form.
+
+    .. figure:: ../../getting_started/resources/LightlyEdit2.png
+        :align: center
+        :alt: Lightly S3 connection config
+        :width: 60%
+
+        Lightly S3 connection config
+
+If you don`t know how to fill out the form, follow the full tutorial to
 `create a Lightly dataset connected to your S3 bucket <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_aws_bucket.html>`_.
 
 Furthermore, you should have access to a machine running docker.
