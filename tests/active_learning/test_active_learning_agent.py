@@ -81,6 +81,10 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
         sampler_config = SamplerConfig(n_samples=n_samples, method=method)
         agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
 
+        # make sure we throw an error if generator is already consumed
+        with self.assertRaises(ValueError):
+            agent.upload_scores(al_scorer)
+
     def test_agent_added_set_before_query(self):
 
         self.api_workflow_client.embedding_id = "embedding_id_xyz"
