@@ -116,7 +116,9 @@ Uploading your data
 
 Create and configure a dataset
 
-1. `Create a new dataset <https://app.lightly.ai/dataset/create>`_ in Lightly
+1. `Create a new dataset <https://app.lightly.ai/dataset/create>`_ in Lightly.
+   Make sure that you choose the input type `Images` or `Videos` correctly,
+   depending on the type of files in your S3 bucket.
 2. Edit your dataset and select S3 as your datasource
 
     .. figure:: ../resources/LightlyEdit1.png
