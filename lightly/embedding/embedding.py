@@ -123,6 +123,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
             for (img, label, fname) in pbar:
 
                 img = img.to(device)
+                label = label.clone()
 
                 fnames += [*fname]
 
