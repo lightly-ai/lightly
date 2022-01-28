@@ -122,7 +122,10 @@ class SelfSupervisedEmbedding(BaseEmbedding):
             start_timepoint = time.time()
             for (img, label, fname) in pbar:
 
+                # this following 2 lines are needed to prevent a file handler leak,
+                # see https://github.com/lightly-ai/lightly/pull/676
                 img = img.to(device)
+                label = label.clone()
 
                 fnames += [*fname]
 
