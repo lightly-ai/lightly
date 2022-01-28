@@ -11,6 +11,15 @@ from lightly.loss import DINOLoss
 
 
 class FacebookDINOLoss(nn.Module):
+    """Copy paste from the original DINO paper. We use this to verify our
+    implementation.
+
+    The only change from the original code is that distributed training is no
+    longer assumed.
+
+    Source: https://github.com/facebookresearch/dino/blob/cb711401860da580817918b9167ed73e3eef3dcf/main_dino.py#L363
+    
+    """
     def __init__(self, out_dim, ncrops, warmup_teacher_temp, teacher_temp,
                  warmup_teacher_temp_epochs, nepochs, student_temp=0.1,
                  center_momentum=0.9):
