@@ -1,6 +1,5 @@
 from typing import Union, List
 
-import numpy as np
 import torch
 import torch.distributed as dist
 import torch.nn as nn
@@ -21,7 +20,8 @@ def _concat_student_outputs(
             The dimensions of the model output.
         student_out:
             A single tensor with shape (B * V, D) or a list of tensors where
-            every tensor can have a different V.
+            every tensor can have a different V. V is the number of views
+            per image.
 
     Returns:
         A tensor with shape (B, V_sum, D) where V_sum is the sum of all
@@ -101,10 +101,10 @@ class DINOLoss(nn.Module):
         self.register_buffer("center", torch.zeros(1, out_dim))
         # we apply a warm up for the teacher temperature because
         # a too high temperature makes the training instable at the beginning
-        self.teacher_temp_schedule = np.linspace(
+        self.teacher_temp_schedule = torch.linspace(
             start=warmup_teacher_temp, 
-            stop=teacher_temp,
-            num=warmup_teacher_temp_epochs,
+            end=teacher_temp,
+            steps=warmup_teacher_temp_epochs,
         )
 
     def forward(
