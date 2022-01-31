@@ -20,7 +20,7 @@ class DINOLoss(nn.Module):
     - [1]: https://github.com/facebookresearch/dino
 
     Attributes:
-        out_dim: 
+        output_dim:
             Dimension of the model output.
         warmup_teacher_temp:
             Initial value of the teacher temperature. Should be decreased if the
@@ -54,7 +54,7 @@ class DINOLoss(nn.Module):
     """
     def __init__(
         self, 
-        out_dim: int,
+        output_dim: int,
         warmup_teacher_temp: float = 0.04, 
         teacher_temp: float = 0.04,
         warmup_teacher_temp_epochs: int = 30, 
@@ -67,7 +67,7 @@ class DINOLoss(nn.Module):
         self.student_temp = student_temp
         self.center_momentum = center_momentum
         
-        self.register_buffer("center", torch.zeros(1, 1, out_dim))
+        self.register_buffer("center", torch.zeros(1, 1, output_dim))
         # we apply a warm up for the teacher temperature because
         # a too high temperature makes the training instable at the beginning
         self.teacher_temp_schedule = torch.linspace(
@@ -114,7 +114,7 @@ class DINOLoss(nn.Module):
         s_out = F.log_softmax(student_out / self.student_temp, dim=-1)
 
         # calculate feature similarities where:
-        # b = batch_size, t = n_views_teacher, s = n_views_student, d = out_dim
+        # b = batch_size, t = n_views_teacher, s = n_views_student, d = output_dim
         # the diagonal is ignored as it contains features from the same views
         loss = -torch.einsum('tbd,sbd->ts', t_out, s_out)
         loss.fill_diagonal_(0)
