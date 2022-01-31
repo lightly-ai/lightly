@@ -287,10 +287,10 @@ class DINOProjectionHead(ProjectionHead):
     """
     def __init__(
         self, 
-        input_dim, 
-        hidden_dim,
-        output_dim=2048,
-        bottleneck_dim=256,
+        input_dim: int, 
+        hidden_dim: int,
+        bottleneck_dim: int,
+        output_dim: int,
         batch_norm=False, 
     ):
         bn = nn.BatchNorm1d(hidden_dim) if batch_norm else None
