@@ -8,11 +8,13 @@ import torch.nn as nn
 
 from typing import List
 
+from PIL import Image
 import torchvision
 import torchvision.transforms as T
+
 from lightly.transforms import GaussianBlur
 from lightly.transforms import RandomRotate
-from torchvision.transforms.transforms import Compose
+from lightly.transforms import RandomSolarization
 
 imagenet_normalize = {
     'mean': [0.485, 0.456, 0.406],
@@ -316,7 +318,7 @@ class MoCoCollateFunction(ImageCollateFunction):
             vf_prob=vf_prob,
             hf_prob=hf_prob,
             rr_prob=rr_prob,
-            normalize=imagenet_normalize,
+            normalize=normalize,
         )
 
 
@@ -477,3 +479,186 @@ class SwaVCollateFunction(MultiCropCollateFunction):
             crop_max_scales=crop_max_scales,
             transforms=transforms,
         )
+
+class MultiViewCollateFunction(nn.Module):
+    """Generates multiple views for each image in the batch.
+
+    Attributes:
+        transforms:
+            List of transformation functions. Each function is used to generate
+            one view of the back.
+    
+    """
+    def __init__(self, transforms: List[torchvision.transforms.Compose]):
+        super().__init__()
+        self.transforms = transforms
+
+    def forward(self, batch: List[tuple]):
+        """Turns a batch of tuples into a tuple of batches.
+
+        Args:
+            batch:
+                The input batch.
+        
+        Returns:
+            A (views, labels, fnames) tuple where views is a list of tensors
+            with each tensor containing one view of the batch.
+
+        """
+        views = []
+        for transform in self.transforms:
+            view = torch.stack([transform(img) for img, _, _ in batch])
+            views.append(view)
+        # list of labels
+        labels = torch.LongTensor([label for _, label, _ in batch])
+        # list of filenames
+        fnames = [fname for _, _, fname in batch]
+        return views, labels, fnames
+
+
+class DINOCollateFunction(MultiViewCollateFunction):
+    """Implements the global and local view augmentations for DINO [0].
+
+    This class generates two global and a user defined number of local views
+    for each image in a batch. The code is adapted from [1].
+    
+    - [0]: DINO, 2021, https://arxiv.org/abs/2104.14294
+    - [1]: https://github.com/facebookresearch/dino
+
+    Attributes:
+        global_crop_size:
+            Crop size of the global views.
+        global_crop_scale:
+            Tuple of min and max scales relative to global_crop_size. 
+        local_crop_size:
+            Crop size of the local views.
+        local_crop_scale:
+            Tuple of min and max scales relative to local_crop_size. 
+        n_local_views:
+            Number of generated local views.
+        hf_prob:
+            Probability that horizontal flip is applied.
+        vf_prob:
+            Probability that vertical flip is applied.
+        rr_prob:
+            Probability that random (+90 degree) rotation is applied.
+        cj_prob:
+            Probability that color jitter is applied.
+        cj_bright:
+            How much to jitter brightness.
+        cj_contrast:
+            How much to jitter constrast.
+        cj_sat:
+            How much to jitter saturation.
+        cj_hue:
+            How much to jitter hue.
+        random_gray_scale:
+            Probability of conversion to grayscale.
+        gaussian_blur:
+            Tuple of probabilities to apply gaussian blur on the different
+            views. The input is ordered as follows:
+            (global_view_0, global_view_1, local_views)
+        kernel_size:
+            Sigma of gaussian blur is kernel_size * input_size.
+        kernel_scale:
+            Fraction of the kernel size which is used for upper and lower
+            limits of the randomized kernel size.
+        solarization:
+            Probability to apply solarization on the second global view.
+        normalize:
+            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
+
+    """
+    def __init__(
+        self,
+        global_crop_size=224,
+        global_crop_scale=(0.4, 1.0),
+        local_crop_size=96,
+        local_crop_scale=(0.05, 0.4),
+        n_local_views=6,
+        hf_prob=0.5,
+        vf_prob=0,
+        rr_prob=0,
+        cj_prob=0.8,
+        cj_bright=0.4,
+        cj_contrast=0.4,
+        cj_sat=0.2,
+        cj_hue=0.1,
+        random_gray_scale=0.2,
+        gaussian_blur=(1.0, 0.1, 0.5),
+        kernel_size=1.4,
+        kernel_scale=0.6,
+        solarization_prob=0.2,
+        normalize=imagenet_normalize,
+    ):
+
+        flip_and_color_jitter = T.Compose([
+            T.RandomHorizontalFlip(p=hf_prob),
+            T.RandomVerticalFlip(p=vf_prob),
+            RandomRotate(prob=rr_prob),
+            T.RandomApply(
+                [T.ColorJitter(
+                    brightness=cj_bright, 
+                    contrast=cj_contrast, 
+                    saturation=cj_sat, 
+                    hue=cj_hue
+                )],
+                p=cj_prob,
+            ),
+            T.RandomGrayscale(p=random_gray_scale),
+        ])
+        normalize = T.Compose([
+            T.ToTensor(),
+            T.Normalize(mean=normalize['mean'], std=normalize['std']),
+        ])
+        global_crop = T.RandomResizedCrop(
+            global_crop_size, 
+            scale=global_crop_scale, 
+            interpolation=Image.BICUBIC,
+        )
+
+        # first global crop
+        global_transform_0 = T.Compose([
+            global_crop,
+            flip_and_color_jitter,
+            GaussianBlur(
+                kernel_size=kernel_size, 
+                prob=gaussian_blur[0], 
+                scale=kernel_scale
+            ),
+            normalize,
+        ])
+        
+        # second global crop
+        global_transform_1 = T.Compose([
+            global_crop,
+            flip_and_color_jitter,
+            GaussianBlur(
+                kernel_size=kernel_size, 
+                prob=gaussian_blur[1], 
+                scale=kernel_scale
+            ),
+            RandomSolarization(prob=solarization_prob),
+            normalize,
+        ])
+
+        # transformation for the local small crops
+        local_transform = T.Compose([
+            T.RandomResizedCrop(
+                local_crop_size, 
+                scale=local_crop_scale, 
+                interpolation=Image.BICUBIC
+            ),
+            flip_and_color_jitter,
+            GaussianBlur(
+                kernel_size=kernel_size, 
+                prob=gaussian_blur[2], 
+                scale=kernel_scale
+            ),
+            normalize,
+        ])
+        local_transforms = [local_transform] * n_local_views
+        
+        transforms = [global_transform_0, global_transform_1]
+        transforms.extend(local_transforms)
+        super().__init__(transforms)
