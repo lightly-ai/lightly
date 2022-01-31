@@ -50,6 +50,7 @@ def retry(func, *args, **kwargs):
             # return on success
             return func(*args, **kwargs)
         except Exception:
+            print('RETRYING!')
             # sleep on failure
             time.sleep(backoff)
             backoff = 2 * backoff if backoff < max_backoff else backoff
