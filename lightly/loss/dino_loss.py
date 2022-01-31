@@ -1,39 +1,9 @@
-from typing import Union, List
+from typing import List
 
 import torch
 import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
-
-def _concat_student_outputs(
-    batch_size: int,
-    out_dim: int,
-    student_out: Union[torch.Tensor, List[torch.Tensor]],
-) -> torch.Tensor:
-    """Concatenates multiple outputs from the student model into a single 
-    tensor.
-    
-    Args:
-        batch_size:
-            The batch size B where B = number of images.
-        out_dim:
-            The dimensions of the model output.
-        student_out:
-            A single tensor with shape (B * V, D) or a list of tensors where
-            every tensor can have a different V. V is the number of views
-            per image.
-
-    Returns:
-        A tensor with shape (B, V_sum, D) where V_sum is the sum of all
-        V in the input.
-    
-    """
-    if isinstance(student_out, torch.Tensor):
-        student_out = [student_out]
-    
-    student_out = [x.reshape(batch_size, -1, out_dim) for x in student_out]
-    student_out = torch.cat(student_out, dim=1)
-    return student_out
 
 
 class DINOLoss(nn.Module):
@@ -71,16 +41,15 @@ class DINOLoss(nn.Module):
         >>> # initialize loss function
         >>> loss_fn = DINOLoss(128)
         >>>
-        >>> # generate views from some images img1 and img2
-        >>> # t = some random image transformation function
-        >>> views = torch.stack([t(img1), t(img1), t(img2), t(img2)])
+        >>> # generate a view of the images with a random transform
+        >>> view = transform(images)
         >>>
-        >>> # embed the views with a student and a teacher model
-        >>> student_out = student(views)
-        >>> teacher_out = teacher(views)
-        >>>
+        >>> # embed the view with a student and teacher model
+        >>> teacher_out = teacher(view)
+        >>> student_out = student(view)
+        >>> 
         >>> # calculate loss
-        >>> loss = loss_fn(student_out, teacher_out, epoch=0)
+        >>> loss = loss_fn([teacher_out], [student_out], epoch=0)
 
     """
     def __init__(
@@ -98,7 +67,7 @@ class DINOLoss(nn.Module):
         self.student_temp = student_temp
         self.center_momentum = center_momentum
         
-        self.register_buffer("center", torch.zeros(1, out_dim))
+        self.register_buffer("center", torch.zeros(1, 1, out_dim))
         # we apply a warm up for the teacher temperature because
         # a too high temperature makes the training instable at the beginning
         self.teacher_temp_schedule = torch.linspace(
@@ -109,81 +78,51 @@ class DINOLoss(nn.Module):
 
     def forward(
         self, 
-        teacher_out: torch.Tensor, 
-        student_out: Union[torch.Tensor, List[torch.Tensor]], 
+        teacher_out: List[torch.Tensor],
+        student_out: List[torch.Tensor],
         epoch: int,
-        n_views_teacher: int = 2,
-    ):
+    ) -> torch.Tensor:
         """Cross-entropy between softmax outputs of the teacher and student 
         networks.
 
-        Input tensors are assumed to have shape (B * V, D) where
-        B = number of images in the batch, V = number of views per image, and
-        D = the output dimension. The number of views per image can differ 
-        between the teacher and student models and we refer to them with V_t 
-        and V_s respectively.
-
         Args:
             teacher_out:
-                Output of the teacher model with shape (B * V_t, D).
+                List of view feature tensors from the teacher model. Each
+                tensor is assumed to contain features from one view of the batch
+                and have length batch_size.
             student_out:
-                Output of the student model. Either a single tensor with shape
-                (B * V_s, D) or a list of tensors where each tensor can have a
-                different V_s. Note that the first B * V_t entries in the tensor
-                are assumed to be generated from the same views as the entries
-                in teacher_out.
+                List of view feature tensors from the student model. Each tensor 
+                is assumed to contain features from one view of the batch and 
+                have length batch_size.
             epoch:
                 The current training epoch.
-            n_views_teacher:
-                The number of views per image in the teacher_out tensor. This
-                corresponds to V_t and is by default 2 as the teacher only sees
-                the two global views in the standard DINO implementation.
-       
-        """
-        batch_size = teacher_out.shape[0] // n_views_teacher
-        out_dim = teacher_out.shape[1]
 
+        Returns:
+            The average cross-entropy loss.
+
+        """
         # get teacher temperature
         if epoch < self.warmup_teacher_temp_epochs:
             teacher_temp = self.teacher_temp_schedule[epoch]
         else:
             teacher_temp = self.teacher_temp
-
-        # teacher centering and sharpening
-        teacher_center = F.softmax((teacher_out - self.center) / teacher_temp, dim=-1)
-
-        # convert from (B*V_t, D) to (B, V_t, D) shape
-        teacher_center = teacher_center.reshape(batch_size, n_views_teacher, out_dim)
         
-        # convert from list of (B * V_s, D) to a single (B, sum(V_s), D) tensor
-        student_out = _concat_student_outputs(
-            batch_size,
-            out_dim,
-            student_out,
-        )
-        n_views_student = student_out.shape[1]
+        teacher_out = torch.stack(teacher_out)
+        t_out = F.softmax((teacher_out - self.center) / teacher_temp, dim=-1)
 
-        student_out = F.log_softmax(student_out / self.student_temp, dim=-1)
-        
-        # we want to calculate the following loss:
-        #
-        # loss = 0
-        # for t in range(n_views_teacher):
-        #     for s in range(n_views_student):
-        #         if t == s:
-        #             # skip if teacher and student got same view     
-        #             continue 
-        #         loss += -torch.sum(teacher_out[:, t] * student_out[:, s])
-        #
-        # instead of a for loop we use the equivalent einsum operation with
+        student_out = torch.stack(student_out)
+        s_out = F.log_softmax(student_out / self.student_temp, dim=-1)
+
+        # calculate feature similarities where:
         # b = batch_size, t = n_views_teacher, s = n_views_student, d = out_dim
-        loss = -torch.einsum('btd,bsd->ts', teacher_center, student_out)
-        
-        # ignore entries where the teacher and student got the same view
+        # the diagonal is ignored as it contains features from the same views
+        loss = -torch.einsum('tbd,sbd->ts', t_out, s_out)
         loss.fill_diagonal_(0)
-        
-        # take average of loss
-        loss = loss.sum() / (n_views_teacher * (n_views_student - 1) * batch_size)
+
+        # number of loss terms, ignoring the diagonal
+        n_terms = loss.numel() - loss.diagonal().numel()
+        batch_size = teacher_out.shape[1]
+        loss = loss.sum() / (n_terms * batch_size)
 
         self.update_center(teacher_out)
         return loss
@@ -194,10 +133,10 @@ class DINOLoss(nn.Module):
 
         Args:
             teacher_out:
-                Output from the teacher model with shape (B*V, D).
+                Stacked output from the teacher model.
 
         """
-        batch_center = torch.mean(teacher_out, dim=0, keepdim=True)
+        batch_center = torch.mean(teacher_out, dim=(0, 1), keepdim=True)
         if dist.is_initialized():
             dist.all_reduce(batch_center)
             batch_center = batch_center / dist.get_world_size()

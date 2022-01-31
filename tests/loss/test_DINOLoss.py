@@ -6,11 +6,10 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from lightly.loss import dino_loss
 from lightly.loss import DINOLoss
 
 
-class FacebookDINOLoss(nn.Module):
+class OriginalDINOLoss(nn.Module):
     """Copy paste from the original DINO paper. We use this to verify our
     implementation.
 
@@ -55,7 +54,8 @@ class FacebookDINOLoss(nn.Module):
                 if v == iq:
                     # we skip cases where student and teacher operate on the same view
                     continue
-                loss = torch.sum(-q * F.log_softmax(student_out[v], dim=-1), dim=-1)
+                s_out = F.log_softmax(student_out[v], dim=-1)
+                loss = torch.sum(-q * s_out, dim=-1)
                 total_loss += loss.mean()
                 n_loss_terms += 1
         total_loss /= n_loss_terms
@@ -74,81 +74,23 @@ class FacebookDINOLoss(nn.Module):
 
 class TestDINOLoss(unittest.TestCase):
 
-    def generate_output_nested(self, batch_size=2, n_views=3, out_dim=4, seed=0):
-        """Generates list of embeddings nested by image and view.
-        
-        Example output:
-            torch.Tensor([
-                [img0_view0, img0_view1],
-                [img1_view0, img1_view1],
-            ])
+    def generate_output(self, batch_size=2, n_views=3, out_dim=4, seed=0):
+        """Returns a list of view representations.
 
+        Example output:
+            [
+                torch.Tensor([img0_view0, img1_view0]),
+                torch.Tensor([img0_view1, img1_view1])
+            ]
+        
         """
         torch.manual_seed(seed)
         out = []
-        for _ in range(batch_size):
-            views = [torch.rand(out_dim) for _ in range(n_views)]
+        for _ in range(n_views):
+            views = [torch.rand(out_dim) for _ in range(batch_size)]
             out.append(torch.stack(views))
-        return torch.stack(out)
+        return out
 
-    def generate_output_flat(self, batch_size=2, n_views=3, out_dim=4, seed=0):
-        """Generates flat list of embeddings with the same order as the
-        output of DINOCollateFunction.
-
-        Example output:
-            torch.Tensor([img0_view0, img0_view1, img1_view0, img1_view1])
-        
-        """
-        torch.manual_seed(seed)
-        out = []
-        for _ in range(batch_size):
-            for _ in range(n_views):
-                out.append(torch.rand(out_dim))
-        return torch.stack(out)
-
-    def generate_output_facebook(self, batch_size=2, n_views=3, out_dim=4, seed=0):
-        """Generates list of embeddings with in the same order as the reference
-        DINO implementation from Facebook.
-        
-        Example output:
-            torch.Tensor([img0_view0, img1_view0, img0_view1, img1_view1])
-        
-        """
-        torch.manual_seed(seed)
-        nested = self.generate_output_nested(batch_size, n_views, out_dim, seed)
-        out = []
-        for v in range(n_views):
-            for b in range(batch_size):
-                out.append(nested[b][v])
-        return torch.stack(out)
-
-    def test_concat_student_outputs(self):
-        batch_size = 2
-        out_dim = 4
-
-        nested = self.generate_output_nested(batch_size=batch_size, out_dim=out_dim)
-        expected = nested
-
-        # test single input vector
-        student_out = self.generate_output_flat(batch_size=batch_size, out_dim=out_dim)
-        concat = dino_loss._concat_student_outputs(batch_size, out_dim, student_out)
-        assert torch.all(concat == expected)
-
-        # test list of input vectors
-        global_views = torch.stack([
-            *nested[0][:2],
-            *nested[1][:2],
-        ])
-        local_views = torch.stack([
-            *nested[0][2:],
-            *nested[1][2:],
-        ])
-        concat = dino_loss._concat_student_outputs(
-            batch_size,
-            out_dim,
-            [global_views, local_views],
-        )
-        assert torch.all(concat == expected)
 
     def test_dino_loss_equal_to_original(self):
 
@@ -176,7 +118,7 @@ class TestDINOLoss(unittest.TestCase):
                 f'center_momentum={center_momentum}, epoch={epoch}, '
                 f'n_epochs={n_epochs}'
             ):
-                our_loss_fn = DINOLoss(
+                loss_fn = DINOLoss(
                     out_dim=out_dim,
                     warmup_teacher_temp=warmup_teacher_temp,
                     teacher_temp=teacher_temp,
@@ -185,7 +127,7 @@ class TestDINOLoss(unittest.TestCase):
                     center_momentum=center_momentum,
                 )
                 
-                fb_loss_fn = FacebookDINOLoss(
+                orig_loss_fn = OriginalDINOLoss(
                     out_dim=out_dim,
                     ncrops=n_global + n_local,
                     teacher_temp=teacher_temp,
@@ -196,43 +138,35 @@ class TestDINOLoss(unittest.TestCase):
                     center_momentum=center_momentum,
                 )
 
-                our_teacher_out = self.generate_output_flat(
+                teacher_out = self.generate_output(
                     batch_size=batch_size,
                     n_views=n_global,
                     out_dim=out_dim,
                     seed=0,
                 )
-                our_student_out = self.generate_output_flat(
+                student_out = self.generate_output(
                     batch_size=batch_size,
                     n_views=n_global + n_local,
                     out_dim=out_dim, 
                     seed=1,
                 )
-                fb_teacher_out = self.generate_output_facebook(
-                    batch_size,
-                    n_views=n_global,
-                    out_dim=out_dim, 
-                    seed=0,
-                )
-                fb_student_out = self.generate_output_facebook(
-                    batch_size=batch_size,
-                    n_views=n_global + n_local,
-                    out_dim=out_dim, 
-                    seed=1,
-                )
-                our_loss = our_loss_fn(
-                    teacher_out=our_teacher_out, 
-                    student_out=our_student_out, 
+                orig_teacher_out = torch.cat(teacher_out)
+                orig_student_out = torch.cat(student_out)
+                
+                loss = loss_fn(
+                    teacher_out=teacher_out, 
+                    student_out=student_out, 
                     epoch=epoch,
-                    n_views_teacher=n_global,
                 )
-                fb_loss = fb_loss_fn(
-                    student_output=fb_student_out, 
-                    teacher_output=fb_teacher_out, 
-                    epoch=epoch
+                orig_loss = orig_loss_fn(
+                    student_output=orig_student_out, 
+                    teacher_output=orig_teacher_out, 
+                    epoch=epoch,
                 )
-                assert torch.allclose(our_loss_fn.center, fb_loss_fn.center)
-                assert torch.allclose(our_loss, fb_loss)
+                center = loss_fn.center.squeeze()
+                orig_center = orig_loss_fn.center.squeeze()
+                assert torch.allclose(center, orig_center)
+                assert torch.allclose(loss, orig_loss)
 
         def test_all(**kwargs):
             """Tests all combinations of the input parameters"""
