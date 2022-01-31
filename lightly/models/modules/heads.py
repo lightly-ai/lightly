@@ -292,7 +292,6 @@ class DINOProjectionHead(ProjectionHead):
         output_dim=2048,
         bottleneck_dim=256,
         batch_norm=False, 
-        norm_last_layer=True,
     ):
         bn = nn.BatchNorm1d(hidden_dim) if batch_norm else None
 
@@ -305,8 +304,7 @@ class DINOProjectionHead(ProjectionHead):
 
         self.last_layer = nn.utils.weight_norm(nn.Linear(bottleneck_dim, output_dim, bias=False))
         self.last_layer.weight_g.data.fill_(1)
-        if norm_last_layer:
-            self.last_layer.weight_g.requires_grad = False
+        self.last_layer.weight_g.requires_grad = False
 
     def _init_weights(self, module):
         """Initializes layers with a truncated normal distribution.
