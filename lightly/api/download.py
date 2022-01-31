@@ -39,7 +39,7 @@ def download_image(url: str, session: requests.Session = None) -> PIL.Image.Imag
 
     """
     req = requests if session is None else session
-    response = req.get(url, stream=True)
+    response = utils.retry(req.get, url=url, stream=True)
     return PIL.Image.open(response.raw)
 
 
@@ -68,7 +68,7 @@ def download_all_video_frames(
 
     """
     _check_av_available()
-    with av.open(url) as container:
+    with utils.retry(av.open, url) as container:
         stream = container.streams.video[video_channel]
         stream.thread_type = thread_type
         for frame in container.decode(stream):
@@ -114,7 +114,7 @@ def download_video_frame(
     if timestamp < 0:
         raise ValueError(f"Negative timestamp is not allowed: {timestamp}")
 
-    with av.open(url) as container:
+    with utils.retry(av.open, url) as container:
         stream = container.streams.video[video_channel]
         stream.thread_type = thread_type
         
@@ -156,7 +156,7 @@ def download_and_write_file(
     req = requests if session is None else session
     out_path = pathlib.Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with req.get(url, stream=True) as response:
+    with utils.retry(req.get, url=url, stream=True) as response:
         with open(out_path, "wb") as file:
             shutil.copyfileobj(response.raw, file)
 
