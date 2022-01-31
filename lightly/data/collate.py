@@ -498,6 +498,41 @@ class SwaVCollateFunction(MultiCropCollateFunction):
             transforms=transforms,
         )
 
+class MultiViewCollateFunction(nn.Module):
+    """Generates multiple views for each image in the batch.
+
+    Attributes:
+        transforms:
+            List of transformation functions. Each function is used to generate
+            one view of the back.
+    
+    """
+    def __init__(self, transforms: List[torchvision.transforms.Compose]):
+        super().__init__()
+        self.transforms = transforms
+
+    def forward(self, batch: List[tuple]):
+        """Turns a batch of tuples into a tuple of batches.
+
+        Args:
+            batch:
+                The input batch.
+        
+        Returns:
+            A (views, labels, fnames) tuple where views is a list of tensors
+            with each tensor containing one view of the batch.
+
+        """
+        views = []
+        for transform in self.transforms:
+            view = torch.stack([transform(img) for img, _, _ in batch])
+            views.append(view)
+        # list of labels
+        labels = torch.LongTensor([label for _, label, _ in batch])
+        # list of filenames
+        fnames = [fname for _, _, fname in batch]
+        return views, labels, fnames
+
 
 class DINOCollateFunction(MultiViewCollateFunction):
     """Implements the global and local view augmentations for DINO [0].
