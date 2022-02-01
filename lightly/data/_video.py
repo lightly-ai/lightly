@@ -6,6 +6,7 @@
 import os
 from typing import List, Tuple
 from fractions import Fraction
+import threading
 
 from PIL import Image
 
@@ -23,7 +24,7 @@ if io._HAS_VIDEO_OPT:
     torchvision.set_video_backend('video_reader')
 
 
-class VideoLoader():
+class VideoLoader(threading.local):
     """Implementation of VideoLoader.
 
     The VideoLoader is a wrapper around the torchvision video interface. With
