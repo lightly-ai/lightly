@@ -64,7 +64,7 @@ dataloader = torch.utils.data.DataLoader(
 
 criterion = DINOLoss(
     output_dim=2048,
-    warmup_teacher_temp_epochs=30,
+    warmup_teacher_temp_epochs=5,
 )
 # move loss to correct device because it also contains parameters
 criterion = criterion.to(device)
@@ -72,7 +72,7 @@ criterion = criterion.to(device)
 optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
 
 print("Starting Training")
-for epoch in range(100):
+for epoch in range(10):
     total_loss = 0
     for views, _, _ in dataloader:
         views = [view.to(device) for view in views]
