@@ -179,6 +179,41 @@ class ImageCollateFunction(BaseCollateFunction):
         super(ImageCollateFunction, self).__init__(transform)
 
 
+class MultiViewCollateFunction(nn.Module):
+    """Generates multiple views for each image in the batch.
+
+    Attributes:
+        transforms:
+            List of transformation functions. Each function is used to generate
+            one view of the back.
+    
+    """
+    def __init__(self, transforms: List[torchvision.transforms.Compose]):
+        super().__init__()
+        self.transforms = transforms
+
+    def forward(self, batch: List[tuple]):
+        """Turns a batch of tuples into a tuple of batches.
+
+        Args:
+            batch:
+                The input batch.
+        
+        Returns:
+            A (views, labels, fnames) tuple where views is a list of tensors
+            with each tensor containing one view of the batch.
+
+        """
+        views = []
+        for transform in self.transforms:
+            view = torch.stack([transform(img) for img, _, _ in batch])
+            views.append(view)
+        # list of labels
+        labels = torch.LongTensor([label for _, label, _ in batch])
+        # list of filenames
+        fnames = [fname for _, _, fname in batch]
+        return views, labels, fnames
+
 class SimCLRCollateFunction(ImageCollateFunction):
     """Implements the transformations for SimCLR.
 
@@ -322,7 +357,7 @@ class MoCoCollateFunction(ImageCollateFunction):
         )
 
 
-class MultiCropCollateFunction(nn.Module):
+class MultiCropCollateFunction(MultiViewCollateFunction):
     """Implements the multi-crop transformations for SwaV.
 
     Attributes:
@@ -346,7 +381,6 @@ class MultiCropCollateFunction(nn.Module):
                  crop_min_scales: List[float],
                  crop_max_scales: List[float],
                  transforms: T.Compose):
-        super(MultiCropCollateFunction, self).__init__()
 
         if len(crop_sizes) != len(crop_counts):
             raise ValueError(
@@ -363,8 +397,8 @@ class MultiCropCollateFunction(nn.Module):
                 'Length of crop_sizes and crop_max_scales must be equal but are'
                 f' {len(crop_sizes)} and {len(crop_min_scales)}.'
             )
-
-        self.transforms = []
+        
+        crop_transforms = []
         for i in range(len(crop_sizes)):
             
             random_resized_crop = T.RandomResizedCrop(
@@ -372,29 +406,13 @@ class MultiCropCollateFunction(nn.Module):
                 scale=(crop_min_scales[i], crop_max_scales[i])
             )
 
-            self.transforms.extend([
+            crop_transforms.extend([
                 T.Compose([
                     random_resized_crop,
                     transforms,
                 ])
             ] * crop_counts[i])
-
-    def forward(self, batch: List[tuple]):
-        """Turns a batch of tuples into tuple of batches.
-        
-        """
-        multi_crops = []
-        # multi-crop all images in the batch
-        for i in range(len(self.transforms)):
-            crops = [self.transforms[i](image).unsqueeze_(0) for image, _, _ in batch]
-            multi_crops.append(torch.cat(crops, 0))
-
-        # list of labels
-        labels = torch.LongTensor([item[1] for item in batch])
-        # list of filenames
-        fnames = [item[2] for item in batch]
-
-        return multi_crops, labels, fnames
+        super().__init__(crop_transforms)
 
 
 class SwaVCollateFunction(MultiCropCollateFunction):
@@ -479,41 +497,6 @@ class SwaVCollateFunction(MultiCropCollateFunction):
             crop_max_scales=crop_max_scales,
             transforms=transforms,
         )
-
-class MultiViewCollateFunction(nn.Module):
-    """Generates multiple views for each image in the batch.
-
-    Attributes:
-        transforms:
-            List of transformation functions. Each function is used to generate
-            one view of the back.
-    
-    """
-    def __init__(self, transforms: List[torchvision.transforms.Compose]):
-        super().__init__()
-        self.transforms = transforms
-
-    def forward(self, batch: List[tuple]):
-        """Turns a batch of tuples into a tuple of batches.
-
-        Args:
-            batch:
-                The input batch.
-        
-        Returns:
-            A (views, labels, fnames) tuple where views is a list of tensors
-            with each tensor containing one view of the batch.
-
-        """
-        views = []
-        for transform in self.transforms:
-            view = torch.stack([transform(img) for img, _, _ in batch])
-            views.append(view)
-        # list of labels
-        labels = torch.LongTensor([label for _, label, _ in batch])
-        # list of filenames
-        fnames = [fname for _, _, fname in batch]
-        return views, labels, fnames
 
 
 class DINOCollateFunction(MultiViewCollateFunction):
