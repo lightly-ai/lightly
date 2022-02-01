@@ -10,6 +10,7 @@ from lightly.models.utils import activate_requires_grad
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
 from lightly.models.utils import normalize_weight
+from lightly.models.utils import _no_grad_trunc_normal_
 
 
 def has_grad(model: nn.Module):
@@ -59,3 +60,16 @@ class TestModelUtils(unittest.TestCase):
         self.assertEqual(linear.weight.norm(dim=0).sum(), input_dim)
         normalize_weight(linear.weight, dim=1)
         self.assertEqual(linear.weight.norm(dim=1).sum(), output_dim)
+
+    def test_no_grad_trunc_normal(self, device="cpu", seed=0):
+        torch.manual_seed(seed)
+        tensor = torch.rand((8, 16)).to(device)
+        a = -2
+        b = 2
+        _no_grad_trunc_normal_(tensor, mean=0, std=1, a=-2, b=2)
+        self.assertTrue(tensor.min() >= a)
+        self.assertTrue(tensor.max() <= b)
+
+    @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
+    def test_no_grad_trunc_normal_cuda(self, seed=0):
+        self.test_no_grad_trunc_normal(device="cuda")
