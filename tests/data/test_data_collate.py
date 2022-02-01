@@ -1,6 +1,7 @@
 import random
 import unittest
 
+import torch
 import torchvision
 import torchvision.transforms as transforms
 
@@ -9,11 +10,13 @@ from lightly.data import ImageCollateFunction
 from lightly.data import SimCLRCollateFunction
 from lightly.data import MultiCropCollateFunction
 from lightly.data import SwaVCollateFunction
+from lightly.data.collate import DINOCollateFunction, MultiViewCollateFunction
 
 
 class TestDataCollate(unittest.TestCase):
 
-    def create_batch(self, batch_size=16):
+    def create_batch(self, batch_size=16, seed=0):
+        torch.manual_seed(0)
         rnd_images = torchvision.datasets.FakeData(size=batch_size)
 
         fnames = [f'img_{i}.jpg' for i in range(batch_size)]
@@ -105,4 +108,34 @@ class TestDataCollate(unittest.TestCase):
                 crop_sizes=[1],
                 crop_counts=[2, 3],
             )
-                        
+    
+    def test_multi_view_collate(self):
+        to_tensor = transforms.ToTensor()
+        hflip = transforms.Compose([
+            transforms.RandomHorizontalFlip(p=1),
+            to_tensor,
+        ])
+        vflip = transforms.Compose([
+            transforms.RandomVerticalFlip(p=1),
+            to_tensor,
+        ])
+        trans = [to_tensor, hflip, vflip]
+
+        collate_fn = MultiViewCollateFunction(trans)
+        batch = self.create_batch()
+        imgs = batch[0]
+        views, labels, fnames = collate_fn(batch)
+
+        self.assertEqual(len(labels), len(batch))
+        self.assertEqual(len(fnames), len(batch))
+        self.assertTrue(torch.equal(views[0][0], to_tensor(imgs[0])))
+        self.assertTrue(torch.equal(views[1][0], hflip(imgs[0])))
+        self.assertTrue(torch.equal(views[2][0], vflip(imgs[0])))
+
+    def test_dino_collate_init(self):
+        DINOCollateFunction()
+
+    def test_dino_collate_forward(self):
+        batch = self.create_batch()
+        collate_fn = DINOCollateFunction()
+        views, labels, fnames = collate_fn(batch)
