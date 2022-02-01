@@ -45,7 +45,11 @@ class TestProjectionHeads(unittest.TestCase):
         for head_cls in self.heads:
             for in_features, hidden_features, out_features in self.n_features:
                 torch.manual_seed(seed)
-                head = head_cls(in_features, hidden_features, out_features)
+                if head_cls == DINOProjectionHead:
+                    bottleneck_features = hidden_features
+                    head = head_cls(in_features, hidden_features, bottleneck_features, out_features)
+                else:
+                    head = head_cls(in_features, hidden_features, out_features)
                 head = head.eval()
                 head = head.to(device)
                 for batch_size in [1, 2]:
@@ -87,30 +91,27 @@ class TestProjectionHeads(unittest.TestCase):
         input_dim, hidden_dim, output_dim = self.n_features[0]
         for bottleneck_dim in [8, 16, 32]:
             for batch_norm in [False, True]:
-                for norm_last_layer in [False, True]:
-                    torch.manual_seed(seed)
-                    head = DINOProjectionHead(
-                        input_dim=input_dim,
-                        hidden_dim=hidden_dim,
-                        output_dim=output_dim,
-                        bottleneck_dim=bottleneck_dim,
-                        batch_norm=batch_norm,
-                        norm_last_layer=norm_last_layer,
+                torch.manual_seed(seed)
+                head = DINOProjectionHead(
+                    input_dim=input_dim,
+                    hidden_dim=hidden_dim,
+                    output_dim=output_dim,
+                    bottleneck_dim=bottleneck_dim,
+                    batch_norm=batch_norm,
+                )
+                head = head.eval()
+                head = head.to(device)
+                for batch_size in [1, 2]:
+                    msg = (
+                        f"bottleneck_dim={bottleneck_dim}, "
+                        f"batch_norm={batch_norm}"
                     )
-                    head = head.eval()
-                    head = head.to(device)
-                    for batch_size in [1, 2]:
-                        msg = (
-                            f"bottleneck_dim={bottleneck_dim}, "
-                            f"batch_norm={batch_norm}, "
-                            f"norm_last_layer={norm_last_layer}"
-                        )
-                        with self.subTest(msg=msg):
-                            x = torch.torch.rand((batch_size, input_dim)).to(device)
-                            with torch.no_grad():
-                                y = head(x)
-                            self.assertEqual(y.shape[0], batch_size)
-                            self.assertEqual(y.shape[1], output_dim)
+                    with self.subTest(msg=msg):
+                        x = torch.torch.rand((batch_size, input_dim)).to(device)
+                        with torch.no_grad():
+                            y = head(x)
+                        self.assertEqual(y.shape[0], batch_size)
+                        self.assertEqual(y.shape[1], output_dim)
 
     @unittest.skipUnless(torch.cuda.is_available(), "skip")
     def test_dino_projection_head_cuda(self, seed=0):
