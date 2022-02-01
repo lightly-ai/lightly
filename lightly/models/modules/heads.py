@@ -311,7 +311,7 @@ class DINOProjectionHead(ProjectionHead):
         
         """
         if isinstance(module, nn.Linear):
-            utils._no_grad_trunc_normal_(
+            utils._no_grad_trunc_normal(
                 module.weight, 
                 mean=0, 
                 std=0.2, 

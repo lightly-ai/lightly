@@ -10,7 +10,7 @@ from lightly.models.utils import activate_requires_grad
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
 from lightly.models.utils import normalize_weight
-from lightly.models.utils import _no_grad_trunc_normal_
+from lightly.models.utils import _no_grad_trunc_normal
 
 
 def has_grad(model: nn.Module):
@@ -66,7 +66,7 @@ class TestModelUtils(unittest.TestCase):
         tensor = torch.rand((8, 16)).to(device)
         a = -2
         b = 2
-        _no_grad_trunc_normal_(tensor, mean=0, std=1, a=-2, b=2)
+        _no_grad_trunc_normal(tensor, mean=0, std=1, a=-2, b=2)
         self.assertTrue(tensor.min() >= a)
         self.assertTrue(tensor.max() <= b)
 

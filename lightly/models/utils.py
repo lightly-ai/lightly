@@ -212,7 +212,7 @@ def normalize_weight(weight: nn.Parameter, dim: int = 1, keepdim: bool = True):
 
 # copy paste from PyTorch master branch as it is not available in older releases
 # source: https://github.com/pytorch/pytorch/blob/20ac7362009dd8e0aca6e72fc9357773136a83b8/torch/nn/init.py#L22-L54
-def _no_grad_trunc_normal_(
+def _no_grad_trunc_normal(
     tensor: torch.Tensor,
     mean: float,
     std: float,
