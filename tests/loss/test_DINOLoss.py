@@ -74,7 +74,7 @@ class OriginalDINOLoss(nn.Module):
 
 class TestDINOLoss(unittest.TestCase):
 
-    def generate_output(self, batch_size=2, n_views=3, out_dim=4, seed=0):
+    def generate_output(self, batch_size=2, n_views=3, output_dim=4, seed=0):
         """Returns a list of view representations.
 
         Example output:
@@ -87,7 +87,7 @@ class TestDINOLoss(unittest.TestCase):
         torch.manual_seed(seed)
         out = []
         for _ in range(n_views):
-            views = [torch.rand(out_dim) for _ in range(batch_size)]
+            views = [torch.rand(output_dim) for _ in range(batch_size)]
             out.append(torch.stack(views))
         return out
 
@@ -98,7 +98,7 @@ class TestDINOLoss(unittest.TestCase):
             batch_size=3,
             n_global=2, # number of global views
             n_local=6,  # number of local views
-            out_dim=4,
+            output_dim=4,
             warmup_teacher_temp=0.04,
             teacher_temp=0.04,
             warmup_teacher_temp_epochs=30,
@@ -110,7 +110,7 @@ class TestDINOLoss(unittest.TestCase):
             """Runs test with the given input parameters."""
             with self.subTest(
                 f'batch_size={batch_size}, n_global={n_global}, '
-                f'n_local={n_local}, out_dim={out_dim}, '
+                f'n_local={n_local}, output_dim={output_dim}, '
                 f'warmup_teacher_temp={warmup_teacher_temp}, '
                 f'teacher_temp={teacher_temp}, '
                 f'warmup_teacher_temp_epochs={warmup_teacher_temp_epochs}, '
@@ -119,7 +119,7 @@ class TestDINOLoss(unittest.TestCase):
                 f'n_epochs={n_epochs}'
             ):
                 loss_fn = DINOLoss(
-                    out_dim=out_dim,
+                    output_dim=output_dim,
                     warmup_teacher_temp=warmup_teacher_temp,
                     teacher_temp=teacher_temp,
                     warmup_teacher_temp_epochs=warmup_teacher_temp_epochs,
@@ -128,7 +128,7 @@ class TestDINOLoss(unittest.TestCase):
                 )
                 
                 orig_loss_fn = OriginalDINOLoss(
-                    out_dim=out_dim,
+                    out_dim=output_dim,
                     ncrops=n_global + n_local,
                     teacher_temp=teacher_temp,
                     warmup_teacher_temp=warmup_teacher_temp,
@@ -141,13 +141,13 @@ class TestDINOLoss(unittest.TestCase):
                 teacher_out = self.generate_output(
                     batch_size=batch_size,
                     n_views=n_global,
-                    out_dim=out_dim,
+                    output_dim=output_dim,
                     seed=0,
                 )
                 student_out = self.generate_output(
                     batch_size=batch_size,
                     n_views=n_global + n_local,
-                    out_dim=out_dim, 
+                    output_dim=output_dim, 
                     seed=1,
                 )
                 orig_teacher_out = torch.cat(teacher_out)
@@ -187,7 +187,7 @@ class TestDINOLoss(unittest.TestCase):
         test_all(
             batch_size=np.arange(1,4),
             n_local=np.arange(1, 4),
-            out_dim=np.arange(1, 4),
+            output_dim=np.arange(1, 4),
         )
         # test teacher temp warmup
         test_all(
