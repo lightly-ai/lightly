@@ -10,6 +10,7 @@ can be combined with any lightly model.
 
 from lightly.models.modules.heads import BarlowTwinsProjectionHead
 from lightly.models.modules.heads import BYOLProjectionHead
+from lightly.models.modules.heads import DINOProjectionHead
 from lightly.models.modules.heads import MoCoProjectionHead
 from lightly.models.modules.heads import NNCLRProjectionHead
 from lightly.models.modules.heads import NNCLRPredictionHead

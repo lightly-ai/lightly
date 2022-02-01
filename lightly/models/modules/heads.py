@@ -8,6 +8,8 @@ from typing import List, Tuple
 import torch
 import torch.nn as nn
 
+from lightly.models import utils
+
 
 class ProjectionHead(nn.Module):
     """Base class for all projection and prediction heads.
@@ -256,3 +258,75 @@ class SwaVPrototypes(ProjectionHead):
                  n_prototypes: int):
         super(SwaVPrototypes, self).__init__([])
         self.layers = nn.Linear(input_dim, n_prototypes, bias=False)
+
+
+class DINOProjectionHead(ProjectionHead):
+    """Projection head used in DINO.
+
+    "The projection head consists of a 3-layer multi-layer perceptron (MLP) 
+    with hidden dimension 2048 followed by l2 normalization and a weight
+    normalized fully connected layer with K dimensions, which is similar to the
+    design from SwAV [1]." [0]
+
+    - [0]: DINO, 2021, https://arxiv.org/abs/2104.14294
+    - [1]: SwAV, 2020, https://arxiv.org/abs/2006.09882
+
+    Attributes:
+        input_dim:
+            The input dimension of the head.
+        hidden_dim:
+            The hidden dimension.
+        output_dim:
+            The output dimension of the head.
+        bottleneck_dim:
+            Dimension of the bottleneck in the last layer of the head.
+        batch_norm:
+            Whether to use batch norm or not. Should be set to False when using
+            a vision transformer backbone.
+    
+    """
+    def __init__(
+        self, 
+        input_dim: int, 
+        hidden_dim: int,
+        bottleneck_dim: int,
+        output_dim: int,
+        batch_norm=False, 
+    ):
+        bn = nn.BatchNorm1d(hidden_dim) if batch_norm else None
+
+        super().__init__([
+            (input_dim, hidden_dim, bn, nn.GELU()),
+            (hidden_dim, hidden_dim, bn, nn.GELU()),
+            (hidden_dim, bottleneck_dim, None, None),
+        ])
+        self.apply(self._init_weights)
+
+        self.last_layer = nn.utils.weight_norm(nn.Linear(bottleneck_dim, output_dim, bias=False))
+        self.last_layer.weight_g.data.fill_(1)
+        self.last_layer.weight_g.requires_grad = False
+
+    def _init_weights(self, module):
+        """Initializes layers with a truncated normal distribution.
+        
+        """
+        if isinstance(module, nn.Linear):
+            utils._no_grad_trunc_normal(
+                module.weight, 
+                mean=0, 
+                std=0.2, 
+                a=-2, 
+                b=2,
+            )
+            if module.bias is not None:
+                nn.init.constant_(module.bias, 0)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Computes one forward pass through the head.
+        
+        """
+        x = self.layers(x)
+        # l2 normalization
+        x = nn.functional.normalize(x, dim=-1, p=2)
+        x = self.last_layer(x)
+        return x
