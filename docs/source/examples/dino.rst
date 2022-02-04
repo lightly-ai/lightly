@@ -48,4 +48,3 @@ Reference:
         a subset of the data.
 
         .. literalinclude:: ../../../examples/pytorch_lightning_distributed/dino.py
-
