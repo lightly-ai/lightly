@@ -34,12 +34,10 @@ class SimSiam(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.SGD(model.parameters(), lr=0.06)
+        optim = torch.optim.SGD(self.parameters(), lr=0.06)
         return optim
 
 
-resnet = torchvision.models.resnet18()
-backbone = nn.Sequential(*list(resnet.children())[:-1])
 model = SimSiam()
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)

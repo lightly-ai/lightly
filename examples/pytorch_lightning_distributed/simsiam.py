@@ -34,7 +34,7 @@ class SimSiam(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.SGD(model.parameters(), lr=0.06)
+        optim = torch.optim.SGD(self.parameters(), lr=0.06)
         return optim
 
 
