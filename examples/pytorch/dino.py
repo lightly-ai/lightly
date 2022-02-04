@@ -75,6 +75,8 @@ print("Starting Training")
 for epoch in range(10):
     total_loss = 0
     for views, _, _ in dataloader:
+        update_momentum(model.student_backbone, model.teacher_backbone, m=0.99)
+        update_momentum(model.student_head, model.teacher_head, m=0.99)
         views = [view.to(device) for view in views]
         global_views = views[:2]
         teacher_out = [model.forward_teacher(view) for view in global_views]
@@ -84,7 +86,6 @@ for epoch in range(10):
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
-        update_momentum(model.student_backbone, model.teacher_backbone, m=0.99)
-        update_momentum(model.student_head, model.teacher_head, m=0.99)
+        
     avg_loss = total_loss / len(dataloader)
     print(f"epoch: {epoch:>02}, loss: {avg_loss:.5f}")
