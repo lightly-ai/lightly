@@ -41,9 +41,9 @@ class BYOL(pl.LightningModule):
         return z
 
     def training_step(self, batch, batch_idx):
-        update_momentum(model.backbone, model.backbone_momentum, m=0.99)
+        update_momentum(self.backbone, self.backbone_momentum, m=0.99)
         update_momentum(
-            model.projection_head, model.projection_head_momentum, m=0.99
+            self.projection_head, self.projection_head_momentum, m=0.99
         )
         (x0, x1), _, _ = batch
         p0 = self.forward(x0)
