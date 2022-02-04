@@ -55,7 +55,7 @@ collate_fn = DINOCollateFunction()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
-    batch_size=128,
+    batch_size=64,
     collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
@@ -69,7 +69,7 @@ criterion = DINOLoss(
 # move loss to correct device because it also contains parameters
 criterion = criterion.to(device)
 
-optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 print("Starting Training")
 for epoch in range(10):
