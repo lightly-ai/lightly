@@ -231,6 +231,7 @@ def video_frame_count(
     url: str,
     video_channel: int = 0,
     thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
+    ignore_metadata: bool = False,
 ) -> Optional[int]:
     """Returns the number of frames in the video from the given url.
 
@@ -246,6 +247,9 @@ def video_frame_count(
             Which multithreading method to use for decoding the video.
             See https://pyav.org/docs/stable/api/codec.html#av.codec.context.ThreadType
             for details.
+        ignore_metadata:
+            If True, frames are counted by iterating through the video instead
+            of relying on the video metadata.
 
     Returns:
         The number of frames in the video. Can be None if the video could not be
@@ -254,7 +258,7 @@ def video_frame_count(
     """
     with av.open(url) as container:
         stream = container.streams.video[video_channel]
-        num_frames = stream.frames
+        num_frames = 0 if ignore_metadata else stream.frames
         # If number of frames not stored in the video file we have to decode all
         # frames and count them.
         if num_frames == 0:
@@ -268,6 +272,7 @@ def all_video_frame_counts(
     max_workers: int = None,
     video_channel: int = 0,
     thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
+    ignore_metadata: bool = False,
 ) -> List[Optional[int]]:
     """Finds the number of frames in the videos at the given urls.
 
@@ -286,6 +291,9 @@ def all_video_frame_counts(
             Which multithreading method to use for decoding the video.
             See https://pyav.org/docs/stable/api/codec.html#av.codec.context.ThreadType
             for details.
+        ignore_metadata:
+            If True, frames are counted by iterating through the video instead
+            of relying on the video metadata.
 
     Returns:
         A list with the number of frames per video. Contains None for all videos
@@ -300,6 +308,7 @@ def all_video_frame_counts(
                 url=url,
                 video_channel=video_channel,
                 thread_type=thread_type,
+                ignore_metadata=ignore_metadata,
             )
         except RuntimeError:
             return
