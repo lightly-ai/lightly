@@ -31,14 +31,14 @@ class SwaV(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         crops, _, _ = batch
-        multi_crop_features = [model(x.to(self.device)) for x in crops]
+        multi_crop_features = [self.forward(x.to(self.device)) for x in crops]
         high_resolution = multi_crop_features[:2]
         low_resolution = multi_crop_features[2:]
         loss = self.criterion(high_resolution, low_resolution)
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.Adam(model.parameters(), lr=0.001)
+        optim = torch.optim.Adam(self.parameters(), lr=0.001)
         return optim
 
 

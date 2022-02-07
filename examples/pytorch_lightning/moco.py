@@ -39,9 +39,7 @@ class MoCo(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         update_momentum(self.backbone, self.backbone_momentum, m=0.99)
-        update_momentum(
-            self.projection_head, self.projection_head_momentum, m=0.99
-        )
+        update_momentum(self.projection_head, self.projection_head_momentum, m=0.99)
         (x_query, x_key), _, _ = batch
         query = self.forward(x_query)
         key = self.forward_momentum(x_key)

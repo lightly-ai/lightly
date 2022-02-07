@@ -65,6 +65,8 @@ print("Starting Training")
 for epoch in range(10):
     total_loss = 0
     for (x_query, x_key), _, _ in dataloader:
+        update_momentum(model.backbone, model.backbone_momentum, m=0.99)
+        update_momentum(model.projection_head, model.projection_head_momentum, m=0.99)
         x_query = x_query.to(device)
         x_key = x_key.to(device)
         query = model(x_query)
@@ -74,9 +76,5 @@ for epoch in range(10):
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
-        update_momentum(model.backbone, model.backbone_momentum, m=0.99)
-        update_momentum(
-            model.projection_head, model.projection_head_momentum, m=0.99
-        )
     avg_loss = total_loss / len(dataloader)
     print(f"epoch: {epoch:>02}, loss: {avg_loss:.5f}")
