@@ -45,6 +45,7 @@ def download_image(url: str, session: requests.Session = None) -> PIL.Image.Imag
 
 def download_all_video_frames(
     url: str, 
+    timestamp: Union[int, None] = None,
     as_pil_image: int = True, 
     thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
     video_channel: int = 0,
@@ -54,6 +55,10 @@ def download_all_video_frames(
     Args:
         url: 
             The url where video is downloaded from.
+        timestamp:
+            Timestamp in pts from the start of the video from which the frame 
+            download should start. See https://pyav.org/docs/develop/api/time.html#time
+            for details on pts.
         as_pil_image: 
             Whether to return the frame as PIL.Image.
         thread_type:
@@ -68,10 +73,32 @@ def download_all_video_frames(
 
     """
     _check_av_available()
+    timestamp = 0 if timestamp is None else timestamp
+    if timestamp < 0:
+        raise ValueError(f"Negative timestamp is not allowed: {timestamp}")
+
     with utils.retry(av.open, url) as container:
         stream = container.streams.video[video_channel]
         stream.thread_type = thread_type
+
+        duration = stream.duration
+        start_time = stream.start_time
+        if (duration is not None) and (start_time is not None):
+            end_time = duration + start_time
+            if timestamp > end_time:
+                raise ValueError(
+                    f"Timestamp ({timestamp} pts) exceeds maximum video timestamp "
+                    f"({end_time} pts)."
+                )
+        # seek to last keyframe before the timestamp
+        container.seek(timestamp, any_frame=False, backward=True, stream=stream)
+        
+        frame = None
         for frame in container.decode(stream):
+            # advance from keyframe until correct timestamp is reached
+            if frame.pts < timestamp:
+                continue
+            # yield next frame
             if as_pil_image:
                 yield frame.to_image()
             else:
