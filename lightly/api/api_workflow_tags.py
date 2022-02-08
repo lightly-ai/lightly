@@ -76,14 +76,14 @@ class _TagsMixin:
 
     def create_tag_from_filenames(
         self,
-        list_of_filenames: List[str],
+        fnames_new_tag: List[str],
         new_tag_name: str,
         parent_tag_id: str = None
     ) -> TagData:
         """Creates a new tag from a list of filenames.
 
         Args:
-            list_of_filenames:
+            fnames_new_tag:
                 A list of filenames to be included in the new tag.
             new_tag_name:
                 The name of the new tag.
@@ -111,24 +111,25 @@ class _TagsMixin:
         tot_size = tags[-1].tot_size
 
         # get list of filenames from tag
-        fnames_tag = self.get_filenames_in_tag(tags[-1])
+        fnames_server = self.get_filenames()
 
         # create new bitmask 
         bitmask = BitMask(tot_size)
-        for i, fname in enumerate(fnames_tag):
+        for i, fname_server in enumerate(fnames_server):
             bitmask.unset_kth_bit(i)
-            for fname_selected in list_of_filenames:
-                if fname_selected == fname:
-                    bitmask.set_kth_bit(i)
-                    break
+            if fname_server in fnames_new_tag:
+                bitmask.set_kth_bit(i)
+
         
         # quick sanity check
-        num_selected_samples = len(bitmask.masked_select_from_list(fnames_tag))
-        if num_selected_samples != len(list_of_filenames):
+        num_selected_samples = len(bitmask.to_indices())
+        if num_selected_samples != len(fnames_new_tag):
             raise RuntimeError(
-                f'An error occured when creating the new subset!'
+                f'An error occured when creating the new subset! '
                 f'Found {num_selected_samples} samples newly selected '
-                f'instead of {len(list_of_filenames)}.'
+                f'instead of {len(fnames_new_tag)}. '
+                f'Make sure you use the correct filenames. '
+                f'Valid filename example from the dataset: {fnames_server[0]}'
                 )
 
         # create new tag

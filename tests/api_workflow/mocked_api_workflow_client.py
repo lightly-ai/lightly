@@ -181,6 +181,13 @@ class MockedTagsApi(TagsApi):
         _check_dataset_id(dataset_id)
         assert body.upsize_tag_creator == TagCreator.USER_PIP
 
+    def create_tag_by_dataset_id(self, body, dataset_id, **kwargs):
+        _check_dataset_id(dataset_id)
+        tag = TagData(id='inital_tag_id', dataset_id=dataset_id, prev_tag_id=None,
+                      bit_mask_data="0xF", name=body['name'], tot_size=10,
+                      created_at=1577836800, changes=dict())
+        return tag
+        
 
 class MockedScoresApi(ScoresApi):
     def create_or_update_active_learning_score_by_tag_id(self, body, dataset_id, tag_id, **kwargs) -> \
