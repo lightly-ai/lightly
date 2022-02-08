@@ -150,6 +150,10 @@ trainer.fit(
 )
 ```
 
+We provide proper multi-GPU training with distributed gather and synchronized BatchNorm
+
+[Have a look at our docs regarding distributed training](https://docs.lightly.ai/getting_started/distributed_training.html)
+
 
 
 ### Command-Line Interface
