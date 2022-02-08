@@ -93,6 +93,39 @@ class TestDownload(unittest.TestCase):
                 assert _images_equal(frame, orig)
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
+    def test_download_all_video_frames_restart_throws(self):
+        with tempfile.NamedTemporaryFile(suffix='.avi') as file:
+            original = _generate_video(file.name)
+            with self.assertRaises(ValueError):
+                # timestamp too small
+                frames = list(download.download_all_video_frames(file.name, timestamp=-1))
+            with self.assertRaises(ValueError):
+                # timestamp too large
+                frames = list(download.download_all_video_frames(file.name, timestamp=6))
+
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
+    def test_download_all_video_frames_restart_at_0(self):
+        # relevant for restarting if the frame iterator is empty
+        # although it shouldn't be
+        with tempfile.NamedTemporaryFile(suffix='.avi') as file:
+            original = _generate_video(file.name)
+            frames = list(download.download_all_video_frames(file.name, timestamp=None))
+            for frame, orig in zip(frames, original):
+                assert _images_equal(frame, orig)
+
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
+    def test_download_all_video_frames_restart(self):
+        # relevant if decoding a frame goes wrong for some reason and we
+        # want to try again
+        restart_timestamp = 3
+        with tempfile.NamedTemporaryFile(suffix='.avi') as file:
+            original = _generate_video(file.name)
+            frames = list(download.download_all_video_frames(file.name, restart_timestamp))
+            for frame, orig in zip(frames, original[2:]):
+                assert _images_equal(frame, orig)
+
+
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_fps(self):
         for fps in [24, 30, 60]:
             with self.subTest(msg=f"fps={fps}"), \
@@ -193,6 +226,21 @@ class TestDownload(unittest.TestCase):
 
                     _generate_video(file.name, n_frames=true_n_frames, fps=fps)
                     n_frames = download.video_frame_count(file.name)
+                    assert n_frames == true_n_frames
+
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
+    def test_download_video_frame_count_no_metadata(self):
+        fps = 24
+        for true_n_frames in [24, 30, 60]:
+            for suffix in ['.avi', '.mpeg']:
+                with tempfile.NamedTemporaryFile(suffix=suffix) as file, \
+                    self.subTest(msg=f'n_frames={true_n_frames}, extension={suffix}'):
+
+                    _generate_video(file.name, n_frames=true_n_frames, fps=fps)
+                    n_frames = download.video_frame_count(
+                        file.name,
+                        ignore_metadata=True
+                    )
                     assert n_frames == true_n_frames
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
