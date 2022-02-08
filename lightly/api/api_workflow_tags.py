@@ -73,3 +73,75 @@ class _TagsMixin:
             masked_select_from_list(filenames_on_server)
 
         return filenames_tag
+
+    def create_tag_from_filenames(
+        self,
+        list_of_filenames: List[str],
+        new_tag_name: str,
+        parent_tag_id: str = None
+    ) -> TagData:
+        """Creates a new tag from a list of filenames.
+
+        Args:
+            list_of_filenames:
+                A list of filenames to be included in the new tag.
+            new_tag_name:
+                The name of the new tag.
+            parent_tag_id:
+                The tag defining where to sample from, default: None resolves to the initial-tag.
+
+        Returns:
+            The newly created tag.
+
+        Raises:
+            RuntimeError
+        """
+        
+        # make sure the tag name does not exist yet
+        tags = self.get_all_tags()
+        if new_tag_name in [tag.name for tag in tags]:
+            raise RuntimeError(f'There already exists a tag with tag_name {new_tag_name}.')
+        if len(tags) == 0:
+            raise RuntimeError('There exists no initial-tag for this dataset.')
+
+        # fallback to initial tag if no parent tag is provided
+        if parent_tag_id is None:
+            parent_tag_id = tags[-1].id
+
+        tot_size = tags[-1].tot_size
+
+        # get list of filenames from tag
+        fnames_tag = self.get_filenames_in_tag(tags[-1])
+
+        # create new bitmask 
+        bitmask = BitMask(tot_size)
+        for i, fname in enumerate(fnames_tag):
+            bitmask.unset_kth_bit(i)
+            for fname_selected in list_of_filenames:
+                if fname_selected == fname:
+                    bitmask.set_kth_bit(i)
+                    break
+        
+        # quick sanity check
+        num_selected_samples = len(bitmask.masked_select_from_list(fnames_tag))
+        if num_selected_samples != len(list_of_filenames):
+            raise RuntimeError(
+                f'An error occured when creating the new subset!'
+                f'Found {num_selected_samples} samples newly selected '
+                f'instead of {len(list_of_filenames)}.'
+                )
+
+        # create new tag
+        tag_data_dict = {
+            'name': new_tag_name, 
+            'prevTagId': parent_tag_id, 
+            'bitMaskData': bitmask.to_hex(), 
+            'totSize': tot_size
+        }
+
+        new_tag = self._tags_api.create_tag_by_dataset_id(
+            tag_data_dict,
+            self.dataset_id
+        )
+
+        return new_tag
