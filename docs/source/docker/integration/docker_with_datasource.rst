@@ -84,7 +84,7 @@ E.g. run the docker with
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=YOUR_LIGHTLY_PLATFORM_TOKEN \
         datasource.dataset_id=YOUR_DATASET_ID \

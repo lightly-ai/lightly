@@ -8,8 +8,8 @@ The example below shows how the `token` parameter can be set when running the do
 .. code-block:: console
 
     docker run --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v OUTPUT_DIR:/home/shared_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {OUTPUT_DIR}:/home/shared_dir \
         --ipc="host" --network="host" \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN
@@ -96,8 +96,8 @@ For example,
 .. code-block:: console
 
     docker run --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
         lightly.loader.batch_size=512
@@ -156,8 +156,8 @@ You can use them by adding the following two parts to your docker run command:
 .. code-block:: console
 
     docker run --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {OUTPUT_DIR}:/home/output_dir \
         --ipc=host \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
