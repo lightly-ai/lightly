@@ -160,7 +160,6 @@ def get_data_loaders(batch_size: int, model):
     if isinstance(model, SwaVModel):
         col_fn = swav_collate_fn
     elif isinstance(model, DINOModel):
-        print('using dino collate')
         col_fn = dino_collate_fn
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
