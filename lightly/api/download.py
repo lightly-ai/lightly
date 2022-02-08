@@ -45,6 +45,7 @@ def download_image(url: str, session: requests.Session = None) -> PIL.Image.Imag
 
 def download_all_video_frames(
     url: str, 
+    timestamp: Union[int, None] = None,
     as_pil_image: int = True, 
     thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
     video_channel: int = 0,
@@ -54,6 +55,10 @@ def download_all_video_frames(
     Args:
         url: 
             The url where video is downloaded from.
+        timestamp:
+            Timestamp in pts from the start of the video from which the frame 
+            download should start. See https://pyav.org/docs/develop/api/time.html#time
+            for details on pts.
         as_pil_image: 
             Whether to return the frame as PIL.Image.
         thread_type:
@@ -68,10 +73,32 @@ def download_all_video_frames(
 
     """
     _check_av_available()
+    timestamp = 0 if timestamp is None else timestamp
+    if timestamp < 0:
+        raise ValueError(f"Negative timestamp is not allowed: {timestamp}")
+
     with utils.retry(av.open, url) as container:
         stream = container.streams.video[video_channel]
         stream.thread_type = thread_type
+
+        duration = stream.duration
+        start_time = stream.start_time
+        if (duration is not None) and (start_time is not None):
+            end_time = duration + start_time
+            if timestamp > end_time:
+                raise ValueError(
+                    f"Timestamp ({timestamp} pts) exceeds maximum video timestamp "
+                    f"({end_time} pts)."
+                )
+        # seek to last keyframe before the timestamp
+        container.seek(timestamp, any_frame=False, backward=True, stream=stream)
+        
+        frame = None
         for frame in container.decode(stream):
+            # advance from keyframe until correct timestamp is reached
+            if frame.pts < timestamp:
+                continue
+            # yield next frame
             if as_pil_image:
                 yield frame.to_image()
             else:
@@ -231,6 +258,7 @@ def video_frame_count(
     url: str,
     video_channel: int = 0,
     thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
+    ignore_metadata: bool = False,
 ) -> Optional[int]:
     """Returns the number of frames in the video from the given url.
 
@@ -246,6 +274,9 @@ def video_frame_count(
             Which multithreading method to use for decoding the video.
             See https://pyav.org/docs/stable/api/codec.html#av.codec.context.ThreadType
             for details.
+        ignore_metadata:
+            If True, frames are counted by iterating through the video instead
+            of relying on the video metadata.
 
     Returns:
         The number of frames in the video. Can be None if the video could not be
@@ -254,7 +285,7 @@ def video_frame_count(
     """
     with av.open(url) as container:
         stream = container.streams.video[video_channel]
-        num_frames = stream.frames
+        num_frames = 0 if ignore_metadata else stream.frames
         # If number of frames not stored in the video file we have to decode all
         # frames and count them.
         if num_frames == 0:
@@ -268,6 +299,7 @@ def all_video_frame_counts(
     max_workers: int = None,
     video_channel: int = 0,
     thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
+    ignore_metadata: bool = False,
 ) -> List[Optional[int]]:
     """Finds the number of frames in the videos at the given urls.
 
@@ -286,6 +318,9 @@ def all_video_frame_counts(
             Which multithreading method to use for decoding the video.
             See https://pyav.org/docs/stable/api/codec.html#av.codec.context.ThreadType
             for details.
+        ignore_metadata:
+            If True, frames are counted by iterating through the video instead
+            of relying on the video metadata.
 
     Returns:
         A list with the number of frames per video. Contains None for all videos
@@ -300,6 +335,7 @@ def all_video_frame_counts(
                 url=url,
                 video_channel=video_channel,
                 thread_type=thread_type,
+                ignore_metadata=ignore_metadata,
             )
         except RuntimeError:
             return
