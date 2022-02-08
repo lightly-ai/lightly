@@ -85,11 +85,11 @@ There are **three** types of volume mappings:
 
 Typically, your docker command would start like this:
 
-- Map *INPUT_DIR* (from your system) to */home/input_dir* in the container
+- Map *{INPUT_DIR}* (from your system) to */home/input_dir* in the container
   
   *e.g. /path/to/my/cat/dataset:/home/input_dir:ro*
 
-- Map *OUTPUT_DIR* (from your system) to */home/output_dir* in the container
+- Map *{OUTPUT_DIR}* (from your system) to */home/output_dir* in the container
   
   *e.g. /path/where/I/want/the/docker/output:/home/output_dir*
 
@@ -98,8 +98,8 @@ Typically, your docker command would start like this:
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN
 
@@ -107,7 +107,7 @@ Now, let's see how this will look in action!
 
 .. note:: Learn how to obtain your :ref:`ref-authentication-token`.
 
-.. warning:: Don't forget to replace **INPUT_DIR** and **OUTPUT_DIR** with the path 
+.. warning:: Don't forget to replace **{INPUT_DIR}** and **{OUTPUT_DIR}** with the path 
              to your local input and output directory. You must not change the 
              path after the **:** since this path is describing the internal
              file system within the container!
@@ -143,9 +143,9 @@ Then you can use the following docker run command and the Lightly docker will on
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {SHARED_DIR}:/home/shared_dir \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
         relevant_filenames_file='filenames.txt'
@@ -160,8 +160,8 @@ To embed your images with a pre-trained model, you can run the docker solution w
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
         remove_exact_duplicates=True \
@@ -207,8 +207,8 @@ and sampling them.
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
         enable_training=True
@@ -218,7 +218,7 @@ with the following command:
 
 .. code-block:: console
 
-    lightly-train input_dir=INPUT_DIR
+    lightly-train input_dir={INPUT_DIR}
 
 **Checkpoints** from your training process will be stored in the output directory. You can continue training from such
 a checkpoint by copying the checkpoint to the shared directory and then passing the checkpoint filename to the container:
@@ -226,9 +226,9 @@ a checkpoint by copying the checkpoint to the shared directory and then passing 
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {SHARED_DIR}:/home/shared_dir \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
         stopping_condition.n_samples=0.3 \
@@ -249,8 +249,8 @@ do so.
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
         remove_exact_duplicates=True \
@@ -279,9 +279,9 @@ move the embeddings file to the shared directory, and specify the filename like 
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {SHARED_DIR}:/home/shared_dir \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
         remove_exact_duplicates=True \
@@ -333,14 +333,14 @@ structure as shown above could then look like this:
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {SHARED_DIR}:/home/shared_dir \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
         stopping_condition.n_samples=0.3
 
-Where INPUT_DIR is the path to the directory containing the video files.
+Where {INPUT_DIR} is the path to the directory containing the video files.
 
 You can let Lightly Docker automatically extract the sampled frames and save
 them in the output folder using `dump_dataset=True`.
@@ -348,9 +348,9 @@ them in the output folder using `dump_dataset=True`.
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {SHARED_DIR}:/home/shared_dir \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
         stopping_condition.n_samples=0.3 \
@@ -370,9 +370,9 @@ simply set the stopping condition `n_samples` to 1.0 (which translates to 100% o
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {SHARED_DIR}:/home/shared_dir \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
         remove_exact_duplicates=True \
@@ -405,9 +405,9 @@ E.g.
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v SHARED_DIR:/home/shared_dir \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {SHARED_DIR}:/home/shared_dir \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
         stopping_condition.n_samples=50'000 \
@@ -584,8 +584,8 @@ With the argument stopping_condition.n_samples=X you can set the number of sampl
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
         remove_exact_duplicates=True \
@@ -597,8 +597,8 @@ With the argument n_example_images you can determine how many pairs are shown. N
 .. code-block:: console
 
     docker run --gpus all --rm -it \
-        -v INPUT_DIR:/home/input_dir:ro \
-        -v OUTPUT_DIR:/home/output_dir \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {OUTPUT_DIR}:/home/output_dir \
         lightly/sampling:latest \
         token=MYAWESOMETOKEN \
         remove_exact_duplicates=True \

@@ -54,9 +54,9 @@ files.
 .. code-block:: console
 
    docker run --gpus all --rm -it \
-      -v INPUT_DIR:/home/input_dir:ro \
-      -v SHARED_DIR:/home/shared_dir \
-      -v OUTPUT_DIR:/home/output_dir \
+      -v {INPUT_DIR}:/home/input_dir:ro \
+      -v {SHARED_DIR}:/home/shared_dir \
+      -v {OUTPUT_DIR}:/home/output_dir \
       lightly/sampling:latest \
       token=MYAWESOMETOKEN \
       append_weak_labels=False \
@@ -74,9 +74,9 @@ consider them during sampling. Then, it will update the datapool and checkpoint 
 .. code-block:: console
 
    docker run --gpus all --rm -it \
-      -v OTHER_INPUT_DIR:/home/input_dir:ro \
-      -v SHARED_DIR:/home/shared_dir \
-      -v OUTPUT_DIR:/home/output_dir \
+      -v {OTHER_INPUT_DIR}:/home/input_dir:ro \
+      -v {SHARED_DIR}:/home/shared_dir \
+      -v {OUTPUT_DIR}:/home/output_dir \
       lightly/sampling:latest \
       token=MYAWESOMETOKEN \
       append_weak_labels=False \
@@ -90,9 +90,9 @@ set the flag `keep_history` to False.
 .. code-block:: console
 
    docker run --gpus all --rm -it \
-      -v INPUT_DIR:/home/input_dir:ro \
-      -v SHARED_DIR:/home/shared_dir \
-      -v OUTPUT_DIR:/home/output_dir \
+      -v {INPUT_DIR}:/home/input_dir:ro \
+      -v {SHARED_DIR}:/home/shared_dir \
+      -v {OUTPUT_DIR}:/home/output_dir \
       lightly/sampling:latest \
       token=MYAWESOMETOKEN \
       append_weak_labels=False \
