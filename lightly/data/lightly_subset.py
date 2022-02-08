@@ -49,6 +49,12 @@ class LightlySubset(LightlyDataset):
         """
         return len(self.filenames_subset)
 
+    def get_filenames(self) -> List[str]:
+        """Returns all filenames in the subset.
+
+        """
+        return self.filenames_subset
+
     def index_to_filename(self, dataset, index_subset: int):
         """Maps from an index of a sample to its filename.
 
