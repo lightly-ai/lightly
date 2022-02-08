@@ -98,9 +98,9 @@ should look like this:
 .. code-block:: console
 
    docker run --gpus all --rm -it \
-      -v OTHER_INPUT_DIR:/home/input_dir:ro \
-      -v SHARED_DIR:/home/shared_dir \
-      -v OUTPUT_DIR:/home/output_dir \
+      -v {INPUT_DIR}:/home/input_dir:ro \
+      -v {SHARED_DIR}:/home/shared_dir \
+      -v {OUTPUT_DIR}:/home/output_dir \
       lightly/sampling:latest \
       token=MYAWESOMETOKEN \
       pretagging=True \
