@@ -24,17 +24,17 @@ communication overhead.
 
 We did some simple experiments we share here:
 
-Distributed Training Tests
+Distributed Training Benchmarks
 ---------------------------
 
-- dataset = cifar10 
-- batch size = 512
-- epochs = 100
+- Dataset: Cifar10 
+- Batch size: 512
+- Epochs: 100
 
-Distributed training is done with DDP using Pytorch Lightning and batch size is 
+Distributed training is done with DDP using Pytorch Lightning and the batch size is 
 divided by the number of GPUs.
 
-For distributed training we also evaluated whether Synchronized BatchNorm helps and what 
+For distributed training we also evaluate whether Synchronized BatchNorm helps and what 
 happens if we gather features from all gpus before calculating the 
 loss (Gather Distributed).
 
@@ -78,6 +78,6 @@ Observations
 
 - 4 gpus are 2-3x faster than 1 gpu
 - With 4 gpus a single epoch takes <40 sec which means that a lot of time is 
-  spent between epochs (starting workers, doing evaluation, …). 
+  spent between epochs (starting workers, doing evaluation). 
   The benefit from using more gpus could therefore be even greater with a larger dataset.
 - The slowdown from Sync BatchNorm is pretty low
