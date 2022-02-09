@@ -106,12 +106,11 @@ class _TagsMixin:
 
         # fallback to initial tag if no parent tag is provided
         if parent_tag_id is None:
-            parent_tag_id = tags[-1].id
-
-        tot_size = tags[-1].tot_size
+            parent_tag_id = next(tag.id for tag in tags if tag.name=='initial-tag')
 
         # get list of filenames from tag
         fnames_server = self.get_filenames()
+        tot_size = len(fnames_server)
 
         # create new bitmask for the new tag
         bitmask = BitMask(0)
@@ -125,8 +124,9 @@ class _TagsMixin:
         if num_selected_samples != len(fnames_new_tag):
             raise RuntimeError(
                 f'An error occured when creating the new subset! '
-                f'Found {num_selected_samples} samples newly selected '
-                f'instead of {len(fnames_new_tag)}. '
+                f'Out of the {len(fnames_new_tag)} filenames you provided '
+                f'to create a new tag, only {num_selected_samples} have been '
+                f'found on the server. '
                 f'Make sure you use the correct filenames. '
                 f'Valid filename example from the dataset: {fnames_server[0]}'
                 )
