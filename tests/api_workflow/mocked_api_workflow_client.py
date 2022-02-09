@@ -183,8 +183,8 @@ class MockedTagsApi(TagsApi):
 
     def create_tag_by_dataset_id(self, body, dataset_id, **kwargs):
         _check_dataset_id(dataset_id)
-        tag = TagData(id='inital_tag_id', dataset_id=dataset_id, prev_tag_id=None,
-                      bit_mask_data="0xF", name=body['name'], tot_size=10,
+        tag = TagData(id='inital_tag_id', dataset_id=dataset_id, prev_tag_id=body['prev_tag_id'],
+                      bit_mask_data=body['bit_mask_data'], name=body['name'], tot_size=10,
                       created_at=1577836800, changes=dict())
         return tag
         
