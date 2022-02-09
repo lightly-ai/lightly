@@ -60,6 +60,17 @@ class TestApiWorkflowTags(MockedApiWorkflowSetup):
         filenames = self.api_workflow_client.get_filenames()
         self.api_workflow_client.get_filenames_in_tag(tag_data, filenames, exclude_parent_tag=True)
 
+    def test_create_tag_from_filenames(self):
+        filenames_server = self.api_workflow_client.get_filenames()
+        filenames_new_tag = filenames_server[:10][::3]
+        self.api_workflow_client.create_tag_from_filenames(filenames_new_tag, new_tag_name="funny_new_tag")
+
+    def test_create_tag_from_filenames(self):
+        filenames_server = self.api_workflow_client.get_filenames()
+        filenames_new_tag = filenames_server[:10][::3]
+        filenames_new_tag[0] = 'some-random-non-existing-filename.jpg'
+        with self.assertRaises(RuntimeError):
+            self.api_workflow_client.create_tag_from_filenames(filenames_new_tag, new_tag_name="funny_new_tag")
 
 
 
