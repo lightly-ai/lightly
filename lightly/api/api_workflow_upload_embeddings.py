@@ -12,7 +12,7 @@ from lightly.openapi_generated.swagger_client.models.dataset_embedding_data \
     import DatasetEmbeddingData
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data \
     import WriteCSVUrlData
-from lightly.utils.io import check_filenames
+from lightly.utils.io import check_filenames, check_embeddings
 
 
 class EmbeddingDoesNotExistError(ValueError):
@@ -88,7 +88,7 @@ class _UploadEmbeddingsMixin:
     def upload_embeddings(self, path_to_embeddings_csv: str, name: str):
         """Uploads embeddings to the server.
 
-        First checks that the specified embedding name is not on ther server. If it is, the upload is aborted.
+        First checks that the specified embedding name is not on the server. If it is, the upload is aborted.
         Then creates a new csv with the embeddings in the order specified on the server. Next it uploads it to the server.
         The received embedding_id is saved as a property of self.
 
@@ -100,6 +100,7 @@ class _UploadEmbeddingsMixin:
                 the upload is aborted.
 
         """
+        check_embeddings(path_to_embeddings_csv, remove_additional_columns=True)
 
         # Try to append the embeddings on the server, if they exist
         try:

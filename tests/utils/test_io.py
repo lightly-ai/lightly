@@ -1,3 +1,4 @@
+import csv
 import sys
 import tempfile
 import unittest
@@ -80,3 +81,23 @@ class TestEmbeddingsIO(unittest.TestCase):
         with self.assertRaises(RuntimeError) as context:
             check_embeddings(self.embeddings_path)
         self.assertTrue('must not have empty rows' in str(context.exception))
+
+    def test_embeddings_extra_rows(self):
+        rows = [
+            ['filenames', 'embedding_0', 'embedding_1', 'labels', 'selected',
+             'masked'],
+            ['image_0.jpg', '3.4', '0.23', '0', '1', '0'],
+            ['image_1.jpg', '3.4', '0.23', '1', '0', '1']
+        ]
+        with open(self.embeddings_path, 'w') as f:
+            csv_writer = csv.writer(f)
+            csv_writer.writerows(rows)
+
+        check_embeddings(self.embeddings_path, remove_additional_columns=True)
+
+        with open(self.embeddings_path) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            for row_read, row_original in zip(csv_reader, rows):
+                self.assertListEqual(row_read, row_original[:-2])
+
+
