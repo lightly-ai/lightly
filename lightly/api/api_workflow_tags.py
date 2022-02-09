@@ -113,13 +113,12 @@ class _TagsMixin:
         # get list of filenames from tag
         fnames_server = self.get_filenames()
 
-        # create new bitmask 
-        bitmask = BitMask(tot_size)
-        for i, fname_server in enumerate(fnames_server):
-            bitmask.unset_kth_bit(i)
-            if fname_server in fnames_new_tag:
+        # create new bitmask for the new tag
+        bitmask = BitMask(0)
+        fnames_new_tag = set(fnames_new_tag)
+        for i, fname in enumerate(fnames_server):
+            if fname in fnames_new_tag:
                 bitmask.set_kth_bit(i)
-
         
         # quick sanity check
         num_selected_samples = len(bitmask.to_indices())
