@@ -64,7 +64,8 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1 # optional, increase to create multiple runs and report mean + std
-batch_sizes = [128, 512]
+batch_size = 128
+lr_factor = batch_size / 128 # scales the learning rate linearly with batch size
 
 # use a GPU if available
 gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
@@ -72,7 +73,7 @@ gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
 if distributed:
     distributed_backend = 'ddp'
     # reduce batch size for distributed training
-    batch_sizes = [size // gpus for size in batch_sizes]
+    batch_size = batch_size // gpus
 else:
     distributed_backend = None
     # limit to single gpu if not using distributed training
@@ -244,7 +245,7 @@ class MocoModel(BenchmarkModule):
         params = list(self.backbone.parameters()) + list(self.projection_head.parameters())
         optim = torch.optim.SGD(
             params, 
-            lr=6e-2,
+            lr=6e-2 * lr_factor,
             momentum=0.9, 
             weight_decay=5e-4,
         )
@@ -280,7 +281,7 @@ class SimCLRModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.SGD(
             self.parameters(), 
-            lr=6e-2,
+            lr=6e-2 * lr_factor,
             momentum=0.9, 
             weight_decay=5e-4
         )
@@ -333,7 +334,7 @@ class SimSiamModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.SGD(
             self.parameters(), 
-            lr=6e-2,
+            lr=6e-2 * lr_factor,
             momentum=0.9, 
             weight_decay=5e-4
         )
@@ -383,7 +384,7 @@ class BarlowTwinsModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.SGD(
             self.parameters(), 
-            lr=6e-2,
+            lr=6e-2 * lr_factor,
             momentum=0.9, 
             weight_decay=5e-4
         )
@@ -442,7 +443,7 @@ class BYOLModel(BenchmarkModule):
             + list(self.prediction_head.parameters())
         optim = torch.optim.SGD(
             params, 
-            lr=6e-2,
+            lr=6e-2 * lr_factor,
             momentum=0.9, 
             weight_decay=5e-4,
         )
@@ -496,7 +497,7 @@ class SwaVModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.Adam(
             self.parameters(),
-            lr=1e-3,
+            lr=1e-3 * lr_factor,
             weight_decay=1e-6,
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
@@ -551,7 +552,7 @@ class NNCLRModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.SGD(
             self.parameters(), 
-            lr=6e-2,
+            lr=6e-2 * lr_factor,
             momentum=0.9, 
             weight_decay=5e-4,
         )
@@ -613,7 +614,7 @@ class DINOModel(BenchmarkModule):
             + list(self.head.parameters())
         optim = torch.optim.SGD(
             param,
-            lr=6e-2,
+            lr=6e-2 * lr_factor,
             momentum=0.9,
             weight_decay=5e-4,
         )
@@ -633,49 +634,48 @@ models = [
 bench_results = dict()
 
 # loop through configurations and train models
-for batch_size in batch_sizes:
-    for BenchmarkModel in models:
-        runs = []
-        model_name = BenchmarkModel.__name__
-        for seed in range(n_runs):
-            pl.seed_everything(seed)
-            dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(
-                batch_size=batch_size, 
-                model=BenchmarkModel,
-            )
-            benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
+for BenchmarkModel in models:
+    runs = []
+    model_name = BenchmarkModel.__name__.replace('Model', '')
+    for seed in range(n_runs):
+        pl.seed_everything(seed)
+        dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(
+            batch_size=batch_size, 
+            model=BenchmarkModel,
+        )
+        benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
 
-            logger = TensorBoardLogger('cifar10_runs', version=model_name)
+        logger = TensorBoardLogger('cifar10_runs', version=model_name)
 
-            trainer = pl.Trainer(
-                max_epochs=max_epochs, 
-                gpus=gpus,
-                default_root_dir=logs_root_dir,
-                strategy=distributed_backend,
-                sync_batchnorm=sync_batchnorm,
-            )
-            start = time.time()
-            trainer.fit(
-                benchmark_model,
-                train_dataloaders=dataloader_train_ssl,
-                val_dataloaders=dataloader_test
-            )
-            end = time.time()
-            run = {
-                'seed': seed,
-                'runtime': end - start,
-                'max_accuracy': benchmark_model.max_accuracy,
-                'gpu_memory_usage': torch.cuda.max_memory_allocated(),
-            }
-            runs.append(run)
+        trainer = pl.Trainer(
+            max_epochs=max_epochs, 
+            gpus=gpus,
+            default_root_dir=logs_root_dir,
+            strategy=distributed_backend,
+            sync_batchnorm=sync_batchnorm,
+        )
+        start = time.time()
+        trainer.fit(
+            benchmark_model,
+            train_dataloaders=dataloader_train_ssl,
+            val_dataloaders=dataloader_test
+        )
+        end = time.time()
+        run = {
+            'seed': seed,
+            'runtime': end - start,
+            'max_accuracy': benchmark_model.max_accuracy,
+            'gpu_memory_usage': torch.cuda.max_memory_allocated(),
+        }
+        runs.append(run)
 
-            # delete model and trainer + free up cuda memory
-            del benchmark_model
-            del trainer
-            torch.cuda.reset_peak_memory_stats()
-            torch.cuda.empty_cache()
-        
-        bench_results[(model_name, batch_size)] = runs
+        # delete model and trainer + free up cuda memory
+        del benchmark_model
+        del trainer
+        torch.cuda.reset_peak_memory_stats()
+        torch.cuda.empty_cache()
+    
+    bench_results[model_name] = runs
 
 # print results table
 header = (
@@ -685,8 +685,7 @@ header = (
 print('-' * len(header))
 print(header)
 print('-' * len(header))
-for (model, batch_size), results in bench_results.items():
-    model = model.replace('Model', '')
+for model, results in bench_results.items():
     runtime = np.array([result['runtime'] for result in results])
     runtime = runtime.mean() // 60 # convert to min
     accuracy = np.array([result['max_accuracy'] for result in results])
