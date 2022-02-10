@@ -79,9 +79,13 @@ def _upload_cli(cfg, is_cli_call=True):
         with open(path_to_custom_metadata, 'r') as f:
             custom_metadata = json.load(f)
 
-    # determine the number of available cores
+    # set the number of workers if unset
     if cfg['loader']['num_workers'] < 0:
-        cfg['loader']['num_workers'] = cpu_count()
+        # set the number of workers to the number of CPUs available,
+        # but minimum of 8
+        num_workers = max(8, cpu_count())
+        num_workers = min(32, num_workers)
+        cfg['loader']['num_workers'] = num_workers
 
     size = cfg['resize']
     if not isinstance(size, int):
