@@ -671,6 +671,7 @@ for BenchmarkModel in models:
             'seed': seed,
         }
         runs.append(run)
+        print(run)
 
         # delete model and trainer + free up cuda memory
         del benchmark_model
