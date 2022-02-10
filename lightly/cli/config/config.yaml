@@ -67,7 +67,9 @@ collate:
 loader:
   batch_size: 16              # Batch size for training / inference.
   shuffle: True               # Whether to reshuffle data each epoch.
-  num_workers: -1             # Number of workers pre-fetching batches (-1 == number of available cores, minimum of 8 for upload).
+  num_workers: -1             # Number of workers pre-fetching batches.
+                              # -1 == number of available cores,
+                              # if -1, minimum of 8, maximum of 32 workers for upload.
   drop_last: True             # Wether to drop the last batch during training.
 
 # trainer namespace: Passed to pytorch_lightning.Trainer.

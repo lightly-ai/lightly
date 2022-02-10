@@ -83,7 +83,9 @@ def _upload_cli(cfg, is_cli_call=True):
     if cfg['loader']['num_workers'] < 0:
         # set the number of workers to the number of CPUs available,
         # but minimum of 8
-        cfg['loader']['num_workers'] = max(8, cpu_count())
+        num_workers = max(8, cpu_count())
+        num_workers = min(32, num_workers)
+        cfg['loader']['num_workers'] = num_workers
 
     size = cfg['resize']
     if not isinstance(size, int):
