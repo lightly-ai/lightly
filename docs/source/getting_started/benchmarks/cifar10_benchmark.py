@@ -662,10 +662,13 @@ for BenchmarkModel in models:
         )
         end = time.time()
         run = {
-            'seed': seed,
-            'runtime': end - start,
+            'model': model_name,
+            'batch_size': batch_size,
+            'epochs': max_epochs,
             'max_accuracy': benchmark_model.max_accuracy,
+            'runtime': end - start,
             'gpu_memory_usage': torch.cuda.max_memory_allocated(),
+            'seed': seed,
         }
         runs.append(run)
 
