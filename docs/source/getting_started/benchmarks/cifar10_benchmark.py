@@ -33,20 +33,17 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchvision
-from lightly.data.collate import DINOCollateFunction
 from lightly.models import modules
 from lightly.models.modules import heads
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
 
-num_workers = 8
-memory_bank_size = 4096
-
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
 max_epochs = 200
+num_workers = 8
 knn_k = 200
 knn_t = 0.1
 classes = 10
@@ -678,16 +675,33 @@ for batch_size in batch_sizes:
             torch.cuda.reset_peak_memory_stats()
             torch.cuda.empty_cache()
         
-        bench_results[model_name] = runs
+        bench_results[(model_name, batch_size)] = runs
 
-for model, results in bench_results.items():
+# print results table
+header = (
+    f"| {'Model':<13} | {'Batch Size':>10} | {'Epochs':>6} "
+    f"| {'Test Accuracy':>14} | {'Time':>10} | {'Peak GPU Usage':>14} |"
+)
+print('-' * len(header))
+print(header)
+print('-' * len(header))
+for (model, batch_size), results in bench_results.items():
+    model = model.replace('Model', '')
     runtime = np.array([result['runtime'] for result in results])
+    runtime = runtime.mean() // 60 # convert to min
     accuracy = np.array([result['max_accuracy'] for result in results])
     gpu_memory_usage = np.array([result['gpu_memory_usage'] for result in results])
+    gpu_memory_usage = gpu_memory_usage.max() / (1024**3) # convert to gbyte
+
+    if len(accuracy) > 1:
+        accuracy_msg = f"{accuracy.mean():>4.3f} +- {accuracy.std():>4.3f}"
+    else:
+        accuracy_msg = f"{accuracy.mean():>14.3f}"
 
     print(
-        f'{model}: {accuracy.mean():.3f} +- {accuracy.std():.3f}'
-        f', GPU used: {gpu_memory_usage.max() / (1024.0**3):.1f} GByte'
-        f', Time: {runtime.mean() // 60} min',
+        f"| {model:<13} | {batch_size:>10} | {max_epochs:>6} "
+        f"| {accuracy_msg} | {runtime:>6.1f} Min "
+        f"| {gpu_memory_usage:>8.1f} GByte |",
         flush=True
     )
+print('-' * len(header))
