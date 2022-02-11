@@ -684,22 +684,22 @@ for BenchmarkModel in models:
 # print results table
 header = (
     f"| {'Model':<13} | {'Batch Size':>10} | {'Epochs':>6} "
-    f"| {'Test Accuracy':>14} | {'Time':>10} | {'Peak GPU Usage':>14} |"
+    f"| {'KNN Test Accuracy':>18} | {'Time':>10} | {'Peak GPU Usage':>14} |"
 )
 print('-' * len(header))
 print(header)
 print('-' * len(header))
 for model, results in bench_results.items():
     runtime = np.array([result['runtime'] for result in results])
-    runtime = runtime.mean() // 60 # convert to min
+    runtime = runtime.mean() / 60 # convert to min
     accuracy = np.array([result['max_accuracy'] for result in results])
     gpu_memory_usage = np.array([result['gpu_memory_usage'] for result in results])
     gpu_memory_usage = gpu_memory_usage.max() / (1024**3) # convert to gbyte
 
     if len(accuracy) > 1:
-        accuracy_msg = f"{accuracy.mean():>4.3f} +- {accuracy.std():>4.3f}"
+        accuracy_msg = f"{accuracy.mean():>8.3f} +- {accuracy.std():>4.3f}"
     else:
-        accuracy_msg = f"{accuracy.mean():>14.3f}"
+        accuracy_msg = f"{accuracy.mean():>18.3f}"
 
     print(
         f"| {model:<13} | {batch_size:>10} | {max_epochs:>6} "
