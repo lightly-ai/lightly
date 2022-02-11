@@ -50,7 +50,7 @@ The Lightly Platform is built around datasets, tags, embeddings, samples and the
 Learn more about the different concepts in our `Glossary <https://app.lightly.ai/glossary>`_.
 
 
-
+.. _platform-create-dataset:
 
 Create a Dataset from a local folder or cloud bucket
 ------------------------------------------------------
