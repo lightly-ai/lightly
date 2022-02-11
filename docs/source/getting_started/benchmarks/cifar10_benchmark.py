@@ -111,17 +111,19 @@ collate_fn = lightly.data.SimCLRCollateFunction(
     gaussian_blur=0.,
 )
 
-# Multi crop augmentation for SwAV
+# Multi crop augmentation for SwAV, additionally, disable blur for cifar10
 swav_collate_fn = lightly.data.SwaVCollateFunction(
     crop_sizes=[32],
     crop_counts=[2], # 2 crops @ 32x32px
-    crop_min_scales=[0.14]
+    crop_min_scales=[0.14],
+    gaussian_blur=0,
 )
 
-# Multi crop augmentation for DINO
+# Multi crop augmentation for DINO, additionally, disable blur for cifar10
 dino_collate_fn = lightly.data.DINOCollateFunction(
     global_crop_size=32,
     n_local_views=0,
+    gaussian_blur=(0, 0, 0),
 )
 
 # No additional augmentations for the test set
@@ -334,8 +336,8 @@ class SimSiamModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.SGD(
             self.parameters(), 
-            lr=6e-2 * lr_factor,
-            momentum=0.9, 
+            lr=6e-2, # no lr-scaling, results in better training stability
+            momentum=0.9,
             weight_decay=5e-4
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
