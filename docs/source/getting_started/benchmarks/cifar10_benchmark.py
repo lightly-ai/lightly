@@ -1,26 +1,41 @@
 # -*- coding: utf-8 -*-
 """
+Benchmark Results
+
+Updated: 14.02.2022 (6618fa3c36b0c9f3a9d7a21bcdb00bf4fd258ee8))
+
+------------------------------------------------------------------------------------------
+| Model         | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
+------------------------------------------------------------------------------------------
+| BarlowTwins   |        128 |    200 |              0.835 |  193.4 Min |      2.2 GByte |
+| BYOL          |        128 |    200 |              0.872 |  217.0 Min |      2.3 GByte |
+| DINO          |        128 |    200 |              0.868 |  220.7 Min |      2.3 GByte |
+| Moco          |        128 |    200 |              0.838 |  229.5 Min |      2.3 GByte |
+| NNCLR         |        128 |    200 |              0.838 |  198.7 Min |      2.2 GByte |
+| SimCLR        |        128 |    200 |              0.822 |  182.7 Min |      2.2 GByte |
+| SimSiam       |        128 |    200 |              0.779 |  182.6 Min |      2.3 GByte |
+| SwaV          |        128 |    200 |              0.806 |  182.4 Min |      2.2 GByte |
+------------------------------------------------------------------------------------------
+| BarlowTwins   |        512 |    200 |              0.827 |  160.7 Min |      7.5 GByte |
+| BYOL          |        512 |    200 |              0.872 |  188.5 Min |      7.7 GByte |
+| DINO          |        512 |    200 |              0.862 |  191.1 Min |      7.5 GByte |
+| Moco (1)      |        512 |    200 |              0.850 |  196.8 Min |      7.8 GByte |
+| NNCLR (1)     |        512 |    200 |              0.836 |  164.7 Min |      7.6 GByte |
+| SimCLR        |        512 |    200 |              0.828 |  158.2 Min |      7.5 GByte |
+| SimSiam       |        512 |    200 |              0.814 |  159.0 Min |      7.6 GByte |
+| SwaV          |        512 |    200 |              0.833 |  158.4 Min |      7.5 GByte |
+------------------------------------------------------------------------------------------
+
+(1): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
+changing memory bank due to larger batch size.
+
+The benchmarks were created on a single NVIDIA RTX A6000.
 
 Note that this benchmark also supports a multi-GPU setup. If you run it on
 a system with multiple GPUs make sure that you kill all the processes when
 killing the application. Due to the way we setup this benchmark the distributed
 processes might continue the benchmark if one of the nodes is killed.
 If you know how to fix this don't hesitate to create an issue or PR :)
-
-
-Code to reproduce the benchmark results:
-
-| Model   | Epochs | Batch Size | Test Accuracy | Peak GPU usage |
-|---------|--------|------------|---------------|----------------|
-| MoCo    |  200   | 128        | 0.83          | 2.1 GBytes     |
-| SimCLR  |  200   | 128        | 0.78          | 2.0 GBytes     |
-| SimSiam |  200   | 128        | 0.73          | 3.0 GBytes     |
-| MoCo    |  200   | 512        | 0.85          | 7.4 GBytes     |
-| SimCLR  |  200   | 512        | 0.83          | 7.8 GBytes     |
-| SimSiam |  200   | 512        | 0.81          | 7.0 GBytes     |
-| MoCo    |  800   | 512        | 0.90          | 7.2 GBytes     |
-| SimCLR  |  800   | 512        | 0.89          | 7.7 GBytes     |
-| SimSiam |  800   | 512        | 0.91          | 6.9 GBytes     |
 
 """
 import copy
