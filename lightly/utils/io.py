@@ -36,7 +36,7 @@ def check_filenames(filenames: List[str]):
         raise ValueError(f'Invalid filename(s): {invalid_filenames}')
 
 
-def check_embeddings(path: str):
+def check_embeddings(path: str, remove_additional_columns: bool=False):
     """Raises an error if the embeddings csv file has not the correct format
     
     Use this check whenever you want to upload an embedding to the Lightly 
@@ -47,11 +47,14 @@ def check_embeddings(path: str):
     Args:
         path:
             Path to the embedding csv file
+        remove_additional_columns:
+            If True, all additional columns
+            which are not in {filenames, embeddings_x, labels} are removed.
+            If false, they are kept unchanged.
 
     Raises:
         RuntimeError
     """
-    header = []
     with open(path, 'r', newline='') as csv_file:
         reader = csv.reader(csv_file, delimiter=',')
         header: List[str] = next(reader)
@@ -90,6 +93,18 @@ def check_embeddings(path: str):
                     f'Embeddings csv file must not have empty rows. '
                     f'Found empty row on line {i}.'
                     )
+
+    if remove_additional_columns:
+        new_rows = []
+        with open(path, 'r', newline='') as csv_file:
+            reader = csv.reader(csv_file, delimiter=',')
+            for row in reader:
+                row = row[:header_labels_idx+1]
+                new_rows.append(row)
+        with open(path, 'w', newline='') as csv_file:
+            writer = csv.writer(csv_file, delimiter=',')
+            writer.writerows(new_rows)
+
 
 def save_embeddings(path: str,
                     embeddings: np.ndarray,
