@@ -269,9 +269,8 @@ class VideoDataset(datasets.VisionDataset):
 
         self.extensions = extensions
 
-        backend = torchvision.get_video_backend()
-        self.video_loaders = \
-            [VideoLoader(video, timestamps, backend=backend) for video, timestamps in zip(videos, video_timestamps)]
+        self.backend = torchvision.get_video_backend()
+        self.video_loaders = [None] * len(videos)
 
         self.videos = videos
         self.video_timestamps = video_timestamps
@@ -328,7 +327,13 @@ class VideoDataset(datasets.VisionDataset):
         # find and return the frame as PIL image
         timestamp_idx = index - self.offsets[i]
         frame_timestamp = self.video_timestamps[i][timestamp_idx]
-        sample = self.video_loaders[i].read_frame(frame_timestamp)
+        video_loader = self.video_loaders[i]
+        if video_loader is None:
+            video = self.videos[i]
+            timestamps = self.video_timestamps[i]
+            video_loader = VideoLoader(video, timestamps, backend=self.backend)
+            self.video_loaders[i] = video_loader
+        sample = video_loader.read_frame(frame_timestamp)
 
         target = i
         if self.transform is not None:
