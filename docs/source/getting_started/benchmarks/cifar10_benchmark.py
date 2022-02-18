@@ -2,7 +2,7 @@
 """
 Benchmark Results
 
-Updated: 14.02.2022 (6618fa3c36b0c9f3a9d7a21bcdb00bf4fd258ee8))
+Updated: 18.02.2022 (6618fa3c36b0c9f3a9d7a21bcdb00bf4fd258ee8))
 
 ------------------------------------------------------------------------------------------
 | Model         | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
@@ -19,14 +19,23 @@ Updated: 14.02.2022 (6618fa3c36b0c9f3a9d7a21bcdb00bf4fd258ee8))
 | BarlowTwins   |        512 |    200 |              0.827 |  160.7 Min |      7.5 GByte |
 | BYOL          |        512 |    200 |              0.872 |  188.5 Min |      7.7 GByte |
 | DINO          |        512 |    200 |              0.862 |  191.1 Min |      7.5 GByte |
-| Moco (1)      |        512 |    200 |              0.850 |  196.8 Min |      7.8 GByte |
-| NNCLR (1)     |        512 |    200 |              0.836 |  164.7 Min |      7.6 GByte |
+| Moco (*)      |        512 |    200 |              0.850 |  196.8 Min |      7.8 GByte |
+| NNCLR (*)     |        512 |    200 |              0.836 |  164.7 Min |      7.6 GByte |
 | SimCLR        |        512 |    200 |              0.828 |  158.2 Min |      7.5 GByte |
 | SimSiam       |        512 |    200 |              0.814 |  159.0 Min |      7.6 GByte |
 | SwaV          |        512 |    200 |              0.833 |  158.4 Min |      7.5 GByte |
 ------------------------------------------------------------------------------------------
+| BarlowTwins   |        512 |    800 |              0.857 |  641.5 Min |      7.5 GByte |
+| BYOL          |        512 |    800 |              0.911 |  754.2 Min |      7.8 GByte |
+| DINO          |        512 |    800 |              0.884 |  765.5 Min |      7.6 GByte |
+| Moco (*)      |        512 |    800 |              0.900 |  787.7 Min |      7.8 GByte |
+| NNCLR (*)     |        512 |    800 |              0.896 |  659.2 Min |      7.6 GByte |
+| SimCLR        |        512 |    800 |              0.875 |  632.5 Min |      7.5 GByte |
+| SimSiam       |        512 |    800 |              0.906 |  636.5 Min |      7.6 GByte |
+| SwaV          |        512 |    800 |              0.881 |  634.9 Min |      7.5 GByte |
+------------------------------------------------------------------------------------------
 
-(1): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
+(*): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
 changing memory bank due to larger batch size.
 
 The benchmarks were created on a single NVIDIA RTX A6000.
