@@ -25,6 +25,27 @@ except ImportError:
 if io._HAS_VIDEO_OPT:
     torchvision.set_video_backend('video_reader')
 
+# @guarin 18.02.2022
+# VideoLoader and VideoDataset multi-thread and multi-processing infos
+# --------------------------------------------------------------------
+# The VideoDataset class should be safe to use in multi-thread and 
+# multi-processing settings. For the multi-processing setting it is assumed that
+# a pytorch DataLoader is used. Multi-threading should not be use with the
+# torchvision pyav video packend as pyav seems to be limited to a single thread.
+# You will not see any speedups when using it from multiple threads!
+# 
+# The VideoLoader class is thread safe because it inherits from threading.local.
+# When using it within a pytorch DataLoader a new instance should be created 
+# in each process when using the torchvision video_reader backend, otherwise
+# decoder errors can happen when iterating multiple times over the dataloader.
+# This is specific to the video_reader backend and does not happen with the pyav
+# backend.
+# 
+# In the VideoDataset class we avoid sharing VideoLoader instances between 
+# workers by tracking the worker accessing the dataset. All VideoLoaders are 
+# reset if a new worker accesses the dataset. Note that changes to the dataset 
+# class by a worker are unique to that worker and not seen by other workers or 
+# the main process.
 
 class VideoLoader(threading.local):
     """Implementation of VideoLoader.
@@ -270,9 +291,15 @@ class VideoDataset(datasets.VisionDataset):
             raise RuntimeError(msg)
 
         self.extensions = extensions
-
         self.backend = torchvision.get_video_backend()
-        self.video_loaders = [None] * len(videos)
+
+        # Create initial set of video loaders which will be shared among
+        # threads. When used with a dataloader a new video_loaders list will be
+        # created in every worker process.
+        self.video_loaders = [
+            VideoLoader(video, timestamps, backend=self.backend) 
+            for video, timestamps in zip(videos, video_timestamps)
+        ]
 
         self.videos = videos
         self.video_timestamps = video_timestamps
@@ -463,6 +490,7 @@ class VideoDataset(datasets.VisionDataset):
             # by different workers across epochs.
             worker_ref = weakref.ref(worker_info)
             if worker_ref != self._worker_ref:
+                print(f'changing worker_ref {self._worker_ref} -> {worker_ref}')
                 self._worker_ref = worker_ref
                 # Initialize empty video loaders for this worker.
                 # Note that changes to self.video_loaders are not propagated
