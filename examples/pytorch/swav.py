@@ -57,6 +57,7 @@ print("Starting Training")
 for epoch in range(10):
     total_loss = 0
     for batch, _, _ in dataloader:
+        model.prototypes.normalize()
         multi_crop_features = [model(x.to(device)) for x in batch]
         high_resolution = multi_crop_features[:2]
         low_resolution = multi_crop_features[2:]

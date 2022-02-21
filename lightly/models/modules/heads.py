@@ -259,6 +259,10 @@ class SwaVPrototypes(ProjectionHead):
         super(SwaVPrototypes, self).__init__([])
         self.layers = nn.Linear(input_dim, n_prototypes, bias=False)
 
+    def normalize(self):
+        """Normalizes the prototypes so that they are on the unit sphere."""
+        utils.normalize_weight(self.layers.weight)
+
 
 class DINOProjectionHead(ProjectionHead):
     """Projection head used in DINO.
