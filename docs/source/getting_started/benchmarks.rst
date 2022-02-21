@@ -55,9 +55,11 @@ augmentation due to the small image sizes.
           stride and no `MaxPool2d`. This is a typical variation used for cifar10
           benchmarks of SSL methods.
 
+.. role:: raw-html(raw)
+   :format: html
 
-.. csv-table:: Cifar10 benchmark results 
-  :header: "Model", "Epochs", "Batch Size", "kNN test Accuracy", "Runtime", "Peak GPU consumption"
+.. csv-table:: Cifar10 benchmark results showing kNN test accuracy, runtime and peak GPU memory consumption for different training setups.
+  :header: "Model", "Epochs", "Batch Size", "Accuracy", "Runtime", "Memory"
   :widths: 20, 20, 20, 20, 20, 20
 
   "BarlowTwins", 200, 128, 0.835, "193.4 Min", "2.2 GByte"
@@ -85,6 +87,7 @@ augmentation due to the small image sizes.
   "SimSiam", 800, 512, 0.906, "636.5 Min", "7.6 GByte"
   "SwaV", 800, 512, 0.881, "634.9 Min", "7.5 GByte"
 
+
 (*): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
 changing memory bank due to larger batch size.
 
@@ -96,8 +99,8 @@ We make the following observations running the benchmark:
 - Memory consumption is roughly the same for all models.
 - Some models, like MoCo or SwaV, learn quickly in the beginning and then 
   plateau. Other models, like SimSiam or NNCLR, take longer to warm up but then
-  catch up when training for 800 epochs. This is also clearly seen in the figure
-  below.
+  catch up when training for 800 epochs. This can also be seen in the 
+  figure below.
   
 
 .. figure:: images/cifar10_benchmark_knn_accuracy_800_epochs.png
