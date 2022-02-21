@@ -659,6 +659,7 @@ models = [
 ]
 bench_results = dict()
 
+experiment_version = None
 # loop through configurations and train models
 for BenchmarkModel in models:
     runs = []
@@ -671,14 +672,29 @@ for BenchmarkModel in models:
         )
         benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
 
-        logger = TensorBoardLogger('cifar10_runs', version=model_name)
-
+        # Save logs to: {CWD}/benchmark_logs/cifar10/{experiment_version}/{model_name}/
+        # If multiple runs are specified a subdirectory for each run is created.
+        sub_dir = model_name if n_runs <= 1 else f'{model_name}/run{seed}'
+        logger = TensorBoardLogger(
+            save_dir=os.path.join(logs_root_dir, 'cifar10'),
+            name='',
+            sub_dir=sub_dir,
+            version=experiment_version,
+        )
+        if experiment_version is None:
+            # Save results of all models under same version directory
+            experiment_version = logger.version
+        checkpoint_callback = pl.callbacks.ModelCheckpoint(
+            dirpath=os.path.join(logger.log_dir, 'checkpoints')
+        )
         trainer = pl.Trainer(
             max_epochs=max_epochs, 
             gpus=gpus,
             default_root_dir=logs_root_dir,
             strategy=distributed_backend,
             sync_batchnorm=sync_batchnorm,
+            logger=logger,
+            callbacks=[checkpoint_callback]
         )
         start = time.time()
         trainer.fit(
