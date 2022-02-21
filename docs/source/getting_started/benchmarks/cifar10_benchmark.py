@@ -1,26 +1,50 @@
 # -*- coding: utf-8 -*-
 """
+Benchmark Results
+
+Updated: 18.02.2022 (6618fa3c36b0c9f3a9d7a21bcdb00bf4fd258ee8))
+
+------------------------------------------------------------------------------------------
+| Model         | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
+------------------------------------------------------------------------------------------
+| BarlowTwins   |        128 |    200 |              0.835 |  193.4 Min |      2.2 GByte |
+| BYOL          |        128 |    200 |              0.872 |  217.0 Min |      2.3 GByte |
+| DINO          |        128 |    200 |              0.868 |  220.7 Min |      2.3 GByte |
+| Moco          |        128 |    200 |              0.838 |  229.5 Min |      2.3 GByte |
+| NNCLR         |        128 |    200 |              0.838 |  198.7 Min |      2.2 GByte |
+| SimCLR        |        128 |    200 |              0.822 |  182.7 Min |      2.2 GByte |
+| SimSiam       |        128 |    200 |              0.779 |  182.6 Min |      2.3 GByte |
+| SwaV          |        128 |    200 |              0.806 |  182.4 Min |      2.2 GByte |
+------------------------------------------------------------------------------------------
+| BarlowTwins   |        512 |    200 |              0.827 |  160.7 Min |      7.5 GByte |
+| BYOL          |        512 |    200 |              0.872 |  188.5 Min |      7.7 GByte |
+| DINO          |        512 |    200 |              0.862 |  191.1 Min |      7.5 GByte |
+| Moco (*)      |        512 |    200 |              0.850 |  196.8 Min |      7.8 GByte |
+| NNCLR (*)     |        512 |    200 |              0.836 |  164.7 Min |      7.6 GByte |
+| SimCLR        |        512 |    200 |              0.828 |  158.2 Min |      7.5 GByte |
+| SimSiam       |        512 |    200 |              0.814 |  159.0 Min |      7.6 GByte |
+| SwaV          |        512 |    200 |              0.833 |  158.4 Min |      7.5 GByte |
+------------------------------------------------------------------------------------------
+| BarlowTwins   |        512 |    800 |              0.857 |  641.5 Min |      7.5 GByte |
+| BYOL          |        512 |    800 |              0.911 |  754.2 Min |      7.8 GByte |
+| DINO          |        512 |    800 |              0.884 |  765.5 Min |      7.6 GByte |
+| Moco (*)      |        512 |    800 |              0.900 |  787.7 Min |      7.8 GByte |
+| NNCLR (*)     |        512 |    800 |              0.896 |  659.2 Min |      7.6 GByte |
+| SimCLR        |        512 |    800 |              0.875 |  632.5 Min |      7.5 GByte |
+| SimSiam       |        512 |    800 |              0.906 |  636.5 Min |      7.6 GByte |
+| SwaV          |        512 |    800 |              0.881 |  634.9 Min |      7.5 GByte |
+------------------------------------------------------------------------------------------
+
+(*): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
+changing memory bank due to larger batch size.
+
+The benchmarks were created on a single NVIDIA RTX A6000.
 
 Note that this benchmark also supports a multi-GPU setup. If you run it on
 a system with multiple GPUs make sure that you kill all the processes when
 killing the application. Due to the way we setup this benchmark the distributed
 processes might continue the benchmark if one of the nodes is killed.
 If you know how to fix this don't hesitate to create an issue or PR :)
-
-
-Code to reproduce the benchmark results:
-
-| Model   | Epochs | Batch Size | Test Accuracy | Peak GPU usage |
-|---------|--------|------------|---------------|----------------|
-| MoCo    |  200   | 128        | 0.83          | 2.1 GBytes     |
-| SimCLR  |  200   | 128        | 0.78          | 2.0 GBytes     |
-| SimSiam |  200   | 128        | 0.73          | 3.0 GBytes     |
-| MoCo    |  200   | 512        | 0.85          | 7.4 GBytes     |
-| SimCLR  |  200   | 512        | 0.83          | 7.8 GBytes     |
-| SimSiam |  200   | 512        | 0.81          | 7.0 GBytes     |
-| MoCo    |  800   | 512        | 0.90          | 7.2 GBytes     |
-| SimCLR  |  800   | 512        | 0.89          | 7.7 GBytes     |
-| SimSiam |  800   | 512        | 0.91          | 6.9 GBytes     |
 
 """
 import copy
@@ -33,25 +57,17 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchvision
-from lightly.models.modules.heads import BYOLProjectionHead
-from lightly.models.modules.heads import MoCoProjectionHead
-from lightly.models.modules.heads import ProjectionHead
-from lightly.models.modules.heads import SwaVProjectionHead
-from lightly.models.modules.heads import SwaVPrototypes
-from lightly.models.utils import batch_shuffle
-from lightly.models.utils import batch_unshuffle
-from lightly.models.utils import deactivate_requires_grad
-from lightly.models.utils import update_momentum
+from lightly.models import modules
+from lightly.models.modules import heads
+from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
-
-num_workers = 8
-memory_bank_size = 4096
 
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
 max_epochs = 200
+num_workers = 8
 knn_k = 200
 knn_t = 0.1
 classes = 10
@@ -72,7 +88,8 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1 # optional, increase to create multiple runs and report mean + std
-batch_sizes = [128, 512]
+batch_size = 128
+lr_factor = batch_size / 128 # scales the learning rate linearly with batch size
 
 # use a GPU if available
 gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
@@ -80,7 +97,7 @@ gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
 if distributed:
     distributed_backend = 'ddp'
     # reduce batch size for distributed training
-    batch_sizes = [size // gpus for size in batch_sizes]
+    batch_size = batch_size // gpus
 else:
     distributed_backend = None
     # limit to single gpu if not using distributed training
@@ -118,11 +135,19 @@ collate_fn = lightly.data.SimCLRCollateFunction(
     gaussian_blur=0.,
 )
 
-# Multi crop augmentation for SwAV
+# Multi crop augmentation for SwAV, additionally, disable blur for cifar10
 swav_collate_fn = lightly.data.SwaVCollateFunction(
     crop_sizes=[32],
     crop_counts=[2], # 2 crops @ 32x32px
-    crop_min_scales=[0.14]
+    crop_min_scales=[0.14],
+    gaussian_blur=0,
+)
+
+# Multi crop augmentation for DINO, additionally, disable blur for cifar10
+dino_collate_fn = lightly.data.DINOCollateFunction(
+    global_crop_size=32,
+    n_local_views=0,
+    gaussian_blur=(0, 0, 0),
 )
 
 # No additional augmentations for the test set
@@ -149,17 +174,22 @@ dataset_test = lightly.data.LightlyDataset(
     transform=test_transforms
 )
 
-def get_data_loaders(batch_size: int, multi_crops: bool = False):
+def get_data_loaders(batch_size: int, model):
     """Helper method to create dataloaders for ssl, kNN train and kNN test
 
     Args:
         batch_size: Desired batch size for all dataloaders
     """
+    col_fn = collate_fn
+    if isinstance(model, SwaVModel):
+        col_fn = swav_collate_fn
+    elif isinstance(model, DINOModel):
+        col_fn = dino_collate_fn
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=collate_fn if not multi_crops else swav_collate_fn,
+        collate_fn=col_fn,
         drop_last=True,
         num_workers=num_workers
     )
@@ -195,16 +225,17 @@ class MocoModel(BenchmarkModule):
         )
 
         # create a moco model based on ResNet
-        self.projection_head = MoCoProjectionHead(512, 512, 128)
+        self.projection_head = heads.MoCoProjectionHead(512, 512, 128)
         self.backbone_momentum = copy.deepcopy(self.backbone)
         self.projection_head_momentum = copy.deepcopy(self.projection_head)
-        deactivate_requires_grad(self.backbone_momentum)
-        deactivate_requires_grad(self.projection_head_momentum)
+        utils.deactivate_requires_grad(self.backbone_momentum)
+        utils.deactivate_requires_grad(self.projection_head_momentum)
 
         # create our loss with the optional memory bank
         self.criterion = lightly.loss.NTXentLoss(
             temperature=0.1,
-            memory_bank_size=memory_bank_size)
+            memory_bank_size=4096,
+        )
             
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -214,17 +245,17 @@ class MocoModel(BenchmarkModule):
         (x0, x1), _, _ = batch
 
         # update momentum
-        update_momentum(self.backbone, self.backbone_momentum, 0.99)
-        update_momentum(self.projection_head, self.projection_head_momentum, 0.99)
+        utils.update_momentum(self.backbone, self.backbone_momentum, 0.99)
+        utils.update_momentum(self.projection_head, self.projection_head_momentum, 0.99)
 
         def step(x0_, x1_):
-            x1_, shuffle = batch_shuffle(x1_, distributed=distributed)
+            x1_, shuffle = utils.batch_shuffle(x1_, distributed=distributed)
             x0_ = self.backbone(x0_).flatten(start_dim=1)
             x0_ = self.projection_head(x0_)
 
             x1_ = self.backbone_momentum(x1_).flatten(start_dim=1)
             x1_ = self.projection_head_momentum(x1_)
-            x1_ = batch_unshuffle(x1_, shuffle, distributed=distributed)
+            x1_ = utils.batch_unshuffle(x1_, shuffle, distributed=distributed)
             return x0_, x1_
 
         # We use a symmetric loss (model trains faster at little compute overhead)
@@ -240,7 +271,7 @@ class MocoModel(BenchmarkModule):
         params = list(self.backbone.parameters()) + list(self.projection_head.parameters())
         optim = torch.optim.SGD(
             params, 
-            lr=6e-2,
+            lr=6e-2 * lr_factor,
             momentum=0.9, 
             weight_decay=5e-4,
         )
@@ -257,25 +288,26 @@ class SimCLRModel(BenchmarkModule):
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
         )
-        # create a simclr model based on ResNet
-        self.resnet_simclr = \
-            lightly.models.SimCLR(self.backbone, num_ftrs=512)
-        self.criterion = lightly.loss.NTXentLoss(gather_distributed=gather_distributed)
-            
-    def forward(self, x):
-        self.resnet_simclr(x)
+        self.projection_head = heads.SimCLRProjectionHead(512, 512, 128)
+        self.criterion = lightly.loss.NTXentLoss()
 
-    def training_step(self, batch, batch_idx):
+    def forward(self, x):
+        x = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(x)
+        return z
+
+    def training_step(self, batch, batch_index):
         (x0, x1), _, _ = batch
-        x0, x1 = self.resnet_simclr(x0, x1)
-        loss = self.criterion(x0, x1)
+        z0 = self.forward(x0)
+        z1 = self.forward(x1)
+        loss = self.criterion(z0, z1)
         self.log('train_loss_ssl', loss)
         return loss
 
     def configure_optimizers(self):
         optim = torch.optim.SGD(
-            self.resnet_simclr.parameters(), 
-            lr=6e-2,
+            self.parameters(), 
+            lr=6e-2 * lr_factor,
             momentum=0.9, 
             weight_decay=5e-4
         )
@@ -292,41 +324,44 @@ class SimSiamModel(BenchmarkModule):
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
         )
-        # create a simsiam model based on ResNet
-        self.resnet_simsiam = \
-            lightly.models.SimSiam(self.backbone, num_ftrs=512)
-        # replace the 3-layer projection head by a 2-layer projection head
-        self.resnet_simsiam.projection_mlp = ProjectionHead([
+        self.prediction_head = heads.SimSiamPredictionHead(2048, 512, 2048)
+        # use a 2-layer projection head for cifar10 as described in the paper
+        self.projection_head = heads.ProjectionHead([
             (
-                self.resnet_simsiam.num_ftrs,
-                self.resnet_simsiam.proj_hidden_dim,
-                nn.BatchNorm1d(self.resnet_simsiam.proj_hidden_dim),
+                512,
+                2048,
+                nn.BatchNorm1d(2048),
                 nn.ReLU(inplace=True)
             ),
             (
-                self.resnet_simsiam.proj_hidden_dim,
-                self.resnet_simsiam.out_dim,
-                nn.BatchNorm1d(self.resnet_simsiam.out_dim),
+                2048,
+                2048,
+                nn.BatchNorm1d(2048),
                 None
             )
         ])
-        self.criterion = lightly.loss.SymNegCosineSimilarityLoss()
+        self.criterion = lightly.loss.NegativeCosineSimilarity()
             
     def forward(self, x):
-        self.resnet_simsiam(x)
+        f = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(f)
+        p = self.prediction_head(z)
+        z = z.detach()
+        return z, p
 
     def training_step(self, batch, batch_idx):
         (x0, x1), _, _ = batch
-        x0, x1 = self.resnet_simsiam(x0, x1)
-        loss = self.criterion(x0, x1)
+        z0, p0 = self.forward(x0)
+        z1, p1 = self.forward(x1)
+        loss = 0.5 * (self.criterion(z0, p1) + self.criterion(z1, p0))
         self.log('train_loss_ssl', loss)
         return loss
 
     def configure_optimizers(self):
         optim = torch.optim.SGD(
-            self.resnet_simsiam.parameters(), 
-            lr=6e-2,
-            momentum=0.9, 
+            self.parameters(), 
+            lr=6e-2, # no lr-scaling, results in better training stability
+            momentum=0.9,
             weight_decay=5e-4
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
@@ -337,50 +372,45 @@ class BarlowTwinsModel(BenchmarkModule):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
         resnet = lightly.models.ResNetGenerator('resnet-18')
-        last_conv_channels = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
         )
-        # create a barlow twins model based on ResNet
-        self.resnet_barlowtwins = \
-            lightly.models.BarlowTwins(
-                self.backbone, 
-                num_ftrs=512,
-                proj_hidden_dim=2048,
-                out_dim=2048,
-            )
-        # replace the 3-layer projection head by a 2-layer projection head
-        self.resnet_barlowtwins.projection_mlp = ProjectionHead([
+        # use a 2-layer projection head for cifar10 as described in the paper
+        self.projection_head = heads.ProjectionHead([
             (
-                self.resnet_barlowtwins.num_ftrs,
-                self.resnet_barlowtwins.proj_hidden_dim,
-                nn.BatchNorm1d(self.resnet_barlowtwins.proj_hidden_dim),
+                512,
+                2048,
+                nn.BatchNorm1d(2048),
                 nn.ReLU(inplace=True)
             ),
             (
-                self.resnet_barlowtwins.proj_hidden_dim,
-                self.resnet_barlowtwins.out_dim,
+                2048,
+                2048,
                 None,
                 None
             )
         ])
+
         self.criterion = lightly.loss.BarlowTwinsLoss(gather_distributed=gather_distributed)
 
     def forward(self, x):
-        self.resnet_barlowtwins(x)
+        x = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(x)
+        return z
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch, batch_index):
         (x0, x1), _, _ = batch
-        x0, x1 = self.resnet_barlowtwins(x0, x1)
-        loss = self.criterion(x0, x1)
+        z0 = self.forward(x0)
+        z1 = self.forward(x1)
+        loss = self.criterion(z0, z1)
         self.log('train_loss_ssl', loss)
         return loss
 
     def configure_optimizers(self):
         optim = torch.optim.SGD(
-            self.resnet_barlowtwins.parameters(), 
-            lr=6e-2,
+            self.parameters(), 
+            lr=6e-2 * lr_factor,
             momentum=0.9, 
             weight_decay=5e-4
         )
@@ -398,41 +428,38 @@ class BYOLModel(BenchmarkModule):
         )
 
         # create a byol model based on ResNet
-        self.projection_head = BYOLProjectionHead(512, 1024, 256)
-        self.prediction_head = BYOLProjectionHead(256,1024,256)
+        self.projection_head = heads.BYOLProjectionHead(512, 1024, 256)
+        self.prediction_head = heads.BYOLProjectionHead(256, 1024, 256)
 
         self.backbone_momentum = copy.deepcopy(self.backbone)
         self.projection_head_momentum = copy.deepcopy(self.projection_head)
 
-        deactivate_requires_grad(self.backbone_momentum)
-        deactivate_requires_grad(self.projection_head_momentum)
+        utils.deactivate_requires_grad(self.backbone_momentum)
+        utils.deactivate_requires_grad(self.projection_head_momentum)
 
-        self.criterion = lightly.loss.SymNegCosineSimilarityLoss()
+        self.criterion = lightly.loss.NegativeCosineSimilarity()
 
     def forward(self, x):
-        x = self.backbone(x).flatten(start_dim=1)
-        return self.projection_head(x)
+        y = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(y)
+        p = self.prediction_head(z)
+        return p
+
+    def forward_momentum(self, x):
+        y = self.backbone_momentum(x).flatten(start_dim=1)
+        z = self.projection_head_momentum(y)
+        z = z.detach()
+        return z
 
     def training_step(self, batch, batch_idx):
+        utils.update_momentum(self.backbone, self.backbone_momentum, m=0.99)
+        utils.update_momentum(self.projection_head, self.projection_head_momentum, m=0.99)
         (x0, x1), _, _ = batch
-
-        # update momentum
-        update_momentum(self.backbone, self.backbone_momentum, 0.99)
-        update_momentum(self.projection_head, self.projection_head_momentum, 0.99)
-
-        def step(x0_, x1_):
-            x0_ = self.backbone(x0_).flatten(start_dim=1)
-            x0_ = self.projection_head(x0_)
-            x0_ = self.prediction_head(x0_)
-
-            x1_ = self.backbone_momentum(x1_).flatten(start_dim=1)
-            x1_ = self.projection_head_momentum(x1_)
-            return x0_, x1_
-
-        p0, z1 = step(x0, x1)
-        p1, z0 = step(x1, x0)
-        
-        loss = self.criterion((z0, p0), (z1, p1))
+        p0 = self.forward(x0)
+        z0 = self.forward_momentum(x0)
+        p1 = self.forward(x1)
+        z1 = self.forward_momentum(x1)
+        loss = 0.5 * (self.criterion(p0, z1) + self.criterion(p1, z0))
         self.log('train_loss_ssl', loss)
         return loss
 
@@ -442,7 +469,7 @@ class BYOLModel(BenchmarkModule):
             + list(self.prediction_head.parameters())
         optim = torch.optim.SGD(
             params, 
-            lr=6e-2,
+            lr=6e-2 * lr_factor,
             momentum=0.9, 
             weight_decay=5e-4,
         )
@@ -459,8 +486,8 @@ class SwaVModel(BenchmarkModule):
             nn.AdaptiveAvgPool2d(1)
         )
 
-        self.projection_head = SwaVProjectionHead(512, 512, 128)
-        self.prototypes = SwaVPrototypes(128, 512) # use 512 prototypes
+        self.projection_head = heads.SwaVProjectionHead(512, 512, 128)
+        self.prototypes = heads.SwaVPrototypes(128, 512) # use 512 prototypes
 
         self.criterion = lightly.loss.SwaVLoss(sinkhorn_gather_distributed=gather_distributed)
 
@@ -471,11 +498,8 @@ class SwaVModel(BenchmarkModule):
         return self.prototypes(x)
 
     def training_step(self, batch, batch_idx):
-
         # normalize the prototypes so they are on the unit sphere
-        lightly.models.utils.normalize_weight(
-            self.prototypes.layers.weight
-        )
+        self.prototypes.normalize()
 
         # the multi-crop dataloader returns a list of image crops where the
         # first two items are the high resolution crops and the rest are low
@@ -499,65 +523,230 @@ class SwaVModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.Adam(
             self.parameters(),
-            lr=1e-3,
+            lr=1e-3 * lr_factor,
             weight_decay=1e-6,
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
-models = [MocoModel, SimCLRModel, SimSiamModel, BarlowTwinsModel, BYOLModel, SwaVModel]
+
+class NNCLRModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = lightly.models.ResNetGenerator('resnet-18')
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
+        )
+        self.prediction_head = heads.NNCLRPredictionHead(256, 4096, 256)
+        # use only a 2-layer projection head for cifar10
+        self.projection_head = heads.ProjectionHead([
+            (
+                512,
+                2048,
+                nn.BatchNorm1d(2048),
+                nn.ReLU(inplace=True)
+            ),
+            (
+                2048,
+                256,
+                nn.BatchNorm1d(256),
+                None
+            )
+        ])
+
+        self.criterion = lightly.loss.NTXentLoss()
+        self.memory_bank = modules.NNMemoryBankModule(size=4096)
+
+    def forward(self, x):
+        y = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(y)
+        p = self.prediction_head(z)
+        z = z.detach()
+        return z, p
+
+    def training_step(self, batch, batch_idx):
+        (x0, x1), _, _ = batch
+        z0, p0 = self.forward(x0)
+        z1, p1 = self.forward(x1)
+        z0 = self.memory_bank(z0, update=False)
+        z1 = self.memory_bank(z1, update=True)
+        loss = 0.5 * (self.criterion(z0, p1) + self.criterion(z1, p0))
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.SGD(
+            self.parameters(), 
+            lr=6e-2 * lr_factor,
+            momentum=0.9, 
+            weight_decay=5e-4,
+        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
+
+
+class DINOModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = lightly.models.ResNetGenerator('resnet-18')
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
+        )
+        self.head = self._build_projection_head()
+        self.teacher_backbone = copy.deepcopy(self.backbone)
+        self.teacher_head = self._build_projection_head()
+
+        utils.deactivate_requires_grad(self.teacher_backbone)
+        utils.deactivate_requires_grad(self.teacher_head)
+
+        self.criterion = lightly.loss.DINOLoss(output_dim=2048)
+
+    def _build_projection_head(self):
+        head = heads.DINOProjectionHead(512, 2048, 256, 2048, batch_norm=True)
+        # use only 2 layers for cifar10
+        head.layers = heads.ProjectionHead([
+            (512, 2048, nn.BatchNorm1d(2048), nn.GELU()),
+            (2048, 256, None, None),
+        ]).layers
+        return head
+
+    def forward(self, x):
+        y = self.backbone(x).flatten(start_dim=1)
+        z = self.head(y)
+        return z
+
+    def forward_teacher(self, x):
+        y = self.teacher_backbone(x).flatten(start_dim=1)
+        z = self.teacher_head(y)
+        return z
+
+    def training_step(self, batch, batch_idx):
+        utils.update_momentum(self.backbone, self.teacher_backbone, m=0.99)
+        utils.update_momentum(self.head, self.teacher_head, m=0.99)
+        views, _, _ = batch
+        views = [view.to(self.device) for view in views]
+        global_views = views[:2]
+        teacher_out = [self.forward_teacher(view) for view in global_views]
+        student_out = [self.forward(view) for view in views]
+        loss = self.criterion(teacher_out, student_out, epoch=self.current_epoch)
+        self.log('train_loss_ssl', loss)
+        return loss
+
+    def configure_optimizers(self):
+        param = list(self.backbone.parameters()) \
+            + list(self.head.parameters())
+        optim = torch.optim.SGD(
+            param,
+            lr=6e-2 * lr_factor,
+            momentum=0.9,
+            weight_decay=5e-4,
+        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
+
+models = [
+    BarlowTwinsModel, 
+    BYOLModel,
+    DINOModel,
+    MocoModel,
+    NNCLRModel,
+    SimCLRModel,
+    SimSiamModel,
+    SwaVModel,
+]
 bench_results = dict()
 
+experiment_version = None
 # loop through configurations and train models
-for batch_size in batch_sizes:
-    for BenchmarkModel in models:
-        runs = []
-        model_name = BenchmarkModel.__name__
-        for seed in range(n_runs):
-            pl.seed_everything(seed)
-            dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(batch_size)
-            benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
+for BenchmarkModel in models:
+    runs = []
+    model_name = BenchmarkModel.__name__.replace('Model', '')
+    for seed in range(n_runs):
+        pl.seed_everything(seed)
+        dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(
+            batch_size=batch_size, 
+            model=BenchmarkModel,
+        )
+        benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
 
-            logger = TensorBoardLogger('cifar10_runs', version=model_name)
+        # Save logs to: {CWD}/benchmark_logs/cifar10/{experiment_version}/{model_name}/
+        # If multiple runs are specified a subdirectory for each run is created.
+        sub_dir = model_name if n_runs <= 1 else f'{model_name}/run{seed}'
+        logger = TensorBoardLogger(
+            save_dir=os.path.join(logs_root_dir, 'cifar10'),
+            name='',
+            sub_dir=sub_dir,
+            version=experiment_version,
+        )
+        if experiment_version is None:
+            # Save results of all models under same version directory
+            experiment_version = logger.version
+        checkpoint_callback = pl.callbacks.ModelCheckpoint(
+            dirpath=os.path.join(logger.log_dir, 'checkpoints')
+        )
+        trainer = pl.Trainer(
+            max_epochs=max_epochs, 
+            gpus=gpus,
+            default_root_dir=logs_root_dir,
+            strategy=distributed_backend,
+            sync_batchnorm=sync_batchnorm,
+            logger=logger,
+            callbacks=[checkpoint_callback]
+        )
+        start = time.time()
+        trainer.fit(
+            benchmark_model,
+            train_dataloaders=dataloader_train_ssl,
+            val_dataloaders=dataloader_test
+        )
+        end = time.time()
+        run = {
+            'model': model_name,
+            'batch_size': batch_size,
+            'epochs': max_epochs,
+            'max_accuracy': benchmark_model.max_accuracy,
+            'runtime': end - start,
+            'gpu_memory_usage': torch.cuda.max_memory_allocated(),
+            'seed': seed,
+        }
+        runs.append(run)
+        print(run)
 
-            trainer = pl.Trainer(
-                max_epochs=max_epochs, 
-                gpus=gpus,
-                default_root_dir=logs_root_dir,
-                strategy=distributed_backend,
-                sync_batchnorm=sync_batchnorm,
-            )
-            start = time.time()
-            trainer.fit(
-                benchmark_model,
-                train_dataloaders=dataloader_train_ssl,
-                val_dataloaders=dataloader_test
-            )
-            end = time.time()
-            run = {
-                'seed': seed,
-                'runtime': end - start,
-                'max_accuracy': benchmark_model.max_accuracy,
-                'gpu_memory_usage': torch.cuda.max_memory_allocated(),
-            }
-            runs.append(run)
+        # delete model and trainer + free up cuda memory
+        del benchmark_model
+        del trainer
+        torch.cuda.reset_peak_memory_stats()
+        torch.cuda.empty_cache()
+    
+    bench_results[model_name] = runs
 
-            # delete model and trainer + free up cuda memory
-            del benchmark_model
-            del trainer
-            torch.cuda.reset_peak_memory_stats()
-            torch.cuda.empty_cache()
-        
-        bench_results[model_name] = runs
-
+# print results table
+header = (
+    f"| {'Model':<13} | {'Batch Size':>10} | {'Epochs':>6} "
+    f"| {'KNN Test Accuracy':>18} | {'Time':>10} | {'Peak GPU Usage':>14} |"
+)
+print('-' * len(header))
+print(header)
+print('-' * len(header))
 for model, results in bench_results.items():
     runtime = np.array([result['runtime'] for result in results])
+    runtime = runtime.mean() / 60 # convert to min
     accuracy = np.array([result['max_accuracy'] for result in results])
     gpu_memory_usage = np.array([result['gpu_memory_usage'] for result in results])
+    gpu_memory_usage = gpu_memory_usage.max() / (1024**3) # convert to gbyte
+
+    if len(accuracy) > 1:
+        accuracy_msg = f"{accuracy.mean():>8.3f} +- {accuracy.std():>4.3f}"
+    else:
+        accuracy_msg = f"{accuracy.mean():>18.3f}"
 
     print(
-        f'{model}: {accuracy.mean():.3f} +- {accuracy.std():.3f}'
-        f', GPU used: {gpu_memory_usage.max() / (1024.0**3):.1f} GByte'
-        f', Time: {runtime.mean() // 60} min',
+        f"| {model:<13} | {batch_size:>10} | {max_epochs:>6} "
+        f"| {accuracy_msg} | {runtime:>6.1f} Min "
+        f"| {gpu_memory_usage:>8.1f} GByte |",
         flush=True
     )
+print('-' * len(header))
