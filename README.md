@@ -196,8 +196,8 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 | BarlowTwins   |        512 |    800 |              0.857 |
 | BYOL          |        512 |    800 |              0.911 |
 | DINO          |        512 |    800 |              0.884 |
-| Moco (*)      |        512 |    800 |              0.900 |
-| NNCLR (*)     |        512 |    800 |              0.896 |
+| Moco          |        512 |    800 |              0.900 |
+| NNCLR         |        512 |    800 |              0.896 |
 | SimCLR        |        512 |    800 |              0.875 |
 | SimSiam       |        512 |    800 |              0.906 |
 | SwaV          |        512 |    800 |              0.881 |
