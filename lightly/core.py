@@ -2,6 +2,9 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+from typing import Tuple, List
+
+import numpy as np
 
 from lightly.cli.train_cli import _train_cli
 from lightly.cli.embed_cli import _embed_cli
@@ -73,7 +76,9 @@ def _add_kwargs(cfg, kwargs):
     return cfg
 
 
-def train_model_and_embed_images(config_path: str = None, **kwargs):
+def train_model_and_embed_images(config_path: str = None, **kwargs) -> Tuple[
+    List[np.ndarray], List[int], List[str]
+]:
     """Train a self-supervised model and use it to embed images.
 
     Calls the same function as lightly-magic. All arguments passed to
@@ -112,7 +117,11 @@ def train_model_and_embed_images(config_path: str = None, **kwargs):
     config_path = _get_config_path(config_path)
     config_args = _load_config_file(config_path)
     config_args = _add_kwargs(config_args, kwargs)
-    return _lightly_cli(config_args, is_cli_call=False)
+
+    checkpoint = _train_cli(config_args, is_cli_call=False)
+    config_args['checkpoint'] = checkpoint
+    embeddings, labels, filenames = _embed_cli(config_args, is_cli_call=False)
+    return embeddings, labels, filenames
 
 
 def train_embedding_model(config_path: str = None, **kwargs):
