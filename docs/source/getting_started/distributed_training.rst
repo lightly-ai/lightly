@@ -25,7 +25,7 @@ communication overhead.
 We did some simple experiments we share here:
 
 Distributed Training Benchmarks
----------------------------
+-------------------------------
 
 - Dataset: Cifar10 
 - Batch size: 512
