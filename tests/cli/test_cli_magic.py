@@ -48,13 +48,29 @@ class TestCLIMagic(MockedApiWorkflowSetup):
         for key, value in zip(dict_keys, dict_values):
             value = value.strip('\"')
             value = value.strip('\'')
-            self.cfg[key] = value
+            try:
+                value = int(value)
+            except ValueError:
+                pass
+
+            key_subparts = key.split('.')
+            if len(key_subparts) == 1:
+                self.cfg[key] = value
+            elif len(key_subparts) == 2:
+                self.cfg[key_subparts[0]][key_subparts[1]] = value
+            else:
+                raise ValueError(
+                    f"Keys with more than 2 subparts are not supported,"
+                     "but you entered {key}."
+                )
+
 
     def test_parse_cli_string(self):
-        cli_string = "lightly-magic dataset_id='XYZ' upload='thumbnails'"
+        cli_string = "lightly-magic dataset_id='XYZ' upload='thumbnails' trainer.max_epochs=3"
         self.parse_cli_string(cli_string)
-        assert self.cfg["dataset_id"] == 'XYZ'
-        assert self.cfg["upload"] == 'thumbnails'
+        self.assertEqual(self.cfg["dataset_id"], 'XYZ')
+        self.assertEqual(self.cfg["upload"], 'thumbnails')
+        self.assertEqual(self.cfg['trainer']['max_epochs'], 3)
 
     def test_magic_new_dataset_name(self):
         MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
@@ -65,6 +81,12 @@ class TestCLIMagic(MockedApiWorkflowSetup):
     def test_magic_new_dataset_id(self):
         MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
         cli_string = "lightly-magic dataset_id='dataset_id_xyz'"
+        self.parse_cli_string(cli_string)
+        lightly.cli.lightly_cli(self.cfg)
+
+    def test_magic_without_upload_with_trainer(self):
+        MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
+        cli_string = "lightly-magic trainer.max_epochs=1"
         self.parse_cli_string(cli_string)
         lightly.cli.lightly_cli(self.cfg)
 
