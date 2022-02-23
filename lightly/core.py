@@ -77,13 +77,14 @@ def _add_kwargs(cfg, kwargs):
 
 
 def train_model_and_embed_images(config_path: str = None, **kwargs) -> Tuple[
-    List[np.ndarray], List[int], List[str]
+    np.ndarray, List[int], List[str]
 ]:
     """Train a self-supervised model and use it to embed images.
 
-    Calls the same function as lightly-magic. All arguments passed to
-    lightly-magic can also be passed to this function (see below for an
-    example).
+    First trains a modle using the _train_cli(),
+    then embeds with the _embed_cli().
+    All arguments passed to the CLI functions
+    can also be passed to this function (see below for an example).
 
     Args:
         config_path:
@@ -93,6 +94,8 @@ def train_model_and_embed_images(config_path: str = None, **kwargs) -> Tuple[
 
     Returns:
         Embeddings, labels, and filenames of the images.
+        Embeddings are of shape (n_samples, embedding_size)
+        len(labels) = len(filenames) = n_samples
 
     Examples:
         >>> import lightly
@@ -110,8 +113,6 @@ def train_model_and_embed_images(config_path: str = None, **kwargs) -> Tuple[
         >>> my_trainer = {max_epochs: 10}
         >>> embeddings, _, _ = lightly.train_model_and_embed_images(
         >>>     input_dir='path/to/data', trainer=my_trainer)
-        >>> # the command above is equivalent to:
-        >>> # lightly-magic input_dir='path/to/data' trainer.max_epochs=10
 
     """
     config_path = _get_config_path(config_path)

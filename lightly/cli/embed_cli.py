@@ -28,14 +28,18 @@ from lightly.cli._helpers import cpu_count
 
 def _embed_cli(cfg, is_cli_call=True) -> \
     Union[
-        Tuple[List[np.ndarray], List[int], List[str]],
+        Tuple[np.ndarray, List[int], List[str]],
         str
     ]:
     """ See embed_cli() for usage documentation
 
         is_cli_call:
-            If True, saves the embeddings as file and returns the filepath.
-            If False, returns the embeddings, labels, filenames as tuple.
+            If True:
+                Saves the embeddings as file and returns the filepath.
+            If False:
+                Returns the embeddings, labels, filenames as tuple.
+                Embeddings are of shape (n_samples, embedding_size)
+                len(labels) = len(filenames) = n_samples
     """
     input_dir = cfg['input_dir']
     if input_dir and is_cli_call:
