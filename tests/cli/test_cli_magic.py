@@ -61,7 +61,7 @@ class TestCLIMagic(MockedApiWorkflowSetup):
             else:
                 raise ValueError(
                     f'Keys with more than 2 subparts are not supported,'
-                     'but you entered {key}.'
+                    f'but you entered {key}.'
                 )
 
 
