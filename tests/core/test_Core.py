@@ -2,6 +2,8 @@ import unittest
 import os
 import re
 import shutil
+
+import numpy as np
 import torchvision
 import tempfile
 import pytest
@@ -36,13 +38,15 @@ class TestCore(unittest.TestCase):
                 data[0].save(os.path.join(tmp_dir,
                                           folder_names[folder_idx],
                                           sample_names[sample_idx]))
+        self.dataset_dir = tmp_dir
         return tmp_dir, folder_names, sample_names
 
 
     #@pytest.mark.slow
     def test_train_and_embed(self):
-        n_subfolders = 10
-        n_samples_per_subfolder = 10
+        n_subfolders = 3
+        n_samples_per_subfolder = 3
+        n_samples = n_subfolders * n_samples_per_subfolder
 
         # embed, no overwrites
         dataset_dir, _, _ = self.create_dataset(
@@ -51,12 +55,21 @@ class TestCore(unittest.TestCase):
         )
 
         # train, one overwrite
-        trainer = {
-            'max_epochs': 1,
-        }
-        train_model_and_embed_images(
-            input_dir=dataset_dir, trainer=trainer)
-        shutil.rmtree(dataset_dir)
+        embeddings, labels, filenames = train_model_and_embed_images(
+            input_dir=dataset_dir,
+            trainer={'max_epochs': 1},
+            loader={'num_workers': 0},
+        )
+        self.assertEqual(len(embeddings), n_samples)
+        self.assertEqual(len(labels), n_samples)
+        self.assertEqual(len(filenames), n_samples)
+        self.assertIsInstance(embeddings[0], np.ndarray)
+        self.assertIsInstance(int(labels[0]), int)  # see if casting to int works
+        self.assertIsInstance(filenames[0], str)
+
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.dataset_dir)
         pattern = '(.*)?.ckpt$'
         for root, dirs, files in os.walk(os.getcwd()):
             for file in filter(lambda x: re.match(pattern, x), files):

@@ -2,6 +2,9 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+from typing import Tuple, List
+
+import numpy as np
 
 from lightly.cli.train_cli import _train_cli
 from lightly.cli.embed_cli import _embed_cli
@@ -73,12 +76,15 @@ def _add_kwargs(cfg, kwargs):
     return cfg
 
 
-def train_model_and_embed_images(config_path: str = None, **kwargs):
+def train_model_and_embed_images(config_path: str = None, **kwargs) -> Tuple[
+    np.ndarray, List[int], List[str]
+]:
     """Train a self-supervised model and use it to embed images.
 
-    Calls the same function as lightly-magic. All arguments passed to
-    lightly-magic can also be passed to this function (see below for an
-    example).
+    First trains a modle using the _train_cli(),
+    then embeds with the _embed_cli().
+    All arguments passed to the CLI functions
+    can also be passed to this function (see below for an example).
 
     Args:
         config_path:
@@ -88,6 +94,8 @@ def train_model_and_embed_images(config_path: str = None, **kwargs):
 
     Returns:
         Embeddings, labels, and filenames of the images.
+        Embeddings are of shape (n_samples, embedding_size)
+        len(labels) = len(filenames) = n_samples
 
     Examples:
         >>> import lightly
@@ -105,14 +113,16 @@ def train_model_and_embed_images(config_path: str = None, **kwargs):
         >>> my_trainer = {max_epochs: 10}
         >>> embeddings, _, _ = lightly.train_model_and_embed_images(
         >>>     input_dir='path/to/data', trainer=my_trainer)
-        >>> # the command above is equivalent to:
-        >>> # lightly-magic input_dir='path/to/data' trainer.max_epochs=10
 
     """
     config_path = _get_config_path(config_path)
     config_args = _load_config_file(config_path)
     config_args = _add_kwargs(config_args, kwargs)
-    return _lightly_cli(config_args, is_cli_call=False)
+
+    checkpoint = _train_cli(config_args, is_cli_call=False)
+    config_args['checkpoint'] = checkpoint
+    embeddings, labels, filenames = _embed_cli(config_args, is_cli_call=False)
+    return embeddings, labels, filenames
 
 
 def train_embedding_model(config_path: str = None, **kwargs):
