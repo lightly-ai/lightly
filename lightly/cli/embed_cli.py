@@ -9,8 +9,10 @@ command-line interface.
 # All Rights Reserved
 
 import os
+from typing import Union, Tuple, List
 
 import hydra
+import numpy as np
 import torch
 import torchvision
 from torch.utils.hipify.hipify_python import bcolors
@@ -24,7 +26,21 @@ from lightly.cli._helpers import fix_input_path
 from lightly.cli._helpers import cpu_count
 
 
-def _embed_cli(cfg, is_cli_call=True):
+def _embed_cli(cfg, is_cli_call=True) -> \
+    Union[
+        Tuple[np.ndarray, List[int], List[str]],
+        str
+    ]:
+    """ See embed_cli() for usage documentation
+
+        is_cli_call:
+            If True:
+                Saves the embeddings as file and returns the filepath.
+            If False:
+                Returns the embeddings, labels, filenames as tuple.
+                Embeddings are of shape (n_samples, embedding_size)
+                len(labels) = len(filenames) = n_samples
+    """
     input_dir = cfg['input_dir']
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)
@@ -79,7 +95,7 @@ def _embed_cli(cfg, is_cli_call=True):
 
 
 @hydra.main(config_path='config', config_name='config')
-def embed_cli(cfg):
+def embed_cli(cfg) -> str:
     """Embed images from the command-line.
 
     Args:
@@ -94,6 +110,9 @@ def embed_cli(cfg):
         checkpoint:
             Path to the checkpoint of a pretrained model. If left
             empty, a pretrained model by lightly is used.
+
+    Returns:
+        The path to the created embeddings file.
 
     Examples:
         >>> # embed images with default settings and a lightly model
