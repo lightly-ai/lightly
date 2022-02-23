@@ -33,11 +33,11 @@ The following are parameters which can be passed to the container:
   # Set to True to check whether installation was successful.
   sanity_check: False 
 
-  # Set to the path to a relevant_filenames.txt to run the docker on a subset of 
-  # filenames. The docker will ignore all files in the input directory not listed 
-  # here. Each filename in the must be in a separate line and relative to the 
-  # input directory. The path relevant_filenames_file to the relevant_filenames.txt 
-  # is relative to the shared directory.
+  # Path to a file containing filenames to run the docker on a subset of the
+  # files in the input directory. The docker will ignore all files in the input 
+  # directory not listed here. Each filename must be on a separate line and 
+  # relative to the input directory. The path relevant_filenames_file must be 
+  # relative to the shared directory.
   relevant_filenames_file: ''
 
   # Set to False to disable check for corrupted images.
@@ -99,16 +99,17 @@ The following are parameters which can be passed to the container:
   stopping_condition:
     # Float in [0., 1.] for percentage, int for number of samples, -1 means inactive.
     n_samples: -1    
-      # Float, minimum distance between two images in the sampled dataset, -1. means inactive.           
+    # Float, minimum distance between two images in the sampled dataset, -1. means inactive.           
     min_distance: -1.
   selected_sequence_length: 1
 
   # datapool
   datapool:
-    # Name of the datapool.
+    # Name of the datapool. This will create a local datapool.
     name:
     # If True keeps backup of all previous data pool states.
     keep_history: True
+    # Dataset id from Lightly platform where the datapool should be hosted.
     id:
 
   # datasource
