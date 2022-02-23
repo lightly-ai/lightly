@@ -12,7 +12,7 @@ The example below shows how the `token` parameter can be set when running the do
         -v {OUTPUT_DIR}:/home/shared_dir \
         --ipc="host" --network="host" \
         lightly/sampling:latest \
-        token={MYAWESOMETOKEN}
+        token=MYAWESOMETOKEN
 
 
 .. _rst-docker-parameters:
