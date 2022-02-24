@@ -27,12 +27,13 @@ Lightly offers features like
 
 #### Supported Models
 
-- [MoCo, 2019](https://arxiv.org/abs/1911.05722)
-- [SimCLR, 2020](https://arxiv.org/abs/2002.05709)
-- [SimSiam, 2021](https://arxiv.org/abs/2011.10566)
 - [Barlow Twins, 2021](https://arxiv.org/abs/2103.03230)
 - [BYOL, 2020](https://arxiv.org/abs/2006.07733)
+- [DINO, 2021](https://arxiv.org/abs/2104.14294)
+- [MoCo, 2019](https://arxiv.org/abs/1911.05722)
 - [NNCLR, 2021](https://arxiv.org/abs/2104.14548)
+- [SimCLR, 2020](https://arxiv.org/abs/2002.05709)
+- [SimSiam, 2021](https://arxiv.org/abs/2011.10566)
 - [SwaV, 2020](https://arxiv.org/abs/2006.09882)
 
 
@@ -194,18 +195,16 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 
 #### Cifar10
 
-------------------------------------------------------------
-| Model         | Batch Size | Epochs |  KNN Test Accuracy |
-------------------------------------------------------------
-| BarlowTwins   |        512 |    800 |              0.857 |
-| BYOL          |        512 |    800 |              0.911 |
-| DINO          |        512 |    800 |              0.884 |
-| Moco          |        512 |    800 |              0.900 |
-| NNCLR         |        512 |    800 |              0.896 |
-| SimCLR        |        512 |    800 |              0.875 |
-| SimSiam       |        512 |    800 |              0.906 |
-| SwaV          |        512 |    800 |              0.881 |
-------------------------------------------------------------
+| Model         | Epochs | Batch Size | Test Accuracy |
+|---------------|--------|------------|---------------|
+| BarlowTwins   |    800 |        512 |         0.857 |
+| BYOL          |    800 |        512 |         0.911 |
+| DINO          |    800 |        512 |         0.884 |
+| Moco          |    800 |        512 |         0.900 |
+| NNCLR         |    800 |        512 |         0.896 |
+| SimCLR        |    800 |        512 |         0.875 |
+| SimSiam       |    800 |        512 |         0.906 |
+| SwaV          |    800 |        512 |         0.881 |
 
 ## Terminology
 
