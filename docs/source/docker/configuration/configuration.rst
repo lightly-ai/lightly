@@ -24,71 +24,119 @@ The following are parameters which can be passed to the container:
 
 .. code-block:: yaml
 
-    # access token (get it from app.lightly.ai)
-    token: ''
+  # Access token, get it from app.lightly.ai.
+  token: ''
 
-    # set to true to check whether installation was successful
-    sanity_check: False
+  # If specified, the docker is registered as a worker on the Lightly platform.
+  worker_id: ''
 
-    # enable check for corrupted images (copies healthy ones if necessary)
-    enable_corruptness_check: True
+  # Set to True to check whether installation was successful.
+  sanity_check: False 
 
-    # remove exact duplicates
-    remove_exact_duplicates: True
+  # Path to a file containing filenames to run the docker on a subset of the
+  # files in the input directory. The docker will ignore all files in the input 
+  # directory not listed here. Each filename must be on a separate line and 
+  # relative to the input directory. The path relevant_filenames_file must be 
+  # relative to the shared directory, so if the file is in 
+  # 'shared_dir/directory/relevant_filenames.txt' the path should be set to
+  # 'directory/relevant_filenames.txt'
+  relevant_filenames_file: ''
 
-    # path to the checkpoint relative to the shared directory
-    checkpoint: ''
+  # Set to False to disable check for corrupted images.
+  enable_corruptness_check: True
+  corruptness_check:
+    # Threshold in [0, 1] which determines the sensibility of the corruptness check
+    # for video frames. Every frame which has an internally computed corruptness
+    # score larger than the specified threshold will be classified as corrupted.
+    corruption_threshold: 0.1
 
-    # path to the embeddings file relative to the shared directory
-    embeddings: ''
+  # Remove exact duplicates.
+  remove_exact_duplicates: True
 
-    # enable training, only possible when no embeddings are passed
-    enable_training: False
+  # Path to the checkpoint relative to the shared directory.
+  checkpoint: ''
 
-    # dump the final dataset to the output directory
-    dump_dataset: False
-    dump_sampled_embeddings: True
-    # set the size of the dumped images, use =x or =[x,y] to match the shortest
-    # edge to x or to resize the image to (x,y), use =-1 for no resizing (default)
-    output_image_size: -1
-    output_image_format: 'png'
+  # Path to the embeddings file relative to the shared directory.
+  embeddings: ''
 
-    # upload?
-    upload_dataset: False
+  # Enable training, only possible when no embeddings are passed.
+  enable_training: False
 
-    # pretagging
-    pretagging: False
-    pretagging_debug: False
-    pretagging_config: ''
+  # Dump the final dataset to the output directory.
+  dump_dataset: False
+  dump_sampled_embeddings: True
+  # Set the size of the dumped images, use =x or =[height,width] to match the 
+  # shortest edge to x or to resize the image to (height, width), use =-1 for no 
+  # resizing (default). This only affects the output size of the images dumped to 
+  # the output folder with dump_dataset=True. To change the size of images 
+  # uploaded to the lightly platform or your cloud bucket please use the 
+  # lightly.resize option instead.
+  output_image_size: -1
+  output_image_format: 'png'
 
-    # append weak labels
-    append_weak_labels: False
+  # Upload the dataset to the Lightly platform.
+  upload_dataset: False
 
-    # normalize the embeddings to unit length
-    normalize_embeddings: True
+  # pretagging
+  pretagging: False
+  pretagging_debug: False
+  pretagging_config: ''
 
-    # active learning scorer
-    scorer: 'object-frequency'
-    scorer_config:
-      frequency_penalty: 0.25
-      min_score: 0.9
+  # Append weak labels.
+  append_weak_labels: False
+
+  # Normalize the embeddings to unit length.
+  normalize_embeddings: True
+
+  # active learning scorer
+  scorer: 'object-frequency'
+  scorer_config:
+    frequency_penalty: 0.25
+    min_score: 0.9
 
 
-    # sampling
-    method: 'coreset'               # choose from ['coreset', 'random']
-    stopping_condition:
-        n_samples: -1               # float in [0., 1.] for percentage, int for number of samples, -1 means inactive
-        min_distance: -1.           # float, minimum distance between two images in the sampled dataset, -1. means inactive
+  # sampling
+  # Choose from ['coreset', 'random'].
+  method: 'coreset'
+  stopping_condition:
+    # Float in [0., 1.] for percentage, int for number of samples, -1 means inactive.
+    n_samples: -1    
+    # Float, minimum distance between two images in the sampled dataset, -1. means inactive.           
+    min_distance: -1.
+  selected_sequence_length: 1
 
-    # datapool
-    datapool:
-        name:                       # name of the datapool
-        keep_history: True          # if True keeps backup of all previous data pool states
+  # datapool
+  datapool:
+    # Name of the datapool. This will create a local datapool.
+    name:
+    # If True keeps backup of all previous data pool states.
+    keep_history: True
+    # Dataset id from Lightly platform where the datapool should be hosted.
+    id:
 
-    # report
-    n_example_images: 6             # the number of retained/removed image pairs to show in the report
-    memory_requirement_in_GB: 2     # maximum size of the distance matrix allowed for statistics in GB
-    show_video_sampling_timeline: True
+  # datasource
+  # By default only new samples in the datasource are processed. Set process_all 
+  # to True to reprocess all samples in the datasource.
+  datasource:
+    # Dataset id from the Lightly platform.
+    dataset_id:
+    # Set to True to reprocess all samples in the datasource.
+    process_all: False
+    # Update datapool with the selected samples.
+    enable_datapool_update: True
+    # Use video metadata to determine the number of frames in each video. Set to
+    # True for faster processing. Set to False if you get video related errors.
+    use_frame_count_metadata: False
+
+  # Upload report to the Ligthly platform.
+  upload_report: True
+  # The number of retained/removed image pairs shown in the report.
+  n_example_images: 6
+  # Maximum size of the distance matrix allowed for report statistics in GB. 
+  memory_requirement_in_GB: 2
+  # Show timestamps of the selected frames for each video in the report. Set this
+  # to False if you observe slow report generation or work with many videos (>20).
+  show_video_sampling_timeline: True
 
 Additionally, you can pass all arguments which can be passed to the lightly CLI tool with the `lightly` prefix.
 For example,
