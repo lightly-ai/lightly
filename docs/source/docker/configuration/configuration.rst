@@ -37,7 +37,9 @@ The following are parameters which can be passed to the container:
   # files in the input directory. The docker will ignore all files in the input 
   # directory not listed here. Each filename must be on a separate line and 
   # relative to the input directory. The path relevant_filenames_file must be 
-  # relative to the shared directory.
+  # relative to the shared directory, so if the file is in 
+  # 'shared_dir/directory/relevant_filenames.txt' the path should be set to
+  # 'directory/relevant_filenames.txt'
   relevant_filenames_file: ''
 
   # Set to False to disable check for corrupted images.
