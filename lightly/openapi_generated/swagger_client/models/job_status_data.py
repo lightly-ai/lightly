@@ -38,6 +38,7 @@ class JobStatusData(object):
         'meta': 'JobStatusMeta',
         'wait_time_till_next_poll': 'int',
         'created_at': 'Timestamp',
+        'last_modified_at': 'Timestamp',
         'finished_at': 'Timestamp',
         'error': 'str',
         'result': 'JobStatusDataResult'
@@ -49,12 +50,13 @@ class JobStatusData(object):
         'meta': 'meta',
         'wait_time_till_next_poll': 'waitTimeTillNextPoll',
         'created_at': 'createdAt',
+        'last_modified_at': 'lastModifiedAt',
         'finished_at': 'finishedAt',
         'error': 'error',
         'result': 'result'
     }
 
-    def __init__(self, id=None, status=None, meta=None, wait_time_till_next_poll=None, created_at=None, finished_at=None, error=None, result=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, status=None, meta=None, wait_time_till_next_poll=None, created_at=None, last_modified_at=None, finished_at=None, error=None, result=None, _configuration=None):  # noqa: E501
         """JobStatusData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -65,6 +67,7 @@ class JobStatusData(object):
         self._meta = None
         self._wait_time_till_next_poll = None
         self._created_at = None
+        self._last_modified_at = None
         self._finished_at = None
         self._error = None
         self._result = None
@@ -76,6 +79,8 @@ class JobStatusData(object):
             self.meta = meta
         self.wait_time_till_next_poll = wait_time_till_next_poll
         self.created_at = created_at
+        if last_modified_at is not None:
+            self.last_modified_at = last_modified_at
         if finished_at is not None:
             self.finished_at = finished_at
         if error is not None:
@@ -197,6 +202,27 @@ class JobStatusData(object):
             raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
         self._created_at = created_at
+
+    @property
+    def last_modified_at(self):
+        """Gets the last_modified_at of this JobStatusData.  # noqa: E501
+
+
+        :return: The last_modified_at of this JobStatusData.  # noqa: E501
+        :rtype: Timestamp
+        """
+        return self._last_modified_at
+
+    @last_modified_at.setter
+    def last_modified_at(self, last_modified_at):
+        """Sets the last_modified_at of this JobStatusData.
+
+
+        :param last_modified_at: The last_modified_at of this JobStatusData.  # noqa: E501
+        :type: Timestamp
+        """
+
+        self._last_modified_at = last_modified_at
 
     @property
     def finished_at(self):

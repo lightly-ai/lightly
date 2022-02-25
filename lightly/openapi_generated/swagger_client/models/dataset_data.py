@@ -35,6 +35,8 @@ class DatasetData(object):
     swagger_types = {
         'id': 'MongoObjectID',
         'name': 'DatasetName',
+        'user_id': 'str',
+        'access_type': 'SharedAccessType',
         'type': 'DatasetType',
         'img_type': 'ImageType',
         'n_samples': 'int',
@@ -47,6 +49,8 @@ class DatasetData(object):
     attribute_map = {
         'id': 'id',
         'name': 'name',
+        'user_id': 'userId',
+        'access_type': 'accessType',
         'type': 'type',
         'img_type': 'imgType',
         'n_samples': 'nSamples',
@@ -56,7 +60,7 @@ class DatasetData(object):
         'last_modified_at': 'lastModifiedAt'
     }
 
-    def __init__(self, id=None, name=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, meta_data_configuration_id=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, name=None, user_id=None, access_type=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, meta_data_configuration_id=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
         """DatasetData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -64,6 +68,8 @@ class DatasetData(object):
 
         self._id = None
         self._name = None
+        self._user_id = None
+        self._access_type = None
         self._type = None
         self._img_type = None
         self._n_samples = None
@@ -75,6 +81,9 @@ class DatasetData(object):
 
         self.id = id
         self.name = name
+        self.user_id = user_id
+        if access_type is not None:
+            self.access_type = access_type
         self.type = type
         if img_type is not None:
             self.img_type = img_type
@@ -130,6 +139,52 @@ class DatasetData(object):
             raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
 
         self._name = name
+
+    @property
+    def user_id(self):
+        """Gets the user_id of this DatasetData.  # noqa: E501
+
+        The owner of the dataset  # noqa: E501
+
+        :return: The user_id of this DatasetData.  # noqa: E501
+        :rtype: str
+        """
+        return self._user_id
+
+    @user_id.setter
+    def user_id(self, user_id):
+        """Sets the user_id of this DatasetData.
+
+        The owner of the dataset  # noqa: E501
+
+        :param user_id: The user_id of this DatasetData.  # noqa: E501
+        :type: str
+        """
+        if self._configuration.client_side_validation and user_id is None:
+            raise ValueError("Invalid value for `user_id`, must not be `None`")  # noqa: E501
+
+        self._user_id = user_id
+
+    @property
+    def access_type(self):
+        """Gets the access_type of this DatasetData.  # noqa: E501
+
+
+        :return: The access_type of this DatasetData.  # noqa: E501
+        :rtype: SharedAccessType
+        """
+        return self._access_type
+
+    @access_type.setter
+    def access_type(self, access_type):
+        """Sets the access_type of this DatasetData.
+
+
+        :param access_type: The access_type of this DatasetData.  # noqa: E501
+        :type: SharedAccessType
+        """
+
+        self._access_type = access_type
 
     @property
     def type(self):

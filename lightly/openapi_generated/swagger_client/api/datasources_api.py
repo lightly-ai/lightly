@@ -330,6 +330,224 @@ class DatasourcesApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
+    def get_list_of_raw_samples_predictions_from_datasource_by_dataset_id(self, dataset_id, task_name, **kwargs):  # noqa: E501
+        """get_list_of_raw_samples_predictions_from_datasource_by_dataset_id  # noqa: E501
+
+        Get list of the raw samples predictions from datasource for a specific taskName  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id(dataset_id, task_name, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param str task_name: The prediction task name for which one wants to list the predictions (required)
+        :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
+        :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
+        :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
+        :return: DatasourceRawSamplesPredictionsData
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id_with_http_info(dataset_id, task_name, **kwargs)  # noqa: E501
+        else:
+            (data) = self.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id_with_http_info(dataset_id, task_name, **kwargs)  # noqa: E501
+            return data
+
+    def get_list_of_raw_samples_predictions_from_datasource_by_dataset_id_with_http_info(self, dataset_id, task_name, **kwargs):  # noqa: E501
+        """get_list_of_raw_samples_predictions_from_datasource_by_dataset_id  # noqa: E501
+
+        Get list of the raw samples predictions from datasource for a specific taskName  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id_with_http_info(dataset_id, task_name, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param str task_name: The prediction task name for which one wants to list the predictions (required)
+        :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
+        :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
+        :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
+        :return: DatasourceRawSamplesPredictionsData
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['dataset_id', 'task_name', '_from', 'to', 'cursor']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_list_of_raw_samples_predictions_from_datasource_by_dataset_id" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'dataset_id' is set
+        if self.api_client.client_side_validation and ('dataset_id' not in params or
+                                                       params['dataset_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `dataset_id` when calling `get_list_of_raw_samples_predictions_from_datasource_by_dataset_id`")  # noqa: E501
+        # verify the required parameter 'task_name' is set
+        if self.api_client.client_side_validation and ('task_name' not in params or
+                                                       params['task_name'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `task_name` when calling `get_list_of_raw_samples_predictions_from_datasource_by_dataset_id`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'dataset_id' in params:
+            path_params['datasetId'] = params['dataset_id']  # noqa: E501
+
+        query_params = []
+        if 'task_name' in params:
+            query_params.append(('taskName', params['task_name']))  # noqa: E501
+        if '_from' in params:
+            query_params.append(('from', params['_from']))  # noqa: E501
+        if 'to' in params:
+            query_params.append(('to', params['to']))  # noqa: E501
+        if 'cursor' in params:
+            query_params.append(('cursor', params['cursor']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v1/datasets/{datasetId}/datasource/predictions/list', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='DatasourceRawSamplesPredictionsData',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def get_prediction_file_read_url_from_datasource_by_dataset_id(self, dataset_id, file_name, **kwargs):  # noqa: E501
+        """get_prediction_file_read_url_from_datasource_by_dataset_id  # noqa: E501
+
+        Get the ReadURL of a file within the predictions folder (e.g tasks.json or my_classification_task/schema.json)  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_prediction_file_read_url_from_datasource_by_dataset_id(dataset_id, file_name, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param str file_name: The name of the file within the prediction folder to get the readUrl for (required)
+        :return: str
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.get_prediction_file_read_url_from_datasource_by_dataset_id_with_http_info(dataset_id, file_name, **kwargs)  # noqa: E501
+        else:
+            (data) = self.get_prediction_file_read_url_from_datasource_by_dataset_id_with_http_info(dataset_id, file_name, **kwargs)  # noqa: E501
+            return data
+
+    def get_prediction_file_read_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id, file_name, **kwargs):  # noqa: E501
+        """get_prediction_file_read_url_from_datasource_by_dataset_id  # noqa: E501
+
+        Get the ReadURL of a file within the predictions folder (e.g tasks.json or my_classification_task/schema.json)  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_prediction_file_read_url_from_datasource_by_dataset_id_with_http_info(dataset_id, file_name, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param str file_name: The name of the file within the prediction folder to get the readUrl for (required)
+        :return: str
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['dataset_id', 'file_name']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_prediction_file_read_url_from_datasource_by_dataset_id" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'dataset_id' is set
+        if self.api_client.client_side_validation and ('dataset_id' not in params or
+                                                       params['dataset_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `dataset_id` when calling `get_prediction_file_read_url_from_datasource_by_dataset_id`")  # noqa: E501
+        # verify the required parameter 'file_name' is set
+        if self.api_client.client_side_validation and ('file_name' not in params or
+                                                       params['file_name'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `file_name` when calling `get_prediction_file_read_url_from_datasource_by_dataset_id`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'dataset_id' in params:
+            path_params['datasetId'] = params['dataset_id']  # noqa: E501
+
+        query_params = []
+        if 'file_name' in params:
+            query_params.append(('fileName', params['file_name']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v1/datasets/{datasetId}/datasource/predictions/file', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='str',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
     def update_datasource_by_dataset_id(self, body, dataset_id, **kwargs):  # noqa: E501
         """update_datasource_by_dataset_id  # noqa: E501
 
