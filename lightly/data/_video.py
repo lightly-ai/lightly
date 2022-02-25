@@ -490,7 +490,6 @@ class VideoDataset(datasets.VisionDataset):
             # by different workers across epochs.
             worker_ref = weakref.ref(worker_info)
             if worker_ref != self._worker_ref:
-                print(f'changing worker_ref {self._worker_ref} -> {worker_ref}')
                 self._worker_ref = worker_ref
                 # Initialize empty video loaders for this worker.
                 # Note that changes to self.video_loaders are not propagated
