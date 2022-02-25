@@ -20,7 +20,21 @@ class TestCLIUpload(MockedApiWorkflowSetup):
     def setUpClass(cls) -> None:
         sys.modules["lightly.cli.upload_cli"].ApiWorkflowClient = MockedApiWorkflowClient
 
+
+    def set_tags(self, zero_tags: bool=True):
+        # make the dataset appear empty
+        def mocked_get_all_tags_zero(*args, **kwargs):
+            if zero_tags:
+                return []
+            else:
+                return ["Any tag"]
+        sys.modules["lightly.cli.upload_cli"].\
+            ApiWorkflowClient.get_all_tags = mocked_get_all_tags_zero
+
     def setUp(self):
+        # make the API dataset appear empty
+        self.set_tags(zero_tags=True)
+
         self.create_fake_dataset()
         with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
             self.cfg = compose(config_name="config", overrides=["token='123'", f"input_dir={self.folder_path}"])
@@ -149,5 +163,22 @@ class TestCLIUpload(MockedApiWorkflowSetup):
 
     def test_upload_custom_metadata(self):
         cli_string = f"lightly-upload token='123' dataset_id='xyz' custom_metadata='{self.tfile.name}'"
+        self.parse_cli_string(cli_string)
+        lightly.cli.upload_cli(self.cfg)
+
+    def test_upload_existing_dataset_without_append(self):
+        # create "existing dataset" (having tags)
+        self.set_tags(zero_tags=False)
+
+        cli_string = "lightly-upload dataset_id='xyz'"
+        self.parse_cli_string(cli_string)
+        with self.assertWarns(UserWarning):
+            lightly.cli.upload_cli(self.cfg)
+
+    def test_upload_existing_dataset_with_append(self):
+        # create "existing dataset" (having tags)
+        self.set_tags(zero_tags=False)
+
+        cli_string = "lightly-upload dataset_id='xyz' append=True"
         self.parse_cli_string(cli_string)
         lightly.cli.upload_cli(self.cfg)

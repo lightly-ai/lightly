@@ -95,6 +95,15 @@ def _upload_cli(cfg, is_cli_call=True):
         transform = torchvision.transforms.Resize(size)
 
     if input_dir:
+        if len(api_workflow_client.get_all_tags()) > 0:
+            if not cfg.append:
+                print_as_warning(
+                    'The dataset you specified already has samples. '
+                    'If you want to add additional samples, you need to specify '
+                    'append=True as CLI argument.'
+                )
+                return
+
         mode = cfg['upload']
         dataset = LightlyDataset(input_dir=input_dir, transform=transform)
         api_workflow_client.upload_dataset(

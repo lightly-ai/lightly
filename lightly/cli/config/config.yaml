@@ -18,6 +18,7 @@ dataset_id: ''                # Identifier of the dataset on the Lightly platfo
 new_dataset_name: ''          # Name of the new dataset to be created on the Lightly platform
 upload: 'full'                # Whether to upload full images, thumbnails only, or metadata only.
                               # Must be one of ['full', 'thumbnails', 'none']
+append: False                 # Must be True if you want to append samples to an existing dataset.
 resize: -1                    # Allow resizing of the images before uploading, usage =-1, =x, =[x,y]
 embedding_name: 'default'     # Name of the embedding to be used on the Lightly platform.
 emb_upload_bsz: 32            # Number of embeddings which are uploaded in a single batch.
