@@ -293,14 +293,6 @@ class VideoDataset(datasets.VisionDataset):
         self.extensions = extensions
         self.backend = torchvision.get_video_backend()
 
-        # Create initial set of video loaders which will be shared among
-        # threads. When used with a dataloader a new video_loaders list will be
-        # created in every worker process.
-        self.video_loaders = [
-            VideoLoader(video, timestamps, backend=self.backend) 
-            for video, timestamps in zip(videos, video_timestamps)
-        ]
-
         self.videos = videos
         self.video_timestamps = video_timestamps
         self._length = sum((
@@ -311,9 +303,17 @@ class VideoDataset(datasets.VisionDataset):
         self.offsets = offsets
         self.fps = fps
 
+        # Current VideoLoader instance and the corresponding video index.
+        self._video_loader = None
+        self._video_index = None
+
         # Keep unique reference of dataloader worker. We need this to avoid
         # accidentaly sharing VideoLoader instances between workers.
         self._worker_ref = None
+
+        # Lock to prevent multiple threads creating a new VideoLoader at the 
+        # same time.
+        self._video_loader_lock = threading.Lock()
 
     def __getitem__(self, index):
         """Returns item at index.
@@ -360,7 +360,7 @@ class VideoDataset(datasets.VisionDataset):
         # find and return the frame as PIL image
         timestamp_idx = index - self.offsets[i]
         frame_timestamp = self.video_timestamps[i][timestamp_idx]
-        video_loader = self._video_loader(i)
+        video_loader = self._get_video_loader(i)
         sample = video_loader.read_frame(frame_timestamp)
 
         target = i
@@ -482,7 +482,7 @@ class VideoDataset(datasets.VisionDataset):
     ) -> str:
         return f'{video_name}-{frame_number:0{zero_padding}}-{video_format}.{extension}'
 
-    def _video_loader(self, video_index: int) -> VideoLoader:
+    def _get_video_loader(self, video_index: int) -> VideoLoader:
         """Returns a video loader unique to the current dataloader worker."""
         worker_info = torch.utils.data.get_worker_info()
         if worker_info is not None:
@@ -490,18 +490,17 @@ class VideoDataset(datasets.VisionDataset):
             # by different workers across epochs.
             worker_ref = weakref.ref(worker_info)
             if worker_ref != self._worker_ref:
+                # This worker has never accessed the dataset before, we have to
+                # reset the video loader.
+                self._video_loader = None
+                self._video_index = None
                 self._worker_ref = worker_ref
-                # Initialize empty video loaders for this worker.
-                # Note that changes to self.video_loaders are not propagated
-                # across worker processes, so this is safe.
-                self.video_loaders = [None] * len(self.videos)
+
+        with self._video_loader_lock:
+            if video_index != self._video_index:
+                video = self.videos[video_index]
+                timestamps = self.video_timestamps[video_index]
+                self._video_loader = VideoLoader(video, timestamps, backend=self.backend)
+                self._video_index = video_index
         
-        video_loader = self.video_loaders[video_index]
-        if video_loader is None:
-            # The worker has not accessed this video before.
-            video = self.videos[video_index]
-            timestamps = self.video_timestamps[video_index]
-            video_loader = VideoLoader(video, timestamps, backend=self.backend)
-            self.video_loaders[video_index] = video_loader
-        
-        return video_loader
+            return self._video_loader
