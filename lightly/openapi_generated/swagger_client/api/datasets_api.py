@@ -332,6 +332,7 @@ class DatasetsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
+        :param bool shared: if set, only returns the datasets which have been shared with the user
         :return: list[DatasetData]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -353,12 +354,13 @@ class DatasetsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
+        :param bool shared: if set, only returns the datasets which have been shared with the user
         :return: list[DatasetData]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = []  # noqa: E501
+        all_params = ['shared']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -379,6 +381,8 @@ class DatasetsApi(object):
         path_params = {}
 
         query_params = []
+        if 'shared' in params:
+            query_params.append(('shared', params['shared']))  # noqa: E501
 
         header_params = {}
 
@@ -419,6 +423,7 @@ class DatasetsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
+        :param bool shared: if set, only returns the datasets which have been shared with the user
         :param int limit: if set, only returns the newest up until limit
         :return: list[DatasetDataEnriched]
                  If the method is called asynchronously,
@@ -441,13 +446,14 @@ class DatasetsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
+        :param bool shared: if set, only returns the datasets which have been shared with the user
         :param int limit: if set, only returns the newest up until limit
         :return: list[DatasetDataEnriched]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['limit']  # noqa: E501
+        all_params = ['shared', 'limit']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -468,6 +474,8 @@ class DatasetsApi(object):
         path_params = {}
 
         query_params = []
+        if 'shared' in params:
+            query_params.append(('shared', params['shared']))  # noqa: E501
         if 'limit' in params:
             query_params.append(('limit', params['limit']))  # noqa: E501
 
