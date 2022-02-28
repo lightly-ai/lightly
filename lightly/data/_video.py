@@ -42,10 +42,10 @@ if io._HAS_VIDEO_OPT:
 # backend.
 # 
 # In the VideoDataset class we avoid sharing VideoLoader instances between 
-# workers by tracking the worker accessing the dataset. All VideoLoaders are 
-# reset if a new worker accesses the dataset. Note that changes to the dataset 
-# class by a worker are unique to that worker and not seen by other workers or 
-# the main process.
+# workers by tracking the worker accessing the dataset. VideoLoaders are reset 
+# if a new worker accesses the dataset. Note that changes to the dataset class 
+# by a worker are unique to that worker and not seen by other workers or the 
+# main process.
 
 class VideoLoader(threading.local):
     """Implementation of VideoLoader.
@@ -303,7 +303,10 @@ class VideoDataset(datasets.VisionDataset):
         self.offsets = offsets
         self.fps = fps
 
-        # Current VideoLoader instance and the corresponding video index.
+        # Current VideoLoader instance and the corresponding video index. We 
+        # only keep track of the last accessed video as this is a good trade-off
+        # between speed and memory requirements.
+        # See https://github.com/lightly-ai/lightly/pull/702 for details.
         self._video_loader = None
         self._video_index = None
 
