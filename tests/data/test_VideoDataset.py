@@ -5,6 +5,7 @@ import numpy as np
 import tempfile
 import warnings
 import PIL
+import torch
 import torchvision
 
 from lightly.data import LightlyDataset
@@ -130,4 +131,17 @@ class TestVideoDataset(unittest.TestCase):
                 dataset = LightlyDataset(self.input_dir)
 
 
-
+    def test_video_dataset_dataloader(self):
+        self.create_dataset()
+        for backend in ['pyav', 'video_reader']:
+            torchvision.set_video_backend(backend)
+            dataset = VideoDataset(self.input_dir, extensions=self.extensions)
+            dataloader = torch.utils.data.DataLoader(
+                dataset,
+                num_workers=2,
+                batch_size=3,
+                shuffle=True,
+                collate_fn=lambda x: x,
+            )
+            for batch in dataloader:
+                pass

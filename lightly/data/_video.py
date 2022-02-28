@@ -7,9 +7,11 @@ import os
 from typing import List, Tuple
 from fractions import Fraction
 import threading
+import weakref
 
 from PIL import Image
 
+import torch
 import torchvision
 from torchvision import datasets
 from torchvision import io
@@ -23,6 +25,27 @@ except ImportError:
 if io._HAS_VIDEO_OPT:
     torchvision.set_video_backend('video_reader')
 
+# @guarin 18.02.2022
+# VideoLoader and VideoDataset multi-thread and multi-processing infos
+# --------------------------------------------------------------------
+# The VideoDataset class should be safe to use in multi-thread and 
+# multi-processing settings. For the multi-processing setting it is assumed that
+# a pytorch DataLoader is used. Multi-threading should not be use with the
+# torchvision pyav video packend as pyav seems to be limited to a single thread.
+# You will not see any speedups when using it from multiple threads!
+# 
+# The VideoLoader class is thread safe because it inherits from threading.local.
+# When using it within a pytorch DataLoader a new instance should be created 
+# in each process when using the torchvision video_reader backend, otherwise
+# decoder errors can happen when iterating multiple times over the dataloader.
+# This is specific to the video_reader backend and does not happen with the pyav
+# backend.
+# 
+# In the VideoDataset class we avoid sharing VideoLoader instances between 
+# workers by tracking the worker accessing the dataset. VideoLoaders are reset 
+# if a new worker accesses the dataset. Note that changes to the dataset class 
+# by a worker are unique to that worker and not seen by other workers or the 
+# main process.
 
 class VideoLoader(threading.local):
     """Implementation of VideoLoader.
@@ -268,10 +291,7 @@ class VideoDataset(datasets.VisionDataset):
             raise RuntimeError(msg)
 
         self.extensions = extensions
-
-        backend = torchvision.get_video_backend()
-        self.video_loaders = \
-            [VideoLoader(video, timestamps, backend=backend) for video, timestamps in zip(videos, video_timestamps)]
+        self.backend = torchvision.get_video_backend()
 
         self.videos = videos
         self.video_timestamps = video_timestamps
@@ -282,6 +302,21 @@ class VideoDataset(datasets.VisionDataset):
         # e.g. for two videos of length 10 and 20, the offsets will be [0, 10].
         self.offsets = offsets
         self.fps = fps
+
+        # Current VideoLoader instance and the corresponding video index. We 
+        # only keep track of the last accessed video as this is a good trade-off
+        # between speed and memory requirements.
+        # See https://github.com/lightly-ai/lightly/pull/702 for details.
+        self._video_loader = None
+        self._video_index = None
+
+        # Keep unique reference of dataloader worker. We need this to avoid
+        # accidentaly sharing VideoLoader instances between workers.
+        self._worker_ref = None
+
+        # Lock to prevent multiple threads creating a new VideoLoader at the 
+        # same time.
+        self._video_loader_lock = threading.Lock()
 
     def __getitem__(self, index):
         """Returns item at index.
@@ -328,7 +363,8 @@ class VideoDataset(datasets.VisionDataset):
         # find and return the frame as PIL image
         timestamp_idx = index - self.offsets[i]
         frame_timestamp = self.video_timestamps[i][timestamp_idx]
-        sample = self.video_loaders[i].read_frame(frame_timestamp)
+        video_loader = self._get_video_loader(i)
+        sample = video_loader.read_frame(frame_timestamp)
 
         target = i
         if self.transform is not None:
@@ -448,3 +484,26 @@ class VideoDataset(datasets.VisionDataset):
         extension: str = 'png'
     ) -> str:
         return f'{video_name}-{frame_number:0{zero_padding}}-{video_format}.{extension}'
+
+    def _get_video_loader(self, video_index: int) -> VideoLoader:
+        """Returns a video loader unique to the current dataloader worker."""
+        worker_info = torch.utils.data.get_worker_info()
+        if worker_info is not None:
+            # Use a weakref instead of worker_info.id as the worker id is reused
+            # by different workers across epochs.
+            worker_ref = weakref.ref(worker_info)
+            if worker_ref != self._worker_ref:
+                # This worker has never accessed the dataset before, we have to
+                # reset the video loader.
+                self._video_loader = None
+                self._video_index = None
+                self._worker_ref = worker_ref
+
+        with self._video_loader_lock:
+            if video_index != self._video_index:
+                video = self.videos[video_index]
+                timestamps = self.video_timestamps[video_index]
+                self._video_loader = VideoLoader(video, timestamps, backend=self.backend)
+                self._video_index = video_index
+        
+            return self._video_loader
