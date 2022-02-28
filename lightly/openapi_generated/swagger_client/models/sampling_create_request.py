@@ -38,6 +38,7 @@ class SamplingCreateRequest(object):
         'config': 'SamplingConfig',
         'preselected_tag_id': 'MongoObjectID',
         'query_tag_id': 'MongoObjectID',
+        'score_type': 'ActiveLearningScoreType',
         'row_count': 'float'
     }
 
@@ -47,10 +48,11 @@ class SamplingCreateRequest(object):
         'config': 'config',
         'preselected_tag_id': 'preselectedTagId',
         'query_tag_id': 'queryTagId',
+        'score_type': 'scoreType',
         'row_count': 'rowCount'
     }
 
-    def __init__(self, new_tag_name=None, method=None, config=None, preselected_tag_id=None, query_tag_id=None, row_count=None, _configuration=None):  # noqa: E501
+    def __init__(self, new_tag_name=None, method=None, config=None, preselected_tag_id=None, query_tag_id=None, score_type=None, row_count=None, _configuration=None):  # noqa: E501
         """SamplingCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -61,6 +63,7 @@ class SamplingCreateRequest(object):
         self._config = None
         self._preselected_tag_id = None
         self._query_tag_id = None
+        self._score_type = None
         self._row_count = None
         self.discriminator = None
 
@@ -71,6 +74,8 @@ class SamplingCreateRequest(object):
             self.preselected_tag_id = preselected_tag_id
         if query_tag_id is not None:
             self.query_tag_id = query_tag_id
+        if score_type is not None:
+            self.score_type = score_type
         if row_count is not None:
             self.row_count = row_count
 
@@ -184,6 +189,27 @@ class SamplingCreateRequest(object):
         """
 
         self._query_tag_id = query_tag_id
+
+    @property
+    def score_type(self):
+        """Gets the score_type of this SamplingCreateRequest.  # noqa: E501
+
+
+        :return: The score_type of this SamplingCreateRequest.  # noqa: E501
+        :rtype: ActiveLearningScoreType
+        """
+        return self._score_type
+
+    @score_type.setter
+    def score_type(self, score_type):
+        """Sets the score_type of this SamplingCreateRequest.
+
+
+        :param score_type: The score_type of this SamplingCreateRequest.  # noqa: E501
+        :type: ActiveLearningScoreType
+        """
+
+        self._score_type = score_type
 
     @property
     def row_count(self):

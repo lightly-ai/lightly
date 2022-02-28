@@ -267,9 +267,19 @@ class MockedSamplesApi(SamplesApi):
 class MockedDatasetsApi(DatasetsApi):
     def __init__(self, api_client):
         no_datasets = 3
-        self.default_datasets = [DatasetData(name=f"dataset_{i}", id=f"dataset_{i}_id", last_modified_at=i,
-                                             type="", img_type="full", size_in_bytes=-1, n_samples=-1, created_at=-1)
-                                 for i in range(no_datasets)]
+        self.default_datasets = [
+            DatasetData(
+                name=f"dataset_{i}", 
+                id=f"dataset_{i}_id", 
+                last_modified_at=i,
+                type="", img_type="full", 
+                size_in_bytes=-1, 
+                n_samples=-1, 
+                created_at=-1,
+                user_id='user_0',
+            )
+            for i in range(no_datasets)
+        ]
         self.reset()
 
     def reset(self):
@@ -283,8 +293,16 @@ class MockedDatasetsApi(DatasetsApi):
         id = body.name + "_id"
         if body.name == 'xyz-no-tags':
             id = 'xyz-no-tags'
-        dataset = DatasetData(id=id, name=body.name, last_modified_at=len(self.datasets) + 1,
-                              type="Images", size_in_bytes=-1, n_samples=-1, created_at=-1)
+        dataset = DatasetData(
+            id=id, 
+            name=body.name, 
+            last_modified_at=len(self.datasets) + 1,
+            type="Images", 
+            size_in_bytes=-1, 
+            n_samples=-1, 
+            created_at=-1,
+            user_id='user_0',
+        )
         self.datasets += [dataset]
         response_ = CreateEntityResponse(id=id)
         return response_
