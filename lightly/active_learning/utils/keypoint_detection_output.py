@@ -25,6 +25,7 @@ class KeypointDetection:
     def __init__(self, keypoints: np.ndarray, object_id: int = -1):
         self.keypoints = keypoints
         self.object_id = object_id
+        self._format_check()
 
     def _format_check(self):
         if len(self.keypoints) % 3 != 0 or len(self.keypoints.shape) != 1:
