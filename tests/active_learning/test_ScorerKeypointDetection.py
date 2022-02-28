@@ -46,6 +46,21 @@ class TestScorerKeypointDetection(unittest.TestCase):
         self.assertGreater(len(scorer_1.score_names()), 0)
         self.assertListEqual(scorer_1.score_names(), scorer_2.score_names())
 
+    def test_keypoint_detection_creation(self):
+        with self.subTest("create correct"):
+            KeypointDetection(np.asarray([456., 32., 0.3]))
+        with self.subTest("create correct with object_id"):
+            KeypointDetection(np.asarray([456., 32., 0.3]), 3)
+        with self.subTest("create wrong keypoints format"):
+            with self.assertRaises(ValueError):
+                KeypointDetection(np.asarray([456., 32., 0.3, 1]), 3)
+        with self.subTest("create confidence < 0"):
+            with self.assertRaises(ValueError):
+                KeypointDetection(np.asarray([456., 32., -0.1]), 3)
+        with self.subTest("create confidence > 1"):
+            with self.assertRaises(ValueError):
+                KeypointDetection(np.asarray([456., 32., 1.5]), 3)
+
 
 
 
