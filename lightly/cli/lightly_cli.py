@@ -9,16 +9,43 @@ command-line interface.
 # All Rights Reserved
 
 import hydra
+from omegaconf import DictConfig
 
+from lightly.cli._helpers import print_as_warning
 from lightly.cli.train_cli import _train_cli
 from lightly.cli.embed_cli import _embed_cli
 from lightly.cli.upload_cli import _upload_cli
 
 
-def _lightly_cli(cfg, is_cli_call=True):
+def validate_cfg(cfg: DictConfig) -> bool:
+    """ Validates a config
 
+    Prints warnings if it is not.
+    Args:
+        cfg:
+            The hydra config object
+
+    Returns:
+        Wether the config is valid
+
+    """
+    valid = True
+    if cfg['trainer']['max_epochs'] > 0 and cfg['append']:
+        print_as_warning('When appending to an existing dataset you must '
+                         'use the same embedding model. Thus specify'
+                         'trainer.max_epochs=0. If you had trained your own model,'
+                         'you can use it with checkpoint="path/to/model.ckp".')
+        valid = False
+    return valid
+
+
+def _lightly_cli(cfg, is_cli_call=True):
     cfg['loader']['shuffle'] = True
     cfg['loader']['drop_last'] = True
+
+    if not validate_cfg(cfg):
+        return
+
     if cfg['trainer']['max_epochs'] > 0:
         print('#' * 10 + ' Starting to train an embedding model.')
         checkpoint = _train_cli(cfg, is_cli_call)
@@ -89,4 +116,3 @@ def lightly_cli(cfg):
 
 def entry():
     lightly_cli()
-
