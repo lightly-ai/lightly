@@ -1,5 +1,5 @@
 import time
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import DatasourceProcessedUntilTimestampRequest
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import DatasourceProcessedUntilTimestampResponse
@@ -109,4 +109,47 @@ class _DatasourcesMixin:
         """
         return self._datasources_api.get_datasource_by_dataset_id(
             self.dataset_id
+        )
+
+    def update_s3_config(
+        self,
+        resource_path: str,
+        thumbnail_suffix: Optional[str],
+        region: str,
+        access_key: str,
+        secret_access_key: str,
+    ) -> None:
+        """Sets the S3 configuration for the datasource of the current dataset.
+        
+        Args:
+            resource_path:
+                S3 url of your dataset, for example "s3://my_bucket/path/to/dataset".
+            thumbnail_suffix:
+                Where to save thumbnails of the images in the dataset, for
+                example ".lightly/thumbnails/[filename]_thumb.[extension]". 
+                Set to None to disable thumbnails and use the full images from the 
+                datasource instead.
+            region:
+                S3 region where the dataset bucket is located, for example
+                "eu-central-1".
+            access_key:
+                S3 access key.
+            secret_access_key:
+                Secret for the S3 access key.
+
+        """
+        # Cannot use the DatasourceConfigS3 model because it does not include
+        # the type, fullPath and thumbSuffix arguments. This is a limitation
+        # of swagger-codegen.
+        # TODO: Use DatasourceConfigS3 once whe switch/update the generator.
+        self._datasources_api.update_datasource_by_dataset_id(
+            body={
+                'type': 'S3',
+                'fullPath': resource_path,
+                'thumbSuffix': thumbnail_suffix,
+                's3Region': region,
+                's3AccessKeyId': access_key,
+                's3SecretAccessKey': secret_access_key,
+            },
+            dataset_id=self.dataset_id,
         )
