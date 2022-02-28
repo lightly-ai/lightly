@@ -52,22 +52,22 @@ class ScorerKeypointDetection(Scorer):
 
 
     Examples:
-        >>>predictions_over_images = [[{
-            'pred_keypoints': np.asarray([[123., 456., 0.1], [565., 32., 0.2]])
-        }, {
-            'pred_keypoints': np.asarray([[342., 432., 0.3], [43., 2., 0.4]])}
-        ], [{
-            'pred_keypoints': np.asarray([[23., 43., 0.5], [43., 2., 0.6]])
-        }]]
-        model_output = []
-        for predictions_one_image in predictions_over_images:
-            keypoint_detections = []
-            for prediction in predictions_one_image:
-                keypoints = prediction['pred_keypoints'].flatten()
-                keypoint_detection = KeypointDetection(keypoints)
-                keypoint_detections.append(keypoint_detection)
-            output = KeypointDetectionOutput(keypoint_detections)
-            model_output.append(output)
+        >>> predictions_over_images = [[{
+        >>>     'pred_keypoints': np.asarray([[123., 456., 0.1], [565., 32., 0.2]])
+        >>> }, {
+        >>>     'pred_keypoints': np.asarray([[342., 432., 0.3], [43., 2., 0.4]])}
+        >>> ], [{
+        >>>     'pred_keypoints': np.asarray([[23., 43., 0.5], [43., 2., 0.6]])
+        >>> }]]
+        >>> model_output = []
+        >>> for predictions_one_image in predictions_over_images:
+        >>>     keypoint_detections = []
+        >>>     for prediction in predictions_one_image:
+        >>>         keypoints = prediction['pred_keypoints'].flatten()
+        >>>         keypoint_detection = KeypointDetection(keypoints)
+        >>>         keypoint_detections.append(keypoint_detection)
+        >>>     output = KeypointDetectionOutput(keypoint_detections)
+        >>>     model_output.append(output)
 
     """
 

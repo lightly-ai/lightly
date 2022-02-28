@@ -28,6 +28,8 @@ class KeypointDetection:
         self._format_check()
 
     def _format_check(self):
+        """Raises a ValueError if the format is not as required.
+        """
         if len(self.keypoints) % 3 != 0 or len(self.keypoints.shape) != 1:
             raise ValueError("keypoints must be in the format of "
                              "[x0, y0, c0, ... xk, yk, ck], but they are not.")
@@ -37,6 +39,9 @@ class KeypointDetection:
             raise ValueError("Confidences contain values > 1.")
 
     def get_confidences(self) -> np.ndarray:
+        """Returns the confidence of each keypoint
+
+        """
         confidences = self.keypoints[2::3]
         return confidences
 
