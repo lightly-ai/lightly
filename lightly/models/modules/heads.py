@@ -309,6 +309,12 @@ class DINOProjectionHead(ProjectionHead):
         self.last_layer = nn.utils.weight_norm(nn.Linear(bottleneck_dim, output_dim, bias=False))
         self.last_layer.weight_g.data.fill_(1)
         self.last_layer.weight_g.requires_grad = False
+        
+    def cancel_last_layer_gradients(self):
+        """Cancel last layer gradients to stabilize the training
+        
+        """
+        self.last_layer.grad = None
 
     def _init_weights(self, module):
         """Initializes layers with a truncated normal distribution.
