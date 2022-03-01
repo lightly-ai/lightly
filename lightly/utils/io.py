@@ -5,8 +5,10 @@
 
 import json
 import csv
+from multiprocessing.sharedctypes import Value
 from typing import List, Tuple, Dict
 import re
+from unicodedata import name
 
 import numpy as np
 
@@ -317,3 +319,53 @@ def save_custom_metadata(path: str, custom_metadata: List[Tuple[str, Dict]]):
     formatted = format_custom_metadata(custom_metadata)
     with open(path, 'w') as f:
         json.dump(formatted, f)
+
+
+
+def save_tasks(
+    path: str,
+    tasks: List[str],
+):
+    """Saves a list of prediction task names in the right format.
+
+    Args:
+        path:
+            Where to store the task names.
+        tasks:
+            List of task names.
+
+    """
+    with open(path, 'w') as f:
+        json.dump(tasks, f)
+
+
+def save_schema(
+    path: str,
+    task_description: str,
+    ids: List[int],
+    names: List[str]
+):
+    """Saves a prediction schema in the right format.
+
+    Args:
+        path:
+            Where to store the schema.
+        task_description:
+            Task description (e.g. classification, object-detection).
+        ids:
+            List of category ids.
+        names:
+            List of category names.
+    """
+    if len(ids) != len(names):
+        raise ValueError('ids and names must have same length!')
+
+    schema = {
+        'task_description': task_description,
+        'categories': [
+            { 'id': id, 'name': name}
+            for id, name in zip(ids, names)
+        ]
+    }
+    with open(path, 'w') as f:
+        json.dump(schema, f)
