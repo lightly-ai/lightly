@@ -141,7 +141,7 @@ class _DatasourcesMixin:
         # Cannot use the DatasourceConfigS3 model because it does not include
         # the type, fullPath and thumbSuffix arguments. This is a limitation
         # of swagger-codegen.
-        # TODO: Use DatasourceConfigS3 once whe switch/update the generator.
+        # TODO: Use DatasourceConfigS3 once we switch/update the generator.
         self._datasources_api.update_datasource_by_dataset_id(
             body={
                 'type': 'S3',

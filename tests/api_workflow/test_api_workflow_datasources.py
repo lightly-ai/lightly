@@ -49,3 +49,12 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         new_samples = self.api_workflow_client.download_new_raw_samples()
         assert len(samples) == len(new_samples)
         assert set(samples) == set(new_samples)
+
+    def test_update_s3_config(self):
+        self.api_workflow_client.update_s3_config(
+            resource_path="s3://my-bucket/my-dataset",
+            thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+            region="eu-central-1",
+            access_key="some-access-key",
+            secret_access_key="some-secret-access-key",
+        )

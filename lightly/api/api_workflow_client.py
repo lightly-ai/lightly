@@ -7,6 +7,7 @@ from lightly.api.api_workflow_tags import _TagsMixin
 from requests import Response
 
 from lightly.__init__ import __version__
+from lightly.api.api_workflow_compute_worker import _ComputeWorkerMixin
 from lightly.api.api_workflow_datasets import _DatasetsMixin
 from lightly.api.api_workflow_datasources import _DatasourcesMixin
 from lightly.api.api_workflow_download_dataset import _DownloadDatasetMixin
@@ -25,6 +26,7 @@ from lightly.openapi_generated.swagger_client.api.datasets_api import \
     DatasetsApi
 from lightly.openapi_generated.swagger_client.api.datasources_api import \
     DatasourcesApi
+from lightly.openapi_generated.swagger_client.api.docker_api import DockerApi
 from lightly.openapi_generated.swagger_client.api.embeddings_api import \
     EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
@@ -49,7 +51,8 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                         _DatasetsMixin,
                         _UploadCustomMetadataMixin,
                         _TagsMixin,
-                        _DatasourcesMixin
+                        _DatasourcesMixin,
+                        _ComputeWorkerMixin,
                         ):
     """Provides a uniform interface to communicate with the api 
     
@@ -82,10 +85,11 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
 
         self.token = token
         if dataset_id is not None:
-            self._dataset_id = dataset_id
+            self.dataset_id = dataset_id
         if embedding_id is not None:
             self.embedding_id = embedding_id
 
+        self._compute_worker_api = DockerApi(api_client=self.api_client)
         self._datasets_api = DatasetsApi(api_client=self.api_client)
         self._datasources_api = DatasourcesApi(api_client=self.api_client)
         self._samplings_api = SamplingsApi(api_client=self.api_client)
@@ -121,6 +125,24 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             warnings.warn(UserWarning(f"Dataset has not been specified, "
                                       f"taking the last modified dataset {last_modified_dataset.name} as default dataset."))
             return self._dataset_id
+
+    @dataset_id.setter
+    def dataset_id(self, dataset_id: str):
+        """Sets the current dataset id for the client.
+        
+        Args:
+            dataset_id:
+                The new dataset id.
+
+        Raises:
+            ValueError if the dataset id does not exist.
+        """
+        all_datasets: List[DatasetData] = self._datasets_api.get_datasets()
+        for dataset in all_datasets:
+            if dataset.id == dataset_id:
+                self._dataset_id = dataset_id
+                return
+        raise ValueError(f"A dataset with the id {dataset_id} does not exist on the web platform.")
 
     def _order_list_by_filenames(
             self, filenames_for_list: List[str],

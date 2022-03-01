@@ -99,6 +99,10 @@ class _DatasetsMixin:
             counter += 1
             dataset_name = f"{dataset_basename}_{counter}"
         self._create_dataset_without_check_existing(dataset_name=dataset_name)
+    
+    def get_datasets(self) -> List[DatasetData]:
+        """Returns all datasets of the user."""
+        return self._datasets_api.get_datasets()
 
     def delete_dataset_by_id(self, dataset_id: str):
         """Deletes a dataset on the web platform

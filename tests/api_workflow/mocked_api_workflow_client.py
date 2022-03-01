@@ -187,7 +187,14 @@ class MockedTagsApi(TagsApi):
                       bit_mask_data=body['bit_mask_data'], name=body['name'], tot_size=10,
                       created_at=1577836800, changes=dict())
         return tag
-        
+
+    def delete_tag_by_tag_id(self, dataset_id, tag_id, **kwargs):
+        _check_dataset_id(dataset_id)
+        tags = self.get_tags_by_dataset_id(dataset_id)
+        # assert that tag exists
+        assert any([tag.id == tag_id for tag in tags])
+        # assert that tag is a leaf
+        assert all([tag.prev_tag_id != tag_id for tag in tags])
 
 class MockedScoresApi(ScoresApi):
     def create_or_update_active_learning_score_by_tag_id(self, body, dataset_id, tag_id, **kwargs) -> \
@@ -394,7 +401,8 @@ class MockedDatasourcesApi(DatasourcesApi):
     def update_datasource_by_dataset_id(
         self, body: DatasourceConfig, dataset_id: str, **kwargs
     ) -> None:
-        assert isinstance(body, DatasourceConfig)
+        # TODO: Enable assert once we switch/update to new api code generator.
+        # assert isinstance(body, DatasourceConfig)
         self._datasources[dataset_id] = body # type: ignore
 
     def update_datasource_processed_until_timestamp_by_dataset_id(
