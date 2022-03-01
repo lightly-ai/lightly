@@ -18,15 +18,17 @@ class DINO(pl.LightningModule):
         resnet = torchvision.models.resnet18()
         backbone = nn.Sequential(*list(resnet.children())[:-1])
         input_dim = 512
+        freeze_last_layer = 1
+        norm_last_layer = True
         # instead of a resnet you can also use a vision transformer backbone as in the
         # original paper (you might have to reduce the batch size in this case):
         # backbone = torch.hub.load('facebookresearch/dino:main', 'dino_vits16', pretrained=False)
         # input_dim = backbone.embed_dim
 
         self.student_backbone = backbone
-        self.student_head = DINOProjectionHead(input_dim, 512, 64, 2048)
+        self.student_head = DINOProjectionHead(input_dim, 512, 64, 2048,freeze_last_layer, norm_last_layer)
         self.teacher_backbone = copy.deepcopy(backbone)
-        self.teacher_head = DINOProjectionHead(input_dim, 512, 64, 2048)
+        self.teacher_head = DINOProjectionHead(input_dim, 512, 64, 2048, freeze_last_layer, norm_last_layer)
         deactivate_requires_grad(self.teacher_backbone)
         deactivate_requires_grad(self.teacher_head)
 
@@ -52,6 +54,9 @@ class DINO(pl.LightningModule):
         student_out = [self.forward(view) for view in views]
         loss = self.criterion(teacher_out, student_out, epoch=self.current_epoch)
         return loss
+    
+    def on_after_backward(self) -> None:
+        self.student_head.cancel_last_layer_gradients(current_epoch=self.current_epoch)
 
     def configure_optimizers(self):
         optim = torch.optim.Adam(self.parameters(), lr=0.001)
