@@ -3,15 +3,15 @@ from typing import List, Dict
 import numpy as np
 
 from lightly.active_learning.scorers import Scorer
-from lightly.active_learning.utils.keypoint_detection_output import \
-    KeypointDetectionOutput, KeypointDetection
+from lightly.active_learning.utils.keypoint_predictions import \
+    KeypointPrediction
 
 
-def _least_confidence(
-        model_output: List[KeypointDetectionOutput]) -> np.ndarray:
+def _mean_uncertainty(
+        model_output: List[KeypointPrediction]) -> np.ndarray:
     """Score which prefers samples with low confidence score.
     
-    The confidence score per image is 1 minus the mean confidence
+    The uncertainty score per image is 1 minus the mean confidence
     score of all its keypoints.
 
     Args:
@@ -23,16 +23,18 @@ def _least_confidence(
 
     """
     scores = []
-    for keypoint_detection_output in model_output:
-        confidences_this_detection = []
-        for keypoint_detection in keypoint_detection_output.keypoint_detections:
-            confidences = keypoint_detection.get_confidences()
-            if len(confidences) > 0:
-                conf = np.mean(confidences)
-                confidences_this_detection.append(conf)
-        if len(confidences_this_detection) > 0:
-            score = 1. - np.mean(confidences_this_detection)
+    for keypoint_prediction in model_output:
+        confidences_image = []
+        for keypoint_instance_prediction in keypoint_prediction.keypoint_instance_predictions:
+            confidences_instance = keypoint_instance_prediction.get_confidences()
+            if len(confidences_instance) > 0:
+                conf = np.mean(confidences_instance)
+                confidences_image.append(conf)
+        if len(confidences_image) > 0:
+            score = 1. - np.mean(confidences_image)
             scores.append(score)
+        else:
+            scores.append(0)
     return np.asarray(scores)
 
 
@@ -41,10 +43,11 @@ class ScorerKeypointDetection(Scorer):
 
     Currently supports the following scorers:
 
-        `least_confidence`:
+        `mean_uncertainty`:
             This scorer uses model predictions to focus more on images which
-            have a low confidence of the keypoints_prediction. Use this scorer if you want scenes
-            where the model is unsure about the locations the keypoints_prediction
+            have a low mean confidence of the predicted keypoints.
+            Use this scorer if you want scenes
+            where the model is unsure about the locations of the keypoints.
 
     Attributes:
         model_output:
@@ -53,25 +56,28 @@ class ScorerKeypointDetection(Scorer):
 
     Examples:
         >>> predictions_over_images = [[{
-        >>>     'pred_keypoints': np.asarray([[123., 456., 0.1], [565., 32., 0.2]])
+        >>>     'keypoints': [123., 456., 0.1, 565., 32., 0.2]
         >>> }, {
-        >>>     'pred_keypoints': np.asarray([[342., 432., 0.3], [43., 2., 0.4]])}
+        >>>     'keypoints': [432., 34., 0.1, 43., 34., 0.3]}
         >>> ], [{
-        >>>     'pred_keypoints': np.asarray([[23., 43., 0.5], [43., 2., 0.6]])
-        >>> }]]
+        >>>     'keypoints': [123., 456., 0.1, 565., 32., 0.2])
+        >>> }],
+        >>> ]
         >>> model_output = []
         >>> for predictions_one_image in predictions_over_images:
         >>>     keypoint_detections = []
         >>>     for prediction in predictions_one_image:
-        >>>         keypoints = prediction['pred_keypoints'].flatten()
-        >>>         keypoint_detection = KeypointDetection(keypoints)
+        >>>         keypoints = prediction['keypoints']
+        >>>         keypoint_detection = KeypointInstancePrediction(keypoints)
         >>>         keypoint_detections.append(keypoint_detection)
-        >>>     output = KeypointDetectionOutput(keypoint_detections)
+        >>>     output = KeypointPrediction(keypoint_detections)
         >>>     model_output.append(output)
+        >>> scorer = ScorerKeypointDetection(model_output)
+        >>> scores = scorer.calculate_scores()
 
     """
 
-    def __init__(self, model_output: List[KeypointDetectionOutput]):
+    def __init__(self, model_output: List[KeypointPrediction]):
         super(ScorerKeypointDetection, self).__init__(model_output)
 
     def calculate_scores(self) -> Dict[str, np.ndarray]:
@@ -79,7 +85,7 @@ class ScorerKeypointDetection(Scorer):
         """
         # add classification scores
         scores = dict()
-        scores['least_confidence'] = _least_confidence(self.model_output)
+        scores['mean_uncertainty'] = _mean_uncertainty(self.model_output)
         return scores
 
     @classmethod
