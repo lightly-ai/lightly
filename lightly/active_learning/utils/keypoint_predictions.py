@@ -35,6 +35,16 @@ class KeypointInstancePrediction:
 
     @classmethod
     def from_dict(cls, dict_: Dict[str, Union[int, List[float], float]]):
+        """Creates a KeypointInstancePrediction from a dictionary.
+
+        Args:
+            dict_:
+                Must be in the Lightly keypoint prediction format and thus
+                contain the keys "keypoints", "category_id" and "score".
+
+        Returns:
+
+        """
         category_id = dict_['category_id']
         keypoints = dict_['keypoints']
         score = dict_['score']
@@ -68,23 +78,35 @@ class KeypointInstancePrediction:
 
 
 class KeypointPrediction:
-    """Class which represents all keypoints detections in one images.
+    """Class which represents all keypoint instance detections in one image.
 
         Attributes:
             keypoint_instance_predictions:
                 One KeypointInstancePrediction for each instance having keypoints
-                detected in the image
+                detected in the image.
 
     """
 
-    def __init__(self, keypoint_instance_predictions: List[
-        KeypointInstancePrediction]):
+    def __init__(
+            self,
+            keypoint_instance_predictions: List[KeypointInstancePrediction]
+    ):
         self.keypoint_instance_predictions = keypoint_instance_predictions
 
     @classmethod
-    def from_dicts(cls,
-                   dicts: List[Dict[str, Union[int, List[float], float]]]
-                   ):
+    def from_dicts(
+            cls,
+            dicts: List[Dict[str, Union[int, List[float], float]]]
+    ):
+        """ Creates a KeypointPrediction from predictions for each instance.
+
+        Args:
+            dicts:
+                Each element of the list must be
+                in the Lightly keypoint prediction format and thus
+                contain the keys "keypoints", "category_id" and "score".
+
+        """
         keypoint_instance_predictions = [
             KeypointInstancePrediction.from_dict(dict_) for dict_ in dicts
         ]
@@ -92,5 +114,14 @@ class KeypointPrediction:
 
     @classmethod
     def from_json_string(cls, json_string: str):
-        dicsts = json.loads(json_string)
-        return cls.from_dicts(dicsts)
+        """ Creates a KeypointPrediction from predictions for each instance.
+
+        Args:
+            json_string:
+                A string representing a json-encoded list of dictionaries.
+                Each dictionary must be in the Lightly keypoint prediction format
+                and thus contain the keys "keypoints", "category_id" and "score".
+
+        """
+        dicts = json.loads(json_string)
+        return cls.from_dicts(dicts)
