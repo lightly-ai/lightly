@@ -49,3 +49,9 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         new_samples = self.api_workflow_client.download_new_raw_samples()
         assert len(samples) == len(new_samples)
         assert set(samples) == set(new_samples)
+
+    def test_download_raw_samples_predictions(self):
+        self.api_workflow_client._datasources_api.reset()
+        predictions = self.api_workflow_client.download_raw_predictions('test')
+        num_samples = self.api_workflow_client._datasources_api._num_samples
+        assert len(predictions) == num_samples
