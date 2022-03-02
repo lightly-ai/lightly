@@ -122,20 +122,22 @@ Pretagging for Selection
 
 You can also use pretagging to guide the data selection process. This can be
 helpful if you for example only care about images where there is at least one
-person.
+person and more than one car.
 
 To create such a pretagging selection mechanism you need to create a config file.
 
-For the example of selecting only images with >=1 person we can create
-a `min_requirements.json` file:
+For the example of selecting only images with >=1 person and >=2 cars we can 
+create a `min_requirements.json` file like this:
 
 .. code-block:: json
 
     {
-        "person": 1
+        "person": 1,
+        "car": 2
     }
 
 Move this file to the shared directory (to make it accessible to the docker
 container).
 Finally, run the docker with `pretagging=True`
 and `pretagging_config=min_requirements.json`.
+Only images satisfying all declared requirements will be selected.
