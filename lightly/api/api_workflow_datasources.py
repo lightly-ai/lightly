@@ -114,68 +114,24 @@ class _DatasourcesMixin:
             self.dataset_id
         )
 
-    def download_prediction_task_names(
+    def get_prediction_read_url(
         self,
-        tasks_filename: str = 'tasks.json',
-    ) -> List[str]:
-        """Downloads the task names stored in the tasks.json file.
-
+        filename: str,
+    ):
+        """Returns a read-url for .lightly/predictions/{filename}.
+    
         Args:
-            tasks_filename:
-                Naming convention of the tasks file (always tasks.json).
+            filename:
+                Filename for which to get the read-url.
 
-        Returns a list of task names.
+        Returns the read-url. If the file does not exist, a read-url is returned
+        anyways.
         
         """
-        tasks_read_url = self._datasources_api.get_prediction_file_read_url_from_datasource_by_dataset_id(
+        return self._datasources_api.get_prediction_file_read_url_from_datasource_by_dataset_id(
             self.dataset_id,
-            tasks_filename,
+            filename,
         )
-
-        response = requests.get(tasks_read_url, stream=True)
-        response.raise_for_status()
-
-        tasks = response.json()
-        if isinstance(tasks, dict):
-            task_names = tasks.keys()
-        elif isinstance(tasks, List):
-            task_names = tasks
-        else:
-            raise ValueError('Invalid task format for tasks.json!')
-
-
-        if any([not isinstance(task_name, str) for task_name in task_names]):
-            raise ValueError('Task names in task.json must be strings!')
-
-        return task_names
-
-    def download_task_schema(
-        self,
-        task_name: str,
-        schema_filename: str = 'schema.json',
-    ) -> Tuple[str, Dict]:
-        """Downloads the schema of a given prediction task.
-
-        Args:
-            task_name:
-                Name of the prediction task.
-            schema_filename:
-                Naming convention of the schema files (always schema.json).
-
-        Returns the task description (e.g. classification, object-detection)
-        and the schema of the specified task.
-        
-        """
-        schema_read_url = self._datasources_api.get_prediction_file_read_url_from_datasource_by_dataset_id(
-            self.dataset_id,
-            f'{task_name}/{schema_filename}',
-        )
-        response = requests.get(schema_read_url, stream=True)
-        response.raise_for_status()
-
-        schema = response.json()
-        task_description = schema.get('task_description', None)
-        return task_description, schema
 
     def download_raw_predictions(
         self,
