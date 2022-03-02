@@ -34,6 +34,7 @@ class JobStatusData(object):
     """
     swagger_types = {
         'id': 'MongoObjectID',
+        'dataset_id': 'MongoObjectID',
         'status': 'JobState',
         'meta': 'JobStatusMeta',
         'wait_time_till_next_poll': 'int',
@@ -46,6 +47,7 @@ class JobStatusData(object):
 
     attribute_map = {
         'id': 'id',
+        'dataset_id': 'datasetId',
         'status': 'status',
         'meta': 'meta',
         'wait_time_till_next_poll': 'waitTimeTillNextPoll',
@@ -56,13 +58,14 @@ class JobStatusData(object):
         'result': 'result'
     }
 
-    def __init__(self, id=None, status=None, meta=None, wait_time_till_next_poll=None, created_at=None, last_modified_at=None, finished_at=None, error=None, result=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, dataset_id=None, status=None, meta=None, wait_time_till_next_poll=None, created_at=None, last_modified_at=None, finished_at=None, error=None, result=None, _configuration=None):  # noqa: E501
         """JobStatusData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._id = None
+        self._dataset_id = None
         self._status = None
         self._meta = None
         self._wait_time_till_next_poll = None
@@ -74,6 +77,8 @@ class JobStatusData(object):
         self.discriminator = None
 
         self.id = id
+        if dataset_id is not None:
+            self.dataset_id = dataset_id
         self.status = status
         if meta is not None:
             self.meta = meta
@@ -110,6 +115,27 @@ class JobStatusData(object):
             raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
         self._id = id
+
+    @property
+    def dataset_id(self):
+        """Gets the dataset_id of this JobStatusData.  # noqa: E501
+
+
+        :return: The dataset_id of this JobStatusData.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._dataset_id
+
+    @dataset_id.setter
+    def dataset_id(self, dataset_id):
+        """Sets the dataset_id of this JobStatusData.
+
+
+        :param dataset_id: The dataset_id of this JobStatusData.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._dataset_id = dataset_id
 
     @property
     def status(self):

@@ -8,7 +8,11 @@ import json
 
 import numpy as np
 from requests import Response
+from lightly.openapi_generated.swagger_client.api.docker_api import DockerApi
+from lightly.openapi_generated.swagger_client.models.create_docker_worker_registry_entry_request import CreateDockerWorkerRegistryEntryRequest
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import DatasourceProcessedUntilTimestampResponse
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_create_request import DockerRunScheduledCreateRequest
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import DockerWorkerConfigCreateRequest
 
 from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
@@ -43,7 +47,6 @@ from lightly.openapi_generated.swagger_client.models.sampling_create_request imp
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
 from lightly.openapi_generated.swagger_client.models.datasource_config import DatasourceConfig
-from lightly.openapi_generated.swagger_client.models.datasource_config_local import DatasourceConfigLOCAL
 from lightly.openapi_generated.swagger_client.models.datasource_config_base import DatasourceConfigBase
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import DatasourceProcessedUntilTimestampRequest
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import DatasourceRawSamplesData
@@ -413,6 +416,27 @@ class MockedDatasourcesApi(DatasourcesApi):
         self._processed_until_timestamp[dataset_id] = to # type: ignore
 
 
+class MockedComputeWorkerApi(DockerApi):
+    def __init__(self, api_client=None):
+        super().__init__(api_client=api_client)
+
+    def register_docker_worker(self, body, **kwargs):
+        assert isinstance(body, CreateDockerWorkerRegistryEntryRequest)
+        return CreateEntityResponse(id='worker-id-123')
+
+    def delete_docker_worker_registry_entry_by_id(self, worker_id, **kwargs):
+        assert worker_id == 'worker-id-123'
+
+    def create_docker_worker_config(self, body, **kwargs):
+        assert isinstance(body, DockerWorkerConfigCreateRequest)
+        return CreateEntityResponse(id='worker-config-id-123')
+
+    def create_docker_run_scheduled_by_dataset_id(self, body, dataset_id, **kwargs):
+        assert isinstance(body, DockerRunScheduledCreateRequest)
+        _check_dataset_id(dataset_id)
+        return CreateEntityResponse(id=f'scheduled-run-id-123-dataset-{dataset_id}')
+
+
 class MockedVersioningApi(VersioningApi):
     def get_latest_pip_version(self, **kwargs):
         return "1.0.8"
@@ -470,6 +494,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         self._datasets_api = MockedDatasetsApi(api_client=self.api_client)
         self._datasources_api = MockedDatasourcesApi(api_client=self.api_client)
         self._quota_api = MockedQuotaApi(api_client=self.api_client)
+        self._compute_worker_api = MockedComputeWorkerApi(api_client=self.api_client)
 
         lightly.api.api_workflow_client.requests.put = mocked_request_put
 
