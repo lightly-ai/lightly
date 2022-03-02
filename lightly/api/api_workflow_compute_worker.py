@@ -85,7 +85,7 @@ class _ComputeWorkerMixin:
         Returns:
             The id of the scheduled run.
         """
-        config_id = self.create_worker_config(
+        config_id = self.create_compute_worker_config(
             worker_config=worker_config,
             lightly_config=lightly_config,
         )
