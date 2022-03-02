@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import tempfile
 import unittest
 import warnings
@@ -35,6 +36,16 @@ class MockedResponse:
         # instead of returning the byte stream from the url
         # we just give back an openend filehandle
         return open(self._raw, 'rb')
+
+    @property
+    def status_code(self):
+        return 200
+
+    def json(self):
+        # instead of returning the byte stream from the url
+        # we just load the json and return the dictionary
+        with open(self._raw, 'r') as f:
+            return json.load(f)
 
     def __enter__(self):
         return self
@@ -75,6 +86,14 @@ class TestDownload(unittest.TestCase):
             original.save(file.name)
             image = download.download_image(file.name)
             assert _images_equal(image, original)
+
+    def test_download_prediction(self):
+        original = _json_prediction()
+        with tempfile.NamedTemporaryFile(suffix='.json', mode="w+") as file:
+            with open(file.name, 'w') as f:
+                json.dump(original, f)
+            response = download.download_prediction_file(file.name)
+            assert _dicts_equal(response, original)
 
     def test_download_image_with_session(self):
         session = MockedRequestsModule.Session()
@@ -280,11 +299,22 @@ def _images_equal(image1, image2):
     # use a lossless format, otherwise this equality will not hold
     return np.all(np.array(image1) == np.array(image2))
 
+def _dicts_equal(x, y):
+    shared_items = {k: x[k] for k in x if k in y and x[k] == y[k]}
+    return len(x) == len(shared_items) and len(y) == len(shared_items)
+
 def _pil_image(width=100, height=50, seed=0):
     np.random.seed(seed)
     image = (np.random.randn(width, height, 3) * 255).astype(np.uint8)
     image = Image.fromarray(image, mode='RGB')
     return image
+
+def _json_prediction():
+    return {
+        'string': 'Hello World',
+        'int': 1,
+        'float': 0.5,
+    }
 
 def _generate_video(
     out_file, 
