@@ -6,6 +6,17 @@ Make sure you installed dev dependencies:
 pip install -r ../requirements/dev.txt
 ```
 
+You may have to set up a clean environment (e.g. with Conda) and use setuptools from the parent directory:
+```
+conda create -n lightly python=3.7
+conda activate lightly
+pip install -e .["all"]
+```
+
+For building docs with python files (including tutorials) install detectron2.
+This isn't handled in requirements because the version you'll need depends on your GPU/ hardware.
+[Follow instructions](https://detectron2.readthedocs.io/en/latest/tutorials/install.html)
+
 ## Build the Docs
 `sphinx` provides a Makefile, so to build the `html` documentation, simply type:
 ```
