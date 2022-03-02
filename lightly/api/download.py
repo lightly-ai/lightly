@@ -347,7 +347,7 @@ def all_video_frame_counts(
 def download_prediction_file(
     url: str,
     session: requests.Session = None,
-) -> Dict:
+) -> Union[Dict, None]:
     """Downloads a json file from the provided read-url.
 
     Args:
