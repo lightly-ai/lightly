@@ -85,7 +85,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
 
         self.token = token
         if dataset_id is not None:
-            self.dataset_id = dataset_id
+            self._dataset_id = dataset_id
         if embedding_id is not None:
             self.embedding_id = embedding_id
 
