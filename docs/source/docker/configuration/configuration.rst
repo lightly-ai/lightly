@@ -112,7 +112,7 @@ The following are parameters which can be passed to the container:
     # If True keeps backup of all previous data pool states.
     keep_history: True
     # Dataset id from Lightly platform where the datapool should be hosted.
-    id:
+    dataset_id:
 
   # datasource
   # By default only new samples in the datasource are processed. Set process_all 
