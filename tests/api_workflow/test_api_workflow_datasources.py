@@ -55,3 +55,8 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         predictions = self.api_workflow_client.download_raw_predictions('test')
         num_samples = self.api_workflow_client._datasources_api._num_samples
         assert len(predictions) == num_samples
+
+    def test_get_prediction_read_url(self):
+        self.api_workflow_client._datasources_api.reset()
+        read_url = self.api_workflow_client.get_prediction_read_url('test.json')
+        self.assertIsNotNone(read_url)

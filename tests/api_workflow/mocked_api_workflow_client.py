@@ -421,6 +421,10 @@ class MockedDatasourcesApi(DatasourcesApi):
         )    
 
 
+    def get_prediction_file_read_url_from_datasource_by_dataset_id(self):
+        return 'https://my-read-url.com'
+
+
     def update_datasource_by_dataset_id(
         self, body: DatasourceConfig, dataset_id: str, **kwargs
     ) -> None:
