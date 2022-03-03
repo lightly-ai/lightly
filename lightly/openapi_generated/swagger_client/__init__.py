@@ -36,6 +36,7 @@ from lightly.openapi_generated.swagger_client.api.versioning_api import Versioni
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
 # import models into sdk package
+from lightly.openapi_generated.swagger_client.models.access_role import AccessRole
 from lightly.openapi_generated.swagger_client.models.active_learning_score_create_request import ActiveLearningScoreCreateRequest
 from lightly.openapi_generated.swagger_client.models.active_learning_score_data import ActiveLearningScoreData
 from lightly.openapi_generated.swagger_client.models.active_learning_score_type import ActiveLearningScoreType
