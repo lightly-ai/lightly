@@ -33,45 +33,47 @@ class MetaDataConfigurationsApi(object):
             api_client = ApiClient()
         self.api_client = api_client
 
-    def create_meta_data_configuration(self, body, **kwargs):  # noqa: E501
+    def create_meta_data_configuration(self, body, dataset_id, **kwargs):  # noqa: E501
         """create_meta_data_configuration  # noqa: E501
 
         Create a new metadata configuration  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.create_meta_data_configuration(body, async_req=True)
+        >>> thread = api.create_meta_data_configuration(body, dataset_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
         :param ConfigurationSetRequest body: (required)
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :return: CreateEntityResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.create_meta_data_configuration_with_http_info(body, **kwargs)  # noqa: E501
+            return self.create_meta_data_configuration_with_http_info(body, dataset_id, **kwargs)  # noqa: E501
         else:
-            (data) = self.create_meta_data_configuration_with_http_info(body, **kwargs)  # noqa: E501
+            (data) = self.create_meta_data_configuration_with_http_info(body, dataset_id, **kwargs)  # noqa: E501
             return data
 
-    def create_meta_data_configuration_with_http_info(self, body, **kwargs):  # noqa: E501
+    def create_meta_data_configuration_with_http_info(self, body, dataset_id, **kwargs):  # noqa: E501
         """create_meta_data_configuration  # noqa: E501
 
         Create a new metadata configuration  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.create_meta_data_configuration_with_http_info(body, async_req=True)
+        >>> thread = api.create_meta_data_configuration_with_http_info(body, dataset_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
         :param ConfigurationSetRequest body: (required)
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :return: CreateEntityResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['body']  # noqa: E501
+        all_params = ['body', 'dataset_id']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -90,10 +92,16 @@ class MetaDataConfigurationsApi(object):
         if self.api_client.client_side_validation and ('body' not in params or
                                                        params['body'] is None):  # noqa: E501
             raise ValueError("Missing the required parameter `body` when calling `create_meta_data_configuration`")  # noqa: E501
+        # verify the required parameter 'dataset_id' is set
+        if self.api_client.client_side_validation and ('dataset_id' not in params or
+                                                       params['dataset_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `dataset_id` when calling `create_meta_data_configuration`")  # noqa: E501
 
         collection_formats = {}
 
         path_params = {}
+        if 'dataset_id' in params:
+            path_params['datasetId'] = params['dataset_id']  # noqa: E501
 
         query_params = []
 
@@ -117,7 +125,7 @@ class MetaDataConfigurationsApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
-            '/v1/configuration/metadata', 'POST',
+            '/v1/datasets/{datasetId}/configuration/metadata', 'POST',
             path_params,
             query_params,
             header_params,
@@ -132,16 +140,17 @@ class MetaDataConfigurationsApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def get_meta_data_configuration_by_id(self, configuration_id, **kwargs):  # noqa: E501
+    def get_meta_data_configuration_by_id(self, dataset_id, configuration_id, **kwargs):  # noqa: E501
         """get_meta_data_configuration_by_id  # noqa: E501
 
         Get a specific metadata configuration  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_meta_data_configuration_by_id(configuration_id, async_req=True)
+        >>> thread = api.get_meta_data_configuration_by_id(dataset_id, configuration_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID configuration_id: ObjectId of the metadata configuration (required)
         :return: ConfigurationData
                  If the method is called asynchronously,
@@ -149,28 +158,29 @@ class MetaDataConfigurationsApi(object):
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.get_meta_data_configuration_by_id_with_http_info(configuration_id, **kwargs)  # noqa: E501
+            return self.get_meta_data_configuration_by_id_with_http_info(dataset_id, configuration_id, **kwargs)  # noqa: E501
         else:
-            (data) = self.get_meta_data_configuration_by_id_with_http_info(configuration_id, **kwargs)  # noqa: E501
+            (data) = self.get_meta_data_configuration_by_id_with_http_info(dataset_id, configuration_id, **kwargs)  # noqa: E501
             return data
 
-    def get_meta_data_configuration_by_id_with_http_info(self, configuration_id, **kwargs):  # noqa: E501
+    def get_meta_data_configuration_by_id_with_http_info(self, dataset_id, configuration_id, **kwargs):  # noqa: E501
         """get_meta_data_configuration_by_id  # noqa: E501
 
         Get a specific metadata configuration  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_meta_data_configuration_by_id_with_http_info(configuration_id, async_req=True)
+        >>> thread = api.get_meta_data_configuration_by_id_with_http_info(dataset_id, configuration_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID configuration_id: ObjectId of the metadata configuration (required)
         :return: ConfigurationData
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['configuration_id']  # noqa: E501
+        all_params = ['dataset_id', 'configuration_id']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -185,6 +195,10 @@ class MetaDataConfigurationsApi(object):
                 )
             params[key] = val
         del params['kwargs']
+        # verify the required parameter 'dataset_id' is set
+        if self.api_client.client_side_validation and ('dataset_id' not in params or
+                                                       params['dataset_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `dataset_id` when calling `get_meta_data_configuration_by_id`")  # noqa: E501
         # verify the required parameter 'configuration_id' is set
         if self.api_client.client_side_validation and ('configuration_id' not in params or
                                                        params['configuration_id'] is None):  # noqa: E501
@@ -193,6 +207,8 @@ class MetaDataConfigurationsApi(object):
         collection_formats = {}
 
         path_params = {}
+        if 'dataset_id' in params:
+            path_params['datasetId'] = params['dataset_id']  # noqa: E501
         if 'configuration_id' in params:
             path_params['configurationId'] = params['configuration_id']  # noqa: E501
 
@@ -212,7 +228,7 @@ class MetaDataConfigurationsApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
-            '/v1/configuration/metadata/{configurationId}', 'GET',
+            '/v1/datasets/{datasetId}/configuration/metadata/{configurationId}', 'GET',
             path_params,
             query_params,
             header_params,
@@ -227,43 +243,45 @@ class MetaDataConfigurationsApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def get_meta_data_configurations(self, **kwargs):  # noqa: E501
+    def get_meta_data_configurations(self, dataset_id, **kwargs):  # noqa: E501
         """get_meta_data_configurations  # noqa: E501
 
         Get the all metadata configurations that exist for a user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_meta_data_configurations(async_req=True)
+        >>> thread = api.get_meta_data_configurations(dataset_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :return: list[ConfigurationData]
                  If the method is called asynchronously,
                  returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.get_meta_data_configurations_with_http_info(**kwargs)  # noqa: E501
+            return self.get_meta_data_configurations_with_http_info(dataset_id, **kwargs)  # noqa: E501
         else:
-            (data) = self.get_meta_data_configurations_with_http_info(**kwargs)  # noqa: E501
+            (data) = self.get_meta_data_configurations_with_http_info(dataset_id, **kwargs)  # noqa: E501
             return data
 
-    def get_meta_data_configurations_with_http_info(self, **kwargs):  # noqa: E501
+    def get_meta_data_configurations_with_http_info(self, dataset_id, **kwargs):  # noqa: E501
         """get_meta_data_configurations  # noqa: E501
 
         Get the all metadata configurations that exist for a user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_meta_data_configurations_with_http_info(async_req=True)
+        >>> thread = api.get_meta_data_configurations_with_http_info(dataset_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :return: list[ConfigurationData]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = []  # noqa: E501
+        all_params = ['dataset_id']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -278,10 +296,16 @@ class MetaDataConfigurationsApi(object):
                 )
             params[key] = val
         del params['kwargs']
+        # verify the required parameter 'dataset_id' is set
+        if self.api_client.client_side_validation and ('dataset_id' not in params or
+                                                       params['dataset_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `dataset_id` when calling `get_meta_data_configurations`")  # noqa: E501
 
         collection_formats = {}
 
         path_params = {}
+        if 'dataset_id' in params:
+            path_params['datasetId'] = params['dataset_id']  # noqa: E501
 
         query_params = []
 
@@ -299,7 +323,7 @@ class MetaDataConfigurationsApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
-            '/v1/configuration/metadata', 'GET',
+            '/v1/datasets/{datasetId}/configuration/metadata', 'GET',
             path_params,
             query_params,
             header_params,
@@ -314,17 +338,18 @@ class MetaDataConfigurationsApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def update_meta_data_configuration_by_id(self, body, configuration_id, **kwargs):  # noqa: E501
+    def update_meta_data_configuration_by_id(self, body, dataset_id, configuration_id, **kwargs):  # noqa: E501
         """update_meta_data_configuration_by_id  # noqa: E501
 
         update a specific metadata configuration  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.update_meta_data_configuration_by_id(body, configuration_id, async_req=True)
+        >>> thread = api.update_meta_data_configuration_by_id(body, dataset_id, configuration_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
         :param ConfigurationSetRequest body: (required)
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID configuration_id: ObjectId of the metadata configuration (required)
         :return: None
                  If the method is called asynchronously,
@@ -332,29 +357,30 @@ class MetaDataConfigurationsApi(object):
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.update_meta_data_configuration_by_id_with_http_info(body, configuration_id, **kwargs)  # noqa: E501
+            return self.update_meta_data_configuration_by_id_with_http_info(body, dataset_id, configuration_id, **kwargs)  # noqa: E501
         else:
-            (data) = self.update_meta_data_configuration_by_id_with_http_info(body, configuration_id, **kwargs)  # noqa: E501
+            (data) = self.update_meta_data_configuration_by_id_with_http_info(body, dataset_id, configuration_id, **kwargs)  # noqa: E501
             return data
 
-    def update_meta_data_configuration_by_id_with_http_info(self, body, configuration_id, **kwargs):  # noqa: E501
+    def update_meta_data_configuration_by_id_with_http_info(self, body, dataset_id, configuration_id, **kwargs):  # noqa: E501
         """update_meta_data_configuration_by_id  # noqa: E501
 
         update a specific metadata configuration  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.update_meta_data_configuration_by_id_with_http_info(body, configuration_id, async_req=True)
+        >>> thread = api.update_meta_data_configuration_by_id_with_http_info(body, dataset_id, configuration_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
         :param ConfigurationSetRequest body: (required)
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID configuration_id: ObjectId of the metadata configuration (required)
         :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['body', 'configuration_id']  # noqa: E501
+        all_params = ['body', 'dataset_id', 'configuration_id']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -373,6 +399,10 @@ class MetaDataConfigurationsApi(object):
         if self.api_client.client_side_validation and ('body' not in params or
                                                        params['body'] is None):  # noqa: E501
             raise ValueError("Missing the required parameter `body` when calling `update_meta_data_configuration_by_id`")  # noqa: E501
+        # verify the required parameter 'dataset_id' is set
+        if self.api_client.client_side_validation and ('dataset_id' not in params or
+                                                       params['dataset_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `dataset_id` when calling `update_meta_data_configuration_by_id`")  # noqa: E501
         # verify the required parameter 'configuration_id' is set
         if self.api_client.client_side_validation and ('configuration_id' not in params or
                                                        params['configuration_id'] is None):  # noqa: E501
@@ -381,6 +411,8 @@ class MetaDataConfigurationsApi(object):
         collection_formats = {}
 
         path_params = {}
+        if 'dataset_id' in params:
+            path_params['datasetId'] = params['dataset_id']  # noqa: E501
         if 'configuration_id' in params:
             path_params['configurationId'] = params['configuration_id']  # noqa: E501
 
@@ -406,7 +438,7 @@ class MetaDataConfigurationsApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
-            '/v1/configuration/metadata/{configurationId}', 'PUT',
+            '/v1/datasets/{datasetId}/configuration/metadata/{configurationId}', 'PUT',
             path_params,
             query_params,
             header_params,

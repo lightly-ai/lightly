@@ -1,11 +1,10 @@
 import time
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
+from lightly.openapi_generated.swagger_client.models.datasource_config import DatasourceConfig
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import DatasourceProcessedUntilTimestampRequest
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import DatasourceProcessedUntilTimestampResponse
-
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import DatasourceRawSamplesData
-
 
 
 class _DatasourcesMixin:
@@ -97,7 +96,7 @@ class _DatasourcesMixin:
             dataset_id=self.dataset_id, body=body
         )
 
-    def get_datasource(self):
+    def get_datasource(self) -> DatasourceConfig:
         """Calls the api to return the datasource of the current dataset.
 
         Returns:
@@ -109,4 +108,148 @@ class _DatasourcesMixin:
         """
         return self._datasources_api.get_datasource_by_dataset_id(
             self.dataset_id
+        )
+
+    def set_azure_config(
+        self,
+        container_name: str,
+        account_name: str,
+        sas_token: str,
+        thumbnail_suffix: Optional[str] = None,
+    ) -> None:
+        """Sets the Azure configuration for the datasource of the current dataset.
+        
+        Find a detailed explanation on how to setup Lightly with 
+        Azure Blob Storage in our docs: https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_azure_storage.html#
+
+        Args:
+            container_name:
+                Container name of the dataset, for example: "my-container/path/to/my/data".
+            account_name:
+                Azure account name.
+            sas_token:
+                Secure Access Signature token.
+            thumbnail_suffix:
+                Where to save thumbnails of the images in the dataset, for
+                example ".lightly/thumbnails/[filename]_thumb.[extension]". 
+                Set to None to disable thumbnails and use the full images from the 
+                datasource instead.
+        """
+        # TODO: Use DatasourceConfigAzure once we switch/update the api generator.
+        self._datasources_api.update_datasource_by_dataset_id(
+            body={
+                'type': 'AZURE',
+                'fullPath': container_name,
+                'thumbSuffix': thumbnail_suffix,
+                'accountName': account_name,
+                'accountKey': sas_token,
+            },
+            dataset_id=self.dataset_id,
+        )
+
+    def set_gcs_config(
+        self,
+        resource_path: str,
+        project_id: str,
+        credentials: str,
+        thumbnail_suffix: Optional[str] = None,
+    ) -> None:
+        """Sets the Google Cloud Storage configuration for the datasource of the
+        current dataset.
+
+        Find a detailed explanation on how to setup Lightly with 
+        Google Cloud Storage in our docs: https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_gcloud_bucket.html
+        
+        Args:
+            resource_path:
+                GCS url of your dataset, for example: "gs://my_bucket/path/to/my/data"
+            project_id:
+                GCS project id.
+            credentials:
+                Content of the credentials JSON file stringified which you 
+                download from Google Cloud Platform.
+            thumbnail_suffix:
+                Where to save thumbnails of the images in the dataset, for
+                example ".lightly/thumbnails/[filename]_thumb.[extension]". 
+                Set to None to disable thumbnails and use the full images from the 
+                datasource instead.
+        """
+        # TODO: Use DatasourceConfigGCS once we switch/update the api generator.
+        self._datasources_api.update_datasource_by_dataset_id(
+            body={
+                'type': 'GCS',
+                'fullPath': resource_path,
+                'thumbSuffix': thumbnail_suffix,
+                'gcsProjectId': project_id,
+                'gcsCredentials': credentials,
+            },
+            dataset_id=self.dataset_id,
+        )
+
+    def set_local_config(
+        self,
+        resource_path: str,
+        thumbnail_suffix: Optional[str] = None,
+    ) -> None:
+        """Sets the local configuration for the datasource of the current dataset.
+
+        Find a detailed explanation on how to setup Lightly with a local file
+        server in our docs: https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_local_server.html
+        
+        Args:
+            resource_path:
+                Url to your local file server, for example: "http://localhost:1234/path/to/my/data".
+            thumbnail_suffix:
+                Where to save thumbnails of the images in the dataset, for
+                example ".lightly/thumbnails/[filename]_thumb.[extension]". 
+                Set to None to disable thumbnails and use the full images from the 
+                datasource instead.
+        """
+        # TODO: Use DatasourceConfigLocal once we switch/update the api generator.
+        self._datasources_api.update_datasource_by_dataset_id(
+            body={
+                'type': 'LOCAL',
+                'fullPath': resource_path,
+                'thumbSuffix': thumbnail_suffix,
+            },
+            dataset_id=self.dataset_id,
+        )
+
+    def set_s3_config(
+        self,
+        resource_path: str,
+        region: str,
+        access_key: str,
+        secret_access_key: str,
+        thumbnail_suffix: Optional[str] = None,
+    ) -> None:
+        """Sets the S3 configuration for the datasource of the current dataset.
+        
+        Args:
+            resource_path:
+                S3 url of your dataset, for example "s3://my_bucket/path/to/my/data".
+            region:
+                S3 region where the dataset bucket is located, for example "eu-central-1".
+            access_key:
+                S3 access key.
+            secret_access_key:
+                Secret for the S3 access key.
+            thumbnail_suffix:
+                Where to save thumbnails of the images in the dataset, for
+                example ".lightly/thumbnails/[filename]_thumb.[extension]". 
+                Set to None to disable thumbnails and use the full images from the 
+                datasource instead.
+
+        """
+        # TODO: Use DatasourceConfigS3 once we switch/update the api generator.
+        self._datasources_api.update_datasource_by_dataset_id(
+            body={
+                'type': 'S3',
+                'fullPath': resource_path,
+                'thumbSuffix': thumbnail_suffix,
+                's3Region': region,
+                's3AccessKeyId': access_key,
+                's3SecretAccessKey': secret_access_key,
+            },
+            dataset_id=self.dataset_id,
         )
