@@ -42,11 +42,13 @@ class _DatasetsMixin:
             dataset_with_specified_name = next(dataset for dataset in current_datasets if dataset.name == dataset_name)
             self._dataset_id = dataset_with_specified_name.id
         except StopIteration:
-            raise ValueError(f"A dataset with the name {dataset_name} does not exist on the web platform. "
-                             f"Please create it first.")
+            raise ValueError(
+                f"A dataset with the name {dataset_name} does not exist on the "
+                f"Lightly Platform. Please create it first."
+            )
 
     def create_dataset(self, dataset_name: str):
-        """Creates a dataset on the webplatform
+        """Creates a dataset on the Lightly Platform..
 
         If a dataset with that name already exists, instead the dataset_id is set.
 
@@ -61,7 +63,7 @@ class _DatasetsMixin:
             self._create_dataset_without_check_existing(dataset_name=dataset_name)
 
     def _create_dataset_without_check_existing(self, dataset_name: str):
-        """Creates a dataset on the webplatform
+        """Creates a dataset on the Lightly Platform.
 
         No checking if a dataset with such a name already exists is performed.
 
@@ -75,7 +77,7 @@ class _DatasetsMixin:
         self._dataset_id = response.id
 
     def create_new_dataset_with_unique_name(self, dataset_basename: str):
-        """Creates a new dataset on the web platform
+        """Creates a new dataset on the Lightly Platform.
 
         If a dataset with the specified name already exists,
         a counter is added to the name to be able to still create it.
@@ -105,7 +107,7 @@ class _DatasetsMixin:
         return self._datasets_api.get_datasets()
 
     def delete_dataset_by_id(self, dataset_id: str):
-        """Deletes a dataset on the web platform
+        """Deletes a dataset on the Lightly Platform.
 
         Args:
             dataset_id:
