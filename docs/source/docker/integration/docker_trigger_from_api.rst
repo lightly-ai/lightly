@@ -96,20 +96,23 @@ for the job.
 
 .. image:: images/schedule-compute-run-config.png
 
+In our example we use the following parameters.
+
+
+
 .. code-block:: javascript
+  :caption: Docker Config
 
   {
     enable_corruptness_check: false,
     stopping_condition: {
       n_samples: 0.05
-    },
-    datasource: {
-      process_all: false
     }
   }
 
 
 .. code-block:: javascript
+  :caption: Lightly Config
 
   {
     loader: {
@@ -117,6 +120,8 @@ for the job.
       batch_size: 128
     }
   }
+
+Once the parameters are set you can schedule the run using a click on **schedule**.
 
 
 View the progress of the Lightly Docker
