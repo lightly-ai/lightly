@@ -38,14 +38,25 @@ Upload the data
 
 We start by uploading the dataset to the `Lightly Platform <https://app.lightly.ai>`_.
 
-Create a new account if you do not have one yet and create a new dataset. You can upload images
-using drag and drop from your local machine.
+Create a new account if you do not have one yet.
+Go to your user Preferences and copy your API token.
+
+Now install lightly if you haven't already, and upload your dataset.
+
+.. code-block:: console
+
+    # install Lightly if you haven't already
+    pip3 install lightly
+
+    # upload your DATA directory
+    lightly-upload token=MY_TOKEN new_dataset_name='NEW_DATASET_NAME' input_dir='DATA/'
+
 
 Filter the dataset using metadata
 ---------------------------------
 
 Once the dataset is created and the
-images uploaded, you can head to 'Histogram' under the 'Analyze & Filter' menu.
+images uploaded, you can head to 'Metadata' under the 'Analyze & Filter' menu.
 
 Move the sliders below the histograms to define filter rules for the dataset.
 Once you are satisfied with the filtered dataset, create a new tag using the tag menu
