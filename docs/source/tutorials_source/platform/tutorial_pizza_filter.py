@@ -16,7 +16,7 @@ curate the data, and finally use the curated data to train a model.
 What you will learn
 -------------------
 
-* Create and upload a new dataset via the web frontend
+* Create and upload a new dataset
 * Curate a dataset using simple image metrics such as Width, Height, Sharpness, Signal-to-Noise ratio, File Size
 * Download images based on a tag from a dataset
 * Train an image classifier with the filtered dataset
