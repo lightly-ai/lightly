@@ -29,8 +29,9 @@ configured to use the data in your AWS S3 bucket. Create such a dataset in 2 ste
 
 1. `Create a new dataset <https://app.lightly.ai/dataset/create>`_ in Lightly.
    Make sure that you choose the input type `Images` or `Videos` correctly,
-   depending on the type of files in your S3 bucket.
-2. Edit your dataset, select S3 as your datasource and fill out the form.
+   depending on the type of files in your cloud storage bucket.
+2. Edit your dataset, select the storage source as your datasource and fill out the form.
+   In our example we use an S3 bucket.
 
     .. figure:: ../../getting_started/resources/LightlyEdit2.png
         :align: center
@@ -56,7 +57,8 @@ the :ref:`ref-docker-setup`.
 Register the Lightly Docker as a Worker
 ---------------------------------------
 To control the Lightly Docker from the API you have to register it as a worker.
-For this head over to `Docker Workers <https://app.lightly.ai/docker/workers>`__
+We can simply go to the Lightly web app and click on My Docker Runs --> My Compute Workers.
+Or just click on the direct link here: `Docker Workers <https://app.lightly.ai/docker/workers>`__
 
 .. image:: ../getting_started/images/docker_workers_overview_empty.png
 
@@ -65,7 +67,7 @@ After confirmation the worker should show up in the worker list.
 
 .. image:: ../getting_started/images/docker_workers_overview_registered.png
 
-Copy the worker id and head over to your terminal. You can now start the docker
+Copy the *worker id* and head over to your terminal. You can now start the docker
 with the worker id and it will connect to the API and wait for jobs. To start
 the docker execute the following command: 
 
@@ -84,7 +86,37 @@ page should now indicate that the worker is in an idle state.
 Triggering a Job through the API
 --------------------------------
 
-TODO
+To trigger a new job you can click on the schedule run button on the dataset
+overview as shown in the screenshot below:
+
+.. image:: images/schedule-compute-run.png
+
+After clicking on the button you will see a wizzard to configure the the parameters
+for the job.
+
+.. image:: images/schedule-compute-run-config.png
+
+.. code-block:: javascript
+
+  {
+    enable_corruptness_check: false,
+    stopping_condition: {
+      n_samples: 0.05
+    },
+    datasource: {
+      process_all: false
+    }
+  }
+
+
+.. code-block:: javascript
+
+  {
+    loader: {
+      num_workers: 8,
+      batch_size: 128
+    }
+  }
 
 
 View the progress of the Lightly Docker
