@@ -1,3 +1,5 @@
+from lightly.openapi_generated.swagger_client.models.docker_run_data import DockerRunData
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import DockerRunScheduledData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
@@ -48,3 +50,19 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
             }
         )
         assert scheduled_run_id
+
+    def test_get_compute_worker_ids(self):
+        ids = self.api_workflow_client.get_compute_worker_ids()
+        assert all(isinstance(id_, str) for id_ in ids)
+
+    def test_get_compute_worker_runs(self):
+        runs = self.api_workflow_client.get_compute_worker_runs()
+        assert len(runs) > 0
+        assert all(isinstance(run, DockerRunData) for run in runs)
+
+    def test_get_scheduled_compute_worker_runs(self):
+        runs = self.api_workflow_client.get_scheduled_compute_worker_runs()
+        dataset_id = self.api_workflow_client.dataset_id
+        assert len(runs) > 0
+        assert all(isinstance(run, DockerRunScheduledData) for run in runs)
+        assert all(run.dataset_id == dataset_id for run in runs)

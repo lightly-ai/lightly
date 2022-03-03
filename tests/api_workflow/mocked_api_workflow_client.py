@@ -11,14 +11,23 @@ from requests import Response
 from lightly.openapi_generated.swagger_client.api.docker_api import DockerApi
 from lightly.openapi_generated.swagger_client.models.create_docker_worker_registry_entry_request import CreateDockerWorkerRegistryEntryRequest
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import DatasourceProcessedUntilTimestampResponse
+from lightly.openapi_generated.swagger_client.models.docker_run_data import DockerRunData
 from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_create_request import DockerRunScheduledCreateRequest
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import DockerRunScheduledData
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_priority import DockerRunScheduledPriority
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_state import DockerRunScheduledState
+from lightly.openapi_generated.swagger_client.models.docker_run_state import DockerRunState
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import DockerWorkerConfigCreateRequest
+from lightly.openapi_generated.swagger_client.models.docker_worker_registry_entry_data import DockerWorkerRegistryEntryData
+from lightly.openapi_generated.swagger_client.models.docker_worker_state import DockerWorkerState
+from lightly.openapi_generated.swagger_client.models.docker_worker_type import DockerWorkerType
 
 from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
 from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
 from lightly.openapi_generated.swagger_client.api.datasources_api import DatasourcesApi
+from lightly.openapi_generated.swagger_client.models.timestamp import Timestamp
 from lightly.openapi_generated.swagger_client.rest import ApiException
 
 import lightly
@@ -419,6 +428,41 @@ class MockedDatasourcesApi(DatasourcesApi):
 class MockedComputeWorkerApi(DockerApi):
     def __init__(self, api_client=None):
         super().__init__(api_client=api_client)
+        self._compute_worker_runs = [
+            DockerRunData(
+                id="compute-worker-run-1",
+                docker_version="v1",
+                dataset_id="dataset_id_xyz",
+                state=DockerRunState.TRAINING,
+                created_at=Timestamp(0),
+                last_modified_at=Timestamp(100),
+                message=None,
+                messages=[],
+                report_available=False,
+            )
+        ]
+        self._scheduled_compute_worker_runs = [
+            DockerRunScheduledData(
+                id="compute-worker-scheduled-run-1",
+                dataset_id="dataset_id_xyz",
+                config_id="config-id-1",
+                priority=DockerRunScheduledPriority.MID,
+                state=DockerRunScheduledState.OPEN,
+                created_at=Timestamp(0),
+                last_modified_at=Timestamp(100),
+                owner="user-id-1",
+            )
+        ]
+        self._registered_workers = [
+            DockerWorkerRegistryEntryData(
+                id="worker-registry-id-1",
+                name="worker-name-1",
+                worker_type=DockerWorkerType.FULL,
+                state=DockerWorkerState.OFFLINE,
+                created_at=Timestamp(0),
+                last_modified_at=Timestamp(0),
+            )
+        ]
 
     def register_docker_worker(self, body, **kwargs):
         assert isinstance(body, CreateDockerWorkerRegistryEntryRequest)
@@ -426,6 +470,9 @@ class MockedComputeWorkerApi(DockerApi):
 
     def delete_docker_worker_registry_entry_by_id(self, worker_id, **kwargs):
         assert worker_id == 'worker-id-123'
+
+    def get_docker_worker_registry_entries(self, **kwargs):
+        return self._registered_workers
 
     def create_docker_worker_config(self, body, **kwargs):
         assert isinstance(body, DockerWorkerConfigCreateRequest)
@@ -435,6 +482,14 @@ class MockedComputeWorkerApi(DockerApi):
         assert isinstance(body, DockerRunScheduledCreateRequest)
         _check_dataset_id(dataset_id)
         return CreateEntityResponse(id=f'scheduled-run-id-123-dataset-{dataset_id}')
+
+    def get_docker_runs(self, **kwargs):
+        return self._compute_worker_runs
+
+    def get_docker_runs_scheduled_by_dataset_id(self, dataset_id, **kwargs):
+        runs = self._scheduled_compute_worker_runs
+        runs = [run for run in runs if run.dataset_id == dataset_id]
+        return runs
 
 
 class MockedVersioningApi(VersioningApi):
