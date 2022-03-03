@@ -175,8 +175,11 @@ class _UploadCustomMetadataMixin:
             custom_metadata,
         )
         if len(filename_to_metadata) != len(custom_metadata[COCO_ANNOTATION_KEYS.images]):
-            raise ValueError("There exist image names in the custom metadata "
-                             "without corresponding filenames on the server.")
+            raise ValueError(
+                f'There is a mismatch between the number of images '
+                f'({len(filename_to_metadata)}) in the metadata file and on the '
+                f'server ({len(custom_metadata[COCO_ANNOTATION_KEYS.images])}).'
+            )
 
         # retry upload if it times out
         def upload_sample_metadata(args):
