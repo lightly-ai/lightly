@@ -72,9 +72,6 @@ class TestApiWorkflowTags(MockedApiWorkflowSetup):
         with self.assertRaises(RuntimeError):
             self.api_workflow_client.create_tag_from_filenames(filenames_new_tag, new_tag_name="funny_new_tag")
 
-
-
-
-
-
+    def test_delete_tag_by_id(self):
+        self.api_workflow_client.delete_tag_by_id(self.valid_tag_id)
 

@@ -76,7 +76,6 @@ from lightly.openapi_generated.swagger_client.models.embedding2d_create_request 
 from lightly.openapi_generated.swagger_client.models.embedding2d_data import Embedding2dData
 from lightly.openapi_generated.swagger_client.models.embedding_data import EmbeddingData
 from lightly.openapi_generated.swagger_client.models.embedding_id_is_processed_body import EmbeddingIdIsProcessedBody
-from lightly.openapi_generated.swagger_client.models.entity_body import EntityBody
 from lightly.openapi_generated.swagger_client.models.general_job_result import GeneralJobResult
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest

@@ -1,15 +1,6 @@
-import os
-import tempfile
-import unittest
-
 import numpy as np
 
 import lightly
-from lightly.active_learning.agents.agent import ActiveLearningAgent
-from lightly.active_learning.config.sampler_config import SamplerConfig
-from lightly.active_learning.scorers.classification import ScorerClassification
-from lightly.openapi_generated.swagger_client import SamplingMethod
-from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowClient, MockedApiWorkflowSetup
 
 
@@ -36,6 +27,13 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
         id = "random_dataset_id"
         self.api_workflow_client._dataset_id = id
         assert self.api_workflow_client.dataset_id == id
+
+    def test_set_dataset_id_existing(self):
+        self.api_workflow_client.dataset_id = "dataset_1_id"
+
+    def test_set_dataset_id_missing(self):
+        with self.assertRaises(ValueError):
+            self.api_workflow_client.dataset_id = "nonexisting-id"
 
     def test_reorder_random(self):
         no_random_tries = 100
@@ -89,9 +87,3 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
             with self.assertRaises(ValueError):
                 api_workflow_client._order_list_by_filenames(
                     filenames_for_list[:-1], list_to_order[:-1])
-
-
-
-
-
-

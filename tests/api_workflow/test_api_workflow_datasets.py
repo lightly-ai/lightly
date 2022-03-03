@@ -49,3 +49,10 @@ class TestApiWorkflowDatasets(MockedApiWorkflowSetup):
         self.api_workflow_client.create_dataset(dataset_name="some_dataset")
         assert self.api_workflow_client.dataset_type == "Images"
 
+    def test_get_datasets(self):
+        self.api_workflow_client._datasets_api.reset()
+        num_datasets_before = len(self.api_workflow_client.get_datasets())
+        self.api_workflow_client.create_new_dataset_with_unique_name('dataset')
+        num_datasets_after = len(self.api_workflow_client.get_datasets())
+        assert num_datasets_before + 1 == num_datasets_after
+
