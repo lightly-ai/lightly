@@ -206,6 +206,10 @@ class _UploadCustomMetadataMixin:
             # get iterator over results
             results = executor.map(upload_sample_metadata, sample_requests)
             if verbose:
-                results = tqdm(results, total=len(sample_requests))
+                results = tqdm(
+                    results, 
+                    unit='metadata',
+                    total=len(sample_requests)
+                )
             # iterate over results to make sure they are completed
             list(results)
