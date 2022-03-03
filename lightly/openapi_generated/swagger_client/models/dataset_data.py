@@ -44,7 +44,7 @@ class DatasetData(object):
         'meta_data_configuration_id': 'MongoObjectID',
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp',
-        'auth_role': 'AuthRole'
+        'access_role': 'AccessRole'
     }
 
     attribute_map = {
@@ -59,10 +59,10 @@ class DatasetData(object):
         'meta_data_configuration_id': 'metaDataConfigurationId',
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt',
-        'auth_role': 'authRole'
+        'access_role': 'accessRole'
     }
 
-    def __init__(self, id=None, name=None, user_id=None, access_type=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, meta_data_configuration_id=None, created_at=None, last_modified_at=None, auth_role=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, name=None, user_id=None, access_type=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, meta_data_configuration_id=None, created_at=None, last_modified_at=None, access_role=None, _configuration=None):  # noqa: E501
         """DatasetData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -79,7 +79,7 @@ class DatasetData(object):
         self._meta_data_configuration_id = None
         self._created_at = None
         self._last_modified_at = None
-        self._auth_role = None
+        self._access_role = None
         self.discriminator = None
 
         self.id = id
@@ -96,8 +96,8 @@ class DatasetData(object):
             self.meta_data_configuration_id = meta_data_configuration_id
         self.created_at = created_at
         self.last_modified_at = last_modified_at
-        if auth_role is not None:
-            self.auth_role = auth_role
+        if access_role is not None:
+            self.access_role = access_role
 
     @property
     def id(self):
@@ -349,25 +349,25 @@ class DatasetData(object):
         self._last_modified_at = last_modified_at
 
     @property
-    def auth_role(self):
-        """Gets the auth_role of this DatasetData.  # noqa: E501
+    def access_role(self):
+        """Gets the access_role of this DatasetData.  # noqa: E501
 
 
-        :return: The auth_role of this DatasetData.  # noqa: E501
-        :rtype: AuthRole
+        :return: The access_role of this DatasetData.  # noqa: E501
+        :rtype: AccessRole
         """
-        return self._auth_role
+        return self._access_role
 
-    @auth_role.setter
-    def auth_role(self, auth_role):
-        """Sets the auth_role of this DatasetData.
+    @access_role.setter
+    def access_role(self, access_role):
+        """Sets the access_role of this DatasetData.
 
 
-        :param auth_role: The auth_role of this DatasetData.  # noqa: E501
-        :type: AuthRole
+        :param access_role: The access_role of this DatasetData.  # noqa: E501
+        :type: AccessRole
         """
 
-        self._auth_role = auth_role
+        self._access_role = access_role
 
     def to_dict(self):
         """Returns the model properties as a dict"""

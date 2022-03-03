@@ -15,6 +15,7 @@
 from __future__ import absolute_import
 
 # import models into model package
+from lightly.openapi_generated.swagger_client.models.access_role import AccessRole
 from lightly.openapi_generated.swagger_client.models.active_learning_score_create_request import ActiveLearningScoreCreateRequest
 from lightly.openapi_generated.swagger_client.models.active_learning_score_data import ActiveLearningScoreData
 from lightly.openapi_generated.swagger_client.models.active_learning_score_type import ActiveLearningScoreType
