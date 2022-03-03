@@ -111,3 +111,23 @@ the container tries to access it. This can be solved by making the files readabl
     find MY_INPUT_DIR -type f -exec chmod 644 {} +
 
 
+Error when using S3 fuse and mounting to docker
+------------------------------------------------
+
+If you use docker in combination with S3 fuse you might stumble across an issue 
+that the docker container can't create the mount path for the input directory.
+
+.. code-block:: console
+
+    docker: Error response from daemon: error while creating mount source path \
+    '/home/ubuntu/mydataset/': mkdir /home/ubuntu/mydataset: file exists.
+
+You can resolve this problem by following the guide here: 
+https://stackoverflow.com/a/61686833
+
+1. uncomment **user_allow_other** option in the **/etc/fuse.conf** file
+2. when you mount the bucket using s3fs use the **-o allow_other** option. 
+   
+   .. code-block:: console
+   
+       s3fs my-s3-bucket /s3-mount -o allow_other -o use_cache=/tmp
