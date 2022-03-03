@@ -177,7 +177,7 @@ class _UploadCustomMetadataMixin:
         if len(filename_to_metadata) != len(custom_metadata[COCO_ANNOTATION_KEYS.images]):
             raise ValueError(
                 f'There is a mismatch between the number of images '
-                f'({len(filename_to_metadata)}) in the metadata file and on the '
+                f'in the metadata file ({len(filename_to_metadata)}) and on the '
                 f'server ({len(custom_metadata[COCO_ANNOTATION_KEYS.images])}).'
             )
 
