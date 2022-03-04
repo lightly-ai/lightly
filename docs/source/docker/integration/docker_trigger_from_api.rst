@@ -18,9 +18,7 @@ Advantages
 
 - You can submit jobs through the API, fully automating the Lightly workflow.
 - You can automatically trigger a new job when data is added to your dataset.
-- You no longer require direct access to the Lightly Docker
-- You do not have to restart the Lightly Worker between jobs
-
+- Use Lightly docker a background worker and processes new jobs automatically.
 
 Requirements
 ------------
@@ -57,7 +55,7 @@ the :ref:`ref-docker-setup`.
 Register the Lightly Docker as a Worker
 ---------------------------------------
 To control the Lightly Docker from the API you have to register it as a worker.
-We can simply go to the Lightly web app and click on My Docker Runs --> My Compute Workers.
+You can simply go to the Lightly web app and click on My Docker Runs --> My Compute Workers.
 Or just click on the direct link here: `Docker Workers <https://app.lightly.ai/docker/workers>`__
 
 .. image:: ../getting_started/images/docker_workers_overview_empty.png
@@ -91,7 +89,7 @@ overview as shown in the screenshot below:
 
 .. image:: images/schedule-compute-run.png
 
-After clicking on the button you will see a wizzard to configure the the parameters
+After clicking on the button you will see a wizard to configure the the parameters
 for the job.
 
 .. image:: images/schedule-compute-run-config.png
@@ -104,11 +102,23 @@ In our example we use the following parameters.
   :caption: Docker Config
 
   {
-    enable_corruptness_check: false,
+    enable_corruptness_check: true,
+    remove_exact_duplicates: true,
+    enable_training: false,
+    pretagging: false,
+    pretagging_debug: false,
+    method: 'coreset',
     stopping_condition: {
-      n_samples: 0.05
+      n_samples: 0.1,
+      min_distance: -1
+    },
+    scorer: 'object-frequency',
+    scorer_config: {
+      frequency_penalty: 0.25,
+      min_score: 0.9
     }
   }
+
 
 
 .. code-block:: javascript
@@ -116,8 +126,43 @@ In our example we use the following parameters.
 
   {
     loader: {
-      num_workers: 8,
-      batch_size: 128
+      batch_size: 16,
+      shuffle: true,
+      num_workers: -1,
+      drop_last: true
+    },
+    model: {
+      name: 'resnet-18',
+      out_dim: 128,
+      num_ftrs: 32,
+      width: 1
+    },
+    trainer: {
+      gpus: 1,
+      max_epochs: 100,
+      precision: 32
+    },
+    criterion: {
+      temperature: 0.5
+    },
+    optimizer: {
+      lr: 1,
+      weight_decay: 0.00001
+    },
+    collate: {
+      input_size: 64,
+      cj_prob: 0.8,
+      cj_bright: 0.7,
+      cj_contrast: 0.7,
+      cj_sat: 0.7,
+      cj_hue: 0.2,
+      min_scale: 0.15,
+      random_gray_scale: 0.2,
+      gaussian_blur: 0.5,
+      kernel_size: 0.1,
+      vf_prob: 0,
+      hf_prob: 0.5,
+      rr_prob: 0
     }
   }
 
@@ -137,7 +182,7 @@ Use your subsampled dataset
 ---------------------------
 
 Once the docker run has finished, you can see your subsampled dataset in the 
-Lightly platform:
+Lightly Platform:
 
 .. image:: ./images/webapp-explore-after-docker.jpg
 
