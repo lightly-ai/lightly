@@ -63,29 +63,31 @@ class _UploadCustomMetadataMixin:
             A dictionary containing custom metdata indexed by filename.
 
         """
+        custom_metadata_images = custom_metadata[COCO_ANNOTATION_KEYS.images]
+        custom_metadata_metadata = custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata]
 
         # sort images by filename
         custom_metadata[COCO_ANNOTATION_KEYS.images] = sorted(
-            custom_metadata[COCO_ANNOTATION_KEYS.images],
+            custom_metadata_images,
             key=lambda x: x[COCO_ANNOTATION_KEYS.images_filename]
         )
 
         # sort metadata by image id
         custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata] = sorted(
-            custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata],
+            custom_metadata_metadata,
             key=lambda x: x[COCO_ANNOTATION_KEYS.custom_metadata_image_id]
         )
 
         # get a list of filenames for binary search
         image_filenames = [
             image[COCO_ANNOTATION_KEYS.images_filename] for image in
-            custom_metadata[COCO_ANNOTATION_KEYS.images]
+            custom_metadata_images
         ]
 
         # get a list of image ids for binary search
         metadata_image_ids = [
             data[COCO_ANNOTATION_KEYS.custom_metadata_image_id] for data in
-            custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata]
+            custom_metadata_metadata
         ]
 
         # map filename to metadata in O(n * logn)
