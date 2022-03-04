@@ -21,7 +21,9 @@ For the purpose of this guide we assume you have a storage account called `light
 We further assume the container you want to use with lightly is called `farm-animals` and already contains images.
 If you don't have a storage account or container yet follow the instructions `here <https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal>`_.
 
-Go to "Security + networking > Access keys". Copy the Key and store it in a secure location. Head to the next section to see how you can configure the Lightly dataset.
+Go to "Security + networking > Shared access signature". There, configure the access rights to your liking. Lightly requires at least read and list access to the container. Make sure to
+also tick the boxes for the required resource types (Container and Object). Set an expiry date and then click on "Generate SAS and connection string". Copy the generated "SAS token" including the "?"
+and store it in a secure location. Head to the next section to see how you can configure the Lightly dataset.
 
 
 Preparing your data
@@ -55,7 +57,7 @@ Uploading your data
         To edit your dataset click the `Edit` button on the top.
 
 3. As your container name enter `farm-animals`.
-4. Enter the storage account name and storage account key from the previous step.
+4. Enter the storage account name and SAS token from the previous step.
 5. The thumbnail suffix depends on the option you chose in the first step
    
     - You want Lightly to create the thumbnail for you.
