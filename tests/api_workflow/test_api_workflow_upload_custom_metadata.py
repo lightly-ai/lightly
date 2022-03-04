@@ -101,7 +101,7 @@ class TestApiWorkflowUploadCustomMetadata(MockedApiWorkflowSetup):
             ]
             return samples
         self.api_workflow_client._samples_api.get_samples_by_dataset_id = get_samples_by_dataset_id
-        filenames_metadata = [f"img_{id}.jpg" for id in image_ids_images]
+        filenames_metadata = [f"img_{id}.jpg" for id in image_ids_annotations]
 
         with self.subTest(image_ids_images=image_ids_images,
                 image_ids_annotations=image_ids_annotations,
@@ -125,17 +125,14 @@ class TestApiWorkflowUploadCustomMetadata(MockedApiWorkflowSetup):
             }
             # The annotations must only have image_ids that are also in the images.
             custom_metadata_malformatted = \
-                len(set(image_ids_annotations) - set(image_ids_images))
+                len(set(image_ids_annotations) - set(image_ids_images)) > 0
             # Only custom metadata whose filename is on the server can be uploaded.
             metatadata_without_filenames_on_server = \
-                len(set(filenames_metadata) - set(filenames_server))>0
-            if metatadata_without_filenames_on_server:
+                len(set(filenames_metadata) - set(filenames_server)) > 0
+
+            if metatadata_without_filenames_on_server \
+                    or custom_metadata_malformatted:
                 with self.assertRaises(ValueError):
-                    self.api_workflow_client.upload_custom_metadata(
-                        custom_metadata
-                    )
-            elif custom_metadata_malformatted:
-                with self.assertRaises(RuntimeError):
                     self.api_workflow_client.upload_custom_metadata(
                         custom_metadata
                     )

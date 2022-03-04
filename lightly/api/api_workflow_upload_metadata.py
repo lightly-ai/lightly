@@ -170,43 +170,59 @@ class _UploadCustomMetadataMixin:
 
         self.verify_custom_metadata_format(custom_metadata)
 
-        # create a mapping from sample filenames to custom metadata
+
+
+        # For each metadata, we need the corresponding sample_id
+        # on the server. The mapping is:
+        # metadata -> image_id -> filename -> sample_id
+
+        image_id_to_filename = {
+            image_info[COCO_ANNOTATION_KEYS.images_id]:
+                image_info[COCO_ANNOTATION_KEYS.images_filename]
+            for image_info in custom_metadata[COCO_ANNOTATION_KEYS.images]
+        }
+
         samples = self._samples_api.get_samples_by_dataset_id(self.dataset_id)
-        filename_to_metadata = self.index_custom_metadata_by_filename(
-            [sample.file_name for sample in samples],
-            custom_metadata,
-        )
-        if len(filename_to_metadata) != len(custom_metadata[COCO_ANNOTATION_KEYS.images]):
-            raise ValueError(
-                f'There is a mismatch between the number of images '
-                f'in the metadata file ({len(filename_to_metadata)}) and on the '
-                f'server ({len(custom_metadata[COCO_ANNOTATION_KEYS.images])}).'
-            )
+        filename_to_sample_id = {
+            sample.file_name: sample.id
+            for sample in samples
+        }
+
+        upload_requests = []
+        for metadata in custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata]:
+            image_id = metadata[COCO_ANNOTATION_KEYS.custom_metadata_image_id]
+            filename = image_id_to_filename.get(image_id, None)
+            if filename is None:
+                raise ValueError(f"Your custom_metadata file is malformatted. "
+                                 f"There is an annotation with an image_id of "
+                                 f"{{{image_id}}},"
+                                 f"but the list of images does not include this id.")
+            sample_id = filename_to_sample_id.get(filename, None)
+            if sample_id is None:
+                raise ValueError(f"Your custom_metadata file "
+                                  f"contains annotations for the file "
+                                  f"{{{filename}}}, but there are no samples"
+                                  f"on the server with this name.")
+            upload_request = (metadata, sample_id)
+            upload_requests.append(upload_request)
 
         # retry upload if it times out
-        def upload_sample_metadata(args):
-            request, sample = args
+        def upload_sample_metadata(upload_request):
+            metadata, sample_id = upload_request
+            request = SampleUpdateRequest(custom_meta_data=metadata)
             return retry(
                 self._samples_api.update_sample_by_id,
                 request,
                 dataset_id=self.dataset_id,
-                sample_id=sample.id,
+                sample_id=sample_id,
             )
 
-        # create a list of all the requests and their corresponding samples
-        sample_requests = []
-        for sample in samples:
-            metadata = filename_to_metadata[sample.file_name]
-            if metadata is not None:
-                update_sample_request = SampleUpdateRequest(
-                    custom_meta_data=metadata
-                )
-                sample_requests.append((update_sample_request, sample))
+        # The
 
         # limit number of concurrent requests
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             # get iterator over results
-            results = executor.map(upload_sample_metadata, sample_requests)
+            results = executor.map(upload_sample_metadata, upload_requests)
             if verbose:
                 results = tqdm(
                     results, 
