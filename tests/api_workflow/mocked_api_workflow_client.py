@@ -307,6 +307,12 @@ class MockedDatasetsApi(DatasetsApi):
     def get_datasets(self, **kwargs):
         return self.datasets
 
+    def get_all_datasets(self, **kwargs):
+        return self.get_datasets()
+
+    def dataset_exists(self, dataset_id: str):
+        return dataset_id in [d.id for d in self.default_datasets]
+
     def create_dataset(self, body: DatasetCreateRequest, **kwargs):
         assert isinstance(body, DatasetCreateRequest)
         id = body.name + "_id"
@@ -326,9 +332,13 @@ class MockedDatasetsApi(DatasetsApi):
         response_ = CreateEntityResponse(id=id)
         return response_
 
+
     def get_dataset_by_id(self, dataset_id):
         _check_dataset_id(dataset_id)
-        return next(dataset for dataset in self.default_datasets if dataset_id == dataset.id)
+        dataset = next((dataset for dataset in self.default_datasets if dataset_id == dataset.id), None)
+        if dataset is None:
+            raise ApiException()
+        return dataset
 
     def register_dataset_upload_by_id(self, body, dataset_id):
         _check_dataset_id(dataset_id)
