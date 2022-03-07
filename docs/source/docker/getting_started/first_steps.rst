@@ -112,6 +112,22 @@ Now, let's see how this will look in action!
              path after the **:** since this path is describing the internal
              file system within the container!
 
+When running the above docker command you will find a new folder with the current date
+and time in the {OUTPUT_DIR} folder. This can be inconvenient if you want to run the docker
+in an automated pipeline as the current date and time change.
+
+Using the **run_directory** parameter you can use a custom and deterministic output folder.
+The following docker run command would for example store the output in the 
+*docker_out* folder.
+
+.. code-block:: console
+
+    docker run --gpus all --rm -it \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {OUTPUT_DIR}:/home/output_dir \
+        lightly/sampling:latest \
+        token=MYAWESOMETOKEN \
+        run_directory="docker_out"
 
 Specify Relevant Files
 ----------------------------
