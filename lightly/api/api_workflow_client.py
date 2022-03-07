@@ -137,12 +137,13 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         Raises:
             ValueError if the dataset id does not exist.
         """
-        all_datasets: List[DatasetData] = self.get_all_datasets()
-        for dataset in all_datasets:
-            if dataset.id == dataset_id:
-                self._dataset_id = dataset_id
-                return
-        raise ValueError(f"A dataset with the id {dataset_id} does not exist on the web platform.")
+        if not self.dataset_exists(dataset_id):
+            raise ValueError(
+                f"A dataset with the id {dataset_id} does not exist on the web"
+                f"platform."
+            )
+        self._dataset_id = dataset_id
+        
 
     def _order_list_by_filenames(
             self, filenames_for_list: List[str],

@@ -3,6 +3,7 @@ from typing import List
 from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
+from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class _DatasetsMixin:
@@ -20,6 +21,14 @@ class _DatasetsMixin:
         
         """
         return self.get_dataset_by_id(self.dataset_id)
+
+    def dataset_exists(self, dataset_id: str):
+        """Returns True if a dataset with dataset_id exists. """
+        try:
+            self.get_dataset_by_id(dataset_id)
+            return True
+        except ApiException:
+            return False
 
     def get_dataset_by_id(self, dataset_id: str):
         """Returns the dataset for the given dataset id. """
