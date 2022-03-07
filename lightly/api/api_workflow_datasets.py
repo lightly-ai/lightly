@@ -3,6 +3,7 @@ from typing import List
 from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
+from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class _DatasetsMixin:
@@ -19,10 +20,39 @@ class _DatasetsMixin:
         """Returns the dataset with id == self.dataset_id.
         
         """
-        dataset_id = self.dataset_id
-        datasets: List[DatasetData] = self._datasets_api.get_datasets()
-        dataset = next(dataset for dataset in datasets if dataset.id == dataset_id)
+        return self.get_dataset_by_id(self.dataset_id)
+
+    def dataset_exists(self, dataset_id: str):
+        """Returns True if a dataset with dataset_id exists. """
+        try:
+            self.get_dataset_by_id(dataset_id)
+            return True
+        except ApiException:
+            return False
+
+    def get_dataset_by_id(self, dataset_id: str):
+        """Returns the dataset for the given dataset id. """
+        dataset = self._datasets_api.get_dataset_by_id(dataset_id)
         return dataset
+
+    def get_datasets(self, shared: bool = False) -> List[DatasetData]:
+        """Returns all datasets the user owns.
+
+        Args:
+            shared:
+                If True, only returns the datasets which have been shared with
+                the user.
+
+        """
+        datasets = self._datasets_api.get_datasets(shared=shared)
+        return datasets
+
+    def get_all_datasets(self) -> List[DatasetData]:
+        """Returns all datasets the user has access to. """
+        owned_datasets = self.get_datasets(shared=False)
+        shared_datasets = self.get_datasets(shared=True)
+        owned_datasets.extend(shared_datasets)
+        return owned_datasets
 
     def set_dataset_id_by_name(self, dataset_name: str):
         """Sets the dataset id given the name of the dataset
@@ -35,8 +65,7 @@ class _DatasetsMixin:
         Raises: ValueError
 
         """
-        current_datasets: List[DatasetData] \
-            = self._datasets_api.get_datasets()
+        current_datasets: List[DatasetData] = self.get_all_datasets()
 
         try:
             dataset_with_specified_name = next(dataset for dataset in current_datasets if dataset.name == dataset_name)
@@ -87,24 +116,22 @@ class _DatasetsMixin:
                 The name of the dataset to be created.
 
         """
-        current_datasets: List[DatasetData] \
-            = self._datasets_api.get_datasets()
+        current_datasets = self.get_datasets()
         current_datasets_names = [dataset.name for dataset in current_datasets]
 
         if dataset_basename not in current_datasets_names:
-            self._create_dataset_without_check_existing(dataset_name=dataset_basename)
-            return
-
-        counter = 1
-        dataset_name = f"{dataset_basename}_{counter}"
-        while dataset_name in current_datasets_names:
-            counter += 1
+            self._create_dataset_without_check_existing(
+                dataset_name=dataset_basename
+            )
+        else:
+            counter = 1
             dataset_name = f"{dataset_basename}_{counter}"
-        self._create_dataset_without_check_existing(dataset_name=dataset_name)
-    
-    def get_datasets(self) -> List[DatasetData]:
-        """Returns all datasets of the user."""
-        return self._datasets_api.get_datasets()
+            while dataset_name in current_datasets_names:
+                counter += 1
+                dataset_name = f"{dataset_basename}_{counter}"
+            self._create_dataset_without_check_existing(
+                dataset_name=dataset_name
+            )
 
     def delete_dataset_by_id(self, dataset_id: str):
         """Deletes a dataset on the Lightly Platform.

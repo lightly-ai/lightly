@@ -118,7 +118,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         try:
             return self._dataset_id
         except AttributeError:
-            all_datasets: List[DatasetData] = self._datasets_api.get_datasets()
+            all_datasets: List[DatasetData] = self.get_datasets()
             datasets_sorted = sorted(all_datasets, key=lambda dataset: dataset.last_modified_at)
             last_modified_dataset = datasets_sorted[-1]
             self._dataset_id = last_modified_dataset.id
@@ -137,12 +137,13 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         Raises:
             ValueError if the dataset id does not exist.
         """
-        all_datasets: List[DatasetData] = self._datasets_api.get_datasets()
-        for dataset in all_datasets:
-            if dataset.id == dataset_id:
-                self._dataset_id = dataset_id
-                return
-        raise ValueError(f"A dataset with the id {dataset_id} does not exist on the web platform.")
+        if not self.dataset_exists(dataset_id):
+            raise ValueError(
+                f"A dataset with the id {dataset_id} does not exist on the web"
+                f"platform."
+            )
+        self._dataset_id = dataset_id
+        
 
     def _order_list_by_filenames(
             self, filenames_for_list: List[str],
