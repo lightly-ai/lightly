@@ -184,13 +184,16 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 
 #### ImageNette
 
-| Model       | Epochs | Batch Size | Test Accuracy |
-|-------------|--------|------------|---------------|
-| MoCo        |  800   | 256        | 0.827         |
-| SimCLR      |  800   | 256        | 0.847         |
-| SimSiam     |  800   | 256        | 0.827         |
-| BarlowTwins |  800   | 256        | 0.801         |
-| BYOL        |  800   | 256        | 0.851         |
+| Model        | Epochs | Batch Size | Test Accuracy |
+|--------------|--------|------------|---------------|
+| BarlowTwins  |    800 |        256 |         0.789 |
+| BYOL         |    800 |        256 |         0.851 |
+| DINO (Res18) |    800 |        256 |         0.815 |
+| Moco         |    800 |        256 |         0.832 |
+| NNCLR        |    800 |        256 |         0.848 |
+| SimCLR       |    800 |        256 |         0.858 |
+| SimSiam      |    800 |        256 |         0.852 |
+| SwaV         |    800 |        256 |         0.837 |
 
 
 #### Cifar10
