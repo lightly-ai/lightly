@@ -578,10 +578,10 @@ class DINOModel(BenchmarkModule):
 
 
 models = [
-#    BarlowTwinsModel, 
-#    BYOLModel,
-#    DINOModel,
-#    MocoModel,
+    BarlowTwinsModel, 
+    BYOLModel,
+    DINOModel,
+    MocoModel,
     NNCLRModel,
     SimCLRModel,
     SimSiamModel,
