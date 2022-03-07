@@ -150,9 +150,9 @@ def get_data_loaders(batch_size: int, model):
         batch_size: Desired batch size for all dataloaders
     """
     col_fn = collate_fn
-    if isinstance(model, SwaVModel):
+    if model == SwaVModel:
         col_fn = swav_collate_fn
-    elif isinstance(model, DINOModel):
+    elif model == DINOModel:
         col_fn = dino_collate_fn
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
