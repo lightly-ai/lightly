@@ -1,6 +1,6 @@
 .. _integration-docker-trigger-from-api:
 
-Trigger a Docker Job from the API using a Remote Datasource
+Trigger a Docker Job from from UI or code
 ===========================================================
 
 Introduction
@@ -215,7 +215,7 @@ so you want to add a subset of them to your dataset.
 This workflow is supported by the Lightly Platform using a datapool. It
 remembers which raw data in your S3 bucket has already been processed and will
 ignore it in future docker runs. Thus you can send the same job again to the 
-Lightly Worker. It will find your new raw data in the S3 bucket, stream, embed
+worker. It will find your new raw data in the S3 bucket, stream, embed
 and subsample it and then add it to your existing dataset. The samplers will
 take the existing data in your dataset into account when sampling new data to be
 added to your dataset.
