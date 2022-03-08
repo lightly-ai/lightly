@@ -124,7 +124,6 @@ class _UploadDatasetMixin:
         if custom_metadata is not None:
             self.verify_custom_metadata_format(custom_metadata)
             filename_to_metadata = self.index_custom_metadata_by_filename(
-                dataset.get_filenames(),
                 custom_metadata,
             )
 

@@ -47,6 +47,42 @@ class _UploadCustomMetadataMixin:
             COCO_ANNOTATION_KEYS.custom_metadata, custom_metadata
         )
 
+    def index_custom_metadata_by_filename(self, custom_metadata: Dict):
+        """Creates an index to lookup custom metadata by filename.
+
+        Args:
+            custom_metadata:
+                Dictionary of custom metadata, see upload_custom_metadata for
+                the required format.
+
+        Returns:
+            A dictionary containing custom metadata indexed by filename.
+
+        """
+
+        # Developer note:
+        # the mapping is filename -> image_id -> custom_metadata
+        filename_to_image_id = {
+            image_info[COCO_ANNOTATION_KEYS.images_filename]:
+                image_info[COCO_ANNOTATION_KEYS.images_id]
+            for image_info
+            in custom_metadata[COCO_ANNOTATION_KEYS.images]
+        }
+        image_id_to_custom_metadata = {
+            metadata[COCO_ANNOTATION_KEYS.custom_metadata_image_id]:
+                metadata
+            for metadata
+            in custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata]
+        }
+        filename_to_metadata = {
+            filename: image_id_to_custom_metadata.get(image_id, None)
+            for (filename, image_id)
+            in filename_to_image_id.items()
+        }
+        return filename_to_metadata
+
+
+
     def upload_custom_metadata(self,
                                custom_metadata: Dict,
                                verbose: bool = False,
@@ -157,7 +193,7 @@ class _UploadCustomMetadataMixin:
                 results = tqdm(
                     results, 
                     unit='metadata',
-                    total=len(sample_requests)
+                    total=len(upload_requests)
                 )
             # iterate over results to make sure they are completed
             list(results)
