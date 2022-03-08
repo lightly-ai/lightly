@@ -119,7 +119,7 @@ def _upload_cli(cfg, is_cli_call=True):
         print('Starting upload of embeddings.')
         if not cfg.append:
             try:
-                embedding = api_workflow_client.get_embedding_by_name(name=name,ignore_suffix=True)
+                embedding = api_workflow_client.get_embedding_by_name(name=name, ignore_suffix=True)
                 print_as_warning(
                     'The dataset you specified already has an embedding. '
                     'If you want to add additional samples, you need to specify '
