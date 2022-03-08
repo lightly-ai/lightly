@@ -12,38 +12,12 @@ the provided dataset. The results are immediately available in the webapp for
 visualization and the selected samples are sent back to your 
 :ref:`cloud bucket <platform-create-dataset>`.
 
-
 Advantages
 ----------
 
 - You can submit jobs through the API, fully automating the Lightly workflow.
 - You can automatically trigger a new job when data is added to your dataset.
 - Use Lightly docker a background worker and processes new jobs automatically.
-
-Requirements
-------------
-This recipe requires that you already have a dataset in the Lightly Platform
-configured to use the data in your AWS S3 bucket. Create such a dataset in 2 steps:
-
-1. `Create a new dataset <https://app.lightly.ai/dataset/create>`_ in Lightly.
-   Make sure that you choose the input type `Images` or `Videos` correctly,
-   depending on the type of files in your cloud storage bucket.
-2. Edit your dataset, select the storage source as your datasource and fill out the form.
-   In our example we use an S3 bucket.
-
-    .. figure:: ../../getting_started/resources/LightlyEdit2.png
-        :align: center
-        :alt: Lightly S3 connection config
-        :width: 60%
-
-        Lightly S3 connection config
-
-If you don`t know how to fill out the form, follow the full tutorial to
-`create a Lightly dataset connected to your S3 bucket <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_aws_bucket.html>`_.
-
-Furthermore, you should have access to a machine running docker. Ideally, it 
-also has a CUDA-GPU. A fast GPU will speed up the process significantly, 
-especially for large datasets.
 
 
 Download the Lightly Docker
@@ -81,92 +55,127 @@ The state of the worker on the `Docker Workers <https://app.lightly.ai/docker/wo
 page should now indicate that the worker is in an idle state.
 
 
-Triggering a Job through the API
---------------------------------
+Create a Data and Triggering a Job
+-----------------------------------
 
-To trigger a new job you can click on the schedule run button on the dataset
-overview as shown in the screenshot below:
-
-.. image:: images/schedule-compute-run.png
-
-After clicking on the button you will see a wizard to configure the the parameters
-for the job.
-
-.. image:: images/schedule-compute-run-config.png
-
-In our example we use the following parameters.
+There are two ways to trigger a new job. You can either use the user interface
+provided through our Web App or you can use our Python package and build a script.
 
 
+.. tabs::
 
-.. code-block:: javascript
-  :caption: Docker Config
+    .. tab:: Web App
 
-  {
-    enable_corruptness_check: true,
-    remove_exact_duplicates: true,
-    enable_training: false,
-    pretagging: false,
-    pretagging_debug: false,
-    method: 'coreset',
-    stopping_condition: {
-      n_samples: 0.1,
-      min_distance: -1
-    },
-    scorer: 'object-frequency',
-    scorer_config: {
-      frequency_penalty: 0.25,
-      min_score: 0.9
-    }
-  }
+      **Create a Dataset**
+
+      This recipe requires that you already have a dataset in the Lightly Platform
+      configured to use the data in your AWS S3 bucket. Create such a dataset in 2 steps:
+
+      1. `Create a new dataset <https://app.lightly.ai/dataset/create>`_ in Lightly.
+        Make sure that you choose the input type `Images` or `Videos` correctly,
+        depending on the type of files in your cloud storage bucket.
+      2. Edit your dataset, select the storage source as your datasource and fill out the form.
+        In our example we use an S3 bucket.
+
+          .. figure:: ../../getting_started/resources/LightlyEdit2.png
+              :align: center
+              :alt: Lightly S3 connection config
+              :width: 60%
+
+              Lightly S3 connection config
+
+      If you don`t know how to fill out the form, follow the full tutorial to
+      `create a Lightly dataset connected to your S3 bucket <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_aws_bucket.html>`_.
+        
+      **Trigger the Job**
+
+      To trigger a new job you can click on the schedule run button on the dataset
+      overview as shown in the screenshot below:
+
+      .. image:: images/schedule-compute-run.png
+
+      After clicking on the button you will see a wizard to configure the the parameters
+      for the job.
+
+      .. image:: images/schedule-compute-run-config.png
+
+      In our example we use the following parameters.
 
 
 
-.. code-block:: javascript
-  :caption: Lightly Config
+      .. code-block:: javascript
+        :caption: Docker Config
 
-  {
-    loader: {
-      batch_size: 16,
-      shuffle: true,
-      num_workers: -1,
-      drop_last: true
-    },
-    model: {
-      name: 'resnet-18',
-      out_dim: 128,
-      num_ftrs: 32,
-      width: 1
-    },
-    trainer: {
-      gpus: 1,
-      max_epochs: 100,
-      precision: 32
-    },
-    criterion: {
-      temperature: 0.5
-    },
-    optimizer: {
-      lr: 1,
-      weight_decay: 0.00001
-    },
-    collate: {
-      input_size: 64,
-      cj_prob: 0.8,
-      cj_bright: 0.7,
-      cj_contrast: 0.7,
-      cj_sat: 0.7,
-      cj_hue: 0.2,
-      min_scale: 0.15,
-      random_gray_scale: 0.2,
-      gaussian_blur: 0.5,
-      kernel_size: 0.1,
-      vf_prob: 0,
-      hf_prob: 0.5,
-      rr_prob: 0
-    }
-  }
+        {
+          enable_corruptness_check: true,
+          remove_exact_duplicates: true,
+          enable_training: false,
+          pretagging: false,
+          pretagging_debug: false,
+          method: 'coreset',
+          stopping_condition: {
+            n_samples: 0.1,
+            min_distance: -1
+          },
+          scorer: 'object-frequency',
+          scorer_config: {
+            frequency_penalty: 0.25,
+            min_score: 0.9
+          }
+        }
 
-Once the parameters are set you can schedule the run using a click on **schedule**.
+
+
+      .. code-block:: javascript
+        :caption: Lightly Config
+
+        {
+          loader: {
+            batch_size: 16,
+            shuffle: true,
+            num_workers: -1,
+            drop_last: true
+          },
+          model: {
+            name: 'resnet-18',
+            out_dim: 128,
+            num_ftrs: 32,
+            width: 1
+          },
+          trainer: {
+            gpus: 1,
+            max_epochs: 100,
+            precision: 32
+          },
+          criterion: {
+            temperature: 0.5
+          },
+          optimizer: {
+            lr: 1,
+            weight_decay: 0.00001
+          },
+          collate: {
+            input_size: 64,
+            cj_prob: 0.8,
+            cj_bright: 0.7,
+            cj_contrast: 0.7,
+            cj_sat: 0.7,
+            cj_hue: 0.2,
+            min_scale: 0.15,
+            random_gray_scale: 0.2,
+            gaussian_blur: 0.5,
+            kernel_size: 0.1,
+            vf_prob: 0,
+            hf_prob: 0.5,
+            rr_prob: 0
+          }
+        }
+
+      Once the parameters are set you can schedule the run using a click on **schedule**.
+
+    .. tab:: Python Code
+
+      .. literalinclude:: trigger_job_s3.py
 
 
 View the progress of the Lightly Docker
