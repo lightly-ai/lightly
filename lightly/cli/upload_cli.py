@@ -117,6 +117,17 @@ def _upload_cli(cfg, is_cli_call=True):
     if path_to_embeddings:
         name = cfg['embedding_name']
         print('Starting upload of embeddings.')
+        if not cfg.append:
+            try:
+                embedding = api_workflow_client.get_embedding_by_name(name=name,ignore_suffix=True)
+                print_as_warning(
+                    'The dataset you specified already has an embedding. '
+                    'If you want to add additional samples, you need to specify '
+                    'append=True as CLI argument.'
+                )
+                return
+            except EmbeddingDoesNotExistError:
+                pass
         api_workflow_client.upload_embeddings(
             path_to_embeddings_csv=path_to_embeddings, name=name
         )
