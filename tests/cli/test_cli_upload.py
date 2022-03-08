@@ -139,6 +139,9 @@ class TestCLIUpload(MockedApiWorkflowSetup):
                         if n_dims_embeddings != n_dims_embeddings_server and append:
                             with self.assertRaises(RuntimeError):
                                 lightly.cli.upload_cli(self.cfg)
+                        elif not append:
+                            with self.assertWarns(UserWarning):
+                                lightly.cli.upload_cli(self.cfg)
                         else:
                             lightly.cli.upload_cli(self.cfg)
 
