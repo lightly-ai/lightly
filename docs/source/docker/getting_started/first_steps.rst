@@ -118,7 +118,7 @@ in an automated pipeline as the current date and time change.
 
 Using the **run_directory** parameter you can use a custom and deterministic output folder.
 The following docker run command would for example store the output in the 
-*docker_out* folder.
+*{OUTPUT_DIR}/docker_out* folder.
 
 .. code-block:: console
 
