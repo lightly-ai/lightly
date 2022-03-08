@@ -138,6 +138,9 @@ The following are parameters which can be passed to the container:
   # to False if you observe slow report generation or work with many videos (>20).
   show_video_sampling_timeline: True
 
+  # optional deterministic unique output subdirectory for run, in place of timestamp
+  run_directory:
+
 Additionally, you can pass all arguments which can be passed to the lightly CLI tool with the `lightly` prefix.
 For example,
 
