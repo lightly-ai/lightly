@@ -1,6 +1,6 @@
 .. _integration-docker-trigger-from-api:
 
-Trigger a Docker Job from from the platform or code
+Trigger a Docker Job from from the Platform or code
 ===========================================================
 
 Introduction
@@ -54,7 +54,7 @@ The state of the worker on the `Docker Workers <https://app.lightly.ai/docker/wo
 page should now indicate that the worker is in an idle state.
 
 
-Create a Dataset and Triggering a Job
+Create a Dataset and Trigger a Job
 -----------------------------------
 
 There are two ways to trigger a new job. You can either use the user interface
