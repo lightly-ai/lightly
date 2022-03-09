@@ -12,5 +12,9 @@ repos:
     entry: make test
     language: system
     pass_filenames: false
-    always_run: true
-    stages: [push]
+    types: [python]
+    file: |
+      (?x)^(
+          lightly/.*.py|
+          tests/.*.py|
+      )$
