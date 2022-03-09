@@ -1,7 +1,7 @@
 
 .. _ref-docker-with-datasource:
 
-Using the docker with an S3 bucket as remote datasource.
+Using the docker with an S3 bucket as remote datasource
 ========================================================
 
 Introduction
@@ -16,12 +16,8 @@ the following workloads in one single run:
 - compute the metadata of the images
 - create a dataset in the Lightly Platform from the sampled subset
 
-Support for the following is planned but not implemented yet:
-
-- Training an embedding model is currently too slow and thus deactivated.
-- Streaming from a google cloud storage or azure storage is planned to be implemented.
-
-If you need any of these, write us so that we prioritize implementing it.
+Support for streaming from Google Cloud Storage and Azure Blob Storage is
+planned. If you need any of these, write us so that we prioritize implementing it.
 
 Advantages
 ----------
@@ -59,10 +55,9 @@ configured to use the data in your AWS S3 bucket. Create such a dataset in 2 ste
 If you don`t know how to fill out the form, follow the full tutorial to
 `create a Lightly dataset connected to your S3 bucket <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_aws_bucket.html>`_.
 
-Furthermore, you should have access to a machine running docker.
-Ideally, it also has a CUDA-GPU.
-A fast GPU will speed up the process significantly,
-especially for large datasets.
+Furthermore, you should have access to a machine running docker. Ideally, it 
+also has a CUDA-GPU. A GPU will speed up the process significantly, especially 
+for large datasets.
 
 
 Download the Lightly Docker
@@ -88,8 +83,7 @@ E.g. run the docker with
         lightly/sampling:latest \
         token=YOUR_LIGHTLY_PLATFORM_TOKEN \
         datasource.dataset_id=YOUR_DATASET_ID \
-        stopping_condition.n_samples=50 \
-        upload_dataset=True
+        stopping_condition.n_samples=50
 
 
 View the progress of the Lightly Docker
@@ -103,7 +97,7 @@ head to `My Docker Runs <https://app.lightly.ai/docker/runs>`_
 Use your subsampled dataset
 ---------------------------
 
-Once the docker run has finished, you can see your subsampled dataset in the Lightly platform:
+Once the docker run has finished, you can see your subsampled dataset in the Lightly Platform:
 
 .. image:: ./images/webapp-explore-after-docker.jpg
 
@@ -117,7 +111,7 @@ decide that we want to first collect more street videos.
 
 .. _ref-docker-with-datasource-datapool:
 Process new data in your S3 bucket using a datapool
-------------------------------------------------------
+---------------------------------------------------
 You probably get new raw data from time to time added to your S3 bucket.
 In our case we added 4 more street videos to the S3 bucket.
 The new raw data might include samples which should be added to your dataset

@@ -43,7 +43,8 @@ class DatasetData(object):
         'size_in_bytes': 'int',
         'meta_data_configuration_id': 'MongoObjectID',
         'created_at': 'Timestamp',
-        'last_modified_at': 'Timestamp'
+        'last_modified_at': 'Timestamp',
+        'access_role': 'AccessRole'
     }
 
     attribute_map = {
@@ -57,10 +58,11 @@ class DatasetData(object):
         'size_in_bytes': 'sizeInBytes',
         'meta_data_configuration_id': 'metaDataConfigurationId',
         'created_at': 'createdAt',
-        'last_modified_at': 'lastModifiedAt'
+        'last_modified_at': 'lastModifiedAt',
+        'access_role': 'accessRole'
     }
 
-    def __init__(self, id=None, name=None, user_id=None, access_type=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, meta_data_configuration_id=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, name=None, user_id=None, access_type=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, meta_data_configuration_id=None, created_at=None, last_modified_at=None, access_role=None, _configuration=None):  # noqa: E501
         """DatasetData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -77,6 +79,7 @@ class DatasetData(object):
         self._meta_data_configuration_id = None
         self._created_at = None
         self._last_modified_at = None
+        self._access_role = None
         self.discriminator = None
 
         self.id = id
@@ -93,6 +96,8 @@ class DatasetData(object):
             self.meta_data_configuration_id = meta_data_configuration_id
         self.created_at = created_at
         self.last_modified_at = last_modified_at
+        if access_role is not None:
+            self.access_role = access_role
 
     @property
     def id(self):
@@ -342,6 +347,27 @@ class DatasetData(object):
             raise ValueError("Invalid value for `last_modified_at`, must not be `None`")  # noqa: E501
 
         self._last_modified_at = last_modified_at
+
+    @property
+    def access_role(self):
+        """Gets the access_role of this DatasetData.  # noqa: E501
+
+
+        :return: The access_role of this DatasetData.  # noqa: E501
+        :rtype: AccessRole
+        """
+        return self._access_role
+
+    @access_role.setter
+    def access_role(self, access_role):
+        """Sets the access_role of this DatasetData.
+
+
+        :param access_role: The access_role of this DatasetData.  # noqa: E501
+        :type: AccessRole
+        """
+
+        self._access_role = access_role
 
     def to_dict(self):
         """Returns the model properties as a dict"""

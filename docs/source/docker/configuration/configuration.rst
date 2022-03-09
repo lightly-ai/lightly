@@ -112,7 +112,7 @@ The following are parameters which can be passed to the container:
     # If True keeps backup of all previous data pool states.
     keep_history: True
     # Dataset id from Lightly platform where the datapool should be hosted.
-    id:
+    dataset_id:
 
   # datasource
   # By default only new samples in the datasource are processed. Set process_all 
@@ -137,6 +137,9 @@ The following are parameters which can be passed to the container:
   # Show timestamps of the selected frames for each video in the report. Set this
   # to False if you observe slow report generation or work with many videos (>20).
   show_video_sampling_timeline: True
+
+  # optional deterministic unique output subdirectory for run, in place of timestamp
+  run_directory:
 
 Additionally, you can pass all arguments which can be passed to the lightly CLI tool with the `lightly` prefix.
 For example,

@@ -8,13 +8,26 @@ import json
 
 import numpy as np
 from requests import Response
+from lightly.openapi_generated.swagger_client.api.docker_api import DockerApi
+from lightly.openapi_generated.swagger_client.models.create_docker_worker_registry_entry_request import CreateDockerWorkerRegistryEntryRequest
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import DatasourceProcessedUntilTimestampResponse
+from lightly.openapi_generated.swagger_client.models.docker_run_data import DockerRunData
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_create_request import DockerRunScheduledCreateRequest
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import DockerRunScheduledData
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_priority import DockerRunScheduledPriority
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_state import DockerRunScheduledState
+from lightly.openapi_generated.swagger_client.models.docker_run_state import DockerRunState
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import DockerWorkerConfigCreateRequest
+from lightly.openapi_generated.swagger_client.models.docker_worker_registry_entry_data import DockerWorkerRegistryEntryData
+from lightly.openapi_generated.swagger_client.models.docker_worker_state import DockerWorkerState
+from lightly.openapi_generated.swagger_client.models.docker_worker_type import DockerWorkerType
 
 from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
 from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
 from lightly.openapi_generated.swagger_client.api.datasources_api import DatasourcesApi
+from lightly.openapi_generated.swagger_client.models.timestamp import Timestamp
 from lightly.openapi_generated.swagger_client.rest import ApiException
 
 import lightly
@@ -43,7 +56,6 @@ from lightly.openapi_generated.swagger_client.models.sampling_create_request imp
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from lightly.openapi_generated.swagger_client.models.write_csv_url_data import WriteCSVUrlData
 from lightly.openapi_generated.swagger_client.models.datasource_config import DatasourceConfig
-from lightly.openapi_generated.swagger_client.models.datasource_config_local import DatasourceConfigLOCAL
 from lightly.openapi_generated.swagger_client.models.datasource_config_base import DatasourceConfigBase
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import DatasourceProcessedUntilTimestampRequest
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import DatasourceRawSamplesData
@@ -187,7 +199,14 @@ class MockedTagsApi(TagsApi):
                       bit_mask_data=body['bit_mask_data'], name=body['name'], tot_size=10,
                       created_at=1577836800, changes=dict())
         return tag
-        
+
+    def delete_tag_by_tag_id(self, dataset_id, tag_id, **kwargs):
+        _check_dataset_id(dataset_id)
+        tags = self.get_tags_by_dataset_id(dataset_id)
+        # assert that tag exists
+        assert any([tag.id == tag_id for tag in tags])
+        # assert that tag is a leaf
+        assert all([tag.prev_tag_id != tag_id for tag in tags])
 
 class MockedScoresApi(ScoresApi):
     def create_or_update_active_learning_score_by_tag_id(self, body, dataset_id, tag_id, **kwargs) -> \
@@ -288,6 +307,12 @@ class MockedDatasetsApi(DatasetsApi):
     def get_datasets(self, **kwargs):
         return self.datasets
 
+    def get_all_datasets(self, **kwargs):
+        return self.get_datasets()
+
+    def dataset_exists(self, dataset_id: str):
+        return dataset_id in [d.id for d in self.default_datasets]
+
     def create_dataset(self, body: DatasetCreateRequest, **kwargs):
         assert isinstance(body, DatasetCreateRequest)
         id = body.name + "_id"
@@ -307,9 +332,13 @@ class MockedDatasetsApi(DatasetsApi):
         response_ = CreateEntityResponse(id=id)
         return response_
 
+
     def get_dataset_by_id(self, dataset_id):
         _check_dataset_id(dataset_id)
-        return next(dataset for dataset in self.default_datasets if dataset_id == dataset.id)
+        dataset = next((dataset for dataset in self.default_datasets if dataset_id == dataset.id), None)
+        if dataset is None:
+            raise ApiException()
+        return dataset
 
     def register_dataset_upload_by_id(self, body, dataset_id):
         _check_dataset_id(dataset_id)
@@ -394,7 +423,8 @@ class MockedDatasourcesApi(DatasourcesApi):
     def update_datasource_by_dataset_id(
         self, body: DatasourceConfig, dataset_id: str, **kwargs
     ) -> None:
-        assert isinstance(body, DatasourceConfig)
+        # TODO: Enable assert once we switch/update to new api code generator.
+        # assert isinstance(body, DatasourceConfig)
         self._datasources[dataset_id] = body # type: ignore
 
     def update_datasource_processed_until_timestamp_by_dataset_id(
@@ -403,6 +433,73 @@ class MockedDatasourcesApi(DatasourcesApi):
         assert isinstance(body, DatasourceProcessedUntilTimestampRequest)
         to = body.processed_until_timestamp
         self._processed_until_timestamp[dataset_id] = to # type: ignore
+
+
+class MockedComputeWorkerApi(DockerApi):
+    def __init__(self, api_client=None):
+        super().__init__(api_client=api_client)
+        self._compute_worker_runs = [
+            DockerRunData(
+                id="compute-worker-run-1",
+                docker_version="v1",
+                dataset_id="dataset_id_xyz",
+                state=DockerRunState.TRAINING,
+                created_at=Timestamp(0),
+                last_modified_at=Timestamp(100),
+                message=None,
+                messages=[],
+                report_available=False,
+            )
+        ]
+        self._scheduled_compute_worker_runs = [
+            DockerRunScheduledData(
+                id="compute-worker-scheduled-run-1",
+                dataset_id="dataset_id_xyz",
+                config_id="config-id-1",
+                priority=DockerRunScheduledPriority.MID,
+                state=DockerRunScheduledState.OPEN,
+                created_at=Timestamp(0),
+                last_modified_at=Timestamp(100),
+                owner="user-id-1",
+            )
+        ]
+        self._registered_workers = [
+            DockerWorkerRegistryEntryData(
+                id="worker-registry-id-1",
+                name="worker-name-1",
+                worker_type=DockerWorkerType.FULL,
+                state=DockerWorkerState.OFFLINE,
+                created_at=Timestamp(0),
+                last_modified_at=Timestamp(0),
+            )
+        ]
+
+    def register_docker_worker(self, body, **kwargs):
+        assert isinstance(body, CreateDockerWorkerRegistryEntryRequest)
+        return CreateEntityResponse(id='worker-id-123')
+
+    def delete_docker_worker_registry_entry_by_id(self, worker_id, **kwargs):
+        assert worker_id == 'worker-id-123'
+
+    def get_docker_worker_registry_entries(self, **kwargs):
+        return self._registered_workers
+
+    def create_docker_worker_config(self, body, **kwargs):
+        assert isinstance(body, DockerWorkerConfigCreateRequest)
+        return CreateEntityResponse(id='worker-config-id-123')
+
+    def create_docker_run_scheduled_by_dataset_id(self, body, dataset_id, **kwargs):
+        assert isinstance(body, DockerRunScheduledCreateRequest)
+        _check_dataset_id(dataset_id)
+        return CreateEntityResponse(id=f'scheduled-run-id-123-dataset-{dataset_id}')
+
+    def get_docker_runs(self, **kwargs):
+        return self._compute_worker_runs
+
+    def get_docker_runs_scheduled_by_dataset_id(self, dataset_id, **kwargs):
+        runs = self._scheduled_compute_worker_runs
+        runs = [run for run in runs if run.dataset_id == dataset_id]
+        return runs
 
 
 class MockedVersioningApi(VersioningApi):
@@ -462,6 +559,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         self._datasets_api = MockedDatasetsApi(api_client=self.api_client)
         self._datasources_api = MockedDatasourcesApi(api_client=self.api_client)
         self._quota_api = MockedQuotaApi(api_client=self.api_client)
+        self._compute_worker_api = MockedComputeWorkerApi(api_client=self.api_client)
 
         lightly.api.api_workflow_client.requests.put = mocked_request_put
 

@@ -145,3 +145,13 @@ class _TagsMixin:
         )
 
         return new_tag
+
+    def delete_tag_by_id(self, tag_id: str):
+        """Deletes a tag on the web platform.
+        
+        Args:
+            tag_id:
+                The id of the tag to be deleted.
+        
+        """
+        self._tags_api.delete_tag_by_tag_id(self.dataset_id, tag_id)
