@@ -2,7 +2,7 @@ import lightly
 
 # we create the Lightly client to connect to the API
 # don't forget to pass the dataset_id if you don't use the client from the 
-# snippet to create the dataset
+# previous snippet (create a dataset)
 client = lightly.api.ApiWorkflowClient(token="TOKEN", dataset_id="DATASET_ID")
 
 # schedule the compute run using our custom config
