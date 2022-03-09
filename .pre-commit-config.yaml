@@ -12,6 +12,7 @@ repos:
     entry: make test
     language: system
     pass_filenames: false
+    stages: [push]
     # Avoid running tests if non-tested files have changed.
     # The regex follows the pattern in the docs: https://pre-commit.com/#regular-expressions
     exclude: |
