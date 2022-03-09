@@ -36,12 +36,12 @@ The current benchmark contains the following models:
 
    "BarlowTwins", 800, 256, 0.789, "330.9 Min", "4.0 GByte"
    "BYOL", 800, 256, 0.851, "332.7 Min", "4.3 GByte"
-   "DINO (ResNet 18)", 800, 256, 0.815, "312.0 Min", "4.1 GByte"
+   "DINO (ResNet 18)", 800, 256, 0.881, "613.9 Min", "6.7 GByte"
    "MoCo", 800, 256, 0.832, "322.8 Min", "4.2 GByte"
    "NNCLR", 800, 256, 0.848, "341.4 Min", "4.2 GByte"
    "SimCLR", 800, 256, 0.858, "324.8 Min", "3.9 GByte"
    "SimSiam", 800, 256, 0.852, "316.0 Min", "3.9 GByte"
-   "SwaV", 800, 256, 0.837, "335.2 Min", "3.9 GByte"
+   "SwaV", 800, 256, 0.899, "554.7 Min", "6.6 GByte"
 
 You can reproduce the benchmarks using the following script:
 :download:`imagenette_benchmark.py <benchmarks/imagenette_benchmark.py>` 
