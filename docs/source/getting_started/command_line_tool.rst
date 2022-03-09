@@ -96,14 +96,14 @@ Lightly-magic is a singular command for training, embedding, and uploading to th
     
 .. code-block:: bash
     
-    # embedding and uploading the images and embeddings to web app
-    # passing in input directory of dataset(Data_dir),using pretrained model
-    # with assigned token as yourToken and datasedID as yourDatasedID
-    # loader.num_workers species the number of cpu cores used for speeding the process.
+    # Embedding and uploading the images and embeddings to web app passing in 
+    # input directory of dataset(Data_dir), using pretrained model with assigned 
+    # token as yourToken and datasedID as yourDatasedID loader.num_workers specifies 
+    # the number of cpu cores used for speeding up the process
     lightly-magic input_dir=data_dir trainer.max_epochs=0 loader.num_workers=8 \
     token=yourToken dataset_id=yourDatasetId
     
-    # passing a custom dataset in the above example instead of datasetId
+    # Passing a custom dataset in the above example instead of datasetId
     lightly-magic input_dir=data_dir trainer.max_epochs=0 loader.num_workers=8 \
     token=yourToken new_dataset_name=myNewDataset
     
@@ -111,6 +111,10 @@ Lightly-magic is a singular command for training, embedding, and uploading to th
     # updating the previous example by passing value for loader.batch_size
     lightly-magic input_dir=data_dir trainer.max_epochs=0 loader.batch_size=128 \
     loader.num_workers=8 token=yourToken new_dataset_name=myNewDataset
+
+    # Upload custom metadata along with your images and embeddings
+    lightly-magic input_dir=data_dir trainer.max_epochs=0 loader.num_workers=8 \
+    token=yourToken dataset_id=yourDatasetId custom_metadata=yourCustomMetadata.json
 
 
 .. _cli-train-lightly:
