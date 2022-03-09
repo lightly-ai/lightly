@@ -127,33 +127,48 @@ hydra:
       Train using half-precision
       > lightly-train input_dir='path/to/image/folder' trainer.precision=16
 
-      Upload thumbnails to the Lightly web solution
+      Upload thumbnails to the Lightly Platform
       > lightly-upload input_dir='path/to/image/folder' dataset_id='your_dataset_id' token='your_access_token'
 
-      Upload only metadata of the images to the Lightly web solution
+      Upload only metadata of the images to the Lightly Platform
       > lightly-upload input_dir='path/to/image/folder' dataset_id='your_dataset_id' token='your_access_token upload='metadata'
 
-      Upload full images to the Lightly web solution
+      Upload full images to the Lightly Platform
       > lightly-upload input_dir='path/to/image/folder' dataset_id='your_dataset_id' token='your_access_token' upload='full'
     
-      Upload images and embeddings to the Lightly web solution
+      Upload images and embeddings to the Lightly Platform
       > lightly-upload input_dir='path/to/image/folder' embeddings='path/to/embeddings.csv' dataset_id='your_dataset_id' token='your_access_token'
 
-      Upload embeddings to the Lightly web solution
+      Upload embeddings to the Lightly Platform
       > lightly-upload embeddings='path/to/embeddings.csv' dataset_id='your_dataset_id' token='your_access_token'
 
-      Download a list of files in a given tag from the Lightly web solution
+      Upload custom metadata to the Lightly Platform
+      > lightly-upload input_dir='path/to/image/folder' custom_metadata='path/to/custom_metadata.json' dataset_id='your_dataset_id' token='your_access_token'
+
+      Download a list of files in a given tag from the Lightly Platform
       > lightly-download tag_name='my-tag' dataset_id='your_dataset_id' token='your_access_token'
 
-      Download a list of files in a given tag without filenames from the parent tag from the Lightly web solution
+      Download a list of files in a given tag without filenames from the parent tag from the Lightly Platform
       > lightly-download tag_name='my-tag' dataset_id='your_dataset_id' token='your_access_token' exclude_parent_tag=True
 
       Copy all files in a given tag from a source directory to a target directory
       > lightly-download tag_name='my-tag' dataset_id='your_dataset_id' token='your_access_token' input_dir='data/' output_dir='new_data/'
+
+      Train, embed, and upload images to a new dataset on the Lightly Platform
+      > lightly-magic input_dir='path/to/image/folder' new_dataset_name='your_dataset_name' token='your_access_token'
+
+      Train, embed, and upload images to an existing dataset on the Lightly Platform
+      > lightly-magic input_dir='path/to/image/folder' dataset_id='your_dataset_id' token='your_access_token'
+
+      Embed and upload images to a new dataset on the Lightly Platform
+      > lightly-magic input_dir='path/to/image/folder' trainer.max_epochs=0 new_dataset_name='your_dataset_name' token='your_access_token'
+      
+      Train, embed, and upload images with custom metadata to a new dataset on the Lightly Platform
+      > lightly-magic input_dir='path/to/image/folder' new_dataset_name='your_dataset_name' custom_metadata='path/to/custom_metadata.json' token='your_access_token'
 
       == Additional Information ==
 
       Use self-supervised methods to understand and filter raw image data:
 
       Website: https://www.lightly.ai
-      Documentation: https://docs.lightly.ai
+      Documentation: https://docs.lightly.ai/getting_started/command_line_tool.html
