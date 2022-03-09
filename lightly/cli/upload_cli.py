@@ -10,20 +10,35 @@ command-line interface.
 import csv
 import json
 import os
+import warnings
 from datetime import datetime
+from typing import Union
 
 import hydra
 
 import torchvision
 from torch.utils.hipify.hipify_python import bcolors
 
+from lightly.api.api_workflow_upload_embeddings import \
+    EmbeddingDoesNotExistError
 from lightly.cli._helpers import fix_input_path, print_as_warning, cpu_count
 
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.data import LightlyDataset
+SUCCESS_RETURN_VALUE = "Success"
 
 
-def _upload_cli(cfg, is_cli_call=True):
+def _upload_cli(cfg, is_cli_call=True) -> Union[str, None]:
+    """
+
+    Returns:
+        if no errors were encountered:
+            SUCCESS_RETURN_VALUE
+        else:
+            None
+
+    """
+    print(cfg)
     input_dir = cfg['input_dir']
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)
@@ -95,14 +110,13 @@ def _upload_cli(cfg, is_cli_call=True):
         transform = torchvision.transforms.Resize(size)
 
     if input_dir:
-        if len(api_workflow_client.get_all_tags()) > 0:
-            if not cfg.append:
-                print_as_warning(
-                    'The dataset you specified already has samples. '
-                    'If you want to add additional samples, you need to specify '
-                    'append=True as CLI argument.'
-                )
-                return
+        if not cfg.append and len(api_workflow_client.get_all_tags()) > 0:
+            print_as_warning(
+                'The dataset you specified already has samples. '
+                'If you want to add additional samples, you need to specify '
+                'append=True as CLI argument.'
+            )
+            return
 
         mode = cfg['upload']
         dataset = LightlyDataset(input_dir=input_dir, transform=transform)
@@ -116,7 +130,6 @@ def _upload_cli(cfg, is_cli_call=True):
 
     if path_to_embeddings:
         name = cfg['embedding_name']
-        print('Starting upload of embeddings.')
         if not cfg.append:
             try:
                 embedding = api_workflow_client.get_embedding_by_name(name=name, ignore_suffix=True)
@@ -148,6 +161,8 @@ def _upload_cli(cfg, is_cli_call=True):
     os.environ[
         cfg['environment_variable_names']['lightly_last_dataset_id']
     ] = api_workflow_client.dataset_id
+
+    return SUCCESS_RETURN_VALUE
 
 
 @hydra.main(config_path='config', config_name='config')
@@ -229,7 +244,7 @@ def upload_cli(cfg):
         >>> lightly-upload token='123' dataset_id='XYZ' custom_metadata=custom_metadata.json
 
     """
-    _upload_cli(cfg)
+    return _upload_cli(cfg)
 
 
 def entry():

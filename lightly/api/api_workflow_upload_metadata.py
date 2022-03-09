@@ -1,6 +1,6 @@
 import concurrent
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List
+from typing import Dict, List, Union
 from bisect import bisect_left
 
 from tqdm import tqdm
@@ -47,7 +47,8 @@ class _UploadCustomMetadataMixin:
             COCO_ANNOTATION_KEYS.custom_metadata, custom_metadata
         )
 
-    def index_custom_metadata_by_filename(self, custom_metadata: Dict):
+    def index_custom_metadata_by_filename(self, custom_metadata: Dict)\
+            -> Dict[str, Union[Dict, None]]:
         """Creates an index to lookup custom metadata by filename.
 
         Args:
@@ -56,12 +57,15 @@ class _UploadCustomMetadataMixin:
                 the required format.
 
         Returns:
-            A dictionary containing custom metadata indexed by filename.
+            A dictionary mapping from filenames to custom metadata.
+            If there are no annotations for a filename, the custom metadata
+            is None instead.
 
         """
 
         # Developer note:
-        # the mapping is filename -> image_id -> custom_metadata
+        # The mapping is filename -> image_id -> custom_metadata
+        # This mapping is created in linear time.
         filename_to_image_id = {
             image_info[COCO_ANNOTATION_KEYS.images_filename]:
                 image_info[COCO_ANNOTATION_KEYS.images_id]
