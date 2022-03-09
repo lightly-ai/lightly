@@ -14,6 +14,8 @@ repos:
     pass_filenames: false
     stages: [push]
     types: [python]
+    # Only run tests if a python file in the 'lightly' or the 'tests' folder changed.
+    # The regex follows the example from the docs: https://pre-commit.com/#regular-expressions
     file: |
       (?x)^(
           lightly/.*.py|
