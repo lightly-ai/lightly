@@ -96,9 +96,9 @@ Lightly-magic is a singular command for training, embedding, and uploading to th
     
 .. code-block:: bash
 
-    # Embed and upload images from an input directory to an existing dataset in 
-    # the web app. Setting trainer.max_epochs=0 uses a pretrained model for 
-    # embedding and loader.num_workers=8 specifies the number of cpu cores used
+    # Embed and upload images from an input directory to an existing dataset on 
+    # the Lightly Platform. Setting trainer.max_epochs=0 uses a pretrained model 
+    # for embedding. loader.num_workers=8 specifies the number of cpu cores used
     # for loading images. The token and dataset id are required for uploading
     # to the Lightly Platform.
     lightly-magic input_dir=data_dir trainer.max_epochs=0 loader.num_workers=8 \
