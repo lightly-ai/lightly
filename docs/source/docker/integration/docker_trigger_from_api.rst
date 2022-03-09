@@ -1,6 +1,6 @@
 .. _integration-docker-trigger-from-api:
 
-Trigger a Docker Job from from UI or code
+Trigger a Docker Job from from the platform or code
 ===========================================================
 
 Introduction
@@ -22,8 +22,7 @@ Advantages
 
 Download the Lightly Docker
 ---------------------------
-Next, the Lightly Docker should be installed. Please follow the instructions for
-the :ref:`ref-docker-setup`.
+Please follow the instructions for the :ref:`ref-docker-setup`.
 
 
 Register the Lightly Docker as a Worker
@@ -55,7 +54,7 @@ The state of the worker on the `Docker Workers <https://app.lightly.ai/docker/wo
 page should now indicate that the worker is in an idle state.
 
 
-Create a Data and Triggering a Job
+Create a Dataset and Triggering a Job
 -----------------------------------
 
 There are two ways to trigger a new job. You can either use the user interface
@@ -87,6 +86,17 @@ provided through our Web App or you can use our Python package and build a scrip
       If you don`t know how to fill out the form, follow the full tutorial to
       `create a Lightly dataset connected to your S3 bucket <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_aws_bucket.html>`_.
         
+
+    .. tab:: Python Code
+
+      .. literalinclude:: examples/create_dataset.py
+
+And now we can schedule a new job.
+
+.. tabs::
+
+    .. tab:: Web App
+
       **Trigger the Job**
 
       To trigger a new job you can click on the schedule run button on the dataset
@@ -175,7 +185,7 @@ provided through our Web App or you can use our Python package and build a scrip
 
     .. tab:: Python Code
 
-      .. literalinclude:: trigger_job_s3.py
+      .. literalinclude:: examples/trigger_job_s3.py
 
 
 View the progress of the Lightly Docker
