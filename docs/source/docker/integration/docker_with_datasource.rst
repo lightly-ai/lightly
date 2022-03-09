@@ -1,7 +1,7 @@
 
 .. _ref-docker-with-datasource:
 
-Using the docker with an S3 bucket as remote datasource.
+Using the docker with an S3 bucket as remote datasource
 ========================================================
 
 Introduction
