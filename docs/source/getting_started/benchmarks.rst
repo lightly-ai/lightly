@@ -14,8 +14,8 @@ ImageNette
 
 We use the ImageNette dataset provided here: https://github.com/fastai/imagenette
 
-For our benchmarks we use the 160px version. Training for 800 epochs on a V100
-GPU takes around 4 hours.
+For our benchmarks we use the 160px version and resize the input images to 128 pixels. 
+Training a single model for 800 epochs on a V100 GPU takes around 5 hours.
 
 The current benchmark contains the following models:
 
@@ -24,16 +24,24 @@ The current benchmark contains the following models:
 - SimSiam
 - BarlowTwins
 - BYOL
+- NNCLR
+- DINO
+- SwAV
 
-.. csv-table:: ImageNette benchmark results 
-   :header: "Model", "Epochs", "Batch Size", "kNN test Accuracy", "Peak GPU consumption"
-   :widths: 20, 20, 20, 20, 20
 
-   "MoCo", 800, 256, 0.827, "-"
-   "SimCLR", 800, 256, 0.847, "-"
-   "SimSiam", 800, 256, 0.827, "-"
-   "BarlowTwins", 800, 256, 0.801, "-"
-   "BYOL", 800, 256, 0.851, "-"
+
+.. csv-table:: ImageNette benchmark results using kNN evaluation on the test set using 128x128 input resolution.
+   :header: "Model", "Epochs", "Batch Size", "Accuracy", "Runtime", "GPU Memory"
+   :widths: 20, 20, 20, 20, 20, 20
+
+   "BarlowTwins", 800, 256, 0.789, "330.9 Min", "4.0 GByte"
+   "BYOL", 800, 256, 0.851, "332.7 Min", "4.3 GByte"
+   "DINO (ResNet 18)", 800, 256, 0.881, "613.9 Min", "6.7 GByte"
+   "MoCo", 800, 256, 0.832, "322.8 Min", "4.2 GByte"
+   "NNCLR", 800, 256, 0.848, "341.4 Min", "4.2 GByte"
+   "SimCLR", 800, 256, 0.858, "324.8 Min", "3.9 GByte"
+   "SimSiam", 800, 256, 0.852, "316.0 Min", "3.9 GByte"
+   "SwaV", 800, 256, 0.899, "554.7 Min", "6.6 GByte"
 
 You can reproduce the benchmarks using the following script:
 :download:`imagenette_benchmark.py <benchmarks/imagenette_benchmark.py>` 
@@ -59,7 +67,7 @@ augmentation due to the small image sizes.
    :format: html
 
 .. csv-table:: Cifar10 benchmark results showing kNN test accuracy, runtime and peak GPU memory consumption for different training setups.
-  :header: "Model", "Epochs", "Batch Size", "Accuracy", "Runtime", "Memory"
+  :header: "Model", "Epochs", "Batch Size", "Accuracy", "Runtime", "GPU Memory"
   :widths: 20, 20, 20, 20, 20, 20
 
   "BarlowTwins", 200, 128, 0.835, "193.4 Min", "2.2 GByte"
