@@ -12,12 +12,17 @@ repos:
     entry: make test
     language: system
     pass_filenames: false
-    stages: [push]
-    types: [python]
-    # Only run tests if a python file in the 'lightly' or the 'tests' folder changed.
-    # The regex follows the example from the docs: https://pre-commit.com/#regular-expressions
-    file: |
+    # Avoid running tests if non-tested files have changed.
+    # The regex follows the pattern in the docs: https://pre-commit.com/#regular-expressions
+    exclude: |
       (?x)^(
-          lightly/.*.py|
-          tests/.*.py
+          benchmark_logs/.*|
+          docs/.*|
+          examples/.*|
+          \.gitignore|
+          CONTRIBUTING\.md|
+          DOCS\.md|
+          LICENSE\.txt|
+          PRECOMMITHOOKS\.md|
+          README\.md
       )$
