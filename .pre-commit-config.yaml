@@ -17,5 +17,5 @@ repos:
     file: |
       (?x)^(
           lightly/.*.py|
-          tests/.*.py|
+          tests/.*.py
       )$
