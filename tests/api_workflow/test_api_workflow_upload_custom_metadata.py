@@ -143,7 +143,7 @@ class TestApiWorkflowUploadCustomMetadata(MockedApiWorkflowSetup):
 
 
     def test_upload_custom_metadata(self):
-        potential_image_ids_images = [[0, 1, 2], [-1, 1], list(range(10))]
+        potential_image_ids_images = [[0, 1, 2], [-1, 1], list(range(10)), [-3]]
         potential_image_ids_annotations = potential_image_ids_images
         potential_filenames_server = [[f"img_{id}.jpg" for id in ids] for ids in potential_image_ids_images]
 
