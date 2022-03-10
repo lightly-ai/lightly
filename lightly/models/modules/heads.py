@@ -3,7 +3,7 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 
 import torch
 import torch.nn as nn
@@ -303,7 +303,7 @@ class DINOProjectionHead(ProjectionHead):
         bottleneck_dim: int,
         output_dim: int,
         batch_norm=False, 
-        freeze_last_layer:Optional[int] = None,
+        freeze_last_layer:int = -1,
         norm_last_layer: bool = True,
     ):
         bn = nn.BatchNorm1d(hidden_dim) if batch_norm else None

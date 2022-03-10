@@ -26,9 +26,10 @@ class DINO(pl.LightningModule):
         # input_dim = backbone.embed_dim
 
         self.student_backbone = backbone
-        self.student_head = DINOProjectionHead(input_dim, 512, 64, 2048,freeze_last_layer, norm_last_layer)
+        self.student_head = DINOProjectionHead(input_dim, 512, 64, 2048,freeze_last_layer = freeze_last_layer, norm_last_layer = norm_last_layer)
         self.teacher_backbone = copy.deepcopy(backbone)
-        self.teacher_head = DINOProjectionHead(input_dim, 512, 64, 2048, freeze_last_layer, norm_last_layer)
+        #Teacher head is not frozen.
+        self.teacher_head = DINOProjectionHead(input_dim, 512, 64, 2048)
         deactivate_requires_grad(self.teacher_backbone)
         deactivate_requires_grad(self.teacher_head)
 

@@ -11,12 +11,14 @@ from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
 
 class DINO(torch.nn.Module):
-    def __init__(self, backbone, input_dim, freeze_last_layer, norm_last_layer):
+    def __init__(self, backbone, input_dim):
         super().__init__()
+        freeze_last_layer = 1
+        norm_last_layer = True
         self.student_backbone = backbone
-        self.student_head = DINOProjectionHead(input_dim, 512, 64, 2048, freeze_last_layer, norm_last_layer)
+        self.student_head = DINOProjectionHead(input_dim, 512, 64, 2048, freeze_last_layer = freeze_last_layer, norm_last_layer = norm_last_layer)
         self.teacher_backbone = copy.deepcopy(backbone)
-        self.teacher_head = DINOProjectionHead(input_dim, 512, 64, 2048, freeze_last_layer, norm_last_layer)
+        self.teacher_head = DINOProjectionHead(input_dim, 512, 64, 2048)
         deactivate_requires_grad(self.teacher_backbone)
         deactivate_requires_grad(self.teacher_head)
     
