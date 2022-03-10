@@ -111,7 +111,7 @@ swav_collate_fn = lightly.data.SwaVCollateFunction(
     crop_counts=[2, 6] # 2 crops @ 128x128px and 6 crops @ 64x64px
 )
 
-# Multi crop augmentation for DINO, additionally, disable blur for cifar10
+# Multi crop augmentation for DINO
 dino_collate_fn = lightly.data.DINOCollateFunction(
     global_crop_size=128,
     local_crop_size=64,
@@ -335,7 +335,6 @@ class BarlowTwinsModel(BenchmarkModule):
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
         )
-        # use a 2-layer projection head for cifar10 as described in the paper
         self.projection_head = heads.BarlowTwinsProjectionHead(feature_dim, 2048, 2048)
 
         self.criterion = lightly.loss.BarlowTwinsLoss(gather_distributed=gather_distributed)
@@ -602,7 +601,7 @@ for BenchmarkModel in models:
         )
         benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
 
-        # Save logs to: {CWD}/benchmark_logs/cifar10/{experiment_version}/{model_name}/
+        # Save logs to: {CWD}/benchmark_logs/imagenette/{experiment_version}/{model_name}/
         # If multiple runs are specified a subdirectory for each run is created.
         sub_dir = model_name if n_runs <= 1 else f'{model_name}/run{seed}'
         logger = TensorBoardLogger(
