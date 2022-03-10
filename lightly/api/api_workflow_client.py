@@ -73,12 +73,14 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             but used by a workflow, the newest embedding is taken by default
     """
 
-    def __init__(self, token: str, dataset_id: str = None, embedding_id: str = None):
+    def __init__(self, token: str = None, dataset_id: str = None, embedding_id: str = None):
 
         self.check_version_compatibility()
 
         configuration = Configuration()
         configuration.host = getenv('LIGHTLY_SERVER_LOCATION', 'https://api.lightly.ai')
+        if token is None:
+            token = getenv('LIGHTLY_TOKEN', None)
         configuration.api_key = {'token': token}
         api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
