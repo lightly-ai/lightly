@@ -49,3 +49,34 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         new_samples = self.api_workflow_client.download_new_raw_samples()
         assert len(samples) == len(new_samples)
         assert set(samples) == set(new_samples)
+
+    def test_set_azure_config(self):
+        self.api_workflow_client.set_azure_config(
+            container_name="my-container/name",
+            account_name="my-account-name",
+            sas_token="my-sas-token",
+            thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+        )
+
+    def test_set_gcs_config(self):
+        self.api_workflow_client.set_gcs_config(
+            resource_path="gs://my-bucket/my-dataset",
+            project_id="my-project-id",
+            credentials="my-credentials",
+            thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+        )
+
+    def test_set_local_config(self):
+        self.api_workflow_client.set_local_config(
+            resource_path="http://localhost:1234/path/to/my/data",
+            thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+        )
+
+    def test_set_s3_config(self):
+        self.api_workflow_client.set_s3_config(
+            resource_path="s3://my-bucket/my-dataset",
+            thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+            region="eu-central-1",
+            access_key="my-access-key",
+            secret_access_key="my-secret-access-key",
+        )

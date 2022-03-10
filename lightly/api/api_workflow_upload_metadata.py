@@ -175,8 +175,11 @@ class _UploadCustomMetadataMixin:
             custom_metadata,
         )
         if len(filename_to_metadata) != len(custom_metadata[COCO_ANNOTATION_KEYS.images]):
-            raise ValueError("There exist image names in the custom metadata "
-                             "without corresponding filenames on the server.")
+            raise ValueError(
+                f'There is a mismatch between the number of images '
+                f'in the metadata file ({len(filename_to_metadata)}) and on the '
+                f'server ({len(custom_metadata[COCO_ANNOTATION_KEYS.images])}).'
+            )
 
         # retry upload if it times out
         def upload_sample_metadata(args):
@@ -203,6 +206,10 @@ class _UploadCustomMetadataMixin:
             # get iterator over results
             results = executor.map(upload_sample_metadata, sample_requests)
             if verbose:
-                results = tqdm(results, total=len(sample_requests))
+                results = tqdm(
+                    results, 
+                    unit='metadata',
+                    total=len(sample_requests)
+                )
             # iterate over results to make sure they are completed
             list(results)

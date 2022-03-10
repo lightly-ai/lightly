@@ -13,6 +13,7 @@ With the introduction of our on-premise solution, you can **process larger datas
 We worked hard to make this happen and are very proud to present you with the following specs:
 
 * **NEW** :ref:`ref-docker-with-datasource`
+* **NEW** :ref:`ref-docker-trigger-from-api`
 
 * :ref:`ref-docker-active-learning` using Lightly Docker
 
