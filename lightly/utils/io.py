@@ -119,7 +119,6 @@ def check_embeddings(path: str, remove_additional_columns: bool=False):
         with open(path, 'w', newline='') as csv_file:
             writer = csv.writer(csv_file, delimiter=',')
             writer.writerows(new_rows)
-            print(new_rows)
 
 
 def save_embeddings(path: str,
