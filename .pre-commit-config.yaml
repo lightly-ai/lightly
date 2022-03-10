@@ -12,5 +12,18 @@ repos:
     entry: make test
     language: system
     pass_filenames: false
-    always_run: true
     stages: [push]
+    # Avoid running tests if non-tested files have changed.
+    # The regex follows the pattern in the docs: https://pre-commit.com/#regular-expressions
+    exclude: |
+      (?x)^(
+          benchmark_logs/.*|
+          docs/.*|
+          examples/.*|
+          \.gitignore|
+          CONTRIBUTING\.md|
+          DOCS\.md|
+          LICENSE\.txt|
+          PRECOMMITHOOKS\.md|
+          README\.md
+      )$
