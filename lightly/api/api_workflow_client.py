@@ -81,6 +81,10 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         configuration.host = getenv('LIGHTLY_SERVER_LOCATION', 'https://api.lightly.ai')
         if token is None:
             token = getenv('LIGHTLY_TOKEN', None)
+            if token is None:
+                raise ValueError(f"Either provide a 'token' argument or export"
+                                 f" a LIGHTLY_TOKEN environment variable")
+                
         configuration.api_key = {'token': token}
         api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
