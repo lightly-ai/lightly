@@ -1,4 +1,5 @@
 import concurrent
+import warnings
 from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List, Union
 from bisect import bisect_left
@@ -6,9 +7,14 @@ from bisect import bisect_left
 from tqdm import tqdm
 
 from lightly.api.utils import retry
+from lightly.cli._helpers import print_as_warning
 from lightly.openapi_generated.swagger_client.models.sample_update_request import \
     SampleUpdateRequest
 from lightly.utils.io import COCO_ANNOTATION_KEYS
+
+
+class InvalidCustomMetadataWarning(Warning):
+    pass
 
 
 def _assert_key_exists_in_custom_metadata(key: str, dictionary: Dict):
@@ -63,7 +69,6 @@ class _UploadCustomMetadataMixin:
 
         """
 
-        # Developer note:
         # The mapping is filename -> image_id -> custom_metadata
         # This mapping is created in linear time.
         filename_to_image_id = {
@@ -165,16 +170,27 @@ class _UploadCustomMetadataMixin:
             image_id = metadata[COCO_ANNOTATION_KEYS.custom_metadata_image_id]
             filename = image_id_to_filename.get(image_id, None)
             if filename is None:
-                raise ValueError(f"Your custom_metadata file is malformatted. "
-                                 f"There is an annotation with an image_id of "
-                                 f"{{{image_id}}},"
-                                 f"but the list of images does not include this id.")
+                print_as_warning(
+                    f'No image found for custom metadata annotation '
+                    f'with image_id {image_id}. '
+                    f'This custom metadata annotation is skipped. '
+                    f'Please fix your custom metadata file.',
+                    InvalidCustomMetadataWarning
+                )
+                continue
             sample_id = filename_to_sample_id.get(filename, None)
             if sample_id is None:
-                raise ValueError(f"Your custom_metadata file "
-                                  f"contains annotations for the file "
-                                  f"{{{filename}}}, but there are no samples"
-                                  f"on the server with this name.")
+                print_as_warning(
+                    f'You tried to upload custom metadata for a sample with '
+                    f'filename {{{filename}}}, '
+                    f'but a sample with this filename '
+                    f'does not exist on the server. '
+                    f'This custom metadata annotation is skipped. '
+                    f'Please upload the sample to the server first or fix '
+                    f'your custom metadata file.',
+                    InvalidCustomMetadataWarning
+                )
+                continue
             upload_request = (metadata, sample_id)
             upload_requests.append(upload_request)
 

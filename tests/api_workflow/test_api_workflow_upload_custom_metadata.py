@@ -9,6 +9,8 @@ from typing import List
 import numpy as np
 import torchvision
 
+from lightly.api.api_workflow_upload_metadata import \
+    InvalidCustomMetadataWarning
 from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
 from lightly.data.dataset import LightlyDataset
 from lightly.openapi_generated.swagger_client import SampleData
@@ -70,7 +72,7 @@ class TestApiWorkflowUploadCustomMetadata(MockedApiWorkflowSetup):
         self.create_fake_dataset()
         with open(self.custom_metadata_file.name, 'r') as f:
             custom_metadata = json.load(f)
-            with self.assertRaises(ValueError):
+            with self.assertWarns(InvalidCustomMetadataWarning):
                 self.api_workflow_client.upload_custom_metadata(custom_metadata)
 
     def test_upload_custom_metadata_with_append(self):
@@ -132,7 +134,7 @@ class TestApiWorkflowUploadCustomMetadata(MockedApiWorkflowSetup):
 
             if metatadata_without_filenames_on_server \
                     or custom_metadata_malformatted:
-                with self.assertRaises(ValueError):
+                with self.assertWarns(InvalidCustomMetadataWarning):
                     self.api_workflow_client.upload_custom_metadata(
                         custom_metadata
                     )
