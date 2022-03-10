@@ -32,8 +32,8 @@ def validate_cfg(cfg: DictConfig) -> bool:
     valid = True
     if cfg['trainer']['max_epochs'] > 0 and cfg['append']:
         print_as_warning('When appending to an existing dataset you must '
-                         'use the same embedding model. Thus specify'
-                         'trainer.max_epochs=0. If you had trained your own model,'
+                         'use the same embedding model. Thus specify '
+                         'trainer.max_epochs=0. If you had trained your own model, '
                          'you can use it with checkpoint="path/to/model.ckp".')
         valid = False
     return valid

@@ -38,7 +38,6 @@ def _upload_cli(cfg, is_cli_call=True) -> Union[str, None]:
             None
 
     """
-    print(cfg)
     input_dir = cfg['input_dir']
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)
