@@ -14,7 +14,7 @@ the following workloads in one single run:
 - embed all images or video frames
 - sample a subset, e.g. using CORESET
 - compute the metadata of the images
-- create a dataset in the Lightly Platform from the sampled subset
+- create a dataset in the Lightly Platform from the selected subset
 
 Support for streaming from Google Cloud Storage and Azure Blob Storage is
 planned. If you need any of these, write us so that we prioritize implementing it.
@@ -29,7 +29,7 @@ Advantages
   to your local disk and then read from there. Thus you save both a lot of time and
   disk space and can process much larger datasets.
 - You can :ref:`ref-docker-with-datasource-datapool`
-  to continuously update and improve your subsampled dataset
+  to continuously update and improve your selected dataset
   everytime new data comes into your S3 bucket.
 - Your images and videos are never saved anywhere but in your S3 bucket,
   maintaining your privacy and security.
@@ -102,15 +102,15 @@ head to `My Docker Runs <https://app.lightly.ai/docker/runs>`_
 
 .. image:: ../getting_started/images/docker_runs_overview.png
 
-Use your subsampled dataset
+Use your selected dataset
 ---------------------------
 
-Once the docker run has finished, you can see your subsampled dataset in the Lightly Platform:
+Once the docker run has finished, you can see your selected dataset in the Lightly Platform:
 
 .. image:: ./images/webapp-explore-after-docker.jpg
 
 In our case, we had 4 short street videos with about 1000 frames each in the S3 bucket
-and subsampled it to 50 frames.
+and selected 50 frames from it.
 Now you can analyze your dataset in the embedding and metadata view of the Lightly Platform,
 subsample it further, or export it for labeling.
 In our case we come to the conclusion that the raw data we have

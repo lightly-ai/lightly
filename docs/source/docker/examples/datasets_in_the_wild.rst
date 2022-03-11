@@ -162,7 +162,7 @@ Let's have a look at some statistics of the two obtained datasets:
 We notice the following when looking at this table:
 
 - The **min distance** between two samples was 0 after ffmpeg selection whereas the
-  min distance significantly increased using coreset sampling.
+  min distance significantly increased using CORESET selection strategy.
 
   - 0 distance means that there are at least two samples completely identical
     (e.g. two frames in the video are the same)

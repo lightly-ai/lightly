@@ -358,7 +358,7 @@ structure as shown above could then look like this:
 
 Where {INPUT_DIR} is the path to the directory containing the video files.
 
-You can let Lightly Docker automatically extract the sampled frames and save
+You can let Lightly Docker automatically extract the selected frames and save
 them in the output folder using `dump_dataset=True`.
 
 .. code-block:: console
@@ -400,7 +400,7 @@ simply set the stopping condition `n_samples` to 1.0 (which translates to 100% o
 Upload Sampled Dataset To Lightly Platform
 ------------------------------------------
 
-Lightly Docker can automatically push the sampled dataset as well as its 
+Lightly Docker can automatically push the selected dataset as well as its
 embeddings to the Lightly Platform.
 
 Imagine you have a dataset of 100 videos with 10'000 frames each. 1 Million frames
@@ -413,7 +413,7 @@ Finally, we can use the Active Learning capabilities of the Lightly Platform to
 iteratively train, predict, label the dataset in chunks until we reach the desired
 model accuracy.
 
-To push the sampled dataset automatically after running Lightly Docker you can 
+To push the selected dataset automatically after running Lightly Docker you can
 append `upload_dataset=True` to the docker run command.
 
 E.g. 
@@ -499,7 +499,7 @@ The output directory is structured in the following way:
         simply store the embeddings computed by the model.
    
 * filenames:
-   This directory contains lists of filenames of the corrupt images, removed images, sampled
+   This directory contains lists of filenames of the corrupt images, removed images, selected
    images and the images which were removed because they have an exact duplicate in the dataset.
 * plots:
    A directory containing the plots which were produced for the report.

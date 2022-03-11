@@ -25,7 +25,7 @@ used to the .csv file.
 
 The following example shows a dataset in which the column "masked" is used
 to prevent Lightly Docker from using this specific sample. In this example,
-img-1.jpg is simply ignored and not considered for sampling. E.g. the sample
+img-1.jpg is simply ignored and not considered for selection. E.g. the sample
 neither gets selected nor is it affecting the selection of any other sample.
 
 .. list-table:: masked_embeddings.csv
