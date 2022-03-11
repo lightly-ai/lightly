@@ -98,7 +98,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         self._compute_worker_api = DockerApi(api_client=self.api_client)
         self._datasets_api = DatasetsApi(api_client=self.api_client)
         self._datasources_api = DatasourcesApi(api_client=self.api_client)
-        self._samplings_api = SamplingsApi(api_client=self.api_client)
+        self._selection_api = SamplingsApi(api_client=self.api_client)
         self._jobs_api = JobsApi(api_client=self.api_client)
         self._tags_api = TagsApi(api_client=self.api_client)
         self._embeddings_api = EmbeddingsApi(api_client=api_client)
