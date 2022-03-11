@@ -1,4 +1,4 @@
-""" Collection of Sampler Configurations """
+""" Collection of Selection Configurations """
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved

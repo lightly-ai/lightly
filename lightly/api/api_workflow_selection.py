@@ -58,7 +58,7 @@ class _SelectionMixin:
 
         Args:
             selection_config:
-                The configuration of the sampler.
+                The configuration of the selection.
             preselected_tag_id:
                 The tag defining the already chosen samples (e.g. already labelled ones), default: None.
             query_tag_id:

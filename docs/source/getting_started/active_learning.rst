@@ -41,7 +41,7 @@ Lightly makes use of the following concepts for active learning:
    to sample from. Furthermore, one can query it to get a new batch of images.
    To initialize an `ActiveLearningAgent` you need an `ApiWorkflowClient`.
    
-* **SelectionConfig:** :py:class:`lightly.active_learning.config.sampler_config.SamplerConfig`
+* **SelectionConfig:** :py:class:`lightly.active_learning.config.selection_config.SelectionConfig`
    The `SelectionConfig` allows the configuration of a selection request. In particular,
    you can set number of samples, the name of the resulting selection, and the `SamplingMethod`.
    Currently, you can set the `SamplingMethod` to one of the following:
@@ -173,8 +173,8 @@ here is that the argument `n_samples` always refers to the total size of the lab
 
    # we want a total of 200 images after the first iteration (50 new samples)
    # this time, we use the CORAL selection strategy and provide a scorer to the query
-   config = SelectionConfig(n_samples=200, method=SamplingMethod.CORAL, name='al-iteration-1')
-   al_agent.query(sampler_config, scorer)
+   selection_config = SelectionConfig(n_samples=200, method=SamplingMethod.CORAL, name='al-iteration-1')
+   al_agent.query(selection_config, scorer)
 
    labeled_set_iteration_1 = al_agent.labeled_set
    added_set_iteration_1 = al_agent.added_set

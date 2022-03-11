@@ -194,7 +194,7 @@ Run Active Learning using the Docker
 At this point you should have an `embeddings.csv` file with the active learning 
 scores in a column named `al_scores`. 
 
-We can now perform an active learning sampling using the `CORAL` sampler. In order
+We can now perform an active learning sampling using the `CORAL` selection strategy. In order
 to do the sampling on the `embeddings.csv` file we need to make this file
 accessible to the docker. We can do this by using the `shared_dir` feature of the
 docker as described in :ref:`docker-sampling-from-embeddings`. 

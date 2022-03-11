@@ -160,7 +160,7 @@ This workflow is supported by the Lightly Platform using a datapool. It
 remembers which raw data in your S3 bucket has already been processed and will
 ignore it in future docker runs. Thus you can send the same job again to the 
 worker. It will find your new raw data in the S3 bucket, stream, embed
-and subsample it and then add it to your existing dataset. The samplers will
+and subsample it and then add it to your existing dataset. The selection strategies will
 take the existing data in your dataset into account when sampling new data to be
 added to your dataset.
 
