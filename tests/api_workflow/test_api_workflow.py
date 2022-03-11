@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 import lightly
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowClient, MockedApiWorkflowSetup
@@ -9,6 +10,15 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
     def setUp(self) -> None:
         lightly.api.api_workflow_client.__version__ = lightly.__version__
         self.api_workflow_client = MockedApiWorkflowClient(token="token_xyz")
+
+    def test_init_with_env_token(self):
+        os.environ["LIGHTLY_TOKEN"] = "token_xyz"
+        MockedApiWorkflowClient()
+        del os.environ["LIGHTLY_TOKEN"]
+
+    def test_error_if_init_without_token(self):
+        with self.assertRaises(ValueError):
+            MockedApiWorkflowClient()
 
     def test_error_if_version_is_incompatible(self):
         lightly.api.api_workflow_client.__version__ = "0.0.0"
