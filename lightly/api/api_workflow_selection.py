@@ -54,7 +54,7 @@ class _SelectionMixin:
 
     def selection(self, selection_config: SelectionConfig, preselected_tag_id: str = None, query_tag_id: str = None) \
             -> TagData:
-        """Performs a sampling given the arguments.
+        """Performs a selection given the arguments.
 
         Args:
             selection_config:
@@ -65,7 +65,7 @@ class _SelectionMixin:
                 The tag defining where to sample from, default: None resolves to the initial-tag.
 
         Returns:
-            The newly created tag of the sampling.
+            The newly created tag of the selection.
 
         Raises:
             ApiException
@@ -87,7 +87,7 @@ class _SelectionMixin:
         except AttributeError:
             self.set_embedding_id_to_latest()
 
-        # trigger the sampling
+        # trigger the selection
         payload = self._create_sampling_create_request(selection_config, preselected_tag_id, query_tag_id)
         payload.row_count = self.get_all_tags()[0].tot_size
         response = self._selection_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
