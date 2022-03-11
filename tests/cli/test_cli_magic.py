@@ -90,6 +90,13 @@ class TestCLIMagic(MockedApiWorkflowSetup):
         self.parse_cli_string(cli_string)
         lightly.cli.lightly_cli(self.cfg)
 
+    def test_magic_with_trainer_and_append(self):
+        MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
+        cli_string = "lightly-magic trainer.max_epochs=1 append=True"
+        self.parse_cli_string(cli_string)
+        with self.assertWarns(UserWarning):
+            lightly.cli.lightly_cli(self.cfg)
+
     def tearDown(self) -> None:
         for filename in ["embeddings.csv", "embeddings_sorted.csv"]:
             try:
