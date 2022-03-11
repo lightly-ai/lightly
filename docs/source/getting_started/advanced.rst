@@ -249,14 +249,14 @@ For more information check the documentation:
 Obtaining Good Embeddings
 ---------------------------
 
-We optimize the workflow of sampling only important datapoints by using **low-dimensional embeddings**. 
+We optimize the workflow of selecting only important datapoints by using **low-dimensional embeddings**.
 This has two benefits:
 
 - Low-dimensional embeddings have more meaningful distance metrics. 
   We know that the data usually lies on a manifold in high-dimensional spaces 
   (see `curse of dimensionality <https://en.wikipedia.org/wiki/Curse_of_dimensionality>`_). 
   Even very similar samples might have a high L2-distance or low cosine similarity in high embeddings.
-- Most algorithms to sample a subset based on the embeddings scale with 
+- Most algorithms to select a subset based on the embeddings scale with
   the dimensionality. Therefore low-dimensional embeddings can significantly 
   reduce computing time.
 
@@ -285,7 +285,7 @@ Let's have a look at how this works:
     import lightly
 
     # read the list of filenames (e.g. from the Lightly Docker output)
-    with open('sampled_filenames.txt', 'r') as f:
+    with open('selected_filenames.txt', 'r') as f:
         filenames = [line.rstrip() for line in f]
 
     # let's have a look at the first 5 filenames

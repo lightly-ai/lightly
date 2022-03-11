@@ -11,14 +11,14 @@ notebook:
 
 
 In this tutorial, we will run an active learning loop using both the lightly package and the Lightly platform.
-An active learning loop is a sequence of multiple samplings each choosing only a subset
+An active learning loop is a sequence of multiple selections each choosing only a subset
 of all samples in the dataset.
 
 To learn more about how active learning with lightly works have a look at :ref:`lightly-active-learning`.
 
 This workflow has the following structure:
 
-1. Choose an initial subset of your dataset, e.g. using one of our samplers like the coreset sampler.
+1. Choose an initial subset of your dataset, e.g. using one of our selection strategies like the CORESET selection strategy.
 Label this initial subset and train your model on it.
 
 Next, the active learning loop starts:
@@ -133,7 +133,7 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 
 from lightly.active_learning.agents.agent import ActiveLearningAgent
-from lightly.active_learning.config.sampler_config import SamplerConfig
+from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.active_learning.scorers.classification import ScorerClassification
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.openapi_generated.swagger_client import SamplingMethod
@@ -197,10 +197,10 @@ agent = ActiveLearningAgent(api_workflow_client=api_workflow_client)
 
 # %%
 # 1. Choose an initial subset of your dataset.
-# We want to start with 200 samples and use the CORESET sampler for sampling them.
-print("Starting the initial sampling")
-sampler_config = SamplerConfig(n_samples=200, method=SamplingMethod.CORESET, name='initial-selection')
-agent.query(sampler_config=sampler_config)
+# We want to start with 200 samples and use the CORESET selection strategy for selecting them.
+print("Starting the initial selection")
+selection_config = SelectionConfig(n_samples=200, method=SamplingMethod.CORESET, name='initial-selection')
+agent.query(selection_config=selection_config)
 print(f"There are {len(agent.labeled_set)} samples in the labeled set.")
 
 # %%
@@ -220,9 +220,9 @@ active_learning_scorer = ScorerClassification(model_output=predictions)
 
 # %%
 # 5. Use an active learning agent to choose the next samples to be labeled based on the active learning scores.
-# We want to sample another 100 samples to have 300 samples in total and use the active learning sampler CORAL for it.
-sampler_config = SamplerConfig(n_samples=300, method=SamplingMethod.CORAL, name='al-iteration-1')
-agent.query(sampler_config=sampler_config, al_scorer=active_learning_scorer)
+# We want to sample another 100 samples to have 300 samples in total and use the active learning selection strategy CORAL for it.
+selection_config = SelectionConfig(n_samples=300, method=SamplingMethod.CORAL, name='al-iteration-1')
+agent.query(selection_config=selection_config, al_scorer=active_learning_scorer)
 print(f"There are {len(agent.labeled_set)} samples in the labeled set.")
 
 # %%

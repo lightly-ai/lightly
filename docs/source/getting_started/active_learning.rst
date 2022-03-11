@@ -41,8 +41,8 @@ Lightly makes use of the following concepts for active learning:
    to sample from. Furthermore, one can query it to get a new batch of images.
    To initialize an `ActiveLearningAgent` you need an `ApiWorkflowClient`.
    
-* **SamplerConfig:** :py:class:`lightly.active_learning.config.sampler_config.SamplerConfig`
-   The `SamplerConfig` allows the configuration of a sampling request. In particular,
+* **SelectionConfig:** :py:class:`lightly.active_learning.config.sampler_config.SamplerConfig`
+   The `SelectionConfig` allows the configuration of a selection request. In particular,
    you can set number of samples, the name of the resulting selection, and the `SamplingMethod`.
    Currently, you can set the `SamplingMethod` to one of the following:
 
@@ -54,7 +54,7 @@ Lightly makes use of the following concepts for active learning:
    The `Scorer` takes as input the predictions of a pre-trained model on the set
    of unlabeled images. It offers a `calculate_scores()` method, which evaluates
    different scores based on how certain the model is about the images. When
-   performing a sampling, the scores are passed to the API so the sampler can use
+   performing a selection, the scores are passed to the API so the selection can use
    them with Coral.
 
    Active learning scores are scalar values (per sample) between 0.0 and 1.0 where values
@@ -101,15 +101,15 @@ Then, in your Python script, you will need to initialize the `ApiWorkflowClient`
    and tell the `ActiveLearningAgent` to only sample from this tag. To do so, set
    the `query_tag_name` argument in the constructor of the agent.
 
-Let's configure the sampling request and request an initial selection next:
+Let's configure the selection request and request an initial selection next:
 
 .. code-block:: Python
 
-   from lightly.active_learning.config import SamplerConfig
+   from lightly.active_learning.config import SelectionConfig
    from lightly.openapi_generated.swagger_client import SamplingMethod
 
    # we want an initial pool of 150 images
-   config = SamplerConfig(n_samples=150, method=SamplingMethod.CORESET, name='initial-selection')
+   config = SelectionConfig(n_samples=150, method=SamplingMethod.CORESET, name='initial-selection')
    al_agent.query(config)
    initial_selection = al_agent.labeled_set
    
@@ -117,7 +117,7 @@ Let's configure the sampling request and request an initial selection next:
    assert len(initial_selection) == 150
 
 The result of the query is a tag in the web-app under the name "initial-selection". The tag contains
-the images which were selected by the sampling algorithm. Head there to scroll through the samples and
+the images which were selected by the selection strategy. Head there to scroll through the samples and
 download the selected images before annotating them. Alternatively, you can access the filenames
 of the selected images via the attribute `labeled_set` as shown above.
 
@@ -133,7 +133,7 @@ To continue with active learning with Lightly, you will need the `ApiWorkflowCli
 If you perform the next selection step in a new file you have to initialize the client and agent again.
 If you have to re-initialize them, make sure to set the `pre_selected_tag_name` to your
 current selection (if this is the first iteration, this is the name you have passed 
-to the sampler config when doing the initial selection). Note, that if you don't 
+to the selection config when doing the initial selection). Note, that if you don't
 have to re-initialize them, the tracking of the tags is taken care of for you.
 
 .. code-block:: Python
@@ -142,8 +142,8 @@ have to re-initialize them, the tracking of the tags is taken care of for you.
    api_client = ApiWorkflowClient(dataset_id='xyz', token='123')
    al_agent = ActiveLearningAgent(api_client, preselected_tag_name='initial-selection')
 
-The next part is what differentiates active learning from simple subsampling; the
-trained model is used to get predictions on the data and the sampler then
+The next part is what differentiates active learning from simple selection; the
+trained model is used to get predictions on the data and the selection strategy then
 decides based on these predictions. To get a list of all filenames for which 
 predictions are required, you can use the `query_set`:
 
@@ -172,8 +172,8 @@ here is that the argument `n_samples` always refers to the total size of the lab
 .. code-block:: Python
 
    # we want a total of 200 images after the first iteration (50 new samples)
-   # this time, we use the CORAL sampler and provide a scorer to the query
-   config = SamplerConfig(n_samples=200, method=SamplingMethod.CORAL, name='al-iteration-1')
+   # this time, we use the CORAL selection strategy and provide a scorer to the query
+   config = SelectionConfig(n_samples=200, method=SamplingMethod.CORAL, name='al-iteration-1')
    al_agent.query(sampler_config, scorer)
 
    labeled_set_iteration_1 = al_agent.labeled_set
@@ -189,7 +189,7 @@ You can repeat the active learning step until the model achieves the required ac
 
 As the web-app allows viewing the active learning scores in the embedding view,
 there are usecases where only active learning scores should be uploaded to the web-app,
-but without performing a sampling. This is also easily possible:
+but without performing a selection. This is also easily possible:
 
 .. code-block:: Python
 

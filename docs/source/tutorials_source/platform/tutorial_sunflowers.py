@@ -5,8 +5,8 @@
 Tutorial 2: Diversify the Sunflowers Dataset
 =============================================
 
-This tutorial highlights the basic functionality of sampling in the web-app.
-You can use the Coreset sampling algorithm to choose a diverse subset of your dataset.
+This tutorial highlights the basic functionality of selecting in the web-app.
+You can use the CORESET selection strategy to choose a diverse subset of your dataset.
 This can be useful many purposes, e.g. for having a good subset of data to label
 or for creating a validation or test dataset that covers the complete sample space.
 Removing duplicate images can also help you in reducing bias and imbalances in your dataset.
@@ -56,12 +56,12 @@ But first, we need to install lightly from the Python package index.
 Create a Sampling
 ------------------
 
-Now, you have everything you need to create a sampling of your dataset. For this,
+Now, you have everything you need to create a selection of your dataset. For this,
 head to the *Embedding* page of your dataset. You should see a two-dimensional
 scatter plot of your embeddings. If you hover over the images, their thumbnails
 will appear. Can you find clusters of similar images?
 
-.. figure:: ../../tutorials_source/platform/images/sunflowers_scatter_before_sampling.jpg
+.. figure:: ../../tutorials_source/platform/images/sunflowers_scatter_before_selection.jpg
     :align: center
     :alt: Alt text
     :figclass: align-center
@@ -77,47 +77,47 @@ will appear. Can you find clusters of similar images?
    You can switch between the PCA, tSNE and UMAP dimensionality reduction methods.
 
 Right above the scatter plot you should see a button "Create Sampling". Click on it to
-create a sampling. You will need to configure the following settings:
+create a selection. You will need to configure the following settings:
 
-* **Embedding:** Choose the embedding to use for the sampling.
-* **Sampling Strategy:** Choose the sampling strategy to use. This will be one of:
+* **Embedding:** Choose the embedding to use for the selection.
+* **Sampling Strategy:** Choose the selection strategy to use. This will be one of:
 
-   * Coreset: Selects samples which are diverse.
-   * Coral: Combines Coreset with uncertainty scores to do active learning.
+   * CORESET: Selects samples which are diverse.
+   * CORAL: Combines CORESET with uncertainty scores to do active learning.
    * Random: Selects samples uniformly at random.
 * **Stopping Condition:** Indicate how many samples you want to keep.
-* **Name:** Give your sampling a name. A new tag will be created under this name.
+* **Name:** Give your selection a name. A new tag will be created under this name.
 
-.. figure:: ../../tutorials_source/platform/images/sampling_create_request.png
+.. figure:: ../../tutorials_source/platform/images/selection_create_request.png
     :align: center
     :alt: Alt text
     :figclass: align-center
     :figwidth: 400px
 
-    Example of a filled out sampling request in the web-app.
+    Example of a filled out selection request in the web-app.
 
 After confirming your settings, a worker will start processing your request. Once
 it's done, the page switches to the new tag. You can see how the scatter plot now shows
-selected images and discarded images in a different color. Play around with the different samplers
+selected images and discarded images in a different color. Play around with the different selection strategies
 to see differences between the results.
 
-.. figure:: ../../tutorials_source/platform/images/sunflowers_scatter_after_sampling.jpg
+.. figure:: ../../tutorials_source/platform/images/sunflowers_scatter_after_selection.jpg
     :align: center
     :alt: Alt text
     :figclass: align-center
 
-    After the sampling you can see which samples were selected and which ones were discarded.
+    After the selection you can see which samples were selected and which ones were discarded.
     Here, the green dots are part of the new tag while the gray ones are left away. Notice
-    how the Coreset sampler selects an evenly spaced subset of images.
+    how the CORESET selection strategy selects an evenly spaced subset of images.
 
 .. note::
 
-   The coreset sampler chooses the samples evenly spaced out in the 32-dimensional space.
+   The CORESET selection strategy chooses the samples evenly spaced out in the 32-dimensional space.
    This does not necessarily translate into being evenly spaced out after the dimensionality
    reduction to 2 dimensions.
 
 
-Download a sampling
+Download a selection
 -------------------
 
 Now you can use this diverse subset for your machine learning project.
