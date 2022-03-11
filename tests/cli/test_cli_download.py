@@ -57,7 +57,7 @@ class TestCLIDownload(MockedApiWorkflowSetup):
         lightly.cli.download_cli(self.cfg)
 
     def test_download_tag_name(self):
-        cli_string = "lightly-download token='123' dataset_id='XYZ' tag_name='sampled_tag_xyz'"
+        cli_string = "lightly-download token='123' dataset_id='XYZ' tag_name='selected_tag_xyz'"
         self.parse_cli_string(cli_string)
         lightly.cli.download_cli(self.cfg)
 
@@ -68,7 +68,7 @@ class TestCLIDownload(MockedApiWorkflowSetup):
             lightly.cli.download_cli(self.cfg)
 
     def test_download_tag_name_exclude_parent(self):
-        cli_string = "lightly-download token='123' dataset_id='XYZ' tag_name='sampled_tag_xyz' exclude_parent_tag=True"
+        cli_string = "lightly-download token='123' dataset_id='XYZ' tag_name='selected_tag_xyz' exclude_parent_tag=True"
         self.parse_cli_string(cli_string)
         lightly.cli.download_cli(self.cfg)
 
@@ -79,20 +79,20 @@ class TestCLIDownload(MockedApiWorkflowSetup):
         lightly.cli.download_cli(self.cfg)
 
     def test_download_no_token(self):
-        cli_string = "lightly-download dataset_id='XYZ' tag_name='sampled_tag_xyz'"
+        cli_string = "lightly-download dataset_id='XYZ' tag_name='selected_tag_xyz'"
         self.parse_cli_string(cli_string)
         with self.assertWarns(UserWarning):
             lightly.cli.download_cli(self.cfg)
 
     def test_download_no_dataset_id(self):
-        cli_string = "lightly-download token='123' tag_name='sampled_tag_xyz'"
+        cli_string = "lightly-download token='123' tag_name='selected_tag_xyz'"
         self.parse_cli_string(cli_string)
         with self.assertWarns(UserWarning):
             lightly.cli.download_cli(self.cfg)
 
     def test_download_copy_from_input_to_output_dir(self):
         self.create_fake_dataset(n_data=100)
-        cli_string = f"lightly-download token='123' dataset_id='dataset_1_id' tag_name='sampled_tag_xyz' " \
+        cli_string = f"lightly-download token='123' dataset_id='dataset_1_id' tag_name='selected_tag_xyz' " \
                      f"input_dir={self.input_dir} output_dir={self.output_dir}"
         self.parse_cli_string(cli_string)
         lightly.cli.download_cli(self.cfg)

@@ -265,7 +265,7 @@ you can use a simple script to translate it to the coco format:
 .. _plaform-sampling:
 
 Selection
-----------------
+---------
 
 Before you start selecting make sure you have created a dataset
 and uploaded images and embeddings. See :ref:`Create a Dataset <platform-create-dataset>`.
@@ -279,7 +279,7 @@ section by clicking on it.
 
 #. Navigate to *"Analyze & Filter"* → *"Sampling"* through the menu on the left.
 
-#. Choose the embedding and selecting strategy to use for this sampling run.
+#. Choose the embedding and selection strategy to use for this selection.
 
 #. Give a name to your selectiong so that you can later compare
    the different selections.

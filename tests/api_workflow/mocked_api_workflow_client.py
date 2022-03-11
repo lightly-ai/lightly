@@ -168,8 +168,8 @@ class MockedTagsApi(TagsApi):
         tag_3 = TagData(id='preselected_tag_id_xyz', dataset_id=dataset_id, prev_tag_id="initial-tag",
                         bit_mask_data="0x1", name='preselected_tag_name_xyz', tot_size=4,
                         created_at=1577836800, changes=dict())
-        tag_4 = TagData(id='sampled_tag_xyz', dataset_id=dataset_id, prev_tag_id="preselected_tag_id_xyz",
-                        bit_mask_data="0x3", name='sampled_tag_xyz', tot_size=4,
+        tag_4 = TagData(id='selected_tag_xyz', dataset_id=dataset_id, prev_tag_id="preselected_tag_id_xyz",
+                        bit_mask_data="0x3", name='selected_tag_xyz', tot_size=4,
                         created_at=1577836800, changes=dict())
         tag_5 = TagData(id='tag_with_integer_name', dataset_id=dataset_id, prev_tag_id=None,
                         bit_mask_data='0x1', name='1000', tot_size=4,
@@ -223,7 +223,7 @@ class MockedScoresApi(ScoresApi):
         _check_dataset_id(dataset_id)
         if len(body.scores) > 0 and not isinstance(body.scores[0], float):
             raise AttributeError
-        response_ = CreateEntityResponse(id="sampled_tag_id_xyz")
+        response_ = CreateEntityResponse(id="selected_tag_id_xyz")
         return response_
 
 

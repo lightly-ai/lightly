@@ -53,7 +53,7 @@ But first, we need to install lightly from the Python package index.
    create a new dataset. `Head over there and try it! <https://app.lightly.ai>`_
    For more information on the CLI commands refer to :ref:`lightly-command-line-tool` and :ref:`lightly-at-a-glance`.
 
-Create a Sampling
+Create a Selection
 ------------------
 
 Now, you have everything you need to create a selection of your dataset. For this,
@@ -118,7 +118,7 @@ to see differences between the results.
 
 
 Download a selection
--------------------
+--------------------
 
 Now you can use this diverse subset for your machine learning project.
 Just head over to the *Download* tag to see the different download options.
