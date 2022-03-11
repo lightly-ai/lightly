@@ -173,8 +173,7 @@ class _UploadCustomMetadataMixin:
                 print_as_warning(
                     f'No image found for custom metadata annotation '
                     f'with image_id {image_id}. '
-                    f'This custom metadata annotation is skipped. '
-                    f'Please fix your custom metadata file.',
+                    f'This custom metadata annotation is skipped. ',
                     InvalidCustomMetadataWarning
                 )
                 continue
@@ -185,9 +184,7 @@ class _UploadCustomMetadataMixin:
                     f'filename {{{filename}}}, '
                     f'but a sample with this filename '
                     f'does not exist on the server. '
-                    f'This custom metadata annotation is skipped. '
-                    f'Please upload the sample to the server first or fix '
-                    f'your custom metadata file.',
+                    f'This custom metadata annotation is skipped. ',
                     InvalidCustomMetadataWarning
                 )
                 continue
