@@ -111,7 +111,7 @@ class MockedEmbeddingsApi(EmbeddingsApi):
 
 
 class MockedSamplingsApi(SamplingsApi):
-    def trigger_selection_by_id(self, body: SamplingCreateRequest, dataset_id, embedding_id, **kwargs):
+    def trigger_sampling_by_id(self, body: SamplingCreateRequest, dataset_id, embedding_id, **kwargs):
         _check_dataset_id(dataset_id)
         assert isinstance(body, SamplingCreateRequest)
         assert isinstance(dataset_id, str)
@@ -590,7 +590,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         lightly.api.version_checking.VersioningApi = MockedVersioningApi
         ApiWorkflowClient.__init__(self, *args, **kwargs)
 
-        self._selections_api = MockedSamplingsApi(api_client=self.api_client)
+        self._selection_api = MockedSamplingsApi(api_client=self.api_client)
         self._jobs_api = MockedJobsApi(api_client=self.api_client)
         self._tags_api = MockedTagsApi(api_client=self.api_client)
         self._embeddings_api = MockedEmbeddingsApi(api_client=self.api_client)
