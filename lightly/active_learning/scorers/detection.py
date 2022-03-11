@@ -160,7 +160,7 @@ class ScorerObjectDetection(Scorer):
                 Used by the `object-frequency` scorer.
                 Specifies the minimum score per sample. All scores are
                 scaled to [`min_score`, 1.0] range. Lowering the number makes
-                the sampler focus more on samples with many objects.
+                the selection focus more on samples with many objects.
                 (default: 0.9)
 
 

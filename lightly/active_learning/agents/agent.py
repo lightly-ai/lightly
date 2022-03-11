@@ -1,7 +1,7 @@
 from typing import *
 import warnings
 
-from lightly.active_learning.config.sampler_config import SamplerConfig
+from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.active_learning.scorers.scorer import Scorer
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.api.bitmask import BitMask
@@ -40,8 +40,8 @@ class ActiveLearningAgent:
         >>> agent = ActiveLearningAgent(client)
         >>>
         >>> # make an initial active learning query
-        >>> sampler_config = SamplerConfig(n_samples=100, name='initial-set')
-        >>> agent.query(sampler_config)
+        >>> salection_config = SelectionConfig(n_samples=100, name='initial-set')
+        >>> agent.query(salection_config)
         >>> initial_set = agent.labeled_set
         >>>
         >>> # train and evaluate a model on the initial set
@@ -54,8 +54,8 @@ class ActiveLearningAgent:
         >>> scorer = ScorerClassification(predictions)
         >>>
         >>> # make a second active learning query
-        >>> sampler_config = SamplerConfig(n_samples=200, name='second-set')
-        >>> agent.query(sampler_config, scorer)
+        >>> salection_config = SelectionConfig(n_samples=200, name='second-set')
+        >>> agent.query(salection_config, scorer)
         >>> added_set = agent.added_set # access only the samples added by this query
 
     """
@@ -195,28 +195,28 @@ class ActiveLearningAgent:
 
 
     def query(self,
-              sampler_config: SamplerConfig,
+              selection_config: SelectionConfig,
               al_scorer: Scorer = None):
         """Performs an active learning query.
 
         First the active learning scores are computed and uploaded,
-        then the sampling query is performed.
+        then the selection query is performed.
         After the query, the labeled set is updated to contain all selected samples,
         the added set is recalculated as (new labeled set - old labeled set), and
         the query set stays the same.
 
         Args:
-            sampler_config:
-                The sampling configuration.
+            selection_config:
+                The selection configuration.
             al_scorer:
                 An instance of a class inheriting from Scorer, e.g. a ClassificationScorer.
 
         """
 
         # handle illogical stopping condition
-        if sampler_config.n_samples < len(self.labeled_set):
+        if selection_config.n_samples < len(self.labeled_set):
             warnings.warn(
-                f'ActiveLearningAgent.query: The number of samples ({sampler_config.n_samples}) is '
+                f'ActiveLearningAgent.query: The number of samples ({selection_config.n_samples}) is '
                 f'smaller than the number of preselected samples ({len(self.labeled_set)}).'
                 'Skipping the active learning query.'
             )
@@ -225,9 +225,9 @@ class ActiveLearningAgent:
         if al_scorer:
             self.upload_scores(al_scorer)
 
-        # perform the sampling
-        new_tag_data = self.api_workflow_client.sampling(
-            sampler_config=sampler_config,
+        # perform the selection
+        new_tag_data = self.api_workflow_client.selection(
+            selection_config=selection_config,
             preselected_tag_id=self._preselected_tag_id,
             query_tag_id=self._query_tag_id
         )

@@ -1,7 +1,7 @@
 import numpy as np
 
 from lightly.active_learning.agents.agent import ActiveLearningAgent
-from lightly.active_learning.config.sampler_config import SamplerConfig
+from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.active_learning.scorers import ScorerSemanticSegmentation
 from lightly.active_learning.scorers.classification import ScorerClassification
 from lightly.openapi_generated.swagger_client import SamplingMethod
@@ -26,18 +26,18 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
 
                     n_samples = len(agent.labeled_set) + batch_size
                     if method == SamplingMethod.CORAL and len(agent.labeled_set) == 0:
-                        sampler_config = SamplerConfig(n_samples=n_samples, method=SamplingMethod.CORESET)
+                        selection_config = SelectionConfig(n_samples=n_samples, method=SamplingMethod.CORESET)
                     else:
-                        sampler_config = SamplerConfig(n_samples=n_samples, method=method)
+                        selection_config = SelectionConfig(n_samples=n_samples, method=method)
 
-                    if sampler_config.method == SamplingMethod.CORAL:
+                    if selection_config.method == SamplingMethod.CORAL:
                         predictions = np.random.rand(len(agent.query_set), 10).astype(np.float32)
                         predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
                         al_scorer = ScorerClassification(predictions_normalized)
-                        agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
+                        agent.query(selection_config=selection_config, al_scorer=al_scorer)
                     else:
-                        sampler_config = SamplerConfig(n_samples=n_samples)
-                        agent.query(sampler_config=sampler_config)
+                        selection_config = SelectionConfig(n_samples=n_samples)
+                        agent.query(selection_config=selection_config)
                     
                     labeled_set, added_set = agent.labeled_set, agent.added_set
 
@@ -58,9 +58,9 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
         predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
         al_scorer = ScorerClassification(predictions_normalized)
 
-        sampler_config = SamplerConfig(n_samples=n_samples, method=method)
+        selection_config = SelectionConfig(n_samples=n_samples, method=method)
         with self.assertRaises(ValueError):
-            agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
+            agent.query(selection_config=selection_config, al_scorer=al_scorer)
 
     def test_agent_with_generator(self):
         self.api_workflow_client.embedding_id = "embedding_id_xyz"
@@ -78,8 +78,8 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
         predictions_generator = (predictions_normalized[i] for i in range(n_predictions))
         al_scorer = ScorerSemanticSegmentation(predictions_generator)
 
-        sampler_config = SamplerConfig(n_samples=n_samples, method=method)
-        agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
+        selection_config = SelectionConfig(n_samples=n_samples, method=method)
+        agent.query(selection_config=selection_config, al_scorer=al_scorer)
 
         # make sure we throw an error if generator is already consumed
         with self.assertRaises(ValueError):
@@ -108,12 +108,12 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
         )
 
         # sample 0 samples
-        sampler_config = SamplerConfig(
+        selection_config = SelectionConfig(
             n_samples=0,
             method=SamplingMethod.RANDOM
         )
 
-        agent.query(sampler_config)
+        agent.query(selection_config)
 
     def test_agent_only_upload_scores(self):
         self.api_workflow_client.embedding_id = "embedding_id_xyz"
@@ -142,8 +142,8 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
         predictions_normalized = predictions / np.sum(predictions, axis=1)[:, np.newaxis]
         al_scorer = ScorerClassification(predictions_normalized)
 
-        sampler_config = SamplerConfig(n_samples=n_samples, method=method)
-        agent.query(sampler_config=sampler_config, al_scorer=al_scorer)
+        selection_config = SelectionConfig(n_samples=n_samples, method=method)
+        agent.query(selection_config=selection_config, al_scorer=al_scorer)
 
 
 

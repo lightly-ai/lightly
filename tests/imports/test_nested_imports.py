@@ -10,8 +10,8 @@ class TestNestedImports(unittest.TestCase):
         # active learning
         lightly.active_learning.agents.agent.ActiveLearningAgent
         lightly.active_learning.agents.ActiveLearningAgent
-        lightly.active_learning.config.sampler_config.SamplerConfig
-        lightly.active_learning.config.SamplerConfig
+        lightly.active_learning.config.selection_config.SelectionConfig
+        lightly.active_learning.config.SelectionConfig
         lightly.active_learning.scorers.classification.ScorerClassification
         lightly.active_learning.scorers.ScorerClassification
         lightly.active_learning.scorers.detection.ScorerObjectDetection

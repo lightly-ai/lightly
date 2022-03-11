@@ -11,7 +11,7 @@ from lightly.api.api_workflow_compute_worker import _ComputeWorkerMixin
 from lightly.api.api_workflow_datasets import _DatasetsMixin
 from lightly.api.api_workflow_datasources import _DatasourcesMixin
 from lightly.api.api_workflow_download_dataset import _DownloadDatasetMixin
-from lightly.api.api_workflow_sampling import _SamplingMixin
+from lightly.api.api_workflow_selection import _SelectionMixin
 from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
@@ -45,7 +45,7 @@ from lightly.utils.reordering import sort_items_by_keys
 
 
 class ApiWorkflowClient(_UploadEmbeddingsMixin,
-                        _SamplingMixin,
+                        _SelectionMixin,
                         _UploadDatasetMixin,
                         _DownloadDatasetMixin,
                         _DatasetsMixin,

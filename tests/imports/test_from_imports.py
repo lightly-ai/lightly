@@ -8,7 +8,7 @@ class TestFromImports(unittest.TestCase):
 
     def test_from_imports(self):
         # active learning (commented out don't work)
-        from lightly.active_learning.config.sampler_config import SamplerConfig
+        from lightly.active_learning.config.selection_config import SelectionConfig
         from lightly.active_learning.agents.agent import ActiveLearningAgent
         from lightly.active_learning.scorers.classification import ScorerClassification
 

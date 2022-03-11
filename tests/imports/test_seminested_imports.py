@@ -10,7 +10,7 @@ class TestSemiNestedImports(unittest.TestCase):
         from lightly import active_learning
         # active learning (commented out don't work)
         active_learning.agents.ActiveLearningAgent
-        active_learning.config.SamplerConfig
+        active_learning.config.SelectionConfig
         active_learning.scorers.ScorerClassification
         active_learning.scorers.ScorerObjectDetection
 
