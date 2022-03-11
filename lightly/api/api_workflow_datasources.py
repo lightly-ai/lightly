@@ -1,10 +1,12 @@
 import time
 from typing import List, Optional, Tuple
 
+
 from lightly.openapi_generated.swagger_client.models.datasource_config import DatasourceConfig
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import DatasourceProcessedUntilTimestampRequest
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import DatasourceProcessedUntilTimestampResponse
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import DatasourceRawSamplesData
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_predictions_data import DatasourceRawSamplesPredictionsData
 
 
 class _DatasourcesMixin:
@@ -253,3 +255,65 @@ class _DatasourcesMixin:
             },
             dataset_id=self.dataset_id,
         )
+
+    def get_prediction_read_url(
+        self,
+        filename: str,
+    ):
+        """Returns a read-url for .lightly/predictions/{filename}.
+    
+        Args:
+            filename:
+                Filename for which to get the read-url.
+
+        Returns the read-url. If the file does not exist, a read-url is returned
+        anyways.
+        
+        """
+        return self._datasources_api.get_prediction_file_read_url_from_datasource_by_dataset_id(
+            self.dataset_id,
+            filename,
+        )
+
+    def download_raw_predictions(
+        self,
+        task_name: str,
+        from_: int = 0,
+        to: int = None
+    ) -> List[Tuple[str, str]]:
+        """Downloads all prediction filenames and read urls from the datasource between `from_` and `to`.
+
+        Samples which have timestamp == `from_` or timestamp == `to` will also be included.
+        
+        Args:
+            task_name:
+                Name of the prediction task.
+            from_: 
+                Unix timestamp from which on samples are downloaded.
+            to: 
+                Unix timestamp up to and including which samples are downloaded.
+        
+        Returns:
+           A list of (filename, url) tuples, where each tuple represents a sample
+
+        """
+        if to is None:
+            to = int(time.time())
+        response: DatasourceRawSamplesPredictionsData = self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id(
+            self.dataset_id,
+            task_name,
+            _from=from_,
+            to=to,
+        )
+        cursor = response.cursor
+        samples = response.data
+        while response.has_more:
+            response: DatasourceRawSamplesPredictionsData = self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id(
+                self.dataset_id,
+                task_name,
+                cursor=cursor
+            )
+            cursor = response.cursor
+            samples.extend(response.data)
+        samples = [(s.file_name, s.read_url) for s in samples]
+        return samples

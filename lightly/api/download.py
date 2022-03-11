@@ -342,3 +342,27 @@ def all_video_frame_counts(
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         return list(executor.map(job, urls))
+
+
+def download_prediction_file(
+    url: str,
+    session: requests.Session = None,
+) -> Union[Dict, None]:
+    """Downloads a json file from the provided read-url.
+
+    Args:
+        url: 
+            Url of the file to download.
+        session: 
+            Session object to persist certain parameters across requests.
+
+    Returns the content of the json file as dictionary or None.
+
+    """
+    req = requests if session is None else session
+    response = req.get(url, stream=True)
+
+    if response.status_code < 200 or response.status_code >= 300:
+        return None # the file doesn't exist!
+
+    return response.json()
