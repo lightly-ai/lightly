@@ -111,7 +111,7 @@ class MockedEmbeddingsApi(EmbeddingsApi):
 
 
 class MockedSamplingsApi(SamplingsApi):
-    def trigger_sampling_by_id(self, body: SamplingCreateRequest, dataset_id, embedding_id, **kwargs):
+    def trigger_selection_by_id(self, body: SamplingCreateRequest, dataset_id, embedding_id, **kwargs):
         _check_dataset_id(dataset_id)
         assert isinstance(body, SamplingCreateRequest)
         assert isinstance(dataset_id, str)
@@ -129,7 +129,7 @@ class MockedJobsApi(JobsApi):
         assert isinstance(job_id, str)
         self.no_calls += 1
         if self.no_calls > 3:
-            result = JobStatusDataResult(type=JobResultType.SAMPLING, data="sampling_tag_id_xyz")
+            result = JobStatusDataResult(type=JobResultType.SAMPLING, data="selection_tag_id_xyz")
             response_ = JobStatusData(id="id_", status=JobState.FINISHED, wait_time_till_next_poll=0,
                                       created_at=1234, finished_at=1357, result=result)
         else:
@@ -590,7 +590,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         lightly.api.version_checking.VersioningApi = MockedVersioningApi
         ApiWorkflowClient.__init__(self, *args, **kwargs)
 
-        self._samplings_api = MockedSamplingsApi(api_client=self.api_client)
+        self._selections_api = MockedSamplingsApi(api_client=self.api_client)
         self._jobs_api = MockedJobsApi(api_client=self.api_client)
         self._tags_api = MockedTagsApi(api_client=self.api_client)
         self._embeddings_api = MockedEmbeddingsApi(api_client=self.api_client)
@@ -605,7 +605,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
 
         lightly.api.api_workflow_client.requests.put = mocked_request_put
 
-        self.wait_time_till_next_poll = 0.001  # for api_workflow_sampling
+        self.wait_time_till_next_poll = 0.001  # for api_workflow_selection
 
     def upload_file_with_signed_url(
             self, file: IOBase, signed_write_url: str,

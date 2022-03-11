@@ -108,13 +108,13 @@ def t_est_active_learning(api_workflow_client: ApiWorkflowClient,
     if query_tag_name is not None:
         selection_config = SelectionConfig(method=SamplingMethod.RANDOM, n_samples=100, name=query_tag_name)
         try:
-            api_workflow_client.sampling(selection_config=selection_config)
+            api_workflow_client.selection(selection_config=selection_config)
         except RuntimeError:
             pass
     if preselected_tag_name is not None:
         selection_config = SelectionConfig(method=SamplingMethod.RANDOM, n_samples=10, name=preselected_tag_name)
         try:
-            api_workflow_client.sampling(selection_config=selection_config)
+            api_workflow_client.selection(selection_config=selection_config)
         except RuntimeError:
             pass
 
@@ -131,7 +131,7 @@ def t_est_active_learning(api_workflow_client: ApiWorkflowClient,
         n_samples = len(agent.labeled_set) + n_samples_additional
         print(f"Beginning with iteration {iteration} to have {n_samples} labeled samples.")
 
-        # Perform a sampling
+        # Perform a selection
         method_here = SamplingMethod.CORESET if iteration == 0 and method == SamplingMethod.CORAL else method
         selection_config = SelectionConfig(method=method_here, n_samples=n_samples)
         if al_scorer is None:

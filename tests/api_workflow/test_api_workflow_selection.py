@@ -4,7 +4,7 @@ from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
 class TestApiWorkflowSelection(MockedApiWorkflowSetup):
-    def test_sampling(self):
+    def test_selection(self):
         self.api_workflow_client.embedding_id = "embedding_id_xyz"
 
         selection_config = SelectionConfig()
