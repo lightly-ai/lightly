@@ -66,7 +66,7 @@ files.
 
 To **append** to your datapool, pass the name of an existing datapool as an argument.
 The Lightly Docker will read the embeddings and filenames from the existing pool and
-consider them during sampling. Then, it will update the datapool and checkpoint files.
+consider them during selection. Then, it will update the datapool and checkpoint files.
 
 .. note:: You can't change the dimension of the embeddings once the datapool has
           been initialized so choose carefully!

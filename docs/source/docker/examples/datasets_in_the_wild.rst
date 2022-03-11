@@ -174,8 +174,7 @@ We notice the following when looking at this table:
 - The **10th percentile** shows similar behavior to the mean distance.
 
 As you see in this example just selecting every N-th frame is similar to
-selecting frames randomly. More sophisticated selection methods, such as 
-coreset sampling which has been optimized for Lightly Docker, result in 
+selecting frames randomly. More sophisticated selection methods, such as the CORESET which has been optimized for Lightly Docker, result in
 much higher sample diversity.
 
 .. note:: Note that by default the embeddings of the dataset will be normalized

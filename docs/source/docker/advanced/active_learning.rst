@@ -8,7 +8,7 @@ For running an active learning step with the Lightly docker, we need to perform
 
 1. Create an `embeddings.csv` file. You can use your own models or the Lightly docker for this.
 2. Add your active learning scores as an additional column to the embeddings file.
-3. Use the Lightly docker to perform a active learning sampling on the scores.
+3. Use the Lightly docker to perform a active learning selection on the scores.
 
 Learn more about the concept of active learning 
 :ref:`lightly-active-learning-scorers`.
@@ -23,8 +23,8 @@ You can create embeddings using your own model. Just make sure the resulting
 
 Alternatively, you can run the docker as usual and as described in the 
 :ref:`rst-docker-first-steps` section.
-The only difference is that you set the number of samples to be sampled to `1.0`,
-as this prevents sampling and just creates the embedding of the full dataset.
+The only difference is that you set the number of samples to be selected to `1.0`,
+as this prevents selecting and just creates the embedding of the full dataset.
 
 E.g. create and run a bash script with the following content:
 
@@ -82,8 +82,8 @@ Running it will create a terminal output similar to the following:
     [2021-09-29 13:34:31] Unique embeddings are stored in output_dir/2021-09-29/13:32:11/data/embeddings.csv
     [2021-09-29 13:34:31] Normalizing embeddings to unit length (disable with normalize_embeddings=False).
     [2021-09-29 13:34:31] Normalized embeddings are stored in output_dir/2021-09-29/13:32:11/data/normalized_embeddings.csv
-    [2021-09-29 13:34:31] Sampling dataset with stopping condition: n_samples=372
-    [2021-09-29 13:34:31] Skipped sampling because the number of remaining images is smaller than the number of requested samples.
+    [2021-09-29 13:34:31] Selecting dataset with stopping condition: n_samples=372
+    [2021-09-29 13:34:31] Skipped selection because the number of remaining images is smaller than the number of requested samples.
     [2021-09-29 13:34:31] Writing report to output_dir/2021-09-29/13:32:11/report.pdf.
     [2021-09-29 13:35:04] Writing csv with information about removed samples to output_dir/2021-09-29/13:32:11/removed_samples.csv
     [2021-09-29 13:35:04] Done!
@@ -194,10 +194,10 @@ Run Active Learning using the Docker
 At this point you should have an `embeddings.csv` file with the active learning 
 scores in a column named `al_scores`. 
 
-We can now perform an active learning sampling using the `CORAL` selection strategy. In order
-to do the sampling on the `embeddings.csv` file we need to make this file
+We can now perform an active learning selection using the `CORAL` selection strategy. In order
+to do the selection on the `embeddings.csv` file we need to make this file
 accessible to the docker. We can do this by using the `shared_dir` feature of the
-docker as described in :ref:`docker-sampling-from-embeddings`. 
+docker as described in :ref:`docker-selection-from-embeddings`.
 
 E.g. use the following bash script.
 
@@ -250,7 +250,7 @@ Your terminal output should look similar to this:
     [2021-09-29 09:36:28] Unique embeddings are stored in shared_dir/embeddings_al.csv
     [2021-09-29 09:36:28] Normalizing embeddings to unit length (disable with normalize_embeddings=False).
     [2021-09-29 09:36:28] Normalized embeddings are stored in output_dir/2021-09-29/09:36:27/data/normalized_embeddings.csv
-    [2021-09-29 09:36:28] Sampling dataset with stopping condition: n_samples=10
+    [2021-09-29 09:36:28] Selecting dataset with stopping condition: n_samples=10
     [2021-09-29 09:36:28] Sampled 10 images.
     [2021-09-29 09:36:28] Writing report to output_dir/2021-09-29/09:36:27/report.pdf.
     [2021-09-29 09:36:56] Writing csv with information about removed samples to output_dir/2021-09-29/09:36:27/removed_samples.csv

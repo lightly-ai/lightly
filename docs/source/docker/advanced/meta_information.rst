@@ -89,7 +89,7 @@ additional samples that are enriching the existing selection.
 
 .. note:: Pre-selected samples also count for the target number of samples.
           For example, you have a dataset with 100 samples. If you pre-select
-          60 and want to sample 50, sampling would have no effect since there
+          60 and want to sample 50, selecting would have no effect since there
           are already more than 50 samples selected.
 
 Custom Weak Labels

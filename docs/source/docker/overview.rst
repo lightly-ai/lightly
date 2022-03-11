@@ -17,7 +17,7 @@ We worked hard to make this happen and are very proud to present you with the fo
 
 * :ref:`ref-docker-active-learning` using Lightly Docker
 
-* Automatically upload the sampled dataset to the Lightly Platform (see :ref:`ref-docker-upload-to-platform`)
+* Automatically upload the selected dataset to the Lightly Platform (see :ref:`ref-docker-upload-to-platform`)
 
 * See your docker runs live in the Lightly Platform (see :ref:`ref-docker-runs`)
 
@@ -27,7 +27,7 @@ We worked hard to make this happen and are very proud to present you with the fo
 
   * Supported object categories are: bicycle, bus, car, motorcycle, person, train, truck
 
-* Sample more than 1 Million samples within a few hours!
+* Select more than 1 Million samples within a few hours!
 
 * Runs directly with videos without prior extraction of the frames!
 
@@ -35,10 +35,10 @@ We worked hard to make this happen and are very proud to present you with the fo
 
 * Configurable
 
-  * Use stopping conditions for sampling such as minimum distance between
+  * Use stopping conditions for the selection such as minimum distance between
     two samples
 
-  * Use various sampling methods
+  * Use various selection methods
 
   * Check for corrupt files and report them
 

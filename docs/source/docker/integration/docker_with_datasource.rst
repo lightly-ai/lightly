@@ -133,7 +133,7 @@ and will ignore it in future docker runs.
 Thus you can run the docker with the same command again. It will find
 your new raw data in the S3 bucket, stream, embed and subsample it and then add it to
 your existing dataset. The selection will take the existing data in your dataset
-into account when sampling new data to be added to your dataset.
+into account when selecting new data to be added to your dataset.
 
 .. image:: ./images/webapp-embedding-after-2nd-docker.png
 

@@ -105,7 +105,7 @@ The following are parameters which can be passed to the container:
     min_score: 0.9
 
 
-  # sampling
+  # Selection
   # Choose from ['coreset', 'random'].
   method: 'coreset'
   stopping_condition:
