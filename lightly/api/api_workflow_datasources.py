@@ -1,11 +1,6 @@
 import time
-<<<<<<< HEAD
 from typing import List, Optional, Tuple
-=======
-import requests
 
-from typing import List, Tuple, Dict
->>>>>>> Philipp add predictions utilities (#710)
 
 from lightly.openapi_generated.swagger_client.models.datasource_config import DatasourceConfig
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import DatasourceProcessedUntilTimestampRequest
