@@ -2,6 +2,7 @@ import unittest
 
 import torch
 
+import lightly
 from lightly.models.modules.heads import BarlowTwinsProjectionHead
 from lightly.models.modules.heads import BYOLProjectionHead
 from lightly.models.modules.heads import DINOProjectionHead
@@ -116,3 +117,47 @@ class TestProjectionHeads(unittest.TestCase):
     @unittest.skipUnless(torch.cuda.is_available(), "skip")
     def test_dino_projection_head_cuda(self, seed=0):
         self.test_dino_projection_head(device="cuda", seed=seed)
+
+    def test_dino_projection_head_freeze_last_layer(self, seed=0):
+        """Test if freeze last layer cancels backprop."""
+        torch.manual_seed(seed)
+        for norm_last_layer in [False, True]:
+            for freeze_last_layer in range(-1, 3):
+                head = DINOProjectionHead(
+                    input_dim=4,
+                    hidden_dim=4,
+                    output_dim=4,
+                    bottleneck_dim=4,
+                    freeze_last_layer=freeze_last_layer,
+                    norm_last_layer=norm_last_layer,
+                )
+                optimizer = torch.optim.SGD(head.parameters(), lr=1)
+                criterion = lightly.loss.DINOLoss(output_dim=4)
+                # Store initial weights of last layer
+                initial_data = [
+                    param.data.detach().clone() 
+                    for param in head.last_layer.parameters()
+                ]
+                for epoch in range(5):
+                    with self.subTest(
+                        f'norm_last_layer={norm_last_layer}, '
+                        f'freeze_last_layer={freeze_last_layer}, '
+                        f'epoch={epoch}'
+                    ):
+                        views = [torch.rand((3, 4)) for _ in range(2)]
+                        teacher_out = [head(view) for view in views]
+                        student_out = [head(view) for view in views]
+                        loss = criterion(teacher_out, student_out, epoch=epoch)
+                        optimizer.zero_grad()
+                        loss.backward()
+                        head.cancel_last_layer_gradients(current_epoch=epoch)
+                        optimizer.step()
+                        params = head.last_layer.parameters()
+                        # Verify that weights have (not) changed depending on epoch.
+                        for param, init_data in zip(params, initial_data):
+                            if param.requires_grad:
+                                are_same = torch.allclose(param.data, init_data)
+                                if epoch >= freeze_last_layer:
+                                    self.assertFalse(are_same)
+                                else:
+                                    self.assertTrue(are_same)
