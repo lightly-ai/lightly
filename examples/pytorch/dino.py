@@ -13,10 +13,8 @@ from lightly.models.utils import update_momentum
 class DINO(torch.nn.Module):
     def __init__(self, backbone, input_dim):
         super().__init__()
-        freeze_last_layer = 1
-        norm_last_layer = True
         self.student_backbone = backbone
-        self.student_head = DINOProjectionHead(input_dim, 512, 64, 2048, freeze_last_layer = freeze_last_layer, norm_last_layer = norm_last_layer)
+        self.student_head = DINOProjectionHead(input_dim, 512, 64, 2048, freeze_last_layer=1)
         self.teacher_backbone = copy.deepcopy(backbone)
         self.teacher_head = DINOProjectionHead(input_dim, 512, 64, 2048)
         deactivate_requires_grad(self.teacher_backbone)
@@ -35,7 +33,6 @@ class DINO(torch.nn.Module):
 resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(*list(resnet.children())[:-1])
 input_dim = 512
-freeze_last_layer = 1
 # instead of a resnet you can also use a vision transformer backbone as in the
 # original paper (you might have to reduce the batch size in this case):
 # backbone = torch.hub.load('facebookresearch/dino:main', 'dino_vits16', pretrained=False)
@@ -87,7 +84,7 @@ for epoch in range(10):
         loss = criterion(teacher_out, student_out, epoch=epoch)
         total_loss += loss.detach()
         loss.backward()
-        #We only cancel gradients of student head.
+        # We only cancel gradients of student head.
         model.student_head.cancel_last_layer_gradients(current_epoch=epoch)
         optimizer.step()
         optimizer.zero_grad()
