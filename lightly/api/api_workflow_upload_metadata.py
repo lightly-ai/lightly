@@ -1,14 +1,20 @@
 import concurrent
+import warnings
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List
+from typing import Dict, List, Union
 from bisect import bisect_left
 
 from tqdm import tqdm
 
 from lightly.api.utils import retry
+from lightly.cli._helpers import print_as_warning
 from lightly.openapi_generated.swagger_client.models.sample_update_request import \
     SampleUpdateRequest
 from lightly.utils.io import COCO_ANNOTATION_KEYS
+
+
+class InvalidCustomMetadataWarning(Warning):
+    pass
 
 
 def _assert_key_exists_in_custom_metadata(key: str, dictionary: Dict):
@@ -47,71 +53,44 @@ class _UploadCustomMetadataMixin:
             COCO_ANNOTATION_KEYS.custom_metadata, custom_metadata
         )
 
-    def index_custom_metadata_by_filename(self,
-                                          filenames: List[str],
-                                          custom_metadata: Dict):
+    def index_custom_metadata_by_filename(self, custom_metadata: Dict)\
+            -> Dict[str, Union[Dict, None]]:
         """Creates an index to lookup custom metadata by filename.
 
         Args:
-            filenames:
-                List of filenames.
             custom_metadata:
                 Dictionary of custom metadata, see upload_custom_metadata for
                 the required format.
 
         Returns:
-            A dictionary containing custom metdata indexed by filename.
+            A dictionary mapping from filenames to custom metadata.
+            If there are no annotations for a filename, the custom metadata
+            is None instead.
 
         """
 
-        # sort images by filename
-        custom_metadata[COCO_ANNOTATION_KEYS.images] = sorted(
-            custom_metadata[COCO_ANNOTATION_KEYS.images],
-            key=lambda x: x[COCO_ANNOTATION_KEYS.images_filename]
-        )
-
-        # sort metadata by image id
-        custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata] = sorted(
-            custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata],
-            key=lambda x: x[COCO_ANNOTATION_KEYS.custom_metadata_image_id]
-        )
-
-        # get a list of filenames for binary search
-        image_filenames = [
-            image[COCO_ANNOTATION_KEYS.images_filename] for image in
-            custom_metadata[COCO_ANNOTATION_KEYS.images]
-        ]
-
-        # get a list of image ids for binary search
-        metadata_image_ids = [
-            data[COCO_ANNOTATION_KEYS.custom_metadata_image_id] for data in
-            custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata]
-        ]
-
-        # map filename to metadata in O(n * logn)
-        filename_to_metadata = {}
-        for filename in filenames:
-
-            image_index = bisect_left(image_filenames, filename)
-            if image_index == len(image_filenames):
-                raise RuntimeError(
-                    f'Image with filename {filename} does not exist in custom metadata!'
-                )
-
-            image = custom_metadata[COCO_ANNOTATION_KEYS.images][image_index]
-            image_id = image[COCO_ANNOTATION_KEYS.images_id]
-
-            metadata_index = bisect_left(metadata_image_ids, image_id)
-            if metadata_index == len(metadata_image_ids):
-                raise RuntimeError(
-                    f'Image with id {image_id} has no custom metadata!'
-                )
-
-            metadata = custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata][
-                metadata_index]
-            filename_to_metadata[filename] = metadata
-
+        # The mapping is filename -> image_id -> custom_metadata
+        # This mapping is created in linear time.
+        filename_to_image_id = {
+            image_info[COCO_ANNOTATION_KEYS.images_filename]:
+                image_info[COCO_ANNOTATION_KEYS.images_id]
+            for image_info
+            in custom_metadata[COCO_ANNOTATION_KEYS.images]
+        }
+        image_id_to_custom_metadata = {
+            metadata[COCO_ANNOTATION_KEYS.custom_metadata_image_id]:
+                metadata
+            for metadata
+            in custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata]
+        }
+        filename_to_metadata = {
+            filename: image_id_to_custom_metadata.get(image_id, None)
+            for (filename, image_id)
+            in filename_to_image_id.items()
+        }
         return filename_to_metadata
+
+
 
     def upload_custom_metadata(self,
                                custom_metadata: Dict,
@@ -168,48 +147,70 @@ class _UploadCustomMetadataMixin:
 
         self.verify_custom_metadata_format(custom_metadata)
 
-        # create a mapping from sample filenames to custom metadata
+
+
+        # For each metadata, we need the corresponding sample_id
+        # on the server. The mapping is:
+        # metadata -> image_id -> filename -> sample_id
+
+        image_id_to_filename = {
+            image_info[COCO_ANNOTATION_KEYS.images_id]:
+                image_info[COCO_ANNOTATION_KEYS.images_filename]
+            for image_info in custom_metadata[COCO_ANNOTATION_KEYS.images]
+        }
+
         samples = self._samples_api.get_samples_by_dataset_id(self.dataset_id)
-        filename_to_metadata = self.index_custom_metadata_by_filename(
-            [sample.file_name for sample in samples],
-            custom_metadata,
-        )
-        if len(filename_to_metadata) != len(custom_metadata[COCO_ANNOTATION_KEYS.images]):
-            raise ValueError(
-                f'There is a mismatch between the number of images '
-                f'in the metadata file ({len(filename_to_metadata)}) and on the '
-                f'server ({len(custom_metadata[COCO_ANNOTATION_KEYS.images])}).'
-            )
+        filename_to_sample_id = {
+            sample.file_name: sample.id
+            for sample in samples
+        }
+
+        upload_requests = []
+        for metadata in custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata]:
+            image_id = metadata[COCO_ANNOTATION_KEYS.custom_metadata_image_id]
+            filename = image_id_to_filename.get(image_id, None)
+            if filename is None:
+                print_as_warning(
+                    f'No image found for custom metadata annotation '
+                    f'with image_id {image_id}. '
+                    f'This custom metadata annotation is skipped. ',
+                    InvalidCustomMetadataWarning
+                )
+                continue
+            sample_id = filename_to_sample_id.get(filename, None)
+            if sample_id is None:
+                print_as_warning(
+                    f'You tried to upload custom metadata for a sample with '
+                    f'filename {{{filename}}}, '
+                    f'but a sample with this filename '
+                    f'does not exist on the server. '
+                    f'This custom metadata annotation is skipped. ',
+                    InvalidCustomMetadataWarning
+                )
+                continue
+            upload_request = (metadata, sample_id)
+            upload_requests.append(upload_request)
 
         # retry upload if it times out
-        def upload_sample_metadata(args):
-            request, sample = args
+        def upload_sample_metadata(upload_request):
+            metadata, sample_id = upload_request
+            request = SampleUpdateRequest(custom_meta_data=metadata)
             return retry(
                 self._samples_api.update_sample_by_id,
                 request,
                 dataset_id=self.dataset_id,
-                sample_id=sample.id,
+                sample_id=sample_id,
             )
 
-        # create a list of all the requests and their corresponding samples
-        sample_requests = []
-        for sample in samples:
-            metadata = filename_to_metadata[sample.file_name]
-            if metadata is not None:
-                update_sample_request = SampleUpdateRequest(
-                    custom_meta_data=metadata
-                )
-                sample_requests.append((update_sample_request, sample))
-
-        # limit number of concurrent requests
+        # Upload in parallel with a limit on the number of concurrent requests
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             # get iterator over results
-            results = executor.map(upload_sample_metadata, sample_requests)
+            results = executor.map(upload_sample_metadata, upload_requests)
             if verbose:
                 results = tqdm(
                     results, 
                     unit='metadata',
-                    total=len(sample_requests)
+                    total=len(upload_requests)
                 )
             # iterate over results to make sure they are completed
             list(results)

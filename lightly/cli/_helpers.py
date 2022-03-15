@@ -5,6 +5,7 @@
 import copy
 import os
 import warnings
+from typing import Type
 
 import torch
 from hydra import utils
@@ -23,11 +24,11 @@ def _custom_formatwarning(msg, *args, **kwargs):
     return f"{bcolors.WARNING}{msg}{bcolors.WARNING}\n"
 
 
-def print_as_warning(message: str):
+def print_as_warning(message: str, warning_class: Type[Warning] = UserWarning):
     old_format = copy.copy(warnings.formatwarning)
 
     warnings.formatwarning = _custom_formatwarning
-    warnings.warn(message, UserWarning)
+    warnings.warn(message, warning_class)
 
     warnings.formatwarning = old_format
 

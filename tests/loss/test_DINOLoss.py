@@ -1,3 +1,4 @@
+import copy
 import itertools
 import unittest
 
@@ -7,6 +8,7 @@ from torch import nn
 import torch.nn.functional as F
 
 from lightly.loss import DINOLoss
+from lightly.models.utils import deactivate_requires_grad
 
 
 class OriginalDINOLoss(nn.Module):
@@ -137,7 +139,19 @@ class TestDINOLoss(unittest.TestCase):
                     student_temp=student_temp,
                     center_momentum=center_momentum,
                 )
+                
+                # Create dummy single layer network. We use this to verify
+                # that the gradient backprop works properly.
+                teacher = torch.nn.Linear(output_dim, output_dim)
+                deactivate_requires_grad(teacher)
+                student = torch.nn.Linear(output_dim, output_dim)
+                orig_teacher = copy.deepcopy(teacher)
+                orig_student = copy.deepcopy(student)
 
+                optimizer = torch.optim.SGD(student.parameters(), lr=1)
+                orig_optimizer = torch.optim.SGD(orig_student.parameters(), lr=1)
+
+                # Create fake output
                 teacher_out = self.generate_output(
                     batch_size=batch_size,
                     n_views=n_global,
@@ -150,9 +164,20 @@ class TestDINOLoss(unittest.TestCase):
                     output_dim=output_dim, 
                     seed=1,
                 )
+
+                # Clone input tensors
                 orig_teacher_out = torch.cat(teacher_out)
+                orig_teacher_out = orig_teacher_out.detach().clone()
                 orig_student_out = torch.cat(student_out)
+                orig_student_out = orig_student_out.detach().clone()
+
+                # Forward pass
+                teacher_out = [teacher(view) for view in teacher_out]
+                student_out = [student(view) for view in student_out]
+                orig_teacher_out = orig_teacher(orig_teacher_out)
+                orig_student_out = orig_student(orig_student_out)
                 
+                # Calculate loss
                 loss = loss_fn(
                     teacher_out=teacher_out, 
                     student_out=student_out, 
@@ -163,10 +188,27 @@ class TestDINOLoss(unittest.TestCase):
                     teacher_output=orig_teacher_out, 
                     epoch=epoch,
                 )
+
+                # Backward pass and optimizer step
+                optimizer.zero_grad()
+                orig_optimizer.zero_grad()
+                loss.backward()
+                orig_loss.backward()
+                optimizer.step()
+                orig_optimizer.step()
+
+                # Loss and loss center should be equal
                 center = loss_fn.center.squeeze()
                 orig_center = orig_loss_fn.center.squeeze()
-                assert torch.allclose(center, orig_center)
-                assert torch.allclose(loss, orig_loss)
+                self.assertTrue(torch.allclose(center, orig_center))
+                self.assertTrue(torch.allclose(loss, orig_loss))
+
+                # Parameters of network should be equal after backward pass
+                for param, orig_param in zip(student.parameters(), orig_student.parameters()):
+                    self.assertTrue(torch.allclose(param, orig_param))
+                for param, orig_param in zip(teacher.parameters(), orig_teacher.parameters()):
+                    self.assertTrue(torch.allclose(param, orig_param))
+
 
         def test_all(**kwargs):
             """Tests all combinations of the input parameters"""
@@ -186,7 +228,7 @@ class TestDINOLoss(unittest.TestCase):
         # test input sizes
         test_all(
             batch_size=np.arange(1,4),
-            n_local=np.arange(1, 4),
+            n_local=np.arange(0, 4),
             output_dim=np.arange(1, 4),
         )
         # test teacher temp warmup

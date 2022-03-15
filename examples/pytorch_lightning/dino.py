@@ -24,7 +24,7 @@ class DINO(pl.LightningModule):
         # input_dim = backbone.embed_dim
 
         self.student_backbone = backbone
-        self.student_head = DINOProjectionHead(input_dim, 512, 64, 2048)
+        self.student_head = DINOProjectionHead(input_dim, 512, 64, 2048, freeze_last_layer=1)
         self.teacher_backbone = copy.deepcopy(backbone)
         self.teacher_head = DINOProjectionHead(input_dim, 512, 64, 2048)
         deactivate_requires_grad(self.teacher_backbone)
@@ -52,6 +52,9 @@ class DINO(pl.LightningModule):
         student_out = [self.forward(view) for view in views]
         loss = self.criterion(teacher_out, student_out, epoch=self.current_epoch)
         return loss
+    
+    def on_after_backward(self):
+        self.student_head.cancel_last_layer_gradients(current_epoch=self.current_epoch)
 
     def configure_optimizers(self):
         optim = torch.optim.Adam(self.parameters(), lr=0.001)

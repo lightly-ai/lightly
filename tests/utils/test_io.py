@@ -1,12 +1,13 @@
 import csv
 import sys
+import json
 import tempfile
 import unittest
 
 import numpy as np
 
 from lightly.utils import save_custom_metadata
-from lightly.utils.io import check_filenames, save_embeddings, check_embeddings
+from lightly.utils.io import check_filenames, save_embeddings, check_embeddings, save_tasks, save_schema
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
 
 
@@ -122,4 +123,54 @@ class TestEmbeddingsIO(unittest.TestCase):
             for row_read, row_original in zip(csv_reader, correct_output_rows):
                 self.assertListEqual(row_read, row_original)
 
+    def test_save_tasks(self):
+        tasks = [
+            'task1',
+            'task2',
+            'task3',
+        ]
+        with tempfile.NamedTemporaryFile(suffix='.json') as file:
+            save_tasks(file.name, tasks)
+            with open(file.name, 'r') as f:
+                loaded = json.load(f)
+        self.assertListEqual(tasks, loaded)
 
+    def test_save_schema(self):
+        description = 'classification'
+        ids = [1, 2, 3, 4]
+        names = ['name1', 'name2', 'name3', 'name4']
+        expected_format = {
+            'task_description': 'classification',
+            'categories': [
+                {
+                    'id': 1,
+                    'name': 'name1'
+                },
+                {
+                    'id': 2,
+                    'name': 'name2'
+                },
+                {
+                    'id': 3,
+                    'name': 'name3'
+                },
+                {
+                    'id': 4,
+                    'name': 'name4'
+                },
+            ]
+        }
+        with tempfile.NamedTemporaryFile(suffix='.json') as file:
+            save_schema(file.name, description, ids, names)
+            with open(file.name, 'r') as f:
+                loaded = json.load(f)
+        self.assertListEqual(sorted(expected_format), sorted(loaded))
+
+    def test_save_schema_different(self):
+        with self.assertRaises(ValueError):
+            save_schema(
+                'name_doesnt_matter',
+                'description_doesnt_matter',
+                [1, 2],
+                ['name1'],
+            )

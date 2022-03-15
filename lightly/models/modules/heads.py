@@ -287,6 +287,14 @@ class DINOProjectionHead(ProjectionHead):
         batch_norm:
             Whether to use batch norm or not. Should be set to False when using
             a vision transformer backbone.
+        freeze_last_layer:
+            Number of epochs during which we keep the output layer fixed. 
+            Typically doing so during the first epoch helps training. Try 
+            increasing this value if the loss does not decrease.
+        norm_last_layer:
+            Whether or not to weight normalize the last layer of the DINO head.
+            Not normalizing leads to better performance but can make the 
+            training unstable.
     
     """
     def __init__(
@@ -295,7 +303,9 @@ class DINOProjectionHead(ProjectionHead):
         hidden_dim: int,
         bottleneck_dim: int,
         output_dim: int,
-        batch_norm=False, 
+        batch_norm: bool = False,
+        freeze_last_layer: int = -1,
+        norm_last_layer: bool = True,
     ):
         bn = nn.BatchNorm1d(hidden_dim) if batch_norm else None
 
@@ -305,10 +315,21 @@ class DINOProjectionHead(ProjectionHead):
             (hidden_dim, bottleneck_dim, None, None),
         ])
         self.apply(self._init_weights)
-
+        self.freeze_last_layer = freeze_last_layer
         self.last_layer = nn.utils.weight_norm(nn.Linear(bottleneck_dim, output_dim, bias=False))
         self.last_layer.weight_g.data.fill_(1)
-        self.last_layer.weight_g.requires_grad = False
+        # Option to normalize last layer. 
+        if norm_last_layer:
+            self.last_layer.weight_g.requires_grad = False
+        
+    def cancel_last_layer_gradients(self, current_epoch: int):
+        """Cancel last layer gradients to stabilize the training.
+        
+        """
+        if current_epoch >= self.freeze_last_layer:
+            return
+        for param in self.last_layer.parameters():
+            param.grad = None
 
     def _init_weights(self, module):
         """Initializes layers with a truncated normal distribution.

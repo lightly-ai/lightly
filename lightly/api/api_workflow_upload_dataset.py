@@ -40,7 +40,6 @@ class _UploadDatasetMixin:
                        input: Union[str, LightlyDataset],
                        max_workers: int = 8,
                        mode: str = 'thumbnails',
-                       verbose: bool = True,
                        custom_metadata: Union[Dict, None] = None):
         """Uploads a dataset to to the Lightly cloud solution.
 
@@ -50,12 +49,11 @@ class _UploadDatasetMixin:
                 or the dataset in form of a LightlyDataset
             max_workers:
                 Maximum number of workers uploading images in parallel.
-            max_requests:
-                Maximum number of requests a single worker can do before he has
-                to wait for the others.
             mode:
                 One of [full, thumbnails, metadata]. Whether to upload
                 thumbnails, full images, or metadata only.
+            custom_metadata:
+                COCO-style dictionary of custom metadata to be uploaded.
 
         Raises:
             ValueError:
@@ -89,11 +87,10 @@ class _UploadDatasetMixin:
         max_workers = max(max_workers, 1)
 
         # upload the samples
-        if verbose:
-            print(
-                f'Uploading images (with {max_workers} workers).',
-                flush=True
-            )
+        print(
+            f'Uploading images (with {max_workers} workers).',
+            flush=True
+        )
 
         # TODO: remove _size_in_bytes from image_processing
         image_processing.metadata._size_in_bytes = \
@@ -127,7 +124,6 @@ class _UploadDatasetMixin:
         if custom_metadata is not None:
             self.verify_custom_metadata_format(custom_metadata)
             filename_to_metadata = self.index_custom_metadata_by_filename(
-                dataset.get_filenames(),
                 custom_metadata,
             )
 
