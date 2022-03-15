@@ -7,6 +7,7 @@ import json
 import csv
 from typing import List, Tuple, Dict
 import re
+from itertools import compress
 
 import numpy as np
 
@@ -81,10 +82,12 @@ def check_embeddings(path: str, remove_additional_columns: bool=False):
         # cols between first and `labels` are `embedding_x`
         for embedding_header in header[1:header_labels_idx]:
             if not re.match(r'embedding_\d+', embedding_header):
-                raise RuntimeError(
-                    f'Embeddings csv file must have `embedding_x` columns but '
-                    f'found {embedding_header} instead.'
-                    )
+                # check if we have a special column
+                if not embedding_header in ['masked', 'selected']:
+                    raise RuntimeError(
+                        f'Embeddings csv file must have `embedding_x` columns but '
+                        f'found {embedding_header} instead.'
+                        )
         
         # check for empty rows in the body of the csv file
         for i, row in enumerate(reader):
@@ -98,9 +101,21 @@ def check_embeddings(path: str, remove_additional_columns: bool=False):
         new_rows = []
         with open(path, 'r', newline='') as csv_file:
             reader = csv.reader(csv_file, delimiter=',')
+            header_row = next(reader)
+
+            # create mask of columns to keep only filenames, embedding_ or labels
+            regexp = r'filenames|(embedding_\d+)|labels'
+            col_mask = []
+            for i, col in enumerate(header_row):
+                col_mask += [True] if re.match(regexp, col) else [False]
+
+            # add header row manually here since we use an iterator
+            new_rows.append(list(compress(header_row, col_mask)))
+
             for row in reader:
-                row = row[:header_labels_idx+1]
-                new_rows.append(row)
+                # apply mask to only use filenames, embedding_ or labels
+                new_rows.append(list(compress(row, col_mask)))
+
         with open(path, 'w', newline='') as csv_file:
             writer = csv.writer(csv_file, delimiter=',')
             writer.writerows(new_rows)
