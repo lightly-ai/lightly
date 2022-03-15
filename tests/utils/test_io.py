@@ -101,6 +101,28 @@ class TestEmbeddingsIO(unittest.TestCase):
             for row_read, row_original in zip(csv_reader, rows):
                 self.assertListEqual(row_read, row_original[:-2])
 
+    def test_embeddings_extra_rows_special_order(self):
+        input_rows = [
+            ['filenames', 'embedding_0', 'embedding_1', 'masked', 'labels', 'selected'],
+            ['image_0.jpg', '3.4', '0.23', '0', '1', '0'],
+            ['image_1.jpg', '3.4', '0.23', '1', '0', '1']
+        ]
+        correct_output_rows = [
+            ['filenames', 'embedding_0', 'embedding_1', 'labels'],
+            ['image_0.jpg', '3.4', '0.23', '1'],
+            ['image_1.jpg', '3.4', '0.23', '0']
+        ]
+        with open(self.embeddings_path, 'w') as f:
+            csv_writer = csv.writer(f)
+            csv_writer.writerows(input_rows)
+
+        check_embeddings(self.embeddings_path, remove_additional_columns=True)
+
+        with open(self.embeddings_path) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            for row_read, row_original in zip(csv_reader, correct_output_rows):
+                self.assertListEqual(row_read, row_original)
+
     def test_save_tasks(self):
         tasks = [
             'task1',
