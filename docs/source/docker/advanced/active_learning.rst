@@ -32,7 +32,29 @@ Predictions
 
 In the following, we will outline the format of the predictions required by the 
 Lightly docker. Everything regarding predictions will take place in a subdirectory
-of your configured datasource called `.lightly/predictions`.
+of your configured datasource called `.lightly/predictions`. The general structure
+of this directory will look like this:
+
+
+.. code-block:: bash
+
+    .lightly/predictions/
+        + tasks.json
+        + task_1/
+             + schema.json
+             + image_1.json
+             ...
+             + image_X.json
+        + task_2/
+             + schema.json
+             + image_1.json
+             ...
+             + image_Y.json
+
+
+Where each subdirectory corresponds to one prediction task (e.g. a classification task
+and an object detection task). All of the files are explained in the next sections.
+
 
 Prediction Tasks
 ^^^^^^^^^^^^^^^^
@@ -47,37 +69,53 @@ of the subdirectory where your prediction schemas will be located.
 
     Only the task names listed within `tasks.json`` will be considered.
     Please ensure that the task name corresponds with the location of your prediction schema.
+    This allows you to specify which subfolder are considered by the Lightly docker.
+
+For example, let's say we are working with the following folder structure:
+
+.. code-block:: bash
+
+    .lightly/predictions/
+        + tasks.json
+        + classification_weather/
+             + schema.json
+             ...
+        + classification_scenery/
+             + schema.json
+             ...
+        + some_directory_containing_irrelevant_things/
+
+
+we can specify which subfolders contain relevant predictions in the `tasks.json`:
 
 .. code-block:: javascript
     :caption: .lightly/predictions/tasks.json
 
     [
-        "my_classification_task",
-        "my_object_detection_task"
-        "${TASK_NAME}",
+        "classification_weather",
+        "classification_scenery"
     ]
+
+.. note::
+
+    If you list a subfolder which doesn't contain a valid `schema.json` file,
+    the Lightly docker will fail! See below how to create a good `schema.json` file.
 
 
 Prediction Schema
 ^^^^^^^^^^^^^^^^^
-For Lightly it's required to store a prediction schema. For classification and object
-detection the prediction schema must include all the categories and ids. For other
-tasks such as keypoint detection it can be useful to store additional information
-like edges between keypoints. You can provide this information to Lightly by adding
-a `schema.json`` file to the directory of the respective task.
-
-The schema.json file must have a key categories with a corresponding list of categories following the COCO annotation format:
+For Lightly it's required to store a prediction schema. The schema helps the Lightly
+Platform to correctly identify and display classes. It also helps to prevent errors
+as all predictions which are loaded are validated against this schema.
 
 
-.. code-block:: javascript
-    :caption: .lightly/predictions/my_classification_task/schema.json
+For classification and object detection the prediction schema must include all the categories and ids. 
+For other tasks such as keypoint detection it can be useful to store additional information
+like edges between keypoints. 
 
-    {
-        "categories": [
-            // list of categories
-        ]
-    }
+You can provide all this information to Lightly by adding a `schema.json` to the directory of the respective task.
 
+The schema.json file must have a key categories with a corresponding list of categories following the COCO annotation format.
 For example, let's say we are working with a classification model predicting the weather on an image.
 The three classes are sunny, clouded, and rainy.
 
@@ -106,7 +144,7 @@ The three classes are sunny, clouded, and rainy.
 
 Prediction Files
 ^^^^^^^^^^^^^^^^
-Lightly requires a single prediction file per image. The file should be a .json
+Lightly requires a **single prediction file per image**. The file should be a .json
 following the format defined under :ref:`Prediction Format` and stored in the subdirectory 
 `.lightly/predictions/${TASK_NAME}` in the storage bucket the dataset was configured with.
 In order to make sure Lightly can match the predictions to the correct source image, 
@@ -145,28 +183,49 @@ separated by hyphens:
 
 Prediction Format
 ^^^^^^^^^^^^^^^^^
-Predictions for an image must follow the following format:
-
-.. code-block:: javascript
-
-    {
-        "file_name"           : str,
-        "predictions":        : [],
-    }
-
+Predictions for an image must have a `file_name` and `predictions`.
 Here, `file_name` serves as a unique identifier to retrieve the image for which
 the predictions are made and predictions is a list of `Prediction Singletons` for the corresponding task.
 
-For example:
+Example classification:
 
 .. code-block:: javascript
     :caption: .lightly/predictions/classification_weather/my_image.json
 
     {
         "file_name": "my_image.png"
-        "predictions": [
-            // list of prediction singletons
-        ]  
+        "predictions": [ // classes: [sunny, clouded, rain]
+            {
+                "category_id": 0,
+                "probabilities": [0.8, 0.1, 0.1]
+            }
+        ]
+    }
+
+Example object detection:
+
+.. code-block:: javascript
+    :caption: .lightly/predictions/object_detection/my_image.json
+
+    {
+        "file_name": "my_image.png",
+        "predictions": [ // classes: [person, car]
+            {
+                "category_id": 0,
+                "bbox": [...],
+                "score": 0.8
+            },
+            {
+                "category_id": 1,
+                "bbox": [...],
+                "score": 0.9
+            },
+            {
+                "category_id": 0,
+                "bbox": [...],
+                "score": 0.5
+            }
+        ]
     }
 
 Note: The filename should always be the full path from the root directory.
@@ -283,11 +342,11 @@ our predictions (see :ref:`TODO`). For this
 iteration, we picked the `uncertainty_margin` score. Learn more about the different scores in the next section.
 
 
-Active Learning with Custom Scores (deprecated)
------------------------------------------------
+Active Learning with Custom Scores
+----------------------------------
 
 .. note::
-    This is not a recommended workflow and will be deprecated in the future!
+    This is not recommended anymore as of March 2022 and will be deprecated in the future!
 
 
 For running an active learning step with the Lightly docker, we need to perform
