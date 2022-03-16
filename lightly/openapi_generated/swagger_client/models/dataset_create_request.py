@@ -35,16 +35,18 @@ class DatasetCreateRequest(object):
     swagger_types = {
         'name': 'DatasetName',
         'type': 'DatasetType',
-        'img_type': 'ImageType'
+        'img_type': 'ImageType',
+        'parent_dataset_id': 'MongoObjectID'
     }
 
     attribute_map = {
         'name': 'name',
         'type': 'type',
-        'img_type': 'imgType'
+        'img_type': 'imgType',
+        'parent_dataset_id': 'parentDatasetId'
     }
 
-    def __init__(self, name=None, type=None, img_type=None, _configuration=None):  # noqa: E501
+    def __init__(self, name=None, type=None, img_type=None, parent_dataset_id=None, _configuration=None):  # noqa: E501
         """DatasetCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -53,6 +55,7 @@ class DatasetCreateRequest(object):
         self._name = None
         self._type = None
         self._img_type = None
+        self._parent_dataset_id = None
         self.discriminator = None
 
         self.name = name
@@ -60,6 +63,8 @@ class DatasetCreateRequest(object):
             self.type = type
         if img_type is not None:
             self.img_type = img_type
+        if parent_dataset_id is not None:
+            self.parent_dataset_id = parent_dataset_id
 
     @property
     def name(self):
@@ -125,6 +130,27 @@ class DatasetCreateRequest(object):
         """
 
         self._img_type = img_type
+
+    @property
+    def parent_dataset_id(self):
+        """Gets the parent_dataset_id of this DatasetCreateRequest.  # noqa: E501
+
+
+        :return: The parent_dataset_id of this DatasetCreateRequest.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._parent_dataset_id
+
+    @parent_dataset_id.setter
+    def parent_dataset_id(self, parent_dataset_id):
+        """Sets the parent_dataset_id of this DatasetCreateRequest.
+
+
+        :param parent_dataset_id: The parent_dataset_id of this DatasetCreateRequest.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._parent_dataset_id = parent_dataset_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""
