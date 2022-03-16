@@ -44,7 +44,8 @@ class SampleData(object):
         'last_modified_at': 'Timestamp',
         'meta_data': 'SampleMetaData',
         'custom_meta_data': 'CustomSampleMetaData',
-        'video_frame_data': 'VideoFrameData'
+        'video_frame_data': 'VideoFrameData',
+        'crop_data': 'CropData'
     }
 
     attribute_map = {
@@ -59,10 +60,11 @@ class SampleData(object):
         'last_modified_at': 'lastModifiedAt',
         'meta_data': 'metaData',
         'custom_meta_data': 'customMetaData',
-        'video_frame_data': 'videoFrameData'
+        'video_frame_data': 'videoFrameData',
+        'crop_data': 'cropData'
     }
 
-    def __init__(self, id=None, type=None, dataset_id=None, file_name=None, thumb_name=None, exif=None, index=None, created_at=None, last_modified_at=None, meta_data=None, custom_meta_data=None, video_frame_data=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, type=None, dataset_id=None, file_name=None, thumb_name=None, exif=None, index=None, created_at=None, last_modified_at=None, meta_data=None, custom_meta_data=None, video_frame_data=None, crop_data=None, _configuration=None):  # noqa: E501
         """SampleData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -80,6 +82,7 @@ class SampleData(object):
         self._meta_data = None
         self._custom_meta_data = None
         self._video_frame_data = None
+        self._crop_data = None
         self.discriminator = None
 
         self.id = id
@@ -103,6 +106,8 @@ class SampleData(object):
             self.custom_meta_data = custom_meta_data
         if video_frame_data is not None:
             self.video_frame_data = video_frame_data
+        if crop_data is not None:
+            self.crop_data = crop_data
 
     @property
     def id(self):
@@ -361,6 +366,27 @@ class SampleData(object):
         """
 
         self._video_frame_data = video_frame_data
+
+    @property
+    def crop_data(self):
+        """Gets the crop_data of this SampleData.  # noqa: E501
+
+
+        :return: The crop_data of this SampleData.  # noqa: E501
+        :rtype: CropData
+        """
+        return self._crop_data
+
+    @crop_data.setter
+    def crop_data(self, crop_data):
+        """Sets the crop_data of this SampleData.
+
+
+        :param crop_data: The crop_data of this SampleData.  # noqa: E501
+        :type: CropData
+        """
+
+        self._crop_data = crop_data
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -28,6 +28,7 @@ class DatasetType(object):
     """
     allowed enum values
     """
+    CROPS = "Crops"
     IMAGES = "Images"
     VIDEOS = "Videos"
 
