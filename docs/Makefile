@@ -13,6 +13,13 @@ PLATFORMSOURCE 			= source/tutorials_source/platform
 DOCKERSOURCE   			= source/docker
 GETTING_STARTED_IMAGES 	= source/getting_started/resources
 
+
+DATADIR_FREIBURG = /datasets/freiburg_groceries_dataset
+DATADIR_CLOTHING = /datasets/clothing-dataset
+DATADIR_CIFAR10 = /datasets/cifar10
+# Missing dataset: Sentinel dataset is private
+# Missing dataset: vin big data (https://github.com/vinbigdata-medical/vindr-cxr)
+
 ZIPOPTS        ?= -qo
 
 # Put it first so that "make" without argument is like "make help".
@@ -35,44 +42,51 @@ download:
 	echo "start downloading datasets..."
 	mkdir -p $(DATADIR)
 
-	mkdir -p $(PLATFORMSOURCE)/data
-	mkdir -p $(PACKAGESOURCE)/data
+	# Freiburg groceries dataset
+	@if [ ! -d $(DATADIR_FREIBURG) ]; then \
+		wget -N http://aisdatasets.informatik.uni-freiburg.de/freiburg_groceries_dataset/freiburg_groceries_dataset.tar.gz -P $(DATADIR);\
+		mkdir -p $(DATADIR_FREIBURG);\
+		tar -xf $(DATADIR)/freiburg_groceries_dataset.tar.gz -C $(DATADIR_FREIBURG);\
+	fi
 
-	# pizza dataset
-	wget -N https://storage.googleapis.com/datasets_boris/pizzas.zip -P $(DATADIR)
-	unzip $(ZIPOPTS) $(DATADIR)/pizzas.zip  -d $(PLATFORMSOURCE)
-	mkdir -p $(PLATFORMSOURCE)/pizzas/margherita
-	mkdir -p $(PLATFORMSOURCE)/pizzas/salami
-	mv $(PLATFORMSOURCE)/pizzas/margherita*.jpg $(PLATFORMSOURCE)/pizzas/margherita
-	mv $(PLATFORMSOURCE)/pizzas/salami*.jpg $(PLATFORMSOURCE)/pizzas/salami
+	# Clothing dataset
+	@if [ ! -d $(DATADIR_CLOTHING) ]; then \
+		git clone https://github.com/alexeygrigorev/clothing-dataset $(DATADIR_CLOTHING);\
+	fi
 
-	# sunflowers dataset
-	wget -N https://storage.googleapis.com/datasets_boris/Sunflowers.zip -P $(DATADIR)
+	# Cifar10
+	@if [ ! -d $(DATADIR_CIFAR10)/train ]; then \
+		wget -N https://storage.googleapis.com/datasets_boris/cifar10.tar -P $(DATADIR);\
+		mkdir -p $(DATADIR_CIFAR10);\
+		tar -xf $(DATADIR)/cifar10.tar -C $(DATADIR_CIFAR10);\
+		mv $(DATADIR_CIFAR10)/cifar10/** $(DATADIR_CIFAR10)/;\
+		rm -d $(DATADIR_CIFAR10)/cifar10;\
+	fi
 
 	# download resources for s3 integration
-	mkdir -p $(GETTING_STARTED_IMAGES)
-	wget -N https://storage.googleapis.com/datasets_boris/resources_s3_integration.zip -P $(DATADIR)
-	unzip $(ZIPOPTS) $(DATADIR)/resources_s3_integration.zip  -d $(GETTING_STARTED_IMAGES)
+	@if [ ! -d $(GETTING_STARTED_IMAGES)/resources_s3_integration ]; then \
+		mkdir -p $(GETTING_STARTED_IMAGES);\
+		wget -N https://storage.googleapis.com/datasets_boris/resources_s3_integration.zip -P $(DATADIR);\
+		unzip $(ZIPOPTS) $(DATADIR)/resources_s3_integration.zip  -d $(GETTING_STARTED_IMAGES);\
+	fi
 
 	# download resources for azure integration
-	wget -N https://storage.googleapis.com/datasets_boris/resources_azure_integration.zip -P $(DATADIR)
-	unzip ${ZIPOPTS} $(DATADIR)/resources_azure_integration.zip -d $(GETTING_STARTED_IMAGES)
+	@if [ ! -d $(GETTING_STARTED_IMAGES)/resources_azure_integration ]; then \
+		wget -N https://storage.googleapis.com/datasets_boris/resources_azure_integration.zip -P $(DATADIR);\
+		unzip $(ZIPOPTS) $(DATADIR)/resources_azure_integration.zip -d $(GETTING_STARTED_IMAGES);\
+	fi
 
 	# download images and report for docker
-	wget -N https://storage.googleapis.com/datasets_boris/resources.zip -P $(DATADIR)
-	unzip $(ZIPOPTS) $(DATADIR)/resources.zip  -d $(DOCKERSOURCE)
-
-	# aquarium dataset
-	wget -N https://storage.googleapis.com/datasets_boris/aquarium.zip -P $(DATADIR)
+	if [ ! -d $(DOCKERSOURCE)/resources ]; then \
+		wget -N https://storage.googleapis.com/datasets_boris/resources.zip -P $(DATADIR);\
+		unzip $(ZIPOPTS) $(DATADIR)/resources.zip  -d $(DOCKERSOURCE);\
+	fi
 
 clean-tutorials:
 	rm -fr source/tutorials/package
 	rm -fr source/tutorials/platform
-	rm -fr $(PLATFORMSOURCE)/data
-	rm -fr $(PLATFORMSOURCE)/pizzas
 	rm -fr $(PLATFORMSOURCE)/lightning_logs
 	rm -fr $(DOCKERSOURCE)/resources
-	make clean
 
 clean-all: clean-tutorials
-	rm -fr _data
+	rm -fr $(DATADIR)
