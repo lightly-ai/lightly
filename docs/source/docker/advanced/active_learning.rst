@@ -1,7 +1,294 @@
 .. _ref-docker-active-learning:
 
-Active learning
-==============================================
+Active Learning
+===============
+
+Lightly makes use of active learning scores to select the samples which will yield
+the biggest improvements of your machine learning model. The scores are calculated
+on-the-fly based on model predictions and provide the selection algorithm with feedback
+about the uncertainty of the model for the given sample. 
+
+Learn more about the concept of active learning scores:
+:ref:`lightly-active-learning-scorers`.
+
+Prerequisites
+--------------
+In order to do active learning with Lightly, you will need the following things:
+
+- The installed Lightly docker (see :ref:`ref-docker-setup`)
+- A dataset with a configured datasource (see :ref:`ref-docker-with-datasource-datapool`)
+
+.. note::
+
+    The dataset does not need to be empty! For example, an initial selection without
+    active learning can be used to train a model. The predictions from this model
+    can then be used to improve your dataset by adding new images to it through active learning.
+
+
+Next, you need to prepare the model predictions in the correct format.
+
+Predictions
+-----------
+
+In the following, we will outline the format of the predictions required by the 
+Lightly docker. Everything regarding predictions will take place in a subdirectory
+of your configured datasource called `.lightly/predictions`.
+
+Prediction Tasks
+^^^^^^^^^^^^^^^^
+To let Lightly know what kind of prediction tasks you want to work with, Lightly
+needs to know their names. It's very easy to let Lightly know which tasks exist:
+simply add a `tasks.json`` in your storage bucket stored at the subdirectory `.lightly/predictions/`.
+
+The `tasks.json` file must include a list of your task names which must match name
+of the subdirectory where your prediction schemas will be located.
+
+.. note::
+
+    Only the task names listed within `tasks.json`` will be considered.
+    Please ensure that the task name corresponds with the location of your prediction schema.
+
+.. code-block:: javascript
+    :caption: .lightly/predictions/tasks.json
+
+    [
+        "my_classification_task",
+        "my_object_detection_task"
+        "${TASK_NAME}",
+    ]
+
+
+Prediction Schema
+^^^^^^^^^^^^^^^^^
+For Lightly it's required to store a prediction schema. For classification and object
+detection the prediction schema must include all the categories and ids. For other
+tasks such as keypoint detection it can be useful to store additional information
+like edges between keypoints. You can provide this information to Lightly by adding
+a `schema.json`` file to the directory of the respective task.
+
+The schema.json file must have a key categories with a corresponding list of categories following the COCO annotation format:
+
+
+.. code-block:: javascript
+    :caption: .lightly/predictions/my_classification_task/schema.json
+
+    {
+        "categories": [
+            // list of categories
+        ]
+    }
+
+For example, let's say we are working with a classification model predicting the weather on an image.
+The three classes are sunny, clouded, and rainy.
+
+
+.. code-block:: javascript
+    :caption: .lightly/predictions/classification_weather/schema.json
+
+    {
+        "categories": [
+            {
+                "id": 0,
+                "name": "sunny",
+            },
+            {
+                "id": 1,
+                "name": "clouded",
+            },
+            {
+                "id": 2,
+                "name": "rainy",
+            }
+        ]
+    }
+
+
+
+Prediction Files
+^^^^^^^^^^^^^^^^
+Lightly requires a single prediction file per image. The file should be a .json
+following the format defined under :ref:`Prediction Format` and stored in the subdirectory 
+`.lightly/predictions/${TASK_NAME}` in the storage bucket the dataset was configured with.
+In order to make sure Lightly can match the predictions to the correct source image, 
+it's necessary to follow the naming convention:
+
+.. code-block:: bash
+
+    # filename of the prediction for image FILENAME.EXT
+    .lightly/predictions/${TASK_NAME}/${FILENAME}.json
+
+    # example: my_image.png, classification
+    .lightly/predictions/my_classification_task/my_image.json
+
+    # example: my_subdir/my_image.png, classification
+    .lightly/predictions/my_classification_task/my_subdir/my_image.json
+
+
+Prediction Files for Videos
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+When working with videos, Lightly requires a prediction file per frame. Lightly
+uses a naming convention to identify frames: The filename of a frame consists of
+the video filename, the video format, and the frame number (padded with 8 zeros)
+separated by hyphens:
+
+.. code-block:: bash
+
+    # filename of the predictions of the Xth frame of video FILENAME.EXT
+    .lightly/predictions/${TASK_NAME}/${FILENAME}-${X:08d}-${EXT}.json
+
+    # example: my_video.mp4, frame 99
+    .lightly/predictions/my_classification_task/my_video-00000099-mp4.json
+
+    # example: my_subdir/my_video.mp4, frame 99
+    .lightly/predictions/my_classification_task/my_subdir/my_video-00000099-mp4.json
+
+
+Prediction Format
+^^^^^^^^^^^^^^^^^
+Predictions for an image must follow the following format:
+
+.. code-block:: javascript
+
+    {
+        "file_name"           : str,
+        "predictions":        : [],
+    }
+
+Here, `file_name` serves as a unique identifier to retrieve the image for which
+the predictions are made and predictions is a list of `Prediction Singletons` for the corresponding task.
+
+For example:
+
+.. code-block:: javascript
+    :caption: .lightly/predictions/classification_weather/my_image.json
+
+    {
+        "file_name": "my_image.png"
+        "predictions": [
+            // list of prediction singletons
+        ]  
+    }
+
+Note: The filename should always be the full path from the root directory.
+
+
+Prediction Singletons
+^^^^^^^^^^^^^^^^^^^^^
+The prediction singletons closely follow the `COCO results <https://cocodataset.org/#format-results>`_ format while dropping 
+the `image_id`. Note the the `category_id` must be the same as the one defined 
+in the schema and that the probabilities (if provided) must follow the order of the category ids.
+
+**Classification:**
+
+For classification, please use the following format:
+
+.. code-block:: javascript
+
+    [{
+        "category_id"       : int,
+        "probabilities"     : [p0, p1, ..., pN],
+    }]
+
+**Object Detection:**
+
+For detection with bounding boxes, please use the following format:
+
+.. code-block:: javascript
+
+    [{
+        "category_id"       : int,
+        "bbox"              : [x, y, width, height],
+        "score"             : float,
+        "probabilities"     : [p0, p1, ..., pN],         // optional
+    }]
+
+The bounding box format follows the `COCO results <https://cocodataset.org/#format-results>`_ documentation.
+
+.. note::
+    
+    Box coordinates are floats measured from the top left image corner (and are 0-indexed).
+    We recommend rounding coordinates to the nearest tenth of a pixel to reduce resulting JSON file size.
+
+Selection
+-------------------------
+Once you have everything set up as described above, you can do an active learning
+iteration by specifying the following three things in your Lightly docker config:
+
+- `method`
+- `active_learning.task_name`
+- `active_learning.score_name`
+
+Here's an example of how your config could look like if you want to add `100` more
+images to your dataset by doing active learning:
+
+
+.. tabs::
+
+    .. tab:: Run Command
+
+        .. code-block:: bash
+
+            docker run --gpus all --rm -it \
+                -v {OUTPUT_DIR}:/home/output_dir \
+                lightly/sampling:latest \
+                token=MYAWESOMETOKEN \
+                enable_corruptness_check=True \
+                remove_exact_duplicates=True \
+                pretagging=False \
+                pretagging_debug=False \
+                method='coral' \
+                stopping_condition.n_samples=100 \
+                stopping_condition.min_distance=-1 \
+                scorer_config.frequency_penalty=0.25 \
+                scorer_config.min_score=0.9 \
+                active_learning.task_name='my-classification-task' \
+                active_learning.score_name='uncertainty_margin' \
+                datasource.dataset_id={DATASET_ID} \
+                datasource.process_all=True
+
+
+    .. tab:: JSON
+
+        .. code-block:: javascript  
+
+            {
+                enable_corruptness_check: true,
+                remove_exact_duplicates: true,
+                enable_training: false,
+                pretagging: false,
+                pretagging_debug: false,
+                method: 'coral',
+                stopping_condition: {
+                    n_samples: 100,
+                    min_distance: -1
+                },
+                scorer: 'object-frequency',
+                scorer_config: {
+                    frequency_penalty: 0.25,
+                    min_score: 0.9
+                },
+                active_learning: {
+                    task_name: 'my-classification-task',
+                    score_name: 'uncertainty_margin'
+                },
+                datasource: {
+                    process_all: true
+                }
+            }
+
+Here, we set the `method` to `coral` which simultaneously considers the diversity
+and the active learning scores of the samples. The stopping condition was set the
+`n_samples: 100` and under `active_learning.task_name` we entered the task name of
+our predictions (see :ref:`TODO`). For this
+iteration, we picked the `uncertainty_margin` score. Learn more about the different scores in the next section.
+
+
+Active Learning with Custom Scores (deprecated)
+-----------------------------------------------
+
+.. note::
+    This is not a recommended workflow and will be deprecated in the future!
+
 
 For running an active learning step with the Lightly docker, we need to perform
 3 steps:
@@ -15,7 +302,7 @@ Learn more about the concept of active learning
 
 
 Create Embeddings
---------------------------
+^^^^^^^^^^^^^^^^^
 
 You can create embeddings using your own model. Just make sure the resulting
 `embeddings.csv` file matches the required format:
@@ -107,7 +394,7 @@ It should look similar to this:
 
 
 Add Active Learning Scores
---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you want to use the predictions from your model as active learning scores,
 you can use the :ref:`lightly-active-learning-scorers` from the lightly pip package.
@@ -189,7 +476,7 @@ Your embeddings_al.csv should look similar to this:
 
 
 Run Active Learning using the Docker
----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 At this point you should have an `embeddings.csv` file with the active learning 
 scores in a column named `al_scores`. 
