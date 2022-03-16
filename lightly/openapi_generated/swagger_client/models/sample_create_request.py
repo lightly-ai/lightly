@@ -38,7 +38,8 @@ class SampleCreateRequest(object):
         'exif': 'dict(str, object)',
         'meta_data': 'SampleMetaData',
         'custom_meta_data': 'CustomSampleMetaData',
-        'video_frame_data': 'VideoFrameData'
+        'video_frame_data': 'VideoFrameData',
+        'crop_data': 'CropData'
     }
 
     attribute_map = {
@@ -47,10 +48,11 @@ class SampleCreateRequest(object):
         'exif': 'exif',
         'meta_data': 'metaData',
         'custom_meta_data': 'customMetaData',
-        'video_frame_data': 'videoFrameData'
+        'video_frame_data': 'videoFrameData',
+        'crop_data': 'cropData'
     }
 
-    def __init__(self, file_name=None, thumb_name=None, exif=None, meta_data=None, custom_meta_data=None, video_frame_data=None, _configuration=None):  # noqa: E501
+    def __init__(self, file_name=None, thumb_name=None, exif=None, meta_data=None, custom_meta_data=None, video_frame_data=None, crop_data=None, _configuration=None):  # noqa: E501
         """SampleCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -62,6 +64,7 @@ class SampleCreateRequest(object):
         self._meta_data = None
         self._custom_meta_data = None
         self._video_frame_data = None
+        self._crop_data = None
         self.discriminator = None
 
         self.file_name = file_name
@@ -75,6 +78,8 @@ class SampleCreateRequest(object):
             self.custom_meta_data = custom_meta_data
         if video_frame_data is not None:
             self.video_frame_data = video_frame_data
+        if crop_data is not None:
+            self.crop_data = crop_data
 
     @property
     def file_name(self):
@@ -203,6 +208,27 @@ class SampleCreateRequest(object):
         """
 
         self._video_frame_data = video_frame_data
+
+    @property
+    def crop_data(self):
+        """Gets the crop_data of this SampleCreateRequest.  # noqa: E501
+
+
+        :return: The crop_data of this SampleCreateRequest.  # noqa: E501
+        :rtype: CropData
+        """
+        return self._crop_data
+
+    @crop_data.setter
+    def crop_data(self, crop_data):
+        """Sets the crop_data of this SampleCreateRequest.
+
+
+        :param crop_data: The crop_data of this SampleCreateRequest.  # noqa: E501
+        :type: CropData
+        """
+
+        self._crop_data = crop_data
 
     def to_dict(self):
         """Returns the model properties as a dict"""
