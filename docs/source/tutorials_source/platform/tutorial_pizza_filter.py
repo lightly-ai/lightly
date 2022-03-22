@@ -45,7 +45,7 @@ Now install lightly if you haven't already, and upload your dataset.
 
 .. code-block:: console
 
-     # install Lightly
+    # install Lightly
     pip3 install lightly
 
     # upload your DATA directory
