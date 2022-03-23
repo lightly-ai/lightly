@@ -41,12 +41,16 @@ download-noplot:
 	mkdir -p $(GETTING_STARTED_IMAGES)
 
 	# download resources for s3 integration
-	wget -N https://storage.googleapis.com/datasets_boris/resources_s3_integration.zip -P $(DATADIR);\
-	unzip $(ZIPOPTS) $(DATADIR)/resources_s3_integration.zip  -d $(GETTING_STARTED_IMAGES);\
+	wget -N https://storage.googleapis.com/datasets_boris/resources_s3_integration.zip -P $(DATADIR)
+	unzip $(ZIPOPTS) $(DATADIR)/resources_s3_integration.zip  -d $(GETTING_STARTED_IMAGES)
 
 	# download resources for azure integration
-	wget -N https://storage.googleapis.com/datasets_boris/resources_azure_integration.zip -P $(DATADIR);\
-	unzip $(ZIPOPTS) $(DATADIR)/resources_azure_integration.zip -d $(GETTING_STARTED_IMAGES);\
+	wget -N https://storage.googleapis.com/datasets_boris/resources_azure_integration.zip -P $(DATADIR)
+	unzip $(ZIPOPTS) $(DATADIR)/resources_azure_integration.zip -d $(GETTING_STARTED_IMAGES)
+	@if [ -d $(GETTING_STARTED_IMAGES)/resources ]; then \
+		mv $(GETTING_STARTED_IMAGES)/resources/* $(GETTING_STARTED_IMAGES)/;\
+		rm -R $(GETTING_STARTED_IMAGES)/resources/;\
+	fi
 
 	# download images and report for docker
 	wget -N https://storage.googleapis.com/datasets_boris/resources.zip -P $(DATADIR);\
@@ -97,7 +101,11 @@ clean-tutorials:
 	rm -fr source/tutorials/package
 	rm -fr source/tutorials/platform
 	rm -fr $(PLATFORMSOURCE)/lightning_logs
+	rm -fr $(PLATFORMSOURCE)/data
+	rm -fr $(PLATFORMSOURCE)/pizzas
 	rm -fr $(DOCKERSOURCE)/resources
+	rm -fr $(GETTING_STARTED_IMAGES)
 
 clean-all: clean-tutorials
 	rm -fr $(DATADIR)
+	rm -fr build
