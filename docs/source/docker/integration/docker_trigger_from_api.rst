@@ -209,9 +209,6 @@ export it for labeling. In our case we come to the conclusion that the raw data
 we have does not cover enough cases and thus decide that we want to first 
 collect more street videos.
 
-
-.. _ref-docker-with-datasource-datapool:
-
 Process new data in your S3 bucket using a datapool
 ------------------------------------------------------
 You probably get new raw data from time to time added to your S3 bucket. In our 
