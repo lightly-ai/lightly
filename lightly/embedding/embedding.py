@@ -107,12 +107,13 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         embeddings, labels, fnames = None, None, []
 
         if lightly._is_prefetch_generator_available():
-            pbar = tqdm(
-                BackgroundGenerator(dataloader, max_prefetch=3),
-                total=len(dataloader)
-            )
-        else:
-            pbar = tqdm(dataloader, total=len(dataloader))
+            dataloader = BackgroundGenerator(dataloader, max_prefetch=3),
+        
+        pbar = tqdm(
+            dataloader,
+            total=len(dataloader.dataset),
+            unit='imgs'
+        )
 
         efficiency = 0.0
         embeddings = []
@@ -120,7 +121,9 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         with torch.no_grad():
 
             start_timepoint = time.time()
-            for (img, label, fname) in pbar:
+            for (img, label, fname) in dataloader:
+
+                bsz = img.shape[0]
 
                 # this following 2 lines are needed to prevent a file handler leak,
                 # see https://github.com/lightly-ai/lightly/pull/676
@@ -147,6 +150,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 efficiency = inference_time / total_batch_time
                 pbar.set_description("Compute efficiency: {:.2f}".format(efficiency))
                 start_timepoint = time.time()
+
+                pbar.update(bsz)
 
             embeddings = torch.cat(embeddings, 0)
             labels = torch.cat(labels, 0)
