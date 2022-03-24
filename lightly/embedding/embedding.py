@@ -104,13 +104,12 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         """
 
         self.model.eval()
-        embeddings, labels, fnames = None, None, []
+        embeddings, labels, filenames = None, None, []
 
         if lightly._is_prefetch_generator_available():
-            dataloader = BackgroundGenerator(dataloader, max_prefetch=3),
+            dataloader = BackgroundGenerator(dataloader, max_prefetch=3)
         
         pbar = tqdm(
-            dataloader,
             total=len(dataloader.dataset),
             unit='imgs'
         )
@@ -121,25 +120,24 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         with torch.no_grad():
 
             start_timepoint = time.time()
-            for (img, label, fname) in dataloader:
+            for (image_batch, label_batch, filename_batch) in dataloader:
 
-                bsz = img.shape[0]
+                batch_size = image_batch.shape[0]
 
-                # this following 2 lines are needed to prevent a file handler leak,
+                # the following 2 lines are needed to prevent a file handler leak,
                 # see https://github.com/lightly-ai/lightly/pull/676
-                img = img.to(device)
-                label = label.clone()
+                image_batch = image_batch.to(device)
+                label_batch = label_batch.clone()
 
-                fnames += [*fname]
+                filenames += [*filename_batch]
 
-                batch_size = img.shape[0]
                 prepared_timepoint = time.time()
 
-                emb = self.model.backbone(img)
-                emb = emb.detach().reshape(batch_size, -1)
+                embedding_batch = self.model.backbone(image_batch)
+                embedding_batch = embedding_batch.detach().reshape(batch_size, -1)
 
-                embeddings.append(emb)
-                labels.append(label)
+                embeddings.append(embedding_batch)
+                labels.append(label_batch)
 
                 finished_timepoint = time.time()
 
@@ -151,7 +149,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 pbar.set_description("Compute efficiency: {:.2f}".format(efficiency))
                 start_timepoint = time.time()
 
-                pbar.update(bsz)
+                pbar.update(batch_size)
 
             embeddings = torch.cat(embeddings, 0)
             labels = torch.cat(labels, 0)
@@ -161,10 +159,10 @@ class SelfSupervisedEmbedding(BaseEmbedding):
 
         sorted_filenames = dataloader.dataset.get_filenames()
         sorted_embeddings = sort_items_by_keys(
-            fnames, embeddings, sorted_filenames
+            filenames, embeddings, sorted_filenames
         )
         sorted_labels = sort_items_by_keys(
-            fnames, labels, sorted_filenames
+            filenames, labels, sorted_filenames
         )
         embeddings = np.stack(sorted_embeddings)
         labels = np.stack(sorted_labels)
