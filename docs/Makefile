@@ -34,9 +34,11 @@ help:
 	make download
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -v
 
+# Build the docs without running the python tutorials
 html-noplot:
 	$(SPHINXBUILD) -D plot_gallery=0 -b html $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)/html"
 
+# Download the datasets and images needed for html-noplot
 download-noplot:
 	mkdir -p $(GETTING_STARTED_IMAGES)
 
@@ -71,6 +73,7 @@ download-noplot:
 		wget -N https://storage.googleapis.com/datasets_boris/Sunflowers.zip -P $(DATADIR);\
 	fi
 
+# Download also the datasets needed for the tutorials
 download: download-noplot
 	# inspired by https://github.com/pytorch/tutorials/blob/master/Makefile
 	echo "start downloading datasets..."
