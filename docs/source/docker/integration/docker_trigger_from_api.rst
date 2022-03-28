@@ -71,10 +71,9 @@ provided through our Web App or you can use our Python package and build a scrip
       configured to use the data in your AWS S3 bucket. Create such a dataset in 2 steps:
 
       1. `Create a new dataset <https://app.lightly.ai/dataset/create>`_ in Lightly.
-        Make sure that you choose the input type `Images` or `Videos` correctly,
-        depending on the type of files in your cloud storage bucket.
+         Make sure that you choose the input type `Images` or `Videos` correctly, depending on the type of files in your cloud storage bucket.
       2. Edit your dataset, select the storage source as your datasource and fill out the form.
-        In our example we use an S3 bucket.
+         In our example we use an S3 bucket.
 
           .. figure:: ../../getting_started/resources/LightlyEdit2.png
               :align: center
@@ -110,8 +109,6 @@ And now we can schedule a new job.
       .. image:: images/schedule-compute-run-config.png
 
       In our example we use the following parameters.
-
-
 
       .. code-block:: javascript
         :caption: Docker Config
@@ -211,9 +208,6 @@ embedding and metadata view of the Lightly Platform, subsample it further, or
 export it for labeling. In our case we come to the conclusion that the raw data 
 we have does not cover enough cases and thus decide that we want to first 
 collect more street videos.
-
-
-.. _ref-docker-with-datasource-datapool:
 
 Process new data in your S3 bucket using a datapool
 ------------------------------------------------------
