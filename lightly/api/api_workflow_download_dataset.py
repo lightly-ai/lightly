@@ -1,18 +1,12 @@
-import warnings
-from concurrent.futures.thread import ThreadPoolExecutor
-from typing import Union
+from typing import Dict, List
 import io
 import os
 import tqdm
 from urllib.request import Request, urlopen
 from PIL import Image
 
-from lightly.openapi_generated.swagger_client import TagCreator
-from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
 from lightly.api.bitmask import BitMask
-from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
-from lightly.data.dataset import LightlyDataset
 
 
 
@@ -110,3 +104,107 @@ class _DownloadDatasetMixin:
 
             if verbose:
                 pbar.update(1)
+
+    def export_label_studio_tasks_by_tag_id(
+        self,
+        tag_id: str,
+    ) -> List[Dict]:
+        """Exports samples in a format compatible with Label Studio.
+
+        The format is documented here:
+        https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format
+
+        Args:
+            tag_id:
+                Id of the tag which should exported.
+
+        Returns:
+            A list of dictionaries in a format compatible with Label Studio.
+
+        """
+        label_studio_tasks = self._tags_api.export_tag_to_label_studio_tasks(
+            self.dataset_id,
+            tag_id
+        )
+        return label_studio_tasks
+
+    def export_label_studio_tasks_by_tag_name(
+        self,
+        tag_name: str,
+    ) -> List[Dict]:
+        """Exports samples in a format compatible with Label Studio.
+
+        The format is documented here:
+        https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format
+
+        Args:
+            tag_name:
+                Name of the tag which should exported.
+
+        Returns:
+            A list of dictionaries in a format compatible with Label Studio.
+
+        Examples:
+            >>> # write json file which can be imported in Label Studio
+            >>> tasks = client.export_label_studio_tasks_by_tag_name(
+            >>>     'initial-tag'
+            >>> )
+            >>> 
+            >>> with open('my-label-studio-tasks.json', 'w') as f:
+            >>>     json.dump(tasks, f)
+
+        """
+        tag = self.get_tag_by_name(tag_name)
+        return self.export_label_studio_tasks_by_tag_id(tag.id)
+
+    def export_label_box_data_rows_by_tag_id(
+        self,
+        tag_id: str,
+    ) -> List[Dict]:
+        """Exports samples in a format compatible with Labelbox.
+
+        The format is documented here:
+        https://docs.labelbox.com/docs/images-json
+
+        Args:
+            tag_id:
+                Id of the tag which should exported.
+
+        Returns:
+            A list of dictionaries in a format compatible with Labelbox.
+
+        """
+        label_box_data_rows = self._tags_api.export_tag_to_label_box_data_rows(
+            self.dataset_id,
+            tag_id,
+        )
+        return label_box_data_rows
+
+    def export_label_box_data_rows_by_tag_name(
+        self,
+        tag_name: str,
+    ) -> List[Dict]:
+        """Exports samples in a format compatible with Labelbox.
+
+        The format is documented here:
+        https://docs.labelbox.com/docs/images-json
+
+        Args:
+            tag_name:
+                Name of the tag which should exported.
+
+        Returns:
+            A list of dictionaries in a format compatible with Labelbox.
+
+        Examples:
+            >>> # write json file which can be imported in Label Studio
+            >>> tasks = client.export_label_box_data_rows_by_tag_name(
+            >>>     'initial-tag'
+            >>> )
+            >>> 
+            >>> with open('my-labelbox-rows.json', 'w') as f:
+            >>>     json.dump(tasks, f)
+
+        """
+        tag = self.get_tag_by_name(tag_name)
+        return self.export_label_box_data_rows_by_tag_id(tag.id)
