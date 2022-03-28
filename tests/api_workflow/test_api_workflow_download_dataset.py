@@ -42,8 +42,12 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
         shutil.rmtree('path-to-dir-remove-me')
 
     def test_export_label_box_data_rows_by_tag_name(self):
-        self.api_workflow_client.export_label_box_data_rows_by_tag_name('initial-tag')
+        rows = self.api_workflow_client.export_label_box_data_rows_by_tag_name('initial-tag')
+        self.assertIsNotNone(rows)
+        self.assertTrue(all(isinstance(row, dict) for row in rows))
 
 
     def test_export_label_studio_tasks_by_tag_name(self):
-        self.api_workflow_client.export_label_studio_tasks_by_tag_name('initial-tag')
+        tasks = self.api_workflow_client.export_label_studio_tasks_by_tag_name('initial-tag')
+        self.assertIsNotNone(tasks)
+        self.assertTrue(all(isinstance(task, dict) for task in tasks))
