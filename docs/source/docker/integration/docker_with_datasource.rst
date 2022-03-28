@@ -110,8 +110,10 @@ does not cover enough cases and thus
 decide that we want to first collect more street videos.
 
 .. _ref-docker-with-datasource-datapool:
+
 Process new data in your S3 bucket using a datapool
 ---------------------------------------------------
+
 You probably get new raw data from time to time added to your S3 bucket.
 In our case we added 4 more street videos to the S3 bucket.
 The new raw data might include samples which should be added to your dataset
