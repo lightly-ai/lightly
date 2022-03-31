@@ -200,7 +200,7 @@ class ActiveLearningAgent:
         """Performs an active learning query.
 
         First the active learning scores are computed and uploaded,
-        then the selection query is performed.
+        then the query is performed.
         After the query, the labeled set is updated to contain all selected samples,
         the added set is recalculated as (new labeled set - old labeled set), and
         the query set stays the same.

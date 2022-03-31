@@ -1,4 +1,5 @@
 import time
+import warnings
 from typing import Dict, List, Union
 
 import numpy as np
@@ -52,6 +53,16 @@ class _SelectionMixin:
                 tag_id=query_tag_id,
             )
 
+    def sampling(self, *args, **kwargs):
+        warnings.warn(
+            PendingDeprecationWarning(
+                "ApiWorkflowClient.sampling() is deprecated "
+                "in favour of ApiWorkflowClient.selection()"
+                "and will be deprecated in the future."
+            ),
+        )
+        return self.selection(*args, **kwargs)
+
     def selection(self, selection_config: SelectionConfig, preselected_tag_id: str = None, query_tag_id: str = None) \
             -> TagData:
         """Performs a selection given the arguments.
@@ -88,7 +99,7 @@ class _SelectionMixin:
             self.set_embedding_id_to_latest()
 
         # trigger the selection
-        payload = self._create_sampling_create_request(selection_config, preselected_tag_id, query_tag_id)
+        payload = self._create_selection_create_request(selection_config, preselected_tag_id, query_tag_id)
         payload.row_count = self.get_all_tags()[0].tot_size
         response = self._selection_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
         job_id = response.job_id
@@ -125,8 +136,8 @@ class _SelectionMixin:
 
         return new_tag_data
 
-    def _create_sampling_create_request(self, selection_config: SelectionConfig, preselected_tag_id: str, query_tag_id: str
-                                        ) -> SamplingCreateRequest:
+    def _create_selection_create_request(self, selection_config: SelectionConfig, preselected_tag_id: str, query_tag_id: str
+                                         ) -> SamplingCreateRequest:
         """Creates a SamplingCreateRequest
 
         First, it checks how many samples are already labeled by

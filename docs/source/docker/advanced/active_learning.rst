@@ -197,7 +197,7 @@ scores in a column named `al_scores`.
 We can now perform an active learning selection using the `CORAL` selection strategy. In order
 to do the selection on the `embeddings.csv` file we need to make this file
 accessible to the docker. We can do this by using the `shared_dir` feature of the
-docker as described in :ref:`docker-selection-from-embeddings`.
+docker as described in :ref:`docker-sampling-from-embeddings`.
 
 E.g. use the following bash script.
 
