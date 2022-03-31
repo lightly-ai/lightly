@@ -14,6 +14,16 @@ The example below shows how the `token` parameter can be set when running the do
         lightly/sampling:latest \
         token=MYAWESOMETOKEN
 
+Note that `token` can optionally be passed as a `LIGHTLY_TOKEN` environment variable to keep it hidden from logs:
+
+.. code-block:: console
+
+    docker run --rm -it \
+        -e LIGHTLY_TOKEN=MYAWESOMETOKEN
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {OUTPUT_DIR}:/home/shared_dir \
+        --ipc="host" --network="host" \
+        lightly/sampling:latest
 
 .. _rst-docker-parameters:
 
