@@ -112,10 +112,10 @@ extracted 99 frames let's extract 99 frames as well:
         lightly.loader.num_workers=8 lightly.trainer.max_epochs=10 \
         stopping_condition.n_samples=100 remove_exact_duplicates=True \
         enable_corruptness_check=False enable_training=False dump_dataset=True \
-        method=coreset
+        method=CORESET
 
-To perform a random selection we can simply replace "coreset" with "random" as
-our selected method. Note that if you don't specify any method coreset is used.
+To perform a random selection we can simply replace "CORESET" with "RANDOM" as
+our selected method. Note that if you don't specify any method CORESET is used.
 
 Let's have a look at some statistics of the two obtained datasets:
 
@@ -127,7 +127,7 @@ Let's have a look at some statistics of the two obtained datasets:
      - original dataset
      - after ffmpeg
      - after random
-     - after coreset 
+     - after CORESET
    * - Number of Samples
      - 475
      - 99
@@ -168,7 +168,7 @@ We notice the following when looking at this table:
     (e.g. two frames in the video are the same)
 
 - The **mean distance** between the original dataset, ffmpeg, as well as 
-  random selection, is very similar. The coreset selection however differs 
+  RANDOM selection, is very similar. The CORESET selection however differs
   significantly with a higher mean (higher diversity) in the selected dataset.
 
 - The **10th percentile** shows similar behavior to the mean distance.

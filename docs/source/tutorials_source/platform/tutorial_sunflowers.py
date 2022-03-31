@@ -84,7 +84,7 @@ create a selection. You will need to configure the following settings:
 
    * CORESET: Selects samples which are diverse.
    * CORAL: Combines CORESET with uncertainty scores to do active learning.
-   * Random: Selects samples uniformly at random.
+   * RANDOM: Selects samples uniformly at random.
 * **Stopping Condition:** Indicate how many samples you want to keep.
 * **Name:** Give your selection a name. A new tag will be created under this name.
 

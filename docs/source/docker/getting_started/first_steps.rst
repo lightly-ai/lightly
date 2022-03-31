@@ -404,7 +404,7 @@ Lightly Docker can automatically push the selected dataset as well as its
 embeddings to the Lightly Platform.
 
 Imagine you have a dataset of 100 videos with 10'000 frames each. 1 Million frames
-in total. Using Lightly Docker and the Coreset method we sample the most diverse
+in total. Using Lightly Docker and the CORESET method we sample the most diverse
 50'000 images (a reduction of 20x). Now we push the 50'000 images to the 
 Lightly Platform for a more interactive analysis. We can access all metadata as
 well as the embedding view to explore the dataset, find clusters and further curate

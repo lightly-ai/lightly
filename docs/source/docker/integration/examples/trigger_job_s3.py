@@ -15,7 +15,7 @@ client.schedule_compute_worker_run(
         'enable_training': False,
         'pretagging': False,
         'pretagging_debug': False,
-        'method': 'coreset',
+        'method': 'CORESET',
         'stopping_condition': {
             'n_samples': 0.1,
             'min_distance': -1

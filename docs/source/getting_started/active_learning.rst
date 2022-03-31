@@ -47,15 +47,15 @@ Lightly makes use of the following concepts for active learning:
    Currently, you can set the `SamplingMethod` to one of the following:
 
    * Random: Selects samples uniformly at random.
-   * Coreset: Greedily selects samples which are diverse.
-   * Coral: Combines Coreset with scores to do active learning.
+   * CORESET: Greedily selects samples which are diverse.
+   * CORAL: Combines CORESET with scores to do active learning.
    
 * **Scorer:** :py:class:`lightly.active_learning.scorers.scorer.Scorer`
    The `Scorer` takes as input the predictions of a pre-trained model on the set
    of unlabeled images. It offers a `calculate_scores()` method, which evaluates
    different scores based on how certain the model is about the images. When
    performing a selection, the scores are passed to the API so the selection can use
-   them with Coral.
+   them with CORAL.
 
    Active learning scores are scalar values (per sample) between 0.0 and 1.0 where values
    closer to 1.0 indicate very important samples.
