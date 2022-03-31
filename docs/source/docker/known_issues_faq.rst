@@ -131,3 +131,33 @@ https://stackoverflow.com/a/61686833
    .. code-block:: console
    
        s3fs my-s3-bucket /s3-mount -o allow_other -o use_cache=/tmp
+
+
+Token printed to shared stdout or logs
+-------------------------------
+
+The token (along with other Hydra configuration) will be printed to stdout, and so could appear in logs in an automated setup.
+
+.. code-block:: console
+
+    docker run --rm -it \
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {OUTPUT_DIR}:/home/shared_dir \
+        --ipc="host" --network="host" \
+        lightly/sampling:latest \
+        token=MYAWESOMETOKEN \
+        ...
+
+This can be avoided by setting your `token` via the `LIGHTLY_TOKEN` environment variable:
+
+.. code-block:: console
+
+    docker run --rm -it \
+        -e LIGHTLY_TOKEN=MYAWESOMETOKEN
+        -v {INPUT_DIR}:/home/input_dir:ro \
+        -v {OUTPUT_DIR}:/home/shared_dir \
+        --ipc="host" --network="host" \
+        lightly/sampling:latest \
+        ...
+
+
