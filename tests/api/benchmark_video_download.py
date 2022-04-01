@@ -10,6 +10,9 @@ from lightly.api.download import download_video_frames_at_timestamps, \
 
 @unittest.skip("Only used for benchmarks")
 class BenchmarkDownloadVideoFrames(unittest.TestCase):
+    """
+    some timings: https://github.com/lightly-ai/lightly/pull/754
+    """
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -17,9 +20,8 @@ class BenchmarkDownloadVideoFrames(unittest.TestCase):
         with av.open(cls.video_url_12min_100mb ) as container:
             stream = container.streams.video[0]
             duration = stream.duration
-            start_time = stream.start_time
-            end_time = start_time + duration
-        cls.timestamps = np.linspace(start_time, end_time, num=1000).astype(int).tolist()
+        # This video has its timestamps 0-based
+        cls.timestamps = np.linspace(0, duration, num=1000).astype(int).tolist()
 
     def setUp(self) -> None:
         self.start_time = time.time()

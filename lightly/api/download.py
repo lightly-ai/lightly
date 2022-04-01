@@ -114,7 +114,8 @@ def download_video_frame(url: str, timestamp: int, *args, **kwargs
     frames = download_video_frames_at_timestamps(
         url, timestamps=[timestamp], *args, **kwargs
     )
-    return list(frames)[0]
+    frames = list(frames)
+    return frames[0]
 
 
 def download_and_write_file(
@@ -350,6 +351,9 @@ def download_video_frames_at_timestamps(
         """
         _check_av_available()
 
+        if len(timestamps) == 0:
+            return []
+
         if any(
                 timestamps[i+1] <= timestamps[i]
                 for i
@@ -367,6 +371,10 @@ def download_video_frames_at_timestamps(
             stream = container.streams.video[video_channel]
             stream.thread_type = thread_type
 
+            # Heuristic to find out if a timestamp is too big.
+            # However, this heuristic is very bad, as timestamps
+            # may start at any offset and even reset in the middle
+            # See https://stackoverflow.com/questions/10570685/avcodec-pts-timestamps-not-starting-at-0
             duration = stream.duration
             start_time = stream.start_time
             if (duration is not None) and (start_time is not None):
@@ -394,4 +402,9 @@ def download_video_frames_at_timestamps(
                     # update the timestamp
                     index_timestamp += 1
                     if index_timestamp >= len(timestamps):
-                        break
+                        return
+
+        raise ValueError(f"You requested to get the frame at "
+                         f"({timestamps[index_timestamp]} pts), "
+                         f"but that timestamp "
+                         f"is bigger than all timestamps in the video.")
