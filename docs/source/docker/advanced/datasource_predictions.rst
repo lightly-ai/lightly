@@ -4,7 +4,8 @@ Add Predictions to a datasource
 ===============================
 
 Lightly can not only use images you provided in a datasource, but also predictions of a ML model on your images.
-They can be used e.g. for using Lightly for Active Learning or for using Lightly on object-level.
+They are used for active learning for selecting images based on the objects in them.
+Furthermore, object detection predictions can be used running Lightly on object level.
 By providing the predictions in the datasource,
 you have full control over them and they scale well to millions of samples.
 Furthermore, if you add new samples to your datasource, you can simultaneously
@@ -274,15 +275,17 @@ and then upload them for your datasource or upload them directly to your datasou
 As an example, the following script takes an object detection annotations file in the coco format.
 It needs the path to the annotations file and the output directory
 where the .lightly folder should be created as input.
+Don't forget to change these 2 parameters at the top of the script.
 
 .. code-block:: python
+
+    ### CHANGE THESE PARAMETERS
+    output_filepath = "/path/to/create/.lightly/dir"
+    annotation_filepath = "/path/to/_annotations.coco.json"
 
     import json
     import os
     from pathlib import Path
-
-    output_filepath = "/path/to/create/.lightly/dir"
-    annotation_filepath = "/path/to/_annotations.coco.json"
 
     # create prediction directory
     path_predictions = os.path.join(output_filepath, '.lightly/predictions')
@@ -290,16 +293,16 @@ where the .lightly folder should be created as input.
 
     # Create task.json
     path_task_json = os.path.join(path_predictions, 'tasks.json')
-    task = ["my_object_detection_task"]
+    tasks = ["my_object_detection_task"]
     with open(path_task_json, 'w') as f:
-        json.dump(task, f)
+        json.dump(tasks, f)
 
     # read coco annotations
     with open(annotation_filepath, 'r') as f:
         coco_dict = json.load(f)
 
     # Create schema.json for task
-    path_predictions_task = os.path.join(path_predictions, task[0])
+    path_predictions_task = os.path.join(path_predictions, tasks[0])
     Path(path_predictions_task).mkdir(exist_ok=True)
     schema = {
         "task_description": "object-detection",
