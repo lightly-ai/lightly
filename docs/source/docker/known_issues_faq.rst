@@ -134,7 +134,7 @@ https://stackoverflow.com/a/61686833
 
 
 Token printed to shared stdout or logs
--------------------------------
+--------------------------------------
 
 The token (along with other Hydra configuration) will be printed to stdout, and so could appear in logs in an automated setup.
 
