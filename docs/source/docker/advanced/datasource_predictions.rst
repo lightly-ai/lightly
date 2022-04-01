@@ -283,6 +283,10 @@ Don't forget to change these 2 parameters at the top of the script.
     output_filepath = "/path/to/create/.lightly/dir"
     annotation_filepath = "/path/to/_annotations.coco.json"
 
+    ### Optionally change these parameters
+    task_name = "my_object_detection_task"
+    task_description = "object-detection"
+
     import json
     import os
     from pathlib import Path
@@ -293,7 +297,7 @@ Don't forget to change these 2 parameters at the top of the script.
 
     # Create task.json
     path_task_json = os.path.join(path_predictions, 'tasks.json')
-    tasks = ["my_object_detection_task"]
+    tasks = [task_name]
     with open(path_task_json, 'w') as f:
         json.dump(tasks, f)
 
@@ -305,7 +309,7 @@ Don't forget to change these 2 parameters at the top of the script.
     path_predictions_task = os.path.join(path_predictions, tasks[0])
     Path(path_predictions_task).mkdir(exist_ok=True)
     schema = {
-        "task_description": "object-detection",
+        "task_description": task_description,
         "categories": coco_dict['categories']
     }
     path_schema_json = os.path.join(path_predictions_task, 'schema.json')
