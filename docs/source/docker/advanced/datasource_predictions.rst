@@ -276,6 +276,7 @@ It needs the path to the annotations file and the output directory
 where the .lightly folder should be created as input.
 
 .. code-block:: python
+
     import json
     import os
     from pathlib import Path
