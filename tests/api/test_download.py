@@ -112,6 +112,18 @@ class TestDownload(unittest.TestCase):
                 assert _images_equal(frame, orig)
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
+    def test_download_video_frames_at_timestamps(self):
+        with tempfile.NamedTemporaryFile(suffix='.avi') as file:
+            original = _generate_video(file.name, n_frames=20)
+            timestamps = list(range(2, len(original) - 1, 2))
+            frames = list(download.download_video_frames_at_timestamps(
+                file.name, timestamps
+            ))
+            for frame, timestamp in zip(frames, sorted(timestamps)):
+                orig = original[timestamp]
+                assert _images_equal(frame, orig)
+
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_all_video_frames_restart_throws(self):
         with tempfile.NamedTemporaryFile(suffix='.avi') as file:
             original = _generate_video(file.name)
