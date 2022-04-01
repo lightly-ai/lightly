@@ -105,66 +105,17 @@ def download_all_video_frames(
                 yield frame
 
 
-def download_video_frame(
-    url: str, 
-    timestamp: int, 
-    as_pil_image: int = True,
-    thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
-    video_channel: int = 0,
-) -> Union[PIL.Image.Image, av.VideoFrame, None]:
-    """Retrieves a specific frame from a video stored at the given url.
-
-    Finds the first frame in the video that has a timestamp equal or larger than
-    the timestamp argument.
-
-    Args:
-        url: 
-            The url where the video is downloaded from.
-        timestamp:
-            Timestamp in pts from the start of the video at which the frame 
-            should be retrieved. See https://pyav.org/docs/develop/api/time.html#time
-            for details on pts.
-        as_pil_image:
-            Whether to return the frame as PIL.Image.
-        thread_type:
-            Which multithreading method to use for decoding the video.
-            See https://pyav.org/docs/stable/api/codec.html#av.codec.context.ThreadType
-            for details.
-        video_channel:
-            The video channel from which frames are loaded.
-
-    Returns:
-        The downloaded video frame or None if no frame could be found.
-
+def download_video_frame(url: str, timestamp: int, *args, **kwargs
+                         ) -> Union[PIL.Image.Image, av.VideoFrame, None]:
     """
-    _check_av_available()
-    if timestamp < 0:
-        raise ValueError(f"Negative timestamp is not allowed: {timestamp}")
-
-    with utils.retry(av.open, url) as container:
-        stream = container.streams.video[video_channel]
-        stream.thread_type = thread_type
-        
-        duration = stream.duration
-        start_time = stream.start_time
-        if (duration is not None) and (start_time is not None):
-            end_time = duration + start_time
-            if timestamp > end_time:
-                raise ValueError(
-                    f"Timestamp ({timestamp} pts) exceeds maximum video timestamp "
-                    f"({end_time} pts)."
-                )
-        # seek to last keyframe before the timestamp
-        container.seek(timestamp, any_frame=False, backward=True, stream=stream)
-        # advance from keyframe until correct timestamp is reached
-        frame = None
-        for frame in container.decode(stream):
-            if frame.pts >= timestamp:
-                break
-
-    if as_pil_image:
-        return frame.to_image()
-    return frame
+    Wrapper around download_video_frames_at_timestamps
+    for downloading only a single frame.
+    """
+    frames = download_video_frames_at_timestamps(
+        url, timestamps=[timestamp], *args, **kwargs
+    )
+    frames = list(frames)
+    return frames[0]
 
 
 def download_and_write_file(
@@ -366,3 +317,94 @@ def download_prediction_file(
         return None # the file doesn't exist!
 
     return response.json()
+
+def download_video_frames_at_timestamps(
+        url: str,
+        timestamps: List[int],
+        as_pil_image: int = True,
+        thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
+        video_channel: int = 0,
+    ) -> Iterable[Union[PIL.Image.Image, av.VideoFrame]]:
+        """Lazily retrieves frames from a video at a specific timestamp stored at the given url.
+
+        Args:
+            url:
+                The url where video is downloaded from.
+            timestamps:
+                Timestamps in pts from the start of the video. The images
+                at these timestamps are returned.
+                The timestamps must be strictly monotonically ascending.
+                See https://pyav.org/docs/develop/api/time.html#time
+                for details on pts.
+            as_pil_image:
+                Whether to return the frame as PIL.Image.
+            thread_type:
+                Which multithreading method to use for decoding the video.
+                See https://pyav.org/docs/stable/api/codec.html#av.codec.context.ThreadType
+                for details.
+            video_channel:
+                The video channel from which frames are loaded.
+
+        Returns:
+            A generator that loads and returns a single frame per step.
+
+        """
+        _check_av_available()
+
+        if len(timestamps) == 0:
+            return []
+
+        if any(
+                timestamps[i+1] <= timestamps[i]
+                for i
+                in range(len(timestamps) - 1)
+        ):
+            raise ValueError("The timestamps must be sorted "
+                             "strictly monotonically ascending, but are not.")
+        min_timestamp = timestamps[0]
+        max_timestamp = timestamps[-1]
+
+        if min_timestamp < 0:
+            raise ValueError(f"Negative timestamp is not allowed: {min_timestamp}")
+
+        with utils.retry(av.open, url) as container:
+            stream = container.streams.video[video_channel]
+            stream.thread_type = thread_type
+
+            # Heuristic to find out if a timestamp is too big.
+            # However, this heuristic is very bad, as timestamps
+            # may start at any offset and even reset in the middle
+            # See https://stackoverflow.com/questions/10570685/avcodec-pts-timestamps-not-starting-at-0
+            duration = stream.duration
+            start_time = stream.start_time
+            if (duration is not None) and (start_time is not None):
+                end_time = duration + start_time
+                if max_timestamp > end_time:
+                    raise ValueError(
+                        f"Timestamp ({max_timestamp} pts) exceeds maximum video timestamp "
+                        f"({end_time} pts).")
+
+            # seek to last keyframe before the min_timestamp
+            container.seek(min_timestamp, any_frame=False, backward=True,
+                           stream=stream)
+
+            index_timestamp = 0
+            for frame in container.decode(stream):
+                # advance from keyframe until correct timestamp is reached
+                if frame.pts >= timestamps[index_timestamp]:
+
+                    # yield next frame
+                    if as_pil_image:
+                        yield frame.to_image()
+                    else:
+                        yield frame
+
+                    # update the timestamp
+                    index_timestamp += 1
+                    if index_timestamp >= len(timestamps):
+                        return
+
+        raise ValueError(f"You requested to get the frame at "
+                         f"({timestamps[index_timestamp]} pts), "
+                         f"but that timestamp "
+                         f"is bigger than all timestamps in the video.")
