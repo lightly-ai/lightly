@@ -37,7 +37,8 @@ class ProjectionHead(nn.Module):
 
         self.layers = []
         for input_dim, output_dim, batch_norm, non_linearity in blocks:
-            self.layers.append(nn.Linear(input_dim, output_dim))
+            use_bias = not bool(batch_norm)
+            self.layers.append(nn.Linear(input_dim, output_dim, bias=use_bias))
             if batch_norm:
                 self.layers.append(batch_norm)
             if non_linearity:
@@ -196,7 +197,7 @@ class SimSiamProjectionHead(ProjectionHead):
         super(SimSiamProjectionHead, self).__init__([
             (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
             (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
-            (hidden_dim, output_dim, nn.BatchNorm1d(output_dim), None),
+            (hidden_dim, output_dim, nn.BatchNorm1d(output_dim, affine=False), None),
         ])
 
 
