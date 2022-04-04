@@ -168,7 +168,7 @@ We notice the following when looking at this table:
     (e.g. two frames in the video are the same)
 
 - The **mean distance** between the original dataset, ffmpeg, as well as 
-  RANDOM selection, is very similar. The coreset selection however differs
+  random selection, is very similar. The coreset selection however differs
   significantly with a higher mean (higher diversity) in the selected dataset.
 
 - The **10th percentile** shows similar behavior to the mean distance.

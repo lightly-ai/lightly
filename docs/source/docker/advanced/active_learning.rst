@@ -24,7 +24,7 @@ You can create embeddings using your own model. Just make sure the resulting
 Alternatively, you can run the docker as usual and as described in the 
 :ref:`rst-docker-first-steps` section.
 The only difference is that you set the number of samples to be selected to 1.0,
-as this simply creates an embedding of the full dataset"t.
+as this simply creates an embedding of the full dataset.
 
 E.g. create and run a bash script with the following content:
 
@@ -194,7 +194,7 @@ Run Active Learning using the Docker
 At this point you should have an `embeddings.csv` file with the active learning 
 scores in a column named `al_scores`. 
 
-We can now perform an active learning selection using the `CORAL` selection strategy. In order
+We can now perform an active learning iteration using the `coral` selection strategy. In order
 to do the selection on the `embeddings.csv` file we need to make this file
 accessible to the docker. We can do this by using the `shared_dir` feature of the
 docker as described in :ref:`docker-sampling-from-embeddings`.

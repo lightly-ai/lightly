@@ -220,7 +220,7 @@ active_learning_scorer = ScorerClassification(model_output=predictions)
 
 # %%
 # 5. Use an active learning agent to choose the next samples to be labeled based on the active learning scores.
-# We want to sample another 100 samples to have 300 samples in total and use the active learning selection strategy CORAL for it.
+# We want to sample another 100 samples to have 300 samples in total and use the active learning strategy CORAL for it.
 selection_config = SelectionConfig(n_samples=300, method=SamplingMethod.CORAL, name='al-iteration-1')
 agent.query(selection_config=selection_config, al_scorer=active_learning_scorer)
 print(f"There are {len(agent.labeled_set)} samples in the labeled set.")

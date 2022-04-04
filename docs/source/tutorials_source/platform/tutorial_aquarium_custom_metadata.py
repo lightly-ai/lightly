@@ -188,8 +188,8 @@ scatter plot and drawing a circle around the clusters of interest. We call the t
 
     Scatter plot of the tag we named "Fish".
 
-Now, we can use CORESET selection strategy to diversify this tag and reduce the number of images in it (see `Tutorial 2: Diversify the Sunflowers Dataset`
-if you're not familiar with selection). We use CORESET to create the tag `FewerFish` with only 10 remaining images.
+Now, we can use CORESET selection strategy to diversify this tag and create the tag `FewerFish` with only 10 remaining images.
+See :ref:`lightly-tutorial-sunflowers` for more information on selection strategies".
 
 Lastly, all we need to do in order to get the balanced dataset is merge the `FewerFish` tag with the remainder of the dataset. For this we can use
 `tag arithmetics`:

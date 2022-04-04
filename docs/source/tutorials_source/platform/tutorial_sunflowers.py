@@ -5,7 +5,7 @@
 Tutorial 2: Diversify the Sunflowers Dataset
 =============================================
 
-This tutorial highlights the basic functionality of selecting in the web-app.
+This tutorial highlights the basic functionality of selecting a subset in the web-app.
 You can use the CORESET selection strategy to choose a diverse subset of your dataset.
 This can be useful many purposes, e.g. for having a good subset of data to label
 or for creating a validation or test dataset that covers the complete sample space.
