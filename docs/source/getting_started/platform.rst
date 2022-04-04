@@ -262,7 +262,7 @@ you can use a simple script to translate it to the coco format:
           `TypeError: Object of type ndarray is not JSON serializable`.
 
 
-
+.. _plaform-sampling:
 
 Sampling
 ----------------
