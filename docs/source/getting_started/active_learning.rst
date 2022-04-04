@@ -46,7 +46,7 @@ Lightly makes use of the following concepts for active learning:
    you can set number of samples, the name of the resulting selection, and the `SamplingMethod`.
    Currently, you can set the `SamplingMethod` to one of the following:
 
-   * Random: Selects samples uniformly at random.
+   * RANDOM: Selects samples uniformly at random.
    * CORESET: Greedily selects samples which are diverse.
    * CORAL: Combines CORESET with scores to do active learning.
    
@@ -54,8 +54,8 @@ Lightly makes use of the following concepts for active learning:
    The `Scorer` takes as input the predictions of a pre-trained model on the set
    of unlabeled images. It offers a `calculate_scores()` method, which evaluates
    different scores based on how certain the model is about the images. When
-   performing a selection, the scores are passed to the API so the selection can use
-   them with CORAL.
+   performing a selection, the scores are passed to the API to be used by the
+   selection strategies CORAL and ACTIVE_LEARNING.
 
    Active learning scores are scalar values (per sample) between 0.0 and 1.0 where values
    closer to 1.0 indicate very important samples.
@@ -101,7 +101,7 @@ Then, in your Python script, you will need to initialize the `ApiWorkflowClient`
    and tell the `ActiveLearningAgent` to only sample from this tag. To do so, set
    the `query_tag_name` argument in the constructor of the agent.
 
-Let's configure the selection request and request an initial selection next:
+Let's configure the selection request and then run it:
 
 .. code-block:: Python
 

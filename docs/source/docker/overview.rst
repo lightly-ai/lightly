@@ -27,7 +27,7 @@ We worked hard to make this happen and are very proud to present you with the fo
 
   * Supported object categories are: bicycle, bus, car, motorcycle, person, train, truck
 
-* Select more than 1 Million samples within a few hours!
+* Select from more than 1 Million samples within a few hours!
 
 * Runs directly with videos without prior extraction of the frames!
 

@@ -117,8 +117,8 @@ to see differences between the results.
    reduction to 2 dimensions.
 
 
-Download a selection
---------------------
+Download selected samples
+-------------------------
 
 Now you can use this diverse subset for your machine learning project.
 Just head over to the *Download* tag to see the different download options.

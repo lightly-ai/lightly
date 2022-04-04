@@ -285,7 +285,7 @@ section by clicking on it.
    the different selections.
 
 #. Hit "Process" to start selecting the data. Each sample is now assigned an
-   "importance score". The exact meaning of the score depends on the selection strategy.
+   "importance score".
 
     .. figure:: images/webapp_create_selection.gif
         :align: center

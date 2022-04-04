@@ -12,7 +12,7 @@ the following workloads in one single run:
 - stream your files directly from your AWS S3 bucket to your local machine without
   needing to sync or download them
 - embed all images or video frames
-- sample a subset, e.g. using CORESET
+- sample a subset, e.g. using coreset
 - compute the metadata of the images
 - create a dataset in the Lightly Platform from the selected subset
 

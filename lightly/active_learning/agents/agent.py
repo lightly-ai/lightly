@@ -40,8 +40,8 @@ class ActiveLearningAgent:
         >>> agent = ActiveLearningAgent(client)
         >>>
         >>> # make an initial active learning query
-        >>> salection_config = SelectionConfig(n_samples=100, name='initial-set')
-        >>> agent.query(salection_config)
+        >>> selection_config = SelectionConfig(n_samples=100, name='initial-set')
+        >>> agent.query(selection_config)
         >>> initial_set = agent.labeled_set
         >>>
         >>> # train and evaluate a model on the initial set
@@ -54,8 +54,8 @@ class ActiveLearningAgent:
         >>> scorer = ScorerClassification(predictions)
         >>>
         >>> # make a second active learning query
-        >>> salection_config = SelectionConfig(n_samples=200, name='second-set')
-        >>> agent.query(salection_config, scorer)
+        >>> selection_config = SelectionConfig(n_samples=200, name='second-set')
+        >>> agent.query(selection_config, scorer)
         >>> added_set = agent.added_set # access only the samples added by this query
 
     """

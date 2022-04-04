@@ -112,10 +112,10 @@ extracted 99 frames let's extract 99 frames as well:
         lightly.loader.num_workers=8 lightly.trainer.max_epochs=10 \
         stopping_condition.n_samples=100 remove_exact_duplicates=True \
         enable_corruptness_check=False enable_training=False dump_dataset=True \
-        method=CORESET
+        method=coreset
 
-To perform a random selection we can simply replace "CORESET" with "RANDOM" as
-our selected method. Note that if you don't specify any method CORESET is used.
+To perform a random selection we can simply replace "coreset" with "random" as
+our selected method. Note that coreset is the default method.
 
 Let's have a look at some statistics of the two obtained datasets:
 
@@ -127,7 +127,7 @@ Let's have a look at some statistics of the two obtained datasets:
      - original dataset
      - after ffmpeg
      - after random
-     - after CORESET
+     - after coreset
    * - Number of Samples
      - 475
      - 99
@@ -162,19 +162,19 @@ Let's have a look at some statistics of the two obtained datasets:
 We notice the following when looking at this table:
 
 - The **min distance** between two samples was 0 after ffmpeg selection whereas the
-  min distance significantly increased using CORESET selection strategy.
+  min distance significantly increased using coreset selection strategy.
 
   - 0 distance means that there are at least two samples completely identical
     (e.g. two frames in the video are the same)
 
 - The **mean distance** between the original dataset, ffmpeg, as well as 
-  RANDOM selection, is very similar. The CORESET selection however differs
+  RANDOM selection, is very similar. The coreset selection however differs
   significantly with a higher mean (higher diversity) in the selected dataset.
 
 - The **10th percentile** shows similar behavior to the mean distance.
 
 As you see in this example just selecting every N-th frame is similar to
-selecting frames randomly. More sophisticated selection methods, such as the CORESET which has been optimized for Lightly Docker, result in
+selecting frames randomly. More sophisticated selection methods, such as the coreset which has been optimized for Lightly Docker, result in
 much higher sample diversity.
 
 .. note:: Note that by default the embeddings of the dataset will be normalized

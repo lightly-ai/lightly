@@ -2,7 +2,7 @@
 
 .. note:: 
     In many real world applications of machine learning datasets are heavily biased.
-    This is a direct consequence of the fact that the data is selected from a distribution
+    This is a direct consequence of the fact that the data is sampled from a distribution
     which itself is biased as well. In this tutorial, we show how such dataset biases
     can be mitigated through clever rebalancing.
 

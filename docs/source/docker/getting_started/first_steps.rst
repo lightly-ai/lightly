@@ -168,8 +168,8 @@ Then you can use the following docker run command and the Lightly docker will on
 
 
 
-Embedding and Selecting a Dataset
------------------------------------
+Embedding a Dataset and Selecting from it
+-----------------------------------------
 
 To embed your images with a pre-trained model, you can run the docker solution with this command:
 
@@ -191,7 +191,7 @@ The command above does the following:
 - **enable_corruptness_check=True** Removes exact duplicates
 
 - **stopping_condition.n_samples=0.3** Selects 30% of the images using the
-  default method (CORSET). Selecting 30% means that the remaining dataset
+  default method (coreset). Selecting 30% means that the remaining dataset
   will be 30% of the initial dataset size. You can also specify the exact 
   number of remaining images by setting **n_samples** to an integer value.
 
@@ -217,8 +217,8 @@ dataset before embedding the images. This may be the case when the dataset is
 from a specific domain (e.g. for medical images).
 
 The command below will **train a self-supervised model** for (default: 100) 
-epochs on the images stored in the input directory before embedding 
-and selecting them.
+epochs on the images stored in the input directory before embedding the images
+and selecting from them.
 
 .. code-block:: console
 
@@ -404,7 +404,7 @@ Lightly Docker can automatically push the selected dataset as well as its
 embeddings to the Lightly Platform.
 
 Imagine you have a dataset of 100 videos with 10'000 frames each. 1 Million frames
-in total. Using Lightly Docker and the CORESET method we sample the most diverse
+in total. Using Lightly Docker and the coreset method we sample the most diverse
 50'000 images (a reduction of 20x). Now we push the 50'000 images to the 
 Lightly Platform for a more interactive analysis. We can access all metadata as
 well as the embedding view to explore the dataset, find clusters and further curate
