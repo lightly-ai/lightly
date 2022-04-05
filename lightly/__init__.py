@@ -75,7 +75,7 @@ The framework is structured into the following modules:
 # All Rights Reserved
 
 __name__ = 'lightly'
-__version__ = '1.2.12'
+__version__ = '1.2.13'
 
 import os
 
