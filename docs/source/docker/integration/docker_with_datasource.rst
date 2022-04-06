@@ -40,9 +40,10 @@ Advantages
 
 
 .. note:: Please ensure that the region of your bucket and where you intend to be running the
-          Lightly Docker instance should be the same. Traffic is free
-          must not necessarily include the same keys for all images but it is strongly
-          recommended.
+          Lightly Docker instance should be the same (e.g. `eu-central-1`). If the region is not
+          the same there can be
+          `degraded transfer speeds and additional costs will be incurred by AWS <https://aws.amazon.com/premiumsupport/knowledge-center/s3-transfer-data-bucket-instance/>`_!
+          We highly recommend using the same region
 
 
 Requirements
