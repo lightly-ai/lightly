@@ -262,13 +262,13 @@ you can use a simple script to translate it to the coco format:
           `TypeError: Object of type ndarray is not JSON serializable`.
 
 
-
+.. _plaform-sampling:
 
 Sampling
 ----------------
 
 Before you start sampling make sure you have created a dataset 
-and uploaded images and embeddings. See `Create a Dataset`_.
+and uploaded images and embeddings. See :ref:`Create a Dataset <platform-create-dataset>`.
 
 Now, let's get started with sampling!
 
