@@ -18,7 +18,7 @@ Let us assume your bucket is called `datalake`. And let us assume the folder you
 **Setting up IAM**
 
 1. Go to the `Identity and Access Management IAM page <https://console.aws.amazon.com/iamv2/home?#/users>`_ and create a new user for Lightly.
-2. Choose a unique name of your choice and select "Programmatic access" as "Access type". Click next
+2. Choose a unique name of your choice and select **"Programmatic access"** as **"Access type"**. Click next
     
     .. figure:: ../resources/AWSCreateUser2.png
         :align: center
@@ -26,7 +26,7 @@ Let us assume your bucket is called `datalake`. And let us assume the folder you
 
         Create AWS User
 
-3. We will want to create very restrictive permissions for this new user so that it can't access other resources of your company. Click on "Attach existing policies directly" and then on "Create policy". This will bring you to a new page
+3. We will want to create very restrictive permissions for this new user so that it can't access other resources of your company. Click on **"Attach existing policies directly"** and then on **"Create policy"**. This will bring you to a new page
     
     .. figure:: ../resources/AWSCreateUser3.png
         :align: center
@@ -72,7 +72,7 @@ Let us assume your bucket is called `datalake`. And let us assume the folder you
         :alt: Review and name permission policy in AWS
 
         Review and name permission policy in AWS
-6. Return to the previous page as shown in the screenshot below and reload. Now when filtering policies your newly created policy will show up. Select it and continue setting up your new user.
+6. Return to the previous page as shown in the screenshot below and reload. Now when filtering policies, your newly created policy will show up. Select it and continue setting up your new user.
     
     .. figure:: ../resources/AWSCreateUser6.png
         :align: center

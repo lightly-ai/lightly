@@ -69,7 +69,7 @@ If it is not, change it to uniform.
 
 - Create a new role, with the same title and ID.
   E.g. call it `LIGHTLY_DATASET_ACCESS`.
-- Click on `Add Permissions`, search for `storage.objects`
+- Click on **"Add Permissions"**, search for `storage.objects`
 - Add the permissions `storage.objects.get`, `storage.objects.list`, and `storage.objects.create`.
   The create permissions are needed if you want Lightly to create thumbnails
   in your bucket . Otherwise you can leave them away.
@@ -82,14 +82,14 @@ If it is not, change it to uniform.
 
 5. Navigate to `APIs -> Credentials <https://console.cloud.google.com/apis/credentials>`_.
 
-- Click on `Create Credentials`, choose `Service Account` and insert the name
+- Click on **"Create Credentials"**, choose `Service Account` and insert the name
   `LIGHTLY_USER_WILD_ANIMALS`.
 - The description can be `service account for the Lightly API to access the wild animals dataset`.
-- Click on `Create and Continue`.
+- Click on **"Create and Continue"**.
 - Choose the Role you just created, i.e. `LIGHTLY_DATASET_ACCESS`.
 - Add a condition with the title `BUCKET_PROJECTS_WILD_ANIMALS`
   and insert the condition below in the Condition editor. Remember to change the bucket name
-  and path to the folder. However, you must keep the "objects" inbetween.
+  and path to the folder. However, you must keep the "objects" in between.
 
 .. code::
 
@@ -115,7 +115,7 @@ whose name starts with `projects/wild-animals`.
 
 
 
-- Click on `Done` to create the service account.
+- Click on **"Done"** to create the service account.
 - You can change the roles of the service account later in the
   `IAM <https://console.cloud.google.com/iam-admin/iam>`_.
 
@@ -123,8 +123,8 @@ whose name starts with `projects/wild-animals`.
    again if you are not already there.
 
 - Find the just created user in the list of all service accounts.
-- Click on the user and navigate to the `keys` tab.
-- Click on `Add key` and create a new private key in JSON Format.
+- Click on the user and navigate to the **"keys"** tab.
+- Click on **"Add key"** and create a new private key in JSON Format.
   It will download the corresponding key file.
 
 .. figure:: images_gcloud_bucket/screenshot_gcloud_service_account_key_creation.jpg
@@ -165,7 +165,7 @@ Create and configure a dataset
 
 3. As the resource path, enter the full URI to your resource eg. `gs://lightly-datalake/projects/wild-animals`
 4. Enter the Google Project ID you wrote down in the first step.
-5. Click on `Select Credentials File` to add the key file you downloaded in the previous step.
+5. Click on **"Select Credentials File"** to add the key file you downloaded in the previous step.
 6. The thumbnail suffix depends on the option you chose in the first step
 
 - You want Lightly to create the thumbnail for you.
