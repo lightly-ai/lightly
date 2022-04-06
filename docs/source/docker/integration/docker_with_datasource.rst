@@ -16,8 +16,13 @@ the following workloads in one single run:
 - compute the metadata of the images
 - create a dataset in the Lightly Platform from the sampled subset
 
-Support for streaming from Google Cloud Storage and Azure Blob Storage is
-planned. If you need any of these, write us so that we prioritize implementing it.
+Streaming from Google Cloud Storage and Azure Blob Storage is also supported.
+Please follow the
+`Google Cloud Storage <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_gcloud_bucket.html`_
+ or the
+`Azure Blob Storage <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_azure_storage.html>`_
+ guide to learn how to setup your bucket and configure a datasource.
+
 
 Advantages
 ----------
@@ -32,6 +37,12 @@ Advantages
   everytime new data comes into your S3 bucket.
 - Your images and videos are never saved anywhere but in your S3 bucket,
   maintaining your privacy and security.
+
+
+.. note:: Please ensure that the region of your bucket and where you intend to be running the
+          Lightly Docker instance should be the same. Traffic is free
+          must not necessarily include the same keys for all images but it is strongly
+          recommended.
 
 
 Requirements
