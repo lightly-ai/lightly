@@ -34,7 +34,7 @@ For the :ref:`lightly-command-line-tool` to be able to create embeddings and ext
  
 1. Install AzCopy cli by following the `guide of Azure <https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10>`_
 2. To sync your data from the container to your local machine (or vice versa), you need a shared access token. On your `storage account` page of the Azure portal, on the left, go to **"Security + networking"** > **"Shared access signature"**. Generate a shared access signature (SAS) which allows access to the container and objects.
-3. Copy the `SAS token`` and use the following command to sync the Azure blob storage with your local folder:
+3. Copy the `SAS token` and use the following command to sync the Azure blob storage with your local folder:
 
     .. code-block::
 
