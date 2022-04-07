@@ -21,8 +21,9 @@ For the purpose of this guide we assume you have a storage account called `light
 We further assume the container you want to use with lightly is called `farm-animals` and already contains images.
 If you don't have a storage account or container yet follow the instructions `here <https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal>`_.
 
-Go to "Security + networking > Shared access signature". There, configure the access rights to your liking. Lightly requires at least read and list access to the container. Make sure to
-also tick the boxes for the required resource types (Container and Object). Set an expiry date and then click on "Generate SAS and connection string". Copy the generated "SAS token" including the "?"
+Go to **"Security + networking"** > **"Shared access signature"**. There, configure the access rights to your liking.
+Lightly requires at least read and list access to the container. Write access is required for thumbnails or when working with videos and object level.
+Make sure to *also* tick the boxes for the required resource types (Container and Object). Set an expiry date and then click on **"Generate SAS and connection string"**. Copy the generated `SAS token` *including the "?"*
 and store it in a secure location. Head to the next section to see how you can configure the Lightly dataset.
 
 
@@ -32,8 +33,8 @@ Preparing your data
 For the :ref:`lightly-command-line-tool` to be able to create embeddings and extract metadata from your data, `lightly-magic` needs to be able to access your data. You can download/sync your data from Azure blob storage.
  
 1. Install AzCopy cli by following the `guide of Azure <https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10>`_
-2. To sync your data from the container to your local machine (or vice versa), you need a shared access token. On your *storage account* page of the Azure portal, on the left, go to "Security + networking > Shared access signature". Generate a shared access signature (SAS) which allows access to the container and objects.
-3. Copy the SAS token and use the following command to sync the Azure blob storage with your local folder:
+2. To sync your data from the container to your local machine (or vice versa), you need a shared access token. On your `storage account` page of the Azure portal, on the left, go to **"Security + networking"** > **"Shared access signature"**. Generate a shared access signature (SAS) which allows access to the container and objects.
+3. Copy the `SAS token` and use the following command to sync the Azure blob storage with your local folder:
 
     .. code-block::
 
@@ -54,7 +55,7 @@ Uploading your data
         :align: center
         :alt: Edit your dataset.
 
-        To edit your dataset click the `Edit` button on the top.
+        To edit your dataset click the **"Edit"** button on the top.
 
 3. As your container name enter `farm-animals`.
 4. Enter the storage account name and SAS token from the previous step.
