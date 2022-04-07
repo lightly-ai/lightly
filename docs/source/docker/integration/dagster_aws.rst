@@ -50,7 +50,7 @@ You can test if the installation was successfull like this:
 
 .. code-block:: console
 
-    docker run --rm -it lightly/sampling:latest sanity_check=True
+    docker run --rm -it lightly/worker:latest sanity_check=True
 
 To run the docker remotely, it's recommended to write a `run.sh` script with default parameters. The other parameters can then
 be changed by passing command line arguments. Use the following as a starting point and adapt it to your needs:
@@ -58,7 +58,7 @@ be changed by passing command line arguments. Use the following as a starting po
 .. code-block:: shell
 
     # general
-    IMAGE=lightly/sampling:latest
+    IMAGE=lightly/worker:latest
 
     INPUT_DIR=$1
     SHARED_DIR=/home/ubuntu/shared_dir

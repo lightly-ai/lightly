@@ -107,7 +107,7 @@ extracted 99 frames let's extract 99 frames as well:
     docker run --gpus all --rm -it -v /dataset/video/:/home/input_dir:ro \
         -v \/datasets/videos/docker_out:/home/output_dir \
         -v /datasets/docker_shared_dir:/home/shared_dir -e --ipc="host" \
-        --network="host" lightly/sampling:latest token=MYAWESOMETOKEN \
+        --network="host" lightly/worker:latest token=MYAWESOMETOKEN \
         lightly.collate.input_size=64 lightly.loader.batch_size=32 '
         lightly.loader.num_workers=8 lightly.trainer.max_epochs=10 \
         stopping_condition.n_samples=100 remove_exact_duplicates=True \

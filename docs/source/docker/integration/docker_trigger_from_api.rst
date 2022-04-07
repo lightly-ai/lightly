@@ -46,7 +46,7 @@ the docker execute the following command:
 
     docker run --gpus all --rm -it \
         -v ${OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=${YOUR_LIGHTLY_PLATFORM_TOKEN} \
         worker_id=${YOUR_WORKER_ID}
 
