@@ -174,8 +174,8 @@ We notice the following when looking at this table:
 - The **10th percentile** shows similar behavior to the mean distance.
 
 As you see in this example just selecting every N-th frame is similar to
-selecting frames randomly. More sophisticated selection methods, such as the coreset which has been optimized for Lightly Docker, result in
-much higher sample diversity.
+selecting frames randomly. More sophisticated selection strategies, such as the coreset selection strategy, result in
+much higher sample diversity. The docker has been optimized for these selection strategies.
 
 .. note:: Note that by default the embeddings of the dataset will be normalized
           to unit vector length. Max L2 distance between two vectors is 

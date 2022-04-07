@@ -88,9 +88,9 @@ additional samples that are enriching the existing selection.
      - 0
 
 .. note:: Pre-selected samples also count for the target number of samples.
-          For example, you have a dataset with 100 samples. If you pre-select
-          60 and want to sample 50, selecting would have no effect since there
-          are already more than 50 samples selected.
+          For example, you have a dataset with 100 samples. If you preselected
+          60 samples and want to select another 10,
+          you have to set the target number of samples to 70.
 
 Custom Weak Labels
 -----------------------------------

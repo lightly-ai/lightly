@@ -35,10 +35,10 @@ We worked hard to make this happen and are very proud to present you with the fo
 
 * Configurable
 
-  * Use stopping conditions for the selection such as minimum distance between
+  * Use stopping conditions for the selection strategy such as minimum distance between
     two samples
 
-  * Use various selection methods
+  * Use various selection strategies
 
   * Check for corrupt files and report them
 

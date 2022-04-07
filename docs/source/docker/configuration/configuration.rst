@@ -108,10 +108,12 @@ The following are parameters which can be passed to the container:
   # Selection
   # Choose from ['coreset', 'random'].
   method: 'coreset'
+  # Choose when to stop the selection
   stopping_condition:
+    # The maximum number of samples selected
     # Float in [0., 1.] for percentage, int for number of samples, -1 means inactive.
     n_samples: -1    
-    # Float, minimum distance between two images in the selected dataset, -1. means inactive.
+    # Float, minimum distance between two images selected, -1. means inactive.
     min_distance: -1.
   selected_sequence_length: 1
 

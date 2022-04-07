@@ -448,8 +448,9 @@ Reporting
 To facilitate sustainability and reproducibility in ML, the docker container
 has an integrated reporting component. For every dataset, you run through the container
 an output directory gets created with the exact configuration used for the experiment. 
-Additionally, plots, statistics, and more information collected either during the training of the
-self-supervised model, embedding, or selection of the dataset are provided.
+Additionally, plots, statistics, and more information collected
+during the various processing steps are provided.
+E.g. there is information about the corruptness check, embedding process and selection process.
 
 To make it easier for you to understand and discuss the dataset we put the essential information into
 an automatically generated PDF report.
@@ -509,7 +510,7 @@ The output directory is structured in the following way:
 
    * information about the job (duration, processed files etc.)
    * estimated savings in terms of labeling costs and CO2 due to the smaller dataset
-   * statistics about the dataset before and after selection
+   * statistics about the dataset before and after the selection process
    * histogram before and after filtering
    * visualizations of the dataset
    * nearest neighbors of retained images among the removed ones
@@ -571,7 +572,7 @@ Evaluation of the Selection Proces
 
 **Histograms and Plots**
 
-The report contains histograms of the pairwise distance between images before and after the selection.
+The report contains histograms of the pairwise distance between images before and after the selection process.
 
 An example of such a histogram before and after filtering for the CamVid dataset consisting of 367
 samples is shown below. We marked the region which is of special interest with an orange rectangle. 
