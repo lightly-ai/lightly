@@ -162,19 +162,20 @@ Prediction Files for Videos
 ---------------------------
 When working with videos, Lightly requires a prediction file per frame. Lightly
 uses a naming convention to identify frames: The filename of a frame consists of
-the video filename, the video format, and the frame number (padded with 8 zeros)
-separated by hyphens:
+the video filename, the video format, and the frame number (padded to the length
+of the number of frames in the video) separated by hyphens:
 
 .. code-block:: bash
 
     # filename of the predictions of the Xth frame of video FILENAME.EXT
-    .lightly/predictions/${TASK_NAME}/${FILENAME}-${X:08d}-${EXT}.json
+    # with 200 frames (padding: len(str(200)) = 3)
+    .lightly/predictions/${TASK_NAME}/${FILENAME}-${X:03d}-${EXT}.json
 
-    # example: my_video.mp4, frame 99
-    .lightly/predictions/my_classification_task/my_video-00000099-mp4.json
+    # example: my_video.mp4, frame 99/200
+    .lightly/predictions/my_classification_task/my_video-099-mp4.json
 
-    # example: my_subdir/my_video.mp4, frame 99
-    .lightly/predictions/my_classification_task/my_subdir/my_video-00000099-mp4.json
+    # example: my_subdir/my_video.mp4, frame 99/200
+    .lightly/predictions/my_classification_task/my_subdir/my_video-099-mp4.json
 
 
 Prediction Format
