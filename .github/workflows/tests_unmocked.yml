@@ -1,6 +1,12 @@
 name: run unmocked tests
 on: [workflow_dispatch]
 
+# Why is this only triggered manually with workflow_dispatch?
+# - We have many unittests anyway
+# - We ran into quota problems with too many tests (3000mins for the pip package)
+# - The tests are unreliable / not deterministic, as they depend on the API from staging
+# - The tests take 10mins, which can slow down development
+
 jobs:
   test:
     name: Run unmocked tests
