@@ -21,10 +21,9 @@ In order to do active learning with Lightly, you will need the following things:
 
 .. note::
 
-    The dataset does not need to be empty! For example, an initial selection without
+    The dataset does not need to be new! For example, an initial selection without
     active learning can be used to train a model. The predictions from this model
     can then be used to improve your dataset by adding new images to it through active learning.
-
 
 
 Selection
@@ -36,69 +35,41 @@ iteration by specifying the following three things in your Lightly docker config
 - `active_learning.task_name`
 - `active_learning.score_name`
 
-Here's an example of how your config could look like if you want to add `100` more
-images to your dataset by doing active learning:
+Here's an example of how to configure an active learning run:
 
 
 .. tabs::
 
-    .. tab:: Run Command
+    .. tab:: Web App
 
-        .. code-block:: bash
+        **Trigger the Job**
 
-            docker run --gpus all --rm -it \
-                -v {OUTPUT_DIR}:/home/output_dir \
-                lightly/sampling:latest \
-                token=MYAWESOMETOKEN \
-                enable_corruptness_check=True \
-                remove_exact_duplicates=True \
-                pretagging=False \
-                pretagging_debug=False \
-                method='coral' \
-                stopping_condition.n_samples=100 \
-                stopping_condition.min_distance=-1 \
-                scorer_config.frequency_penalty=0.25 \
-                scorer_config.min_score=0.9 \
-                active_learning.task_name='my-classification-task' \
-                active_learning.score_name='uncertainty_margin' \
-                datasource.dataset_id={DATASET_ID} \
-                datasource.process_all=True
+        To trigger a new job you can click on the schedule run button on the dataset
+        overview as shown in the screenshot below:
 
+        .. figure:: ../integration/images/schedule-compute-run.png
 
-    .. tab:: JSON
+        After clicking on the button you will see a wizard to configure the parameters
+        for the job.
 
-        .. code-block:: javascript  
+        .. figure:: ../integration/images/schedule-compute-run-config.png
 
-            {
-                enable_corruptness_check: true,
-                remove_exact_duplicates: true,
-                enable_training: false,
-                pretagging: false,
-                pretagging_debug: false,
-                method: 'coral',
-                stopping_condition: {
-                    n_samples: 100,
-                    min_distance: -1
-                },
-                scorer: 'object-frequency',
-                scorer_config: {
-                    frequency_penalty: 0.25,
-                    min_score: 0.9
-                },
-                active_learning: {
-                    task_name: 'my-classification-task',
-                    score_name: 'uncertainty_margin'
-                },
-                datasource: {
-                    process_all: true
-                }
-            }
+        In this example we have to set the `active_learning.task_name` parameter
+        in the docker config. Additionally, we set the `method` to `coral` which
+        simultaneously considers the diversity and the active learning scores of
+        the samples. All other settings are default values. The
+        resulting docker config should look like this:
 
-Here, we set the `method` to `coral` which simultaneously considers the diversity
-and the active learning scores of the samples. The stopping condition was set the
-`n_samples: 100` and under `active_learning.task_name` we entered the task name of
-our predictions (see :ref:`TODO`). For this
-iteration, we picked the `uncertainty_margin` score. Learn more about the different scores in the next section.
+        .. literalinclude:: code_examples/active_learning_worker_config.txt
+            :caption: Docker Config
+            :language: javascript
+
+        The Lightly config remains unchanged.
+
+    .. tab:: Python Code
+
+        .. literalinclude:: code_examples/python_run_active_learning.py
+
 
 
 Active Learning with Custom Scores
