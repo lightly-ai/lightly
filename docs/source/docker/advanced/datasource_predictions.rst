@@ -38,10 +38,10 @@ of this directory will look like this:
                  + image_1.json
                  ...
                  + image_N.json
-    image_1.png
-    image_2.png
-    ...
-    image_N.png
+        + image_1.png
+        + image_2.png
+        + ...
+        + image_N.png
 
 
 Where each subdirectory corresponds to one prediction task (e.g. a classification task
@@ -111,7 +111,13 @@ like edges between keypoints.
 
 You can provide all this information to Lightly by adding a `schema.json` to the directory of the respective task.
 
-The schema.json file must have a key categories with a corresponding list of categories following the COCO annotation format.
+The schema.json file must have a key `categories`` with a corresponding list of categories following the COCO annotation format.
+It must also have a key `task_description` indicating the type of predictions. The `task_description` must be one of:
+
+ - classification
+ - object-detection
+
+
 For example, let's say we are working with a classification model predicting the weather on an image.
 The three classes are sunny, clouded, and rainy.
 
@@ -120,6 +126,7 @@ The three classes are sunny, clouded, and rainy.
     :caption: .lightly/predictions/classification_weather/schema.json
 
     {
+        "task_description": "classification",
         "categories": [
             {
                 "id": 0,
