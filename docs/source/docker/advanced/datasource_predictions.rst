@@ -171,7 +171,9 @@ Prediction Files for Videos
 When working with videos, Lightly requires a prediction file per frame. Lightly
 uses a naming convention to identify frames: The filename of a frame consists of
 the video filename, the video format, and the frame number (padded to the length
-of the number of frames in the video) separated by hyphens:
+of the number of frames in the video) separated by hyphens. For example, for a
+video with 200 frames, the frame number will be padded to length three. For a video
+with 1000 frames, the frame number will be padded to length four (99 becomes 0099).
 
 .. code-block:: bash
 
