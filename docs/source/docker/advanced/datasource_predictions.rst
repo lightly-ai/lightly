@@ -276,6 +276,12 @@ The bounding box format follows the `COCO results <https://cocodataset.org/#form
     We recommend rounding coordinates to the nearest tenth of a pixel to reduce resulting JSON file size.
 
 
+.. note::
+
+    Support for semantic segmentation and keypoint detection is coming soon!
+
+
+
 Creating the predictions folder
 -------------------------------
 
