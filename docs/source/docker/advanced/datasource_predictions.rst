@@ -26,6 +26,10 @@ of this directory will look like this:
 .. code-block:: bash
 
     datasource/my_dataset
+        + image_1.png
+        + image_2.png
+        + ...
+        + image_N.png
         + .lightly/predictions/
             + tasks.json
             + task_1/
@@ -38,10 +42,7 @@ of this directory will look like this:
                  + image_1.json
                  ...
                  + image_N.json
-        + image_1.png
-        + image_2.png
-        + ...
-        + image_N.png
+
 
 
 Where each subdirectory corresponds to one prediction task (e.g. a classification task
@@ -52,14 +53,14 @@ Prediction Tasks
 ----------------
 To let Lightly know what kind of prediction tasks you want to work with, Lightly
 needs to know their names. It's very easy to let Lightly know which tasks exist:
-simply add a `tasks.json`` in your storage bucket stored at the subdirectory `.lightly/predictions/`.
+simply add a `tasks.json` in your storage bucket stored at the subdirectory `.lightly/predictions/`.
 
 The `tasks.json` file must include a list of your task names which must match name
 of the subdirectory where your prediction schemas will be located.
 
 .. note::
 
-    Only the task names listed within `tasks.json`` will be considered.
+    Only the task names listed within `tasks.json` will be considered.
     Please ensure that the task name corresponds with the location of your prediction schema.
     This allows you to specify which subfolder are considered by the Lightly docker.
 
@@ -111,7 +112,7 @@ like edges between keypoints.
 
 You can provide all this information to Lightly by adding a `schema.json` to the directory of the respective task.
 
-The schema.json file must have a key `categories`` with a corresponding list of categories following the COCO annotation format.
+The schema.json file must have a key `categories` with a corresponding list of categories following the COCO annotation format.
 It must also have a key `task_description` indicating the type of predictions. The `task_description` must be one of:
 
  - classification
