@@ -96,7 +96,7 @@ we can specify which subfolders contain relevant predictions in the `tasks.json`
 .. note::
 
     If you list a subfolder which doesn't contain a valid `schema.json` file,
-    the Lightly docker will fail! See below how to create a good `schema.json` file.
+    the Lightly docker will report an error! See below how to create a good `schema.json` file.
 
 
 Prediction Schema
