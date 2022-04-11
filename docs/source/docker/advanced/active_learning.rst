@@ -71,9 +71,12 @@ Here's an example of how to configure an active learning run:
         .. literalinclude:: code_examples/python_run_active_learning.py
 
 
+After the worker has finished its job you can see the selected images with their
+active learning score in the web-app.
 
-Active Learning with Custom Scores
-----------------------------------
+
+Active Learning with Custom Scores (not recommended as of March 2022)
+----------------------------------------------------------------------
 
 .. note::
     This is not recommended anymore as of March 2022 and will be deprecated in the future!
