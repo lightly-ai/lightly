@@ -62,14 +62,14 @@ directory in the datasource:
             "vehicles_object_detections"
         ]
 
-- A *schema.json* file that specifies that the predictions are *object-detection*
-  predictions and a list of all possible object types.
+- A *schema.json* file that specifies that the predictions are from an 
+  *object-detection* task and a list of all possible object categories.
 
     .. code-block:: javascript
         :caption: .lightly/predictions/vehicles_object_detections/schema.json
 
         {
-            "task_description": "object-detection",
+            "task_type": "object-detection",
             "categories": [
                 {
                     "id": 0,
