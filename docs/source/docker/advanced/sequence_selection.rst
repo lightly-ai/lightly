@@ -17,7 +17,7 @@ Sequence selection consists of the following steps:
 
 1. Each input video is split into sequences of length `selected_sequence_length`.
 2. Next, the embeddings of all frames in a sequence are aggregated (averaged).
-3. The Lightly selection strategy selects relevant sequences.
+3. The selection is performed on sequence level.
 4. Finally, the indices of the selected sequence frames are reconstructed.
 5. The report is generated and (if requested) the selected frames are saved.
   

@@ -114,7 +114,7 @@ extracted 99 frames let's extract 99 frames as well:
         enable_corruptness_check=False enable_training=False dump_dataset=True \
         method=coreset
 
-To perform a random selection we can simply replace "coreset" with "random" as
+To perform a random selection we can simply replace coreset with random as
 our selected method. Note that coreset is the default method.
 
 Let's have a look at some statistics of the two obtained datasets:

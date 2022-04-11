@@ -88,7 +88,7 @@ additional samples that are enriching the existing selection.
      - 0
 
 .. note:: Pre-selected samples also count for the target number of samples.
-          For example, you have a dataset with 100 samples. If you preselected
+          For example, you have a dataset with 100 samples. If you have preselected
           60 samples and want to select another 10,
           you have to set the target number of samples to 70.
 
