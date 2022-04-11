@@ -287,11 +287,11 @@ Creating the predictions folder
 
 For creating the predictions folder, we recommend writing a script that takes your predictions and
 saves them in the format just outlined. You can either save the predictions first on your local machine
-and then upload them for your datasource or upload them directly to your datasource.
+and then upload them to your datasource or save them directly to your datasource.
 
-As an example, the following script takes an object detection annotations file in the coco format.
-It needs the path to the annotations file and the output directory
-where the .lightly folder should be created as input.
+As an example, the following script takes an object detection `COCO predictions file <https://cocodataset.org/#format-results>`_.
+It needs the path to the predictions file and the output directory
+where the `.lightly` folder should be created as input.
 Don't forget to change these 2 parameters at the top of the script.
 
 .. code-block:: python
@@ -345,7 +345,7 @@ Don't forget to change these 2 parameters at the top of the script.
         pred = {
             'category_id': ann['category_id'],
             'bbox': ann['bbox'],
-            'score': 0
+            'score': ann.get('score', 0)
         }
         image_id_to_prediction[ann['image_id']]['predictions'].append(pred)
 
