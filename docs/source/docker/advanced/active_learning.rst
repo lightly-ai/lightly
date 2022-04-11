@@ -1,7 +1,86 @@
 .. _ref-docker-active-learning:
 
-Active learning
-==============================================
+Active Learning
+===============
+
+Lightly makes use of active learning scores to select the samples which will yield
+the biggest improvements of your machine learning model. The scores are calculated
+on-the-fly based on model predictions and provide the selection algorithm with feedback
+about the uncertainty of the model for the given sample. 
+
+Learn more about the concept of active learning scores:
+:ref:`lightly-active-learning-scorers`.
+
+Prerequisites
+--------------
+In order to do active learning with Lightly, you will need the following things:
+
+- The installed Lightly docker (see :ref:`ref-docker-setup`)
+- A dataset with a configured datasource (see :ref:`ref-docker-with-datasource-datapool`)
+- Your predictions uploaded to the datasource (see :ref:`ref-docker-datasource-predictions`)
+
+.. note::
+
+    The dataset does not need to be new! For example, an initial selection without
+    active learning can be used to train a model. The predictions from this model
+    can then be used to improve your dataset by adding new images to it through active learning.
+
+
+Selection
+-------------------------
+Once you have everything set up as described above, you can do an active learning
+iteration by specifying the following three things in your Lightly docker config:
+
+- `method`
+- `active_learning.task_name`
+- `active_learning.score_name`
+
+Here's an example of how to configure an active learning run:
+
+
+.. tabs::
+
+    .. tab:: Web App
+
+        **Trigger the Job**
+
+        To trigger a new job you can click on the schedule run button on the dataset
+        overview as shown in the screenshot below:
+
+        .. figure:: ../integration/images/schedule-compute-run.png
+
+        After clicking on the button you will see a wizard to configure the parameters
+        for the job.
+
+        .. figure:: ../integration/images/schedule-compute-run-config.png
+
+        In this example we have to set the `active_learning.task_name` parameter
+        in the docker config. Additionally, we set the `method` to `coral` which
+        simultaneously considers the diversity and the active learning scores of
+        the samples. All other settings are default values. The
+        resulting docker config should look like this:
+
+        .. literalinclude:: code_examples/active_learning_worker_config.txt
+            :caption: Docker Config
+            :language: javascript
+
+        The Lightly config remains unchanged.
+
+    .. tab:: Python Code
+
+        .. literalinclude:: code_examples/python_run_active_learning.py
+
+
+After the worker has finished its job you can see the selected images with their
+active learning score in the web-app.
+
+
+Active Learning with Custom Scores (not recommended as of March 2022)
+----------------------------------------------------------------------
+
+.. note::
+    This is not recommended anymore as of March 2022 and will be deprecated in the future!
+
 
 For running an active learning step with the Lightly docker, we need to perform
 3 steps:
@@ -15,7 +94,7 @@ Learn more about the concept of active learning
 
 
 Create Embeddings
---------------------------
+^^^^^^^^^^^^^^^^^
 
 You can create embeddings using your own model. Just make sure the resulting
 `embeddings.csv` file matches the required format:
@@ -107,7 +186,7 @@ It should look similar to this:
 
 
 Add Active Learning Scores
---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you want to use the predictions from your model as active learning scores,
 you can use the :ref:`lightly-active-learning-scorers` from the lightly pip package.
@@ -189,7 +268,7 @@ Your embeddings_al.csv should look similar to this:
 
 
 Run Active Learning using the Docker
----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 At this point you should have an `embeddings.csv` file with the active learning 
 scores in a column named `al_scores`. 
