@@ -281,7 +281,7 @@ section by clicking on it.
 
 #. Choose the embedding and selection strategy to use for this selection.
 
-#. Give a name to your selectiong so that you can later compare
+#. Give a name to your selection so that you can later compare
    the different selections.
 
 #. Hit "Process" to start selecting the data. Each sample is now assigned an
