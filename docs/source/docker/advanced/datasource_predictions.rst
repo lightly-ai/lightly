@@ -101,19 +101,22 @@ we can specify which subfolders contain relevant predictions in the `tasks.json`
 
 Prediction Schema
 -----------------
-For Lightly it's required to store a prediction schema. The schema helps the Lightly
-Platform to correctly identify and display classes. It also helps to prevent errors
-as all predictions which are loaded are validated against this schema.
+For Lightly it's required to store a prediction schema. The schema defines the
+format of the predictions and helps the Lightly Platform to correctly identify 
+and display classes. It also helps to prevent errors as all predictions which 
+are loaded are validated against this schema.
 
+Every schema must include the type of the predictions for this task.
+For classification and object detection the prediction schema must also include
+all the categories and their corresponding ids. For other tasks, such as keypoint 
+detection, it can be useful to store additional information like which keypoints 
+are connected with each other by an edge.
 
-For classification and object detection the prediction schema must include all the categories and ids.
-For other tasks such as keypoint detection it can be useful to store additional information
-like edges between keypoints.
-
-You can provide all this information to Lightly by adding a `schema.json` to the directory of the respective task.
-
-The schema.json file must have a key `categories` with a corresponding list of categories following the COCO annotation format.
-It must also have a key `task_description` indicating the type of predictions. The `task_description` must be one of:
+You can provide all this information to Lightly by adding a `schema.json` to the 
+directory of the respective task. The schema.json file must have a key `categories` 
+with a corresponding list of categories following the COCO annotation format.
+It must also have a key `task_type` indicating the type of the predictions. 
+The `task_type` must be one of:
 
  - classification
  - object-detection
@@ -127,7 +130,7 @@ The three classes are sunny, clouded, and rainy.
     :caption: .lightly/predictions/classification_weather/schema.json
 
     {
-        "task_description": "classification",
+        "task_type": "classification",
         "categories": [
             {
                 "id": 0,
@@ -302,7 +305,7 @@ Don't forget to change these 2 parameters at the top of the script.
 
     ### Optionally change these parameters
     task_name = "my_object_detection_task"
-    task_description = "object-detection"
+    task_type = "object-detection"
 
     import json
     import os
@@ -326,7 +329,7 @@ Don't forget to change these 2 parameters at the top of the script.
     path_predictions_task = os.path.join(path_predictions, tasks[0])
     Path(path_predictions_task).mkdir(exist_ok=True)
     schema = {
-        "task_description": task_description,
+        "task_type": task_type,
         "categories": coco_dict['categories']
     }
     path_schema_json = os.path.join(path_predictions_task, 'schema.json')
