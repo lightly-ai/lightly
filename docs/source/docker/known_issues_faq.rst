@@ -144,7 +144,7 @@ The token (along with other Hydra configuration) will be printed to stdout, and 
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/shared_dir \
         --ipc="host" --network="host" \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         ...
 
@@ -157,7 +157,5 @@ This can be avoided by setting your `token` via the `LIGHTLY_TOKEN` environment 
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/shared_dir \
         --ipc="host" --network="host" \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         ...
-
-

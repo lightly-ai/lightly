@@ -11,7 +11,7 @@ command.
         -v /datasets/imagenet/train/:/home/input_dir:ro \
         -v /datasets/docker_imagenet_500k:/home/output_dir \
         --ipc="host" \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         lightly.collate.input_size=64 \
         lightly.loader.batch_size=256 \
@@ -43,7 +43,7 @@ ensure that we only keep the unique samples.
         -v /datasets/cityscapes/leftImg8bit/train/:/home/input_dir:ro \
         -v /datasets/docker_out_cityscapes:/home/output_dir \
         -v /datasets/docker_out_cityscapes:/home/shared_dir \
-        -e --ipc="host" --network="host" lightly/sampling:latest \
+        -e --ipc="host" --network="host" lightly/worker:latest \
         token=MYAWESOMETOKEN lightly.loader.num_workers=8 \
         stopping_condition.min_distance=0.2 remove_exact_duplicates=True \
         enable_corruptness_check=False enable_training=True \
@@ -74,7 +74,7 @@ frames from Kitti and add them to Cityscapes:
         -v /datasets/kitti/training/image_2/:/home/input_dir:ro \
         -v /datasets/docker_out_cityscapes:/home/output_dir \
         -v /datasets/docker_out_cityscapes:/home/shared_dir \
-        -e --ipc="host" --network="host" lightly/sampling:latest \
+        -e --ipc="host" --network="host" lightly/worker:latest \
         token=MYAWESOMETOKEN lightly.loader.num_workers=8 \
         stopping_condition.min_distance=0.2 remove_exact_duplicates=True \
         enable_corruptness_check=False enable_training=False \

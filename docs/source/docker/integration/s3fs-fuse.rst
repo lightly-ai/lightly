@@ -162,7 +162,7 @@ input dir.
     docker run --gpus all --rm -it \
         -v /s3-mount:/home/input_dir:ro \
         -v /docker/output:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN
 
 You can do the same for the docker output directory (in this example I used 
@@ -210,4 +210,3 @@ You can manually specify the AWS region by using the `url=...` flag as shown bel
 .. code-block:: console
 
     s3fs simple-test-bucket-igor /s3-mount -o passwd_file=${HOME}/.passwd-s3fs -o url="https://s3-eu-central-1.amazonaws.com"
-

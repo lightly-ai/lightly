@@ -121,7 +121,7 @@ E.g. create and run a bash script with the following content:
       -v ${INPUT_DIR}:/home/input_dir:ro  \
       -v ${SHARED_DIR}:/home/shared_dir:ro \
       -v ${OUTPUT_DIR}:/home/output_dir \
-      lightly/sampling:latest \
+      lightly/worker:latest \
       token=${TOKEN} \
       lightly.loader.num_workers=4     \
       stopping_condition.n_samples=${N_SAMPLES}\
@@ -304,7 +304,7 @@ E.g. use the following bash script.
         -v ${INPUT_DIR}:/home/input_dir:ro  \
         -v ${SHARED_DIR}:/home/shared_dir:ro \
         -v ${OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=${TOKEN} \
         lightly.loader.num_workers=4     \
         stopping_condition.n_samples=${N_SAMPLES}\

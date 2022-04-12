@@ -88,7 +88,7 @@ E.g. run the docker with
 
     docker run --gpus all --rm -it \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=YOUR_LIGHTLY_PLATFORM_TOKEN \
         datasource.dataset_id=YOUR_DATASET_ID \
         stopping_condition.n_samples=50

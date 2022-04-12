@@ -46,7 +46,7 @@ Now, we want to select sequences of length ten. We use:
     docker run --gpus all --rm -it \
         -v /datasets/pexels:/home/input_dir:ro \
         -v /outputs/:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         stopping_condition.n_samples=200 \
         enable_corruptness_check=False \
