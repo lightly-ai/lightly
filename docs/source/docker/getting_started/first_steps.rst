@@ -41,7 +41,7 @@ Use the following command to get an overview of the available parameters:
 
 .. code-block:: console
 
-    docker run --gpus all --rm -it lightly/sampling:latest --help
+    docker run --gpus all --rm -it lightly/worker:latest --help
 
 .. note:: In case the command fails because docker does not detect your GPU
           you want to make sure `nvidia-docker` is installed.
@@ -100,7 +100,7 @@ Typically, your docker command would start like this:
     docker run --gpus all --rm -it \
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN
 
 Now, let's see how this will look in action!
@@ -125,7 +125,7 @@ The following docker run command would for example store the output in the
     docker run --gpus all --rm -it \
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         run_directory="docker_out"
 
@@ -162,7 +162,7 @@ Then you can use the following docker run command and the Lightly docker will on
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {SHARED_DIR}:/home/shared_dir \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         relevant_filenames_file='filenames.txt'
 
@@ -178,7 +178,7 @@ To embed your images with a pre-trained model, you can run the docker solution w
     docker run --gpus all --rm -it \
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         remove_exact_duplicates=True \
         enable_corruptness_check=True \
@@ -225,7 +225,7 @@ and sampling them.
     docker run --gpus all --rm -it \
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         enable_training=True
 
@@ -245,7 +245,7 @@ a checkpoint by copying the checkpoint to the shared directory and then passing 
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {SHARED_DIR}:/home/shared_dir \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         stopping_condition.n_samples=0.3 \
         enable_training=True \
@@ -267,7 +267,7 @@ do so.
     docker run --gpus all --rm -it \
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         remove_exact_duplicates=True \
         enable_corruptness_check=True \
@@ -298,7 +298,7 @@ move the embeddings file to the shared directory, and specify the filename like 
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {SHARED_DIR}:/home/shared_dir \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         remove_exact_duplicates=True \
         enable_corruptness_check=False \
@@ -352,7 +352,7 @@ structure as shown above could then look like this:
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {SHARED_DIR}:/home/shared_dir \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         stopping_condition.n_samples=0.3
 
@@ -367,7 +367,7 @@ them in the output folder using `dump_dataset=True`.
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {SHARED_DIR}:/home/shared_dir \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         stopping_condition.n_samples=0.3 \
         dump_dataset=True
@@ -389,7 +389,7 @@ simply set the stopping condition `n_samples` to 1.0 (which translates to 100% o
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {SHARED_DIR}:/home/shared_dir \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         remove_exact_duplicates=True \
         stopping_condition.n_samples=1.
@@ -424,7 +424,7 @@ E.g.
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {SHARED_DIR}:/home/shared_dir \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         stopping_condition.n_samples=50'000 \
         stopping_condition.min_distance=0.3 \
@@ -602,7 +602,7 @@ With the argument stopping_condition.n_samples=X you can set the number of sampl
     docker run --gpus all --rm -it \
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         remove_exact_duplicates=True \
         enable_corruptness_check=False \
@@ -615,7 +615,7 @@ With the argument n_example_images you can determine how many pairs are shown. N
     docker run --gpus all --rm -it \
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         remove_exact_duplicates=True \
         enable_corruptness_check=False \

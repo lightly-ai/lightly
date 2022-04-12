@@ -152,7 +152,7 @@ The three classes are sunny, clouded, and rainy.
 Prediction Files
 ----------------
 Lightly requires a **single prediction file per image**. The file should be a .json
-following the format defined under :ref:`Prediction Format` and stored in the subdirectory
+following the format defined under :ref:`ref-prediction-format` and stored in the subdirectory
 `.lightly/predictions/${TASK_NAME}` in the storage bucket the dataset was configured with.
 In order to make sure Lightly can match the predictions to the correct source image,
 it's necessary to follow the naming convention:
@@ -190,6 +190,8 @@ with 1000 frames, the frame number will be padded to length four (99 becomes 009
     # example: my_subdir/my_video.mp4, frame 99/200
     .lightly/predictions/my_classification_task/my_subdir/my_video-099-mp4.json
 
+
+.. _ref-prediction-format:
 
 Prediction Format
 -----------------

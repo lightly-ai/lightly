@@ -63,27 +63,33 @@ Using the following command you pull the latest image from our European cloud se
 
 .. code-block:: console
 
-    docker pull eu.gcr.io/boris-250909/lightly/sampling:latest
+    docker pull eu.gcr.io/boris-250909/lightly/worker:latest
+
+.. warning::
+
+    Until version 2.1.8 the latest image was named `eu.gcr.io/boris-250909/lightly/sampling:latest` 
+    from version 2.2 onwards the image is now called `eu.gcr.io/boris-250909/lightly/worker:latest`.
+    Please make sure to update any old docker run commands to use the new image name.
 
 
 The downloaded image has a long name. We can reduce it by making use of *docker tag*. 
 The following experiments are using the following image name 
-*lightly/sampling:latest*. 
+*lightly/worker:latest*. 
 Create a new docker tag using the following command:
 
 .. code-block:: console
 
-    docker tag eu.gcr.io/boris-250909/lightly/sampling:latest lightly/sampling:latest
+    docker tag eu.gcr.io/boris-250909/lightly/worker:latest lightly/worker:latest
 
 
-.. note:: If you don't want to tag the image name you can replace lightly/sampling:latest
-          by eu.gcr.io/boris-250909/lightly/sampling:latest for all commands in this documentation.
+.. note:: If you don't want to tag the image name you can replace lightly/worker:latest
+          by eu.gcr.io/boris-250909/lightly/worker:latest for all commands in this documentation.
 
 **Finally**, verify the correctness of the docker container by running the following command:
 
 .. code-block:: console
 
-    docker run --rm -it lightly/sampling:latest sanity_check=True
+    docker run --rm -it lightly/worker:latest sanity_check=True
 
 You should see an output similar to this one:
 
@@ -103,11 +109,10 @@ To update the docker we simply need to pull the latest docker image.
 
 .. code-block:: console
 
-    docker pull eu.gcr.io/boris-250909/lightly/sampling:latest
+    docker pull eu.gcr.io/boris-250909/lightly/worker:latest
 
 Don't forget to tag the image again after pulling it.
 
 .. code-block:: console
 
-    docker tag eu.gcr.io/boris-250909/lightly/sampling:latest lightly/sampling:latest
-
+    docker tag eu.gcr.io/boris-250909/lightly/worker:latest lightly/worker:latest

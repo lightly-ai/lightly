@@ -101,7 +101,7 @@ should look like this:
       -v {INPUT_DIR}:/home/input_dir:ro \
       -v {SHARED_DIR}:/home/shared_dir \
       -v {OUTPUT_DIR}:/home/output_dir \
-      lightly/sampling:latest \
+      lightly/worker:latest \
       token=MYAWESOMETOKEN \
       pretagging=True \
       pretagging_debug=True

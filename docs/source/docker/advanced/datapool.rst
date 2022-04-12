@@ -57,7 +57,7 @@ files.
       -v {INPUT_DIR}:/home/input_dir:ro \
       -v {SHARED_DIR}:/home/shared_dir \
       -v {OUTPUT_DIR}:/home/output_dir \
-      lightly/sampling:latest \
+      lightly/worker:latest \
       token=MYAWESOMETOKEN \
       append_weak_labels=False \
       stopping_condition.min_distance=0.1 \
@@ -77,7 +77,7 @@ consider them during sampling. Then, it will update the datapool and checkpoint 
       -v {OTHER_INPUT_DIR}:/home/input_dir:ro \
       -v {SHARED_DIR}:/home/shared_dir \
       -v {OUTPUT_DIR}:/home/output_dir \
-      lightly/sampling:latest \
+      lightly/worker:latest \
       token=MYAWESOMETOKEN \
       append_weak_labels=False \
       stopping_condition.min_distance=0.1 \
@@ -93,7 +93,7 @@ set the flag `keep_history` to False.
       -v {INPUT_DIR}:/home/input_dir:ro \
       -v {SHARED_DIR}:/home/shared_dir \
       -v {OUTPUT_DIR}:/home/output_dir \
-      lightly/sampling:latest \
+      lightly/worker:latest \
       token=MYAWESOMETOKEN \
       append_weak_labels=False \
       stopping_condition.min_distance=0.1 \

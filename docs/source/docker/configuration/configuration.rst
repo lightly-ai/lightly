@@ -11,7 +11,7 @@ The example below shows how the `token` parameter can be set when running the do
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/shared_dir \
         --ipc="host" --network="host" \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN
 
 Note that `token` can optionally be passed as a `LIGHTLY_TOKEN` environment variable to keep it hidden from logs:
@@ -23,7 +23,7 @@ Note that `token` can optionally be passed as a `LIGHTLY_TOKEN` environment vari
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/shared_dir \
         --ipc="host" --network="host" \
-        lightly/sampling:latest
+        lightly/worker:latest
 
 .. _rst-docker-parameters:
 
@@ -159,7 +159,7 @@ For example,
     docker run --rm -it \
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         lightly.loader.batch_size=512
 
@@ -220,8 +220,6 @@ You can use them by adding the following two parts to your docker run command:
         -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/output_dir \
         --ipc=host \
-        lightly/sampling:latest \
+        lightly/worker:latest \
         token=MYAWESOMETOKEN \
         lightly.loader.num_workers=8
-
-
