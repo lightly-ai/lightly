@@ -140,7 +140,7 @@ class TestEmbeddingsIO(unittest.TestCase):
         ids = [1, 2, 3, 4]
         names = ['name1', 'name2', 'name3', 'name4']
         expected_format = {
-            'task_description': 'classification',
+            'task_type': 'classification',
             'categories': [
                 {
                     'id': 1,

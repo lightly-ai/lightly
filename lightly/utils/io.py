@@ -354,7 +354,7 @@ def save_tasks(
 
 def save_schema(
     path: str,
-    task_description: str,
+    task_type: str,
     ids: List[int],
     names: List[str]
 ):
@@ -363,8 +363,8 @@ def save_schema(
     Args:
         path:
             Where to store the schema.
-        task_description:
-            Task description (e.g. classification, object-detection).
+        task_type:
+            Task type (e.g. classification, object-detection).
         ids:
             List of category ids.
         names:
@@ -374,7 +374,7 @@ def save_schema(
         raise ValueError('ids and names must have same length!')
 
     schema = {
-        'task_description': task_description,
+        'task_type': task_type,
         'categories': [
             { 'id': id, 'name': name}
             for id, name in zip(ids, names)
