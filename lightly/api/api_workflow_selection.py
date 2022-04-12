@@ -58,7 +58,7 @@ class _SelectionMixin:
             PendingDeprecationWarning(
                 "ApiWorkflowClient.sampling() is deprecated "
                 "in favour of ApiWorkflowClient.selection() "
-                "and will be deprecated in the future."
+                "and will be removed in the future."
             ),
         )
         return self.selection(*args, **kwargs)
