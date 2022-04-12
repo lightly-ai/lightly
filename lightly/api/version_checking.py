@@ -3,9 +3,9 @@ import warnings
 from multiprocessing import current_process
 from typing import Tuple
 
-import requests
+from lightly.openapi_generated.swagger_client.api.versioning_api import \
+    VersioningApi
 
-from lightly.openapi_generated.swagger_client import VersioningApi, VersionNumber
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 
 from lightly.openapi_generated.swagger_client.configuration import Configuration

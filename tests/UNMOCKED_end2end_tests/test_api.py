@@ -15,10 +15,10 @@ from lightly.active_learning.config.selection_config import SelectionConfig
 
 from lightly.api.bitmask import BitMask
 
-from lightly.openapi_generated.swagger_client.models.tag_create_request import TagCreateRequest
+from lightly.openapi_generated.swagger_client.model.tag_create_request import TagCreateRequest
 
 from lightly.active_learning.agents.agent import ActiveLearningAgent
-from lightly.openapi_generated.swagger_client.models.sampling_method import SamplingMethod
+from lightly.openapi_generated.swagger_client.model.sampling_method import SamplingMethod
 
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.utils import save_embeddings

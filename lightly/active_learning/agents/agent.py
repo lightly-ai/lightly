@@ -5,7 +5,6 @@ from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.active_learning.scorers.scorer import Scorer
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.api.bitmask import BitMask
-from lightly.openapi_generated.swagger_client.models import TagData
 
 
 class ActiveLearningAgent:

@@ -7,11 +7,9 @@ from typing import List
 from urllib.request import Request, urlopen
 from lightly.api.utils import retry
 
-from lightly.openapi_generated.swagger_client import \
-    DimensionalityReductionMethod, Trigger2dEmbeddingJobRequest
-from lightly.openapi_generated.swagger_client.models.dataset_embedding_data \
+from lightly.openapi_generated.swagger_client.model.dataset_embedding_data \
     import DatasetEmbeddingData
-from lightly.openapi_generated.swagger_client.models.write_csv_url_data \
+from lightly.openapi_generated.swagger_client.model.write_csv_url_data \
     import WriteCSVUrlData
 from lightly.utils.io import check_filenames, check_embeddings
 

@@ -11,7 +11,7 @@ from torch.utils.hipify.hipify_python import bcolors
 from concurrent.futures.thread import ThreadPoolExecutor
 
 from lightly.api.bitmask import BitMask
-from lightly.openapi_generated.swagger_client.models.image_type import ImageType
+from lightly.openapi_generated.swagger_client.model.image_type import ImageType
 
 
 
