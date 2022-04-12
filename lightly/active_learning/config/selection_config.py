@@ -4,17 +4,6 @@ from datetime import datetime
 from lightly.openapi_generated.swagger_client.models.sampling_method import SamplingMethod
 
 
-class SamplingConfig(SelectionConfig):
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn(PendingDeprecationWarning(
-            "SamplingConfig() is deprecated "
-            "in favour of SelectionConfig() "
-            "and will be removed in the future."
-        ), )
-        SelectionConfig(self).__init__(*args, **kwargs)
-
-
 
 class SelectionConfig:
     """Configuration class for a selection.
@@ -55,4 +44,15 @@ class SelectionConfig:
             date_time = datetime.now().strftime("%m_%d_%Y__%H_%M_%S")
             name = f"{self.method}_{self.n_samples}_{self.min_distance}_{date_time}"
         self.name = name
+
+
+class SamplingConfig(SelectionConfig):
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(PendingDeprecationWarning(
+            "SamplingConfig() is deprecated "
+            "in favour of SelectionConfig() "
+            "and will be removed in the future."
+        ), )
+        SelectionConfig.__init__(self, *args, **kwargs)
 
