@@ -65,6 +65,12 @@ Using the following command you pull the latest image from our European cloud se
 
     docker pull eu.gcr.io/boris-250909/lightly/worker:latest
 
+.. warning::
+
+    Until version 2.1.8 the latest image was named `eu.gcr.io/boris-250909/lightly/sampling:latest` 
+    from version 2.2 onwards the image is now called `eu.gcr.io/boris-250909/lightly/worker:latest`.
+    Please make sure to update your docker run commands with the new image name.
+
 
 The downloaded image has a long name. We can reduce it by making use of *docker tag*. 
 The following experiments are using the following image name 
