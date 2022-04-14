@@ -121,31 +121,25 @@ Create and configure a dataset
    depending on the type of files in your S3 bucket.
 2. Edit your dataset and select S3 as your datasource
 
-    .. figure:: ../resources/LightlyEdit1.png
-        :align: center
-        :alt: Edit your dataset.
-
-
-3. As the resource path, enter the full S3 URI to your resource eg. `s3://datalake/projects/farm-animals/`
-4. Enter the `access key` and the `secret access key` we obtained from creating a new user in the previous step and select the AWS region in which you created your bucket in
-5. The thumbnail suffix allows you to configure
-   
-    - where your thumbnails are stored when you already have generated thumbnails in your S3 bucket
-    - where your thumbnails will be stored when you want Lightly to create thumbnails for you. For this to work, the user policy you have created must possess write permissions.
-    - when the thumbnail suffix is not defined/empty, we will load the full image even when requesting the thumbnail.
-    
-    .. figure:: ../resources/LightlyEdit2.png
+    .. figure:: ../resources/resources_datasource_configure/LightlyEditAWS.jpg
         :align: center
         :alt: Lightly S3 connection config
         :width: 60%
 
         Lightly S3 connection config
 
-6. Press save and ensure that at least the lights for List and Read turn green.
 
+3. As the resource path, enter the full S3 URI to your resource eg. `s3://datalake/projects/farm-animals/`
+4. Enter the `access key` and the `secret access key` we obtained from creating a new user in the previous step and select the AWS region in which you created your bucket in
+5. Toggle the **"Generate thumbnail"** switch if you want Lightly to generate thumbnails for you.
+6. If you want to store outputs from Lightly (like thumbnails or extracted frames) in a different directory, you can toggle **"Use a different output datasource"** and enter a different path in your bucket. This allows you to keep your input directory clean as nothing gets ever written there.
+  .. note:: 
 
-Use Lightly
+    Lightly requires list, read, and write access to the `output datasource`. Make sure you have configured it accordingly in the steps before.
+7. Press save and ensure that at least the lights for List and Read turn green. If you added permissions for writing, this light should also turn green.
+
 Use `lightly-magic` and `lightly-upload` just as you always would with the following considerations;
 
-- If you already have generated thumbnails, don't want to see thumbnails or just want to use the full image for a thumbnail (by setting the thumbnail suffix to empty), add `upload=metadata` to the `lightly-magic` command.
-- If you want Lightly to create thumbnails for you, you can add `upload=thumbnails` to the `lightly-magic` command.
+- Use `input_dir=datalake/farm-animals`
+- If you chose the option to generate thumbnails in your bucket, use the argument `upload=thumbnails`
+- Otherwise, use `upload=metadata` instead.

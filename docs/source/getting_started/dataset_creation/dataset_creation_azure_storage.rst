@@ -8,11 +8,16 @@ Lightly allows you to configure a remote datasource like Microsoft's Azure blob 
 In this guide, we will show you how to setup your Azure blob storage container and configure your dataset to use said container.
 
 One decision you need to make first is whether you want to use thumbnails.
-Using thumbnails makes the Lightly Platform more responsive, as it's enough to
-load the thumbnails instead of the full images in many cases.
-As a drawback, the thumbnails will be stored in your bucket and thus need storage.
-Depending on this decision, the following steps will differ slightly.
+Using thumbnails makes the Lightly Platform more responsive, as not always
+the full images will be loaded.
+However, the thumbnails will be stored in your container and thus need storage.
 
+.. note::
+  
+    If you want to use thumbnails you need to give
+    Lightly write access to your container to create the thumbnails there for you.
+    The write access can be configured not to allow overwriting and
+    deleting, thus existing data cannot get lost.
 
 Setting up Azure
 ------------------
@@ -42,40 +47,27 @@ For the :ref:`lightly-command-line-tool` to be able to create embeddings and ext
 
 
 
-
-
-
 Uploading your data
 --------------------
 
 1. `Create a new dataset <https://app.lightly.ai/dataset/create>`_ in Lightly
 2. Edit your dataset and select `Azure Blob Storage` as your datasource
 
-    .. figure:: ../resources/LightlyEdit1.png
-        :align: center
-        :alt: Edit your dataset.
-
-        To edit your dataset click the **"Edit"** button on the top.
-
-3. As your container name enter `farm-animals`.
-4. Enter the storage account name and SAS token from the previous step.
-5. The thumbnail suffix depends on the option you chose in the first step
-   
-    - You want Lightly to create the thumbnail for you.
-      Then choose the naming scheme to your liking.
-    - You have already generated thumbnails in your bucket.
-      Then choose the thumbnail suffix such that it reflects your naming scheme.
-    - You don't want to use thumbnails.
-      Then leave the thumbnail suffix undefined/empty.
-
-    .. figure:: ../resources/LightlyEditAzure.jpg
+    .. figure:: ../resources/resources_datasource_configure/LightlyEditAzure.jpg
         :align: center
         :alt: Lightly Azure Blob Storage config.
         :width: 60%
 
         Lightly Azure Blob Storage config.
 
-6. Press save and ensure that all lights turn green.
+3. As your container name enter `farm-animals`.
+4. Enter the storage account name and SAS token from the previous step.
+5. Toggle the **"Generate thumbnail"** switch if you want Lightly to generate thumbnails for you.
+6. If you want to store outputs from Lightly (like thumbnails or extracted frames) in a different directory, you can toggle **"Use a different output datasource"** and enter a different path in your bucket. This allows you to keep your input directory clean as nothing gets ever written there.
+  .. note:: 
+
+    Lightly requires list, read, and write access to the `output datasource`. Make sure you have configured it accordingly in the steps before.
+7. Press save and ensure that at least the lights for List and Read turn green. If you added permissions for writing, this light should also turn green.
 
 
 To add the images to the dataset use `lightly-magic` or `lightly-upload` with the following parameters:

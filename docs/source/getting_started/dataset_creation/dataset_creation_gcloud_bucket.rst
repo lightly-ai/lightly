@@ -12,23 +12,14 @@ while keeping your data private.
 One decision you need to make first is whether you want to use thumbnails.
 Using thumbnails makes the Lightly Platform more responsive, as not always
 the full images will be loaded.
-However, the thumbnails will be stored in you bucket and thus need storage.
-You have three options:
+However, the thumbnails will be stored in your bucket and thus need storage.
 
--   You want to use thumbnails, but don't have them yet. Then you need to give
+.. note::
+  
+    If you want to use thumbnails you need to give
     Lightly write access to your bucket to create the thumbnails there for you.
     The write access can be configured not to allow overwriting and
     deleting, thus existing data cannot get lost.
-
--   You already have thumbnails in your bucket with a consistent name scheme, e.g.
-    an image called `img.jpg` has a corresponding thumbnail called `img_thumb.jpg`.
-    In this case, a read access to your bucket is sufficient.
-
--   You don't want to use thumbnails. Then a read access to your bucket
-    is sufficient. The Lightly Platform will load the full image
-    even when requesting the thumbnail.
-
-Depending on this decision, the following steps will differ slightly.
 
 
 Setting up Google Cloud Storage
@@ -157,7 +148,7 @@ Create and configure a dataset
 1. `Create a new dataset <https://app.lightly.ai/dataset/create>`_ in Lightly
 2. Edit your dataset and select `Google Cloud Storage` as your datasource
 
-.. figure:: images_gcloud_bucket/screenshot_gcloud_create_dataset.jpg
+.. figure:: ../resources/resources_datasource_configure/LightlyEditGCS.jpg
     :align: center
     :alt: Configure google cloud bucket datasource in Lightly Platform
     :width: 60%
@@ -166,21 +157,12 @@ Create and configure a dataset
 3. As the resource path, enter the full URI to your resource eg. `gs://lightly-datalake/projects/wild-animals`
 4. Enter the Google Project ID you wrote down in the first step.
 5. Click on **"Select Credentials File"** to add the key file you downloaded in the previous step.
-6. The thumbnail suffix depends on the option you chose in the first step
+6. Toggle the **"Generate thumbnail"** switch if you want Lightly to generate thumbnails for you.
+7. If you want to store outputs from Lightly (like thumbnails or extracted frames) in a different directory, you can toggle **"Use a different output datasource"** and enter a different path in your bucket. This allows you to keep your input directory clean as nothing gets ever written there.
+  .. note:: 
 
-- You want Lightly to create the thumbnail for you.
-  Then choose the naming scheme to your liking.
-- You already have thumbnails in your bucket.
-  Then choose the thumbnail suffix such that it reflects your naming scheme.
-- You don't want to use thumbnails.
-  Then leave the thumbnail suffix undefined/empty.
-
-
-
-6. Press save and ensure that at least the lights for List and Read turn green.
-If you added permissions for writing, this light should also turn green.
-
-7. After closing the pop-up by clicking the X, you should be on the dataset creation page again.
+    Lightly requires list, read, and write access to the `output datasource`. Make sure you have configured it accordingly in the steps before.
+8. Press save and ensure that at least the lights for List and Read turn green. If you added permissions for writing, this light should also turn green.
 
 
 Use `lightly-magic` and `lightly-upload` with the following parameters:
