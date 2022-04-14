@@ -87,7 +87,7 @@ For running an active learning step with the Lightly docker, we need to perform
 
 1. Create an `embeddings.csv` file. You can use your own models or the Lightly docker for this.
 2. Add your active learning scores as an additional column to the embeddings file.
-3. Use the Lightly docker to perform a active learning sampling on the scores.
+3. Use the Lightly docker to perform an active learning iteration on the scores.
 
 Learn more about the concept of active learning 
 :ref:`lightly-active-learning-scorers`.
@@ -102,8 +102,8 @@ You can create embeddings using your own model. Just make sure the resulting
 
 Alternatively, you can run the docker as usual and as described in the 
 :ref:`rst-docker-first-steps` section.
-The only difference is that you set the number of samples to be sampled to `1.0`,
-as this prevents sampling and just creates the embedding of the full dataset.
+The only difference is that you set the number of samples to be selected to 1.0,
+as this simply creates an embedding of the full dataset.
 
 E.g. create and run a bash script with the following content:
 
@@ -273,10 +273,10 @@ Run Active Learning using the Docker
 At this point you should have an `embeddings.csv` file with the active learning 
 scores in a column named `al_scores`. 
 
-We can now perform an active learning sampling using the `CORAL` sampler. In order
-to do the sampling on the `embeddings.csv` file we need to make this file
+We can now perform an active learning iteration using the `coral` selection strategy. In order
+to do the selection on the `embeddings.csv` file we need to make this file
 accessible to the docker. We can do this by using the `shared_dir` feature of the
-docker as described in :ref:`docker-sampling-from-embeddings`. 
+docker as described in :ref:`docker-sampling-from-embeddings`.
 
 E.g. use the following bash script.
 

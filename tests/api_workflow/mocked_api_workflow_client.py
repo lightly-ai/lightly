@@ -129,7 +129,7 @@ class MockedJobsApi(JobsApi):
         assert isinstance(job_id, str)
         self.no_calls += 1
         if self.no_calls > 3:
-            result = JobStatusDataResult(type=JobResultType.SAMPLING, data="sampling_tag_id_xyz")
+            result = JobStatusDataResult(type=JobResultType.SAMPLING, data="selection_tag_id_xyz")
             response_ = JobStatusData(id="id_", status=JobState.FINISHED, wait_time_till_next_poll=0,
                                       created_at=1234, finished_at=1357, result=result)
         else:
@@ -168,8 +168,8 @@ class MockedTagsApi(TagsApi):
         tag_3 = TagData(id='preselected_tag_id_xyz', dataset_id=dataset_id, prev_tag_id="initial-tag",
                         bit_mask_data="0x1", name='preselected_tag_name_xyz', tot_size=4,
                         created_at=1577836800, changes=dict())
-        tag_4 = TagData(id='sampled_tag_xyz', dataset_id=dataset_id, prev_tag_id="preselected_tag_id_xyz",
-                        bit_mask_data="0x3", name='sampled_tag_xyz', tot_size=4,
+        tag_4 = TagData(id='selected_tag_xyz', dataset_id=dataset_id, prev_tag_id="preselected_tag_id_xyz",
+                        bit_mask_data="0x3", name='selected_tag_xyz', tot_size=4,
                         created_at=1577836800, changes=dict())
         tag_5 = TagData(id='tag_with_integer_name', dataset_id=dataset_id, prev_tag_id=None,
                         bit_mask_data='0x1', name='1000', tot_size=4,
@@ -223,7 +223,7 @@ class MockedScoresApi(ScoresApi):
         _check_dataset_id(dataset_id)
         if len(body.scores) > 0 and not isinstance(body.scores[0], float):
             raise AttributeError
-        response_ = CreateEntityResponse(id="sampled_tag_id_xyz")
+        response_ = CreateEntityResponse(id="selected_tag_id_xyz")
         return response_
 
 
@@ -590,7 +590,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         lightly.api.version_checking.VersioningApi = MockedVersioningApi
         ApiWorkflowClient.__init__(self, *args, **kwargs)
 
-        self._samplings_api = MockedSamplingsApi(api_client=self.api_client)
+        self._selection_api = MockedSamplingsApi(api_client=self.api_client)
         self._jobs_api = MockedJobsApi(api_client=self.api_client)
         self._tags_api = MockedTagsApi(api_client=self.api_client)
         self._embeddings_api = MockedEmbeddingsApi(api_client=self.api_client)
@@ -605,7 +605,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
 
         lightly.api.api_workflow_client.requests.put = mocked_request_put
 
-        self.wait_time_till_next_poll = 0.001  # for api_workflow_sampling
+        self.wait_time_till_next_poll = 0.001  # for api_workflow_selection
 
     def upload_file_with_signed_url(
             self, file: IOBase, signed_write_url: str,

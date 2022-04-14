@@ -264,42 +264,42 @@ you can use a simple script to translate it to the coco format:
 
 .. _plaform-sampling:
 
-Sampling
-----------------
+Selection
+---------
 
-Before you start sampling make sure you have created a dataset 
+Before you start selecting make sure you have created a dataset
 and uploaded images and embeddings. See :ref:`Create a Dataset <platform-create-dataset>`.
 
-Now, let's get started with sampling!
+Now, let's get started with selecting!
 
-Follow these steps to sample the most representative images from your dataset:
+Follow these steps to select the most representative images from your dataset:
 
 #. Choose the dataset you want to work on from the *"My Datasets"* 
 section by clicking on it.
 
 #. Navigate to *"Analyze & Filter"* → *"Sampling"* through the menu on the left.
 
-#. Choose the embedding and sampling strategy to use for this sampling run.
+#. Choose the embedding and selection strategy to use for this selection.
 
-#. Give a name to your subsampling so that you can later compare 
-   the different samplings.
+#. Give a name to your selection so that you can later compare
+   the different selections.
 
-#. Hit "Process" to start sampling the data. Each sample is now assigned an 
-   "importance score". The exact meaning of the score depends on the sampler.
+#. Hit "Process" to start selecting the data. Each sample is now assigned an
+   "importance score".
 
-    .. figure:: images/webapp_create_sampling.gif
+    .. figure:: images/webapp_create_selection.gif
         :align: center
         :alt: Alt text
         :figclass: align-center
         :scale: 150%
 
-        You can create a sampling once you uploaded a dataset and an embedding. 
-        Since sampling requires more compute resources it can take a while
+        You can create a selection once you uploaded a dataset and an embedding.
+        Since selecting requires more compute resources it can take a while
 
 #. Move the slider to select the number of images you want to keep and save 
    your selection by creating a new tag, for example like this:
 
-    .. figure:: images/webapp_sampling_new_tag.gif
+    .. figure:: images/webapp_selection_new_tag.gif
         :align: center
         :alt: Alt text
         :figclass: align-center

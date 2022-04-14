@@ -134,16 +134,16 @@ To see the progress of your docker run, go to the Lightly Platform and head to
 .. image:: ../getting_started/images/docker_runs_overview.png
 
 
-Use your subsampled dataset
+Use your selected dataset
 ---------------------------
 
-Once the docker run has finished, you can see your subsampled dataset in the 
+Once the docker run has finished, you can see your selected dataset in the
 Lightly Platform:
 
 .. image:: ./images/webapp-explore-after-docker.jpg
 
 In our case, we had 4 short street videos with about 1000 frames each in the S3 
-bucket and subsampled it to 50 frames. Now you can analyze your dataset in the 
+bucket and selected 50 frames from it. Now you can analyze your dataset in the
 embedding and metadata view of the Lightly Platform, subsample it further, or 
 export it for labeling. In our case we come to the conclusion that the raw data 
 we have does not cover enough cases and thus decide that we want to first 
@@ -160,8 +160,8 @@ This workflow is supported by the Lightly Platform using a datapool. It
 remembers which raw data in your S3 bucket has already been processed and will
 ignore it in future docker runs. Thus you can send the same job again to the 
 worker. It will find your new raw data in the S3 bucket, stream, embed
-and subsample it and then add it to your existing dataset. The samplers will
-take the existing data in your dataset into account when sampling new data to be
+and subsample it and then add it to your existing dataset. The selection strategies will
+take the existing data in your dataset into account when selecting new data to be
 added to your dataset.
 
 .. image:: ./images/webapp-embedding-after-2nd-docker.png

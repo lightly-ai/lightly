@@ -86,7 +86,7 @@ be changed by passing command line arguments. Use the following as a starting po
 
 .. note::
 
-    The above run command samples 10% of the frames for every input. After sampling, it uploads the sampled images to the Lightly Platform
+    The above run command samples 10% of the frames for every input. After selection, it uploads the selected images to the Lightly Platform
     and saves them to the output directory. The datapool option allows the Lightly Docker to remember already seen frames and adapt decisions based 
     on this knowledge. Learn more about the configuration of the `run.sh` file `here <https://docs.lightly.ai/docker/configuration/configuration.html>`_.
 
