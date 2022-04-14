@@ -148,6 +148,7 @@ from lightly.openapi_generated.swagger_client.models.tag_name import TagName
 from lightly.openapi_generated.swagger_client.models.tag_update_request import TagUpdateRequest
 from lightly.openapi_generated.swagger_client.models.tag_upsize_request import TagUpsizeRequest
 from lightly.openapi_generated.swagger_client.models.timestamp import Timestamp
+from lightly.openapi_generated.swagger_client.models.timestamp_seconds import TimestampSeconds
 from lightly.openapi_generated.swagger_client.models.trigger2d_embedding_job_request import Trigger2dEmbeddingJobRequest
 from lightly.openapi_generated.swagger_client.models.update_docker_worker_registry_entry_request import UpdateDockerWorkerRegistryEntryRequest
 from lightly.openapi_generated.swagger_client.models.version_number import VersionNumber

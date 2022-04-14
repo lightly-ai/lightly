@@ -353,7 +353,7 @@ class TagsApi(object):
     def export_tag_to_label_box_data_rows(self, dataset_id, tag_id, **kwargs):  # noqa: E501
         """export_tag_to_label_box_data_rows  # noqa: E501
 
-        Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/docs/images-json ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in posession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
+        Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/docs/images-json ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.export_tag_to_label_box_data_rows(dataset_id, tag_id, async_req=True)
@@ -379,7 +379,7 @@ class TagsApi(object):
     def export_tag_to_label_box_data_rows_with_http_info(self, dataset_id, tag_id, **kwargs):  # noqa: E501
         """export_tag_to_label_box_data_rows  # noqa: E501
 
-        Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/docs/images-json ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in posession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
+        Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/docs/images-json ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.export_tag_to_label_box_data_rows_with_http_info(dataset_id, tag_id, async_req=True)
@@ -450,7 +450,7 @@ class TagsApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/{tagId}/export/LabelBoxDataRows', 'GET',
+            '/v1/datasets/{datasetId}/tags/{tagId}/export/LabelBox/datarows', 'GET',
             path_params,
             query_params,
             header_params,
@@ -468,7 +468,7 @@ class TagsApi(object):
     def export_tag_to_label_studio_tasks(self, dataset_id, tag_id, **kwargs):  # noqa: E501
         """export_tag_to_label_studio_tasks  # noqa: E501
 
-        Export samples of a tag as a json for importing into LabelStudio as outlined here; https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in posession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
+        Export samples of a tag as a json for importing into LabelStudio as outlined here; https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.export_tag_to_label_studio_tasks(dataset_id, tag_id, async_req=True)
@@ -494,7 +494,7 @@ class TagsApi(object):
     def export_tag_to_label_studio_tasks_with_http_info(self, dataset_id, tag_id, **kwargs):  # noqa: E501
         """export_tag_to_label_studio_tasks  # noqa: E501
 
-        Export samples of a tag as a json for importing into LabelStudio as outlined here; https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in posession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
+        Export samples of a tag as a json for importing into LabelStudio as outlined here; https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.export_tag_to_label_studio_tasks_with_http_info(dataset_id, tag_id, async_req=True)
@@ -565,7 +565,7 @@ class TagsApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/{tagId}/export/LabelStudioTasks', 'GET',
+            '/v1/datasets/{datasetId}/tags/{tagId}/export/LabelStudio/tasks', 'GET',
             path_params,
             query_params,
             header_params,
