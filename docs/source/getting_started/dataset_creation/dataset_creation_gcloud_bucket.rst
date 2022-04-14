@@ -12,7 +12,7 @@ while keeping your data private.
 One decision you need to make first is whether you want to use thumbnails.
 Using thumbnails makes the Lightly Platform more responsive, as not always
 the full images will be loaded.
-However, the thumbnails will be stored in you bucket and thus need storage.
+However, the thumbnails will be stored in your bucket and thus need storage.
 
 .. note::
   
