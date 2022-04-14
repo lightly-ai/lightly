@@ -164,8 +164,6 @@ Create and configure a dataset
     Lightly requires list, read, and write access to the `output datasource`. Make sure you have configured it accordingly in the steps before.
 8. Press save and ensure that at least the lights for List and Read turn green. If you added permissions for writing, this light should also turn green.
 
-9. After closing the pop-up by clicking the X, you should be on the dataset creation page again.
-
 
 Use `lightly-magic` and `lightly-upload` with the following parameters:
 

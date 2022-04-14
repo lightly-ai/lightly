@@ -69,8 +69,6 @@ Uploading your data
     Lightly requires list, read, and write access to the `output datasource`. Make sure you have configured it accordingly in the steps before.
 7. Press save and ensure that at least the lights for List and Read turn green. If you added permissions for writing, this light should also turn green.
 
-8. Press save and ensure that all lights turn green.
-
 
 To add the images to the dataset use `lightly-magic` or `lightly-upload` with the following parameters:
 
