@@ -44,7 +44,9 @@ class DatasetData(object):
         'meta_data_configuration_id': 'MongoObjectID',
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp',
-        'access_role': 'AccessRole'
+        'datasource_processed_until_timestamp': 'TimestampSeconds',
+        'access_role': 'AccessRole',
+        'parent_dataset_id': 'MongoObjectID'
     }
 
     attribute_map = {
@@ -59,10 +61,12 @@ class DatasetData(object):
         'meta_data_configuration_id': 'metaDataConfigurationId',
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt',
-        'access_role': 'accessRole'
+        'datasource_processed_until_timestamp': 'datasourceProcessedUntilTimestamp',
+        'access_role': 'accessRole',
+        'parent_dataset_id': 'parentDatasetId'
     }
 
-    def __init__(self, id=None, name=None, user_id=None, access_type=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, meta_data_configuration_id=None, created_at=None, last_modified_at=None, access_role=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, name=None, user_id=None, access_type=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, meta_data_configuration_id=None, created_at=None, last_modified_at=None, datasource_processed_until_timestamp=None, access_role=None, parent_dataset_id=None, _configuration=None):  # noqa: E501
         """DatasetData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -79,7 +83,9 @@ class DatasetData(object):
         self._meta_data_configuration_id = None
         self._created_at = None
         self._last_modified_at = None
+        self._datasource_processed_until_timestamp = None
         self._access_role = None
+        self._parent_dataset_id = None
         self.discriminator = None
 
         self.id = id
@@ -96,8 +102,12 @@ class DatasetData(object):
             self.meta_data_configuration_id = meta_data_configuration_id
         self.created_at = created_at
         self.last_modified_at = last_modified_at
+        if datasource_processed_until_timestamp is not None:
+            self.datasource_processed_until_timestamp = datasource_processed_until_timestamp
         if access_role is not None:
             self.access_role = access_role
+        if parent_dataset_id is not None:
+            self.parent_dataset_id = parent_dataset_id
 
     @property
     def id(self):
@@ -349,6 +359,27 @@ class DatasetData(object):
         self._last_modified_at = last_modified_at
 
     @property
+    def datasource_processed_until_timestamp(self):
+        """Gets the datasource_processed_until_timestamp of this DatasetData.  # noqa: E501
+
+
+        :return: The datasource_processed_until_timestamp of this DatasetData.  # noqa: E501
+        :rtype: TimestampSeconds
+        """
+        return self._datasource_processed_until_timestamp
+
+    @datasource_processed_until_timestamp.setter
+    def datasource_processed_until_timestamp(self, datasource_processed_until_timestamp):
+        """Sets the datasource_processed_until_timestamp of this DatasetData.
+
+
+        :param datasource_processed_until_timestamp: The datasource_processed_until_timestamp of this DatasetData.  # noqa: E501
+        :type: TimestampSeconds
+        """
+
+        self._datasource_processed_until_timestamp = datasource_processed_until_timestamp
+
+    @property
     def access_role(self):
         """Gets the access_role of this DatasetData.  # noqa: E501
 
@@ -368,6 +399,27 @@ class DatasetData(object):
         """
 
         self._access_role = access_role
+
+    @property
+    def parent_dataset_id(self):
+        """Gets the parent_dataset_id of this DatasetData.  # noqa: E501
+
+
+        :return: The parent_dataset_id of this DatasetData.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._parent_dataset_id
+
+    @parent_dataset_id.setter
+    def parent_dataset_id(self, parent_dataset_id):
+        """Sets the parent_dataset_id of this DatasetData.
+
+
+        :param parent_dataset_id: The parent_dataset_id of this DatasetData.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._parent_dataset_id = parent_dataset_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""

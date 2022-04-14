@@ -33,24 +33,39 @@ class CropData(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'parent_id': 'MongoObjectID'
+        'parent_id': 'MongoObjectID',
+        'prediction_index': 'int',
+        'prediction_task_name': 'str',
+        'prediction_task_category_id': 'int',
+        'prediction_task_score': 'float'
     }
 
     attribute_map = {
-        'parent_id': 'parentId'
+        'parent_id': 'parentId',
+        'prediction_index': 'predictionIndex',
+        'prediction_task_name': 'predictionTaskName',
+        'prediction_task_category_id': 'predictionTaskCategoryId',
+        'prediction_task_score': 'predictionTaskScore'
     }
 
-    def __init__(self, parent_id=None, _configuration=None):  # noqa: E501
+    def __init__(self, parent_id=None, prediction_index=None, prediction_task_name=None, prediction_task_category_id=None, prediction_task_score=None, _configuration=None):  # noqa: E501
         """CropData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._parent_id = None
+        self._prediction_index = None
+        self._prediction_task_name = None
+        self._prediction_task_category_id = None
+        self._prediction_task_score = None
         self.discriminator = None
 
-        if parent_id is not None:
-            self.parent_id = parent_id
+        self.parent_id = parent_id
+        self.prediction_index = prediction_index
+        self.prediction_task_name = prediction_task_name
+        self.prediction_task_category_id = prediction_task_category_id
+        self.prediction_task_score = prediction_task_score
 
     @property
     def parent_id(self):
@@ -70,8 +85,110 @@ class CropData(object):
         :param parent_id: The parent_id of this CropData.  # noqa: E501
         :type: MongoObjectID
         """
+        if self._configuration.client_side_validation and parent_id is None:
+            raise ValueError("Invalid value for `parent_id`, must not be `None`")  # noqa: E501
 
         self._parent_id = parent_id
+
+    @property
+    def prediction_index(self):
+        """Gets the prediction_index of this CropData.  # noqa: E501
+
+        the index of this crop within all found prediction singletons of a sampleId (the parentId)  # noqa: E501
+
+        :return: The prediction_index of this CropData.  # noqa: E501
+        :rtype: int
+        """
+        return self._prediction_index
+
+    @prediction_index.setter
+    def prediction_index(self, prediction_index):
+        """Sets the prediction_index of this CropData.
+
+        the index of this crop within all found prediction singletons of a sampleId (the parentId)  # noqa: E501
+
+        :param prediction_index: The prediction_index of this CropData.  # noqa: E501
+        :type: int
+        """
+        if self._configuration.client_side_validation and prediction_index is None:
+            raise ValueError("Invalid value for `prediction_index`, must not be `None`")  # noqa: E501
+
+        self._prediction_index = prediction_index
+
+    @property
+    def prediction_task_name(self):
+        """Gets the prediction_task_name of this CropData.  # noqa: E501
+
+        the name of the prediction task which yielded this crop  # noqa: E501
+
+        :return: The prediction_task_name of this CropData.  # noqa: E501
+        :rtype: str
+        """
+        return self._prediction_task_name
+
+    @prediction_task_name.setter
+    def prediction_task_name(self, prediction_task_name):
+        """Sets the prediction_task_name of this CropData.
+
+        the name of the prediction task which yielded this crop  # noqa: E501
+
+        :param prediction_task_name: The prediction_task_name of this CropData.  # noqa: E501
+        :type: str
+        """
+        if self._configuration.client_side_validation and prediction_task_name is None:
+            raise ValueError("Invalid value for `prediction_task_name`, must not be `None`")  # noqa: E501
+
+        self._prediction_task_name = prediction_task_name
+
+    @property
+    def prediction_task_category_id(self):
+        """Gets the prediction_task_category_id of this CropData.  # noqa: E501
+
+        the categoryId (index) of the categories existing for the prediction task name which yielded this crop  # noqa: E501
+
+        :return: The prediction_task_category_id of this CropData.  # noqa: E501
+        :rtype: int
+        """
+        return self._prediction_task_category_id
+
+    @prediction_task_category_id.setter
+    def prediction_task_category_id(self, prediction_task_category_id):
+        """Sets the prediction_task_category_id of this CropData.
+
+        the categoryId (index) of the categories existing for the prediction task name which yielded this crop  # noqa: E501
+
+        :param prediction_task_category_id: The prediction_task_category_id of this CropData.  # noqa: E501
+        :type: int
+        """
+        if self._configuration.client_side_validation and prediction_task_category_id is None:
+            raise ValueError("Invalid value for `prediction_task_category_id`, must not be `None`")  # noqa: E501
+
+        self._prediction_task_category_id = prediction_task_category_id
+
+    @property
+    def prediction_task_score(self):
+        """Gets the prediction_task_score of this CropData.  # noqa: E501
+
+        the score for the prediction task which yielded this crop  # noqa: E501
+
+        :return: The prediction_task_score of this CropData.  # noqa: E501
+        :rtype: float
+        """
+        return self._prediction_task_score
+
+    @prediction_task_score.setter
+    def prediction_task_score(self, prediction_task_score):
+        """Sets the prediction_task_score of this CropData.
+
+        the score for the prediction task which yielded this crop  # noqa: E501
+
+        :param prediction_task_score: The prediction_task_score of this CropData.  # noqa: E501
+        :type: float
+        """
+        if self._configuration.client_side_validation and prediction_task_score is None:
+            raise ValueError("Invalid value for `prediction_task_score`, must not be `None`")  # noqa: E501
+
+        self._prediction_task_score = prediction_task_score
 
     def to_dict(self):
         """Returns the model properties as a dict"""
