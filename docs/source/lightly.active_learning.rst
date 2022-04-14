@@ -16,7 +16,7 @@ lightly.active_learning
 
 .config
 ---------------
-.. automodule:: lightly.active_learning.config.sampler_config
+.. automodule:: lightly.active_learning.config.selection_config
    :members:
 
 .scorers

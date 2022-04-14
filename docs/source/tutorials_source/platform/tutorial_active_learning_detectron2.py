@@ -98,7 +98,7 @@ from lightly.active_learning.utils.object_detection_output import ObjectDetectio
 from lightly.active_learning.scorers import ScorerObjectDetection
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.active_learning.agents import ActiveLearningAgent
-from lightly.active_learning.config import SamplerConfig
+from lightly.active_learning.config import SelectionConfig
 from lightly.openapi_generated.swagger_client import SamplingMethod
 
 # %%
@@ -292,11 +292,11 @@ predict_and_overlay(predictor, fname)
 # ---------------------------
 #
 # Finally, we can tell our agent to select the top 100 images to annotate and
-# improve our existing model. We pick the sampling method called `CORAL` which
-# is a combination of Coreset and Active Learning. Whereas Coreset maximizes
+# improve our existing model. We pick the selection strategy called `CORAL` which
+# is a combination of CORESET and Active Learning. Whereas CORESET maximizes
 # the image diversity based on the embeddings, active learning aims at selecting
 # images where our model struggles the most.
-config = SamplerConfig(
+config = SelectionConfig(
   n_samples=100, 
   method=SamplingMethod.CORAL, 
   name='active-learning-loop-1'
