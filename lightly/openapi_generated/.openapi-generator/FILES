@@ -48,6 +48,7 @@ swagger_client/docs/ConfigurationValueDataType.md
 swagger_client/docs/CreateCFBucketActivityRequest.md
 swagger_client/docs/CreateDockerWorkerRegistryEntryRequest.md
 swagger_client/docs/CreateEntityResponse.md
+swagger_client/docs/CropData.md
 swagger_client/docs/CustomSampleMetaData.md
 swagger_client/docs/DatasetCreateRequest.md
 swagger_client/docs/DatasetData.md
@@ -70,6 +71,7 @@ swagger_client/docs/DatasourceConfigS3AllOf.md
 swagger_client/docs/DatasourceConfigVerifyData.md
 swagger_client/docs/DatasourceProcessedUntilTimestampRequest.md
 swagger_client/docs/DatasourceProcessedUntilTimestampResponse.md
+swagger_client/docs/DatasourcePurpose.md
 swagger_client/docs/DatasourceRawSamplesData.md
 swagger_client/docs/DatasourceRawSamplesDataRow.md
 swagger_client/docs/DatasourceRawSamplesPredictionsData.md
@@ -200,6 +202,7 @@ swagger_client/model/configuration_value_data_type.py
 swagger_client/model/create_cf_bucket_activity_request.py
 swagger_client/model/create_docker_worker_registry_entry_request.py
 swagger_client/model/create_entity_response.py
+swagger_client/model/crop_data.py
 swagger_client/model/custom_sample_meta_data.py
 swagger_client/model/dataset_create_request.py
 swagger_client/model/dataset_data.py
@@ -221,6 +224,7 @@ swagger_client/model/datasource_config_s3_all_of.py
 swagger_client/model/datasource_config_verify_data.py
 swagger_client/model/datasource_processed_until_timestamp_request.py
 swagger_client/model/datasource_processed_until_timestamp_response.py
+swagger_client/model/datasource_purpose.py
 swagger_client/model/datasource_raw_samples_data.py
 swagger_client/model/datasource_raw_samples_data_row.py
 swagger_client/model/datasource_raw_samples_predictions_data.py
@@ -340,6 +344,7 @@ swagger_client/test/test_configuration_value_data_type.py
 swagger_client/test/test_create_cf_bucket_activity_request.py
 swagger_client/test/test_create_docker_worker_registry_entry_request.py
 swagger_client/test/test_create_entity_response.py
+swagger_client/test/test_crop_data.py
 swagger_client/test/test_custom_sample_meta_data.py
 swagger_client/test/test_dataset_create_request.py
 swagger_client/test/test_dataset_data.py
@@ -362,6 +367,7 @@ swagger_client/test/test_datasource_config_s3_all_of.py
 swagger_client/test/test_datasource_config_verify_data.py
 swagger_client/test/test_datasource_processed_until_timestamp_request.py
 swagger_client/test/test_datasource_processed_until_timestamp_response.py
+swagger_client/test/test_datasource_purpose.py
 swagger_client/test/test_datasource_raw_samples_data.py
 swagger_client/test/test_datasource_raw_samples_data_row.py
 swagger_client/test/test_datasource_raw_samples_predictions_data.py

@@ -91,6 +91,11 @@ class DatasetCreateRequest(
     def imgType(cls) -> typing.Type['ImageType']:
         return ImageType
 
+    @classmethod
+    @property
+    def parentDatasetId(cls) -> typing.Type['MongoObjectID']:
+        return MongoObjectID
+
 
     def __new__(
         cls,
@@ -98,6 +103,7 @@ class DatasetCreateRequest(
         name: name,
         type: typing.Union['DatasetType', Unset] = unset,
         imgType: typing.Union['ImageType', Unset] = unset,
+        parentDatasetId: typing.Union['MongoObjectID', Unset] = unset,
         _configuration: typing.Optional[Configuration] = None,
         **kwargs: typing.Type[Schema],
     ) -> 'DatasetCreateRequest':
@@ -107,6 +113,7 @@ class DatasetCreateRequest(
             name=name,
             type=type,
             imgType=imgType,
+            parentDatasetId=parentDatasetId,
             _configuration=_configuration,
             **kwargs,
         )
@@ -114,3 +121,4 @@ class DatasetCreateRequest(
 from lightly.openapi_generated.swagger_client.model.dataset_name import DatasetName
 from lightly.openapi_generated.swagger_client.model.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.model.image_type import ImageType
+from lightly.openapi_generated.swagger_client.model.mongo_object_id import MongoObjectID

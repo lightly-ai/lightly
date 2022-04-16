@@ -140,6 +140,11 @@ class SampleData(
     def videoFrameData(cls) -> typing.Type['VideoFrameData']:
         return VideoFrameData
 
+    @classmethod
+    @property
+    def cropData(cls) -> typing.Type['CropData']:
+        return CropData
+
 
     def __new__(
         cls,
@@ -156,6 +161,7 @@ class SampleData(
         metaData: typing.Union['SampleMetaData', Unset] = unset,
         customMetaData: typing.Union['CustomSampleMetaData', Unset] = unset,
         videoFrameData: typing.Union['VideoFrameData', Unset] = unset,
+        cropData: typing.Union['CropData', Unset] = unset,
         _configuration: typing.Optional[Configuration] = None,
         **kwargs: typing.Type[Schema],
     ) -> 'SampleData':
@@ -174,10 +180,12 @@ class SampleData(
             metaData=metaData,
             customMetaData=customMetaData,
             videoFrameData=videoFrameData,
+            cropData=cropData,
             _configuration=_configuration,
             **kwargs,
         )
 
+from lightly.openapi_generated.swagger_client.model.crop_data import CropData
 from lightly.openapi_generated.swagger_client.model.custom_sample_meta_data import CustomSampleMetaData
 from lightly.openapi_generated.swagger_client.model.mongo_object_id import MongoObjectID
 from lightly.openapi_generated.swagger_client.model.sample_meta_data import SampleMetaData

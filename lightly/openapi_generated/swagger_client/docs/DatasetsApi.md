@@ -59,8 +59,9 @@ with swagger_client.ApiClient(configuration) as api_client:
     # example passing only required values which don't have defaults set
     body = DatasetCreateRequest(
         name=DatasetName("My-Dataset"),
-        type=DatasetType("Images"),
+        type=DatasetType("Crops"),
         img_type=ImageType("full"),
+        parent_dataset_id=MongoObjectID("50000000abcdef1234566789"),
     )
     try:
         api_response = api_instance.create_dataset(

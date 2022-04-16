@@ -94,6 +94,13 @@ with swagger_client.ApiClient(configuration) as api_client:
             source_video_frame_index=3.14,
             source_video_frame_timestamp=3.14,
         ),
+        crop_data=CropData(
+            parent_id=MongoObjectID("50000000abcdef1234566789"),
+            prediction_index=1,
+            prediction_task_name="prediction_task_name_example",
+            prediction_task_category_id=1,
+            prediction_task_score=0,
+        ),
     )
     try:
         api_response = api_instance.create_sample_by_dataset_id(

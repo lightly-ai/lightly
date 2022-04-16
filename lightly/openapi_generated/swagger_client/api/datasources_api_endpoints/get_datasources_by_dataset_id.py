@@ -62,36 +62,9 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
 )
 
 from lightly.openapi_generated.swagger_client.model.datasource_config import DatasourceConfig
-from lightly.openapi_generated.swagger_client.model.datasource_purpose import DatasourcePurpose
 from lightly.openapi_generated.swagger_client.model.mongo_object_id import MongoObjectID
 from lightly.openapi_generated.swagger_client.model.api_error_response import ApiErrorResponse
 
-# query params
-PurposeSchema = DatasourcePurpose
-RequestRequiredQueryParams = typing.TypedDict(
-    'RequestRequiredQueryParams',
-    {
-    }
-)
-RequestOptionalQueryParams = typing.TypedDict(
-    'RequestOptionalQueryParams',
-    {
-        'purpose': PurposeSchema,
-    },
-    total=False
-)
-
-
-class RequestQueryParams(RequestRequiredQueryParams, RequestOptionalQueryParams):
-    pass
-
-
-request_query_purpose = api_client.QueryParameter(
-    name="purpose",
-    style=api_client.ParameterStyle.FORM,
-    schema=PurposeSchema,
-    explode=True,
-)
 # path params
 DatasetIdSchema = MongoObjectID
 RequestRequiredPathParams = typing.TypedDict(
@@ -117,13 +90,22 @@ request_path_dataset_id = api_client.PathParameter(
     schema=DatasetIdSchema,
     required=True,
 )
-_path = '/v1/datasets/{datasetId}/datasource'
+_path = '/v1/datasets/{datasetId}/datasource/all'
 _method = 'GET'
 _auth = [
     'ApiKeyAuth',
     'auth0Bearer',
 ]
-SchemaFor200ResponseBodyApplicationJson = DatasourceConfig
+
+
+class SchemaFor200ResponseBodyApplicationJson(
+    ListSchema
+):
+
+    @classmethod
+    @property
+    def _items(cls) -> typing.Type['DatasourceConfig']:
+        return DatasourceConfig
 
 
 @dataclass
@@ -230,11 +212,10 @@ _all_accept_content_types = (
 )
 
 
-class GetDatasourceByDatasetId(api_client.Api):
+class GetDatasourcesByDatasetId(api_client.Api):
 
-    def get_datasource_by_dataset_id(
+    def get_datasources_by_dataset_id(
         self: api_client.Api,
-        query_params: RequestQueryParams = frozendict(),
         path_params: RequestPathParams = frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -249,7 +230,6 @@ class GetDatasourceByDatasetId(api_client.Api):
             api_response.body and api_response.headers will not be deserialized into schema
             class instances
         """
-        self._verify_typed_dict_inputs(RequestQueryParams, query_params)
         self._verify_typed_dict_inputs(RequestPathParams, path_params)
 
         _path_params = {}
@@ -262,16 +242,6 @@ class GetDatasourceByDatasetId(api_client.Api):
             serialized_data = parameter.serialize(parameter_data)
             _path_params.update(serialized_data)
 
-        _query_params = []
-        for parameter in (
-            request_query_purpose,
-        ):
-            parameter_data = query_params.get(parameter.name, unset)
-            if parameter_data is unset:
-                continue
-            serialized_data = parameter.serialize(parameter_data)
-            _query_params.extend(serialized_data)
-
         _headers = HTTPHeaderDict()
         # TODO add cookie handling
         if accept_content_types:
@@ -282,7 +252,6 @@ class GetDatasourceByDatasetId(api_client.Api):
             resource_path=_path,
             method=_method,
             path_params=_path_params,
-            query_params=tuple(_query_params),
             headers=_headers,
             auth_settings=_auth,
             stream=stream,

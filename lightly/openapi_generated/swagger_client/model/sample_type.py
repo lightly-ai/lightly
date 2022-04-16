@@ -67,6 +67,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
 class SampleType(
     _SchemaEnumMaker(
         enum_value_to_name={
+            "CROP": "CROP",
             "IMAGE": "IMAGE",
             "VIDEO_FRAME": "VIDEO_FRAME",
         }
@@ -78,8 +79,13 @@ class SampleType(
 
     Do not edit the class manually.
 
-    Type of the sample (Image vs VideoFrame). Determined by the API!
+    Type of the sample (VideoFrame vs IMAGE vs CROP). Determined by the API!
     """
+    
+    @classmethod
+    @property
+    def CROP(cls):
+        return cls._enum_by_value["CROP"]("CROP")
     
     @classmethod
     @property

@@ -3,6 +3,7 @@
 #### Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**purpose** | [**DatasourcePurpose**](DatasourcePurpose.md) |  | 
 **type** | **str** |  | 
 **fullPath** | **str** | path includes the bucket name and the path within the bucket where you have stored your information | 
 **thumbSuffix** | **str** | the suffix of where to find the thumbnail image. If none is provided, the full image will be loaded where thumbnails would be loaded otherwise. - [filename]: represents the filename without the extension - [extension]: represents the files extension (e.g jpg, png, webp)  | [optional] 

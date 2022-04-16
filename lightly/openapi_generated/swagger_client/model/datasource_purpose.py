@@ -64,12 +64,12 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
 )
 
 
-class DatasetType(
+class DatasourcePurpose(
     _SchemaEnumMaker(
         enum_value_to_name={
-            "Crops": "CROPS",
-            "Images": "IMAGES",
-            "Videos": "VIDEOS",
+            "INPUT_OUTPUT": "INPUT_OUTPUT",
+            "INPUT": "INPUT",
+            "LIGHTLY": "LIGHTLY",
         }
     ),
     StrSchema
@@ -78,19 +78,22 @@ class DatasetType(
     Ref: https://openapi-generator.tech
 
     Do not edit the class manually.
+
+    The datasource purpose and for which use-cases it is needed. - INPUT_OUTPUT: Is used as source of raw data and predictions/metadata within .lightly as well as destination for writing thumbnails, crops or video frame within .lightly - INPUT: Is only used as source of raw data - LIGHTLY: Is used as source of predictions/metadata within .lightly as well as destination for writing thumbnails, crops or video frames within .lightly
+
     """
     
     @classmethod
     @property
-    def CROPS(cls):
-        return cls._enum_by_value["Crops"]("Crops")
+    def INPUT_OUTPUT(cls):
+        return cls._enum_by_value["INPUT_OUTPUT"]("INPUT_OUTPUT")
     
     @classmethod
     @property
-    def IMAGES(cls):
-        return cls._enum_by_value["Images"]("Images")
+    def INPUT(cls):
+        return cls._enum_by_value["INPUT"]("INPUT")
     
     @classmethod
     @property
-    def VIDEOS(cls):
-        return cls._enum_by_value["Videos"]("Videos")
+    def LIGHTLY(cls):
+        return cls._enum_by_value["LIGHTLY"]("LIGHTLY")

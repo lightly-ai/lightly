@@ -73,9 +73,15 @@ class DatasourceConfigBase(
     Do not edit the class manually.
     """
     _required_property_names = set((
+        'purpose',
         'type',
         'fullPath',
     ))
+
+    @classmethod
+    @property
+    def purpose(cls) -> typing.Type['DatasourcePurpose']:
+        return DatasourcePurpose
     type = StrSchema
     fullPath = StrSchema
     thumbSuffix = StrSchema
@@ -97,6 +103,7 @@ class DatasourceConfigBase(
     def __new__(
         cls,
         *args: typing.Union[dict, frozendict, ],
+        purpose: purpose,
         type: type,
         fullPath: fullPath,
         thumbSuffix: typing.Union[thumbSuffix, Unset] = unset,
@@ -106,6 +113,7 @@ class DatasourceConfigBase(
         return super().__new__(
             cls,
             *args,
+            purpose=purpose,
             type=type,
             fullPath=fullPath,
             thumbSuffix=thumbSuffix,
@@ -118,3 +126,4 @@ from lightly.openapi_generated.swagger_client.model.datasource_config_gcs import
 from lightly.openapi_generated.swagger_client.model.datasource_config_lightly import DatasourceConfigLIGHTLY
 from lightly.openapi_generated.swagger_client.model.datasource_config_local import DatasourceConfigLOCAL
 from lightly.openapi_generated.swagger_client.model.datasource_config_s3 import DatasourceConfigS3
+from lightly.openapi_generated.swagger_client.model.datasource_purpose import DatasourcePurpose
