@@ -95,7 +95,7 @@ class ActiveLearningAgent:
             self.api_workflow_client.dataset_id,
             tag_id=self._query_tag_id
         )
-        query_tag_bitmask = BitMask.from_hex(query_tag_data.bit_mask_data)
+        query_tag_bitmask = BitMask.from_hex(query_tag_data.bitMaskData)
 
         return query_tag_bitmask
 
@@ -112,7 +112,7 @@ class ActiveLearningAgent:
                 self.api_workflow_client.dataset_id,
                 tag_id=self._preselected_tag_id
             )
-            preselected_tag_bitmask = BitMask.from_hex(preselected_tag_data.bit_mask_data)
+            preselected_tag_bitmask = BitMask.from_hex(preselected_tag_data.bitMaskData)
 
         return preselected_tag_bitmask
 

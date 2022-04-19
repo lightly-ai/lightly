@@ -27,8 +27,8 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
 
     def test_download_thumbnails(self):
         def get_thumbnail_dataset_by_id(*args):
-            return DatasetData(name=f'dataset', id='dataset_id', last_modified_at=0,
-                               type='thumbnails', size_in_bytes=-1, n_samples=-1, created_at=-1)
+            return DatasetData(name=f'dataset', id='dataset_id', lastModifiedAt=0,
+                               type='thumbnails', sizeInBytes=-1, n_samples=-1, createdAt=-1)
         self.api_workflow_client._datasets_api.get_dataset_by_id = get_thumbnail_dataset_by_id
         with self.assertRaises(ValueError):
             self.api_workflow_client.download_dataset('path/to/dir')

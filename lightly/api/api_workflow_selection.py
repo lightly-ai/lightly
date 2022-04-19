@@ -5,8 +5,11 @@ from typing import Dict, List, Union
 import numpy as np
 
 from lightly.active_learning.config.selection_config import SelectionConfig
+from lightly.openapi_generated.swagger_client.model.active_learning_score_create_request import \
 from lightly.openapi_generated.swagger_client.model.job_state import JobState
 from lightly.openapi_generated.swagger_client.model.job_status_data import JobStatusData
+from lightly.openapi_generated.swagger_client.model.mongo_object_id import \
+    MongoObjectID
 from lightly.openapi_generated.swagger_client.model.tag_data import TagData
 from lightly.openapi_generated.swagger_client.model.sampling_config import SamplingConfig
 from lightly.openapi_generated.swagger_client.model.sampling_create_request import SamplingCreateRequest
@@ -41,7 +44,7 @@ class _SelectionMixin:
         # iterate over all available score types and upload them
         for score_type, score_values in al_scores.items():
             body = ActiveLearningScoreCreateRequest(
-                score_type=score_type,
+                scoreType=score_type,
                 scores=_parse_active_learning_scores(score_values)
             )
             self._scores_api.create_or_update_active_learning_score_by_tag_id(
@@ -97,9 +100,8 @@ class _SelectionMixin:
 
         # trigger the selection
         payload = self._create_selection_create_request(selection_config, preselected_tag_id, query_tag_id)
-        payload.row_count = self.get_all_tags()[0].tot_size
-        response = self._selection_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
-        job_id = response.job_id
+        response = self._samplings_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
+        job_id = response.jobId
 
         # poll the job status till the job is not running anymore
         exception_counter = 0  # TODO; remove after solving https://github.com/lightly-ai/lightly-core/issues/156
@@ -133,8 +135,12 @@ class _SelectionMixin:
 
         return new_tag_data
 
-    def _create_selection_create_request(self, selection_config: SelectionConfig, preselected_tag_id: str, query_tag_id: str
-                                         ) -> SamplingCreateRequest:
+    def _create_selection_create_request(
+            self,
+            selection_config: SelectionConfig,
+            preselected_tag_id: MongoObjectID,
+            query_tag_id: MongoObjectID
+        ) -> SamplingCreateRequest:
         """Creates a SamplingCreateRequest
 
         First, it checks how many samples are already labeled by
@@ -146,14 +152,24 @@ class _SelectionMixin:
         """
 
         sampling_config = SamplingConfig(
-            stopping_condition=SamplingConfigStoppingCondition(
-                n_samples=selection_config.n_samples,
-                min_distance=selection_config.min_distance
+            stoppingCondition=SamplingConfigStoppingCondition(
+                nSamples=selection_config.n_samples,
+                minDistance=selection_config.min_distance
             )
         )
-        sampling_create_request = SamplingCreateRequest(new_tag_name=selection_config.name,
-                                                        method=selection_config.method,
-                                                        config=sampling_config,
-                                                        preselected_tag_id=preselected_tag_id,
-                                                        query_tag_id=query_tag_id)
+        if preselected_tag_id:
+            sampling_create_request = SamplingCreateRequest(
+                newTagName=selection_config.name,
+                method=selection_config.method,
+                config=sampling_config,
+                preselectedTagId=preselected_tag_id,
+                queryTagId=query_tag_id
+            )
+        else:
+            sampling_create_request = SamplingCreateRequest(
+                newTagName=selection_config.name,
+                method=selection_config.method,
+                config=sampling_config,
+                queryTagId=query_tag_id
+            )
         return sampling_create_request

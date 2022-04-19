@@ -41,8 +41,8 @@ class TestCLIUpload(MockedApiWorkflowSetup):
                 return DatasetEmbeddingData(
                     id="embedding_id",
                     name="name",
-                    is_processed=True,
-                    created_at=0,
+                    isProcessed=True,
+                    createdAt=0,
 
                 )
             else:

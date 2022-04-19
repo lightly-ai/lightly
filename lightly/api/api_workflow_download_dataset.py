@@ -76,21 +76,9 @@ class _DownloadDatasetMixin:
             )
 
         # check if tag exists
-        available_tags = self.get_all_tags()
-        try:
-            tag = next(tag for tag in available_tags if tag.name == tag_name)
-        except StopIteration:
-            raise ValueError(
-                f"Dataset with id {self.dataset_id} has no tag {tag_name}!"
-            )
+        tag = self.get_tag_by_name(tag_name)
 
-        # get sample ids
-        sample_ids = self._mappings_api.get_sample_mappings_by_dataset_id(
-            self.dataset_id,
-            field='_id'
-        )
-
-        indices = BitMask.from_hex(tag.bit_mask_data).to_indices()
+        indices = BitMask.from_hex(tag.bitMaskData).to_indices()
         sample_ids = [sample_ids[i] for i in indices]
 
         filenames_on_server = self.get_filenames()

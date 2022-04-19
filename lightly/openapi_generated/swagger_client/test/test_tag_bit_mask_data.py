@@ -12,9 +12,6 @@
 
 import unittest
 
-import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.model.tag_bit_mask_data import TagBitMaskData
-
 
 class TestTagBitMaskData(unittest.TestCase):
     """TagBitMaskData unit test stubs"""
