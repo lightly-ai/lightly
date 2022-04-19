@@ -5,11 +5,10 @@ from typing import Dict, List, Union
 import numpy as np
 
 from lightly.active_learning.config.selection_config import SelectionConfig
-from lightly.openapi_generated.swagger_client.model.active_learning_score_create_request import \
+from lightly.openapi_generated.swagger_client.model.active_learning_score_create_request import ActiveLearningScoreCreateRequest
 from lightly.openapi_generated.swagger_client.model.job_state import JobState
 from lightly.openapi_generated.swagger_client.model.job_status_data import JobStatusData
-from lightly.openapi_generated.swagger_client.model.mongo_object_id import \
-    MongoObjectID
+from lightly.openapi_generated.swagger_client.model.mongo_object_id import MongoObjectID
 from lightly.openapi_generated.swagger_client.model.tag_data import TagData
 from lightly.openapi_generated.swagger_client.model.sampling_config import SamplingConfig
 from lightly.openapi_generated.swagger_client.model.sampling_create_request import SamplingCreateRequest
@@ -100,7 +99,7 @@ class _SelectionMixin:
 
         # trigger the selection
         payload = self._create_selection_create_request(selection_config, preselected_tag_id, query_tag_id)
-        response = self._samplings_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
+        response = self._selection_api.trigger_sampling_by_id(payload, self.dataset_id, self.embedding_id)
         job_id = response.jobId
 
         # poll the job status till the job is not running anymore
