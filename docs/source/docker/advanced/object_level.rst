@@ -119,9 +119,9 @@ For more information regarding the predictions format please see :ref:`ref-docke
 Selection on Object Level
 -------------------------
 Once you have everything set up as described above, you can run selection on
-object level by setting the `object_level.task_name` argument in the Lightly
-docker config. The argument should be set to the task name you used for your
-predictions. If you uploaded the predictions to `.lightly/predictions/vehicles_object_detections`
+object level by setting the `object_level.task_name` argument in the :ref:`docker configuration <ref-docker-configuration>`. 
+The argument should be set to the task name you used for your predictions. 
+If you uploaded the predictions to `.lightly/predictions/vehicles_object_detections`
 then you should set `object_level.task_name` to `vehicles_object_detections`.
 
 The object level job can either be scheduled from the Lightly Web App or
@@ -165,9 +165,11 @@ remote datasource and processes them. For each prediction, the docker crops
 the object from the full image and creates an embedding for it. Then it selects
 a subset of the objects and uploads **two** datasets to the Lightly Platform:
 
-1. The crops and embeddings of the selected objects are uploaded to a new
-   object *crops* dataset on the platform. The dataset has the same name as the
-   original image dataset but with a "-crops" suffix appended to it.
+1. The crops and embeddings of the selected objects are uploaded to an object 
+   *crops* dataset on the platform. By default, the dataset has the same name as 
+   the original image dataset but with a "-crops" suffix appended to it. 
+   Alternatively, you can also choose a custom dataset name by setting 
+   the `object_level.crop_dataset_name` config option.
 2. If an object is selected, then the full image containing that object is
    also uploaded. You can find these images in the original dataset from which
    you started the selection job.
