@@ -36,10 +36,11 @@ Advantages
 
 
 .. note:: Please ensure that the region of your bucket and where you intend to be running the
-          Lightly Docker instance should be the same (e.g. `eu-central-1`). If the region is not
-          the same there can be
+          Lightly Docker instance are be the same.
+          E.g. have the instance running in `eu-central-1` and the bucket also in `eu-central-1`.
+          If the region is not the same there can be
           `degraded transfer speeds and additional costs will be incurred by AWS <https://aws.amazon.com/premiumsupport/knowledge-center/s3-transfer-data-bucket-instance/>`_!
-          We highly recommend using the same region.
+          This also applies to other cloud providers. We highly recommend using the same region.
 
 
 Requirements
@@ -155,3 +156,58 @@ has the following advantages:
 If you want to search all data in your S3 bucket for new samples
 instead of only newly added data,
 then set `datasource.process_all=True` in your docker run command.
+
+
+Network traffic
+---------------
+
+Please ensure that the region of your bucket and where you intend to be running the
+Lightly Docker instance are be the same.
+E.g. have the instance running in `eu-central-1` and the bucket also in `eu-central-1`.
+If the region is not the same there can be
+`degraded transfer speeds and additional costs will be incurred by AWS <https://aws.amazon.com/premiumsupport/knowledge-center/s3-transfer-data-bucket-instance/>`_!
+This also applies to other cloud providers. We highly recommend using the same region.
+
+
+The worker causes significant network traffic at the following steps:
+
+For image datasets:
+^^^^^^^^^^^^^^^^^^^
+
+- The corruptness check downloads the complete dataset.
+- Training the embedding model downloads the complete dataset once each epoch.
+- Embedding downloads the non-corrupt dataset.
+- Pretagging downloads the non-corrupt dataset.
+- Dumping the selected dataset downloads it.
+- Updating the selected dataset in the Lightly platform
+  will first download all newly selected images to compute their metadata.
+
+As an example: If you have a dataset with 10GB size
+and run Lightly with training an embedding model for 10 epochs, you will face
+at most (10 + 5) * 10GB = 150GB of download traffic.
+
+
+
+For video datasets:
+^^^^^^^^^^^^^^^^^^^
+
+.. note::
+    Depending on the video format, downloading a single frame might require downloading the entire video.
+    Thus downloading X frames from Y different videos might download all Y videos in worst case.
+
+- Initializing the dataset to find out the number of frames per video downloads the complete dataset.
+- The corruptness check downloads the complete dataset.
+- Training the embedding model downloads the complete dataset once each epoch.
+- Embedding downloads the non-corrupt dataset.
+- Pretagging downloads the non-corrupt dataset.
+- Dumping the selected dataset will download each frame in it.
+  This might download the full dataset, if at least one frame was selected from each video.
+- Updating the selected dataset in the Lightly platform
+  will first download all newly selected images to compute their metadata.
+  Similar to dumping the dataset, this might download the complete dataset in worst case.
+
+As an example: If you have a dataset with 10GB size
+and run Lightly with training an embedding model for 10 epochs, you will face
+at most (10 + 6) * 10GB = 160GB of download traffic.
+
+
