@@ -36,8 +36,9 @@ Advantages
 
 
 .. note:: Please ensure that the region of your bucket and where you intend to be running the
-          Lightly Docker instance are be the same (e.g. `eu-central-1`). If the region is not
-          the same there can be
+          Lightly Docker instance are be the same.
+          E.g. have the instance running in `eu-central-1` and the bucket also in `eu-central-1`.
+          If the region is not the same there can be
           `degraded transfer speeds and additional costs will be incurred by AWS <https://aws.amazon.com/premiumsupport/knowledge-center/s3-transfer-data-bucket-instance/>`_!
           This also applies to other cloud providers. We highly recommend using the same region.
 
@@ -161,47 +162,52 @@ Network traffic
 ---------------
 
 Please ensure that the region of your bucket and where you intend to be running the
-Lightly Docker instance are be the same (e.g. `eu-central-1`). If the region is not
-the same there can be `degraded transfer speeds and additional costs will be incurred by AWS <https://aws.amazon.com/premiumsupport/knowledge-center/s3-transfer-data-bucket-instance/>`_!
+Lightly Docker instance are be the same.
+E.g. have the instance running in `eu-central-1` and the bucket also in `eu-central-1`.
+If the region is not the same there can be
+`degraded transfer speeds and additional costs will be incurred by AWS <https://aws.amazon.com/premiumsupport/knowledge-center/s3-transfer-data-bucket-instance/>`_!
 This also applies to other cloud providers. We highly recommend using the same region.
 
 
 The worker causes significant network traffic at the following steps:
 
 For image datasets:
+^^^^^^^^^^^^^^^^^^^
 
 - The corruptness check downloads the complete dataset.
 - Training the embedding model downloads the complete dataset once each epoch.
-- Embedding and pretagging each download the non-corrupt dataset.
+- Embedding downloads the non-corrupt dataset.
+- Pretagging downloads the non-corrupt dataset.
 - Dumping the selected dataset downloads it.
 - Updating the selected dataset in the Lightly platform
   will first download all newly selected images to compute their metadata.
-  If you configured this step to upload also thumbnails,
-  it will upload one thumbnail for each newly selected image.
-- Creating the report with images overlayed in the scatterplot will download about 50 images.
-- Uploading the report needs a few MB.
+
+As an example: If you have a dataset with 10GB size
+and run Lightly with training an embedding model for 10 epochs, you will face
+at most (10 + 5) * 10GB = 150GB of download traffic.
+
 
 
 For video datasets:
+^^^^^^^^^^^^^^^^^^^
 
-Depending on the video format, downloading a full video might be necessary to download a single frame.
-Thus downloading x frames from y different videos might download all y videos in worst case.
+.. note::
+    Depending on the video format, downloading a single frame might require downloading the entire video.
+    Thus downloading X frames from Y different videos might download all Y videos in worst case.
 
 - Initializing the dataset to find out the number of frames per video downloads the complete dataset.
 - The corruptness check downloads the complete dataset.
 - Training the embedding model downloads the complete dataset once each epoch.
-- Embedding and pretagging each download the non-corrupt dataset.
+- Embedding downloads the non-corrupt dataset.
+- Pretagging downloads the non-corrupt dataset.
 - Dumping the selected dataset will download each frame in it.
   This might download the full dataset, if at least one frame was selected from each video.
-- Updating the selected dataset in the Lightly platform needs to download it first for resizing and computing metadata.
+- Updating the selected dataset in the Lightly platform
+  will first download all newly selected images to compute their metadata.
   Similar to dumping the dataset, this might download the complete dataset in worst case.
-  As loading single frames into the Lightly Platform is not possible, the selected frames are uploaded to it.
-  The upload size might be smaller than the download size if only a small part of the whole dataset was selected.
-  However, images are less compressed then videos, which can increase the upload size.
-  E.g. if you select 10% of the whole dataset and the image compression is 2 times worse than the video compression,
-  then the upload size is approximately 20% of the download size.
-- Creating the report with images overlayed in the scatterplot will download about 50 frames.
-  This might download up to 50 videos in worst case.
-- Uploading the report needs a few MB.
+
+As an example: If you have a dataset with 10GB size
+and run Lightly with training an embedding model for 10 epochs, you will face
+at most (10 + 6) * 10GB = 160GB of download traffic.
 
 
