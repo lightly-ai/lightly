@@ -119,16 +119,35 @@ class VideoLoader(threading.local):
 
         """
         if timestamp is not None:
-            self.current_timestamp_idx = self.timestamps.index(timestamp)
+            if (
+                self.current_timestamp_idx + 1 < len(self.timestamps)
+                and self.timestamps[self.current_timestamp_idx + 1] == timestamp
+            ):
+                # Timestamp is timestamp of next frame. Set current timestamp
+                # index to next frame.
+                self.current_timestamp_idx += 1
+            else:
+                # Search correct index using timestamp.
+                self.current_timestamp_idx = self.timestamps.index(timestamp)
         else:
-            # no timestamp provided -> set current timestamp index to next frame
+            # No timestamp provided. Set current timestamp index to next frame
             if self.current_timestamp_idx < len(self.timestamps):
                 self.current_timestamp_idx += 1
 
         if self.reader:
             if timestamp is not None:
-                # Calling seek is slow. If we read next frame we can skip it!
-                if self.timestamps.index(timestamp) != self.last_timestamp_idx + 1:
+                # Calling seek is slow. We avoid seeking unless:
+                # 1) We do not access frames sequentially.
+                # 2) The timestamps between subsequent frames decrease. This is
+                #    necessary because the seek looks for the first frame that
+                #    has timestamp >= seek timestamp and filters out all frames
+                #    with a smaller timestamp. Future calls to next(self.reader)
+                #    can then miss the frames with the smaller timestamps,
+                #    resulting in accidentally dropped frames.
+                if (
+                    self.current_timestamp_idx != self.last_timestamp_idx + 1
+                    or timestamp < self.timestamps[self.last_timestamp_idx]
+                ):
                     self.reader.seek(timestamp)
 
             # make sure we have the tensor in correct shape (we want H x W x C)
