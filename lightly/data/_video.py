@@ -143,7 +143,7 @@ class VideoLoader(threading.local):
                 #    has timestamp >= seek timestamp and filters out all frames
                 #    with a smaller timestamp. Future calls to next(self.reader)
                 #    can then miss the frames with the smaller timestamps,
-                #    resulting in accidentally dropped frames. See LIG-1007.
+                #    resulting in accidentally dropped frames.
                 if (
                     self.current_timestamp_idx != self.last_timestamp_idx + 1
                     or timestamp < self.timestamps[self.last_timestamp_idx]
