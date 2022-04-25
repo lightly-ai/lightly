@@ -1,3 +1,5 @@
+.. _ref-docker-configuration:
+
 Configuration
 ===================================
 
@@ -37,8 +39,14 @@ The following are parameters which can be passed to the container:
   # Access token, get it from app.lightly.ai.
   token: ''
 
-  # If specified, the docker is registered as a worker on the Lightly platform.
-  worker_id: ''
+  worker:
+    # If specified, the docker is started as a worker on the Lightly platform.
+    worker_id: ''
+    # If True, the worker notifies that it is online even though another worker
+    # with the same worker_id is already online.
+    # This can be useful if that worker is actually offline but was not able to properly shutdown due to it crashing.
+    # If False and already a worker exists, the docker aborts.
+    force_start: True
 
   # Set to True to check whether installation was successful.
   sanity_check: False 
@@ -140,7 +148,20 @@ The following are parameters which can be passed to the container:
     # True for faster processing. Set to False if you get video related errors.
     use_frame_count_metadata: False
 
-  # Upload report to the Ligthly platform.
+  # active learning
+  active_learning:
+    task_name: ''
+    score_name: 'uncertainty_margin'
+
+  # object level
+  object_level:
+    # Name of the object prediction task which contains all the object annotations.
+    task_name: ''
+    # Name of the additional crop dataset on the Lightly Platform. A new dataset
+    # is created if no dataset with this name exists.
+    crop_dataset_name: ''
+
+  # Upload report to the Ligthly platform.
   upload_report: True
   # The number of retained/removed image pairs shown in the report.
   n_example_images: 6

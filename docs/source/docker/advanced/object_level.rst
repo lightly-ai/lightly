@@ -29,7 +29,7 @@ Predictions
 -----------
 Lightly needs to know which objects to process. This information is provided
 by uploading a set of object predictions to the datasource (see :ref:`ref-docker-datasource-predictions`).
-Lets say we are working with a dataset containing different types of vehicles
+Let's say we are working with a dataset containing different types of vehicles
 and used an object detection model to find possible vehicle objects in the
 dataset. Then the file structure of the datasource should look like this:
 
@@ -119,9 +119,9 @@ For more information regarding the predictions format please see :ref:`ref-docke
 Selection on Object Level
 -------------------------
 Once you have everything set up as described above, you can run selection on
-object level by setting the `object_level.task_name` argument in the Lightly
-docker config. The argument should be set to the task name you used for your
-predictions. If you uploaded the predictions to `.lightly/predictions/vehicles_object_detections`
+object level by setting the `object_level.task_name` argument in the :ref:`docker configuration <ref-docker-configuration>`. 
+The argument should be set to the task name you used for your predictions. 
+If you uploaded the predictions to e.g. `.lightly/predictions/vehicles_object_detections`
 then you should set `object_level.task_name` to `vehicles_object_detections`.
 
 The object level job can either be scheduled from the Lightly Web App or
@@ -165,9 +165,11 @@ remote datasource and processes them. For each prediction, the docker crops
 the object from the full image and creates an embedding for it. Then it selects
 a subset of the objects and uploads **two** datasets to the Lightly Platform:
 
-1. The crops and embeddings of the selected objects are uploaded to a new
-   object *crops* dataset on the platform. The dataset has the same name as the
-   original image dataset but with a "-crops" suffix appended to it.
+1. The crops and embeddings of the selected objects are uploaded to an object 
+   *crops* dataset on the platform. By default, the dataset has the same name as 
+   the original image dataset but with a "-crops" suffix appended to it. 
+   Alternatively, you can also choose a custom dataset name by setting 
+   the `object_level.crop_dataset_name` config option.
 2. If an object is selected, then the full image containing that object is
    also uploaded. You can find these images in the original dataset from which
    you started the selection job.
@@ -186,7 +188,6 @@ Original Full Image Dataset:
 
 Analyzing the Crop Dataset
 --------------------------
-
 The crop dataset allows you to analyze your data on an object level. In our
 vehicles dataset we could, for example, be interested in the diversity of the
 vehicles. If we go to our crops dataset and select the *Embedding* view in the
@@ -226,3 +227,22 @@ provides:
 - Select a subset of your data using our :ref:`Sampling Algorithms <plaform-sampling>`
 - Select new samples to add to your dataset using :ref:`Active Learning <ref-docker-active-learning>`
 - Prepare images for labelling by :ref:`exporting them to LabelStudio <lightly-tutorial-export-labelstudio>`
+
+
+Multiple Object Level Runs
+--------------------------
+You can run multiple object level workflows using the same dataset. To start a
+new run, please select your original full image dataset in the Lightly Web App
+and schedule a new run from there. If you are running the docker from Python or
+over the API, you have to set the `dataset_id` configuration option to the id of 
+the original full image dataset. In both cases make sure that the run is *not*
+started from the crops dataset as this is not supported!
+
+You can control to which crops dataset the newly selected object crops are
+uploaded by setting the `object_level.crop_dataset_name` configuration option.
+By default this option is not set and if you did not specify it in the first run,
+you can also omit it in future runs. In this case Lightly will automatically 
+find the existing crops dataset and add the new crops to it. If you want to
+upload the crops to a new dataset or have set a custom crop dataset name in a
+previous run, then set the `object_level.crop_dataset_name` option to a new
+or existing dataset name, respectively.
