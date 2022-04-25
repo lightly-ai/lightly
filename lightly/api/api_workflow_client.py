@@ -1,6 +1,7 @@
 import warnings
 from io import IOBase
 from typing import *
+import platform
 
 import requests
 from lightly.api.api_workflow_tags import _TagsMixin
@@ -87,6 +88,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                 
         configuration.api_key = {'token': token}
         api_client = ApiClient(configuration=configuration)
+        self.user_agent = f"Lightly/{__version__}/python ({platform.platform()})"
         self.api_client = api_client
 
         self.token = token
