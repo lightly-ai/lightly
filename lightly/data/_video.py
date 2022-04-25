@@ -136,18 +136,9 @@ class VideoLoader(threading.local):
 
         if self.reader:
             if timestamp is not None:
-                # Calling seek is slow. We avoid seeking unless:
-                # 1) We do not access frames sequentially.
-                # 2) The timestamps between subsequent frames decrease. This is
-                #    necessary because the seek looks for the first frame that
-                #    has timestamp >= seek timestamp and filters out all frames
-                #    with a smaller timestamp. Future calls to next(self.reader)
-                #    can then miss the frames with the smaller timestamps,
-                #    resulting in accidentally dropped frames.
-                if (
-                    self.current_timestamp_idx != self.last_timestamp_idx + 1
-                    or timestamp < self.timestamps[self.last_timestamp_idx]
-                ):
+                # Calling seek is slow. We avoid it unless frames are not loaded
+                # sequentially.
+                if self.current_timestamp_idx != self.last_timestamp_idx + 1:
                     self.reader.seek(timestamp)
 
             # make sure we have the tensor in correct shape (we want H x W x C)
@@ -268,6 +259,42 @@ def _make_dataset(directory,
     return video_instances, timestamps, offsets, fpss
 
 
+def _find_non_increasing_timestamps(
+    timestamps: List[Fraction]
+    ) -> List[bool]:
+    """Finds all non-increasing timestamps.
+
+    Arguments:
+        timestamps:
+            Video frame timestamps.
+
+    Returns:
+        A boolean for each input timestamp which is True if the timestamp is
+        non-increasing and False otherwise.
+
+    """
+    is_non_increasing = []
+    max_timestamp = None
+    for timestamp in timestamps:
+        if (
+            max_timestamp is None
+            or timestamp > max_timestamp
+         ):
+            is_non_increasing.append(False)
+            max_timestamp = timestamp
+        else:
+            is_non_increasing.append(True)
+    
+    return is_non_increasing
+
+
+class NonIncreasingTimestampError(Exception):
+    """Exception raised when trying to load a frame that has a timestamp 
+    equal or lower than the timestamps of previous frames in the video.
+    """
+    pass
+
+
 class VideoDataset(datasets.VisionDataset):
     """Implementation of a video dataset.
 
@@ -285,6 +312,10 @@ class VideoDataset(datasets.VisionDataset):
             As transform but for targets
         is_valid_file:
             Used to check corrupt files
+        exception_on_non_increasing_timestamp:
+            If True, a NonIncreasingTimestampError is raised when trying to load
+            a frame that has a timestamp lower or equal to the timestamps of 
+            previous frames in the same video.
 
     """
 
@@ -293,7 +324,8 @@ class VideoDataset(datasets.VisionDataset):
                  extensions=None,
                  transform=None,
                  target_transform=None,
-                 is_valid_file=None):
+                 is_valid_file=None,
+                 exception_on_non_increasing_timestamp=True):
         
         super(VideoDataset, self).__init__(root,
                                            transform=transform,
@@ -311,12 +343,20 @@ class VideoDataset(datasets.VisionDataset):
 
         self.extensions = extensions
         self.backend = torchvision.get_video_backend()
+        self.exception_on_non_increasing_timestamp = exception_on_non_increasing_timestamp
 
         self.videos = videos
         self.video_timestamps = video_timestamps
         self._length = sum((
             len(ts) for ts in self.video_timestamps
         ))
+        # Boolean value for every timestamp in self.video_timestamps. If True 
+        # the timestamp of the frame is non-increasing compared to timestamps of
+        # previous frames in the video.
+        self.video_timestamps_is_non_increasing = [
+            _find_non_increasing_timestamps(timestamps) for timestamps in video_timestamps
+        ]
+        
         # offsets[i] indicates the index of the first frame of the i-th video.
         # e.g. for two videos of length 10 and 20, the offsets will be [0, 10].
         self.offsets = offsets
@@ -379,8 +419,21 @@ class VideoDataset(datasets.VisionDataset):
         while (self.offsets[i] > index):
             i = i - 1
 
-        # find and return the frame as PIL image
         timestamp_idx = index - self.offsets[i]
+
+        if (
+            self.exception_on_non_increasing_timestamp
+            and self.video_timestamps_is_non_increasing[i][timestamp_idx]
+        ):
+            raise NonIncreasingTimestampError(
+                f'Frame {timestamp_idx} of video {self.videos[i]} has '
+                f'a timestamp that is equal or lower than timestamps of previous '
+                f'frames in the video. Trying to load this frame might result '
+                f'in the wrong frame being returned. Set the VideoDataset.exception_on_non_increasing_timestamp'
+                f'attribute to False to allow unsafe frame loading.'
+            )
+
+        # find and return the frame as PIL image
         frame_timestamp = self.video_timestamps[i][timestamp_idx]
         video_loader = self._get_video_loader(i)
         sample = video_loader.read_frame(frame_timestamp)
