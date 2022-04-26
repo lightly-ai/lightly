@@ -134,15 +134,15 @@ The three classes are sunny, clouded, and rainy.
         "categories": [
             {
                 "id": 0,
-                "name": "sunny",
+                "name": "sunny"
             },
             {
                 "id": 1,
-                "name": "clouded",
+                "name": "clouded"
             },
             {
                 "id": 2,
-                "name": "rainy",
+                "name": "rainy"
             }
         ]
     }
@@ -205,7 +205,7 @@ Example classification:
     :caption: .lightly/predictions/classification_weather/my_image.json
 
     {
-        "file_name": "my_image.png"
+        "file_name": "my_image.png",
         "predictions": [ // classes: [sunny, clouded, rainy]
             {
                 "category_id": 0,
@@ -224,7 +224,7 @@ Example object detection:
         "predictions": [ // classes: [person, car]
             {
                 "category_id": 0,
-                "bbox": [...],
+                "bbox": [140, 100, 80, 90], // x, y, w, h coordinates in pixels
                 "score": 0.8
             },
             {
@@ -257,7 +257,7 @@ For classification, please use the following format:
 
     [{
         "category_id"       : int,
-        "probabilities"     : [p0, p1, ..., pN],
+        "probabilities"     : [p0, p1, ..., pN]    // optional, sum up to 1.0
     }]
 
 **Object Detection:**
@@ -268,17 +268,16 @@ For detection with bounding boxes, please use the following format:
 
     [{
         "category_id"       : int,
-        "bbox"              : [x, y, width, height],
+        "bbox"              : [x, y, width, height], // coordinates in pixels
         "score"             : float,
-        "probabilities"     : [p0, p1, ..., pN],         // optional
+        "probabilities"     : [p0, p1, ..., pN]     // optional, sum up to 1.0
     }]
 
 The bounding box format follows the `COCO results <https://cocodataset.org/#format-results>`_ documentation.
 
 .. note::
 
-    Box coordinates are floats measured from the top left image corner (and are 0-indexed).
-    We recommend rounding coordinates to the nearest tenth of a pixel to reduce resulting JSON file size.
+    Bounding Box coordinates are pixels measured from the top left image corner.
 
 
 .. note::
