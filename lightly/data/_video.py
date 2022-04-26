@@ -72,6 +72,8 @@ class VideoLoader(threading.local):
             As transform but for targets
         is_valid_file:
             Used to check corrupt files
+        eps:
+            Small value to account for floating point imprecisions.
 
     Examples:
         >>> from torchvision import io
@@ -88,13 +90,20 @@ class VideoLoader(threading.local):
         >>> # get next frame
         >>> frame = video_loader.read_frame()
     """
-    def __init__(self, path: str, timestamps: List[float], backend: str = 'video_reader'):
+    def __init__(
+        self, 
+        path: str, 
+        timestamps: List[float], 
+        backend: str = 'video_reader',
+        eps: float = 1e-8,
+    ):
         self.path = path
         self.timestamps = timestamps
         self.current_timestamp_idx = 0
         self.last_timestamp_idx = 0
         self.pts_unit='sec'
         self.backend = backend
+        self.eps = eps
 
         has_video_reader = io._HAS_VIDEO_OPT and hasattr(io, 'VideoReader')
 
@@ -142,7 +151,22 @@ class VideoLoader(threading.local):
                     self.reader.seek(timestamp)
 
             # make sure we have the tensor in correct shape (we want H x W x C)
-            frame = next(self.reader)['data'].permute(1,2,0)
+            frame_info = next(self.reader)
+            frame = frame_info['data'].permute(1,2,0)
+
+            # The reader does not exactly seek to the requested timestamp but 
+            # to a frame with timestamp >= requested timestamp. This can result
+            # in the reader accidentally moving further than the requested frame.
+            # We have to account for the case where the reader moved one or 
+            # multiple frames too far.
+            reader_timestamp = frame_info['pts']
+            while self.current_timestamp_idx + 1 < len(self.timestamps):
+                next_timestamp = self.timestamps[self.current_timestamp_idx + 1]
+                if next_timestamp <= reader_timestamp + self.eps:
+                    self.current_timestamp_idx += 1
+                else:
+                    break
+
             self.last_timestamp_idx = self.current_timestamp_idx
 
         else: # fallback on pyav
