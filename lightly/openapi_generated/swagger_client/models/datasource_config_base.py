@@ -33,12 +33,14 @@ class DatasourceConfigBase(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'purpose': 'DatasourcePurpose',
         'type': 'str',
         'full_path': 'str',
         'thumb_suffix': 'str'
     }
 
     attribute_map = {
+        'purpose': 'purpose',
         'type': 'type',
         'full_path': 'fullPath',
         'thumb_suffix': 'thumbSuffix'
@@ -52,21 +54,46 @@ class DatasourceConfigBase(object):
         'DatasourceConfigS3': 'DatasourceConfigS3'
     }
 
-    def __init__(self, type=None, full_path=None, thumb_suffix=None, _configuration=None):  # noqa: E501
+    def __init__(self, purpose=None, type=None, full_path=None, thumb_suffix=None, _configuration=None):  # noqa: E501
         """DatasourceConfigBase - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
+        self._purpose = None
         self._type = None
         self._full_path = None
         self._thumb_suffix = None
         self.discriminator = 'Discriminator{propertyName&#x3D;&#39;type&#39;, mapping&#x3D;null}'
 
+        self.purpose = purpose
         self.type = type
         self.full_path = full_path
         if thumb_suffix is not None:
             self.thumb_suffix = thumb_suffix
+
+    @property
+    def purpose(self):
+        """Gets the purpose of this DatasourceConfigBase.  # noqa: E501
+
+
+        :return: The purpose of this DatasourceConfigBase.  # noqa: E501
+        :rtype: DatasourcePurpose
+        """
+        return self._purpose
+
+    @purpose.setter
+    def purpose(self, purpose):
+        """Sets the purpose of this DatasourceConfigBase.
+
+
+        :param purpose: The purpose of this DatasourceConfigBase.  # noqa: E501
+        :type: DatasourcePurpose
+        """
+        if self._configuration.client_side_validation and purpose is None:
+            raise ValueError("Invalid value for `purpose`, must not be `None`")  # noqa: E501
+
+        self._purpose = purpose
 
     @property
     def type(self):
