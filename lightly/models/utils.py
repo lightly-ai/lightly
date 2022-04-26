@@ -269,3 +269,72 @@ def _no_grad_trunc_normal(
         # Clamp to ensure it's in the proper range
         tensor.clamp_(min=a, max=b)
         return tensor
+
+def repeat_token_like(token, input):
+    # repeats token to have same shape as input
+    N, S, _ = input.shape
+    return token.repeat(N, S, 1)
+
+def expand_index_like(idx, input):
+    # expands the index along the feature dimension of input
+    # returns idx with shape (N_idx, S_idx, D_input)
+    D = input.shape[-1]
+    idx = idx.unsqueeze(-1).expand(-1, -1, D)
+    return idx
+
+def get_at_index(input, idx):
+    # gets tokens at index
+    idx = expand_index_like(idx, input)
+    return torch.gather(input, 1, idx)
+
+def set_at_index(input, idx, value):
+    # sets tokens at index to value
+    idx = expand_index_like(idx, input)
+    return torch.scatter(input, 1, idx, value)
+
+def prepend_class_token(input, class_token):
+    # prepends class token to input
+    N = input.shape[0]
+    batch_class_token = class_token.expand(N, -1, -1)
+    return torch.cat([batch_class_token, input], dim=1)
+
+def patchify(imgs, patch_size):
+    # converts images into patches
+    # output has shape (N, num_patches, patch_size ** 2 * C)
+    N, C, H, W = imgs.shape
+    assert H == W and H % patch_size == 0
+
+    patch_h = patch_w = H // patch_size
+    num_patches = patch_h * patch_w
+    patches = imgs.reshape(shape=(N, C, patch_h, patch_size, patch_w, patch_size))
+    patches = torch.einsum('nchpwq->nhwpqc', patches)
+    patches = patches.reshape(shape=(N, num_patches, patch_size ** 2 * C))
+    return patches
+
+
+def random_mask_from_ratio(
+    size, 
+    mask_ratio=0.6,
+    mask_class_token=False,
+):
+    # creates random masks 
+    # returns idx_keep, idx_mask tuple
+    # idx_keep has shape (N, num_keep)
+    # idx_mask has shape (N, S - num_keep)
+    
+    # N = batch size
+    # S = sequence length
+    N, S = size
+    num_keep = int(S * (1 - mask_ratio))
+    
+    noise = torch.rand(N, S, device=input.device)
+    if not mask_class_token:
+        # make sure that class token is not masked
+        noise[:, 0] = -1
+    
+    # get indices of tokens to keep
+    indices = torch.argsort(noise, dim=1)
+    idx_keep = indices[:, :num_keep]
+    idx_mask = indices[:, num_keep:]
+    
+    return idx_keep, idx_mask
