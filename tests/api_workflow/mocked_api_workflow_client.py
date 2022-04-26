@@ -371,8 +371,8 @@ class MockedDatasourcesApi(DatasourcesApi):
 
     def reset(self):
 
-        local_datasource = DatasourceConfigBase(type='LOCAL', full_path='').to_dict()
-        azure_datasource = DatasourceConfigBase(type='AZURE', full_path='').to_dict()
+        local_datasource = DatasourceConfigBase(type='LOCAL', full_path='', purpose='INPUT_OUTPUT').to_dict()
+        azure_datasource = DatasourceConfigBase(type='AZURE', full_path='', purpose='INPUT_OUTPUT').to_dict()
 
         self._datasources = {
             "dataset_id_xyz": local_datasource,
