@@ -277,7 +277,7 @@ The bounding box format follows the `COCO results <https://cocodataset.org/#form
 
 .. note::
 
-    Boudning Box coordinates are pixels measured from the top left image corner.
+    Bounding Box coordinates are pixels measured from the top left image corner.
 
 
 .. note::
