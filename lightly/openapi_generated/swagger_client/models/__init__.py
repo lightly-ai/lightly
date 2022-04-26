@@ -100,9 +100,6 @@ from lightly.openapi_generated.swagger_client.models.one_of_datasource_config im
 from lightly.openapi_generated.swagger_client.models.one_of_tag_arithmetics_response import OneOfTagArithmeticsResponse
 from lightly.openapi_generated.swagger_client.models.read_url import ReadUrl
 from lightly.openapi_generated.swagger_client.models.redirected_read_url import RedirectedReadUrl
-from lightly.openapi_generated.swagger_client.models.sama_task import SamaTask
-from lightly.openapi_generated.swagger_client.models.sama_task_data import SamaTaskData
-from lightly.openapi_generated.swagger_client.models.sama_tasks import SamaTasks
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
 from lightly.openapi_generated.swagger_client.models.sample_data import SampleData
 from lightly.openapi_generated.swagger_client.models.sample_meta_data import SampleMetaData
