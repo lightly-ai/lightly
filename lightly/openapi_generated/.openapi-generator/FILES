@@ -74,6 +74,8 @@ swagger_client/docs/DatasourceProcessedUntilTimestampResponse.md
 swagger_client/docs/DatasourcePurpose.md
 swagger_client/docs/DatasourceRawSamplesData.md
 swagger_client/docs/DatasourceRawSamplesDataRow.md
+swagger_client/docs/DatasourceRawSamplesMetadataData.md
+swagger_client/docs/DatasourceRawSamplesMetadataDataRow.md
 swagger_client/docs/DatasourceRawSamplesPredictionsData.md
 swagger_client/docs/DatasourceRawSamplesPredictionsDataRow.md
 swagger_client/docs/DatasourcesApi.md
@@ -107,6 +109,8 @@ swagger_client/docs/Embedding2dData.md
 swagger_client/docs/EmbeddingData.md
 swagger_client/docs/Embeddings2dApi.md
 swagger_client/docs/EmbeddingsApi.md
+swagger_client/docs/FileNameFormat.md
+swagger_client/docs/FileOutputFormat.md
 swagger_client/docs/GeneralJobResult.md
 swagger_client/docs/ImageType.md
 swagger_client/docs/InitialTagCreateRequest.md
@@ -227,6 +231,8 @@ swagger_client/model/datasource_processed_until_timestamp_response.py
 swagger_client/model/datasource_purpose.py
 swagger_client/model/datasource_raw_samples_data.py
 swagger_client/model/datasource_raw_samples_data_row.py
+swagger_client/model/datasource_raw_samples_metadata_data.py
+swagger_client/model/datasource_raw_samples_metadata_data_row.py
 swagger_client/model/datasource_raw_samples_predictions_data.py
 swagger_client/model/datasource_raw_samples_predictions_data_row.py
 swagger_client/model/dimensionality_reduction_method.py
@@ -256,6 +262,8 @@ swagger_client/model/embedding2d_coordinates.py
 swagger_client/model/embedding2d_create_request.py
 swagger_client/model/embedding2d_data.py
 swagger_client/model/embedding_data.py
+swagger_client/model/file_name_format.py
+swagger_client/model/file_output_format.py
 swagger_client/model/general_job_result.py
 swagger_client/model/image_type.py
 swagger_client/model/initial_tag_create_request.py
@@ -370,6 +378,8 @@ swagger_client/test/test_datasource_processed_until_timestamp_response.py
 swagger_client/test/test_datasource_purpose.py
 swagger_client/test/test_datasource_raw_samples_data.py
 swagger_client/test/test_datasource_raw_samples_data_row.py
+swagger_client/test/test_datasource_raw_samples_metadata_data.py
+swagger_client/test/test_datasource_raw_samples_metadata_data_row.py
 swagger_client/test/test_datasource_raw_samples_predictions_data.py
 swagger_client/test/test_datasource_raw_samples_predictions_data_row.py
 swagger_client/test/test_datasources_api.py
@@ -403,6 +413,8 @@ swagger_client/test/test_embedding2d_data.py
 swagger_client/test/test_embedding_data.py
 swagger_client/test/test_embeddings2d_api.py
 swagger_client/test/test_embeddings_api.py
+swagger_client/test/test_file_name_format.py
+swagger_client/test/test_file_output_format.py
 swagger_client/test/test_general_job_result.py
 swagger_client/test/test_image_type.py
 swagger_client/test/test_initial_tag_create_request.py

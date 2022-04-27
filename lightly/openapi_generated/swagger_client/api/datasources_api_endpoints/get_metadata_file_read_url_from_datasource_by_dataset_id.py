@@ -61,41 +61,28 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     _SchemaEnumMaker
 )
 
-from lightly.openapi_generated.swagger_client.model.label_studio_tasks import LabelStudioTasks
 from lightly.openapi_generated.swagger_client.model.mongo_object_id import MongoObjectID
-from lightly.openapi_generated.swagger_client.model.file_name_format import FileNameFormat
-from lightly.openapi_generated.swagger_client.model.file_output_format import FileOutputFormat
 from lightly.openapi_generated.swagger_client.model.api_error_response import ApiErrorResponse
 
 # query params
 
 
-class ExpiresInSchema(
+class FileNameSchema(
     _SchemaValidator(
-        inclusive_minimum=1,
+        min_length=3,
     ),
-    IntSchema
+    StrSchema
 ):
     pass
-AccessControlSchema = StrSchema
-FileNameFormatSchema = FileNameFormat
-IncludeMetaDataSchema = BoolSchema
-FormatSchema = FileOutputFormat
-PreviewExampleSchema = BoolSchema
 RequestRequiredQueryParams = typing.TypedDict(
     'RequestRequiredQueryParams',
     {
+        'fileName': FileNameSchema,
     }
 )
 RequestOptionalQueryParams = typing.TypedDict(
     'RequestOptionalQueryParams',
     {
-        'expiresIn': ExpiresInSchema,
-        'accessControl': AccessControlSchema,
-        'fileNameFormat': FileNameFormatSchema,
-        'includeMetaData': IncludeMetaDataSchema,
-        'format': FormatSchema,
-        'previewExample': PreviewExampleSchema,
     },
     total=False
 )
@@ -105,38 +92,17 @@ class RequestQueryParams(RequestRequiredQueryParams, RequestOptionalQueryParams)
     pass
 
 
-request_query_expires_in = api_client.QueryParameter(
-    name="expiresIn",
-    schema=ExpiresInSchema,
-)
-request_query_access_control = api_client.QueryParameter(
-    name="accessControl",
-    schema=AccessControlSchema,
-)
-request_query_file_name_format = api_client.QueryParameter(
-    name="fileNameFormat",
-    schema=FileNameFormatSchema,
-)
-request_query_include_meta_data = api_client.QueryParameter(
-    name="includeMetaData",
-    schema=IncludeMetaDataSchema,
-)
-request_query_format = api_client.QueryParameter(
-    name="format",
-    schema=FormatSchema,
-)
-request_query_preview_example = api_client.QueryParameter(
-    name="previewExample",
-    schema=PreviewExampleSchema,
+request_query_file_name = api_client.QueryParameter(
+    name="fileName",
+    schema=FileNameSchema,
+    required=True,
 )
 # path params
 DatasetIdSchema = MongoObjectID
-TagIdSchema = MongoObjectID
 RequestRequiredPathParams = typing.TypedDict(
     'RequestRequiredPathParams',
     {
         'datasetId': DatasetIdSchema,
-        'tagId': TagIdSchema,
     }
 )
 RequestOptionalPathParams = typing.TypedDict(
@@ -156,18 +122,13 @@ request_path_dataset_id = api_client.PathParameter(
     schema=DatasetIdSchema,
     required=True,
 )
-request_path_tag_id = api_client.PathParameter(
-    name="tagId",
-    schema=TagIdSchema,
-    required=True,
-)
-_path = '/v1/datasets/{datasetId}/tags/{tagId}/export/LabelStudio/tasks'
+_path = '/v1/datasets/{datasetId}/datasource/metadata/file'
 _method = 'GET'
 _auth = [
     'ApiKeyAuth',
     'auth0Bearer',
 ]
-SchemaFor200ResponseBodyApplicationJson = LabelStudioTasks
+SchemaFor200ResponseBodyApplicationJson = StrSchema
 
 
 @dataclass
@@ -274,9 +235,9 @@ _all_accept_content_types = (
 )
 
 
-class ExportTagToLabelStudioTasks(api_client.Api):
+class GetMetadataFileReadUrlFromDatasourceByDatasetId(api_client.Api):
 
-    def export_tag_to_label_studio_tasks(
+    def get_metadata_file_read_url_from_datasource_by_dataset_id(
         self: api_client.Api,
         query_params: RequestQueryParams = frozendict(),
         path_params: RequestPathParams = frozendict(),
@@ -299,7 +260,6 @@ class ExportTagToLabelStudioTasks(api_client.Api):
         _path_params = {}
         for parameter in (
             request_path_dataset_id,
-            request_path_tag_id,
         ):
             parameter_data = path_params.get(parameter.name, unset)
             if parameter_data is unset:
@@ -309,12 +269,7 @@ class ExportTagToLabelStudioTasks(api_client.Api):
 
         _query_params = []
         for parameter in (
-            request_query_expires_in,
-            request_query_access_control,
-            request_query_file_name_format,
-            request_query_include_meta_data,
-            request_query_format,
-            request_query_preview_example,
+            request_query_file_name,
         ):
             parameter_data = query_params.get(parameter.name, unset)
             if parameter_data is unset:

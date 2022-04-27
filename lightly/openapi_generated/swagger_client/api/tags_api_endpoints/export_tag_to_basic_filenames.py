@@ -61,7 +61,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     _SchemaEnumMaker
 )
 
-from lightly.openapi_generated.swagger_client.model.label_studio_tasks import LabelStudioTasks
 from lightly.openapi_generated.swagger_client.model.mongo_object_id import MongoObjectID
 from lightly.openapi_generated.swagger_client.model.file_name_format import FileNameFormat
 from lightly.openapi_generated.swagger_client.model.file_output_format import FileOutputFormat
@@ -161,20 +160,20 @@ request_path_tag_id = api_client.PathParameter(
     schema=TagIdSchema,
     required=True,
 )
-_path = '/v1/datasets/{datasetId}/tags/{tagId}/export/LabelStudio/tasks'
+_path = '/v1/datasets/{datasetId}/tags/{tagId}/export/basic/filenames'
 _method = 'GET'
 _auth = [
     'ApiKeyAuth',
     'auth0Bearer',
 ]
-SchemaFor200ResponseBodyApplicationJson = LabelStudioTasks
+SchemaFor200ResponseBodyTextPlain = StrSchema
 
 
 @dataclass
 class ApiResponseFor200(api_client.ApiResponse):
     response: urllib3.HTTPResponse
     body: typing.Union[
-        SchemaFor200ResponseBodyApplicationJson,
+        SchemaFor200ResponseBodyTextPlain,
     ]
     headers: Unset = unset
 
@@ -182,8 +181,8 @@ class ApiResponseFor200(api_client.ApiResponse):
 _response_for_200 = api_client.OpenApiResponse(
     response_cls=ApiResponseFor200,
     content={
-        'application/json': api_client.MediaType(
-            schema=SchemaFor200ResponseBodyApplicationJson),
+        'text/plain': api_client.MediaType(
+            schema=SchemaFor200ResponseBodyTextPlain),
     },
 )
 SchemaFor400ResponseBodyApplicationJson = ApiErrorResponse
@@ -270,13 +269,14 @@ _status_code_to_response = {
     '404': _response_for_404,
 }
 _all_accept_content_types = (
+    'text/plain',
     'application/json',
 )
 
 
-class ExportTagToLabelStudioTasks(api_client.Api):
+class ExportTagToBasicFilenames(api_client.Api):
 
-    def export_tag_to_label_studio_tasks(
+    def export_tag_to_basic_filenames(
         self: api_client.Api,
         query_params: RequestQueryParams = frozendict(),
         path_params: RequestPathParams = frozendict(),

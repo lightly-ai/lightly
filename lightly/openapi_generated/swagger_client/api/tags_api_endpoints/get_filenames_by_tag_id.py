@@ -103,14 +103,14 @@ _auth = [
     'ApiKeyAuth',
     'auth0Bearer',
 ]
-SchemaFor200ResponseBodyApplicationJson = TagFilenamesData
+SchemaFor200ResponseBodyTextPlain = TagFilenamesData
 
 
 @dataclass
 class ApiResponseFor200(api_client.ApiResponse):
     response: urllib3.HTTPResponse
     body: typing.Union[
-        SchemaFor200ResponseBodyApplicationJson,
+        SchemaFor200ResponseBodyTextPlain,
     ]
     headers: Unset = unset
 
@@ -118,8 +118,8 @@ class ApiResponseFor200(api_client.ApiResponse):
 _response_for_200 = api_client.OpenApiResponse(
     response_cls=ApiResponseFor200,
     content={
-        'application/json': api_client.MediaType(
-            schema=SchemaFor200ResponseBodyApplicationJson),
+        'text/plain': api_client.MediaType(
+            schema=SchemaFor200ResponseBodyTextPlain),
     },
 )
 SchemaFor400ResponseBodyApplicationJson = ApiErrorResponse
@@ -206,6 +206,7 @@ _status_code_to_response = {
     '404': _response_for_404,
 }
 _all_accept_content_types = (
+    'text/plain',
     'application/json',
 )
 

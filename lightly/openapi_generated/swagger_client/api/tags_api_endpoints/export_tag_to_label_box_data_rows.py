@@ -63,6 +63,8 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
 
 from lightly.openapi_generated.swagger_client.model.label_box_data_rows import LabelBoxDataRows
 from lightly.openapi_generated.swagger_client.model.mongo_object_id import MongoObjectID
+from lightly.openapi_generated.swagger_client.model.file_name_format import FileNameFormat
+from lightly.openapi_generated.swagger_client.model.file_output_format import FileOutputFormat
 from lightly.openapi_generated.swagger_client.model.api_error_response import ApiErrorResponse
 
 # query params
@@ -75,8 +77,11 @@ class ExpiresInSchema(
     IntSchema
 ):
     pass
-PreviewExampleSchema = BoolSchema
 AccessControlSchema = StrSchema
+FileNameFormatSchema = FileNameFormat
+IncludeMetaDataSchema = BoolSchema
+FormatSchema = FileOutputFormat
+PreviewExampleSchema = BoolSchema
 RequestRequiredQueryParams = typing.TypedDict(
     'RequestRequiredQueryParams',
     {
@@ -86,8 +91,11 @@ RequestOptionalQueryParams = typing.TypedDict(
     'RequestOptionalQueryParams',
     {
         'expiresIn': ExpiresInSchema,
-        'previewExample': PreviewExampleSchema,
         'accessControl': AccessControlSchema,
+        'fileNameFormat': FileNameFormatSchema,
+        'includeMetaData': IncludeMetaDataSchema,
+        'format': FormatSchema,
+        'previewExample': PreviewExampleSchema,
     },
     total=False
 )
@@ -101,13 +109,25 @@ request_query_expires_in = api_client.QueryParameter(
     name="expiresIn",
     schema=ExpiresInSchema,
 )
-request_query_preview_example = api_client.QueryParameter(
-    name="previewExample",
-    schema=PreviewExampleSchema,
-)
 request_query_access_control = api_client.QueryParameter(
     name="accessControl",
     schema=AccessControlSchema,
+)
+request_query_file_name_format = api_client.QueryParameter(
+    name="fileNameFormat",
+    schema=FileNameFormatSchema,
+)
+request_query_include_meta_data = api_client.QueryParameter(
+    name="includeMetaData",
+    schema=IncludeMetaDataSchema,
+)
+request_query_format = api_client.QueryParameter(
+    name="format",
+    schema=FormatSchema,
+)
+request_query_preview_example = api_client.QueryParameter(
+    name="previewExample",
+    schema=PreviewExampleSchema,
 )
 # path params
 DatasetIdSchema = MongoObjectID
@@ -290,8 +310,11 @@ class ExportTagToLabelBoxDataRows(api_client.Api):
         _query_params = []
         for parameter in (
             request_query_expires_in,
-            request_query_preview_example,
             request_query_access_control,
+            request_query_file_name_format,
+            request_query_include_meta_data,
+            request_query_format,
+            request_query_preview_example,
         ):
             parameter_data = query_params.get(parameter.name, unset)
             if parameter_data is unset:

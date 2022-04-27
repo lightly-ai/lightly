@@ -136,6 +136,11 @@ class DatasetData(
     def accessRole(cls) -> typing.Type['AccessRole']:
         return AccessRole
 
+    @classmethod
+    @property
+    def parentDatasetId(cls) -> typing.Type['MongoObjectID']:
+        return MongoObjectID
+
 
     def __new__(
         cls,
@@ -153,6 +158,7 @@ class DatasetData(
         metaDataConfigurationId: typing.Union['MongoObjectID', Unset] = unset,
         datasourceProcessedUntilTimestamp: typing.Union['TimestampSeconds', Unset] = unset,
         accessRole: typing.Union['AccessRole', Unset] = unset,
+        parentDatasetId: typing.Union['MongoObjectID', Unset] = unset,
         _configuration: typing.Optional[Configuration] = None,
         **kwargs: typing.Type[Schema],
     ) -> 'DatasetData':
@@ -172,6 +178,7 @@ class DatasetData(
             metaDataConfigurationId=metaDataConfigurationId,
             datasourceProcessedUntilTimestamp=datasourceProcessedUntilTimestamp,
             accessRole=accessRole,
+            parentDatasetId=parentDatasetId,
             _configuration=_configuration,
             **kwargs,
         )

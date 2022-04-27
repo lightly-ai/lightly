@@ -49,14 +49,32 @@ class TestDatasourcesApi(unittest.TestCase):
         """
         pass
 
+    def test_get_list_of_raw_samples_metadata_from_datasource_by_dataset_id(self):
+        """Test case for get_list_of_raw_samples_metadata_from_datasource_by_dataset_id
+
+        """
+        pass
+
     def test_get_list_of_raw_samples_predictions_from_datasource_by_dataset_id(self):
         """Test case for get_list_of_raw_samples_predictions_from_datasource_by_dataset_id
 
         """
         pass
 
+    def test_get_metadata_file_read_url_from_datasource_by_dataset_id(self):
+        """Test case for get_metadata_file_read_url_from_datasource_by_dataset_id
+
+        """
+        pass
+
     def test_get_prediction_file_read_url_from_datasource_by_dataset_id(self):
         """Test case for get_prediction_file_read_url_from_datasource_by_dataset_id
+
+        """
+        pass
+
+    def test_get_prediction_file_write_url_from_datasource_by_dataset_id(self):
+        """Test case for get_prediction_file_write_url_from_datasource_by_dataset_id
 
         """
         pass

@@ -43,6 +43,12 @@ class TestTagsApi(unittest.TestCase):
         """
         pass
 
+    def test_export_tag_to_basic_filenames(self):
+        """Test case for export_tag_to_basic_filenames
+
+        """
+        pass
+
     def test_export_tag_to_label_box_data_rows(self):
         """Test case for export_tag_to_label_box_data_rows
 

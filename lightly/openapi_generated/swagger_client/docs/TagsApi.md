@@ -7,6 +7,7 @@ Method | HTTP request | Description
 [**create_initial_tag_by_dataset_id**](TagsApi.md#create_initial_tag_by_dataset_id) | **POST** /v1/datasets/{datasetId}/tags/initial | 
 [**create_tag_by_dataset_id**](TagsApi.md#create_tag_by_dataset_id) | **POST** /v1/datasets/{datasetId}/tags | 
 [**delete_tag_by_tag_id**](TagsApi.md#delete_tag_by_tag_id) | **DELETE** /v1/datasets/{datasetId}/tags/{tagId} | 
+[**export_tag_to_basic_filenames**](TagsApi.md#export_tag_to_basic_filenames) | **GET** /v1/datasets/{datasetId}/tags/{tagId}/export/basic/filenames | 
 [**export_tag_to_label_box_data_rows**](TagsApi.md#export_tag_to_label_box_data_rows) | **GET** /v1/datasets/{datasetId}/tags/{tagId}/export/LabelBox/datarows | 
 [**export_tag_to_label_studio_tasks**](TagsApi.md#export_tag_to_label_studio_tasks) | **GET** /v1/datasets/{datasetId}/tags/{tagId}/export/LabelStudio/tasks | 
 [**export_tag_to_sama_tasks**](TagsApi.md#export_tag_to_sama_tasks) | **GET** /v1/datasets/{datasetId}/tags/{tagId}/export/Sama/tasks | 
@@ -549,6 +550,254 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **export_tag_to_basic_filenames**
+> str export_tag_to_basic_filenames(dataset_idtag_id)
+
+
+
+Export the samples filenames of a specific tag 
+
+### Example
+
+* Api Key Authentication (ApiKeyAuth):
+* Bearer (JWT) Authentication (auth0Bearer):
+```python
+import swagger_client
+from swagger_client.api import tags_api
+from swagger_client.model.mongo_object_id import MongoObjectID
+from swagger_client.model.file_name_format import FileNameFormat
+from swagger_client.model.file_output_format import FileOutputFormat
+from swagger_client.model.api_error_response import ApiErrorResponse
+from pprint import pprint
+# Defining the host is optional and defaults to https://api.lightly.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = swagger_client.Configuration(
+    host = "https://api.lightly.ai"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure API key authorization: ApiKeyAuth
+configuration.api_key['ApiKeyAuth'] = 'YOUR_API_KEY'
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['ApiKeyAuth'] = 'Bearer'
+
+# Configure Bearer authorization (JWT): auth0Bearer
+configuration = swagger_client.Configuration(
+    access_token = 'YOUR_BEARER_TOKEN'
+)
+# Enter a context with an instance of the API client
+with swagger_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = tags_api.TagsApi(api_client)
+
+    # example passing only required values which don't have defaults set
+    path_params = {
+        'datasetId': MongoObjectID("50000000abcdef1234566789"),
+        'tagId': MongoObjectID("50000000abcdef1234566789"),
+    }
+    query_params = {
+    }
+    try:
+        api_response = api_instance.export_tag_to_basic_filenames(
+            path_params=path_params,
+            query_params=query_params,
+        )
+        pprint(api_response)
+    except swagger_client.ApiException as e:
+        print("Exception when calling TagsApi->export_tag_to_basic_filenames: %s\n" % e)
+
+    # example passing only optional values
+    path_params = {
+        'datasetId': MongoObjectID("50000000abcdef1234566789"),
+        'tagId': MongoObjectID("50000000abcdef1234566789"),
+    }
+    query_params = {
+        'expiresIn': 1,
+        'accessControl': "default",
+        'fileNameFormat': FileNameFormat("NAME"),
+        'includeMetaData': True,
+        'format': FileOutputFormat("JSON"),
+        'previewExample': False,
+    }
+    try:
+        api_response = api_instance.export_tag_to_basic_filenames(
+            path_params=path_params,
+            query_params=query_params,
+        )
+        pprint(api_response)
+    except swagger_client.ApiException as e:
+        print("Exception when calling TagsApi->export_tag_to_basic_filenames: %s\n" % e)
+```
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+query_params | RequestQueryParams | |
+path_params | RequestPathParams | |
+accept_content_types | typing.Tuple[str] | default is ('text/plain', 'application/json', ) | Tells the server the content type(s) that are accepted by the client
+stream | bool | default is False | if True then the response.content will be streamed and loaded from a file like object. When downloading a file, set this to True to force the code to deserialize the content to a FileSchema file
+timeout | typing.Optional[typing.Union[int, typing.Tuple]] | default is None | the timeout used by the rest client
+skip_deserialization | bool | default is False | when True, headers and body will be unset and an instance of api_client.ApiResponseWithoutDeserialization will be returned
+
+### query_params
+#### RequestQueryParams
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+expiresIn | ExpiresInSchema | | optional
+accessControl | AccessControlSchema | | optional
+fileNameFormat | FileNameFormatSchema | | optional
+includeMetaData | IncludeMetaDataSchema | | optional
+format | FormatSchema | | optional
+previewExample | PreviewExampleSchema | | optional
+
+
+#### ExpiresInSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**int** |  | 
+
+#### AccessControlSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**str** |  | defaults to "default"
+
+#### FileNameFormatSchema
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**FileNameFormat**](FileNameFormat.md) |  | 
+
+
+#### IncludeMetaDataSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**bool** |  | defaults to True
+
+#### FormatSchema
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**FileOutputFormat**](FileOutputFormat.md) |  | 
+
+
+#### PreviewExampleSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**bool** |  | defaults to False
+
+### path_params
+#### RequestPathParams
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+datasetId | DatasetIdSchema | | 
+tagId | TagIdSchema | | 
+
+#### DatasetIdSchema
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**MongoObjectID**](MongoObjectID.md) |  | 
+
+
+#### TagIdSchema
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**MongoObjectID**](MongoObjectID.md) |  | 
+
+
+### Return Types, Responses
+
+Code | Class | Description
+------------- | ------------- | -------------
+n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
+200 | ApiResponseFor200 | Get successful 
+400 | ApiResponseFor400 | Bad Request / malformed 
+401 | ApiResponseFor401 | Unauthorized to access this resource 
+403 | ApiResponseFor403 | Access is forbidden 
+404 | ApiResponseFor404 | The specified resource was not found 
+
+#### ApiResponseFor200
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor200ResponseBodyTextPlain, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor200ResponseBodyTextPlain
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**str** |  | 
+
+#### ApiResponseFor400
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor400ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor400ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+#### ApiResponseFor401
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor401ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor401ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+#### ApiResponseFor403
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor403ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor403ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+#### ApiResponseFor404
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor404ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor404ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+
+**str**
+
+### Authorization
+
+[ApiKeyAuth](../README.md#ApiKeyAuth), [auth0Bearer](../README.md#auth0Bearer)
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **export_tag_to_label_box_data_rows**
 > LabelBoxDataRows export_tag_to_label_box_data_rows(dataset_idtag_id)
 
@@ -565,6 +814,8 @@ import swagger_client
 from swagger_client.api import tags_api
 from swagger_client.model.label_box_data_rows import LabelBoxDataRows
 from swagger_client.model.mongo_object_id import MongoObjectID
+from swagger_client.model.file_name_format import FileNameFormat
+from swagger_client.model.file_output_format import FileOutputFormat
 from swagger_client.model.api_error_response import ApiErrorResponse
 from pprint import pprint
 # Defining the host is optional and defaults to https://api.lightly.ai
@@ -616,8 +867,11 @@ with swagger_client.ApiClient(configuration) as api_client:
     }
     query_params = {
         'expiresIn': 1,
-        'previewExample': False,
         'accessControl': "default",
+        'fileNameFormat': FileNameFormat("NAME"),
+        'includeMetaData': True,
+        'format': FileOutputFormat("JSON"),
+        'previewExample': False,
     }
     try:
         api_response = api_instance.export_tag_to_label_box_data_rows(
@@ -645,8 +899,11 @@ skip_deserialization | bool | default is False | when True, headers and body wil
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 expiresIn | ExpiresInSchema | | optional
-previewExample | PreviewExampleSchema | | optional
 accessControl | AccessControlSchema | | optional
+fileNameFormat | FileNameFormatSchema | | optional
+includeMetaData | IncludeMetaDataSchema | | optional
+format | FormatSchema | | optional
+previewExample | PreviewExampleSchema | | optional
 
 
 #### ExpiresInSchema
@@ -655,17 +912,35 @@ Type | Description | Notes
 ------------- | ------------- | -------------
 **int** |  | 
 
-#### PreviewExampleSchema
-
-Type | Description | Notes
-------------- | ------------- | -------------
-**bool** |  | defaults to False
-
 #### AccessControlSchema
 
 Type | Description | Notes
 ------------- | ------------- | -------------
 **str** |  | defaults to "default"
+
+#### FileNameFormatSchema
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**FileNameFormat**](FileNameFormat.md) |  | 
+
+
+#### IncludeMetaDataSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**bool** |  | defaults to True
+
+#### FormatSchema
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**FileOutputFormat**](FileOutputFormat.md) |  | 
+
+
+#### PreviewExampleSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**bool** |  | defaults to False
 
 ### path_params
 #### RequestPathParams
@@ -788,6 +1063,8 @@ import swagger_client
 from swagger_client.api import tags_api
 from swagger_client.model.label_studio_tasks import LabelStudioTasks
 from swagger_client.model.mongo_object_id import MongoObjectID
+from swagger_client.model.file_name_format import FileNameFormat
+from swagger_client.model.file_output_format import FileOutputFormat
 from swagger_client.model.api_error_response import ApiErrorResponse
 from pprint import pprint
 # Defining the host is optional and defaults to https://api.lightly.ai
@@ -839,8 +1116,11 @@ with swagger_client.ApiClient(configuration) as api_client:
     }
     query_params = {
         'expiresIn': 1,
-        'previewExample': False,
         'accessControl': "default",
+        'fileNameFormat': FileNameFormat("NAME"),
+        'includeMetaData': True,
+        'format': FileOutputFormat("JSON"),
+        'previewExample': False,
     }
     try:
         api_response = api_instance.export_tag_to_label_studio_tasks(
@@ -868,8 +1148,11 @@ skip_deserialization | bool | default is False | when True, headers and body wil
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 expiresIn | ExpiresInSchema | | optional
-previewExample | PreviewExampleSchema | | optional
 accessControl | AccessControlSchema | | optional
+fileNameFormat | FileNameFormatSchema | | optional
+includeMetaData | IncludeMetaDataSchema | | optional
+format | FormatSchema | | optional
+previewExample | PreviewExampleSchema | | optional
 
 
 #### ExpiresInSchema
@@ -878,17 +1161,35 @@ Type | Description | Notes
 ------------- | ------------- | -------------
 **int** |  | 
 
-#### PreviewExampleSchema
-
-Type | Description | Notes
-------------- | ------------- | -------------
-**bool** |  | defaults to False
-
 #### AccessControlSchema
 
 Type | Description | Notes
 ------------- | ------------- | -------------
 **str** |  | defaults to "default"
+
+#### FileNameFormatSchema
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**FileNameFormat**](FileNameFormat.md) |  | 
+
+
+#### IncludeMetaDataSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**bool** |  | defaults to True
+
+#### FormatSchema
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**FileOutputFormat**](FileOutputFormat.md) |  | 
+
+
+#### PreviewExampleSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**bool** |  | defaults to False
 
 ### path_params
 #### RequestPathParams
@@ -1011,6 +1312,8 @@ import swagger_client
 from swagger_client.api import tags_api
 from swagger_client.model.mongo_object_id import MongoObjectID
 from swagger_client.model.sama_tasks import SamaTasks
+from swagger_client.model.file_name_format import FileNameFormat
+from swagger_client.model.file_output_format import FileOutputFormat
 from swagger_client.model.api_error_response import ApiErrorResponse
 from pprint import pprint
 # Defining the host is optional and defaults to https://api.lightly.ai
@@ -1062,8 +1365,11 @@ with swagger_client.ApiClient(configuration) as api_client:
     }
     query_params = {
         'expiresIn': 1,
-        'previewExample': False,
         'accessControl': "default",
+        'fileNameFormat': FileNameFormat("NAME"),
+        'includeMetaData': True,
+        'format': FileOutputFormat("JSON"),
+        'previewExample': False,
     }
     try:
         api_response = api_instance.export_tag_to_sama_tasks(
@@ -1091,8 +1397,11 @@ skip_deserialization | bool | default is False | when True, headers and body wil
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 expiresIn | ExpiresInSchema | | optional
-previewExample | PreviewExampleSchema | | optional
 accessControl | AccessControlSchema | | optional
+fileNameFormat | FileNameFormatSchema | | optional
+includeMetaData | IncludeMetaDataSchema | | optional
+format | FormatSchema | | optional
+previewExample | PreviewExampleSchema | | optional
 
 
 #### ExpiresInSchema
@@ -1101,17 +1410,35 @@ Type | Description | Notes
 ------------- | ------------- | -------------
 **int** |  | 
 
-#### PreviewExampleSchema
-
-Type | Description | Notes
-------------- | ------------- | -------------
-**bool** |  | defaults to False
-
 #### AccessControlSchema
 
 Type | Description | Notes
 ------------- | ------------- | -------------
 **str** |  | defaults to "default"
+
+#### FileNameFormatSchema
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**FileNameFormat**](FileNameFormat.md) |  | 
+
+
+#### IncludeMetaDataSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**bool** |  | defaults to True
+
+#### FormatSchema
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**FileOutputFormat**](FileOutputFormat.md) |  | 
+
+
+#### PreviewExampleSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**bool** |  | defaults to False
 
 ### path_params
 #### RequestPathParams
@@ -1223,7 +1550,7 @@ Type | Description  | Notes
 
 
 
-Get list of filenames by tag
+Get list of filenames by tag. Deprecated, please use
 
 ### Example
 
@@ -1280,7 +1607,7 @@ with swagger_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 path_params | RequestPathParams | |
-accept_content_types | typing.Tuple[str] | default is ('application/json', ) | Tells the server the content type(s) that are accepted by the client
+accept_content_types | typing.Tuple[str] | default is ('text/plain', 'application/json', ) | Tells the server the content type(s) that are accepted by the client
 stream | bool | default is False | if True then the response.content will be streamed and loaded from a file like object. When downloading a file, set this to True to force the code to deserialize the content to a FileSchema file
 timeout | typing.Optional[typing.Union[int, typing.Tuple]] | default is None | the timeout used by the rest client
 skip_deserialization | bool | default is False | when True, headers and body will be unset and an instance of api_client.ApiResponseWithoutDeserialization will be returned
@@ -1320,10 +1647,10 @@ n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization i
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 response | urllib3.HTTPResponse | Raw response |
-body | typing.Union[SchemaFor200ResponseBodyApplicationJson, ] |  |
+body | typing.Union[SchemaFor200ResponseBodyTextPlain, ] |  |
 headers | Unset | headers were not defined |
 
-#### SchemaFor200ResponseBodyApplicationJson
+#### SchemaFor200ResponseBodyTextPlain
 Type | Description  | Notes
 ------------- | ------------- | -------------
 [**TagFilenamesData**](TagFilenamesData.md) |  | 

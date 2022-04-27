@@ -13,11 +13,11 @@
 import unittest
 
 import lightly.openapi_generated.swagger_client
-from lightly.openapi_generated.swagger_client.model.tag_bit_mask_data import TagBitMaskData
+from lightly.openapi_generated.swagger_client.model.file_output_format import FileOutputFormat
 
 
-class TestTagBitMaskData(unittest.TestCase):
-    """TagBitMaskData unit test stubs"""
+class TestFileOutputFormat(unittest.TestCase):
+    """FileOutputFormat unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,10 +25,10 @@ class TestTagBitMaskData(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_TagBitMaskData(self):
-        """Test TagBitMaskData"""
+    def test_FileOutputFormat(self):
+        """Test FileOutputFormat"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = TagBitMaskData()  # noqa: E501
+        # model = FileOutputFormat()  # noqa: E501
         pass
 
 
