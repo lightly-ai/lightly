@@ -3,6 +3,7 @@ from typing import List, Optional, Tuple
 
 
 from lightly.openapi_generated.swagger_client.models.datasource_config import DatasourceConfig
+from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import DatasourceProcessedUntilTimestampRequest
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import DatasourceProcessedUntilTimestampResponse
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import DatasourceRawSamplesData
@@ -118,6 +119,7 @@ class _DatasourcesMixin:
         account_name: str,
         sas_token: str,
         thumbnail_suffix: Optional[str] = None,
+        purpose: str = DatasourcePurpose.INPUT_OUTPUT,
     ) -> None:
         """Sets the Azure configuration for the datasource of the current dataset.
         
@@ -136,6 +138,11 @@ class _DatasourcesMixin:
                 example ".lightly/thumbnails/[filename]_thumb.[extension]". 
                 Set to None to disable thumbnails and use the full images from the 
                 datasource instead.
+            purpose:
+                Datasource purpose, determines if datasource is read only (INPUT)
+                or if new data can be uploaded to the datasource through Lightly
+                (INPUT_OUTPUT).
+
         """
         # TODO: Use DatasourceConfigAzure once we switch/update the api generator.
         self._datasources_api.update_datasource_by_dataset_id(
@@ -145,6 +152,7 @@ class _DatasourcesMixin:
                 'thumbSuffix': thumbnail_suffix,
                 'accountName': account_name,
                 'accountKey': sas_token,
+                'purpose': purpose,
             },
             dataset_id=self.dataset_id,
         )
@@ -155,6 +163,7 @@ class _DatasourcesMixin:
         project_id: str,
         credentials: str,
         thumbnail_suffix: Optional[str] = None,
+        purpose: str = DatasourcePurpose.INPUT_OUTPUT,
     ) -> None:
         """Sets the Google Cloud Storage configuration for the datasource of the
         current dataset.
@@ -175,6 +184,11 @@ class _DatasourcesMixin:
                 example ".lightly/thumbnails/[filename]_thumb.[extension]". 
                 Set to None to disable thumbnails and use the full images from the 
                 datasource instead.
+            purpose:
+                Datasource purpose, determines if datasource is read only (INPUT)
+                or if new data can be uploaded to the datasource through Lightly
+                (INPUT_OUTPUT).
+
         """
         # TODO: Use DatasourceConfigGCS once we switch/update the api generator.
         self._datasources_api.update_datasource_by_dataset_id(
@@ -184,6 +198,7 @@ class _DatasourcesMixin:
                 'thumbSuffix': thumbnail_suffix,
                 'gcsProjectId': project_id,
                 'gcsCredentials': credentials,
+                'purpose': purpose,
             },
             dataset_id=self.dataset_id,
         )
@@ -213,6 +228,7 @@ class _DatasourcesMixin:
                 'type': 'LOCAL',
                 'fullPath': resource_path,
                 'thumbSuffix': thumbnail_suffix,
+                'purpose': DatasourcePurpose.INPUT_OUTPUT,
             },
             dataset_id=self.dataset_id,
         )
@@ -224,6 +240,7 @@ class _DatasourcesMixin:
         access_key: str,
         secret_access_key: str,
         thumbnail_suffix: Optional[str] = None,
+        purpose: str = DatasourcePurpose.INPUT_OUTPUT,
     ) -> None:
         """Sets the S3 configuration for the datasource of the current dataset.
         
@@ -241,6 +258,10 @@ class _DatasourcesMixin:
                 example ".lightly/thumbnails/[filename]_thumb.[extension]". 
                 Set to None to disable thumbnails and use the full images from the 
                 datasource instead.
+            purpose:
+                Datasource purpose, determines if datasource is read only (INPUT)
+                or if new data can be uploaded to the datasource through Lightly
+                (INPUT_OUTPUT).
 
         """
         # TODO: Use DatasourceConfigS3 once we switch/update the api generator.
@@ -252,6 +273,7 @@ class _DatasourcesMixin:
                 's3Region': region,
                 's3AccessKeyId': access_key,
                 's3SecretAccessKey': secret_access_key,
+                'purpose': purpose,
             },
             dataset_id=self.dataset_id,
         )
