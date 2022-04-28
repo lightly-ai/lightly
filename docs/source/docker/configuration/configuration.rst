@@ -99,6 +99,7 @@ The following are parameters which can be passed to the container:
   pretagging: False
   pretagging_debug: False
   pretagging_config: ''
+  pretagging_upload: False
 
   # Append weak labels.
   append_weak_labels: False

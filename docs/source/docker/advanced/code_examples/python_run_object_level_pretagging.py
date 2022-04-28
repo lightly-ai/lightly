@@ -3,7 +3,8 @@ import lightly
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="TOKEN", dataset_id="DATASET_ID")
 
-# Schedule the docker run with the "object_level.task_name" argument set. 
+# Schedule the docker run with the "object_level.task_name" argument set to
+# "lightly_pretagging" and with "pretagging" set to True.
 # All other settings are default values and we show them so you can easily edit
 # the values according to your need.
 client.schedule_compute_worker_run(
