@@ -25,6 +25,12 @@ following things:
 - Object detection predictions uploaded to the datasource (see next section)
 
 
+.. note::
+
+    If you don't have any predictions available, you can use the Lightly pretagging
+    model. See :ref:`Pretagging <object-level-pretagging>` for more information.
+
+
 Predictions
 -----------
 Lightly needs to know which objects to process. This information is provided
@@ -156,6 +162,39 @@ from python code. Examples on how to schedule the job are provided below.
     .. tab:: Python Code
 
         .. literalinclude:: code_examples/python_run_object_level.py
+
+
+.. _object-level-pretagging:
+
+Lightly Pretagging
+------------------
+Instead of providing your own predictions, it's also possible to use the built-in pretagging model from Lightly. To do so,
+set `pretagging=True` in your config and use the `object_level.task_name="lightly_pretagging"`. For more information
+about the prediction model and classes, go to :ref:`Lightly Pretagging Model <ref-docker-pretagging>`
+
+.. tabs::
+
+    .. tab:: Web App
+
+        .. literalinclude:: code_examples/object_level_worker_config_pretagging.txt
+            :caption: Docker Config
+            :language: javascript
+
+        The Lightly config remains unchanged.
+
+    .. tab:: Python Code
+
+        .. literalinclude:: code_examples/python_run_object_level_pretagging.py
+
+
+Padding
+-------
+Lightly makes it possible to add a padding around your bounding boxes. This allows
+for better visualization of the cropped images in the web-app and can improve the
+embeddings of the objects as the embedding model sees the objects in context. To add
+padding, simply specify `object_level.padding=X` where `X` is the padding relative
+to the bounding box size. For example, a padding of `X=0.1` will extend both width and
+height of all bounding boxes by 10 percent.
 
 
 Object Crops Dataset
