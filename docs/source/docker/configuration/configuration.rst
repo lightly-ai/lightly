@@ -160,6 +160,8 @@ The following are parameters which can be passed to the container:
     # Name of the additional crop dataset on the Lightly Platform. A new dataset
     # is created if no dataset with this name exists.
     crop_dataset_name: ''
+    # Padding relative to the bbox size
+    padding: 0.0
 
   # Upload report to the Ligthly platform.
   upload_report: True
