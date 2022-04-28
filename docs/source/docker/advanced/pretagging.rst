@@ -85,12 +85,9 @@ Pretagging can be activated by passing the following argument to your docker
 run command: `pretagging=True`
 
 - `pretagging=True` enables the use of the pretagging model
-- `pretagging_debug=True` add a few images to the report for debugging showing
-  showing the image with the bounding box predictions. 
+- `pretagging_debug=True` add a few images to the report for debugging showing the image with the bounding box predictions.
+- `pretagging_upload=True` enables uploading of the predictions to a configured datasource.
 
-  .. note:: The debug mode for pretagging is currently not available for video
-            datasets.
-  
 
 The final docker run command to enable pretagging as well as pretagging_debug
 should look like this:
