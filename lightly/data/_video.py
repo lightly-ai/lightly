@@ -121,10 +121,17 @@ class VideoLoader(threading.local):
         to the right position and then load the frame.
         
         Args:
-            timestamp: Specific timestamp of frame in seconds or None (default: None)
+            timestamp: 
+                Specific timestamp of frame in seconds or None (default: None)
 
         Returns:
             A PIL Image
+
+        Raises:
+            StopIteration if video is empty or end of video is reached and
+            timestamp is None.
+            ValueError if provided timestamp is not in self.timestamps.
+            RuntimeError if loaded frame has wrong shape.
 
         """
         if not self.timestamps:
