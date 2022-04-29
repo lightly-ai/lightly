@@ -26,6 +26,12 @@ except ImportError:
 if io._HAS_VIDEO_OPT:
     torchvision.set_video_backend('video_reader')
 
+class NonIncreasingTimestampError(Exception):
+    """Exception raised when trying to load a frame that has a timestamp 
+    equal or lower than the timestamps of previous frames in the video.
+    """
+    pass
+
 # @guarin 18.02.2022
 # VideoLoader and VideoDataset multi-thread and multi-processing infos
 # --------------------------------------------------------------------
@@ -366,13 +372,6 @@ def _find_non_increasing_timestamps(
             is_non_increasing.append(True)
     
     return is_non_increasing
-
-
-class NonIncreasingTimestampError(Exception):
-    """Exception raised when trying to load a frame that has a timestamp 
-    equal or lower than the timestamps of previous frames in the video.
-    """
-    pass
 
 
 class VideoDataset(datasets.VisionDataset):
