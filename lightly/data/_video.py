@@ -139,7 +139,8 @@ class VideoLoader(threading.local):
             ValueError: 
                 If provided timestamp is not in self.timestamps.
             RuntimeError:
-                If loaded frame has wrong shape.
+                If loaded frame has wrong shape or seeking to the provided
+                timestamp failed.
 
         """
         if not self.timestamps:
@@ -213,7 +214,14 @@ class VideoLoader(threading.local):
                 # Accidentally reached the end of the video, let's seek back to
                 # the correction position. This can happen due to imprecise seek.
                 self.reader.seek(timestamp)
-                frame_info = next(self.reader)
+                try:
+                    frame_info = next(self.reader)
+                except StopIteration as ex:
+                    # Seeking to this timestamp simply doesn't work.
+                    raise RuntimeError(
+                        f'Cannot seek to frame with timestamp {float(timestamp)} '
+                        f'in {self.path}.'
+                    ) from ex
 
             if (
                 frame_info['pts'] < timestamp - self.eps
