@@ -134,10 +134,12 @@ class VideoLoader(threading.local):
             A PIL Image
 
         Raises:
-            StopIteration if video is empty or end of video is reached and
-            timestamp is None.
-            ValueError if provided timestamp is not in self.timestamps.
-            RuntimeError if loaded frame has wrong shape.
+            StopIteration:
+                If video is empty or end of video is reached and timestamp is None.
+            ValueError: 
+                If provided timestamp is not in self.timestamps.
+            RuntimeError:
+                If loaded frame has wrong shape.
 
         """
         if not self.timestamps:
