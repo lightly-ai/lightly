@@ -26,11 +26,20 @@ except ImportError:
 if io._HAS_VIDEO_OPT:
     torchvision.set_video_backend('video_reader')
 
+
 class NonIncreasingTimestampError(Exception):
     """Exception raised when trying to load a frame that has a timestamp 
     equal or lower than the timestamps of previous frames in the video.
     """
     pass
+
+
+class UnseekableTimestampError(Exception):
+    """Exception raised when trying to load a frame that has a timestamp which
+    cannot be seeked to by the video loader.
+    """
+    pass
+
 
 # @guarin 18.02.2022
 # VideoLoader and VideoDataset multi-thread and multi-processing infos
@@ -218,7 +227,7 @@ class VideoLoader(threading.local):
                     frame_info = next(self.reader)
                 except StopIteration as ex:
                     # Seeking to this timestamp simply doesn't work.
-                    raise RuntimeError(
+                    raise UnseekableTimestampError(
                         f'Cannot seek to frame with timestamp {float(timestamp)} '
                         f'in {self.path}.'
                     ) from ex

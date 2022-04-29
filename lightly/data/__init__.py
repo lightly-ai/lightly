@@ -13,3 +13,4 @@ from lightly.data.collate import MultiCropCollateFunction
 from lightly.data.collate import SwaVCollateFunction
 from lightly.data.collate import imagenet_normalize
 from lightly.data._video import NonIncreasingTimestampError
+from lightly.data._video import UnseekableTimestampError
