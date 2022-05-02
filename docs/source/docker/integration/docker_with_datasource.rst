@@ -31,7 +31,7 @@ Advantages
 - Your data is streamed from your bucket on the go instead of being first downloaded
   to your local disk and then read from there. You save both a lot of time and
   disk space and can process much larger datasets.
-- You can :ref:`ref-docker-with-datasource-datapool`
+- You can :ref:`process new data in your bucket using a datapool <ref-docker-with-datasource-datapool>`
   to continuously update and improve your selected dataset
   everytime new data comes into your bucket.
 - Your images and videos are never saved anywhere but in your bucket,
