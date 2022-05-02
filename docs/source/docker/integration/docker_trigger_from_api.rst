@@ -82,7 +82,7 @@ provided through our Web App or you can use our Python package and build a scrip
 
               Lightly S3 connection config
 
-      If you don`t know how to fill out the form, follow the full tutorial to
+      If you don't know how to fill out the form, follow the full tutorial to
       `create a Lightly dataset connected to your S3 bucket <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_aws_bucket.html>`_.
         
 
