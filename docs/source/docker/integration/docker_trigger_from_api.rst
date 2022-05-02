@@ -1,7 +1,7 @@
 .. _integration-docker-trigger-from-api:
 
 Trigger a Docker Job from from the Platform or code
-===========================================================
+===================================================
 
 Introduction
 ------------
@@ -48,7 +48,7 @@ the docker execute the following command:
         -v ${OUTPUT_DIR}:/home/output_dir \
         lightly/worker:latest \
         token=${YOUR_LIGHTLY_PLATFORM_TOKEN} \
-        worker_id=${YOUR_WORKER_ID}
+        worker.worker_id=${YOUR_WORKER_ID}
 
 The state of the worker on the `Docker Workers <https://app.lightly.ai/docker/workers>`__
 page should now indicate that the worker is in an idle state.
@@ -68,11 +68,14 @@ provided through our Web App or you can use our Python package and build a scrip
       **Create a Dataset**
 
       This recipe requires that you already have a dataset in the Lightly Platform
-      configured to use the data in your AWS S3 bucket. Create such a dataset in 2 steps:
+      configured to use the data in your cloud bucket. Create such a dataset in 
+      two steps:
 
       1. `Create a new dataset <https://app.lightly.ai/dataset/create>`_ in Lightly.
-         Make sure that you choose the input type `Images` or `Videos` correctly, depending on the type of files in your cloud storage bucket.
-      2. Edit your dataset, select the storage source as your datasource and fill out the form.
+         Make sure that you choose the input type `Images` or `Videos` correctly, 
+         depending on the type of files in your cloud storage bucket.
+      2. Edit your dataset, select the storage source as your datasource and fill 
+         out the form.
          In our example we use an S3 bucket.
 
           .. figure:: ../../getting_started/resources/LightlyEdit2.png
@@ -82,8 +85,10 @@ provided through our Web App or you can use our Python package and build a scrip
 
               Lightly S3 connection config
 
-      If you don't know how to fill out the form, follow the full tutorial to
-      `create a Lightly dataset connected to your S3 bucket <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_aws_bucket.html>`_.
+         If you don't know how to fill out the form, follow the full tutorial to create
+         a Lightly dataset connected to your bucket: :ref:`S3 <dataset-creation-aws-bucket>`, 
+         :ref:`GCS <dataset-creation-gcloud-bucket>`, 
+         :ref:`Azure <dataset-creation-azure-storage>`.
         
 
     .. tab:: Python Code
@@ -122,7 +127,7 @@ And now we can schedule a new job.
 
     .. tab:: Python Code
 
-      .. literalinclude:: examples/trigger_job_s3.py
+      .. literalinclude:: examples/trigger_job.py
 
 
 View the progress of the Lightly Docker
@@ -142,24 +147,24 @@ Lightly Platform:
 
 .. image:: ./images/webapp-explore-after-docker.jpg
 
-In our case, we had 4 short street videos with about 1000 frames each in the S3 
+In our case, we had 4 short street videos with about 1000 frames each in the 
 bucket and selected 50 frames from it. Now you can analyze your dataset in the
 embedding and metadata view of the Lightly Platform, subsample it further, or 
 export it for labeling. In our case we come to the conclusion that the raw data 
 we have does not cover enough cases and thus decide that we want to first 
 collect more street videos.
 
-Process new data in your S3 bucket using a datapool
-------------------------------------------------------
-You probably get new raw data from time to time added to your S3 bucket. In our 
-case we added 4 more street videos to the S3 bucket. The new raw data might 
+Process new data in your bucket using a datapool
+------------------------------------------------
+You probably get new raw data from time to time added to your bucket. In our 
+case we added 4 more street videos to the bucket. The new raw data might 
 include samples which should be added to your dataset in the Lightly Platform, 
 so you want to add a subset of them to your dataset.
 
 This workflow is supported by the Lightly Platform using a datapool. It
-remembers which raw data in your S3 bucket has already been processed and will
+remembers which raw data in your bucket has already been processed and will
 ignore it in future docker runs. Thus you can send the same job again to the 
-worker. It will find your new raw data in the S3 bucket, stream, embed
+worker. It will find your new raw data in the bucket, stream, embed
 and subsample it and then add it to your existing dataset. The selection strategies will
 take the existing data in your dataset into account when selecting new data to be
 added to your dataset.
@@ -170,7 +175,7 @@ After the docker run we can go to the embedding view of the Lightly Platform to
 see the newly added samples there in a new tag. We see that the new samples
 (in green) fill some gaps left by the images in the first iteration (in grey).
 However, there are still some gaps left, which could be filled by adding more 
-videos to the S3 bucket and running the docker again.
+videos to the bucket and running the docker again.
 
 This workflow of iteratively growing your dataset with the Lightly Docker has
 the following advantages:
