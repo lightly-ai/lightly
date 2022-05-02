@@ -295,7 +295,7 @@ def all_video_frame_counts(
         return list(executor.map(job, urls))
 
 
-def download_prediction_file(
+def download_json_file(
     url: str,
     session: requests.Session = None,
 ) -> Union[Dict, None]:
@@ -317,6 +317,25 @@ def download_prediction_file(
         return None # the file doesn't exist!
 
     return response.json()
+
+
+def download_prediction_file(
+    url: str,
+    session: requests.Session = None,
+) -> Union[Dict, None]:
+    """Same as download_json_file. Keep this for backwards compatability.
+
+    Args:
+        url: 
+            Url of the file to download.
+        session: 
+            Session object to persist certain parameters across requests.
+
+    Returns the content of the json file as dictionary or None.
+
+    """
+    return download_json_file(url, session=session)
+
 
 def download_video_frames_at_timestamps(
         url: str,

@@ -350,6 +350,236 @@ class TagsApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
+    def download_zip_of_samples_by_tag_id(self, dataset_id, tag_id, **kwargs):  # noqa: E501
+        """download_zip_of_samples_by_tag_id  # noqa: E501
+
+        Download a zip file of the samples of a tag. Limited to 1000 images  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.download_zip_of_samples_by_tag_id(dataset_id, tag_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param MongoObjectID tag_id: ObjectId of the tag (required)
+        :return: str
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.download_zip_of_samples_by_tag_id_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.download_zip_of_samples_by_tag_id_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
+            return data
+
+    def download_zip_of_samples_by_tag_id_with_http_info(self, dataset_id, tag_id, **kwargs):  # noqa: E501
+        """download_zip_of_samples_by_tag_id  # noqa: E501
+
+        Download a zip file of the samples of a tag. Limited to 1000 images  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.download_zip_of_samples_by_tag_id_with_http_info(dataset_id, tag_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param MongoObjectID tag_id: ObjectId of the tag (required)
+        :return: str
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['dataset_id', 'tag_id']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method download_zip_of_samples_by_tag_id" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'dataset_id' is set
+        if self.api_client.client_side_validation and ('dataset_id' not in params or
+                                                       params['dataset_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `dataset_id` when calling `download_zip_of_samples_by_tag_id`")  # noqa: E501
+        # verify the required parameter 'tag_id' is set
+        if self.api_client.client_side_validation and ('tag_id' not in params or
+                                                       params['tag_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `tag_id` when calling `download_zip_of_samples_by_tag_id`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'dataset_id' in params:
+            path_params['datasetId'] = params['dataset_id']  # noqa: E501
+        if 'tag_id' in params:
+            path_params['tagId'] = params['tag_id']  # noqa: E501
+
+        query_params = []
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/zip', 'application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v1/datasets/{datasetId}/tags/{tagId}/export/zip', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='str',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def export_tag_to_basic_filenames(self, dataset_id, tag_id, **kwargs):  # noqa: E501
+        """export_tag_to_basic_filenames  # noqa: E501
+
+        Export the samples filenames of a specific tag   # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.export_tag_to_basic_filenames(dataset_id, tag_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param MongoObjectID tag_id: ObjectId of the tag (required)
+        :param int expires_in: if defined, the URLs provided will only be valid for amount of seconds from time of issuence
+        :param str access_control: which access control name to be used
+        :param FileNameFormat file_name_format:
+        :param bool include_meta_data: if true, will also include metadata
+        :param FileOutputFormat format:
+        :param bool preview_example: if true, will generate a preview example of how the structure will look
+        :return: str
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.export_tag_to_basic_filenames_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.export_tag_to_basic_filenames_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
+            return data
+
+    def export_tag_to_basic_filenames_with_http_info(self, dataset_id, tag_id, **kwargs):  # noqa: E501
+        """export_tag_to_basic_filenames  # noqa: E501
+
+        Export the samples filenames of a specific tag   # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.export_tag_to_basic_filenames_with_http_info(dataset_id, tag_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param MongoObjectID tag_id: ObjectId of the tag (required)
+        :param int expires_in: if defined, the URLs provided will only be valid for amount of seconds from time of issuence
+        :param str access_control: which access control name to be used
+        :param FileNameFormat file_name_format:
+        :param bool include_meta_data: if true, will also include metadata
+        :param FileOutputFormat format:
+        :param bool preview_example: if true, will generate a preview example of how the structure will look
+        :return: str
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['dataset_id', 'tag_id', 'expires_in', 'access_control', 'file_name_format', 'include_meta_data', 'format', 'preview_example']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method export_tag_to_basic_filenames" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'dataset_id' is set
+        if self.api_client.client_side_validation and ('dataset_id' not in params or
+                                                       params['dataset_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `dataset_id` when calling `export_tag_to_basic_filenames`")  # noqa: E501
+        # verify the required parameter 'tag_id' is set
+        if self.api_client.client_side_validation and ('tag_id' not in params or
+                                                       params['tag_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `tag_id` when calling `export_tag_to_basic_filenames`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'dataset_id' in params:
+            path_params['datasetId'] = params['dataset_id']  # noqa: E501
+        if 'tag_id' in params:
+            path_params['tagId'] = params['tag_id']  # noqa: E501
+
+        query_params = []
+        if 'expires_in' in params:
+            query_params.append(('expiresIn', params['expires_in']))  # noqa: E501
+        if 'access_control' in params:
+            query_params.append(('accessControl', params['access_control']))  # noqa: E501
+        if 'file_name_format' in params:
+            query_params.append(('fileNameFormat', params['file_name_format']))  # noqa: E501
+        if 'include_meta_data' in params:
+            query_params.append(('includeMetaData', params['include_meta_data']))  # noqa: E501
+        if 'format' in params:
+            query_params.append(('format', params['format']))  # noqa: E501
+        if 'preview_example' in params:
+            query_params.append(('previewExample', params['preview_example']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['text/plain', 'application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v1/datasets/{datasetId}/tags/{tagId}/export/basic/filenames', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='str',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
     def export_tag_to_label_box_data_rows(self, dataset_id, tag_id, **kwargs):  # noqa: E501
         """export_tag_to_label_box_data_rows  # noqa: E501
 
@@ -363,8 +593,11 @@ class TagsApi(object):
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID tag_id: ObjectId of the tag (required)
         :param int expires_in: if defined, the URLs provided will only be valid for amount of seconds from time of issuence
-        :param bool preview_example: if true, will generate a preview example of how the structure will look
         :param str access_control: which access control name to be used
+        :param FileNameFormat file_name_format:
+        :param bool include_meta_data: if true, will also include metadata
+        :param FileOutputFormat format:
+        :param bool preview_example: if true, will generate a preview example of how the structure will look
         :return: LabelBoxDataRows
                  If the method is called asynchronously,
                  returns the request thread.
@@ -389,14 +622,17 @@ class TagsApi(object):
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID tag_id: ObjectId of the tag (required)
         :param int expires_in: if defined, the URLs provided will only be valid for amount of seconds from time of issuence
-        :param bool preview_example: if true, will generate a preview example of how the structure will look
         :param str access_control: which access control name to be used
+        :param FileNameFormat file_name_format:
+        :param bool include_meta_data: if true, will also include metadata
+        :param FileOutputFormat format:
+        :param bool preview_example: if true, will generate a preview example of how the structure will look
         :return: LabelBoxDataRows
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_id', 'tag_id', 'expires_in', 'preview_example', 'access_control']  # noqa: E501
+        all_params = ['dataset_id', 'tag_id', 'expires_in', 'access_control', 'file_name_format', 'include_meta_data', 'format', 'preview_example']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -431,10 +667,16 @@ class TagsApi(object):
         query_params = []
         if 'expires_in' in params:
             query_params.append(('expiresIn', params['expires_in']))  # noqa: E501
-        if 'preview_example' in params:
-            query_params.append(('previewExample', params['preview_example']))  # noqa: E501
         if 'access_control' in params:
             query_params.append(('accessControl', params['access_control']))  # noqa: E501
+        if 'file_name_format' in params:
+            query_params.append(('fileNameFormat', params['file_name_format']))  # noqa: E501
+        if 'include_meta_data' in params:
+            query_params.append(('includeMetaData', params['include_meta_data']))  # noqa: E501
+        if 'format' in params:
+            query_params.append(('format', params['format']))  # noqa: E501
+        if 'preview_example' in params:
+            query_params.append(('previewExample', params['preview_example']))  # noqa: E501
 
         header_params = {}
 
@@ -478,8 +720,11 @@ class TagsApi(object):
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID tag_id: ObjectId of the tag (required)
         :param int expires_in: if defined, the URLs provided will only be valid for amount of seconds from time of issuence
-        :param bool preview_example: if true, will generate a preview example of how the structure will look
         :param str access_control: which access control name to be used
+        :param FileNameFormat file_name_format:
+        :param bool include_meta_data: if true, will also include metadata
+        :param FileOutputFormat format:
+        :param bool preview_example: if true, will generate a preview example of how the structure will look
         :return: LabelStudioTasks
                  If the method is called asynchronously,
                  returns the request thread.
@@ -504,14 +749,17 @@ class TagsApi(object):
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID tag_id: ObjectId of the tag (required)
         :param int expires_in: if defined, the URLs provided will only be valid for amount of seconds from time of issuence
-        :param bool preview_example: if true, will generate a preview example of how the structure will look
         :param str access_control: which access control name to be used
+        :param FileNameFormat file_name_format:
+        :param bool include_meta_data: if true, will also include metadata
+        :param FileOutputFormat format:
+        :param bool preview_example: if true, will generate a preview example of how the structure will look
         :return: LabelStudioTasks
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_id', 'tag_id', 'expires_in', 'preview_example', 'access_control']  # noqa: E501
+        all_params = ['dataset_id', 'tag_id', 'expires_in', 'access_control', 'file_name_format', 'include_meta_data', 'format', 'preview_example']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -546,10 +794,16 @@ class TagsApi(object):
         query_params = []
         if 'expires_in' in params:
             query_params.append(('expiresIn', params['expires_in']))  # noqa: E501
-        if 'preview_example' in params:
-            query_params.append(('previewExample', params['preview_example']))  # noqa: E501
         if 'access_control' in params:
             query_params.append(('accessControl', params['access_control']))  # noqa: E501
+        if 'file_name_format' in params:
+            query_params.append(('fileNameFormat', params['file_name_format']))  # noqa: E501
+        if 'include_meta_data' in params:
+            query_params.append(('includeMetaData', params['include_meta_data']))  # noqa: E501
+        if 'format' in params:
+            query_params.append(('format', params['format']))  # noqa: E501
+        if 'preview_example' in params:
+            query_params.append(('previewExample', params['preview_example']))  # noqa: E501
 
         header_params = {}
 
@@ -580,10 +834,137 @@ class TagsApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
+    def export_tag_to_sama_tasks(self, dataset_id, tag_id, **kwargs):  # noqa: E501
+        """export_tag_to_sama_tasks  # noqa: E501
+
+        Export samples of a tag as a json for importing into Sama as tasks with the upload form or via the API as outlined here; - https://docs.sama.com/reference/taskcreate - https://docs.sama.com/reference/createbatch  ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.export_tag_to_sama_tasks(dataset_id, tag_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param MongoObjectID tag_id: ObjectId of the tag (required)
+        :param int expires_in: if defined, the URLs provided will only be valid for amount of seconds from time of issuence
+        :param str access_control: which access control name to be used
+        :param FileNameFormat file_name_format:
+        :param bool include_meta_data: if true, will also include metadata
+        :param FileOutputFormat format:
+        :param bool preview_example: if true, will generate a preview example of how the structure will look
+        :return: SamaTasks
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.export_tag_to_sama_tasks_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.export_tag_to_sama_tasks_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
+            return data
+
+    def export_tag_to_sama_tasks_with_http_info(self, dataset_id, tag_id, **kwargs):  # noqa: E501
+        """export_tag_to_sama_tasks  # noqa: E501
+
+        Export samples of a tag as a json for importing into Sama as tasks with the upload form or via the API as outlined here; - https://docs.sama.com/reference/taskcreate - https://docs.sama.com/reference/createbatch  ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.export_tag_to_sama_tasks_with_http_info(dataset_id, tag_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param MongoObjectID tag_id: ObjectId of the tag (required)
+        :param int expires_in: if defined, the URLs provided will only be valid for amount of seconds from time of issuence
+        :param str access_control: which access control name to be used
+        :param FileNameFormat file_name_format:
+        :param bool include_meta_data: if true, will also include metadata
+        :param FileOutputFormat format:
+        :param bool preview_example: if true, will generate a preview example of how the structure will look
+        :return: SamaTasks
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['dataset_id', 'tag_id', 'expires_in', 'access_control', 'file_name_format', 'include_meta_data', 'format', 'preview_example']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method export_tag_to_sama_tasks" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'dataset_id' is set
+        if self.api_client.client_side_validation and ('dataset_id' not in params or
+                                                       params['dataset_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `dataset_id` when calling `export_tag_to_sama_tasks`")  # noqa: E501
+        # verify the required parameter 'tag_id' is set
+        if self.api_client.client_side_validation and ('tag_id' not in params or
+                                                       params['tag_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `tag_id` when calling `export_tag_to_sama_tasks`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'dataset_id' in params:
+            path_params['datasetId'] = params['dataset_id']  # noqa: E501
+        if 'tag_id' in params:
+            path_params['tagId'] = params['tag_id']  # noqa: E501
+
+        query_params = []
+        if 'expires_in' in params:
+            query_params.append(('expiresIn', params['expires_in']))  # noqa: E501
+        if 'access_control' in params:
+            query_params.append(('accessControl', params['access_control']))  # noqa: E501
+        if 'file_name_format' in params:
+            query_params.append(('fileNameFormat', params['file_name_format']))  # noqa: E501
+        if 'include_meta_data' in params:
+            query_params.append(('includeMetaData', params['include_meta_data']))  # noqa: E501
+        if 'format' in params:
+            query_params.append(('format', params['format']))  # noqa: E501
+        if 'preview_example' in params:
+            query_params.append(('previewExample', params['preview_example']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v1/datasets/{datasetId}/tags/{tagId}/export/Sama/tasks', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='SamaTasks',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
     def get_filenames_by_tag_id(self, dataset_id, tag_id, **kwargs):  # noqa: E501
         """get_filenames_by_tag_id  # noqa: E501
 
-        Get list of filenames by tag  # noqa: E501
+        Get list of filenames by tag. Deprecated, please use  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_filenames_by_tag_id(dataset_id, tag_id, async_req=True)
@@ -606,7 +987,7 @@ class TagsApi(object):
     def get_filenames_by_tag_id_with_http_info(self, dataset_id, tag_id, **kwargs):  # noqa: E501
         """get_filenames_by_tag_id  # noqa: E501
 
-        Get list of filenames by tag  # noqa: E501
+        Get list of filenames by tag. Deprecated, please use  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_filenames_by_tag_id_with_http_info(dataset_id, tag_id, async_req=True)
