@@ -19,7 +19,7 @@ the following workloads in one single run:
 Lightly supports the following cloud storage solutions:
 
 - `AWS Secure Storage Solution (S3) <https://aws.amazon.com/s3/>`_
-- `Google Cloud Storage (GCP) <https://cloud.google.com/storage>`_
+- `Google Cloud Storage (GCS) <https://cloud.google.com/storage>`_
 - `Azure Blob Storage (Azure) <https://azure.microsoft.com/services/storage/blobs/>`_
 
 
@@ -41,13 +41,13 @@ Advantages
 .. note:: 
   
   Please ensure that the bucket and the instance running the Lightly Docker are
-  in the same cloud region (S3, Azure) or zone (GCP). E.g. if you are using S3, 
+  in the same cloud region (S3, Azure) or zone (GCS). E.g. if you are using S3, 
   have the instance running in `eu-central-1` and the bucket also in 
   `eu-central-1`. If the region or zone are note the same there can be 
   **additional transfer costs** and **degraded transfer speeds**. Please consult
   the pricing page of your cloud provider for more details
   (`S3 <https://aws.amazon.com/s3/pricing/>`_,
-  `GCP <https://cloud.google.com/storage/pricing>`_, 
+  `GCS <https://cloud.google.com/storage/pricing>`_, 
   `Azure <https://azure.microsoft.com/pricing/details/storage/blobs/>`_).
 
 
@@ -72,7 +72,7 @@ steps:
 
 If you don't know how to fill out the form, follow the full tutorial to create
 a Lightly dataset connected to your bucket: :ref:`S3 <dataset-creation-aws-bucket>`, 
-:ref:`GCP <dataset-creation-gcloud-bucket>`, 
+:ref:`GCS <dataset-creation-gcloud-bucket>`, 
 :ref:`Azure <dataset-creation-azure-storage>`.
 
 
@@ -174,13 +174,13 @@ Network traffic
 ---------------
 
 Please ensure that the bucket and the instance running the Lightly Docker are
-in the same cloud region (S3, Azure) or zone (GCP). E.g. if you are using S3, 
+in the same cloud region (S3, Azure) or zone (GCS). E.g. if you are using S3, 
 have the instance running in `eu-central-1` and the bucket also in 
 `eu-central-1`. If the region or zone are note the same there can be 
 **additional transfer costs** and **degraded transfer speeds**. Please consult
 the pricing page of your cloud provider for more details
 (`S3 <https://aws.amazon.com/s3/pricing/>`_,
-`GCP <https://cloud.google.com/storage/pricing>`_, 
+`GCS <https://cloud.google.com/storage/pricing>`_, 
 `Azure <https://azure.microsoft.com/pricing/details/storage/blobs/>`_).
 
 
