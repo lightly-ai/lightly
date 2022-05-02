@@ -27,14 +27,29 @@ if io._HAS_VIDEO_OPT:
     torchvision.set_video_backend('video_reader')
 
 
-class NonIncreasingTimestampError(Exception):
+class VideoError(Exception):
+    """Base exception class for errors during video loading."""
+    pass
+
+
+class EmptyVideoError(VideoError):
+    """Exception raised when trying to load a frame from an empty video."""
+    pass
+
+
+class FrameShapeError(VideoError):
+    """Exception raised when the loaded frame has an unexpected shape."""
+    pass
+
+
+class NonIncreasingTimestampError(VideoError):
     """Exception raised when trying to load a frame that has a timestamp 
     equal or lower than the timestamps of previous frames in the video.
     """
     pass
 
 
-class UnseekableTimestampError(Exception):
+class UnseekableTimestampError(VideoError):
     """Exception raised when trying to load a frame that has a timestamp which
     cannot be seeked to by the video loader.
     """
@@ -144,17 +159,17 @@ class VideoLoader(threading.local):
 
         Raises:
             StopIteration:
-                If video is empty or end of video is reached and timestamp is None.
+                If end of video is reached and timestamp is None.
             ValueError: 
                 If provided timestamp is not in self.timestamps.
-            RuntimeError:
-                If loaded frame has wrong shape or seeking to the provided
-                timestamp failed.
+            VideoError:
+                If the frame could not be loaded.
 
         """
         if not self.timestamps:
-            # Empty video.
-            raise StopIteration()
+            raise EmptyVideoError(
+                f'Cannot load frame from empty video {self.path}.'
+            )
 
         if timestamp is None:
             # Try to read next frame.
@@ -259,7 +274,7 @@ class VideoLoader(threading.local):
             self.current_index = index
 
         if len(frame.shape) < 3:
-            raise RuntimeError(
+            raise FrameShapeError(
                 f'Loaded frame has unexpected shape {frame.shape}. '
                 f'Frames are expected to have 3 dimensions: (H, W, C).'
             )
@@ -503,7 +518,10 @@ class VideoDataset(datasets.VisionDataset):
             A tuple (sample, target) where target indicates the video index.
 
         Raises:
-            IndexError if index is out of bounds.
+            IndexError:
+                If index is out of bounds.
+            VideoError:
+                If the frame at the given index could not be loaded.
 
         """
         if index < 0 or index >= self.__len__():
