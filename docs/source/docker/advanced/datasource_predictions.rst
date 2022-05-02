@@ -13,6 +13,9 @@ add their predictions to the datasource.
 If you already have labels instead of predictions, you can treat them
 just as predictions and upload them the same way.
 
+.. warning:: Note that using predictions requires a minimum 
+    docker of version 2.2. You can check your docker version by running the 
+    :ref:`ref-docker-setup-sanity-check`.
 
 Predictions Folder Structure
 ----------------------------
