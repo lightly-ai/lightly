@@ -270,16 +270,16 @@ def _no_grad_trunc_normal(
         tensor.clamp_(min=a, max=b)
         return tensor
 
-def repeat_token_like(token, input):
-    # repeats token to have same shape as input
-    N, S, _ = input.shape
-    return token.repeat(N, S, 1)
+def repeat_token(token, size):
+    # repeats token to have
+    batch_size, sequence_length = size[:2]
+    return token.repeat(batch_size, sequence_length, 1)
 
 def expand_index_like(idx, input):
     # expands the index along the feature dimension of input
-    # returns idx with shape (N_idx, S_idx, D_input)
-    D = input.shape[-1]
-    idx = idx.unsqueeze(-1).expand(-1, -1, D)
+    # returns idx with shape (batch_size, sequence_length, dim_input)
+    dim = input.shape[-1]
+    idx = idx.unsqueeze(-1).expand(-1, -1, dim)
     return idx
 
 def get_at_index(input, idx):
@@ -294,8 +294,8 @@ def set_at_index(input, idx, value):
 
 def prepend_class_token(input, class_token):
     # prepends class token to input
-    N = input.shape[0]
-    batch_class_token = class_token.expand(N, -1, -1)
+    batch_size = input.shape[0]
+    batch_class_token = class_token.expand(batch_size, -1, -1)
     return torch.cat([batch_class_token, input], dim=1)
 
 def patchify(imgs, patch_size):
@@ -312,22 +312,19 @@ def patchify(imgs, patch_size):
     return patches
 
 
-def random_mask_from_ratio(
+def random_token_mask(
     size, 
     mask_ratio=0.6,
     mask_class_token=False,
 ):
     # creates random masks 
     # returns idx_keep, idx_mask tuple
-    # idx_keep has shape (N, num_keep)
-    # idx_mask has shape (N, S - num_keep)
+    # idx_keep has shape (batch_size, num_keep)
+    # idx_mask has shape (batch_size, sequence_length - num_keep)
+    batch_size, sequence_length = size
+    num_keep = int(sequence_length * (1 - mask_ratio))
     
-    # N = batch size
-    # S = sequence length
-    N, S = size
-    num_keep = int(S * (1 - mask_ratio))
-    
-    noise = torch.rand(N, S, device=input.device)
+    noise = torch.rand(batch_size, sequence_length, device=input.device)
     if not mask_class_token:
         # make sure that class token is not masked
         noise[:, 0] = -1
