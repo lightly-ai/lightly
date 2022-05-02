@@ -222,16 +222,17 @@ class VideoLoader(threading.local):
             try:
                 while True:
                     frame_info = next(self.reader)
-                    if frame_info['pts'] >= next_timestamp:
+                    if frame_info['pts'] < timestamp - self.eps:
+                        # Did not read far enough, let's continue reading more 
+                        # frames. This can happen due to decreasing timestamps.
+                        frame_info = next(self.reader)
+                    elif frame_info['pts'] >= next_timestamp:
                         # Accidentally read too far, let's seek back to the 
-                        # correct position. This can happen due to imprecise seek.
+                        # correct position and exit. This can happen due to 
+                        # imprecise seek.
                         self.reader.seek(timestamp)
                         frame_info = next(self.reader)
                         break
-                    elif frame_info['pts'] < timestamp - self.eps:
-                        # Did not read far enough, let's continue reading more frames.
-                        # This can happen due to decreasing timestamps.
-                        frame_info = next(self.reader)
                     else:
                         break
             except StopIteration:
