@@ -1,6 +1,8 @@
+from fractions import Fraction
 import unittest
 import os
 import shutil
+from unittest import mock
 import numpy as np
 import tempfile
 import warnings
@@ -8,8 +10,13 @@ import PIL
 import torch
 import torchvision
 
-from lightly.data import LightlyDataset
-from lightly.data._video import VideoDataset, _make_dataset
+from lightly.data import LightlyDataset, NonIncreasingTimestampError
+from lightly.data._video import (
+    VideoDataset, 
+    _make_dataset,
+    _find_non_increasing_timestamps,
+)
+
 import cv2
 
 try:
@@ -17,6 +24,8 @@ try:
     PYAV_AVAILABLE = True
 except ModuleNotFoundError:
     PYAV_AVAILABLE = False
+
+VIDEO_BACKENDS = ['pyav', 'video_reader']
 
 class TestVideoDataset(unittest.TestCase):
 
@@ -55,7 +64,7 @@ class TestVideoDataset(unittest.TestCase):
         backends = []
 
         # iterate through different backends
-        for backend in ['pyav', 'video_reader']:
+        for backend in VIDEO_BACKENDS:
             torchvision.set_video_backend(backend)
 
             _, video_timestamps, video_offsets, _ = \
@@ -80,7 +89,7 @@ class TestVideoDataset(unittest.TestCase):
         self.create_dataset()
 
         # iterate through different backends
-        for backend in ['pyav', 'video_reader']:
+        for backend in VIDEO_BACKENDS:
             torchvision.set_video_backend(backend)
 
             # create dataset
@@ -130,10 +139,59 @@ class TestVideoDataset(unittest.TestCase):
             with self.assertRaises(PermissionError):
                 dataset = LightlyDataset(self.input_dir)
 
+    def test_video_dataset_non_increasing_timestamps(self):
+        self.create_dataset(n_videos=2, n_frames_per_video=5)
+        
+        # overwrite the _make_dataset function to return a wrong timestamp
+        def _make_dataset_with_non_increasing_timestamps(*args):
+            video_instances, timestamps, offsets, fpss = _make_dataset(*args)
+            # set timestamp of 4th frame in 1st video to timestamp of 2nd frame.
+            timestamps[0][3] = timestamps[0][1]
+            return video_instances, timestamps, offsets, fpss
+
+        with mock.patch('lightly.data._video._make_dataset', _make_dataset_with_non_increasing_timestamps):
+            for backend in VIDEO_BACKENDS:
+                torchvision.set_video_backend(backend)
+
+                # getting frame at wrong timestamp should throw an exception
+                dataset = VideoDataset(self.input_dir, extensions=self.extensions)
+                for i in range(len(dataset)):
+                    if i == 3:
+                        # frame with wrong timestamp
+                        with self.assertRaises(NonIncreasingTimestampError):
+                            dataset[i]
+                    else:
+                        dataset[i]
+
+                # Getting frame at wrong timestamp should throw an exception
+                # from dataloader but not break the dataloader itself. Future
+                # calls to next() should still work.
+                dataloader = torch.utils.data.DataLoader(
+                    dataset,
+                    num_workers=2,
+                    batch_size=None,
+                    collate_fn=lambda x: x
+                )
+                dataloader_iter = iter(dataloader)
+                for i in range(len(dataset)):
+                    if i == 3:
+                        # frame with wrong timestamp
+                        with self.assertRaises(NonIncreasingTimestampError):
+                            next(dataloader_iter)
+                    else:
+                        next(dataloader_iter)
+
+                # disable exception, should be able to load all frames
+                dataset.exception_on_non_increasing_timestamp = False
+                total_frames = 0
+                for _ in dataset:
+                    total_frames += 1
+                self.assertEqual(total_frames, len(dataset))
+
 
     def test_video_dataset_dataloader(self):
         self.create_dataset()
-        for backend in ['pyav', 'video_reader']:
+        for backend in VIDEO_BACKENDS:
             torchvision.set_video_backend(backend)
             dataset = VideoDataset(self.input_dir, extensions=self.extensions)
             dataloader = torch.utils.data.DataLoader(
@@ -145,3 +203,33 @@ class TestVideoDataset(unittest.TestCase):
             )
             for batch in dataloader:
                 pass
+    
+    
+    def test_find_non_increasing_timestamps(self):
+        # no timestamps
+        non_increasing = _find_non_increasing_timestamps([])
+        self.assertListEqual(non_increasing, [])
+
+        # single timestamp
+        timestamps = [Fraction(0, 1)]
+        expected = [False]
+        non_increasing = _find_non_increasing_timestamps(timestamps)
+        self.assertListEqual(non_increasing, expected)
+
+        # all timestamps increasing
+        timestamps = [Fraction(0, 1), Fraction(1, 1), Fraction(2, 1)]
+        expected = [False, False, False]
+        non_increasing = _find_non_increasing_timestamps(timestamps)
+        self.assertListEqual(non_increasing, expected)
+
+        # all timestamps equal
+        timestamps = [Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)]
+        expected = [False, True, True]
+        non_increasing = _find_non_increasing_timestamps(timestamps)
+        self.assertListEqual(non_increasing, expected)
+        
+        # some timestamps equal and some decreasing
+        timestamps = [Fraction(-1, 1), Fraction(0, 1), Fraction(1, 1), Fraction(2, 3), Fraction(2, 3), Fraction(2, 1), Fraction(3, 2)]
+        expected = [False, False, False, True, True, False, True]
+        non_increasing = _find_non_increasing_timestamps(timestamps)
+        self.assertListEqual(non_increasing, expected)
