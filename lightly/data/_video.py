@@ -8,6 +8,7 @@ from typing import List, Tuple
 from fractions import Fraction
 import threading
 import weakref
+import warnings
 
 from PIL import Image
 
@@ -24,6 +25,36 @@ except ImportError:
 
 if io._HAS_VIDEO_OPT:
     torchvision.set_video_backend('video_reader')
+
+
+class VideoError(Exception):
+    """Base exception class for errors during video loading."""
+    pass
+
+
+class EmptyVideoError(VideoError):
+    """Exception raised when trying to load a frame from an empty video."""
+    pass
+
+
+class FrameShapeError(VideoError):
+    """Exception raised when the loaded frame has an unexpected shape."""
+    pass
+
+
+class NonIncreasingTimestampError(VideoError):
+    """Exception raised when trying to load a frame that has a timestamp 
+    equal or lower than the timestamps of previous frames in the video.
+    """
+    pass
+
+
+class UnseekableTimestampError(VideoError):
+    """Exception raised when trying to load a frame that has a timestamp which
+    cannot be seeked to by the video loader.
+    """
+    pass
+
 
 # @guarin 18.02.2022
 # VideoLoader and VideoDataset multi-thread and multi-processing infos
@@ -72,6 +103,8 @@ class VideoLoader(threading.local):
             As transform but for targets
         is_valid_file:
             Used to check corrupt files
+        eps:
+            Small value to account for floating point imprecisions.
 
     Examples:
         >>> from torchvision import io
@@ -88,13 +121,19 @@ class VideoLoader(threading.local):
         >>> # get next frame
         >>> frame = video_loader.read_frame()
     """
-    def __init__(self, path: str, timestamps: List[float], backend: str = 'video_reader'):
+    def __init__(
+        self, 
+        path: str, 
+        timestamps: List[float], 
+        backend: str = 'video_reader',
+        eps: float = 1e-6,
+    ):
         self.path = path
         self.timestamps = timestamps
-        self.current_timestamp_idx = 0
-        self.last_timestamp_idx = 0
+        self.current_index = None
         self.pts_unit='sec'
         self.backend = backend
+        self.eps = eps
 
         has_video_reader = io._HAS_VIDEO_OPT and hasattr(io, 'VideoReader')
 
@@ -112,61 +151,134 @@ class VideoLoader(threading.local):
         to the right position and then load the frame.
         
         Args:
-            timestamp: Specific timestamp of frame in seconds or None (default: None)
+            timestamp: 
+                Specific timestamp of frame in seconds or None (default: None)
 
         Returns:
             A PIL Image
 
+        Raises:
+            StopIteration:
+                If end of video is reached and timestamp is None.
+            ValueError: 
+                If provided timestamp is not in self.timestamps.
+            VideoError:
+                If the frame could not be loaded.
+
         """
-        if timestamp is not None:
-            if (
-                self.current_timestamp_idx + 1 < len(self.timestamps)
-                and self.timestamps[self.current_timestamp_idx + 1] == timestamp
-            ):
-                # Timestamp is timestamp of next frame. Set current timestamp
-                # index to next frame.
-                self.current_timestamp_idx += 1
+        if not self.timestamps:
+            raise EmptyVideoError(
+                f'Cannot load frame from empty video {self.path}.'
+            )
+
+        if timestamp is None:
+            # Try to read next frame.
+            if self.current_index is None:
+                # Beginning of video.
+                index = 0
+                timestamp = self.timestamps[index]
+            elif self.current_index >= len(self.timestamps):
+                # Reached end of video.
+                raise StopIteration()
             else:
-                # Search correct index using timestamp.
-                self.current_timestamp_idx = self.timestamps.index(timestamp)
+                # Read next frame.
+                index = self.current_index + 1
+                timestamp = self.timestamps[index]
+        elif (
+            self.current_index is not None
+            and self.current_index + 1 < len(self.timestamps)
+            and timestamp == self.timestamps[self.current_index + 1]
+        ):
+            # Provided timestamp is timestamp of next frame.
+            index = self.current_index + 1
         else:
-            # No timestamp provided. Set current timestamp index to next frame
-            if self.current_timestamp_idx < len(self.timestamps):
-                self.current_timestamp_idx += 1
+            # Random timestamp, must find corresponding index.
+            index = self.timestamps.index(timestamp)
 
         if self.reader:
-            if timestamp is not None:
-                # Calling seek is slow. We avoid seeking unless:
-                # 1) We do not access frames sequentially.
-                # 2) The timestamps between subsequent frames decrease. This is
-                #    necessary because the seek looks for the first frame that
-                #    has timestamp >= seek timestamp and filters out all frames
-                #    with a smaller timestamp. Future calls to next(self.reader)
-                #    can then miss the frames with the smaller timestamps,
-                #    resulting in accidentally dropped frames.
-                if (
-                    self.current_timestamp_idx != self.last_timestamp_idx + 1
-                    or timestamp < self.timestamps[self.last_timestamp_idx]
-                ):
-                    self.reader.seek(timestamp)
+            # Only seek if we cannot just call next(self.reader).
+            if (
+                self.current_index is None and index != 0
+                or self.current_index is not None and index != self.current_index + 1
+            ):
+                self.reader.seek(timestamp)
 
-            # make sure we have the tensor in correct shape (we want H x W x C)
-            frame = next(self.reader)['data'].permute(1,2,0)
-            self.last_timestamp_idx = self.current_timestamp_idx
+            # Find next larger timestamp than the one we seek. Used to verify
+            # that we did not seek too far in the video and that the correct
+            # frame is returned.
+            if index + 1 < len(self.timestamps):
+                try:
+                    next_timestamp = next(
+                        ts for ts in self.timestamps[index + 1:] if ts > timestamp
+                    )
+                except StopIteration:
+                    # All timestamps of future frames are smaller.
+                    next_timestamp = float('inf')
+            else:
+                # Want to load last frame in video.
+                next_timestamp = float('inf')
+
+            # Load the frame.
+            try:
+                while True:
+                    frame_info = next(self.reader)
+                    if frame_info['pts'] < timestamp - self.eps:
+                        # Did not read far enough, let's continue reading more 
+                        # frames. This can happen due to decreasing timestamps.
+                        frame_info = next(self.reader)
+                    elif frame_info['pts'] >= next_timestamp:
+                        # Accidentally read too far, let's seek back to the 
+                        # correct position and exit. This can happen due to 
+                        # imprecise seek.
+                        self.reader.seek(timestamp)
+                        frame_info = next(self.reader)
+                        break
+                    else:
+                        break
+            except StopIteration:
+                # Accidentally reached the end of the video, let's seek back to
+                # the correction position. This can happen due to imprecise seek.
+                self.reader.seek(timestamp)
+                try:
+                    frame_info = next(self.reader)
+                except StopIteration as ex:
+                    # Seeking to this timestamp simply doesn't work.
+                    raise UnseekableTimestampError(
+                        f'Cannot seek to frame with timestamp {float(timestamp)} '
+                        f'in {self.path}.'
+                    ) from ex
+
+            if (
+                frame_info['pts'] < timestamp - self.eps
+                or frame_info['pts'] >= next_timestamp
+            ):
+                # We accidentally loaded the wrong frame. This should only 
+                # happen if self.reader.seek(timestamp) does not seek to the
+                # correct timestamp. In this case there is nothing we can do to
+                # load the correct frame and we alert the user that something
+                # went wrong.
+                warnings.warn(
+                    f'Loaded wrong frame in {self.path}! Tried to load frame '
+                    f'with index {index} and timestamp {float(timestamp)} but '
+                    f'could only find frame with timestamp {frame_info["pts"]}.'
+                )
+
+            # Make sure we have the tensor in correct shape (we want H x W x C)
+            frame = frame_info['data'].permute(1,2,0)
+            self.current_index = index
 
         else: # fallback on pyav
-            if timestamp is None:
-                # read next frame if no timestamp is provided
-                timestamp = self.timestamps[self.current_timestamp_idx]
             frame, _, _ = io.read_video(self.path,
                                         start_pts=timestamp,
                                         end_pts=timestamp,
-                                        pts_unit=self.pts_unit)    
-            self.last_timestamp_idx = self.timestamps.index(timestamp)    
-        
-        
+                                        pts_unit=self.pts_unit)
+            self.current_index = index
+
         if len(frame.shape) < 3:
-            raise ValueError('Unexpected error during loading of frame')
+            raise FrameShapeError(
+                f'Loaded frame has unexpected shape {frame.shape}. '
+                f'Frames are expected to have 3 dimensions: (H, W, C).'
+            )
 
         # sometimes torchvision returns multiple frames for one timestamp (bug?)
         if len(frame.shape) > 3 and frame.shape[0] > 1:
@@ -268,6 +380,35 @@ def _make_dataset(directory,
     return video_instances, timestamps, offsets, fpss
 
 
+def _find_non_increasing_timestamps(
+    timestamps: List[Fraction]
+    ) -> List[bool]:
+    """Finds all non-increasing timestamps.
+
+    Arguments:
+        timestamps:
+            Video frame timestamps.
+
+    Returns:
+        A boolean for each input timestamp which is True if the timestamp is
+        non-increasing and False otherwise.
+
+    """
+    is_non_increasing = []
+    max_timestamp = None
+    for timestamp in timestamps:
+        if (
+            max_timestamp is None
+            or timestamp > max_timestamp
+         ):
+            is_non_increasing.append(False)
+            max_timestamp = timestamp
+        else:
+            is_non_increasing.append(True)
+    
+    return is_non_increasing
+
+
 class VideoDataset(datasets.VisionDataset):
     """Implementation of a video dataset.
 
@@ -285,6 +426,10 @@ class VideoDataset(datasets.VisionDataset):
             As transform but for targets
         is_valid_file:
             Used to check corrupt files
+        exception_on_non_increasing_timestamp:
+            If True, a NonIncreasingTimestampError is raised when trying to load
+            a frame that has a timestamp lower or equal to the timestamps of 
+            previous frames in the same video.
 
     """
 
@@ -293,7 +438,8 @@ class VideoDataset(datasets.VisionDataset):
                  extensions=None,
                  transform=None,
                  target_transform=None,
-                 is_valid_file=None):
+                 is_valid_file=None,
+                 exception_on_non_increasing_timestamp=True):
         
         super(VideoDataset, self).__init__(root,
                                            transform=transform,
@@ -311,12 +457,20 @@ class VideoDataset(datasets.VisionDataset):
 
         self.extensions = extensions
         self.backend = torchvision.get_video_backend()
+        self.exception_on_non_increasing_timestamp = exception_on_non_increasing_timestamp
 
         self.videos = videos
         self.video_timestamps = video_timestamps
         self._length = sum((
             len(ts) for ts in self.video_timestamps
         ))
+        # Boolean value for every timestamp in self.video_timestamps. If True 
+        # the timestamp of the frame is non-increasing compared to timestamps of
+        # previous frames in the video.
+        self.video_timestamps_is_non_increasing = [
+            _find_non_increasing_timestamps(timestamps) for timestamps in video_timestamps
+        ]
+        
         # offsets[i] indicates the index of the first frame of the i-th video.
         # e.g. for two videos of length 10 and 20, the offsets will be [0, 10].
         self.offsets = offsets
@@ -365,7 +519,10 @@ class VideoDataset(datasets.VisionDataset):
             A tuple (sample, target) where target indicates the video index.
 
         Raises:
-            IndexError if index is out of bounds.
+            IndexError:
+                If index is out of bounds.
+            VideoError:
+                If the frame at the given index could not be loaded.
 
         """
         if index < 0 or index >= self.__len__():
@@ -379,8 +536,21 @@ class VideoDataset(datasets.VisionDataset):
         while (self.offsets[i] > index):
             i = i - 1
 
-        # find and return the frame as PIL image
         timestamp_idx = index - self.offsets[i]
+
+        if (
+            self.exception_on_non_increasing_timestamp
+            and self.video_timestamps_is_non_increasing[i][timestamp_idx]
+        ):
+            raise NonIncreasingTimestampError(
+                f'Frame {timestamp_idx} of video {self.videos[i]} has '
+                f'a timestamp that is equal or lower than timestamps of previous '
+                f'frames in the video. Trying to load this frame might result '
+                f'in the wrong frame being returned. Set the VideoDataset.exception_on_non_increasing_timestamp'
+                f'attribute to False to allow unsafe frame loading.'
+            )
+
+        # find and return the frame as PIL image
         frame_timestamp = self.video_timestamps[i][timestamp_idx]
         video_loader = self._get_video_loader(i)
         sample = video_loader.read_frame(frame_timestamp)
