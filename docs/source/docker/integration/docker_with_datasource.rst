@@ -1,23 +1,26 @@
 
 .. _ref-docker-with-datasource:
 
-Using the docker with an S3 bucket as remote datasource
-========================================================
+Using the Docker with a Cloud Bucket as Remote Datasource
+=========================================================
 
 Introduction
 ------------
 The Lightly Docker can be used with the Lightly Platform to do
 the following workloads in one single run:
 
-- stream your files directly from your AWS S3 bucket to your local machine without
+- stream your files directly from your cloud bucket to your local machine without
   needing to sync or download them
 - embed all images or video frames
 - sample a subset, e.g. using coreset
 - compute the metadata of the images
 - create a dataset in the Lightly Platform from the selected subset
 
-Support for streaming from Google Cloud Storage and Azure Blob Storage is
-planned. If you need any of these, write us so that we prioritize implementing it.
+Lightly supports the following cloud storage solutions:
+
+- `AWS Secure Storage Solution (S3) <https://aws.amazon.com/s3/>`_
+- `Google Cloud Storage (GCS) <https://cloud.google.com/storage>`_
+- `Azure Blob Storage (Azure) <https://azure.microsoft.com/services/storage/blobs/>`_
 
 
 Advantages
@@ -25,34 +28,40 @@ Advantages
 
 - You can run the whole Lightly workflow with one single command.
 - You can process videos directly without needing to extract frames.
-- Your data is streamed from your S3 bucket on the go instead of being first downloaded
-  to your local disk and then read from there. Thus you save both a lot of time and
+- Your data is streamed from your bucket on the go instead of it needing to be downloaded first
+  to your local disk and then read from there. You save both a lot of time and
   disk space and can process much larger datasets.
-- You can :ref:`ref-docker-with-datasource-datapool`
+- You can :ref:`process new data in your bucket using a datapool <ref-docker-with-datasource-datapool>`
   to continuously update and improve your selected dataset
-  everytime new data comes into your S3 bucket.
-- Your images and videos are never saved anywhere but in your S3 bucket,
+  everytime new data comes into your bucket.
+- Your images and videos are never saved anywhere but in your bucket,
   maintaining your privacy and security.
 
 
-.. note:: Please ensure that the region of your bucket and where you intend to be running the
-          Lightly Docker instance are be the same.
-          E.g. have the instance running in `eu-central-1` and the bucket also in `eu-central-1`.
-          If the region is not the same there can be
-          `degraded transfer speeds and additional costs will be incurred by AWS <https://aws.amazon.com/premiumsupport/knowledge-center/s3-transfer-data-bucket-instance/>`_!
-          This also applies to other cloud providers. We highly recommend using the same region.
+.. note:: 
+  
+  Please ensure that the bucket and the instance running the Lightly Docker are
+  in the same cloud region (S3, Azure) or zone (GCS). If you are using S3 and 
+  your bucket is in `eu-central-1` ensure your EC2 instance is also running in
+  `eu-central-1`. If the region or zone are note the same there can be 
+  **additional transfer costs** and **degraded transfer speeds**. Please consult
+  the pricing page of your cloud provider for more details
+  (`S3 <https://aws.amazon.com/s3/pricing/>`_,
+  `GCS <https://cloud.google.com/storage/pricing>`_, 
+  `Azure <https://azure.microsoft.com/pricing/details/storage/blobs/>`_).
 
 
 Requirements
 ------------
 
 This recipe requires that you already have a dataset in the Lightly Platform
-configured to use the data in your AWS S3 bucket. Create such a dataset in 2 steps:
+configured to use the data in your bucket. You can create such a dataset in two 
+steps:
 
 1. `Create a new dataset <https://app.lightly.ai/dataset/create>`_ in Lightly.
    Make sure that you choose the input type `Images` or `Videos` correctly,
-   depending on the type of files in your S3 bucket.
-2. Edit your dataset, select S3 as your datasource and fill out the form.
+   depending on the type of files in your bucket.
+2. Edit your dataset, select your datasource and fill out the form.
 
     .. figure:: ../../getting_started/resources/LightlyEdit2.png
         :align: center
@@ -61,8 +70,11 @@ configured to use the data in your AWS S3 bucket. Create such a dataset in 2 ste
 
         Lightly S3 connection config
 
-If you don`t know how to fill out the form, follow the full tutorial to
-`create a Lightly dataset connected to your S3 bucket <https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_aws_bucket.html>`_.
+If you don't know how to fill out the form, follow the full tutorial to create
+a Lightly dataset connected to your bucket: :ref:`S3 <dataset-creation-aws-bucket>`, 
+:ref:`GCS <dataset-creation-gcloud-bucket>`, 
+:ref:`Azure <dataset-creation-azure-storage>`.
+
 
 Furthermore, you should have access to a machine running docker. Ideally, it 
 also has a CUDA-GPU. A GPU will speed up the process significantly, especially 
@@ -70,7 +82,7 @@ for large datasets.
 
 
 Download the Lightly Docker
----------------------------------------------
+---------------------------
 Next, the Lightly Docker should be installed.
 Please follow the instructions for the :ref:`ref-docker-setup`.
 
@@ -104,14 +116,14 @@ head to `My Docker Runs <https://app.lightly.ai/docker/runs>`_
 .. image:: ../getting_started/images/docker_runs_overview.png
 
 Use your selected dataset
----------------------------
+-------------------------
 
 Once the docker run has finished, you can see your selected dataset in the Lightly Platform:
 
 .. image:: ./images/webapp-explore-after-docker.jpg
 
-In our case, we had 4 short street videos with about 1000 frames each in the S3 bucket
-and selected 50 frames from it.
+In our case, we had 4 short street videos with about 1000 frames each in our 
+cloud storage bucket and selected 50 frames from it.
 Now you can analyze your dataset in the embedding and metadata view of the Lightly Platform,
 subsample it further, or export it for labeling.
 In our case we come to the conclusion that the raw data we have
@@ -120,19 +132,19 @@ decide that we want to first collect more street videos.
 
 .. _ref-docker-with-datasource-datapool:
 
-Process new data in your S3 bucket using a datapool
----------------------------------------------------
+Process new data in your bucket using a datapool
+------------------------------------------------
 
-You probably get new raw data from time to time added to your S3 bucket.
-In our case we added 4 more street videos to the S3 bucket.
+You probably get new raw data from time to time added to your bucket.
+In our case we added 4 more street videos to the bucket.
 The new raw data might include samples which should be added to your dataset
 in the Lightly Platform, so you want to add a subset of them to your dataset.
 
 This workflow is supported by the Lightly Platform using a datapool.
-It remembers which raw data in your S3 bucket has already been processed
+It remembers which raw data in your bucket has already been processed
 and will ignore it in future docker runs.
 Thus you can run the docker with the same command again. It will find
-your new raw data in the S3 bucket, stream, embed and subsample it and then add it to
+your new raw data in the bucket, stream, embed and subsample it and then add it to
 your existing dataset. The selection strategy will take the existing data in your dataset
 into account when selecting new data to be added to your dataset.
 
@@ -142,7 +154,7 @@ After the docker run we can go to the embedding view of the Lightly Platform
 to see the newly added samples there in a new tag. We see that the new samples
 (in green) fill some gaps left by the images in the first iteration (in grey).
 However, there are still some gaps left, which could be filled by adding more videos
-to the S3 bucket and running the docker again.
+to the bucket and running the docker again.
 
 This workflow of iteratively growing your dataset with the Lightly Docker
 has the following advantages:
@@ -153,7 +165,7 @@ has the following advantages:
 - You don't need to configure anything, just run the same command again.
 - Only samples which are different to the existing ones are added to the dataset.
 
-If you want to search all data in your S3 bucket for new samples
+If you want to search all data in your bucket for new samples
 instead of only newly added data,
 then set `datasource.process_all=True` in your docker run command.
 
@@ -161,12 +173,15 @@ then set `datasource.process_all=True` in your docker run command.
 Network traffic
 ---------------
 
-Please ensure that the region of your bucket and where you intend to be running the
-Lightly Docker instance are be the same.
-E.g. have the instance running in `eu-central-1` and the bucket also in `eu-central-1`.
-If the region is not the same there can be
-`degraded transfer speeds and additional costs will be incurred by AWS <https://aws.amazon.com/premiumsupport/knowledge-center/s3-transfer-data-bucket-instance/>`_!
-This also applies to other cloud providers. We highly recommend using the same region.
+Please ensure that the bucket and the instance running the Lightly Docker are
+in the same cloud region (S3, Azure) or zone (GCS). E.g. if you are using S3, 
+have the instance running in `eu-central-1` and the bucket also in 
+`eu-central-1`. If the region or zone are note the same there can be 
+**additional transfer costs** and **degraded transfer speeds**. Please consult
+the pricing page of your cloud provider for more details
+(`S3 <https://aws.amazon.com/s3/pricing/>`_,
+`GCS <https://cloud.google.com/storage/pricing>`_, 
+`Azure <https://azure.microsoft.com/pricing/details/storage/blobs/>`_).
 
 
 The worker causes significant network traffic at the following steps:
@@ -209,5 +224,3 @@ For video datasets:
 As an example: If you have a dataset with 10GB size
 and run Lightly with training an embedding model for 10 epochs, you will face
 at most (10 + 6) * 10GB = 160GB of download traffic.
-
-
