@@ -13,7 +13,7 @@ add their predictions to the datasource.
 If you already have labels instead of predictions, you can treat them
 just as predictions and upload them the same way.
 
-.. note:: Note that the object level features require a minimum 
+.. note:: Note that working with predictions requires a minimum 
     Lightly Worker of version 2.2. You can check your docker version by running the 
     :ref:`ref-docker-setup-sanity-check`.
 

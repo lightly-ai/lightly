@@ -11,7 +11,7 @@ about the uncertainty of the model for the given sample.
 Learn more about the concept of active learning scores:
 :ref:`lightly-active-learning-scorers`.
 
-.. note:: Note that the object level features require a minimum 
+.. note:: Note that the active learning features require a minimum 
     Lightly Worker of version 2.2. You can check your docker version by running the 
     :ref:`ref-docker-setup-sanity-check`.
 
