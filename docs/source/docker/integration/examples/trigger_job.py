@@ -1,13 +1,13 @@
 import lightly
 
-# we create the Lightly client to connect to the API
-# don't forget to pass the dataset_id if you don't use the client from the 
-# previous snippet (create a dataset)
+# Create the Lightly client to connect to the API.
+# Don't forget to pass the dataset_id if you don't use the client from the 
+# previous snippet (create a dataset).
 client = lightly.api.ApiWorkflowClient(token="TOKEN", dataset_id="DATASET_ID")
 
-# schedule the compute run using our custom config
-# We show here the full default config you can easily edit the
-# value according to your need.
+# Schedule the compute run using our custom config.
+# We show here the full default config so you can easily edit the
+# values according to your needs.
 client.schedule_compute_worker_run(
     worker_config={
         'enable_corruptness_check': True,
