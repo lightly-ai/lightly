@@ -14,8 +14,8 @@ If you already have labels instead of predictions, you can treat them
 just as predictions and upload them the same way.
 
 .. note:: Note that working with predictions requires a minimum 
-    Lightly Worker of version 2.2. You can check your docker version by running the 
-    :ref:`ref-docker-setup-sanity-check`.
+    Lightly Worker of version 2.2. You can check your installed version of the 
+    Lightly Worker by running the :ref:`ref-docker-setup-sanity-check`.
 
 Predictions Folder Structure
 ----------------------------

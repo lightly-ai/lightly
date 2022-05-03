@@ -15,8 +15,8 @@ workflow:
 - Automatic cropping of objects from the original image
 
 .. note:: Note that the object level features require a minimum 
-    Lightly Worker of version 2.2. You can check your docker version by running the 
-    :ref:`ref-docker-setup-sanity-check`.
+    Lightly Worker of version 2.2. You can check your installed version of the 
+    Lightly Worker by running the :ref:`ref-docker-setup-sanity-check`.
 
 
 Prerequisites
