@@ -74,8 +74,8 @@ provided through our Web App or you can use our Python package and build a scrip
       1. `Create a new dataset <https://app.lightly.ai/dataset/create>`_ in Lightly.
          Make sure that you choose the input type `Images` or `Videos` correctly, 
          depending on the type of files in your cloud storage bucket.
-      2. Edit your dataset, select the storage source as your datasource and fill 
-         out the form.
+      2. Edit your dataset, select your cloud storage provider as your 
+         datasource and fill out the form.
          In our example we use an S3 bucket.
 
           .. figure:: ../../getting_started/resources/LightlyEdit2.png
@@ -86,10 +86,11 @@ provided through our Web App or you can use our Python package and build a scrip
               Lightly S3 connection config
 
          If you don't know how to fill out the form, follow the full tutorial to create
-         a Lightly dataset connected to your bucket: :ref:`S3 <dataset-creation-aws-bucket>`, 
-         :ref:`GCS <dataset-creation-gcloud-bucket>`, 
-         :ref:`Azure <dataset-creation-azure-storage>`.
-        
+         a Lightly dataset connected to your bucket: 
+         :ref:`AWS Secure Storage Solution (S3) <dataset-creation-aws-bucket>`, 
+         :ref:`Google Cloud Storage (GCS) <dataset-creation-gcloud-bucket>`, 
+         :ref:`Azure Blob Storage (Azure) <dataset-creation-azure-storage>`.
+
 
     .. tab:: Python Code
 
@@ -147,7 +148,7 @@ Lightly Platform:
 
 .. image:: ./images/webapp-explore-after-docker.jpg
 
-In our case, we had 4 short street videos with about 1000 frames each in the 
+In our case, we had 4 short street videos with about 1000 frames each in our cloud storage 
 bucket and selected 50 frames from it. Now you can analyze your dataset in the
 embedding and metadata view of the Lightly Platform, subsample it further, or 
 export it for labeling. In our case we come to the conclusion that the raw data 
@@ -156,8 +157,9 @@ collect more street videos.
 
 Process new data in your bucket using a datapool
 ------------------------------------------------
-You probably get new raw data from time to time added to your bucket. In our 
-case we added 4 more street videos to the bucket. The new raw data might 
+Over time you most likely will be receiving new raw data from your various 
+sources and add these to your cloud storage bucket. In our case we added 4 
+additional street videos to the bucket. The new raw data might 
 include samples which should be added to your dataset in the Lightly Platform, 
 so you want to add a subset of them to your dataset.
 
@@ -185,3 +187,7 @@ the following advantages:
 - Only your new data is processed, saving you time and compute cost.
 - You don't need to configure anything, just run the same job again.
 - Only samples which are different to the existing ones are added to the dataset.
+
+If you want to search all data in your bucket for new samples
+instead of only newly added data,
+then set `datasource.process_all=True` in your docker run command.

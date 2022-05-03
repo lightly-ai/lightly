@@ -28,7 +28,7 @@ Advantages
 
 - You can run the whole Lightly workflow with one single command.
 - You can process videos directly without needing to extract frames.
-- Your data is streamed from your bucket on the go instead of being first downloaded
+- Your data is streamed from your bucket on the go instead of it needing to be downloaded first
   to your local disk and then read from there. You save both a lot of time and
   disk space and can process much larger datasets.
 - You can :ref:`process new data in your bucket using a datapool <ref-docker-with-datasource-datapool>`
@@ -41,8 +41,8 @@ Advantages
 .. note:: 
   
   Please ensure that the bucket and the instance running the Lightly Docker are
-  in the same cloud region (S3, Azure) or zone (GCS). E.g. if you are using S3, 
-  have the instance running in `eu-central-1` and the bucket also in 
+  in the same cloud region (S3, Azure) or zone (GCS). If you are using S3 and 
+  your bucket is in `eu-central-1` ensure your EC2 instance is also running in
   `eu-central-1`. If the region or zone are note the same there can be 
   **additional transfer costs** and **degraded transfer speeds**. Please consult
   the pricing page of your cloud provider for more details
@@ -122,8 +122,8 @@ Once the docker run has finished, you can see your selected dataset in the Light
 
 .. image:: ./images/webapp-explore-after-docker.jpg
 
-In our case, we had 4 short street videos with about 1000 frames each in the bucket
-and selected 50 frames from it.
+In our case, we had 4 short street videos with about 1000 frames each in our 
+cloud storage bucket and selected 50 frames from it.
 Now you can analyze your dataset in the embedding and metadata view of the Lightly Platform,
 subsample it further, or export it for labeling.
 In our case we come to the conclusion that the raw data we have
