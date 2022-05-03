@@ -85,6 +85,11 @@ Create a new docker tag using the following command:
 .. note:: If you don't want to tag the image name you can replace lightly/worker:latest
           by eu.gcr.io/boris-250909/lightly/worker:latest for all commands in this documentation.
 
+.. _ref-docker-setup-sanity-check:
+
+Sanity Check
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 **Finally**, verify the correctness of the docker container by running the following command:
 
 .. code-block:: console
@@ -94,10 +99,9 @@ Create a new docker tag using the following command:
 You should see an output similar to this one:
 
 .. code-block:: console
-
-    [2020-11-12 12:49:38] Lightly Docker Solution
-    [2020-11-12 12:49:38] You are using docker build: Thu Nov 12 08:46:04 UTC 2020.
-    [2020-11-12 12:49:38] Congratulations! It looks like the Lightly container is running!
+    
+    [2022-05-02 20:37:27] Lightly Docker Solution v2.2.0
+    [2022-05-02 20:37:27] Congratulations! It looks like the Lightly container is running!
 
 Head on to :ref:`rst-docker-first-steps`  to see how to sample your dataset!
 
