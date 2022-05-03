@@ -14,8 +14,8 @@ workflow:
 - Ignore uninteresting background regions in images
 - Automatic cropping of objects from the original image
 
-.. warning:: Note that the object level features require a minimum 
-    docker of version 2.2. You can check your docker version by running the 
+.. note:: Note that the object level features require a minimum 
+    Lightly Worker of version 2.2. You can check your docker version by running the 
     :ref:`ref-docker-setup-sanity-check`.
 
 
