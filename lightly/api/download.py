@@ -426,4 +426,5 @@ def download_video_frames_at_timestamps(
         raise ValueError(f"You requested to get the frame at "
                          f"({timestamps[index_timestamp]} pts), "
                          f"but that timestamp "
-                         f"is bigger than all timestamps in the video.")
+                         f"is bigger than all timestamps in video "
+                         f"at {url}")
