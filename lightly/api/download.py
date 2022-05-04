@@ -412,9 +412,17 @@ def download_video_frames_at_timestamps(
                            stream=stream)
 
             index_timestamp = 0
+            print(timestamps)
             for frame in container.decode(stream):
                 # advance from keyframe until correct timestamp is reached
                 if frame.pts >= timestamps[index_timestamp]:
+                    print(frame.pts)
+
+                    if frame.pts > timestamps[index_timestamp]:
+                        warnings.warn(
+                            f'Potentially skipped a frame @ {timestamps[index_timestamp]} '
+                            f'(loaded frame @ {frame.pts} instead)'
+                        )
 
                     # yield next frame
                     if as_pil_image:
