@@ -412,7 +412,7 @@ def download_video_frames_at_timestamps(
                         f"({end_time} pts).")
 
             if seek_to_first_frame:
-            # seek to last keyframe before the min_timestamp
+                # seek to last keyframe before the min_timestamp
                 container.seek(
                     min_timestamp,
                     any_frame=False,
@@ -463,8 +463,8 @@ def download_video_frames_at_timestamps(
 
         # sometimes frames are skipped when we seek to the first frame
         # let's retry downloading these frames without seeking
-        retry_skipped_timestamps = not seek_to_first_frame
-        if len(skipped_timestamps) and retry_skipped_timestamps:
+        retry_skipped_timestamps = seek_to_first_frame
+        if len(skipped_timestamps) > 0 and retry_skipped_timestamps:
             warnings.warn(
                 f'Timestamps {skipped_timestamps} were dropped by the decoder! '
                 f'Retrying...'
