@@ -408,12 +408,12 @@ def download_video_frames_at_timestamps(
                         f"({end_time} pts).")
 
             # seek to last keyframe before the min_timestamp
-            container.seek(
-                max(min_timestamp - 1, 0),
-                any_frame=False,
-                backward=True,
-                stream=stream
-            )
+            # container.seek(
+            #     max(min_timestamp - 1, 0),
+            #     any_frame=False,
+            #     backward=True,
+            #     stream=stream
+            # )
 
             index_timestamp = 0
             print(timestamps)
