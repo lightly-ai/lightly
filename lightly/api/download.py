@@ -447,7 +447,7 @@ def download_video_frames_at_timestamps(
         retry_skipped_timestamps = seek_to_first_frame
         if retry_skipped_timestamps:
             warnings.warn(
-                f'Timestamps {leftovers} were not decoded! Retrying...'
+                f'Timestamps {leftovers} could not be decoded! Retrying from the start...'
             )
             frames = download_video_frames_at_timestamps(
                 url,
