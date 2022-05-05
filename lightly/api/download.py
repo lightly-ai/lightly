@@ -436,7 +436,7 @@ def download_video_frames_at_timestamps(
                         )
                     except StopIteration:
                         # there exists no timestamp larger than frame.pts
-                        actual_index_timestamp = len(timestamps) - 1
+                        actual_index_timestamp = len(timestamps)
 
                     skipped_timestamps.extend(
                         timestamps[index_timestamp:actual_index_timestamp]
@@ -466,8 +466,7 @@ def download_video_frames_at_timestamps(
         retry_skipped_timestamps = seek_to_first_frame
         if len(skipped_timestamps) > 0 and retry_skipped_timestamps:
             warnings.warn(
-                f'Timestamps {skipped_timestamps} were dropped by the decoder! '
-                f'Retrying...'
+                f'Timestamps {skipped_timestamps} were dropped by the decoder! Retrying...'
             )
             frames = download_video_frames_at_timestamps(
                 url,
