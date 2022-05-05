@@ -416,34 +416,14 @@ def download_video_frames_at_timestamps(
                 )
 
             index_timestamp = 0
-            skipped_timestamps = []
+            leftovers = []
             for frame in container.decode(stream):
     
                 # advance from keyframe until correct timestamp is reached
                 if frame.pts > timestamps[index_timestamp]:
 
-                    # dropped frames! find the next timestamp which is bigger
-                    # than the timestamp of the loaded frame and mark others
-                    # as skipped
-                    try:
-                        actual_index_timestamp = next(
-                            (i for i, pts in enumerate(timestamps) if frame.pts <= pts),
-                        )
-                    except StopIteration:
-                        # there exists no timestamp larger than frame.pts
-                        actual_index_timestamp = len(timestamps) - 1
-
-                    if actual_index_timestamp == index_timestamp:
-                        # edge case: skipped frame is the last timestamp in the list
-                        skipped_timestamps.append(timestamps[index_timestamp])
-                        break
-                    else:
-                        skipped_timestamps.extend(
-                            timestamps[index_timestamp:actual_index_timestamp]
-                        )
-
-                    # update the timestamp
-                    index_timestamp = actual_index_timestamp
+                    # dropped frames!
+                    break
 
                 # it's ok to check by equality because timestamps are ints
                 if frame.pts == timestamps[index_timestamp]:
@@ -458,21 +438,20 @@ def download_video_frames_at_timestamps(
                     index_timestamp += 1
 
                 if index_timestamp >= len(timestamps):
-                    break
+                    return
 
-        if len(skipped_timestamps) == 0:
-            return
+        leftovers = timestamps[:index_timestamp]
 
         # sometimes frames are skipped when we seek to the first frame
         # let's retry downloading these frames without seeking
         retry_skipped_timestamps = seek_to_first_frame
-        if len(skipped_timestamps) > 0 and retry_skipped_timestamps:
+        if retry_skipped_timestamps:
             warnings.warn(
-                f'Timestamps {skipped_timestamps} were dropped by the decoder! Retrying...'
+                f'Timestamps {leftovers} were not decoded! Retrying...'
             )
             frames = download_video_frames_at_timestamps(
                 url,
-                skipped_timestamps,
+                leftovers,
                 as_pil_image=as_pil_image,
                 thread_type=thread_type,
                 video_channel=video_channel,
@@ -483,6 +462,5 @@ def download_video_frames_at_timestamps(
             return
 
         raise RuntimeError(
-            f'Timestamps {skipped_timestamps} in video {url} were dropped by the decoder!'
+            f'Timestamps {leftovers} in video {url} could not be decoded!'
         )
-
