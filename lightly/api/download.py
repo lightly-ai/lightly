@@ -440,7 +440,7 @@ def download_video_frames_at_timestamps(
                 if index_timestamp >= len(timestamps):
                     return
 
-        leftovers = timestamps[:index_timestamp]
+        leftovers = timestamps[index_timestamp:]
 
         # sometimes frames are skipped when we seek to the first frame
         # let's retry downloading these frames without seeking
