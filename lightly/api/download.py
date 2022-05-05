@@ -440,7 +440,7 @@ def download_video_frames_at_timestamps(
 
                     if actual_index_timestamp == index_timestamp:
                         # edge case: skipped frame is the last timestamp in the list
-                        skipped_timestamps.append(index_timestamp)
+                        skipped_timestamps.append(timestamps[index_timestamp])
                     else:
                         skipped_timestamps.extend(
                             timestamps[index_timestamp:actual_index_timestamp]
