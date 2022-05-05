@@ -414,6 +414,7 @@ def download_video_frames_at_timestamps(
             #     backward=True,
             #     stream=stream
             # )
+            print(start_time, duration, end_time)
 
             index_timestamp = 0
             print(timestamps)
