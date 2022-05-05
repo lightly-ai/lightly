@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 import PIL
+from pendulum import time
 import requests
 import tqdm
 from lightly.api import utils
@@ -343,6 +344,7 @@ def download_video_frames_at_timestamps(
         as_pil_image: int = True,
         thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
         video_channel: int = 0,
+        seek_to_first_frame: bool = True,
     ) -> Iterable[Union[PIL.Image.Image, av.VideoFrame]]:
         """Lazily retrieves frames from a video at a specific timestamp stored at the given url.
 
@@ -363,6 +365,8 @@ def download_video_frames_at_timestamps(
                 for details.
             video_channel:
                 The video channel from which frames are loaded.
+            seek_to_first_frame:
+                Boolean indicating whether to seek to the first frame.
 
         Returns:
             A generator that loads and returns a single frame per step.
@@ -407,27 +411,42 @@ def download_video_frames_at_timestamps(
                         f"Timestamp ({max_timestamp} pts) exceeds maximum video timestamp "
                         f"({end_time} pts).")
 
+            if seek_to_first_frame:
             # seek to last keyframe before the min_timestamp
-            # container.seek(
-            #     max(min_timestamp - 1, 0),
-            #     any_frame=False,
-            #     backward=True,
-            #     stream=stream
-            # )
-            print(start_time, duration, end_time)
+                container.seek(
+                    min_timestamp,
+                    any_frame=False,
+                    backward=True,
+                    stream=stream
+                )
 
             index_timestamp = 0
-            print(timestamps)
+            skipped_timestamps = []
             for frame in container.decode(stream):
+    
                 # advance from keyframe until correct timestamp is reached
-                if frame.pts >= timestamps[index_timestamp]:
-                    print(frame.pts)
+                if frame.pts > timestamps[index_timestamp]:
 
-                    if frame.pts > timestamps[index_timestamp]:
-                        warnings.warn(
-                            f'Potentially skipped a frame @ {timestamps[index_timestamp]} '
-                            f'(loaded frame @ {frame.pts} instead)'
+                    # dropped frames! find the next timestamp which is bigger
+                    # than the timestamp of the loaded frame and mark others
+                    # as skipped
+                    try:
+                        actual_index_timestamp = next(
+                            (i for i, pts in enumerate(timestamps) if frame.pts <= pts),
                         )
+                    except StopIteration:
+                        # there exists no timestamp larger than frame.pts
+                        actual_index_timestamp = len(timestamps) - 1
+
+                    skipped_timestamps.extend(
+                        timestamps[index_timestamp:actual_index_timestamp]
+                    )
+
+                    # update the timestamp
+                    index_timestamp = actual_index_timestamp
+
+                # it's ok to check by equality because timestamps are ints
+                if frame.pts == timestamps[index_timestamp]:
 
                     # yield next frame
                     if as_pil_image:
@@ -437,11 +456,32 @@ def download_video_frames_at_timestamps(
 
                     # update the timestamp
                     index_timestamp += 1
-                    if index_timestamp >= len(timestamps):
-                        return
 
-        raise ValueError(f"You requested to get the frame at "
-                         f"({timestamps[index_timestamp]} pts), "
-                         f"but that timestamp "
-                         f"is bigger than all timestamps in video "
-                         f"at {url}")
+                if index_timestamp >= len(timestamps) \
+                    and len(skipped_timestamps) == 0:
+                    return
+
+        # sometimes frames are skipped when we seek to the first frame
+        # let's retry downloading these frames without seeking
+        retry_skipped_timestamps = not seek_to_first_frame
+        if len(skipped_timestamps) and retry_skipped_timestamps:
+            warnings.warn(
+                f'Timestamps {skipped_timestamps} were dropped by the decoder! '
+                f'Retrying...'
+            )
+            frames = download_video_frames_at_timestamps(
+                url,
+                skipped_timestamps,
+                as_pil_image=as_pil_image,
+                thread_type=thread_type,
+                video_channel=video_channel,
+                seek_to_first_frame=False,
+            )
+            for frame in frames:
+                yield frame
+            return
+
+        raise RuntimeError(
+            f'Timestamps {skipped_timestamps} in video {url} were dropped by the decoder!'
+        )
+
