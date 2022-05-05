@@ -377,10 +377,6 @@ def download_video_frames_at_timestamps(
         if len(timestamps) == 0:
             return []
 
-        frame_count = video_frame_count(url)
-        if len(timestamps) > frame_count:
-            raise RuntimeError(f'Got {len(timestamps)} timestamps for video with {frame_count} frames!')
-
         if any(
                 timestamps[i+1] <= timestamps[i]
                 for i
