@@ -461,9 +461,11 @@ def download_video_frames_at_timestamps(
                     # update the timestamp
                     index_timestamp += 1
 
-                if index_timestamp >= len(timestamps) \
-                    and len(skipped_timestamps) == 0:
-                    return
+                if index_timestamp >= len(timestamps):
+                    break
+
+        if len(skipped_timestamps) == 0:
+            return
 
         # sometimes frames are skipped when we seek to the first frame
         # let's retry downloading these frames without seeking
