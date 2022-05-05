@@ -120,7 +120,7 @@ class TestDownload(unittest.TestCase):
             for timestamp in timestamps:
                 with self.subTest(timestamp=timestamp):
                     if timestamp > n_frames:
-                        with self.assertRaises(ValueError):
+                        with self.assertRaises(RuntimeError):
                             frame = download.download_video_frame(file.name, timestamp)
                     frame = download.download_video_frame(file.name, timestamp)
 
