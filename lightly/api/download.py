@@ -436,11 +436,15 @@ def download_video_frames_at_timestamps(
                         )
                     except StopIteration:
                         # there exists no timestamp larger than frame.pts
-                        actual_index_timestamp = len(timestamps)
+                        actual_index_timestamp = len(timestamps) - 1
 
-                    skipped_timestamps.extend(
-                        timestamps[index_timestamp:actual_index_timestamp]
-                    )
+                    if actual_index_timestamp == index_timestamp:
+                        # edge case: skipped frame is the last timestamp in the list
+                        skipped_timestamps.append(index_timestamp)
+                    else:
+                        skipped_timestamps.extend(
+                            timestamps[index_timestamp:actual_index_timestamp]
+                        )
 
                     # update the timestamp
                     index_timestamp = actual_index_timestamp
