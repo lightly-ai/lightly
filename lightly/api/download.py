@@ -8,7 +8,6 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 import PIL
-from pendulum import time
 import requests
 import tqdm
 from lightly.api import utils
