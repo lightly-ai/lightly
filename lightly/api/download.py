@@ -416,7 +416,6 @@ def download_video_frames_at_timestamps(
                 )
 
             index_timestamp = 0
-            leftovers = []
             for frame in container.decode(stream):
     
                 # advance from keyframe until correct timestamp is reached
