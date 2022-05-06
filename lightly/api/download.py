@@ -343,6 +343,7 @@ def download_video_frames_at_timestamps(
         as_pil_image: int = True,
         thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
         video_channel: int = 0,
+        seek_to_first_frame: bool = True,
     ) -> Iterable[Union[PIL.Image.Image, av.VideoFrame]]:
         """Lazily retrieves frames from a video at a specific timestamp stored at the given url.
 
@@ -363,6 +364,8 @@ def download_video_frames_at_timestamps(
                 for details.
             video_channel:
                 The video channel from which frames are loaded.
+            seek_to_first_frame:
+                Boolean indicating whether to seek to the first frame.
 
         Returns:
             A generator that loads and returns a single frame per step.
@@ -403,14 +406,26 @@ def download_video_frames_at_timestamps(
                         f"Timestamp ({max_timestamp} pts) exceeds maximum video timestamp "
                         f"({end_time} pts).")
 
-            # seek to last keyframe before the min_timestamp
-            container.seek(min_timestamp, any_frame=False, backward=True,
-                           stream=stream)
+            if seek_to_first_frame:
+                # seek to last keyframe before the min_timestamp
+                container.seek(
+                    min_timestamp,
+                    any_frame=False,
+                    backward=True,
+                    stream=stream
+                )
 
             index_timestamp = 0
             for frame in container.decode(stream):
+    
                 # advance from keyframe until correct timestamp is reached
-                if frame.pts >= timestamps[index_timestamp]:
+                if frame.pts > timestamps[index_timestamp]:
+
+                    # dropped frames!
+                    break
+
+                # it's ok to check by equality because timestamps are ints
+                if frame.pts == timestamps[index_timestamp]:
 
                     # yield next frame
                     if as_pil_image:
@@ -420,10 +435,31 @@ def download_video_frames_at_timestamps(
 
                     # update the timestamp
                     index_timestamp += 1
-                    if index_timestamp >= len(timestamps):
-                        return
 
-        raise ValueError(f"You requested to get the frame at "
-                         f"({timestamps[index_timestamp]} pts), "
-                         f"but that timestamp "
-                         f"is bigger than all timestamps in the video.")
+                if index_timestamp >= len(timestamps):
+                    return
+
+        leftovers = timestamps[index_timestamp:]
+
+        # sometimes frames are skipped when we seek to the first frame
+        # let's retry downloading these frames without seeking
+        retry_skipped_timestamps = seek_to_first_frame
+        if retry_skipped_timestamps:
+            warnings.warn(
+                f'Timestamps {leftovers} could not be decoded! Retrying from the start...'
+            )
+            frames = download_video_frames_at_timestamps(
+                url,
+                leftovers,
+                as_pil_image=as_pil_image,
+                thread_type=thread_type,
+                video_channel=video_channel,
+                seek_to_first_frame=False,
+            )
+            for frame in frames:
+                yield frame
+            return
+
+        raise RuntimeError(
+            f'Timestamps {leftovers} in video {url} could not be decoded!'
+        )
