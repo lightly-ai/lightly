@@ -4,10 +4,9 @@
 # All Rights Reserved
 
 import torch
-import torch.distributed as dist
 
 from lightly.loss.memory_bank import MemoryBankModule
-from lightly.loss.gather import GatherLayer
+from lightly.utils import dist
 
 
 class NTXentLoss(MemoryBankModule):
@@ -126,20 +125,18 @@ class NTXentLoss(MemoryBankModule):
 
         else:
             # user other samples from batch as negatives
-            if (
-                self.gather_distributed 
-                and dist.is_initialized() 
-                and dist.get_world_size() > 1
-            ):
+            # and create diagonal mask that only selects similarities between
+            # views of the same image
+            if self.gather_distributed and dist.world_size() > 1:
                 # gather hidden representations from other processes
-                out0_large = torch.cat(GatherLayer.apply(out0), 0)
-                out1_large = torch.cat(GatherLayer.apply(out1), 0)
-                rank = dist.get_rank()
+                out0_large = torch.cat(dist.gather(out0), 0)
+                out1_large = torch.cat(dist.gather(out1), 0)
+                diag_mask = dist.eye_rank(batch_size, device=out0.device)
             else:
                 # single process
                 out0_large = out0
                 out1_large = out1
-                rank = 0
+                diag_mask = torch.eye(batch_size, device=out0.device, dtype=torch.bool)
 
             # calculate similiarities
             # here n = batch_size and m = batch_size * world_size
@@ -148,16 +145,10 @@ class NTXentLoss(MemoryBankModule):
             logits_01 = torch.einsum('nc,mc->nm', out0, out1_large) / self.temperature
             logits_10 = torch.einsum('nc,mc->nm', out1, out0_large) / self.temperature
             logits_11 = torch.einsum('nc,mc->nm', out1, out1_large) / self.temperature
-
-            # initialize labels and masks
-            labels = torch.arange(batch_size, device=device, dtype=torch.long)
-            labels = labels + rank * batch_size
-            masks = torch.ones_like(logits_00).bool()
-            masks.scatter_(dim=1, index=labels.unsqueeze(1), value=False)
             
-            # remove similarities of samples to themselves
-            logits_00 = logits_00[masks].view(batch_size, -1)
-            logits_11 = logits_11[masks].view(batch_size, -1)
+            # remove simliarities between same views of the same image
+            logits_00 = logits_00[~diag_mask].view(batch_size, -1)
+            logits_11 = logits_11[~diag_mask].view(batch_size, -1)
 
             # concatenate logits
             # the logits tensor in the end has shape (2*n, 2*m-1)
@@ -165,7 +156,9 @@ class NTXentLoss(MemoryBankModule):
             logits_1011 = torch.cat([logits_10, logits_11], dim=1)
             logits = torch.cat([logits_0100, logits_1011], dim=0)
 
-            # repeat twice to match shape of logits
+            # create labels
+            labels = torch.arange(batch_size, device=device, dtype=torch.long)
+            labels = labels + dist.rank() * batch_size
             labels = labels.repeat(2)
 
         loss = self.cross_entropy(logits, labels)
