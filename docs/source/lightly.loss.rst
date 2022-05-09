@@ -8,6 +8,14 @@ lightly.loss
 .. autoclass:: lightly.loss.barlow_twins_loss.BarlowTwinsLoss
    :members:
 
+.dcl_loss
+------------------
+.. autoclass:: lightly.loss.dcl_loss.DCLLoss
+   :members:
+
+.. autoclass:: lightly.loss.dcl_loss.DCLWLoss
+   :members:
+
 .dino_loss
 ----------
 .. autoclass:: lightly.loss.dino_loss.DINOLoss
