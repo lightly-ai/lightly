@@ -112,3 +112,6 @@ clean-tutorials:
 clean-all: clean-tutorials
 	rm -fr $(DATADIR)
 	rm -fr build
+
+serve-local:
+	python -m http.server 1234 -d build/html
