@@ -60,7 +60,7 @@ def eye_rank(n: int, device: Optional[torch.device]=None) -> torch.Tensor:
 
     """
     rows = torch.arange(n, device=device, dtype=torch.long)
-    cols = rows + dist.get_rank() * n
-    diag_mask = torch.zeros((n, n * dist.get_world_size()), dtype=torch.bool)
+    cols = rows + rank() * n
+    diag_mask = torch.zeros((n, n * world_size()), dtype=torch.bool)
     diag_mask[(rows, cols)] = True
     return diag_mask

@@ -6,11 +6,73 @@ from torch import Tensor
 
 from lightly.utils import dist
 
-def negative_mises_fisher_weights(out0: Tensor, out1: Tensor, sigma: float=0.5):
+def negative_mises_fisher_weights(
+    out0: Tensor, 
+    out1: Tensor, 
+    sigma: float=0.5
+) -> torch.Tensor:
+    """Negative Mises-Fisher weighting function as presented in Decoupled
+    Contrastive Learning [0].
+
+    The implementation was inspired by [1].
+    
+    - [0] Chun-Hsiao Y. et. al., 2021, Decoupled Contrastive Learning https://arxiv.org/abs/2110.06848
+    - [1] https://github.com/raminnakhli/Decoupled-Contrastive-Learning
+
+    Args:
+        out0:
+            Output projections of the first set of transformed images.
+            Shape: (batch_size, embedding_size)
+        out1:
+            Output projections of the second set of transformed images.
+            Shape: (batch_size, embedding_size)
+        sigma:
+            Similarities are scaled by inverse sigma.
+    Returns:
+        A tensor with shape (batch_size,) where each entry is the weight for one
+        of the input images.
+    
+    """
     similarity = torch.einsum('nm,nm->n', out0, out1) / sigma
     return 2 - out0.shape[0] * torch.nn.functional.softmax(similarity, dim=0)
 
 class DCLLoss(torch.nn.Module):
+    """Implementation of the Decoupled Contrastive Learning Loss from
+    Decoupled Contrastive Learning [0].
+    
+    This code implements Equation 6 in [0], including the sum over all images `i`
+    and views `k`. The loss is reduced to a mean loss over the mini-batch.
+    The implementation was inspired by [1].
+
+    - [0] Chun-Hsiao Y. et. al., 2021, Decoupled Contrastive Learning https://arxiv.org/abs/2110.06848
+    - [1] https://github.com/raminnakhli/Decoupled-Contrastive-Learning
+
+    Attributes:
+        temperature:
+            Similarities are scaled by inverse temperature.
+        weight_fn:
+            Weighting function `w` from the paper. No weighting is performed if
+            weight_fn is None.
+        gather_distributed:
+            If True then negatives from all gpus are gathered before the 
+            loss calculation.
+    
+    Examples:
+
+        >>> loss_fn = DCLLoss(temperature=0.07)
+        >>>
+        >>> # generate two random transforms of images
+        >>> t0 = transforms(images)
+        >>> t1 = transforms(images)
+        >>>
+        >>> # embed images using some model, for example SimCLR
+        >>> out0 = model(t0)
+        >>> out1 = model(t1)
+        >>>
+        >>> # calculate loss
+        >>> loss = loss_fn(out0, out1)
+        
+    """
     def __init__(
         self,
         temperature: float = 0.1,
@@ -27,6 +89,19 @@ class DCLLoss(torch.nn.Module):
         out0: Tensor,
         out1: Tensor,
     ) -> Tensor:
+        """Forward pass of the DCL loss.
+        
+        Args:
+            out0:
+                Output projections of the first set of transformed images.
+                Shape: (batch_size, embedding_size)
+            out1:
+                Output projections of the second set of transformed images.
+                Shape: (batch_size, embedding_size)
+        
+        Returns:
+            Mean loss over the mini-batch.
+        """
         # normalize the output to length 1
         out0 = out0_all = torch.nn.functional.normalize(out0, dim=1)
         out1 = out1_all = torch.nn.functional.normalize(out1, dim=1)
@@ -42,6 +117,31 @@ class DCLLoss(torch.nn.Module):
         return 0.5 * (loss0 + loss1)
 
     def _loss(self, out0, out1, out0_all, out1_all):
+        """Calculates DCL loss for out0 with respect to its positives in out1
+        and the negatives in out1, out0_all, and out1_all.
+        
+        This code implements Equation 6 in [0], including the sum over all images `i`
+        but with `k` fixed at 0.
+        
+        Args:
+            out0:
+                Output projections of the first set of transformed images.
+                Shape: (batch_size, embedding_size)
+            out1:
+                Output projections of the second set of transformed images.
+                Shape: (batch_size, embedding_size)
+            out0_all:
+                Output projections of the first set of transformed images from
+                all processes.
+                Shape (batch_size * world_size, embedding_size)
+            out1_all:
+                Output projections of the second set of transformed images from
+                all processes.
+                Shape (batch_size * world_size, embedding_size)
+
+        Returns:
+            Mean loss over the mini-batch.
+        """
         # create diagonal mask that only selects similarities between
         # representations of the same images
         batch_size = out0.shape[0]
@@ -70,6 +170,42 @@ class DCLLoss(torch.nn.Module):
         return (positive_loss + negative_loss_00 + negative_loss_01).mean()
 
 class DCLWLoss(DCLLoss):
+    """Implementation of the Weighted Decoupled Contrastive Learning Loss from
+    Decoupled Contrastive Learning [0].
+    
+    This code implements Equation 6 in [0] with a negative Mises-Fisher 
+    weighting function. The loss returns the mean over all images `i` and 
+    views `k` in the mini-batch. The implementation was inspired by [1].
+
+    - [0] Chun-Hsiao Y. et. al., 2021, Decoupled Contrastive Learning https://arxiv.org/abs/2110.06848
+    - [1] https://github.com/raminnakhli/Decoupled-Contrastive-Learning
+
+    Attributes:
+        temperature:
+            Similarities are scaled by inverse temperature.
+        sigma:
+            Similar to temperature but applies the inverse scaling in the
+            weighting function.
+        gather_distributed:
+            If True then negatives from all gpus are gathered before the 
+            loss calculation.
+
+    Examples:
+
+        >>> loss_fn = DCLWLoss(temperature=0.07)
+        >>>
+        >>> # generate two random transforms of images
+        >>> t0 = transforms(images)
+        >>> t1 = transforms(images)
+        >>>
+        >>> # embed images using some model, for example SimCLR
+        >>> out0 = model(t0)
+        >>> out1 = model(t1)
+        >>>
+        >>> # calculate loss
+        >>> loss = loss_fn(out0, out1)
+    
+    """
     def __init__(
         self,
         temperature: float = 0.1,
