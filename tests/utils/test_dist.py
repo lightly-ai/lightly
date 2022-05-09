@@ -18,7 +18,7 @@ class TestDist(unittest.TestCase):
         eye = torch.eye(n).bool()
         for world_size in [1, 3]:
             for rank in range(0, world_size):
-                with mock.patch('lightly.utils.dist.is_dist', lambda: True),\
+                with mock.patch('torch.distributed.is_initialized', lambda: True),\
                     mock.patch('lightly.utils.dist.world_size', lambda: world_size),\
                     mock.patch('lightly.utils.dist.rank', lambda: rank):
                     expected = []
