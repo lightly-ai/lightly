@@ -8,6 +8,7 @@ Updated: 18.02.2022 (6618fa3c36b0c9f3a9d7a21bcdb00bf4fd258ee8))
 | Model         | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
 ------------------------------------------------------------------------------------------
 | BarlowTwins   |        128 |    200 |              0.835 |  193.4 Min |      2.2 GByte |
+| DCL           |        128 |    200 |              0.841 |  372.8 Min |      1.7 GByte |
 | BYOL          |        128 |    200 |              0.872 |  217.0 Min |      2.3 GByte |
 | DINO          |        128 |    200 |              0.868 |  220.7 Min |      2.3 GByte |
 | Moco          |        128 |    200 |              0.838 |  229.5 Min |      2.3 GByte |
@@ -647,15 +648,30 @@ class DINOModel(BenchmarkModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
+
+class DCL(SimCLRModel):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        self.criterion = lightly.loss.DCLLoss()
+
+
+class DCLW(SimCLRModel):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        self.criterion = lightly.loss.DCLWLoss()
+
+
 models = [
-    BarlowTwinsModel, 
-    BYOLModel,
-    DINOModel,
-    MocoModel,
-    NNCLRModel,
+    # BarlowTwinsModel, 
+    # BYOLModel,
+    DCL,
+    DCLW,
+    # DINOModel,
+    # MocoModel,
+    # NNCLRModel,
     SimCLRModel,
-    SimSiamModel,
-    SwaVModel,
+    # SimSiamModel,
+    # SwaVModel,
 ]
 bench_results = dict()
 

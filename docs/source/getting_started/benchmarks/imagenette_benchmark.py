@@ -576,10 +576,21 @@ class DINOModel(BenchmarkModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
+class DCL(SimCLRModel):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        self.criterion = lightly.loss.DCLLoss()
+
+class DCLW(SimCLRModel):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        self.criterion = lightly.loss.DCLWLoss()
 
 models = [
     BarlowTwinsModel, 
     BYOLModel,
+    DCL,
+    DCLW,
     DINOModel,
     MocoModel,
     NNCLRModel,
