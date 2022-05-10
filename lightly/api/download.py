@@ -26,7 +26,7 @@ def _check_av_available() -> None:
         raise av
 
 def download_image(url: str, session: requests.Session = None) -> PIL.Image.Image:
-    """Downloads an image from an url.
+    """Downloads an image from a url.
 
     Args:
         url: 
@@ -38,16 +38,14 @@ def download_image(url: str, session: requests.Session = None) -> PIL.Image.Imag
         The downloaded image.
 
     """
-    def load_image(url, session):
-        req = requests if session is None else session
+    def load_image(url, req):
         with req.get(url=url, stream=True) as response:
             image = PIL.Image.open(response.raw)
             image.load()
         return image
 
-    image = load_image(url, session)
-
-    #image = utils.retry(load_image, url, session)
+    req = requests if session is None else session
+    image = utils.retry(load_image, url, req)
     return image
 
 
