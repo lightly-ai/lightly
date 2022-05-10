@@ -19,11 +19,6 @@ except ImportError:
 # mock requests module so that files are read from 
 # disk instead of loading them from a remote url
 
-mocked_requests_state = {
-    "return_partial_stream": "look in setUp()"
-}
-
-
 class MockedRequestsModule:
 
     def get(self, url, stream=None):
@@ -62,19 +57,17 @@ class MockedResponse:
 
 class MockedResponsePartialStream(MockedResponse):
 
-    def __init__(self, raw):
-        self._raw = raw
+    return_partial_stream = True
 
     @property
     def raw(self):
-        global mocked_requests_state
         # instead of returning the byte stream from the url
         # we just give back an openend filehandle
         stream = open(self._raw, 'rb')
-        if mocked_requests_state["return_partial_stream"]:
+        if self.return_partial_stream:
             bytes = stream.read()
             stream_first_part = BytesIO(bytes[:1024])
-            mocked_requests_state["return_partial_stream"] = False
+            MockedResponsePartialStream.return_partial_stream = False
             return stream_first_part
         else:
             return stream
@@ -101,8 +94,7 @@ class TestDownload(unittest.TestCase):
         lightly.api.utils.RETRY_MAX_RETRIES = 1
         lightly.api.utils.RETRY_MAX_BACKOFF = 0
         warnings.filterwarnings("ignore")
-        mocked_requests_state["return_partial_stream"] = True
-    
+
     def tearDown(self):
         lightly.api.utils.RETRY_MAX_RETRIES = self._max_retries
         lightly.api.utils.RETRY_MAX_BACKOFF = self._max_backoff
@@ -111,16 +103,18 @@ class TestDownload(unittest.TestCase):
     @mock.patch("test_download.MockedResponse", MockedResponsePartialStream)
     def test_download_image_half_broken_retry_once(self):
         lightly.api.utils.RETRY_MAX_RETRIES = 1
+        MockedResponse.return_partial_stream = True
         original = _pil_image()
         with tempfile.NamedTemporaryFile(suffix='.png') as file:
             original.save(file.name)
             # assert that the retry fails
-            with self.assertRaises(OSError):
+            with self.assertRaises(RuntimeError):
                 image = download.download_image(file.name)
 
     @mock.patch("test_download.MockedResponse", MockedResponsePartialStream)
     def test_download_image_half_broken_retry_twice(self):
         lightly.api.utils.RETRY_MAX_RETRIES = 2
+        MockedResponse.return_partial_stream = True
         original = _pil_image()
         with tempfile.NamedTemporaryFile(suffix='.png') as file:
             original.save(file.name)
