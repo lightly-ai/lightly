@@ -45,17 +45,20 @@ def retry(func, *args, **kwargs):
     max_retries = RETRY_MAX_RETRIES
 
     # try to make the request
-    for i in range(max_retries):
+    current_retries = 0
+    while True:
         try:
             # return on success
             return func(*args, **kwargs)
-        except Exception:
+        except Exception as e:
             # sleep on failure
             time.sleep(backoff)
             backoff = 2 * backoff if backoff < max_backoff else backoff
-        
-    # max retries exceeded
-    raise RuntimeError('The connection to the server timed out.')
+            current_retries += 1
+
+            # max retries exceeded
+            if current_retries >= max_retries:
+                raise
 
 
 def getenv(key: str, default: str):
