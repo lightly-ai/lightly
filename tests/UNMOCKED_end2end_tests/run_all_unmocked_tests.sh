@@ -63,6 +63,9 @@ echo "############################### Test active learning"
 INPUT_DIR="${PWD}/clothing_dataset_small/test"
 python tests/UNMOCKED_end2end_tests/test_api.py $INPUT_DIR $TOKEN
 
+echo "############################### Test download of large files"
+python tests/UNMOCKED_end2end_tests/test_download_large_files.py
+
 
 echo "############################### Delete dataset again"
 rm -rf $DIR_DATASET
