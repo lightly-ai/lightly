@@ -547,7 +547,7 @@ class DatasourcesApi(object):
 
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
-        :param str task_name: The prediction task name for which one wants to list the predictions (required)
+        :param TaskName task_name: The prediction task name for which one wants to list the predictions (required)
         :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
         :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
@@ -573,7 +573,7 @@ class DatasourcesApi(object):
 
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
-        :param str task_name: The prediction task name for which one wants to list the predictions (required)
+        :param TaskName task_name: The prediction task name for which one wants to list the predictions (required)
         :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
         :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 

@@ -34,27 +34,30 @@ class CropData(object):
     """
     swagger_types = {
         'parent_id': 'MongoObjectID',
+        'prediction_uuid_timestamp': 'Timestamp',
         'prediction_index': 'int',
-        'prediction_task_name': 'str',
-        'prediction_task_category_id': 'int',
-        'prediction_task_score': 'float'
+        'prediction_task_name': 'TaskName',
+        'prediction_task_category_id': 'CategoryId',
+        'prediction_task_score': 'Score'
     }
 
     attribute_map = {
         'parent_id': 'parentId',
+        'prediction_uuid_timestamp': 'predictionUUIDTimestamp',
         'prediction_index': 'predictionIndex',
         'prediction_task_name': 'predictionTaskName',
         'prediction_task_category_id': 'predictionTaskCategoryId',
         'prediction_task_score': 'predictionTaskScore'
     }
 
-    def __init__(self, parent_id=None, prediction_index=None, prediction_task_name=None, prediction_task_category_id=None, prediction_task_score=None, _configuration=None):  # noqa: E501
+    def __init__(self, parent_id=None, prediction_uuid_timestamp=None, prediction_index=None, prediction_task_name=None, prediction_task_category_id=None, prediction_task_score=None, _configuration=None):  # noqa: E501
         """CropData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._parent_id = None
+        self._prediction_uuid_timestamp = None
         self._prediction_index = None
         self._prediction_task_name = None
         self._prediction_task_category_id = None
@@ -62,6 +65,7 @@ class CropData(object):
         self.discriminator = None
 
         self.parent_id = parent_id
+        self.prediction_uuid_timestamp = prediction_uuid_timestamp
         self.prediction_index = prediction_index
         self.prediction_task_name = prediction_task_name
         self.prediction_task_category_id = prediction_task_category_id
@@ -89,6 +93,29 @@ class CropData(object):
             raise ValueError("Invalid value for `parent_id`, must not be `None`")  # noqa: E501
 
         self._parent_id = parent_id
+
+    @property
+    def prediction_uuid_timestamp(self):
+        """Gets the prediction_uuid_timestamp of this CropData.  # noqa: E501
+
+
+        :return: The prediction_uuid_timestamp of this CropData.  # noqa: E501
+        :rtype: Timestamp
+        """
+        return self._prediction_uuid_timestamp
+
+    @prediction_uuid_timestamp.setter
+    def prediction_uuid_timestamp(self, prediction_uuid_timestamp):
+        """Sets the prediction_uuid_timestamp of this CropData.
+
+
+        :param prediction_uuid_timestamp: The prediction_uuid_timestamp of this CropData.  # noqa: E501
+        :type: Timestamp
+        """
+        if self._configuration.client_side_validation and prediction_uuid_timestamp is None:
+            raise ValueError("Invalid value for `prediction_uuid_timestamp`, must not be `None`")  # noqa: E501
+
+        self._prediction_uuid_timestamp = prediction_uuid_timestamp
 
     @property
     def prediction_index(self):
@@ -119,10 +146,9 @@ class CropData(object):
     def prediction_task_name(self):
         """Gets the prediction_task_name of this CropData.  # noqa: E501
 
-        the name of the prediction task which yielded this crop  # noqa: E501
 
         :return: The prediction_task_name of this CropData.  # noqa: E501
-        :rtype: str
+        :rtype: TaskName
         """
         return self._prediction_task_name
 
@@ -130,10 +156,9 @@ class CropData(object):
     def prediction_task_name(self, prediction_task_name):
         """Sets the prediction_task_name of this CropData.
 
-        the name of the prediction task which yielded this crop  # noqa: E501
 
         :param prediction_task_name: The prediction_task_name of this CropData.  # noqa: E501
-        :type: str
+        :type: TaskName
         """
         if self._configuration.client_side_validation and prediction_task_name is None:
             raise ValueError("Invalid value for `prediction_task_name`, must not be `None`")  # noqa: E501
@@ -144,10 +169,9 @@ class CropData(object):
     def prediction_task_category_id(self):
         """Gets the prediction_task_category_id of this CropData.  # noqa: E501
 
-        the categoryId (index) of the categories existing for the prediction task name which yielded this crop  # noqa: E501
 
         :return: The prediction_task_category_id of this CropData.  # noqa: E501
-        :rtype: int
+        :rtype: CategoryId
         """
         return self._prediction_task_category_id
 
@@ -155,10 +179,9 @@ class CropData(object):
     def prediction_task_category_id(self, prediction_task_category_id):
         """Sets the prediction_task_category_id of this CropData.
 
-        the categoryId (index) of the categories existing for the prediction task name which yielded this crop  # noqa: E501
 
         :param prediction_task_category_id: The prediction_task_category_id of this CropData.  # noqa: E501
-        :type: int
+        :type: CategoryId
         """
         if self._configuration.client_side_validation and prediction_task_category_id is None:
             raise ValueError("Invalid value for `prediction_task_category_id`, must not be `None`")  # noqa: E501
@@ -169,10 +192,9 @@ class CropData(object):
     def prediction_task_score(self):
         """Gets the prediction_task_score of this CropData.  # noqa: E501
 
-        the score for the prediction task which yielded this crop  # noqa: E501
 
         :return: The prediction_task_score of this CropData.  # noqa: E501
-        :rtype: float
+        :rtype: Score
         """
         return self._prediction_task_score
 
@@ -180,10 +202,9 @@ class CropData(object):
     def prediction_task_score(self, prediction_task_score):
         """Sets the prediction_task_score of this CropData.
 
-        the score for the prediction task which yielded this crop  # noqa: E501
 
         :param prediction_task_score: The prediction_task_score of this CropData.  # noqa: E501
-        :type: float
+        :type: Score
         """
         if self._configuration.client_side_validation and prediction_task_score is None:
             raise ValueError("Invalid value for `prediction_task_score`, must not be `None`")  # noqa: E501
