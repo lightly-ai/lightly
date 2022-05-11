@@ -58,7 +58,7 @@ def retry(func, *args, **kwargs):
 
             # max retries exceeded
             if current_retries >= max_retries:
-                raise RuntimeError from e
+                raise RuntimeError(f'Maximum retries exceeded! Original exception: {type(e)}: {str(e)}') from e
 
 
 def getenv(key: str, default: str):

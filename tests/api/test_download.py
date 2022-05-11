@@ -107,8 +107,11 @@ class TestDownloadPartialRespons(unittest.TestCase):
         with tempfile.NamedTemporaryFile(suffix='.png') as file:
             original.save(file.name)
             # assert that the retry fails
-            with self.assertRaises(RuntimeError):
+            with self.assertRaises(RuntimeError) as error:
                 image = lightly.api.download.download_image(file.name)
+            self.assertTrue("Maximum retries exceeded" in str(error.exception))
+            self.assertTrue("<class 'OSError'>" in str(error.exception))
+            self.assertTrue("image file is truncated" in str(error.exception))
 
     def test_download_image_half_broken_retry_twice(self):
         lightly.api.utils.RETRY_MAX_RETRIES = 2
