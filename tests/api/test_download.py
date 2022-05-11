@@ -27,6 +27,15 @@ class MockedRequestsModule:
     class Session:
         def get(self, url, stream=None):
             return MockedResponse(url)
+
+class MockedRequestsModulePartialResponse:
+
+    def get(self, url, stream=None):
+        return MockedResponsePartialStream(url)
+
+    class Session:
+        def get(self, url, stream=None):
+            return MockedResponsePartialStream(url)
     
 class MockedResponse:
 
@@ -76,6 +85,42 @@ class MockedResponsePartialStream(MockedResponse):
 import lightly
 
 
+@mock.patch('lightly.api.download.requests', MockedRequestsModulePartialResponse())
+class TestDownloadPartialRespons(unittest.TestCase):
+
+    def setUp(self):
+        self._max_retries = lightly.api.utils.RETRY_MAX_RETRIES
+        self._max_backoff = lightly.api.utils.RETRY_MAX_BACKOFF
+        lightly.api.utils.RETRY_MAX_RETRIES = 1
+        lightly.api.utils.RETRY_MAX_BACKOFF = 0
+        warnings.filterwarnings("ignore")
+
+    def tearDown(self):
+        lightly.api.utils.RETRY_MAX_RETRIES = self._max_retries
+        lightly.api.utils.RETRY_MAX_BACKOFF = self._max_backoff
+        warnings.filterwarnings("default")
+
+    def test_download_image_half_broken_retry_once(self):
+        lightly.api.utils.RETRY_MAX_RETRIES = 1
+
+        original = _pil_image()
+        with tempfile.NamedTemporaryFile(suffix='.png') as file:
+            original.save(file.name)
+            # assert that the retry fails
+            with self.assertRaises(RuntimeError):
+                image = lightly.api.download.download_image(file.name)
+
+    def test_download_image_half_broken_retry_twice(self):
+        lightly.api.utils.RETRY_MAX_RETRIES = 2
+        MockedResponse.return_partial_stream = True
+        original = _pil_image()
+        with tempfile.NamedTemporaryFile(suffix='.png') as file:
+            original.save(file.name)
+            image = lightly.api.download.download_image(file.name)
+            assert _images_equal(image, original)
+
+
+
 @mock.patch('lightly.api.download.requests', MockedRequestsModule())
 class TestDownload(unittest.TestCase):
 
@@ -90,28 +135,6 @@ class TestDownload(unittest.TestCase):
         lightly.api.utils.RETRY_MAX_RETRIES = self._max_retries
         lightly.api.utils.RETRY_MAX_BACKOFF = self._max_backoff
         warnings.filterwarnings("default")
-
-    @mock.patch("tests.api.test_download.MockedResponse", MockedResponsePartialStream)
-    def test_download_image_half_broken_retry_once(self):
-        lightly.api.utils.RETRY_MAX_RETRIES = 1
-        MockedResponse.return_partial_stream = True
-        original = _pil_image()
-        with tempfile.NamedTemporaryFile(suffix='.png') as file:
-            original.save(file.name)
-            # assert that the retry fails
-            with self.assertRaises(RuntimeError):
-                image = lightly.api.download.download_image(file.name)
-
-    @mock.patch("tests.api.test_download.MockedResponse", MockedResponsePartialStream)
-    def test_download_image_half_broken_retry_twice(self):
-        lightly.api.utils.RETRY_MAX_RETRIES = 2
-        MockedResponse.return_partial_stream = True
-        original = _pil_image()
-        with tempfile.NamedTemporaryFile(suffix='.png') as file:
-            original.save(file.name)
-            image = lightly.api.download.download_image(file.name)
-            assert _images_equal(image, original)
-
 
     def test_download_image(self):
         original = _pil_image()
