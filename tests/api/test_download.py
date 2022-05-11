@@ -4,6 +4,8 @@ import json
 import tempfile
 import unittest
 import warnings
+from io import BytesIO
+from unittest import mock
 
 import numpy as np
 from PIL import Image
@@ -25,6 +27,15 @@ class MockedRequestsModule:
     class Session:
         def get(self, url, stream=None):
             return MockedResponse(url)
+
+class MockedRequestsModulePartialResponse:
+
+    def get(self, url, stream=None):
+        return MockedResponsePartialStream(url)
+
+    class Session:
+        def get(self, url, stream=None):
+            return MockedResponsePartialStream(url)
     
 class MockedResponse:
 
@@ -51,21 +62,69 @@ class MockedResponse:
         return self
 
     def __exit__(self, *args):
-        pass 
+        pass
 
-# Overwrite requests import in the light.api.download module.
-# lightly.api must be imported before because otherwise it
-# will be loaded by lightly.api.download and use the mocked
-# requests module instead of the real one.
-import lightly.api
+class MockedResponsePartialStream(MockedResponse):
 
-requests = sys.modules["requests"]
-sys.modules["requests"] = MockedRequestsModule()
-from lightly.api import download
+    return_partial_stream = True
 
-sys.modules["requests"] = requests
+    @property
+    def raw(self):
+        # instead of returning the byte stream from the url
+        # we just give back an openend filehandle
+        stream = open(self._raw, 'rb')
+        if self.return_partial_stream:
+            bytes = stream.read()
+            stream_first_part = BytesIO(bytes[:1024])
+            MockedResponsePartialStream.return_partial_stream = False
+            return stream_first_part
+        else:
+            return stream
 
 
+import lightly
+
+
+@mock.patch('lightly.api.download.requests', MockedRequestsModulePartialResponse())
+class TestDownloadPartialRespons(unittest.TestCase):
+
+    def setUp(self):
+        self._max_retries = lightly.api.utils.RETRY_MAX_RETRIES
+        self._max_backoff = lightly.api.utils.RETRY_MAX_BACKOFF
+        lightly.api.utils.RETRY_MAX_RETRIES = 1
+        lightly.api.utils.RETRY_MAX_BACKOFF = 0
+        warnings.filterwarnings("ignore")
+
+    def tearDown(self):
+        lightly.api.utils.RETRY_MAX_RETRIES = self._max_retries
+        lightly.api.utils.RETRY_MAX_BACKOFF = self._max_backoff
+        warnings.filterwarnings("default")
+
+    def test_download_image_half_broken_retry_once(self):
+        lightly.api.utils.RETRY_MAX_RETRIES = 1
+
+        original = _pil_image()
+        with tempfile.NamedTemporaryFile(suffix='.png') as file:
+            original.save(file.name)
+            # assert that the retry fails
+            with self.assertRaises(RuntimeError) as error:
+                image = lightly.api.download.download_image(file.name)
+            self.assertTrue("Maximum retries exceeded" in str(error.exception))
+            self.assertTrue("<class 'OSError'>" in str(error.exception))
+            self.assertTrue("image file is truncated" in str(error.exception))
+
+    def test_download_image_half_broken_retry_twice(self):
+        lightly.api.utils.RETRY_MAX_RETRIES = 2
+        MockedResponse.return_partial_stream = True
+        original = _pil_image()
+        with tempfile.NamedTemporaryFile(suffix='.png') as file:
+            original.save(file.name)
+            image = lightly.api.download.download_image(file.name)
+            assert _images_equal(image, original)
+
+
+
+@mock.patch('lightly.api.download.requests', MockedRequestsModule())
 class TestDownload(unittest.TestCase):
 
     def setUp(self):
@@ -74,7 +133,7 @@ class TestDownload(unittest.TestCase):
         lightly.api.utils.RETRY_MAX_RETRIES = 1
         lightly.api.utils.RETRY_MAX_BACKOFF = 0
         warnings.filterwarnings("ignore")
-    
+
     def tearDown(self):
         lightly.api.utils.RETRY_MAX_RETRIES = self._max_retries
         lightly.api.utils.RETRY_MAX_BACKOFF = self._max_backoff
@@ -84,7 +143,7 @@ class TestDownload(unittest.TestCase):
         original = _pil_image()
         with tempfile.NamedTemporaryFile(suffix='.png') as file:
             original.save(file.name)
-            image = download.download_image(file.name)
+            image = lightly.api.download.download_image(file.name)
             assert _images_equal(image, original)
 
     def test_download_prediction(self):
@@ -92,7 +151,7 @@ class TestDownload(unittest.TestCase):
         with tempfile.NamedTemporaryFile(suffix='.json', mode="w+") as file:
             with open(file.name, 'w') as f:
                 json.dump(original, f)
-            response = download.download_prediction_file(file.name)
+            response = lightly.api.download.download_prediction_file(file.name)
             self.assertDictEqual(response, original)
 
     def test_download_image_with_session(self):
@@ -100,14 +159,14 @@ class TestDownload(unittest.TestCase):
         original = _pil_image()
         with tempfile.NamedTemporaryFile(suffix='.png') as file:
             original.save(file.name)
-            image = download.download_image(file.name, session=session)
+            image = lightly.api.download.download_image(file.name, session=session)
             assert _images_equal(image, original)
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_all_video_frames(self):
         with tempfile.NamedTemporaryFile(suffix='.avi') as file:
             original = _generate_video(file.name)
-            frames = list(download.download_all_video_frames(file.name))
+            frames = list(lightly.api.download.download_all_video_frames(file.name))
             for frame, orig in zip(frames, original):
                 assert _images_equal(frame, orig)
 
@@ -121,9 +180,9 @@ class TestDownload(unittest.TestCase):
                 with self.subTest(timestamp=timestamp):
                     if timestamp > n_frames:
                         with self.assertRaises(RuntimeError):
-                            frame = download.download_video_frame(file.name, timestamp)
+                            frame = lightly.api.download.download_video_frame(file.name, timestamp)
                     else:
-                        frame = download.download_video_frame(file.name, timestamp)
+                        frame = lightly.api.download.download_video_frame(file.name, timestamp)
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frames_at_timestamps(self):
@@ -133,7 +192,7 @@ class TestDownload(unittest.TestCase):
             original_timestamps = list(range(1, n_frames+1))
             frame_indices = list(range(2, len(original) - 1, 2))
             timestamps = [original_timestamps[i] for i in frame_indices]
-            frames = list(download.download_video_frames_at_timestamps(
+            frames = list(lightly.api.download.download_video_frames_at_timestamps(
                 file.name, timestamps
             ))
             self.assertEqual(len(frames), len(timestamps))
@@ -147,14 +206,14 @@ class TestDownload(unittest.TestCase):
             original = _generate_video(file.name)
             timestamps = [2, 1]
             with self.assertRaises(ValueError):
-                frames = list(download.download_video_frames_at_timestamps(
+                frames = list(lightly.api.download.download_video_frames_at_timestamps(
                     file.name, timestamps
                 ))
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frames_at_timestamps_emtpy(self):
         with tempfile.NamedTemporaryFile(suffix='.avi') as file:
-            frames = list(download.download_video_frames_at_timestamps(
+            frames = list(lightly.api.download.download_video_frames_at_timestamps(
                     file.name, timestamps=[]
                 ))
             self.assertEqual(len(frames), 0)
@@ -165,10 +224,10 @@ class TestDownload(unittest.TestCase):
             original = _generate_video(file.name)
             with self.assertRaises(ValueError):
                 # timestamp too small
-                frames = list(download.download_all_video_frames(file.name, timestamp=-1))
+                frames = list(lightly.api.download.download_all_video_frames(file.name, timestamp=-1))
             with self.assertRaises(ValueError):
                 # timestamp too large
-                frames = list(download.download_all_video_frames(file.name, timestamp=6))
+                frames = list(lightly.api.download.download_all_video_frames(file.name, timestamp=6))
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_all_video_frames_restart_at_0(self):
@@ -176,7 +235,7 @@ class TestDownload(unittest.TestCase):
         # although it shouldn't be
         with tempfile.NamedTemporaryFile(suffix='.avi') as file:
             original = _generate_video(file.name)
-            frames = list(download.download_all_video_frames(file.name, timestamp=None))
+            frames = list(lightly.api.download.download_all_video_frames(file.name, timestamp=None))
             for frame, orig in zip(frames, original):
                 assert _images_equal(frame, orig)
 
@@ -187,7 +246,7 @@ class TestDownload(unittest.TestCase):
         restart_timestamp = 3
         with tempfile.NamedTemporaryFile(suffix='.avi') as file:
             original = _generate_video(file.name)
-            frames = list(download.download_all_video_frames(file.name, restart_timestamp))
+            frames = list(lightly.api.download.download_all_video_frames(file.name, restart_timestamp))
             for frame, orig in zip(frames, original[2:]):
                 assert _images_equal(frame, orig)
 
@@ -199,12 +258,12 @@ class TestDownload(unittest.TestCase):
                 tempfile.NamedTemporaryFile(suffix='.avi') as file:
 
                 original = _generate_video(file.name, fps=fps)
-                all_frames = download.download_all_video_frames(
+                all_frames = lightly.api.download.download_all_video_frames(
                     file.name,
                     as_pil_image=False,
                 )
                 for true_frame in all_frames:
-                    frame = download.download_video_frame(
+                    frame = lightly.api.download.download_video_frame(
                         file.name,
                         timestamp=true_frame.pts,
                         as_pil_image=False,
@@ -220,12 +279,12 @@ class TestDownload(unittest.TestCase):
                 original = _generate_video(file.name, fps=fps)
 
                 # this should be the last frame and exist
-                frame = download.download_video_frame(file.name, len(original))
+                frame = lightly.api.download.download_video_frame(file.name, len(original))
                 assert _images_equal(frame, original[-1])
 
                 # timestamp after last frame
                 with self.assertRaises(ValueError):
-                    download.download_video_frame(file.name, len(original) + 1)
+                    lightly.api.download.download_video_frame(file.name, len(original) + 1)
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_negative_timestamp_exception(self):
@@ -235,7 +294,7 @@ class TestDownload(unittest.TestCase):
                 
                 _generate_video(file.name, fps=fps)
                 with self.assertRaises(ValueError):
-                    download.download_video_frame(file.name, -1)
+                    lightly.api.download.download_video_frame(file.name, -1)
 
     def test_download_and_write_file(self):
         original = _pil_image()
@@ -243,7 +302,7 @@ class TestDownload(unittest.TestCase):
             tempfile.NamedTemporaryFile(suffix='.png') as file2:
             
             original.save(file1.name)
-            download.download_and_write_file(file1.name, file2.name)
+            lightly.api.download.download_and_write_file(file1.name, file2.name)
             image = Image.open(file2.name)
             assert _images_equal(original, image)
     
@@ -254,7 +313,7 @@ class TestDownload(unittest.TestCase):
             tempfile.NamedTemporaryFile(suffix='.png') as file2:
             
             original.save(file1.name)
-            download.download_and_write_file(file1.name, file2.name, session=session)
+            lightly.api.download.download_and_write_file(file1.name, file2.name, session=session)
             image = Image.open(file2.name)
             assert _images_equal(original, image)
 
@@ -273,7 +332,7 @@ class TestDownload(unittest.TestCase):
 
             # download images from remote to local
             file_infos = list(zip(filenames, urls))
-            download.download_and_write_all_files(
+            lightly.api.download.download_and_write_all_files(
                 file_infos, 
                 output_dir=tempdir2, 
                 max_workers=max_workers
@@ -292,7 +351,7 @@ class TestDownload(unittest.TestCase):
                     self.subTest(msg=f'n_frames={true_n_frames}, extension={suffix}'):
 
                     _generate_video(file.name, n_frames=true_n_frames, fps=fps)
-                    n_frames = download.video_frame_count(file.name)
+                    n_frames = lightly.api.download.video_frame_count(file.name)
                     assert n_frames == true_n_frames
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
@@ -304,7 +363,7 @@ class TestDownload(unittest.TestCase):
                     self.subTest(msg=f'n_frames={true_n_frames}, extension={suffix}'):
 
                     _generate_video(file.name, n_frames=true_n_frames, fps=fps)
-                    n_frames = download.video_frame_count(
+                    n_frames = lightly.api.download.video_frame_count(
                         file.name,
                         ignore_metadata=True
                     )
@@ -321,7 +380,7 @@ class TestDownload(unittest.TestCase):
 
                 _generate_video(file1.name, n_frames=true_n_frames[0], fps=fps)
                 _generate_video(file2.name, n_frames=true_n_frames[1], fps=fps)
-                frame_counts = download.all_video_frame_counts(
+                frame_counts = lightly.api.download.all_video_frame_counts(
                     urls=[file1.name, file2.name],
                 )
                 assert sum(frame_counts) == sum(true_n_frames)
@@ -338,7 +397,7 @@ class TestDownload(unittest.TestCase):
             _generate_video(file2.name, fps=fps, broken=True)
             
             urls = [file1.name, file2.name]
-            result = download.all_video_frame_counts(urls)
+            result = lightly.api.download.all_video_frame_counts(urls)
             assert result == [n_frames, None]
 
 
