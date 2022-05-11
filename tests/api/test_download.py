@@ -72,20 +72,7 @@ class MockedResponsePartialStream(MockedResponse):
         else:
             return stream
 
-
-# Overwrite requests import in the light.api.download module.
-# lightly.api must be imported before because otherwise it
-# will be loaded by lightly.api.download and use the mocked
-# requests module instead of the real one.
-import lightly.api
-
-requests = sys.modules["requests"]
-sys.modules["requests"] = MockedRequestsModule()
-from lightly.api import download
-
-sys.modules["requests"] = requests
-
-
+@mock.patch('requests', MockedRequestsModule())
 class TestDownload(unittest.TestCase):
 
     def setUp(self):
@@ -100,7 +87,7 @@ class TestDownload(unittest.TestCase):
         lightly.api.utils.RETRY_MAX_BACKOFF = self._max_backoff
         warnings.filterwarnings("default")
 
-    @mock.patch("test_download.MockedResponse", MockedResponsePartialStream)
+    @mock.patch("tests.api.test_download.MockedResponse", MockedResponsePartialStream)
     def test_download_image_half_broken_retry_once(self):
         lightly.api.utils.RETRY_MAX_RETRIES = 1
         MockedResponse.return_partial_stream = True
@@ -111,7 +98,7 @@ class TestDownload(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 image = download.download_image(file.name)
 
-    @mock.patch("test_download.MockedResponse", MockedResponsePartialStream)
+    @mock.patch("tests.api.test_download.MockedResponse", MockedResponsePartialStream)
     def test_download_image_half_broken_retry_twice(self):
         lightly.api.utils.RETRY_MAX_RETRIES = 2
         MockedResponse.return_partial_stream = True
