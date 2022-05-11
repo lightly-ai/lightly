@@ -662,16 +662,16 @@ class DCLW(SimCLRModel):
 
 
 models = [
-    # BarlowTwinsModel, 
-    # BYOLModel,
+    BarlowTwinsModel, 
+    BYOLModel,
     DCL,
     DCLW,
-    # DINOModel,
-    # MocoModel,
-    # NNCLRModel,
+    DINOModel,
+    MocoModel,
+    NNCLRModel,
     SimCLRModel,
-    # SimSiamModel,
-    # SwaVModel,
+    SimSiamModel,
+    SwaVModel,
 ]
 bench_results = dict()
 
