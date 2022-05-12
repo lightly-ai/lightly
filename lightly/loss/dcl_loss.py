@@ -2,6 +2,7 @@ from typing import Callable, Optional
 from functools import partial
 
 import torch
+from torch import nn
 from torch import Tensor
 
 from lightly.utils import dist
@@ -34,9 +35,9 @@ def negative_mises_fisher_weights(
     
     """
     similarity = torch.einsum('nm,nm->n', out0, out1) / sigma
-    return 2 - out0.shape[0] * torch.nn.functional.softmax(similarity, dim=0)
+    return 2 - out0.shape[0] * nn.functional.softmax(similarity, dim=0)
 
-class DCLLoss(torch.nn.Module):
+class DCLLoss(nn.Module):
     """Implementation of the Decoupled Contrastive Learning Loss from
     Decoupled Contrastive Learning [0].
     
@@ -103,8 +104,8 @@ class DCLLoss(torch.nn.Module):
             Mean loss over the mini-batch.
         """
         # normalize the output to length 1
-        out0 = torch.nn.functional.normalize(out0, dim=1)
-        out1 = torch.nn.functional.normalize(out1, dim=1)
+        out0 = nn.functional.normalize(out0, dim=1)
+        out1 = nn.functional.normalize(out1, dim=1)
 
         if self.gather_distributed and dist.world_size() > 1:
             # gather representations from other processes if necessary

@@ -4,6 +4,7 @@
 # All Rights Reserved
 
 import torch
+from torch import nn
 
 from lightly.loss.memory_bank import MemoryBankModule
 from lightly.utils import dist
@@ -57,7 +58,7 @@ class NTXentLoss(MemoryBankModule):
         super(NTXentLoss, self).__init__(size=memory_bank_size)
         self.temperature = temperature
         self.gather_distributed = gather_distributed
-        self.cross_entropy = torch.nn.CrossEntropyLoss(reduction="mean")
+        self.cross_entropy = nn.CrossEntropyLoss(reduction="mean")
         self.eps = 1e-8
 
         if abs(self.temperature) < self.eps:
@@ -90,8 +91,8 @@ class NTXentLoss(MemoryBankModule):
         batch_size, _ = out0.shape
 
         # normalize the output to length 1
-        out0 = torch.nn.functional.normalize(out0, dim=1)
-        out1 = torch.nn.functional.normalize(out1, dim=1)
+        out0 = nn.functional.normalize(out0, dim=1)
+        out1 = nn.functional.normalize(out1, dim=1)
 
         # ask memory bank for negative samples and extend it with out1 if 
         # out1 requires a gradient, otherwise keep the same vectors in the 
