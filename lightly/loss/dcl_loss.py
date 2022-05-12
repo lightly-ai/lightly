@@ -103,13 +103,16 @@ class DCLLoss(torch.nn.Module):
             Mean loss over the mini-batch.
         """
         # normalize the output to length 1
-        out0 = out0_all = torch.nn.functional.normalize(out0, dim=1)
-        out1 = out1_all = torch.nn.functional.normalize(out1, dim=1)
+        out0 = torch.nn.functional.normalize(out0, dim=1)
+        out1 = torch.nn.functional.normalize(out1, dim=1)
 
         if self.gather_distributed and dist.world_size() > 1:
             # gather representations from other processes if necessary
             out0_all = torch.cat(dist.gather(out0), 0)
             out1_all = torch.cat(dist.gather(out1), 0)
+        else:
+            out0_all = out0
+            out1_all = out1
 
         # calculate symmetric loss
         loss0 = self._loss(out0, out1, out0_all, out1_all)
