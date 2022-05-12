@@ -53,7 +53,9 @@ class DCLLoss(nn.Module):
             Similarities are scaled by inverse temperature.
         weight_fn:
             Weighting function `w` from the paper. No weighting is performed if
-            weight_fn is None.
+            weight_fn is None. The function must take the two input tensors
+            passed to the forward call as input and return a weight tensor. The
+            returned weight tensor must have the same length as the input tensors.
         gather_distributed:
             If True then negatives from all gpus are gathered before the 
             loss calculation.
@@ -136,11 +138,13 @@ class DCLLoss(nn.Module):
                 Shape: (batch_size, embedding_size)
             out0_all:
                 Output projections of the first set of transformed images from
-                all processes.
+                all distributed processes/gpus. Should be equal to out0 in an 
+                undistributed setting.
                 Shape (batch_size * world_size, embedding_size)
             out1_all:
                 Output projections of the second set of transformed images from
-                all processes.
+                all distributed processes/gpus. Should be equal to out1 in an 
+                undistributed setting.
                 Shape (batch_size * world_size, embedding_size)
 
         Returns:
