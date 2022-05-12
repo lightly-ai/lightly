@@ -29,6 +29,7 @@ Lightly offers features like
 
 - [Barlow Twins, 2021](https://arxiv.org/abs/2103.03230)
 - [BYOL, 2020](https://arxiv.org/abs/2006.07733)
+- [DCL, 2021](https://arxiv.org/abs/2110.06848)
 - [DINO, 2021](https://arxiv.org/abs/2104.14294)
 - [MoCo, 2019](https://arxiv.org/abs/1911.05722)
 - [NNCLR, 2021](https://arxiv.org/abs/2104.14548)

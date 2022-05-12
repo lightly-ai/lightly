@@ -72,6 +72,7 @@ augmentation due to the small image sizes.
 
   "BarlowTwins", 200, 128, 0.835, "193.4 Min", "2.2 GByte"
   "BYOL", 200, 128, 0.872, "217.0 Min", "2.3 GByte"
+  "DCL (*)", 200, 128, 0.841, "372.8 Min", "1.7 GByte"
   "DINO", 200, 128, 0.868, "220.7 Min", "2.3 GByte"
   "Moco", 200, 128, 0.838, "229.5 Min", "2.3 GByte"
   "NNCLR", 200, 128, 0.838, "198.7 Min", "2.2 GByte"
@@ -81,22 +82,24 @@ augmentation due to the small image sizes.
   "BarlowTwins", 200, 512, 0.827, "160.7 Min", "7.5 GByte"
   "BYOL", 200, 512, 0.872, "188.5 Min", "7.7 GByte"
   "DINO", 200, 512, 0.862, "191.1 Min", "7.5 GByte"
-  "Moco (*)", 200, 512, 0.850, "196.8 Min", "7.8 GByte"
-  "NNCLR (*)", 200, 512, 0.836, "164.7 Min", "7.6 GByte"
+  "Moco (**)", 200, 512, 0.850, "196.8 Min", "7.8 GByte"
+  "NNCLR (**)", 200, 512, 0.836, "164.7 Min", "7.6 GByte"
   "SimCLR", 200, 512, 0.828, "158.2 Min", "7.5 GByte"
   "SimSiam", 200, 512, 0.814, "159.0 Min", "7.6 GByte"
   "SwaV", 200, 512, 0.833, "158.4 Min", "7.5 GByte"
   "BarlowTwins", 800, 512, 0.857, "641.5 Min", "7.5 GByte"
   "BYOL", 800, 512, 0.911, "754.2 Min", "7.8 GByte"
   "DINO", 800, 512, 0.884, "765.5 Min", "7.6 GByte"
-  "Moco (*)", 800, 512, 0.900, "787.7 Min", "7.8 GByte"
-  "NNCLR (*)", 800, 512, 0.896, "659.2 Min", "7.6 GByte"
+  "Moco (**)", 800, 512, 0.900, "787.7 Min", "7.8 GByte"
+  "NNCLR (**)", 800, 512, 0.896, "659.2 Min", "7.6 GByte"
   "SimCLR", 800, 512, 0.875, "632.5 Min", "7.5 GByte"
   "SimSiam", 800, 512, 0.906, "636.5 Min", "7.6 GByte"
   "SwaV", 800, 512, 0.881, "634.9 Min", "7.5 GByte"
 
-
-(*): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
+(*): Benchmark ran on a smaller Tesla T4 GPU which results in larger runtimes.
+For comparison: SimCLR trained for 200 epochs with batch size 128 has a runtime 
+of 370 minutes on a T4.
+(**): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
 changing memory bank due to larger batch size.
 
 We make the following observations running the benchmark:
