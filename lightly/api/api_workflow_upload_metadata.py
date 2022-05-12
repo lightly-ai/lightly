@@ -8,8 +8,9 @@ from tqdm import tqdm
 
 from lightly.api.utils import retry
 from lightly.cli._helpers import print_as_warning
-from lightly.openapi_generated.swagger_client.models.sample_update_request import \
-    SampleUpdateRequest
+from lightly.openapi_generated.swagger_client.models.sample_update_request import SampleUpdateRequest
+from lightly.openapi_generated.swagger_client.models.configuration_entry import ConfigurationEntry
+from lightly.openapi_generated.swagger_client.models.configuration_set_request import ConfigurationSetRequest
 from lightly.utils.io import COCO_ANNOTATION_KEYS
 
 
@@ -214,3 +215,43 @@ class _UploadCustomMetadataMixin:
                 )
             # iterate over results to make sure they are completed
             list(results)
+
+    def create_custom_metadata_config(
+        self,
+        name: str,
+        configs: List[ConfigurationEntry]
+    ):
+        """Creates custom metadata config from a list of configurations.
+
+        Args:
+            name:
+                The name of the custom metadata configuration.
+            configs:
+                List of configuration entries each specifying.
+
+        Returns:
+            The API response.
+
+        Examples:
+            >>> from lightly.openapi_generated.swagger_codegen.models.configuration_entry import ConfigurationEntry
+            >>> entry = ConfigurationEntry(
+            >>>     name='Weather',
+            >>>     path='weather',
+            >>>     default_value='unknown',
+            >>>     value_data_type='CATEGORICAL_STRING',
+            >>> )
+            >>>  
+            >>> client.create_custom_metadata_config(
+            >>>     'My Custom Metadata',
+            >>>     [entry],
+            >>> )
+        
+        
+        """
+        config_set_request = ConfigurationSetRequest(name=name, configs=configs)
+        resp = self._metadata_configurations_api.create_meta_data_configuration(
+            body=config_set_request,
+            dataset_id=self.dataset_id,
+        )
+        return resp
+
