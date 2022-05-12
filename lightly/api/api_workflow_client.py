@@ -20,9 +20,8 @@ from lightly.api.bitmask import BitMask
 from lightly.api.utils import getenv
 from lightly.api.version_checking import get_minimum_compatible_version, \
     version_compare
-from lightly.openapi_generated.swagger_client import TagData, ScoresApi, \
-    QuotaApi, TagArithmeticsRequest, TagArithmeticsOperation, \
-    TagBitMaskResponse
+from lightly.openapi_generated.swagger_client import ScoresApi, \
+    QuotaApi, MetaDataConfigurationsApi
 from lightly.openapi_generated.swagger_client.api.datasets_api import \
     DatasetsApi
 from lightly.openapi_generated.swagger_client.api.datasources_api import \
@@ -108,6 +107,8 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         self._scores_api = ScoresApi(api_client=api_client)
         self._samples_api = SamplesApi(api_client=api_client)
         self._quota_api = QuotaApi(api_client=api_client)
+        self._metadata_configurations_api = \
+            MetaDataConfigurationsApi(api_client=api_client)
 
     def check_version_compatibility(self):
         minimum_version = get_minimum_compatible_version()
