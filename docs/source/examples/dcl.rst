@@ -33,6 +33,6 @@ copy the example code from :ref:`simclr` and make the following adjustments:
     criterion = DCLWLoss()
 
     # for distributed training you can enable gather_distributed to calculate
-    # the loss over the all distributed samples
+    # the loss over all distributed samples
     from lightly.loss import DCLLoss
     criterion = DCLLoss(gather_distributed=True)
