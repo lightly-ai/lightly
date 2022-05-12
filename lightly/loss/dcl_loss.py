@@ -52,8 +52,9 @@ class DCLLoss(nn.Module):
         temperature:
             Similarities are scaled by inverse temperature.
         weight_fn:
-            Weighting function `w` from the paper. No weighting is performed if
-            weight_fn is None. The function must take the two input tensors
+            Weighting function `w` from the paper. Scales the loss between the
+            positive views (views from the same image). No weighting is performed 
+            if weight_fn is None. The function must take the two input tensors
             passed to the forward call as input and return a weight tensor. The
             returned weight tensor must have the same length as the input tensors.
         gather_distributed:
@@ -74,6 +75,10 @@ class DCLLoss(nn.Module):
         >>>
         >>> # calculate loss
         >>> loss = loss_fn(out0, out1)
+        >>>
+        >>> # you can also add a custom weighting function
+        >>> weight_fn = lambda out0, out1: torch.sum((out0 - out1) ** 2, dim=1)
+        >>> loss_fn = DCLLoss(weight_fn=weight_fn)
         
     """
     def __init__(
