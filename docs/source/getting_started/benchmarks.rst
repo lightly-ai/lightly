@@ -73,6 +73,7 @@ augmentation due to the small image sizes.
   "BarlowTwins", 200, 128, 0.835, "193.4 Min", "2.2 GByte"
   "BYOL", 200, 128, 0.872, "217.0 Min", "2.3 GByte"
   "DCL (*)", 200, 128, 0.841, "372.8 Min", "1.7 GByte"
+  "DCLW (*)", 200, 128, 0.832, "377.1 Min", "1.7 GByte"
   "DINO", 200, 128, 0.868, "220.7 Min", "2.3 GByte"
   "Moco", 200, 128, 0.838, "229.5 Min", "2.3 GByte"
   "NNCLR", 200, 128, 0.838, "198.7 Min", "2.2 GByte"
