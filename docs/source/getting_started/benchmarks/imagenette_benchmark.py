@@ -376,7 +376,7 @@ class BYOLModel(BenchmarkModule):
 
         # create a byol model based on ResNet
         self.projection_head = heads.BYOLProjectionHead(feature_dim, 4096, 256)
-        self.prediction_head = heads.BYOLProjectionHead(256, 4096, 256)
+        self.prediction_head = heads.BYOLPredictionHead(256, 4096, 256)
 
         self.backbone_momentum = copy.deepcopy(self.backbone)
         self.projection_head_momentum = copy.deepcopy(self.projection_head)
