@@ -3,7 +3,7 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -31,19 +31,21 @@ class ProjectionHead(nn.Module):
 
     """
 
-    def __init__(self, blocks: List[Tuple[int, int, nn.Module, nn.Module]]):
-
+    def __init__(
+        self, 
+        blocks: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]]
+    ):
         super(ProjectionHead, self).__init__()
 
-        self.layers = []
+        layers = []
         for input_dim, output_dim, batch_norm, non_linearity in blocks:
             use_bias = not bool(batch_norm)
-            self.layers.append(nn.Linear(input_dim, output_dim, bias=use_bias))
+            layers.append(nn.Linear(input_dim, output_dim, bias=use_bias))
             if batch_norm:
-                self.layers.append(batch_norm)
+                layers.append(batch_norm)
             if non_linearity:
-                self.layers.append(non_linearity)
-        self.layers = nn.Sequential(*self.layers)
+                layers.append(non_linearity)
+        self.layers = nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor):
         """Computes one forward pass through the projection head.
