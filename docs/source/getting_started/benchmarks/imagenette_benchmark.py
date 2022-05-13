@@ -296,8 +296,8 @@ class SimSiamModel(BenchmarkModule):
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
         )
+        self.projection_head = heads.SimSiamProjectionHead(feature_dim, 2048, 2048)
         self.prediction_head = heads.SimSiamPredictionHead(2048, 512, 2048)
-        self.projection_head = heads.SimSiamProjectionHead(feature_dim, 512, 2048)
         self.criterion = lightly.loss.NegativeCosineSimilarity()
             
     def forward(self, x):
@@ -434,8 +434,8 @@ class NNCLRModel(BenchmarkModule):
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
         )
+        self.projection_head = heads.NNCLRProjectionHead(feature_dim, 2048, 256)
         self.prediction_head = heads.NNCLRPredictionHead(256, 4096, 256)
-        self.projection_head = heads.NNCLRProjectionHead(feature_dim, 4096, 256)
 
         self.criterion = lightly.loss.NTXentLoss()
         self.memory_bank = modules.NNMemoryBankModule(size=4096)
