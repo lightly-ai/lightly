@@ -14,6 +14,7 @@ based on three criteria:
 - stability: The worker should not crash because it runs out of memory.
 
 Depending on your dataset size, we recommend the following machine:
+
 - Up to 100.000 images or video frames: Use the AWS EC2 instance `g4dn.xlarge` or similar
   with 4 vCPUs, 16GB of system memory, one T4 GPU
 - Up to 1 Million images or video frames: Use the AWS EC2 instance `g4dn.2xlarge` or similar
@@ -29,7 +30,7 @@ we recommend to switch to a V100 or A10 GPU or better.
 
 If you stream the data from a cloud bucket using the datasource feature, make sure that
 the cloud bucket is in the same region as the compute machine.
-Using the same region is very important, see also :ref:`ref-docker-network-traffic-same-region`
+Using the same region is very important, see also :ref:`ref-docker-network-traffic-same-region`.
 If you are using the old workflow of reading from a local disk instead, use a SSD.
 However, we recommend the workflow to stream from a cloud bucket.
 
