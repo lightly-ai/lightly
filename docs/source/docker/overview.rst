@@ -64,11 +64,7 @@ We worked hard to make this happen and are very proud to present you with the fo
 
 * Recommended hardware:
   
-  * 8 CPU cores or more
-
-  * 16GB free RAM (>64GB for datasets above 10m samples)
- 
-  * 1 Nvidia Tesla P100, T4, V100 or A100 GPU with CUDA 10.0+
+  * see :ref:`ref-hardware-recommendations`
 
 .. toctree::
    :maxdepth: 1
@@ -80,4 +76,5 @@ We worked hard to make this happen and are very proud to present you with the fo
    configuration/configuration.rst
    examples/overview.rst
    known_issues_faq.rst
+   getting_started/hardware_recommendations.rst
 

@@ -170,13 +170,15 @@ instead of only newly added data,
 then set `datasource.process_all=True` in your docker run command.
 
 
+.. _ref-docker-network-traffic-same-region:
+
 Network traffic
 ---------------
 
 Please ensure that the bucket and the instance running the Lightly Docker are
 in the same cloud region (S3, Azure) or zone (GCS). E.g. if you are using S3, 
 have the instance running in `eu-central-1` and the bucket also in 
-`eu-central-1`. If the region or zone are note the same there can be 
+`eu-central-1`. If the region or zone are not the same there can be
 **additional transfer costs** and **degraded transfer speeds**. Please consult
 the pricing page of your cloud provider for more details
 (`S3 <https://aws.amazon.com/s3/pricing/>`_,
