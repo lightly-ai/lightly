@@ -14,7 +14,6 @@ based on three criteria:
 - stability: The worker should not crash because it runs out of memory.
 
 Depending on your dataset size, we recommend the following machine:
-
 - Up to 100.000 images or video frames: Use the AWS EC2 instance `g4dn.xlarge` or similar
   with 4 vCPUs, 16GB of system memory, one T4 GPU
 - Up to 1 Million images or video frames: Use the AWS EC2 instance `g4dn.2xlarge` or similar
@@ -28,10 +27,12 @@ E.g. 100 videos with 600s length each and 30 fps have 100 * 600 * 30 = 1.8 Mio f
 If you want to train an embedding model for many epochs or want to further increase computing speed,
 we recommend to switch to a V100 or A10 GPU or better.
 
-If you read the data from a local hard disk, make sure that you use a SSD.
-If you read the data from a cloud bucket instead, make sure that
+If you stream the data from a cloud bucket using the datasource feature, make sure that
 the cloud bucket is in the same region as the compute machine.
 Using the same region is very important, see also :ref:`ref-docker-network-traffic-same-region`
+If you are using the old workflow of reading from a local disk instead, use a SSD.
+However, we recommend the workflow to stream from a cloud bucket.
+
 
 Keep the configuration option `lightly.loader.num_workers` at the default (-1),
 which will set it to the number of vCPUs on your machine.
