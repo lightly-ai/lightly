@@ -3,59 +3,65 @@
 Hardware recommendations
 ========================
 
-Usually, the Lightly worker is run on a cloud machine,
-which is spin up specifically to run the docker.
-Our recommendations on the hardware configuration of this machine are
+Lightly worker is usually run on dedicated hardware
+or in the cloud on a compute instance
+which is specifically spun up to run Lightly Worker standalone.
+Our recommendations on the hardware requirements of this compute instance are
 based on three criteria:
 
 - speed: The worker should process your dataset as quickly a possible.
-- cost-effectiveness: The machine should be cheap to rent.
+- cost-effectiveness: The compute instance should be economical.
 - stability: The worker should not crash because it runs out of memory.
 
-As a starting point, we recommend a machine with the following configuration:
+Depending on your dataset size, we recommend the following machine:
 
-- 8 vCPUs
-- 30-32 GB of system memory
-- a NVIDIA-GPU with 16GB of video memory, e.g. the T4 GPU.
+- Up to 100.000 images or video frames: Use the AWS EC2 instance `g4dn.xlarge` or similar
+  with 4 vCPUs, 16GB of system memory, one T4 GPU
+- Up to 1 Million images or video frames: Use the AWS EC2 instance `g4dn.2xlarge` or similar
+  with 8 vCPUs, 32GB of system memory, one T4 GPU
+- More than 1 Million images or video frames: Use the AWS EC2 instance `g4dn.4xlarge` or similar
+  with 16 vCPUs, 64GB of system memory, one T4 GPU
 
-If you read the data from a local hard disk, make sure that the connection is fast,
-ideally faster than 100MB/s.
+You can compute the number of frames of your videos with their length and fps.
+E.g. 100 videos with 600s length each and 30 fps have 100 * 600 * 30 = 1.8 Mio frames.
 
+If you want to train an embedding model for many epochs or want to further increase computing speed,
+we recommend to switch to a V100 or A10 GPU or better.
+
+If you read the data from a local hard disk, make sure that you use a SSD.
 If you read the data from a cloud bucket instead, make sure that
-the cloud bucket is in the same region as the compute machine
-and the download speed is fast, ideally faster than 100MB/s.
+the cloud bucket is in the same region as the compute machine.
+Using the same region is very important, see also :ref:`ref-docker-network-traffic-same-region`
 
 Keep the configuration option `lightly.loader.num_workers` at the default (-1),
 which will set it to the number of vCPUs on your machine.
 
-The best machine hardware configuration is highly dependent
-on the type of data you have and how you configure the worker.
-Thus we recommend to adapt it to your needs.
-
 Finding the compute speed bottleneck
 ------------------------------------
 
-Usually, the compute speed is limited by one of three potential bottlenecks:
+Usually, the compute speed is limited by one of three potential bottlenecks.
+Different steps of the Lightly worker use these resources to a different extent.
+Thus the bottleneck changes throughout the run. The bottlenecks are:
 
 - data read speed: I/O
 - CPU
 - GPU
 
-Different steps of the Lightly worker use these resources to a different extent.
-Thus the bottleneck changes throughout the run.
-The GPU is used at three steps:
+
+The GPU is used during three steps:
 
 - training an embedding model (optional step)
 - pretagging your dataset (optional step)
 - embedding your dataset
 
-The I/O and CPUs are used at the former 3 steps and also used at the other steps that may take longer:
+The I/O and CPUs are used during the previous 3 steps and also used during the other steps that may take longer:
 
 - initializing the dataset
 - corruptness check (optional step)
 - dataset dumping & upload (optional step)
 
-Before updating one or all of resources, we recommend finding out the current bottleneck:
+Before changing the hardware configuration of your compute instance,
+we recommend to first determine the bottleneck by monitoring it:
 
 - You can find out the current disk usage of your machine using the terminal command `iotop`.
 - If you use a datasource, see the current ethernet usage using the terminal command `ifstat`.
