@@ -34,7 +34,7 @@ def negative_mises_fisher_weights(
         of the input images.
     
     """
-    similarity = torch.einsum('nm,nm->n', out0, out1) / sigma
+    similarity = torch.einsum('nm,nm->n', out0.detach(), out1.detach()) / sigma
     return 2 - out0.shape[0] * nn.functional.softmax(similarity, dim=0)
 
 class DCLLoss(nn.Module):
