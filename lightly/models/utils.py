@@ -316,6 +316,7 @@ def random_token_mask(
     size, 
     mask_ratio=0.6,
     mask_class_token=False,
+    device=None
 ):
     # creates random masks 
     # returns idx_keep, idx_mask tuple
@@ -324,7 +325,7 @@ def random_token_mask(
     batch_size, sequence_length = size
     num_keep = int(sequence_length * (1 - mask_ratio))
     
-    noise = torch.rand(batch_size, sequence_length, device=input.device)
+    noise = torch.rand(batch_size, sequence_length, device=device)
     if not mask_class_token:
         # make sure that class token is not masked
         noise[:, 0] = -1

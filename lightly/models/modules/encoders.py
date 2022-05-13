@@ -1,20 +1,20 @@
 from functools import partial
 from typing import Callable, Optional
 
-
 import torch
 import torch.nn as nn
 import torchvision
+
+from lightly.models import utils
 
 # TODO: Check for correct torchvision version
 
 class MAEEncoder(torchvision.models.vision_transformer.Encoder):
 
     def forward(self, input: torch.Tensor, idx_keep: Optional[torch.Tensor] = None):
-        torch._assert(input.dim() == 3, f"Expected (batch_size, seq_length, hidden_dim) got {input.shape}")
         input = input + self.pos_embedding
         if idx_keep is not None:
-            input = get_at_index(input, idx_keep)
+            input = utils.get_at_index(input, idx_keep)
         return self.ln(self.layers(self.dropout(input)))
 
     @classmethod
