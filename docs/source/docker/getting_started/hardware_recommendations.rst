@@ -30,7 +30,7 @@ we recommend to switch to a V100 or A10 GPU or better.
 
 If you stream the data from a cloud bucket using the datasource feature, make sure that
 the cloud bucket is in the same region as the compute machine.
-Using the same region is very important, see also :ref:`ref-docker-network-traffic-same-region`
+Using the same region is very important, see also :ref:`ref-docker-network-traffic-same-region`.
 If you are using the old workflow of reading from a local disk instead, use a SSD.
 However, we recommend the workflow to stream from a cloud bucket.
 
