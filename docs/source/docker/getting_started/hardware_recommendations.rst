@@ -14,6 +14,7 @@ based on three criteria:
 - stability: The worker should not crash because it runs out of memory.
 
 Depending on your dataset size, we recommend the following machine:
+
 - Up to 100.000 images or video frames: Use the AWS EC2 instance `g4dn.xlarge` or similar
   with 4 vCPUs, 16GB of system memory, one T4 GPU
 - Up to 1 Million images or video frames: Use the AWS EC2 instance `g4dn.2xlarge` or similar
