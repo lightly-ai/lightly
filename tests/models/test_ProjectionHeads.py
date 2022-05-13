@@ -5,6 +5,7 @@ import torch
 import lightly
 from lightly.models.modules.heads import BarlowTwinsProjectionHead
 from lightly.models.modules.heads import BYOLProjectionHead
+from lightly.models.modules.heads import BYOLPredictionHead
 from lightly.models.modules.heads import DINOProjectionHead
 from lightly.models.modules.heads import MoCoProjectionHead
 from lightly.models.modules.heads import NNCLRProjectionHead
@@ -31,6 +32,7 @@ class TestProjectionHeads(unittest.TestCase):
         self.heads = [
             BarlowTwinsProjectionHead,
             BYOLProjectionHead,
+            BYOLPredictionHead,
             MoCoProjectionHead,
             NNCLRProjectionHead,
             NNCLRPredictionHead,
