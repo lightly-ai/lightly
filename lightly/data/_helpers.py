@@ -4,7 +4,7 @@
 # All Rights Reserved
 
 import os
-from typing import List, Set, Optional, Callable
+from typing import List, Set, Optional, Callable, Dict, Any
 
 from torchvision import datasets
 
@@ -89,7 +89,7 @@ def _contains_subdirs(root: str):
 def _load_dataset_from_folder(
         root: str, transform,
         is_valid_file: Optional[Callable[[str], bool]] = None,
-        **tqdm_kwargs,
+        tqdm_args: Dict[str, Any] = None,
 ):
     """Initializes dataset from folder.
 
@@ -124,7 +124,7 @@ def _load_dataset_from_folder(
             extensions=VIDEO_EXTENSIONS,
             transform=transform,
             is_valid_file=is_valid_file,
-            **tqdm_kwargs
+            tqdm_args=tqdm_args
         )
     elif _contains_subdirs(root):
         # root contains subdirectories -> create an image folder dataset

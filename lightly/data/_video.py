@@ -4,7 +4,7 @@
 # All Rights Reserved
 
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 from fractions import Fraction
 import threading
 import weakref
@@ -298,7 +298,7 @@ def _make_dataset(
         extensions=None,
         is_valid_file=None,
         pts_unit='sec',
-        **tqdm_kwargs
+        tqdm_args=None
 ):
     """Returns a list of all video files, timestamps, and offsets.
 
@@ -317,6 +317,8 @@ def _make_dataset(
 
     """
 
+    if tqdm_args is None:
+        tqdm_args = {}
     if extensions is None:
         if is_valid_file is None:
             ValueError('Both extensions and is_valid_file cannot be None')
@@ -350,12 +352,12 @@ def _make_dataset(
     # get timestamps
     timestamps, fpss = [], []
     video_instances_unbroken = []
-    tqdm_kwargs = dict(tqdm_kwargs)
-    tqdm_kwargs.setdefault('unit', ' video')
-    tqdm_kwargs.setdefault('desc', 'Counting frames in videos')
+    tqdm_args = dict(tqdm_args)
+    tqdm_args.setdefault('unit', ' video')
+    tqdm_args.setdefault('desc', 'Counting frames in videos')
     pbar = tqdm(
         video_instances,
-        **tqdm_kwargs
+        **tqdm_args
     )
     for instance in pbar:
 
@@ -452,7 +454,7 @@ class VideoDataset(datasets.VisionDataset):
                  target_transform=None,
                  is_valid_file=None,
                  exception_on_non_increasing_timestamp=True,
-                 **tqdm_kwargs
+                 tqdm_args: Dict[str, Any]=None
                  ):
         
         super(VideoDataset, self).__init__(root,
@@ -460,7 +462,7 @@ class VideoDataset(datasets.VisionDataset):
                                            target_transform=target_transform)
 
         videos, video_timestamps, offsets, fps = _make_dataset(
-            self.root, extensions, is_valid_file, **tqdm_kwargs)
+            self.root, extensions, is_valid_file, tqdm_args=tqdm_args)
         
         if len(videos) == 0:
             msg = 'Found 0 videos in folder: {}\n'.format(self.root)

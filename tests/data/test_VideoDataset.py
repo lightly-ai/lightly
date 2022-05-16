@@ -1,11 +1,13 @@
+import contextlib
+import io
 from fractions import Fraction
 import unittest
 import os
 import shutil
 from unittest import mock
+
 import numpy as np
 import tempfile
-import warnings
 import PIL
 import torch
 import torchvision
@@ -82,16 +84,23 @@ class TestVideoDataset(unittest.TestCase):
 
         shutil.rmtree(self.input_dir)
 
-    def test_video_dataset_kwargs(self):
+    def test_video_dataset_tqdm_args(self):
 
         self.create_dataset()
-        dataset = VideoDataset(
-            self.input_dir,
-            extensions=self.extensions,
-            desc="Counting frames",
-            unit="video"
-        )
+        desc = "test_video_dataset_tqdm_args description asdf"
+        f = io.StringIO()
+        with contextlib.redirect_stderr(f):
+            dataset = VideoDataset(
+                self.input_dir,
+                extensions=self.extensions,
+                tqdm_args={
+                    "desc": desc,
+                }
+            )
         shutil.rmtree(self.input_dir)
+        printed = f.getvalue()
+        self.assertTrue(desc in printed)
+
 
 
     def test_video_dataset_from_folder(self):
