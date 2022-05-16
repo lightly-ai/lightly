@@ -36,12 +36,18 @@ The current benchmark contains the following models:
 
    "BarlowTwins", 800, 256, 0.789, "330.9 Min", "4.0 GByte"
    "BYOL", 800, 256, 0.851, "332.7 Min", "4.3 GByte"
+   "DCL (*)", 800, 256, 0.816, "213.1 Min", "4.3 GByte"
+   "DCLW (*)", 800, 256, 0.827, "213.1 Min", "4.3 GByte"
    "DINO (ResNet 18)", 800, 256, 0.881, "613.9 Min", "6.7 GByte"
    "MoCo", 800, 256, 0.832, "322.8 Min", "4.2 GByte"
    "NNCLR", 800, 256, 0.848, "341.4 Min", "4.2 GByte"
    "SimCLR", 800, 256, 0.858, "324.8 Min", "3.9 GByte"
    "SimSiam", 800, 256, 0.852, "316.0 Min", "3.9 GByte"
    "SwaV", 800, 256, 0.899, "554.7 Min", "6.6 GByte"
+
+(*): Different runtime and memory requirements due to different hardware settings
+and pytorch version. Runtime and memory requirements are comparable to SimCLR
+with the default settings.
 
 You can reproduce the benchmarks using the following script:
 :download:`imagenette_benchmark.py <benchmarks/imagenette_benchmark.py>` 
@@ -72,8 +78,8 @@ augmentation due to the small image sizes.
 
   "BarlowTwins", 200, 128, 0.835, "193.4 Min", "2.2 GByte"
   "BYOL", 200, 128, 0.872, "217.0 Min", "2.3 GByte"
-  "DCL (*)", 200, 128, 0.841, "372.8 Min", "1.7 GByte"
-  "DCLW (*)", 200, 128, 0.832, "377.1 Min", "1.7 GByte"
+  "DCL (*)", 200, 128, 0.842, "126.9 Min", "1.7 GByte"
+  "DCLW (*)", 200, 128, 0.833, "127.5 Min", "1.8 GByte"
   "DINO", 200, 128, 0.868, "220.7 Min", "2.3 GByte"
   "Moco", 200, 128, 0.838, "229.5 Min", "2.3 GByte"
   "NNCLR", 200, 128, 0.838, "198.7 Min", "2.2 GByte"
@@ -82,6 +88,8 @@ augmentation due to the small image sizes.
   "SwaV", 200, 128, 0.806, "182.4 Min", "2.2 GByte"
   "BarlowTwins", 200, 512, 0.827, "160.7 Min", "7.5 GByte"
   "BYOL", 200, 512, 0.872, "188.5 Min", "7.7 GByte"
+  "DCL (*)", 200, 512, 0.834, "113.6 Min", 6.1 GByte"
+  "DCLW (*)", 200, 512, 0.830, "113.8 Min", 6.2 GByte"
   "DINO", 200, 512, 0.862, "191.1 Min", "7.5 GByte"
   "Moco (**)", 200, 512, 0.850, "196.8 Min", "7.8 GByte"
   "NNCLR (**)", 200, 512, 0.836, "164.7 Min", "7.6 GByte"
@@ -90,6 +98,8 @@ augmentation due to the small image sizes.
   "SwaV", 200, 512, 0.833, "158.4 Min", "7.5 GByte"
   "BarlowTwins", 800, 512, 0.857, "641.5 Min", "7.5 GByte"
   "BYOL", 800, 512, 0.911, "754.2 Min", "7.8 GByte"
+  "DCL (*)", 800, 512, 0.873, "459.6 Min", "6.1 GByte"
+  "DCLW (*)", 800, 512, 0.873, "455.8 Min", "6.1 GByte"
   "DINO", 800, 512, 0.884, "765.5 Min", "7.6 GByte"
   "Moco (**)", 800, 512, 0.900, "787.7 Min", "7.8 GByte"
   "NNCLR (**)", 800, 512, 0.896, "659.2 Min", "7.6 GByte"
@@ -97,9 +107,9 @@ augmentation due to the small image sizes.
   "SimSiam", 800, 512, 0.906, "636.5 Min", "7.6 GByte"
   "SwaV", 800, 512, 0.881, "634.9 Min", "7.5 GByte"
 
-(*): Benchmark ran on a smaller Tesla T4 GPU which results in larger runtimes.
-For comparison: SimCLR trained for 200 epochs with batch size 128 has a runtime 
-of 370 minutes on a T4.
+(*): Smaller runtime and memory requirements due to different hardware settings
+and pytorch version. Runtime and memory requirements are comparable to SimCLR
+with the default settings.
 (**): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
 changing memory bank due to larger batch size.
 
