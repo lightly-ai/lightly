@@ -29,7 +29,7 @@ Lightly offers features like
 
 - [Barlow Twins, 2021](https://arxiv.org/abs/2103.03230)
 - [BYOL, 2020](https://arxiv.org/abs/2006.07733)
-- [DCL, 2021](https://arxiv.org/abs/2110.06848)
+- [DCL & DCLW, 2021](https://arxiv.org/abs/2110.06848)
 - [DINO, 2021](https://arxiv.org/abs/2104.14294)
 - [MoCo, 2019](https://arxiv.org/abs/1911.05722)
 - [NNCLR, 2021](https://arxiv.org/abs/2104.14548)
@@ -189,6 +189,8 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 |--------------|--------|------------|---------------|
 | BarlowTwins  |    800 |        256 |         0.789 |
 | BYOL         |    800 |        256 |         0.851 |
+| DCL          |    800 |        256 |         0.816 |
+| DCLW         |    800 |        256 |         0.827 |
 | DINO (Res18) |    800 |        256 |         0.881 |
 | Moco         |    800 |        256 |         0.832 |
 | NNCLR        |    800 |        256 |         0.848 |
@@ -203,6 +205,8 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 |---------------|--------|------------|---------------|
 | BarlowTwins   |    800 |        512 |         0.857 |
 | BYOL          |    800 |        512 |         0.911 |
+| DCL           |    800 |        512 |         0.873 |
+| DCLW          |    800 |        512 |         0.873 | 
 | DINO          |    800 |        512 |         0.884 |
 | Moco          |    800 |        512 |         0.900 |
 | NNCLR         |    800 |        512 |         0.896 |
