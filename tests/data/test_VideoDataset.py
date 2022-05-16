@@ -163,8 +163,8 @@ class TestVideoDataset(unittest.TestCase):
         self.create_dataset(n_videos=2, n_frames_per_video=5)
         
         # overwrite the _make_dataset function to return a wrong timestamp
-        def _make_dataset_with_non_increasing_timestamps(*args):
-            video_instances, timestamps, offsets, fpss = _make_dataset(*args)
+        def _make_dataset_with_non_increasing_timestamps(*args, **kwargs):
+            video_instances, timestamps, offsets, fpss = _make_dataset(*args, **kwargs)
             # set timestamp of 4th frame in 1st video to timestamp of 2nd frame.
             timestamps[0][3] = timestamps[0][1]
             return video_instances, timestamps, offsets, fpss
