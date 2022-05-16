@@ -11,7 +11,7 @@ from lightly.models import utils
 
 class MAEEncoder(torchvision.models.vision_transformer.Encoder):
 
-    def forward(self, input: torch.Tensor, idx_keep: Optional[torch.Tensor] = None):
+    def encode(self, input: torch.Tensor, idx_keep: Optional[torch.Tensor] = None):
         input = input + self.pos_embedding
         if idx_keep is not None:
             input = utils.get_at_index(input, idx_keep)
