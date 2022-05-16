@@ -16,6 +16,7 @@ import torch
 import torchvision
 from torchvision import datasets
 from torchvision import io
+from tqdm import tqdm
 
 try:
     import av
@@ -292,10 +293,13 @@ class VideoLoader(threading.local):
         image = Image.fromarray(frame.numpy())
         return image
 
-def _make_dataset(directory,
-                  extensions=None,
-                  is_valid_file=None,
-                  pts_unit='sec'):
+def _make_dataset(
+        directory,
+        extensions=None,
+        is_valid_file=None,
+        pts_unit='sec',
+        **tqdm_kwargs
+):
     """Returns a list of all video files, timestamps, and offsets.
 
     Args:
@@ -345,7 +349,15 @@ def _make_dataset(directory,
 
     # get timestamps
     timestamps, fpss = [], []
-    for instance in video_instances[:]: # video_instances[:] creates a copy
+    video_instances_unbroken = []
+    tqdm_kwargs = dict(tqdm_kwargs)
+    tqdm_kwargs.setdefault('unit', ' video')
+    tqdm_kwargs.setdefault('desc', 'Counting frames in videos')
+    pbar = tqdm(
+        video_instances,
+        **tqdm_kwargs
+    )
+    for instance in pbar:
 
         if AV_AVAILABLE and torchvision.get_video_backend() == 'pyav':
             # This is a hacky solution to estimate the timestamps.
@@ -357,7 +369,6 @@ def _make_dataset(directory,
                 # check if we can extract the video duration
                 if not stream.duration:
                     print(f'Video {instance} has no timestamp and will be skipped...')
-                    video_instances.remove(instance) # remove from original list (not copy)
                     continue # skip this broken video
 
                 duration = stream.duration * stream.time_base
@@ -370,6 +381,7 @@ def _make_dataset(directory,
             ts, fps = io.read_video_timestamps(instance, pts_unit=pts_unit)
             timestamps.append(ts)
             fpss.append(fps)
+        video_instances_unbroken.append(instance)
 
     # get frame offsets
     offsets = [len(ts) for ts in timestamps]
@@ -377,7 +389,7 @@ def _make_dataset(directory,
     for i in range(1, len(offsets)):
         offsets[i] = offsets[i-1] + offsets[i] # cumsum
 
-    return video_instances, timestamps, offsets, fpss
+    return video_instances_unbroken, timestamps, offsets, fpss
 
 
 def _find_non_increasing_timestamps(
@@ -439,14 +451,16 @@ class VideoDataset(datasets.VisionDataset):
                  transform=None,
                  target_transform=None,
                  is_valid_file=None,
-                 exception_on_non_increasing_timestamp=True):
+                 exception_on_non_increasing_timestamp=True,
+                 **tqdm_kwargs
+                 ):
         
         super(VideoDataset, self).__init__(root,
                                            transform=transform,
                                            target_transform=target_transform)
 
         videos, video_timestamps, offsets, fps = _make_dataset(
-            self.root, extensions, is_valid_file)
+            self.root, extensions, is_valid_file, **tqdm_kwargs)
         
         if len(videos) == 0:
             msg = 'Found 0 videos in folder: {}\n'.format(self.root)

@@ -82,6 +82,17 @@ class TestVideoDataset(unittest.TestCase):
 
         shutil.rmtree(self.input_dir)
 
+    def test_video_dataset_kwargs(self):
+
+        self.create_dataset()
+        dataset = VideoDataset(
+            self.input_dir,
+            extensions=self.extensions,
+            desc="Counting frames",
+            unit="video"
+        )
+        shutil.rmtree(self.input_dir)
+
 
     def test_video_dataset_from_folder(self):
 
