@@ -17,6 +17,8 @@ Results (5.3.2022):
 ------------------------------------------------------------------------------------------
 | BarlowTwins   |        256 |    200 |              0.587 |   86.2 Min |      4.0 GByte |
 | BYOL          |        256 |    200 |              0.619 |   88.6 Min |      4.3 GByte |
+| DCL (*)       |        256 |    200 |              0.762 |   53.3 Min |      4.3 GByte |
+| DCLW (*)      |        256 |    200 |              0.755 |   53.7 Min |      4.3 GByte |
 | DINO (Res18)  |        256 |    200 |              0.736 |   86.5 Min |      4.1 GByte |
 | Moco          |        256 |    200 |              0.727 |   87.3 Min |      4.3 GByte |
 | NNCLR         |        256 |    200 |              0.726 |   86.8 Min |      4.2 GByte |
@@ -26,6 +28,8 @@ Results (5.3.2022):
 ------------------------------------------------------------------------------------------
 | BarlowTwins   |        256 |    800 |              0.789 |  330.9 Min |      4.0 GByte |
 | BYOL          |        256 |    800 |              0.851 |  332.7 Min |      4.3 GByte |
+| DCL (*)       |        256 |    800 |              0.816 |  213.1 Min |      4.3 GByte |
+| DCLW (*)      |        256 |    800 |              0.827 |  213.1 Min |      4.3 GByte |
 | DINO (Res18)  |        256 |    800 |              0.881 |  613.9 Min |      6.7 GByte |
 | Moco          |        256 |    800 |              0.832 |  322.8 Min |      4.2 GByte |
 | NNCLR         |        256 |    800 |              0.848 |  341.4 Min |      4.2 GByte |
@@ -33,6 +37,10 @@ Results (5.3.2022):
 | SimSiam       |        256 |    800 |              0.852 |  316.0 Min |      3.9 GByte |
 | SwaV          |        256 |    800 |              0.899 |  554.7 Min |      6.6 GByte |
 ------------------------------------------------------------------------------------------
+
+(*): Different runtime and memory requirements due to different hardware settings
+and pytorch version. Runtime and memory requirements are comparable to SimCLR
+with the default settings.
 
 """
 import copy
