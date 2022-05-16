@@ -28,11 +28,44 @@ copy the example code from :ref:`simclr` and make the following adjustments:
     from lightly.loss import DCLLoss
     criterion = DCLLoss()
 
-    # or alternatively the weighted DCL loss
-    from lightly.loss import DCLWLoss
-    criterion = DCLWLoss()
+Below you can also find fully runnable examples using the SimCLR architecture
+with DCL loss.
 
-    # for distributed training you can enable gather_distributed to calculate
-    # the loss over all distributed samples
-    from lightly.loss import DCLLoss
-    criterion = DCLLoss(gather_distributed=True)
+.. tabs::
+    .. tab:: PyTorch
+
+        This example can be run from the command line with::
+
+            python lightly/examples/pytorch/dcl.py
+
+        .. literalinclude:: ../../../examples/pytorch/dcl.py
+
+    .. tab:: Lightning
+
+        This example can be run from the command line with::
+
+            python lightly/examples/pytorch_lightning/dcl.py
+
+        .. literalinclude:: ../../../examples/pytorch_lightning/dcl.py
+
+    .. tab:: Lightning Distributed
+
+        This example runs on multiple gpus using Distributed Data Parallel (DDP)
+        training with Pytorch Lightning. At least one GPU must be available on 
+        the system. The example can be run from the command line with::
+
+            python lightly/examples/pytorch_lightning_distributed/dcl.py
+
+        The model differs in the following ways from the non-distributed
+        implementation:
+
+        - Distributed Data Parallel is enabled
+        - Synchronized Batch Norm is used in place of standard Batch Norm
+        - Features are gathered from all GPUs before the loss is calculated
+
+        Note that Synchronized Batch Norm and feature gathering are optional and
+        the model can also be trained without them. Without Synchronized Batch
+        Norm and feature gathering the batch norm and loss for each GPU are 
+        only calculated based on the features on that specific GPU.
+
+        .. literalinclude:: ../../../examples/pytorch_lightning_distributed/dcl.py
