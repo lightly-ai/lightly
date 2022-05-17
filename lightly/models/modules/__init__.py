@@ -10,6 +10,7 @@ can be combined with any lightly model.
 
 from lightly.models.modules.heads import BarlowTwinsProjectionHead
 from lightly.models.modules.heads import BYOLProjectionHead
+from lightly.models.modules.heads import BYOLPredictionHead
 from lightly.models.modules.heads import DINOProjectionHead
 from lightly.models.modules.heads import MoCoProjectionHead
 from lightly.models.modules.heads import NNCLRProjectionHead
@@ -20,4 +21,3 @@ from lightly.models.modules.heads import SimSiamPredictionHead
 from lightly.models.modules.heads import SwaVProjectionHead
 from lightly.models.modules.heads import SwaVPrototypes
 from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
-
