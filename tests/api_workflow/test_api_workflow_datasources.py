@@ -50,6 +50,11 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         assert len(samples) == len(new_samples)
         assert set(samples) == set(new_samples)
 
+    def test_download_raw_samples_relevant_filenames(self):
+        self.api_workflow_client._datasources_api.reset()
+        relevant_filenames_path = "relevant_filenames.txt"
+        samples = self.api_workflow_client.download_raw_samples(relevant_filenames_file_name=relevant_filenames_path)
+
     def test_set_azure_config(self):
         self.api_workflow_client.set_azure_config(
             container_name="my-container/name",

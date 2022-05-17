@@ -403,8 +403,17 @@ class MockedDatasourcesApi(DatasourcesApi):
         return DatasourceProcessedUntilTimestampResponse(timestamp)
 
     def get_list_of_raw_samples_from_datasource_by_dataset_id(
-        self, dataset_id, cursor: str = None, _from: int = None, to: int = None, **kwargs
+            self,
+            dataset_id,
+            cursor: str = None,
+            _from: int = None,
+            to: int = None,
+            relevant_filenames_file_name: str = None
     ) -> DatasourceRawSamplesData:
+        if relevant_filenames_file_name:
+            samples = self._samples[dataset_id][::2]
+        else:
+            samples = self._samples[dataset_id]
         if cursor is None:
             # initial request
             assert _from is not None
@@ -418,7 +427,7 @@ class MockedDatasourcesApi(DatasourcesApi):
             to = cursor_dict["to"]
 
         next_current = min(current + self._max_return_samples, to + 1)
-        samples = self._samples[dataset_id][current:next_current]
+        samples = samples[current:next_current]
         cursor_dict["current"] = next_current
         cursor = json.dumps(cursor_dict)
         has_more = len(samples) > 0

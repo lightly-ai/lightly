@@ -13,7 +13,10 @@ from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_pred
 class _DatasourcesMixin:
 
     def download_raw_samples(
-        self, from_: int = 0, to: int = None
+            self,
+            from_: int = 0,
+            to: int = None,
+            relevant_filenames_file_name: str = None,
     ) -> List[Tuple[str, str]]:
         """Downloads all filenames and read urls from the datasource between `from_` and `to`.
 
@@ -24,6 +27,9 @@ class _DatasourcesMixin:
                 Unix timestamp from which on samples are downloaded.
             to: 
                 Unix timestamp up to and including which samples are downloaded.
+            relevant_filenames_file_name:
+                The path to the relevant filenames text file in the cloud bucket.
+                The path is relative to the datasource root.
         
         Returns:
            A list of (filename, url) tuples, where each tuple represents a sample
@@ -35,12 +41,15 @@ class _DatasourcesMixin:
             dataset_id=self.dataset_id,
             _from=from_,
             to=to,
+            relevant_filenames_file_name=relevant_filenames_file_name
         )
         cursor = response.cursor
         samples = response.data
         while response.has_more:
             response: DatasourceRawSamplesData = self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id(
-                dataset_id=self.dataset_id, cursor=cursor
+                dataset_id=self.dataset_id,
+                cursor=cursor,
+                relevant_filenames_file_name=relevant_filenames_file_name
             )
             cursor = response.cursor
             samples.extend(response.data)
