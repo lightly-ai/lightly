@@ -3,15 +3,15 @@
 Add Metadata to a Datasource
 ===============================
 
-Lightly can make use of metadata collected alongside your images or videos. Provided
-metadata can be used to steer the selection process and to analyze the selected subset
-in the web-app.
+Lightly can make use of metadata collected alongside your images or videos. Provided,
+metadata can be used to steer the selection process and to analyze the selected dataset
+in the Lightly Platform.
 
 
 Metadata Folder Structure
 ----------------------------
 
-In the following, we will outline the format in which metadata can be added to a
+Following, we outline the format in which metadata can be added to a
 Lightly datasource. Everything regarding metadata will take place in a subdirectory
 of your configured datasource called `.lightly/metadata`. The general structure
 of this directory will look like this:
@@ -57,7 +57,7 @@ configuration entries. Each of the entries is a dictionary with the following ke
    - `CATEGORICAL_BOOLEAN`
 
 
-For example, let's say we have additional information about the weather for each
+For example, let's say we have additional information about the scene and weather for each
 of the images we have collected. A possible schema could look like this:
 
 .. code-block:: javascript
@@ -65,11 +65,11 @@ of the images we have collected. A possible schema could look like this:
 
     [
         {
-            "name": "Is special frame",
-            "path": "special_frame_flag",
-            "defaultValue": false,
-            "valueDataType": "CATEGORICAL_BOOLEAN"
-        },
+            "name": "Scene",
+            "path": "scene",
+            "defaultValue": "undefined",
+            "valueDataType": "CATEGORICAL_STRING"
+        }
         {
             "name": "Weather description",
             "path": "weather.description",
@@ -105,7 +105,7 @@ Lightly requires a single metadata file per image or video. If a metadata file i
 for a full video, Lightly assumes that the metadata is valid for all frames in that video.
 
 To provide metadata for an image or a video, place a metadata file with the same name
-as the image or video in the `.lightly/metadata` directory but change the file type to
+as the image or video in the `.lightly/metadata` directory but change the file extension to
 `.json`. The file should contain the metadata in the format defined under :ref:`ref-metadata-format`.
 
 
@@ -123,8 +123,8 @@ as the image or video in the `.lightly/metadata` directory but change the file t
 
 When working with videos it's also possible to provide metadata on a per-frame basis.
 Then, Lightly requires a metadata file per frame. Lightly uses a naming convention to
-identify frames: The filename of a frame consists of the video filename, the video format,
-and the frame number (padded to the length of the number of frames in the video) separated
+identify frames: The filename of a frame consists of the video filename, the frame number 
+(padded to the length of the number of frames in the video), the video format separated
 by hyphens. For example, for a video with 200 frames, the frame number will be padded
 to length three. For a video with 1000 frames, the frame number will be padded to length four (99 becomes 0099).
 
@@ -147,31 +147,85 @@ to length three. For a video with 1000 frames, the frame number will be padded t
 Metadata Format
 ---------------
 
-Metadata for images or videos must have a `file_name`, `type`, and `metadata`` key.
-Here, `file_name`` serves as a unique identifier to retrieve the original file for which the metadata was collected,
+The metadata json files for images and videos require the keys `file_name`, `type`, and `metadata` key.
+Here, `file_name` serves as a unique identifier to retrieve the original file for which the metadata was collected,
 `type` indicates whether the metadata is per "video", "frame", or "image", and `metadata` contains the actual metadata.
 
-For our example from above, a corresponding metadata file should look like this:
+For our example from above, a metadata file corresponding to a image/video/frame should look like this:
 
-.. code-block:: javascript
-    :caption: .lightly/metadata/my_video.json
 
-    {
-        "file_name": "my_video.mp4",
-        "type": "video",
-        "metadata": {
-            "weather": {
-                "description": "sunny",
-                "temperature": 23.2,
-                "air_pressure": 1
-            },
-            "vehicle_id": 321,
-        }
-    }
+.. tabs::
+
+
+    .. tab:: Video
+    
+        .. code-block:: javascript
+            :caption: .lightly/metadata/my_video.json
+
+            {
+                "file_name": "my_video.mp4",
+                "type": "video",
+                "metadata": {
+                    "scene": "city street",
+                    "weather": {
+                        "description": "sunny",
+                        "temperature": 23.2,
+                        "air_pressure": 1
+                    },
+                    "vehicle_id": 321,
+                }
+            }
+
+    .. tab:: Frame
+    
+        .. code-block:: javascript
+            :caption: .lightly/metadata/my_video-099-mp4.json
+
+            {
+                "file_name": "my_video-099-mp4.png",
+                "type": "frame",
+                "metadata": {
+                    "scene": "city street",
+                    "weather": {
+                        "description": "sunny",
+                        "temperature": 23.2,
+                        "air_pressure": 1
+                    },
+                    "vehicle_id": 321,
+                }
+            }
+
+    .. tab:: Image
+    
+        .. code-block:: javascript
+            :caption: .lightly/metadata/my_image.png
+
+            {
+                "file_name": "my_image.png",
+                "type": "image",
+                "metadata": {
+                    "scene": "city street",
+                    "weather": {
+                        "description": "sunny",
+                        "temperature": 23.2,
+                        "air_pressure": 1
+                    },
+                    "vehicle_id": 321,
+                }
+            }
+
+
 
 
 Next Steps
 ----------
 
-If metadata is provided, the Lightly worker will automatically detect and load it into
-the web-app where it can be visualized and analyzed after running a selection.
+If metadata is provided, the Lightly Worker will automatically detect and load it into
+the Lightly Platform where it can be visualized and analyzed after running a selection.
+
+For example, it's possible to visualize the different categories of metadata in the Lightly
+Platform scatter plot. In the following example we visualized the categorical metadata "Scene"
+from the BDD100k dataset.
+
+
+.. figure:: images/bdd100k_demo_metadata.jpg
