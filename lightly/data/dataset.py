@@ -9,7 +9,7 @@ import shutil
 import tempfile
 
 from PIL import Image
-from typing import List, Union, Callable
+from typing import List, Union, Callable, Dict, Any
 from torch._C import Value
 
 import torchvision.datasets as datasets
@@ -154,7 +154,9 @@ class LightlyDataset:
                  transform: transforms.Compose = None,
                  index_to_filename:
                  Callable[[datasets.VisionDataset, int], str] = None,
-                 filenames: List[str] = None):
+                 filenames: List[str] = None,
+                 tqdm_args: Dict[str, Any] = None,
+                 ):
 
         # can pass input_dir=None to create an "empty" dataset
         self.input_dir = input_dir
@@ -172,7 +174,7 @@ class LightlyDataset:
 
         if self.input_dir is not None:
             self.dataset = _load_dataset_from_folder(
-                self.input_dir, transform, is_valid_file=is_valid_file
+                self.input_dir, transform, is_valid_file=is_valid_file, tqdm_args=tqdm_args
             )
         elif transform is not None:
             raise ValueError(

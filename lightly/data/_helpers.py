@@ -4,7 +4,7 @@
 # All Rights Reserved
 
 import os
-from typing import List, Set, Optional, Callable
+from typing import List, Set, Optional, Callable, Dict, Any
 
 from torchvision import datasets
 
@@ -88,8 +88,9 @@ def _contains_subdirs(root: str):
 
 def _load_dataset_from_folder(
         root: str, transform,
-        is_valid_file: Optional[Callable[[str], bool]] = None
-    ):
+        is_valid_file: Optional[Callable[[str], bool]] = None,
+        tqdm_args: Dict[str, Any] = None,
+):
     """Initializes dataset from folder.
 
     Args:
@@ -118,11 +119,13 @@ def _load_dataset_from_folder(
 
     if contains_videos:
         # root contains videos -> create a video dataset
-        dataset = VideoDataset(root,
-                               extensions=VIDEO_EXTENSIONS,
-                               transform=transform,
-                               is_valid_file=is_valid_file
-                               )
+        dataset = VideoDataset(
+            root,
+            extensions=VIDEO_EXTENSIONS,
+            transform=transform,
+            is_valid_file=is_valid_file,
+            tqdm_args=tqdm_args
+        )
     elif _contains_subdirs(root):
         # root contains subdirectories -> create an image folder dataset
         dataset = datasets.ImageFolder(root,
