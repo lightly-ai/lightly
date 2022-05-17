@@ -101,8 +101,9 @@ of the images we have collected. A possible schema could look like this:
 
 Metadata Files
 --------------
-Lightly requires a single metadata file per image or video. If a metadata file is provided
-for a full video, Lightly assumes that the metadata is valid for all frames in that video.
+Lightly requires a single metadata file per image or video. If an image or video has no corresponding metadata file,
+Lightly will assume the default value from the `schema.json`. If a metadata file is provided for a full video,
+Lightly assumes that the metadata is valid for all frames in that video.
 
 To provide metadata for an image or a video, place a metadata file with the same name
 as the image or video in the `.lightly/metadata` directory but change the file extension to
@@ -122,7 +123,8 @@ as the image or video in the `.lightly/metadata` directory but change the file e
 
 
 When working with videos it's also possible to provide metadata on a per-frame basis.
-Then, Lightly requires a metadata file per frame. Lightly uses a naming convention to
+Then, Lightly requires a metadata file per frame. If a frame has no corresponding metadata file,
+Lightly will assume the default value from the `schema.json`. Lightly uses a naming convention to
 identify frames: The filename of a frame consists of the video filename, the frame number 
 (padded to the length of the number of frames in the video), the video format separated
 by hyphens. For example, for a video with 200 frames, the frame number will be padded
