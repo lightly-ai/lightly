@@ -137,7 +137,7 @@ For the structure above, lightly will understand the input as follows:
 Video Folder Datasets
 ---------------------
 The lightly Python package allows you to work `directly` on video data, without having
-to exctract the frames first. This can save a lot of disc space as video files are
+to exctract the frames first. This can save a lot of disk space as video files are
 typically strongly compressed. Using lightly on video data is as simple as pointing 
 the software at an input directory where one or more videos are stored. The package will
 automatically detect all video files and index them so that each frame can be accessed.
@@ -165,9 +165,9 @@ also work on video data. Give it a try!
 
 .. note::
 
-    Randomly accessing video frames is slower compared to accessing the extracted frames on disc. However,
-    by working directly on video files, one can save a lot of disc space because the frames do not have to 
-    be exctracted beforehand.
+    Randomly accessing video frames is slower compared to accessing the extracted frames on disk. However,
+    by working directly on video files, one can save a lot of disk space because the frames do not have to
+    be extracted beforehand.
 
 
 Embedding Files
