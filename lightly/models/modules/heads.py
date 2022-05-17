@@ -175,7 +175,7 @@ class NNCLRPredictionHead(ProjectionHead):
     """
     def __init__(self,
                  input_dim: int = 256,
-                 hidden_dim: int = 4095,
+                 hidden_dim: int = 4096,
                  output_dim: int = 256):
         super(NNCLRPredictionHead, self).__init__([
             (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
