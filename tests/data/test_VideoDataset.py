@@ -1,11 +1,13 @@
+import contextlib
+import io
 from fractions import Fraction
 import unittest
 import os
 import shutil
 from unittest import mock
+
 import numpy as np
 import tempfile
-import warnings
 import PIL
 import torch
 import torchvision
@@ -82,6 +84,24 @@ class TestVideoDataset(unittest.TestCase):
 
         shutil.rmtree(self.input_dir)
 
+    def test_video_dataset_tqdm_args(self):
+
+        self.create_dataset()
+        desc = "test_video_dataset_tqdm_args description asdf"
+        f = io.StringIO()
+        with contextlib.redirect_stderr(f):
+            dataset = VideoDataset(
+                self.input_dir,
+                extensions=self.extensions,
+                tqdm_args={
+                    "desc": desc,
+                }
+            )
+        shutil.rmtree(self.input_dir)
+        printed = f.getvalue()
+        self.assertTrue(desc in printed)
+
+
 
     def test_video_dataset_from_folder(self):
 
@@ -143,8 +163,8 @@ class TestVideoDataset(unittest.TestCase):
         self.create_dataset(n_videos=2, n_frames_per_video=5)
         
         # overwrite the _make_dataset function to return a wrong timestamp
-        def _make_dataset_with_non_increasing_timestamps(*args):
-            video_instances, timestamps, offsets, fpss = _make_dataset(*args)
+        def _make_dataset_with_non_increasing_timestamps(*args, **kwargs):
+            video_instances, timestamps, offsets, fpss = _make_dataset(*args, **kwargs)
             # set timestamp of 4th frame in 1st video to timestamp of 2nd frame.
             timestamps[0][3] = timestamps[0][1]
             return video_instances, timestamps, offsets, fpss
