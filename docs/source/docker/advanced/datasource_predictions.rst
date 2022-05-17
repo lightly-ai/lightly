@@ -1,6 +1,6 @@
 .. _ref-docker-datasource-predictions:
 
-Add Predictions to a datasource
+Add Predictions to a Datasource
 ===============================
 
 Lightly can not only use images you provided in a datasource, but also predictions of a ML model on your images.
