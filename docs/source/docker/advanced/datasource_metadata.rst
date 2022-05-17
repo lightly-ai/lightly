@@ -206,10 +206,10 @@ For our example from above, a metadata file corresponding to a image/video/frame
                 "file_name": "my_image.png",
                 "type": "image",
                 "metadata": {
-                    "scene": "city street",
+                    "scene": "highway",
                     "weather": {
-                        "description": "sunny",
-                        "temperature": 23.2,
+                        "description": "rainy",
+                        "temperature": 10.5,
                         "air_pressure": 1
                     },
                     "vehicle_id": 321,
