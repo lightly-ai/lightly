@@ -9,6 +9,8 @@ Updated: 18.02.2022 (6618fa3c36b0c9f3a9d7a21bcdb00bf4fd258ee8))
 ------------------------------------------------------------------------------------------
 | BarlowTwins   |        128 |    200 |              0.835 |  193.4 Min |      2.2 GByte |
 | BYOL          |        128 |    200 |              0.872 |  217.0 Min |      2.3 GByte |
+| DCL (*)       |        128 |    200 |              0.842 |  126.9 Min |      1.7 GByte |
+| DCLW (*)      |        128 |    200 |              0.833 |  127.5 Min |      1.8 GByte |
 | DINO          |        128 |    200 |              0.868 |  220.7 Min |      2.3 GByte |
 | Moco          |        128 |    200 |              0.838 |  229.5 Min |      2.3 GByte |
 | NNCLR         |        128 |    200 |              0.838 |  198.7 Min |      2.2 GByte |
@@ -18,24 +20,31 @@ Updated: 18.02.2022 (6618fa3c36b0c9f3a9d7a21bcdb00bf4fd258ee8))
 ------------------------------------------------------------------------------------------
 | BarlowTwins   |        512 |    200 |              0.827 |  160.7 Min |      7.5 GByte |
 | BYOL          |        512 |    200 |              0.872 |  188.5 Min |      7.7 GByte |
+| DCL (*)       |        512 |    200 |              0.834 |  113.6 Min |      6.1 GByte |
+| DCLW (*)      |        512 |    200 |              0.830 |  113.8 Min |      6.2 GByte | 
 | DINO          |        512 |    200 |              0.862 |  191.1 Min |      7.5 GByte |
-| Moco (*)      |        512 |    200 |              0.850 |  196.8 Min |      7.8 GByte |
-| NNCLR (*)     |        512 |    200 |              0.836 |  164.7 Min |      7.6 GByte |
+| Moco (**)     |        512 |    200 |              0.850 |  196.8 Min |      7.8 GByte |
+| NNCLR (**)    |        512 |    200 |              0.836 |  164.7 Min |      7.6 GByte |
 | SimCLR        |        512 |    200 |              0.828 |  158.2 Min |      7.5 GByte |
 | SimSiam       |        512 |    200 |              0.814 |  159.0 Min |      7.6 GByte |
 | SwaV          |        512 |    200 |              0.833 |  158.4 Min |      7.5 GByte |
 ------------------------------------------------------------------------------------------
 | BarlowTwins   |        512 |    800 |              0.857 |  641.5 Min |      7.5 GByte |
 | BYOL          |        512 |    800 |              0.911 |  754.2 Min |      7.8 GByte |
+| DCL (*)       |        512 |    800 |              0.873 |  459.6 Min |      6.1 GByte |
+| DCLW (*)      |        512 |    800 |              0.873 |  455.8 Min |      6.1 GByte | 
 | DINO          |        512 |    800 |              0.884 |  765.5 Min |      7.6 GByte |
-| Moco (*)      |        512 |    800 |              0.900 |  787.7 Min |      7.8 GByte |
-| NNCLR (*)     |        512 |    800 |              0.896 |  659.2 Min |      7.6 GByte |
+| Moco (**)     |        512 |    800 |              0.900 |  787.7 Min |      7.8 GByte |
+| NNCLR (**)    |        512 |    800 |              0.896 |  659.2 Min |      7.6 GByte |
 | SimCLR        |        512 |    800 |              0.875 |  632.5 Min |      7.5 GByte |
 | SimSiam       |        512 |    800 |              0.906 |  636.5 Min |      7.6 GByte |
 | SwaV          |        512 |    800 |              0.881 |  634.9 Min |      7.5 GByte |
 ------------------------------------------------------------------------------------------
 
-(*): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
+(*): Smaller runtime and memory requirements due to different hardware settings
+and pytorch version. Runtime and memory requirements are comparable to SimCLR
+with the default settings.
+(**): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
 changing memory bank due to larger batch size.
 
 The benchmarks were created on a single NVIDIA RTX A6000.
@@ -647,9 +656,84 @@ class DINOModel(BenchmarkModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
+
+class DCL(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = lightly.models.ResNetGenerator('resnet-18')
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
+        )
+        self.projection_head = heads.SimCLRProjectionHead(512, 512, 128)
+        self.criterion = lightly.loss.DCLLoss()
+
+    def forward(self, x):
+        x = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(x)
+        return z
+
+    def training_step(self, batch, batch_index):
+        (x0, x1), _, _ = batch
+        z0 = self.forward(x0)
+        z1 = self.forward(x1)
+        loss = self.criterion(z0, z1)
+        self.log('train_loss_ssl', loss)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.SGD(
+            self.parameters(), 
+            lr=6e-2 * lr_factor,
+            momentum=0.9, 
+            weight_decay=5e-4
+        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
+
+
+class DCLW(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = lightly.models.ResNetGenerator('resnet-18')
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
+        )
+        self.projection_head = heads.SimCLRProjectionHead(512, 512, 128)
+        self.criterion = lightly.loss.DCLWLoss()
+
+    def forward(self, x):
+        x = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(x)
+        return z
+
+    def training_step(self, batch, batch_index):
+        (x0, x1), _, _ = batch
+        z0 = self.forward(x0)
+        z1 = self.forward(x1)
+        loss = self.criterion(z0, z1)
+        self.log('train_loss_ssl', loss)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.SGD(
+            self.parameters(), 
+            lr=6e-2 * lr_factor,
+            momentum=0.9, 
+            weight_decay=5e-4
+        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
+
+
 models = [
     BarlowTwinsModel, 
     BYOLModel,
+    DCL,
+    DCLW,
     DINOModel,
     MocoModel,
     NNCLRModel,
