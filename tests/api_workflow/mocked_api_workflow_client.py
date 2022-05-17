@@ -3,7 +3,7 @@ import io
 import tempfile
 import unittest
 from io import IOBase
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 import json
 
 import numpy as np
@@ -408,12 +408,15 @@ class MockedDatasourcesApi(DatasourcesApi):
             cursor: str = None,
             _from: int = None,
             to: int = None,
-            relevant_filenames_file_name: str = None
+            relevant_filenames_file_name: str = -1
     ) -> DatasourceRawSamplesData:
-        if relevant_filenames_file_name:
+        if relevant_filenames_file_name == -1:
+            samples = self._samples[dataset_id]
+        elif isinstance(relevant_filenames_file_name, str) and len(relevant_filenames_file_name) > 0:
             samples = self._samples[dataset_id][::2]
         else:
-            samples = self._samples[dataset_id]
+            raise RuntimeError("DATASET_DATASOURCE_RELEVANT_FILENAMES_INVALID")
+
         if cursor is None:
             # initial request
             assert _from is not None

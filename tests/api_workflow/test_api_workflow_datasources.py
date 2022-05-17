@@ -52,8 +52,11 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
 
     def test_download_raw_samples_relevant_filenames(self):
         self.api_workflow_client._datasources_api.reset()
-        relevant_filenames_path = "relevant_filenames.txt"
-        samples = self.api_workflow_client.download_raw_samples(relevant_filenames_file_name=relevant_filenames_path)
+        for relevant_filenames_path in [None, "", "relevant_filenames.txt"]:
+            with self.subTest(relevant_filenames_path=relevant_filenames_path):
+                samples = self.api_workflow_client.download_raw_samples(relevant_filenames_file_name=relevant_filenames_path)
+        with self.subTest(relevant_filenames_path="unset"):
+            samples = self.api_workflow_client.download_raw_samples()
 
     def test_set_azure_config(self):
         self.api_workflow_client.set_azure_config(

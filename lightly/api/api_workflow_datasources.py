@@ -37,11 +37,12 @@ class _DatasourcesMixin:
         """
         if to is None:
             to = int(time.time())
+        relevant_filenames_kwargs = {"relevant_filenames_file_name": relevant_filenames_file_name} if relevant_filenames_file_name else dict()
         response: DatasourceRawSamplesData = self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id(
             dataset_id=self.dataset_id,
             _from=from_,
             to=to,
-            relevant_filenames_file_name=relevant_filenames_file_name
+            **relevant_filenames_kwargs
         )
         cursor = response.cursor
         samples = response.data
@@ -49,7 +50,7 @@ class _DatasourcesMixin:
             response: DatasourceRawSamplesData = self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id(
                 dataset_id=self.dataset_id,
                 cursor=cursor,
-                relevant_filenames_file_name=relevant_filenames_file_name
+                **relevant_filenames_kwargs
             )
             cursor = response.cursor
             samples.extend(response.data)
