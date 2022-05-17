@@ -12,20 +12,24 @@ class TestNTXentLoss(unittest.TestCase):
         for n_samples in [1, 2, 4]:
             for dimension in [1, 2, 16, 64]:
                 for temperature in [0.1, 1, 10]:
-                    out0 = np.random.normal(0, 1, size=(n_samples, dimension))
-                    out1 = np.random.normal(0, 1, size=(n_samples, dimension))
-                    with self.subTest(msg=f"out0.shape={out0.shape}, temperature={temperature}"):
-                        out0 = torch.FloatTensor(out0)
-                        out1 = torch.FloatTensor(out1)
+                    for gather_distributed in [False, True]:
+                        out0 = np.random.normal(0, 1, size=(n_samples, dimension))
+                        out1 = np.random.normal(0, 1, size=(n_samples, dimension))
+                        with self.subTest(msg=(
+                                f"out0.shape={out0.shape}, temperature={temperature}, "
+                                f"gather_distributed={gather_distributed}"
+                            )):
+                            out0 = torch.FloatTensor(out0)
+                            out1 = torch.FloatTensor(out1)
 
-                        loss_function = NTXentLoss(temperature=temperature)
-                        l1 = float(loss_function(out0, out1))
-                        l2 = float(loss_function(out1, out0))
-                        l1_manual = self.calc_ntxent_loss_manual(out0, out1, temperature=temperature)
-                        l2_manual = self.calc_ntxent_loss_manual(out0, out1, temperature=temperature)
-                        self.assertAlmostEqual(l1, l2, places=5)
-                        self.assertAlmostEqual(l1, l1_manual, places=5)
-                        self.assertAlmostEqual(l2, l2_manual, places=5)
+                            loss_function = NTXentLoss(temperature=temperature, gather_distributed=gather_distributed)
+                            l1 = float(loss_function(out0, out1))
+                            l2 = float(loss_function(out1, out0))
+                            l1_manual = self.calc_ntxent_loss_manual(out0, out1, temperature=temperature)
+                            l2_manual = self.calc_ntxent_loss_manual(out0, out1, temperature=temperature)
+                            self.assertAlmostEqual(l1, l2, places=5)
+                            self.assertAlmostEqual(l1, l1_manual, places=5)
+                            self.assertAlmostEqual(l2, l2_manual, places=5)
 
     def calc_ntxent_loss_manual(self, out0, out1, temperature: float) -> float:
         # using the pseudocode directly from https://arxiv.org/pdf/2002.05709.pdf , Algorithm 1
@@ -66,26 +70,29 @@ class TestNTXentLoss(unittest.TestCase):
         for n_samples in [1, 2, 8, 16]:
             for memory_bank_size in [0, 1, 2, 8, 15, 16, 17]:
                 for temperature in [0.1, 1, 7]:
-                    out0 = np.random.random((n_samples, 1))
-                    out1 = np.random.random((n_samples, 1))
-                    out0 = np.concatenate([out0, 2 * out0], axis=1)
-                    out1 = np.concatenate([out1, 2 * out1], axis=1)
-                    out0 = torch.FloatTensor(out0)
-                    out1 = torch.FloatTensor(out1)
-                    out0.requires_grad = True
+                    for gather_distributed in [False, True]:
+                        out0 = np.random.random((n_samples, 1))
+                        out1 = np.random.random((n_samples, 1))
+                        out0 = np.concatenate([out0, 2 * out0], axis=1)
+                        out1 = np.concatenate([out1, 2 * out1], axis=1)
+                        out0 = torch.FloatTensor(out0)
+                        out1 = torch.FloatTensor(out1)
+                        out0.requires_grad = True
 
-                    with self.subTest(msg=f"n_samples: {n_samples}, memory_bank_size: {memory_bank_size},"
-                                          f"temperature: {temperature}"):
-                        loss_function = NTXentLoss(temperature=temperature, memory_bank_size=memory_bank_size)
-                        if memory_bank_size > 0:
-                            for i in range(int(memory_bank_size / n_samples) + 2):
-                                # fill the memory bank over multiple rounds
+                        with self.subTest(msg=(
+                                f"n_samples: {n_samples}, memory_bank_size: {memory_bank_size},"
+                                f"temperature: {temperature}, gather_distributed: {gather_distributed}"
+                            )):
+                            loss_function = NTXentLoss(temperature=temperature, memory_bank_size=memory_bank_size)
+                            if memory_bank_size > 0:
+                                for i in range(int(memory_bank_size / n_samples) + 2):
+                                    # fill the memory bank over multiple rounds
+                                    loss = float(loss_function(out0, out1))
+                                expected_loss = -1 * np.log(1 / (memory_bank_size + 1))
+                            else:
                                 loss = float(loss_function(out0, out1))
-                            expected_loss = -1 * np.log(1 / (memory_bank_size + 1))
-                        else:
-                            loss = float(loss_function(out0, out1))
-                            expected_loss = -1 * np.log(1 / (2 * n_samples - 1))
-                        self.assertAlmostEqual(loss, expected_loss, places=5)
+                                expected_loss = -1 * np.log(1 / (2 * n_samples - 1))
+                            self.assertAlmostEqual(loss, expected_loss, places=5)
 
     def test_forward_pass(self):
         loss = NTXentLoss(memory_bank_size=0)
@@ -127,26 +134,22 @@ class TestNTXentLoss(unittest.TestCase):
             batch_2 = torch.randn((bsz, 32))
             l = loss(batch_1, batch_2)
 
+    @unittest.skipUnless(torch.cuda.is_available(), 'No cuda')
     def test_forward_pass_memory_bank_cuda(self):
-        if not torch.cuda.is_available():
-            return
-
         loss = NTXentLoss(memory_bank_size=64)
         for bsz in range(1, 20):
             batch_1 = torch.randn((bsz, 32)).cuda()
             batch_2 = torch.randn((bsz, 32)).cuda()
             l = loss(batch_1, batch_2)
 
+    @unittest.skipUnless(torch.cuda.is_available(), 'No cuda')
     def test_forward_pass_cuda(self):
-        if torch.cuda.is_available():
-            loss = NTXentLoss(memory_bank_size=0)
-            for bsz in range(1, 20):
-                batch_1 = torch.randn((bsz, 32)).cuda()
-                batch_2 = torch.randn((bsz, 32)).cuda()
+        loss = NTXentLoss(memory_bank_size=0)
+        for bsz in range(1, 20):
+            batch_1 = torch.randn((bsz, 32)).cuda()
+            batch_2 = torch.randn((bsz, 32)).cuda()
 
-                # symmetry
-                l1 = loss(batch_1, batch_2)
-                l2 = loss(batch_2, batch_1)
-                self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.)
-        else:
-            pass
+            # symmetry
+            l1 = loss(batch_1, batch_2)
+            l2 = loss(batch_2, batch_1)
+            self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.)
