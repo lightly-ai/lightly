@@ -1,6 +1,5 @@
 import time
-from typing import List, Optional, Tuple
-
+from typing import List, Optional, Tuple, Union
 
 from lightly.openapi_generated.swagger_client.models.datasource_config import DatasourceConfig
 from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
@@ -11,6 +10,45 @@ from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_pred
 
 
 class _DatasourcesMixin:
+
+    def _download_raw_files(
+            self,
+            download_function: Union[
+                "DatasourcesApi.get_list_of_raw_samples_from_datasource_by_dataset_id",
+                "DatasourcesApi.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
+                "DatasourcesApi.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id"
+            ],
+            from_: int = 0,
+            to: int = None,
+            relevant_filenames_file_name: str = None,
+            **kwargs
+    ):
+        if to is None:
+            to = int(time.time())
+        relevant_filenames_kwargs = {
+            "relevant_filenames_file_name": relevant_filenames_file_name
+        } if relevant_filenames_file_name else dict()
+
+        response: DatasourceRawSamplesData = download_function(
+            dataset_id=self.dataset_id,
+            _from=from_,
+            to=to,
+            **relevant_filenames_kwargs,
+            **kwargs
+        )
+        cursor = response.cursor
+        samples = response.data
+        while response.has_more:
+            response: DatasourceRawSamplesData = download_function(
+                dataset_id=self.dataset_id,
+                cursor=cursor,
+                **relevant_filenames_kwargs,
+                **kwargs
+            )
+            cursor = response.cursor
+            samples.extend(response.data)
+        samples = [(s.file_name, s.read_url) for s in samples]
+        return samples
 
     def download_raw_samples(
             self,
@@ -35,26 +73,78 @@ class _DatasourcesMixin:
            A list of (filename, url) tuples, where each tuple represents a sample
 
         """
-        if to is None:
-            to = int(time.time())
-        relevant_filenames_kwargs = {"relevant_filenames_file_name": relevant_filenames_file_name} if relevant_filenames_file_name else dict()
-        response: DatasourceRawSamplesData = self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id(
-            dataset_id=self.dataset_id,
-            _from=from_,
-            to=to,
-            **relevant_filenames_kwargs
+        samples = self._download_raw_files(
+            self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id,
+            from_,
+            to,
+            relevant_filenames_file_name
         )
-        cursor = response.cursor
-        samples = response.data
-        while response.has_more:
-            response: DatasourceRawSamplesData = self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id(
-                dataset_id=self.dataset_id,
-                cursor=cursor,
-                **relevant_filenames_kwargs
-            )
-            cursor = response.cursor
-            samples.extend(response.data)
-        samples = [(s.file_name, s.read_url) for s in samples]
+        return samples
+
+    def download_raw_predictions(
+            self,
+            task_name: str,
+            from_: int = 0,
+            to: int = None,
+            relevant_filenames_file_name: str = None,
+    ) -> List[Tuple[str, str]]:
+        """Downloads all prediction filenames and read urls from the datasource between `from_` and `to`.
+
+        Samples which have timestamp == `from_` or timestamp == `to` will also be included.
+
+        Args:
+            task_name:
+                Name of the prediction task.
+            from_:
+                Unix timestamp from which on samples are downloaded.
+            to:
+                Unix timestamp up to and including which samples are downloaded.
+            relevant_filenames_file_name:
+                The path to the relevant filenames text file in the cloud bucket.
+                The path is relative to the datasource root.
+
+        Returns:
+           A list of (filename, url) tuples, where each tuple represents a sample
+
+        """
+        samples = self._download_raw_files(
+            self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id,
+            from_,
+            to,
+            relevant_filenames_file_name,
+            task_name=task_name
+        )
+        return samples
+
+    def download_raw_metadata(
+            self,
+            from_: int = 0,
+            to: int = None,
+            relevant_filenames_file_name: str = None
+    ) -> List[Tuple[str, str]]:
+        """Downloads all metadata filenames and read urls from the datasource between `from_` and `to`.
+
+        Samples which have timestamp == `from_` or timestamp == `to` will also be included.
+
+        Args:
+            from_:
+                Unix timestamp from which on samples are downloaded.
+            to:
+                Unix timestamp up to and including which samples are downloaded.
+            relevant_filenames_file_name:
+                The path to the relevant filenames text file in the cloud bucket.
+                The path is relative to the datasource root.
+
+        Returns:
+           A list of (filename, url) tuples, where each tuple represents a sample
+
+        """
+        samples = self._download_raw_files(
+            self._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id,
+            from_,
+            to,
+            relevant_filenames_file_name
+        )
         return samples
 
     def download_new_raw_samples(self) -> List[Tuple[str, str]]:
@@ -307,49 +397,6 @@ class _DatasourcesMixin:
             filename,
         )
 
-    def download_raw_predictions(
-        self,
-        task_name: str,
-        from_: int = 0,
-        to: int = None
-    ) -> List[Tuple[str, str]]:
-        """Downloads all prediction filenames and read urls from the datasource between `from_` and `to`.
-
-        Samples which have timestamp == `from_` or timestamp == `to` will also be included.
-        
-        Args:
-            task_name:
-                Name of the prediction task.
-            from_: 
-                Unix timestamp from which on samples are downloaded.
-            to: 
-                Unix timestamp up to and including which samples are downloaded.
-        
-        Returns:
-           A list of (filename, url) tuples, where each tuple represents a sample
-
-        """
-        if to is None:
-            to = int(time.time())
-        response: DatasourceRawSamplesPredictionsData = self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id(
-            self.dataset_id,
-            task_name,
-            _from=from_,
-            to=to,
-        )
-        cursor = response.cursor
-        samples = response.data
-        while response.has_more:
-            response: DatasourceRawSamplesPredictionsData = self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id(
-                self.dataset_id,
-                task_name,
-                cursor=cursor
-            )
-            cursor = response.cursor
-            samples.extend(response.data)
-        samples = [(s.file_name, s.read_url) for s in samples]
-        return samples
-
     def get_metadata_read_url(
         self,
         filename: str,
@@ -369,40 +416,3 @@ class _DatasourcesMixin:
             filename,
         )
 
-    def download_raw_metadata(
-        self,
-        from_: int = 0,
-        to: int = None
-    ) -> List[Tuple[str, str]]:
-        """Downloads all metadata filenames and read urls from the datasource between `from_` and `to`.
-
-        Samples which have timestamp == `from_` or timestamp == `to` will also be included.
-        
-        Args:
-            from_: 
-                Unix timestamp from which on samples are downloaded.
-            to: 
-                Unix timestamp up to and including which samples are downloaded.
-        
-        Returns:
-           A list of (filename, url) tuples, where each tuple represents a sample
-
-        """
-        if to is None:
-            to = int(time.time())
-        response: DatasourceRawSamplesPredictionsData = self._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id(
-            self.dataset_id,
-            _from=from_,
-            to=to,
-        )
-        cursor = response.cursor
-        samples = response.data
-        while response.has_more:
-            response: DatasourceRawSamplesPredictionsData = self._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id(
-                self.dataset_id,
-                cursor=cursor
-            )
-            cursor = response.cursor
-            samples.extend(response.data)
-        samples = [(s.file_name, s.read_url) for s in samples]
-        return samples
