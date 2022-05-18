@@ -3,7 +3,7 @@ import io
 import tempfile
 import unittest
 from io import IOBase
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 import json
 
 import numpy as np
@@ -40,7 +40,8 @@ from lightly.openapi_generated.swagger_client import ScoresApi, \
     CreateEntityResponse, SamplesApi, SampleCreateRequest, \
     InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, \
     TagArithmeticsRequest, TagBitMaskResponse, SampleWriteUrls, SampleData, \
-    Trigger2dEmbeddingJobRequest, SampleUpdateRequest
+    Trigger2dEmbeddingJobRequest, SampleUpdateRequest, \
+    DatasourceRawSamplesMetadataData
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -403,8 +404,20 @@ class MockedDatasourcesApi(DatasourcesApi):
         return DatasourceProcessedUntilTimestampResponse(timestamp)
 
     def get_list_of_raw_samples_from_datasource_by_dataset_id(
-        self, dataset_id, cursor: str = None, _from: int = None, to: int = None, **kwargs
+            self,
+            dataset_id,
+            cursor: str = None,
+            _from: int = None,
+            to: int = None,
+            relevant_filenames_file_name: str = -1
     ) -> DatasourceRawSamplesData:
+        if relevant_filenames_file_name == -1:
+            samples = self._samples[dataset_id]
+        elif isinstance(relevant_filenames_file_name, str) and len(relevant_filenames_file_name) > 0:
+            samples = self._samples[dataset_id][::2]
+        else:
+            raise RuntimeError("DATASET_DATASOURCE_RELEVANT_FILENAMES_INVALID")
+
         if cursor is None:
             # initial request
             assert _from is not None
@@ -418,7 +431,7 @@ class MockedDatasourcesApi(DatasourcesApi):
             to = cursor_dict["to"]
 
         next_current = min(current + self._max_return_samples, to + 1)
-        samples = self._samples[dataset_id][current:next_current]
+        samples = samples[current:next_current]
         cursor_dict["current"] = next_current
         cursor = json.dumps(cursor_dict)
         has_more = len(samples) > 0
@@ -455,7 +468,35 @@ class MockedDatasourcesApi(DatasourcesApi):
             has_more=has_more,
             cursor=cursor,
             data=samples,
-        )    
+        )
+
+    def get_list_of_raw_samples_metadata_from_datasource_by_dataset_id(
+        self, dataset_id: str,
+        cursor: str = None, _from: int = None, to: int = None, **kwargs,
+    ) -> DatasourceRawSamplesMetadataData:
+        if cursor is None:
+            # initial request
+            assert _from is not None
+            assert to is not None
+            cursor_dict = {"from": _from, "to": to}
+            current = _from
+        else:
+            # follow up request
+            cursor_dict = json.loads(cursor)
+            current = cursor_dict["current"]
+            to = cursor_dict["to"]
+
+        next_current = min(current + self._max_return_samples, to + 1)
+        samples = self._samples[dataset_id][current:next_current]
+        cursor_dict["current"] = next_current
+        cursor = json.dumps(cursor_dict)
+        has_more = len(samples) > 0
+
+        return DatasourceRawSamplesMetadataData(
+            has_more=has_more,
+            cursor=cursor,
+            data=samples,
+        )
 
 
     def get_prediction_file_read_url_from_datasource_by_dataset_id(self, *args, **kwargs):
