@@ -4,8 +4,8 @@ import pathlib
 import shutil
 import threading
 import warnings
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-from typing import Dict, Iterable, List, Optional, Tuple, Union
+from concurrent.futures import ThreadPoolExecutor
+from typing import Callable, Dict, Iterable, List, Optional, Tuple, Type, Union
 
 import PIL
 import requests
@@ -25,7 +25,12 @@ def _check_av_available() -> None:
     if isinstance(av, Exception):
         raise av
 
-def download_image(url: str, session: requests.Session = None) -> PIL.Image.Image:
+def download_image(
+    url: str, 
+    session: requests.Session = None,
+    retry_fn: Callable = utils.retry,
+    request_kwargs: Dict = None,
+) -> PIL.Image.Image:
     """Downloads an image from a url.
 
     Args:
@@ -33,19 +38,26 @@ def download_image(url: str, session: requests.Session = None) -> PIL.Image.Imag
             The url where the image is downloaded from.
         session: 
             Session object to persist certain parameters across requests.
+        retry_fn:
+            Retry function that handles failed downloads.
+        request_kwargs:
+            Additional parameters passed to requests.get().
 
     Returns:
         The downloaded image.
 
     """
-    def load_image(url, req):
-        with req.get(url=url, stream=True) as response:
+    request_kwargs = request_kwargs or dict(stream=True, timeout=10)
+    
+    def load_image(url, req, request_kwargs):
+        with req.get(url=url, **request_kwargs) as response:
+            response.raise_for_status()
             image = PIL.Image.open(response.raw)
             image.load()
         return image
 
     req = requests if session is None else session
-    image = utils.retry(load_image, url, req)
+    image = retry_fn(load_image, url, req, request_kwargs)
     return image
 
 if not isinstance(av, ModuleNotFoundError):
@@ -56,6 +68,7 @@ if not isinstance(av, ModuleNotFoundError):
         as_pil_image: int = True,
         thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
         video_channel: int = 0,
+        retry_fn: Callable = utils.retry,
     ) -> Iterable[Union[PIL.Image.Image, av.VideoFrame]]:
         """Lazily retrieves all frames from a video stored at the given url.
 
@@ -74,6 +87,8 @@ if not isinstance(av, ModuleNotFoundError):
                 for details.
             video_channel:
                 The video channel from which frames are loaded.
+            retry_fn:
+                Retry function that handles errors when opening the video container.
 
         Returns:
             A generator that loads and returns a single frame per step.
@@ -84,7 +99,7 @@ if not isinstance(av, ModuleNotFoundError):
         if timestamp < 0:
             raise ValueError(f"Negative timestamp is not allowed: {timestamp}")
 
-        with utils.retry(av.open, url) as container:
+        with retry_fn(av.open, url) as container:
             stream = container.streams.video[video_channel]
             stream.thread_type = thread_type
 
@@ -130,6 +145,7 @@ if not isinstance(av, ModuleNotFoundError):
         video_channel: int = 0,
         thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
         ignore_metadata: bool = False,
+        retry_fn: Callable = utils.retry,
     ) -> Optional[int]:
         """Returns the number of frames in the video from the given url.
 
@@ -154,7 +170,7 @@ if not isinstance(av, ModuleNotFoundError):
             decoded.
 
         """
-        with av.open(url) as container:
+        with retry_fn(av.open, url) as container:
             stream = container.streams.video[video_channel]
             num_frames = 0 if ignore_metadata else stream.frames
             # If number of frames not stored in the video file we have to decode all
@@ -171,6 +187,8 @@ if not isinstance(av, ModuleNotFoundError):
         video_channel: int = 0,
         thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
         ignore_metadata: bool = False,
+        retry_fn: Callable = utils.retry,
+        empty_video_exceptions: Tuple[Type[BaseException], ...] = (RuntimeError,),
     ) -> List[Optional[int]]:
         """Finds the number of frames in the videos at the given urls.
 
@@ -192,6 +210,11 @@ if not isinstance(av, ModuleNotFoundError):
             ignore_metadata:
                 If True, frames are counted by iterating through the video instead
                 of relying on the video metadata.
+            retry_fn:
+                Retry function that handles errors when loading a video.
+            empty_video_exceptions:
+                If an exception in empty_video_exceptions is raised the video is
+                considered as empty.
 
         Returns:
             A list with the number of frames per video. Contains None for all videos
@@ -201,14 +224,15 @@ if not isinstance(av, ModuleNotFoundError):
 
         def job(url):
             try:
-                return utils.retry(
+                return retry_fn(
                     video_frame_count,
                     url=url,
                     video_channel=video_channel,
                     thread_type=thread_type,
                     ignore_metadata=ignore_metadata,
+                    retry_fn=retry_fn,
                 )
-            except RuntimeError:
+            except empty_video_exceptions:
                 return
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -223,6 +247,7 @@ if not isinstance(av, ModuleNotFoundError):
             thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
             video_channel: int = 0,
             seek_to_first_frame: bool = True,
+            retry_fn: Callable = utils.retry,
         ) -> Iterable[Union[PIL.Image.Image, av.VideoFrame]]:
             """Lazily retrieves frames from a video at a specific timestamp stored at the given url.
 
@@ -245,6 +270,8 @@ if not isinstance(av, ModuleNotFoundError):
                     The video channel from which frames are loaded.
                 seek_to_first_frame:
                     Boolean indicating whether to seek to the first frame.
+                retry_fn:
+                    Retry function that handles errors when opening the video container.
 
             Returns:
                 A generator that loads and returns a single frame per step.
@@ -268,7 +295,7 @@ if not isinstance(av, ModuleNotFoundError):
             if min_timestamp < 0:
                 raise ValueError(f"Negative timestamp is not allowed: {min_timestamp}")
 
-            with utils.retry(av.open, url) as container:
+            with retry_fn(av.open, url) as container:
                 stream = container.streams.video[video_channel]
                 stream.thread_type = thread_type
 
@@ -334,6 +361,7 @@ if not isinstance(av, ModuleNotFoundError):
                     thread_type=thread_type,
                     video_channel=video_channel,
                     seek_to_first_frame=False,
+                    retry_fn=retry_fn,
                 )
                 for frame in frames:
                     yield frame
@@ -344,9 +372,11 @@ if not isinstance(av, ModuleNotFoundError):
             )
 
 
-
 def download_and_write_file(
-    url: str, output_path: str, session: requests.Session = None
+    url: str, output_path: str, 
+    session: requests.Session = None,
+    retry_fn: Callable = utils.retry,
+    request_kwargs: Optional[Dict] = None,
 ) -> None:
     """Downloads a file from a url and saves it to disk
 
@@ -357,11 +387,17 @@ def download_and_write_file(
             Where to store the file, including filename and extension.
         session:
             Session object to persist certain parameters across requests.
+        retry_fn:
+            Retry function that handles failed downloads.
+        request_kwargs:
+            Additional parameters passed to requests.get().
     """
+    request_kwargs = request_kwargs or dict(stream=True, timeout=10)
     req = requests if session is None else session
     out_path = pathlib.Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with utils.retry(req.get, url=url, stream=True) as response:
+    with retry_fn(req.get, url=url, **request_kwargs) as response:
+        response.raise_for_status()
         with open(out_path, "wb") as file:
             shutil.copyfileobj(response.raw, file)
 
@@ -371,6 +407,8 @@ def download_and_write_all_files(
     output_dir: str,
     max_workers: int = None,
     verbose: bool = False,
+    retry_fn: Callable = utils.retry,
+    request_kwargs: Dict = None,
 ) -> None:
     """Downloads all files and writes them to disk.
 
@@ -384,6 +422,10 @@ def download_and_write_all_files(
             based on the number of available cores.
         verbose:
             Shows progress bar if set to `True`.
+        retry_fn:
+            Retry function that handles failed downloads.
+        request_kwargs:
+            Additional parameters passed to requests.get().
 
     """
 
@@ -391,7 +433,8 @@ def download_and_write_all_files(
         file_info: Tuple[str, str],
         output_dir: str,
         lock: threading.Lock,
-        sessions: Dict[str, requests.Session]
+        sessions: Dict[str, requests.Session],
+        **kwargs,
     ):
         filename, url = file_info
         output_path = os.path.join(output_dir, filename)
@@ -404,11 +447,11 @@ def download_and_write_all_files(
             sessions[thread_id] = session
         lock.release()
 
-        download_and_write_file(url, output_path, session)
+        download_and_write_file(url, output_path, session, **kwargs)
 
     # retry download if failed
-    def job(*args):
-        utils.retry(thread_download_and_write, *args)
+    def job(**kwargs):
+        retry_fn(thread_download_and_write, **kwargs)
 
     # dict where every thread stores its requests.Session
     sessions = dict()
@@ -418,7 +461,13 @@ def download_and_write_all_files(
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures_to_file_info = {
             executor.submit(
-                job, file_info, output_dir, lock, sessions
+                job, 
+                file_info=file_info, 
+                output_dir=output_dir, 
+                lock=lock, 
+                sessions=sessions, 
+                retry_fn=retry_fn, 
+                request_kwargs=request_kwargs,
             ): file_info
             for file_info in file_infos
         }
@@ -452,6 +501,7 @@ def download_prediction_file(
 def download_json_file(
     url: str,
     session: requests.Session = None,
+    request_kwargs: Optional[Dict] = None,
 ) -> Union[Dict, None]:
     """Downloads a json file from the provided read-url.
 
@@ -460,12 +510,15 @@ def download_json_file(
             Url of the file to download.
         session: 
             Session object to persist certain parameters across requests.
+        request_kwargs:
+            Additional parameters passed to requests.get().
 
     Returns the content of the json file as dictionary or None.
 
     """
+    request_kwargs = request_kwargs or dict(stream=True, timeout=10)
     req = requests if session is None else session
-    response = req.get(url, stream=True)
+    response = req.get(url, **request_kwargs)
 
     if response.status_code < 200 or response.status_code >= 300:
         return None # the file doesn't exist!

@@ -21,20 +21,23 @@ except ImportError:
 
 class MockedRequestsModule:
 
-    def get(self, url, stream=None):
+    def get(self, url, stream=None, *args, **kwargs):
         return MockedResponse(url)
 
     class Session:
-        def get(self, url, stream=None):
+        def get(self, url, stream=None, *args, **kwargs):
             return MockedResponse(url)
 
 class MockedRequestsModulePartialResponse:
 
-    def get(self, url, stream=None):
+    def get(self, url, stream=None, *args, **kwargs):
         return MockedResponsePartialStream(url)
 
+    def raise_for_status(self):
+        return
+
     class Session:
-        def get(self, url, stream=None):
+        def get(self, url, stream=None, *args, **kwargs):
             return MockedResponsePartialStream(url)
     
 class MockedResponse:
@@ -51,6 +54,9 @@ class MockedResponse:
     @property
     def status_code(self):
         return 200
+
+    def raise_for_status(self):
+        return
 
     def json(self):
         # instead of returning the byte stream from the url
