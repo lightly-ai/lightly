@@ -50,6 +50,23 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         assert len(samples) == len(new_samples)
         assert set(samples) == set(new_samples)
 
+    def test_download_raw_samples_or_metadata_relevant_filenames(self):
+        self.api_workflow_client._datasources_api.reset()
+        for method in [
+            self.api_workflow_client.download_raw_samples,
+            self.api_workflow_client.download_raw_metadata
+        ]:
+            for relevant_filenames_path in [None, "", "relevant_filenames.txt"]:
+                with self.subTest(
+                        relevant_filenames_path=relevant_filenames_path,
+                        method=method
+                ):
+                    samples = method(
+                        relevant_filenames_file_name=relevant_filenames_path
+                    )
+            with self.subTest(relevant_filenames_path="unset", method=method):
+                samples = method()
+
     def test_set_azure_config(self):
         self.api_workflow_client.set_azure_config(
             container_name="my-container/name",
@@ -83,7 +100,14 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
 
     def test_download_raw_samples_predictions(self):
         self.api_workflow_client._datasources_api.reset()
+
         predictions = self.api_workflow_client.download_raw_predictions('test')
+        num_samples = self.api_workflow_client._datasources_api._num_samples
+        assert len(predictions) == num_samples
+
+    def test_download_raw_samples_predictions_relevant_filenames(self):
+        self.api_workflow_client._datasources_api.reset()
+        predictions = self.api_workflow_client.download_raw_predictions('test', relevant_filenames_file_name="test")
         num_samples = self.api_workflow_client._datasources_api._num_samples
         assert len(predictions) == num_samples
 
@@ -91,4 +115,5 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         self.api_workflow_client._datasources_api.reset()
         read_url = self.api_workflow_client.get_prediction_read_url('test.json')
         self.assertIsNotNone(read_url)
+
 

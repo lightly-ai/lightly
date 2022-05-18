@@ -336,6 +336,7 @@ class DatasourcesApi(object):
         :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
         :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
+        :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
         :return: DatasourceRawSamplesData
                  If the method is called asynchronously,
                  returns the request thread.
@@ -361,12 +362,13 @@ class DatasourcesApi(object):
         :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
         :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
+        :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
         :return: DatasourceRawSamplesData
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_id', '_from', 'to', 'cursor']  # noqa: E501
+        all_params = ['dataset_id', '_from', 'to', 'cursor', 'relevant_filenames_file_name']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -399,6 +401,8 @@ class DatasourcesApi(object):
             query_params.append(('to', params['to']))  # noqa: E501
         if 'cursor' in params:
             query_params.append(('cursor', params['cursor']))  # noqa: E501
+        if 'relevant_filenames_file_name' in params:
+            query_params.append(('relevantFilenamesFileName', params['relevant_filenames_file_name']))  # noqa: E501
 
         header_params = {}
 
@@ -443,6 +447,7 @@ class DatasourcesApi(object):
         :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
         :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
+        :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
         :return: DatasourceRawSamplesMetadataData
                  If the method is called asynchronously,
                  returns the request thread.
@@ -468,12 +473,13 @@ class DatasourcesApi(object):
         :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
         :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
+        :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
         :return: DatasourceRawSamplesMetadataData
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_id', '_from', 'to', 'cursor']  # noqa: E501
+        all_params = ['dataset_id', '_from', 'to', 'cursor', 'relevant_filenames_file_name']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -506,6 +512,8 @@ class DatasourcesApi(object):
             query_params.append(('to', params['to']))  # noqa: E501
         if 'cursor' in params:
             query_params.append(('cursor', params['cursor']))  # noqa: E501
+        if 'relevant_filenames_file_name' in params:
+            query_params.append(('relevantFilenamesFileName', params['relevant_filenames_file_name']))  # noqa: E501
 
         header_params = {}
 
@@ -551,6 +559,7 @@ class DatasourcesApi(object):
         :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
         :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
+        :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
         :return: DatasourceRawSamplesPredictionsData
                  If the method is called asynchronously,
                  returns the request thread.
@@ -577,12 +586,13 @@ class DatasourcesApi(object):
         :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
         :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
+        :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
         :return: DatasourceRawSamplesPredictionsData
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_id', 'task_name', '_from', 'to', 'cursor']  # noqa: E501
+        all_params = ['dataset_id', 'task_name', '_from', 'to', 'cursor', 'relevant_filenames_file_name']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -621,6 +631,8 @@ class DatasourcesApi(object):
             query_params.append(('to', params['to']))  # noqa: E501
         if 'cursor' in params:
             query_params.append(('cursor', params['cursor']))  # noqa: E501
+        if 'relevant_filenames_file_name' in params:
+            query_params.append(('relevantFilenamesFileName', params['relevant_filenames_file_name']))  # noqa: E501
 
         header_params = {}
 
