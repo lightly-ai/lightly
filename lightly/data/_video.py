@@ -10,7 +10,6 @@ import threading
 import weakref
 import warnings
 
-import numpy as np
 from PIL import Image
 
 import torch
@@ -360,27 +359,44 @@ def _make_dataset(
         video_instances,
         **tqdm_args
     )
-    def timestamp_fps_instance_from_instance(instance):
-        ts, fps = io.read_video_timestamps(instance, pts_unit=pts_unit)
-        return ts, fps, instance
+    for instance in pbar:
 
-    timestamps_fpss_instances = [
-        timestamp_fps_instance_from_instance(instance)
-        for instance
-        in pbar
-    ]
-    timestamps, fpss, video_instances_unbroken = zip(*timestamps_fpss_instances)
+        if AV_AVAILABLE and torchvision.get_video_backend() == 'pyav':
+            # This is a hacky solution to estimate the timestamps.
+            # When using the video_reader this approach fails because the 
+            # estimated timestamps are not correct.
+            with av.open(instance) as av_video:
+                stream = av_video.streams.video[0]
+
+                # check if we can extract the video duration
+                if not stream.duration:
+                    print(f'Video {instance} has no timestamp and will be skipped...')
+                    continue # skip this broken video
+
+                duration = stream.duration * stream.time_base
+                fps = stream.base_rate
+                n_frames = int(int(duration) * fps)
+
+            timestamps.append([Fraction(i, fps) for i in range(n_frames)])
+            fpss.append(fps)
+        else:
+            ts, fps = io.read_video_timestamps(instance, pts_unit=pts_unit)
+            timestamps.append(ts)
+            fpss.append(fps)
+        video_instances_unbroken.append(instance)
 
     # get frame offsets
     offsets = [len(ts) for ts in timestamps]
-    offsets = list(np.cumsum(offsets))
+    offsets = [0] + offsets[:-1]
+    for i in range(1, len(offsets)):
+        offsets[i] = offsets[i-1] + offsets[i] # cumsum
 
     return video_instances_unbroken, timestamps, offsets, fpss
 
 
 def _find_non_increasing_timestamps(
     timestamps: List[Fraction]
-    ) -> np.ndarray:
+    ) -> List[bool]:
     """Finds all non-increasing timestamps.
 
     Arguments:
@@ -392,13 +408,17 @@ def _find_non_increasing_timestamps(
         non-increasing and False otherwise.
 
     """
-    is_non_increasing = np.zeros(shape=len(timestamps), dtype=bool, )
-    max_timestamp = timestamps[0]-1
-    for i, timestamp in enumerate(timestamps):
-        if timestamp > max_timestamp:
+    is_non_increasing = []
+    max_timestamp = None
+    for timestamp in timestamps:
+        if (
+            max_timestamp is None
+            or timestamp > max_timestamp
+         ):
+            is_non_increasing.append(False)
             max_timestamp = timestamp
         else:
-            is_non_increasing[i] = True
+            is_non_increasing.append(True)
     
     return is_non_increasing
 
