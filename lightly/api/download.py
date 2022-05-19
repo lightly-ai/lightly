@@ -29,7 +29,7 @@ def download_image(
     url: str, 
     session: requests.Session = None,
     retry_fn: Callable = utils.retry,
-    request_kwargs: Dict = None,
+    request_kwargs: Optional[Dict] = None,
 ) -> PIL.Image.Image:
     """Downloads an image from a url.
 
@@ -47,7 +47,9 @@ def download_image(
         The downloaded image.
 
     """
-    request_kwargs = request_kwargs or dict(stream=True, timeout=10)
+    request_kwargs = request_kwargs or {}
+    request_kwargs.setdefault('stream', True)
+    request_kwargs.setdefault('timeout', 10)
     
     def load_image(url, req, request_kwargs):
         with req.get(url=url, **request_kwargs) as response:
@@ -392,7 +394,9 @@ def download_and_write_file(
         request_kwargs:
             Additional parameters passed to requests.get().
     """
-    request_kwargs = request_kwargs or dict(stream=True, timeout=10)
+    request_kwargs = request_kwargs or {}
+    request_kwargs.setdefault('stream', True)
+    request_kwargs.setdefault('timeout', 10)
     req = requests if session is None else session
     out_path = pathlib.Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -408,7 +412,7 @@ def download_and_write_all_files(
     max_workers: int = None,
     verbose: bool = False,
     retry_fn: Callable = utils.retry,
-    request_kwargs: Dict = None,
+    request_kwargs: Optional[Dict] = None,
 ) -> None:
     """Downloads all files and writes them to disk.
 
@@ -516,7 +520,9 @@ def download_json_file(
     Returns the content of the json file as dictionary or None.
 
     """
-    request_kwargs = request_kwargs or dict(stream=True, timeout=10)
+    request_kwargs = request_kwargs or {}
+    request_kwargs.setdefault('stream', True)
+    request_kwargs.setdefault('timeout', 10)
     req = requests if session is None else session
     response = req.get(url, **request_kwargs)
 
