@@ -211,7 +211,7 @@ if not isinstance(av, ModuleNotFoundError):
             except RuntimeError:
                 return
 
-        with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
             return list(executor.map(job, urls))
 
 
