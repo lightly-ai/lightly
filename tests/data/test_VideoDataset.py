@@ -58,8 +58,9 @@ class TestVideoDataset(unittest.TestCase):
             out.release()
 
     def test_video_similar_timestamps_for_different_backends(self):
-
-        self.create_dataset()
+        n_videos = 5
+        n_frames_per_video = 10
+        self.create_dataset(n_videos=n_videos, n_frames_per_video=n_frames_per_video)
 
         timestamps = []
         offsets = []
@@ -80,7 +81,8 @@ class TestVideoDataset(unittest.TestCase):
 
         # we expect the same timestamps and offsets
         self.assertEqual(timestamps[0], timestamps[1])
-        self.assertEqual(offsets[0], offsets[1])
+        expected_offsets = list(n_frames_per_video * i for i in range(n_videos))
+        self.assertEqual(offsets[0], offsets[1], expected_offsets)
 
         shutil.rmtree(self.input_dir)
 
@@ -100,6 +102,13 @@ class TestVideoDataset(unittest.TestCase):
         shutil.rmtree(self.input_dir)
         printed = f.getvalue()
         self.assertTrue(desc in printed)
+
+    def test_video_dataset_dataloader(self):
+        self.create_dataset()
+        dataset = LightlyDataset(
+            self.input_dir,
+            num_workers_video_frame_counting=4
+        )
 
 
 
@@ -145,8 +154,15 @@ class TestVideoDataset(unittest.TestCase):
                 for filename in files:
                     filepath = os.path.join(self.input_dir, filename)
                     os.chmod(filepath, 0o000)
-            with self.assertRaises(PermissionError):
+            # This will not raise any Permissions error, as they are caught by torchvision:
+            # https://github.com/pytorch/vision/blob/5985504cc32011fbd4312600b4492d8ae0dd13b4/torchvision/io/video.py#L397
+            f = io.StringIO()
+            with contextlib.redirect_stderr(f):
                 dataset = LightlyDataset(self.input_dir)
+            printed = f.getvalue()
+            expected_warning = "Caught error: [Errno 13] Permission denied:"
+            self.assertTrue(expected_warning in printed)
+            self.assertEqual(len(dataset), 0)
 
         with self.subTest("no read rights subdirs"):
             for subdir, dirs, files in os.walk(self.input_dir):
