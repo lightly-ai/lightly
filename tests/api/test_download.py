@@ -21,20 +21,23 @@ except ImportError:
 
 class MockedRequestsModule:
 
-    def get(self, url, stream=None):
+    def get(self, url, stream=None, *args, **kwargs):
         return MockedResponse(url)
 
     class Session:
-        def get(self, url, stream=None):
+        def get(self, url, stream=None, *args, **kwargs):
             return MockedResponse(url)
 
 class MockedRequestsModulePartialResponse:
 
-    def get(self, url, stream=None):
+    def get(self, url, stream=None, *args, **kwargs):
         return MockedResponsePartialStream(url)
 
+    def raise_for_status(self):
+        return
+
     class Session:
-        def get(self, url, stream=None):
+        def get(self, url, stream=None, *args, **kwargs):
             return MockedResponsePartialStream(url)
     
 class MockedResponse:
@@ -51,6 +54,9 @@ class MockedResponse:
     @property
     def status_code(self):
         return 200
+
+    def raise_for_status(self):
+        return
 
     def json(self):
         # instead of returning the byte stream from the url
@@ -143,16 +149,26 @@ class TestDownload(unittest.TestCase):
         original = _pil_image()
         with tempfile.NamedTemporaryFile(suffix='.png') as file:
             original.save(file.name)
-            image = lightly.api.download.download_image(file.name)
-            assert _images_equal(image, original)
+            for request_kwargs in [None, {'stream': False}]:
+                with self.subTest(request_kwargs=request_kwargs):
+                    image = lightly.api.download.download_image(
+                        file.name, 
+                        request_kwargs=request_kwargs
+                    )
+                    assert _images_equal(image, original)
 
     def test_download_prediction(self):
         original = _json_prediction()
         with tempfile.NamedTemporaryFile(suffix='.json', mode="w+") as file:
             with open(file.name, 'w') as f:
                 json.dump(original, f)
-            response = lightly.api.download.download_prediction_file(file.name)
-            self.assertDictEqual(response, original)
+            for request_kwargs in [None, {'stream': False}]:
+                with self.subTest(request_kwargs=request_kwargs):
+                    response = lightly.api.download.download_prediction_file(
+                        file.name,
+                        request_kwargs=request_kwargs,
+                    )
+                    self.assertDictEqual(response, original)
 
     def test_download_image_with_session(self):
         session = MockedRequestsModule.Session()
@@ -325,22 +341,26 @@ class TestDownload(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tempdir1, \
             tempfile.TemporaryDirectory() as tempdir2:
 
-            # save images at "remote" location
-            urls = [os.path.join(tempdir1, f'url_{i}.png') for i in range(n_files)]
-            for image, url in zip(originals, urls):
-                image.save(url)
+            for request_kwargs in [None, {'stream': False}]:
+                with self.subTest(request_kwargs=request_kwargs):
 
-            # download images from remote to local
-            file_infos = list(zip(filenames, urls))
-            lightly.api.download.download_and_write_all_files(
-                file_infos, 
-                output_dir=tempdir2, 
-                max_workers=max_workers
-            )
+                    # save images at "remote" location
+                    urls = [os.path.join(tempdir1, f'url_{i}.png') for i in range(n_files)]
+                    for image, url in zip(originals, urls):
+                        image.save(url)
 
-            for orig, filename in zip(originals, filenames):
-                image = Image.open(os.path.join(tempdir2, filename))
-                assert _images_equal(orig, image)
+                    # download images from remote to local
+                    file_infos = list(zip(filenames, urls))
+                    lightly.api.download.download_and_write_all_files(
+                        file_infos, 
+                        output_dir=tempdir2, 
+                        max_workers=max_workers,
+                        request_kwargs=request_kwargs,
+                    )
+
+                    for orig, filename in zip(originals, filenames):
+                        image = Image.open(os.path.join(tempdir2, filename))
+                        assert _images_equal(orig, image)
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_count(self):
@@ -399,6 +419,23 @@ class TestDownload(unittest.TestCase):
             urls = [file1.name, file2.name]
             result = lightly.api.download.all_video_frame_counts(urls)
             assert result == [n_frames, None]
+
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
+    def test_download_all_video_frame_counts_broken_ignore_exceptions(self):
+        fps = 24
+        n_frames = 5
+        with tempfile.NamedTemporaryFile(suffix='.mpeg') as file1, \
+            tempfile.NamedTemporaryFile(suffix='.mpeg') as file2:
+
+            _generate_video(file1.name, fps=fps, n_frames=n_frames)
+            _generate_video(file2.name, fps=fps, broken=True)
+            
+            urls = [file1.name, file2.name]
+            with self.assertRaises(RuntimeError):
+                result = lightly.api.download.all_video_frame_counts(
+                    urls,
+                    exceptions_indicating_empty_video=tuple(),
+                )
 
 
 def _images_equal(image1, image2):
