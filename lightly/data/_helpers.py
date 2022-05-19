@@ -90,6 +90,7 @@ def _load_dataset_from_folder(
         root: str, transform,
         is_valid_file: Optional[Callable[[str], bool]] = None,
         tqdm_args: Dict[str, Any] = None,
+        num_workers_video_frame_counting: int = 0
 ):
     """Initializes dataset from folder.
 
@@ -124,7 +125,8 @@ def _load_dataset_from_folder(
             extensions=VIDEO_EXTENSIONS,
             transform=transform,
             is_valid_file=is_valid_file,
-            tqdm_args=tqdm_args
+            tqdm_args=tqdm_args,
+            num_workers=num_workers_video_frame_counting
         )
     elif _contains_subdirs(root):
         # root contains subdirectories -> create an image folder dataset
