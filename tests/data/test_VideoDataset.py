@@ -1,5 +1,6 @@
 import contextlib
 import io
+import warnings
 from fractions import Fraction
 import unittest
 import os
@@ -103,12 +104,21 @@ class TestVideoDataset(unittest.TestCase):
         printed = f.getvalue()
         self.assertTrue(desc in printed)
 
-    def test_video_dataset_dataloader(self):
+    def test_video_dataset_init_dataloader(self):
         self.create_dataset()
-        dataset = LightlyDataset(
+        dataset_4_workers = LightlyDataset(
             self.input_dir,
             num_workers_video_frame_counting=4
         )
+        dataset_0_workers = LightlyDataset(
+            self.input_dir,
+            num_workers_video_frame_counting=0
+        )
+        self.assertListEqual(dataset_0_workers.get_filenames(), dataset_4_workers.get_filenames())
+        self.assertListEqual(dataset_0_workers.dataset.offsets, dataset_4_workers.dataset.offsets)
+        for timestamps_0_workers, timestamps_4_workers in zip(dataset_0_workers.dataset.video_timestamps, dataset_4_workers. dataset.video_timestamps):
+            self.assertListEqual(timestamps_0_workers, timestamps_4_workers)
+        self.assertTupleEqual(dataset_0_workers.dataset.fps, dataset_4_workers.dataset.fps)
 
 
 
@@ -147,7 +157,8 @@ class TestVideoDataset(unittest.TestCase):
         shutil.rmtree(self.input_dir)
 
     def test_video_dataset_no_read_rights(self):
-        self.create_dataset()
+        n_videos = 7
+        self.create_dataset(n_videos=n_videos)
 
         with self.subTest("no read rights files"):
             for subdir, dirs, files in os.walk(self.input_dir):
@@ -156,12 +167,11 @@ class TestVideoDataset(unittest.TestCase):
                     os.chmod(filepath, 0o000)
             # This will not raise any Permissions error, as they are caught by torchvision:
             # https://github.com/pytorch/vision/blob/5985504cc32011fbd4312600b4492d8ae0dd13b4/torchvision/io/video.py#L397
-            f = io.StringIO()
-            with contextlib.redirect_stderr(f):
+            with warnings.catch_warnings(record=True) as caught_warning:
                 dataset = LightlyDataset(self.input_dir)
-            printed = f.getvalue()
             expected_warning = "Caught error: [Errno 13] Permission denied:"
-            self.assertTrue(expected_warning in printed)
+            has_warning = [True for warning in caught_warning if expected_warning in str(warning)]
+            self.assertEqual(len(has_warning), n_videos)
             self.assertEqual(len(dataset), 0)
 
         with self.subTest("no read rights subdirs"):
