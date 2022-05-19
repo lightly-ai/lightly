@@ -489,6 +489,7 @@ def download_and_write_all_files(
 def download_prediction_file(
     url: str,
     session: requests.Session = None,
+    request_kwargs: Optional[Dict] = None,
 ) -> Union[Dict, None]:
     """Same as download_json_file. Keep this for backwards compatability.
 
@@ -497,11 +498,13 @@ def download_prediction_file(
             Url of the file to download.
         session:
             Session object to persist certain parameters across requests.
+        request_kwargs:
+            Additional parameters passed to requests.get().
 
     Returns the content of the json file as dictionary or None.
 
     """
-    return download_json_file(url, session=session)
+    return download_json_file(url, session=session, request_kwargs=request_kwargs)
 
 def download_json_file(
     url: str,
