@@ -190,7 +190,7 @@ if not isinstance(av, ModuleNotFoundError):
         thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
         ignore_metadata: bool = False,
         retry_fn: Callable = utils.retry,
-        empty_video_exceptions: Tuple[Type[BaseException], ...] = (RuntimeError,),
+        exceptions_indicating_empty_video: Tuple[Type[BaseException], ...] = (RuntimeError,),
     ) -> List[Optional[int]]:
         """Finds the number of frames in the videos at the given urls.
 
@@ -214,9 +214,10 @@ if not isinstance(av, ModuleNotFoundError):
                 of relying on the video metadata.
             retry_fn:
                 Retry function that handles errors when loading a video.
-            empty_video_exceptions:
-                If an exception in empty_video_exceptions is raised the video is
-                considered as empty.
+            exceptions_indicating_empty_video:
+                If an exception in exceptions_indicating_empty_video is raised,
+                the video is considered as empty and None is returned as number
+                of frames for the video.
 
         Returns:
             A list with the number of frames per video. Contains None for all videos
@@ -234,7 +235,7 @@ if not isinstance(av, ModuleNotFoundError):
                     ignore_metadata=ignore_metadata,
                     retry_fn=retry_fn,
                 )
-            except empty_video_exceptions:
+            except exceptions_indicating_empty_video:
                 return
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
