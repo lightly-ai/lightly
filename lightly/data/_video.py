@@ -10,10 +10,12 @@ import threading
 import weakref
 import warnings
 
+import numpy as np
 from PIL import Image
 
 import torch
 import torchvision
+from torch.utils.data import DataLoader, Dataset
 from torchvision import datasets
 from torchvision import io
 from tqdm import tqdm
@@ -123,9 +125,9 @@ class VideoLoader(threading.local):
         >>> frame = video_loader.read_frame()
     """
     def __init__(
-        self, 
-        path: str, 
-        timestamps: List[float], 
+        self,
+        path: str,
+        timestamps: List[float],
         backend: str = 'video_reader',
         eps: float = 1e-6,
     ):
@@ -142,7 +144,7 @@ class VideoLoader(threading.local):
             self.reader = io.VideoReader(path = self.path)
         else:
             self.reader = None
-    
+
     def read_frame(self, timestamp = None):
         """Reads the next frame or from timestamp.
 
@@ -293,12 +295,29 @@ class VideoLoader(threading.local):
         image = Image.fromarray(frame.numpy())
         return image
 
+
+class _TimestampFpsFromVideosDataset(Dataset):
+
+    def __init__(self, video_instances: List[str], pts_unit: str):
+        self.video_instances = video_instances
+        self.pts_unit = pts_unit
+
+    def __len__(self):
+        return len(self.video_instances)
+
+    def __getitem__(self, index):
+        instance = self.video_instances[index]
+        ts, fps = io.read_video_timestamps(instance, pts_unit=self.pts_unit)
+        return ts, fps
+
+
 def _make_dataset(
         directory,
         extensions=None,
         is_valid_file=None,
         pts_unit='sec',
-        tqdm_args=None
+        tqdm_args=None,
+        num_workers: int = 0
 ):
     """Returns a list of all video files, timestamps, and offsets.
 
@@ -311,6 +330,10 @@ def _make_dataset(
             Used to find valid files.
         pts_unit:
             Unit of the timestamps.
+        tqdm_args:
+            arguments to pass to tqdm
+        num_workers:
+            number of workers to use for multithreading
 
     Returns:
         A list of video files, timestamps, frame offsets, and fps.
@@ -349,49 +372,29 @@ def _make_dataset(
             path = os.path.join(root, fname)
             video_instances.append(path)
 
-    # get timestamps
-    timestamps, fpss = [], []
-    video_instances_unbroken = []
+    # define loader to get the timestamps
+    num_workers = min(num_workers, len(video_instances))
+    if len(video_instances) == 1:
+        num_workers = 0
+    loader = DataLoader(
+        _TimestampFpsFromVideosDataset(video_instances, pts_unit=pts_unit),
+        num_workers=num_workers,
+        batch_size=None,
+        shuffle=False
+    )
+
+    # actually load the data
     tqdm_args = dict(tqdm_args)
     tqdm_args.setdefault('unit', ' video')
     tqdm_args.setdefault('desc', 'Counting frames in videos')
-    pbar = tqdm(
-        video_instances,
-        **tqdm_args
-    )
-    for instance in pbar:
-
-        if AV_AVAILABLE and torchvision.get_video_backend() == 'pyav':
-            # This is a hacky solution to estimate the timestamps.
-            # When using the video_reader this approach fails because the 
-            # estimated timestamps are not correct.
-            with av.open(instance) as av_video:
-                stream = av_video.streams.video[0]
-
-                # check if we can extract the video duration
-                if not stream.duration:
-                    print(f'Video {instance} has no timestamp and will be skipped...')
-                    continue # skip this broken video
-
-                duration = stream.duration * stream.time_base
-                fps = stream.base_rate
-                n_frames = int(int(duration) * fps)
-
-            timestamps.append([Fraction(i, fps) for i in range(n_frames)])
-            fpss.append(fps)
-        else:
-            ts, fps = io.read_video_timestamps(instance, pts_unit=pts_unit)
-            timestamps.append(ts)
-            fpss.append(fps)
-        video_instances_unbroken.append(instance)
+    timestamps_fpss = list(tqdm(loader, **tqdm_args))
+    timestamps, fpss = zip(*timestamps_fpss)
 
     # get frame offsets
     offsets = [len(ts) for ts in timestamps]
-    offsets = [0] + offsets[:-1]
-    for i in range(1, len(offsets)):
-        offsets[i] = offsets[i-1] + offsets[i] # cumsum
+    offsets = list(np.cumsum(offsets) - offsets[0])
 
-    return video_instances_unbroken, timestamps, offsets, fpss
+    return video_instances, timestamps, offsets, fpss
 
 
 def _find_non_increasing_timestamps(
@@ -408,19 +411,17 @@ def _find_non_increasing_timestamps(
         non-increasing and False otherwise.
 
     """
-    is_non_increasing = []
-    max_timestamp = None
-    for timestamp in timestamps:
-        if (
-            max_timestamp is None
-            or timestamp > max_timestamp
-         ):
-            is_non_increasing.append(False)
+    if len(timestamps) == 0:
+        return []
+    is_non_increasing = np.zeros(shape=len(timestamps), dtype=bool, )
+    max_timestamp = timestamps[0]-1
+    for i, timestamp in enumerate(timestamps):
+        if timestamp > max_timestamp:
             max_timestamp = timestamp
         else:
-            is_non_increasing.append(True)
-    
-    return is_non_increasing
+            is_non_increasing[i] = True
+
+    return list(is_non_increasing)
 
 
 class VideoDataset(datasets.VisionDataset):
@@ -454,16 +455,22 @@ class VideoDataset(datasets.VisionDataset):
                  target_transform=None,
                  is_valid_file=None,
                  exception_on_non_increasing_timestamp=True,
-                 tqdm_args: Dict[str, Any]=None
+                 tqdm_args: Dict[str, Any]=None,
+                 num_workers: int = 0,
                  ):
-        
+
         super(VideoDataset, self).__init__(root,
                                            transform=transform,
                                            target_transform=target_transform)
 
         videos, video_timestamps, offsets, fps = _make_dataset(
-            self.root, extensions, is_valid_file, tqdm_args=tqdm_args)
-        
+            self.root,
+            extensions,
+            is_valid_file,
+            tqdm_args=tqdm_args,
+            num_workers=num_workers
+        )
+
         if len(videos) == 0:
             msg = 'Found 0 videos in folder: {}\n'.format(self.root)
             if extensions is not None:
@@ -486,7 +493,7 @@ class VideoDataset(datasets.VisionDataset):
         self.video_timestamps_is_non_increasing = [
             _find_non_increasing_timestamps(timestamps) for timestamps in video_timestamps
         ]
-        
+
         # offsets[i] indicates the index of the first frame of the i-th video.
         # e.g. for two videos of length 10 and 20, the offsets will be [0, 10].
         self.offsets = offsets
@@ -609,7 +616,7 @@ class VideoDataset(datasets.VisionDataset):
         if index < 0 or index >= self.__len__():
             raise IndexError(f'Index {index} is out of bounds for VideoDataset'
                              f' of size {self.__len__()}.')
-    
+
         # each sample belongs to a video, to load the sample at index, we need
         # to find the video to which the sample belongs and then read the frame
         # from this video on the disk.
@@ -623,7 +630,7 @@ class VideoDataset(datasets.VisionDataset):
 
         # get frame number
         frame_number = index - self.offsets[i]
-        
+
         n_frames = self._video_frame_count(i)
         zero_padding = len(str(n_frames))
 
@@ -682,10 +689,10 @@ class VideoDataset(datasets.VisionDataset):
 
     def _format_filename(
         self,
-        video_name: str, 
-        frame_number: int, 
-        video_format: str, 
-        zero_padding: int = 8, 
+        video_name: str,
+        frame_number: int,
+        video_format: str,
+        zero_padding: int = 8,
         extension: str = 'png'
     ) -> str:
         return f'{video_name}-{frame_number:0{zero_padding}}-{video_format}.{extension}'
@@ -710,5 +717,5 @@ class VideoDataset(datasets.VisionDataset):
                 timestamps = self.video_timestamps[video_index]
                 self._video_loader = VideoLoader(video, timestamps, backend=self.backend)
                 self._video_index = video_index
-        
+
             return self._video_loader
