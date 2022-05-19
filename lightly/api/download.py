@@ -4,7 +4,7 @@ import pathlib
 import shutil
 import threading
 import warnings
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 import PIL
@@ -211,7 +211,7 @@ if not isinstance(av, ModuleNotFoundError):
             except RuntimeError:
                 return
 
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        with ProcessPoolExecutor(max_workers=max_workers) as executor:
             return list(executor.map(job, urls))
 
 
