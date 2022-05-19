@@ -72,7 +72,7 @@ def get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
 
 def get_pos_embedding(seq_length, hidden_dim):
     grid_size = int((seq_length - 1)**.5)
-    pos_embed = get_2d_sincos_pos_embed(hidden_dim, grid_size, cls_token=True).float()
+    pos_embed = get_2d_sincos_pos_embed(hidden_dim, grid_size, cls_token=True)
     return nn.Parameter(torch.from_numpy(pos_embed).float().unsqueeze(0), requires_grad=False)
 
 class MAEEncoder(vision_transformer.Encoder):
