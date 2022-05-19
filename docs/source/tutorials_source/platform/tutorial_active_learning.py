@@ -242,3 +242,13 @@ unlabeled_set_features = dataset.get_features(agent.unlabeled_set)
 unlabeled_set_labels = dataset.get_labels(agent.unlabeled_set)
 accuracy_on_unlabeled_set = classifier.score(X=unlabeled_set_features, y=unlabeled_set_labels)
 print(f"accuracy on unlabeled set: {accuracy_on_unlabeled_set}")
+
+# %%
+# Optional: here we created tags 'initial-selection' and 'al-iteration-1' for our dataset ("active_learning_clothing_dataset").
+# These can be viewed on the `Lightly Platform <https://app.lightly.ai>`_.
+# To re-use the dataset without tags from past experiments, we can (optionally!) remove 
+# tags other than the initial-tag:
+
+for tag in api_workflow_client.get_all_tags():
+  if tag.prev_tag_id is not None:
+    api_workflow_client.delete_tag_by_id(tag.id)

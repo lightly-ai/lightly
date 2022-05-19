@@ -318,12 +318,24 @@ for i in range(5):
   predict_and_overlay(predictor, to_label[i])
 
 # %%
+# Samples selected in the step above were placed in the 'active-learning-loop-1' tag.
+# This can be viewed on the `Lightly Platform <https://app.lightly.ai/datasets>`_.
+
+# %%
+# To re-use a dataset without tags from past experiments, we can (optionally!) remove 
+# tags other than the initial-tag:
+
+for tag in api_client.get_all_tags():
+  if tag.prev_tag_id is not None:
+    api_client.delete_tag_by_id(tag.id)
+
+# %%
 # Next Steps
 # -------------
 # 
 # We showed in this tutorial how you can use Lightly Active Learning to discover 
 # the images you should label next. You can close the loop by annotating 
-# the 100 images and re-train your model. Then start the next iteration 
+# the 100 images and re-training your model. Then start the next iteration 
 # by making new model predictions on the `query_set`.
 #
 # Using Lightly Active Learning has two advantages:
