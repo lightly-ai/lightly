@@ -391,8 +391,8 @@ def _make_dataset(
     timestamps, fpss = zip(*timestamps_fpss)
 
     # get frame offsets
-    offsets = [len(ts) for ts in timestamps]
-    offsets = list(np.cumsum(offsets) - offsets[0])
+    frame_counts = [len(ts) for ts in timestamps]
+    offsets = [0] + list(np.cumsum(frame_counts[:-1]))
 
     return video_instances, timestamps, offsets, fpss
 
