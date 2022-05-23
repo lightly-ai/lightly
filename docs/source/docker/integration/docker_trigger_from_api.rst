@@ -29,7 +29,7 @@ Register the Lightly Docker as a Worker
 ---------------------------------------
 To control the Lightly Docker from the API you have to register it as a worker.
 You can simply go to the Lightly web app and click on My Docker Runs --> My Compute Workers.
-Or just click on the direct link here: `Docker Workers <https://app.lightly.ai/docker/workers>`__
+Or just click on the direct link here: `Docker Workers <https://app.lightly.ai/compute/workers>`__
 
 .. image:: ../getting_started/images/docker_workers_overview_empty.png
 
