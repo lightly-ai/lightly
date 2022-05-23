@@ -58,6 +58,22 @@ If the above command does not work, try the following:
 
     cat container-credentials.json | docker login -u json_key --password-stdin https://eu.gcr.io
 
+
+.. note:: When docker is freshly installed only the root user
+    can run docker commands. There are two ways to work in this case. 
+
+
+#. give your user permission to run - recommended
+   docker (see https://docs.docker.com/engine/install/linux-postinstall/) 
+#. run docker commands as root (always replace `docker` with `sudo docker`) - functional but less secure
+
+For example, to authenticate  as non-root user you would run 
+
+.. code-block:: console
+
+    cat container-credentials.json | sudo docker login -u _json_key --password-stdin https://eu.gcr.io
+
+
 **Third**, after authentication you should be able to pull our latest image. 
 Using the following command you pull the latest image from our European cloud server:
 
