@@ -59,13 +59,13 @@ If the above command does not work, try the following:
     cat container-credentials.json | docker login -u json_key --password-stdin https://eu.gcr.io
 
 
-.. note:: Sometimes when docker is freshly installed only the root user 
+.. note:: When docker is freshly installed only the root user
     can run docker commands. There are two ways to work in this case. 
 
 
-#. give your user permission to run 
+#. give your user permission to run - recommended
    docker (see https://docs.docker.com/engine/install/linux-postinstall/) 
-#. run docker commands as root (always replace `docker` with `sudo docker`)
+#. run docker commands as root (always replace `docker` with `sudo docker`) - functional but less secure
 
 For example, to authenticate  as non-root user you would run 
 
