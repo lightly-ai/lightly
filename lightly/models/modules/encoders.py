@@ -183,7 +183,7 @@ class MAEDecoder(torchvision.models.vision_transformer.Encoder):
     def forward(self, input):
         """Returns predicted pixel values from encoded input tokens."""
         out = self.embed(input)
-        out = self.decode(input)
+        out = self.decode(out)
         return self.predict(out)
 
     def embed(self, input):
