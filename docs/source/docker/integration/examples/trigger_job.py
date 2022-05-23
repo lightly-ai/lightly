@@ -1,9 +1,6 @@
-import lightly
-
-# Create the Lightly client to connect to the API.
-# Don't forget to pass the dataset_id if you don't use the client from the 
-# previous snippet (create a dataset).
-client = lightly.api.ApiWorkflowClient(token="TOKEN", dataset_id="DATASET_ID")
+# You can reuse the client from the previous script. If you want to create a new
+# one you can uncomment the following line:
+# client = lightly.api.ApiWorkflowClient(token="TOKEN", dataset_id="DATASET_ID")
 
 # Schedule the compute run using our custom config.
 # We show here the full default config so you can easily edit the
