@@ -61,7 +61,6 @@ The following are parameters which can be passed to the container:
   # If you have a local input directory, the path is relative to the shared directory,
   # so if the file is in 'shared_dir/directory/relevant_filenames.txt'
   # the path should be set to 'directory/relevant_filenames.txt'
-
   relevant_filenames_file: ''
 
   # Set to False to disable check for corrupted images.
