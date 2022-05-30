@@ -134,7 +134,7 @@ Specify Relevant Files
 ----------------------------
 Oftentimes not all files in a directory are relevant. In that case, it's possible
 to pass a list of filenames to the Lightly docker. It will then only consider the listed filenames
-and ignore all other. To do so, you will have to place a text file in the shared directory which
+and ignore all other. To do so, you can create a text file which
 contains one relevant filename per line and then pass the path to the text file to the docker run
 command. This works for videos and images.
 
@@ -148,26 +148,24 @@ For example, if this is your input directory:
     L some/subfolder/
         L my-third-video.mp4
 
-And you put the following **filenames.txt** in the shared directory:
+Then you can specify two input files by creating the following **filenames.txt**:
 
 .. code-block:: console
 
     my-video.mp4
     some/subfolder/my-third-video.mp4
 
-Then you can use the following docker run command and the Lightly docker will only consider **my-video.mp4** and **my-third-video.mp4**.
+If you use a cloud bucket as input datasource, upload the file to it
+and copy the path of the file relative to the datasource root.
+If you use a cloud bucket and specified a separate input and output bucket,
+put the file in the .lightly folder of the output bucket
+and copy the path of the file relative to the output datasource root.
 
-.. code-block:: console
+If you use a local input directory, place the file in the shared directory
+and copy the path to it.
 
-    docker run --gpus all --rm -it \
-        -v {INPUT_DIR}:/home/input_dir:ro \
-        -v {SHARED_DIR}:/home/shared_dir \
-        -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/worker:latest \
-        token=MYAWESOMETOKEN \
-        relevant_filenames_file='filenames.txt'
-
-
+Then you can add `relevant_filenames_file='path/to/relevant_filenames.txt'`
+to the docker run command and the Lightly docker will only consider **my-video.mp4** and **my-third-video.mp4**.
 
 Embedding a Dataset and Selecting from it
 -----------------------------------------

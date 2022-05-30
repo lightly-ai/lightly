@@ -53,11 +53,15 @@ The following are parameters which can be passed to the container:
 
   # Path to a file containing filenames to run the docker on a subset of the
   # files in the input directory. The docker will ignore all files in the input 
-  # directory not listed here. Each filename must be on a separate line and 
-  # relative to the input directory. The path relevant_filenames_file must be 
-  # relative to the shared directory, so if the file is in 
-  # 'shared_dir/directory/relevant_filenames.txt' the path should be set to
-  # 'directory/relevant_filenames.txt'
+  # directory not listed here. Each filename must be on a separate line and
+  # relative to the input directory.
+  # If you use a cloud bucket as datasource, the path is relative
+  # to the root of your input datasource. If you specified a 2nd output datasource,
+  # and the path contains `.lightly`, then the path is relative to the output datasource.
+  # If you have a local input directory, the path is relative to the shared directory,
+  # so if the file is in 'shared_dir/directory/relevant_filenames.txt'
+  # the path should be set to 'directory/relevant_filenames.txt'
+
   relevant_filenames_file: ''
 
   # Set to False to disable check for corrupted images.
