@@ -82,6 +82,9 @@ For example, let's say we are working with the following folder structure:
         + object_detection_people/
             + schema.json
             ...
+        + semantic_segmentation_cars/
+            + schema.json
+            ...
         + some_directory_containing_irrelevant_things/
 
 
@@ -93,7 +96,8 @@ we can specify which subfolders contain relevant predictions in the `tasks.json`
     [
         "classification_weather",
         "classification_scenery",
-        "object_detection_people"
+        "object_detection_people",
+        "semantic_segmentation_cars",
     ]
 
 .. note::
@@ -123,6 +127,7 @@ The `task_type` must be one of:
 
  - classification
  - object-detection
+ - semantic-segmentation
 
 
 For example, let's say we are working with a classification model predicting the weather on an image.
@@ -243,6 +248,32 @@ Example object detection:
         ]
     }
 
+Example semantic segmentation:
+
+.. code-block:: javascript
+    :caption: .lightly/predictions/semantic_segmentation_cars/my_image.json
+
+    {
+        "file_name": "my_image.png",
+        "predictions": [ // classes: [background, car]
+            {
+                "category_id": 0,
+                "segmentation": [100, 80, 90, 85, ...], //run length encoded binary segmentation mask
+                "score": 0.8
+            },
+            {
+                "category_id": 1,
+                "segmentation": [...],
+                "score": 0.9
+            },
+            {
+                "category_id": 2,
+                "segmentation": [...],
+                "score": 0.5
+            }
+        ]
+    }
+
 Note: The filename should always be the full path from the root directory.
 
 
@@ -282,10 +313,98 @@ The bounding box format follows the `COCO results <https://cocodataset.org/#form
 
     Bounding Box coordinates are pixels measured from the top left image corner.
 
+**Semantic Segmentation:**
+
+For semantic segmentation, please use the following format:
+
+.. code-block:: javascript
+
+    [{
+        "category_id"       : int,
+        "segmentation"      : [int, int, ...],  // run length encoded binary segmentation mask
+        "score"             : float,
+        "probabilities"     : [p0, p1, ..., pN] // optional, sum up to 1.0
+    }]
+
+Each segmentation prediction contains the binary mask for one category and a 
+corresponding score. The score determines the likelihood of the segmentation
+belonging to that category. Optionally, a list of probabilities can be provided
+containing a probability for each category, indicating the likeliness that the
+segment belongs to that category.
+
+Segmentations are defined with binary masks where each pixel is either set to 0
+or 1 if it belongs to the background or the object, respectively. 
+The segmentation masks are compressed using run length encoding to reduce file size. 
+Binary segmentation masks can be converted to the required format using the 
+following function:
+
+.. code-block:: python
+
+    import numpy as np
+
+    def encode(binary_mask):
+        """Encodes a (H, W) binary segmentation mask with run length encoding.
+
+        The run length encoding is an array with counts of subsequent 0s and 1s
+        in the binary mask. The first value in the array is always the count of
+        initial 0s.
+
+        Examples:
+
+            >>> binary_mask = [
+            >>>     [0, 0, 1, 1],
+            >>>     [0, 1, 1, 1],
+            >>>     [0, 0, 0, 1],
+            >>> ]
+            >>> encode(binary_mask)
+            [2, 2, 1, 3, 3, 1]
+        """
+        flat = np.concatenate(([-1], np.ravel(binary_mask), [-1]))
+        borders = np.nonzero(np.diff(flat))[0]
+        rle = np.diff(borders)
+        if flat[1]:
+            rle = np.concatenate(([0], rle))
+        return rle.tolist()
+
+Segmentation models oftentimes output a probability for each pixel and category.
+Storing such probabilities can quickly result in large file sizes if the input
+images have a high resolution. To reduce storage requirements, Lightly expects 
+only a single score or probability per segmentation. If you have scores or 
+probabilities for each pixel in the image, you have to first aggregate them 
+into a single score/probability. We recommend to take either the median or mean 
+score/probability over all pixels within the segmentation mask. The example
+below shows how pixelwise segmentation predictions can be converted to the 
+format required by Lightly.
+
+.. code-block:: python
+
+    # Make prediction for a single image. The output is assumed to be a tensor
+    # with shape (categories, height, width).
+    segmentation = model(image)
+
+    # Most probable object category per pixel.
+    category = segmentation.argmax(dim=0)
+
+    # Convert to lightly predictions.
+    predictions = []
+    for category_id in category.unique():
+        binary_mask = category == category_id
+        median_score = segmentation[category_id, binary_mask].median()
+        predictions.append({
+            'category_id': int(category_id),
+            'segmentation': encode(binary_mask),
+            'score': float(median_score),
+        })
+
+    prediction = {
+        'file_name': 'image_name.png',
+        'predictions': predictions,
+    }
+
 
 .. note::
 
-    Support for semantic segmentation and keypoint detection is coming soon!
+    Support for keypoint detection is coming soon!
 
 
 
