@@ -5,9 +5,10 @@ import torch
 import torch.nn as nn
 import torchvision
 from lightly.models import utils
+
+# vision_transformer requires torchvision >= 0.12
 from torchvision.models import vision_transformer
 
-# TODO: Check for correct torchvision version
 
 class MAEEncoder(vision_transformer.Encoder):
 

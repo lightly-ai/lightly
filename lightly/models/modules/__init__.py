@@ -21,3 +21,11 @@ from lightly.models.modules.heads import SimSiamPredictionHead
 from lightly.models.modules.heads import SwaVProjectionHead
 from lightly.models.modules.heads import SwaVPrototypes
 from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
+
+try:
+    # Requires torchvision >=0.12
+    from lightly.models.modules.encoders import MAEBackbone
+    from lightly.models.modules.encoders import MAEDecoder
+    from lightly.models.modules.encoders import MAEEncoder
+except ImportError:
+    pass
