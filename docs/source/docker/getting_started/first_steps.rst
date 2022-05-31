@@ -133,10 +133,12 @@ The following docker run command would for example store the output in the
 Specify Relevant Files
 ----------------------------
 Oftentimes not all files in a directory are relevant. In that case, it's possible
-to pass a list of filenames to the Lightly docker. It will then only consider the listed filenames
-and ignore all other. To do so, you can create a text file which
-contains one relevant filename per line and then pass the path to the text file to the docker run
-command. This works for videos and images.
+to pass a list of filenames to the Lightly docker
+using the `relevant_filenames_file` configuration option.
+It will then only consider the listed filenames
+and ignore all others. To do so, you can create a text file which
+contains one relevant filename per line and then pass the path to the text file
+to the docker run command. This works for videos and images.
 
 For example, if this is your input directory:
 
@@ -161,10 +163,14 @@ If you use a cloud bucket and specified a separate input and output bucket,
 put the file in the .lightly folder of the output bucket
 and copy the path of the file relative to the output datasource root.
 
-If you use a local input directory, place the file in the shared directory
-and copy the path to it.
+E.g. if your dataset is at `path/to/dataset` and your relevant_filenames.txt at
+`path/to/dataset/subdir/relevant_filenames.txt`,
+then copy the path `subdir/relevant_filenames.txt`.
 
-Then you can add `relevant_filenames_file='path/to/relevant_filenames.txt'`
+If you use a local input directory, place the file in the shared directory
+and copy the path relative to it.
+
+Then you can add `relevant_filenames_file='subdir/relevant_filenames.txt'`
 to the docker run command and the Lightly docker will only consider **my-video.mp4** and **my-third-video.mp4**.
 
 Embedding a Dataset and Selecting from it
