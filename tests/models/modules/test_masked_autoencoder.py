@@ -1,15 +1,13 @@
 import unittest
 import torch
 import torchvision
+from lightly import _torchvision_vit_available
 from lightly.models import utils
 
-try:
+if _torchvision_vit_available:
     from lightly.models.modules import MAEEncoder, MAEDecoder, MAEBackbone
-    TORCHVISION_VERSION_TOO_LOW = False
-except ImportError:
-    TORCHVISION_VERSION_TOO_LOW = True
 
-@unittest.skipIf(TORCHVISION_VERSION_TOO_LOW, f"Torchvision version {torchvision.__version__} < 0.12")
+@unittest.skipUnless(_torchvision_vit_available, "Torchvision ViT not available")
 class TestMAEEncoder(unittest.TestCase):
     def _vit(self):
         return torchvision.models.vision_transformer.vit_b_32(progress=False)
@@ -47,7 +45,7 @@ class TestMAEEncoder(unittest.TestCase):
         self._test_forward(torch.device('cuda'))
 
 
-@unittest.skipIf(TORCHVISION_VERSION_TOO_LOW, f"Torchvision version {torchvision.__version__} < 0.12")
+@unittest.skipUnless(_torchvision_vit_available, "Torchvision ViT not available")
 class TestMAEBackbone(unittest.TestCase):
     def _vit(self):
         return torchvision.models.vision_transformer.vit_b_32(progress=False)
@@ -82,7 +80,7 @@ class TestMAEBackbone(unittest.TestCase):
     def test_forward_cuda(self):
         self._test_forward(torch.device('cuda'))
 
-@unittest.skipIf(TORCHVISION_VERSION_TOO_LOW, f"Torchvision version {torchvision.__version__} < 0.12")
+@unittest.skipUnless(_torchvision_vit_available, "Torchvision ViT not available")
 class TestMAEDecoder(unittest.TestCase):
 
     def test_init(self):
