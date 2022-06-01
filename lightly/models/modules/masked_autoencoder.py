@@ -109,7 +109,6 @@ class MAEDecoder(torchvision.models.vision_transformer.Encoder):
             attention_dropout=attention_dropout,
             norm_layer=norm_layer,
         )
-        self.pos_embedding = get_pos_embedding(seq_length, hidden_dim)
         self.decoder_embed = nn.Linear(embed_input_dim, hidden_dim, bias=True)
         self.prediction_head = nn.Linear(hidden_dim, out_dim)
 
