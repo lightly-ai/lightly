@@ -266,11 +266,6 @@ Example semantic segmentation:
                 "segmentation": [...],
                 "score": 0.9
             },
-            {
-                "category_id": 2,
-                "segmentation": [...],
-                "score": 0.5
-            }
         ]
     }
 
