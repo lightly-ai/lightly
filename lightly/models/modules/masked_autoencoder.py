@@ -254,8 +254,8 @@ class MAEDecoder(vision_transformer.Encoder):
         hidden_dim: int,
         mlp_dim: int,
         out_dim: int,
-        dropout: float,
-        attention_dropout: float,
+        dropout: float = 0.0,
+        attention_dropout: float = 0.0,
         norm_layer: Callable[..., nn.Module] = partial(nn.LayerNorm, eps=1e-6),
     ):
         super().__init__(
