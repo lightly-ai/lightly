@@ -26,7 +26,8 @@ def has_grad(model: nn.Module):
 
 class TestModelUtils(unittest.TestCase):
 
-    def test_batch_shuffle(self):
+    def test_batch_shuffle(self, seed=0):
+        torch.manual_seed(seed)
         x1 = torch.rand((4, 3,64,64))
         x1_shuffled, shuffle = batch_shuffle(x1)
         out1 = batch_unshuffle(x1_shuffled, shuffle)
