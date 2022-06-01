@@ -24,8 +24,8 @@ from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
 
 try:
     # Requires torchvision >=0.12
-    from lightly.models.modules.encoders import MAEBackbone
-    from lightly.models.modules.encoders import MAEDecoder
-    from lightly.models.modules.encoders import MAEEncoder
+    from lightly.models.modules.masked_autoencoder import MAEBackbone
+    from lightly.models.modules.masked_autoencoder import MAEDecoder
+    from lightly.models.modules.masked_autoencoder import MAEEncoder
 except ImportError:
     pass

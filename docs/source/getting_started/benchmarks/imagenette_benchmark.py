@@ -56,7 +56,7 @@ import torch.nn as nn
 import torchvision
 from lightly.models import modules
 from lightly.models.modules import heads
-from lightly.models.modules import encoders
+from lightly.models.modules import masked_autoencoder
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
