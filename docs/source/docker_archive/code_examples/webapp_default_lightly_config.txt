@@ -1,0 +1,41 @@
+{
+  loader: {
+    batch_size: 16,
+    shuffle: true,
+    num_workers: -1,
+    drop_last: true
+  },
+  model: {
+    name: 'resnet-18',
+    out_dim: 128,
+    num_ftrs: 32,
+    width: 1
+  },
+  trainer: {
+    gpus: 1,
+    max_epochs: 100,
+    precision: 32
+  },
+  criterion: {
+    temperature: 0.5
+  },
+  optimizer: {
+    lr: 1,
+    weight_decay: 0.00001
+  },
+  collate: {
+    input_size: 64,
+    cj_prob: 0.8,
+    cj_bright: 0.7,
+    cj_contrast: 0.7,
+    cj_sat: 0.7,
+    cj_hue: 0.2,
+    min_scale: 0.15,
+    random_gray_scale: 0.2,
+    gaussian_blur: 0.5,
+    kernel_size: 0.1,
+    vf_prob: 0,
+    hf_prob: 0.5,
+    rr_prob: 0
+  }
+}

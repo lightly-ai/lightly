@@ -1,0 +1,24 @@
+{
+  object_level: {
+    task_name: 'vehicles_object_detections'
+  },
+  enable_corruptness_check: true,
+  remove_exact_duplicates: true,
+  enable_training: false,
+  pretagging: false,
+  pretagging_debug: false,
+  method: 'coreset',
+  stopping_condition: {
+    n_samples: 0.1,
+    min_distance: -1
+  },
+  scorer: 'object-frequency',
+  scorer_config: {
+    frequency_penalty: 0.25,
+    min_score: 0.9
+  },
+  active_learning: {
+    task_name: '',
+    score_name: 'uncertainty_margin'
+  }
+}
