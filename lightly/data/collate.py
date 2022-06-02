@@ -6,7 +6,7 @@
 import torch
 import torch.nn as nn
 
-from typing import List
+from typing import Dict, List, Optional, Tuple, Union
 
 from PIL import Image
 import torchvision
@@ -20,6 +20,7 @@ imagenet_normalize = {
     'mean': [0.485, 0.456, 0.406],
     'std': [0.229, 0.224, 0.225]
 }
+
 
 class BaseCollateFunction(nn.Module):
     """Base class for other collate implementations.
@@ -645,3 +646,44 @@ class DINOCollateFunction(MultiViewCollateFunction):
         transforms = [global_transform_0, global_transform_1]
         transforms.extend(local_transforms)
         super().__init__(transforms)
+
+
+class MAECollateFunction(MultiViewCollateFunction):
+    """Implements the view augmentation for MAE [0].
+
+    - [0]: Masked Autoencoder, 2021, https://arxiv.org/abs/2111.06377
+
+    Attributes:
+        input_size:
+            Size of the input image in pixels.
+        min_scale:
+            Minimum size of the randomized crop relative to the input_size.
+        normalize:
+            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
+
+     """
+    def __init__(
+        self,
+        input_size: Union[int, Tuple[int, int]] = 224,
+        min_scale: float = 0.2,
+        normalize: dict = imagenet_normalize,
+    ):
+        transforms = [
+            T.RandomResizedCrop(input_size, scale=(min_scale, 1.0), interpolation=3),  # 3 is bicubic
+            T.RandomHorizontalFlip(),
+            T.ToTensor(),
+        ]
+
+        if normalize:
+            transforms.append(
+                T.Normalize(
+                    mean=normalize['mean'],
+                    std=normalize['std']
+                )
+            )
+        super().__init__([T.Compose(transforms)])
+
+    def forward(self, batch: List[tuple]):
+        views, labels, fnames = super().forward(batch)
+        # Return only first view as MAE needs only a single view per image.
+        return views[0], labels, fnames

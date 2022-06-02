@@ -127,11 +127,13 @@ dino_collate_fn = lightly.data.DINOCollateFunction(
     local_crop_size=64,
 )
 
+# Single crop augmentation for MAE
+mae_collate_fn = lightly.data.MAECollateFunction()
+
 normalize_transform = torchvision.transforms.Normalize(
     mean=lightly.data.collate.imagenet_normalize['mean'],
     std=lightly.data.collate.imagenet_normalize['std'],
 )
-
 
 # No additional augmentations for the test set
 test_transforms = torchvision.transforms.Compose([
@@ -168,8 +170,7 @@ def get_data_loaders(batch_size: int, model):
     elif model == DINOModel:
         col_fn = dino_collate_fn
     elif model == MAEModel:
-        dataset_train_ssl.transform = mae_train_transforms
-        col_fn = None
+        col_fn = mae_collate_fn
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
         batch_size=batch_size,
@@ -829,9 +830,6 @@ for BenchmarkModel in models:
         del trainer
         torch.cuda.reset_peak_memory_stats()
         torch.cuda.empty_cache()
-
-        # reset dataset transform
-        dataset_train_ssl.transform = None
     
     bench_results[model_name] = runs
 
