@@ -4,6 +4,7 @@ import copy
 import torch
 import torch.nn as nn
 
+from lightly.models import utils
 from lightly.models.utils import batch_shuffle
 from lightly.models.utils import batch_unshuffle
 from lightly.models.utils import activate_requires_grad
@@ -25,6 +26,15 @@ def has_grad(model: nn.Module):
 
 
 class TestModelUtils(unittest.TestCase):
+
+    def _assert_tensor_equal(self, x, y):
+        # If the assertion fails then only an "assertion is not True" error is
+        # shown without showing the contents of x and y. To help debugging, x
+        # and y are printed. Note that the output is only shown if the assertion
+        # fails.
+        print(x)
+        print(y)
+        self.assertTrue(torch.equal(x, y))
 
     def test_batch_shuffle(self, seed=0):
         torch.manual_seed(seed)
@@ -74,3 +84,130 @@ class TestModelUtils(unittest.TestCase):
     @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
     def test_no_grad_trunc_normal_cuda(self, seed=0):
         self.test_no_grad_trunc_normal(device="cuda")
+
+    def test_repeat_token(self):
+        token = torch.Tensor([[[1, 2, 3, 4]]])
+        out = utils.repeat_token(token, size=(2, 3))
+        self.assertEqual(tuple(out.shape), (2, 3, 4))
+        self.assertListEqual(out[-1][-1].tolist(), [1, 2, 3, 4])
+
+    def test_expand_index_like(self, seed=0):
+        torch.manual_seed(seed)
+        index = torch.Tensor([
+            [1, 0, 3],
+            [1, 2, 4],
+        ]).long()
+        tokens = torch.rand(2, 4, 5)
+        expanded_index = utils.expand_index_like(index, tokens)
+
+        self.assertEqual(tuple(expanded_index.shape), (2, 3, 5))
+
+    def test_get_at_index(self, seed=0):
+        torch.manual_seed(seed)
+        index = torch.Tensor([
+            [1, 0, 3],
+            [1, 2, 0],
+        ]).long()
+        tokens = torch.rand(2, 4, 5)
+        selected = utils.get_at_index(tokens, index)
+
+        self.assertEqual(tuple(selected.shape), (2, 3, 5))
+
+        # make sure that correct tokens were selected
+        for i in range(index.shape[0]):
+            for j in range(index.shape[1]):
+                self._assert_tensor_equal(tokens[i, index[i, j]], selected[i, j])
+
+    def test_set_at_index(self, seed=0):
+        torch.manual_seed(seed)
+        index = torch.Tensor([
+            [1, 0, 3],
+            [1, 2, 0],
+        ]).long()
+        tokens = torch.rand(2, 4, 5)
+        values = torch.rand(2, 3, 5)
+        new_tokens = utils.set_at_index(tokens, index, values)
+
+        # make sure that values are copied correctly
+        for i in range(index.shape[0]):
+            for j in range(index.shape[1]):
+                self._assert_tensor_equal(new_tokens[i, index[i, j]], values[i, j])
+
+    def test_prepend_class_token(self, seed=0):
+        torch.manual_seed(seed)
+        tokens = torch.rand(2, 3, 5)
+        class_token = torch.rand(1, 1, 5)
+        new_tokens = utils.prepend_class_token(tokens, class_token)
+        self.assertListEqual(list(new_tokens.shape), [2, 4, 5])
+
+        # make sure that class token is inserted in correct place
+        for i in range(new_tokens.shape[0]):
+            self._assert_tensor_equal(new_tokens[i][0], class_token[0, 0])
+
+    def test_patchify(self, seed=0):
+        torch.manual_seed(seed)
+        batch_size, channels, height, width = (2, 3, 8, 8)
+        patch_size = 4
+        images = torch.rand(batch_size, channels, height, width)
+        batch_patches = utils.patchify(images, patch_size)
+
+        height_patches = (height // patch_size)
+        width_patches = (width // patch_size)
+        num_patches = height_patches * width_patches
+        patch_dim = channels * patch_size ** 2
+
+        self.assertListEqual(list(batch_patches.shape), [batch_size, num_patches, patch_dim])
+
+        # make sure that patches are correctly formed
+        for (image, img_patches) in zip(images, batch_patches):
+            for i in range(height_patches):
+                for j in range(width_patches):
+                    # extract patch from original image
+                    expected_patch = image[:, i*patch_size : (i+1)*patch_size, j*patch_size : (j+1)*patch_size]
+                    # permute and flatten to match order of patchified images
+                    expected_patch = expected_patch.permute(1, 2, 0).flatten()
+                    img_patch = img_patches[i * width_patches + j]
+                    self._assert_tensor_equal(img_patch, expected_patch)
+
+    def _test_random_token_mask(
+        self, 
+        seed=0, 
+        mask_ratio=0.6, 
+        mask_class_token=False, 
+        device='cpu'
+    ):
+        torch.manual_seed(seed)
+        batch_size, seq_length = 2, 5
+        idx_keep, idx_mask = utils.random_token_mask(
+            size=(batch_size, seq_length),
+            mask_ratio=mask_ratio,
+            mask_class_token=mask_class_token,
+            device=device,
+        )
+
+        # concatenating and sorting the two index tensors should result in a tensor
+        # with every index appearing exactly once
+        idx, _ = torch.cat([idx_keep, idx_mask], dim=1).sort(dim=1)
+        expected_idx = torch.arange(seq_length).repeat(batch_size).reshape(batch_size, seq_length)
+        expected_idx = expected_idx.to(device)
+        self._assert_tensor_equal(idx, expected_idx)
+
+        if not mask_class_token:
+            # class token should be first in index
+            self.assertTrue(torch.all(idx_keep[:, 0] == 0))
+
+    def _test_random_token_mask_parameters(self, device):
+        for mask_ratio in [0, 0.6, 1.0]:
+            for mask_class_token in [False, True]:
+                self._test_random_token_mask(
+                    mask_ratio=mask_ratio,
+                    mask_class_token=mask_class_token,
+                    device=device,
+                )
+
+    def test_random_token_mask(self):
+        self._test_random_token_mask_parameters(device='cpu')
+
+    @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
+    def test_random_token_mask_cuda(self):
+        self._test_random_token_mask_parameters(device="cuda")
