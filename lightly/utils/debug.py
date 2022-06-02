@@ -1,11 +1,22 @@
 from typing import List, Union
 from PIL import Image
-import matplotlib.pyplot as plt
 
 import torch
 import torchvision
 
-from lightly.data.collate import BaseCollateFunction, MultiViewCollateFunction, SimCLRCollateFunction, DINOCollateFunction, SwaVCollateFunction
+from lightly.data.collate import BaseCollateFunction, MultiViewCollateFunction, DINOCollateFunction, SimCLRCollateFunction
+
+try:
+    import matplotlib.pyplot as plt
+except ModuleNotFoundError:
+    plt = ModuleNotFoundError(
+        "Matplotlib is not installed on your system. Please install it to use the plotting"
+        "functionalities. See https://matplotlib.org/ for installation instructions."
+    )
+
+def _check_matplotlib_available() -> None:
+    if isinstance(plt, Exception):
+        raise plt
 
 
 @torch.no_grad()
@@ -41,36 +52,47 @@ def std_of_l2_normalized(z: torch.Tensor):
     return torch.std(z_norm, dim=0).mean()
 
 
-
 def apply_transform_without_normalize(
     image: Image.Image,
-    transform #.TODO: typehint: transforms.Transform,
+    transform,
 ):
-    """TODO"""
-    # TODO: change this
+    """Applies the transform to the image but skips ToTensor and Normalize.
+
+    """
     if isinstance(transform, torchvision.transforms.Compose):
         for transform_ in transform.transforms:
-            if isinstance(transform_, torchvision.transforms.Compose):
-                image = apply_transform_without_normalize(image, transform_)
-                continue
             if isinstance(transform_, torchvision.transforms.Normalize):
                 continue
-            if isinstance(transform_, torchvision.transforms.ToTensor):
+            elif isinstance(transform_, torchvision.transforms.ToTensor):
                 continue
-            print(transform_)
-            image = transform_(image)
+            elif isinstance(transform_, torchvision.transforms.Compose):
+                image = apply_transform_without_normalize(image, transform_)
+            else:
+                image = transform_(image)
     else:
-        image = transform_(image)
+        image = transform(image)
     return image
-
 
 
 def generate_grid_of_augmented_images(
     input_images: List[Image.Image],
     collate_function: Union[BaseCollateFunction, MultiViewCollateFunction],
 ):
-    """TODO"""
+    """Returns a grid of augmented images. Images in a column belong together.
 
+    This function ignores the transforms ToTensor and Normalize for visualization purposes.
+
+    Args:
+        input_images:
+            List of PIL images for which the augmentations should be plotted.
+        collate_function:
+            The collate function of the self-supervised learning algorithm.
+            Must be of type BaseCollateFunction or MultiViewCollateFunction.
+
+    Returns:
+        A grid of augmented images. Images in a column belong together.
+
+    """
     grid = []
     if isinstance(collate_function, BaseCollateFunction):
         for _ in range(2):
@@ -85,7 +107,11 @@ def generate_grid_of_augmented_images(
                 for image in input_images
             ])
     else:
-        raise ValueError('TODO')
+        raise ValueError(
+            'Collate function must be one of '
+            '(BaseCollateFunction, MultiViewCollateFunction) '
+            f'but is {type(collate_function)}.'
+        )
     return grid
 
 
@@ -93,21 +119,50 @@ def plot_augmented_images(
     input_images: List[Image.Image],
     collate_function: Union[BaseCollateFunction, MultiViewCollateFunction],
 ):
-    """TODO"""
+    """Returns a figure showing original images in the left column and augmented images to their right.
+
+    This function ignores the transforms ToTensor and Normalize for visualization purposes.
+
+    Args:
+        input_images:
+            List of PIL images for which the augmentations should be plotted.
+        collate_function:
+            The collate function of the self-supervised learning algorithm.
+            Must be of type BaseCollateFunction or MultiViewCollateFunction.
+
+    Returns:
+        A figure showing the original images in the left column and the augmented
+        images to their right. If the collate_function is an instance of the
+        BaseCollateFunction, two example augmentations are shown. For
+        MultiViewCollateFunctions all the generated views are shown.
+
+    """
+
+    _check_matplotlib_available()
+
+    if len(input_images) == 0:
+        raise ValueError('There must be at least one input image.')
 
     grid = generate_grid_of_augmented_images(input_images, collate_function)
-    nrows = len(grid) + 1 # extra row for the original images
-    ncols = len(input_images)
+    nrows = len(input_images)
+    ncols = len(grid) + 1 # extra column for the original images
 
-    fig, axs = plt.subplots(nrows, ncols)
+    fig, axs = plt.subplots(nrows, ncols, figsize=(ncols * 1.5, nrows * 1.5))
 
     grid.insert(0, input_images)
     for i in range(nrows):
-        for ax, img in zip(axs[i], grid[i]):
+        for j in range(ncols):
+            ax = axs[i][j]
+            img = grid[j][i]
             ax.imshow(img)
             ax.set_axis_off()
 
+    axs[0, 0].set(title='Original images')
+    axs[0, 0].title.set_size(8)
+    axs[0, 1].set(title='Augmented images')
+    axs[0, 1].title.set_size(8)
     fig.tight_layout()
+
     return fig
 
 
@@ -116,13 +171,13 @@ if __name__ == '__main__':
     import numpy
     from PIL import Image
 
-    input_images = []
-    for i in range(5):
+    input_images_ = []
+    for i in range(2):
         imarray = numpy.random.rand(100,100,3) * 255
         im = Image.fromarray(imarray.astype('uint8')).convert('RGB')
-        input_images.append(im)
+        input_images_.append(im)
 
-    collate_function = DINOCollateFunction()
+    collate_function = SimCLRCollateFunction()
 
-    fig = plot_augmented_images(input_images, collate_function)
+    fig = plot_augmented_images(input_images_, collate_function)
     fig.savefig('hello.png')
