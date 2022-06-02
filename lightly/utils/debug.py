@@ -152,7 +152,7 @@ def plot_augmented_images(
 
     for i in range(nrows):
         for j in range(ncols):
-            ax = axs[i][j] if len(input_images) > 1 else axs[i]
+            ax = axs[i][j] if len(input_images) > 1 else axs[j]
             img = grid[j][i]
             ax.imshow(img)
             ax.set_axis_off()
@@ -166,3 +166,15 @@ def plot_augmented_images(
     fig.tight_layout()
 
     return fig
+
+
+
+
+images = [
+    Image.open('/datasets/monkeys_dataset/n0/n0038.jpg'),
+]
+from lightly.data.collate import DINOCollateFunction
+
+fig = plot_augmented_images(images, DINOCollateFunction())
+fig.savefig('hello.jpg')
+
