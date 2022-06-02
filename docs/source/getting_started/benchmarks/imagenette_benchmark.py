@@ -136,7 +136,7 @@ normalize_transform = torchvision.transforms.Normalize(
 # No additional augmentations for the test set
 test_transforms = torchvision.transforms.Compose([
     torchvision.transforms.Resize(input_size),
-    torchvision.transforms.CenterCrop(224),
+    torchvision.transforms.CenterCrop(128),
     torchvision.transforms.ToTensor(),
     normalize_transform,
 ])
@@ -759,6 +759,7 @@ models = [
     DCL,
     DCLW,
     DINOModel,
+    # MAEModel, # disabled by default because MAE requires images to have size 224
     MocoModel,
     NNCLRModel,
     SimCLRModel,
