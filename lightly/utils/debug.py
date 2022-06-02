@@ -166,15 +166,3 @@ def plot_augmented_images(
     fig.tight_layout()
 
     return fig
-
-
-
-
-images = [
-    Image.open('/datasets/monkeys_dataset/n0/n0038.jpg'),
-]
-from lightly.data.collate import DINOCollateFunction
-
-fig = plot_augmented_images(images, DINOCollateFunction())
-fig.savefig('hello.jpg')
-
