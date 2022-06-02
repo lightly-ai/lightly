@@ -4,7 +4,7 @@ from PIL import Image
 import torch
 import torchvision
 
-from lightly.data.collate import BaseCollateFunction, MultiViewCollateFunction, DINOCollateFunction, SimCLRCollateFunction
+from lightly.data.collate import BaseCollateFunction, MultiViewCollateFunction
 
 try:
     import matplotlib.pyplot as plt
@@ -59,17 +59,14 @@ def apply_transform_without_normalize(
     """Applies the transform to the image but skips ToTensor and Normalize.
 
     """
+    skippable_transforms = (
+        torchvision.transforms.ToTensor,
+        torchvision.transforms.Normalize,
+    )
     if isinstance(transform, torchvision.transforms.Compose):
         for transform_ in transform.transforms:
-            if isinstance(transform_, torchvision.transforms.Normalize):
-                continue
-            elif isinstance(transform_, torchvision.transforms.ToTensor):
-                continue
-            elif isinstance(transform_, torchvision.transforms.Compose):
-                image = apply_transform_without_normalize(image, transform_)
-            else:
-                image = transform_(image)
-    else:
+            image = apply_transform_without_normalize(image, transform_)
+    elif not isinstance(transform, skippable_transforms):
         image = transform(image)
     return image
 
