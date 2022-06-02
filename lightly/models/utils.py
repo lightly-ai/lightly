@@ -4,7 +4,7 @@
 # All Rights Reserved
 
 import math
-from typing import Tuple
+from typing import Optional, Tuple, Union
 import warnings
 
 import torch
@@ -270,69 +270,170 @@ def _no_grad_trunc_normal(
         tensor.clamp_(min=a, max=b)
         return tensor
 
-def repeat_token(token, size):
-    # repeats token to have
-    batch_size, sequence_length = size[:2]
+def repeat_token(token: torch.Tensor, size: Tuple[int, int]) -> torch.Tensor:
+    """Repeats a token size times.
+
+    Args:
+        token:
+            Token tensor with shape (1, 1, dim).
+        size:
+            (batch_size, sequence_length) tuple.
+
+    Returns:
+        Tensor with shape (batch_size, sequence_length, dim) containing copies
+        of the input token.
+
+    """
+    batch_size, sequence_length = size
     return token.repeat(batch_size, sequence_length, 1)
 
-def expand_index_like(idx, input):
-    # expands the index along the feature dimension of input
-    # returns idx with shape (batch_size, sequence_length, dim_input)
-    dim = input.shape[-1]
-    idx = idx.unsqueeze(-1).expand(-1, -1, dim)
-    return idx
+def expand_index_like(index: torch.Tensor, tokens: torch.Tensor) -> torch.Tensor:
+    """Expands the index along the last dimension of the input tokens.
 
-def get_at_index(input, idx):
-    # gets tokens at index
-    idx = expand_index_like(idx, input)
-    return torch.gather(input, 1, idx)
+    Args:
+        index:
+            Index tensor with shape (batch_size, idx_length) where each entry is
+            an index in [0, sequence_length).
+        tokens:
+            Tokens tensor with shape (batch_size, sequence_length, dim).
 
-def set_at_index(input, idx, value):
-    # sets tokens at index to value
-    idx = expand_index_like(idx, input)
-    return torch.scatter(input, 1, idx, value)
+    Returns:
+        Index tensor with shape (batch_size, idx_length, dim) where the original
+        indices are repeated dim times along the last dimension.
 
-def prepend_class_token(input, class_token):
-    # prepends class token to input
-    batch_size = input.shape[0]
+    """
+    dim = tokens.shape[-1]
+    index = index.unsqueeze(-1).expand(-1, -1, dim)
+    return index
+
+def get_at_index(tokens: torch.Tensor, index: torch.Tensor) -> torch.Tensor:
+    """Selects tokens at index.
+    
+    Args:
+        tokens:
+            Token tensor with shape (batch_size, sequence_length, dim).
+        index:
+            Index tensor with shape (batch_size, index_length) where each entry is
+            an index in [0, sequence_length).
+
+    Returns:
+        Token tensor with shape (batch_size, index_length, dim) containing the
+        selected tokens.
+
+    """
+    index = expand_index_like(index, tokens)
+    return torch.gather(tokens, 1, index)
+
+def set_at_index(
+    tokens: torch.Tensor, 
+    index: torch.Tensor, 
+    value: torch.Tensor
+) -> torch.Tensor:
+    """Copies all values into the input tensor at the given indices.
+    
+    Args:
+        tokens:
+            Tokens tensor with shape (batch_size, sequence_length, dim).
+        index:
+            Index tensor with shape (batch_size, index_length).
+        value:
+            Value tensor with shape (batch_size, index_length, dim).
+    
+    Returns:
+        Tokens tensor with shape (batch_size, sequence_length, dim) containing
+        the new values.
+
+    """
+    index = expand_index_like(index, tokens)
+    return torch.scatter(tokens, 1, index, value)
+
+def prepend_class_token(
+    tokens: torch.Tensor, 
+    class_token: torch.Tensor
+) -> torch.Tensor:
+    """Prepends class token to tokens.
+    
+    Args:
+        tokens:
+            Tokens tensor with shape (batch_size, sequence_length, dim).
+        class_token:
+            Class token with shape (1, 1, dim).
+    
+    Returns:
+        Tokens tensor with the class token prepended at index 0 in every
+        sequence. The tensor has shape (batch_size, sequence_length + 1, dim).
+    """
+    batch_size = tokens.shape[0]
     batch_class_token = class_token.expand(batch_size, -1, -1)
-    return torch.cat([batch_class_token, input], dim=1)
+    return torch.cat([batch_class_token, tokens], dim=1)
 
-def patchify(imgs, patch_size):
-    # converts images into patches
-    # output has shape (N, num_patches, patch_size ** 2 * C)
-    N, C, H, W = imgs.shape
+def patchify(images: torch.Tensor, patch_size: int) -> torch.Tensor:
+    """Converts a batch of input images into patches.
+    
+    Args:
+        images:
+            Images tensor with shape (batch_size, channels, height, width)
+        patch_size:
+            Patch size in pixels. Image width and height must be multiples of
+            the patch size.
+
+    Returns:
+        Patches tensor with shape (batch_size, num_patches, channels * patch_size ** 2)
+        where num_patches = image_width / patch_size * image_height / patch_size.
+
+    """
+    # N, C, H, W = (batch_size, channels, height, width)
+    N, C, H, W = images.shape
     assert H == W and H % patch_size == 0
 
     patch_h = patch_w = H // patch_size
     num_patches = patch_h * patch_w
-    patches = imgs.reshape(shape=(N, C, patch_h, patch_size, patch_w, patch_size))
+    patches = images.reshape(shape=(N, C, patch_h, patch_size, patch_w, patch_size))
     patches = torch.einsum('nchpwq->nhwpqc', patches)
     patches = patches.reshape(shape=(N, num_patches, patch_size ** 2 * C))
     return patches
 
 
 def random_token_mask(
-    size, 
-    mask_ratio=0.6,
-    mask_class_token=False,
-    device=None
+    size: Tuple[int, int], 
+    mask_ratio: float = 0.6,
+    mask_class_token: bool = False,
+    device: Optional[Union[torch.device, str]] = None,
 ):
-    # creates random masks 
-    # returns idx_keep, idx_mask tuple
-    # idx_keep has shape (batch_size, num_keep)
-    # idx_mask has shape (batch_size, sequence_length - num_keep)
+    """Creates random token masks.
+
+    Args:
+        size:
+            Size of the token batch for which to generate masks.
+            Should be (batch_size, sequence_length).
+        mask_ratio:
+            Percentage of tokens to mask.
+        mask_class_token:
+            If False the class token is never masked. If True the class token
+            might be masked.
+        device:
+            Device on which to create the index masks.
+
+    Returns:
+        A (index_keep, index_mask) tuple where each index is a tensor.
+        index_keep contains the indices of the unmasked tokens and has shape
+        (batch_size, num_keep). index_mask contains the indices of the masked
+        tokens and has shape (batch_size, sequence_length - num_keep). 
+        num_keep is equal to sequence_length * (1- mask_ratio).
+
+    """
     batch_size, sequence_length = size
     num_keep = int(sequence_length * (1 - mask_ratio))
-    
+
     noise = torch.rand(batch_size, sequence_length, device=device)
-    if not mask_class_token:
+    if not mask_class_token and sequence_length > 0:
         # make sure that class token is not masked
         noise[:, 0] = -1
-    
+        num_keep = max(1, num_keep)
+
     # get indices of tokens to keep
     indices = torch.argsort(noise, dim=1)
     idx_keep = indices[:, :num_keep]
     idx_mask = indices[:, num_keep:]
-    
+
     return idx_keep, idx_mask
