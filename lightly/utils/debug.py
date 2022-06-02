@@ -144,40 +144,25 @@ def plot_augmented_images(
         raise ValueError('There must be at least one input image.')
 
     grid = generate_grid_of_augmented_images(input_images, collate_function)
+    grid.insert(0, input_images)
     nrows = len(input_images)
-    ncols = len(grid) + 1 # extra column for the original images
+    ncols = len(grid)
 
     fig, axs = plt.subplots(nrows, ncols, figsize=(ncols * 1.5, nrows * 1.5))
 
-    grid.insert(0, input_images)
     for i in range(nrows):
         for j in range(ncols):
-            ax = axs[i][j]
+            ax = axs[i][j] if len(input_images) > 1 else axs[i]
             img = grid[j][i]
             ax.imshow(img)
             ax.set_axis_off()
 
-    axs[0, 0].set(title='Original images')
-    axs[0, 0].title.set_size(8)
-    axs[0, 1].set(title='Augmented images')
-    axs[0, 1].title.set_size(8)
+    ax_top_left = axs[0, 0] if len(input_images) > 1 else axs[0]
+    ax_top_left.set(title='Original images')
+    ax_top_left.title.set_size(8)
+    ax_top_next = axs[0, 1] if len(input_images) > 1 else axs[1]
+    ax_top_next.set(title='Augmented images')
+    ax_top_next.title.set_size(8)
     fig.tight_layout()
 
     return fig
-
-
-if __name__ == '__main__':
-
-    import numpy
-    from PIL import Image
-
-    input_images_ = []
-    for i in range(2):
-        imarray = numpy.random.rand(100,100,3) * 255
-        im = Image.fromarray(imarray.astype('uint8')).convert('RGB')
-        input_images_.append(im)
-
-    collate_function = SimCLRCollateFunction()
-
-    fig = plot_augmented_images(input_images_, collate_function)
-    fig.savefig('hello.png')
