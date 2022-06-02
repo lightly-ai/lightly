@@ -11,6 +11,7 @@ DATADIR		   			= _data
 PACKAGESOURCE  			= source/tutorials_source/package
 PLATFORMSOURCE 			= source/tutorials_source/platform
 DOCKERSOURCE   			= source/docker
+DOCKER_ARCHIVE_SOURCE   = source/docker_archive
 GETTING_STARTED_IMAGES 	= source/getting_started/resources
 
 
@@ -57,6 +58,7 @@ download-noplot:
 	# download images and report for docker
 	wget -N https://storage.googleapis.com/datasets_boris/resources.zip -P $(DATADIR);\
 	unzip $(ZIPOPTS) $(DATADIR)/resources.zip  -d $(DOCKERSOURCE);\
+	unzip $(ZIPOPTS) $(DATADIR)/resources.zip  -d $(DOCKER_ARCHIVE_SOURCE); \
 
 	# pizza dataset
 	@if [ ! -d $(PLATFORMSOURCE)/pizzas/salami ]; then \
