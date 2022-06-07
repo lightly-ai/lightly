@@ -73,9 +73,8 @@ You can get the `dataset_id` either by creating a new dataset from Python or by 
     :caption: Creating a new dataset from Python
 
     from lightly.api import ApiWorkflowClient
-    from lightly.openapi_generated.swagger_client.models.datasource_purpose import 
     from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
-    from lightly.openapi_generated.swagger_client.models.image_type import ImageType
+    from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 
     # Create the Lightly client to connect to the API.
     client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
@@ -104,6 +103,7 @@ make sure to specify the `dataset_id` in the constructor.
             :caption: Giving access to storage buckets from Python
 
             import json
+            from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 
             ## Google Cloud Storage
             # Input bucket
@@ -127,6 +127,8 @@ make sure to specify the `dataset_id` in the constructor.
 
         .. code-block:: python
             :caption: Giving access to storage buckets from Python
+
+            from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 
             ## AWS S3
             # Input bucket
@@ -152,6 +154,8 @@ make sure to specify the `dataset_id` in the constructor.
 
         .. code-block:: python
             :caption: Giving access to storage buckets from Python
+
+            from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 
             ## Azure
             # Input bucket
