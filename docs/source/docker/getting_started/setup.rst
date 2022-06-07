@@ -41,8 +41,8 @@ See :ref:`rst-installing` for details.
 
 .. _ref-docker-download-and-install:
 
-Download the Docker Image
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Download the Lightly Worker
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Ask your account manager from Lightly for the credentials
 to download the docker container. 
@@ -117,8 +117,8 @@ Create a new docker tag using the following command:
 
 
 
-Update Lightly Docker
-^^^^^^^^^^^^^^^^^^^^^
+Update the Lightly Worker
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To update the docker we simply need to pull the latest docker image.
 
@@ -160,14 +160,20 @@ Start the Lightly Worker
 
 **Finally**, start the docker in worker mode. In this mode, the docker will long-poll
 the Lightly API for new jobs to process. To do so, a worker needs to be registered.
-Note that this only has to be done once per worker!
+
+
+.. note:: You only have to register each worker once. The registry is required because
+    it's possible to have several workers registered at the same time working on different
+    jobs in parallel.
 
 .. code-block:: python
 
+    # execute the following code once to get a worker_id
     from lightly.api import ApiWorkflowClient
 
     client = ApiWorkflowClient(token='MY_AWESOME_TOKEN') # replace this by your token
     worker_id = client.register_compute_worker()
+    print(worker_id)
 
 Store the `worker_id` in a secure location and then start the docker in worker mode with
 
