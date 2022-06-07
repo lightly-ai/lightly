@@ -3,13 +3,13 @@
 First Steps
 ===================================
 
-The Lightly Docker solution follows a train, embed, enhance, select workflow:
+The Lightly worker follows a train, embed, select workflow:
 
 .. code-block:: console
 
-    +--------+      +---------+      +---------+      +--------+
-    | Train  +----->+  Embed  +----->+ Enhance +----->+ Select |
-    +--------+      +---------+      +---------+      +--------+
+    +--------+      +---------+      +--------+
+    | Train  +----->+  Embed  +----->+ Select |
+    +--------+      +---------+      +--------+
 
 #. You can either use a pre-trained model from the model zoo or fine-tune
    a model on your unlabeled dataset using self-supervised learning. The output
@@ -19,22 +19,18 @@ The Lightly Docker solution follows a train, embed, enhance, select workflow:
    represented using a low-dimensional vector. The output of the embed step is
    a .csv file.
 
-#. Optionally, the embedded images are enhanced with metadata and predictions to
-   steer the selection in the next step.
-
-#. Finally, based on the embeddings and additional information we can use 
-   one of the selection strategies to pick the relevant data for you.
-   The output of the select step is a list of filenames as well as 
-   analytics in form of a pdf report with plots.
+#. Finally, based on the embeddings and additional information, such as predictions or
+   metdata, we can use  one of the selection strategies to pick the relevant data for you.
+   The output of the selection is a list of selected input samples as well as analytics in form of a pdf report with plots.
 
 
-The docker solution can easily be triggered from your Python code. There are various parameters you can configure and we put a lot of effort to also expose the full lightly framework configuration.
-You could use the docker solution to train a self-supervised model instead of using the Python framework.
+The Lightly worker can easily be triggered from your Python code. There are various parameters you can configure and we put a lot of effort to also expose the full configuration of the lightly self-supervised learning framework.
+You could use the Lightly worker to train a self-supervised model instead of using the Python framework.
 
 Volume Mapping
 --------------
 
-Before we jump into the details of how to submit jobs, we need to start the Lightly docker container in
+Before we jump into the details of how to submit jobs, we need to start the Lightly image in
 worker mode (as outlined in :ref:`ref-docker-setup`).
 
 .. code-block:: console
@@ -46,12 +42,12 @@ worker mode (as outlined in :ref:`ref-docker-setup`).
         worker.worker_id=MY_WORKER_ID
 
 
-Here, we use volume mapping provided by the docker run command to process datasets. 
-A docker container itself is not considered to be a good place to store your data. 
-Volume mapping allows the container to work with the filesystem of the host system.
+Here, we use volume mapping provided by the docker run command to provide an output directory.
+A docker container itself is not considered to be a good place to store data. 
+Volume mapping allows the worker to interact with the filesystem of the host system.
 
 The Lightly worker requires that an `{OUTPUT_DIR}` is specified where it can store
-the results from all computations made by the container. See `Reporting`_ and `Worker Output`_ for additional information.
+the results of all the computations. See `Reporting`_ and `Worker Output`_ for additional information.
 The worker requires **read and write access** to this directory.
 
 .. warning:: Docker volume or port mappings always follow the scheme that you first
@@ -93,7 +89,9 @@ You can get the `dataset_id` either by creating a new dataset from Python or by 
 
 You can see the dataset under https://app.lightly.ai/datasets
 
-Next, the dataset requires read and write access to your storage bucket.
+Next, the dataset requires read and write access to your storage bucket. You can
+re-use the `client` from the previous step. If you create a new `ApiWorkflowClient`
+make sure to specify the `dataset_id` in the constructor.
 
 
 .. tabs::
@@ -291,7 +289,7 @@ and selecting from them.
     )
 
 You may not always want to train for exactly 100 epochs with the default settings.
-The docker container is a wrapper around the lightly Python package.
+The Lightly worker is a wrapper around the lightly Python package.
 Hence, for training and embedding the user can access all the settings from the lightly command-line tool.
 
 
@@ -432,7 +430,7 @@ The corresponding Python command to submit a job would then be as follows:
 Reporting
 ---------
 
-To facilitate sustainability and reproducibility in ML, the docker container
+To facilitate sustainability and reproducibility in ML, the Lightly worker
 has an integrated reporting component. For every dataset, you run through the container
 an output directory gets created with the exact configuration used for the experiment. 
 Additionally, plots, statistics, and more information collected
@@ -465,7 +463,7 @@ The output directory is structured in the following way:
 * plots:
    A directory containing the plots which were produced for the report.
 * report.pdf
-   To provide a simple overview of the filtering process the docker container automatically generates a report.
+   To provide a simple overview of the filtering process the Lightly worker automatically generates a report.
    The report contains
 
    * information about the job (duration, processed files etc.)
@@ -477,7 +475,7 @@ The output directory is structured in the following way:
 
 * **NEW** report.json
    * The report is also available as a report.json file. Any value from the pdf
-     pdf report can be easily be accessed.
+     report can be easily be accessed.
 
 
 Below you find a typical output folder structure.
@@ -553,7 +551,7 @@ as shown below. In our experiments, removing 7% of the dataset results in a mode
 
 Manually Inspecting the Embeddings
 ----------------------------------
-Every time you run Lightly Docker you will find an `embeddings.csv` file in the
+Every time you run Lightly worker you will find an `embeddings.csv` file in the
 output directory. This file contains the embeddings of all samples in your dataset.
 You can use the embeddings for clustering or manual inspection of your dataset.
 
