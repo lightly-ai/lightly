@@ -73,19 +73,17 @@ You can get the `dataset_id` either by creating a new dataset from Python or by 
     :caption: Creating a new dataset from Python
 
     from lightly.api import ApiWorkflowClient
-    from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
     from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 
     # Create the Lightly client to connect to the API.
     client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
 
     # Create a new dataset on the Lightly Platform.
-    request = DatasetCreateRequest(
-        name='dataset-name',
-        type=DatasetType.IMAGES, # can be DatasetType.VIDEOS when working with videos
+    client.create_new_dataset_with_unique_name(
+        'dataset-name',
+        DatasetType.IMAGES  # can be DatasetType.VIDEOS when working with videos
     )
-    response = client._datasets_api.create_dataset(request)
-    dataset_id = response.id
+    dataset_id = client.dataset_id
 
 
 You can see the dataset under https://app.lightly.ai/datasets
