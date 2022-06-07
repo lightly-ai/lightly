@@ -7,6 +7,7 @@ from lightly.data.dataset import LightlyDataset
 from lightly.data.collate import BaseCollateFunction
 from lightly.data.collate import DINOCollateFunction
 from lightly.data.collate import ImageCollateFunction
+from lightly.data.collate import MAECollateFunction
 from lightly.data.collate import SimCLRCollateFunction
 from lightly.data.collate import MoCoCollateFunction
 from lightly.data.collate import MultiCropCollateFunction
