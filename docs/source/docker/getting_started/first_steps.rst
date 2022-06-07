@@ -254,8 +254,7 @@ dataset before embedding the images. This may be the case when the dataset is
 from a specific domain (e.g. for medical images).
 
 The command below will **train a self-supervised model** for (default: 100) 
-epochs on the images stored in the input directory before embedding the images
-and selecting from them.
+epochs on the input images before embedding the images and selecting from them.
 
 
 .. code-block:: python
@@ -367,11 +366,10 @@ Hence, for training and embedding the user can access all the settings from the 
 
 Specifying Relevant Files
 -------------------------
-Oftentimes not all files in a directory are relevant. In that case, it's possible
+Oftentimes not all files in a bucket are relevant. In that case, it's possible
 to pass a list of filenames to the worker using the `relevant_filenames_file` configuration option.
 It will then only consider the listed filenames and ignore all others. To do so, you can create a text file which
-contains one relevant filename per line and then pass the path to the text file
-to the docker run command. This works for videos and images.
+contains one relevant filename per line and then pass the path to the text file when scheduling the job. This works for videos and images.
 
 For example, let's say you're working with the following file structure in an S3 bucket where
 you are only interested in `image_1.png` and `subdir/image_3.png`
