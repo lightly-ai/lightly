@@ -178,9 +178,6 @@ make sure to specify the `dataset_id` in the constructor.
     :ref:`dataset-creation-aws-bucket`, and :ref:`dataset-creation-azure-storage` for help
     with configuring the different roles.
 
-.. note::
-    It's also possible to configure the same bucket as input and output bucket.
-
 
 Scheduling a Simple Job
 -----------------------
@@ -373,23 +370,22 @@ to pass a list of filenames to the worker using the `relevant_filenames_file` co
 It will then only consider the listed filenames and ignore all others. To do so, you can create a text file which
 contains one relevant filename per line and then pass the path to the text file when scheduling the job. This works for videos and images.
 
-.. warning:: The `relevant_filenames_file` is expected to be in the **input bucket** as specified above (see `Creating a Dataset`_). It's also
-    possible to have it in the **output bucket**. However, in this case, the file must be in a subdirectory called `.lightly`. For example,
-    `.lightly/subdir/my_relevant_files.txt`.
+.. warning:: The `relevant_filenames_file` is expected to be in the **output bucket** as specified above (see `Creating a Dataset`_). And must always be
+    located in a subdirectory called `.lightly`.
 
 For example, let's say you're working with the following file structure in an S3 bucket where
 you are only interested in `image_1.png` and `subdir/image_3.png`
 
 .. code-block:: console
 
-    s3://my-bucket/
+    s3://my-input-bucket/
         L image_1.png
         L subdir/
             L image_2.png
             L image_3.png
 
 
-Then you can add a file called `relevant_filenames.txt` to this bucket with the following content
+Then you can add a file called `relevant_filenames.txt` to your output bucket with the following content
 
 .. code-block:: text
     :caption: relevant_filenames.txt
@@ -398,17 +394,14 @@ Then you can add a file called `relevant_filenames.txt` to this bucket with the 
     subdir/image_3.png
 
 
-The bucket should then look like this:
+The output bucket should then look like this:
 
 
 .. code-block:: console
 
-    s3://my-bucket/
-        L relevant_filenames.txt
-        L image_1.png
-        L subdir/
-            L image_2.png
-            L image_3.png
+    s3://my-output-bucket/
+        L .lightly/
+            L relevant_filenames.txt
 
 
 The corresponding Python command to submit a job would then be as follows:
@@ -418,7 +411,7 @@ The corresponding Python command to submit a job would then be as follows:
 
     client.schedule_compute_worker_run(
         worker_config={
-            "relevant_filenames_file": "relevant_filenames.txt",
+            "relevant_filenames_file": ".lightly/relevant_filenames.txt",
             "enable_corruptness_check": True,
             "remove_exact_duplicates": True,
             "enable_training": False,
@@ -444,11 +437,6 @@ The corresponding Python command to submit a job would then be as follows:
         }
     )
 
-.. note:: It's possible to have the relevant filenames file in a subdirectory or
-    use a different name. In that case, simply pass the path to the modified file location.
-    If the file is called `my_relevant_files.txt` and is stored in the subdirectory
-    `subdir`, simply pass `subdir/my_relevant_files.txt`.
-
 
 Reporting
 ---------
@@ -466,7 +454,7 @@ Sample reports can be found on the `Lightly website <https://lightly.ai/analytic
 
 
 Worker Output
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^
 
 The output directory is structured in the following way:
 
@@ -496,9 +484,7 @@ The output directory is structured in the following way:
    * visualizations of the dataset
    * nearest neighbors of retained images among the removed ones
 
-* **NEW** report.json
-   * The report is also available as a report.json file. Any value from the pdf
-     report can be easily be accessed.
+* The report is also available as a report.json file. Any value from the pdf report can be easily be accessed.
 
 
 Below you find a typical output folder structure.
@@ -522,7 +508,7 @@ Below you find a typical output folder structure.
     |   |-- corrupt_filenames.txt
     |   |-- duplicate_filenames.txt
     |   |-- removed_filenames.txt
-    |   '-- sampled_filenames.txt
+    |   '-- sampled_filenames_excluding_datapool.txt
     |-- lightly_epoch_1.ckpt
     |-- plots
     |   |-- distance_distr_after.png
