@@ -60,6 +60,8 @@ The worker requires **read and write access** to this directory.
 Now, let's see how this will look in action!
 
 
+.. _rst-worker-creating-a-dataset:
+
 Creating a Dataset
 ------------------
 
@@ -371,6 +373,10 @@ to pass a list of filenames to the worker using the `relevant_filenames_file` co
 It will then only consider the listed filenames and ignore all others. To do so, you can create a text file which
 contains one relevant filename per line and then pass the path to the text file when scheduling the job. This works for videos and images.
 
+.. warning:: The `relevant_filenames_file` is expected to be in the **input bucket** as specified above (see `Creating a Dataset`_). It's also
+    possible to have it in the **output bucket**. However, in this case, the file must be in a subdirectory called `.lightly`. For example,
+    `.lightly/subdir/my_relevant_files.txt`.
+
 For example, let's say you're working with the following file structure in an S3 bucket where
 you are only interested in `image_1.png` and `subdir/image_3.png`
 
@@ -390,6 +396,20 @@ Then you can add a file called `relevant_filenames.txt` to this bucket with the 
 
     image_1.png
     subdir/image_3.png
+
+
+The bucket should then look like this:
+
+
+.. code-block:: console
+
+    s3://my-bucket/
+        L relevant_filenames.txt
+        L image_1.png
+        L subdir/
+            L image_2.png
+            L image_3.png
+
 
 The corresponding Python command to submit a job would then be as follows:
 
@@ -423,6 +443,11 @@ The corresponding Python command to submit a job would then be as follows:
             }
         }
     )
+
+.. note:: It's possible to have the relevant filenames file in a subdirectory or
+    use a different name. In that case, simply pass the path to the modified file location.
+    If the file is called `my_relevant_files.txt` and is stored in the subdirectory
+    `subdir`, simply pass `subdir/my_relevant_files.txt`.
 
 
 Reporting
