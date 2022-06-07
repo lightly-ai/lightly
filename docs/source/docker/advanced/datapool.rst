@@ -1,101 +1,55 @@
 Datapool
 =================
 
-The Lightly Datapool is a tool which allows users to incrementally build up a 
-dataset for their project. It keeps track of the representations of previously
-selected samples and uses this information to pick new samples in order to
-maximize the quality of the final dataset. It also allows for combining two 
-different datasets into one.
+Lightly has been designed in a way that you can incrementally build up a 
+dataset for your project. The software automatically keeps track of the 
+representations of previously selected samples and uses this information 
+to pick new samples in order to maximize the quality of the final dataset. 
+It also allows for combining two different datasets into one.
 
-- | If you're interested in how the datapool works, go to
-  | --> `How It Works`_
+For example, let's imagine we have a dataset of street videos. After running
+the Lightly worker once we added 4 more street videos to the bucket.
+The new raw data might include samples which should be added to your dataset
+in the Lightly Platform, so you want to add a subset of them to your dataset.
 
-- | To see how you can use the datapool, check out
-  | --> `Usage`_
+This workflow is supported by the Lightly Platform using a datapool.
+It remembers which raw data in your bucket has already been processed
+and will ignore it in future docker runs.
+
+Thus you can run the docker with the same command again. It will find
+your new raw data in the bucket, stream, embed and subsample it and then add it to
+your existing dataset. The selection strategy will take the existing data in your dataset
+into account when selecting new data to be added to your dataset.
+
+.. image:: ./images/webapp-embedding-after-2nd-docker.png
+
+After the docker run we can go to the embedding view of the Lightly Platform
+to see the newly added samples there in a new tag. We see that the new samples
+(in green) fill some gaps left by the images in the first iteration (in grey).
+However, there are still some gaps left, which could be filled by adding more videos
+to the bucket and running the docker again.
+
+This workflow of iteratively growing your dataset with the Lightly Docker
+has the following advantages:
+
+- You can learn from your findings after each iteration
+  to know which raw data you need to collect next.
+- Only your new data is processed, saving you time and compute cost.
+- You don't need to configure anything, just run the same command again.
+- Only samples which are different to the existing ones are added to the dataset.
+
+If you want to search all data in your bucket for new samples
+instead of only newly added data,
+then set `datasource.process_all=True` in your docker run command. This has the
+same effect as creating a new Lightly dataset and running the worker from scratch
+on the full dataset. We sort of process all data instead of only the newly added ones.
+
 
 
 How It Works
 ---------------
 
 The Lightly Datapool keeps track of the selected samples in a csv file called
-`datapool_latest.csv`. It contains the filenames of the selected images, their
-embeddings, and their weak labels. Additionally, after training a self-supervised
-model, the datapool contains the checkpoint `checkpoint_latest.ckpt` which was 
-used to generate the embeddings.
-
-The datapool is located in the `shared` directory. In general, it is a directory
-with the following structure:
-
-
-.. code-block:: bash
-
-    # example of a datapool
-    datapool/
-    +--- datapool_latest.csv
-    +--- checkpoint_latest.ckpt
-    +--- history/
-  
-The files `datapool_latest.csv` and `checkpoint_latest.csv` are updated after every
-run of the Lightly Docker. The history folder contains the previous versions of 
-the datapool. This feature is meant to prevent accidental overrides and can be 
-deactivated from the command-line (see `Usage`_ for more information).
-
-Usage
----------------
-
-To **initialize** a datapool, simply pass the name of the datapool as an argument
-to your docker run command and sample from a dataset as always. The Lightly Docker
-will automatically create a datapool directory and populate it with the required
-files.
-
-.. note:: To use the datapool feature, the Lightly Docker requires write access
-          to a shared directory. This directory can be passed with the `-v` flag.
-
-.. code-block:: console
-
-   docker run --gpus all --rm -it \
-      -v {INPUT_DIR}:/home/input_dir:ro \
-      -v {SHARED_DIR}:/home/shared_dir \
-      -v {OUTPUT_DIR}:/home/output_dir \
-      lightly/worker:latest \
-      token=MYAWESOMETOKEN \
-      append_weak_labels=False \
-      stopping_condition.min_distance=0.1 \
-      datapool.name=my_datapool
-
-
-To **append** to your datapool, pass the name of an existing datapool as an argument.
-The Lightly Docker will read the embeddings and filenames from the existing pool and
-consider them during selection. Then, it will update the datapool and checkpoint files.
-
-.. note:: You can't change the dimension of the embeddings once the datapool has
-          been initialized so choose carefully!
-
-.. code-block:: console
-
-   docker run --gpus all --rm -it \
-      -v {OTHER_INPUT_DIR}:/home/input_dir:ro \
-      -v {SHARED_DIR}:/home/shared_dir \
-      -v {OUTPUT_DIR}:/home/output_dir \
-      lightly/worker:latest \
-      token=MYAWESOMETOKEN \
-      append_weak_labels=False \
-      stopping_condition.min_distance=0.1 \
-      datapool.name=my_datapool
-
-
-To **deactivate automatic archiving** of the past datapool versions, you can pass
-set the flag `keep_history` to False.
-
-.. code-block:: console
-
-   docker run --gpus all --rm -it \
-      -v {INPUT_DIR}:/home/input_dir:ro \
-      -v {SHARED_DIR}:/home/shared_dir \
-      -v {OUTPUT_DIR}:/home/output_dir \
-      lightly/worker:latest \
-      token=MYAWESOMETOKEN \
-      append_weak_labels=False \
-      stopping_condition.min_distance=0.1 \
-      datapool.name=my_datapool \
-      datapool.keep_history=False
+`datapool_latest.csv`. It contains the filenames of the selected images and their
+embeddings. This feature is currently only supported without training of a custom
+model. Please make sure `enable_training=False` is set in your worker config.
