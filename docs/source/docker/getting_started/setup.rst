@@ -120,7 +120,7 @@ Create a new docker tag using the following command:
 Update the Lightly Worker
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To update the docker we simply need to pull the latest docker image.
+To update the Lightly worker we simply need to pull the latest docker image.
 
 .. code-block:: console
 
@@ -141,7 +141,7 @@ Don't forget to tag the image again after pulling it.
 Sanity Check
 ^^^^^^^^^^^^
 
-**Next**, verify the correctness of the docker container by running the following command:
+**Next**, verify that the Lightly worker is installed correctly by running the following command:
 
 .. code-block:: console
 
