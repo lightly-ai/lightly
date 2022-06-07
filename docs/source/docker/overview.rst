@@ -1,5 +1,5 @@
-Docker
-===================================
+Lightly Worker
+==============
 
 We all know that sometimes when working with ML data we deal with really BIG datasets. The cloud solution is great for exploration, prototyping
 and an easy way to work with lightly. But there is more!

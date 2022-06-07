@@ -7,7 +7,7 @@ Setup
 Analytics
 ^^^^^^^^^
 
-The docker container currently reports usage metrics to our analytics software 
+The Lightly worker currently reports usage metrics to our analytics software 
 (we use mixpanel) which uses https encrypted GET and POST requests to https://api.mixpanel.com. 
 The transmitted data includes information about crashes and the number of samples 
 that have been filtered. However, **the data does not include input / output samples**, 
@@ -20,9 +20,8 @@ Licensing
 
 The licensing and account management is done through the :ref:`ref-authentication-token` 
 as if you would use lightly. The token will be used to authenticate your account. 
-The authentication happens at every run of the container. Make sure the docker 
-container has a working internet connection and has access to 
-https://api.lightly.ai.
+The authentication happens at every run of the worker. Make sure the Lightly worker
+has a working internet connection and has access to https://api.lightly.ai.
 
 
 
@@ -44,11 +43,11 @@ See :ref:`rst-installing` for details.
 Download the Lightly Worker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Ask your account manager from Lightly for the credentials
-to download the docker container. 
+The Lightly worker comes as a Docker image. Ask your account manager from Lightly for the credentials
+to download the image.
 
 
-In short, installing the Docker container consists of the following steps:
+In short, installing the Docker image consists of the following steps:
 
 #. Copy the *container-credentials.json* to the instance you want to use for filtering 
 #. Authenticate Docker to download the Lightly image
@@ -58,8 +57,8 @@ In short, installing the Docker container consists of the following steps:
 **First**, we need to access the private container registry of Lightly. 
 You received a *container-credentials.json* file from your account manager.
 
-**Second**, to be able to download the docker image you need to log in with these credentials. 
-The following command will authenticate your installed docker account. 
+**Second**, to be able to download the Docker image you need to log in with these credentials. 
+The following command will authenticate your installed Docker account. 
 We assume *container-credentials.json* is in your current directory.
 
 .. code-block:: console
@@ -74,12 +73,12 @@ If the above command does not work, try the following:
 
 
 .. note:: When docker is freshly installed only the root user
-    can run docker commands. There are two ways to work in this case. 
+    can run Docker commands. There are two ways to work in this case. 
 
 
 #. give your user permission to run - recommended
    docker (see https://docs.docker.com/engine/install/linux-postinstall/) 
-#. run docker commands as root (always replace `docker` with `sudo docker`) - functional but less secure
+#. run Docker commands as root (always replace `docker` with `sudo docker`) - functional but less secure
 
 For example, to authenticate  as non-root user you would run 
 
@@ -99,13 +98,13 @@ Using the following command you pull the latest image from our European cloud se
 
     Until version 2.1.8 the latest image was named `eu.gcr.io/boris-250909/lightly/sampling:latest` 
     from version 2.2 onwards the image is now called `eu.gcr.io/boris-250909/lightly/worker:latest`.
-    Please make sure to update any old docker run commands to use the new image name.
+    Please make sure to update any old Docker run commands to use the new image name.
 
 
 The downloaded image has a long name. We can reduce it by making use of *docker tag*. 
 The following experiments are using the following image name 
 *lightly/worker:latest*. 
-Create a new docker tag using the following command:
+Create a new Docker tag using the following command:
 
 .. code-block:: console
 
@@ -132,7 +131,7 @@ Don't forget to tag the image again after pulling it.
 
     docker tag eu.gcr.io/boris-250909/lightly/worker:latest lightly/worker:latest
 
-.. note:: You can download a specific version of the docker image by indicating the version number
+.. note:: You can download a specific version of the Docker image by indicating the version number
           instead of `latest`. We follow semantic versioning standards. 
 
 
@@ -158,8 +157,8 @@ You should see an output similar to this one:
 Start the Lightly Worker
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Finally**, start the docker in worker mode. In this mode, the docker will long-poll
-the Lightly API for new jobs to process. To do so, a worker needs to be registered.
+**Finally**, start the Lightly worker in waiting mode. In this mode, the worker will long-poll
+the Lightly API for new jobs to process. To do so, a worker first needs to be registered.
 
 
 .. note:: You only have to register each worker once. The registry is required because
@@ -175,7 +174,7 @@ the Lightly API for new jobs to process. To do so, a worker needs to be register
     worker_id = client.register_compute_worker()
     print(worker_id)
 
-Store the `worker_id` in a secure location and then start the docker in worker mode with
+Store the `worker_id` in a secure location and then start the worker with
 
 .. code-block:: console
 
