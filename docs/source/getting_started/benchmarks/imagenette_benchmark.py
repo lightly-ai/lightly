@@ -694,15 +694,6 @@ class MAEModel(BenchmarkModule):
         )
         self.criterion = nn.MSELoss()
 
-    def random_mask(self, images):
-        batch_size = images.shape[0]
-        idx_keep, idx_mask = utils.random_token_mask(
-            size=(batch_size, self.sequence_length),
-            mask_ratio=self.mask_ratio,
-            device=images.device,
-        )
-        return idx_keep, idx_mask
-
     def forward_encoder(self, images, idx_keep=None):
         return self.backbone.encode(images, idx_keep)
 
@@ -724,7 +715,12 @@ class MAEModel(BenchmarkModule):
     def training_step(self, batch, batch_idx):
         images, _, _ = batch
         
-        idx_keep, idx_mask = self.random_mask(images)
+        batch_size = images.shape[0]
+        idx_keep, idx_mask = utils.random_token_mask(
+            size=(batch_size, self.sequence_length),
+            mask_ratio=self.mask_ratio,
+            device=images.device,
+        )
         x_encoded = self.forward_encoder(images, idx_keep)
         x_pred = self.forward_decoder(x_encoded, idx_keep, idx_mask)
 
