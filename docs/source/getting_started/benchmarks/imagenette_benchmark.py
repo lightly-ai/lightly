@@ -44,6 +44,7 @@ with the default settings.
 
 """
 import copy
+import math
 import os
 
 import time
@@ -55,6 +56,7 @@ import torch.nn as nn
 import torchvision
 from lightly.models import modules
 from lightly.models.modules import heads
+from lightly.models.modules import masked_autoencoder
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -65,11 +67,11 @@ num_workers = 12
 memory_bank_size = 4096
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 800
+max_epochs = 200
 knn_k = 200
 knn_t = 0.1
 classes = 10
-input_size=128
+input_size = 128
 
 # Set to True to enable Distributed Data Parallel training.
 distributed = False
@@ -125,15 +127,20 @@ dino_collate_fn = lightly.data.DINOCollateFunction(
     local_crop_size=64,
 )
 
+# Single crop augmentation for MAE
+mae_collate_fn = lightly.data.MAECollateFunction()
+
+normalize_transform = torchvision.transforms.Normalize(
+    mean=lightly.data.collate.imagenet_normalize['mean'],
+    std=lightly.data.collate.imagenet_normalize['std'],
+)
+
 # No additional augmentations for the test set
 test_transforms = torchvision.transforms.Compose([
     torchvision.transforms.Resize(input_size),
     torchvision.transforms.CenterCrop(128),
     torchvision.transforms.ToTensor(),
-    torchvision.transforms.Normalize(
-        mean=lightly.data.collate.imagenet_normalize['mean'],
-        std=lightly.data.collate.imagenet_normalize['std'],
-    )
+    normalize_transform,
 ])
 
 dataset_train_ssl = lightly.data.LightlyDataset(
@@ -162,6 +169,8 @@ def get_data_loaders(batch_size: int, model):
         col_fn = swav_collate_fn
     elif model == DINOModel:
         col_fn = dino_collate_fn
+    elif model == MAEModel:
+        col_fn = mae_collate_fn
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
         batch_size=batch_size,
@@ -659,12 +668,95 @@ class DCLW(BenchmarkModule):
         return [optim], [scheduler]
 
 
+class MAEModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        
+        decoder_dim = 512
+        vit = torchvision.models.vit_b_32(pretrained=False)
+
+        self.warmup_epochs = 40 if max_epochs >= 800 else 20
+        self.mask_ratio = 0.75
+        self.patch_size = vit.patch_size
+        self.sequence_length = vit.seq_length
+        self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
+        self.backbone = masked_autoencoder.MAEBackbone.from_vit(vit)
+        self.decoder = masked_autoencoder.MAEDecoder(
+            seq_length=vit.seq_length,
+            num_layers=1,
+            num_heads=16,
+            embed_input_dim=vit.hidden_dim,
+            hidden_dim=decoder_dim,
+            mlp_dim=decoder_dim * 4,
+            out_dim=vit.patch_size ** 2 * 3,
+            dropout=0,
+            attention_dropout=0,
+        )
+        self.criterion = nn.MSELoss()
+
+    def forward_encoder(self, images, idx_keep=None):
+        return self.backbone.encode(images, idx_keep)
+
+    def forward_decoder(self, x_encoded, idx_keep, idx_mask):
+        # build decoder input
+        batch_size = x_encoded.shape[0]
+        x_decode = self.decoder.embed(x_encoded)
+        x_masked = utils.repeat_token(self.mask_token, (batch_size, self.sequence_length))
+        x_masked = utils.set_at_index(x_masked, idx_keep, x_decode)
+
+        # decoder forward pass
+        x_decoded = self.decoder.decode(x_masked)
+
+        # predict pixel values for masked tokens
+        x_pred = utils.get_at_index(x_decoded, idx_mask)
+        x_pred = self.decoder.predict(x_pred)
+        return x_pred
+
+    def training_step(self, batch, batch_idx):
+        images, _, _ = batch
+        
+        batch_size = images.shape[0]
+        idx_keep, idx_mask = utils.random_token_mask(
+            size=(batch_size, self.sequence_length),
+            mask_ratio=self.mask_ratio,
+            device=images.device,
+        )
+        x_encoded = self.forward_encoder(images, idx_keep)
+        x_pred = self.forward_decoder(x_encoded, idx_keep, idx_mask)
+
+        # get image patches for masked tokens
+        patches = utils.patchify(images, self.patch_size)
+        # must adjust idx_mask for missing class token
+        target = utils.get_at_index(patches, idx_mask - 1)
+        
+        loss = self.criterion(x_pred, target)
+        self.log('train_loss_ssl', loss)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.AdamW(
+            self.parameters(),
+            lr=1.5e-4 * lr_factor,
+            weight_decay=0.05,
+            betas=(0.9, 0.95),
+        )
+        cosine_with_warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
+        return [optim], [cosine_with_warmup_scheduler]
+
+    def scale_lr(self, epoch):
+        if epoch < self.warmup_epochs:
+            return epoch / self.warmup_epochs 
+        else:
+            return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
+
+
 models = [
     BarlowTwinsModel, 
     BYOLModel,
     DCL,
     DCLW,
     DINOModel,
+    # MAEModel, # disabled by default because MAE requires images to have size 224
     MocoModel,
     NNCLRModel,
     SimCLRModel,

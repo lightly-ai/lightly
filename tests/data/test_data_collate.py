@@ -10,7 +10,7 @@ from lightly.data import ImageCollateFunction
 from lightly.data import SimCLRCollateFunction
 from lightly.data import MultiCropCollateFunction
 from lightly.data import SwaVCollateFunction
-from lightly.data.collate import DINOCollateFunction, MultiViewCollateFunction
+from lightly.data.collate import DINOCollateFunction, MAECollateFunction, MultiViewCollateFunction
 
 
 class TestDataCollate(unittest.TestCase):
@@ -138,4 +138,12 @@ class TestDataCollate(unittest.TestCase):
     def test_dino_collate_forward(self):
         batch = self.create_batch()
         collate_fn = DINOCollateFunction()
+        views, labels, fnames = collate_fn(batch)
+
+    def test_mae_collate_init(self):
+        MAECollateFunction()
+
+    def test_mae_collate_forward(self):
+        batch = self.create_batch()
+        collate_fn = MAECollateFunction()
         views, labels, fnames = collate_fn(batch)

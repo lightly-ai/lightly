@@ -105,6 +105,13 @@ else:
     def _is_prefetch_generator_available():
         return _prefetch_generator_available
 
+    # see if torchvision vision transformer is available
+    try:
+        import torchvision.models.vision_transformer
+        _torchvision_vit_available = True
+    except ImportError:
+        _torchvision_vit_available = False
+
     from lightly.core import *
     from lightly import active_learning
     from lightly import api
