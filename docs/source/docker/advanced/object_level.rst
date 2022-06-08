@@ -134,39 +134,19 @@ The argument should be set to the task name you used for your predictions.
 If you uploaded the predictions to e.g. `.lightly/predictions/vehicles_object_detections`
 then you should set `object_level.task_name` to `vehicles_object_detections`.
 
-The object level job can either be scheduled from the Lightly Web App or
-from python code. Examples on how to schedule the job are provided below.
+The object level job can be scheduled from from Python code. 
 
-.. tabs::
+.. literalinclude:: code_examples/python_run_object_level.py
 
-    .. tab:: Web App
+After running the Python script to create the job we need to make sure we have
+a running Lightly Worker to process the job. We can use the following
+code to sping up a Lightly Worker
 
-        **Trigger the Job**
+.. code-block:: console
 
-        To trigger a new job you can click on the schedule run button on the dataset
-        overview as shown in the screenshot below:
-
-        .. figure:: ../integration/images/schedule-compute-run.png
-
-        After clicking on the button you will see a wizard to configure the parameters
-        for the job.
-
-        .. figure:: ../integration/images/schedule-compute-run-config.png
-
-        In this example we have to set the `object_level.task_name` parameter
-        in the docker config, all other settings are default values. The
-        resulting docker config should look like this:
-
-        .. literalinclude:: code_examples/object_level_worker_config.txt
-            :caption: Docker Config
-            :language: javascript
-
-        The Lightly config remains unchanged.
-
-    .. tab:: Python Code
-
-        .. literalinclude:: code_examples/python_run_object_level.py
-
+  docker run --rm --gpus all -it \
+    -v /docker-output:/home/output_dir lightly/worker:latest \
+    token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
 .. _object-level-pretagging:
 
@@ -176,20 +156,17 @@ Instead of providing your own predictions, it's also possible to use the built-i
 set `pretagging=True` in your config and use the `object_level.task_name="lightly_pretagging"`. For more information
 about the prediction model and classes, go to :ref:`Lightly Pretagging Model <ref-docker-pretagging>`
 
-.. tabs::
+.. literalinclude:: code_examples/python_run_object_level_pretagging.py
 
-    .. tab:: Web App
+After running the Python script to create the job we need to make sure we have
+a running Lightly Worker to process the job. We can use the following
+code to sping up a Lightly Worker
 
-        .. literalinclude:: code_examples/object_level_worker_config_pretagging.txt
-            :caption: Docker Config
-            :language: javascript
+.. code-block:: console
 
-        The Lightly config remains unchanged.
-
-    .. tab:: Python Code
-
-        .. literalinclude:: code_examples/python_run_object_level_pretagging.py
-
+  docker run --rm --gpus all -it \
+    -v /docker-output:/home/output_dir lightly/worker:latest \
+    token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
 Padding
 -------

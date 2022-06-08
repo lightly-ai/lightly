@@ -79,7 +79,7 @@ You can get the `dataset_id` either by creating a new dataset from Python or by 
     client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
 
     # Create a new dataset on the Lightly Platform.
-    client.create_new_dataset_with_unique_name(
+    client.create_dataset(
         'dataset-name',
         DatasetType.IMAGES  # can be DatasetType.VIDEOS when working with videos
     )
@@ -94,32 +94,6 @@ make sure to specify the `dataset_id` in the constructor.
 
 
 .. tabs::
-   
-    .. tab:: GCS
-
-        .. code-block:: python
-            :caption: Giving access to storage buckets from Python
-
-            import json
-            from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
-
-            ## Google Cloud Storage
-            # Input bucket
-            client.set_gcs_config(
-                resource_path="gs://bucket/input/",
-                project_id="PROJECT-ID",
-                credentials=json.dumps(json.load(open('credentials_read.json'))),
-                thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
-                purpose=DatasourcePurpose.INPUT
-            )
-            # Output bucket
-            client.set_gcs_config(
-                resource_path="gs://bucket/output/",
-                project_id="PROJECT-ID",
-                credentials=json.dumps(json.load(open('credentials_write.json'))),
-                thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
-                purpose=DatasourcePurpose.LIGHTLY
-            )
 
     .. tab:: S3
 
@@ -135,7 +109,6 @@ make sure to specify the `dataset_id` in the constructor.
                 region='eu-central-1'
                 access_key='S3-ACCESS-KEY',
                 secret_access_key='S3-SECRET-ACCESS-KEY',
-                thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
                 purpose=DatasourcePurpose.INPUT
             )
             # Output bucket
@@ -144,9 +117,34 @@ make sure to specify the `dataset_id` in the constructor.
                 region='eu-central-1'
                 access_key='S3-ACCESS-KEY',
                 secret_access_key='S3-SECRET-ACCESS-KEY',
-                thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
                 purpose=DatasourcePurpose.LIGHTLY
             )
+
+
+    .. tab:: GCS
+
+        .. code-block:: python
+            :caption: Giving access to storage buckets from Python
+
+            import json
+            from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
+
+            ## Google Cloud Storage
+            # Input bucket
+            client.set_gcs_config(
+                resource_path="gs://bucket/input/",
+                project_id="PROJECT-ID",
+                credentials=json.dumps(json.load(open('credentials_read.json'))),
+                purpose=DatasourcePurpose.INPUT
+            )
+            # Output bucket
+            client.set_gcs_config(
+                resource_path="gs://bucket/output/",
+                project_id="PROJECT-ID",
+                credentials=json.dumps(json.load(open('credentials_write.json'))),
+                purpose=DatasourcePurpose.LIGHTLY
+            )
+
 
     .. tab:: Azure
 
@@ -161,7 +159,6 @@ make sure to specify the `dataset_id` in the constructor.
                 container_name='my-container/input/',
                 account_name='ACCOUNT-NAME',
                 sas_token='SAS-TOKEN',
-                thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
                 purpose=DatasourcePurpose.INPUT
             )
             # Output bucket
@@ -169,7 +166,6 @@ make sure to specify the `dataset_id` in the constructor.
                 container_name='my-container/output/',
                 account_name='ACCOUNT-NAME',
                 sas_token='SAS-TOKEN',
-                thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
                 purpose=DatasourcePurpose.LIGHTLY
             )
 

@@ -1,37 +1,65 @@
 import json
 import lightly
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
+from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
 
 # Create a new dataset on the Lightly Platform.
-client.create_dataset('pedestrian-videos-datapool', dataset_type=DatasetType.VIDEOS)
+client.create_dataset('pedestrian-videos-datapool',
+                      dataset_type=DatasetType.VIDEOS)
 
 # Pick one of the following three blocks depending on where your data is
 # AWS S3
+# Input bucket
 client.set_s3_config(
-    resource_path="s3://bucket/dataset/",
-    region="eu-central-1",
-    access_key="ACCESS-KEY",
-    secret_access_key="SECRET",
-    thumbnail_suffix=None,
+    resource_path="s3://bucket/input/",
+    region='eu-central-1',
+    access_key='S3-ACCESS-KEY',
+    secret_access_key='S3-SECRET-ACCESS-KEY',
+    purpose=DatasourcePurpose.INPUT)
+# Output bucket
+client.set_s3_config(
+    resource_path="s3://bucket/output/",
+    region='eu-central-1',
+    access_key='S3-ACCESS-KEY',
+    secret_access_key='S3-SECRET-ACCESS-KEY',
+    purpose=DatasourcePurpose.LIGHTLY
 )
+
 
 # or Google Cloud Storage
+# Input bucket
 client.set_gcs_config(
-    resource_path="gs://bucket/dataset/",
+    resource_path="gs://bucket/input/",
     project_id="PROJECT-ID",
-    credentials=json.dumps(json.load(open('credentials.json'))),
-    thumbnail_suffix=None,
+    credentials=json.dumps(json.load(open('credentials_read.json'))),
+    purpose=DatasourcePurpose.INPUT
+)
+# Output bucket
+client.set_gcs_config(
+    resource_path="gs://bucket/output/",
+    project_id="PROJECT-ID",
+    credentials=json.dumps(json.load(open('credentials_write.json'))),
+    purpose=DatasourcePurpose.LIGHTLY
 )
 
-# or Azure Blob Storage
+
+# or Azure Blob Storage
+# Input bucket
 client.set_azure_config(
-    container_name="container/dataset/",
-    account_name="ACCOUNT-NAME",
-    sas_token="SAS-TOKEN",
-    thumbnail_suffix=None,
+    container_name='my-container/input/',
+    account_name='ACCOUNT-NAME',
+    sas_token='SAS-TOKEN',
+    purpose=DatasourcePurpose.INPUT
+)
+# Output bucket
+client.set_azure_config(
+    container_name='my-container/output/',
+    account_name='ACCOUNT-NAME',
+    sas_token='SAS-TOKEN',
+    purpose=DatasourcePurpose.LIGHTLY
 )
 
 
@@ -49,11 +77,6 @@ client.schedule_compute_worker_run(
         'stopping_condition': {
             'n_samples': -1,
             'min_distance': 0.05 # we set the min_distance to 0.05 in this example
-        },
-        'scorer': 'object-frequency',
-        'scorer_config': {
-            'frequency_penalty': 0.25,
-            'min_score': 0.9
         }
     },
     lightly_config={

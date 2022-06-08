@@ -6,10 +6,9 @@ from lightly.openapi_generated.swagger_client.models.datasource_purpose import D
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
 
-# Create a new dataset on the Lightly Platform.
-client.create_dataset('dataset-name',
-                      dataset_type=DatasetType.IMAGES)
-
+# Create a new dataset on the Lightly Platform. In this example we use pretagging
+# on images. We can also use videos instead by setting dataset_type=DatasetType.VIDEOS
+client.create_dataset('pexels', dataset_type=DatasetType.VIDEOS)
 
 # Pick one of the following three blocks depending on where your data is
 # AWS S3
@@ -63,29 +62,26 @@ client.set_azure_config(
     purpose=DatasourcePurpose.LIGHTLY
 )
 
-# Schedule the docker run with the "object_level.task_name" argument set to
-# "lightly_pretagging" and with "pretagging" set to True.
-# All other settings are default values and we show them so you can easily edit
-# the values according to your need.
+# Schedule the compute run using our custom config.
+# We show here the full default config so you can easily edit the
+# values according to your needs.
 client.schedule_compute_worker_run(
     worker_config={
-        "enable_corruptness_check": True,
-        "remove_exact_duplicates": True,
-        "enable_training": False,
-        "pretagging": True,
-        "pretagging_debug": False,
-        "method": "coreset",
-        "stopping_condition": {
-          "n_samples": 0.1,
-          "min_distance": -1
+        'enable_corruptness_check': False,
+        'remove_exact_duplicates': False,
+        'enable_training': False,
+        'pretagging': False,
+        'pretagging_debug': False,
+        'method': 'coreset',
+        'stopping_condition': {
+            'n_samples': 200, # select 200 frames of length 10 frames -> 20 sequences
+            'min_distance': -1
         },
-        "object_level": {
-            "task_name": "lightly_pretagging"
-        }
+        'selected_sequence_length': 10 # we want sequences of 10 frames lenght
     },
     lightly_config={
         'loader': {
-            'batch_size': 16,
+            'batch_size': 128,
             'shuffle': True,
             'num_workers': -1,
             'drop_last': True
@@ -98,8 +94,8 @@ client.schedule_compute_worker_run(
         },
         'trainer': {
             'gpus': 1,
-            'max_epochs': 100,
-            'precision': 32
+            'max_epochs': 1,
+            'precision': 16
         },
         'criterion': {
             'temperature': 0.5
@@ -117,7 +113,7 @@ client.schedule_compute_worker_run(
             'cj_hue': 0.2,
             'min_scale': 0.15,
             'random_gray_scale': 0.2,
-            'gaussian_blur': 0.5,
+            'gaussian_blur': 0.0,
             'kernel_size': 0.1,
             'vf_prob': 0,
             'hf_prob': 0.5,
@@ -125,3 +121,4 @@ client.schedule_compute_worker_run(
         }
     }
 )
+
