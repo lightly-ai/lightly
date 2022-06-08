@@ -47,8 +47,8 @@ The following are parameters which can be passed to the container:
   # Set to True to check whether installation was successful.
   sanity_check: False 
 
-  # Path to a file containing filenames to run the docker on a subset of the
-  # files in the input directory. The docker will ignore all files in the input 
+  # Path to a file containing filenames to run the Lightly Worker on a subset of the
+  # files in the input directory. The Lightly Worker will ignore all files in the input 
   # directory not listed here. Each filename must be on a separate line and
   # relative to the input directory.
   # If you use a cloud bucket as datasource, the path is relative
@@ -176,20 +176,7 @@ The following are parameters which can be passed to the container:
   # optional deterministic unique output subdirectory for run, in place of timestamp
   run_directory:
 
-Additionally, you can pass all arguments which can be passed to the lightly CLI tool with the `lightly` prefix.
-For example,
-
-.. code-block:: console
-
-    docker run --rm -it \
-        -v {INPUT_DIR}:/home/input_dir:ro \
-        -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/worker:latest \
-        token=MYAWESOMETOKEN \
-        lightly.loader.batch_size=512
-
-sets the batch size during training and embedding to 512. You find a list of all
-lightly CLI parameters here: :ref:`ref-cli-config-default`
+To get an overview of all available lightly config parameters check out the :ref:`ref-cli-config-default`
 
 Choosing the Right Parameters
 -----------------------------------
@@ -218,33 +205,3 @@ close to 0 pairwise distance.
 
 .. image:: images/histograms_overview.png
 
-
-
-Increase I/O Performance
------------------------------------
-During the embedding process, the I/O bandwidth can often slow down the computation. A progress bar shows you the current compute 
-efficiency which is calculated as the time spent on computation compared to overall time per batch. A number close to 1.0 tells you
-that your system is well utilized. A number close to 0.0 however, suggests that there is an I/O bottleneck. This can be the case for
-datasets consisting of very high-resolution images. Loading them from harddisk and preprocessing can take a lot of time.
-
-To mitigate the effect of low I/O speed one can use background workers to load the data. First, we need to tell Docker to use
-the host system for inter-process communication. Then, we can tell the filter to use multiple workers for data preprocessing.
-You can use them by adding the following two parts to your docker run command:
-
-* **-\-ipc="host"** sets the host for inter-process communication. 
-  This flag needs to be set to use background workers. Since this is an argument 
-  to the docker run command we add it before our filter arguments.
-
-* **lightly.loader.num_workers=8** sets the number of background processes 
-  to be used for data preprocessing. Usually, the number of physical 
-  CPU cores works well.
-
-.. code-block:: console
-
-    docker run --rm -it \
-        -v {INPUT_DIR}:/home/input_dir:ro \
-        -v {OUTPUT_DIR}:/home/output_dir \
-        --ipc=host \
-        lightly/worker:latest \
-        token=MYAWESOMETOKEN \
-        lightly.loader.num_workers=8
