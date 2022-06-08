@@ -1,13 +1,14 @@
 Extract Diverse Video Frames
 =============================
 
-The following example is a showcase how the lightly docker solution can be used 
-to extract frames from a video based on their uniqueness 
-rather than based on timestamps.
+The following example is a showcase how the Lightly Worker can be used 
+to extract frames from a video based on their uniqueness rather than based on timestamps.
+
+.. note:: For all examples we assume that the Lightly Worker is configured and running. See :ref:`ref-docker-setup` for more information.
 
 
 Using ffmpeg
------------------------------
+------------
 
 Using tools such as ffmpeg we can extract frames from a video 
 using a simple one-liner like this:
@@ -46,78 +47,93 @@ the framerate is very easy and helps us reduce the amount of extracted data.
 On the other hand, even a video with 5 fps might contain lots of similar frames
 or even worse, we might miss some frames with lots of "action". 
 
-Using Lightly Docker
------------------------------
+Using the Lightly Worker
+------------------------
 
-Lightly Docker has been designed to give engineers an alternative to using
+The Lightly Worker has been designed to give engineers an alternative to using
 fixed framerates for frame extraction. 
 
 How about selecting frames based on their similarity? 
 
 In this example, we use the following video: https://www.pexels.com/de-de/video/3719157/
 
-We download the video to a local folder */dataset/video/*. We can use wget in 
-a terminal under linux or MacOS to download the video (just make sure you 
-navigated to the directory where you want to download the video to).
+We store the video in a storage bucket, e.g. under *s3://dataset/video/*. We can use wget in 
+a terminal under linux or MacOS to download the video and then either upload it via drag and drop
+or with the `aws cli <https://aws.amazon.com/cli/>`_.
 
-Let us extract frames from the video using ffmpeg. We want to get 5 frames per
-second (fps). Create a new directory called */dataset/frames_ffmpeg/*. Using ffmpeg we can 
-extract the frames with the following command:
+
+Now, let's extract 99 frames using the Lightly Worker. We start by creating a dataset and configuring the S3 bucket as 
+a datasource. We call the dataset `frame-extraction-example` and use the input type `VIDEOS`. We configure the datasource to point at `s3://dataset/video/`.
+
+.. code-block:: python
+
+  from lightly.api import ApiWorkflowClient
+  from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
+  from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
+
+  # Create the Lightly client to connect to the API.
+  client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+
+  # Create a new dataset on the Lightly Platform.
+  client.create_new_dataset_with_unique_name(
+      'frame-extraction-example',
+      DatasetType.VIDEOS,
+  )
+
+  ## AWS S3
+  # Input bucket
+  client.set_s3_config(
+      resource_path="s3://dataset/video/",
+      region='eu-central-1',
+      access_key='S3-ACCESS-KEY',
+      secret_access_key='S3-SECRET-ACCESS-KEY',
+      thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
+      purpose=DatasourcePurpose.INPUT
+  )
+  # Output bucket
+  client.set_s3_config(
+      resource_path="s3://output/",
+      region='eu-central-1',
+      access_key='S3-ACCESS-KEY',
+      secret_access_key='S3-SECRET-ACCESS-KEY',
+      thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
+      purpose=DatasourcePurpose.LIGHTLY
+  )
+
+
+Next, we schedule a job which extracts 99 frames with the default Coreset strategy which
+selects a diverse set of frames:
+
+
+.. code-block:: python
+
+  client.schedule_compute_worker_run(
+      worker_config={
+          "enable_corruptness_check": True,
+          "remove_exact_duplicates": True,
+          "enable_training": False,
+          "pretagging": False,
+          "pretagging_debug": False,
+          "method": "coreset",
+          "stopping_condition": {
+              "n_samples": 99,
+              "min_distance": -1
+          }
+      }
+  )
+
+The extracted frames can now be found in the output bucket (`s3://output`) and can easily be accessed from the `Lightly Platform <https://app.lightly.ai>`_.
+To perform a random selection we can simply replace "coreset" with "random" as our selection method. Note that Coreset is the default method.
+
+
+For comparison, we extracted frames from the video using ffmpeg with the following command:
 
 .. code-block:: console
 
     ffmpeg -i raw/video.mp4 -filter:v "fps=5" frames_ffmpeg/%d.png
 
 
-Extracting the frames without introducing compression artifacts is using lots of 
-storage. In this example, we have a small video of 6.4 MBytes. Once extracted, 
-the .png frames together with the video consume 553.4 MBytes. This is a 
-70x increase!
-
-.. list-table::
-   :widths: 50 50 50 30
-   :header-rows: 1
-
-   * - Metric
-     - ffmpeg extracted frames
-     - Lightly using video
-     - Reduction
-   * - Storage Consumption
-     - 447 MBytes + 6.4 MBytes
-     - 6.4 MBytes
-     - 70.84x
-
-.. note:: Why not extract the frames as compressed .jpg images? Extracting the 
-          frames as .jpg would indeed reduce storage consumption. The video from 
-          our example would end up using (14 MBytes + 6.4 MBytes). However, for 
-          critical applications where robustness and accuracy of the model are 
-          key, we have to think about the final system in production. Is your 
-          production system working with the raw camera stream (uncompressed) or 
-          with compressed frames (e.g. .jpg)? Very often we don’t have time to 
-          compress a frame in real-time systems or don’t want to introduce 
-          compression artifacts. You should also think about whether you want 
-          to train a model on compressed data whereas in production is runs 
-          using raw data.
-
-Now we want to do the same using Lightly Docker. Since the ffmpeg command
-extracted 99 frames let's extract 99 frames as well:
-
-.. code-block:: console
-
-    docker run --gpus all --rm -it -v /dataset/video/:/home/input_dir:ro \
-        -v \/datasets/videos/docker_out:/home/output_dir \
-        -v /datasets/docker_shared_dir:/home/shared_dir -e --ipc="host" \
-        --network="host" lightly/worker:latest token=MYAWESOMETOKEN \
-        lightly.collate.input_size=64 lightly.loader.batch_size=32 '
-        lightly.loader.num_workers=8 lightly.trainer.max_epochs=10 \
-        stopping_condition.n_samples=100 remove_exact_duplicates=True \
-        enable_corruptness_check=False enable_training=False dump_dataset=True \
-        method=coreset
-
-To perform a random selection we can simply replace coreset with random as
-our selected method. Note that coreset is the default method.
-
-Let's have a look at some statistics of the two obtained datasets:
+The table below shows a comparison of the different extraction methods:
 
 .. list-table::
    :widths: 50 50 50 50 50
@@ -159,6 +175,7 @@ Let's have a look at some statistics of the two obtained datasets:
      - 1.8525
      - 1.7822
 
+
 We notice the following when looking at this table:
 
 - The **min distance** between two samples was 0 after ffmpeg selection whereas the
@@ -177,6 +194,38 @@ As you see in this example just selecting every N-th frame is similar to
 selecting frames randomly. More sophisticated selection strategies, such as the coreset selection strategy, result in
 much higher sample diversity. The docker has been optimized for these selection strategies.
 
+
 .. note:: Note that by default the embeddings of the dataset will be normalized
           to unit vector length. Max L2 distance between two vectors is 
           therefore 2.0 (two vectors pointing in opposite directions). 
+
+
+Now let's take a look at the storage requirements. If we would extract all frames from the video
+and then run a selection algorithm on them we would need 553.4 MBytes. However, the Lightly Worker
+can process the video directly so we require only 6.4 MBytes of storage. This means it requires 70x less storage!
+
+
+.. list-table::
+   :widths: 50 50 50 30
+   :header-rows: 1
+
+   * - Metric
+     - ffmpeg extracted frames
+     - Lightly using video
+     - Reduction
+   * - Storage Consumption
+     - 447 MBytes + 6.4 MBytes
+     - 6.4 MBytes
+     - 70.84x
+
+.. note:: Why not extract the frames as compressed .jpg images? Extracting the 
+          frames as .jpg would indeed reduce storage consumption. The video from 
+          our example would end up using (14 MBytes + 6.4 MBytes). However, for 
+          critical applications where robustness and accuracy of the model are 
+          key, we have to think about the final system in production. Is your 
+          production system working with the raw camera stream (uncompressed) or 
+          with compressed frames (e.g. .jpg)? Very often we don’t have time to 
+          compress a frame in real-time systems or don’t want to introduce 
+          compression artifacts. You should also think about whether you want 
+          to train a model on compressed data whereas in production is runs 
+          using raw data.
