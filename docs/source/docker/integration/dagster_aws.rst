@@ -7,20 +7,20 @@ Data Pre-processing Pipeline on AWS with Dagster
 
 Introduction
 --------------
-Data collection and pre-processing pipelines have become more and more automated in the recent years. The Lightly worker can take on a crucial role
+Data collection and pre-processing pipelines have become more and more automated in the recent years. The Lightly Worker can take on a crucial role
 in such a pipeline as it can reliably filter out redundant images and corrupted images with high throughput.
 
 This guide shows how to write a simple automated data pre-processing pipeline which performs the following steps:
 
 1. Download a random video from `Pexels <https://www.pexels.com/>`_.
 2. Upload the video to an S3 bucket.
-3. Run the Lightly worker on the video to extract a diverse set of frames for further processing:
+3. Run the Lightly Worker on the video to extract a diverse set of frames for further processing:
 
 Here, the first two steps simulate a data collection process.
 
 .. note::
 
-    The datapool option of the Lightly worker allows it to remember frames/images it has seen
+    The datapool option of the Lightly Worker allows it to remember frames/images it has seen
     in past executions of the pipeline and ignore images which are too similar to already known ones.
 
 
@@ -91,7 +91,7 @@ it's recommended to pick an instance with a GPU (like the g4dn.xlarge) and the "
 See `this guide <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html>`_ to get started. Connect to the instance.
 
 
-Next, the Lightly worker should be installed on the instance. Please follow the instructions `here <https://docs.lightly.ai/docker/getting_started/setup.html>`__.
+Next, the Lightly Worker should be installed on the instance. Please follow the instructions `here <https://docs.lightly.ai/docker/getting_started/setup.html>`__.
 Make sure you have the API token and the worker id from the setup steps. Start the worker in waiting mode with the following arguments:
 
 .. code-block:: shell
@@ -106,7 +106,7 @@ Make sure you have the API token and the worker id from the setup steps. Start t
     WORKER_ID=MY_WORKER_ID
 
     # run command
-    # this makes the Lightly worker start up and wait for jobs
+    # this makes the Lightly Worker start up and wait for jobs
     docker run --gpus all --rm -it \
         -v ${OUTPUT_DIR}:/home/output_dir \
         lightly/worker:latest \
@@ -295,7 +295,7 @@ Set the `BUCKET_NAME` and `REGION_NAME` to your bucket name and region of the EC
         return object_name
 
 
-Finally, the last solid in the pipeline (`lightly.py`) runs the Lightly worker on the newly collected videos.
+Finally, the last solid in the pipeline (`lightly.py`) runs the Lightly Worker on the newly collected videos.
 Set the `YOUR_LIGHTLY_TOKEN`, `YOUR_DATASET_ID` accordingly.
 
 .. code-block:: python
@@ -311,7 +311,7 @@ Set the `YOUR_LIGHTLY_TOKEN`, `YOUR_DATASET_ID` accordingly.
 
 
     class LightlyClient:
-        """Lightly client to run the Lightly worker.
+        """Lightly client to run the Lightly Worker.
         
         """
 
@@ -320,7 +320,7 @@ Set the `YOUR_LIGHTLY_TOKEN`, `YOUR_DATASET_ID` accordingly.
             self.dataset_id = dataset_id
 
         def run_lightly_worker():
-            """Runs the Lightly worker on the EC2 instance.
+            """Runs the Lightly Worker on the EC2 instance.
             
             """
 
@@ -346,7 +346,7 @@ Set the `YOUR_LIGHTLY_TOKEN`, `YOUR_DATASET_ID` accordingly.
 
     @solid
     def run_lightly_worker() -> None:
-        """Dagster solid to run Lightly worker on a remote EC2 instance.
+        """Dagster solid to run Lightly Worker on a remote EC2 instance.
 
         """
 
