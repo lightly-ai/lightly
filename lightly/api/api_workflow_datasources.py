@@ -218,7 +218,7 @@ class _DatasourcesMixin:
         container_name: str,
         account_name: str,
         sas_token: str,
-        thumbnail_suffix: Optional[str] = None,
+        thumbnail_suffix: Optional[str] = ".lightly/thumbnails/[filename]_thumb.[extension]",
         purpose: str = DatasourcePurpose.INPUT_OUTPUT,
     ) -> None:
         """Sets the Azure configuration for the datasource of the current dataset.
@@ -262,7 +262,7 @@ class _DatasourcesMixin:
         resource_path: str,
         project_id: str,
         credentials: str,
-        thumbnail_suffix: Optional[str] = None,
+        thumbnail_suffix: Optional[str] = ".lightly/thumbnails/[filename]_thumb.[extension]",
         purpose: str = DatasourcePurpose.INPUT_OUTPUT,
     ) -> None:
         """Sets the Google Cloud Storage configuration for the datasource of the
@@ -306,7 +306,7 @@ class _DatasourcesMixin:
     def set_local_config(
         self,
         resource_path: str,
-        thumbnail_suffix: Optional[str] = None,
+        thumbnail_suffix: Optional[str] = ".lightly/thumbnails/[filename]_thumb.[extension]",
     ) -> None:
         """Sets the local configuration for the datasource of the current dataset.
 
@@ -339,7 +339,7 @@ class _DatasourcesMixin:
         region: str,
         access_key: str,
         secret_access_key: str,
-        thumbnail_suffix: Optional[str] = None,
+        thumbnail_suffix: Optional[str] = ".lightly/thumbnails/[filename]_thumb.[extension]",
         purpose: str = DatasourcePurpose.INPUT_OUTPUT,
     ) -> None:
         """Sets the S3 configuration for the datasource of the current dataset.
