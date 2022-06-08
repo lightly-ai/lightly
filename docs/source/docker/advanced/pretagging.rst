@@ -81,27 +81,30 @@ into a json file with the following format:
 Usage
 ---------------
 
-Pretagging can be activated by passing the following argument to your docker
-run command: `pretagging=True`
+Pretagging can be activated by passing the following argument to your
+Lightly Worker config: `pretagging=True`
 
 - `pretagging=True` enables the use of the pretagging model
 - `pretagging_debug=True` add a few images to the report for debugging showing the image with the bounding box predictions.
 - `pretagging_upload=True` enables uploading of the predictions to a configured datasource.
 
 
-The final docker run command to enable pretagging as well as pretagging_debug
-should look like this:
+A full Python script showing how to create such as job is shown here:
+
+.. literalinclude:: ./code_examples/python_run_pretagging.py
+  :linenos:
+  :language: python
+
+
+After running the Python script to create the job we need to make sure we have
+a running Lightly worker to process the job. We can use the following
+code to sping up a Lightly worker
 
 .. code-block:: console
 
-   docker run --gpus all --rm -it \
-      -v {INPUT_DIR}:/home/input_dir:ro \
-      -v {SHARED_DIR}:/home/shared_dir \
-      -v {OUTPUT_DIR}:/home/output_dir \
-      lightly/worker:latest \
-      token=MYAWESOMETOKEN \
-      pretagging=True \
-      pretagging_debug=True
+  docker run --rm --gpus all -it \
+    -v /docker-output:/home/output_dir lightly/worker:latest \
+    token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
 The following shows an example of how the debugging images in the report look like:
 
@@ -112,29 +115,3 @@ The following shows an example of how the debugging images in the report look li
     The plot shows the detected bounding boxes from the pretagging overlayed
     on the image. Use the debug feature to figure out whether the pretagging 
     mechanism works properly on your dataset.
-
-
-Pretagging for Selection
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-You can also use pretagging to guide the data selection process. This can be
-helpful if you for example only care about images where there is at least one
-person and more than one car.
-
-To create such a pretagging selection mechanism you need to create a config file.
-
-For the example of selecting only images with >=1 person and >=2 cars we can 
-create a `min_requirements.json` file like this:
-
-.. code-block:: json
-
-    {
-        "person": 1,
-        "car": 2
-    }
-
-Move this file to the shared directory (to make it accessible to the docker
-container).
-Finally, run the docker with `pretagging=True`
-and `pretagging_config=min_requirements.json`.
-Only images satisfying all declared requirements will be selected.
