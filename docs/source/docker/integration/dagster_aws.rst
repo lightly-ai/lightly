@@ -15,14 +15,6 @@ This guide shows how to write a simple automated data pre-processing pipeline wh
 1. Download a random video from `Pexels <https://www.pexels.com/>`_.
 2. Upload the video to an S3 bucket.
 3. Run the Lightly worker on the video to extract a diverse set of frames for further processing:
-   
-   a. Spin up an EC2 instance.
-   
-   b. Run the Lightly worker
-   
-   c. Store the extracted frames in the S3 bucket
-   
-   d. Stop the EC2 instance
 
 Here, the first two steps simulate a data collection process.
 
@@ -50,16 +42,7 @@ of `lightly-aws-bucket` in the rest of this guide.
     :ref:`dataset-creation-aws-bucket`, and :ref:`dataset-creation-azure-storage` for help
     with configuring the different roles.
 
-
-Setting up the EC2 Instance
------------------------------
-The next step is to set up the EC2 instance. For the purposes of this tutorial,
-it's recommended to pick an instance with a GPU (like the g4dn.xlarge) and the "Deep Learning AMI (Ubuntu 18.04) Version 48.0" AMI.
-See `this guide <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html>`_ to get started. Connect to the instance.
-
-
-Next, the Lightly worker should be installed on the instance. Please follow the instructions `here <https://docs.lightly.ai/docker/getting_started/setup.html>`__.
-Make sure you have the API token and the worker id from the setup steps. Then, configure a dataset in the Lightly Platform which will represent the state of your datapool:
+Then, configure a dataset in the Lightly Platform which will represent the state of your datapool:
 
 .. code-block:: python
 
@@ -100,8 +83,16 @@ Make sure you have the API token and the worker id from the setup steps. Then, c
 Make sure to note the dataset id somewhere safe as you'll need it throughout this tutorial.
 
 
-To start the worker remotely, it's recommended to write a `run.sh` script with default parameters. The other parameters can then
-be changed through the Lightly API. Use the following as a starting point:
+
+Setting up the EC2 Instance
+-----------------------------
+The next step is to set up the EC2 instance. For the purposes of this tutorial,
+it's recommended to pick an instance with a GPU (like the g4dn.xlarge) and the "Deep Learning AMI (Ubuntu 18.04) Version 48.0" AMI.
+See `this guide <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html>`_ to get started. Connect to the instance.
+
+
+Next, the Lightly worker should be installed on the instance. Please follow the instructions `here <https://docs.lightly.ai/docker/getting_started/setup.html>`__.
+Make sure you have the API token and the worker id from the setup steps. Start the worker in waiting mode with the following arguments:
 
 .. code-block:: shell
 
@@ -121,10 +112,6 @@ be changed through the Lightly API. Use the following as a starting point:
         lightly/worker:latest \
         token=${TOKEN} \
         worker.worker_id=${WORKER_ID}
-    
-
-.. warning:: Make sure the above script starts the Lightly worker whenever the EC2 instance is started up.
-    One way to do this is to add the script to `crontab reboot <https://man7.org/linux/man-pages/man5/crontab.5.html>`_.
 
 
 Integration
@@ -227,7 +214,7 @@ working directory. Don't forget to set the `PEXELS_API_KEY`.
 
 
 The next solid in the pipeline (`s3.py`) uploads the video to the S3 bucket. It saves the video
-in a randomly created subfolder in the S3 bucket and passes the object name to the next solid.
+in a randomly created subfolder in the S3 bucket.
 Set the `BUCKET_NAME` and `REGION_NAME` to your bucket name and region of the EC2 instance. 
 
 
@@ -308,104 +295,39 @@ Set the `BUCKET_NAME` and `REGION_NAME` to your bucket name and region of the EC
         return object_name
 
 
-Finally, the last solid in the pipeline (`lightly.py`) spins up the EC2 instance, runs the Lightly worker on the object name passed
-by the last solid, and then stops the EC2 instance again. Set the `YOUR_LIGHTLY_TOKEN`, `YOUR_DATASET_ID`, `REGION_NAME`, and `INSTANCE_ID`.
+Finally, the last solid in the pipeline (`lightly.py`) runs the Lightly worker on the newly collected videos.
+Set the `YOUR_LIGHTLY_TOKEN`, `YOUR_DATASET_ID` accordingly.
 
 .. code-block:: python
 
     import os
     import time
 
-    import boto3
-    from botocore.exceptions import ClientError
-
     from dagster import solid
 
     TOKEN: str = 'YOUR_LIGHTLY_TOKEN'
     DATASET_ID: str = 'YOUR_DATASET_ID'
 
-    REGION_NAME: str = 'YOUR_REGION_NAME' # e.g. eu-central-1
-    INSTANCE_ID: str = 'YOUR_INSTANCE_ID'
 
 
-    class EC2Client:
-        """EC2 client to start, run, and stop instances.
+    class LightlyClient:
+        """Lightly client to run the Lightly worker.
         
         """
 
-        def __init__(self):
-            self.ec2 = boto3.client('ec2', region_name=REGION_NAME)
-            self.ssm = boto3.client('ssm', region_name=REGION_NAME)
+        def __init__(self, token: str, dataset_id: str):
+            self.token = token
+            self.dataset_id = dataset_id
 
-
-        def wait(self, client, wait_for: str, **kwargs):
-            """Waits for a certain status of the ec2 or ssm client.
-            
-            """
-            waiter = client.get_waiter(wait_for)
-            waiter.wait(**kwargs)
-            print(f'{wait_for}: OK')
-
-
-        def start_instance(self, instance_id: str):
-            """Starts the EC2 instance with the given id.
-            
-            """
-            # Do a dryrun first to verify permissions
-            try:
-                self.ec2.start_instances(
-                    InstanceIds=[instance_id],
-                    DryRun=True
-                )
-            except ClientError as e:
-                if 'DryRunOperation' not in str(e):
-                    raise
-
-            # Dry run succeeded, run start_instances without dryrun
-            try:
-                self.ec2.start_instances(
-                    InstanceIds=[instance_id],
-                    DryRun=False
-                )
-            except ClientError as e:
-                print(e)
-
-            self.wait(self.ec2, 'instance_exists')
-            self.wait(self.ec2, 'instance_running')
-
-
-        def stop_instance(self, instance_id: str):
-            """Stops the EC2 instance with the given id.
-            
-            """
-            # Do a dryrun first to verify permissions
-            try:
-                self.ec2.stop_instances(
-                    InstanceIds=[instance_id],
-                    DryRun=True
-                )
-            except ClientError as e:
-                if 'DryRunOperation' not in str(e):
-                    raise
-
-            # Dry run succeeded, call stop_instances without dryrun
-            try:
-                self.ec2.stop_instances(
-                    InstanceIds=[instance_id],
-                    DryRun=False
-                )
-            except ClientError as e:
-                print(e)
-
-            self.wait(self.ec2, 'instance_stopped')
-
-
-        def run_command(self, command: str, instance_id: str):
-            """Runs the given command on the instance with the given id.
+        def run_lightly_worker():
+            """Runs the Lightly worker on the EC2 instance.
             
             """
 
-            client = ApiWorkflowClient(token=TOKEN, dataset_id=DATASET_ID)
+            client = ApiWorkflowClient(
+                token=self.token,
+                dataset_id=self.dataset_id
+            )
             client.schedule_compute_worker_run(
                 worker_config={
                     "enable_corruptness_check": True,
@@ -423,15 +345,13 @@ by the last solid, and then stops the EC2 instance again. Set the `YOUR_LIGHTLY_
 
 
     @solid
-    def run_lightly_onprem() -> None:
+    def run_lightly_worker() -> None:
         """Dagster solid to run Lightly worker on a remote EC2 instance.
 
         """
 
-        ec2_client = EC2Client()
-        ec2_client.start_instance(INSTANCE_ID)
-        ec2_client.run_lightly()
-        ec2_client.stop_instance(INSTANCE_ID)
+        lightly_client = LightlyClient(TOKEN, DATASET_ID)
+        lightly_client.run_lightly_worker()
 
 
 To put the solids together in a single pipeline, save the following code in `aws_example_pipeline.py`:
@@ -458,8 +378,8 @@ To put the solids together in a single pipeline, save the following code in `aws
         
         """
         file_name = download_random_video_from_pexels()
-        object_name = upload_video_to_s3(file_name)
-        run_lightly_onprem(object_name)
+        upload_video_to_s3(file_name)
+        run_lightly_onprem()
 
 
 Dagster allows to visualize pipelines in a web interface. The following command
