@@ -3,9 +3,11 @@
 Configuration
 ===================================
 
-As the lightly framework the Lightly Worker solution can be configured using Hydra.
+Similar to the 
+`lightly open-source framework <https://github.com/lightly-ai/lightly>`_, the Lightly Worker solution 
+can be configured using Hydra as well.
 
-The example below shows how the `token` parameter can be set.
+The following example shows how the `token` parameter is set.
 
 .. code-block:: console
 
@@ -48,7 +50,8 @@ The following are parameters which can be passed to the container:
   sanity_check: False 
 
   # Path to a file containing filenames to run the Lightly Worker on a subset of the
-  # files in the input directory. The Lightly Worker will ignore all files in the input 
+  # files in the input directory (local folder or datasource path). 
+  # The Lightly Worker will ignore all files in the input 
   # directory not listed here. Each filename must be on a separate line and
   # relative to the input directory.
   # If you use a cloud bucket as datasource, the path is relative
@@ -176,7 +179,8 @@ The following are parameters which can be passed to the container:
   # optional deterministic unique output subdirectory for run, in place of timestamp
   run_directory:
 
-To get an overview of all available lightly config parameters check out the :ref:`ref-cli-config-default`
+To get an overview of all possible configuration parameters of Lightly, 
+please check out :ref:`ref-cli-config-default`
 
 Choosing the Right Parameters
 -----------------------------------
