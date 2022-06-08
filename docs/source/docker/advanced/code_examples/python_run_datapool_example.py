@@ -8,13 +8,32 @@ client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
 # Create a new dataset on the Lightly Platform.
 client.create_dataset('pedestrian-videos-datapool', dataset_type=DatasetType.VIDEOS)
 
-# Connect to Google Cloud Storage
-client.set_gcs_config(
-    resource_path="gs://path-to-your-bucket/my-folder/",
-    project_id="your-project-name-1234",
-    credentials=json.dumps(json.load(open('your-gcp-credentials.json'))),
+# Pick one of the following three blocks depending on where your data is
+# AWS S3
+client.set_s3_config(
+    resource_path="s3://bucket/dataset/",
+    region="eu-central-1",
+    access_key="ACCESS-KEY",
+    secret_access_key="SECRET",
     thumbnail_suffix=None,
 )
+
+# or Google Cloud Storage
+client.set_gcs_config(
+    resource_path="gs://bucket/dataset/",
+    project_id="PROJECT-ID",
+    credentials=json.dumps(json.load(open('credentials.json'))),
+    thumbnail_suffix=None,
+)
+
+# or Azure Blob Storage
+client.set_azure_config(
+    container_name="container/dataset/",
+    account_name="ACCOUNT-NAME",
+    sas_token="SAS-TOKEN",
+    thumbnail_suffix=None,
+)
+
 
 # Schedule the compute run using our custom config.
 # We show here the full default config so you can easily edit the
