@@ -24,7 +24,7 @@ Prerequisites
 In order to use the object level workflow with Lightly, you will need the
 following things:
 
-- The installed Lightly docker (see :ref:`ref-docker-setup`)
+- The installed Lightly Worker (see :ref:`ref-docker-setup`)
 - A dataset with a configured datasource (see :ref:`ref-docker-with-datasource-datapool`)
 - Object detection predictions uploaded to the datasource (see next section)
 
@@ -180,8 +180,8 @@ height of all bounding boxes by 10 percent.
 
 Object Crops Dataset
 --------------------
-Once the docker job is started it fetches all images and predictions from the
-remote datasource and processes them. For each prediction, the docker crops
+Once the Lightly Worker job is started it fetches all images and predictions from the
+remote datasource and processes them. For each prediction, the Lightly Worker crops
 the object from the full image and creates an embedding for it. Then it selects
 a subset of the objects and uploads **two** datasets to the Lightly Platform:
 
@@ -253,7 +253,7 @@ Multiple Object Level Runs
 --------------------------
 You can run multiple object level workflows using the same dataset. To start a
 new run, please select your original full image dataset in the Lightly Web App
-and schedule a new run from there. If you are running the docker from Python or
+and schedule a new run from there. If you are running the Lightly Worker from Python or
 over the API, you have to set the `dataset_id` configuration option to the id of 
 the original full image dataset. In both cases make sure that the run is *not*
 started from the crops dataset as this is not supported!
