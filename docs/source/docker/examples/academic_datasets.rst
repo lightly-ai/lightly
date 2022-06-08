@@ -1,11 +1,11 @@
 ImageNet
 ========
 
-Let's have a look at how to run the Lightly worker to analyze and filter the famous
-ImageNet dataset. We are assuming here that the Imagenet dataset is located in an S3
+Let's have a look at how to run the Lightly Worker to analyze and filter the famous
+ImageNet dataset. We are assuming here that the ImageNet dataset is located in an S3
 bucket under `s3://dataset/imagenet/`. Start by creating a dataset and configuring the datasource
 
-.. note:: For all examples we assume that the Lightly worker is configured and running. See :ref:`ref-docker-setup` for more information.
+.. note:: For all examples we assume that the Lightly Worker is configured and running. See :ref:`ref-docker-setup` for more information.
 
 
 .. code-block:: python
@@ -78,7 +78,7 @@ You can also use the direct link for the
 Combining Cityscapes with Kitti
 ================================
 
-The Lightly worker's datapool feature allows to update the pool of selected images
+The Lightly Worker's datapool feature allows to update the pool of selected images
 whenver new data arrives. This is a common usecase in production systems where new
 image data arrives every week. In this example we simulate this process by first
 selecting a subset of the Cityscapes dataset and then adding images from Kitti.
@@ -159,7 +159,7 @@ worker uses them as weak labels for the embedding plot as shown below.
 Now we can use the datapool to select the interesting
 frames from Kitti and add them to Cityscapes. For this, first **add all images
 from Kitti to the S3 bucket** and then simply run the same command as above again.
-The Lightly worker will detect which images have already been processed and only work with
+The Lightly Worker will detect which images have already been processed and only work with
 the new images.
 
 
@@ -184,7 +184,7 @@ the new images.
 The dataset from the beginning will now contain images from both datasets and 
 new plots have been generated in the report. The plots show
 the embeddings and highlight with blue color the samples which have been added
-from the new dataset. In our experiment, we see that Lightly worker added several 
+from the new dataset. In our experiment, we see that Lightly Worker added several 
 new samples outside of the previous embedding distribution. This is great, since it
 shows that Cityscapes and Kitti have different data and we can combine the two datasets.
 

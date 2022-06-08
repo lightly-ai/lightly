@@ -1,10 +1,10 @@
 Extract Diverse Video Frames
 =============================
 
-The following example is a showcase how the Lightly worker can be used 
+The following example is a showcase how the Lightly Worker can be used 
 to extract frames from a video based on their uniqueness rather than based on timestamps.
 
-.. note:: For all examples we assume that the Lightly worker is configured and running. See :ref:`ref-docker-setup` for more information.
+.. note:: For all examples we assume that the Lightly Worker is configured and running. See :ref:`ref-docker-setup` for more information.
 
 
 Using ffmpeg
@@ -50,7 +50,7 @@ or even worse, we might miss some frames with lots of "action".
 Using the Lightly Worker
 ------------------------
 
-The Lightly worker has been designed to give engineers an alternative to using
+The Lightly Worker has been designed to give engineers an alternative to using
 fixed framerates for frame extraction. 
 
 How about selecting frames based on their similarity? 
@@ -62,7 +62,7 @@ a terminal under linux or MacOS to download the video and then either upload it 
 or with the `aws cli <https://aws.amazon.com/cli/>`_.
 
 
-Now, let's extract 99 frames using the Lightly worker. We start by creating a dataset and configuring the S3 bucket as 
+Now, let's extract 99 frames using the Lightly Worker. We start by creating a dataset and configuring the S3 bucket as 
 a datasource. We call the dataset `frame-extraction-example` and use the input type `VIDEOS`. We configure the datasource to point at `s3://dataset/video/`.
 
 .. code-block:: python
@@ -201,7 +201,7 @@ much higher sample diversity. The docker has been optimized for these selection 
 
 
 Now let's take a look at the storage requirements. If we would extract all frames from the video
-and then run a selection algorithm on them we would need 553.4 MBytes. However, the Lightly worker
+and then run a selection algorithm on them we would need 553.4 MBytes. However, the Lightly Worker
 can process the video directly so we require only 6.4 MBytes of storage. This means it requires 70x less storage!
 
 
