@@ -3,16 +3,14 @@
 Configuration
 ===================================
 
-As the lightly framework the docker solution can be configured using Hydra.
+As the lightly framework the Lightly Worker solution can be configured using Hydra.
 
-The example below shows how the `token` parameter can be set when running the docker container.
+The example below shows how the `token` parameter can be set.
 
 .. code-block:: console
 
     docker run --rm -it \
-        -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/shared_dir \
-        --ipc="host" --network="host" \
         lightly/worker:latest \
         token=MYAWESOMETOKEN
 
@@ -22,9 +20,7 @@ Note that `token` can optionally be passed as a `LIGHTLY_TOKEN` environment vari
 
     docker run --rm -it \
         -e LIGHTLY_TOKEN=MYAWESOMETOKEN
-        -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/shared_dir \
-        --ipc="host" --network="host" \
         lightly/worker:latest
 
 .. _rst-docker-parameters:
