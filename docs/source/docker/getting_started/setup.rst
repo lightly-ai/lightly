@@ -168,8 +168,10 @@ You should see an output similar to this one:
     [2022-05-02 20:37:27] Congratulations! It looks like the Lightly container is running!
 
 
-Start the Lightly Worker
-^^^^^^^^^^^^^^^^^^^^^^^^
+.. _ref-worker-register:
+
+Register the Lightly Worker
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Finally**, start the Lightly worker in waiting mode. In this mode, the worker will long-poll
 the Lightly API for new jobs to process. To do so, a worker first needs to be registered.
