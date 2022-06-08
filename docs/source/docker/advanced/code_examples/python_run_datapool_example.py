@@ -43,8 +43,8 @@ client.schedule_compute_worker_run(
         'enable_corruptness_check': True,
         'remove_exact_duplicates': True,
         'enable_training': False,
-        'pretagging': True,
-        'pretagging_debug': True,
+        'pretagging': False,
+        'pretagging_debug': False,
         'method': 'coreset',
         'stopping_condition': {
             'n_samples': -1,
