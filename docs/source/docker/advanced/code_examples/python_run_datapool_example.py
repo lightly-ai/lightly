@@ -34,36 +34,31 @@ client.set_azure_config(
     thumbnail_suffix=None,
 )
 
-# Schedule the docker run with 
-#  - "active_learning.task_name" set to your task name
-#  - "method" set to "coral"
-# All other settings are default values and we show them so you can easily edit
-# the values according to your need.
+
+# Schedule the compute run using our custom config.
+# We show here the full default config so you can easily edit the
+# values according to your needs.
 client.schedule_compute_worker_run(
     worker_config={
-        "enable_corruptness_check": True,
-        "remove_exact_duplicates": True,
-        "enable_training": False,
-        "pretagging": False,
-        "pretagging_debug": False,
-        "method": "coral",
-        "stopping_condition": {
-          "n_samples": 0.1,
-          "min_distance": -1
+        'enable_corruptness_check': True,
+        'remove_exact_duplicates': True,
+        'enable_training': False,
+        'pretagging': False,
+        'pretagging_debug': False,
+        'method': 'coreset',
+        'stopping_condition': {
+            'n_samples': -1,
+            'min_distance': 0.05 # we set the min_distance to 0.05 in this example
         },
-        "scorer": "object-frequency",
-        "scorer_config": {
-          "frequency_penalty": 0.25,
-          "min_score": 0.9
-        },
-        "active_learning": { # here we specify our active learning parameters
-          "task_name": "my-classification-task",    # set the task
-          "score_name": "uncertainty_margin"        # set the score
+        'scorer': 'object-frequency',
+        'scorer_config': {
+            'frequency_penalty': 0.25,
+            'min_score': 0.9
         }
     },
     lightly_config={
         'loader': {
-            'batch_size': 16,
+            'batch_size': 128,
             'shuffle': True,
             'num_workers': -1,
             'drop_last': True
@@ -76,8 +71,8 @@ client.schedule_compute_worker_run(
         },
         'trainer': {
             'gpus': 1,
-            'max_epochs': 100,
-            'precision': 32
+            'max_epochs': 1,
+            'precision': 16
         },
         'criterion': {
             'temperature': 0.5
@@ -95,7 +90,7 @@ client.schedule_compute_worker_run(
             'cj_hue': 0.2,
             'min_scale': 0.15,
             'random_gray_scale': 0.2,
-            'gaussian_blur': 0.5,
+            'gaussian_blur': 0.0,
             'kernel_size': 0.1,
             'vf_prob': 0,
             'hf_prob': 0.5,
@@ -103,3 +98,4 @@ client.schedule_compute_worker_run(
         }
     }
 )
+
