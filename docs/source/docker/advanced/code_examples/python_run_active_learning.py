@@ -1,7 +1,38 @@
+import json
 import lightly
+from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 
 # Create the Lightly client to connect to the API.
-client = lightly.api.ApiWorkflowClient(token="TOKEN", dataset_id="DATASET_ID")
+client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
+
+# Create a new dataset on the Lightly Platform.
+client.create_dataset('pedestrian-videos-datapool', dataset_type=DatasetType.VIDEOS)
+
+# Pick one of the following three blocks depending on where your data is
+# AWS S3
+client.set_s3_config(
+    resource_path="s3://bucket/dataset/",
+    region="eu-central-1",
+    access_key="ACCESS-KEY",
+    secret_access_key="SECRET",
+    thumbnail_suffix=None,
+)
+
+# or Google Cloud Storage
+client.set_gcs_config(
+    resource_path="gs://bucket/dataset/",
+    project_id="PROJECT-ID",
+    credentials=json.dumps(json.load(open('credentials.json'))),
+    thumbnail_suffix=None,
+)
+
+# or Azure Blob Storage
+client.set_azure_config(
+    container_name="container/dataset/",
+    account_name="ACCOUNT-NAME",
+    sas_token="SAS-TOKEN",
+    thumbnail_suffix=None,
+)
 
 # Schedule the docker run with 
 #  - "active_learning.task_name" set to your task name
@@ -25,9 +56,9 @@ client.schedule_compute_worker_run(
           "frequency_penalty": 0.25,
           "min_score": 0.9
         },
-        "active_learning": {
-          "task_name": "my-classification-task",
-          "score_name": "uncertainty_margin"
+        "active_learning": { # here we specify our active learning parameters
+          "task_name": "my-classification-task",    # set the task
+          "score_name": "uncertainty_margin"        # set the score
         }
     },
     lightly_config={
