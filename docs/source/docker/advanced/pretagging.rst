@@ -3,7 +3,7 @@
 Pretagging
 ======================
 
-Lightly Docker supports the use of pre-trained models to tag the dataset. We 
+Lightly Worker supports the use of pre-trained models to tag the dataset. We 
 call this pretagging. For now, we offer a pre-trained model for object detection 
 optimized for autonomous-driving.
 
@@ -42,7 +42,7 @@ before filtering.
     The plot shows the distribution of the various detected classes. 
     Further it shows the average number of objects per image.
 
-For every docker run with pretagging enabled we also dump all model predictions
+For every Lightly Worker run with pretagging enabled we also dump all model predictions
 into a json file with the following format:
 
 .. code-block:: javascript
