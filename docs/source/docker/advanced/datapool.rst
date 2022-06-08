@@ -45,6 +45,58 @@ same effect as creating a new Lightly dataset and running the worker from scratc
 on the full dataset. We sort of process all data instead of only the newly added ones.
 
 
+Example
+---------------
+
+In this example we will do the following steps:
+
+#. Create a worker run to process a cloud bucket with 3 videos
+#. Add 2 more videos to the same bucket
+#. Run the worker with the same config again to use the datapool feature
+
+
+Here we show the content of the bucket before running the Lightly Worker for the
+first time.
+
+.. code-block:: console
+
+    videos/
+    |-- campus4-c0.avi
+    |-- passageway1-c1.avi
+    `-- terrace1-c0.avi
+
+Now we can run the following code to select a subset based on the 
+`min_distance` stopping condition. 
+
+.. literalinclude:: ./code_examples/python_run_datapool_example.py
+  :linenos:
+  :language: python
+
+After running the code we have to make sure we have a running Lightly worker 
+to process the job.
+We can start a Lightly Worker using the following command
+
+.. code-block:: console
+
+  docker run --rm --gpus all -it \
+    -v /docker-output:/home/output_dir lightly/worker:latest \
+    token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
+
+Afer processing the dataset once we add more videos. The bucket now looks
+like this:
+
+.. code-block:: console
+
+    videos/
+    |-- campus4-c0.avi
+    |-- campus7-c0.avi
+    |-- passageway1-c1.avi
+    |-- terrace1-c0.avi
+    `-- terrace1-c3.avi
+
+We can run the same script again (it won't create a new dataset but use the
+existing one based on the dataset name).
+
 
 How It Works
 ---------------
