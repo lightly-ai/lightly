@@ -2,23 +2,23 @@
 .. _ref-docker-integration-aws-dagster:
 
 Data Pre-processing Pipeline on AWS with Dagster
-===================================================
+================================================
 
 
 Introduction
 --------------
-Data collection and pre-processing pipelines have become more and more automated in the recent years. The Lightly Docker can take on a crucial role
+Data collection and pre-processing pipelines have become more and more automated in the recent years. The Lightly worker can take on a crucial role
 in such a pipeline as it can reliably filter out redundant images and corrupted images with high throughput.
 
 This guide shows how to write a simple automated data pre-processing pipeline which performs the following steps:
 
 1. Download a random video from `Pexels <https://www.pexels.com/>`_.
 2. Upload the video to an S3 bucket.
-3. Run the Lightly Docker on the video to extract a diverse set of frames for further processing:
+3. Run the Lightly worker on the video to extract a diverse set of frames for further processing:
    
    a. Spin up an EC2 instance.
    
-   b. Run the Lightly Docker
+   b. Run the Lightly worker
    
    c. Store the extracted frames in the S3 bucket
    
@@ -28,7 +28,7 @@ Here, the first two steps simulate a data collection process.
 
 .. note::
 
-    The datapool option of the Lightly Docker allows it to remember frames/images it has seen
+    The datapool option of the Lightly worker allows it to remember frames/images it has seen
     in past executions of the pipeline and ignore images which are too similar to already known ones.
 
 
@@ -38,89 +38,93 @@ Dagster is an open-source data orchestrator for machine learning. It enables bui
 debugging data processing pipelines. Click `here <https://dagster.io/>`__ to learn more.
 
 
-Setting up the EC2 Instance
------------------------------
-The first step is to set up the EC2 instance. For the purposes of this tutorial,
-it's recommended to pick an instance with a GPU (like the g4dn.xlarge) and the "Deep Learning AMI (Ubuntu 18.04) Version 48.0" AMI.
-See `this guide <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html>`_ to get started. Connect to the instance.
-
-
-Next, the Lightly Docker should be installed. Please follow the instructions `here <https://docs.lightly.ai/docker/getting_started/setup.html>`__.
-You can test if the installation was successfull like this:
-
-.. code-block:: console
-
-    docker run --rm -it lightly/worker:latest sanity_check=True
-
-To run the docker remotely, it's recommended to write a `run.sh` script with default parameters. The other parameters can then
-be changed by passing command line arguments. Use the following as a starting point and adapt it to your needs:
-
-.. code-block:: shell
-
-    # general
-    IMAGE=lightly/worker:latest
-
-    INPUT_DIR=$1
-    SHARED_DIR=/home/ubuntu/shared_dir
-    OUTPUT_DIR=/home/ubuntu/lightly-aws-bucket/output_dir
-
-    # api
-    TOKEN=YOUR_LIGHTLY_TOKEN
-
-    # run command
-    docker run --gpus all --rm --shm-size="512m" \
-            -v ${INPUT_DIR}:/home/input_dir \
-            -v ${OUTPUT_DIR}:/home/output_dir \
-            -v ${SHARED_DIR}:/home/shared_dir \
-            --ipc="host" --network "host" \
-            ${IMAGE} token=${TOKEN} \
-            lightly.loader.num_workers=0 \
-            enable_corruptness_check=True \
-            remove_exact_duplicates=True \
-            stopping_condition.n_samples=0.1 \
-            upload_dataset=True \
-            dump_dataset=True \
-            datapool.name=lightly-datapool \
-            >> /home/ubuntu/log.txt
-
-
-.. note::
-
-    The above run command samples 10% of the frames for every input. After selection, it uploads the selected images to the Lightly Platform
-    and saves them to the output directory. The datapool option allows the Lightly Docker to remember already seen frames and adapt decisions based 
-    on this knowledge. Learn more about the configuration of the `run.sh` file `here <https://docs.lightly.ai/docker/configuration/configuration.html>`_.
-
-
-    
 Setting up the S3 Bucket
 --------------------------
 If you don't have an S3 bucket already, follow `these <https://docs.aws.amazon.com/AmazonS3/latest/userguide/create-bucket-overview.html>`_ instructions to create one.
 For the purpose of this tutorial, name the bucket `lightly-aws-bucket`. If you want to use a different S3 bucket, remember to replace all occurences
 of `lightly-aws-bucket` in the rest of this guide.
 
-
-To access the data in the S3 bucket, the S3 bucket must be mounted on the EC2 instance. This can be done with the s3fs library.
-
-First, install the library:
-
-.. code-block:: console
-
-    sudo apt install s3fs
+.. note::
+    Make sure you have access to credentials to provide Lightly with `LIST` and `READ` access to the input bucket and
+    with `LIST`, `READ`, and `WRITE` access to the output bucket. See :ref:`dataset-creation-gcloud-bucket`, 
+    :ref:`dataset-creation-aws-bucket`, and :ref:`dataset-creation-azure-storage` for help
+    with configuring the different roles.
 
 
-Then, set the `user_allow_other` flag in the `/etc/fuse.conf` file and add the following line to `/etc/fstab`:
+Setting up the EC2 Instance
+-----------------------------
+The next step is to set up the EC2 instance. For the purposes of this tutorial,
+it's recommended to pick an instance with a GPU (like the g4dn.xlarge) and the "Deep Learning AMI (Ubuntu 18.04) Version 48.0" AMI.
+See `this guide <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html>`_ to get started. Connect to the instance.
 
-.. code-block:: console
 
-    s3fs#lightly-aws-bucket /home/ubuntu/lightly-aws-bucket/ fuse _netdev,allow_other,umask=000,passwd_file=/home/ubuntu/.passwd-s3fs 0 0
+Next, the Lightly worker should be installed on the instance. Please follow the instructions `here <https://docs.lightly.ai/docker/getting_started/setup.html>`__.
+Make sure you have the API token and the worker id from the setup steps. Then, configure a dataset in the Lightly Platform which will represent the state of your datapool:
 
-Finally, create a password file which contains your AWS credentials and mount the S3 bucket:
+.. code-block:: python
 
-.. code-block:: console
+    from lightly.api import ApiWorkflowClient
+    from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
+    from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 
-    echo "YOUR_AWS_ACCESS_KEY_ID:YOUR_AWS_ACCSESS_KEY" >> ~/.passwd-s3fs
-    mkdir ~/lightly-aws-bucket
-    sudo mount -a
+    # Create the Lightly client to connect to the API.
+    client = ApiWorkflowClient(token="YOUR_LIGHTLY_TOKEN")
+
+    # Create a new dataset on the Lightly Platform.
+    client.create_new_dataset_with_unique_name(
+        'my-datapool-name',
+        DatasetType.IMAGES  # can be DatasetType.VIDEOS when working with videos
+    )
+    print(f'Dataset id: {client.dataset_id}')
+
+   ## AWS S3
+   # Input bucket
+   client.set_s3_config(
+       resource_path="s3://lightly-aws-bucket/pexels",
+       region='eu-central-1'
+       access_key='S3-ACCESS-KEY',
+       secret_access_key='S3-SECRET-ACCESS-KEY',
+       thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
+       purpose=DatasourcePurpose.INPUT
+   )
+   # Output bucket
+   client.set_s3_config(
+       resource_path="s3://lightly-aws-bucket/outputs/",
+       region='eu-central-1'
+       access_key='S3-ACCESS-KEY',
+       secret_access_key='S3-SECRET-ACCESS-KEY',
+       thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
+       purpose=DatasourcePurpose.LIGHTLY
+    )
+
+Make sure to note the dataset id somewhere safe as you'll need it throughout this tutorial.
+
+
+To start the worker remotely, it's recommended to write a `run.sh` script with default parameters. The other parameters can then
+be changed through the Lightly API. Use the following as a starting point:
+
+.. code-block:: shell
+
+    # general
+    IMAGE=lightly/worker:latest
+
+    OUTPUT_DIR=/home/ubuntu/output_dir/
+
+    # api
+    TOKEN=YOUR_LIGHTLY_TOKEN
+    WORKER_ID=MY_WORKER_ID
+
+    # run command
+    # this makes the Lightly worker start up and wait for jobs
+    docker run --gpus all --rm -it \
+        -v ${OUTPUT_DIR}:/home/output_dir \
+        lightly/worker:latest \
+        token=${TOKEN} \
+        worker.worker_id=${WORKER_ID}
+    
+
+.. warning:: Make sure the above script starts the Lightly worker whenever the EC2 instance is started up.
+    One way to do this is to add the script to `crontab reboot <https://man7.org/linux/man-pages/man5/crontab.5.html>`_.
 
 
 Integration
@@ -268,9 +272,9 @@ Set the `BUCKET_NAME` and `REGION_NAME` to your bucket name and region of the EC
             
             """
 
-            # upload file to lightly-aws-bucket/input_dir/RANDOM_STRING/basename.mp4
+            # upload file to lightly-aws-bucket/pexels/RANDOM_STRING/basename.mp4
             object_name = os.path.join(
-                'input_dir',
+                'pexels',
                 self.random_subfolder(),
                 os.path.basename(filename)
             )
@@ -304,10 +308,8 @@ Set the `BUCKET_NAME` and `REGION_NAME` to your bucket name and region of the EC
         return object_name
 
 
-Finally, the last solid in the pipeline (`lightly.py`) spins up the EC2 instance, runs the Lightly Docker on the object name passed
-by the last solid, and then stops the EC2 instance again. Set the `REGION_NAME`, `INSTANCE_ID`, and `MOUNTED_DIR` if 
-necessary.
-
+Finally, the last solid in the pipeline (`lightly.py`) spins up the EC2 instance, runs the Lightly worker on the object name passed
+by the last solid, and then stops the EC2 instance again. Set the `YOUR_LIGHTLY_TOKEN`, `YOUR_DATASET_ID`, `REGION_NAME`, and `INSTANCE_ID`.
 
 .. code-block:: python
 
@@ -319,10 +321,11 @@ necessary.
 
     from dagster import solid
 
+    TOKEN: str = 'YOUR_LIGHTLY_TOKEN'
+    DATASET_ID: str = 'YOUR_DATASET_ID'
 
     REGION_NAME: str = 'YOUR_REGION_NAME' # e.g. eu-central-1
     INSTANCE_ID: str = 'YOUR_INSTANCE_ID'
-    MOUNTED_DIR: str = '/home/ubuntu/lightly-aws-bucket'
 
 
     class EC2Client:
@@ -402,61 +405,32 @@ necessary.
             
             """
 
-            # Make sure the instance is OK
-            time.sleep(10)
-
-            response = self.ssm.send_command(
-                DocumentName='AWS-RunShellScript',
-                Parameters={'commands': [command]},
-                InstanceIds=[instance_id]
-            )
-            command_id = response['Command']['CommandId']
-
-            # Make sure the command is pending
-            time.sleep(10)
-
-            try:
-                self.wait(
-                    self.ssm,
-                    'command_executed',
-                    CommandId=command_id,
-                    InstanceId=INSTANCE_ID,
-                    WaiterConfig={
-                        'Delay': 5,
-                        'MaxAttempts': 1000,
+            client = ApiWorkflowClient(token=TOKEN, dataset_id=DATASET_ID)
+            client.schedule_compute_worker_run(
+                worker_config={
+                    "enable_corruptness_check": True,
+                    "remove_exact_duplicates": True,
+                    "enable_training": False,
+                    "pretagging": False,
+                    "pretagging_debug": False,
+                    "method": "coreset",
+                    "stopping_condition": {
+                        "n_samples": 0.1,
+                        "min_distance": -1
                     }
-                )
-            except:
-                # pretty print error message
-                import pprint
-                pprint.pprint(
-                    self.ssm.get_command_invocation(
-                        CommandId=command_id,
-                        InstanceId=INSTANCE_ID,
-                    )
-                )
+                }
+            )
 
 
     @solid
-    def run_lightly_onprem(object_name: str) -> None:
-        """Dagster solid to run Lightly On-premise on a remote EC2 instance.
-
-        Args:
-            object_name:
-                S3 object containing the input video(s) for Lightly.
+    def run_lightly_onprem() -> None:
+        """Dagster solid to run Lightly worker on a remote EC2 instance.
 
         """
 
-        # object name is of format path/RANDOM_DIR/RANDOM_NAME.mp4
-        # so the input directory is the RANDOM_DIR
-        input_dir = object_name.split('/')[-2]
-
-        # input dir is mounted_dir/input_dir/batch/
-        input_dir = os.path.join(MOUNTED_DIR, 'input_dir', input_dir)
-
         ec2_client = EC2Client()
         ec2_client.start_instance(INSTANCE_ID)
-        ec2_client.run_command(f'/home/ubuntu/run.sh {input_dir}', INSTANCE_ID)
+        ec2_client.run_lightly()
         ec2_client.stop_instance(INSTANCE_ID)
 
 
