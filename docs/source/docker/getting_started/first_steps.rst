@@ -200,18 +200,6 @@ Now that everything is in place, let's configure and run a simple job
             "stopping_condition": {
                 "n_samples": 0.1,
                 "min_distance": -1
-            },
-            "scorer": "object-frequency",
-            "scorer_config": {
-                "frequency_penalty": 0.25,
-                "min_score": 0.9
-            },
-            "active_learning": {
-                "task_name": "",
-                "score_name": "uncertainty_margin"
-            },
-            "object_level": {
-                "task_name": ""
             }
         }
     )
@@ -272,18 +260,6 @@ epochs on the input images before embedding the images and selecting from them.
             "stopping_condition": {
                 "n_samples": 0.1,
                 "min_distance": -1
-            },
-            "scorer": "object-frequency",
-            "scorer_config": {
-                "frequency_penalty": 0.25,
-                "min_score": 0.9
-            },
-            "active_learning": {
-                "task_name": "",
-                "score_name": "uncertainty_margin"
-            },
-            "object_level": {
-                "task_name": ""
             }
         }
     )
@@ -307,18 +283,6 @@ Hence, for training and embedding the user can access all the settings from the 
             "stopping_condition": {
                 "n_samples": 0.1,
                 "min_distance": -1
-            },
-            "scorer": "object-frequency",
-            "scorer_config": {
-                "frequency_penalty": 0.25,
-                "min_score": 0.9
-            },
-            "active_learning": {
-                "task_name": "",
-                "score_name": "uncertainty_margin"
-            },
-            "object_level": {
-                "task_name": ""
             }
         },
         lightly_config={
@@ -423,18 +387,6 @@ The corresponding Python command to submit a job would then be as follows:
             "stopping_condition": {
                 "n_samples": 0.1,
                 "min_distance": -1
-            },
-            "scorer": "object-frequency",
-            "scorer_config": {
-                "frequency_penalty": 0.25,
-                "min_score": 0.9
-            },
-            "active_learning": {
-                "task_name": "",
-                "score_name": "uncertainty_margin"
-            },
-            "object_level": {
-                "task_name": ""
             }
         }
     )

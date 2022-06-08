@@ -82,7 +82,7 @@ a datasource. We call the dataset `frame-extraction-example` and use the input t
   # Input bucket
   client.set_s3_config(
       resource_path="s3://dataset/video/",
-      region='eu-central-1'
+      region='eu-central-1',
       access_key='S3-ACCESS-KEY',
       secret_access_key='S3-SECRET-ACCESS-KEY',
       thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
@@ -91,7 +91,7 @@ a datasource. We call the dataset `frame-extraction-example` and use the input t
   # Output bucket
   client.set_s3_config(
       resource_path="s3://output/",
-      region='eu-central-1'
+      region='eu-central-1',
       access_key='S3-ACCESS-KEY',
       secret_access_key='S3-SECRET-ACCESS-KEY',
       thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
@@ -116,18 +116,6 @@ selects a diverse set of frames:
           "stopping_condition": {
               "n_samples": 99,
               "min_distance": -1
-          },
-          "scorer": "object-frequency",
-          "scorer_config": {
-              "frequency_penalty": 0.25,
-              "min_score": 0.9
-          },
-          "active_learning": {
-              "task_name": "",
-              "score_name": "uncertainty_margin"
-          },
-          "object_level": {
-              "task_name": ""
           }
       }
   )
