@@ -44,7 +44,7 @@ Here's an example of how to configure an active learning run:
 .. literalinclude:: code_examples/python_run_active_learning.py
 
 
-After running the code we have to make sure we have a running Lightly worker 
+After running the code we have to make sure we have a running Lightly Worker 
 to process the job.
 We can start a Lightly Worker using the following command
 

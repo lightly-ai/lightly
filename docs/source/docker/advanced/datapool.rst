@@ -42,7 +42,7 @@ If you want to search all data in your bucket for new samples
 instead of only newly added data,
 then set `datasource.process_all=True` in your docker run command. This has the
 same effect as creating a new Lightly dataset and running the worker from scratch
-on the full dataset. We sort of process all data instead of only the newly added ones.
+on the full dataset. We process all data instead of only the newly added ones.
 
 
 Example
@@ -50,7 +50,7 @@ Example
 
 In this example we will do the following steps:
 
-#. Create a worker run to process a cloud bucket with 3 videos
+#. Schedule a run to process a cloud bucket with 3 videos
 #. Add 2 more videos to the same bucket
 #. Run the worker with the same config again to use the datapool feature
 
@@ -72,9 +72,9 @@ Now we can run the following code to select a subset based on the
   :linenos:
   :language: python
 
-After running the code we have to make sure we have a running Lightly worker 
+After running the code we have to make sure we have a running Lightly Worker 
 to process the job.
-We can start a Lightly Worker using the following command
+We can start the Lightly Worker using the following command
 
 .. code-block:: console
 
@@ -82,8 +82,8 @@ We can start a Lightly Worker using the following command
     -v /docker-output:/home/output_dir lightly/worker:latest \
     token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
-Afer processing the dataset once we add more videos. The bucket now looks
-like this:
+After we have processed the initial data and created a dataset, 
+we've collected more data and our bucket now looks like this:
 
 .. code-block:: console
 
