@@ -4,6 +4,8 @@ Extract Diverse Video Frames
 The following example is a showcase how the Lightly worker can be used 
 to extract frames from a video based on their uniqueness rather than based on timestamps.
 
+.. note:: For all examples we assume that the Lightly worker is configured and running. See :ref:`ref-docker-setup` for more information.
+
 
 Using ffmpeg
 ------------
