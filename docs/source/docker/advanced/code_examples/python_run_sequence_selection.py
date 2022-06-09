@@ -6,9 +6,8 @@ from lightly.openapi_generated.swagger_client.models.datasource_purpose import D
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
 
-# Create a new dataset on the Lightly Platform. In this example we use pretagging
-# on images. We can also use videos instead by setting dataset_type=DatasetType.VIDEOS
-client.create_dataset('your-dataset-name', dataset_type=DatasetType.IMAGES)
+# Create a new dataset on the Lightly Platform.
+client.create_dataset('pexels', dataset_type=DatasetType.VIDEOS)
 
 # Pick one of the following three blocks depending on where your data is
 # AWS S3
@@ -68,16 +67,17 @@ client.set_azure_config(
 # values according to your needs.
 client.schedule_compute_worker_run(
     worker_config={
-        'enable_corruptness_check': True,
-        'remove_exact_duplicates': True,
+        'enable_corruptness_check': False,
+        'remove_exact_duplicates': False,
         'enable_training': False,
-        'pretagging': True,         # to enable pretagging
-        'pretagging_debug': True,   # we also want debugging images in the report
+        'pretagging': False,
+        'pretagging_debug': False,
         'method': 'coreset',
         'stopping_condition': {
-            'n_samples': 0.9,
+            'n_samples': 200, # select 200 frames of length 10 frames -> 20 sequences
             'min_distance': -1
-        }
+        },
+        'selected_sequence_length': 10 # we want sequences of 10 frames lenght
     },
     lightly_config={
         'loader': {

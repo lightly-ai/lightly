@@ -141,9 +141,7 @@ The token (along with other Hydra configuration) will be printed to stdout, and 
 .. code-block:: console
 
     docker run --rm -it \
-        -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/shared_dir \
-        --ipc="host" --network="host" \
         lightly/worker:latest \
         token=MYAWESOMETOKEN \
         ...
@@ -154,8 +152,6 @@ This can be avoided by setting your `token` via the `LIGHTLY_TOKEN` environment 
 
     docker run --rm -it \
         -e LIGHTLY_TOKEN=MYAWESOMETOKEN
-        -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/shared_dir \
-        --ipc="host" --network="host" \
         lightly/worker:latest \
         ...

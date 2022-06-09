@@ -24,7 +24,7 @@ Prerequisites
 In order to use the object level workflow with Lightly, you will need the
 following things:
 
-- The installed Lightly docker (see :ref:`ref-docker-setup`)
+- The installed Lightly Worker (see :ref:`ref-docker-setup`)
 - A dataset with a configured datasource (see :ref:`ref-docker-with-datasource-datapool`)
 - Object detection predictions uploaded to the datasource (see next section)
 
@@ -134,39 +134,19 @@ The argument should be set to the task name you used for your predictions.
 If you uploaded the predictions to e.g. `.lightly/predictions/vehicles_object_detections`
 then you should set `object_level.task_name` to `vehicles_object_detections`.
 
-The object level job can either be scheduled from the Lightly Web App or
-from python code. Examples on how to schedule the job are provided below.
+The object level job can be scheduled from from Python code. 
 
-.. tabs::
+.. literalinclude:: code_examples/python_run_object_level.py
 
-    .. tab:: Web App
+After running the Python script to create the job we need to make sure we have
+a running Lightly Worker to process the job. We can use the following
+code to sping up a Lightly Worker
 
-        **Trigger the Job**
+.. code-block:: console
 
-        To trigger a new job you can click on the schedule run button on the dataset
-        overview as shown in the screenshot below:
-
-        .. figure:: ../integration/images/schedule-compute-run.png
-
-        After clicking on the button you will see a wizard to configure the parameters
-        for the job.
-
-        .. figure:: ../integration/images/schedule-compute-run-config.png
-
-        In this example we have to set the `object_level.task_name` parameter
-        in the docker config, all other settings are default values. The
-        resulting docker config should look like this:
-
-        .. literalinclude:: code_examples/object_level_worker_config.txt
-            :caption: Docker Config
-            :language: javascript
-
-        The Lightly config remains unchanged.
-
-    .. tab:: Python Code
-
-        .. literalinclude:: code_examples/python_run_object_level.py
-
+  docker run --rm --gpus all -it \
+    -v /docker-output:/home/output_dir lightly/worker:latest \
+    token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
 .. _object-level-pretagging:
 
@@ -176,20 +156,17 @@ Instead of providing your own predictions, it's also possible to use the built-i
 set `pretagging=True` in your config and use the `object_level.task_name="lightly_pretagging"`. For more information
 about the prediction model and classes, go to :ref:`Lightly Pretagging Model <ref-docker-pretagging>`
 
-.. tabs::
+.. literalinclude:: code_examples/python_run_object_level_pretagging.py
 
-    .. tab:: Web App
+After running the Python script to create the job we need to make sure we have
+a running Lightly Worker to process the job. We can use the following
+code to sping up a Lightly Worker
 
-        .. literalinclude:: code_examples/object_level_worker_config_pretagging.txt
-            :caption: Docker Config
-            :language: javascript
+.. code-block:: console
 
-        The Lightly config remains unchanged.
-
-    .. tab:: Python Code
-
-        .. literalinclude:: code_examples/python_run_object_level_pretagging.py
-
+  docker run --rm --gpus all -it \
+    -v /docker-output:/home/output_dir lightly/worker:latest \
+    token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
 Padding
 -------
@@ -203,8 +180,8 @@ height of all bounding boxes by 10 percent.
 
 Object Crops Dataset
 --------------------
-Once the docker job is started it fetches all images and predictions from the
-remote datasource and processes them. For each prediction, the docker crops
+Once the Lightly Worker job is started it fetches all images and predictions from the
+remote datasource and processes them. For each prediction, the Lightly Worker crops
 the object from the full image and creates an embedding for it. Then it selects
 a subset of the objects and uploads **two** datasets to the Lightly Platform:
 
@@ -276,7 +253,7 @@ Multiple Object Level Runs
 --------------------------
 You can run multiple object level workflows using the same dataset. To start a
 new run, please select your original full image dataset in the Lightly Web App
-and schedule a new run from there. If you are running the docker from Python or
+and schedule a new run from there. If you are running the Lightly Worker from Python or
 over the API, you have to set the `dataset_id` configuration option to the id of 
 the original full image dataset. In both cases make sure that the run is *not*
 started from the crops dataset as this is not supported!

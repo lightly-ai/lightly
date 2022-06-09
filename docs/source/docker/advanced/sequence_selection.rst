@@ -26,9 +26,9 @@ Usage
 -----------
 
 To select sequences of length **X** simply add the argument **selected_sequence_length=X**
-to your docker run command. Hereby, **X** must be an integer number which evenly divides
+to your Lightly Worker run command. Hereby, **X** must be an integer number which evenly divides
 the **stopping_condition.n_samples**. If **stopping_condition.n_samples** is a fraction,
-the Lightly docker will automatically round it to the next multiple of of **X**.
+the Lightly Worker will automatically round it to the next multiple of of **X**.
 
 
 For example, let's say we have a folder with two videos
@@ -39,26 +39,23 @@ which we randomly downloaded from `Pexels <https://www.pexels.com/>`_:
     ls /datasets/pexels/
     > Pexels Videos 1409899.mp4  Pexels Videos 2495382.mp4
 
-Now, we want to select sequences of length ten. We use:
+Now, we want to select sequences of length ten. We can use the following script:
+
+.. literalinclude:: code_examples/python_run_sequence_selection.py
+
+The above script will create a run to select 20 sequences each consisting of ten frames. The selected
+frames are then saved in the output directory for further processing. Note that Lightly Worker 
+currently doesn't support the corruptness check and removing exact duplicates for
+sequence selection. Hence we have to deactivate them in the command above.
+
+To make sure our run gets processed we need to make sure we have a Lightly Worker
+running:
 
 .. code-block:: console
 
-    docker run --gpus all --rm -it \
-        -v /datasets/pexels:/home/input_dir:ro \
-        -v /outputs/:/home/output_dir \
-        lightly/worker:latest \
-        token=MYAWESOMETOKEN \
-        stopping_condition.n_samples=200 \
-        enable_corruptness_check=False \
-        remove_exact_duplicates=False \
-        dump_dataset=True \
-        selected_sequence_length=10
-
-The above command will select 20 sequences each consisting of ten frames. The selected
-frames are then saved in the output directory for further processing. Note that Lightly
-docker currently doesn't support the corruptness check and removing exact duplicates for
-sequence selection. Hence we have to deactivate them in the command above.
-
+  docker run --rm --gpus all -it \
+    -v /docker-output:/home/output_dir lightly/worker:latest \
+    token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
 .. warning:: The stopping condition `n_samples` must be equal to to the number of
     desired sequences times the `selected_sequence_length`, i.e. **n_samples = n_sequences x selected_sequence_length**.
@@ -66,8 +63,8 @@ sequence selection. Hence we have to deactivate them in the command above.
 
 
 In our example, a look at a PCA of the embeddings of the selected frames nicely shows
-the 20 selected sequences. The following image is taken from the output of the Lightly
-docker:
+the 20 selected sequences. The following image is taken from the output of the 
+Lightly Worker:
 
 .. figure:: images/sequence_selection_pca.png
     :align: center

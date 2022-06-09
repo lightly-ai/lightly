@@ -97,8 +97,8 @@ A full Python script showing how to create such as job is shown here:
 
 
 After running the Python script to create the job we need to make sure we have
-a running Lightly worker to process the job. We can use the following
-code to sping up a Lightly worker
+a running Lightly Worker to process the job. We can use the following
+code to sping up a Lightly Worker
 
 .. code-block:: console
 

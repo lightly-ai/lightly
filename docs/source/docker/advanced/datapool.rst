@@ -10,28 +10,28 @@ to pick new samples in order to maximize the quality of the final dataset.
 It also allows for combining two different datasets into one.
 
 For example, let's imagine we have a dataset of street videos. After running
-the Lightly worker once we added 4 more street videos to the bucket.
+the Lightly Worker once we added 4 more street videos to the bucket.
 The new raw data might include samples which should be added to your dataset
 in the Lightly Platform, so you want to add a subset of them to your dataset.
 
 This workflow is supported by the Lightly Platform using a datapool.
 It remembers which raw data in your bucket has already been processed
-and will ignore it in future docker runs.
+and will ignore it in future Lightly Worker runs.
 
-Thus you can run the docker with the same command again. It will find
+Thus you can run the Lightly Worker with the same command again. It will find
 your new raw data in the bucket, stream, embed and subsample it and then add it to
 your existing dataset. The selection strategy will take the existing data in your dataset
 into account when selecting new data to be added to your dataset.
 
 .. image:: ./images/webapp-embedding-after-2nd-docker.png
 
-After the docker run we can go to the embedding view of the Lightly Platform
+After the Lightly Worker run we can go to the embedding view of the Lightly Platform
 to see the newly added samples there in a new tag. We see that the new samples
 (in green) fill some gaps left by the images in the first iteration (in grey).
 However, there are still some gaps left, which could be filled by adding more videos
-to the bucket and running the docker again.
+to the bucket and running the Lightly Worker again.
 
-This workflow of iteratively growing your dataset with the Lightly Docker
+This workflow of iteratively growing your dataset with the Lightly Worker
 has the following advantages:
 
 - You can learn from your findings after each iteration
@@ -43,7 +43,7 @@ has the following advantages:
 If you want to search all data in your bucket for new samples
 instead of only newly added data,
 then set `datasource.process_all=True` in your docker run command. This has the
-same effect as creating a new Lightly dataset and running the worker from scratch
+same effect as creating a new Lightly dataset and running the Lightly Worker from scratch
 on the full dataset. We process all data instead of only the newly added ones.
 
 
@@ -54,7 +54,7 @@ In this example we will do the following steps:
 
 #. Schedule a run to process a cloud bucket with 3 videos
 #. Add 2 more videos to the same bucket
-#. Run the worker with the same config again to use the datapool feature
+#. Run the Lightly Worker with the same config again to use the datapool feature
 
 
 Here we show the content of the bucket before running the Lightly Worker for the

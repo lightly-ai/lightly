@@ -65,12 +65,12 @@ Active Learning with Custom Scores (not recommended as of March 2022)
     This is not recommended anymore as of March 2022 and will be deprecated in the future!
 
 
-For running an active learning step with the Lightly docker, we need to perform
+For running an active learning step with the Lightly Worker, we need to perform
 3 steps:
 
-1. Create an `embeddings.csv` file. You can use your own models or the Lightly docker for this.
+1. Create an `embeddings.csv` file. You can use your own models or the Lightly Worker for this.
 2. Add your active learning scores as an additional column to the embeddings file.
-3. Use the Lightly docker to perform an active learning iteration on the scores.
+3. Use the Lightly Worker to perform an active learning iteration on the scores.
 
 Learn more about the concept of active learning 
 :ref:`lightly-active-learning-scorers`.

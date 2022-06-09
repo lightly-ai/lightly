@@ -12,22 +12,17 @@ and an easy way to work with lightly. But there is more!
 With the introduction of our on-premise solution, you can **process larger datasets completely on your end without data leaving your infrastructure**.
 We worked hard to make this happen and are very proud to present you with the following specs:
 
-* **NEW** :ref:`ref-docker-with-datasource`
-* **NEW** :ref:`integration-docker-trigger-from-api`
-
-* :ref:`ref-docker-active-learning` using Lightly Docker
-
-* Automatically upload the selected dataset to the Lightly Platform (see :ref:`ref-docker-upload-to-platform`)
+* :ref:`ref-docker-active-learning` using Lightly Worker
 
 * See your docker runs live in the Lightly Platform (see :ref:`ref-docker-runs`)
 
-* Lightly Docker has built-in pretagging models (see :ref:`ref-docker-pretagging`)
+* Lightly Worker has built-in pretagging models (see :ref:`ref-docker-pretagging`)
 
   * Use this feature to pre-label your dataset or to only select images which contain certain objects
 
   * Supported object categories are: bicycle, bus, car, motorcycle, person, train, truck
 
-* Select from more than 1 Million samples within a few hours!
+* Select from more than 10 Million samples within a few hours!
 
 * Runs directly with videos without prior extraction of the frames!
 
@@ -44,7 +39,7 @@ We worked hard to make this happen and are very proud to present you with the fo
 
   * Check for exact duplicates and report them
 
-  * We expose the full lightly framework config
+  * We expose the full lightly OSS framework config
 
 * Automated reporting of the datasets for each run
 
