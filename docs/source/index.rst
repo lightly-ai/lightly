@@ -80,7 +80,7 @@ Check it out here: :ref:`lightly-tutorial-active-learning-detectron2`
    :caption: On-Premise
 
    docker/overview.rst
-
+   docker_archive/overview.rst
 
 
 Indices and tables

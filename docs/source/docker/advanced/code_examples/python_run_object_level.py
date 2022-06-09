@@ -1,16 +1,73 @@
+import json
 import lightly
+from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
+from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 
 # Create the Lightly client to connect to the API.
-client = lightly.api.ApiWorkflowClient(token="TOKEN", dataset_id="DATASET_ID")
+client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
+
+# Create a new dataset on the Lightly Platform.
+client.create_dataset('dataset-name',
+                      dataset_type=DatasetType.IMAGES)
+
+# Pick one of the following three blocks depending on where your data is
+# AWS S3
+# Input bucket
+client.set_s3_config(
+    resource_path="s3://bucket/input/",
+    region='eu-central-1',
+    access_key='S3-ACCESS-KEY',
+    secret_access_key='S3-SECRET-ACCESS-KEY',
+    purpose=DatasourcePurpose.INPUT
+)
+# Output bucket
+client.set_s3_config(
+    resource_path="s3://bucket/output/",
+    region='eu-central-1',
+    access_key='S3-ACCESS-KEY',
+    secret_access_key='S3-SECRET-ACCESS-KEY',
+    purpose=DatasourcePurpose.LIGHTLY
+)
+
+
+# or Google Cloud Storage
+# Input bucket
+client.set_gcs_config(
+    resource_path="gs://bucket/input/",
+    project_id="PROJECT-ID",
+    credentials=json.dumps(json.load(open('credentials_read.json'))),
+    purpose=DatasourcePurpose.INPUT
+)
+# Output bucket
+client.set_gcs_config(
+    resource_path="gs://bucket/output/",
+    project_id="PROJECT-ID",
+    credentials=json.dumps(json.load(open('credentials_write.json'))),
+    purpose=DatasourcePurpose.LIGHTLY
+)
+
+
+# or Azure Blob Storage
+# Input bucket
+client.set_azure_config(
+    container_name='my-container/input/',
+    account_name='ACCOUNT-NAME',
+    sas_token='SAS-TOKEN',
+    purpose=DatasourcePurpose.INPUT
+)
+# Output bucket
+client.set_azure_config(
+    container_name='my-container/output/',
+    account_name='ACCOUNT-NAME',
+    sas_token='SAS-TOKEN',
+    purpose=DatasourcePurpose.LIGHTLY
+)
 
 # Schedule the docker run with the "object_level.task_name" argument set. 
 # All other settings are default values and we show them so you can easily edit
 # the values according to your need.
 client.schedule_compute_worker_run(
     worker_config={
-        "object_level": {
-            "task_name": "vehicles_object_detections"
-        },
         "enable_corruptness_check": True,
         "remove_exact_duplicates": True,
         "enable_training": False,
@@ -18,18 +75,12 @@ client.schedule_compute_worker_run(
         "pretagging_debug": False,
         "method": "coreset",
         "stopping_condition": {
-          "n_samples": 0.1,
+          "n_samples": 0.1, # stopping condition is now based on objects
           "min_distance": -1
         },
-        "scorer": "object-frequency",
-        "scorer_config": {
-          "frequency_penalty": 0.25,
-          "min_score": 0.9
+        "object_level": { # used for object level workflow
+            "task_name": "vehicles_object_detections" 
         },
-        "active_learning": {
-          "task_name": "",
-          "score_name": "uncertainty_margin"
-        }
     },
     lightly_config={
         'loader': {

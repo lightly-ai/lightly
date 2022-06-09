@@ -4,7 +4,7 @@ from lightly.openapi_generated.swagger_client.models.create_entity_response impo
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
 from lightly.openapi_generated.swagger_client.rest import ApiException
-
+from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 
 class _DatasetsMixin:
 
@@ -76,7 +76,7 @@ class _DatasetsMixin:
                 f"Lightly Platform. Please create it first."
             )
 
-    def create_dataset(self, dataset_name: str):
+    def create_dataset(self, dataset_name: str, dataset_type: str = None):
         """Creates a dataset on the Lightly Platform..
 
         If a dataset with that name already exists, instead the dataset_id is set.
@@ -84,14 +84,28 @@ class _DatasetsMixin:
         Args:
             dataset_name:
                 The name of the dataset to be created.
+            dataset_type:
+                The type of the dataset. We recommend to use the API provided constants
+                `DatasetType.IMAGES` and `DatasetType.VIDEOS`.
 
+        Examples:
+            >>> from lightly.api import ApiWorkflowClient
+            >>> from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
+            >>>
+            >>> client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
+            >>> client.create_dataset('your-dataset-name', dataset_type=DatasetType.IMAGES)
+            >>>
+            >>> # or to work with videos
+            >>> client.create_dataset('your-dataset-name', dataset_type=DatasetType.VIDEOS)
         """
+
         try:
             self.set_dataset_id_by_name(dataset_name)
         except ValueError:
-            self._create_dataset_without_check_existing(dataset_name=dataset_name)
+            self._create_dataset_without_check_existing(
+                dataset_name=dataset_name, dataset_type=dataset_type)
 
-    def _create_dataset_without_check_existing(self, dataset_name: str):
+    def _create_dataset_without_check_existing(self, dataset_name: str, dataset_type: str = None):
         """Creates a dataset on the Lightly Platform.
 
         No checking if a dataset with such a name already exists is performed.
@@ -99,13 +113,16 @@ class _DatasetsMixin:
         Args:
             dataset_name:
                 The name of the dataset to be created.
+            dataset_type:
+                The type of the dataset. We recommend to use the API provided 
+                constants `DatasetType.IMAGES` and `DatasetType.VIDEOS`.
 
         """
-        body = DatasetCreateRequest(name=dataset_name)
+        body = DatasetCreateRequest(name=dataset_name, type=dataset_type)
         response: CreateEntityResponse = self._datasets_api.create_dataset(body=body)
         self._dataset_id = response.id
 
-    def create_new_dataset_with_unique_name(self, dataset_basename: str):
+    def create_new_dataset_with_unique_name(self, dataset_basename: str, dataset_type: str = None):
         """Creates a new dataset on the Lightly Platform.
 
         If a dataset with the specified name already exists,
@@ -114,6 +131,9 @@ class _DatasetsMixin:
         Args:
             dataset_basename:
                 The name of the dataset to be created.
+            dataset_type:
+                The type of the dataset. We recommend to use the API provided 
+                constants `DatasetType.IMAGES` and `DatasetType.VIDEOS`.
 
         """
         current_datasets = self.get_datasets()
@@ -121,7 +141,8 @@ class _DatasetsMixin:
 
         if dataset_basename not in current_datasets_names:
             self._create_dataset_without_check_existing(
-                dataset_name=dataset_basename
+                dataset_name=dataset_basename,
+                dataset_type=dataset_type
             )
         else:
             counter = 1
@@ -130,7 +151,8 @@ class _DatasetsMixin:
                 counter += 1
                 dataset_name = f"{dataset_basename}_{counter}"
             self._create_dataset_without_check_existing(
-                dataset_name=dataset_name
+                dataset_name=dataset_name,
+                dataset_type=dataset_type
             )
 
     def delete_dataset_by_id(self, dataset_id: str):

@@ -1,6 +1,6 @@
 Integration
 ===================================
-Here you learn how to integrate the Lightly Docker into data pre-processing pipelines.
+Here you learn how to integrate the Lightly worker into data pre-processing pipelines.
 
 
 .. toctree::
@@ -8,5 +8,4 @@ Here you learn how to integrate the Lightly Docker into data pre-processing pipe
    
    docker_with_datasource.rst
    docker_trigger_from_api.rst
-   s3fs-fuse.rst
    dagster_aws.rst
