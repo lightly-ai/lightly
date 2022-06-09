@@ -6,8 +6,7 @@ from lightly.openapi_generated.swagger_client.models.datasource_purpose import D
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
 
-# Create a new dataset on the Lightly Platform. In this example we use pretagging
-# on images. We can also use videos instead by setting dataset_type=DatasetType.VIDEOS
+# Create a new dataset on the Lightly Platform.
 client.create_dataset('pexels', dataset_type=DatasetType.VIDEOS)
 
 # Pick one of the following three blocks depending on where your data is
@@ -18,7 +17,8 @@ client.set_s3_config(
     region='eu-central-1',
     access_key='S3-ACCESS-KEY',
     secret_access_key='S3-SECRET-ACCESS-KEY',
-    purpose=DatasourcePurpose.INPUT)
+    purpose=DatasourcePurpose.INPUT
+)
 # Output bucket
 client.set_s3_config(
     resource_path="s3://bucket/output/",

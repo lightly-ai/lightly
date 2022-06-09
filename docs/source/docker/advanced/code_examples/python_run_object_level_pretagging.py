@@ -19,7 +19,8 @@ client.set_s3_config(
     region='eu-central-1',
     access_key='S3-ACCESS-KEY',
     secret_access_key='S3-SECRET-ACCESS-KEY',
-    purpose=DatasourcePurpose.INPUT)
+    purpose=DatasourcePurpose.INPUT
+)
 # Output bucket
 client.set_s3_config(
     resource_path="s3://bucket/output/",
