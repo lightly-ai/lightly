@@ -21,7 +21,7 @@ Predictions Folder Structure
 ----------------------------
 
 In the following, we will outline the format of the predictions required by the
-Lightly docker. Everything regarding predictions will take place in a subdirectory
+Lightly Worker. Everything regarding predictions will take place in a subdirectory
 of your configured datasource called `.lightly/predictions`. The general structure
 of this directory will look like this:
 
@@ -65,7 +65,7 @@ of the subdirectory where your prediction schemas will be located.
 
     Only the task names listed within `tasks.json` will be considered.
     Please ensure that the task name corresponds with the location of your prediction schema.
-    This allows you to specify which subfolder are considered by the Lightly docker.
+    This allows you to specify which subfolder are considered by the Lightly Worker.
 
 For example, let's say we are working with the following folder structure:
 
@@ -103,7 +103,7 @@ we can specify which subfolders contain relevant predictions in the `tasks.json`
 .. note::
 
     If you list a subfolder which doesn't contain a valid `schema.json` file,
-    the Lightly docker will report an error! See below how to create a good `schema.json` file.
+    the Lightly Worker will report an error! See below how to create a good `schema.json` file.
 
 
 Prediction Schema

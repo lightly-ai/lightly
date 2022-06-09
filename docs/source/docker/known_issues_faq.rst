@@ -3,7 +3,7 @@
 Known Issues and FAQ
 ===================================
 
-Docker is slow when working with long videos
+Lightly Worker is slow when working with long videos
 ---------------------------------------------------
 
 We are working on this issue internally. For now we suggest to split the large
@@ -22,7 +22,7 @@ What exactly happens here?
 - `-reset_timestamps 1`, makes sure we reset the timestamps (each video starts from 0)
 - `output%03d.mp4`, name of the output vidoes (output001.mp4, output002.mp4, ...)
 
-Docker Crashes when running with GPUs
+Lightly Worker Crashes when running with GPUs
 -------------------------------------
 
 You run the docker with `--gpus all` and encounter the following error?
@@ -37,7 +37,7 @@ Try to install `nvidia-docker` following the guide
 `here <https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker>`_.
 
 
-Shared Memory Error when running Lightly Docker
+Shared Memory Error when running Lightly Worker
 -----------------------------------------------
 
 The following error message appears when the docker runtime has not enough
@@ -67,7 +67,7 @@ the docker run command:
     docker run --shm-size="512m" --gpus all
 
 
-Docker crashes because of too many open files
+Lightly Worker crashes because of too many open files
 -----------------------------------------------
 
 The following error message appears when the docker runtime has not enough
@@ -141,9 +141,7 @@ The token (along with other Hydra configuration) will be printed to stdout, and 
 .. code-block:: console
 
     docker run --rm -it \
-        -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/shared_dir \
-        --ipc="host" --network="host" \
         lightly/worker:latest \
         token=MYAWESOMETOKEN \
         ...
@@ -154,8 +152,6 @@ This can be avoided by setting your `token` via the `LIGHTLY_TOKEN` environment 
 
     docker run --rm -it \
         -e LIGHTLY_TOKEN=MYAWESOMETOKEN
-        -v {INPUT_DIR}:/home/input_dir:ro \
         -v {OUTPUT_DIR}:/home/shared_dir \
-        --ipc="host" --network="host" \
         lightly/worker:latest \
         ...
