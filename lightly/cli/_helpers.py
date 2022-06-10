@@ -60,7 +60,7 @@ def fix_hydra_arguments(config: str = 'config'):
     Hydra introduced the `version_base` argument in version 1.2.0
     We use this helper to provide backwards compatibility to older hydra verisons.    
     """
-    if version_compare(hydra.__version__, '1.1.2'):
+    if version_compare(hydra.__version__, '1.1.2') > 0:
         return {'config_path': config, 'config_name': config, 'version_base': '1.1'}
     else:
         return {'config_path': config, 'config_name': config}
