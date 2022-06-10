@@ -35,7 +35,8 @@ jobs:
         pip install pytest-cov
         python -m pytest -s -v --runslow --cov=./lightly --cov-report=xml --ignore=./lightly/openapi_generated/
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
       with:
         fail_ci_if_error: true
+        files: ./coverage.xml
         token: ${{ secrets.CODECOV_TOKEN }}
