@@ -22,17 +22,19 @@ Predictions Folder Structure
 
 In the following, we will outline the format of the predictions required by the
 Lightly Worker. Everything regarding predictions will take place in a subdirectory
-of your configured datasource called `.lightly/predictions`. The general structure
-of this directory will look like this:
+of your configured **output datasource** called `.lightly/predictions`. The general structure
+of your input and output bucket will look like this:
 
 
 .. code-block:: bash
 
-    datasource/my_dataset
+    input/bucket/
         + image_1.png
         + image_2.png
         + ...
         + image_N.png
+  
+    output/bucket/
         + .lightly/predictions/
             + tasks.json
             + task_1/
@@ -56,7 +58,7 @@ Prediction Tasks
 ----------------
 To let Lightly know what kind of prediction tasks you want to work with, Lightly
 needs to know their names. It's very easy to let Lightly know which tasks exist:
-simply add a `tasks.json` in your storage bucket stored at the subdirectory `.lightly/predictions/`.
+simply add a `tasks.json` in your output bucket stored at the subdirectory `.lightly/predictions/`.
 
 The `tasks.json` file must include a list of your task names which must match name
 of the subdirectory where your prediction schemas will be located.
@@ -403,8 +405,8 @@ format required by Lightly.
 
 
 
-Creating the predictions folder
--------------------------------
+Creating the predictions folder from COCO
+-----------------------------------------
 
 For creating the predictions folder, we recommend writing a script that takes your predictions and
 saves them in the format just outlined. You can either save the predictions first on your local machine
