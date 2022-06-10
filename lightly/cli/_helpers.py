@@ -8,9 +8,12 @@ import warnings
 from typing import Type
 
 import torch
+import hydra
 from hydra import utils
 from torch import nn as nn
 from torch.utils.hipify.hipify_python import bcolors
+
+from lightly.utils import version_compare
 
 from lightly.cli._cli_simclr import _SimCLR
 from lightly.embedding import SelfSupervisedEmbedding
@@ -49,6 +52,18 @@ def fix_input_path(path):
     if not os.path.isabs(path):
         path = utils.to_absolute_path(path)
     return path
+
+
+def fix_hydra_arguments(config: str = 'config'):
+    """Helper to make hydra arugments adaptive to installed hydra version
+    
+    Hydra introduced the `version_base` argument in version 1.2.0
+    We use this helper to provide backwards compatibility to older hydra verisons.    
+    """
+    if version_compare(hydra.__version__, '1.1.2'):
+        return {'config_path': config, 'config_name': config, 'version_base': '1.1'}
+    else:
+        return {'config_path': config, 'config_name': config}
 
 
 def is_url(checkpoint):

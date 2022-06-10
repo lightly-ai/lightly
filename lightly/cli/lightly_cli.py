@@ -12,6 +12,7 @@ import hydra
 from omegaconf import DictConfig
 
 from lightly.cli._helpers import print_as_warning
+from lightly.cli._helpers import fix_hydra_arguments
 from lightly.cli.train_cli import _train_cli
 from lightly.cli.embed_cli import _embed_cli
 from lightly.cli.upload_cli import _upload_cli
@@ -67,7 +68,7 @@ def _lightly_cli(cfg, is_cli_call=True):
     print('#' * 10 + ' Finished')
 
 
-@hydra.main(config_path="config", config_name="config", version_base='1.1')
+@hydra.main(**fix_hydra_arguments('config'))
 def lightly_cli(cfg):
     """Train a self-supervised model and use it to embed your dataset.
 

@@ -21,7 +21,11 @@ from torch.utils.hipify.hipify_python import bcolors
 
 from lightly.api.api_workflow_upload_embeddings import \
     EmbeddingDoesNotExistError
-from lightly.cli._helpers import fix_input_path, print_as_warning, cpu_count
+    
+from lightly.cli._helpers import fix_input_path
+from lightly.cli._helpers import print_as_warning
+from lightly.cli._helpers import cpu_count
+from lightly.cli._helpers import fix_hydra_arguments
 
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.data import LightlyDataset
@@ -164,7 +168,7 @@ def _upload_cli(cfg, is_cli_call=True) -> Union[str, None]:
     return SUCCESS_RETURN_VALUE
 
 
-@hydra.main(config_path='config', config_name='config', version_base='1.1')
+@hydra.main(**fix_hydra_arguments('config'))
 def upload_cli(cfg):
     """Upload images/embeddings from the command-line to the Lightly platform.
 
