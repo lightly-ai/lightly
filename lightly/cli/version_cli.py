@@ -18,7 +18,7 @@ def _version_cli():
     print(f'lightly version {version}', flush=True)
 
 
-@hydra.main(config_path='config', config_name='config')
+@hydra.main(config_path='config', config_name='config', version_base='1.1')
 def version_cli(cfg):
     """Prints the version of the used lightly package to the terminal.
 

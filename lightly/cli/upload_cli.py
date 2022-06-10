@@ -164,7 +164,7 @@ def _upload_cli(cfg, is_cli_call=True) -> Union[str, None]:
     return SUCCESS_RETURN_VALUE
 
 
-@hydra.main(config_path='config', config_name='config')
+@hydra.main(config_path='config', config_name='config', version_base='1.1')
 def upload_cli(cfg):
     """Upload images/embeddings from the command-line to the Lightly platform.
 

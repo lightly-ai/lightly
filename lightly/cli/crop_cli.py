@@ -63,7 +63,7 @@ def _crop_cli(cfg, is_cli_call=True):
     return cropped_images_list_list
 
 
-@hydra.main(config_path="config", config_name="config")
+@hydra.main(config_path="config", config_name="config", version_base='1.1')
 def crop_cli(cfg):
     """Crops images into one sub-image for each object.
 
