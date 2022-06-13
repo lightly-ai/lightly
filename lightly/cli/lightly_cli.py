@@ -68,7 +68,7 @@ def _lightly_cli(cfg, is_cli_call=True):
     print('#' * 10 + ' Finished')
 
 
-@hydra.main(**fix_hydra_arguments('config'))
+@hydra.main(**fix_hydra_arguments(config_path = 'config', config_name = 'config'))
 def lightly_cli(cfg):
     """Train a self-supervised model and use it to embed your dataset.
 

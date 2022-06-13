@@ -77,7 +77,7 @@ def _download_cli(cfg, is_cli_call=True):
         dataset.dump(output_dir, filenames_tag)
 
 
-@hydra.main(**fix_hydra_arguments('config'))
+@hydra.main(**fix_hydra_arguments(config_path = 'config', config_name = 'config'))
 def download_cli(cfg):
     """Download images from the Lightly platform.
 
