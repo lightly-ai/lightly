@@ -17,7 +17,9 @@ from torch.utils.hipify.hipify_python import bcolors
 from tqdm import tqdm
 
 import lightly.data as data
-from lightly.cli._helpers import fix_input_path, print_as_warning
+from lightly.cli._helpers import fix_input_path
+from lightly.cli._helpers import print_as_warning
+from lightly.cli._helpers import fix_hydra_arguments
 
 from lightly.api.utils import getenv
 from lightly.api.api_workflow_client import ApiWorkflowClient
@@ -75,7 +77,7 @@ def _download_cli(cfg, is_cli_call=True):
         dataset.dump(output_dir, filenames_tag)
 
 
-@hydra.main(config_path='config', config_name='config')
+@hydra.main(**fix_hydra_arguments(config_path = 'config', config_name = 'config'))
 def download_cli(cfg):
     """Download images from the Lightly platform.
 

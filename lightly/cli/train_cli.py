@@ -31,6 +31,7 @@ from lightly.cli._helpers import fix_input_path
 from lightly.cli._helpers import load_state_dict_from_url
 from lightly.cli._helpers import load_from_state_dict
 from lightly.cli._helpers import cpu_count
+from lightly.cli._helpers import fix_hydra_arguments
 
 
 def _train_cli(cfg, is_cli_call=True):
@@ -142,7 +143,7 @@ def _train_cli(cfg, is_cli_call=True):
     return encoder.checkpoint
 
 
-@hydra.main(config_path="config", config_name="config")
+@hydra.main(**fix_hydra_arguments(config_path = 'config', config_name = 'config'))
 def train_cli(cfg):
     """Train a self-supervised model from the command-line.
 

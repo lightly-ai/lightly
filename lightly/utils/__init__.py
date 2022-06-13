@@ -19,3 +19,4 @@ from lightly.utils.embeddings_2d import fit_pca
 from lightly.utils.benchmarking import BenchmarkModule
 from lightly.utils.benchmarking import knn_predict
 from lightly.utils.debug import std_of_l2_normalized
+from lightly.utils.version_compare import version_compare
