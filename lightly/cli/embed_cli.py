@@ -19,6 +19,8 @@ from torch.utils.hipify.hipify_python import bcolors
 
 from lightly.data import LightlyDataset
 
+from lightly.cli._helpers import fix_hydra_arguments
+
 from lightly.utils import save_embeddings
 
 from lightly.cli._helpers import get_model_from_config
@@ -94,7 +96,7 @@ def _embed_cli(cfg, is_cli_call=True) -> \
     return embeddings, labels, filenames
 
 
-@hydra.main(config_path='config', config_name='config')
+@hydra.main(**fix_hydra_arguments(config_path = 'config', config_name = 'config'))
 def embed_cli(cfg) -> str:
     """Embed images from the command-line.
 

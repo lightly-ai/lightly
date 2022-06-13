@@ -16,6 +16,7 @@ from torch.utils.hipify.hipify_python import bcolors
 
 from lightly.active_learning.utils import BoundingBox
 from lightly.cli._helpers import fix_input_path
+from lightly.cli._helpers import fix_hydra_arguments
 from lightly.data import LightlyDataset
 from lightly.utils.cropping.crop_image_by_bounding_boxes import crop_dataset_by_bounding_boxes_and_save
 from lightly.utils.cropping.read_yolo_label_file import read_yolo_label_file
@@ -63,7 +64,7 @@ def _crop_cli(cfg, is_cli_call=True):
     return cropped_images_list_list
 
 
-@hydra.main(config_path="config", config_name="config")
+@hydra.main(**fix_hydra_arguments(config_path = 'config', config_name = 'config'))
 def crop_cli(cfg):
     """Crops images into one sub-image for each object.
 

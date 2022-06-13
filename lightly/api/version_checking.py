@@ -11,6 +11,8 @@ from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.configuration import Configuration
 from lightly.api.utils import getenv
 
+from lightly.utils import version_compare
+
 
 class LightlyAPITimeoutException(Exception):
     pass
@@ -37,9 +39,15 @@ def do_version_check(current_version: str):
             current_version: str = versioning_api.get_latest_pip_version(
                 current_version=current_version)
             latest_version: str = versioning_api.get_minimum_compatible_pip_version()
-            if version_compare(current_version, latest_version) < 0:
-                # local version is behind latest version
-                pretty_print_latest_version(current_version, latest_version)
+
+            try:
+                if version_compare(current_version, latest_version) < 0:
+                    # local version is behind latest version
+                    pretty_print_latest_version(current_version, latest_version)
+            except ValueError:
+                pass
+                # error during version compare
+                # we just skip the version check
 
 
 
@@ -64,20 +72,6 @@ def get_minimum_compatible_version():
     versioning_api = get_versioning_api()
     version_number: str = versioning_api.get_minimum_compatible_pip_version()
     return version_number
-
-
-def version_compare(v0, v1):
-    v0 = [int(n) for n in v0.split('.')][::-1]
-    v1 = [int(n) for n in v1.split('.')][::-1]
-    assert len(v0) == 3
-    assert len(v1) == 3
-    pairs = list(zip(v0, v1))[::-1]
-    for x, y in pairs:
-        if x < y:
-            return -1
-        if x > y:
-            return 1
-    return 0
 
 
 def pretty_print_latest_version(current_version, latest_version, width=70):
