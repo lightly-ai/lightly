@@ -54,16 +54,17 @@ def fix_input_path(path):
     return path
 
 
-def fix_hydra_arguments(config: str = 'config'):
+def fix_hydra_arguments(config_path: str = 'config', config_name: str = 'config'):
     """Helper to make hydra arugments adaptive to installed hydra version
     
     Hydra introduced the `version_base` argument in version 1.2.0
     We use this helper to provide backwards compatibility to older hydra verisons.    
     """
-    if version_compare(hydra.__version__, '1.1.2') > 0:
-        return {'config_path': config, 'config_name': config, 'version_base': '1.1'}
-    else:
-        return {'config_path': config, 'config_name': config}
+    try:
+        if version_compare(hydra.__version__, '1.1.2') > 0:
+            return {'config_path': config_path, 'config_name': config_name, 'version_base': '1.1'}
+    finally:
+        return {'config_path': config_path, 'config_name': config_name}
 
 
 def is_url(checkpoint):
