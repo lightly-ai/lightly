@@ -39,9 +39,15 @@ def do_version_check(current_version: str):
             current_version: str = versioning_api.get_latest_pip_version(
                 current_version=current_version)
             latest_version: str = versioning_api.get_minimum_compatible_pip_version()
-            if version_compare(current_version, latest_version) < 0:
-                # local version is behind latest version
-                pretty_print_latest_version(current_version, latest_version)
+
+            try:
+                if version_compare(current_version, latest_version) < 0:
+                    # local version is behind latest version
+                    pretty_print_latest_version(current_version, latest_version)
+            except ValueError:
+                pass
+                # error during version compare
+                # we just skip the version check
 
 
 
