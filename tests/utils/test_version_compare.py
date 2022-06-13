@@ -15,6 +15,9 @@ class TestVersionCompare(unittest.TestCase):
         self.assertEqual(version_compare('1.2.0', '1.1.0'), 1)
         self.assertEqual(version_compare('1.2.0', '0.1.4'), 1)
 
+        # test equal
+        self.assertEqual(version_compare('1.2.0', '1.2.0'), 0)
+
 
     def test_invalid_versions(self):
         with self.assertRaises(ValueError):
