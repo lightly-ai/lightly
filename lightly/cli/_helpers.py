@@ -63,7 +63,9 @@ def fix_hydra_arguments(config_path: str = 'config', config_name: str = 'config'
     try:
         if version_compare(hydra.__version__, '1.1.2') > 0:
             return {'config_path': config_path, 'config_name': config_name, 'version_base': '1.1'}
-    finally:
+        else:
+            return {'config_path': config_path, 'config_name': config_name} 
+    except:
         return {'config_path': config_path, 'config_name': config_name}
 
 
