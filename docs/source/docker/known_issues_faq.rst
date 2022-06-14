@@ -188,6 +188,13 @@ the provided credentials.
 There are two ways to solve the problem:
 
 - You can delete the config and run the authentication again.
+
+    .. code-block:: console
+
+        rm ~/.docker/config.json 
+
+        cat container-credentials.json | docker login -u _json_key --password-stdin https://eu.gcr.io
+
 - You can work with two configs. We recommend creating a dedicated folder
   for the Lightly docker config.
 
@@ -197,7 +204,7 @@ There are two ways to solve the problem:
 
         cat container-credentials.json | docker --config ~/.docker_lightly/ login -u _json_key --password-stdin https://eu.gcr.io
 
-        docker --config ~/.docker_lightly/ pull  eu.gcr.io/boris-250909/lightly/worker:2.2.2
+        docker --config ~/.docker_lightly/ pull  eu.gcr.io/boris-250909/lightly/worker:latest
 
 Whenever you're pulling a new image (e.g. updating Lightly) you would need to 
 pass it the corresponding config using the `--config` parameter.
