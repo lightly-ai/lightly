@@ -113,6 +113,52 @@ You can build your own collate function by inheriting from
     can be disabled by setting `min_scale=1.0`.
 
 
+
+Previewing Augmentations
+------------------------
+
+It often can be very useful to understand how the image augmentations we pick affect
+the input dataset. We provide a few helper methods that make it very easy to 
+preview augmentations using lightly.
+
+
+
+.. literalinclude:: code_examples/plot_image_augmentations.py
+
+You can run the code in a Jupyter Notebook to quickly explore the augmentations.
+Once you run the `plot_augmented_images` you should see the oringinal images as 
+well as their augmetations next to them.
+
+.. figure:: images/simclr_augmentations.jpg
+    :align: center
+    :alt: SimCLR augmentations example
+
+    Example augmentations of the `SimCLRCollateFunction` function on images
+    from the clothing dataset.
+
+The images seem rather blurry! However, we don't want our model to ignore small
+details. Let's disable Gaussian Blur and check again:
+
+
+.. figure:: images/simclr_augmentations_no_blur.jpg
+    :align: center
+    :alt: SimCLR augmentations example
+
+    Example augmentations of the `SimCLRCollateFunction` function on images
+    from the clothing dataset.
+
+We can also repeat the experiment for the `DINOCollateFunction` to see what 
+our DINO model would see during training.
+
+.. figure:: images/dino_augmentations.jpg
+    :align: center
+    :alt: DINO augmentations example
+
+    Example augmentations of the `DINOCollateFunction` function on images
+    from the clothing dataset.
+
+
+
 Models
 -------------------
 
