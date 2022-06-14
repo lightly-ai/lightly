@@ -121,13 +121,11 @@ It often can be very useful to understand how the image augmentations we pick af
 the input dataset. We provide a few helper methods that make it very easy to 
 preview augmentations using lightly.
 
-
-
 .. literalinclude:: code_examples/plot_image_augmentations.py
 
 You can run the code in a Jupyter Notebook to quickly explore the augmentations.
-Once you run the `plot_augmented_images` you should see the oringinal images as 
-well as their augmetations next to them.
+Once you run `plot_augmented_images` you should see the original images as 
+well as their augmentations next to them.
 
 .. figure:: images/simclr_augmentations.jpg
     :align: center
