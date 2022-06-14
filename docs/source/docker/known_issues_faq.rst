@@ -163,7 +163,7 @@ No permission to pull the docker image
 --------------------------------------
 
 Please make sure the authentication succeeded as described in the 
-:ref:`ref-docker-download-and-install`  guide.
+:ref:`ref-docker-download-and-install` guide.
 
 If you still can't pull the docker image it might be that the docker config
 is causing the problem.
@@ -177,18 +177,27 @@ You can check the config using the following command:
 You should see a section with the key for authentication. If you also see
 a section about the `credHelpers` they might overrule the authentication.
 
-In this case, you can delete the config and run the authentication again.
+The `credHelpers` can overrule the key for certain URLs. This can lead to 
+permission errors pulling the docker image. 
 
-Or you can work with two configs. We recommend creating a dedicated folder
-for the Lightly docker config.
+The Lightly docker images are hosted in the European location. Therefore,
+it's important that pulling from the `eu.gcr.io` domain is using 
+the provided credentials.
 
-.. code-block:: console
 
-    mkdir -p ~/.docker_lightly/
+There are two ways to solve the problem:
 
-    cat container-credentials.json | docker --config ~/.docker_lightly/ login -u _json_key --password-stdin https://eu.gcr.io
+- You can delete the config and run the authentication again.
+- You can work with two configs. We recommend creating a dedicated folder
+  for the Lightly docker config.
 
-    docker --config ~/.docker_lightly/ pull  eu.gcr.io/boris-250909/lightly/worker:2.2.2
+    .. code-block:: console
+
+        mkdir -p ~/.docker_lightly/
+
+        cat container-credentials.json | docker --config ~/.docker_lightly/ login -u _json_key --password-stdin https://eu.gcr.io
+
+        docker --config ~/.docker_lightly/ pull  eu.gcr.io/boris-250909/lightly/worker:2.2.2
 
 Whenever you're pulling a new image (e.g. updating Lightly) you would need to 
 pass it the corresponding config using the `--config` parameter.
