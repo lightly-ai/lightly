@@ -79,7 +79,8 @@ We assume *container-credentials.json* is in your current directory.
 
     cat container-credentials.json | docker login -u _json_key --password-stdin https://eu.gcr.io
 
-If the above command does not work, try the following:
+If the above command does not work, try the following. And please make sure the 
+json format is correct (no sudden newlines etc.):
 
 .. code-block:: console
 
@@ -107,6 +108,9 @@ Using the following command you pull the latest image from our European cloud se
 .. code-block:: console
 
     docker pull eu.gcr.io/boris-250909/lightly/worker:latest
+
+In case you experience any issues pulling the docker image after successful
+authentication :ref:`check out our FAQ section<rst-docker-known-issues-faq-pulling-docker>`.
 
 .. warning::
 
