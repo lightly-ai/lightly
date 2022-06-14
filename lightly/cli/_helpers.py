@@ -60,13 +60,16 @@ def fix_hydra_arguments(config_path: str = 'config', config_name: str = 'config'
     Hydra introduced the `version_base` argument in version 1.2.0
     We use this helper to provide backwards compatibility to older hydra verisons.    
     """
+
+    hydra_args = {'config_path': config_path, 'config_name': config_name}
+
     try:
         if version_compare(hydra.__version__, '1.1.2') > 0:
-            return {'config_path': config_path, 'config_name': config_name, 'version_base': '1.1'}
-        else:
-            return {'config_path': config_path, 'config_name': config_name} 
-    except:
-        return {'config_path': config_path, 'config_name': config_name}
+            hydra_args['version_base'] = '1.1'
+    except ValueError:
+        pass
+    
+    return hydra_args
 
 
 def is_url(checkpoint):
