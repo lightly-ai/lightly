@@ -313,6 +313,70 @@ model and therefore the embeddings invariant towards different colors. However,
 the color might be a very important feature of the leave to determine whether 
 it is healthy (green) or not (brown).
 
+Monitoring Embedding Quality
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We provide several tools to assess the embedding quality during model training.
+The :class:`Benchmark Module <lightly.utils.benchmarking.BenchmarkModule>` runs
+a KNN benchmark on a validation set after every training epoch. Measuring KNN
+accuracy during training is an efficient way to monitor model training and does
+not require expensive finetuning.
+
+We also provide a helper function to monitor representation collapse. 
+Representation collapse can happen during  unstable training and results in the 
+model predicting the same, or very similar,  representations for all images. 
+This is of course disastrous for model training as we want to the 
+representations to be as different as possible between images!
+The :func:`std_of_l2_normalized <lightly.utils.debug.std_of_l2_normalized>` 
+helper function can be used on any representations as follows:
+
+.. code-block:: python
+
+  from lightly.utils.debug import std_of_l2_normalized
+  representations = model(images)
+  std_of_l2_normalized(representations)
+
+A value close to 0 indicates that the representations have collapsed. A value
+close to `1/sqrt(dimensions)`, where `dimensions` are the number of representation
+dimensions, indicates that the representations are stable. Below we show model
+training outputs from a run where the representations collapse and one where
+they don't collapse.
+
+.. code-block::
+
+  # run with collapse
+  epoch: 00, loss: -0.78153, representation std: 0.02611
+  epoch: 01, loss: -0.96428, representation std: 0.02477
+  epoch: 02, loss: -0.97460, representation std: 0.01636
+  epoch: 03, loss: -0.97894, representation std: 0.01936
+  epoch: 04, loss: -0.97770, representation std: 0.01565
+  epoch: 05, loss: -0.98308, representation std: 0.01192
+  epoch: 06, loss: -0.98641, representation std: 0.01133
+  epoch: 07, loss: -0.98673, representation std: 0.01583
+  epoch: 08, loss: -0.98708, representation std: 0.01146
+  epoch: 09, loss: -0.98654, representation std: 0.01656
+
+  # run without collapse
+  epoch: 00, loss: -0.35693, representation std: 0.06708
+  epoch: 01, loss: -0.69948, representation std: 0.05853
+  epoch: 02, loss: -0.74144, representation std: 0.05710
+  epoch: 03, loss: -0.74297, representation std: 0.05804
+  epoch: 04, loss: -0.71997, representation std: 0.06441
+  epoch: 05, loss: -0.70027, representation std: 0.06738
+  epoch: 06, loss: -0.70543, representation std: 0.06898
+  epoch: 07, loss: -0.71539, representation std: 0.06875
+  epoch: 08, loss: -0.72629, representation std: 0.06991
+  epoch: 09, loss: -0.72912, representation std: 0.06945
+
+We note that in both runs the loss decreases, indicating that the model is
+making progress. The representation std shows, however, that the two runs are
+very different. The std in the first run decreases towards zero which means that
+the representations become more and more similar. The std in the second run
+remains stable and close to the expected value of `1/sqrt(dimensions) = 0.088`
+for this run (`dimensions = 128`). If we had only monitored the loss, we would
+not have noticed the representation collapse in the first run and continued
+training, using up valuable time and compute resources.
+
 
 Extracting specific Video Frames
 --------------------------------
