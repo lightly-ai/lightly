@@ -20,7 +20,7 @@ def _check_matplotlib_available() -> None:
 
 
 @torch.no_grad()
-def std_of_l2_normalized(z: torch.Tensor):
+def std_of_l2_normalized(z: torch.Tensor) -> torch.Tensor:
     """Calculates the mean of the standard deviation of z along each dimension.
 
     This measure was used by [0] to determine the level of collapse of the
