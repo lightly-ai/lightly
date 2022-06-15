@@ -322,13 +322,13 @@ a KNN benchmark on a validation set after every training epoch. Measuring KNN
 accuracy during training is an efficient way to monitor model training and does
 not require expensive finetuning.
 
-We also provide a :function:`helper function <lightly.utils.debug.std_of_l2_normalized>` 
-to monitor representation collapse. Representation collapse can happen during 
-unstable training and results in the model predicting the same, or very similar, 
-representations for all images. This is of course disastrous for model training
-as we want to the representations to be as different as possible between images! 
-The :function:`std_of_l2_normalized function <lightly.utils.debug.std_of_l2_normalized>>``
-can be used on any representations as follows:
+We also provide a helper function to monitor representation collapse. 
+Representation collapse can happen during  unstable training and results in the 
+model predicting the same, or very similar,  representations for all images. 
+This is of course disastrous for model training as we want to the 
+representations to be as different as possible between images!
+The :func:`std_of_l2_normalized <lightly.utils.debug.std_of_l2_normalized>` 
+helper function can be used on any representations as follows:
 
 .. code-block:: python
 
@@ -375,7 +375,7 @@ the representations become more and more similar. The std in the second run
 remains stable and close to the expected value of `1/sqrt(dimensions) = 0.088`
 for this run (`dimensions = 128`). If we had only monitored the loss, we would
 not have noticed the representation collapse in the first run and continued
-training using up valuable time and compute resources.
+training, using up valuable time and compute resources.
 
 
 Extracting specific Video Frames
