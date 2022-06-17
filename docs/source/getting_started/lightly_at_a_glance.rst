@@ -75,7 +75,7 @@ with the normalized temperature-scaled cross entropy loss and simple stochastic 
 
     # use a resnet backbone
     resnet = torchvision.models.resnet18()
-    resnet = nn.Sequential(*list(resnet.children())[:-1])
+    resnet = torch.nn.Sequential(*list(resnet.children())[:-1])
 
     # build a SimCLR model
     class SimCLR(torch.nn.Module):
@@ -135,6 +135,7 @@ You can of course also use `PyTorch Lightning <https://www.pytorchlightning.ai/>
 
     class SimCLR(pl.LightningModule):
         def __init__(self, backbone, hidden_dim, out_dim):
+            super().__init__()
             self.backbone = backbone
             self.projection_head = SimCLRProjectionHead(hidden_dim, hidden_dim, out_dim)
             self.criterion = NTXentLoss(temperature=0.5)
@@ -152,7 +153,7 @@ You can of course also use `PyTorch Lightning <https://www.pytorchlightning.ai/>
             return loss
 
         def configure_optimizers(self):
-            optimizer = torch.optim.SGD(self.parameters())
+            optimizer = torch.optim.SGD(self.parameters(), lr=1e-0)
             return optimizer
     
     model = SimCLR(resnet, hidden_dim=512, out_dim=128)
