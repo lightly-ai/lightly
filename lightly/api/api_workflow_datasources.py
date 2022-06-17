@@ -240,8 +240,8 @@ class _DatasourcesMixin:
                 datasource instead.
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
-                or if new data can be uploaded to the datasource through Lightly
-                (INPUT_OUTPUT).
+                or can be written to as well (LIGHTLY, INPUT_OUTPUT).
+                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigAzure once we switch/update the api generator.
@@ -286,8 +286,8 @@ class _DatasourcesMixin:
                 datasource instead.
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
-                or if new data can be uploaded to the datasource through Lightly
-                (INPUT_OUTPUT).
+                or can be written to as well (LIGHTLY, INPUT_OUTPUT).
+                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigGCS once we switch/update the api generator.
@@ -360,8 +360,8 @@ class _DatasourcesMixin:
                 datasource instead.
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
-                or if new data can be uploaded to the datasource through Lightly
-                (INPUT_OUTPUT).
+                or can be written to as well (LIGHTLY, INPUT_OUTPUT).
+                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigS3 once we switch/update the api generator.
@@ -405,8 +405,8 @@ class _DatasourcesMixin:
                 datasource instead.
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
-                or if new data can be uploaded to the datasource through Lightly
-                (INPUT_OUTPUT).
+                or can be written to as well (LIGHTLY, INPUT_OUTPUT).
+                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigS3 once we switch/update the api generator.
