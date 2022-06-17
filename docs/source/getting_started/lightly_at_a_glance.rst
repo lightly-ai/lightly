@@ -109,9 +109,11 @@ Train the model for 10 epochs.
 
 .. code-block:: python
 
-    for epoch in range(10):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    max_epochs = 10
+    for epoch in range(max_epochs):
         for (x0, x1), _, _ in dataloader:
-            
+
             x0 = x0.to(device)
             x1 = x1.to(device)
 
@@ -155,9 +157,10 @@ You can of course also use `PyTorch Lightning <https://www.pytorchlightning.ai/>
         def configure_optimizers(self):
             optimizer = torch.optim.SGD(self.parameters(), lr=1e-0)
             return optimizer
-    
+
     model = SimCLR(resnet, hidden_dim=512, out_dim=128)
-    trainer = pl.Trainer(max_epochs=max_epochs, gpus=1)
+    gpus = 1 if torch.cuda.is_available() else None
+    trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus)
     trainer.fit(
         model,
         dataloader
@@ -187,6 +190,8 @@ model directly.
 .. code-block:: python 
 
     # make a new dataloader without the transformations
+    # The only transformation needed is to make a torch tensor out of the PIL image
+    dataset.transform = torchvision.transforms.ToTensor()
     dataloader = torch.utils.data.DataLoader(
         dataset,        # use the same dataset as before
         batch_size=1,   # we can use batch size 1 for inference
