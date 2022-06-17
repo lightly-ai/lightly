@@ -98,6 +98,15 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
             secret_access_key="my-secret-access-key",
         )
 
+    def test_set_s3_delegated_access_config(self):
+        self.api_workflow_client.set_s3_delegated_access_config(
+            resource_path="s3://my-bucket/my-dataset",
+            thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+            region="eu-central-1",
+            role_arn="my-role-arn",
+            external_id="my-external-id"
+        )
+
     def test_download_raw_samples_predictions(self):
         self.api_workflow_client._datasources_api.reset()
 

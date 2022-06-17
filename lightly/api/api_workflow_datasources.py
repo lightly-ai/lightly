@@ -240,8 +240,8 @@ class _DatasourcesMixin:
                 datasource instead.
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
-                or if new data can be uploaded to the datasource through Lightly
-                (INPUT_OUTPUT).
+                or can be written to as well (LIGHTLY, INPUT_OUTPUT).
+                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigAzure once we switch/update the api generator.
@@ -286,8 +286,8 @@ class _DatasourcesMixin:
                 datasource instead.
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
-                or if new data can be uploaded to the datasource through Lightly
-                (INPUT_OUTPUT).
+                or can be written to as well (LIGHTLY, INPUT_OUTPUT).
+                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigGCS once we switch/update the api generator.
@@ -360,8 +360,8 @@ class _DatasourcesMixin:
                 datasource instead.
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
-                or if new data can be uploaded to the datasource through Lightly
-                (INPUT_OUTPUT).
+                or can be written to as well (LIGHTLY, INPUT_OUTPUT).
+                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigS3 once we switch/update the api generator.
@@ -377,6 +377,52 @@ class _DatasourcesMixin:
             },
             dataset_id=self.dataset_id,
         )
+
+    def set_s3_delegated_access_config(
+        self,
+        resource_path: str,
+        region: str,
+        role_arn: str,
+        external_id: str,
+        thumbnail_suffix: Optional[str] = ".lightly/thumbnails/[filename]_thumb.[extension]",
+        purpose: str = DatasourcePurpose.INPUT_OUTPUT,
+    ) -> None:
+        """Sets the S3 configuration for the datasource of the current dataset.
+        
+        Args:
+            resource_path:
+                S3 url of your dataset, for example "s3://my_bucket/path/to/my/data".
+            region:
+                S3 region where the dataset bucket is located, for example "eu-central-1".
+            role_arn:
+                Unique ARN identifier of the role.
+            external_id:
+                External ID of the role.
+            thumbnail_suffix:
+                Where to save thumbnails of the images in the dataset, for
+                example ".lightly/thumbnails/[filename]_thumb.[extension]". 
+                Set to None to disable thumbnails and use the full images from the 
+                datasource instead.
+            purpose:
+                Datasource purpose, determines if datasource is read only (INPUT)
+                or can be written to as well (LIGHTLY, INPUT_OUTPUT).
+                The latter is required when Lightly extracts frames from input videos.
+
+        """
+        # TODO: Use DatasourceConfigS3 once we switch/update the api generator.
+        self._datasources_api.update_datasource_by_dataset_id(
+            body={
+                'type': 'S3DelegatedAccess',
+                'fullPath': resource_path,
+                'thumbSuffix': thumbnail_suffix,
+                's3Region': region,
+                's3ARN': role_arn,
+                's3ExternalId': external_id,
+                'purpose': purpose,
+            },
+            dataset_id=self.dataset_id,
+        )
+
 
     def get_prediction_read_url(
         self,

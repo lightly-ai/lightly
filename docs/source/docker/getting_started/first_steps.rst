@@ -120,6 +120,30 @@ make sure to specify the `dataset_id` in the constructor.
                 purpose=DatasourcePurpose.LIGHTLY
             )
 
+    .. tab:: S3 Delegated Access
+
+        .. code-block:: python
+            :caption: Giving access to storage buckets from Python
+
+            from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
+
+            ## AWS S3
+            # Input bucket
+            client.set_s3_delegated_access_config(
+                resource_path="s3://bucket/input/",
+                region='eu-central-1'
+                role_arn='S3-ROLE-ARN',
+                external_id='S3-EXTERNAL-ID'
+                purpose=DatasourcePurpose.INPUT
+            )
+            # Output bucket
+            client.set_s3_delegated_access_config(
+                resource_path="s3://bucket/output/",
+                region='eu-central-1'
+                role_arn='S3-ROLE-ARN',
+                external_id='S3-EXTERNAL-ID'
+                purpose=DatasourcePurpose.LIGHTLY
+            )
 
     .. tab:: GCS
 
