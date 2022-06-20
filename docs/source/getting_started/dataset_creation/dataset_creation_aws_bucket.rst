@@ -131,7 +131,6 @@ To set up IAM Delegated Access
                         "arn:aws:s3:::{YOUR_BUCKET}/*",
                         "arn:aws:s3:::{YOUR_BUCKET}"
                     ]
-                    
                 }
             ]
         }
