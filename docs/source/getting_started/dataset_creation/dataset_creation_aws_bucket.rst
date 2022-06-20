@@ -130,6 +130,7 @@ To set up IAM Delegated Access
                     "Resource": [
                         "arn:aws:s3:::{YOUR_BUCKET}/*",
                         "arn:aws:s3:::{YOUR_BUCKET}"
+                    ]
                     
                 }
             ]
