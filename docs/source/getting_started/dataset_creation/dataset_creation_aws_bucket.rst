@@ -87,6 +87,64 @@ Let us assume your bucket is called `datalake`. And let us assume the folder you
 
         Get security credentials (access key id, secret access key) from AWS
 
+
+
+
+**S3 IAM Delegated Access**
+
+To access your data in your S3 bucket on AWS, Lightly `can assume a role <https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html>`_ in your account which has the necessary permissions to access your data.
+This is `considered best practice <https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#delegate-using-roles>`_ by AWS.
+
+To set up IAM Delegated Access
+
+1. Go to the `AWS IAM Console <https://console.aws.amazon.com/iam/home?#/roles>`_
+
+2. Click `Create role`
+   
+3. Select `AWS Account` as the trusted entity type
+
+    a. Select `Another AWS account` and specify the AWS Account ID of Lightly: `311530292373`
+
+    b. Check `Require external ID`, and choose an external ID. The external ID should be treated like a passphrase
+
+    c. Do not check `Require MFA`.
+    
+    d. Click next
+
+4. Select a policy which grants access to your S3 bucket. If no policy has previously been created, here is an example of how the policy should look like:
+
+
+
+    .. code-block:: json
+            
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "lightlyS3Access",
+                    "Action": [
+                        "s3:*Object",
+                        "s3:ListBucket"
+                    ],
+                    "Effect": "Allow",
+                    "Resource": [
+                        "arn:aws:s3:::{YOUR_BUCKET}/*",
+                        "arn:aws:s3:::{YOUR_BUCKET}"
+                    
+                }
+            ]
+        }
+
+5. Name the role `Lightly-S3-Integration` and create the role.
+6. Edit your new `Lightly-S3-Integration` role: set the `Maximum session duration` to 12 hours. 
+
+    .. warning:: If you don't set the maximum duration to 12 hours, Lightly will not be able to access your data. Please make sure to se the `Maximum session duration` to 12 hours.
+
+
+7. Remember the external ID and the ARN of the newly created role
+
+
+
 Preparing your data
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -130,12 +188,14 @@ Create and configure a dataset
 
 
 3. As the resource path, enter the full S3 URI to your resource eg. `s3://datalake/projects/farm-animals/`
-4. Enter the `access key` and the `secret access key` we obtained from creating a new user in the previous step and select the AWS region in which you created your bucket in
+4. Enter the `access key` and the `secret access key` we obtained from creating a new user in the previous step and select the AWS region in which you created your bucket.
+
+    .. note:: If you are using a delegated access role, toggle the switch `Use IAM role based delegated access` and pass the `external ID` and the `role ARN` from the previous step instead of the secret access key.
+
 5. Toggle the **"Generate thumbnail"** switch if you want Lightly to generate thumbnails for you.
 6. If you want to store outputs from Lightly (like thumbnails or extracted frames) in a different directory, you can toggle **"Use a different output datasource"** and enter a different path in your bucket. This allows you to keep your input directory clean as nothing gets ever written there.
-  .. note:: 
 
-    Lightly requires list, read, and write access to the `output datasource`. Make sure you have configured it accordingly in the steps before.
+    .. note:: Lightly requires list, read, and write access to the `output datasource`. Make sure you have configured it accordingly in the steps before.
 7. Press save and ensure that at least the lights for List and Read turn green. If you added permissions for writing, this light should also turn green.
 
 Use `lightly-magic` and `lightly-upload` just as you always would with the following considerations;
