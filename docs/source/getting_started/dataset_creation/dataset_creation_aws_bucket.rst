@@ -147,6 +147,10 @@ To set up IAM Delegated Access
 
 
 
+.. note:: We recommend setting up separate input and output datasources (see :ref:`rst-docker-first-steps`). For this either use two different roles with narrow scope or one role with broader access.
+
+
+
 Preparing your data
 ^^^^^^^^^^^^^^^^^^^^^
 
