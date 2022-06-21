@@ -123,7 +123,9 @@ To set up IAM Delegated Access
                 {
                     "Sid": "lightlyS3Access",
                     "Action": [
-                        "s3:*Object",
+                        "s3:GetObject",
+                        "s3:DeleteObject",
+                        "s3:PutObject",
                         "s3:ListBucket"
                     ],
                     "Effect": "Allow",
@@ -141,7 +143,7 @@ To set up IAM Delegated Access
     .. warning:: If you don't set the maximum duration to 12 hours, Lightly will not be able to access your data. Please make sure to se the `Maximum session duration` to 12 hours.
 
 
-7. Remember the external ID and the ARN of the newly created role
+7. Remember the external ID and the ARN of the newly created role (`arn:aws:iam::367053757506:role/Lightly-S3-Integration`)
 
 
 
