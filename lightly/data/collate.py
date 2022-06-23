@@ -13,6 +13,7 @@ import torchvision
 import torchvision.transforms as T
 
 from lightly.transforms import GaussianBlur
+from lightly.transforms import Jigsaw
 from lightly.transforms import RandomRotate
 from lightly.transforms import RandomSolarization
 
@@ -688,8 +689,9 @@ class MAECollateFunction(MultiViewCollateFunction):
         # Return only first view as MAE needs only a single view per image.
         return views[0], labels, fnames
 
-class PIRLCollateFunction(BaseCollateFunction):
-    """Implements the transformations for PIRL [0].
+class PIRLCollateFunction(nn.Module):
+    """Implements the transformations for PIRL [0]. The jigsaw augmentation
+    is applied during the forward pass.
 
     - [0] PIRL, 2019: https://arxiv.org/abs/1912.01991
 
@@ -712,6 +714,8 @@ class PIRLCollateFunction(BaseCollateFunction):
             Probability of conversion to grayscale.
         hf_prob:
             Probability that horizontal flip is applied.
+        n_grid:
+            Sqrt of the number of grids in the jigsaw image.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
@@ -737,19 +741,27 @@ class PIRLCollateFunction(BaseCollateFunction):
                  min_scale: float = 0.08,
                  random_gray_scale: float = 0.2,
                  hf_prob: float = 0.5,
+                 n_grid: int = 3,
                  normalize: dict = imagenet_normalize
         ):
+        super(PIRLCollateFunction, self).__init__()
+
+        if isinstance(input_size, tuple):
+            input_size_ = max(input_size)
+        else:
+            input_size_ = input_size
+
         color_jitter = T.ColorJitter(
             cj_bright, cj_contrast, cj_sat, cj_hue
         )
-
-        transform = [T.RandomResizedCrop(size=input_size,
-                                         scale=(min_scale, 1.0)),
-             T.RandomHorizontalFlip(p=hf_prob),
-             T.RandomApply([color_jitter], p=cj_prob),
-             T.RandomGrayscale(p=random_gray_scale),
-             T.ToTensor()
-        ]
+        
+        # Transform for transformed jigsaw image
+        transform = [
+            T.RandomHorizontalFlip(p=hf_prob),
+            T.RandomApply([color_jitter], p=cj_prob),
+            T.RandomGrayscale(p=random_gray_scale),
+            T.ToTensor()
+            ]
 
         if normalize:
             transform += [
@@ -757,7 +769,41 @@ class PIRLCollateFunction(BaseCollateFunction):
                 mean=normalize['mean'],
                 std=normalize['std'])
              ]
-           
-        transform = T.Compose(transform)
 
-        super(ImageCollateFunction, self).__init__(transform)
+        # Cropping and normalisation for untransformed image
+        self.no_augment = T.Compose([
+            T.RandomResizedCrop(size=input_size,
+                                scale=(min_scale,1.0)),
+            T.ToTensor(),
+            T.Normalize(
+                mean=normalize['mean'],
+                std=normalize['std'])
+        ])
+        self.jigsaw = Jigsaw(n_grid=n_grid,
+                             img_size=input_size_,
+                             crop_size=int(input_size_//n_grid),
+                             transform=T.Compose(transform))
+    
+    def forward(self, batch: List[tuple]):
+        """Overriding the BaseCollateFunction class's forward method because
+        for PIRL we need only one augmented batch, as opposed to both, which the
+        BaseCollateFunction creates."""
+        batch_size = len(batch)
+
+        # list of transformed images
+        img_transforms = [self.jigsaw(batch[i][0]).unsqueeze_(0)
+                      for i in range(batch_size)]
+        img = [self.no_augment(batch[i][0]).unsqueeze_(0)
+                for i in range(batch_size)]
+        # list of labels
+        labels = torch.LongTensor([item[1] for item in batch])
+        # list of filenames
+        fnames = [item[2] for item in batch]
+
+        # tuple of transforms
+        transforms = (
+            torch.cat(img, 0),
+            torch.cat(img_transforms, 0)
+        )
+
+        return transforms, labels, fnames
