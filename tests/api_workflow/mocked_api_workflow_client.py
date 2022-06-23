@@ -7,6 +7,7 @@ from collections import defaultdict, namedtuple
 import json
 
 import numpy as np
+import requests
 from requests import Response
 from lightly.openapi_generated.swagger_client.api.docker_api import DockerApi
 from lightly.openapi_generated.swagger_client.models.create_docker_worker_registry_entry_request import CreateDockerWorkerRegistryEntryRequest
@@ -651,6 +652,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
     def upload_file_with_signed_url(
             self, file: IOBase, signed_write_url: str,
             max_backoff: int = 32, max_retries: int = 5, headers: Dict = None,
+            session: Optional[requests.Session] = None,
     ) -> Response:
         res = Response()
         return res
