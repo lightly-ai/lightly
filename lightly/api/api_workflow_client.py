@@ -189,10 +189,13 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
         return filenames_on_server
 
-    def upload_file_with_signed_url(self,
-                                    file: IOBase,
-                                    signed_write_url: str,
-                                    headers: Dict = None) -> Response:
+    def upload_file_with_signed_url(
+        self,
+        file: IOBase,
+        signed_write_url: str,
+        headers: Optional[Dict] = None,
+        session: Optional[requests.Session] = None,
+    ) -> Response:
         """Uploads a file to a url via a put request.
 
         Args:
@@ -203,19 +206,17 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                 the url must be a signed write url.
             headers:
                 Specific headers for the request.
+            session:
+                Optional requests session used to upload the file.
 
         Returns:
             The response of the put request, usually a 200 for the success case.
 
         """
+        sess = session or requests
         if headers is not None:
-            response = requests.put(signed_write_url, data=file, headers=headers)
+            response = sess.put(signed_write_url, data=file, headers=headers)
         else:
-            response = requests.put(signed_write_url, data=file)
-
-        if response.status_code < 200 or response.status_code >= 300:
-            msg = f'Failed PUT request to {signed_write_url} with status_code'
-            msg += f'{response.status_code}!'
-            raise RuntimeError(msg)
-
+            response = sess.put(signed_write_url, data=file)
+        response.raise_for_status()
         return response
