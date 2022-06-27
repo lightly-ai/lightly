@@ -218,7 +218,7 @@ class MockedTagsApi(TagsApi):
     def export_tag_to_label_box_data_rows(self, dataset_id: str, tag_id: str):
         return [{'externalId': '2008_007291_jpg.rf.2fca436925b52ea33cf897125a34a2fb.jpg', 'imageUrl': 'https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e233/readurlRedirect?type=CENSORED'}]
     
-    def export_tag_to_label_box_data_rows(self, dataset_id: str, tag_id: str):
+    def export_filenames_by_tag_id(self, dataset_id: str, tag_id: str):
         return """
 IMG_2276_jpeg_jpg.rf.7411b1902c81bad8cdefd2cc4eb3a97b.jpg,
 IMG_2285_jpeg_jpg.rf.4a93d99b9f0b6cccfb27bf2f4a13b99e.jpg,
