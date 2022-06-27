@@ -10,6 +10,7 @@ from lightly.data import ImageCollateFunction
 from lightly.data import SimCLRCollateFunction
 from lightly.data import MultiCropCollateFunction
 from lightly.data import SwaVCollateFunction
+from lightly.data import PIRLCollateFunction
 from lightly.data.collate import DINOCollateFunction, MAECollateFunction, MultiViewCollateFunction
 
 
@@ -147,3 +148,32 @@ class TestDataCollate(unittest.TestCase):
         batch = self.create_batch()
         collate_fn = MAECollateFunction()
         views, labels, fnames = collate_fn(batch)
+
+    def test_pirl_collate_init(self):
+        PIRLCollateFunction()
+    
+    def test_pirl_collate_forward_tuple_input_size(self):
+        batch = self.create_batch()
+        img_collate = PIRLCollateFunction(
+            input_size=(32, 32),
+        )
+        samples, labels, fnames = img_collate(batch)
+        samples0, samples1 = samples
+
+        self.assertIsNotNone(img_collate)
+        self.assertEqual(len(samples0), len(samples1))
+        self.assertEqual(len(samples1), len(labels), len(fnames))
+    
+    def test_pirl_collate_forward_n_grid(self):
+        batch = self.create_batch()
+        img_collate = PIRLCollateFunction(
+            input_size=32,
+            n_grid=3
+        )
+        samples, labels, fnames = img_collate(batch)
+        samples0, samples1 = samples
+
+        self.assertIsNotNone(img_collate)
+        self.assertEqual(len(samples0), len(samples1))
+        self.assertEqual(len(samples1), len(labels), len(fnames))
+        self.assertEqual(samples1.shape, (16,9,3,10,10))
