@@ -208,3 +208,50 @@ class _DownloadDatasetMixin:
         """
         tag = self.get_tag_by_name(tag_name)
         return self.export_label_box_data_rows_by_tag_id(tag.id)
+
+
+    def export_filenames_by_tag_id(
+        self,
+        tag_id: str,
+    ) -> str:
+        """Exports a list of the samples filenames within a certain tag.
+
+        Args:
+            tag_id:
+                Id of the tag which should exported.
+
+        Returns:
+            A list of the samples filenames within a certain tag.
+
+        """
+        filenames = self._tags_api.export_tag_to_basic_filenames(
+            self.dataset_id,
+            tag_id,
+        )
+        return filenames
+
+    def export_filenames_by_tag_name(
+        self,
+        tag_name: str,
+    ) -> str:
+        """Exports a list of the samples filenames within a certain tag.
+
+        Args:
+            tag_name:
+                Name of the tag which should exported.
+
+        Returns:
+            A list of the samples filenames within a certain tag.
+
+        Examples:
+            >>> # write json file which can be imported in Label Studio
+            >>> filenames = client.export_filenames_by_tag_name(
+            >>>     'initial-tag'
+            >>> )
+            >>> 
+            >>> with open('filenames-of-initial-tag.txt', 'w') as f:
+            >>>     f.write(filenames)
+
+        """
+        tag = self.get_tag_by_name(tag_name)
+        return self.export_filenames_by_tag_id(tag.id)
