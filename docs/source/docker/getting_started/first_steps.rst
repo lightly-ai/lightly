@@ -412,6 +412,36 @@ The corresponding Python command to submit a job would then be as follows:
     )
 
 
+Downloading
+-----------
+
+After a job has successfully run, a dataset with the selected samples
+and a tag with the name `initial-tag` are created. From there you can easily
+download the filenames for further processing.
+
+.. code-block:: python
+    :caption: Download the filenames for further processing
+    from lightly.api.api_workflow_client import ApiWorkflowClient
+
+    client = ApiWorkflowClient(token='123', dataset_id='xyz')
+    filenames = client.export_filenames_by_tag_name(
+        'initial-tag' # name of the datasets tag 
+    )
+    with open('filenames-of-initial-tag.txt', 'w') as f:
+        f.write(filenames)
+
+It is also possible to directly download the actual files themselves.
+.. code-block:: python
+    :caption: Directly download the files
+    from lightly.api.api_workflow_client import ApiWorkflowClient
+
+    client = ApiWorkflowClient(token='123', dataset_id='xyz')
+    client.download_dataset(
+        './my/output/path'  # path to where the files should be saved 
+        'initial-tag'       # name of the datasets tag
+    )
+
+
 Reporting
 ---------
 
