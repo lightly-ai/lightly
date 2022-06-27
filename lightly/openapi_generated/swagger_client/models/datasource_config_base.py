@@ -48,6 +48,7 @@ class DatasourceConfigBase(object):
 
     discriminator_value_class_map = {
         'DatasourceConfigAzure': 'DatasourceConfigAzure',
+        'DatasourceConfigS3DelegatedAccess': 'DatasourceConfigS3DelegatedAccess',
         'DatasourceConfigLOCAL': 'DatasourceConfigLOCAL',
         'DatasourceConfigLIGHTLY': 'DatasourceConfigLIGHTLY',
         'DatasourceConfigGCS': 'DatasourceConfigGCS',
