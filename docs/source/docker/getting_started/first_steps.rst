@@ -423,21 +423,23 @@ download the filenames for further processing.
     :caption: Download the filenames for further processing
     from lightly.api.api_workflow_client import ApiWorkflowClient
 
-    client = ApiWorkflowClient(token='123', dataset_id='xyz')
+    client = ApiWorkflowClient(token='MY_AWESOME_TOKEN', dataset_id='xyz') # replace this by your token
     filenames = client.export_filenames_by_tag_name(
         'initial-tag' # name of the datasets tag 
     )
     with open('filenames-of-initial-tag.txt', 'w') as f:
         f.write(filenames)
 
+
 It is also possible to directly download the actual files themselves.
+
 .. code-block:: python
     :caption: Directly download the files
     from lightly.api.api_workflow_client import ApiWorkflowClient
 
-    client = ApiWorkflowClient(token='123', dataset_id='xyz')
+    client = ApiWorkflowClient(token='MY_AWESOME_TOKEN', dataset_id='xyz') # replace this by your token
     client.download_dataset(
-        './my/output/path'  # path to where the files should be saved 
+        './my/output/path/'  # path to where the files should be saved 
         'initial-tag'       # name of the datasets tag
     )
 
