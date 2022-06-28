@@ -417,7 +417,7 @@ Downloading
 
 After a job has successfully run, a dataset with the selected samples
 and a tag with the name `initial-tag` are created. From there you can easily
-download the filenames for further processing.
+export and download the filenames for further processing.
 
 .. code-block:: python
     :caption: Download the filenames for further processing
@@ -430,6 +430,8 @@ download the filenames for further processing.
     with open('filenames-of-initial-tag.txt', 'w') as f:
         f.write(filenames)
 
+We also support multiple `additional export formats <https://docs.lightly.ai/lightly.api.html#module-lightly.api.api_workflow_client>`_
+with which you can eg. export to Label Studio, Label Box or SamaGo.
 
 It is also possible to directly download the actual files themselves.
 
