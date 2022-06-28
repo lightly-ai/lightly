@@ -190,7 +190,7 @@ the Lightly API for new jobs to process. To do so, a worker first needs to be re
     # execute the following code once to get a worker_id
     from lightly.api import ApiWorkflowClient
 
-    client = ApiWorkflowClient(token='MY_AWESOME_TOKEN') # replace this by your token
+    client = ApiWorkflowClient(token='MY_AWESOME_TOKEN') # replace this with your token
     worker_id = client.register_compute_worker()
     print(worker_id)
 
