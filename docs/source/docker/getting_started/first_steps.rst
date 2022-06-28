@@ -417,33 +417,37 @@ Downloading
 
 After a job has successfully run, a dataset with the selected samples
 and a tag with the name `initial-tag` are created. From there you can easily
-export and download the filenames for further processing.
+export and download the filenames for further processing:
 
 .. code-block:: python
     :caption: Download the filenames for further processing
+
     from lightly.api.api_workflow_client import ApiWorkflowClient
 
-    client = ApiWorkflowClient(token='MY_AWESOME_TOKEN', dataset_id='xyz') # replace this by your token
+    client = ApiWorkflowClient(token='MY_AWESOME_TOKEN', dataset_id='xyz') # replace this with your token
     filenames = client.export_filenames_by_tag_name(
         'initial-tag' # name of the datasets tag 
     )
     with open('filenames-of-initial-tag.txt', 'w') as f:
         f.write(filenames)
 
+
 We also support multiple `additional export formats <https://docs.lightly.ai/lightly.api.html#module-lightly.api.api_workflow_client>`_
 with which you can eg. export to Label Studio, Label Box or SamaGo.
 
-It is also possible to directly download the actual files themselves.
+It is also possible to directly download the actual files themselves as follows:
 
 .. code-block:: python
     :caption: Directly download the files
+
     from lightly.api.api_workflow_client import ApiWorkflowClient
 
-    client = ApiWorkflowClient(token='MY_AWESOME_TOKEN', dataset_id='xyz') # replace this by your token
+    client = ApiWorkflowClient(token='MY_AWESOME_TOKEN', dataset_id='xyz') # replace this with your token
     client.download_dataset(
         './my/output/path/'  # path to where the files should be saved 
-        'initial-tag'       # name of the datasets tag
+        'initial-tag'        # name of the datasets tag
     )
+
 
 
 Reporting
