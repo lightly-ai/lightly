@@ -38,20 +38,6 @@ helper functions to create and delete datasets, schedule jobs, and access the re
 See :ref:`rst-installing` for details.
 
 
-
-Download the Python client
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-We recommend to use the `lightly` Python package to interact with the Lightly API. It offers
-helper functions to create and delete datasets, schedule jobs, and access the results:
-
-.. code-block:: console
-    
-    pip install lightly
-
-See :ref:`rst-installing` for details.
-
-
 .. _ref-docker-download-and-install:
 
 Download the Lightly Worker
