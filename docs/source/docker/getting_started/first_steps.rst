@@ -433,7 +433,7 @@ export and download the filenames for further processing:
 
 
 We also support multiple `additional export formats <https://docs.lightly.ai/lightly.api.html#module-lightly.api.api_workflow_client>`_
-with which you can eg. export to Label Studio, Label Box or SamaGo.
+with which you can e.g. export to Label Studio or Label Box.
 
 It is also possible to directly download the actual files themselves as follows:
 
@@ -444,7 +444,7 @@ It is also possible to directly download the actual files themselves as follows:
 
     client = ApiWorkflowClient(token='MY_AWESOME_TOKEN', dataset_id='xyz') # replace this with your token
     client.download_dataset(
-        './my/output/path/'  # path to where the files should be saved 
+        './my/output/path/', # path to where the files should be saved 
         'initial-tag'        # name of the datasets tag
     )
 
