@@ -241,9 +241,11 @@ class TestDownload(unittest.TestCase):
             with self.assertRaises(ValueError):
                 # timestamp too small
                 frames = list(lightly.api.download.download_all_video_frames(file.name, timestamp=-1))
-            with self.assertRaises(ValueError):
-                # timestamp too large
-                frames = list(lightly.api.download.download_all_video_frames(file.name, timestamp=6))
+
+            # timestamp too large
+            frames = list(lightly.api.download.download_all_video_frames(file.name, timestamp=len(original) + 1))
+            self.assertEqual(len(frames), 0)
+
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_all_video_frames_restart_at_0(self):
@@ -299,7 +301,7 @@ class TestDownload(unittest.TestCase):
                 assert _images_equal(frame, original[-1])
 
                 # timestamp after last frame
-                with self.assertRaises(ValueError):
+                with self.assertRaises(RuntimeError):
                     lightly.api.download.download_video_frame(file.name, len(original) + 1)
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
