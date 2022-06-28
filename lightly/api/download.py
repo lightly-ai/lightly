@@ -105,15 +105,6 @@ if not isinstance(av, ModuleNotFoundError):
             stream = container.streams.video[video_channel]
             stream.thread_type = thread_type
 
-            duration = stream.duration
-            start_time = stream.start_time
-            if (duration is not None) and (start_time is not None):
-                end_time = duration + start_time
-                if timestamp > end_time:
-                    raise ValueError(
-                        f"Timestamp ({timestamp} pts) exceeds maximum video timestamp "
-                        f"({end_time} pts)."
-                    )
             # seek to last keyframe before the timestamp
             container.seek(timestamp, any_frame=False, backward=True, stream=stream)
 
@@ -293,7 +284,6 @@ if not isinstance(av, ModuleNotFoundError):
                 raise ValueError("The timestamps must be sorted "
                                  "strictly monotonically ascending, but are not.")
             min_timestamp = timestamps[0]
-            max_timestamp = timestamps[-1]
 
             if min_timestamp < 0:
                 raise ValueError(f"Negative timestamp is not allowed: {min_timestamp}")
@@ -301,19 +291,6 @@ if not isinstance(av, ModuleNotFoundError):
             with retry_fn(av.open, url) as container:
                 stream = container.streams.video[video_channel]
                 stream.thread_type = thread_type
-
-                # Heuristic to find out if a timestamp is too big.
-                # However, this heuristic is very bad, as timestamps
-                # may start at any offset and even reset in the middle
-                # See https://stackoverflow.com/questions/10570685/avcodec-pts-timestamps-not-starting-at-0
-                duration = stream.duration
-                start_time = stream.start_time
-                if (duration is not None) and (start_time is not None):
-                    end_time = duration + start_time
-                    if max_timestamp > end_time:
-                        raise ValueError(
-                            f"Timestamp ({max_timestamp} pts) exceeds maximum video timestamp "
-                            f"({end_time} pts).")
 
                 if seek_to_first_frame:
                     # seek to last keyframe before the min_timestamp
