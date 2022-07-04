@@ -179,6 +179,8 @@ it's necessary to follow the naming convention:
     .lightly/predictions/my_classification_task/my_subdir/my_image.json
 
 
+.. _prediction-files-for-videos:
+
 Prediction Files for Videos
 ---------------------------
 When working with videos, Lightly requires a prediction file per frame. Lightly
@@ -200,6 +202,8 @@ with 1000 frames, the frame number will be padded to length four (99 becomes 009
     # example: my_subdir/my_video.mp4, frame 99/200
     .lightly/predictions/my_classification_task/my_subdir/my_video-099-mp4.json
 
+See :ref:`creating-prediction-files-for-videos` on how to extract video frames
+and create predictions using `ffmpeg <https://ffmpeg.org/>`_ or Python.
 
 .. _ref-prediction-format:
 
@@ -477,3 +481,41 @@ Don't forget to change these 2 parameters at the top of the script.
         path_to_prediction = os.path.join(path_predictions_task, filename_prediction)
         with open(path_to_prediction, 'w') as f:
             json.dump(prediction, f)
+
+
+.. _creating-prediction-files-for-videos:
+
+Creating Prediction Files for Videos
+-------------------------------------
+
+Extracting Frames with FFMPEG
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following command can be used to extract video frames as images that
+can then be further processed by a prediction model. The generated images have
+already the :ref:`correct filename <prediction-files-for-videos>` expected by 
+the Lightly platform. Make sure that `ffmpeg <https://ffmpeg.org/download.html>`_ 
+is installed on your system for the command to work.
+
+.. code:: bash
+
+    VIDEO=video.mp4; NUM_FRAMES=$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 ${VIDEO}); ffmpeg -r 1 -i ${VIDEO} -start_number 0 ${VIDEO%.mp4}-%0${#NUM_FRAMES}d-mp4.png
+
+    # results in the following file structure
+    .
+    ├── video-000-mp4.png
+    ├── video-001-mp4.png
+    ├── video-002-mp4.png
+    ├── video-003-mp4.png
+    ├── ...
+    └── video.mp4
+
+
+Creating Video Prediction Files with Python
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Frame predictions can also be generated on-the-fly using Python without having
+to save the frames as images. The example code below uses `PyAV <https://pyav.org/>`_
+for video loading, make sure to install it before running the example.
+
+.. literalinclude:: code_examples/python_create_frame_predictions.py
