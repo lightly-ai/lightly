@@ -220,8 +220,8 @@ class MockedTagsApi(TagsApi):
     
     def export_tag_to_basic_filenames(self, dataset_id: str, tag_id: str):
         return """
-IMG_2276_jpeg_jpg.rf.7411b1902c81bad8cdefd2cc4eb3a97b.jpg,
-IMG_2285_jpeg_jpg.rf.4a93d99b9f0b6cccfb27bf2f4a13b99e.jpg,
+IMG_2276_jpeg_jpg.rf.7411b1902c81bad8cdefd2cc4eb3a97b.jpg
+IMG_2285_jpeg_jpg.rf.4a93d99b9f0b6cccfb27bf2f4a13b99e.jpg
 IMG_2274_jpeg_jpg.rf.2f319e949748145fb22dcb52bb325a0c.jpg
         """
 
