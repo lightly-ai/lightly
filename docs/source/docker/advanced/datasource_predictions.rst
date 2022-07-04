@@ -488,14 +488,28 @@ Don't forget to change these 2 parameters at the top of the script.
 Creating Prediction Files for Videos
 -------------------------------------
 
+Lightly expects one prediction file per frame in a video. Predictions can be 
+created following the Python example code below. Make sure that `PyAV <https://pyav.org/>`_ 
+is installed on your system for it to work correctly.
+
+.. literalinclude:: code_examples/python_create_frame_predictions.py
+
+.. warning::
+
+    It is discouraged to use another library than `PyAV <https://pyav.org/>`_ 
+    for loading videos with Python as the order and number of loaded frames
+    might differ.
+
+
 Extracting Frames with FFMPEG
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The following command can be used to extract video frames as images that
-can then be further processed by a prediction model. The generated images have
-already the :ref:`correct filename <prediction-files-for-videos>` expected by 
-the Lightly platform. Make sure that `ffmpeg <https://ffmpeg.org/download.html>`_ 
-is installed on your system for the command to work.
+Alternatively, frames can also first be extracted as images with `ffmpeg <https://ffmpeg.org/>`_
+and then further processed by any prediction model that supports images.
+The example command below shows how to extract frames and save them with the
+:ref:`filename expected by Lightly <prediction-files-for-videos>`. Make sure that
+`ffmpeg <https://ffmpeg.org/>`_ is installed on your system before running the
+command.
 
 .. code:: bash
 
@@ -503,19 +517,9 @@ is installed on your system for the command to work.
 
     # results in the following file structure
     .
+    ├── video.mp4
     ├── video-000-mp4.png
     ├── video-001-mp4.png
     ├── video-002-mp4.png
     ├── video-003-mp4.png
-    ├── ...
-    └── video.mp4
-
-
-Creating Video Prediction Files with Python
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Frame predictions can also be generated on-the-fly using Python without having
-to save the frames as images. The example code below uses `PyAV <https://pyav.org/>`_
-for video loading, make sure to install it before running the example.
-
-.. literalinclude:: code_examples/python_create_frame_predictions.py
+    └── ...
