@@ -82,7 +82,7 @@ Sequence Selection Information
 ------------------------------
 
 The Lightly Worker will create a file at `{docker-output}/data/sequence_information.json`
-containg detailed information about the selected sequences. The file can be used
+containing detailed information about the selected sequences. The file can be used
 for further analysis of your dataset based on sequences.
 
 The file contains a list of sequence dictionaries. Every dicionary lists the
