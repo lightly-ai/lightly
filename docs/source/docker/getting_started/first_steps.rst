@@ -20,12 +20,14 @@ The Lightly worker follows a train, embed, select workflow:
    a .csv file.
 
 #. Finally, based on the embeddings and additional information, such as predictions or
-   metdata, we can use  one of the selection strategies to pick the relevant data for you.
-   The output of the selection is a list of selected input samples as well as analytics in form of a pdf report with plots.
+   metadata, we can use  one of the selection strategies to pick the relevant data for you.
+   The output of the selection is a list of selected input samples as well as analytics in
+   the form of a pdf report with plots.
 
 
-The Lightly worker can easily be triggered from your Python code. There are various parameters you can configure and we put a lot of effort to also expose the full configuration of the lightly self-supervised learning framework.
-You could use the Lightly worker to train a self-supervised model instead of using the Python framework.
+The Lightly worker can be easily triggered from your Python code. There are various parameters you can
+configure and we also expose the full configuration of the lightly self-supervised learning framework.
+You can use the Lightly worker to train a self-supervised model instead of using the Lightly Python framework.
 
 Volume Mapping
 --------------
@@ -65,8 +67,8 @@ Now, let's see how this will look in action!
 Creating a Dataset
 ------------------
 
-For every job you want to submit, you require a `dataset_id` of a corresponding dataset in the Lightly API.
-You can get the `dataset_id` either by creating a new dataset from Python or by re-using an existing dataset (see :ref:`ref-datapool`).
+To set up inputs and outputs for your job you will need a `dataset_id`. You can either create
+a new dataset from Python or re-use an existing one (see :ref:`ref-datapool`).
 
 
 .. code-block:: python
@@ -88,8 +90,9 @@ You can get the `dataset_id` either by creating a new dataset from Python or by 
 
 You can see the dataset under https://app.lightly.ai/datasets
 
-Next, the dataset requires read and write access to your storage bucket. You can
-re-use the `client` from the previous step. If you create a new `ApiWorkflowClient`
+The Lightly worker reads input data from a cloud storage folder and will upload selection results
+to cloud storage as well. You therefore need to provide read and write access to your storage bucket.
+You can re-use the `client` from the previous step. If you create a new `ApiWorkflowClient`
 make sure to specify the `dataset_id` in the constructor.
 
 
@@ -204,7 +207,7 @@ make sure to specify the `dataset_id` in the constructor.
 Scheduling a Simple Job
 -----------------------
 
-Now that everything is in place, let's configure and run a simple job
+Now that everything is in place, let's configure and run a simple job.
 
 .. code-block:: python
     :caption: Scheduling a job from Python
