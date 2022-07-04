@@ -1,3 +1,5 @@
+.. _sequence-selection:
+
 Sequence Selection
 ==================
 
@@ -19,8 +21,9 @@ Sequence selection consists of the following steps:
 2. Next, the embeddings of all frames in a sequence are aggregated (averaged).
 3. The selection is performed on sequence level.
 4. Finally, the indices of the selected sequence frames are reconstructed.
-5. The report is generated and (if requested) the selected frames are saved.
-  
+5. Information about the selected sequences is saved in the output directory.
+6. The report is generated and (if requested) the selected frames are saved.
+
 
 Usage
 -----------
@@ -37,7 +40,7 @@ which we randomly downloaded from `Pexels <https://www.pexels.com/>`_:
 .. code-block:: console
 
     ls /datasets/pexels/
-    > Pexels Videos 1409899.mp4  Pexels Videos 2495382.mp4
+    > Pexels_Videos_1409899.mp4  Pexels_Videos_2495382.mp4
 
 Now, we want to select sequences of length ten. We can use the following script:
 
@@ -73,3 +76,112 @@ Lightly Worker:
 
     PCA of the embeddings of the frames in the selected sequences from the two
     input videos (yellow and purple).
+
+
+Sequence Selection Information
+------------------------------
+
+The Lightly Worker will create a file at `{docker-output}/data/sequence_information.json`
+containing detailed information about the selected sequences. The file can be used
+for further analysis of your dataset based on sequences.
+
+The file contains a list of sequence dictionaries. Every dicionary lists the
+exact contents for one sequence. In the case of video frame sequences the
+`sequence_information.json` will look similar to the example shown below:
+
+.. code:: json
+
+    [
+        {
+            "video_name": "Pexels_Videos_1409899.mp4",
+            "frame_names": [
+                "Pexels_Videos_1409899-40-mp4.png",
+                "Pexels_Videos_1409899-41-mp4.png",
+                "Pexels_Videos_1409899-42-mp4.png",
+                ...
+            ],
+            "frame_timestamps_pts": [
+                359726680,
+                368719847,
+                377713014,
+                ...
+            ],
+            "frame_indices": [
+                40,
+                41,
+                42,
+                ...
+            ]
+        },
+        {
+            "video_name": "Pexels_Videos_1409899.mp4",
+            "frame_names": [
+                "Pexels_Videos_1409899-100-mp4.png",
+                "Pexels_Videos_1409899-101-mp4.png",
+                "Pexels_Videos_1409899-102-mp4.png",
+                ...
+            ],
+            "frame_timestamps_pts": [
+                422678849,
+                431672016,
+                440665183,
+                ...
+            ],
+            "frame_indices": [
+                100,
+                101,
+                102,
+                ...
+            ]
+        },
+        ...
+    ]
+
+
+For image file sequences it only lists the filenames for every sequence:
+
+.. code:: json
+
+    [
+        {
+            "filenames": [
+                "image_40.png",
+                "image_41.png",
+                "image_42.png",
+                ...
+            ] 
+        },
+        {
+            "filenames": [
+                "image_100.png",
+                "image_101.png",
+                "image_102.png",
+                ...
+            ]
+        },
+        ...
+    ]
+
+
+Cropping Sequences From Videos
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Using the timestamps stored in the `sequence_information.json` file, the selected
+video sequences can be cropped from the original videos. Make sure that 
+`ffmpeg <https://ffmpeg.org/>_` is available on your system for cropping the videos.
+
+To crop a sequence, the first and last timestamp from the `frame_timestamps_pts`
+list and the `video_name` stored in the `sequence_information.json` file are 
+required. The cropping can be done with the following command:
+
+.. code:: console
+
+    ffmpeg -i {VIDEO_NAME} -copyts -filter "trim=start_pts={FIRST_TIMESTAMP}:end_pts={LAST_TIMESTAMP + 1}" {SEQUENCE_NAME}
+
+    # example using the videos from above
+    ffmpeg -i Pexels_Videos_1409899.mp4 -copyts -filter "trim=start_pts=359726680:end_pts=377713015" sequence_1.mp4
+
+.. warning::
+
+    Make sure that `end_pts` is set to `LAST_TIMESTAMP + 1` otherwise the last
+    frame in the sequence will not be included in the cropped video!
