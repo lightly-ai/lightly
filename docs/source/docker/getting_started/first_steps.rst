@@ -477,9 +477,12 @@ The output directory is structured in the following way:
    
     * If `enable_corruptness_check=True`, it will contain a "clean" version of the dataset. 
     * If `remove_exact_duplicates=True`, it will contain a copy of the `embeddings.csv` 
-        where all duplicates are removed. Otherwise, it will 
-        simply store the embeddings computed by the model.
-   
+      where all duplicates are removed. Otherwise, it will simply store the 
+      embeddings computed by the model.
+    * If `selected_sequence_length > 1`, it will contain a `sequence_information.json`
+      file with information about the selected sequences (filenames, video frame timestamps, ...).
+      Head to :ref:`sequence-selection` for more details on sequence selection.
+
 * filenames:
    This directory contains lists of filenames of the corrupt images, removed images, selected
    images and the images which were removed because they have an exact duplicate in the dataset.
@@ -515,7 +518,8 @@ Below you find a typical output folder structure.
     |   |-- embeddings.csv
     |   |-- normalized_embeddings.csv
     |   |-- sampled
-    |   '-- selected_embeddings.csv
+    |   |-- selected_embeddings.csv
+    |   '-- sequence_information.json
     |-- filenames
     |   |-- corrupt_filenames.txt
     |   |-- duplicate_filenames.txt
