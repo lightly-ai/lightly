@@ -1,13 +1,16 @@
 import av
 import json
 from pathlib import Path
+from typing import List, Dict
 
 dataset_dir = Path('/datasets/my_dataset')
 predictions_dir = dataset_dir / '.lightly' / 'predictions' / 'my_prediction_task'
 
-def model_predict(frame):
+def model_predict(frame) -> List[Dict]:
     # This function must be overwritten to generate predictions for a frame using
     # a prediction model of your choice. Here we just return an example prediction.
+    # See https://docs.lightly.ai/docker/advanced/datasource_predictions.html#prediction-format
+    # for possible prediction formats.
     return [{'category_id': 0, 'bbox': [0, 10, 100, 30], 'score': 0.8}]
 
 for video_path in dataset_dir.glob('**/*.mp4'):
@@ -39,7 +42,8 @@ for video_path in dataset_dir.glob('**/*.mp4'):
 # ├── test
 # │   └── video_0.mp4
 # └── train
-#     └── video_1.mp4
+#     ├── video_1.mp4
+#     └── video_2.mp4
 #
 # example directory structure after
 # .
@@ -55,8 +59,13 @@ for video_path in dataset_dir.glob('**/*.mp4'):
 # │               ├── video_1-000-mp4.json
 # │               ├── video_1-001-mp4.json
 # │               ├── video_1-002-mp4.json
+# |               ├── ...
+# |               ├── video_2-000-mp4.json
+# |               ├── video_2-001-mp4.json
+# |               ├── video_2-002-mp4.json
 # │               └── ...
 # ├── test
 # │   └── video_0.mp4
 # └── train
-#     └── video_1.mp4
+#     ├── video_1.mp4
+#     └── video_2.mp4
