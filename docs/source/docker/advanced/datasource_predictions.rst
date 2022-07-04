@@ -179,6 +179,8 @@ it's necessary to follow the naming convention:
     .lightly/predictions/my_classification_task/my_subdir/my_image.json
 
 
+.. _prediction-files-for-videos:
+
 Prediction Files for Videos
 ---------------------------
 When working with videos, Lightly requires a prediction file per frame. Lightly
@@ -200,6 +202,8 @@ with 1000 frames, the frame number will be padded to length four (99 becomes 009
     # example: my_subdir/my_video.mp4, frame 99/200
     .lightly/predictions/my_classification_task/my_subdir/my_video-099-mp4.json
 
+See :ref:`creating-prediction-files-for-videos` on how to extract video frames
+and create predictions using `ffmpeg <https://ffmpeg.org/>`_ or Python.
 
 .. _ref-prediction-format:
 
@@ -477,3 +481,45 @@ Don't forget to change these 2 parameters at the top of the script.
         path_to_prediction = os.path.join(path_predictions_task, filename_prediction)
         with open(path_to_prediction, 'w') as f:
             json.dump(prediction, f)
+
+
+.. _creating-prediction-files-for-videos:
+
+Creating Prediction Files for Videos
+-------------------------------------
+
+Lightly expects one prediction file per frame in a video. Predictions can be 
+created following the Python example code below. Make sure that `PyAV <https://pyav.org/>`_ 
+is installed on your system for it to work correctly.
+
+.. literalinclude:: code_examples/python_create_frame_predictions.py
+
+.. warning::
+
+    It is discouraged to use another library than `PyAV <https://pyav.org/>`_ 
+    for loading videos with Python as the order and number of loaded frames
+    might differ.
+
+
+Extracting Frames with FFMPEG
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Alternatively, frames can also first be extracted as images with `ffmpeg <https://ffmpeg.org/>`_
+and then further processed by any prediction model that supports images.
+The example command below shows how to extract frames and save them with the
+:ref:`filename expected by Lightly <prediction-files-for-videos>`. Make sure that
+`ffmpeg <https://ffmpeg.org/>`_ is installed on your system before running the
+command.
+
+.. code:: bash
+
+    VIDEO=video.mp4; NUM_FRAMES=$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 ${VIDEO}); ffmpeg -r 1 -i ${VIDEO} -start_number 0 ${VIDEO%.mp4}-%0${#NUM_FRAMES}d-mp4.png
+
+    # results in the following file structure
+    .
+    ├── video.mp4
+    ├── video-000-mp4.png
+    ├── video-001-mp4.png
+    ├── video-002-mp4.png
+    ├── video-003-mp4.png
+    └── ...
