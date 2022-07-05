@@ -33,15 +33,20 @@ In order to do active learning with Lightly, you will need the following things:
 Selection
 -------------------------
 Once you have everything set up as described above, you can do an active learning
-iteration by specifying the following three things in your Lightly Worker config:
+iteration by specifying the following three settings in your Lightly Worker config:
 
-- `method`
-- `active_learning.task_name`
-- `active_learning.score_name`
+- **method**: Use :code:`coral` (recommended) or :code:`active_learning` (see :ref:`lightly-active-learning`)
+- **active_learning.task_name**: Provide the prediction task name
+- **active_learning.score_name**: Choose from the available scores: :ref:`lightly-active-learning-scorers`
+
+  - :code:`uncertainty_least_confidence`
+  - :code:`uncertainty_margin`
+  - :code:`uncertainty_entropy`
 
 Here's an example of how to configure an active learning run:
 
 .. literalinclude:: code_examples/python_run_active_learning.py
+    :emphasize-lines: 78, 83-86
 
 
 After running the code we have to make sure we have a running Lightly Worker 
