@@ -1,5 +1,7 @@
 import time
-from typing import List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
+
+import tqdm
 
 from lightly.openapi_generated.swagger_client.models.datasource_config import DatasourceConfig
 from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
@@ -19,8 +21,9 @@ class _DatasourcesMixin:
                 "DatasourcesApi.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id"
             ],
             from_: int = 0,
-            to: int = None,
-            relevant_filenames_file_name: str = None,
+            to: Optional[int] = None,
+            relevant_filenames_file_name: Optional[str] = None,
+            progress_bar: Optional[tqdm.tqdm] = None,
             **kwargs
     ):
         if to is None:
@@ -38,6 +41,8 @@ class _DatasourcesMixin:
         )
         cursor = response.cursor
         samples = response.data
+        if progress_bar is not None:
+            progress_bar.update(len(response.data))
         while response.has_more:
             response: DatasourceRawSamplesData = download_function(
                 dataset_id=self.dataset_id,
@@ -47,14 +52,17 @@ class _DatasourcesMixin:
             )
             cursor = response.cursor
             samples.extend(response.data)
+            if progress_bar is not None:
+                progress_bar.update(len(response.data))
         samples = [(s.file_name, s.read_url) for s in samples]
         return samples
 
     def download_raw_samples(
             self,
             from_: int = 0,
-            to: int = None,
-            relevant_filenames_file_name: str = None,
+            to: Optional[int] = None,
+            relevant_filenames_file_name: Optional[str] = None,
+            progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
         """Downloads all filenames and read urls from the datasource between `from_` and `to`.
 
@@ -68,16 +76,20 @@ class _DatasourcesMixin:
             relevant_filenames_file_name:
                 The path to the relevant filenames text file in the cloud bucket.
                 The path is relative to the datasource root.
+            progress_bar:
+                Tqdm progress bar to show how many samples have already been
+                retrieved.
         
         Returns:
            A list of (filename, url) tuples, where each tuple represents a sample
 
         """
         samples = self._download_raw_files(
-            self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id,
-            from_,
-            to,
-            relevant_filenames_file_name
+            download_function=self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id,
+            from_=from_,
+            to=to,
+            relevant_filenames_file_name=relevant_filenames_file_name,
+            progress_bar=progress_bar,
         )
         return samples
 
@@ -85,8 +97,9 @@ class _DatasourcesMixin:
             self,
             task_name: str,
             from_: int = 0,
-            to: int = None,
-            relevant_filenames_file_name: str = None,
+            to: Optional[int] = None,
+            relevant_filenames_file_name: Optional[str] = None,
+            progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
         """Downloads all prediction filenames and read urls from the datasource between `from_` and `to`.
 
@@ -102,25 +115,30 @@ class _DatasourcesMixin:
             relevant_filenames_file_name:
                 The path to the relevant filenames text file in the cloud bucket.
                 The path is relative to the datasource root.
+            progress_bar:
+                Tqdm progress bar to show how many prediction files have already been
+                retrieved.
 
         Returns:
            A list of (filename, url) tuples, where each tuple represents a sample
 
         """
         samples = self._download_raw_files(
-            self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id,
-            from_,
-            to,
-            relevant_filenames_file_name,
-            task_name=task_name
+            download_function=self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id,
+            from_=from_,
+            to=to,
+            relevant_filenames_file_name=relevant_filenames_file_name,
+            task_name=task_name,
+            progress_bar=progress_bar,
         )
         return samples
 
     def download_raw_metadata(
             self,
             from_: int = 0,
-            to: int = None,
-            relevant_filenames_file_name: str = None
+            to: Optional[int] = None,
+            relevant_filenames_file_name: Optional[str] = None,
+            progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
         """Downloads all metadata filenames and read urls from the datasource between `from_` and `to`.
 
@@ -134,6 +152,9 @@ class _DatasourcesMixin:
             relevant_filenames_file_name:
                 The path to the relevant filenames text file in the cloud bucket.
                 The path is relative to the datasource root.
+            progress_bar:
+                Tqdm progress bar to show how many metadata files have already been
+                retrieved.
 
         Returns:
            A list of (filename, url) tuples, where each tuple represents a sample
@@ -141,9 +162,10 @@ class _DatasourcesMixin:
         """
         samples = self._download_raw_files(
             self._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id,
-            from_,
-            to,
-            relevant_filenames_file_name
+            from_=from_,
+            to=to,
+            relevant_filenames_file_name=relevant_filenames_file_name,
+            progress_bar=progress_bar,
         )
         return samples
 
@@ -461,4 +483,3 @@ class _DatasourcesMixin:
             self.dataset_id,
             filename,
         )
-

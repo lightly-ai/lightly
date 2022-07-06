@@ -1,3 +1,7 @@
+from unittest import mock
+
+import tqdm
+
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
@@ -16,6 +20,14 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         samples = self.api_workflow_client.download_raw_samples()
         num_samples = self.api_workflow_client._datasources_api._num_samples
         assert len(samples) == num_samples
+
+    def test_download_raw_samples_progress_bar(self):
+        self.api_workflow_client._datasources_api.reset()
+        pbar = mock.Mock(wraps=tqdm.tqdm(unit='file'))
+        samples = self.api_workflow_client.download_raw_samples(progress_bar=pbar)
+        num_samples = self.api_workflow_client._datasources_api._num_samples
+        assert len(samples) == num_samples
+        pbar.update.assert_called()
 
     def test_download_raw_samples_no_duplicates(self):
         self.api_workflow_client._datasources_api.reset()
@@ -114,6 +126,28 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         num_samples = self.api_workflow_client._datasources_api._num_samples
         assert len(predictions) == num_samples
 
+    def test_download_raw_samples_predictions_progress_bar(self):
+        self.api_workflow_client._datasources_api.reset()
+        pbar = mock.Mock(wraps=tqdm.tqdm(unit='file'))
+        predictions = self.api_workflow_client.download_raw_predictions('test', progress_bar=pbar)
+        num_samples = self.api_workflow_client._datasources_api._num_samples
+        assert len(predictions) == num_samples
+        pbar.update.assert_called()
+
+    def test_download_raw_sample_metadata(self):
+        self.api_workflow_client._datasources_api.reset()
+        predictions = self.api_workflow_client.download_raw_metadata()
+        num_samples = self.api_workflow_client._datasources_api._num_samples
+        assert len(predictions) == num_samples
+
+    def test_download_raw_sample_metadata_progress_bar(self):
+        self.api_workflow_client._datasources_api.reset()
+        pbar = mock.Mock(wraps=tqdm.tqdm(unit='file'))
+        predictions = self.api_workflow_client.download_raw_metadata(progress_bar=pbar)
+        num_samples = self.api_workflow_client._datasources_api._num_samples
+        assert len(predictions) == num_samples
+        pbar.update.assert_called()
+
     def test_download_raw_samples_predictions_relevant_filenames(self):
         self.api_workflow_client._datasources_api.reset()
         predictions = self.api_workflow_client.download_raw_predictions('test', relevant_filenames_file_name="test")
@@ -124,5 +158,3 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         self.api_workflow_client._datasources_api.reset()
         read_url = self.api_workflow_client.get_prediction_read_url('test.json')
         self.assertIsNotNone(read_url)
-
-
