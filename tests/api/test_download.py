@@ -188,6 +188,13 @@ class TestDownload(unittest.TestCase):
                 assert _images_equal(frame, orig)
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
+    def test_download_all_video_frames_timeout(self):
+        with tempfile.NamedTemporaryFile(suffix='.avi') as file:
+            _generate_video(file.name)
+            with self.assertRaisesRegexp(RuntimeError, "Maximum retries exceeded.*av.error.ExitError.*Immediate exit requested.*"):
+                list(lightly.api.download.download_all_video_frames(file.name, timeout=0))
+
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_last_video_frame(self):
         with tempfile.NamedTemporaryFile(suffix='.avi') as file:
             n_frames = 5
@@ -216,6 +223,18 @@ class TestDownload(unittest.TestCase):
             for frame, timestamp in zip(frames, frame_indices):
                 orig = original[timestamp]
                 assert _images_equal(frame, orig)
+
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
+    def test_download_video_frames_at_timestamps_timeout(self):
+        with tempfile.NamedTemporaryFile(suffix='.avi') as file:
+            n_frames = 5
+            _generate_video(file.name, n_frames)
+            with self.assertRaisesRegexp(RuntimeError, "Maximum retries exceeded.*av.error.ExitError.*Immediate exit requested.*"):
+                list(lightly.api.download.download_video_frames_at_timestamps(
+                    file.name,
+                    timestamps=list(range(1, n_frames + 1)),
+                    timeout=0,
+                ))
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frames_at_timestamps_wrong_order(self):
@@ -375,6 +394,13 @@ class TestDownload(unittest.TestCase):
                     _generate_video(file.name, n_frames=true_n_frames, fps=fps)
                     n_frames = lightly.api.download.video_frame_count(file.name)
                     assert n_frames == true_n_frames
+
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
+    def test_download_video_Frame_count_timeout(self):
+        with tempfile.NamedTemporaryFile(suffix='.avi') as file:
+            _generate_video(file.name)
+            with self.assertRaisesRegexp(RuntimeError, "Maximum retries exceeded.*av.error.ExitError.*Immediate exit requested.*"):
+                lightly.api.download.video_frame_count(file.name, timeout=0)
 
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_count_no_metadata(self):
