@@ -73,8 +73,8 @@ the model can be iteratively improved.
 
 To make an initial selection, start off by adding your raw, *unlabeled* data and the according
 image embeddings to a dataset in the Lightly `web-app <https://app.lightly.ai>`_. A simple way to do so
-is to use `lightly-magic` from the command-line. Don't forget adapt the arguments input_dir,
-dataset_id and token.
+is to use `lightly-magic` from the command-line. Don't forget to adapt the arguments `input_dir`,
+`dataset_id` and `token`.
 
 .. code-block:: bash
 
@@ -157,8 +157,9 @@ Use this list to get predictions on the unlabeled images.
 **Important:** The predictions need to be in the same order as the filenames in the
 list returned by the `ActiveLearningAgent`.
 
-For classification, the predictions need to be in a numpy array and normalized,
-such that the rows sum to one. Then, create a scorer object like so:
+Next, create a scorer object depending on your task (see :ref:`lightly-active-learning-scorers` below).
+For instance, for classification, the predictions need to be in a numpy array and normalized,
+such that the rows sum to one:
 
 .. code-block:: Python
 
@@ -200,40 +201,38 @@ but without performing a selection. This is also easily possible:
 
 Scorers
 -----------------
-Lightly has so called scorers for the common computer vision tasks such as 
-image classification, detection and others. Depending on the task you are working
-on you can use a different scorer.
+Lightly provides scorers for common computer vision tasks such as
+image classification, detection and others.
 
 Active learning scores are scalar values (per sample) between `0.0` and `1.0`.
-Values closer to `1.0` typically indicate very important samples. For example,
-for an image classification model a high score indicates that the sample is hard
-to classify.
+Values close to `1.0` indicate important samples. For example, for an image
+classification model a high score indicates that the sample is hard to classify.
 
 Image Classification
 ^^^^^^^^^^^^^^^^^^^^^
 Use this scorer when working on a classification problem (binary or multiclass).
 
 
-Currently we offer three uncertainty scorers,which are taken from
+Currently we offer three uncertainty scores, which are based on
 http://burrsettles.com/pub/settles.activelearning.pdf, Section 3.1, page 12f
-and also explained in https://towardsdatascience.com/uncertainty-sampling-cheatsheet-ec57bc067c0b
-They all have in common, that the score is highest if all classes have the
-same confidence and are 0 if the model assigns 100% probability to a single class.
-The differ in the number of class confidences they take into account.
+and also explained in https://towardsdatascience.com/uncertainty-sampling-cheatsheet-ec57bc067c0b.
+For all of them, the score is the highest if all classes have equal probability,
+and the score is 0.0 if the model assigns 100% probability to a single class.
+They differ in the number of class confidences they take into account.
 
-- **uncertainty_least_confidence**:
-    This score is 1 - the highest confidence prediction. It is high (close to `1.0`)
+- **uncertainty_least_confidence**
+    This score is 1.0 minus the highest confidence prediction. It is high (close to 1.0)
     when the confidence about the most probable class is low.
 
 - **uncertainty_margin**
-    This score is 1 - the margin between the highest confidence
-    and second highest confidence prediction. It is high (close to `1.0`) 
+    This score is 1.0 minus the difference between the highest
+    and second highest confidence prediction. It is high (close to 1.0)
     when the model cannot decide between the two most probable classes.
 
 - **uncertainty_entropy**
-    This scorer computes the entropy of the prediction. The confidences
-    for all classes are considered to compute the entropy of a sample. 
-    It is high (close to `1.0`) when the model cannot decide between the all classes.
+    This scorer computes the entropy of the prediction. Confidences
+    of all classes are used to compute the entropy of a sample.
+    It is high (close to 1.0) when the model cannot decide between all classes.
 
 For more information about how to use the classification scorer have a look here:
 :py:class:`lightly.active_learning.scorers.classification.ScorerClassification`
@@ -264,22 +263,24 @@ Currently, the following scorers are available:
 - **object_frequency**
   This score measures the number of objects in the image. Use this scorer if
   you want scenes with lots of objects in them. This is suited for computer vision
-  tasks such as perception in autonomous driving. Samples with high values (close to `1.0`)
+  tasks such as perception in autonomous driving. Samples with high values (close to 1.0)
   contain the most objects within a dataset.
 
 - **objectness_least_confidence**
-  This score is 1 - the mean of the highest confidence prediction. Use this scorer
+  This score is 1.0 minus the mean of the highest confidence prediction. Use this scorer
   to select images where the model is insecure about both whether it found an object
-  at all and the class of the object. Samples with high values (close to `1.0`) are the
+  at all and the class of the object. Samples with high values (close to 1.0) are the
   ones where the model has lowest confidence predicting good bounding boxes.
 
 - **classification_scores**
   These scores are computed for each object detection per image out of
   the class probability prediction for this detection. Then, they are reduced
   to one score per image by taking the maximum. In particular we support:
+
   - **uncertainty_least_confidence**
   - **uncertainty_margin**
   - **uncertainty_entropy**
+
   The scores are computed using the scorer for classification.
 
 
@@ -307,9 +308,11 @@ Currently, the following scorers are available:
   These scores treat segmentation as a pixelwise classification task. The 
   classification uncertainty scores are computed per pixel and then reduced to
   a single score per image by taking the mean. In particular, we support:
+
   - **uncertainty_least_confidence**
   - **uncertainty_margin**
   - **uncertainty_entropy**
+
   The scores are computed using the scorer for classification.
 
 
