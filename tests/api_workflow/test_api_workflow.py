@@ -1,10 +1,13 @@
-import numpy as np
 import os
 from unittest import mock
+from urllib3 import Timeout
+
+import numpy as np
 
 import lightly
+from lightly.api.api_workflow_client import set_api_client_request_timeout
+from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowClient, MockedApiWorkflowSetup
-
 
 class TestApiWorkflow(MockedApiWorkflowSetup):
 
@@ -99,3 +102,39 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
             with self.assertRaises(ValueError):
                 api_workflow_client._order_list_by_filenames(
                     filenames_for_list[:-1], list_to_order[:-1])
+
+
+def test_set_api_client_timeout_total():
+    client = ApiClient()
+    set_api_client_request_timeout(client, timeout=1)
+
+    # mock urllib3 
+    client.rest_client.pool_manager = mock.Mock(wraps=client.rest_client.pool_manager)
+    client.rest_client.pool_manager.request.return_value = mock.Mock(status=200, data="data".encode('utf8'))
+
+    client.request('GET', 'some-url')
+
+    # verify that urllib3 request was called with timeout
+    request_calls = client.rest_client.pool_manager.request.mock_calls
+    assert len(request_calls) == 1
+    _, _, kwargs = request_calls[0]
+    assert isinstance(kwargs['timeout'], Timeout)
+    assert kwargs['timeout'].total == 1
+
+def test_set_api_client_timeout_connect_read():
+    client = ApiClient()
+    set_api_client_request_timeout(client, timeout=(1, 2))
+
+    # mock urllib3 
+    client.rest_client.pool_manager = mock.Mock(wraps=client.rest_client.pool_manager)
+    client.rest_client.pool_manager.request.return_value = mock.Mock(status=200, data="data".encode('utf8'))
+
+    client.request('GET', 'some-url')
+
+    # verify that urllib3 request was called with timeout
+    request_calls = client.rest_client.pool_manager.request.mock_calls
+    assert len(request_calls) == 1
+    _, _, kwargs = request_calls[0]
+    assert isinstance(kwargs['timeout'], Timeout)
+    assert kwargs['timeout'].connect_timeout == 1
+    assert kwargs['timeout'].read_timeout == 2
