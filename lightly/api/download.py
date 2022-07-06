@@ -182,6 +182,7 @@ if not isinstance(av, ModuleNotFoundError):
         ignore_metadata: bool = False,
         retry_fn: Callable = utils.retry,
         exceptions_indicating_empty_video: Tuple[Type[BaseException], ...] = (RuntimeError,),
+        progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Optional[int]]:
         """Finds the number of frames in the videos at the given urls.
 
@@ -230,9 +231,16 @@ if not isinstance(av, ModuleNotFoundError):
                 return
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            return list(executor.map(job, urls))
-
-
+            frame_counts = []
+            total_count = 0
+            for count in executor.map(job, urls):
+                frame_counts.append(count)
+                if progress_bar is not None:
+                    if count is not None:
+                        total_count += count
+                    progress_bar.update(1)
+                    progress_bar.set_description(f'Total frames found: {total_count}')
+            return frame_counts
 
     def download_video_frames_at_timestamps(
             url: str,

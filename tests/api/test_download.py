@@ -9,6 +9,7 @@ from unittest import mock
 
 import numpy as np
 from PIL import Image
+import tqdm
 
 try:
     import av
@@ -268,7 +269,6 @@ class TestDownload(unittest.TestCase):
             for frame, orig in zip(frames, original[2:]):
                 assert _images_equal(frame, orig)
 
-
     @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
     def test_download_video_frame_fps(self):
         for fps in [24, 30, 60]:
@@ -439,6 +439,23 @@ class TestDownload(unittest.TestCase):
                     exceptions_indicating_empty_video=tuple(),
                 )
 
+    @unittest.skipUnless(AV_AVAILABLE, "Pyav not installed")
+    def test_download_all_video_frame_counts_progress_bar(self):
+        true_n_frames = [3, 5]
+        fps = 24
+        pbar = mock.Mock(wraps=tqdm.tqdm(unit='videos'))
+        with tempfile.NamedTemporaryFile(suffix='.avi') as file1, \
+            tempfile.NamedTemporaryFile(suffix='.avi') as file2:
+
+            _generate_video(file1.name, n_frames=true_n_frames[0], fps=fps)
+            _generate_video(file2.name, n_frames=true_n_frames[1], fps=fps)
+            frame_counts = lightly.api.download.all_video_frame_counts(
+                urls=[file1.name, file2.name],
+                progress_bar=pbar,
+            )
+            assert sum(frame_counts) == sum(true_n_frames)
+            assert frame_counts == true_n_frames
+            assert pbar.update.call_count == len(true_n_frames)
 
 def _images_equal(image1, image2):
     # note that images saved and loaded from disk must
