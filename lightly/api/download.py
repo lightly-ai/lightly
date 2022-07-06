@@ -21,6 +21,8 @@ except ModuleNotFoundError:
         "installation instructions."
     )
 
+DEFAULT_VIDEO_TIMEOUT = 60 * 5 # seconds
+
 def _check_av_available() -> None:
     if isinstance(av, Exception):
         raise av
@@ -71,7 +73,7 @@ if not isinstance(av, ModuleNotFoundError):
         thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
         video_channel: int = 0,
         retry_fn: Callable = utils.retry,
-        timeout: Optional[Union[float, Tuple[float, float]]] = 60 * 5,
+        timeout: Optional[Union[float, Tuple[float, float]]] = DEFAULT_VIDEO_TIMEOUT,
     ) -> Iterable[Union[PIL.Image.Image, av.VideoFrame]]:
         """Lazily retrieves all frames from a video stored at the given url.
 
@@ -148,7 +150,7 @@ if not isinstance(av, ModuleNotFoundError):
         thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
         ignore_metadata: bool = False,
         retry_fn: Callable = utils.retry,
-        timeout: Optional[Union[float, Tuple[float, float]]] = 60 * 5,
+        timeout: Optional[Union[float, Tuple[float, float]]] = DEFAULT_VIDEO_TIMEOUT,
     ) -> Optional[int]:
         """Returns the number of frames in the video from the given url.
 
@@ -268,7 +270,7 @@ if not isinstance(av, ModuleNotFoundError):
             video_channel: int = 0,
             seek_to_first_frame: bool = True,
             retry_fn: Callable = utils.retry,
-            timeout: Optional[Union[float, Tuple[float, float]]] = 60 * 5,
+            timeout: Optional[Union[float, Tuple[float, float]]] = DEFAULT_VIDEO_TIMEOUT,
         ) -> Iterable[Union[PIL.Image.Image, av.VideoFrame]]:
             """Lazily retrieves frames from a video at a specific timestamp stored at the given url.
 
