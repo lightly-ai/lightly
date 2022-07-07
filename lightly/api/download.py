@@ -21,6 +21,8 @@ except ModuleNotFoundError:
         "installation instructions."
     )
 
+DEFAULT_VIDEO_TIMEOUT = 60 * 5 # seconds
+
 def _check_av_available() -> None:
     if isinstance(av, Exception):
         raise av
@@ -71,6 +73,7 @@ if not isinstance(av, ModuleNotFoundError):
         thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
         video_channel: int = 0,
         retry_fn: Callable = utils.retry,
+        timeout: Optional[Union[float, Tuple[float, float]]] = DEFAULT_VIDEO_TIMEOUT,
     ) -> Iterable[Union[PIL.Image.Image, av.VideoFrame]]:
         """Lazily retrieves all frames from a video stored at the given url.
 
@@ -91,6 +94,14 @@ if not isinstance(av, ModuleNotFoundError):
                 The video channel from which frames are loaded.
             retry_fn:
                 Retry function that handles errors when opening the video container.
+            timeout:
+                Time in seconds to wait for new video data before giving up.
+                Timeout must either be an (open_timeout, read_timeout) tuple
+                or a single value which will be used as open and read timeout.
+                Timeouts only apply to individual steps during the download,
+                the complete video download can take much longer.
+                See https://pyav.org/docs/stable/api/_globals.html?highlight=av%20open#av.open
+                for details.
 
         Returns:
             A generator that loads and returns a single frame per step.
@@ -101,7 +112,7 @@ if not isinstance(av, ModuleNotFoundError):
         if timestamp < 0:
             raise ValueError(f"Negative timestamp is not allowed: {timestamp}")
 
-        with retry_fn(av.open, url) as container:
+        with retry_fn(av.open, url, timeout=timeout) as container:
             stream = container.streams.video[video_channel]
             stream.thread_type = thread_type
 
@@ -139,6 +150,7 @@ if not isinstance(av, ModuleNotFoundError):
         thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
         ignore_metadata: bool = False,
         retry_fn: Callable = utils.retry,
+        timeout: Optional[Union[float, Tuple[float, float]]] = DEFAULT_VIDEO_TIMEOUT,
     ) -> Optional[int]:
         """Returns the number of frames in the video from the given url.
 
@@ -157,13 +169,21 @@ if not isinstance(av, ModuleNotFoundError):
             ignore_metadata:
                 If True, frames are counted by iterating through the video instead
                 of relying on the video metadata.
+            timeout:
+                Time in seconds to wait for new video data before giving up.
+                Timeout must either be an (open_timeout, read_timeout) tuple
+                or a single value which will be used as open and read timeout.
+                Timeouts only apply to individual steps during the download,
+                the complete video download can take much longer.
+                See https://pyav.org/docs/stable/api/_globals.html?highlight=av%20open#av.open
+                for details.
 
         Returns:
             The number of frames in the video. Can be None if the video could not be
             decoded.
 
         """
-        with retry_fn(av.open, url) as container:
+        with retry_fn(av.open, url, timeout=timeout) as container:
             stream = container.streams.video[video_channel]
             num_frames = 0 if ignore_metadata else stream.frames
             # If number of frames not stored in the video file we have to decode all
@@ -250,6 +270,7 @@ if not isinstance(av, ModuleNotFoundError):
             video_channel: int = 0,
             seek_to_first_frame: bool = True,
             retry_fn: Callable = utils.retry,
+            timeout: Optional[Union[float, Tuple[float, float]]] = DEFAULT_VIDEO_TIMEOUT,
         ) -> Iterable[Union[PIL.Image.Image, av.VideoFrame]]:
             """Lazily retrieves frames from a video at a specific timestamp stored at the given url.
 
@@ -274,6 +295,14 @@ if not isinstance(av, ModuleNotFoundError):
                     Boolean indicating whether to seek to the first frame.
                 retry_fn:
                     Retry function that handles errors when opening the video container.
+                timeout:
+                    Time in seconds to wait for new video data before giving up.
+                    Timeout must either be an (open_timeout, read_timeout) tuple
+                    or a single value which will be used as open and read timeout.
+                    Timeouts only apply to individual steps during the download,
+                    the complete video download can take much longer.
+                    See https://pyav.org/docs/stable/api/_globals.html?highlight=av%20open#av.open
+                    for details.
 
             Returns:
                 A generator that loads and returns a single frame per step.
@@ -296,7 +325,7 @@ if not isinstance(av, ModuleNotFoundError):
             if min_timestamp < 0:
                 raise ValueError(f"Negative timestamp is not allowed: {min_timestamp}")
 
-            with retry_fn(av.open, url) as container:
+            with retry_fn(av.open, url, timeout=timeout) as container:
                 stream = container.streams.video[video_channel]
                 stream.thread_type = thread_type
 
