@@ -109,7 +109,6 @@ have **only the Cityscapes** dataset stored in our S3 bucket under `s3://dataset
       region='eu-central-1',
       access_key='S3-ACCESS-KEY',
       secret_access_key='S3-SECRET-ACCESS-KEY',
-      thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
       purpose=DatasourcePurpose.INPUT
   )
   # Output bucket
@@ -118,7 +117,6 @@ have **only the Cityscapes** dataset stored in our S3 bucket under `s3://dataset
       region='eu-central-1',
       access_key='S3-ACCESS-KEY',
       secret_access_key='S3-SECRET-ACCESS-KEY',
-      thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
       purpose=DatasourcePurpose.LIGHTLY
   )
 
