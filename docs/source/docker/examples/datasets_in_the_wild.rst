@@ -87,7 +87,6 @@ a datasource. We call the dataset `frame-extraction-example` and use the input t
       region='eu-central-1',
       access_key='S3-ACCESS-KEY',
       secret_access_key='S3-SECRET-ACCESS-KEY',
-      thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
       purpose=DatasourcePurpose.INPUT
   )
   # Output bucket
@@ -96,7 +95,6 @@ a datasource. We call the dataset `frame-extraction-example` and use the input t
       region='eu-central-1',
       access_key='S3-ACCESS-KEY',
       secret_access_key='S3-SECRET-ACCESS-KEY',
-      thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
       purpose=DatasourcePurpose.LIGHTLY
   )
 

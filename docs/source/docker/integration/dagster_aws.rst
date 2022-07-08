@@ -67,7 +67,6 @@ Then, configure a dataset in the Lightly Platform which will represent the state
        region='eu-central-1'
        access_key='S3-ACCESS-KEY',
        secret_access_key='S3-SECRET-ACCESS-KEY',
-       thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
        purpose=DatasourcePurpose.INPUT
    )
    # Output bucket
@@ -76,7 +75,6 @@ Then, configure a dataset in the Lightly Platform which will represent the state
        region='eu-central-1'
        access_key='S3-ACCESS-KEY',
        secret_access_key='S3-SECRET-ACCESS-KEY',
-       thumbnail_suffix=".lightly/thumbnails/[filename]_thumb.[extension]",
        purpose=DatasourcePurpose.LIGHTLY
     )
 

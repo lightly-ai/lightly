@@ -109,7 +109,7 @@ make sure to specify the `dataset_id` in the constructor.
             # Input bucket
             client.set_s3_config(
                 resource_path="s3://bucket/input/",
-                region='eu-central-1'
+                region='eu-central-1',
                 access_key='S3-ACCESS-KEY',
                 secret_access_key='S3-SECRET-ACCESS-KEY',
                 purpose=DatasourcePurpose.INPUT
@@ -117,7 +117,7 @@ make sure to specify the `dataset_id` in the constructor.
             # Output bucket
             client.set_s3_config(
                 resource_path="s3://bucket/output/",
-                region='eu-central-1'
+                region='eu-central-1',
                 access_key='S3-ACCESS-KEY',
                 secret_access_key='S3-SECRET-ACCESS-KEY',
                 purpose=DatasourcePurpose.LIGHTLY
@@ -134,7 +134,7 @@ make sure to specify the `dataset_id` in the constructor.
             # Input bucket
             client.set_s3_delegated_access_config(
                 resource_path="s3://bucket/input/",
-                region='eu-central-1'
+                region='eu-central-1',
                 role_arn='S3-ROLE-ARN',
                 external_id='S3-EXTERNAL-ID'
                 purpose=DatasourcePurpose.INPUT
@@ -142,7 +142,7 @@ make sure to specify the `dataset_id` in the constructor.
             # Output bucket
             client.set_s3_delegated_access_config(
                 resource_path="s3://bucket/output/",
-                region='eu-central-1'
+                region='eu-central-1',
                 role_arn='S3-ROLE-ARN',
                 external_id='S3-EXTERNAL-ID'
                 purpose=DatasourcePurpose.LIGHTLY
