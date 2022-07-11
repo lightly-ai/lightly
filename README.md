@@ -59,13 +59,14 @@ Community and partner projects:
 
 ## Quick Start
 
-Lightly requires **Python 3.6+**. We recommend installing Lightly in a **Linux** or **OSX** environment.
+Lightly requires **Python 3.6+** but we recommend using **Python 3.7+**.
+We recommend installing Lightly in a **Linux** or **OSX** environment.
 
 ### Dependencies
 
 - hydra-core>=1.0.0
 - numpy>=1.18.1
-- pytorch_lightning>=1.0.4 
+- pytorch_lightning>=1.5
 - requests>=2.23.0
 - torchvision
 - tqdm
