@@ -194,6 +194,7 @@ class TestVideoDataset(unittest.TestCase):
             # https://github.com/pytorch/vision/blob/5985504cc32011fbd4312600b4492d8ae0dd13b4/torchvision/io/video.py#L397
             # We cannot count warnings, since these are emitted only from torchvision version 0.11 onwards
             # with warnings.catch_warnings(record=True) as caught_warning:
+            #     dataset = LightlyDataset(self.input_dir)
             # expected_warning = "Caught error: [Errno 13] Permission denied:"
             # has_warning = [True for warning in caught_warning if expected_warning in str(warning)]
             # self.assertEqual(len(has_warning), n_videos)
