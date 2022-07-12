@@ -13,3 +13,4 @@ Here you learn more advanced usage patterns of Lightly Docker.
    active_learning.rst
    sequence_selection.rst
    object_level.rst
+   load_model_from_checkpoint.rst
