@@ -2,12 +2,13 @@ from collections import OrderedDict
 import torch
 import lightly
 
-def load_ckpt(ckpt_path, model_name='resnet-18', model_width=1):
-    ckpt = torch.load(ckpt_path, map_location='cpu')
+def load_ckpt(ckpt_path, model_name='resnet-18', model_width=1, map_location='cpu'):
+    ckpt = torch.load(ckpt_path, map_location=map_location)
     
     state_dict = OrderedDict()
     for key, value in ckpt['state_dict'].items():
         if ('projection_head' in key) or ('backbone.7' in key):
+            # drop layers used for projection head
             continue
         state_dict[key.replace('model.backbone.', '')] = value
     
@@ -15,6 +16,8 @@ def load_ckpt(ckpt_path, model_name='resnet-18', model_width=1):
     model = torch.nn.Sequential(
         lightly.models.batchnorm.get_norm_layer(3, 0),
         *list(resnet.children())[:-1],
+        torch.nn.AdaptiveAvgPool2d(1),
+        torch.nn.Flatten(1),
     )
     try:
         model.load_state_dict(state_dict)
@@ -27,21 +30,19 @@ def load_ckpt(ckpt_path, model_name='resnet-18', model_width=1):
     return model
 
 # loading the model
-model = load_ckpt('output_dir/lightly_epoch_1.ckpt')
+model = load_ckpt('output_dir/lightly_epoch_X.ckpt')
 
 
 # example usage
 image_batch = torch.rand(16, 3, 224, 224)
 out = model(image_batch)
-print(out.shape) # prints: torch.Size([16, 512, 28, 28])
+print(out.shape) # prints: torch.Size([16, 512])
 
 
 # creating a classifier from the pre-trained model
 num_classes = 10
 classifier = torch.nn.Sequential(
     model,
-    torch.nn.AdaptiveAvgPool2d(1),
-    torch.nn.Flatten(1),
     torch.nn.Linear(512, num_classes) # use 2048 instead of 512 for resnet-50
 )
 
