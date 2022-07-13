@@ -257,6 +257,7 @@ There's an alternative stopping condition to `n_samples`, the `min_distance`
   combine them in a balanced way.
 
 
+.. _training-a-self-supervised-model:
 
 Training a Self-Supervised Model
 --------------------------------
@@ -489,6 +490,9 @@ The output directory is structured in the following way:
 * filenames:
    This directory contains lists of filenames of the corrupt images, removed images, selected
    images and the images which were removed because they have an exact duplicate in the dataset.
+* lightly_epoch_X.ckpt
+   Checkpoint with the trained model weights (exists only if `enable_training=True`).
+   See :ref:`load-model-from-checkpoint` on how to use the checkpoint file.
 * plots:
    A directory containing the plots which were produced for the report.
 * report.pdf
@@ -528,7 +532,7 @@ Below you find a typical output folder structure.
     |   |-- duplicate_filenames.txt
     |   |-- removed_filenames.txt
     |   '-- sampled_filenames_excluding_datapool.txt
-    |-- lightly_epoch_1.ckpt
+    |-- lightly_epoch_X.ckpt
     |-- plots
     |   |-- distance_distr_after.png
     |   |-- distance_distr_before.png
