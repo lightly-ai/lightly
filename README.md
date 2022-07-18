@@ -120,7 +120,11 @@ class SimCLR(nn.Module):
     def __init__(self, backbone):
         super().__init__()
         self.backbone = backbone
-        self.projection_head = models.modules.SimCLRProjectionHead(512, 512, 128)
+        self.projection_head = models.modules.SimCLRProjectionHead(
+          input_dim=512, 
+          hidden_dim=512,
+          output_dim=128
+        )
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -259,7 +263,7 @@ For more information about how to contribute have a look [here](CONTRIBUTING.md)
 
 ### Running Tests
 
-Unit tests are within the `tests` folder and we recommend running them using 
+Unit tests are within the [tests folder](tests/) and we recommend running them using 
 [pytest](https://docs.pytest.org/en/stable/).
 There are two test configurations available. By default, only a subset will be run.
 This is faster and should take less than a minute. You can run it using
@@ -307,7 +311,7 @@ pylint lightly/core.py
   we need to make training deep learning models more data efficient to achieve widespread adoption. One step to achieve this goal is by leveraging self-supervised learning. The company behind lightly commited to keep this framework open-source.
 
 - If this framework is free, how is the company behind lightly making money?
-  - Training self-supervised models is only part of our solution. The company behind lightly focuses on processing and analyzing embeddings created by self-supervised models. 
+  - Training self-supervised models is only one part of our solution. The company behind lightly focuses on processing and analyzing embeddings created by self-supervised models. 
   By building, what we call a self-supervised active learning loop we help companies understand and work with their data more efficiently. This framework acts as an interface
   for our platform to easily upload and download datasets, embeddings and models. Whereas 
   the platform will cost for additional features this frameworks will always remain free of charge (even for commercial use).
