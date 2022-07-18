@@ -103,7 +103,7 @@ To set up IAM Delegated Access
    
 3. Select `AWS Account` as the trusted entity type
 
-    a. Select `Another AWS account` and specify the AWS Account ID of Lightly: `311530292373`
+    a. Select `Another AWS account` and specify the AWS Account ID of Lightly: `916419735646`
 
     b. Check `Require external ID`, and choose an external ID. The external ID should be treated like a passphrase
 
@@ -143,7 +143,7 @@ To set up IAM Delegated Access
     .. warning:: If you don't set the maximum duration to 12 hours, Lightly will not be able to access your data. Please make sure to se the `Maximum session duration` to 12 hours.
 
 
-7. Remember the external ID and the ARN of the newly created role (`arn:aws:iam::367053757506:role/Lightly-S3-Integration`)
+7. Remember the external ID and the ARN of the newly created role (`arn:aws:iam::123456789012:role/Lightly-S3-Integration`)
 
 
 
