@@ -247,7 +247,13 @@ class LightlyDataset:
 
         """
         fname = self.index_to_filename(self.dataset, index)
-        sample, target = self.dataset.__getitem__(index)
+        # modified for video datasets
+        # if self.dataset
+
+        try:
+            sample, target = self.dataset.__getitem__(index)
+        except ValueError:
+            sample, audio, target = self.dataset.__getitem__(index)
 
         return sample, target, fname
 
