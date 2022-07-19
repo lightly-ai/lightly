@@ -65,18 +65,6 @@ memory (e.g. less than 2 GB of memory per core) it can happen that you run out
 of memory and you rather want to reduce
 the number of workers intead of increasing the shared memory. 
 
-You can set the number of workers using
-
-.. code-block:: console
-
-    # you can manually override the config to only use 4 workers
-    docker run --gpus all --rm -it \
-        -v {OUTPUT_DIR}:/home/output_dir \
-        lightly/worker:latest \
-        token=MY_AWESOME_TOKEN \
-        worker.worker_id=MY_WORKER_ID \
-        lightly.loader.num_workers=4
-
 You can change the shared memory from 64 MBytes to 512 MBytes by 
 adding `--shm-size="512m"` to the docker run command:
 
