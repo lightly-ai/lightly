@@ -230,14 +230,15 @@ Now that everything is in place, let's configure and run a simple job.
 
 The command schedules a job with the following configurations:
 
-- **enable_corruptness_check=True** Checks your dataset for corrupt images 
+- :code:`enable_corruptness_check` Checks your dataset for corrupt images if **True**.
 
-- **remove_exact_duplicates=True** Removes exact duplicates
+- :code:`remove_exact_duplicates` Removes exact duplicates if **True**.
 
-- **stopping_condition.n_samples=0.1** Selects 10% of the images using the
+- :code:`stopping_condition.n_samples` **0.1** selects 10% of the images using the
   default method (coreset). Selecting 10% means that the remaining dataset
-  will be 10% of the initial dataset size. You can also specify the exact 
-  number of remaining images by setting **n_samples** to an integer.
+  will be 10% of the initial dataset size. 
+  You can also specify the exact number of remaining images 
+  by setting the value to an integer.
 
 
 The worker should pick up the job after a few seconds and start working on it. The
@@ -249,10 +250,10 @@ report can be accessed from the compute worker runs page mentioned just above.
 
 There's an alternative stopping condition to `n_samples`, the `min_distance`
 
-- **stopping_condition.min_distance=0.2** would remove all samples which are
+- :code:`stopping_condition.min_distance` **0.2** would remove all samples which are
   closer to each other than 0.2. This allows you to specify the minimum allowed distance between two image 
   embeddings in the output dataset. After normalizing the input embeddings 
-  to unit length, this value should be between 0 and 2. This is often a more 
+  to unit length, this value should be between 0 and 2.0. This is often a more 
   convenient method when working with different data sources and trying to 
   combine them in a balanced way.
 
@@ -292,8 +293,16 @@ You may not always want to train for exactly 100 epochs with the default setting
 The Lightly worker is a wrapper around the lightly Python package.
 Hence, for training and embedding the user can access all the settings from the lightly command-line tool.
 
+Here are some of the most common parameters for the **lightly_config**
+you might want to change:
+
+- :code:`trainer.max_epochs` determines the number of epochs your SSL model should be trained for.
+- :code:`loader.num_workers` specifies the number of background workers for data processing.
+  -1 uses the number of available CPU cores. 
+
 
 .. code-block:: python
+    :emphasize-lines: 18, 29
     :caption: Accessing the lightly parameters from Python
 
     client.schedule_compute_worker_run(
