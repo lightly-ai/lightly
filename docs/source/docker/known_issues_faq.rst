@@ -42,7 +42,7 @@ Shared Memory Error when running Lightly Worker
 
 The following error message appears when the docker runtime has not enough
 shared memory. By default Docker uses 64 MBytes. However, when using multiple 
-workers for data fetching `lightly.loader.num_workers` there might be not enough.
+workers for data fetching :code:`lightly.loader.num_workers` there might be not enough.
 
 .. code-block:: console
 
@@ -56,15 +56,37 @@ workers for data fetching `lightly.loader.num_workers` there might be not enough
         fd, size = storage._share_fd_()                                                                                                                                                                         
     RuntimeError: unable to write to file </torch_31_1030151126> 
 
-To solve this problem we need to increase the shared memory for the docker runtime.
+To solve this problem we need to reduce the number of workers or 
+increase the shared memory for the docker runtime. 
 
-You can change the shared memory to 512 MBytes by adding `--shm-size="512m"` to 
-the docker run command:
+Lightly determines the number of CPU cores available and sets the number
+of workers to the same number. If you have a machine with many cores but not so much
+memory (e.g. less than 2 GB of memory per core) it can happen that you run out 
+of memory and you rather want to reduce
+the number of workers intead of increasing the shared memory. 
+
+You can set the number of workers using
+
+.. code-block:: console
+
+    # you can manually override the config to only use 4 workers
+    docker run --gpus all --rm -it \
+        -v {OUTPUT_DIR}:/home/output_dir \
+        lightly/worker:latest \
+        token=MY_AWESOME_TOKEN \
+        worker.worker_id=MY_WORKER_ID \
+        lightly.loader.num_workers=4
+
+You can change the shared memory from 64 MBytes to 512 MBytes by 
+adding `--shm-size="512m"` to the docker run command:
 
 .. code-block:: console
 
     # example of docker run with setting shared memory to 512 MBytes
     docker run --shm-size="512m" --gpus all
+
+    # you can also increase it to 2 Gigabytes using
+    docker run --shm-size="2G" --gpus all
 
 
 Lightly Worker crashes because of too many open files
