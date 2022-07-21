@@ -33,98 +33,17 @@ class SamaTasks(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'notification_email': 'str',
-        'tasks_file_name': 'str',
-        'tasks': 'list[SamaTask]'
     }
 
     attribute_map = {
-        'notification_email': 'notification_email',
-        'tasks_file_name': 'tasks_file_name',
-        'tasks': 'tasks'
     }
 
-    def __init__(self, notification_email=None, tasks_file_name=None, tasks=None, _configuration=None):  # noqa: E501
+    def __init__(self, _configuration=None):  # noqa: E501
         """SamaTasks - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
-
-        self._notification_email = None
-        self._tasks_file_name = None
-        self._tasks = None
         self.discriminator = None
-
-        if notification_email is not None:
-            self.notification_email = notification_email
-        if tasks_file_name is not None:
-            self.tasks_file_name = tasks_file_name
-        self.tasks = tasks
-
-    @property
-    def notification_email(self):
-        """Gets the notification_email of this SamaTasks.  # noqa: E501
-
-
-        :return: The notification_email of this SamaTasks.  # noqa: E501
-        :rtype: str
-        """
-        return self._notification_email
-
-    @notification_email.setter
-    def notification_email(self, notification_email):
-        """Sets the notification_email of this SamaTasks.
-
-
-        :param notification_email: The notification_email of this SamaTasks.  # noqa: E501
-        :type: str
-        """
-
-        self._notification_email = notification_email
-
-    @property
-    def tasks_file_name(self):
-        """Gets the tasks_file_name of this SamaTasks.  # noqa: E501
-
-
-        :return: The tasks_file_name of this SamaTasks.  # noqa: E501
-        :rtype: str
-        """
-        return self._tasks_file_name
-
-    @tasks_file_name.setter
-    def tasks_file_name(self, tasks_file_name):
-        """Sets the tasks_file_name of this SamaTasks.
-
-
-        :param tasks_file_name: The tasks_file_name of this SamaTasks.  # noqa: E501
-        :type: str
-        """
-
-        self._tasks_file_name = tasks_file_name
-
-    @property
-    def tasks(self):
-        """Gets the tasks of this SamaTasks.  # noqa: E501
-
-
-        :return: The tasks of this SamaTasks.  # noqa: E501
-        :rtype: list[SamaTask]
-        """
-        return self._tasks
-
-    @tasks.setter
-    def tasks(self, tasks):
-        """Sets the tasks of this SamaTasks.
-
-
-        :param tasks: The tasks of this SamaTasks.  # noqa: E501
-        :type: list[SamaTask]
-        """
-        if self._configuration.client_side_validation and tasks is None:
-            raise ValueError("Invalid value for `tasks`, must not be `None`")  # noqa: E501
-
-        self._tasks = tasks
 
     def to_dict(self):
         """Returns the model properties as a dict"""

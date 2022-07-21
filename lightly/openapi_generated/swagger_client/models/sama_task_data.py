@@ -35,6 +35,7 @@ class SamaTaskData(object):
     swagger_types = {
         'id': 'int',
         'url': 'RedirectedReadUrl',
+        'image': 'RedirectedReadUrl',
         'lightly_file_name': 'str',
         'lightly_meta_info': 'str'
     }
@@ -42,11 +43,12 @@ class SamaTaskData(object):
     attribute_map = {
         'id': 'id',
         'url': 'url',
+        'image': 'image',
         'lightly_file_name': 'lightlyFileName',
         'lightly_meta_info': 'lightlyMetaInfo'
     }
 
-    def __init__(self, id=None, url=None, lightly_file_name=None, lightly_meta_info=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, url=None, image=None, lightly_file_name=None, lightly_meta_info=None, _configuration=None):  # noqa: E501
         """SamaTaskData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -54,12 +56,15 @@ class SamaTaskData(object):
 
         self._id = None
         self._url = None
+        self._image = None
         self._lightly_file_name = None
         self._lightly_meta_info = None
         self.discriminator = None
 
         self.id = id
         self.url = url
+        if image is not None:
+            self.image = image
         if lightly_file_name is not None:
             self.lightly_file_name = lightly_file_name
         if lightly_meta_info is not None:
@@ -110,6 +115,27 @@ class SamaTaskData(object):
             raise ValueError("Invalid value for `url`, must not be `None`")  # noqa: E501
 
         self._url = url
+
+    @property
+    def image(self):
+        """Gets the image of this SamaTaskData.  # noqa: E501
+
+
+        :return: The image of this SamaTaskData.  # noqa: E501
+        :rtype: RedirectedReadUrl
+        """
+        return self._image
+
+    @image.setter
+    def image(self, image):
+        """Sets the image of this SamaTaskData.
+
+
+        :param image: The image of this SamaTaskData.  # noqa: E501
+        :type: RedirectedReadUrl
+        """
+
+        self._image = image
 
     @property
     def lightly_file_name(self):
