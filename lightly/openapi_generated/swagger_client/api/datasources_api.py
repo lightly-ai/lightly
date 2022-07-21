@@ -336,7 +336,7 @@ class DatasourcesApi(object):
         :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
         :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
-        :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
+        :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
         :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
         :return: DatasourceRawSamplesData
                  If the method is called asynchronously,
@@ -363,7 +363,7 @@ class DatasourcesApi(object):
         :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
         :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
-        :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
+        :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
         :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
         :return: DatasourceRawSamplesData
                  If the method is called asynchronously,
@@ -451,7 +451,7 @@ class DatasourcesApi(object):
         :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
         :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
-        :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
+        :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
         :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
         :return: DatasourceRawSamplesMetadataData
                  If the method is called asynchronously,
@@ -478,7 +478,7 @@ class DatasourcesApi(object):
         :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
         :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
-        :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
+        :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
         :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
         :return: DatasourceRawSamplesMetadataData
                  If the method is called asynchronously,
@@ -567,7 +567,7 @@ class DatasourcesApi(object):
         :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
         :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
-        :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
+        :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
         :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
         :return: DatasourceRawSamplesPredictionsData
                  If the method is called asynchronously,
@@ -595,7 +595,7 @@ class DatasourcesApi(object):
         :param Timestamp _from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
         :param Timestamp to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
-        :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
+        :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
         :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
         :return: DatasourceRawSamplesPredictionsData
                  If the method is called asynchronously,
