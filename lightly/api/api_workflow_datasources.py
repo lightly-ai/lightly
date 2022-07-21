@@ -23,7 +23,7 @@ class _DatasourcesMixin:
             from_: int = 0,
             to: Optional[int] = None,
             relevant_filenames_file_name: Optional[str] = None,
-            use_redirected_read_url: bool = False,
+            use_redirected_read_url: Optional[bool] = False,
             progress_bar: Optional[tqdm.tqdm] = None,
             **kwargs
     ):
@@ -65,7 +65,7 @@ class _DatasourcesMixin:
             from_: int = 0,
             to: Optional[int] = None,
             relevant_filenames_file_name: Optional[str] = None,
-            use_redirected_read_url: bool = False,
+            use_redirected_read_url: Optional[bool] = False,
             progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
         """Downloads all filenames and read urls from the datasource between `from_` and `to`.
@@ -109,7 +109,7 @@ class _DatasourcesMixin:
             from_: int = 0,
             to: Optional[int] = None,
             relevant_filenames_file_name: Optional[str] = None,
-            use_redirected_read_url: bool = False,
+            use_redirected_read_url: Optional[bool] = False,
             progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
         """Downloads all prediction filenames and read urls from the datasource between `from_` and `to`.
@@ -155,7 +155,7 @@ class _DatasourcesMixin:
             from_: int = 0,
             to: Optional[int] = None,
             relevant_filenames_file_name: Optional[str] = None,
-            use_redirected_read_url: bool = False,
+            use_redirected_read_url: Optional[bool] = False,
             progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
         """Downloads all metadata filenames and read urls from the datasource between `from_` and `to`.
@@ -195,7 +195,7 @@ class _DatasourcesMixin:
 
     def download_new_raw_samples(
         self,
-        use_redirected_read_url: bool = False,
+        use_redirected_read_url: Optional[bool] = False,
     ) -> List[Tuple[str, str]]:
         """Downloads filenames and read urls of unprocessed samples from the datasource.
 
@@ -226,6 +226,7 @@ class _DatasourcesMixin:
         data = self.download_raw_samples(
             from_=from_,
             to=to,
+            relevant_filenames_file_name=None,
             use_redirected_read_url=use_redirected_read_url
         )
         self.update_processed_until_timestamp(timestamp=to)

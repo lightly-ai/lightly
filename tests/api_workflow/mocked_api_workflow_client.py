@@ -417,7 +417,8 @@ class MockedDatasourcesApi(DatasourcesApi):
             cursor: str = None,
             _from: int = None,
             to: int = None,
-            relevant_filenames_file_name: str = -1
+            relevant_filenames_file_name: str = -1,
+            use_redirected_read_url: bool = False,
     ) -> DatasourceRawSamplesData:
         if relevant_filenames_file_name == -1:
             samples = self._samples[dataset_id]
@@ -451,8 +452,13 @@ class MockedDatasourcesApi(DatasourcesApi):
         )
 
     def get_list_of_raw_samples_predictions_from_datasource_by_dataset_id(
-        self, dataset_id: str, task_name: str,
-        cursor: str = None, _from: int = None, to: int = None, **kwargs,
+        self, dataset_id: str,
+        task_name: str,
+        cursor: str = None,
+        _from: int = None,
+        to: int = None,
+        use_redirected_read_url: bool = False,
+        **kwargs,
     ) -> DatasourceRawSamplesPredictionsData:
         if cursor is None:
             # initial request
@@ -479,8 +485,13 @@ class MockedDatasourcesApi(DatasourcesApi):
         )
 
     def get_list_of_raw_samples_metadata_from_datasource_by_dataset_id(
-        self, dataset_id: str,
-        cursor: str = None, _from: int = None, to: int = None, **kwargs,
+        self,
+        dataset_id: str,
+        cursor: str = None,
+        _from: int = None,
+        to: int = None,
+        use_redirected_read_url: bool = False,
+        **kwargs,
     ) -> DatasourceRawSamplesMetadataData:
         if cursor is None:
             # initial request
