@@ -86,7 +86,7 @@ class DockerWorkerConfig(object):
     def docker(self):
         """Gets the docker of this DockerWorkerConfig.  # noqa: E501
 
-        docker run configurations, keys should match the structure of https://github.com/lightly-ai/lightly-core/blob/develop/onprem-docker/resources/docker/docker.yaml   # noqa: E501
+        docker run configurations, keys should match the structure of https://github.com/lightly-ai/lightly-core/blob/develop/onprem-docker/lightly_worker/src/lightly_worker/resources/docker/docker.yaml   # noqa: E501
 
         :return: The docker of this DockerWorkerConfig.  # noqa: E501
         :rtype: dict(str, object)
@@ -97,7 +97,7 @@ class DockerWorkerConfig(object):
     def docker(self, docker):
         """Sets the docker of this DockerWorkerConfig.
 
-        docker run configurations, keys should match the structure of https://github.com/lightly-ai/lightly-core/blob/develop/onprem-docker/resources/docker/docker.yaml   # noqa: E501
+        docker run configurations, keys should match the structure of https://github.com/lightly-ai/lightly-core/blob/develop/onprem-docker/lightly_worker/src/lightly_worker/resources/docker/docker.yaml   # noqa: E501
 
         :param docker: The docker of this DockerWorkerConfig.  # noqa: E501
         :type: dict(str, object)
