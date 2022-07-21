@@ -23,6 +23,7 @@ class _DatasourcesMixin:
             from_: int = 0,
             to: Optional[int] = None,
             relevant_filenames_file_name: Optional[str] = None,
+            use_redirected_read_url: bool = False,
             progress_bar: Optional[tqdm.tqdm] = None,
             **kwargs
     ):
@@ -36,6 +37,7 @@ class _DatasourcesMixin:
             dataset_id=self.dataset_id,
             _from=from_,
             to=to,
+            use_redirected_read_url=use_redirected_read_url,
             **relevant_filenames_kwargs,
             **kwargs
         )
@@ -47,6 +49,7 @@ class _DatasourcesMixin:
             response: DatasourceRawSamplesData = download_function(
                 dataset_id=self.dataset_id,
                 cursor=cursor,
+                use_redirected_read_url=use_redirected_read_url,
                 **relevant_filenames_kwargs,
                 **kwargs
             )
@@ -62,6 +65,7 @@ class _DatasourcesMixin:
             from_: int = 0,
             to: Optional[int] = None,
             relevant_filenames_file_name: Optional[str] = None,
+            use_redirected_read_url: bool = False,
             progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
         """Downloads all filenames and read urls from the datasource between `from_` and `to`.
@@ -76,6 +80,11 @@ class _DatasourcesMixin:
             relevant_filenames_file_name:
                 The path to the relevant filenames text file in the cloud bucket.
                 The path is relative to the datasource root.
+            use_redirected_read_url:
+                By default this is set to false unless a S3DelegatedAccess is configured in which
+                case its always true and this param has no effect.
+                When true this will return RedirectedReadUrls instead of ReadUrls meaning that 
+                returned URLs allow for unlimited access to the file
             progress_bar:
                 Tqdm progress bar to show how many samples have already been
                 retrieved.
@@ -89,6 +98,7 @@ class _DatasourcesMixin:
             from_=from_,
             to=to,
             relevant_filenames_file_name=relevant_filenames_file_name,
+            use_redirected_read_url=use_redirected_read_url,
             progress_bar=progress_bar,
         )
         return samples
@@ -99,6 +109,7 @@ class _DatasourcesMixin:
             from_: int = 0,
             to: Optional[int] = None,
             relevant_filenames_file_name: Optional[str] = None,
+            use_redirected_read_url: bool = False,
             progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
         """Downloads all prediction filenames and read urls from the datasource between `from_` and `to`.
@@ -115,6 +126,11 @@ class _DatasourcesMixin:
             relevant_filenames_file_name:
                 The path to the relevant filenames text file in the cloud bucket.
                 The path is relative to the datasource root.
+            use_redirected_read_url:
+                By default this is set to false unless a S3DelegatedAccess is configured in which
+                case its always true and this param has no effect.
+                When true this will return RedirectedReadUrls instead of ReadUrls meaning that 
+                returned URLs allow for unlimited access to the file
             progress_bar:
                 Tqdm progress bar to show how many prediction files have already been
                 retrieved.
@@ -128,6 +144,7 @@ class _DatasourcesMixin:
             from_=from_,
             to=to,
             relevant_filenames_file_name=relevant_filenames_file_name,
+            use_redirected_read_url=use_redirected_read_url,
             task_name=task_name,
             progress_bar=progress_bar,
         )
@@ -138,6 +155,7 @@ class _DatasourcesMixin:
             from_: int = 0,
             to: Optional[int] = None,
             relevant_filenames_file_name: Optional[str] = None,
+            use_redirected_read_url: bool = False,
             progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
         """Downloads all metadata filenames and read urls from the datasource between `from_` and `to`.
@@ -152,6 +170,11 @@ class _DatasourcesMixin:
             relevant_filenames_file_name:
                 The path to the relevant filenames text file in the cloud bucket.
                 The path is relative to the datasource root.
+            use_redirected_read_url:
+                By default this is set to false unless a S3DelegatedAccess is configured in which
+                case its always true and this param has no effect.
+                When true this will return RedirectedReadUrls instead of ReadUrls meaning that 
+                returned URLs allow for unlimited access to the file
             progress_bar:
                 Tqdm progress bar to show how many metadata files have already been
                 retrieved.
@@ -165,16 +188,27 @@ class _DatasourcesMixin:
             from_=from_,
             to=to,
             relevant_filenames_file_name=relevant_filenames_file_name,
+            use_redirected_read_url=use_redirected_read_url,
             progress_bar=progress_bar,
         )
         return samples
 
-    def download_new_raw_samples(self) -> List[Tuple[str, str]]:
+    def download_new_raw_samples(
+        self,
+        use_redirected_read_url: bool = False,
+    ) -> List[Tuple[str, str]]:
         """Downloads filenames and read urls of unprocessed samples from the datasource.
 
         All samples after the timestamp of `ApiWorkflowClient.get_processed_until_timestamp()` are 
         fetched. After downloading the samples the timestamp is updated to the current time.
         This function can be repeatedly called to retrieve new samples from the datasource.
+
+        Args:
+            use_redirected_read_url:
+                By default this is set to false unless a S3DelegatedAccess is configured in which
+                case its always true and this param has no effect.
+                When true this will return RedirectedReadUrls instead of ReadUrls meaning that 
+                returned URLs allow for unlimited access to the file
         
         Returns:
             A list of (filename, url) tuples, where each tuple represents a sample
@@ -189,7 +223,11 @@ class _DatasourcesMixin:
             from_ += 1
 
         to = int(time.time())
-        data = self.download_raw_samples(from_=from_, to=to)
+        data = self.download_raw_samples(
+            from_=from_,
+            to=to,
+            use_redirected_read_url=use_redirected_read_url
+        )
         self.update_processed_until_timestamp(timestamp=to)
         return data
 
