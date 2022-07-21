@@ -363,7 +363,7 @@ class SamplesApi(object):
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID sample_id: ObjectId of the sample (required)
         :param str type: if we want to get the full image or just the thumbnail (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -387,7 +387,7 @@ class SamplesApi(object):
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param MongoObjectID sample_id: ObjectId of the sample (required)
         :param str type: if we want to get the full image or just the thumbnail (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -453,7 +453,7 @@ class SamplesApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type=None,  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -688,6 +688,8 @@ class SamplesApi(object):
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param str mode: if we want everything (full) or just the ObjectIds
         :param str file_name: filter the samples by filename
+        :param float page_size: pagination size/limit of the number of samples to return
+        :param float page_offset: pagination offset
         :return: list[SampleData]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -712,12 +714,14 @@ class SamplesApi(object):
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param str mode: if we want everything (full) or just the ObjectIds
         :param str file_name: filter the samples by filename
+        :param float page_size: pagination size/limit of the number of samples to return
+        :param float page_offset: pagination offset
         :return: list[SampleData]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_id', 'mode', 'file_name']  # noqa: E501
+        all_params = ['dataset_id', 'mode', 'file_name', 'page_size', 'page_offset']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -748,6 +752,10 @@ class SamplesApi(object):
             query_params.append(('mode', params['mode']))  # noqa: E501
         if 'file_name' in params:
             query_params.append(('fileName', params['file_name']))  # noqa: E501
+        if 'page_size' in params:
+            query_params.append(('pageSize', params['page_size']))  # noqa: E501
+        if 'page_offset' in params:
+            query_params.append(('pageOffset', params['page_offset']))  # noqa: E501
 
         header_params = {}
 
