@@ -160,6 +160,9 @@ The following are parameters which can be passed to the container:
     # This feature is always enabled when a S3 datasource with delegated access
     # is configured. 
     use_redirected_read_url: False
+    # Bypass the verification of read/write access to the datasource
+    bypass_verify: False
+
 
   # active learning
   active_learning:
