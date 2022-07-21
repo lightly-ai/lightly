@@ -150,6 +150,16 @@ The following are parameters which can be passed to the container:
     # Use video metadata to determine the number of frames in each video. Set to
     # True for faster processing. Set to False if you get video related errors.
     use_frame_count_metadata: False
+    # This feature flag enables runs which take longer than 7 days by bypassing
+    # the limitation of signed read URLs of S3, GCS and Azure.
+    # The tradeoff is that it will take longer to fully read and process all the
+    # data which is stored in the bucket configured as your datasource resulting
+    # in a longer total duration.
+    # Only enable this if you are certain that your run will take longer than
+    # 7 days to complete.
+    # This feature is always enabled when a S3 datasource with delegated access
+    # is configured. 
+    use_redirected_read_url: False
 
   # active learning
   active_learning:
