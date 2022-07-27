@@ -72,7 +72,7 @@ class _DownloadDatasetMixin:
         if dataset.img_type != ImageType.FULL:
             # only thumbnails or metadata available
             raise ValueError(
-                f"Dataset with id {self.dataset_id} has no downloadables images!"
+                f"Dataset with id {self.dataset_id} has no downloadable images!"
             )
 
         # check if tag exists
