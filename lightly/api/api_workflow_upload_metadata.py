@@ -160,7 +160,11 @@ class _UploadCustomMetadataMixin:
             for image_info in custom_metadata[COCO_ANNOTATION_KEYS.images]
         }
 
-        samples = self._samples_api.get_samples_by_dataset_id(self.dataset_id)
+        samples = retry(
+            self._samples_api.get_samples_by_dataset_id,
+            dataset_id=self.dataset_id
+        )
+
         filename_to_sample_id = {
             sample.file_name: sample.id
             for sample in samples
