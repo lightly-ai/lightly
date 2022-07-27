@@ -20,12 +20,14 @@ import lightly.data as data
 from lightly.cli._helpers import fix_input_path
 from lightly.cli._helpers import print_as_warning
 from lightly.cli._helpers import fix_hydra_arguments
+from lightly.cli._helpers import cpu_count
 
 from lightly.api.utils import getenv
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.api.bitmask import BitMask
 from lightly.openapi_generated.swagger_client import TagData, TagArithmeticsRequest, TagArithmeticsOperation, \
     TagBitMaskResponse
+
 
 
 def _download_cli(cfg, is_cli_call=True):
@@ -38,6 +40,14 @@ def _download_cli(cfg, is_cli_call=True):
         print_as_warning('Please specify all of the parameters tag_name, token and dataset_id')
         print_as_warning('For help, try: lightly-download --help')
         return
+
+    # set the number of workers if unset
+    if cfg['loader']['num_workers'] < 0:
+        # set the number of workers to the number of CPUs available,
+        # but minimum of 8
+        num_workers = max(8, cpu_count())
+        num_workers = min(32, num_workers)
+        cfg['loader']['num_workers'] = num_workers
 
     api_workflow_client = ApiWorkflowClient(
         token=token, dataset_id=dataset_id
@@ -57,13 +67,17 @@ def _download_cli(cfg, is_cli_call=True):
             f.write("%s\n" % item)
 
     filepath = os.path.join(os.getcwd(), filename)
-    msg = f'The list of files in tag {cfg["tag_name"]} is stored at: {bcolors.OKBLUE}{filepath}{bcolors.ENDC}'
+    msg = f'The list of samples in tag {cfg["tag_name"]} is stored at: {bcolors.OKBLUE}{filepath}{bcolors.ENDC}'
     print(msg, flush=True)
 
     if not cfg['input_dir'] and cfg['output_dir']:
         # download full images from api
         output_dir = fix_input_path(cfg['output_dir'])
-        api_workflow_client.download_dataset(output_dir, tag_name=tag_name)
+        api_workflow_client.download_dataset(
+            output_dir,
+            tag_name=tag_name,
+            max_workers=cfg['loader']['num_workers']
+        )
 
     elif cfg['input_dir'] and cfg['output_dir']:
         input_dir = fix_input_path(cfg['input_dir'])
