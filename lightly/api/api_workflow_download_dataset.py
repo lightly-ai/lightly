@@ -1,9 +1,14 @@
 from typing import Dict, List
 import io
+import warnings
 import os
 import tqdm
 from urllib.request import Request, urlopen
 from PIL import Image
+
+from torch.utils.hipify.hipify_python import bcolors
+
+from concurrent.futures.thread import ThreadPoolExecutor
 
 from lightly.api.bitmask import BitMask
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
@@ -40,6 +45,7 @@ class _DownloadDatasetMixin:
     def download_dataset(self,
                          output_dir: str,
                          tag_name: str = 'initial-tag',
+                         max_workers: int = 8,
                          verbose: bool = True):
         """Downloads images from the web-app and stores them in output_dir.
 
@@ -48,6 +54,8 @@ class _DownloadDatasetMixin:
                 Where to store the downloaded images.
             tag_name:
                 Name of the tag which should be downloaded.
+            max_workers:
+                Maximum number of workers downloading images in parallel.
             verbose:
                 Whether or not to show the progress bar.
 
@@ -84,26 +92,63 @@ class _DownloadDatasetMixin:
 
         indices = BitMask.from_hex(tag.bit_mask_data).to_indices()
         sample_ids = [sample_ids[i] for i in indices]
+
         filenames_on_server = self.get_filenames()
         filenames = [filenames_on_server[i] for i in indices]
 
+        downloadables = zip(sample_ids, filenames)
+
+        # handle the case where len(sample_ids) < max_workers
+        max_workers = min(len(sample_ids), max_workers)
+        max_workers = max(max_workers, 1)
+
         if verbose:
-            print(f'Downloading {len(sample_ids)} images:', flush=True)
-            pbar = tqdm.tqdm(unit='imgs', total=len(sample_ids))
-
-        # download images
-        for sample_id, filename in zip(sample_ids, filenames):
-            read_url = self._samples_api.get_sample_image_read_url_by_id(
-                self.dataset_id, 
-                sample_id,
-                type="full",
+            print(f'Downloading {bcolors.OKGREEN}{len(sample_ids)}{bcolors.ENDC} images (with {bcolors.OKGREEN}{max_workers}{bcolors.ENDC} workers):', flush=True)
+            pbar = tqdm.tqdm(
+                unit='imgs',
+                total=len(sample_ids)
             )
+            tqdm_lock = tqdm.tqdm.get_lock()
 
-            img = _get_image_from_read_url(read_url)
-            _make_dir_and_save_image(output_dir, filename, img)
+        # define lambda function for concurrent download
+        def lambda_(i):
+            sample_id, filename = i
+            # try to download image
+            try:
+                read_url = self._samples_api.get_sample_image_read_url_by_id(
+                    self.dataset_id, 
+                    sample_id,
+                    type="full",
+                )
+                img = _get_image_from_read_url(read_url)
+                _make_dir_and_save_image(output_dir, filename, img)
+                success = True
+            except Exception as e: # pylint: disable=broad-except
+                warnings.warn(
+                    f'Downloading of image {filename} failed with error {e}'
+                )
+                success = False
 
+            # update the progress bar
             if verbose:
+                tqdm_lock.acquire()
                 pbar.update(1)
+                tqdm_lock.release()
+            # return whether the download was successful
+            return success
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            results = list(executor.map(
+                lambda_, downloadables, chunksize=1))
+
+        if not all(results):
+            msg = 'Warning: Unsuccessful download! '
+            msg += 'Failed at image: {}'.format(results.index(False))
+            warnings.warn(msg)
+
+
+
+
 
     def export_label_studio_tasks_by_tag_id(
         self,
