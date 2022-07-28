@@ -35,16 +35,20 @@ class DockerRunCreateRequest(object):
     swagger_types = {
         'docker_version': 'str',
         'dataset_id': 'MongoObjectID',
+        'scheduled_id': 'MongoObjectID',
+        'config_id': 'MongoObjectID',
         'message': 'str'
     }
 
     attribute_map = {
         'docker_version': 'dockerVersion',
         'dataset_id': 'datasetId',
+        'scheduled_id': 'scheduledId',
+        'config_id': 'configId',
         'message': 'message'
     }
 
-    def __init__(self, docker_version=None, dataset_id=None, message=None, _configuration=None):  # noqa: E501
+    def __init__(self, docker_version=None, dataset_id=None, scheduled_id=None, config_id=None, message=None, _configuration=None):  # noqa: E501
         """DockerRunCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -52,12 +56,18 @@ class DockerRunCreateRequest(object):
 
         self._docker_version = None
         self._dataset_id = None
+        self._scheduled_id = None
+        self._config_id = None
         self._message = None
         self.discriminator = None
 
         self.docker_version = docker_version
         if dataset_id is not None:
             self.dataset_id = dataset_id
+        if scheduled_id is not None:
+            self.scheduled_id = scheduled_id
+        if config_id is not None:
+            self.config_id = config_id
         if message is not None:
             self.message = message
 
@@ -104,6 +114,48 @@ class DockerRunCreateRequest(object):
         """
 
         self._dataset_id = dataset_id
+
+    @property
+    def scheduled_id(self):
+        """Gets the scheduled_id of this DockerRunCreateRequest.  # noqa: E501
+
+
+        :return: The scheduled_id of this DockerRunCreateRequest.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._scheduled_id
+
+    @scheduled_id.setter
+    def scheduled_id(self, scheduled_id):
+        """Sets the scheduled_id of this DockerRunCreateRequest.
+
+
+        :param scheduled_id: The scheduled_id of this DockerRunCreateRequest.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._scheduled_id = scheduled_id
+
+    @property
+    def config_id(self):
+        """Gets the config_id of this DockerRunCreateRequest.  # noqa: E501
+
+
+        :return: The config_id of this DockerRunCreateRequest.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._config_id
+
+    @config_id.setter
+    def config_id(self, config_id):
+        """Sets the config_id of this DockerRunCreateRequest.
+
+
+        :param config_id: The config_id of this DockerRunCreateRequest.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._config_id = config_id
 
     @property
     def message(self):
