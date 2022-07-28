@@ -1845,7 +1845,7 @@ class DockerApi(object):
     def post_docker_worker_authorization_request(self, body, **kwargs):  # noqa: E501
         """post_docker_worker_authorization_request  # noqa: E501
 
-        Performs an authorization to run the worker.  # noqa: E501
+        Performs an authorization to run the Lightly Worker.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.post_docker_worker_authorization_request(body, async_req=True)
@@ -1867,7 +1867,7 @@ class DockerApi(object):
     def post_docker_worker_authorization_request_with_http_info(self, body, **kwargs):  # noqa: E501
         """post_docker_worker_authorization_request  # noqa: E501
 
-        Performs an authorization to run the worker.  # noqa: E501
+        Performs an authorization to run the Lightly Worker.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.post_docker_worker_authorization_request_with_http_info(body, async_req=True)
@@ -1916,7 +1916,7 @@ class DockerApi(object):
             body_params = params['body']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+            ['text/plain', 'application/json'])  # noqa: E501
 
         # HTTP header `Content-Type`
         header_params['Content-Type'] = self.api_client.select_header_content_type(  # noqa: E501
