@@ -41,9 +41,7 @@ from typing import *
 from lightly.openapi_generated.swagger_client import ScoresApi, \
     CreateEntityResponse, SamplesApi, SampleCreateRequest, \
     InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, \
-    TagArithmeticsRequest, TagBitMaskResponse, SampleWriteUrls, SampleData \
-    Trigger2dEmbeddingJobRequest, SampleUpdateRequest, \
-    DatasourceRawSamplesMetadataData
+    TagArithmeticsRequest, TagBitMaskResponse, SampleWriteUrls, SampleData, SampleDataModeIds, SampleDataModeFileNames, DatasourceRawSamplesMetadataData, Trigger2dEmbeddingJobRequest, SampleUpdateRequest
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
