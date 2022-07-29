@@ -5,6 +5,7 @@ import tempfile
 import pathlib
 
 import numpy as np
+from lightly.openapi_generated.swagger_client.models.sample_partial_mode import SamplePartialMode
 import torchvision
 
 from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
@@ -167,4 +168,15 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
         self.assertListEqual(
             sorted(all_sample_names), 
             sorted([s.file_name for s in samples]),
+        )
+
+        # assert partially getting the samples fileNames returns the same data
+        samples_file_names = self.api_workflow_client._samples_api.get_samples_partial_by_dataset_id(
+            dataset_id='',
+            mode=SamplePartialMode.FULL
+        )
+
+        self.assertListEqual(
+            sorted(all_sample_names), 
+            sorted([s.file_name for s in samples_file_names]),
         )
