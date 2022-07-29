@@ -1,18 +1,26 @@
+import copy
 import json
 import os
+import random
 import tempfile
+import pathlib
 from typing import List
 
 import numpy as np
-from lightly.openapi_generated.swagger_client.models.sample_data_mode_file_names import ModeFileNames
+from lightly.openapi_generated.swagger_client.models.sample_data_mode_file_names import SampleDataModeFileNames
 import torchvision
 
 from lightly.api.api_workflow_upload_metadata import \
     InvalidCustomMetadataWarning
+from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
+from lightly.data.dataset import LightlyDataset
+from lightly.openapi_generated.swagger_client import SampleData
 from lightly.utils.io import COCO_ANNOTATION_KEYS
 
 from tests.api_workflow.mocked_api_workflow_client import \
     MockedApiWorkflowSetup
+
+import cv2
 
 
 class TestApiWorkflowUploadCustomMetadata(MockedApiWorkflowSetup):
@@ -84,9 +92,9 @@ class TestApiWorkflowUploadCustomMetadata(MockedApiWorkflowSetup):
             filenames_server: List[str]
     ):
 
-        def get_samples_partial_by_dataset_id(*args, **kwargs)-> List[ModeFileNames]:
+        def get_samples_partial_by_dataset_id(*args, **kwargs)-> List[SampleDataModeFileNames]:
             samples = [
-                ModeFileNames(
+                SampleDataModeFileNames(
                     id="dfd",
                     file_name=filename,
                 )
