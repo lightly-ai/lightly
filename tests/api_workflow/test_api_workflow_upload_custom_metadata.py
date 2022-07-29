@@ -7,7 +7,7 @@ import pathlib
 from typing import List
 
 import numpy as np
-from lightly.openapi_generated.swagger_client.models.sample_data_mode_file_names import SampleDataModeFileNames
+from lightly.openapi_generated.swagger_client.models.sample_data_modes import SampleDataModes
 import torchvision
 
 from lightly.api.api_workflow_upload_metadata import \
@@ -92,9 +92,9 @@ class TestApiWorkflowUploadCustomMetadata(MockedApiWorkflowSetup):
             filenames_server: List[str]
     ):
 
-        def get_samples_partial_by_dataset_id(*args, **kwargs)-> List[SampleDataModeFileNames]:
+        def get_samples_partial_by_dataset_id(*args, **kwargs)-> List[SampleDataModes]:
             samples = [
-                SampleDataModeFileNames(
+                SampleDataModes(
                     id="dfd",
                     file_name=filename,
                 )

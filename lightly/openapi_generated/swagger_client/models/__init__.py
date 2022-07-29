@@ -111,7 +111,6 @@ from lightly.openapi_generated.swagger_client.models.mongo_object_id import Mong
 from lightly.openapi_generated.swagger_client.models.object_id import ObjectId
 from lightly.openapi_generated.swagger_client.models.one_of_datasource_config import OneOfDatasourceConfig
 from lightly.openapi_generated.swagger_client.models.one_of_prediction_singleton import OneOfPredictionSingleton
-from lightly.openapi_generated.swagger_client.models.one_of_sample_data_modes import OneOfSampleDataModes
 from lightly.openapi_generated.swagger_client.models.one_of_tag_arithmetics_response import OneOfTagArithmeticsResponse
 from lightly.openapi_generated.swagger_client.models.path_safe_name import PathSafeName
 from lightly.openapi_generated.swagger_client.models.prediction_singleton import PredictionSingleton
@@ -132,8 +131,6 @@ from lightly.openapi_generated.swagger_client.models.sama_task_data import SamaT
 from lightly.openapi_generated.swagger_client.models.sama_tasks import SamaTasks
 from lightly.openapi_generated.swagger_client.models.sample_create_request import SampleCreateRequest
 from lightly.openapi_generated.swagger_client.models.sample_data import SampleData
-from lightly.openapi_generated.swagger_client.models.sample_data_mode_file_names import SampleDataModeFileNames
-from lightly.openapi_generated.swagger_client.models.sample_data_mode_ids import SampleDataModeIds
 from lightly.openapi_generated.swagger_client.models.sample_data_modes import SampleDataModes
 from lightly.openapi_generated.swagger_client.models.sample_meta_data import SampleMetaData
 from lightly.openapi_generated.swagger_client.models.sample_partial_mode import SamplePartialMode

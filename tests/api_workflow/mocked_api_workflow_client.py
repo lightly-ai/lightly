@@ -41,7 +41,7 @@ from typing import *
 from lightly.openapi_generated.swagger_client import ScoresApi, \
     CreateEntityResponse, SamplesApi, SampleCreateRequest, \
     InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, \
-    TagArithmeticsRequest, TagBitMaskResponse, SampleWriteUrls, SampleData, SampleDataModeIds, SampleDataModeFileNames, DatasourceRawSamplesMetadataData, Trigger2dEmbeddingJobRequest, SampleUpdateRequest
+    TagArithmeticsRequest, TagBitMaskResponse, SampleWriteUrls, SampleData, SampleDataModes, DatasourceRawSamplesMetadataData, Trigger2dEmbeddingJobRequest, SampleUpdateRequest
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -280,16 +280,16 @@ class MockedSamplesApi(SamplesApi):
         samples = []
         for i, body in enumerate(self.sample_create_requests):
             if mode==SamplePartialMode.IDS:
-                sample = SampleDataModeIds(
+                sample = SampleDataModes(
                     id=f'{i}_xyz'
                 ) 
             elif mode==SamplePartialMode.FILENAMES:
-                sample = SampleDataModeFileNames(
+                sample = SampleDataModes(
                     id=f'{i}_xyz', 
                     file_name=body.file_name,
                 )
             else:
-                sample = SampleData(
+                sample = SampleDataModes(
                     id=f'{i}_xyz', 
                     dataset_id=dataset_id, 
                     file_name=body.file_name,
