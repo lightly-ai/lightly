@@ -20,6 +20,9 @@ from lightly.openapi_generated.swagger_client import TagCreator
 from lightly.openapi_generated.swagger_client import SampleWriteUrls
 from lightly.openapi_generated.swagger_client.models.sample_create_request \
     import SampleCreateRequest
+from lightly.openapi_generated.swagger_client.models.sample_partial_mode \
+    import SamplePartialMode
+    
 from lightly.openapi_generated.swagger_client.models.tag_upsize_request \
     import TagUpsizeRequest
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request\
@@ -100,8 +103,9 @@ class _UploadDatasetMixin:
 
         # get the filenames of the samples already on the server
         samples = retry(
-            self._samples_api.get_samples_by_dataset_id,
-            dataset_id=self.dataset_id
+            self._samples_api.get_samples_partial_by_dataset_id,
+            dataset_id=self.dataset_id,
+            mode=SamplePartialMode.FILENAMES
         )
         filenames_on_server = [sample.file_name for sample in samples]
         filenames_on_server_set = set(filenames_on_server)
