@@ -18,8 +18,6 @@ However, the thumbnails will be stored in your bucket and thus need storage.
   
     If you want to use thumbnails you need to give
     Lightly write access to your bucket to create the thumbnails there for you.
-    The write access can be configured not to allow overwriting and
-    deleting, thus existing data cannot get lost.
 
 
 Setting up Google Cloud Storage
@@ -61,9 +59,9 @@ If it is not, change it to uniform.
 - Create a new role, with the same title and ID.
   E.g. call it `LIGHTLY_DATASET_ACCESS`.
 - Click on **"Add Permissions"**, search for `storage.objects`
-- Add the permissions `storage.objects.get`, `storage.objects.list`, and `storage.objects.create`.
-  The create permissions are needed if you want Lightly to create thumbnails
-  in your bucket . Otherwise you can leave them away.
+- Add the permissions `storage.objects.get`, `storage.objects.list`, `storage.objects.create` 
+  and `storage.objects.delete`. The create and delete permissions are needed only if you want 
+  Lightly to create thumbnails in your bucket. Otherwise you can leave them out.
 - After adding the permissions, create the role.
 
 .. figure:: ./images_gcloud_bucket/screenshot_gcloud_storage_role.jpg
@@ -159,9 +157,9 @@ Create and configure a dataset
 5. Click on **"Select Credentials File"** to add the key file you downloaded in the previous step.
 6. Toggle the **"Generate thumbnail"** switch if you want Lightly to generate thumbnails for you.
 7. If you want to store outputs from Lightly (like thumbnails or extracted frames) in a different directory, you can toggle **"Use a different output datasource"** and enter a different path in your bucket. This allows you to keep your input directory clean as nothing gets ever written there.
-  .. note:: 
 
-    Lightly requires list, read, and write access to the `output datasource`. Make sure you have configured it accordingly in the steps before.
+.. note::
+    Lightly requires list, read, write and delete access to the `output datasource`. Make sure you have configured it accordingly in the steps before.
 8. Press save and ensure that at least the lights for List and Read turn green. If you added permissions for writing, this light should also turn green.
 
 
