@@ -1,5 +1,13 @@
 name: check setup.py
-on: [push, workflow_dispatch]
+
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+  workflow_dispatch:
 
 jobs:
   test:
