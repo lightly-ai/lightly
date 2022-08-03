@@ -11,13 +11,13 @@ List, read and write permissions
 --------------------------------
 
 Lightly needs at minimum to have read and list permissions (`s3:GetObject` and `s3:ListBucket`) on your bucket. It needs them to provide the Lightly Worker access to your dataset,
-so that it can process it. Furthermore, the Lightly platform needs access to show you your images in the webapp.
+so that it can process it. Furthermore, the Lightly Platform needs access to show you your images in the webapp.
 
 There are different scenarios which also require write permissions (`s3:PutObject`):
 
 - You process videos.
-- You use the Lightly with the object level workflow. (See :ref:`ref-docker-object-level`)
-- You want Lightly to create thumbnails for you to increase the performance of the Lightly Platform.
+- You use the Lightly Worker with the object level workflow. (See :ref:`ref-docker-object-level`)
+- You want the Lightly Worker to create thumbnails for you to increase the performance of the Lightly Platform.
 
 User Access and Delegated Access
 --------------------------------
