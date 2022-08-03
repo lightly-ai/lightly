@@ -7,19 +7,42 @@ Create a dataset from an AWS S3 bucket
 Lightly allows you to configure a remote datasource like Amazon S3 (Amazon Simple Storage Service).
 In this guide, we will show you how to setup your S3 bucket, configure your dataset to use said bucket, and only upload metadata to Lightly.
 
-Lightly needs at minimum to be able to read and list permissions on your bucket. It needs them to provide the Lightly Compute Worker access to your dataset,
+List, Read and Write permissions
+--------------------------------
+
+Lightly needs at minimum to have read and list permissions (s3:GetObject and s3:ListBucket) on your bucket. It needs them to provide the Lightly Worker access to your dataset,
 so that it can process it. Furthermore, the Lightly platform needs access to show you your images in the webapp.
 
-If you want Lightly to create thumbnails for you while uploading the metadata of your images or to write, write permissions are also needed.
+There are 3 reasons which make also write permissions (s3:PutObject) necessary:
 
-There are two ways to set up these Permissions:
+- You process videos.
+- You run Lightly on object level.
+- You want Lightly to create thumbnails for you to increase the performance of the WebApp.
+
+Input and output datasources
+----------------------------
+
+Furthermore, you can decide to use one bucket/subdirectory for both the input to Lightly and for saving the output or have two different buckets/subdirectories for it.
+We recommend setting up separate input and output datasources (see :ref:`rst-docker-first-steps`).
+This setup is only done in later steps, not now.
+
+Only if you decide to use two different buckets, you have the option to use two different permissions for the two different buckets.
+E.g. you can have
+
+- Only List and Read permissions for the input bucket.
+- List, Read and Write permissions for the output bucket.
+
+User Access and Delegated Access
+--------------------------------
+
+There are two ways to set up these permissions:
 
 1. User Access
 
 This method will create a user with permissions to access your bucket. An Access ID and secret key allow to authenticate as this user.
 We recommend this method as it is easy to set up and provides optimal performance.
 
-2. Delegated access
+2. Delegated Access
 
 To access your data in your S3 bucket on AWS, Lightly `can assume a role <https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html>`_ in your account which has the necessary permissions to access your data.
 Use this method if internal or external policies of your organization require it or disallow the other method.

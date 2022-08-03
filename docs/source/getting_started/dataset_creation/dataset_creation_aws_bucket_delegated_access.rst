@@ -50,7 +50,3 @@ Please substitute `YOUR_BUCKET` with the name of your bucket.
 
 7. Remember the external ID and the ARN of the newly created role (`arn:aws:iam::123456789012:role/Lightly-S3-Integration`)
 
-
-
-.. note:: We recommend setting up separate input and output datasources (see :ref:`rst-docker-first-steps`). For this either use two different roles with narrow scope or one role with broader access.
-
