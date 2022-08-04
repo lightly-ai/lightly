@@ -38,7 +38,7 @@ following things:
 Predictions
 -----------
 Lightly needs to know which objects to process. This information is provided
-by uploading a set of object predictions to the datasource (see :ref:`ref-docker-datasource-predictions`).
+by uploading a set of object predictions to the datasource (see :ref:`docker-datasource-predictions`).
 Let's say we are working with a dataset containing different types of vehicles
 and used an object detection model to find possible vehicle objects in the
 dataset. Then the file structure of the datasource should look like this:
@@ -123,7 +123,7 @@ directory in the datasource:
             ]
         }
 
-For more information regarding the predictions format please see :ref:`ref-docker-datasource-predictions`.
+For more information regarding the predictions format please see :ref:`docker-datasource-predictions`.
 
 
 Selection on Object Level

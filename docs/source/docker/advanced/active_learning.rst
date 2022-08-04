@@ -21,7 +21,7 @@ In order to do active learning with Lightly, you will need the following things:
 
 - The installed Lightly Worker (see :ref:`docker-setup`)
 - A dataset with a configured datasource (see :ref:`ref-docker-with-datasource-datapool`)
-- Your predictions uploaded to the datasource (see :ref:`ref-docker-datasource-predictions`)
+- Your predictions uploaded to the datasource (see :ref:`docker-datasource-predictions`)
 
 .. note::
 

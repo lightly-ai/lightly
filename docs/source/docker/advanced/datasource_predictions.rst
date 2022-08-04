@@ -1,4 +1,4 @@
-.. _ref-docker-datasource-predictions:
+.. _docker-datasource-predictions:
 
 Add Predictions to a Datasource
 ===============================
