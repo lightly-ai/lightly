@@ -1,4 +1,4 @@
-.. _ref-docker-configuration:
+.. _docker-configuration:
 
 Configuration
 ===================================
@@ -221,4 +221,3 @@ close to 0 pairwise distance.
 
 
 .. image:: images/histograms_overview.png
-

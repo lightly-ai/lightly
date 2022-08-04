@@ -129,7 +129,7 @@ For more information regarding the predictions format please see :ref:`docker-da
 Selection on Object Level
 -------------------------
 Once you have everything set up as described above, you can run selection on
-object level by setting the `object_level.task_name` argument in the :ref:`docker configuration <ref-docker-configuration>`. 
+object level by setting the `object_level.task_name` argument in the :ref:`docker configuration <docker-configuration>`. 
 The argument should be set to the task name you used for your predictions. 
 If you uploaded the predictions to e.g. `.lightly/predictions/vehicles_object_detections`
 then you should set `object_level.task_name` to `vehicles_object_detections`.
