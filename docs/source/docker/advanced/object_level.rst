@@ -1,4 +1,4 @@
-.. _ref-docker-object-level:
+.. _docker-object-level:
 
 Object Level
 ============

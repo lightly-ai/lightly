@@ -16,7 +16,7 @@ so that it can process it. Furthermore, the Lightly Platform needs access to sho
 There are different scenarios which also require write permissions (`s3:PutObject`):
 
 - You process videos.
-- You use the Lightly Worker with the object level workflow. (See :ref:`ref-docker-object-level`)
+- You use the Lightly Worker with the object level workflow. (See :ref:`docker-object-level`)
 - You want the Lightly Worker to create thumbnails for you to increase the performance of the Lightly Platform.
 
 User Access and Delegated Access
