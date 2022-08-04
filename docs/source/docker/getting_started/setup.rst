@@ -158,7 +158,7 @@ You should see an output similar to this one:
     [2022-05-02 20:37:27] Congratulations! It looks like the Lightly container is running!
 
 
-.. _ref-worker-register:
+.. _worker-register:
 
 Register the Lightly Worker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
