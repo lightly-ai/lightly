@@ -1,4 +1,4 @@
-.. _ref-docker-active-learning:
+.. _docker-active-learning:
 
 Active Learning
 ===============

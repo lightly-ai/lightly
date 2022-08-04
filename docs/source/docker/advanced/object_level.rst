@@ -245,7 +245,7 @@ take further steps to enhance the dataset using one of the workflows Lightly
 provides:
 
 - Select a subset of your data using our :ref:`Sampling Algorithms <plaform-sampling>`
-- Select new samples to add to your dataset using :ref:`Active Learning <ref-docker-active-learning>`
+- Select new samples to add to your dataset using :ref:`Active Learning <docker-active-learning>`
 - Prepare images for labelling by :ref:`exporting them to LabelStudio <lightly-tutorial-export-labelstudio>`
 
 

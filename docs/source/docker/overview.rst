@@ -12,7 +12,7 @@ and an easy way to work with lightly. But there is more!
 With the introduction of our on-premise solution, you can **process larger datasets completely on your end without data leaving your infrastructure**.
 We worked hard to make this happen and are very proud to present you with the following specs:
 
-* :ref:`ref-docker-active-learning` using Lightly Worker
+* :ref:`docker-active-learning` using Lightly Worker
 
 * See your docker runs live in the Lightly Platform (see :ref:`ref-docker-runs`)
 
@@ -72,4 +72,3 @@ We worked hard to make this happen and are very proud to present you with the fo
    examples/overview.rst
    known_issues_faq.rst
    getting_started/hardware_recommendations.rst
-
