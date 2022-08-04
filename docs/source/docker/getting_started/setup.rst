@@ -139,7 +139,7 @@ Don't forget to tag the image again after pulling it.
           instead of `latest`. We follow semantic versioning standards. 
 
 
-.. _ref-docker-setup-sanity-check:
+.. _docker-setup-sanity-check:
 
 Sanity Check
 ^^^^^^^^^^^^

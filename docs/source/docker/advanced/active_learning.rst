@@ -13,7 +13,7 @@ Learn more about the concept of active learning scores:
 
 .. note:: Note that the active learning features require a minimum 
     Lightly Worker of version 2.2. You can check your installed version of the 
-    Lightly Worker by running the :ref:`ref-docker-setup-sanity-check`.
+    Lightly Worker by running the :ref:`docker-setup-sanity-check`.
 
 Prerequisites
 --------------
