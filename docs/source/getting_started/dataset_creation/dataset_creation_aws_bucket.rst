@@ -81,5 +81,5 @@ Create and configure a dataset
 Next steps
 ----------
 
-Use the Lightly Worker. (see :ref:`ref-docker-setup`).
+Use the Lightly Worker. (see :ref:`docker-setup`).
 If you have already set up the Worker, create a dataset with your S3 bucket as datasource. (see :ref:`ref-docker-with-datasource`)

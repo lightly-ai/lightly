@@ -1,4 +1,4 @@
-.. _ref-docker-setup:
+.. _docker-setup:
 
 Setup
 =====

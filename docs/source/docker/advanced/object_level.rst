@@ -24,7 +24,7 @@ Prerequisites
 In order to use the object level workflow with Lightly, you will need the
 following things:
 
-- The installed Lightly Worker (see :ref:`ref-docker-setup`)
+- The installed Lightly Worker (see :ref:`docker-setup`)
 - A dataset with a configured datasource (see :ref:`ref-docker-with-datasource-datapool`)
 - Object detection predictions uploaded to the datasource (see next section)
 

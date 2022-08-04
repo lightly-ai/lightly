@@ -33,7 +33,7 @@ Volume Mapping
 --------------
 
 Before we jump into the details of how to submit jobs, we need to start the Lightly image in
-worker mode (as outlined in :ref:`ref-docker-setup`).
+worker mode (as outlined in :ref:`docker-setup`).
 
 .. code-block:: console
 
