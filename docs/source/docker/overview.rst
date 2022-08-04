@@ -16,7 +16,7 @@ We worked hard to make this happen and are very proud to present you with the fo
 
 * See your docker runs live in the Lightly Platform (see :ref:`ref-docker-runs`)
 
-* Lightly Worker has built-in pretagging models (see :ref:`ref-docker-pretagging`)
+* Lightly Worker has built-in pretagging models (see :ref:`docker-pretagging`)
 
   * Use this feature to pre-label your dataset or to only select images which contain certain objects
 

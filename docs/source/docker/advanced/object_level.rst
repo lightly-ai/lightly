@@ -154,7 +154,7 @@ Lightly Pretagging
 ------------------
 Instead of providing your own predictions, it's also possible to use the built-in pretagging model from Lightly. To do so,
 set `pretagging=True` in your config and use the `object_level.task_name="lightly_pretagging"`. For more information
-about the prediction model and classes, go to :ref:`Lightly Pretagging Model <ref-docker-pretagging>`
+about the prediction model and classes, go to :ref:`Lightly Pretagging Model <docker-pretagging>`
 
 .. literalinclude:: code_examples/python_run_object_level_pretagging.py
 

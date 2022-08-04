@@ -1,4 +1,4 @@
-.. _ref-docker-pretagging:
+.. _docker-pretagging:
 
 Pretagging
 ======================
