@@ -58,6 +58,7 @@ If you know how to fix this don't hesitate to create an issue or PR :)
 """
 import copy
 import os
+from re import M
 
 import time
 import lightly
@@ -97,7 +98,7 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1 # optional, increase to create multiple runs and report mean + std
-batch_size = 128
+batch_size = 512#128
 lr_factor = batch_size / 128 # scales the learning rate linearly with batch size
 
 # use a GPU if available
@@ -729,17 +730,111 @@ class DCLW(BenchmarkModule):
         return [optim], [scheduler]
 
 
+
+
+class SMoGModel(BenchmarkModule):
+
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+
+        # create a ResNet backbone and remove the classification head
+        num_splits = 0 if sync_batchnorm else 8
+        resnet = lightly.models.ResNetGenerator('resnet-18', num_splits=num_splits)
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
+        )
+
+        # create a moco model based on ResNet
+        self.projection_head = heads.SMoGProjectionHead(512, 2048, 128)
+        self._reset_momentum_weights()
+
+        # smog
+        self.n_groups = 300 # 2% malus vs optimal setting of 3000 groups
+        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=2000)
+        # create our loss
+        self.smog = modules.SMoG(self.n_groups, 128, 0.99, device='cuda')
+        self.criterion = nn.CrossEntropyLoss()
+
+    def _reset_group_features(self):
+
+        # import here so as to not have an additional dependency
+        # TODO: replace by faiss?
+        from sklearn.cluster import KMeans
+
+        # see Table 7b)
+        features = self.memory_bank.bank
+        if features is not None:
+            features = features.t().cpu().numpy()
+            kmeans = KMeans(300).fit(features)
+            new_features = torch.FloatTensor(kmeans.cluster_centers_).cuda()
+            self.smog.group_features = new_features
+
+    def _reset_momentum_weights(self):
+        # see Table 7b)
+        self.backbone_momentum = copy.deepcopy(self.backbone)
+        self.projection_head_momentum = copy.deepcopy(self.projection_head)
+        utils.deactivate_requires_grad(self.backbone_momentum)
+        utils.deactivate_requires_grad(self.projection_head_momentum)
+
+    def training_step(self, batch, batch_idx):
+
+        if batch_idx == 0:
+            # the original paper reset group features and weights every 300
+            # iterations, here we do it once an epoch (TODO)
+            self._reset_group_features()
+            self._reset_momentum_weights()
+        else:
+            # update momentum
+            utils.update_momentum(self.backbone, self.backbone_momentum, 0.99)
+            utils.update_momentum(self.projection_head, self.projection_head_momentum, 0.99)
+
+        (x0, x1), _, _ = batch
+
+        x0_features = self.backbone(x0).flatten(start_dim=1)
+        x0_encoded = torch.nn.functional.normalize(self.projection_head(x0_features))
+        x1_features = self.backbone_momentum(x1).flatten(start_dim=1)
+        x1_encoded = torch.nn.functional.normalize(self.projection_head_momentum(x1_features))
+
+        # update group features and get group assignments
+        group_features = self.smog.update_groups(x0_encoded)
+        assignments = self.smog.assign_groups(x1_encoded)
+
+        logits = torch.mm(x0_encoded, group_features.t()) / 0.1
+        loss = self.criterion(logits, assignments)
+
+        # use memory bank to periodically reset the group features with k-means
+        self.memory_bank(x0_encoded.detach(), update=True)
+
+        return loss
+
+    def configure_optimizers(self):
+        params = list(self.backbone.parameters()) + list(self.projection_head.parameters())
+        # TODO: find best setting
+        optim = torch.optim.SGD(
+            params, 
+            lr=0.01,
+            momentum=0.9, 
+            weight_decay=5e-4,
+        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
+
+
+
+
 models = [
-    BarlowTwinsModel, 
-    BYOLModel,
-    DCL,
-    DCLW,
-    DINOModel,
-    MocoModel,
-    NNCLRModel,
-    SimCLRModel,
-    SimSiamModel,
-    SwaVModel,
+    # BarlowTwinsModel, 
+    # BYOLModel,
+    # DCL,
+    # DCLW,
+    # DINOModel,
+    # MocoModel,
+    # NNCLRModel,
+    # SimCLRModel,
+    # SimSiamModel,
+    # SwaVModel,
+    SMoGModel
 ]
 bench_results = dict()
 
