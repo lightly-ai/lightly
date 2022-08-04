@@ -1,4 +1,4 @@
-.. _ref-datapool:
+.. _datapool:
 
 Datapool
 =================

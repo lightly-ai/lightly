@@ -68,7 +68,7 @@ Creating a Dataset
 ------------------
 
 To set up inputs and outputs for your job you will need a `dataset_id`. You can either create
-a new dataset from Python or re-use an existing one (see :ref:`ref-datapool`).
+a new dataset from Python or re-use an existing one (see :ref:`datapool`).
 
 
 .. code-block:: python
