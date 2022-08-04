@@ -89,7 +89,7 @@ You can create embeddings using your own model. Just make sure the resulting
 :ref:`ref-cli-embeddings-lightly`. 
 
 Alternatively, you can run the docker as usual and as described in the 
-:ref:`rst-docker-first-steps` section.
+:ref:`docker-first-steps` section.
 The only difference is that you set the number of samples to be selected to 1.0,
 as this simply creates an embedding of the full dataset.
 

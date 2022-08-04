@@ -1,4 +1,4 @@
-.. _rst-docker-first-steps:
+.. _docker-first-steps:
 
 First Steps
 ===================================
