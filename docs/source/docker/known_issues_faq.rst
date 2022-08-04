@@ -173,7 +173,7 @@ No permission to pull the docker image
 --------------------------------------
 
 Please make sure the authentication succeeded as described in the 
-:ref:`ref-docker-download-and-install` guide.
+:ref:`docker-download-and-install` guide.
 
 If you still can't pull the docker image it might be that the docker config
 is causing the problem.

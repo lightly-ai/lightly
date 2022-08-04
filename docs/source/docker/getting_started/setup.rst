@@ -38,7 +38,7 @@ helper functions to create and delete datasets, schedule jobs, and access the re
 See :ref:`rst-installing` for details.
 
 
-.. _ref-docker-download-and-install:
+.. _docker-download-and-install:
 
 Download the Lightly Worker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
