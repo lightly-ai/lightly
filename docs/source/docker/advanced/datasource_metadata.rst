@@ -107,7 +107,7 @@ Lightly assumes that the metadata is valid for all frames in that video.
 
 To provide metadata for an image or a video, place a metadata file with the same name
 as the image or video in the `.lightly/metadata` directory but change the file extension to
-`.json`. The file should contain the metadata in the format defined under :ref:`ref-metadata-format`.
+`.json`. The file should contain the metadata in the format defined under :ref:`metadata-format`.
 
 
 .. code-block:: bash
@@ -144,7 +144,7 @@ to length three. For a video with 1000 frames, the frame number will be padded t
     .lightly/metadata/my_subdir/my_video-099-mp4.json
 
 
-.. _ref-metadata-format:
+.. _metadata-format:
 
 Metadata Format
 ---------------
