@@ -1,4 +1,4 @@
-.. _ref-docker-datasource-metadata:
+.. _docker-datasource-metadata:
 
 Add Metadata to a Datasource
 ===============================
