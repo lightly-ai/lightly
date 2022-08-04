@@ -58,7 +58,6 @@ If you know how to fix this don't hesitate to create an issue or PR :)
 """
 import copy
 import os
-from re import M
 
 import time
 import lightly
@@ -738,8 +737,7 @@ class SMoGModel(BenchmarkModule):
         super().__init__(dataloader_kNN, num_classes)
 
         # create a ResNet backbone and remove the classification head
-        num_splits = 0 if sync_batchnorm else 8
-        resnet = lightly.models.ResNetGenerator('resnet-18', num_splits=num_splits)
+        resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
@@ -751,7 +749,7 @@ class SMoGModel(BenchmarkModule):
 
         # smog
         self.n_groups = 300 # 2% malus vs optimal setting of 3000 groups
-        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=2000)
+        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=50000)
         # create our loss
         self.smog = modules.SMoG(self.n_groups, 128, 0.99, device='cuda')
         self.criterion = nn.CrossEntropyLoss()
@@ -766,7 +764,7 @@ class SMoGModel(BenchmarkModule):
         features = self.memory_bank.bank
         if features is not None:
             features = features.t().cpu().numpy()
-            kmeans = KMeans(300).fit(features)
+            kmeans = KMeans(self.n_groups).fit(features)
             new_features = torch.FloatTensor(kmeans.cluster_centers_).cuda()
             self.smog.group_features = new_features
 

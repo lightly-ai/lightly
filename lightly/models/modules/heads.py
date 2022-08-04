@@ -237,7 +237,7 @@ class SMoGProjectionHead(ProjectionHead):
                  input_dim: int = 2048,
                  hidden_dim: int = 2048,
                  output_dim: int = 128):
-        super(SimSiamProjectionHead, self).__init__([
+        super(SMoGProjectionHead, self).__init__([
             (input_dim, hidden_dim, nn.BatchNorm1d(2048), nn.ReLU()),
             [hidden_dim, output_dim, nn.BatchNorm1d(128), nn.ReLU()]
         ])
