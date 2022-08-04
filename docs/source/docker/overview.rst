@@ -59,7 +59,7 @@ We worked hard to make this happen and are very proud to present you with the fo
 
 * Recommended hardware:
   
-  * see :ref:`ref-hardware-recommendations`
+  * see :ref:`hardware-recommendations`
 
 .. toctree::
    :maxdepth: 1
