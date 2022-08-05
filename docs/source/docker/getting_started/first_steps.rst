@@ -1,4 +1,4 @@
-.. _rst-docker-first-steps:
+.. _docker-first-steps:
 
 First Steps
 ===================================
@@ -33,7 +33,7 @@ Volume Mapping
 --------------
 
 Before we jump into the details of how to submit jobs, we need to start the Lightly image in
-worker mode (as outlined in :ref:`ref-docker-setup`).
+worker mode (as outlined in :ref:`docker-setup`).
 
 .. code-block:: console
 
@@ -68,7 +68,7 @@ Creating a Dataset
 ------------------
 
 To set up inputs and outputs for your job you will need a `dataset_id`. You can either create
-a new dataset from Python or re-use an existing one (see :ref:`ref-datapool`).
+a new dataset from Python or re-use an existing one (see :ref:`datapool`).
 
 
 .. code-block:: python
