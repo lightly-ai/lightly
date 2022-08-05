@@ -1,5 +1,5 @@
 
-.. _ref-docker-integration-aws-dagster:
+.. _docker-integration-aws-dagster:
 
 Data Pre-processing Pipeline on AWS with Dagster
 ================================================

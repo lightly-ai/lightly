@@ -1,4 +1,4 @@
-.. _ref-docker-datasource-predictions:
+.. _docker-datasource-predictions:
 
 Add Predictions to a Datasource
 ===============================
@@ -15,7 +15,7 @@ just as predictions and upload them the same way.
 
 .. note:: Note that working with predictions requires a minimum 
     Lightly Worker of version 2.2. You can check your installed version of the 
-    Lightly Worker by running the :ref:`ref-docker-setup-sanity-check`.
+    Lightly Worker by running the :ref:`docker-setup-sanity-check`.
 
 Predictions Folder Structure
 ----------------------------
@@ -162,7 +162,7 @@ The three classes are sunny, clouded, and rainy.
 Prediction Files
 ----------------
 Lightly requires a **single prediction file per image**. The file should be a .json
-following the format defined under :ref:`ref-prediction-format` and stored in the subdirectory
+following the format defined under :ref:`prediction-format` and stored in the subdirectory
 `.lightly/predictions/${TASK_NAME}` in the storage bucket the dataset was configured with.
 In order to make sure Lightly can match the predictions to the correct source image,
 it's necessary to follow the naming convention:
@@ -205,7 +205,7 @@ with 1000 frames, the frame number will be padded to length four (99 becomes 009
 See :ref:`creating-prediction-files-for-videos` on how to extract video frames
 and create predictions using `ffmpeg <https://ffmpeg.org/>`_ or Python.
 
-.. _ref-prediction-format:
+.. _prediction-format:
 
 Prediction Format
 -----------------

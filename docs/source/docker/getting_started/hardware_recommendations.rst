@@ -1,4 +1,4 @@
-.. _ref-hardware-recommendations:
+.. _hardware-recommendations:
 
 Hardware recommendations
 ========================
@@ -86,5 +86,3 @@ If there is not one obvious bottleneck, we recommend to scale up I/O, CPUs and G
 
 To prevent the worker running out of system memory or GPU memory, we recommend
 about 4GB of RAM and 2GB ov VRAM for each vCPU.
-
-

@@ -1,4 +1,4 @@
-.. _ref-docker-active-learning:
+.. _docker-active-learning:
 
 Active Learning
 ===============
@@ -13,15 +13,15 @@ Learn more about the concept of active learning scores:
 
 .. note:: Note that the active learning features require a minimum 
     Lightly Worker of version 2.2. You can check your installed version of the 
-    Lightly Worker by running the :ref:`ref-docker-setup-sanity-check`.
+    Lightly Worker by running the :ref:`docker-setup-sanity-check`.
 
 Prerequisites
 --------------
 In order to do active learning with Lightly, you will need the following things:
 
-- The installed Lightly Worker (see :ref:`ref-docker-setup`)
+- The installed Lightly Worker (see :ref:`docker-setup`)
 - A dataset with a configured datasource (see :ref:`ref-docker-with-datasource-datapool`)
-- Your predictions uploaded to the datasource (see :ref:`ref-docker-datasource-predictions`)
+- Your predictions uploaded to the datasource (see :ref:`docker-datasource-predictions`)
 
 .. note::
 
@@ -89,7 +89,7 @@ You can create embeddings using your own model. Just make sure the resulting
 :ref:`ref-cli-embeddings-lightly`. 
 
 Alternatively, you can run the docker as usual and as described in the 
-:ref:`rst-docker-first-steps` section.
+:ref:`docker-first-steps` section.
 The only difference is that you set the number of samples to be selected to 1.0,
 as this simply creates an embedding of the full dataset.
 
