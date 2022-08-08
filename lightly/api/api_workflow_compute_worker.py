@@ -60,6 +60,9 @@ class _ComputeWorkerMixin:
             lightly_config:
                 Lightly configuration. All possible values are listed in our
                 docs: https://docs.lightly.ai/lightly.cli.html#default-settings
+            selection_config:
+                Selection configuration. See the docs for more information:
+                TODO: add link
 
         Returns:
             The id of the created config.
