@@ -38,10 +38,12 @@ class SMoG(nn.Module):
         assignments = self.assign_groups(x)
 
         self.group_features = self.beta * self.group_features.detach()
-        factor = (1 - self.beta) / x.shape[0]
+        factor = (1 - self.beta)
+
+        bincount = torch.bincount(assignments)
 
         for index, xi in zip(assignments, x):
-            self.group_features[index] += factor * xi
+            self.group_features[index] += factor * xi / bincount[index]
 
         return self.group_features
 

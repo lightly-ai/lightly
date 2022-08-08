@@ -729,7 +729,9 @@ class DCLW(BenchmarkModule):
         return [optim], [scheduler]
 
 
-
+# import here so as to not have an additional dependency
+# TODO: replace by faiss?
+from sklearn.cluster import KMeans
 
 class SMoGModel(BenchmarkModule):
 
@@ -745,20 +747,20 @@ class SMoGModel(BenchmarkModule):
 
         # create a moco model based on ResNet
         self.projection_head = heads.SMoGProjectionHead(512, 2048, 128)
+        self.prediction_head = heads.ProjectionHead([
+            (128, 2048, nn.BatchNorm1d(2048), nn.ReLU()),
+            (2048, 128, None, nn.ReLU())
+        ])
         self._reset_momentum_weights()
 
         # smog
         self.n_groups = 300 # 2% malus vs optimal setting of 3000 groups
-        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=50000)
+        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=10000)
         # create our loss
         self.smog = modules.SMoG(self.n_groups, 128, 0.99, device='cuda')
         self.criterion = nn.CrossEntropyLoss()
 
     def _reset_group_features(self):
-
-        # import here so as to not have an additional dependency
-        # TODO: replace by faiss?
-        from sklearn.cluster import KMeans
 
         # see Table 7b)
         features = self.memory_bank.bank
@@ -782,6 +784,7 @@ class SMoGModel(BenchmarkModule):
             # iterations, here we do it once an epoch (TODO)
             self._reset_group_features()
             self._reset_momentum_weights()
+            pass
         else:
             # update momentum
             utils.update_momentum(self.backbone, self.backbone_momentum, 0.99)
@@ -790,15 +793,16 @@ class SMoGModel(BenchmarkModule):
         (x0, x1), _, _ = batch
 
         x0_features = self.backbone(x0).flatten(start_dim=1)
-        x0_encoded = torch.nn.functional.normalize(self.projection_head(x0_features))
+        x0_encoded = self.projection_head(x0_features)
+        x0_predicted = torch.nn.functional.normalize(self.prediction_head(x0_encoded))
         x1_features = self.backbone_momentum(x1).flatten(start_dim=1)
         x1_encoded = torch.nn.functional.normalize(self.projection_head_momentum(x1_features))
 
         # update group features and get group assignments
-        group_features = self.smog.update_groups(x0_encoded)
         assignments = self.smog.assign_groups(x1_encoded)
+        group_features = self.smog.update_groups(x0_encoded)
 
-        logits = torch.mm(x0_encoded, group_features.t()) / 0.1
+        logits = torch.mm(x0_predicted, group_features.t()) / 0.1
         loss = self.criterion(logits, assignments)
 
         # use memory bank to periodically reset the group features with k-means
@@ -807,11 +811,10 @@ class SMoGModel(BenchmarkModule):
         return loss
 
     def configure_optimizers(self):
-        params = list(self.backbone.parameters()) + list(self.projection_head.parameters())
-        # TODO: find best setting
+        params = list(self.backbone.parameters()) + list(self.projection_head.parameters()) + list(self.prediction_head.parameters())
         optim = torch.optim.SGD(
             params, 
-            lr=0.01,
+            lr=6e-2 * lr_factor,
             momentum=0.9, 
             weight_decay=5e-4,
         )
