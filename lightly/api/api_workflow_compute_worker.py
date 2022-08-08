@@ -49,6 +49,7 @@ class _ComputeWorkerMixin:
         self, 
         worker_config: Optional[Dict[str, Any]] = None, 
         lightly_config: Optional[Dict[str, Any]] = None,
+        selection_config: Optional[Dict[str, Any]] = None,
     ) -> str:
         """Creates a new configuration for a compute worker run.
         
@@ -59,6 +60,9 @@ class _ComputeWorkerMixin:
             lightly_config:
                 Lightly configuration. All possible values are listed in our
                 docs: https://docs.lightly.ai/lightly.cli.html#default-settings
+            selection_config:
+                Selection configuration. See the docs for more information:
+                TODO: add link
 
         Returns:
             The id of the created config.
@@ -67,7 +71,8 @@ class _ComputeWorkerMixin:
         config = DockerWorkerConfig(
             worker_type=DockerWorkerType.FULL, 
             docker=worker_config, 
-            lightly=lightly_config
+            lightly=lightly_config,
+            selection=selection_config,
         )
         request = DockerWorkerConfigCreateRequest(config)
         response = self._compute_worker_api.create_docker_worker_config(request)
@@ -77,6 +82,7 @@ class _ComputeWorkerMixin:
         self,
         worker_config: Optional[Dict[str, Any]] = None,
         lightly_config: Optional[Dict[str, Any]] = None,
+        selection_config: Optional[Dict[str, Any]] = None,
         priority: str = DockerRunScheduledPriority.MID,
     ) -> str:
         """Schedules a run with the given configurations.
@@ -88,13 +94,18 @@ class _ComputeWorkerMixin:
             lightly_config:
                 Lightly configuration. All possible values are listed in our
                 docs: https://docs.lightly.ai/lightly.cli.html#default-settings
+            selection_config:
+                Selection configuration. See the docs for more information:
+                TODO: add link
 
         Returns:
             The id of the scheduled run.
+
         """
         config_id = self.create_compute_worker_config(
             worker_config=worker_config,
             lightly_config=lightly_config,
+            selection_config=selection_config,
         )
         request = DockerRunScheduledCreateRequest(
             config_id=config_id, 
