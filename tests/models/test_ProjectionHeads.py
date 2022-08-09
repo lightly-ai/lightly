@@ -8,6 +8,7 @@ from lightly.models.modules.heads import BYOLProjectionHead
 from lightly.models.modules.heads import BYOLPredictionHead
 from lightly.models.modules.heads import DINOProjectionHead
 from lightly.models.modules.heads import MoCoProjectionHead
+from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models.modules.heads import NNCLRProjectionHead
 from lightly.models.modules.heads import NNCLRPredictionHead
 from lightly.models.modules.heads import SimCLRProjectionHead
@@ -34,6 +35,7 @@ class TestProjectionHeads(unittest.TestCase):
             BYOLProjectionHead,
             BYOLPredictionHead,
             MoCoProjectionHead,
+            MSNProjectionHead,
             NNCLRProjectionHead,
             NNCLRPredictionHead,
             SimCLRProjectionHead,
