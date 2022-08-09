@@ -221,7 +221,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             if headers is None:
                 headers = {}
             # don't override previously set SSE
-            if headers['x-amz-server-side-encryption'] == '':
+            if 'x-amz-server-side-encryption' not in headers:
                 if lightly_s3_sse_kms_key.lower() == 'true':
                     headers['x-amz-server-side-encryption'] = 'AES256'
                 else:
