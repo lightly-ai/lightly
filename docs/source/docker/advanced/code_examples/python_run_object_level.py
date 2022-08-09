@@ -73,15 +73,23 @@ client.schedule_compute_worker_run(
         "enable_training": False,
         "pretagging": False,
         "pretagging_debug": False,
-        "method": "coreset",
-        "stopping_condition": {
-          "n_samples": 0.1, # stopping condition is now based on objects
-          "min_distance": -1
-        },
         "object_level": { # used for object level workflow
             "task_name": "vehicles_object_detections" 
         },
     },
+    selection_config=DockerWorkerSelectionConfig(
+        n_samples=0.1,
+        strategies=[
+            DockerWorkerSelectionConfigEntry(
+                input={"type": DockerWorkerSelectionInputType.EMBEDDINGS},
+                strategy={"type": DockerWorkerSelectionStrategyType.DIVERSIFY}
+            ),
+            DockerWorkerSelectionConfigEntry(
+                input={"type": DockerWorkerSelectionInputType.SCORES, "task": "lightly_pretagging", "score": "uncertainty_entropy"},
+                strategy={"type": DockerWorkerSelectionStrategyType.WEIGHTS}
+            )
+        ]
+    ),
     lightly_config={
         'loader': {
             'batch_size': 16,

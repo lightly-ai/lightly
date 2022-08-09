@@ -1,5 +1,6 @@
 import json
 import lightly
+from lightly.openapi_generated.swagger_client import DockerWorkerSelectionConfig
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 
@@ -75,16 +76,20 @@ client.schedule_compute_worker_run(
         "enable_training": False,
         "pretagging": False,
         "pretagging_debug": False,
-        "method": "coral",  # we use the coral method here
-        "stopping_condition": {
-          "n_samples": 0.1,
-          "min_distance": -1
-        },
-        "active_learning": { # here we specify our active learning parameters
-          "task_name": "my-classification-task",    # set the task
-          "score_name": "uncertainty_margin"        # set the score
-        }
     },
+    selection_config=DockerWorkerSelectionConfig(
+        n_samples=0.1,
+        strategies=[
+            DockerWorkerSelectionConfigEntry(
+                input={"type": DockerWorkerSelectionInputType.EMBEDDINGS},
+                strategy={"type": DockerWorkerSelectionStrategyType.DIVERSIFY, "stopping_condition_minimum_distance": -1}
+            ),
+            DockerWorkerSelectionConfigEntry(
+                input={"type": DockerWorkerSelectionInputType.SCORES, "task": "my-classification-task", "score": "uncertainty_margin"},
+                strategy={"type": DockerWorkerSelectionStrategyType.WEIGHTS}
+            )
+        ]
+    ),
     lightly_config={
         'loader': {
             'batch_size': 16,
