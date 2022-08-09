@@ -242,15 +242,15 @@ Now that everything is in place, let's configure and run a simple job.
             "enable_corruptness_check": True,
             "remove_exact_duplicates": True,
         }
-        selection_config={
-            "n_samples": 0.1,
-            "strategies": [
-                {
-                    "input": {"type": "EMBEDDINGS"},
-                    "strategy": {"type": "DIVERSITY"}
-                }
+        selection_config=DockerWorkerSelectionConfig(
+            n_samples=0.1,
+            strategies=[
+                DockerWorkerSelectionConfigEntry(
+                    input={"type": DockerWorkerSelectionInputType.EMBEDDINGS},
+                    strategy={"type": DockerWorkerSelectionStrategyType.DIVERSIFY}
+                )
             ]
-        }
+        ).__dict__
     )
 
 

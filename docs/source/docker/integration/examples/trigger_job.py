@@ -24,7 +24,7 @@ client.schedule_compute_worker_run(
                 strategy={"type": DockerWorkerSelectionStrategyType.DIVERSIFY}
             )
         ]
-    ),
+    ).__dict__
     lightly_config={
         'loader': {
             'batch_size': 16,

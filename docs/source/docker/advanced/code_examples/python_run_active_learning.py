@@ -1,6 +1,7 @@
 import json
 import lightly
-from lightly.openapi_generated.swagger_client import DockerWorkerSelectionConfig
+from lightly.openapi_generated.swagger_client import DockerWorkerSelectionConfig, DockerWorkerSelectionConfigEntry, DockerWorkerSelectionInputType, \
+    DockerWorkerSelectionStrategyType
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 
@@ -89,7 +90,7 @@ client.schedule_compute_worker_run(
                 strategy={"type": DockerWorkerSelectionStrategyType.WEIGHTS}
             )
         ]
-    ),
+    ).__dict__,
     lightly_config={
         'loader': {
             'batch_size': 16,
