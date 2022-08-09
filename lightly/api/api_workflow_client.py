@@ -2,6 +2,7 @@ import warnings
 from io import IOBase
 from typing import *
 import platform
+import os
 
 import requests
 from lightly.api.api_workflow_tags import _TagsMixin
@@ -213,6 +214,21 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             The response of the put request, usually a 200 for the success case.
 
         """
+
+        # check to see if server side encryption for S3 is desired
+        lightly_s3_sse_kms_key = os.environ.get('LIGHTLY_S3_SSE_KMS_KEY', '').strip()
+        if lightly_s3_sse_kms_key != '':
+            if headers is None:
+                headers = {}
+            # don't override previously set SSE
+            if headers['x-amz-server-side-encryption'] == '':
+                if lightly_s3_sse_kms_key.lower() == 'true':
+                    headers['x-amz-server-side-encryption'] = 'AES256'
+                else:
+                    headers['x-amz-server-side-encryption'] = 'aws:kms'
+                    headers['x-amz-server-side-encryption-aws-kms-key-id'] = lightly_s3_sse_kms_key
+
+        # start requests session and make put request
         sess = session or requests
         if headers is not None:
             response = sess.put(signed_write_url, data=file, headers=headers)
