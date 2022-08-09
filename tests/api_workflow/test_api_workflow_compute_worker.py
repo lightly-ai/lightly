@@ -4,7 +4,8 @@ from typing import Dict
 from unittest import mock
 
 from lightly.openapi_generated.swagger_client import DockerWorkerSelectionConfig, DockerWorkerSelectionConfigEntry, DockerWorkerSelectionInputType, \
-    DockerWorkerSelectionStrategyType, ApiClient, DockerApi
+    DockerWorkerSelectionStrategyType, ApiClient, DockerApi, DockerWorkerSelectionConfigEntryInput, DockerWorkerSelectionStrategyThresholdOperation, \
+    DockerWorkerSelectionInputPredictionsName, DockerWorkerSelectionConfigEntryStrategy
 from lightly.openapi_generated.swagger_client.models.docker_run_data import DockerRunData
 from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import DockerRunScheduledData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
@@ -85,26 +86,25 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
 
         self.assertDictEqual(obj.to_dict(), obj_api.to_dict())
 
-    @unittest.skip("This fails due to problematic API specs")
     def test_selection_config(self):
         selection_config = DockerWorkerSelectionConfig(
             n_samples=1,
             strategies=[
                 DockerWorkerSelectionConfigEntry(
-                    input={"type": DockerWorkerSelectionInputType.EMBEDDINGS},
-                    strategy={"type": DockerWorkerSelectionStrategyType.DIVERSIFY, "stopping_condition_minimum_distance": -1}
+                    input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.EMBEDDINGS),
+                    strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.DIVERSIFY, stopping_condition_minimum_distance=-1)
                 ),
                 DockerWorkerSelectionConfigEntry(
-                    input={"type": DockerWorkerSelectionInputType.SCORES, "task": "my-classification-task", "score": "uncertainty_margin"},
-                    strategy={"type": DockerWorkerSelectionStrategyType.WEIGHTS}
+                    input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.SCORES, task="my-classification-task", score="uncertainty_margin"),
+                    strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.WEIGHTS)
                 ),
                 DockerWorkerSelectionConfigEntry(
-                    input={"type": DockerWorkerSelectionInputType.METADATA, "key": "lightly.sharpness"},
-                    strategy={"type": DockerWorkerSelectionStrategyType.THRESHOLD, "threshold": 20, "operation": "BIGGER_EQUAL"}
+                    input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.METADATA, key="lightly.sharpness"),
+                    strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.THRESHOLD, threshold=20, operation=DockerWorkerSelectionStrategyThresholdOperation.BIGGER_EQUAL)
                 ),
                 DockerWorkerSelectionConfigEntry(
-                    input={"type": DockerWorkerSelectionInputType.PREDICTIONS, "task": "my_object_detection_task", "name": "CLASS_DISTRIBUTION"},
-                    strategy={"type": DockerWorkerSelectionStrategyType.BALANCE, "target": {"Ambulance": 0.2, "Bus": 0.4}}
+                    input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.PREDICTIONS, task="my_object_detection_task", name=DockerWorkerSelectionInputPredictionsName.CLASS_DISTRIBUTION),
+                    strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.BALANCE, target= {"Ambulance": 0.2, "Bus": 0.4})
                 )
             ]
         )

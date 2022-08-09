@@ -35,16 +35,18 @@ class DatasourceConfigS3(object):
     swagger_types = {
         's3_region': 'S3Region',
         's3_access_key_id': 'str',
-        's3_secret_access_key': 'str'
+        's3_secret_access_key': 'str',
+        's3_server_side_encryption_kms_key': 'S3ServerSideEncryptionKMSKey'
     }
 
     attribute_map = {
         's3_region': 's3Region',
         's3_access_key_id': 's3AccessKeyId',
-        's3_secret_access_key': 's3SecretAccessKey'
+        's3_secret_access_key': 's3SecretAccessKey',
+        's3_server_side_encryption_kms_key': 's3ServerSideEncryptionKMSKey'
     }
 
-    def __init__(self, s3_region=None, s3_access_key_id=None, s3_secret_access_key=None, _configuration=None):  # noqa: E501
+    def __init__(self, s3_region=None, s3_access_key_id=None, s3_secret_access_key=None, s3_server_side_encryption_kms_key=None, _configuration=None):  # noqa: E501
         """DatasourceConfigS3 - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -53,11 +55,14 @@ class DatasourceConfigS3(object):
         self._s3_region = None
         self._s3_access_key_id = None
         self._s3_secret_access_key = None
+        self._s3_server_side_encryption_kms_key = None
         self.discriminator = None
 
         self.s3_region = s3_region
         self.s3_access_key_id = s3_access_key_id
         self.s3_secret_access_key = s3_secret_access_key
+        if s3_server_side_encryption_kms_key is not None:
+            self.s3_server_side_encryption_kms_key = s3_server_side_encryption_kms_key
 
     @property
     def s3_region(self):
@@ -131,6 +136,27 @@ class DatasourceConfigS3(object):
             raise ValueError("Invalid value for `s3_secret_access_key`, must not be `None`")  # noqa: E501
 
         self._s3_secret_access_key = s3_secret_access_key
+
+    @property
+    def s3_server_side_encryption_kms_key(self):
+        """Gets the s3_server_side_encryption_kms_key of this DatasourceConfigS3.  # noqa: E501
+
+
+        :return: The s3_server_side_encryption_kms_key of this DatasourceConfigS3.  # noqa: E501
+        :rtype: S3ServerSideEncryptionKMSKey
+        """
+        return self._s3_server_side_encryption_kms_key
+
+    @s3_server_side_encryption_kms_key.setter
+    def s3_server_side_encryption_kms_key(self, s3_server_side_encryption_kms_key):
+        """Sets the s3_server_side_encryption_kms_key of this DatasourceConfigS3.
+
+
+        :param s3_server_side_encryption_kms_key: The s3_server_side_encryption_kms_key of this DatasourceConfigS3.  # noqa: E501
+        :type: S3ServerSideEncryptionKMSKey
+        """
+
+        self._s3_server_side_encryption_kms_key = s3_server_side_encryption_kms_key
 
     def to_dict(self):
         """Returns the model properties as a dict"""

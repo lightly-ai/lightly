@@ -33,23 +33,43 @@ class DockerWorkerSelectionConfigEntryInput(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'type': 'DockerWorkerSelectionInputType'
+        'type': 'DockerWorkerSelectionInputType',
+        'task': 'str',
+        'score': 'ActiveLearningScoreType',
+        'key': 'str',
+        'name': 'DockerWorkerSelectionInputPredictionsName'
     }
 
     attribute_map = {
-        'type': 'type'
+        'type': 'type',
+        'task': 'task',
+        'score': 'score',
+        'key': 'key',
+        'name': 'name'
     }
 
-    def __init__(self, type=None, _configuration=None):  # noqa: E501
+    def __init__(self, type=None, task=None, score=None, key=None, name=None, _configuration=None):  # noqa: E501
         """DockerWorkerSelectionConfigEntryInput - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._type = None
+        self._task = None
+        self._score = None
+        self._key = None
+        self._name = None
         self.discriminator = None
 
         self.type = type
+        if task is not None:
+            self.task = task
+        if score is not None:
+            self.score = score
+        if key is not None:
+            self.key = key
+        if name is not None:
+            self.name = name
 
     @property
     def type(self):
@@ -73,6 +93,90 @@ class DockerWorkerSelectionConfigEntryInput(object):
             raise ValueError("Invalid value for `type`, must not be `None`")  # noqa: E501
 
         self._type = type
+
+    @property
+    def task(self):
+        """Gets the task of this DockerWorkerSelectionConfigEntryInput.  # noqa: E501
+
+
+        :return: The task of this DockerWorkerSelectionConfigEntryInput.  # noqa: E501
+        :rtype: str
+        """
+        return self._task
+
+    @task.setter
+    def task(self, task):
+        """Sets the task of this DockerWorkerSelectionConfigEntryInput.
+
+
+        :param task: The task of this DockerWorkerSelectionConfigEntryInput.  # noqa: E501
+        :type: str
+        """
+
+        self._task = task
+
+    @property
+    def score(self):
+        """Gets the score of this DockerWorkerSelectionConfigEntryInput.  # noqa: E501
+
+
+        :return: The score of this DockerWorkerSelectionConfigEntryInput.  # noqa: E501
+        :rtype: ActiveLearningScoreType
+        """
+        return self._score
+
+    @score.setter
+    def score(self, score):
+        """Sets the score of this DockerWorkerSelectionConfigEntryInput.
+
+
+        :param score: The score of this DockerWorkerSelectionConfigEntryInput.  # noqa: E501
+        :type: ActiveLearningScoreType
+        """
+
+        self._score = score
+
+    @property
+    def key(self):
+        """Gets the key of this DockerWorkerSelectionConfigEntryInput.  # noqa: E501
+
+
+        :return: The key of this DockerWorkerSelectionConfigEntryInput.  # noqa: E501
+        :rtype: str
+        """
+        return self._key
+
+    @key.setter
+    def key(self, key):
+        """Sets the key of this DockerWorkerSelectionConfigEntryInput.
+
+
+        :param key: The key of this DockerWorkerSelectionConfigEntryInput.  # noqa: E501
+        :type: str
+        """
+
+        self._key = key
+
+    @property
+    def name(self):
+        """Gets the name of this DockerWorkerSelectionConfigEntryInput.  # noqa: E501
+
+
+        :return: The name of this DockerWorkerSelectionConfigEntryInput.  # noqa: E501
+        :rtype: DockerWorkerSelectionInputPredictionsName
+        """
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        """Sets the name of this DockerWorkerSelectionConfigEntryInput.
+
+
+        :param name: The name of this DockerWorkerSelectionConfigEntryInput.  # noqa: E501
+        :type: DockerWorkerSelectionInputPredictionsName
+        """
+
+        self._name = name
 
     def to_dict(self):
         """Returns the model properties as a dict"""
