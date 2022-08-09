@@ -44,6 +44,9 @@ from lightly.openapi_generated.swagger_client.models.dataset_data import \
     DatasetData
 from lightly.utils.reordering import sort_items_by_keys
 
+# Env variable for server side encryption on S3
+LIGHTLY_S3_SSE_KMS_KEY = 'LIGHTLY_S3_SSE_KMS_KEY' 
+
 class ApiWorkflowClient(_UploadEmbeddingsMixin,
                         _SelectionMixin,
                         _UploadDatasetMixin,
@@ -216,15 +219,19 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         """
 
         # check to see if server side encryption for S3 is desired
-        lightly_s3_sse_kms_key = os.environ.get('LIGHTLY_S3_SSE_KMS_KEY', '').strip()
-        if lightly_s3_sse_kms_key != '':
+        # see https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingServerSideEncryption.html
+        # see https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html
+        lightly_s3_sse_kms_key = os.environ.get(LIGHTLY_S3_SSE_KMS_KEY, '').strip()
+        if lightly_s3_sse_kms_key:
             if headers is None:
                 headers = {}
             # don't override previously set SSE
             if 'x-amz-server-side-encryption' not in headers:
                 if lightly_s3_sse_kms_key.lower() == 'true':
+                    # enable SSE with the key of amazon
                     headers['x-amz-server-side-encryption'] = 'AES256'
                 else:
+                    # enable SSE with specific customer KMS key
                     headers['x-amz-server-side-encryption'] = 'aws:kms'
                     headers['x-amz-server-side-encryption-aws-kms-key-id'] = lightly_s3_sse_kms_key
 
