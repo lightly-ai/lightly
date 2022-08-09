@@ -755,7 +755,7 @@ class SMoGModel(BenchmarkModule):
 
         # smog
         self.n_groups = 300 # 2% malus vs optimal setting of 3000 groups
-        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=10000)
+        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=3000)
         # create our loss
         self.smog = modules.SMoG(self.n_groups, 128, 0.99, device='cuda')
         self.criterion = nn.CrossEntropyLoss()
@@ -794,15 +794,15 @@ class SMoGModel(BenchmarkModule):
 
         x0_features = self.backbone(x0).flatten(start_dim=1)
         x0_encoded = self.projection_head(x0_features)
-        x0_predicted = torch.nn.functional.normalize(self.prediction_head(x0_encoded))
+        x0_predicted = self.prediction_head(x0_encoded)
         x1_features = self.backbone_momentum(x1).flatten(start_dim=1)
-        x1_encoded = torch.nn.functional.normalize(self.projection_head_momentum(x1_features))
+        x1_encoded = self.projection_head_momentum(x1_features)
 
         # update group features and get group assignments
         assignments = self.smog.assign_groups(x1_encoded)
         group_features = self.smog.update_groups(x0_encoded)
 
-        logits = torch.mm(x0_predicted, group_features.t()) / 0.1
+        logits = torch.mm(x0_predicted, group_features.t()) / 0.5
         loss = self.criterion(logits, assignments)
 
         # use memory bank to periodically reset the group features with k-means
@@ -814,7 +814,7 @@ class SMoGModel(BenchmarkModule):
         params = list(self.backbone.parameters()) + list(self.projection_head.parameters()) + list(self.prediction_head.parameters())
         optim = torch.optim.SGD(
             params, 
-            lr=6e-2 * lr_factor,
+            lr=0.1,
             momentum=0.9, 
             weight_decay=5e-4,
         )

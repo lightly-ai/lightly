@@ -45,6 +45,7 @@ class SMoG(nn.Module):
         for index, xi in zip(assignments, x):
             self.group_features[index] += factor * xi / bincount[index]
 
+        self.group_features = nn.functional.normalize(self.group_features)
         return self.group_features
 
     @torch.no_grad()
