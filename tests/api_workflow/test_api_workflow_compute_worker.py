@@ -1,11 +1,13 @@
 import json
 import unittest
-from typing import Dict
+from typing import Dict, Any
 from unittest import mock
+
+from omegaconf import DictConfig, OmegaConf
 
 from lightly.openapi_generated.swagger_client import DockerWorkerSelectionConfig, DockerWorkerSelectionConfigEntry, DockerWorkerSelectionInputType, \
     DockerWorkerSelectionStrategyType, ApiClient, DockerApi, DockerWorkerSelectionConfigEntryInput, DockerWorkerSelectionStrategyThresholdOperation, \
-    DockerWorkerSelectionInputPredictionsName, DockerWorkerSelectionConfigEntryStrategy
+    DockerWorkerSelectionInputPredictionsName, DockerWorkerSelectionConfigEntryStrategy, DockerWorkerConfig, DockerWorkerType
 from lightly.openapi_generated.swagger_client.models.docker_run_data import DockerRunData
 from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import DockerRunScheduledData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
@@ -75,7 +77,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
         assert all(isinstance(run, DockerRunScheduledData) for run in runs)
         assert all(run.dataset_id == dataset_id for run in runs)
 
-    def _check_if_openapi_generated_obj_is_valid(self, obj):
+    def _check_if_openapi_generated_obj_is_valid(self, obj) -> Any:
         api_client = ApiClient()
 
         obj_as_json = json.dumps(api_client.sanitize_for_serialization(obj))
@@ -85,6 +87,8 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
         obj_api = api_client.deserialize(mocked_response, type(obj).__name__)
 
         self.assertDictEqual(obj.to_dict(), obj_api.to_dict())
+
+        return obj_api
 
     def test_selection_config(self):
         selection_config = DockerWorkerSelectionConfig(
@@ -108,5 +112,11 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
                 )
             ]
         )
+        config = DockerWorkerConfig(worker_type=DockerWorkerType.FULL, selection=selection_config)
 
-        self._check_if_openapi_generated_obj_is_valid(selection_config)
+        config_api = self._check_if_openapi_generated_obj_is_valid(config)
+
+        dict_config = DictConfig({"selection": config_api.selection.to_dict()})
+        omega_config = OmegaConf.create(dict_config)
+
+        json.dumps(omega_config["selection"]["strategies"][0])
