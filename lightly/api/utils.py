@@ -7,6 +7,7 @@ import io
 import os
 import time
 import random
+from enum import Enum
 
 import numpy as np
 from PIL import Image, ImageFilter
@@ -131,3 +132,28 @@ def build_azure_signed_url_write_headers(content_length: str,
         'Accept-Encoding': accept_encoding,
     }
     return headers
+
+
+class DatasourceType(Enum):
+    S3 = "S3"
+    GCS = "GCS"
+    AZURE = "AZURE"
+    LOCAL = "LOCAL"
+
+def get_signed_url_destination(signed_url: str)->DatasourceType:
+    """
+    Tries to figure out the of which cloud provider/datasource type a signed url comes from (S3, GCS, Azure)
+    Args:
+        signed_url:
+            The signed url of a "bucket" provider
+    Returns:
+        DatasourceType
+    """
+    if signed_url.find('storage.googleapis.com/')!=-1 and  signed_url.find('boris-platform-')!=-1:
+        return DatasourceType.GCS
+    if signed_url.find('.amazonaws.com/')!=-1 and signed_url.find('.s3.')!=-1:
+        return DatasourceType.S3
+    if signed_url.find('.windows.net/')!=-1:
+        return DatasourceType.AZURE
+    # default to local as it must be some special setup
+    return DatasourceType.LOCAL

@@ -18,7 +18,7 @@ from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
 from lightly.api.bitmask import BitMask
-from lightly.api.utils import getenv
+from lightly.api.utils import DatasourceType, get_signed_url_destination, getenv
 from lightly.api.version_checking import get_minimum_compatible_version, \
     version_compare
 from lightly.openapi_generated.swagger_client import ScoresApi, \
@@ -222,7 +222,8 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         # see https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingServerSideEncryption.html
         # see https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html
         lightly_s3_sse_kms_key = os.environ.get(LIGHTLY_S3_SSE_KMS_KEY, '').strip()
-        if lightly_s3_sse_kms_key:
+        # Only set s3 related headers when we are talking with s3
+        if get_signed_url_destination(signed_write_url)==DatasourceType.S3 and lightly_s3_sse_kms_key:
             if headers is None:
                 headers = {}
             # don't override previously set SSE

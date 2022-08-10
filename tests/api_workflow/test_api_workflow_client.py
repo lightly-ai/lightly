@@ -4,7 +4,7 @@ from unittest import mock
 import requests
 import os
 
-from lightly.api import ApiWorkflowClient
+from lightly.api import (ApiWorkflowClient, LIGHTLY_S3_SSE_KMS_KEY)
 
 class TestApiWorkflowClient(unittest.TestCase):
 
@@ -37,7 +37,7 @@ class TestApiWorkflowClient(unittest.TestCase):
         signed_write_url = mock.Mock()
         client = ApiWorkflowClient(token="")
         # set the environment var to enable SSE 
-        os.environ['LIGHTLY_S3_SSE_KMS_KEY'] = 'True'
+        os.environ[LIGHTLY_S3_SSE_KMS_KEY] = 'True'
         client.upload_file_with_signed_url(
             file=file,
             signed_write_url=signed_write_url,
@@ -52,7 +52,7 @@ class TestApiWorkflowClient(unittest.TestCase):
         client = ApiWorkflowClient(token="")
         # set the environment var to enable SSE with KMS 
         sseKMSKey = "arn:aws:kms:us-west-2:123456789000:key/1234abcd-12ab-34cd-56ef-1234567890ab"
-        os.environ['LIGHTLY_S3_SSE_KMS_KEY'] = sseKMSKey
+        os.environ[LIGHTLY_S3_SSE_KMS_KEY] = sseKMSKey
         client.upload_file_with_signed_url(
             file=file,
             signed_write_url=signed_write_url,
