@@ -4,7 +4,8 @@ from unittest import mock
 import requests
 import os
 
-from lightly.api import (ApiWorkflowClient, LIGHTLY_S3_SSE_KMS_KEY)
+from lightly.api import ApiWorkflowClient
+from lightly.api.api_workflow_client import LIGHTLY_S3_SSE_KMS_KEY
 
 class TestApiWorkflowClient(unittest.TestCase):
 
