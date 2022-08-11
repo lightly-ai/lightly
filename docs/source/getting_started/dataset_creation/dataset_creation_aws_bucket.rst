@@ -73,7 +73,10 @@ Create and configure a dataset
     .. note:: If you are using a delegated access role, toggle the switch `Use IAM role based delegated access` and pass the `external ID` and the `role ARN` from the previous step instead of the secret access key.
 
 5. Toggle the **"Generate thumbnail"** switch if you want Lightly to generate thumbnails for you.
-6. If you want to store outputs from Lightly (like thumbnails or extracted frames) in a different directory, you can toggle **"Use a different output datasource"** and enter a different path in your bucket. This allows you to keep your input directory clean as nothing gets ever written there.
+
+    .. note:: If you want to use server side encryption, toggle the switch `Use server side encryption` and set the `KMS key arn`. (see: :ref:`dataset-creation-aws-bucket-server-side-encryption`)
+
+6. If you want to store outputs from Lightly (like thumbnails, extracted frames or crops) in a different directory, you can toggle **"Use a different output datasource"** and enter a different path in your bucket. This allows you to keep your input directory clean as nothing gets ever written there.
 
     .. note:: Lightly requires list, read, and write access to the `output datasource`. Make sure you have configured it accordingly in the steps before. You can also use two different permissions to only allow listing and reading for the input datasource and additionally writing for the output datasource.
 7. Press save and ensure that at least the lights for List and Read turn green. If you added permissions for writing, this light should also turn green.
