@@ -151,8 +151,8 @@ def get_signed_url_destination(signed_url: str = '') -> DatasourceType:
     Returns:
         DatasourceType
     """
-    
-    assert isinstance(signed_url, 'str')
+
+    assert isinstance(signed_url, str)
 
     if 'storage.googleapis.com/' in signed_url:
         return DatasourceType.GCS
