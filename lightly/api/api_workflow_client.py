@@ -243,7 +243,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             response = sess.put(signed_write_url, data=file, headers=headers)
         else:
             response = sess.put(signed_write_url, data=file)
-        print('response', response.content)
+        print('response', response.text)
         response.raise_for_status()
         return response
 
