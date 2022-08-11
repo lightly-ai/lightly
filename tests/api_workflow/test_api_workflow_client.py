@@ -77,5 +77,5 @@ class TestApiWorkflowClient(unittest.TestCase):
             with self.assertRaises(requests.exceptions.ConnectionError):
                 client.upload_file_with_signed_url(
                     file=mock.Mock(),
-                    signed_write_url=mock.Mock(),
+                    signed_write_url='',
                 )
