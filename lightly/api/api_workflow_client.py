@@ -224,6 +224,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         lightly_s3_sse_kms_key = os.environ.get(LIGHTLY_S3_SSE_KMS_KEY, '').strip()
         # Only set s3 related headers when we are talking with s3
         if get_signed_url_destination(signed_write_url)==DatasourceType.S3 and lightly_s3_sse_kms_key:
+            print('setting lightly_s3_sse_kms_key', lightly_s3_sse_kms_key)
             if headers is None:
                 headers = {}
             # don't override previously set SSE
