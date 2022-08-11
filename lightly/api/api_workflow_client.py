@@ -222,9 +222,10 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         # see https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingServerSideEncryption.html
         # see https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html
         lightly_s3_sse_kms_key = os.environ.get(LIGHTLY_S3_SSE_KMS_KEY, '').strip()
+        print('lightly_s3_sse_kms_key is', lightly_s3_sse_kms_key, signed_write_url)
         # Only set s3 related headers when we are talking with s3
         if get_signed_url_destination(signed_write_url)==DatasourceType.S3 and lightly_s3_sse_kms_key:
-            print('setting lightly_s3_sse_kms_key', lightly_s3_sse_kms_key)
+            print('setting headers for sse', lightly_s3_sse_kms_key)
             if headers is None:
                 headers = {}
             # don't override previously set SSE
