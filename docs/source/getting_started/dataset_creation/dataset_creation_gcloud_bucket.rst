@@ -9,16 +9,6 @@ In this guide, we will show you how to setup your Google Cloud Storage,
 configure your dataset to use said bucket, and only upload metadata to Lightly
 while keeping your data private.
 
-One decision you need to make first is whether you want to use thumbnails.
-Using thumbnails makes the Lightly Platform more responsive, as not always
-the full images will be loaded.
-However, the thumbnails will be stored in your bucket and thus need storage.
-
-.. note::
-  
-    If you want to use thumbnails you need to give
-    Lightly write access to your bucket to create the thumbnails there for you.
-
 
 Setting up Google Cloud Storage
 --------------------------------
@@ -26,7 +16,8 @@ Setting up Google Cloud Storage
 Lightly needs to be able to create so-called
 `presigned URLs/read URLs <https://cloud.google.com/storage/docs/access-control/signed-urls>`_
 for displaying your data in your browser.
-Thus it needs at minimum read and list permissions on your bucket.
+Thus it needs at minimum get and list permissions on your bucket.
+To upload thumbnails, frames and crops, create and delete permissions are also required.
 
 Let us assume the bucket is called `lightly-datalake`.
 And let us assume the folder you want to use with Lightly is located at `projects/wild-animals/`
@@ -60,8 +51,7 @@ If it is not, change it to uniform.
   E.g. call it `LIGHTLY_DATASET_ACCESS`.
 - Click on **"Add Permissions"**, search for `storage.objects`
 - Add the permissions `storage.objects.get`, `storage.objects.list`, `storage.objects.create` 
-  and `storage.objects.delete`. The create and delete permissions are needed only if you want 
-  Lightly to create thumbnails in your bucket. Otherwise you can leave them out.
+  and `storage.objects.delete`.
 - After adding the permissions, create the role.
 
 .. figure:: ./images_gcloud_bucket/screenshot_gcloud_storage_role.jpg
