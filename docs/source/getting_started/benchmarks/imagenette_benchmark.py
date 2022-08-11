@@ -89,7 +89,7 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1 # optional, increase to create multiple runs and report mean + std
-batch_size = 256
+batch_size = 128
 lr_factor = batch_size / 256 # scales the learning rate linearly with batch size
 
 
@@ -129,6 +129,9 @@ dino_collate_fn = lightly.data.DINOCollateFunction(
 
 # Single crop augmentation for MAE
 mae_collate_fn = lightly.data.MAECollateFunction()
+
+# Multi crop augmentation for MSN
+msn_collate_fn = lightly.data.MSNCollateFunction()
 
 normalize_transform = torchvision.transforms.Normalize(
     mean=lightly.data.collate.imagenet_normalize['mean'],
@@ -171,6 +174,8 @@ def get_data_loaders(batch_size: int, model):
         col_fn = dino_collate_fn
     elif model == MAEModel:
         col_fn = mae_collate_fn
+    elif model == MSNModel:
+        col_fn = msn_collate_fn
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
         batch_size=batch_size,
@@ -749,19 +754,97 @@ class MAEModel(BenchmarkModule):
         else:
             return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
 
+class MSNModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+
+        # ViT small configuration
+        self.mask_ratio = 0.15
+        self.anchor_backbone = masked_autoencoder.MAEBackbone(
+            image_size=224,
+            patch_size=16,
+            num_layers=12,
+            num_heads=6,
+            hidden_dim=384,
+            mlp_dim=384 * 4,
+        )
+        # backbone used for evaluation is target backbone with momentum updates
+        self.backbone = copy.deepcopy(self.anchor_backbone)
+        utils.deactivate_requires_grad(self.backbone)
+
+        self.anchor_projection_head = heads.MSNProjectionHead(384)
+        self.projection_head = copy.deepcopy(self.anchor_projection_head)
+        utils.deactivate_requires_grad(self.projection_head)
+
+        self.prototypes = nn.Linear(256, 1024, bias=False).weight
+        self.criterion = lightly.loss.MSNLoss()
+        self.warmup_epochs = 15
+
+    def training_step(self, batch, batch_idx):
+        utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
+        utils.update_momentum(self.anchor_projection_head, self.projection_head, 0.996)
+
+        views, _, _ = batch
+        views = [view.to(self.device, non_blocking=True) for view in views]
+        targets = views[0]
+        anchors = views[1]
+        anchors_focal = torch.concat(views[2:], dim=0)
+
+        anchors_out = self.encode_masked(anchors)
+        anchors_focal_out = self.encode_masked(anchors_focal)
+        anchors_out = torch.cat([anchors_out, anchors_focal_out], dim=0)
+        targets_out = self.backbone(targets)
+        targets_out = self.projection_head(targets_out)
+        loss = self.criterion(anchors_out, targets_out, self.prototypes.data)
+        self.log('train_loss_ssl', loss)
+        return loss
+
+    def encode_masked(self, anchors):
+        batch_size, _, _, width = anchors.shape
+        seq_length = (width // self.anchor_backbone.patch_size) ** 2
+        idx_keep, _ = utils.random_token_mask(
+            size=(batch_size, seq_length),
+            mask_ratio=self.mask_ratio,
+            device=self.device,
+        )
+        out = self.anchor_backbone(anchors, idx_keep)
+        return self.anchor_projection_head(out)
+
+    def configure_optimizers(self):
+        params = [
+            *list(self.anchor_backbone.parameters()),
+            *list(self.anchor_projection_head.parameters()),
+            self.prototypes,
+        ]
+        optim = torch.optim.AdamW(
+            params=params,
+            lr=1.5e-4 * lr_factor,
+            weight_decay=0.05,
+            betas=(0.9, 0.95),
+        )
+        cosine_with_warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
+        return [optim], [cosine_with_warmup_scheduler]
+
+    def scale_lr(self, epoch):
+        if epoch < self.warmup_epochs:
+            return epoch / self.warmup_epochs 
+        else:
+            return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
+
 
 models = [
-    BarlowTwinsModel, 
-    BYOLModel,
-    DCL,
-    DCLW,
-    DINOModel,
+    # BarlowTwinsModel,
+    # BYOLModel,
+    # DCL,
+    # DCLW,
+    # DINOModel,
     # MAEModel, # disabled by default because MAE requires images to have size 224
-    MocoModel,
-    NNCLRModel,
-    SimCLRModel,
-    SimSiamModel,
-    SwaVModel,
+    MSNModel,
+    # MocoModel,
+    # NNCLRModel,
+    # SimCLRModel,
+    # SimSiamModel,
+    # SwaVModel,
 ]
 bench_results = dict()
 
