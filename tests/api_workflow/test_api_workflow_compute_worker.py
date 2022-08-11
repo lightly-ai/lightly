@@ -115,8 +115,3 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
         config = DockerWorkerConfig(worker_type=DockerWorkerType.FULL, selection=selection_config)
 
         config_api = self._check_if_openapi_generated_obj_is_valid(config)
-
-        dict_config = DictConfig({"selection": config_api.selection.to_dict()})
-        omega_config = OmegaConf.create(dict_config)
-
-        json.dumps(omega_config["selection"]["strategies"][0])
