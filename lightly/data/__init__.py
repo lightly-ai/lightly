@@ -8,6 +8,7 @@ from lightly.data.collate import BaseCollateFunction
 from lightly.data.collate import DINOCollateFunction
 from lightly.data.collate import ImageCollateFunction
 from lightly.data.collate import MAECollateFunction
+from lightly.data.collate import MSNCollateFunction
 from lightly.data.collate import PIRLCollateFunction
 from lightly.data.collate import SimCLRCollateFunction
 from lightly.data.collate import MoCoCollateFunction
