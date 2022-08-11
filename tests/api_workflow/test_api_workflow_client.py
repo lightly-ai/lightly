@@ -35,7 +35,7 @@ class TestApiWorkflowClient(unittest.TestCase):
     def test_upload_file_with_signed_url_session_sse(self):
         session = mock.Mock()
         file = mock.Mock()
-        signed_write_url = ''
+        signed_write_url = 'http://somwhere.s3.amazonaws.com/someimage.png'
         client = ApiWorkflowClient(token="")
         # set the environment var to enable SSE 
         os.environ[LIGHTLY_S3_SSE_KMS_KEY] = 'True'
@@ -49,7 +49,7 @@ class TestApiWorkflowClient(unittest.TestCase):
     def test_upload_file_with_signed_url_session_sse_kms(self):
         session = mock.Mock()
         file = mock.Mock()
-        signed_write_url = ''
+        signed_write_url = 'http://somwhere.s3.amazonaws.com/someimage.png'
         client = ApiWorkflowClient(token="")
         # set the environment var to enable SSE with KMS 
         sseKMSKey = "arn:aws:kms:us-west-2:123456789000:key/1234abcd-12ab-34cd-56ef-1234567890ab"
