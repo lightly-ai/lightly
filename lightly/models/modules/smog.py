@@ -29,15 +29,16 @@ class SMoG(nn.Module):
         if dim != self.dim:
             # TODO: write a nice message
             raise ValueError
-        self.group_features = self.new_group_features
+        self.group_features = new_group_features
 
     def update_groups(self, x: torch.Tensor):
         """TODO: write docstring
         
         """
         assignments = self.assign_groups(x)
+        mask = torch.nonzero(assignments)
 
-        self.group_features = self.beta * self.group_features.detach()
+        self.group_features[mask] = self.beta * self.group_features[mask].detach()
         factor = (1 - self.beta)
 
         bincount = torch.bincount(assignments)

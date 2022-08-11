@@ -768,7 +768,7 @@ class SMoGModel(BenchmarkModule):
             features = features.t().cpu().numpy()
             kmeans = KMeans(self.n_groups).fit(features)
             new_features = torch.FloatTensor(kmeans.cluster_centers_).cuda()
-            self.smog.group_features = new_features
+            self.smog.init_groups(new_features)
 
     def _reset_momentum_weights(self):
         # see Table 7b)
@@ -802,7 +802,7 @@ class SMoGModel(BenchmarkModule):
         assignments = self.smog.assign_groups(x1_encoded)
         group_features = self.smog.update_groups(x0_encoded)
 
-        logits = torch.mm(x0_predicted, group_features.t()) / 0.5
+        logits = torch.mm(torch.nn.functional.normalize(x0_predicted), group_features.t()) / 0.5
         loss = self.criterion(logits, assignments)
 
         # use memory bank to periodically reset the group features with k-means
@@ -815,7 +815,7 @@ class SMoGModel(BenchmarkModule):
         optim = torch.optim.SGD(
             params, 
             lr=0.1,
-            momentum=0.9, 
+            momentum=0.9,
             weight_decay=5e-4,
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
