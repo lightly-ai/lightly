@@ -238,21 +238,18 @@ You can use a custom name for the embeddings using the *embedding_name* paramete
 
 .. code-block:: bash
 
-    # upload only the embeddings
+    # upload the embeddings
     lightly-upload embeddings=your_embedding.csv token=your_token \
-                   dataset_id=your_dataset_id
+                   dataset_id=your_dataset_id embedding_name=default
 
     # you can upload the dataset together with the embeddings
     lightly-upload input_dir=cat embeddings=your_embedding.csv \
-                   token=your_token new_dataset_name=your_dataset_name
-
-    # you can upload the embeddings under a specific name
-    lightly-upload embeddings=your_embedding.csv token=your_token \
-                   new_dataset_name=your_dataset_name embedding_name=embedding_1
+                   token=your_token new_dataset_name=your_dataset_name \
+                   embedding_name=default
 
     # you can upload the latest embeddings you created to the latest dataset you created
     lightly-upload embeddings=$LIGHTLY_LAST_EMBEDDING_PATH token=your_token \
-                       dataset_id=$LIGHTLY_LAST_DATASET_ID
+                       dataset_id=$LIGHTLY_LAST_DATASET_ID embedding_name=default
 
 The dataset_id of the latest dataset you used in the `lightly-upload` command
 will always be saved under an environment variable named LIGHTLY_LAST_DATASET_ID.
