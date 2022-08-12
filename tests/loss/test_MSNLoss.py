@@ -1,3 +1,4 @@
+import unittest
 from unittest import TestCase
 import torch
 from torch import nn
@@ -53,6 +54,15 @@ class TestMSNLoss(TestCase):
                 prototypes = torch.rand((4, 10), requires_grad=True)
                 criterion(anchors, targets, prototypes)
 
+    @unittest.skipUnless(torch.cuda.is_available(), "cuda not available")
+    def test_forward_cuda(self, seed=0):
+        torch.manual_seed(seed)
+        criterion = MSNLoss()
+        anchors = torch.rand((8 * 2, 10)).cuda()
+        targets = torch.rand((8, 10)).cuda()
+        prototypes = torch.rand((4, 10), requires_grad=True).cuda()
+        criterion(anchors, targets, prototypes)
+
     def test_backward(self, seed=0):
         torch.manual_seed(seed)
         head = MSNProjectionHead(5, 16, 6)
@@ -61,6 +71,28 @@ class TestMSNLoss(TestCase):
         anchors = torch.rand((8 * 4, 5))
         targets = torch.rand((8, 5))
         prototypes = nn.Linear(6, 4).weight # 4 prototypes with dim 6
+        optimizer.zero_grad()
+        anchors = head(anchors)
+        with torch.no_grad():
+            targets = head(targets)
+        loss = criterion(anchors, targets, prototypes)
+        loss.backward()
+        weights_before = head.layers[0].weight.data.clone()
+        optimizer.step()
+        weights_after = head.layers[0].weight.data
+        # backward pass should update weights
+        self.assertTrue(torch.any(weights_before != weights_after))
+
+    @unittest.skipUnless(torch.cuda.is_available(), "cuda not available")
+    def test_backward_cuda(self, seed=0):
+        torch.manual_seed(seed)
+        head = MSNProjectionHead(5, 16, 6)
+        head.to('cuda')
+        criterion = MSNLoss()
+        optimizer = SGD(head.parameters(), lr=0.1)
+        anchors = torch.rand((8 * 4, 5)).cuda()
+        targets = torch.rand((8, 5)).cuda()
+        prototypes = nn.Linear(6, 4).weight.cuda() # 4 prototypes with dim 6
         optimizer.zero_grad()
         anchors = head(anchors)
         with torch.no_grad():
