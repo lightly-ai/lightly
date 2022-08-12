@@ -394,9 +394,16 @@ a `shared directory` and then passing the checkpoint filename to the container.
                 "n_samples": 0.1,
                 "min_distance": -1
             }
-            "checkpoint": "my_checkpoint_file.ckpt"
+            "checkpoint": "lightly_epoch_X.ckpt"
         }
     )
+
+For example, if the :code:`{OUTPUT_DIR}` is :code:`/home/ubuntu/outputs`, the checkpoint will
+be called :code:`/home/ubuntu/outputs/{DATE}/{TIME}/lightly_epoch_X.ckpt`. Now you can create a new directory
+:code:`home/ubuntu/shared` and copy the checkpoint there. Finally, when running the worker
+you need to specify the newly created directory as the :code:`{SHARED_DIR}` and checkpoint as
+:code:`lightly_epoch_X.ckpt`.
+
 
 
 Specifying Relevant Files
