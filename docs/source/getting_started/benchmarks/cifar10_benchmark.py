@@ -754,8 +754,8 @@ class SMoGModel(BenchmarkModule):
         self._reset_momentum_weights()
 
         # smog
-        self.n_groups = 300 # 2% malus vs optimal setting of 3000 groups
-        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=3000)
+        self.n_groups = 3000 # 2% malus vs optimal setting of 3000 groups
+        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=10000)
         # create our loss
         self.smog = modules.SMoG(self.n_groups, 128, 0.99, device='cuda')
         self.criterion = nn.CrossEntropyLoss()
