@@ -5,6 +5,7 @@ import hashlib
 from datetime import datetime
 from typing import List
 from urllib.request import Request, urlopen
+from lightly.api.utils import retry
 
 from lightly.openapi_generated.swagger_client import \
     DimensionalityReductionMethod, Trigger2dEmbeddingJobRequest
@@ -135,7 +136,11 @@ class _UploadEmbeddingsMixin:
         with tempfile.SpooledTemporaryFile(mode='r+b') as f_bytes:
             f_bytes.write(embeddings_csv_as_bytes)
             f_bytes.seek(0)
-            self.upload_file_with_signed_url(file=f_bytes, signed_write_url=signed_write_url)
+            retry(
+                self.upload_file_with_signed_url,
+                file=f_bytes,
+                signed_write_url=signed_write_url
+            )
 
         # trigger the 2d embeddings job
         for dimensionality_reduction_method in [
