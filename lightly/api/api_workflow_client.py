@@ -236,16 +236,12 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                     headers['x-amz-server-side-encryption'] = 'aws:kms'
                     headers['x-amz-server-side-encryption-aws-kms-key-id'] = lightly_s3_sse_kms_key
 
-        print('headers are', headers)
         # start requests session and make put request
         sess = session or requests
         if headers is not None:
             response = sess.put(signed_write_url, data=file, headers=headers)
         else:
             response = sess.put(signed_write_url, data=file)
-        print('wtf biach?')
-        print('response', response)
-        print('response.text', response.text)
         response.raise_for_status()
         return response
 
