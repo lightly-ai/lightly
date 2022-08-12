@@ -43,6 +43,12 @@ class TestMSNLoss(TestCase):
         out = msn_loss.sinkhorn(prob)
         self.assertTrue(torch.all(prob != out))
 
+    def test_sinkhorn_no_iter(self, seed=0):
+        torch.manual_seed(seed)
+        prob = torch.rand((8, 10))
+        out = msn_loss.sinkhorn(prob, iterations=0)
+        self.assertTrue(torch.all(prob == out))
+
     def test_forward(self, seed=0):
         torch.manual_seed(seed)
         criterion = MSNLoss()
