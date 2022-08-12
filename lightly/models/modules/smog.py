@@ -5,7 +5,17 @@ import torch.nn as nn
 
 
 class SMoG(nn.Module):
-    """TODO: write docstring
+    """SMoG module for synchronous momentum grouping.
+
+    Attributes:
+        n_groups:
+            Number of groups to cluster.
+        dim:
+            Dimensionality of the group representations.
+        beta:
+            Momentum update factor of the group representations.
+        device:
+            Device to select.
     
     """
 
@@ -19,7 +29,10 @@ class SMoG(nn.Module):
         self.beta = beta
 
     def init_groups(self, new_group_features: torch.Tensor):
-        """TODO: write docstring
+        """Replaces the current group features by a new set of group features.
+
+        Args:
+            Tensor of shape n_groups x dim.
         
         """
         n_groups, dim = new_group_features.shape
@@ -31,9 +44,16 @@ class SMoG(nn.Module):
             raise ValueError
         self.group_features = new_group_features
 
-    def update_groups(self, x: torch.Tensor):
-        """TODO: write docstring
-        
+    def update_groups(self, x: torch.Tensor) -> torch.Tensor:
+        """Performs the synchronous momentum update of the group vectors.
+
+        Args:
+            x:
+                Tensor of shape bsz x dim.
+
+        Returns:
+            The update group features.
+
         """
         assignments = self.assign_groups(x)
         bincount = torch.bincount(assignments)
@@ -49,8 +69,14 @@ class SMoG(nn.Module):
         return self.group_features
 
     @torch.no_grad()
-    def assign_groups(self, x: torch.Tensor):
-        """TODO: write docstring
+    def assign_groups(self, x: torch.Tensor) -> torch.LongTensor:
+        """Assigns each representation in x to a group based on cosine similarity.
+
+        Args:
+            Tensor of shape bsz x dim.
+
+        Returns:
+            LongTensor of shape bsz indicating group assignments.
         
         """
         x = torch.nn.functional.normalize(x)
