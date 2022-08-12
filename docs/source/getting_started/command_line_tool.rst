@@ -275,7 +275,8 @@ To upload custom metadata, simply pass it to the `lightly-magic` command:
 Alternatively, you can upload custom metadata to an already existing dataset like this:
 
 .. code-block:: bash
-
+    
+    # be aware that this overrides existing custom metadata uploaded to the same dataset
     lightly-upload token=yourToken dataset_id=yourDatasetId custom_metadata=yourCustomMetadata.json
 
 .. note::
