@@ -74,7 +74,8 @@ Create and configure a dataset
 
 5. Toggle the **"Generate thumbnail"** switch if you want Lightly to generate thumbnails for you.
 
-    .. note:: If you want to use server side encryption, toggle the switch `Use server side encryption` and set the `KMS key arn`. (see: :ref:`dataset-creation-aws-bucket-server-side-encryption`)
+    .. note:: If you want to use server side encryption, toggle the switch `Use server side encryption` and set the `KMS key arn`.
+              (see: :ref:`dataset-creation-aws-bucket-server-side-encryption`)
 
 6. If you want to store outputs from Lightly (like thumbnails, extracted frames or crops) in a different directory, you can toggle **"Use a different output datasource"** and enter a different path in your bucket. This allows you to keep your input directory clean as nothing gets ever written there.
 
