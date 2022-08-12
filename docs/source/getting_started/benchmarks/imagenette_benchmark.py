@@ -89,7 +89,7 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1 # optional, increase to create multiple runs and report mean + std
-batch_size = 128
+batch_size = 256
 lr_factor = batch_size / 256 # scales the learning rate linearly with batch size
 
 
@@ -758,9 +758,10 @@ class MSNModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
 
-        # ViT small configuration
+        self.warmup_epochs = 15
+        # ViT small configuration (ViT-S/16)
         self.mask_ratio = 0.15
-        self.anchor_backbone = masked_autoencoder.MAEBackbone(
+        self.backbone = masked_autoencoder.MAEBackbone(
             image_size=224,
             patch_size=16,
             num_layers=12,
@@ -768,17 +769,16 @@ class MSNModel(BenchmarkModule):
             hidden_dim=384,
             mlp_dim=384 * 4,
         )
-        # backbone used for evaluation is target backbone with momentum updates
-        self.backbone = copy.deepcopy(self.anchor_backbone)
-        utils.deactivate_requires_grad(self.backbone)
+        self.projection_head = heads.MSNProjectionHead(384)
 
-        self.anchor_projection_head = heads.MSNProjectionHead(384)
-        self.projection_head = copy.deepcopy(self.anchor_projection_head)
+        self.anchor_backbone = copy.deepcopy(self.backbone)
+        self.anchor_projection_head = copy.deepcopy(self.projection_head)
+
+        utils.deactivate_requires_grad(self.backbone)
         utils.deactivate_requires_grad(self.projection_head)
 
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
         self.criterion = lightly.loss.MSNLoss()
-        self.warmup_epochs = 15
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
@@ -790,11 +790,12 @@ class MSNModel(BenchmarkModule):
         anchors = views[1]
         anchors_focal = torch.concat(views[2:], dim=0)
 
+        targets_out = self.backbone(targets)
+        targets_out = self.projection_head(targets_out)
         anchors_out = self.encode_masked(anchors)
         anchors_focal_out = self.encode_masked(anchors_focal)
         anchors_out = torch.cat([anchors_out, anchors_focal_out], dim=0)
-        targets_out = self.backbone(targets)
-        targets_out = self.projection_head(targets_out)
+
         loss = self.criterion(anchors_out, targets_out, self.prototypes.data)
         self.log('train_loss_ssl', loss)
         return loss
@@ -833,18 +834,18 @@ class MSNModel(BenchmarkModule):
 
 
 models = [
-    # BarlowTwinsModel,
-    # BYOLModel,
-    # DCL,
-    # DCLW,
-    # DINOModel,
-    # MAEModel, # disabled by default because MAE requires images to have size 224
-    MSNModel,
-    # MocoModel,
-    # NNCLRModel,
-    # SimCLRModel,
-    # SimSiamModel,
-    # SwaVModel,
+    BarlowTwinsModel,
+    BYOLModel,
+    DCL,
+    DCLW,
+    DINOModel,
+    # MAEModel, # disabled by default because MAE uses larger images with size 224
+    # MSNModel, # disabled by default because MSN uses larger images with size 224
+    MocoModel,
+    NNCLRModel,
+    SimCLRModel,
+    SimSiamModel,
+    SwaVModel,
 ]
 bench_results = dict()
 
