@@ -249,7 +249,7 @@ You can use a custom name for the embeddings using the *embedding_name* paramete
 
     # you can upload the latest embeddings you created to the latest dataset you created
     lightly-upload embeddings=$LIGHTLY_LAST_EMBEDDING_PATH token=your_token \
-                       dataset_id=$LIGHTLY_LAST_DATASET_ID embedding_name=default
+                   dataset_id=$LIGHTLY_LAST_DATASET_ID embedding_name=default
 
 The dataset_id of the latest dataset you used in the `lightly-upload` command
 will always be saved under an environment variable named LIGHTLY_LAST_DATASET_ID.
@@ -277,7 +277,8 @@ Alternatively, you can upload custom metadata to an already existing dataset lik
 .. code-block:: bash
     
     # be aware that this overrides existing custom metadata uploaded to the same dataset
-    lightly-upload token=yourToken dataset_id=yourDatasetId custom_metadata=yourCustomMetadata.json
+    lightly-upload token=yourToken dataset_id=yourDatasetId \
+                   custom_metadata=yourCustomMetadata.json
 
 .. note::
 
@@ -334,7 +335,7 @@ you can use the following:
     lightly-upload input_dir=data_dir token=yourToken new_dataset_name=myNewDataset
     # upload the embeddings to the dataset just created
     lightly-upload embeddings=$LIGHTLY_LAST_EMBEDDING_PATH token=yourToken \
-    dataset_id=$LIGHTLY_LAST_DATASET_ID embedding_name=embedding_1
+        dataset_id=$LIGHTLY_LAST_DATASET_ID embedding_name=embedding_1
 
 
 
