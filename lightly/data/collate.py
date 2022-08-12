@@ -216,6 +216,7 @@ class MultiViewCollateFunction(nn.Module):
         fnames = [fname for _, _, fname in batch]
         return views, labels, fnames
 
+
 class SimCLRCollateFunction(ImageCollateFunction):
     """Implements the transformations for SimCLR.
 
@@ -357,6 +358,8 @@ class MoCoCollateFunction(ImageCollateFunction):
             rr_prob=rr_prob,
             normalize=normalize,
         )
+
+
 
 
 class MultiCropCollateFunction(MultiViewCollateFunction):
@@ -894,3 +897,81 @@ class MSNCollateFunction(MultiViewCollateFunction):
         transforms = [transform] * random_views
         transforms += [focal_transform] * focal_views
         super().__init__(transforms=transforms)
+
+
+class SMoGCollateFunction(MultiViewCollateFunction):
+    """Implements the transformations for SMoG.
+
+    Attributes:
+        crop_sizes:
+            Size of the input image in pixels for each crop category.
+        crop_counts:
+            Number of crops for each crop category.
+        crop_min_scales:
+            Min scales for each crop category.
+        crop_max_scales:
+            Max_scales for each crop category.
+        gaussian_blur_probs:
+            Probability of Gaussian blur for each crop category.
+        gaussian_blur_kernel_sizes:
+            Kernel size of Gaussian blur for each crop category.
+        solarize_probs:
+            Probability of solarization for each crop category.
+        hf_prob:
+            Probability that horizontal flip is applied.
+        cj_prob:
+            Probability that color jitter is applied.
+        cj_strength:
+            Strength of the color jitter.
+        random_gray_scale:
+            Probability of conversion to grayscale.
+        normalize:
+            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
+
+    """
+
+    def __init__(
+        self,
+        crop_sizes: List[int] = [224, 96],
+        crop_counts: List[int] = [4, 4],
+        crop_min_scales: List[float] = [0.2, 0.05],
+        crop_max_scales: List[float] = [1.0, 0.2],
+        gaussian_blur_probs: List[float] = [0.5, 0.1],
+        gaussian_blur_kernel_sizes: List[float] = [0.1, 0.1],
+        solarize_probs: List[float] = [0.0, 0.2],
+        hf_prob: float = 0.5,
+        cj_prob: float = 1.0,
+        cj_strength: float = 0.5,
+        random_gray_scale: float = 0.2,
+        normalize: dict = imagenet_normalize,
+    ):
+
+        transforms = []
+        for i in range(len(crop_sizes)):
+
+            random_resized_crop = T.RandomResizedCrop(
+                crop_sizes[i],
+                scale=(crop_min_scales[i], crop_max_scales[i])
+            )
+
+            color_jitter = T.ColorJitter(
+                0.8 * cj_strength,
+                0.8 * cj_strength,
+                0.4 * cj_strength,
+                0.2 * cj_strength,
+            )
+
+            transforms.extend([
+                T.Compose([
+                    random_resized_crop,
+                    T.RandomHorizontalFlip(p=hf_prob),
+                    T.RandomApply([color_jitter], p=cj_prob),
+                    T.RandomGrayscale(p=random_gray_scale),
+                    GaussianBlur(prob=gaussian_blur_probs[i], kernel_size=gaussian_blur_kernel_sizes[i]), # TODO
+                    RandomSolarization(prob=solarize_probs[i]),
+                    T.ToTensor(),
+                    T.Normalize(mean=normalize["mean"], std=normalize["std"]),
+                ])
+            ] * crop_counts[i])
+
+        super().__init__(transforms)
