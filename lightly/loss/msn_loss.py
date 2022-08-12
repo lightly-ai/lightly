@@ -3,6 +3,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.distributed as dist
 
 
 def prototype_probabilities(
@@ -11,7 +12,7 @@ def prototype_probabilities(
     temperature: float,
 ) -> torch.Tensor:
     """Returns probability for each query to belong to each prototype.
-    
+
     Args:
         queries:
             Tensor with shape (batch_size, dim)
@@ -29,7 +30,7 @@ def prototype_probabilities(
 
 def sharpen(probabilities: torch.Tensor, temperature: float) -> torch.Tensor:
     """Sharpens the probabilities with the given temperature.
-    
+
     Args:
         probabilities:
             Tensor with shape (batch_size, dim)
@@ -46,18 +47,50 @@ def sharpen(probabilities: torch.Tensor, temperature: float) -> torch.Tensor:
 
 @torch.no_grad()
 def sinkhorn(
-    probabilities: torch.Tensor, 
+    probabilities: torch.Tensor,
     iterations: int = 3,
+    gather_distributed: bool = False,
 ) -> torch.Tensor:
-    """Runs sinkhorn normalization on the predictions."""
+    """Runs sinkhorn normalization on the probabilities as described in [0].
+
+    Code inspired by [1].
+
+    - [0]: Masked Siamese Networks, 2022, https://arxiv.org/abs/2204.07141
+    - [1]: https://github.com/facebookresearch/msn
+
+    Args:
+        probabilities:
+            Probabilities tensor with shape (batch_size, num_prototypes).
+        iterations:
+            Number of iterations of the sinkhorn algorithms. Set to 0 to disable.
+        gather_distributed:
+            If True then features from all gpus are gathered during normalization.
+    Returns:
+        A normalized probabilities tensor.
+
+    """
+    if iterations <= 0:
+        return probabilities
+
+    world_size = 1
+    if gather_distributed and dist.is_initialized():
+        world_size = dist.get_world_size()
+
     num_targets, num_prototypes = probabilities.shape
     probabilities = probabilities.T
-    probabilities = probabilities / torch.sum(probabilities)
+    sum_probabilities = torch.sum(probabilities)
+    if world_size > 1:
+        dist.all_reduce(sum_probabilities)
+    probabilities = probabilities / sum_probabilities
 
     for _ in range(iterations):
         # normalize rows
-        probabilities /= torch.sum(probabilities, dim=1, keepdim=True)
+        row_sum = torch.sum(probabilities, dim=1, keepdim=True)
+        if world_size > 1:
+            dist.all_reduce(row_sum)
+        probabilities /= row_sum
         probabilities /= num_prototypes
+
         # normalize columns
         probabilities /= torch.sum(probabilities, dim=0, keepdim=True)
         probabilities /= num_targets
@@ -70,13 +103,13 @@ class MSNLoss(nn.Module):
     """Implementation of the loss function from MSN [0].
 
     Code inspired by [1].
-    
+
     - [0]: Masked Siamese Networks, 2022, https://arxiv.org/abs/2204.07141
     - [1]: https://github.com/facebookresearch/msn
 
     Attributes:
         temperature:
-            Similarities between anchors and targets are scaled by the inverse of 
+            Similarities between anchors and targets are scaled by the inverse of
             the temperature. Must be in (0, 1].
         sinkhorn_iterations:
             Number of sinkhorn normalization iterations on the targets.
@@ -106,21 +139,23 @@ class MSNLoss(nn.Module):
         temperature: float = 0.1,
         sinkhorn_iterations: int = 3,
         me_max_weight: float = 1.0,
+        gather_distributed: bool = False,
     ):
         super().__init__()
         self.temperature = temperature
         self.sinkhorn_iterations = sinkhorn_iterations
         self.me_max_weight = me_max_weight
-    
+        self.gather_distributed = gather_distributed
+
     def forward(
         self,
-        anchors: torch.Tensor, 
-        targets: torch.Tensor, 
+        anchors: torch.Tensor,
+        targets: torch.Tensor,
         prototypes: torch.Tensor,
         target_sharpen_temperature: float = 0.25,
     ) -> torch.Tensor:
         """Computes the MSN loss for a set of anchors, targets and prototypes.
-        
+
         Args:
             anchors:
                 Tensor with shape (batch_size * anchor_views, dim).
@@ -133,8 +168,8 @@ class MSNLoss(nn.Module):
 
         Returns:
             Mean loss over all anchors.
-        """
 
+        """
         num_views = anchors.shape[0] // targets.shape[0]
         anchors = F.normalize(anchors, dim=1)
         targets = F.normalize(targets, dim=1)
@@ -142,13 +177,17 @@ class MSNLoss(nn.Module):
 
         # anchor predictions
         anchor_probs = prototype_probabilities(anchors, prototypes, temperature=self.temperature)
-        
+
         # target predictions
         with torch.no_grad():
             target_probs = prototype_probabilities(targets, prototypes, temperature=self.temperature)
             target_probs = sharpen(target_probs, temperature=target_sharpen_temperature)
             if self.sinkhorn_iterations > 0:
-                target_probs = sinkhorn(target_probs, iterations=self.sinkhorn_iterations)
+                target_probs = sinkhorn(
+                    probabilities=target_probs,
+                    iterations=self.sinkhorn_iterations,
+                    gather_distributed=self.gather_distributed
+                )
             target_probs = target_probs.repeat((num_views, 1))
 
         # cross entropy loss
