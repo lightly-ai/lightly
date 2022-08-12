@@ -103,7 +103,18 @@ class MAEEncoder(vision_transformer.Encoder):
         return self.ln(self.layers(self.dropout(input)))
 
     def interpolate_pos_encoding(self, input: torch.Tensor):
-        # copy from https://github.com/facebookresearch/msn/blob/4388dc1eadbe3042b85d3296d41b9b207656e043/src/deit.py#L291
+        """Returns the interpolated positional embedding for the given input.
+
+        This function interpolates self.pos_embedding for all tokens in the input,
+        ignoring the class token. This allows encoding variable sized images.
+
+        Args:
+            input: 
+               Input tensor with shape (batch_size, num_sequences).
+
+        """
+        # code copied from:
+        # https://github.com/facebookresearch/msn/blob/4388dc1eadbe3042b85d3296d41b9b207656e043/src/deit.py#L291
         npatch = input.shape[1] - 1
         N = self.pos_embedding.shape[1] - 1
         if npatch == N:
