@@ -362,6 +362,43 @@ you might want to change:
     )
 
 
+**Checkpoints** from your training process will be stored in the output directory.
+You can use such a checkpoint in future worker runs by copying the checkpoint to
+a `shared directory` and then passing the checkpoint filename to the container.
+
+.. code-block:: console
+    :emphasize-lines: 3
+    :caption: Starting the worker with a `shared directory`
+
+    docker run --gpus all --rm -it \
+        -v {OUTPUT_DIR}:/home/output_dir \
+        -v {SHARED_DIR}:/home/shared_dir \
+        lightly/worker:latest \
+        token=MY_AWESOME_TOKEN \
+        worker.worker_id=MY_WORKER_ID
+
+
+.. code-block:: python
+    :caption: Scheduling a job with a pre-trained checkpoint
+    :emphasize-lines: 13
+
+    client.schedule_compute_worker_run(
+        worker_config={
+            "enable_corruptness_check": True,
+            "remove_exact_duplicates": True,
+            "enable_training": False, # set to True if you want to continue training
+            "pretagging": False,
+            "pretagging_debug": False,
+            "method": "coreset",
+            "stopping_condition": {
+                "n_samples": 0.1,
+                "min_distance": -1
+            }
+            "checkpoint": "my_checkpoint_file.ckpt"
+        }
+    )
+
+
 Specifying Relevant Files
 -------------------------
 Oftentimes not all files in a bucket are relevant. In that case, it's possible
