@@ -1,3 +1,13 @@
+import json
+import unittest
+from typing import Dict, Any
+from unittest import mock
+
+from omegaconf import DictConfig, OmegaConf
+
+from lightly.openapi_generated.swagger_client import DockerWorkerSelectionConfig, DockerWorkerSelectionConfigEntry, DockerWorkerSelectionInputType, \
+    DockerWorkerSelectionStrategyType, ApiClient, DockerApi, DockerWorkerSelectionConfigEntryInput, DockerWorkerSelectionStrategyThresholdOperation, \
+    DockerWorkerSelectionInputPredictionsName, DockerWorkerSelectionConfigEntryStrategy, DockerWorkerConfig, DockerWorkerType
 from lightly.openapi_generated.swagger_client.models.docker_run_data import DockerRunData
 from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import DockerRunScheduledData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
@@ -66,3 +76,42 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
         assert len(runs) > 0
         assert all(isinstance(run, DockerRunScheduledData) for run in runs)
         assert all(run.dataset_id == dataset_id for run in runs)
+
+    def _check_if_openapi_generated_obj_is_valid(self, obj) -> Any:
+        api_client = ApiClient()
+
+        obj_as_json = json.dumps(api_client.sanitize_for_serialization(obj))
+
+        mocked_response = mock.MagicMock()
+        mocked_response.data = obj_as_json
+        obj_api = api_client.deserialize(mocked_response, type(obj).__name__)
+
+        self.assertDictEqual(obj.to_dict(), obj_api.to_dict())
+
+        return obj_api
+
+    def test_selection_config(self):
+        selection_config = DockerWorkerSelectionConfig(
+            n_samples=1,
+            strategies=[
+                DockerWorkerSelectionConfigEntry(
+                    input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.EMBEDDINGS),
+                    strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.DIVERSIFY, stopping_condition_minimum_distance=-1)
+                ),
+                DockerWorkerSelectionConfigEntry(
+                    input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.SCORES, task="my-classification-task", score="uncertainty_margin"),
+                    strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.WEIGHTS)
+                ),
+                DockerWorkerSelectionConfigEntry(
+                    input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.METADATA, key="lightly.sharpness"),
+                    strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.THRESHOLD, threshold=20, operation=DockerWorkerSelectionStrategyThresholdOperation.BIGGER_EQUAL)
+                ),
+                DockerWorkerSelectionConfigEntry(
+                    input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.PREDICTIONS, task="my_object_detection_task", name=DockerWorkerSelectionInputPredictionsName.CLASS_DISTRIBUTION),
+                    strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.BALANCE, target= {"Ambulance": 0.2, "Bus": 0.4})
+                )
+            ]
+        )
+        config = DockerWorkerConfig(worker_type=DockerWorkerType.FULL, selection=selection_config)
+
+        config_api = self._check_if_openapi_generated_obj_is_valid(config)

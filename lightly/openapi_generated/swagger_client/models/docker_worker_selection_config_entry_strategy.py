@@ -33,23 +33,43 @@ class DockerWorkerSelectionConfigEntryStrategy(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'type': 'DockerWorkerSelectionStrategyType'
+        'type': 'DockerWorkerSelectionStrategyType',
+        'stopping_condition_minimum_distance': 'float',
+        'threshold': 'float',
+        'operation': 'DockerWorkerSelectionStrategyThresholdOperation',
+        'target': 'object'
     }
 
     attribute_map = {
-        'type': 'type'
+        'type': 'type',
+        'stopping_condition_minimum_distance': 'stopping_condition_minimum_distance',
+        'threshold': 'threshold',
+        'operation': 'operation',
+        'target': 'target'
     }
 
-    def __init__(self, type=None, _configuration=None):  # noqa: E501
+    def __init__(self, type=None, stopping_condition_minimum_distance=None, threshold=None, operation=None, target=None, _configuration=None):  # noqa: E501
         """DockerWorkerSelectionConfigEntryStrategy - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._type = None
+        self._stopping_condition_minimum_distance = None
+        self._threshold = None
+        self._operation = None
+        self._target = None
         self.discriminator = None
 
         self.type = type
+        if stopping_condition_minimum_distance is not None:
+            self.stopping_condition_minimum_distance = stopping_condition_minimum_distance
+        if threshold is not None:
+            self.threshold = threshold
+        if operation is not None:
+            self.operation = operation
+        if target is not None:
+            self.target = target
 
     @property
     def type(self):
@@ -73,6 +93,90 @@ class DockerWorkerSelectionConfigEntryStrategy(object):
             raise ValueError("Invalid value for `type`, must not be `None`")  # noqa: E501
 
         self._type = type
+
+    @property
+    def stopping_condition_minimum_distance(self):
+        """Gets the stopping_condition_minimum_distance of this DockerWorkerSelectionConfigEntryStrategy.  # noqa: E501
+
+
+        :return: The stopping_condition_minimum_distance of this DockerWorkerSelectionConfigEntryStrategy.  # noqa: E501
+        :rtype: float
+        """
+        return self._stopping_condition_minimum_distance
+
+    @stopping_condition_minimum_distance.setter
+    def stopping_condition_minimum_distance(self, stopping_condition_minimum_distance):
+        """Sets the stopping_condition_minimum_distance of this DockerWorkerSelectionConfigEntryStrategy.
+
+
+        :param stopping_condition_minimum_distance: The stopping_condition_minimum_distance of this DockerWorkerSelectionConfigEntryStrategy.  # noqa: E501
+        :type: float
+        """
+
+        self._stopping_condition_minimum_distance = stopping_condition_minimum_distance
+
+    @property
+    def threshold(self):
+        """Gets the threshold of this DockerWorkerSelectionConfigEntryStrategy.  # noqa: E501
+
+
+        :return: The threshold of this DockerWorkerSelectionConfigEntryStrategy.  # noqa: E501
+        :rtype: float
+        """
+        return self._threshold
+
+    @threshold.setter
+    def threshold(self, threshold):
+        """Sets the threshold of this DockerWorkerSelectionConfigEntryStrategy.
+
+
+        :param threshold: The threshold of this DockerWorkerSelectionConfigEntryStrategy.  # noqa: E501
+        :type: float
+        """
+
+        self._threshold = threshold
+
+    @property
+    def operation(self):
+        """Gets the operation of this DockerWorkerSelectionConfigEntryStrategy.  # noqa: E501
+
+
+        :return: The operation of this DockerWorkerSelectionConfigEntryStrategy.  # noqa: E501
+        :rtype: DockerWorkerSelectionStrategyThresholdOperation
+        """
+        return self._operation
+
+    @operation.setter
+    def operation(self, operation):
+        """Sets the operation of this DockerWorkerSelectionConfigEntryStrategy.
+
+
+        :param operation: The operation of this DockerWorkerSelectionConfigEntryStrategy.  # noqa: E501
+        :type: DockerWorkerSelectionStrategyThresholdOperation
+        """
+
+        self._operation = operation
+
+    @property
+    def target(self):
+        """Gets the target of this DockerWorkerSelectionConfigEntryStrategy.  # noqa: E501
+
+
+        :return: The target of this DockerWorkerSelectionConfigEntryStrategy.  # noqa: E501
+        :rtype: object
+        """
+        return self._target
+
+    @target.setter
+    def target(self, target):
+        """Sets the target of this DockerWorkerSelectionConfigEntryStrategy.
+
+
+        :param target: The target of this DockerWorkerSelectionConfigEntryStrategy.  # noqa: E501
+        :type: object
+        """
+
+        self._target = target
 
     def to_dict(self):
         """Returns the model properties as a dict"""
