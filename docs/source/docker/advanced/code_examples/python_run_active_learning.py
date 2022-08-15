@@ -1,9 +1,10 @@
 import json
 import lightly
-from lightly.openapi_generated.swagger_client import DockerWorkerSelectionConfig, DockerWorkerSelectionConfigEntry, DockerWorkerSelectionInputType, \
-    DockerWorkerSelectionStrategyType
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
+from lightly.openapi_generated.swagger_client import DockerWorkerSelectionInputType, DockerWorkerSelectionStrategyType, DockerWorkerSelectionConfig, \
+    DockerWorkerSelectionConfigEntry, DockerWorkerSelectionConfigEntryInput, DockerWorkerSelectionConfigEntryStrategy, \
+    DockerWorkerSelectionInputPredictionsName
 
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
@@ -65,6 +66,50 @@ client.set_azure_config(
     purpose=DatasourcePurpose.LIGHTLY
 )
 
+# in this example we use a diversifying selection strategy (CORESET)
+selection_config = DockerWorkerSelectionConfig(
+    n_samples=100,
+    strategies=[
+        DockerWorkerSelectionConfigEntry(
+            input=DockerWorkerSelectionConfigEntryInput(
+                type=DockerWorkerSelectionInputType.EMBEDDINGS
+            ),
+            strategy=DockerWorkerSelectionConfigEntryStrategy(
+                type=DockerWorkerSelectionStrategyType.DIVERSIFY
+            )
+        ),
+        DockerWorkerSelectionConfigEntry(
+            input=DockerWorkerSelectionConfigEntryInput(
+                type=DockerWorkerSelectionInputType.SCORES,
+                task="my_object_detection_task", # change to your task
+                score="uncertainty_entropy" # change to your preferred score
+            ),
+            strategy=DockerWorkerSelectionConfigEntryStrategy(
+                type=DockerWorkerSelectionStrategyType.WEIGHTS
+            )
+        ),
+        DockerWorkerSelectionConfigEntry(
+            input=DockerWorkerSelectionConfigEntryInput(
+                type=DockerWorkerSelectionInputType.PREDICTIONS,
+                task="my_object_detection_task", 
+                name=DockerWorkerSelectionInputPredictionsName.CLASS_DISTRIBUTION
+            ),
+            strategy=DockerWorkerSelectionConfigEntryStrategy(
+                type=DockerWorkerSelectionStrategyType.BALANCE,
+                target={
+                    "car": 0.1, # add your own classes here (defined in your `schema.json`)
+                    "bicycle": 0.5, 
+                    "bus": 0.1, 
+                    "motorcycle": 0.1, 
+                    "person": 0.1, 
+                    "train": 0.05, 
+                    "truck": 0.05
+                }
+            )
+        )
+    ]
+)
+
 # Schedule the docker run with 
 #  - "active_learning.task_name" set to your task name
 #  - "method" set to "coral"
@@ -78,19 +123,7 @@ client.schedule_compute_worker_run(
         "pretagging": False,
         "pretagging_debug": False,
     },
-    selection_config=DockerWorkerSelectionConfig(
-        n_samples=50,
-        strategies=[
-            DockerWorkerSelectionConfigEntry(
-                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.EMBEDDINGS),
-                strategy=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionStrategyType.DIVERSIFY, stopping_condition_minimum_distance=-1)
-            ),
-            DockerWorkerSelectionConfigEntry(
-                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.SCORES, "task": "my-classification-task", "score": "uncertainty_margin"),
-                strategy=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionStrategyType.WEIGHTS)
-            )
-        ]
-    ).__dict__,
+    selection_config=selection_config,
     lightly_config={
         'loader': {
             'batch_size': 16,
