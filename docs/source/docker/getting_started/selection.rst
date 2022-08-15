@@ -4,6 +4,7 @@ Selection
 =========
 
 Lightly allows you to specify the subset to be selected based on many different objectives.
+
 E.g. you can specify that the images in the subset should be visually diverse, be images the model struggles with,
 should only be sharp images, or have a certain distribution of classes, e.g. be 50% from sunny, 30% from cloudy and 20% from rainy weather.
 
@@ -13,6 +14,18 @@ Each of these objectives is defined by a `strategy`. A strategy consists of two 
 - The strategy itself defines the objective to apply on the input data.
 
 Lightly allows you to specify many different objectives at the same time. The algorithms tries to fulfil all objectives simultaneously.
+
+Lightly's data selection algorithms are supporting three types of input:
+
+- **Embeddings** (either automatically computed using our OSS framework or provided by your model)
+- (Optional)  :ref:`Model predictions <docker-datasource-predictions>` such as classifications, object detections or segmentations
+- (Optional) :ref:`Custom metadata <docker-datasource-metadata>` can be anything you can encode in a json file (from numbers to categorical strings)
+
+.. warning:: Using the selection config is a new feature and **selecting a 
+             proportion of samples (e.g. 50%) is not supported at the moment**, 
+             but will be added soon.
+
+
 
 Prerequisites
 -------------
@@ -28,7 +41,7 @@ Scheduling a Lightly Worker run with selection
 
 For scheduling a Lightly Worker run with a specific selection,
 you can use the python client and its :py:meth:`lightly.api.ApiWorkflowClient.schedule_compute_worker_run` method.
-You specify the selection with the `selection_config` argument.
+You specify the selection with the :code:`selection_config` argument.
 
 Here is example for scheduling a Lightly worker run with a specific selection configuration:
 
@@ -42,6 +55,7 @@ Selection Configuration
 The configuration of a selection needs to specify both the maximum number of samples to select and the strategies:
 
 .. code-block:: python
+    :emphasize-lines: 2
 
     DockerWorkerSelectionConfig(
         n_samples=50,
@@ -50,68 +64,69 @@ The configuration of a selection needs to specify both the maximum number of sam
                 input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.CHANGEME, extra parameters),
                 strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.CHANGEME, extra parameters)
             ),
-            ... more entries
+            ... more strategies
         ]
     )
 
-The variable `n_samples` must be a positive integer specifying the absolute number of samples which should be selected.
-Specifying a proportion of samples (e.g. 50%) is not supported at the moment, but will be added soon.
+The variable :code:`n_samples` must be a positive integer specifying the absolute number of samples which should be selected.
 
-Each strategy is specified by a `DockerWorkerSelectionConfigEntry`, which is always made up of an input and the actual strategy.
-The input or `DockerWorkerSelectionConfigEntryInput` can be one of the following:
+Each strategy is specified by a :code:`DockerWorkerSelectionConfigEntry`, which is always made up of an :code:`input` and the actual :code:`strategy`.
+
+.. code-block:: python
+
+    DockerWorkerSelectionConfigEntry(
+        input=...,
+        strategy=...
+    ),
+
+
+Selection Input
+^^^^^^^^^^^^^^^^
+
+The input or :code:`DockerWorkerSelectionConfigEntryInput` can be one of the following:
 
 .. tabs::
 
     .. tab:: EMBEDDINGS
 
-        They are a vector of numbers for each element. The can be defined easily as input:
+        If you don't provide your own
+        embeddings the `lightly OSS framework for self supervised learning <https://github.com/lightly-ai/lightly>`_ is used. It generates 32-dimensional
+        embeddings with default settings using self-supervised learning. 
+        The embedings are a vector of numbers for each element. 
+        
+        You can define embeddings as input using:
 
         .. code-block:: python
 
-            input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.EMBEDDINGS)
+            input=DockerWorkerSelectionConfigEntryInput(
+                type=DockerWorkerSelectionInputType.EMBEDDINGS
+            )
 
     .. tab:: SCORES
 
-        They are a scalar number for each element. They are specified by the prediction task and the scorer:
+        They are a scalar number for each element. They are **specified by the prediction task and the scorer**:
 
         .. code-block:: python
 
-            input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.SCORES, task="lightly_pretagging", score="uncertainty_entropy")
+            # using your own predictions
+            input=DockerWorkerSelectionConfigEntryInput(
+                type=DockerWorkerSelectionInputType.SCORES,
+                task="YOUR_TASK_NAME",
+                score="uncertainty_entropy"
+            )
+
+            # using the lightly pretagging model
+            input=DockerWorkerSelectionConfigEntryInput(
+                type=DockerWorkerSelectionInputType.SCORES,
+                task="lightly_pretagging",
+                score="uncertainty_entropy"
+            )
 
         You can specify one of the tasks you specified in your datasource, see :ref:`docker-datasource-predictions` for reference.
-        Alternatively, you can specify "lightly_pretagging" as the task to use object detections created by the Lightly worker itself.
+        Alternatively, you can use **lightly_pretagging** as the task to use object detections created by the Lightly Worker itself.
         See :ref:`docker-pretagging` for reference.
-        The supported scores are explained here :ref:`lightly-active-learning-scorers`.
 
-    .. tab:: METADATA
-
-        Metadata is specified by the metadata key. It can be divided across two dimensions:
-
-        - Custom metadata vs. Lightly metadata
-
-            Custom metadata must be specified when creating a datasource and you must have uploaded metadata to it.
-            See :ref:`docker-datasource-metadata` for reference. An example configuration:
-
-            .. code-block:: python
-
-                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.METADATA, key="weather.temperature")
-
-            Use as key the “path” you specified when creating the metadata in the datasource.
-
-
-            Lightly metadata, on the contrary, is calculated out of image data on the fly. It is specified by appending a `.lightly` to the key.
-
-            An example configuration:
-
-            .. code-block:: python
-
-                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.METADATA, key="lightly.sharpness")
-
-        - Numerical metadata vs. categorical metadata
-
-            Numerical metadata is a number, e.g. `lightly.sharpness` or `weather.temperature`. It is usually real-valued.
-            Categorical metadata is from a discrete number of categories, e.g. `video.location_id` or `weather.description`.
-            It can be either an integer or a string.
+        The supported score types are explained here :ref:`lightly-active-learning-scorers`.
 
     .. tab:: PREDICTIONS
 
@@ -119,20 +134,75 @@ The input or `DockerWorkerSelectionConfigEntryInput` can be one of the following
 
         The class distribution probability vector of predictions can be used as well. Here, three case have to be distinguished:
 
-            - The predictions are classifications → The probability vector of each sample's prediction is used directly.
+            - **Image Classification** → The probability vector of each sample's prediction is used directly.
 
-            - The predictions are object detections → The probability vector of the class predictions of all object in an image are summed up.
+            - **Object Detection** → The probability vector of the class predictions of all objects in an image are summed up.
 
-            - The predictions are object detections AND the selection is on object level → Each sample is a cropped object and has a single object prediction, whose probability vector is used.
+            - **Object Detection** and using the **Object Level** workflow → Each sample is a cropped object and has a single object prediction, whose probability vector is used.
 
-        This input is specified using the task name. Futhermore, it should be remembered, which class names are used for this task, as they are needid in later steps.
+        This input is **specified using the prediction task**. Futhermore, it should be remembered, which class names are used for this task, as they are needed in later steps.
+        
         If you use your own predictions (see :ref:`docker-datasource-predictions`), the task name and class names are taken from the specification in the prediction `schema.json`.
-        Alternatively, you use the Lightly pretagging and the class names are specified here: :ref:`docker-pretagging`. In that case the task name is `lightly_pretagging`.
+        
+        Alternatively, you can use the Lightly pretagging and the class names are specified here: :ref:`docker-pretagging`. In that case the task name is `lightly_pretagging`.
 
 
         .. code-block:: python
+            
+            # using your own predictions
+            input=DockerWorkerSelectionConfigEntryInput(
+                type=DockerWorkerSelectionInputType.PREDICTIONS,
+                task="my_object_detection_task",
+                name=DockerWorkerSelectionInputPredictionsName.CLASS_DISTRIBUTION
+            )
 
-            input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.PREDICTIONS, task="my_object_detection_task", name=DockerWorkerSelectionInputPredictionsName.CLASS_DISTRIBUTION))
+            # using the lightly pretagging model
+            input=DockerWorkerSelectionConfigEntryInput(
+                type=DockerWorkerSelectionInputType.PREDICTIONS,
+                task="lightly_pretagging",
+                name=DockerWorkerSelectionInputPredictionsName.CLASS_DISTRIBUTION
+            )
+
+    .. tab:: METADATA
+
+        Metadata is specified by the metadata key. It can be divided across two dimensions:
+
+        - **Custom Metadata** vs. **Lightly metadata**
+
+            **Custom Metadata** must be specified when creating a datasource and you must have uploaded metadata to it.
+            See :ref:`docker-datasource-metadata` for reference. An example configuration:
+
+            .. code-block:: python
+
+                input=DockerWorkerSelectionConfigEntryInput(
+                    type=DockerWorkerSelectionInputType.METADATA,
+                    key="weather.temperature"
+                )
+
+            Use as key the “path” you specified when creating the metadata in the datasource.
+
+
+            **Lightly Metadata**, on the contrary, is calculated out of image data on the fly. It is specified by appending a :code:`lightly` to the key.
+
+            An example configuration:
+
+            .. code-block:: python
+
+                input=DockerWorkerSelectionConfigEntryInput(
+                    type=DockerWorkerSelectionInputType.METADATA,
+                    key="lightly.sharpness"
+                )
+
+        - **Numerical** vs. **Categorical** values
+
+            **Numerical** metadata are numbers (int, float), e.g. `lightly.sharpness` or `weather.temperature`. It is usually real-valued.
+            
+            **Categorical** metadata is from a discrete number of categories, e.g. `video.location_id` or `weather.description`.
+            It can be either an integer or a string.
+
+
+Selection Strategy
+^^^^^^^^^^^^^^^^^^^
 
 There are several types of selection strategies, all trying to reach different objectives:
 
