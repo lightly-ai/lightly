@@ -3,7 +3,7 @@
 Selection
 =========
 
-Lightly allows you to specify the subset to be selected based on many different objectives.
+Lightly allows you to specify the subset to be selected based on several objectives.
 
 E.g. you can specify that the images in the subset should be visually diverse, be images the model struggles with,
 should only be sharp images, or have a certain distribution of classes, e.g. be 50% from sunny, 30% from cloudy and 20% from rainy weather.
@@ -13,7 +13,7 @@ Each of these objectives is defined by a `strategy`. A strategy consists of two 
 - The input tells on which data the objective is defined on. It defines a scalar number or vector for each image in the dataset.
 - The strategy itself defines the objective to apply on the input data.
 
-Lightly allows you to specify many different objectives at the same time. The algorithms tries to fulfil all objectives simultaneously.
+Lightly allows you to specify several objectives at the same time. The algorithms try to fulfil all objectives simultaneously.
 
 Lightly's data selection algorithms are supporting three types of input:
 
@@ -43,7 +43,7 @@ For scheduling a Lightly Worker run with a specific selection,
 you can use the python client and its :py:meth:`lightly.api.ApiWorkflowClient.schedule_compute_worker_run` method.
 You specify the selection with the :code:`selection_config` argument.
 
-Here is example for scheduling a Lightly worker run with a specific selection configuration:
+Here is an example for scheduling a Lightly worker run with a specific selection configuration:
 
 .. literalinclude:: ../integration/examples/trigger_job.py
 
@@ -90,9 +90,9 @@ The input or :code:`DockerWorkerSelectionConfigEntryInput` can be one of the fol
     .. tab:: EMBEDDINGS
 
         If you don't provide your own
-        embeddings the `lightly OSS framework for self supervised learning <https://github.com/lightly-ai/lightly>`_ is used. It generates 32-dimensional
+        embeddings, the `lightly OSS framework for self supervised learning <https://github.com/lightly-ai/lightly>`_ is used. It generates 32-dimensional
         embeddings with default settings using self-supervised learning. 
-        The embedings are a vector of numbers for each element. 
+        The embeddings are a vector of numbers for each element. 
         
         You can define embeddings as input using:
 
@@ -140,11 +140,11 @@ The input or :code:`DockerWorkerSelectionConfigEntryInput` can be one of the fol
 
             - **Object Detection** and using the **Object Level** workflow → Each sample is a cropped object and has a single object prediction, whose probability vector is used.
 
-        This input is **specified using the prediction task**. Futhermore, it should be remembered, which class names are used for this task, as they are needed in later steps.
+        This input is **specified using the prediction task**. Furthermore, it should be remembered, which class names are used for this task, as they are needed in later steps.
         
         If you use your own predictions (see :ref:`docker-datasource-predictions`), the task name and class names are taken from the specification in the prediction `schema.json`.
         
-        Alternatively, you can use the Lightly pretagging and the class names are specified here: :ref:`docker-pretagging`. In that case the task name is `lightly_pretagging`.
+        Alternatively, you can use the Lightly pretagging and the class names are specified here: :ref:`docker-pretagging`. In that case, the task name is `lightly_pretagging`.
 
 
         .. code-block:: python
@@ -214,7 +214,7 @@ They can be created using the :code:`DockerWorkerSelectionConfigEntryStrategy` o
         Use this strategy to **select samples such that they have a high distance from each other**.
         This strategy requires the input to be a NxD matrix of numbers.
 
-        Can be use with **EMBEDDINGS**, **SCORES** and **numerical METADATA**. It is specified easily:
+        Can be used with **EMBEDDINGS**, **SCORES** and **numerical METADATA**. It is specified easily:
 
         .. code-block:: python
 
@@ -238,7 +238,7 @@ They can be created using the :code:`DockerWorkerSelectionConfigEntryStrategy` o
         closer to each other than 0.2. 
         This allows you to specify the minimum allowed distance between two image
         embeddings in the output dataset. Since we normalize the input embeddings
-        to unit length this value should be between 0 and 2.0.
+        to unit length, this value should be between 0 and 2.0.
         This is often a convenient method when working with different data sources and trying to combine them in a balanced way.
         If you want to use this stopping condition to stop the selection early, make sure that you allow selecting enough samples by setting :code:`n_samples` high enough.
 
@@ -277,9 +277,9 @@ They can be created using the :code:`DockerWorkerSelectionConfigEntryStrategy` o
         The objective of this strategy to **select samples such the distribution of classes in them is as close to a target distribution as possible**.
 
         E.g. the samples chosen should have 50% sunny and 10% rainy weather.
-        Or the objects of the samples chosen should be 20% ambulance and 40% buses.
+        Or, the objects of the samples chosen should be 20% ambulance and 40% buses.
 
-        Can be used with **PREDICIONS** and **categorical METADATA**.
+        Can be used with **PREDICTIONS** and **categorical METADATA**.
 
         .. code-block:: python
 
@@ -348,6 +348,8 @@ Here are examples for the full configuration including the input for several obj
                 ]
             )
 
+        .. note:: This works as well for Image Classifciation or Segmentation!
+
     .. tab:: Visual Diversity and Active Learning (CORAL)
 
         For combining two strategies, just specify both of them:
@@ -414,7 +416,8 @@ Here are examples for the full configuration including the input for several obj
                     DockerWorkerSelectionConfigEntry(
                         input=DockerWorkerSelectionConfigEntryInput(
                             type=DockerWorkerSelectionInputType.SCORES,
-                            task="my_object_detection_task", score="object_frequency"
+                            task="my_object_detection_task", # change to your task
+                            score="object_frequency"
                         ),
                         strategy=DockerWorkerSelectionConfigEntryStrategy(
                             type=DockerWorkerSelectionStrategyType.THRESHOLD,
@@ -437,7 +440,7 @@ Here are examples for the full configuration including the input for several obj
                     DockerWorkerSelectionConfigEntry(
                         input=DockerWorkerSelectionConfigEntryInput(
                             type=DockerWorkerSelectionInputType.PREDICTIONS,
-                            task="lightly_pretagging",
+                            task="lightly_pretagging", # (optional) change to your task
                             name=DockerWorkerSelectionInputPredictionsName.CLASS_DISTRIBUTION
                         ),
                         strategy=DockerWorkerSelectionConfigEntryStrategy(
