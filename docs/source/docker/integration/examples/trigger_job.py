@@ -1,13 +1,13 @@
 from lightly.openapi_generated.swagger_client import DockerWorkerSelectionInputType, DockerWorkerSelectionStrategyType, DockerWorkerSelectionConfig, \
-    DockerWorkerSelectionConfigEntry
+    DockerWorkerSelectionConfigEntry, DockerWorkerSelectionConfigEntryInput, DockerWorkerSelectionConfigEntryStrategy, \
+    DockerWorkerSelectionStrategyThresholdOperation, DockerWorkerSelectionInputPredictionsName
 
-# You can reuse the client from the previous script. If you want to create a new
+# You can reuse the client previous scripts. If you want to create a new
 # one you can uncomment the following line:
 # client = lightly.api.ApiWorkflowClient(token="TOKEN", dataset_id="DATASET_ID")
 
-# Schedule the compute run using our custom config.
-# We show here the full default config so you can easily edit the
-# values according to your needs.
+# Schedule the compute run using a custom config.
+# You can easily edit the values according to your needs.
 
 
 client.schedule_compute_worker_run(
@@ -17,14 +17,14 @@ client.schedule_compute_worker_run(
         'enable_training': False,
     },
     selection_config=DockerWorkerSelectionConfig(
-        n_samples=0.1,
+        n_samples=50,
         strategies=[
             DockerWorkerSelectionConfigEntry(
-                input={"type": DockerWorkerSelectionInputType.EMBEDDINGS},
-                strategy={"type": DockerWorkerSelectionStrategyType.DIVERSIFY}
-            )
+                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.EMBEDDINGS),
+                strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.DIVERSIFY, stopping_condition_minimum_distance=-1)
+            ),
         ]
-    ).__dict__
+    ),
     lightly_config={
         'loader': {
             'batch_size': 16,

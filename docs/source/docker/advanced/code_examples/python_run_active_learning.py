@@ -79,15 +79,15 @@ client.schedule_compute_worker_run(
         "pretagging_debug": False,
     },
     selection_config=DockerWorkerSelectionConfig(
-        n_samples=0.1,
+        n_samples=50,
         strategies=[
             DockerWorkerSelectionConfigEntry(
-                input={"type": DockerWorkerSelectionInputType.EMBEDDINGS},
-                strategy={"type": DockerWorkerSelectionStrategyType.DIVERSIFY, "stopping_condition_minimum_distance": -1}
+                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.EMBEDDINGS),
+                strategy=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionStrategyType.DIVERSIFY, stopping_condition_minimum_distance=-1)
             ),
             DockerWorkerSelectionConfigEntry(
-                input={"type": DockerWorkerSelectionInputType.SCORES, "task": "my-classification-task", "score": "uncertainty_margin"},
-                strategy={"type": DockerWorkerSelectionStrategyType.WEIGHTS}
+                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.SCORES, "task": "my-classification-task", "score": "uncertainty_margin"),
+                strategy=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionStrategyType.WEIGHTS)
             )
         ]
     ).__dict__,

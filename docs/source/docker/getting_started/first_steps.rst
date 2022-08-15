@@ -243,14 +243,14 @@ Now that everything is in place, let's configure and run a simple job.
             "remove_exact_duplicates": True,
         }
         selection_config=DockerWorkerSelectionConfig(
-            n_samples=0.1,
+            n_samples=50,
             strategies=[
                 DockerWorkerSelectionConfigEntry(
-                    input={"type": DockerWorkerSelectionInputType.EMBEDDINGS},
-                    strategy={"type": DockerWorkerSelectionStrategyType.DIVERSIFY}
+                    input=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionInputType.EMBEDDINGS),
+                    strategy=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionStrategyType.DIVERSIFY)
                 )
             ]
-        ).__dict__
+        )
     )
 
 

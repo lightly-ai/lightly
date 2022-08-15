@@ -1,7 +1,7 @@
 import json
 import lightly
 from lightly.openapi_generated.swagger_client import DockerWorkerSelectionConfig, DockerWorkerSelectionConfigEntry, DockerWorkerSelectionInputType, \
-    DockerWorkerSelectionStrategyType
+    DockerWorkerSelectionStrategyType, DockerWorkerSelectionConfigEntryInput, DockerWorkerSelectionConfigEntryStrategy
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 
@@ -80,15 +80,15 @@ client.schedule_compute_worker_run(
         },
     },
     selection_config=DockerWorkerSelectionConfig(
-        n_samples=0.1,
+        n_samples=50,
         strategies=[
             DockerWorkerSelectionConfigEntry(
-                input={"type": DockerWorkerSelectionInputType.EMBEDDINGS},
-                strategy={"type": DockerWorkerSelectionStrategyType.DIVERSIFY}
+                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.EMBEDDINGS),
+                strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.DIVERSIFY)
             ),
             DockerWorkerSelectionConfigEntry(
-                input={"type": DockerWorkerSelectionInputType.SCORES, "task": "lightly_pretagging", "score": "uncertainty_entropy"},
-                strategy={"type": DockerWorkerSelectionStrategyType.WEIGHTS}
+                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.SCORES, task="my_object_detection_task", score="uncertainty_entropy"),
+                strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.WEIGHTS)
             )
         ]
     ).__dict__,
