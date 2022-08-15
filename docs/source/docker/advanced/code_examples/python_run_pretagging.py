@@ -2,6 +2,8 @@ import json
 import lightly
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
+from lightly.openapi_generated.swagger_client import DockerWorkerSelectionInputType, DockerWorkerSelectionStrategyType, DockerWorkerSelectionConfig, \
+    DockerWorkerSelectionConfigEntry, DockerWorkerSelectionConfigEntryInput, DockerWorkerSelectionConfigEntryStrategy
 
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
@@ -63,6 +65,21 @@ client.set_azure_config(
     purpose=DatasourcePurpose.LIGHTLY
 )
 
+# in this example we use a diversifying selection strategy (CORESET)
+selection_config = DockerWorkerSelectionConfig(
+    n_samples=100,
+    strategies=[
+        DockerWorkerSelectionConfigEntry(
+            input=DockerWorkerSelectionConfigEntryInput(
+                type=DockerWorkerSelectionInputType.EMBEDDINGS
+            ),
+            strategy=DockerWorkerSelectionConfigEntryStrategy(
+                type=DockerWorkerSelectionStrategyType.DIVERSIFY
+            )
+        )
+    ]
+)
+
 # Schedule the compute run using our custom config.
 # We show here the full default config so you can easily edit the
 # values according to your needs.
@@ -73,12 +90,8 @@ client.schedule_compute_worker_run(
         'enable_training': False,
         'pretagging': True,         # to enable pretagging
         'pretagging_debug': True,   # we also want debugging images in the report
-        'method': 'coreset',
-        'stopping_condition': {
-            'n_samples': 0.9,
-            'min_distance': -1
-        }
     },
+    selection_config=selection_config,
     lightly_config={
         'loader': {
             'batch_size': 128,

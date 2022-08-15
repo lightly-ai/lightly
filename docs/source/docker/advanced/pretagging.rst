@@ -86,13 +86,13 @@ Lightly Worker config: `pretagging=True`
 
 - `pretagging=True` enables the use of the pretagging model
 - `pretagging_debug=True` add a few images to the report for debugging showing the image with the bounding box predictions.
-- `pretagging_upload=True` enables uploading of the predictions to a configured datasource.
 
 
 A full Python script showing how to create such as job is shown here:
 
 .. literalinclude:: ./code_examples/python_run_pretagging.py
   :linenos:
+  :emphasize-lines: 92-93
   :language: python
 
 
