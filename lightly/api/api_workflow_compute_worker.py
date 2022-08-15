@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, Union
 
-from lightly.openapi_generated.swagger_client import DockerWorkerSelectionConfig
+from lightly.openapi_generated.swagger_client import SelectionConfig
 from lightly.openapi_generated.swagger_client.models.create_docker_worker_registry_entry_request import (
     CreateDockerWorkerRegistryEntryRequest,
 )
@@ -65,7 +65,7 @@ class _ComputeWorkerMixin:
         worker_config: Optional[Dict[str, Any]] = None,
         lightly_config: Optional[Dict[str, Any]] = None,
         selection_config: Optional[
-            Union[Dict[str, Any], DockerWorkerSelectionConfig]
+            Union[Dict[str, Any], SelectionConfig]
         ] = None,
     ) -> str:
         """Creates a new configuration for a compute worker run.
@@ -100,7 +100,7 @@ class _ComputeWorkerMixin:
         worker_config: Optional[Dict[str, Any]] = None,
         lightly_config: Optional[Dict[str, Any]] = None,
         selection_config: Optional[
-            Union[Dict[str, Any], DockerWorkerSelectionConfig]
+            Union[Dict[str, Any], SelectionConfig]
         ] = None,
         priority: str = DockerRunScheduledPriority.MID,
     ) -> str:
