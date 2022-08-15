@@ -20,6 +20,7 @@ Results (5.3.2022):
 | DCL (*)       |        256 |    200 |              0.762 |   53.3 Min |      4.3 GByte |
 | DCLW (*)      |        256 |    200 |              0.755 |   53.7 Min |      4.3 GByte |
 | DINO (Res18)  |        256 |    200 |              0.736 |   86.5 Min |      4.1 GByte |
+| MSN (ViT-S)   |        256 |    200 |              0.743 |  187.9 Min |     42.5 GByte |
 | Moco          |        256 |    200 |              0.727 |   87.3 Min |      4.3 GByte |
 | NNCLR         |        256 |    200 |              0.726 |   86.8 Min |      4.2 GByte |
 | SimCLR        |        256 |    200 |              0.771 |   82.2 Min |      3.9 GByte |
@@ -31,6 +32,7 @@ Results (5.3.2022):
 | DCL (*)       |        256 |    800 |              0.816 |  213.1 Min |      4.3 GByte |
 | DCLW (*)      |        256 |    800 |              0.827 |  213.1 Min |      4.3 GByte |
 | DINO (Res18)  |        256 |    800 |              0.881 |  613.9 Min |      6.7 GByte |
+| MSN (ViT-S)   |        256 |    800 |              0.820 |  748.9 Min |     41.7 GByte |
 | Moco          |        256 |    800 |              0.832 |  322.8 Min |      4.2 GByte |
 | NNCLR         |        256 |    800 |              0.848 |  341.4 Min |      4.2 GByte |
 | SimCLR        |        256 |    800 |              0.858 |  324.8 Min |      3.9 GByte |

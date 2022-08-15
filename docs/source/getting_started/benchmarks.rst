@@ -5,6 +5,7 @@ and their performance on public datasets.
 
 
 We have benchmarks we regularly update for these datasets:
+
 - CIFAR10 `CIFAR10`_
 - ImageNette `ImageNette`_
 
@@ -19,15 +20,17 @@ Training a single model for 800 epochs on a V100 GPU takes around 5 hours.
 
 The current benchmark contains the following models:
 
-- MoCo
-- SimCLR
-- SimSiam
-- BarlowTwins
-- BYOL
-- NNCLR
-- DINO
-- SwAV
-
+- :ref:`BarlowTwins <barlowtwins>`
+- :ref:`BYOL <byol>`
+- :ref:`DCL <dcl>`
+- :ref:`DCLW <dcl>`
+- :ref:`DINO <dino>`
+- :ref:`MSN <msn>`
+- :ref:`MoCo <moco>`
+- :ref:`NNCLR <nnclr>`
+- :ref:`SimCLR <simclr>`
+- :ref:`SimSiam <simsiam>`
+- :ref:`SwAV <swav>`
 
 
 .. csv-table:: ImageNette benchmark results using kNN evaluation on the test set using 128x128 input resolution.
@@ -39,6 +42,7 @@ The current benchmark contains the following models:
    "DCL (*)", 800, 256, 0.816, "213.1 Min", "4.3 GByte"
    "DCLW (*)", 800, 256, 0.827, "213.1 Min", "4.3 GByte"
    "DINO (ResNet 18)", 800, 256, 0.881, "613.9 Min", "6.7 GByte"
+   "MSN (ViT-S)", 800, 256, 0.820, "748.9 Min", "41.7 GByte"
    "MoCo", 800, 256, 0.832, "322.8 Min", "4.2 GByte"
    "NNCLR", 800, 256, 0.848, "341.4 Min", "4.2 GByte"
    "SimCLR", 800, 256, 0.858, "324.8 Min", "3.9 GByte"
