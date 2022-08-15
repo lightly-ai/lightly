@@ -260,7 +260,9 @@ The command schedules a job with the following configurations:
 
 - :code:`remove_exact_duplicates` Removes exact duplicates if **True**.
 
-- The selection config will make the Lightly Worker choose 50 samples from the initial dataset such that the embeddings of the chosen samples are diverse.
+- The :code:`selection_config` will make the Lightly Worker choose 50 samples 
+  from the initial dataset that are as diverse as possible. This is done using the
+  embeddings which are automatically created during the run.
 
 For more details and options regarding the worker config, head to :ref:`docker-configuration`.
 For more details and options regarding the selection config, head to :ref:`worker-selection`.
@@ -286,6 +288,7 @@ epochs on the input images before embedding the images and selecting from them.
 
 
 .. code-block:: python
+    :emphasize-lines: 5
     :caption: Scheduling a job with self-supervised training from Python
 
     client.schedule_compute_worker_run(
@@ -314,13 +317,13 @@ Hence, for training and embedding the user can access all the settings from the 
 Here are some of the most common parameters for the **lightly_config**
 you might want to change:
 
-- :code:`trainer.max_epochs` determines the number of epochs your SSL model should be trained for.
 - :code:`loader.num_workers` specifies the number of background workers for data processing.
   -1 uses the number of available CPU cores. 
+- :code:`trainer.max_epochs` determines the number of epochs your SSL model should be trained for.
 
 
 .. code-block:: python
-    :emphasize-lines: 18, 29
+    :emphasize-lines: 13, 24
     :caption: Accessing the lightly parameters from Python
 
     client.schedule_compute_worker_run(
@@ -393,7 +396,7 @@ a `shared directory` and then passing the checkpoint filename to the container.
 
 .. code-block:: python
     :caption: Scheduling a job with a pre-trained checkpoint
-    :emphasize-lines: 13
+    :emphasize-lines: 8
 
     client.schedule_compute_worker_run(
         worker_config={
@@ -467,6 +470,7 @@ The output bucket should then look like this:
 The corresponding Python command to submit a job would then be as follows:
 
 .. code-block:: python
+    :emphasize-lines: 3
     :caption: Scheduling a job with relevant filenames from Python
 
     client.schedule_compute_worker_run(
