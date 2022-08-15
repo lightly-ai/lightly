@@ -482,14 +482,19 @@ Here are examples for the full configuration including the input for several obj
                 ]
             )
 
-Application of strategies
+Application of Strategies
 -------------------------
 
 Generally, the order in which the different strategies were defined in the config does not matter.
 In a first steps, all the thresholding strategies are applied.
 In the next step, all other strategies are applied in parallel.
 
-The Lightly optimizer tries to fulfil all strategies as good as possible. If it does not, there can be several reasons for it:
+.. note:: Note that different taskes can also be combined. E.g. you can use predictions 
+          from "YOUR_IMAGE_CLASSIFICATION_TASK" for one strategy combined with predictions from
+          "YOUR_OBJECT_DETECTION_TASK" from another strategy.
+
+The Lightly optimizer tries to fulfil all strategies as good as possible. 
+**Potential reasons why your objectives were not satisfied:**
 
 - **Tradeoff between different objectives.**
   The optimizer always has to tradeoff between different objectives.
@@ -500,13 +505,13 @@ The Lightly optimizer tries to fulfil all strategies as good as possible. If it 
   This applies especially for BALANCE: E.g. if there are only 10 images of ambulances in the input dataset and a total
   of 1000 images are selected, the output can only have a maximum of 1% ambulances. Thus a BALANCE target of having 20% ambulances cannot be fulfilled.
 
-- **Too little samples to choose*.*
+- **Too little samples to choose.**
   If the selection algorithm can only choose a small number of samples, it may not be possible to fulfil the objectives. You can solve this by increasing `n_samples`.
 
 Selection on object level
 -------------------------
 
-Lightly supports doing selection on object level, see :ref:`docker-object-level`.
+Lightly supports doing selection on :ref:`docker-object-level`.
 
 While embeddings are fully available, there are some limitations regarding the usage of METADATA and predictions for SCORES and PREDICTIONS as input:
 
