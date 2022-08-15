@@ -204,78 +204,99 @@ The input or :code:`DockerWorkerSelectionConfigEntryInput` can be one of the fol
 Selection Strategy
 ^^^^^^^^^^^^^^^^^^^
 
-There are several types of selection strategies, all trying to reach different objectives:
+There are several types of selection strategies, all trying to reach different objectives.
+They can be created using the :code:`DockerWorkerSelectionConfigEntryStrategy` object.
 
 .. tabs::
 
     .. tab:: DIVERSIFY
 
-        The objective of this strategy is to choose samples such that they have a high distance from each other.
+        Use this strategy to **select samples such that they have a high distance from each other**.
         This strategy requires the input to be a NxD matrix of numbers.
-        This applies to EMBEDDINGS, but also to SCORES and numerical METADATA. It is specified easily:
+
+        Can be use with **EMBEDDINGS**, **SCORES** and **numerical METADATA**. It is specified easily:
 
         .. code-block:: python
 
-            strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.DIVERSIFY)
+            strategy=DockerWorkerSelectionConfigEntryStrategy(
+                type=DockerWorkerSelectionStrategyType.DIVERSIFY
+            )
 
-        If you want to preserve a minimum distance between chosen samples, you can specify it as a stopping condition:
+        If you want to preserve a minimum distance between chosen samples, you 
+        can specify it as an additional stopping condition. The selection process
+        will stop as soon as the stopping criteria has been reached.
 
         .. code-block:: python
+            :emphasize-lines: 3
 
-            strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.DIVERSIFY, stopping_condition_minimum_distance=0.2)
+            strategy=DockerWorkerSelectionConfigEntryStrategy(
+                type=DockerWorkerSelectionStrategyType.DIVERSIFY,
+                stopping_condition_minimum_distance=0.2
+            )
 
-        Setting the stopping_condition_minimum_distance to 0.2 will remove all samples which are
-        closer to each other than 0.2. This allows you to specify the minimum allowed distance between two image
-        embeddings in the output dataset. After normalizing the input embeddings
-        to unit length, this value should be between 0 and 2.0.
+        Setting :code:`stopping_condition_minimum_distance=0.2` will remove all samples which are
+        closer to each other than 0.2. 
+        This allows you to specify the minimum allowed distance between two image
+        embeddings in the output dataset. Since we normalize the input embeddings
+        to unit length this value should be between 0 and 2.0.
         This is often a convenient method when working with different data sources and trying to combine them in a balanced way.
-        If you want to use this stopping condition to stop the selection early, make sure that you allow selecting enough samples by setting `n_samples` high enough.
+        If you want to use this stopping condition to stop the selection early, make sure that you allow selecting enough samples by setting :code:`n_samples` high enough.
 
     .. tab:: WEIGHTS
 
-        The objective of this strategy is to choose samples that have a high numerical value. It requires the input to be a Nx1 matrix of numbers,
-        which applies to SCORES and numerical METADATA. It can be specified easily:
+        The objective of this strategy is to **select samples that have a high numerical value**. 
+        It requires the input to be a Nx1 matrix of numbers.
+        
+        Can be used with **SCORES** and **numerical METADATA**. It can be specified easily:
 
         .. code-block:: python
 
-            strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.WEIGHTS)
+            strategy=DockerWorkerSelectionConfigEntryStrategy(
+                type=DockerWorkerSelectionStrategyType.WEIGHTS
+            )
 
     .. tab:: THRESHOLD
 
-        The objective of this strategy is to only choose samples that have a numerical value fulfilling a threshold criterion.
-        E.g. they should be bigger or smaller than a certain value. Like for weighting, this strategy requires the input to be a Nx1 matrix of numbers,
-        which applies to SCORES and numerical METADATA. It is specified as follows:
+        The objective of this strategy is to only **select samples that have a numerical value fulfilling a threshold criterion**.
+        E.g. they should be bigger or smaller than a certain value. Like for weighting, this strategy requires the input to be a Nx1 matrix of numbers.
+
+        Can be used with **SCORES** and **numerical METADATA**. It is specified as follows:
 
         .. code-block:: python
 
-            strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.THRESHOLD, threshold=20, operation=DockerWorkerSelectionStrategyThresholdOperation.BIGGER_EQUAL)
+            strategy=DockerWorkerSelectionConfigEntryStrategy(
+                type=DockerWorkerSelectionStrategyType.THRESHOLD,
+                threshold=20,
+                operation=DockerWorkerSelectionStrategyThresholdOperation.BIGGER_EQUAL
+            )
 
-        The allowed operations are SMALLER, SMALLER_EQUAL, BIGGER, BIGGER_EQUAL.
+        The allowed operations are :code:`SMALLER`, :code:`SMALLER_EQUAL`, :code:`BIGGER`, :code:`BIGGER_EQUAL`.
 
     .. tab:: BALANCE
 
-        The objective of this strategy to choose samples such the distribution of classes in them is as close to a target distribution as possible.
+        The objective of this strategy to **select samples such the distribution of classes in them is as close to a target distribution as possible**.
+
         E.g. the samples chosen should have 50% sunny and 10% rainy weather.
         Or the objects of the samples chosen should be 20% ambulance and 40% buses.
 
+        Can be used with **PREDICIONS** and **categorical METADATA**.
+
         .. code-block:: python
 
-            strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.BALANCE, target={"Ambulance": 0.2, "Bus": 0.4})
+            strategy=DockerWorkerSelectionConfigEntryStrategy(
+                type=DockerWorkerSelectionStrategyType.BALANCE,
+                target={
+                    "Ambulance": 0.2, # `Ambulance` should be a valid class in your `schema.json`
+                    "Bus": 0.4
+                }
+            )
 
         If the values of the target do not sum up to 1, the remainder is assumed to be the target for the other classes.
         In this example with 20% ambulance and 40% bus, there is the implicit assumption, that the remaining 40% should come from any other class,
         e.g. from cars, bicycles or pedestrians.
 
-        The keys of the target must correspond to the class names. The input to this selection strategy can be
+        Note that not specified classes do not influence the selection process!
 
-        - PREDICTIONS
-
-            In this case, the class names specified in the target must be the same as specified in the predictions.
-            See :ref:`worker-selection-predictions` for more details.
-
-        - categorical METADATA
-
-            In this case, the class names specified in the target must be found at least once in the metadata.
 
 Configuration Examples
 ----------------------
@@ -286,14 +307,24 @@ Here are examples for the full configuration including the input for several obj
 
     .. tab:: Visual Diversity (CORESET)
 
-        Choosing samples that are visually diverse equals diversifying samples based on their embeddings:
+        Choosing 100 samples that are visually diverse equals diversifying samples based on their embeddings:
 
         .. code-block:: python
 
-            DockerWorkerSelectionConfigEntry
-                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.EMBEDDINGS),
-                strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.DIVERSIFY)
+            DockerWorkerSelectionConfig(
+                n_samples=100, # set to the number of samples you want to select
+                strategies=[
+                    DockerWorkerSelectionConfigEntry(
+                        input=DockerWorkerSelectionConfigEntryInput(
+                            type=DockerWorkerSelectionInputType.EMBEDDINGS
+                        ),
+                        strategy=DockerWorkerSelectionConfigEntryStrategy(
+                            type=DockerWorkerSelectionStrategyType.DIVERSIFY
+                        )
+                    )
+                ]
             )
+            
 
     .. tab:: Active Learning
 
@@ -301,9 +332,20 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            DockerWorkerSelectionConfigEntry
-                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.SCORES, task="my_object_detection_task", score="uncertainty_entropy"),
-                strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.WEIGHTS)
+            DockerWorkerSelectionConfig(
+                n_samples=100, # set to the number of samples you want to select
+                strategies=[
+                    DockerWorkerSelectionConfigEntry(
+                        input=DockerWorkerSelectionConfigEntryInput(
+                            type=DockerWorkerSelectionInputType.SCORES, 
+                            task="my_object_detection_task", # change to your task
+                            score="uncertainty_entropy" # change to your preferred score
+                        ),
+                        strategy=DockerWorkerSelectionConfigEntryStrategy(
+                            type=DockerWorkerSelectionStrategyType.WEIGHTS
+                        )
+                    )
+                ]
             )
 
     .. tab:: Visual Diversity and Active Learning (CORAL)
@@ -312,26 +354,52 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            [
-                DockerWorkerSelectionConfigEntry(
-                    input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.EMBEDDINGS),
-                    strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.DIVERSIFY)
-                ),
-                DockerWorkerSelectionConfigEntry(
-                    input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.SCORES, task="my_object_detection_task", score="uncertainty_entropy"),
-                    strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.WEIGHTS)
-                )
-            ]
+            DockerWorkerSelectionConfig(
+                n_samples=100, # set to the number of samples you want to select
+                strategies=[
+                    DockerWorkerSelectionConfigEntry(
+                        input=DockerWorkerSelectionConfigEntryInput(
+                            type=DockerWorkerSelectionInputType.EMBEDDINGS
+                        ),
+                        strategy=DockerWorkerSelectionConfigEntryStrategy(
+                            type=DockerWorkerSelectionStrategyType.DIVERSIFY
+                        )
+                    ),
+                    DockerWorkerSelectionConfigEntry(
+                        input=DockerWorkerSelectionConfigEntryInput(
+                            type=DockerWorkerSelectionInputType.SCORES,
+                            task="my_object_detection_task", # change to your task
+                            score="uncertainty_entropy" # change to your preferred score
+                        ),
+                        strategy=DockerWorkerSelectionConfigEntryStrategy(
+                            type=DockerWorkerSelectionStrategyType.WEIGHTS
+                        )
+                    )
+                ]
+            )
 
     .. tab:: Metadata Thresholding
 
-        This can be used e.g. to remove blurry images, which equals choosing samples whose sharpness is over a threshold:
+        This can be used e.g. to remove blurry images, which equals choosing 
+        samples whose sharpness is over a threshold:
 
         .. code-block:: python
 
-            DockerWorkerSelectionConfigEntry(
-                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.METADATA, key="lightly.sharpness"),
-                strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.THRESHOLD, threshold=20, operation=DockerWorkerSelectionStrategyThresholdOperation.BIGGER)
+            DockerWorkerSelectionConfig(
+                n_samples=100, # set to the number of samples you want to select
+                strategies=[
+                    DockerWorkerSelectionConfigEntry(
+                        input=DockerWorkerSelectionConfigEntryInput(
+                            type=DockerWorkerSelectionInputType.METADATA, 
+                            key="lightly.sharpness"
+                        ),
+                        strategy=DockerWorkerSelectionConfigEntryStrategy(
+                            type=DockerWorkerSelectionStrategyType.THRESHOLD,
+                            threshold=20,
+                            operation=DockerWorkerSelectionStrategyThresholdOperation.BIGGER
+                        )
+                    )
+                ]
             )
 
     .. tab:: Score Thresholding
@@ -340,9 +408,21 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            DockerWorkerSelectionConfigEntry(
-                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.SCORES, task="my_object_detection_task", score="object_frequency"),
-                strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.THRESHOLD, threshold=2, operation=DockerWorkerSelectionStrategyThresholdOperation.BIGGER_EQUAL)
+            DockerWorkerSelectionConfig(
+                n_samples=100, # set to the number of samples you want to select
+                strategies=[
+                    DockerWorkerSelectionConfigEntry(
+                        input=DockerWorkerSelectionConfigEntryInput(
+                            type=DockerWorkerSelectionInputType.SCORES,
+                            task="my_object_detection_task", score="object_frequency"
+                        ),
+                        strategy=DockerWorkerSelectionConfigEntryStrategy(
+                            type=DockerWorkerSelectionStrategyType.THRESHOLD,
+                            threshold=2,
+                            operation=DockerWorkerSelectionStrategyThresholdOperation.BIGGER_EQUAL
+                        )
+                    )
+                ]
             )
 
     .. tab:: Object Balancing
@@ -351,20 +431,55 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            DockerWorkerSelectionConfigEntry(
-                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.PREDICTIONS, task="lightly_pretagging", name=DockerWorkerSelectionInputPredictionsName.CLASS_DISTRIBUTION)),
-                strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.BALANCE, target={"car": 0.1, "bicycle": 0.5, "bus": 0.1, "motorcycle": 0.1, "person": 0.1, "train": 0.05, "truck": 0.05})
+            DockerWorkerSelectionConfig(
+                n_samples=100, # set to the number of samples you want to select
+                strategies=[
+                    DockerWorkerSelectionConfigEntry(
+                        input=DockerWorkerSelectionConfigEntryInput(
+                            type=DockerWorkerSelectionInputType.PREDICTIONS,
+                            task="lightly_pretagging",
+                            name=DockerWorkerSelectionInputPredictionsName.CLASS_DISTRIBUTION
+                        ),
+                        strategy=DockerWorkerSelectionConfigEntryStrategy(
+                            type=DockerWorkerSelectionStrategyType.BALANCE,
+                            target={
+                                "car": 0.1, 
+                                "bicycle": 0.5, 
+                                "bus": 0.1, 
+                                "motorcycle": 0.1, 
+                                "person": 0.1, 
+                                "train": 0.05, 
+                                "truck": 0.05
+                            }
+                        )
+                    )
+                ]
             )
 
     .. tab:: Metadata Balancing
 
-        Let’s assume you have specified metadata with the path `weather.description` and want your selected subset to have 20%  sunny, 40% cloudy and the rest other images:
+        Let’s assume you have specified metadata with the path `weather.description` 
+        and want your selected subset to have 20%  sunny, 40% cloudy and the rest other images:
 
         .. code-block:: python
 
-            DockerWorkerSelectionConfigEntry(
-                input=DockerWorkerSelectionConfigEntryInput( type=DockerWorkerSelectionInputType.METADATA, key="weather.description"),
-                strategy=DockerWorkerSelectionConfigEntryStrategy( type=DockerWorkerSelectionStrategyType.BALANCE, target={"sunny": 0.2, "cloudy": 0.4} )
+            DockerWorkerSelectionConfig(
+                n_samples=100, # set to the number of samples you want to select
+                strategies=[
+                    DockerWorkerSelectionConfigEntry(
+                        input=DockerWorkerSelectionConfigEntryInput(
+                            type=DockerWorkerSelectionInputType.METADATA,
+                            key="weather.description"
+                        ),
+                        strategy=DockerWorkerSelectionConfigEntryStrategy(
+                            type=DockerWorkerSelectionStrategyType.BALANCE,
+                            target={
+                                "sunny": 0.2,
+                                "cloudy": 0.4
+                            }
+                        )
+                    )
+                ]
             )
 
 Application of strategies
