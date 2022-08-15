@@ -81,6 +81,7 @@ The input or `DockerWorkerSelectionConfigEntryInput` can be one of the following
         You can specify one of the tasks you specified in your datasource, see :ref:`docker-datasource-predictions` for reference.
         Alternatively, you can specify "lightly_pretagging" as the task to use object detections created by the Lightly worker itself.
         See :ref:`docker-pretagging` for reference.
+        The supported scores are explained here :ref:`lightly-active-learning-scorers`.
 
     .. tab:: METADATA
 

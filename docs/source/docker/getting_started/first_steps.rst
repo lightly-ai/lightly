@@ -260,7 +260,7 @@ The command schedules a job with the following configurations:
 
 - :code:`remove_exact_duplicates` Removes exact duplicates if **True**.
 
-- The selection config will make the Lightly Worker choose 10% of the initial dataset such that the embeddings of the chosen samples are diverse.
+- The selection config will make the Lightly Worker choose 50 samples from the initial dataset such that the embeddings of the chosen samples are diverse.
 
 For more details and options regarding the worker config, head to :ref:`docker-configuration`.
 For more details and options regarding the selection config, head to :ref:`worker-selection`.
@@ -295,7 +295,16 @@ epochs on the input images before embedding the images and selecting from them.
             "enable_training": True,
             "pretagging": False,
             "pretagging_debug": False,
-        }
+        },
+        selection_config=DockerWorkerSelectionConfig(
+            n_samples=50,
+            strategies=[
+                DockerWorkerSelectionConfigEntry(
+                    input=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionInputType.EMBEDDINGS),
+                    strategy=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionStrategyType.DIVERSIFY)
+                )
+            ]
+        )
     )
 
 You may not always want to train for exactly 100 epochs with the default settings.
@@ -393,13 +402,17 @@ a `shared directory` and then passing the checkpoint filename to the container.
             "enable_training": False, # set to True if you want to continue training
             "pretagging": False,
             "pretagging_debug": False,
-            "method": "coreset",
-            "stopping_condition": {
-                "n_samples": 0.1,
-                "min_distance": -1
-            }
             "checkpoint": "lightly_epoch_X.ckpt"
-        }
+        },
+        selection_config=DockerWorkerSelectionConfig(
+            n_samples=50,
+            strategies=[
+                DockerWorkerSelectionConfigEntry(
+                    input=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionInputType.EMBEDDINGS),
+                    strategy=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionStrategyType.DIVERSIFY)
+                )
+            ]
+        )
     )
 
 For example, if the :code:`{OUTPUT_DIR}` is :code:`/home/ubuntu/outputs`, the checkpoint will
@@ -464,7 +477,16 @@ The corresponding Python command to submit a job would then be as follows:
             "enable_training": False,
             "pretagging": False,
             "pretagging_debug": False,
-        }
+        },
+        selection_config=DockerWorkerSelectionConfig(
+            n_samples=50,
+            strategies=[
+                DockerWorkerSelectionConfigEntry(
+                    input=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionInputType.EMBEDDINGS),
+                    strategy=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionStrategyType.DIVERSIFY)
+                )
+            ]
+        )
     )
 
 
