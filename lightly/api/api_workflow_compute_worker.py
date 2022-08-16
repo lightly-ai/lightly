@@ -1,30 +1,13 @@
 from typing import Any, Dict, List, Optional, Union
 
-from lightly.openapi_generated.swagger_client import DockerWorkerSelectionConfig
-from lightly.openapi_generated.swagger_client.models.create_docker_worker_registry_entry_request import (
-    CreateDockerWorkerRegistryEntryRequest,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_data import (
-    DockerRunData,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_create_request import (
-    DockerRunScheduledCreateRequest,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import (
-    DockerRunScheduledData,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_priority import (
-    DockerRunScheduledPriority,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_type import (
-    DockerWorkerType,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_config import (
-    DockerWorkerConfig,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import (
-    DockerWorkerConfigCreateRequest,
-)
+from lightly.openapi_generated.swagger_client.model.create_docker_worker_registry_entry_request import CreateDockerWorkerRegistryEntryRequest
+from lightly.openapi_generated.swagger_client.model.docker_run_data import DockerRunData
+from lightly.openapi_generated.swagger_client.model.docker_run_scheduled_data import DockerRunScheduledData
+from lightly.openapi_generated.swagger_client.model.docker_run_scheduled_priority import DockerRunScheduledPriority
+from lightly.openapi_generated.swagger_client.model.docker_worker_config import DockerWorkerConfig
+from lightly.openapi_generated.swagger_client.model.docker_worker_config_create_request import DockerWorkerConfigCreateRequest
+from lightly.openapi_generated.swagger_client.model.docker_worker_type import DockerWorkerType
+from lightly.openapi_generated.swagger_client.models import DockerWorkerSelectionConfig
 
 
 class _ComputeWorkerMixin:
@@ -86,7 +69,7 @@ class _ComputeWorkerMixin:
 
         """
         config = DockerWorkerConfig(
-            worker_type=DockerWorkerType.FULL,
+            workerType=DockerWorkerType.FULL,
             docker=worker_config,
             lightly=lightly_config,
             selection=selection_config,

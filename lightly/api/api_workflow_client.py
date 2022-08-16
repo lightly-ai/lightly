@@ -1,11 +1,10 @@
+import os
+import platform
 import warnings
 from io import IOBase
 from typing import *
-import platform
-import os
 
 import requests
-from lightly.api.api_workflow_tags import _TagsMixin
 from requests import Response
 
 from lightly.__init__ import __version__
@@ -14,34 +13,23 @@ from lightly.api.api_workflow_datasets import _DatasetsMixin
 from lightly.api.api_workflow_datasources import _DatasourcesMixin
 from lightly.api.api_workflow_download_dataset import _DownloadDatasetMixin
 from lightly.api.api_workflow_selection import _SelectionMixin
+from lightly.api.api_workflow_tags import _TagsMixin
 from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
-from lightly.api.bitmask import BitMask
 from lightly.api.utils import DatasourceType, get_signed_url_destination, getenv
-from lightly.api.version_checking import get_minimum_compatible_version, \
-    version_compare
-from lightly.openapi_generated.swagger_client import ScoresApi, \
-    QuotaApi, MetaDataConfigurationsApi
-from lightly.openapi_generated.swagger_client.api.datasets_api import \
-    DatasetsApi
-from lightly.openapi_generated.swagger_client.api.datasources_api import \
-    DatasourcesApi
+from lightly.api.version_checking import get_minimum_compatible_version, version_compare
+from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
+from lightly.openapi_generated.swagger_client.api.datasources_api import DatasourcesApi
 from lightly.openapi_generated.swagger_client.api.docker_api import DockerApi
-from lightly.openapi_generated.swagger_client.api.embeddings_api import \
-    EmbeddingsApi
+from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
-from lightly.openapi_generated.swagger_client.api.mappings_api import \
-    MappingsApi
+from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
 from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
-from lightly.openapi_generated.swagger_client.api.samplings_api import \
-    SamplingsApi
+from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
 from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
-from lightly.openapi_generated.swagger_client.configuration import \
-    Configuration
-from lightly.openapi_generated.swagger_client.models.dataset_data import \
-    DatasetData
+from lightly.openapi_generated.swagger_client.configuration import Configuration
 from lightly.utils.reordering import sort_items_by_keys
 
 # Env variable for server side encryption on S3

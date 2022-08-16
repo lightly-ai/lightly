@@ -12,7 +12,6 @@ from lightly.openapi_generated.swagger_client.model.mongo_object_id import Mongo
 from lightly.openapi_generated.swagger_client.model.tag_data import TagData
 from lightly.openapi_generated.swagger_client.model.sampling_config import SamplingConfig
 from lightly.openapi_generated.swagger_client.model.sampling_create_request import SamplingCreateRequest
-from lightly.openapi_generated.swagger_client.model.sampling_config_stopping_condition import SamplingConfigStoppingCondition
 
 def _parse_active_learning_scores(scores: Union[np.ndarray, List]):
     """Makes list/np.array of active learning scores serializable.
