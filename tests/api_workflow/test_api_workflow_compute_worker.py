@@ -5,9 +5,9 @@ from unittest import mock
 
 from omegaconf import DictConfig, OmegaConf
 
-from lightly.openapi_generated.swagger_client import DockerWorkerSelectionConfig, DockerWorkerSelectionConfigEntry, DockerWorkerSelectionInputType, \
-    DockerWorkerSelectionStrategyType, ApiClient, DockerApi, DockerWorkerSelectionConfigEntryInput, DockerWorkerSelectionStrategyThresholdOperation, \
-    DockerWorkerSelectionInputPredictionsName, DockerWorkerSelectionConfigEntryStrategy, DockerWorkerConfig, DockerWorkerType
+from lightly.openapi_generated.swagger_client import SelectionConfig, SelectionConfigEntry, SelectionInputType, \
+    SelectionStrategyType, ApiClient, DockerApi, SelectionConfigEntryInput, SelectionStrategyThresholdOperation, \
+    SelectionInputPredictionsName, SelectionConfigEntryStrategy, DockerWorkerConfig, DockerWorkerType
 from lightly.openapi_generated.swagger_client.models.docker_run_data import DockerRunData
 from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import DockerRunScheduledData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
@@ -91,24 +91,24 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
         return obj_api
 
     def test_selection_config(self):
-        selection_config = DockerWorkerSelectionConfig(
+        selection_config = SelectionConfig(
             n_samples=1,
             strategies=[
-                DockerWorkerSelectionConfigEntry(
-                    input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.EMBEDDINGS),
-                    strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.DIVERSIFY, stopping_condition_minimum_distance=-1)
+                SelectionConfigEntry(
+                    input=SelectionConfigEntryInput(type=SelectionInputType.EMBEDDINGS),
+                    strategy=SelectionConfigEntryStrategy(type=SelectionStrategyType.DIVERSIFY, stopping_condition_minimum_distance=-1)
                 ),
-                DockerWorkerSelectionConfigEntry(
-                    input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.SCORES, task="my-classification-task", score="uncertainty_margin"),
-                    strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.WEIGHTS)
+                SelectionConfigEntry(
+                    input=SelectionConfigEntryInput(type=SelectionInputType.SCORES, task="my-classification-task", score="uncertainty_margin"),
+                    strategy=SelectionConfigEntryStrategy(type=SelectionStrategyType.WEIGHTS)
                 ),
-                DockerWorkerSelectionConfigEntry(
-                    input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.METADATA, key="lightly.sharpness"),
-                    strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.THRESHOLD, threshold=20, operation=DockerWorkerSelectionStrategyThresholdOperation.BIGGER_EQUAL)
+                SelectionConfigEntry(
+                    input=SelectionConfigEntryInput(type=SelectionInputType.METADATA, key="lightly.sharpness"),
+                    strategy=SelectionConfigEntryStrategy(type=SelectionStrategyType.THRESHOLD, threshold=20, operation=SelectionStrategyThresholdOperation.BIGGER_EQUAL)
                 ),
-                DockerWorkerSelectionConfigEntry(
-                    input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.PREDICTIONS, task="my_object_detection_task", name=DockerWorkerSelectionInputPredictionsName.CLASS_DISTRIBUTION),
-                    strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.BALANCE, target= {"Ambulance": 0.2, "Bus": 0.4})
+                SelectionConfigEntry(
+                    input=SelectionConfigEntryInput(type=SelectionInputType.PREDICTIONS, task="my_object_detection_task", name=SelectionInputPredictionsName.CLASS_DISTRIBUTION),
+                    strategy=SelectionConfigEntryStrategy(type=SelectionStrategyType.BALANCE, target= {"Ambulance": 0.2, "Bus": 0.4})
                 )
             ]
         )
