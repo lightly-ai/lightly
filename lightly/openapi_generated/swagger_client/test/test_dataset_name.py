@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.dataset_name import DatasetName
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDatasetName(unittest.TestCase):
     """DatasetName unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_DatasetName(self):
-        """Test DatasetName"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = DatasetName()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

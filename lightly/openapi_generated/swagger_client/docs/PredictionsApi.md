@@ -66,7 +66,7 @@ with swagger_client.ApiClient(configuration) as api_client:
         'predictionUUIDTimestamp': Timestamp(1577836800000),
     }
     body = PredictionSingletons([
-        PredictionSingleton()
+        PredictionSingleton(None)
     ])
     try:
         api_response = api_instance.create_or_update_prediction_by_sample_id(
@@ -138,11 +138,11 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-201 | ApiResponseFor201 | Post successful 
-400 | ApiResponseFor400 | Bad Request / malformed 
-401 | ApiResponseFor401 | Unauthorized to access this resource 
-403 | ApiResponseFor403 | Access is forbidden 
-404 | ApiResponseFor404 | The specified resource was not found 
+201 | ApiResponseFor201 | Post successful
+400 | ApiResponseFor400 | Bad Request / malformed
+401 | ApiResponseFor401 | Unauthorized to access this resource
+403 | ApiResponseFor403 | Access is forbidden
+404 | ApiResponseFor404 | The specified resource was not found
 
 #### ApiResponseFor201
 Name | Type | Description  | Notes
@@ -272,7 +272,7 @@ with swagger_client.ApiClient(configuration) as api_client:
         'predictionUUIDTimestamp': Timestamp(1577836800000),
     }
     body = PredictionTaskSchema(
-        name=PathSafeName("gB98J"),
+        name=PathSafeName("gB98JL"),
         type=TaskType("CLASSIFICATION"),
         categories=[
             PredictionTaskSchemaCategory(
@@ -344,10 +344,10 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-201 | ApiResponseFor201 | Creation successful 
-400 | ApiResponseFor400 | Bad Request / malformed 
-403 | ApiResponseFor403 | Access is forbidden 
-404 | ApiResponseFor404 | The specified resource was not found 
+201 | ApiResponseFor201 | Creation successful
+400 | ApiResponseFor400 | Bad Request / malformed
+403 | ApiResponseFor403 | Access is forbidden
+404 | ApiResponseFor404 | The specified resource was not found
 
 #### ApiResponseFor201
 Name | Type | Description  | Notes
@@ -522,11 +522,11 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | Get successful 
-400 | ApiResponseFor400 | Bad Request / malformed 
-401 | ApiResponseFor401 | Unauthorized to access this resource 
-403 | ApiResponseFor403 | Access is forbidden 
-404 | ApiResponseFor404 | The specified resource was not found 
+200 | ApiResponseFor200 | Get successful
+400 | ApiResponseFor400 | Bad Request / malformed
+401 | ApiResponseFor401 | Unauthorized to access this resource
+403 | ApiResponseFor403 | Access is forbidden
+404 | ApiResponseFor404 | The specified resource was not found
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes
@@ -715,11 +715,11 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | Get successful 
-400 | ApiResponseFor400 | Bad Request / malformed 
-401 | ApiResponseFor401 | Unauthorized to access this resource 
-403 | ApiResponseFor403 | Access is forbidden 
-404 | ApiResponseFor404 | The specified resource was not found 
+200 | ApiResponseFor200 | Get successful
+400 | ApiResponseFor400 | Bad Request / malformed
+401 | ApiResponseFor401 | Unauthorized to access this resource
+403 | ApiResponseFor403 | Access is forbidden
+404 | ApiResponseFor404 | The specified resource was not found
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes
@@ -914,11 +914,11 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | Get successful 
-400 | ApiResponseFor400 | Bad Request / malformed 
-401 | ApiResponseFor401 | Unauthorized to access this resource 
-403 | ApiResponseFor403 | Access is forbidden 
-404 | ApiResponseFor404 | The specified resource was not found 
+200 | ApiResponseFor200 | Get successful
+400 | ApiResponseFor400 | Bad Request / malformed
+401 | ApiResponseFor401 | Unauthorized to access this resource
+403 | ApiResponseFor403 | Access is forbidden
+404 | ApiResponseFor404 | The specified resource was not found
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes
@@ -1123,11 +1123,11 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | Get successful 
-400 | ApiResponseFor400 | Bad Request / malformed 
-401 | ApiResponseFor401 | Unauthorized to access this resource 
-403 | ApiResponseFor403 | Access is forbidden 
-404 | ApiResponseFor404 | The specified resource was not found 
+200 | ApiResponseFor200 | Get successful
+400 | ApiResponseFor400 | Bad Request / malformed
+401 | ApiResponseFor401 | Unauthorized to access this resource
+403 | ApiResponseFor403 | Access is forbidden
+404 | ApiResponseFor404 | The specified resource was not found
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes

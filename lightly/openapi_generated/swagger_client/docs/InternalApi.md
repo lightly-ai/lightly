@@ -46,7 +46,7 @@ with swagger_client.ApiClient(configuration) as api_client:
 
     # example passing only required values which don't have defaults set
     body = Auth0OnSignUpRequest(
-        user=Auth0OnSignUpRequestUser(
+        user=dict(
             user_id="user_id_example",
             email="email_example",
             locale="locale_example",
@@ -87,11 +87,11 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | Operation Successful 
-400 | ApiResponseFor400 | Bad Request / malformed 
-401 | ApiResponseFor401 | Unauthorized to access this resource 
-403 | ApiResponseFor403 | Access is forbidden 
-404 | ApiResponseFor404 | The specified resource was not found 
+200 | ApiResponseFor200 | Operation Successful
+400 | ApiResponseFor400 | Bad Request / malformed
+401 | ApiResponseFor401 | Unauthorized to access this resource
+403 | ApiResponseFor403 | Access is forbidden
+404 | ApiResponseFor404 | The specified resource was not found
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes
@@ -234,11 +234,11 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | Operation Successful 
-400 | ApiResponseFor400 | Bad Request / malformed 
-401 | ApiResponseFor401 | Unauthorized to access this resource 
-403 | ApiResponseFor403 | Access is forbidden 
-404 | ApiResponseFor404 | The specified resource was not found 
+200 | ApiResponseFor200 | Operation Successful
+400 | ApiResponseFor400 | Bad Request / malformed
+401 | ApiResponseFor401 | Unauthorized to access this resource
+403 | ApiResponseFor403 | Access is forbidden
+404 | ApiResponseFor404 | The specified resource was not found
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes

@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.sample_partial_mode import SamplePartialMode
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestSamplePartialMode(unittest.TestCase):
     """SamplePartialMode unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_SamplePartialMode(self):
-        """Test SamplePartialMode"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = SamplePartialMode()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

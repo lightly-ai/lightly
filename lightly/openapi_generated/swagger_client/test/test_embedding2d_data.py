@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.embedding2d_data import Embedding2dData
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestEmbedding2dData(unittest.TestCase):
     """Embedding2dData unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_Embedding2dData(self):
-        """Test Embedding2dData"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = Embedding2dData()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

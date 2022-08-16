@@ -13,6 +13,7 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
+import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -32,6 +33,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
+    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -53,6 +55,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
+    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -86,14 +89,14 @@ class FileNameFormat(
     @classmethod
     @property
     def NAME(cls):
-        return cls._enum_by_value["NAME"]("NAME")
+        return cls("NAME")
     
     @classmethod
     @property
     def DATASOURCE_FULL(cls):
-        return cls._enum_by_value["DATASOURCE_FULL"]("DATASOURCE_FULL")
+        return cls("DATASOURCE_FULL")
     
     @classmethod
     @property
     def REDIRECTED_READ_URL(cls):
-        return cls._enum_by_value["REDIRECTED_READ_URL"]("REDIRECTED_READ_URL")
+        return cls("REDIRECTED_READ_URL")

@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.access_role import AccessRole
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestAccessRole(unittest.TestCase):
     """AccessRole unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_AccessRole(self):
-        """Test AccessRole"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = AccessRole()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

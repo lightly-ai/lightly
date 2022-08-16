@@ -13,6 +13,7 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
+import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -32,6 +33,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
+    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -53,6 +55,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
+    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -84,19 +87,19 @@ class DockerWorkerSelectionStrategyThresholdOperation(
     @classmethod
     @property
     def SMALLER(cls):
-        return cls._enum_by_value["SMALLER"]("SMALLER")
+        return cls("SMALLER")
     
     @classmethod
     @property
     def SMALLER_EQUAL(cls):
-        return cls._enum_by_value["SMALLER_EQUAL"]("SMALLER_EQUAL")
+        return cls("SMALLER_EQUAL")
     
     @classmethod
     @property
     def BIGGER(cls):
-        return cls._enum_by_value["BIGGER"]("BIGGER")
+        return cls("BIGGER")
     
     @classmethod
     @property
     def BIGGER_EQUAL(cls):
-        return cls._enum_by_value["BIGGER_EQUAL"]("BIGGER_EQUAL")
+        return cls("BIGGER_EQUAL")

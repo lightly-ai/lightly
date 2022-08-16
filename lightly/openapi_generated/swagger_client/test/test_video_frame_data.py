@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.video_frame_data import VideoFrameData
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestVideoFrameData(unittest.TestCase):
     """VideoFrameData unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_VideoFrameData(self):
-        """Test VideoFrameData"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = VideoFrameData()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

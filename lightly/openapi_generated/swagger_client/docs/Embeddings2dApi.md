@@ -61,8 +61,8 @@ with swagger_client.ApiClient(configuration) as api_client:
     body = Embedding2dCreateRequest(
         name="name_example",
         dimensionality_reduction_method=DimensionalityReductionMethod("PCA"),
-        coordinates_dimension1=Embedding2dCoordinates([0.9,0.2,0.5],
-        coordinates_dimension2=Embedding2dCoordinates([0.9,0.2,0.5],
+        coordinates_dimension1=Embedding2dCoordinates([0.9,0.2,0.5]),
+        coordinates_dimension2=Embedding2dCoordinates([0.9,0.2,0.5]),
     )
     try:
         api_response = api_instance.create_embeddings2d_by_embedding_id(
@@ -118,11 +118,11 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-201 | ApiResponseFor201 | Post successful 
-400 | ApiResponseFor400 | Bad Request / malformed 
-401 | ApiResponseFor401 | Unauthorized to access this resource 
-403 | ApiResponseFor403 | Access is forbidden 
-404 | ApiResponseFor404 | The specified resource was not found 
+201 | ApiResponseFor201 | Post successful
+400 | ApiResponseFor400 | Bad Request / malformed
+401 | ApiResponseFor401 | Unauthorized to access this resource
+403 | ApiResponseFor403 | Access is forbidden
+404 | ApiResponseFor404 | The specified resource was not found
 
 #### ApiResponseFor201
 Name | Type | Description  | Notes
@@ -298,11 +298,11 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | Get successful 
-400 | ApiResponseFor400 | Bad Request / malformed 
-401 | ApiResponseFor401 | Unauthorized to access this resource 
-403 | ApiResponseFor403 | Access is forbidden 
-404 | ApiResponseFor404 | The specified resource was not found 
+200 | ApiResponseFor200 | Get successful
+400 | ApiResponseFor400 | Bad Request / malformed
+401 | ApiResponseFor401 | Unauthorized to access this resource
+403 | ApiResponseFor403 | Access is forbidden
+404 | ApiResponseFor404 | The specified resource was not found
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes
@@ -470,11 +470,11 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | Get successful 
-400 | ApiResponseFor400 | Bad Request / malformed 
-401 | ApiResponseFor401 | Unauthorized to access this resource 
-403 | ApiResponseFor403 | Access is forbidden 
-404 | ApiResponseFor404 | The specified resource was not found 
+200 | ApiResponseFor200 | Get successful
+400 | ApiResponseFor400 | Bad Request / malformed
+401 | ApiResponseFor401 | Unauthorized to access this resource
+403 | ApiResponseFor403 | Access is forbidden
+404 | ApiResponseFor404 | The specified resource was not found
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes

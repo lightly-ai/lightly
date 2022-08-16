@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.task_type import TaskType
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestTaskType(unittest.TestCase):
     """TaskType unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_TaskType(self):
-        """Test TaskType"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = TaskType()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

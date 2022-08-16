@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.job_status_meta import JobStatusMeta
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestJobStatusMeta(unittest.TestCase):
     """JobStatusMeta unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_JobStatusMeta(self):
-        """Test JobStatusMeta"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = JobStatusMeta()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

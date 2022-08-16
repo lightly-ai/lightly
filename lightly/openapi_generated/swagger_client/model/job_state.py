@@ -13,6 +13,7 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
+import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -32,6 +33,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
+    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -53,6 +55,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
+    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -85,24 +88,24 @@ class JobState(
     @classmethod
     @property
     def UNKNOWN(cls):
-        return cls._enum_by_value["UNKNOWN"]("UNKNOWN")
+        return cls("UNKNOWN")
     
     @classmethod
     @property
     def WAITING(cls):
-        return cls._enum_by_value["WAITING"]("WAITING")
+        return cls("WAITING")
     
     @classmethod
     @property
     def RUNNING(cls):
-        return cls._enum_by_value["RUNNING"]("RUNNING")
+        return cls("RUNNING")
     
     @classmethod
     @property
     def FAILED(cls):
-        return cls._enum_by_value["FAILED"]("FAILED")
+        return cls("FAILED")
     
     @classmethod
     @property
     def FINISHED(cls):
-        return cls._enum_by_value["FINISHED"]("FINISHED")
+        return cls("FINISHED")

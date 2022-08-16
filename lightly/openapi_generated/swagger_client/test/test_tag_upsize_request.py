@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.tag_upsize_request import TagUpsizeRequest
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestTagUpsizeRequest(unittest.TestCase):
     """TagUpsizeRequest unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_TagUpsizeRequest(self):
-        """Test TagUpsizeRequest"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = TagUpsizeRequest()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.sample_update_request import SampleUpdateRequest
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestSampleUpdateRequest(unittest.TestCase):
     """SampleUpdateRequest unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_SampleUpdateRequest(self):
-        """Test SampleUpdateRequest"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = SampleUpdateRequest()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

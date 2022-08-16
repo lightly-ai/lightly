@@ -13,6 +13,7 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
+import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -32,6 +33,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
+    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -53,6 +55,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
+    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -85,14 +88,14 @@ class TagArithmeticsOperation(
     @classmethod
     @property
     def UNION(cls):
-        return cls._enum_by_value["UNION"]("UNION")
+        return cls("UNION")
     
     @classmethod
     @property
     def INTERSECTION(cls):
-        return cls._enum_by_value["INTERSECTION"]("INTERSECTION")
+        return cls("INTERSECTION")
     
     @classmethod
     @property
     def DIFFERENCE(cls):
-        return cls._enum_by_value["DIFFERENCE"]("DIFFERENCE")
+        return cls("DIFFERENCE")

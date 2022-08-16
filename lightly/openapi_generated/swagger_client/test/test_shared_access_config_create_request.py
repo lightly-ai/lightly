@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.shared_access_config_create_request import SharedAccessConfigCreateRequest
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestSharedAccessConfigCreateRequest(unittest.TestCase):
     """SharedAccessConfigCreateRequest unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_SharedAccessConfigCreateRequest(self):
-        """Test SharedAccessConfigCreateRequest"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = SharedAccessConfigCreateRequest()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

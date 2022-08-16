@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.label_box_data_rows import LabelBoxDataRows
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestLabelBoxDataRows(unittest.TestCase):
     """LabelBoxDataRows unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_LabelBoxDataRows(self):
-        """Test LabelBoxDataRows"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = LabelBoxDataRows()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

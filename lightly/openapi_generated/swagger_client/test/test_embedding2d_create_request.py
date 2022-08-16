@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.embedding2d_create_request import Embedding2dCreateRequest
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestEmbedding2dCreateRequest(unittest.TestCase):
     """Embedding2dCreateRequest unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_Embedding2dCreateRequest(self):
-        """Test Embedding2dCreateRequest"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = Embedding2dCreateRequest()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.docker_run_scheduled_data import DockerRunScheduledData
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDockerRunScheduledData(unittest.TestCase):
     """DockerRunScheduledData unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_DockerRunScheduledData(self):
-        """Test DockerRunScheduledData"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = DockerRunScheduledData()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':
