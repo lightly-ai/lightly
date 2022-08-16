@@ -1,6 +1,6 @@
-from lightly.openapi_generated.swagger_client import SelectionInputType, SelectionStrategyType, SelectionConfig, \
-    SelectionConfigEntry, SelectionConfigEntryInput, SelectionConfigEntryStrategy, \
-    SelectionStrategyThresholdOperation, SelectionInputPredictionsName
+from lightly.openapi_generated.swagger_client import SelectionInputType, \
+     SelectionStrategyType, SelectionConfig, SelectionConfigEntry, \
+     SelectionConfigEntryInput, SelectionConfigEntryStrategy
 
 # You can reuse the client previous scripts. If you want to create a new
 # one you can uncomment the following line:
@@ -20,8 +20,12 @@ client.schedule_compute_worker_run(
         n_samples=50,
         strategies=[
             SelectionConfigEntry(
-                input=SelectionConfigEntryInput(type=SelectionInputType.EMBEDDINGS),
-                strategy=SelectionConfigEntryStrategy(type=SelectionStrategyType.DIVERSIFY, stopping_condition_minimum_distance=-1)
+                input=SelectionConfigEntryInput(
+                    type=SelectionInputType.EMBEDDINGS
+                ),
+                strategy=SelectionConfigEntryStrategy(
+                    type=SelectionStrategyType.DIVERSIFY
+                )
             ),
         ]
     ),
