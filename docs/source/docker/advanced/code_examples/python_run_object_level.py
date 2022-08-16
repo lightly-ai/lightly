@@ -1,7 +1,7 @@
 import json
 import lightly
-from lightly.openapi_generated.swagger_client import DockerWorkerSelectionConfig, DockerWorkerSelectionConfigEntry, DockerWorkerSelectionInputType, \
-    DockerWorkerSelectionStrategyType, DockerWorkerSelectionConfigEntryInput, DockerWorkerSelectionConfigEntryStrategy
+from lightly.openapi_generated.swagger_client import SelectionConfig, SelectionConfigEntry, SelectionInputType, \
+    SelectionStrategyType, SelectionConfigEntryInput, SelectionConfigEntryStrategy
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 
@@ -79,16 +79,16 @@ client.schedule_compute_worker_run(
             "task_name": "vehicles_object_detections" 
         },
     },
-    selection_config=DockerWorkerSelectionConfig(
+    selection_config=SelectionConfig(
         n_samples=50,
         strategies=[
-            DockerWorkerSelectionConfigEntry(
-                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.EMBEDDINGS),
-                strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.DIVERSIFY)
+            SelectionConfigEntry(
+                input=SelectionConfigEntryInput(type=SelectionInputType.EMBEDDINGS),
+                strategy=SelectionConfigEntryStrategy(type=SelectionStrategyType.DIVERSIFY)
             ),
-            DockerWorkerSelectionConfigEntry(
-                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.SCORES, task="my_object_detection_task", score="uncertainty_entropy"),
-                strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.WEIGHTS)
+            SelectionConfigEntry(
+                input=SelectionConfigEntryInput(type=SelectionInputType.SCORES, task="my_object_detection_task", score="uncertainty_entropy"),
+                strategy=SelectionConfigEntryStrategy(type=SelectionStrategyType.WEIGHTS)
             )
         ]
     ).__dict__,

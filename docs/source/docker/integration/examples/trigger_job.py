@@ -1,6 +1,6 @@
-from lightly.openapi_generated.swagger_client import DockerWorkerSelectionInputType, DockerWorkerSelectionStrategyType, DockerWorkerSelectionConfig, \
-    DockerWorkerSelectionConfigEntry, DockerWorkerSelectionConfigEntryInput, DockerWorkerSelectionConfigEntryStrategy, \
-    DockerWorkerSelectionStrategyThresholdOperation, DockerWorkerSelectionInputPredictionsName
+from lightly.openapi_generated.swagger_client import SelectionInputType, SelectionStrategyType, SelectionConfig, \
+    SelectionConfigEntry, SelectionConfigEntryInput, SelectionConfigEntryStrategy, \
+    SelectionStrategyThresholdOperation, SelectionInputPredictionsName
 
 # You can reuse the client previous scripts. If you want to create a new
 # one you can uncomment the following line:
@@ -16,12 +16,12 @@ client.schedule_compute_worker_run(
         'remove_exact_duplicates': True,
         'enable_training': False,
     },
-    selection_config=DockerWorkerSelectionConfig(
+    selection_config=SelectionConfig(
         n_samples=50,
         strategies=[
-            DockerWorkerSelectionConfigEntry(
-                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.EMBEDDINGS),
-                strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.DIVERSIFY, stopping_condition_minimum_distance=-1)
+            SelectionConfigEntry(
+                input=SelectionConfigEntryInput(type=SelectionInputType.EMBEDDINGS),
+                strategy=SelectionConfigEntryStrategy(type=SelectionStrategyType.DIVERSIFY, stopping_condition_minimum_distance=-1)
             ),
         ]
     ),

@@ -57,12 +57,12 @@ The configuration of a selection needs to specify both the maximum number of sam
 .. code-block:: python
     :emphasize-lines: 2
 
-    DockerWorkerSelectionConfig(
+    SelectionConfig(
         n_samples=50,
         strategies=[
-            DockerWorkerSelectionConfigEntry(
-                input=DockerWorkerSelectionConfigEntryInput(type=DockerWorkerSelectionInputType.CHANGEME, extra parameters),
-                strategy=DockerWorkerSelectionConfigEntryStrategy(type=DockerWorkerSelectionStrategyType.CHANGEME, extra parameters)
+            SelectionConfigEntry(
+                input=SelectionConfigEntryInput(type=SelectionInputType.CHANGEME, extra parameters),
+                strategy=SelectionConfigEntryStrategy(type=SelectionStrategyType.CHANGEME, extra parameters)
             ),
             ... more strategies
         ]
@@ -70,11 +70,11 @@ The configuration of a selection needs to specify both the maximum number of sam
 
 The variable :code:`n_samples` must be a positive integer specifying the absolute number of samples which should be selected.
 
-Each strategy is specified by a :code:`DockerWorkerSelectionConfigEntry`, which is always made up of an :code:`input` and the actual :code:`strategy`.
+Each strategy is specified by a :code:`SelectionConfigEntry`, which is always made up of an :code:`input` and the actual :code:`strategy`.
 
 .. code-block:: python
 
-    DockerWorkerSelectionConfigEntry(
+    SelectionConfigEntry(
         input=...,
         strategy=...
     ),
@@ -83,7 +83,7 @@ Each strategy is specified by a :code:`DockerWorkerSelectionConfigEntry`, which 
 Selection Input
 ^^^^^^^^^^^^^^^^
 
-The input or :code:`DockerWorkerSelectionConfigEntryInput` can be one of the following:
+The input or :code:`SelectionConfigEntryInput` can be one of the following:
 
 .. tabs::
 
@@ -98,8 +98,8 @@ The input or :code:`DockerWorkerSelectionConfigEntryInput` can be one of the fol
 
         .. code-block:: python
 
-            input=DockerWorkerSelectionConfigEntryInput(
-                type=DockerWorkerSelectionInputType.EMBEDDINGS
+            input=SelectionConfigEntryInput(
+                type=SelectionInputType.EMBEDDINGS
             )
 
     .. tab:: SCORES
@@ -109,15 +109,15 @@ The input or :code:`DockerWorkerSelectionConfigEntryInput` can be one of the fol
         .. code-block:: python
 
             # using your own predictions
-            input=DockerWorkerSelectionConfigEntryInput(
-                type=DockerWorkerSelectionInputType.SCORES,
+            input=SelectionConfigEntryInput(
+                type=SelectionInputType.SCORES,
                 task="YOUR_TASK_NAME",
                 score="uncertainty_entropy"
             )
 
             # using the lightly pretagging model
-            input=DockerWorkerSelectionConfigEntryInput(
-                type=DockerWorkerSelectionInputType.SCORES,
+            input=SelectionConfigEntryInput(
+                type=SelectionInputType.SCORES,
                 task="lightly_pretagging",
                 score="uncertainty_entropy"
             )
@@ -150,17 +150,17 @@ The input or :code:`DockerWorkerSelectionConfigEntryInput` can be one of the fol
         .. code-block:: python
             
             # using your own predictions
-            input=DockerWorkerSelectionConfigEntryInput(
-                type=DockerWorkerSelectionInputType.PREDICTIONS,
+            input=SelectionConfigEntryInput(
+                type=SelectionInputType.PREDICTIONS,
                 task="my_object_detection_task",
-                name=DockerWorkerSelectionInputPredictionsName.CLASS_DISTRIBUTION
+                name=SelectionInputPredictionsName.CLASS_DISTRIBUTION
             )
 
             # using the lightly pretagging model
-            input=DockerWorkerSelectionConfigEntryInput(
-                type=DockerWorkerSelectionInputType.PREDICTIONS,
+            input=SelectionConfigEntryInput(
+                type=SelectionInputType.PREDICTIONS,
                 task="lightly_pretagging",
-                name=DockerWorkerSelectionInputPredictionsName.CLASS_DISTRIBUTION
+                name=SelectionInputPredictionsName.CLASS_DISTRIBUTION
             )
 
     .. tab:: METADATA
@@ -174,8 +174,8 @@ The input or :code:`DockerWorkerSelectionConfigEntryInput` can be one of the fol
 
             .. code-block:: python
 
-                input=DockerWorkerSelectionConfigEntryInput(
-                    type=DockerWorkerSelectionInputType.METADATA,
+                input=SelectionConfigEntryInput(
+                    type=SelectionInputType.METADATA,
                     key="weather.temperature"
                 )
 
@@ -188,8 +188,8 @@ The input or :code:`DockerWorkerSelectionConfigEntryInput` can be one of the fol
 
             .. code-block:: python
 
-                input=DockerWorkerSelectionConfigEntryInput(
-                    type=DockerWorkerSelectionInputType.METADATA,
+                input=SelectionConfigEntryInput(
+                    type=SelectionInputType.METADATA,
                     key="lightly.sharpness"
                 )
 
@@ -205,7 +205,7 @@ Selection Strategy
 ^^^^^^^^^^^^^^^^^^^
 
 There are several types of selection strategies, all trying to reach different objectives.
-They can be created using the :code:`DockerWorkerSelectionConfigEntryStrategy` object.
+They can be created using the :code:`SelectionConfigEntryStrategy` object.
 
 .. tabs::
 
@@ -218,8 +218,8 @@ They can be created using the :code:`DockerWorkerSelectionConfigEntryStrategy` o
 
         .. code-block:: python
 
-            strategy=DockerWorkerSelectionConfigEntryStrategy(
-                type=DockerWorkerSelectionStrategyType.DIVERSIFY
+            strategy=SelectionConfigEntryStrategy(
+                type=SelectionStrategyType.DIVERSIFY
             )
 
         If you want to preserve a minimum distance between chosen samples, you 
@@ -229,8 +229,8 @@ They can be created using the :code:`DockerWorkerSelectionConfigEntryStrategy` o
         .. code-block:: python
             :emphasize-lines: 3
 
-            strategy=DockerWorkerSelectionConfigEntryStrategy(
-                type=DockerWorkerSelectionStrategyType.DIVERSIFY,
+            strategy=SelectionConfigEntryStrategy(
+                type=SelectionStrategyType.DIVERSIFY,
                 stopping_condition_minimum_distance=0.2
             )
 
@@ -251,8 +251,8 @@ They can be created using the :code:`DockerWorkerSelectionConfigEntryStrategy` o
 
         .. code-block:: python
 
-            strategy=DockerWorkerSelectionConfigEntryStrategy(
-                type=DockerWorkerSelectionStrategyType.WEIGHTS
+            strategy=SelectionConfigEntryStrategy(
+                type=SelectionStrategyType.WEIGHTS
             )
 
     .. tab:: THRESHOLD
@@ -264,10 +264,10 @@ They can be created using the :code:`DockerWorkerSelectionConfigEntryStrategy` o
 
         .. code-block:: python
 
-            strategy=DockerWorkerSelectionConfigEntryStrategy(
-                type=DockerWorkerSelectionStrategyType.THRESHOLD,
+            strategy=SelectionConfigEntryStrategy(
+                type=SelectionStrategyType.THRESHOLD,
                 threshold=20,
-                operation=DockerWorkerSelectionStrategyThresholdOperation.BIGGER_EQUAL
+                operation=SelectionStrategyThresholdOperation.BIGGER_EQUAL
             )
 
         The allowed operations are :code:`SMALLER`, :code:`SMALLER_EQUAL`, :code:`BIGGER`, :code:`BIGGER_EQUAL`.
@@ -283,8 +283,8 @@ They can be created using the :code:`DockerWorkerSelectionConfigEntryStrategy` o
 
         .. code-block:: python
 
-            strategy=DockerWorkerSelectionConfigEntryStrategy(
-                type=DockerWorkerSelectionStrategyType.BALANCE,
+            strategy=SelectionConfigEntryStrategy(
+                type=SelectionStrategyType.BALANCE,
                 target={
                     "Ambulance": 0.2, # `Ambulance` should be a valid class in your `schema.json`
                     "Bus": 0.4
@@ -311,15 +311,15 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            DockerWorkerSelectionConfig(
+            SelectionConfig(
                 n_samples=100, # set to the number of samples you want to select
                 strategies=[
-                    DockerWorkerSelectionConfigEntry(
-                        input=DockerWorkerSelectionConfigEntryInput(
-                            type=DockerWorkerSelectionInputType.EMBEDDINGS
+                    SelectionConfigEntry(
+                        input=SelectionConfigEntryInput(
+                            type=SelectionInputType.EMBEDDINGS
                         ),
-                        strategy=DockerWorkerSelectionConfigEntryStrategy(
-                            type=DockerWorkerSelectionStrategyType.DIVERSIFY
+                        strategy=SelectionConfigEntryStrategy(
+                            type=SelectionStrategyType.DIVERSIFY
                         )
                     )
                 ]
@@ -332,17 +332,17 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            DockerWorkerSelectionConfig(
+            SelectionConfig(
                 n_samples=100, # set to the number of samples you want to select
                 strategies=[
-                    DockerWorkerSelectionConfigEntry(
-                        input=DockerWorkerSelectionConfigEntryInput(
-                            type=DockerWorkerSelectionInputType.SCORES, 
+                    SelectionConfigEntry(
+                        input=SelectionConfigEntryInput(
+                            type=SelectionInputType.SCORES, 
                             task="my_object_detection_task", # change to your task
                             score="uncertainty_entropy" # change to your preferred score
                         ),
-                        strategy=DockerWorkerSelectionConfigEntryStrategy(
-                            type=DockerWorkerSelectionStrategyType.WEIGHTS
+                        strategy=SelectionConfigEntryStrategy(
+                            type=SelectionStrategyType.WEIGHTS
                         )
                     )
                 ]
@@ -356,25 +356,25 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            DockerWorkerSelectionConfig(
+            SelectionConfig(
                 n_samples=100, # set to the number of samples you want to select
                 strategies=[
-                    DockerWorkerSelectionConfigEntry(
-                        input=DockerWorkerSelectionConfigEntryInput(
-                            type=DockerWorkerSelectionInputType.EMBEDDINGS
+                    SelectionConfigEntry(
+                        input=SelectionConfigEntryInput(
+                            type=SelectionInputType.EMBEDDINGS
                         ),
-                        strategy=DockerWorkerSelectionConfigEntryStrategy(
-                            type=DockerWorkerSelectionStrategyType.DIVERSIFY
+                        strategy=SelectionConfigEntryStrategy(
+                            type=SelectionStrategyType.DIVERSIFY
                         )
                     ),
-                    DockerWorkerSelectionConfigEntry(
-                        input=DockerWorkerSelectionConfigEntryInput(
-                            type=DockerWorkerSelectionInputType.SCORES,
+                    SelectionConfigEntry(
+                        input=SelectionConfigEntryInput(
+                            type=SelectionInputType.SCORES,
                             task="my_object_detection_task", # change to your task
                             score="uncertainty_entropy" # change to your preferred score
                         ),
-                        strategy=DockerWorkerSelectionConfigEntryStrategy(
-                            type=DockerWorkerSelectionStrategyType.WEIGHTS
+                        strategy=SelectionConfigEntryStrategy(
+                            type=SelectionStrategyType.WEIGHTS
                         )
                     )
                 ]
@@ -387,18 +387,18 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            DockerWorkerSelectionConfig(
+            SelectionConfig(
                 n_samples=100, # set to the number of samples you want to select
                 strategies=[
-                    DockerWorkerSelectionConfigEntry(
-                        input=DockerWorkerSelectionConfigEntryInput(
-                            type=DockerWorkerSelectionInputType.METADATA, 
+                    SelectionConfigEntry(
+                        input=SelectionConfigEntryInput(
+                            type=SelectionInputType.METADATA, 
                             key="lightly.sharpness"
                         ),
-                        strategy=DockerWorkerSelectionConfigEntryStrategy(
-                            type=DockerWorkerSelectionStrategyType.THRESHOLD,
+                        strategy=SelectionConfigEntryStrategy(
+                            type=SelectionStrategyType.THRESHOLD,
                             threshold=20,
-                            operation=DockerWorkerSelectionStrategyThresholdOperation.BIGGER
+                            operation=SelectionStrategyThresholdOperation.BIGGER
                         )
                     )
                 ]
@@ -410,19 +410,19 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            DockerWorkerSelectionConfig(
+            SelectionConfig(
                 n_samples=100, # set to the number of samples you want to select
                 strategies=[
-                    DockerWorkerSelectionConfigEntry(
-                        input=DockerWorkerSelectionConfigEntryInput(
-                            type=DockerWorkerSelectionInputType.SCORES,
+                    SelectionConfigEntry(
+                        input=SelectionConfigEntryInput(
+                            type=SelectionInputType.SCORES,
                             task="my_object_detection_task", # change to your task
                             score="object_frequency"
                         ),
-                        strategy=DockerWorkerSelectionConfigEntryStrategy(
-                            type=DockerWorkerSelectionStrategyType.THRESHOLD,
+                        strategy=SelectionConfigEntryStrategy(
+                            type=SelectionStrategyType.THRESHOLD,
                             threshold=2,
-                            operation=DockerWorkerSelectionStrategyThresholdOperation.BIGGER_EQUAL
+                            operation=SelectionStrategyThresholdOperation.BIGGER_EQUAL
                         )
                     )
                 ]
@@ -434,17 +434,17 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            DockerWorkerSelectionConfig(
+            SelectionConfig(
                 n_samples=100, # set to the number of samples you want to select
                 strategies=[
-                    DockerWorkerSelectionConfigEntry(
-                        input=DockerWorkerSelectionConfigEntryInput(
-                            type=DockerWorkerSelectionInputType.PREDICTIONS,
+                    SelectionConfigEntry(
+                        input=SelectionConfigEntryInput(
+                            type=SelectionInputType.PREDICTIONS,
                             task="lightly_pretagging", # (optional) change to your task
-                            name=DockerWorkerSelectionInputPredictionsName.CLASS_DISTRIBUTION
+                            name=SelectionInputPredictionsName.CLASS_DISTRIBUTION
                         ),
-                        strategy=DockerWorkerSelectionConfigEntryStrategy(
-                            type=DockerWorkerSelectionStrategyType.BALANCE,
+                        strategy=SelectionConfigEntryStrategy(
+                            type=SelectionStrategyType.BALANCE,
                             target={
                                 "car": 0.1, 
                                 "bicycle": 0.5, 
@@ -466,16 +466,16 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            DockerWorkerSelectionConfig(
+            SelectionConfig(
                 n_samples=100, # set to the number of samples you want to select
                 strategies=[
-                    DockerWorkerSelectionConfigEntry(
-                        input=DockerWorkerSelectionConfigEntryInput(
-                            type=DockerWorkerSelectionInputType.METADATA,
+                    SelectionConfigEntry(
+                        input=SelectionConfigEntryInput(
+                            type=SelectionInputType.METADATA,
                             key="weather.description"
                         ),
-                        strategy=DockerWorkerSelectionConfigEntryStrategy(
-                            type=DockerWorkerSelectionStrategyType.BALANCE,
+                        strategy=SelectionConfigEntryStrategy(
+                            type=SelectionStrategyType.BALANCE,
                             target={
                                 "sunny": 0.2,
                                 "cloudy": 0.4

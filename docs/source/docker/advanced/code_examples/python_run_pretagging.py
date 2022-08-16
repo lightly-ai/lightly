@@ -2,8 +2,8 @@ import json
 import lightly
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
-from lightly.openapi_generated.swagger_client import DockerWorkerSelectionInputType, DockerWorkerSelectionStrategyType, DockerWorkerSelectionConfig, \
-    DockerWorkerSelectionConfigEntry, DockerWorkerSelectionConfigEntryInput, DockerWorkerSelectionConfigEntryStrategy
+from lightly.openapi_generated.swagger_client import SelectionInputType, SelectionStrategyType, SelectionConfig, \
+    SelectionConfigEntry, SelectionConfigEntryInput, SelectionConfigEntryStrategy
 
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
@@ -66,15 +66,15 @@ client.set_azure_config(
 )
 
 # in this example we use a diversifying selection strategy (CORESET)
-selection_config = DockerWorkerSelectionConfig(
+selection_config = SelectionConfig(
     n_samples=100,
     strategies=[
-        DockerWorkerSelectionConfigEntry(
-            input=DockerWorkerSelectionConfigEntryInput(
-                type=DockerWorkerSelectionInputType.EMBEDDINGS
+        SelectionConfigEntry(
+            input=SelectionConfigEntryInput(
+                type=SelectionInputType.EMBEDDINGS
             ),
-            strategy=DockerWorkerSelectionConfigEntryStrategy(
-                type=DockerWorkerSelectionStrategyType.DIVERSIFY
+            strategy=SelectionConfigEntryStrategy(
+                type=SelectionStrategyType.DIVERSIFY
             )
         )
     ]

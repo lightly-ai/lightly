@@ -51,19 +51,31 @@ selects a diverse set of frames:
 
 .. code-block:: python
 
+    # in this example we use a diversifying selection strategy (CORESET)
+    selection_config = SelectionConfig(
+        n_samples=500000,
+        strategies=[
+            SelectionConfigEntry(
+                input=SelectionConfigEntryInput(
+                    type=SelectionInputType.EMBEDDINGS
+                ),
+                strategy=SelectionConfigEntryStrategy(
+                    type=SelectionStrategyType.DIVERSIFY,
+                    stopping_condition_minimum_distance=0.1
+                )
+            )
+        ]
+    )
+
     client.schedule_compute_worker_run(
         worker_config={
             "enable_corruptness_check": False,
             "remove_exact_duplicates": True,
             "enable_training": False,
             "pretagging": False,
-            "pretagging_debug": False,
-            "method": "coreset",
-            "stopping_condition": {
-                "n_samples": 500000,
-                "min_distance": -1
-            }
-        }
+            "pretagging_debug": False
+        },
+        selection_config=selection_config
     )
 
 
@@ -124,19 +136,31 @@ The following command schedules a job to select a subset from Cityscapes:
 
 .. code-block:: python
 
+    # in this example we use a diversifying selection strategy (CORESET)
+    selection_config = SelectionConfig(
+        n_samples=10_000, # maket this number high (upper limit)
+        strategies=[
+            SelectionConfigEntry(
+                input=SelectionConfigEntryInput(
+                    type=SelectionInputType.EMBEDDINGS
+                ),
+                strategy=SelectionConfigEntryStrategy(
+                    type=SelectionStrategyType.DIVERSIFY,
+                    stopping_condition_minimum_distance=0.2
+                )
+            )
+        ]
+    )
+
     client.schedule_compute_worker_run(
         worker_config={
             "enable_corruptness_check": False,
             "remove_exact_duplicates": True,
             "enable_training": False,
             "pretagging": False,
-            "pretagging_debug": False,
-            "method": "coreset",
-            "stopping_condition": {
-                "n_samples": -1,
-                "min_distance": 0.2,
-            }
-        }
+            "pretagging_debug": False
+        },
+        selection_config=selection_config
     )
 
 

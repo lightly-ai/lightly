@@ -242,12 +242,12 @@ Now that everything is in place, let's configure and run a simple job.
             "enable_corruptness_check": True,
             "remove_exact_duplicates": True,
         }
-        selection_config=DockerWorkerSelectionConfig(
+        selection_config=SelectionConfig(
             n_samples=50,
             strategies=[
-                DockerWorkerSelectionConfigEntry(
-                    input=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionInputType.EMBEDDINGS),
-                    strategy=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionStrategyType.DIVERSIFY)
+                SelectionConfigEntry(
+                    input=SelectionConfigEntry(type=SelectionInputType.EMBEDDINGS),
+                    strategy=SelectionConfigEntry(type=SelectionStrategyType.DIVERSIFY)
                 )
             ]
         )
@@ -299,12 +299,12 @@ epochs on the input images before embedding the images and selecting from them.
             "pretagging": False,
             "pretagging_debug": False,
         },
-        selection_config=DockerWorkerSelectionConfig(
+        selection_config=SelectionConfig(
             n_samples=50,
             strategies=[
-                DockerWorkerSelectionConfigEntry(
-                    input=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionInputType.EMBEDDINGS),
-                    strategy=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionStrategyType.DIVERSIFY)
+                SelectionConfigEntry(
+                    input=SelectionConfigEntry(type=SelectionInputType.EMBEDDINGS),
+                    strategy=SelectionConfigEntry(type=SelectionStrategyType.DIVERSIFY)
                 )
             ]
         )
@@ -407,12 +407,12 @@ a `shared directory` and then passing the checkpoint filename to the container.
             "pretagging_debug": False,
             "checkpoint": "lightly_epoch_X.ckpt"
         },
-        selection_config=DockerWorkerSelectionConfig(
+        selection_config=SelectionConfig(
             n_samples=50,
             strategies=[
-                DockerWorkerSelectionConfigEntry(
-                    input=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionInputType.EMBEDDINGS),
-                    strategy=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionStrategyType.DIVERSIFY)
+                SelectionConfigEntry(
+                    input=SelectionConfigEntry(type=SelectionInputType.EMBEDDINGS),
+                    strategy=SelectionConfigEntry(type=SelectionStrategyType.DIVERSIFY)
                 )
             ]
         )
@@ -482,12 +482,12 @@ The corresponding Python command to submit a job would then be as follows:
             "pretagging": False,
             "pretagging_debug": False,
         },
-        selection_config=DockerWorkerSelectionConfig(
+        selection_config=SelectionConfig(
             n_samples=50,
             strategies=[
-                DockerWorkerSelectionConfigEntry(
-                    input=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionInputType.EMBEDDINGS),
-                    strategy=DockerWorkerSelectionConfigEntry(type=DockerWorkerSelectionStrategyType.DIVERSIFY)
+                SelectionConfigEntry(
+                    input=SelectionConfigEntry(type=SelectionInputType.EMBEDDINGS),
+                    strategy=SelectionConfigEntry(type=SelectionStrategyType.DIVERSIFY)
                 )
             ]
         )
