@@ -81,6 +81,16 @@ class DockerRunCreateRequest(
     @property
     def datasetId(cls) -> typing.Type['MongoObjectID']:
         return MongoObjectID
+
+    @classmethod
+    @property
+    def scheduledId(cls) -> typing.Type['MongoObjectID']:
+        return MongoObjectID
+
+    @classmethod
+    @property
+    def configId(cls) -> typing.Type['MongoObjectID']:
+        return MongoObjectID
     message = StrSchema
 
 
@@ -89,6 +99,8 @@ class DockerRunCreateRequest(
         *args: typing.Union[dict, frozendict, ],
         dockerVersion: dockerVersion,
         datasetId: typing.Union['MongoObjectID', Unset] = unset,
+        scheduledId: typing.Union['MongoObjectID', Unset] = unset,
+        configId: typing.Union['MongoObjectID', Unset] = unset,
         message: typing.Union[message, Unset] = unset,
         _configuration: typing.Optional[Configuration] = None,
         **kwargs: typing.Type[Schema],
@@ -98,6 +110,8 @@ class DockerRunCreateRequest(
             *args,
             dockerVersion=dockerVersion,
             datasetId=datasetId,
+            scheduledId=scheduledId,
+            configId=configId,
             message=message,
             _configuration=_configuration,
             **kwargs,

@@ -16,12 +16,14 @@ Method | HTTP request | Description
 [**get_docker_runs**](DockerApi.md#get_docker_runs) | **GET** /v1/docker/runs | 
 [**get_docker_runs_scheduled_by_dataset_id**](DockerApi.md#get_docker_runs_scheduled_by_dataset_id) | **GET** /v1/datasets/{datasetId}/docker/worker/schedule | 
 [**get_docker_runs_scheduled_by_state**](DockerApi.md#get_docker_runs_scheduled_by_state) | **GET** /v1/docker/worker/schedule | 
+[**get_docker_runs_scheduled_by_worker_id**](DockerApi.md#get_docker_runs_scheduled_by_worker_id) | **GET** /v1/docker/worker/{workerId}/schedule | 
 [**get_docker_worker_config_by_id**](DockerApi.md#get_docker_worker_config_by_id) | **GET** /v1/docker/worker/config/{configId} | 
 [**get_docker_worker_configs**](DockerApi.md#get_docker_worker_configs) | **GET** /v1/docker/worker/config | 
 [**get_docker_worker_registry_entries**](DockerApi.md#get_docker_worker_registry_entries) | **GET** /v1/docker/worker | 
 [**get_docker_worker_registry_entry_by_id**](DockerApi.md#get_docker_worker_registry_entry_by_id) | **GET** /v1/docker/worker/{workerId} | 
 [**post_docker_authorization_request**](DockerApi.md#post_docker_authorization_request) | **POST** /v1/docker/authorization | 
 [**post_docker_usage_stats**](DockerApi.md#post_docker_usage_stats) | **POST** /v1/docker | 
+[**post_docker_worker_authorization_request**](DockerApi.md#post_docker_worker_authorization_request) | **POST** /v1/docker/workerAuthorization | 
 [**register_docker_worker**](DockerApi.md#register_docker_worker) | **POST** /v1/docker/worker | 
 [**update_docker_run_by_id**](DockerApi.md#update_docker_run_by_id) | **PUT** /v1/docker/runs/{runId} | 
 [**update_docker_worker_config_by_id**](DockerApi.md#update_docker_worker_config_by_id) | **PUT** /v1/docker/worker/config/{configId} | 
@@ -226,6 +228,8 @@ with swagger_client.ApiClient(configuration) as api_client:
     body = DockerRunCreateRequest(
         docker_version="docker_version_example",
         dataset_id=MongoObjectID("50000000abcdef1234566789"),
+        scheduled_id=MongoObjectID("50000000abcdef1234566789"),
+        config_id=MongoObjectID("50000000abcdef1234566789"),
         message="message_example",
     )
     try:
@@ -556,6 +560,27 @@ with swagger_client.ApiClient(configuration) as api_client:
             worker_type=DockerWorkerType("FULL"),
             docker=dict(),
             lightly=dict(),
+            selection=DockerWorkerSelectionConfig(
+                n_samples=1,
+                strategies=[
+                    DockerWorkerSelectionConfigEntry(
+                        input=DockerWorkerSelectionConfigEntryInput(
+                            type=DockerWorkerSelectionInputType("EMBEDDINGS"),
+                            task="task_example",
+                            score=ActiveLearningScoreType("uncertainty_margin"),
+                            key="key_example",
+                            name=DockerWorkerSelectionInputPredictionsName("CLASS_DISTRIBUTION"),
+                        ),
+                        strategy=DockerWorkerSelectionConfigEntryStrategy(
+                            type=DockerWorkerSelectionStrategyType("DIVERSIFY"),
+                            stopping_condition_minimum_distance=3.14,
+                            threshold=3.14,
+                            operation=DockerWorkerSelectionStrategyThresholdOperation("SMALLER"),
+                            target=dict(),
+                        ),
+                    )
+                ],
+            ),
         ),
     )
     try:
@@ -1865,6 +1890,191 @@ Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **get_docker_runs_scheduled_by_worker_id**
+> [DockerRunScheduledData] get_docker_runs_scheduled_by_worker_id(worker_id)
+
+
+
+Get all scheduled docker runs of a workerId, optionally filtered by state.
+
+### Example
+
+* Api Key Authentication (ApiKeyAuth):
+* Bearer (JWT) Authentication (auth0Bearer):
+```python
+import swagger_client
+from swagger_client.api import docker_api
+from swagger_client.model.mongo_object_id import MongoObjectID
+from swagger_client.model.docker_run_scheduled_state import DockerRunScheduledState
+from swagger_client.model.docker_run_scheduled_data import DockerRunScheduledData
+from swagger_client.model.api_error_response import ApiErrorResponse
+from pprint import pprint
+# Defining the host is optional and defaults to https://api.lightly.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = swagger_client.Configuration(
+    host = "https://api.lightly.ai"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure API key authorization: ApiKeyAuth
+configuration.api_key['ApiKeyAuth'] = 'YOUR_API_KEY'
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['ApiKeyAuth'] = 'Bearer'
+
+# Configure Bearer authorization (JWT): auth0Bearer
+configuration = swagger_client.Configuration(
+    access_token = 'YOUR_BEARER_TOKEN'
+)
+# Enter a context with an instance of the API client
+with swagger_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = docker_api.DockerApi(api_client)
+
+    # example passing only required values which don't have defaults set
+    path_params = {
+        'workerId': MongoObjectID("50000000abcdef1234566789"),
+    }
+    query_params = {
+    }
+    try:
+        api_response = api_instance.get_docker_runs_scheduled_by_worker_id(
+            path_params=path_params,
+            query_params=query_params,
+        )
+        pprint(api_response)
+    except swagger_client.ApiException as e:
+        print("Exception when calling DockerApi->get_docker_runs_scheduled_by_worker_id: %s\n" % e)
+
+    # example passing only optional values
+    path_params = {
+        'workerId': MongoObjectID("50000000abcdef1234566789"),
+    }
+    query_params = {
+        'state': DockerRunScheduledState("OPEN"),
+    }
+    try:
+        api_response = api_instance.get_docker_runs_scheduled_by_worker_id(
+            path_params=path_params,
+            query_params=query_params,
+        )
+        pprint(api_response)
+    except swagger_client.ApiException as e:
+        print("Exception when calling DockerApi->get_docker_runs_scheduled_by_worker_id: %s\n" % e)
+```
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+query_params | RequestQueryParams | |
+path_params | RequestPathParams | |
+accept_content_types | typing.Tuple[str] | default is ('application/json', ) | Tells the server the content type(s) that are accepted by the client
+stream | bool | default is False | if True then the response.content will be streamed and loaded from a file like object. When downloading a file, set this to True to force the code to deserialize the content to a FileSchema file
+timeout | typing.Optional[typing.Union[int, typing.Tuple]] | default is None | the timeout used by the rest client
+skip_deserialization | bool | default is False | when True, headers and body will be unset and an instance of api_client.ApiResponseWithoutDeserialization will be returned
+
+### query_params
+#### RequestQueryParams
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+state | StateSchema | | optional
+
+
+#### StateSchema
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**DockerRunScheduledState**](DockerRunScheduledState.md) |  | 
+
+
+### path_params
+#### RequestPathParams
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+workerId | WorkerIdSchema | | 
+
+#### WorkerIdSchema
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**MongoObjectID**](MongoObjectID.md) |  | 
+
+
+### Return Types, Responses
+
+Code | Class | Description
+------------- | ------------- | -------------
+n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
+200 | ApiResponseFor200 | Get successful 
+400 | ApiResponseFor400 | Bad Request / malformed 
+403 | ApiResponseFor403 | Access is forbidden 
+404 | ApiResponseFor404 | The specified resource was not found 
+
+#### ApiResponseFor200
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor200ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor200ResponseBodyApplicationJson
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**[DockerRunScheduledData]** |  | 
+
+#### ApiResponseFor400
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor400ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor400ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+#### ApiResponseFor403
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor403ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor403ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+#### ApiResponseFor404
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor404ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor404ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+
+[**[DockerRunScheduledData]**](DockerRunScheduledData.md)
+
+### Authorization
+
+[ApiKeyAuth](../README.md#ApiKeyAuth), [auth0Bearer](../README.md#auth0Bearer)
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **get_docker_worker_config_by_id**
 > DockerWorkerConfigData get_docker_worker_config_by_id(config_id)
 
@@ -2717,6 +2927,151 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **post_docker_worker_authorization_request**
+> str post_docker_worker_authorization_request(docker_worker_authorization_request)
+
+
+
+Performs an authorization to run the Lightly Worker.
+
+### Example
+
+* Api Key Authentication (ApiKeyAuth):
+* Bearer (JWT) Authentication (auth0Bearer):
+```python
+import swagger_client
+from swagger_client.api import docker_api
+from swagger_client.model.docker_worker_authorization_request import DockerWorkerAuthorizationRequest
+from swagger_client.model.api_error_response import ApiErrorResponse
+from pprint import pprint
+# Defining the host is optional and defaults to https://api.lightly.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = swagger_client.Configuration(
+    host = "https://api.lightly.ai"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure API key authorization: ApiKeyAuth
+configuration.api_key['ApiKeyAuth'] = 'YOUR_API_KEY'
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['ApiKeyAuth'] = 'Bearer'
+
+# Configure Bearer authorization (JWT): auth0Bearer
+configuration = swagger_client.Configuration(
+    access_token = 'YOUR_BEARER_TOKEN'
+)
+# Enter a context with an instance of the API client
+with swagger_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = docker_api.DockerApi(api_client)
+
+    # example passing only required values which don't have defaults set
+    body = DockerWorkerAuthorizationRequest(
+        hashed_task_description="hashed_task_description_example",
+    )
+    try:
+        api_response = api_instance.post_docker_worker_authorization_request(
+            body=body,
+        )
+        pprint(api_response)
+    except swagger_client.ApiException as e:
+        print("Exception when calling DockerApi->post_docker_worker_authorization_request: %s\n" % e)
+```
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+body | typing.Union[SchemaForRequestBodyApplicationJson] | required |
+content_type | str | optional, default is 'application/json' | Selects the schema and serialization of the request body
+accept_content_types | typing.Tuple[str] | default is ('text/plain', 'application/json', ) | Tells the server the content type(s) that are accepted by the client
+stream | bool | default is False | if True then the response.content will be streamed and loaded from a file like object. When downloading a file, set this to True to force the code to deserialize the content to a FileSchema file
+timeout | typing.Optional[typing.Union[int, typing.Tuple]] | default is None | the timeout used by the rest client
+skip_deserialization | bool | default is False | when True, headers and body will be unset and an instance of api_client.ApiResponseWithoutDeserialization will be returned
+
+### body
+
+#### SchemaForRequestBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**DockerWorkerAuthorizationRequest**](DockerWorkerAuthorizationRequest.md) |  | 
+
+
+### Return Types, Responses
+
+Code | Class | Description
+------------- | ------------- | -------------
+n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
+200 | ApiResponseFor200 | Get successful 
+400 | ApiResponseFor400 | Bad Request / malformed 
+403 | ApiResponseFor403 | Access is forbidden 
+404 | ApiResponseFor404 | The specified resource was not found 
+
+#### ApiResponseFor200
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor200ResponseBodyTextPlain, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor200ResponseBodyTextPlain
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**str** |  | 
+
+#### ApiResponseFor400
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor400ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor400ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+#### ApiResponseFor403
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor403ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor403ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+#### ApiResponseFor404
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor404ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor404ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+
+**str**
+
+### Authorization
+
+[ApiKeyAuth](../README.md#ApiKeyAuth), [auth0Bearer](../README.md#auth0Bearer)
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **register_docker_worker**
 > CreateEntityResponse register_docker_worker(create_docker_worker_registry_entry_request)
 
@@ -3089,6 +3444,27 @@ with swagger_client.ApiClient(configuration) as api_client:
             worker_type=DockerWorkerType("FULL"),
             docker=dict(),
             lightly=dict(),
+            selection=DockerWorkerSelectionConfig(
+                n_samples=1,
+                strategies=[
+                    DockerWorkerSelectionConfigEntry(
+                        input=DockerWorkerSelectionConfigEntryInput(
+                            type=DockerWorkerSelectionInputType("EMBEDDINGS"),
+                            task="task_example",
+                            score=ActiveLearningScoreType("uncertainty_margin"),
+                            key="key_example",
+                            name=DockerWorkerSelectionInputPredictionsName("CLASS_DISTRIBUTION"),
+                        ),
+                        strategy=DockerWorkerSelectionConfigEntryStrategy(
+                            type=DockerWorkerSelectionStrategyType("DIVERSIFY"),
+                            stopping_condition_minimum_distance=3.14,
+                            threshold=3.14,
+                            operation=DockerWorkerSelectionStrategyThresholdOperation("SMALLER"),
+                            target=dict(),
+                        ),
+                    )
+                ],
+            ),
         ),
     )
     try:

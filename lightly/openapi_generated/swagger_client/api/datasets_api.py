@@ -13,6 +13,7 @@
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.api.datasets_api_endpoints.create_dataset import CreateDataset
 from lightly.openapi_generated.swagger_client.api.datasets_api_endpoints.delete_dataset_by_id import DeleteDatasetById
+from lightly.openapi_generated.swagger_client.api.datasets_api_endpoints.get_children_of_dataset_id import GetChildrenOfDatasetId
 from lightly.openapi_generated.swagger_client.api.datasets_api_endpoints.get_dataset_by_id import GetDatasetById
 from lightly.openapi_generated.swagger_client.api.datasets_api_endpoints.get_datasets import GetDatasets
 from lightly.openapi_generated.swagger_client.api.datasets_api_endpoints.get_datasets_enriched import GetDatasetsEnriched
@@ -23,6 +24,7 @@ from lightly.openapi_generated.swagger_client.api.datasets_api_endpoints.update_
 class DatasetsApi(
     CreateDataset,
     DeleteDatasetById,
+    GetChildrenOfDatasetId,
     GetDatasetById,
     GetDatasets,
     GetDatasetsEnriched,

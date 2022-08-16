@@ -77,147 +77,11 @@ class DatasourceConfigS3AllOf(
         's3AccessKeyId',
         's3SecretAccessKey',
     ))
-    
-    
-    class s3Region(
-        _SchemaEnumMaker(
-            enum_value_to_name={
-                "us-east-2": "USEAST2",
-                "us-east-1": "USEAST1",
-                "us-west-1": "USWEST1",
-                "us-west-2": "USWEST2",
-                "us-gov-west-1": "USGOVWEST1",
-                "us-gov-east-1": "USGOVEAST1",
-                "eu-central-1": "EUCENTRAL1",
-                "eu-west-1": "EUWEST1",
-                "eu-west-2": "EUWEST2",
-                "eu-west-3": "EUWEST3",
-                "eu-north-1": "EUNORTH1",
-                "sa-east-1": "SAEAST1",
-                "cn-north-1": "CNNORTH1",
-                "cn-northwest-1": "CNNORTHWEST1",
-                "ap-east-1": "APEAST1",
-                "ap-south-1": "APSOUTH1",
-                "ap-northeast-2": "APNORTHEAST2",
-                "ap-southeast-1": "APSOUTHEAST1",
-                "ap-southeast-2": "APSOUTHEAST2",
-                "ap-northeast-1": "APNORTHEAST1",
-                "ca-central-1": "CACENTRAL1",
-                "me-south-1": "MESOUTH1",
-            }
-        ),
-        StrSchema
-    ):
-        
-        @classmethod
-        @property
-        def USEAST2(cls):
-            return cls._enum_by_value["us-east-2"]("us-east-2")
-        
-        @classmethod
-        @property
-        def USEAST1(cls):
-            return cls._enum_by_value["us-east-1"]("us-east-1")
-        
-        @classmethod
-        @property
-        def USWEST1(cls):
-            return cls._enum_by_value["us-west-1"]("us-west-1")
-        
-        @classmethod
-        @property
-        def USWEST2(cls):
-            return cls._enum_by_value["us-west-2"]("us-west-2")
-        
-        @classmethod
-        @property
-        def USGOVWEST1(cls):
-            return cls._enum_by_value["us-gov-west-1"]("us-gov-west-1")
-        
-        @classmethod
-        @property
-        def USGOVEAST1(cls):
-            return cls._enum_by_value["us-gov-east-1"]("us-gov-east-1")
-        
-        @classmethod
-        @property
-        def EUCENTRAL1(cls):
-            return cls._enum_by_value["eu-central-1"]("eu-central-1")
-        
-        @classmethod
-        @property
-        def EUWEST1(cls):
-            return cls._enum_by_value["eu-west-1"]("eu-west-1")
-        
-        @classmethod
-        @property
-        def EUWEST2(cls):
-            return cls._enum_by_value["eu-west-2"]("eu-west-2")
-        
-        @classmethod
-        @property
-        def EUWEST3(cls):
-            return cls._enum_by_value["eu-west-3"]("eu-west-3")
-        
-        @classmethod
-        @property
-        def EUNORTH1(cls):
-            return cls._enum_by_value["eu-north-1"]("eu-north-1")
-        
-        @classmethod
-        @property
-        def SAEAST1(cls):
-            return cls._enum_by_value["sa-east-1"]("sa-east-1")
-        
-        @classmethod
-        @property
-        def CNNORTH1(cls):
-            return cls._enum_by_value["cn-north-1"]("cn-north-1")
-        
-        @classmethod
-        @property
-        def CNNORTHWEST1(cls):
-            return cls._enum_by_value["cn-northwest-1"]("cn-northwest-1")
-        
-        @classmethod
-        @property
-        def APEAST1(cls):
-            return cls._enum_by_value["ap-east-1"]("ap-east-1")
-        
-        @classmethod
-        @property
-        def APSOUTH1(cls):
-            return cls._enum_by_value["ap-south-1"]("ap-south-1")
-        
-        @classmethod
-        @property
-        def APNORTHEAST2(cls):
-            return cls._enum_by_value["ap-northeast-2"]("ap-northeast-2")
-        
-        @classmethod
-        @property
-        def APSOUTHEAST1(cls):
-            return cls._enum_by_value["ap-southeast-1"]("ap-southeast-1")
-        
-        @classmethod
-        @property
-        def APSOUTHEAST2(cls):
-            return cls._enum_by_value["ap-southeast-2"]("ap-southeast-2")
-        
-        @classmethod
-        @property
-        def APNORTHEAST1(cls):
-            return cls._enum_by_value["ap-northeast-1"]("ap-northeast-1")
-        
-        @classmethod
-        @property
-        def CACENTRAL1(cls):
-            return cls._enum_by_value["ca-central-1"]("ca-central-1")
-        
-        @classmethod
-        @property
-        def MESOUTH1(cls):
-            return cls._enum_by_value["me-south-1"]("me-south-1")
+
+    @classmethod
+    @property
+    def s3Region(cls) -> typing.Type['S3Region']:
+        return S3Region
     
     
     class s3AccessKeyId(
@@ -237,6 +101,11 @@ class DatasourceConfigS3AllOf(
     ):
         pass
 
+    @classmethod
+    @property
+    def s3ServerSideEncryptionKMSKey(cls) -> typing.Type['S3ServerSideEncryptionKMSKey']:
+        return S3ServerSideEncryptionKMSKey
+
 
     def __new__(
         cls,
@@ -244,6 +113,7 @@ class DatasourceConfigS3AllOf(
         s3Region: s3Region,
         s3AccessKeyId: s3AccessKeyId,
         s3SecretAccessKey: s3SecretAccessKey,
+        s3ServerSideEncryptionKMSKey: typing.Union['S3ServerSideEncryptionKMSKey', Unset] = unset,
         _configuration: typing.Optional[Configuration] = None,
         **kwargs: typing.Type[Schema],
     ) -> 'DatasourceConfigS3AllOf':
@@ -253,6 +123,10 @@ class DatasourceConfigS3AllOf(
             s3Region=s3Region,
             s3AccessKeyId=s3AccessKeyId,
             s3SecretAccessKey=s3SecretAccessKey,
+            s3ServerSideEncryptionKMSKey=s3ServerSideEncryptionKMSKey,
             _configuration=_configuration,
             **kwargs,
         )
+
+from lightly.openapi_generated.swagger_client.model.s3_region import S3Region
+from lightly.openapi_generated.swagger_client.model.s3_server_side_encryption_kms_key import S3ServerSideEncryptionKMSKey

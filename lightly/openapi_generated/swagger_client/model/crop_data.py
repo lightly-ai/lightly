@@ -74,6 +74,7 @@ class CropData(
     """
     _required_property_names = set((
         'parentId',
+        'predictionUUIDTimestamp',
         'predictionIndex',
         'predictionTaskName',
         'predictionTaskCategoryId',
@@ -84,25 +85,42 @@ class CropData(
     @property
     def parentId(cls) -> typing.Type['MongoObjectID']:
         return MongoObjectID
-    predictionIndex = IntSchema
-    predictionTaskName = StrSchema
-    predictionTaskCategoryId = IntSchema
+
+    @classmethod
+    @property
+    def predictionUUIDTimestamp(cls) -> typing.Type['Timestamp']:
+        return Timestamp
     
     
-    class predictionTaskScore(
+    class predictionIndex(
         _SchemaValidator(
-            inclusive_maximum=1,
             inclusive_minimum=0,
         ),
-        NumberSchema
+        IntSchema
     ):
         pass
+
+    @classmethod
+    @property
+    def predictionTaskName(cls) -> typing.Type['PathSafeName']:
+        return PathSafeName
+
+    @classmethod
+    @property
+    def predictionTaskCategoryId(cls) -> typing.Type['CategoryId']:
+        return CategoryId
+
+    @classmethod
+    @property
+    def predictionTaskScore(cls) -> typing.Type['Score']:
+        return Score
 
 
     def __new__(
         cls,
         *args: typing.Union[dict, frozendict, ],
         parentId: parentId,
+        predictionUUIDTimestamp: predictionUUIDTimestamp,
         predictionIndex: predictionIndex,
         predictionTaskName: predictionTaskName,
         predictionTaskCategoryId: predictionTaskCategoryId,
@@ -114,6 +132,7 @@ class CropData(
             cls,
             *args,
             parentId=parentId,
+            predictionUUIDTimestamp=predictionUUIDTimestamp,
             predictionIndex=predictionIndex,
             predictionTaskName=predictionTaskName,
             predictionTaskCategoryId=predictionTaskCategoryId,
@@ -122,4 +141,8 @@ class CropData(
             **kwargs,
         )
 
+from lightly.openapi_generated.swagger_client.model.category_id import CategoryId
 from lightly.openapi_generated.swagger_client.model.mongo_object_id import MongoObjectID
+from lightly.openapi_generated.swagger_client.model.path_safe_name import PathSafeName
+from lightly.openapi_generated.swagger_client.model.score import Score
+from lightly.openapi_generated.swagger_client.model.timestamp import Timestamp

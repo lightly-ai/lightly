@@ -23,12 +23,14 @@ from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.get_docke
 from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.get_docker_runs import GetDockerRuns
 from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.get_docker_runs_scheduled_by_dataset_id import GetDockerRunsScheduledByDatasetId
 from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.get_docker_runs_scheduled_by_state import GetDockerRunsScheduledByState
+from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.get_docker_runs_scheduled_by_worker_id import GetDockerRunsScheduledByWorkerId
 from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.get_docker_worker_config_by_id import GetDockerWorkerConfigById
 from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.get_docker_worker_configs import GetDockerWorkerConfigs
 from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.get_docker_worker_registry_entries import GetDockerWorkerRegistryEntries
 from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.get_docker_worker_registry_entry_by_id import GetDockerWorkerRegistryEntryById
 from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.post_docker_authorization_request import PostDockerAuthorizationRequest
 from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.post_docker_usage_stats import PostDockerUsageStats
+from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.post_docker_worker_authorization_request import PostDockerWorkerAuthorizationRequest
 from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.register_docker_worker import RegisterDockerWorker
 from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.update_docker_run_by_id import UpdateDockerRunById
 from lightly.openapi_generated.swagger_client.api.docker_api_endpoints.update_docker_worker_config_by_id import UpdateDockerWorkerConfigById
@@ -49,12 +51,14 @@ class DockerApi(
     GetDockerRuns,
     GetDockerRunsScheduledByDatasetId,
     GetDockerRunsScheduledByState,
+    GetDockerRunsScheduledByWorkerId,
     GetDockerWorkerConfigById,
     GetDockerWorkerConfigs,
     GetDockerWorkerRegistryEntries,
     GetDockerWorkerRegistryEntryById,
     PostDockerAuthorizationRequest,
     PostDockerUsageStats,
+    PostDockerWorkerAuthorizationRequest,
     RegisterDockerWorker,
     UpdateDockerRunById,
     UpdateDockerWorkerConfigById,

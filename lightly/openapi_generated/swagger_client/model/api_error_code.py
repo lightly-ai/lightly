@@ -74,15 +74,19 @@ class ApiErrorCode(
             "NOT_FOUND": "NOT_FOUND",
             "MALFORMED_REQUEST": "MALFORMED_REQUEST",
             "MALFORMED_RESPONSE": "MALFORMED_RESPONSE",
+            "PAYLOAD_TOO_LARGE": "PAYLOAD_TOO_LARGE",
             "JWT_INVALID": "JWT_INVALID",
             "JWT_MALFORMED": "JWT_MALFORMED",
+            "CREATION_FAILED": "CREATION_FAILED",
             "JOB_CREATION_FAILED": "JOB_CREATION_FAILED",
             "JOB_UNKNOWN": "JOB_UNKNOWN",
             "USER_NOT_KNOWN": "USER_NOT_KNOWN",
             "USER_ACCOUNT_DEACTIVATED": "USER_ACCOUNT_DEACTIVATED",
             "USER_ACCOUNT_BLOCKED": "USER_ACCOUNT_BLOCKED",
             "TEAM_ACCOUNT_PLAN_INSUFFICIENT": "TEAM_ACCOUNT_PLAN_INSUFFICIENT",
+            "ILLEGAL_ACTION_RESOURCE_IN_USE": "ILLEGAL_ACTION_RESOURCE_IN_USE",
             "DATASET_UNKNOWN": "DATASET_UNKNOWN",
+            "DATASET_NOT_SUPPORTED": "DATASET_NOT_SUPPORTED",
             "DATASET_TAG_INVALID": "DATASET_TAG_INVALID",
             "DATASET_NAME_EXISTS": "DATASET_NAME_EXISTS",
             "DATASET_AT_MAX_CAPACITY": "DATASET_AT_MAX_CAPACITY",
@@ -91,6 +95,7 @@ class ApiErrorCode(
             "DATASET_DATASOURCE_INVALID": "DATASET_DATASOURCE_INVALID",
             "DATASET_DATASOURCE_ACTION_NOT_IMPLEMENTED": "DATASET_DATASOURCE_ACTION_NOT_IMPLEMENTED",
             "DATASET_DATASOURCE_ILLEGAL_ACTION": "DATASET_DATASOURCE_ILLEGAL_ACTION",
+            "DATASET_DATASOURCE_RELEVANT_FILENAMES_INVALID": "DATASET_DATASOURCE_RELEVANT_FILENAMES_INVALID",
             "ACCESS_CONTROL_UNKNOWN": "ACCESS_CONTROL_UNKNOWN",
             "EMBEDDING_UNKNOWN": "EMBEDDING_UNKNOWN",
             "EMBEDDING_NAME_EXISTS": "EMBEDDING_NAME_EXISTS",
@@ -113,6 +118,8 @@ class ApiErrorCode(
             "SAMPLE_THUMBNAME_UNKNOWN": "SAMPLE_THUMBNAME_UNKNOWN",
             "SAMPLE_CREATE_REQUEST_INVALID_FORMAT": "SAMPLE_CREATE_REQUEST_INVALID_FORMAT",
             "SAMPLE_CREATE_REQUEST_INVALID_CROP_DATA": "SAMPLE_CREATE_REQUEST_INVALID_CROP_DATA",
+            "PREDICTION_TASK_SCHEMA_UNKNOWN": "PREDICTION_TASK_SCHEMA_UNKNOWN",
+            "PREDICTION_TASK_SCHEMA_CATEGORIES_NOT_UNIQUE": "PREDICTION_TASK_SCHEMA_CATEGORIES_NOT_UNIQUE",
             "SCORE_UNKNOWN": "SCORE_UNKNOWN",
             "DOCKER_RUN_UNKNOWN": "DOCKER_RUN_UNKNOWN",
             "DOCKER_RUN_REPORT_UNAVAILABLE": "DOCKER_RUN_REPORT_UNAVAILABLE",
@@ -170,6 +177,11 @@ class ApiErrorCode(
     
     @classmethod
     @property
+    def PAYLOAD_TOO_LARGE(cls):
+        return cls._enum_by_value["PAYLOAD_TOO_LARGE"]("PAYLOAD_TOO_LARGE")
+    
+    @classmethod
+    @property
     def JWT_INVALID(cls):
         return cls._enum_by_value["JWT_INVALID"]("JWT_INVALID")
     
@@ -177,6 +189,11 @@ class ApiErrorCode(
     @property
     def JWT_MALFORMED(cls):
         return cls._enum_by_value["JWT_MALFORMED"]("JWT_MALFORMED")
+    
+    @classmethod
+    @property
+    def CREATION_FAILED(cls):
+        return cls._enum_by_value["CREATION_FAILED"]("CREATION_FAILED")
     
     @classmethod
     @property
@@ -210,8 +227,18 @@ class ApiErrorCode(
     
     @classmethod
     @property
+    def ILLEGAL_ACTION_RESOURCE_IN_USE(cls):
+        return cls._enum_by_value["ILLEGAL_ACTION_RESOURCE_IN_USE"]("ILLEGAL_ACTION_RESOURCE_IN_USE")
+    
+    @classmethod
+    @property
     def DATASET_UNKNOWN(cls):
         return cls._enum_by_value["DATASET_UNKNOWN"]("DATASET_UNKNOWN")
+    
+    @classmethod
+    @property
+    def DATASET_NOT_SUPPORTED(cls):
+        return cls._enum_by_value["DATASET_NOT_SUPPORTED"]("DATASET_NOT_SUPPORTED")
     
     @classmethod
     @property
@@ -252,6 +279,11 @@ class ApiErrorCode(
     @property
     def DATASET_DATASOURCE_ILLEGAL_ACTION(cls):
         return cls._enum_by_value["DATASET_DATASOURCE_ILLEGAL_ACTION"]("DATASET_DATASOURCE_ILLEGAL_ACTION")
+    
+    @classmethod
+    @property
+    def DATASET_DATASOURCE_RELEVANT_FILENAMES_INVALID(cls):
+        return cls._enum_by_value["DATASET_DATASOURCE_RELEVANT_FILENAMES_INVALID"]("DATASET_DATASOURCE_RELEVANT_FILENAMES_INVALID")
     
     @classmethod
     @property
@@ -362,6 +394,16 @@ class ApiErrorCode(
     @property
     def SAMPLE_CREATE_REQUEST_INVALID_CROP_DATA(cls):
         return cls._enum_by_value["SAMPLE_CREATE_REQUEST_INVALID_CROP_DATA"]("SAMPLE_CREATE_REQUEST_INVALID_CROP_DATA")
+    
+    @classmethod
+    @property
+    def PREDICTION_TASK_SCHEMA_UNKNOWN(cls):
+        return cls._enum_by_value["PREDICTION_TASK_SCHEMA_UNKNOWN"]("PREDICTION_TASK_SCHEMA_UNKNOWN")
+    
+    @classmethod
+    @property
+    def PREDICTION_TASK_SCHEMA_CATEGORIES_NOT_UNIQUE(cls):
+        return cls._enum_by_value["PREDICTION_TASK_SCHEMA_CATEGORIES_NOT_UNIQUE"]("PREDICTION_TASK_SCHEMA_CATEGORIES_NOT_UNIQUE")
     
     @classmethod
     @property

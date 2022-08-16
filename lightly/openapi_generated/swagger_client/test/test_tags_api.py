@@ -43,6 +43,12 @@ class TestTagsApi(unittest.TestCase):
         """
         pass
 
+    def test_download_zip_of_samples_by_tag_id(self):
+        """Test case for download_zip_of_samples_by_tag_id
+
+        """
+        pass
+
     def test_export_tag_to_basic_filenames(self):
         """Test case for export_tag_to_basic_filenames
 

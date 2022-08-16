@@ -66,28 +66,9 @@ from lightly.openapi_generated.swagger_client.model.mongo_object_id import Mongo
 from lightly.openapi_generated.swagger_client.model.api_error_response import ApiErrorResponse
 
 # query params
-
-
-class ModeSchema(
-    _SchemaEnumMaker(
-        enum_value_to_name={
-            "full": "FULL",
-            "ids": "IDS",
-        }
-    ),
-    StrSchema
-):
-    
-    @classmethod
-    @property
-    def FULL(cls):
-        return cls._enum_by_value["full"]("full")
-    
-    @classmethod
-    @property
-    def IDS(cls):
-        return cls._enum_by_value["ids"]("ids")
 FileNameSchema = StrSchema
+PageSizeSchema = NumberSchema
+PageOffsetSchema = NumberSchema
 RequestRequiredQueryParams = typing.TypedDict(
     'RequestRequiredQueryParams',
     {
@@ -96,8 +77,9 @@ RequestRequiredQueryParams = typing.TypedDict(
 RequestOptionalQueryParams = typing.TypedDict(
     'RequestOptionalQueryParams',
     {
-        'mode': ModeSchema,
         'fileName': FileNameSchema,
+        'pageSize': PageSizeSchema,
+        'pageOffset': PageOffsetSchema,
     },
     total=False
 )
@@ -107,16 +89,22 @@ class RequestQueryParams(RequestRequiredQueryParams, RequestOptionalQueryParams)
     pass
 
 
-request_query_mode = api_client.QueryParameter(
-    name="mode",
-    style=api_client.ParameterStyle.FORM,
-    schema=ModeSchema,
-    explode=True,
-)
 request_query_file_name = api_client.QueryParameter(
     name="fileName",
     style=api_client.ParameterStyle.FORM,
     schema=FileNameSchema,
+    explode=True,
+)
+request_query_page_size = api_client.QueryParameter(
+    name="pageSize",
+    style=api_client.ParameterStyle.FORM,
+    schema=PageSizeSchema,
+    explode=True,
+)
+request_query_page_offset = api_client.QueryParameter(
+    name="pageOffset",
+    style=api_client.ParameterStyle.FORM,
+    schema=PageOffsetSchema,
     explode=True,
 )
 # path params
@@ -300,8 +288,9 @@ class GetSamplesByDatasetId(api_client.Api):
 
         _query_params = []
         for parameter in (
-            request_query_mode,
             request_query_file_name,
+            request_query_page_size,
+            request_query_page_offset,
         ):
             parameter_data = query_params.get(parameter.name, unset)
             if parameter_data is unset:

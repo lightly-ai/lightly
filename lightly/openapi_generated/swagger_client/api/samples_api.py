@@ -18,6 +18,7 @@ from lightly.openapi_generated.swagger_client.api.samples_api_endpoints.get_samp
 from lightly.openapi_generated.swagger_client.api.samples_api_endpoints.get_sample_image_write_url_by_id import GetSampleImageWriteUrlById
 from lightly.openapi_generated.swagger_client.api.samples_api_endpoints.get_sample_image_write_urls_by_id import GetSampleImageWriteUrlsById
 from lightly.openapi_generated.swagger_client.api.samples_api_endpoints.get_samples_by_dataset_id import GetSamplesByDatasetId
+from lightly.openapi_generated.swagger_client.api.samples_api_endpoints.get_samples_partial_by_dataset_id import GetSamplesPartialByDatasetId
 from lightly.openapi_generated.swagger_client.api.samples_api_endpoints.update_sample_by_id import UpdateSampleById
 
 
@@ -29,6 +30,7 @@ class SamplesApi(
     GetSampleImageWriteUrlById,
     GetSampleImageWriteUrlsById,
     GetSamplesByDatasetId,
+    GetSamplesPartialByDatasetId,
     UpdateSampleById,
     ApiClient,
 ):

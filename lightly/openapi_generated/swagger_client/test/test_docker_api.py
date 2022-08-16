@@ -97,6 +97,12 @@ class TestDockerApi(unittest.TestCase):
         """
         pass
 
+    def test_get_docker_runs_scheduled_by_worker_id(self):
+        """Test case for get_docker_runs_scheduled_by_worker_id
+
+        """
+        pass
+
     def test_get_docker_worker_config_by_id(self):
         """Test case for get_docker_worker_config_by_id
 
@@ -129,6 +135,12 @@ class TestDockerApi(unittest.TestCase):
 
     def test_post_docker_usage_stats(self):
         """Test case for post_docker_usage_stats
+
+        """
+        pass
+
+    def test_post_docker_worker_authorization_request(self):
+        """Test case for post_docker_worker_authorization_request
 
         """
         pass

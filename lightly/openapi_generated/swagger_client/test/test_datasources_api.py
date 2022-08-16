@@ -79,6 +79,12 @@ class TestDatasourcesApi(unittest.TestCase):
         """
         pass
 
+    def test_get_resource_read_url_redirect(self):
+        """Test case for get_resource_read_url_redirect
+
+        """
+        pass
+
     def test_update_datasource_by_dataset_id(self):
         """Test case for update_datasource_by_dataset_id
 

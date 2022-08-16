@@ -148,23 +148,23 @@ _method = 'GET'
 _auth = [
     'ApiPublicJWTAuth',
 ]
-SchemaFor200ResponseBodyApplicationJson = StrSchema
+SchemaFor307ResponseBodyApplicationJson = ApiErrorResponse
 
 
 @dataclass
-class ApiResponseFor200(api_client.ApiResponse):
+class ApiResponseFor307(api_client.ApiResponse):
     response: urllib3.HTTPResponse
     body: typing.Union[
-        SchemaFor200ResponseBodyApplicationJson,
+        SchemaFor307ResponseBodyApplicationJson,
     ]
     headers: Unset = unset
 
 
-_response_for_200 = api_client.OpenApiResponse(
-    response_cls=ApiResponseFor200,
+_response_for_307 = api_client.OpenApiResponse(
+    response_cls=ApiResponseFor307,
     content={
         'application/json': api_client.MediaType(
-            schema=SchemaFor200ResponseBodyApplicationJson),
+            schema=SchemaFor307ResponseBodyApplicationJson),
     },
 )
 SchemaFor400ResponseBodyApplicationJson = ApiErrorResponse
@@ -244,7 +244,7 @@ _response_for_404 = api_client.OpenApiResponse(
     },
 )
 _status_code_to_response = {
-    '200': _response_for_200,
+    '307': _response_for_307,
     '400': _response_for_400,
     '401': _response_for_401,
     '403': _response_for_403,
@@ -266,7 +266,6 @@ class GetSampleImageResourceRedirectById(api_client.Api):
         timeout: typing.Optional[typing.Union[int, typing.Tuple]] = None,
         skip_deserialization: bool = False,
     ) -> typing.Union[
-        ApiResponseFor200,
         api_client.ApiResponseWithoutDeserialization
     ]:
         """

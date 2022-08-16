@@ -96,6 +96,7 @@ class DatasourceConfigBase(
                 'DatasourceConfigLIGHTLY': DatasourceConfigLIGHTLY,
                 'DatasourceConfigLOCAL': DatasourceConfigLOCAL,
                 'DatasourceConfigS3': DatasourceConfigS3,
+                'DatasourceConfigS3DelegatedAccess': DatasourceConfigS3DelegatedAccess,
             }
         }
 
@@ -126,4 +127,5 @@ from lightly.openapi_generated.swagger_client.model.datasource_config_gcs import
 from lightly.openapi_generated.swagger_client.model.datasource_config_lightly import DatasourceConfigLIGHTLY
 from lightly.openapi_generated.swagger_client.model.datasource_config_local import DatasourceConfigLOCAL
 from lightly.openapi_generated.swagger_client.model.datasource_config_s3 import DatasourceConfigS3
+from lightly.openapi_generated.swagger_client.model.datasource_config_s3_delegated_access import DatasourceConfigS3DelegatedAccess
 from lightly.openapi_generated.swagger_client.model.datasource_purpose import DatasourcePurpose

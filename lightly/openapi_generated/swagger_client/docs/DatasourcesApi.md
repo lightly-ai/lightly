@@ -13,6 +13,7 @@ Method | HTTP request | Description
 [**get_metadata_file_read_url_from_datasource_by_dataset_id**](DatasourcesApi.md#get_metadata_file_read_url_from_datasource_by_dataset_id) | **GET** /v1/datasets/{datasetId}/datasource/metadata/file | 
 [**get_prediction_file_read_url_from_datasource_by_dataset_id**](DatasourcesApi.md#get_prediction_file_read_url_from_datasource_by_dataset_id) | **GET** /v1/datasets/{datasetId}/datasource/predictions/file | 
 [**get_prediction_file_write_url_from_datasource_by_dataset_id**](DatasourcesApi.md#get_prediction_file_write_url_from_datasource_by_dataset_id) | **GET** /v1/datasets/{datasetId}/datasource/predictions/writeUrl | 
+[**get_resource_read_url_redirect**](DatasourcesApi.md#get_resource_read_url_redirect) | **GET** /v1/datasets/{datasetId}/datasource/readurlRedirect | 
 [**update_datasource_by_dataset_id**](DatasourcesApi.md#update_datasource_by_dataset_id) | **PUT** /v1/datasets/{datasetId}/datasource | 
 [**update_datasource_processed_until_timestamp_by_dataset_id**](DatasourcesApi.md#update_datasource_processed_until_timestamp_by_dataset_id) | **PUT** /v1/datasets/{datasetId}/datasource/processedUntilTimestamp | 
 [**verify_datasource_by_dataset_id**](DatasourcesApi.md#verify_datasource_by_dataset_id) | **GET** /v1/datasets/{datasetId}/datasource/verify | 
@@ -612,6 +613,8 @@ with swagger_client.ApiClient(configuration) as api_client:
         'from': Timestamp(1577836800000),
         'to': Timestamp(1577836800000),
         'cursor': "cursor_example",
+        'useRedirectedReadUrl': False,
+        'relevantFilenamesFileName': "strategy/relevantFilenames.txt",
     }
     try:
         api_response = api_instance.get_list_of_raw_samples_from_datasource_by_dataset_id(
@@ -641,6 +644,8 @@ Name | Type | Description  | Notes
 from | ModelFromSchema | | optional
 to | ToSchema | | optional
 cursor | CursorSchema | | optional
+useRedirectedReadUrl | UseRedirectedReadUrlSchema | | optional
+relevantFilenamesFileName | RelevantFilenamesFileNameSchema | | optional
 
 
 #### ModelFromSchema
@@ -656,6 +661,18 @@ Type | Description  | Notes
 
 
 #### CursorSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**str** |  | 
+
+#### UseRedirectedReadUrlSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**bool** |  | defaults to False
+
+#### RelevantFilenamesFileNameSchema
 
 Type | Description | Notes
 ------------- | ------------- | -------------
@@ -827,6 +844,8 @@ with swagger_client.ApiClient(configuration) as api_client:
         'from': Timestamp(1577836800000),
         'to': Timestamp(1577836800000),
         'cursor': "cursor_example",
+        'useRedirectedReadUrl': False,
+        'relevantFilenamesFileName': "strategy/relevantFilenames.txt",
     }
     try:
         api_response = api_instance.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id(
@@ -856,6 +875,8 @@ Name | Type | Description  | Notes
 from | ModelFromSchema | | optional
 to | ToSchema | | optional
 cursor | CursorSchema | | optional
+useRedirectedReadUrl | UseRedirectedReadUrlSchema | | optional
+relevantFilenamesFileName | RelevantFilenamesFileNameSchema | | optional
 
 
 #### ModelFromSchema
@@ -871,6 +892,18 @@ Type | Description  | Notes
 
 
 #### CursorSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**str** |  | 
+
+#### UseRedirectedReadUrlSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**bool** |  | defaults to False
+
+#### RelevantFilenamesFileNameSchema
 
 Type | Description | Notes
 ------------- | ------------- | -------------
@@ -991,6 +1024,7 @@ from swagger_client.api import datasources_api
 from swagger_client.model.datasource_raw_samples_predictions_data import DatasourceRawSamplesPredictionsData
 from swagger_client.model.mongo_object_id import MongoObjectID
 from swagger_client.model.timestamp import Timestamp
+from swagger_client.model.path_safe_name import PathSafeName
 from swagger_client.model.api_error_response import ApiErrorResponse
 from pprint import pprint
 # Defining the host is optional and defaults to https://api.lightly.ai
@@ -1024,7 +1058,7 @@ with swagger_client.ApiClient(configuration) as api_client:
         'datasetId': MongoObjectID("50000000abcdef1234566789"),
     }
     query_params = {
-        'taskName': "my_classification_task",
+        'taskName': PathSafeName("taskName_example"),
     }
     try:
         api_response = api_instance.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id(
@@ -1040,10 +1074,12 @@ with swagger_client.ApiClient(configuration) as api_client:
         'datasetId': MongoObjectID("50000000abcdef1234566789"),
     }
     query_params = {
-        'taskName': "my_classification_task",
+        'taskName': PathSafeName("taskName_example"),
         'from': Timestamp(1577836800000),
         'to': Timestamp(1577836800000),
         'cursor': "cursor_example",
+        'useRedirectedReadUrl': False,
+        'relevantFilenamesFileName': "strategy/relevantFilenames.txt",
     }
     try:
         api_response = api_instance.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id(
@@ -1074,13 +1110,15 @@ taskName | TaskNameSchema | |
 from | ModelFromSchema | | optional
 to | ToSchema | | optional
 cursor | CursorSchema | | optional
+useRedirectedReadUrl | UseRedirectedReadUrlSchema | | optional
+relevantFilenamesFileName | RelevantFilenamesFileNameSchema | | optional
 
 
 #### TaskNameSchema
-
-Type | Description | Notes
+Type | Description  | Notes
 ------------- | ------------- | -------------
-**str** |  | 
+[**PathSafeName**](PathSafeName.md) |  | 
+
 
 #### ModelFromSchema
 Type | Description  | Notes
@@ -1095,6 +1133,18 @@ Type | Description  | Notes
 
 
 #### CursorSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**str** |  | 
+
+#### UseRedirectedReadUrlSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**bool** |  | defaults to False
+
+#### RelevantFilenamesFileNameSchema
 
 Type | Description | Notes
 ------------- | ------------- | -------------
@@ -1741,6 +1791,181 @@ Type | Description  | Notes
 ### Authorization
 
 [ApiKeyAuth](../README.md#ApiKeyAuth), [auth0Bearer](../README.md#auth0Bearer)
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **get_resource_read_url_redirect**
+> get_resource_read_url_redirect(dataset_idpath)
+
+
+
+This endpoint enables anyone given the correct credentials to access the actual image directly via a redirect. By creating a readURL for the resource and redirecting to that URL, the client can use this endpoint to always have a way to access the resource as there is no expiration 
+
+### Example
+
+* Api Key Authentication (ApiPublicJWTAuth):
+```python
+import swagger_client
+from swagger_client.api import datasources_api
+from swagger_client.model.mongo_object_id import MongoObjectID
+from swagger_client.model.api_error_response import ApiErrorResponse
+from pprint import pprint
+# Defining the host is optional and defaults to https://api.lightly.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = swagger_client.Configuration(
+    host = "https://api.lightly.ai"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure API key authorization: ApiPublicJWTAuth
+configuration.api_key['ApiPublicJWTAuth'] = 'YOUR_API_KEY'
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['ApiPublicJWTAuth'] = 'Bearer'
+# Enter a context with an instance of the API client
+with swagger_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = datasources_api.DatasourcesApi(api_client)
+
+    # example passing only required values which don't have defaults set
+    path_params = {
+        'datasetId': MongoObjectID("50000000abcdef1234566789"),
+    }
+    query_params = {
+        'path': "path_example",
+    }
+    try:
+        api_response = api_instance.get_resource_read_url_redirect(
+            path_params=path_params,
+            query_params=query_params,
+        )
+    except swagger_client.ApiException as e:
+        print("Exception when calling DatasourcesApi->get_resource_read_url_redirect: %s\n" % e)
+```
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+query_params | RequestQueryParams | |
+path_params | RequestPathParams | |
+accept_content_types | typing.Tuple[str] | default is ('application/json', ) | Tells the server the content type(s) that are accepted by the client
+stream | bool | default is False | if True then the response.content will be streamed and loaded from a file like object. When downloading a file, set this to True to force the code to deserialize the content to a FileSchema file
+timeout | typing.Optional[typing.Union[int, typing.Tuple]] | default is None | the timeout used by the rest client
+skip_deserialization | bool | default is False | when True, headers and body will be unset and an instance of api_client.ApiResponseWithoutDeserialization will be returned
+
+### query_params
+#### RequestQueryParams
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+path | PathSchema | | 
+
+
+#### PathSchema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**str** |  | 
+
+### path_params
+#### RequestPathParams
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+datasetId | DatasetIdSchema | | 
+
+#### DatasetIdSchema
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**MongoObjectID**](MongoObjectID.md) |  | 
+
+
+### Return Types, Responses
+
+Code | Class | Description
+------------- | ------------- | -------------
+n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
+307 | ApiResponseFor307 | Temporary redirect 
+400 | ApiResponseFor400 | Bad Request / malformed 
+401 | ApiResponseFor401 | Unauthorized to access this resource 
+403 | ApiResponseFor403 | Access is forbidden 
+404 | ApiResponseFor404 | The specified resource was not found 
+
+#### ApiResponseFor307
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor307ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor307ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+#### ApiResponseFor400
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor400ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor400ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+#### ApiResponseFor401
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor401ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor401ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+#### ApiResponseFor403
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor403ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor403ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+#### ApiResponseFor404
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor404ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor404ResponseBodyApplicationJson
+Type | Description  | Notes
+------------- | ------------- | -------------
+[**ApiErrorResponse**](ApiErrorResponse.md) |  | 
+
+
+
+void (empty response body)
+
+### Authorization
+
+[ApiPublicJWTAuth](../README.md#ApiPublicJWTAuth)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

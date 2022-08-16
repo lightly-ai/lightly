@@ -64,24 +64,24 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
 from lightly.openapi_generated.swagger_client.model.datasource_raw_samples_predictions_data import DatasourceRawSamplesPredictionsData
 from lightly.openapi_generated.swagger_client.model.mongo_object_id import MongoObjectID
 from lightly.openapi_generated.swagger_client.model.timestamp import Timestamp
+from lightly.openapi_generated.swagger_client.model.path_safe_name import PathSafeName
 from lightly.openapi_generated.swagger_client.model.api_error_response import ApiErrorResponse
 
 # query params
+TaskNameSchema = PathSafeName
+ModelFromSchema = Timestamp
+ToSchema = Timestamp
+CursorSchema = StrSchema
+UseRedirectedReadUrlSchema = BoolSchema
 
 
-class TaskNameSchema(
+class RelevantFilenamesFileNameSchema(
     _SchemaValidator(
-        min_length=3,
-        regex=[{
-            'pattern': r'^[a-zA-Z0-9][a-zA-Z0-9_-]+$',  # noqa: E501
-        }],
+        min_length=4,
     ),
     StrSchema
 ):
     pass
-ModelFromSchema = Timestamp
-ToSchema = Timestamp
-CursorSchema = StrSchema
 RequestRequiredQueryParams = typing.TypedDict(
     'RequestRequiredQueryParams',
     {
@@ -94,6 +94,8 @@ RequestOptionalQueryParams = typing.TypedDict(
         'from': ModelFromSchema,
         'to': ToSchema,
         'cursor': CursorSchema,
+        'useRedirectedReadUrl': UseRedirectedReadUrlSchema,
+        'relevantFilenamesFileName': RelevantFilenamesFileNameSchema,
     },
     total=False
 )
@@ -119,6 +121,14 @@ request_query_to = api_client.QueryParameter(
 request_query_cursor = api_client.QueryParameter(
     name="cursor",
     schema=CursorSchema,
+)
+request_query_use_redirected_read_url = api_client.QueryParameter(
+    name="useRedirectedReadUrl",
+    schema=UseRedirectedReadUrlSchema,
+)
+request_query_relevant_filenames_file_name = api_client.QueryParameter(
+    name="relevantFilenamesFileName",
+    schema=RelevantFilenamesFileNameSchema,
 )
 # path params
 DatasetIdSchema = MongoObjectID
@@ -296,6 +306,8 @@ class GetListOfRawSamplesPredictionsFromDatasourceByDatasetId(api_client.Api):
             request_query__from,
             request_query_to,
             request_query_cursor,
+            request_query_use_redirected_read_url,
+            request_query_relevant_filenames_file_name,
         ):
             parameter_data = query_params.get(parameter.name, unset)
             if parameter_data is unset:

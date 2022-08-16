@@ -37,6 +37,12 @@ class TestDatasetsApi(unittest.TestCase):
         """
         pass
 
+    def test_get_children_of_dataset_id(self):
+        """Test case for get_children_of_dataset_id
+
+        """
+        pass
+
     def test_get_dataset_by_id(self):
         """Test case for get_dataset_by_id
 

@@ -78,12 +78,9 @@ class SamaTaskData(
     ))
     id = IntSchema
     url = StrSchema
+    image = StrSchema
     lightlyFileName = StrSchema
-
-    @classmethod
-    @property
-    def lightlyMetaInfo(cls) -> typing.Type['SampleData']:
-        return SampleData
+    lightlyMetaInfo = StrSchema
 
 
     def __new__(
@@ -91,8 +88,9 @@ class SamaTaskData(
         *args: typing.Union[dict, frozendict, ],
         id: id,
         url: url,
+        image: typing.Union[image, Unset] = unset,
         lightlyFileName: typing.Union[lightlyFileName, Unset] = unset,
-        lightlyMetaInfo: typing.Union['SampleData', Unset] = unset,
+        lightlyMetaInfo: typing.Union[lightlyMetaInfo, Unset] = unset,
         _configuration: typing.Optional[Configuration] = None,
         **kwargs: typing.Type[Schema],
     ) -> 'SamaTaskData':
@@ -101,10 +99,9 @@ class SamaTaskData(
             *args,
             id=id,
             url=url,
+            image=image,
             lightlyFileName=lightlyFileName,
             lightlyMetaInfo=lightlyMetaInfo,
             _configuration=_configuration,
             **kwargs,
         )
-
-from lightly.openapi_generated.swagger_client.model.sample_data import SampleData

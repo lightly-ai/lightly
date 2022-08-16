@@ -125,6 +125,11 @@ class DockerWorkerConfig(
                 **kwargs,
             )
 
+    @classmethod
+    @property
+    def selection(cls) -> typing.Type['DockerWorkerSelectionConfig']:
+        return DockerWorkerSelectionConfig
+
 
     def __new__(
         cls,
@@ -132,6 +137,7 @@ class DockerWorkerConfig(
         workerType: workerType,
         docker: docker,
         lightly: lightly,
+        selection: typing.Union['DockerWorkerSelectionConfig', Unset] = unset,
         _configuration: typing.Optional[Configuration] = None,
         **kwargs: typing.Type[Schema],
     ) -> 'DockerWorkerConfig':
@@ -141,8 +147,10 @@ class DockerWorkerConfig(
             workerType=workerType,
             docker=docker,
             lightly=lightly,
+            selection=selection,
             _configuration=_configuration,
             **kwargs,
         )
 
+from lightly.openapi_generated.swagger_client.model.docker_worker_selection_config import DockerWorkerSelectionConfig
 from lightly.openapi_generated.swagger_client.model.docker_worker_type import DockerWorkerType
