@@ -20,7 +20,7 @@ Results (5.3.2022):
 | DCL (*)       |        256 |    200 |              0.762 |   53.3 Min |      4.3 GByte |
 | DCLW (*)      |        256 |    200 |              0.755 |   53.7 Min |      4.3 GByte |
 | DINO (Res18)  |        256 |    200 |              0.736 |   86.5 Min |      4.1 GByte |
-| MSN (ViT-S)   |        256 |    200 |              0.743 |  187.9 Min |     42.5 GByte |
+| MSN (ViT-S)   |        256 |    200 |              0.741 |   92.7 Min |     16.3 GByte |
 | Moco          |        256 |    200 |              0.727 |   87.3 Min |      4.3 GByte |
 | NNCLR         |        256 |    200 |              0.726 |   86.8 Min |      4.2 GByte |
 | SimCLR        |        256 |    200 |              0.771 |   82.2 Min |      3.9 GByte |
@@ -133,7 +133,7 @@ dino_collate_fn = lightly.data.DINOCollateFunction(
 mae_collate_fn = lightly.data.MAECollateFunction()
 
 # Multi crop augmentation for MSN
-msn_collate_fn = lightly.data.MSNCollateFunction()
+msn_collate_fn = lightly.data.MSNCollateFunction(random_size=128, focal_size=64)
 
 normalize_transform = torchvision.transforms.Normalize(
     mean=lightly.data.collate.imagenet_normalize['mean'],
