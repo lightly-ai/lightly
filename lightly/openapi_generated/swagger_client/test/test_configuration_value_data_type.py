@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.configuration_value_data_type import ConfigurationValueDataType
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestConfigurationValueDataType(unittest.TestCase):
     """ConfigurationValueDataType unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_ConfigurationValueDataType(self):
-        """Test ConfigurationValueDataType"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = ConfigurationValueDataType()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

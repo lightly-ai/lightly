@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.category_id import CategoryId
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestCategoryId(unittest.TestCase):
     """CategoryId unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_CategoryId(self):
-        """Test CategoryId"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = CategoryId()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

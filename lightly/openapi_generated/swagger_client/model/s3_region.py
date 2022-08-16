@@ -13,6 +13,7 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
+import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -32,6 +33,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
+    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -53,6 +55,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
+    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -107,124 +110,124 @@ class S3Region(
     @classmethod
     @property
     def AFSOUTH1(cls):
-        return cls._enum_by_value["af-south-1"]("af-south-1")
+        return cls("af-south-1")
     
     @classmethod
     @property
     def APEAST1(cls):
-        return cls._enum_by_value["ap-east-1"]("ap-east-1")
+        return cls("ap-east-1")
     
     @classmethod
     @property
     def APNORTHEAST1(cls):
-        return cls._enum_by_value["ap-northeast-1"]("ap-northeast-1")
+        return cls("ap-northeast-1")
     
     @classmethod
     @property
     def APNORTHEAST2(cls):
-        return cls._enum_by_value["ap-northeast-2"]("ap-northeast-2")
+        return cls("ap-northeast-2")
     
     @classmethod
     @property
     def APNORTHEAST3(cls):
-        return cls._enum_by_value["ap-northeast-3"]("ap-northeast-3")
+        return cls("ap-northeast-3")
     
     @classmethod
     @property
     def APSOUTH1(cls):
-        return cls._enum_by_value["ap-south-1"]("ap-south-1")
+        return cls("ap-south-1")
     
     @classmethod
     @property
     def APSOUTHEAST1(cls):
-        return cls._enum_by_value["ap-southeast-1"]("ap-southeast-1")
+        return cls("ap-southeast-1")
     
     @classmethod
     @property
     def APSOUTHEAST2(cls):
-        return cls._enum_by_value["ap-southeast-2"]("ap-southeast-2")
+        return cls("ap-southeast-2")
     
     @classmethod
     @property
     def APSOUTHEAST3(cls):
-        return cls._enum_by_value["ap-southeast-3"]("ap-southeast-3")
+        return cls("ap-southeast-3")
     
     @classmethod
     @property
     def CACENTRAL1(cls):
-        return cls._enum_by_value["ca-central-1"]("ca-central-1")
+        return cls("ca-central-1")
     
     @classmethod
     @property
     def CNNORTHWEST1(cls):
-        return cls._enum_by_value["cn-northwest-1"]("cn-northwest-1")
+        return cls("cn-northwest-1")
     
     @classmethod
     @property
     def EUCENTRAL1(cls):
-        return cls._enum_by_value["eu-central-1"]("eu-central-1")
+        return cls("eu-central-1")
     
     @classmethod
     @property
     def EUNORTH1(cls):
-        return cls._enum_by_value["eu-north-1"]("eu-north-1")
+        return cls("eu-north-1")
     
     @classmethod
     @property
     def EUSOUTH1(cls):
-        return cls._enum_by_value["eu-south-1"]("eu-south-1")
+        return cls("eu-south-1")
     
     @classmethod
     @property
     def EUWEST1(cls):
-        return cls._enum_by_value["eu-west-1"]("eu-west-1")
+        return cls("eu-west-1")
     
     @classmethod
     @property
     def EUWEST2(cls):
-        return cls._enum_by_value["eu-west-2"]("eu-west-2")
+        return cls("eu-west-2")
     
     @classmethod
     @property
     def EUWEST3(cls):
-        return cls._enum_by_value["eu-west-3"]("eu-west-3")
+        return cls("eu-west-3")
     
     @classmethod
     @property
     def MESOUTH1(cls):
-        return cls._enum_by_value["me-south-1"]("me-south-1")
+        return cls("me-south-1")
     
     @classmethod
     @property
     def SAEAST1(cls):
-        return cls._enum_by_value["sa-east-1"]("sa-east-1")
+        return cls("sa-east-1")
     
     @classmethod
     @property
     def USEAST1(cls):
-        return cls._enum_by_value["us-east-1"]("us-east-1")
+        return cls("us-east-1")
     
     @classmethod
     @property
     def USEAST2(cls):
-        return cls._enum_by_value["us-east-2"]("us-east-2")
+        return cls("us-east-2")
     
     @classmethod
     @property
     def USGOVEAST1(cls):
-        return cls._enum_by_value["us-gov-east-1"]("us-gov-east-1")
+        return cls("us-gov-east-1")
     
     @classmethod
     @property
     def USWEST1(cls):
-        return cls._enum_by_value["us-west-1"]("us-west-1")
+        return cls("us-west-1")
     
     @classmethod
     @property
     def USWEST2(cls):
-        return cls._enum_by_value["us-west-2"]("us-west-2")
+        return cls("us-west-2")
     
     @classmethod
     @property
     def USGOVWEST1(cls):
-        return cls._enum_by_value["us-gov-west-1"]("us-gov-west-1")
+        return cls("us-gov-west-1")

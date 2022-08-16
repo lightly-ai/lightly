@@ -13,6 +13,7 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
+import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -32,6 +33,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
+    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -53,6 +55,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
+    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -84,19 +87,19 @@ class DockerRunScheduledPriority(
     @classmethod
     @property
     def LOW(cls):
-        return cls._enum_by_value["LOW"]("LOW")
+        return cls("LOW")
     
     @classmethod
     @property
     def MID(cls):
-        return cls._enum_by_value["MID"]("MID")
+        return cls("MID")
     
     @classmethod
     @property
     def HIGH(cls):
-        return cls._enum_by_value["HIGH"]("HIGH")
+        return cls("HIGH")
     
     @classmethod
     @property
     def CRITICAL(cls):
-        return cls._enum_by_value["CRITICAL"]("CRITICAL")
+        return cls("CRITICAL")

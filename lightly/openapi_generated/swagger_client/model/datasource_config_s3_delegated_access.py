@@ -13,6 +13,7 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
+import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -32,6 +33,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
+    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -53,6 +55,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
+    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -75,6 +78,7 @@ class DatasourceConfigS3DelegatedAccess(
 
     @classmethod
     @property
+    @functools.cache
     def _composed_schemas(cls):
         # we need this here to make our import statements work
         # we must store _composed_schemas in here so the code is only run
@@ -83,15 +87,74 @@ class DatasourceConfigS3DelegatedAccess(
         # code would be run when this module is imported, and these composed
         # classes don't exist yet because their module has not finished
         # loading
+        
+        
+        class allOf_1(
+            DictSchema
+        ):
+            _required_property_names = set((
+            ))
+        
+            @classmethod
+            @property
+            def s3Region(cls) -> typing.Type['S3Region']:
+                return S3Region
+            
+            
+            class s3ExternalId(
+                _SchemaValidator(
+                    min_length=10,
+                    regex=[{
+                        'pattern': r'^[a-zA-Z0-9_+=,.@:\/-]+$',  # noqa: E501
+                    }],
+                ),
+                StrSchema
+            ):
+                pass
+            
+            
+            class s3ARN(
+                _SchemaValidator(
+                    min_length=12,
+                    regex=[{
+                        'pattern': r'^arn:aws:iam::[0-9]{12}:role.+$',  # noqa: E501
+                    }],
+                ),
+                StrSchema
+            ):
+                pass
+        
+            @classmethod
+            @property
+            def s3ServerSideEncryptionKMSKey(cls) -> typing.Type['S3ServerSideEncryptionKMSKey']:
+                return S3ServerSideEncryptionKMSKey
+        
+        
+            def __new__(
+                cls,
+                *args: typing.Union[dict, frozendict, ],
+                s3ServerSideEncryptionKMSKey: typing.Union['S3ServerSideEncryptionKMSKey', Unset] = unset,
+                _configuration: typing.Optional[Configuration] = None,
+                **kwargs: typing.Type[Schema],
+            ) -> 'allOf_1':
+                return super().__new__(
+                    cls,
+                    *args,
+                    s3ServerSideEncryptionKMSKey=s3ServerSideEncryptionKMSKey,
+                    _configuration=_configuration,
+                    **kwargs,
+                )
         return {
             'allOf': [
                 DatasourceConfigBase,
-                DatasourceConfigS3DelegatedAccessAllOf,
+                allOf_1,
             ],
             'oneOf': [
             ],
             'anyOf': [
             ],
+            'not':
+                None
         }
 
     def __new__(
@@ -108,4 +171,3 @@ class DatasourceConfigS3DelegatedAccess(
         )
 
 from lightly.openapi_generated.swagger_client.model.datasource_config_base import DatasourceConfigBase
-from lightly.openapi_generated.swagger_client.model.datasource_config_s3_delegated_access_all_of import DatasourceConfigS3DelegatedAccessAllOf

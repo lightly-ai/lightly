@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.api_error_response import ApiErrorResponse
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestApiErrorResponse(unittest.TestCase):
     """ApiErrorResponse unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_ApiErrorResponse(self):
-        """Test ApiErrorResponse"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = ApiErrorResponse()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

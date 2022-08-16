@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.docker_worker_authorization_request import DockerWorkerAuthorizationRequest
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDockerWorkerAuthorizationRequest(unittest.TestCase):
     """DockerWorkerAuthorizationRequest unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_DockerWorkerAuthorizationRequest(self):
-        """Test DockerWorkerAuthorizationRequest"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = DockerWorkerAuthorizationRequest()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

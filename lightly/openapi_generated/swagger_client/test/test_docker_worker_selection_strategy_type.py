@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.docker_worker_selection_strategy_type import DockerWorkerSelectionStrategyType
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDockerWorkerSelectionStrategyType(unittest.TestCase):
     """DockerWorkerSelectionStrategyType unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_DockerWorkerSelectionStrategyType(self):
-        """Test DockerWorkerSelectionStrategyType"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = DockerWorkerSelectionStrategyType()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

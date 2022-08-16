@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.active_learning_score_type import ActiveLearningScoreType
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestActiveLearningScoreType(unittest.TestCase):
     """ActiveLearningScoreType unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_ActiveLearningScoreType(self):
-        """Test ActiveLearningScoreType"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = ActiveLearningScoreType()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

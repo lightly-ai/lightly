@@ -13,6 +13,7 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
+import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -32,6 +33,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
+    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -53,6 +55,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
+    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -143,314 +146,314 @@ class ApiErrorCode(
     @classmethod
     @property
     def BAD_REQUEST(cls):
-        return cls._enum_by_value["BAD_REQUEST"]("BAD_REQUEST")
+        return cls("BAD_REQUEST")
     
     @classmethod
     @property
     def NOT_IMPLEMENTED(cls):
-        return cls._enum_by_value["NOT_IMPLEMENTED"]("NOT_IMPLEMENTED")
+        return cls("NOT_IMPLEMENTED")
     
     @classmethod
     @property
     def FORBIDDEN(cls):
-        return cls._enum_by_value["FORBIDDEN"]("FORBIDDEN")
+        return cls("FORBIDDEN")
     
     @classmethod
     @property
     def UNAUTHORIZED(cls):
-        return cls._enum_by_value["UNAUTHORIZED"]("UNAUTHORIZED")
+        return cls("UNAUTHORIZED")
     
     @classmethod
     @property
     def NOT_FOUND(cls):
-        return cls._enum_by_value["NOT_FOUND"]("NOT_FOUND")
+        return cls("NOT_FOUND")
     
     @classmethod
     @property
     def MALFORMED_REQUEST(cls):
-        return cls._enum_by_value["MALFORMED_REQUEST"]("MALFORMED_REQUEST")
+        return cls("MALFORMED_REQUEST")
     
     @classmethod
     @property
     def MALFORMED_RESPONSE(cls):
-        return cls._enum_by_value["MALFORMED_RESPONSE"]("MALFORMED_RESPONSE")
+        return cls("MALFORMED_RESPONSE")
     
     @classmethod
     @property
     def PAYLOAD_TOO_LARGE(cls):
-        return cls._enum_by_value["PAYLOAD_TOO_LARGE"]("PAYLOAD_TOO_LARGE")
+        return cls("PAYLOAD_TOO_LARGE")
     
     @classmethod
     @property
     def JWT_INVALID(cls):
-        return cls._enum_by_value["JWT_INVALID"]("JWT_INVALID")
+        return cls("JWT_INVALID")
     
     @classmethod
     @property
     def JWT_MALFORMED(cls):
-        return cls._enum_by_value["JWT_MALFORMED"]("JWT_MALFORMED")
+        return cls("JWT_MALFORMED")
     
     @classmethod
     @property
     def CREATION_FAILED(cls):
-        return cls._enum_by_value["CREATION_FAILED"]("CREATION_FAILED")
+        return cls("CREATION_FAILED")
     
     @classmethod
     @property
     def JOB_CREATION_FAILED(cls):
-        return cls._enum_by_value["JOB_CREATION_FAILED"]("JOB_CREATION_FAILED")
+        return cls("JOB_CREATION_FAILED")
     
     @classmethod
     @property
     def JOB_UNKNOWN(cls):
-        return cls._enum_by_value["JOB_UNKNOWN"]("JOB_UNKNOWN")
+        return cls("JOB_UNKNOWN")
     
     @classmethod
     @property
     def USER_NOT_KNOWN(cls):
-        return cls._enum_by_value["USER_NOT_KNOWN"]("USER_NOT_KNOWN")
+        return cls("USER_NOT_KNOWN")
     
     @classmethod
     @property
     def USER_ACCOUNT_DEACTIVATED(cls):
-        return cls._enum_by_value["USER_ACCOUNT_DEACTIVATED"]("USER_ACCOUNT_DEACTIVATED")
+        return cls("USER_ACCOUNT_DEACTIVATED")
     
     @classmethod
     @property
     def USER_ACCOUNT_BLOCKED(cls):
-        return cls._enum_by_value["USER_ACCOUNT_BLOCKED"]("USER_ACCOUNT_BLOCKED")
+        return cls("USER_ACCOUNT_BLOCKED")
     
     @classmethod
     @property
     def TEAM_ACCOUNT_PLAN_INSUFFICIENT(cls):
-        return cls._enum_by_value["TEAM_ACCOUNT_PLAN_INSUFFICIENT"]("TEAM_ACCOUNT_PLAN_INSUFFICIENT")
+        return cls("TEAM_ACCOUNT_PLAN_INSUFFICIENT")
     
     @classmethod
     @property
     def ILLEGAL_ACTION_RESOURCE_IN_USE(cls):
-        return cls._enum_by_value["ILLEGAL_ACTION_RESOURCE_IN_USE"]("ILLEGAL_ACTION_RESOURCE_IN_USE")
+        return cls("ILLEGAL_ACTION_RESOURCE_IN_USE")
     
     @classmethod
     @property
     def DATASET_UNKNOWN(cls):
-        return cls._enum_by_value["DATASET_UNKNOWN"]("DATASET_UNKNOWN")
+        return cls("DATASET_UNKNOWN")
     
     @classmethod
     @property
     def DATASET_NOT_SUPPORTED(cls):
-        return cls._enum_by_value["DATASET_NOT_SUPPORTED"]("DATASET_NOT_SUPPORTED")
+        return cls("DATASET_NOT_SUPPORTED")
     
     @classmethod
     @property
     def DATASET_TAG_INVALID(cls):
-        return cls._enum_by_value["DATASET_TAG_INVALID"]("DATASET_TAG_INVALID")
+        return cls("DATASET_TAG_INVALID")
     
     @classmethod
     @property
     def DATASET_NAME_EXISTS(cls):
-        return cls._enum_by_value["DATASET_NAME_EXISTS"]("DATASET_NAME_EXISTS")
+        return cls("DATASET_NAME_EXISTS")
     
     @classmethod
     @property
     def DATASET_AT_MAX_CAPACITY(cls):
-        return cls._enum_by_value["DATASET_AT_MAX_CAPACITY"]("DATASET_AT_MAX_CAPACITY")
+        return cls("DATASET_AT_MAX_CAPACITY")
     
     @classmethod
     @property
     def DATASET_DATASOURCE_UNKNOWN(cls):
-        return cls._enum_by_value["DATASET_DATASOURCE_UNKNOWN"]("DATASET_DATASOURCE_UNKNOWN")
+        return cls("DATASET_DATASOURCE_UNKNOWN")
     
     @classmethod
     @property
     def DATASET_DATASOURCE_CREDENTIALS_ERROR(cls):
-        return cls._enum_by_value["DATASET_DATASOURCE_CREDENTIALS_ERROR"]("DATASET_DATASOURCE_CREDENTIALS_ERROR")
+        return cls("DATASET_DATASOURCE_CREDENTIALS_ERROR")
     
     @classmethod
     @property
     def DATASET_DATASOURCE_INVALID(cls):
-        return cls._enum_by_value["DATASET_DATASOURCE_INVALID"]("DATASET_DATASOURCE_INVALID")
+        return cls("DATASET_DATASOURCE_INVALID")
     
     @classmethod
     @property
     def DATASET_DATASOURCE_ACTION_NOT_IMPLEMENTED(cls):
-        return cls._enum_by_value["DATASET_DATASOURCE_ACTION_NOT_IMPLEMENTED"]("DATASET_DATASOURCE_ACTION_NOT_IMPLEMENTED")
+        return cls("DATASET_DATASOURCE_ACTION_NOT_IMPLEMENTED")
     
     @classmethod
     @property
     def DATASET_DATASOURCE_ILLEGAL_ACTION(cls):
-        return cls._enum_by_value["DATASET_DATASOURCE_ILLEGAL_ACTION"]("DATASET_DATASOURCE_ILLEGAL_ACTION")
+        return cls("DATASET_DATASOURCE_ILLEGAL_ACTION")
     
     @classmethod
     @property
     def DATASET_DATASOURCE_RELEVANT_FILENAMES_INVALID(cls):
-        return cls._enum_by_value["DATASET_DATASOURCE_RELEVANT_FILENAMES_INVALID"]("DATASET_DATASOURCE_RELEVANT_FILENAMES_INVALID")
+        return cls("DATASET_DATASOURCE_RELEVANT_FILENAMES_INVALID")
     
     @classmethod
     @property
     def ACCESS_CONTROL_UNKNOWN(cls):
-        return cls._enum_by_value["ACCESS_CONTROL_UNKNOWN"]("ACCESS_CONTROL_UNKNOWN")
+        return cls("ACCESS_CONTROL_UNKNOWN")
     
     @classmethod
     @property
     def EMBEDDING_UNKNOWN(cls):
-        return cls._enum_by_value["EMBEDDING_UNKNOWN"]("EMBEDDING_UNKNOWN")
+        return cls("EMBEDDING_UNKNOWN")
     
     @classmethod
     @property
     def EMBEDDING_NAME_EXISTS(cls):
-        return cls._enum_by_value["EMBEDDING_NAME_EXISTS"]("EMBEDDING_NAME_EXISTS")
+        return cls("EMBEDDING_NAME_EXISTS")
     
     @classmethod
     @property
     def EMBEDDING_INVALID(cls):
-        return cls._enum_by_value["EMBEDDING_INVALID"]("EMBEDDING_INVALID")
+        return cls("EMBEDDING_INVALID")
     
     @classmethod
     @property
     def EMBEDDING_NOT_READY(cls):
-        return cls._enum_by_value["EMBEDDING_NOT_READY"]("EMBEDDING_NOT_READY")
+        return cls("EMBEDDING_NOT_READY")
     
     @classmethod
     @property
     def EMBEDDING_ROW_COUNT_UNKNOWN(cls):
-        return cls._enum_by_value["EMBEDDING_ROW_COUNT_UNKNOWN"]("EMBEDDING_ROW_COUNT_UNKNOWN")
+        return cls("EMBEDDING_ROW_COUNT_UNKNOWN")
     
     @classmethod
     @property
     def EMBEDDING_ROW_COUNT_INVALID(cls):
-        return cls._enum_by_value["EMBEDDING_ROW_COUNT_INVALID"]("EMBEDDING_ROW_COUNT_INVALID")
+        return cls("EMBEDDING_ROW_COUNT_INVALID")
     
     @classmethod
     @property
     def EMBEDDING_2D_UNKNOWN(cls):
-        return cls._enum_by_value["EMBEDDING_2D_UNKNOWN"]("EMBEDDING_2D_UNKNOWN")
+        return cls("EMBEDDING_2D_UNKNOWN")
     
     @classmethod
     @property
     def TAG_UNKNOWN(cls):
-        return cls._enum_by_value["TAG_UNKNOWN"]("TAG_UNKNOWN")
+        return cls("TAG_UNKNOWN")
     
     @classmethod
     @property
     def TAG_NAME_EXISTS(cls):
-        return cls._enum_by_value["TAG_NAME_EXISTS"]("TAG_NAME_EXISTS")
+        return cls("TAG_NAME_EXISTS")
     
     @classmethod
     @property
     def TAG_INITIAL_EXISTS(cls):
-        return cls._enum_by_value["TAG_INITIAL_EXISTS"]("TAG_INITIAL_EXISTS")
+        return cls("TAG_INITIAL_EXISTS")
     
     @classmethod
     @property
     def TAG_UNDELETABLE_NOT_A_LEAF(cls):
-        return cls._enum_by_value["TAG_UNDELETABLE_NOT_A_LEAF"]("TAG_UNDELETABLE_NOT_A_LEAF")
+        return cls("TAG_UNDELETABLE_NOT_A_LEAF")
     
     @classmethod
     @property
     def TAG_UNDELETABLE_IS_INITIAL(cls):
-        return cls._enum_by_value["TAG_UNDELETABLE_IS_INITIAL"]("TAG_UNDELETABLE_IS_INITIAL")
+        return cls("TAG_UNDELETABLE_IS_INITIAL")
     
     @classmethod
     @property
     def TAG_NO_TAG_IN_DATASET(cls):
-        return cls._enum_by_value["TAG_NO_TAG_IN_DATASET"]("TAG_NO_TAG_IN_DATASET")
+        return cls("TAG_NO_TAG_IN_DATASET")
     
     @classmethod
     @property
     def TAG_PREVTAG_NOT_IN_DATASET(cls):
-        return cls._enum_by_value["TAG_PREVTAG_NOT_IN_DATASET"]("TAG_PREVTAG_NOT_IN_DATASET")
+        return cls("TAG_PREVTAG_NOT_IN_DATASET")
     
     @classmethod
     @property
     def TAG_QUERYTAG_NOT_IN_DATASET(cls):
-        return cls._enum_by_value["TAG_QUERYTAG_NOT_IN_DATASET"]("TAG_QUERYTAG_NOT_IN_DATASET")
+        return cls("TAG_QUERYTAG_NOT_IN_DATASET")
     
     @classmethod
     @property
     def TAG_PRESELECTEDTAG_NOT_IN_DATASET(cls):
-        return cls._enum_by_value["TAG_PRESELECTEDTAG_NOT_IN_DATASET"]("TAG_PRESELECTEDTAG_NOT_IN_DATASET")
+        return cls("TAG_PRESELECTEDTAG_NOT_IN_DATASET")
     
     @classmethod
     @property
     def TAG_NO_SCORES_AVAILABLE(cls):
-        return cls._enum_by_value["TAG_NO_SCORES_AVAILABLE"]("TAG_NO_SCORES_AVAILABLE")
+        return cls("TAG_NO_SCORES_AVAILABLE")
     
     @classmethod
     @property
     def SAMPLE_UNKNOWN(cls):
-        return cls._enum_by_value["SAMPLE_UNKNOWN"]("SAMPLE_UNKNOWN")
+        return cls("SAMPLE_UNKNOWN")
     
     @classmethod
     @property
     def SAMPLE_THUMBNAME_UNKNOWN(cls):
-        return cls._enum_by_value["SAMPLE_THUMBNAME_UNKNOWN"]("SAMPLE_THUMBNAME_UNKNOWN")
+        return cls("SAMPLE_THUMBNAME_UNKNOWN")
     
     @classmethod
     @property
     def SAMPLE_CREATE_REQUEST_INVALID_FORMAT(cls):
-        return cls._enum_by_value["SAMPLE_CREATE_REQUEST_INVALID_FORMAT"]("SAMPLE_CREATE_REQUEST_INVALID_FORMAT")
+        return cls("SAMPLE_CREATE_REQUEST_INVALID_FORMAT")
     
     @classmethod
     @property
     def SAMPLE_CREATE_REQUEST_INVALID_CROP_DATA(cls):
-        return cls._enum_by_value["SAMPLE_CREATE_REQUEST_INVALID_CROP_DATA"]("SAMPLE_CREATE_REQUEST_INVALID_CROP_DATA")
+        return cls("SAMPLE_CREATE_REQUEST_INVALID_CROP_DATA")
     
     @classmethod
     @property
     def PREDICTION_TASK_SCHEMA_UNKNOWN(cls):
-        return cls._enum_by_value["PREDICTION_TASK_SCHEMA_UNKNOWN"]("PREDICTION_TASK_SCHEMA_UNKNOWN")
+        return cls("PREDICTION_TASK_SCHEMA_UNKNOWN")
     
     @classmethod
     @property
     def PREDICTION_TASK_SCHEMA_CATEGORIES_NOT_UNIQUE(cls):
-        return cls._enum_by_value["PREDICTION_TASK_SCHEMA_CATEGORIES_NOT_UNIQUE"]("PREDICTION_TASK_SCHEMA_CATEGORIES_NOT_UNIQUE")
+        return cls("PREDICTION_TASK_SCHEMA_CATEGORIES_NOT_UNIQUE")
     
     @classmethod
     @property
     def SCORE_UNKNOWN(cls):
-        return cls._enum_by_value["SCORE_UNKNOWN"]("SCORE_UNKNOWN")
+        return cls("SCORE_UNKNOWN")
     
     @classmethod
     @property
     def DOCKER_RUN_UNKNOWN(cls):
-        return cls._enum_by_value["DOCKER_RUN_UNKNOWN"]("DOCKER_RUN_UNKNOWN")
+        return cls("DOCKER_RUN_UNKNOWN")
     
     @classmethod
     @property
     def DOCKER_RUN_REPORT_UNAVAILABLE(cls):
-        return cls._enum_by_value["DOCKER_RUN_REPORT_UNAVAILABLE"]("DOCKER_RUN_REPORT_UNAVAILABLE")
+        return cls("DOCKER_RUN_REPORT_UNAVAILABLE")
     
     @classmethod
     @property
     def DOCKER_WORKER_UNKNOWN(cls):
-        return cls._enum_by_value["DOCKER_WORKER_UNKNOWN"]("DOCKER_WORKER_UNKNOWN")
+        return cls("DOCKER_WORKER_UNKNOWN")
     
     @classmethod
     @property
     def DOCKER_WORKER_CONFIG_UNKNOWN(cls):
-        return cls._enum_by_value["DOCKER_WORKER_CONFIG_UNKNOWN"]("DOCKER_WORKER_CONFIG_UNKNOWN")
+        return cls("DOCKER_WORKER_CONFIG_UNKNOWN")
     
     @classmethod
     @property
     def DOCKER_WORKER_CONFIG_IN_USE(cls):
-        return cls._enum_by_value["DOCKER_WORKER_CONFIG_IN_USE"]("DOCKER_WORKER_CONFIG_IN_USE")
+        return cls("DOCKER_WORKER_CONFIG_IN_USE")
     
     @classmethod
     @property
     def DOCKER_WORKER_SCHEDULE_UNKNOWN(cls):
-        return cls._enum_by_value["DOCKER_WORKER_SCHEDULE_UNKNOWN"]("DOCKER_WORKER_SCHEDULE_UNKNOWN")
+        return cls("DOCKER_WORKER_SCHEDULE_UNKNOWN")
     
     @classmethod
     @property
     def DOCKER_WORKER_SCHEDULE_UPDATE_FAILED(cls):
-        return cls._enum_by_value["DOCKER_WORKER_SCHEDULE_UPDATE_FAILED"]("DOCKER_WORKER_SCHEDULE_UPDATE_FAILED")
+        return cls("DOCKER_WORKER_SCHEDULE_UPDATE_FAILED")
     
     @classmethod
     @property
     def METADATA_CONFIGURATION_UNKNOWN(cls):
-        return cls._enum_by_value["METADATA_CONFIGURATION_UNKNOWN"]("METADATA_CONFIGURATION_UNKNOWN")
+        return cls("METADATA_CONFIGURATION_UNKNOWN")
     
     @classmethod
     @property
     def CUSTOM_METADATA_AT_MAX_SIZE(cls):
-        return cls._enum_by_value["CUSTOM_METADATA_AT_MAX_SIZE"]("CUSTOM_METADATA_AT_MAX_SIZE")
+        return cls("CUSTOM_METADATA_AT_MAX_SIZE")

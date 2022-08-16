@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.trigger2d_embedding_job_request import Trigger2dEmbeddingJobRequest
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestTrigger2dEmbeddingJobRequest(unittest.TestCase):
     """Trigger2dEmbeddingJobRequest unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_Trigger2dEmbeddingJobRequest(self):
-        """Test Trigger2dEmbeddingJobRequest"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = Trigger2dEmbeddingJobRequest()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.datasource_raw_samples_data_row import DatasourceRawSamplesDataRow
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDatasourceRawSamplesDataRow(unittest.TestCase):
     """DatasourceRawSamplesDataRow unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_DatasourceRawSamplesDataRow(self):
-        """Test DatasourceRawSamplesDataRow"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = DatasourceRawSamplesDataRow()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

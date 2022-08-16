@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.prediction_task_schema import PredictionTaskSchema
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestPredictionTaskSchema(unittest.TestCase):
     """PredictionTaskSchema unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_PredictionTaskSchema(self):
-        """Test PredictionTaskSchema"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = PredictionTaskSchema()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

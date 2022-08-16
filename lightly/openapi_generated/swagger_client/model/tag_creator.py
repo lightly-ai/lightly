@@ -13,6 +13,7 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
+import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -32,6 +33,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
+    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -53,6 +55,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
+    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -87,34 +90,34 @@ class TagCreator(
     @classmethod
     @property
     def UNKNOWN(cls):
-        return cls._enum_by_value["UNKNOWN"]("UNKNOWN")
+        return cls("UNKNOWN")
     
     @classmethod
     @property
     def USER_WEBAPP(cls):
-        return cls._enum_by_value["USER_WEBAPP"]("USER_WEBAPP")
+        return cls("USER_WEBAPP")
     
     @classmethod
     @property
     def USER_PIP(cls):
-        return cls._enum_by_value["USER_PIP"]("USER_PIP")
+        return cls("USER_PIP")
     
     @classmethod
     @property
     def SAMPLER_ACTIVE_LEARNING(cls):
-        return cls._enum_by_value["SAMPLER_ACTIVE_LEARNING"]("SAMPLER_ACTIVE_LEARNING")
+        return cls("SAMPLER_ACTIVE_LEARNING")
     
     @classmethod
     @property
     def SAMPLER_CORAL(cls):
-        return cls._enum_by_value["SAMPLER_CORAL"]("SAMPLER_CORAL")
+        return cls("SAMPLER_CORAL")
     
     @classmethod
     @property
     def SAMPLER_CORESET(cls):
-        return cls._enum_by_value["SAMPLER_CORESET"]("SAMPLER_CORESET")
+        return cls("SAMPLER_CORESET")
     
     @classmethod
     @property
     def SAMPLER_RANDOM(cls):
-        return cls._enum_by_value["SAMPLER_RANDOM"]("SAMPLER_RANDOM")
+        return cls("SAMPLER_RANDOM")

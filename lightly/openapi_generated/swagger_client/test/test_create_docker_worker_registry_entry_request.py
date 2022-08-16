@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.create_docker_worker_registry_entry_request import CreateDockerWorkerRegistryEntryRequest
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestCreateDockerWorkerRegistryEntryRequest(unittest.TestCase):
     """CreateDockerWorkerRegistryEntryRequest unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_CreateDockerWorkerRegistryEntryRequest(self):
-        """Test CreateDockerWorkerRegistryEntryRequest"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = CreateDockerWorkerRegistryEntryRequest()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

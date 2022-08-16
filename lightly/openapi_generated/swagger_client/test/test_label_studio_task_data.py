@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.label_studio_task_data import LabelStudioTaskData
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestLabelStudioTaskData(unittest.TestCase):
     """LabelStudioTaskData unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_LabelStudioTaskData(self):
-        """Test LabelStudioTaskData"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = LabelStudioTaskData()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

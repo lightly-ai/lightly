@@ -14,22 +14,12 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.s3_region import S3Region
+from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestS3Region(unittest.TestCase):
     """S3Region unit test stubs"""
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_S3Region(self):
-        """Test S3Region"""
-        # FIXME: construct object with mandatory attributes with example values
-        # model = S3Region()  # noqa: E501
-        pass
+    _configuration = configuration.Configuration()
 
 
 if __name__ == '__main__':

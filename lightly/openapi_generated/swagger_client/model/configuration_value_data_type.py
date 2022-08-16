@@ -13,6 +13,7 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
+import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -32,6 +33,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
+    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -53,6 +55,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
+    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -99,39 +102,39 @@ class ConfigurationValueDataType(
     @classmethod
     @property
     def NUMERIC_INT(cls):
-        return cls._enum_by_value["NUMERIC_INT"]("NUMERIC_INT")
+        return cls("NUMERIC_INT")
     
     @classmethod
     @property
     def NUMERIC_FLOAT(cls):
-        return cls._enum_by_value["NUMERIC_FLOAT"]("NUMERIC_FLOAT")
+        return cls("NUMERIC_FLOAT")
     
     @classmethod
     @property
     def CATEGORICAL_STRING(cls):
-        return cls._enum_by_value["CATEGORICAL_STRING"]("CATEGORICAL_STRING")
+        return cls("CATEGORICAL_STRING")
     
     @classmethod
     @property
     def CATEGORICAL_INT(cls):
-        return cls._enum_by_value["CATEGORICAL_INT"]("CATEGORICAL_INT")
+        return cls("CATEGORICAL_INT")
     
     @classmethod
     @property
     def CATEGORICAL_BOOLEAN(cls):
-        return cls._enum_by_value["CATEGORICAL_BOOLEAN"]("CATEGORICAL_BOOLEAN")
+        return cls("CATEGORICAL_BOOLEAN")
     
     @classmethod
     @property
     def CATEGORICAL_DATETIME(cls):
-        return cls._enum_by_value["CATEGORICAL_DATETIME"]("CATEGORICAL_DATETIME")
+        return cls("CATEGORICAL_DATETIME")
     
     @classmethod
     @property
     def CATEGORICAL_TIMESTAMP(cls):
-        return cls._enum_by_value["CATEGORICAL_TIMESTAMP"]("CATEGORICAL_TIMESTAMP")
+        return cls("CATEGORICAL_TIMESTAMP")
     
     @classmethod
     @property
     def OTHER_STRING(cls):
-        return cls._enum_by_value["OTHER_STRING"]("OTHER_STRING")
+        return cls("OTHER_STRING")

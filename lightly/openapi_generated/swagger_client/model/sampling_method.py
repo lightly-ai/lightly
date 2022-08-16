@@ -13,6 +13,7 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
+import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -32,6 +33,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
+    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -53,6 +55,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
+    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -84,19 +87,19 @@ class SamplingMethod(
     @classmethod
     @property
     def ACTIVE_LEARNING(cls):
-        return cls._enum_by_value["ACTIVE_LEARNING"]("ACTIVE_LEARNING")
+        return cls("ACTIVE_LEARNING")
     
     @classmethod
     @property
     def CORAL(cls):
-        return cls._enum_by_value["CORAL"]("CORAL")
+        return cls("CORAL")
     
     @classmethod
     @property
     def CORESET(cls):
-        return cls._enum_by_value["CORESET"]("CORESET")
+        return cls("CORESET")
     
     @classmethod
     @property
     def RANDOM(cls):
-        return cls._enum_by_value["RANDOM"]("RANDOM")
+        return cls("RANDOM")
