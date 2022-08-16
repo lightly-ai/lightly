@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.read_url import ReadUrl
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestReadUrl(unittest.TestCase):
     """ReadUrl unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_ReadUrl(self):
+        """Test ReadUrl"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = ReadUrl()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

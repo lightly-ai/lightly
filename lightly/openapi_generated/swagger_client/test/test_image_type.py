@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.image_type import ImageType
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestImageType(unittest.TestCase):
     """ImageType unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_ImageType(self):
+        """Test ImageType"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = ImageType()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

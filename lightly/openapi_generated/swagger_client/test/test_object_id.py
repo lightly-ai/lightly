@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.object_id import ObjectId
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestObjectId(unittest.TestCase):
     """ObjectId unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_ObjectId(self):
+        """Test ObjectId"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = ObjectId()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.datasource_config_s3_delegated_access import DatasourceConfigS3DelegatedAccess
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDatasourceConfigS3DelegatedAccess(unittest.TestCase):
     """DatasourceConfigS3DelegatedAccess unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_DatasourceConfigS3DelegatedAccess(self):
+        """Test DatasourceConfigS3DelegatedAccess"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = DatasourceConfigS3DelegatedAccess()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

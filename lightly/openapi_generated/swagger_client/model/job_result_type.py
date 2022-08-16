@@ -13,7 +13,6 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
-import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -33,7 +32,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
-    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -55,7 +53,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
-    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -88,24 +85,24 @@ class JobResultType(
     @classmethod
     @property
     def DATASET_PROCESSING(cls):
-        return cls("DATASET_PROCESSING")
+        return cls._enum_by_value["DATASET_PROCESSING"]("DATASET_PROCESSING")
     
     @classmethod
     @property
     def IMAGEMETA(cls):
-        return cls("IMAGEMETA")
+        return cls._enum_by_value["IMAGEMETA"]("IMAGEMETA")
     
     @classmethod
     @property
     def EMBEDDING(cls):
-        return cls("EMBEDDING")
+        return cls._enum_by_value["EMBEDDING"]("EMBEDDING")
     
     @classmethod
     @property
     def EMBEDDINGS2D(cls):
-        return cls("EMBEDDINGS2D")
+        return cls._enum_by_value["EMBEDDINGS2D"]("EMBEDDINGS2D")
     
     @classmethod
     @property
     def SAMPLING(cls):
-        return cls("SAMPLING")
+        return cls._enum_by_value["SAMPLING"]("SAMPLING")

@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.probabilities import Probabilities
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestProbabilities(unittest.TestCase):
     """Probabilities unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_Probabilities(self):
+        """Test Probabilities"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = Probabilities()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

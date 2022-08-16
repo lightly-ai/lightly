@@ -13,7 +13,6 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
-import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -33,7 +32,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
-    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -55,7 +53,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
-    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -78,7 +75,6 @@ class DatasourceConfigS3(
 
     @classmethod
     @property
-    @functools.cache
     def _composed_schemas(cls):
         # we need this here to make our import statements work
         # we must store _composed_schemas in here so the code is only run
@@ -87,68 +83,15 @@ class DatasourceConfigS3(
         # code would be run when this module is imported, and these composed
         # classes don't exist yet because their module has not finished
         # loading
-        
-        
-        class allOf_1(
-            DictSchema
-        ):
-            _required_property_names = set((
-            ))
-        
-            @classmethod
-            @property
-            def s3Region(cls) -> typing.Type['S3Region']:
-                return S3Region
-            
-            
-            class s3AccessKeyId(
-                _SchemaValidator(
-                    min_length=1,
-                ),
-                StrSchema
-            ):
-                pass
-            
-            
-            class s3SecretAccessKey(
-                _SchemaValidator(
-                    min_length=1,
-                ),
-                StrSchema
-            ):
-                pass
-        
-            @classmethod
-            @property
-            def s3ServerSideEncryptionKMSKey(cls) -> typing.Type['S3ServerSideEncryptionKMSKey']:
-                return S3ServerSideEncryptionKMSKey
-        
-        
-            def __new__(
-                cls,
-                *args: typing.Union[dict, frozendict, ],
-                s3ServerSideEncryptionKMSKey: typing.Union['S3ServerSideEncryptionKMSKey', Unset] = unset,
-                _configuration: typing.Optional[Configuration] = None,
-                **kwargs: typing.Type[Schema],
-            ) -> 'allOf_1':
-                return super().__new__(
-                    cls,
-                    *args,
-                    s3ServerSideEncryptionKMSKey=s3ServerSideEncryptionKMSKey,
-                    _configuration=_configuration,
-                    **kwargs,
-                )
         return {
             'allOf': [
                 DatasourceConfigBase,
-                allOf_1,
+                DatasourceConfigS3AllOf,
             ],
             'oneOf': [
             ],
             'anyOf': [
             ],
-            'not':
-                None
         }
 
     def __new__(
@@ -165,3 +108,4 @@ class DatasourceConfigS3(
         )
 
 from lightly.openapi_generated.swagger_client.model.datasource_config_base import DatasourceConfigBase
+from lightly.openapi_generated.swagger_client.model.datasource_config_s3_all_of import DatasourceConfigS3AllOf

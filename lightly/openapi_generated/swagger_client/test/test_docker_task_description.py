@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.docker_task_description import DockerTaskDescription
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDockerTaskDescription(unittest.TestCase):
     """DockerTaskDescription unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_DockerTaskDescription(self):
+        """Test DockerTaskDescription"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = DockerTaskDescription()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

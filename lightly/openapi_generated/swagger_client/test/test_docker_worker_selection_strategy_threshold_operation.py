@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.docker_worker_selection_strategy_threshold_operation import DockerWorkerSelectionStrategyThresholdOperation
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDockerWorkerSelectionStrategyThresholdOperation(unittest.TestCase):
     """DockerWorkerSelectionStrategyThresholdOperation unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_DockerWorkerSelectionStrategyThresholdOperation(self):
+        """Test DockerWorkerSelectionStrategyThresholdOperation"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = DockerWorkerSelectionStrategyThresholdOperation()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

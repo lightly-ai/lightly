@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.tag_bit_mask_data import TagBitMaskData
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestTagBitMaskData(unittest.TestCase):
     """TagBitMaskData unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_TagBitMaskData(self):
+        """Test TagBitMaskData"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = TagBitMaskData()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

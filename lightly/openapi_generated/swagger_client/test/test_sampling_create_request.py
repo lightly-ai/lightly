@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.sampling_create_request import SamplingCreateRequest
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestSamplingCreateRequest(unittest.TestCase):
     """SamplingCreateRequest unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_SamplingCreateRequest(self):
+        """Test SamplingCreateRequest"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = SamplingCreateRequest()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

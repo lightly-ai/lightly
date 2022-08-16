@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.timestamp_seconds import TimestampSeconds
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestTimestampSeconds(unittest.TestCase):
     """TimestampSeconds unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_TimestampSeconds(self):
+        """Test TimestampSeconds"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = TimestampSeconds()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

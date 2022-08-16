@@ -11,7 +11,6 @@ import re  # noqa: F401
 import sys  # noqa: F401
 import typing
 import urllib3
-import functools  # noqa: F401
 from urllib3._collections import HTTPHeaderDict
 
 from lightly.openapi_generated.swagger_client import api_client, exceptions
@@ -31,7 +30,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
-    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -53,7 +51,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
-    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -65,6 +62,7 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
 )
 
 from lightly.openapi_generated.swagger_client.model.mongo_object_id import MongoObjectID
+from lightly.openapi_generated.swagger_client.model.inline_object import InlineObject
 from lightly.openapi_generated.swagger_client.model.api_error_response import ApiErrorResponse
 
 # path params
@@ -100,31 +98,10 @@ request_path_embedding_id = api_client.PathParameter(
     required=True,
 )
 # body param
+SchemaForRequestBodyApplicationJson = InlineObject
 
 
-class SchemaForRequestBodyApplicationJson(
-    DictSchema
-):
-    _required_property_names = set((
-    ))
-    rowCount = NumberSchema
-
-
-    def __new__(
-        cls,
-        *args: typing.Union[dict, frozendict, ],
-        _configuration: typing.Optional[Configuration] = None,
-        **kwargs: typing.Type[Schema],
-    ) -> 'SchemaForRequestBodyApplicationJson':
-        return super().__new__(
-            cls,
-            *args,
-            _configuration=_configuration,
-            **kwargs,
-        )
-
-
-request_body_any_type = api_client.RequestBody(
+request_body_inline_object = api_client.RequestBody(
     content={
         'application/json': api_client.MediaType(
             schema=SchemaForRequestBodyApplicationJson),
@@ -258,7 +235,6 @@ class SetEmbeddingsIsProcessedFlagById(api_client.Api):
             class instances
         """
         self._verify_typed_dict_inputs(RequestPathParams, path_params)
-        used_path = _path
 
         _path_params = {}
         for parameter in (
@@ -271,9 +247,6 @@ class SetEmbeddingsIsProcessedFlagById(api_client.Api):
             serialized_data = parameter.serialize(parameter_data)
             _path_params.update(serialized_data)
 
-        for k, v in _path_params.items():
-            used_path = used_path.replace('{%s}' % k, v)
-
         _headers = HTTPHeaderDict()
         # TODO add cookie handling
         if accept_content_types:
@@ -285,15 +258,16 @@ class SetEmbeddingsIsProcessedFlagById(api_client.Api):
                 'The required body parameter has an invalid value of: unset. Set a valid value instead')
         _fields = None
         _body = None
-        serialized_data = request_body_any_type.serialize(body, content_type)
+        serialized_data = request_body_inline_object.serialize(body, content_type)
         _headers.add('Content-Type', content_type)
         if 'fields' in serialized_data:
             _fields = serialized_data['fields']
         elif 'body' in serialized_data:
             _body = serialized_data['body']
         response = self.api_client.call_api(
-            resource_path=used_path,
+            resource_path=_path,
             method=_method,
+            path_params=_path_params,
             headers=_headers,
             fields=_fields,
             body=_body,

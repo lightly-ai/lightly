@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.docker_worker_config_create_request import DockerWorkerConfigCreateRequest
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDockerWorkerConfigCreateRequest(unittest.TestCase):
     """DockerWorkerConfigCreateRequest unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_DockerWorkerConfigCreateRequest(self):
+        """Test DockerWorkerConfigCreateRequest"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = DockerWorkerConfigCreateRequest()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

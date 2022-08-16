@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.datasource_config_azure import DatasourceConfigAzure
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDatasourceConfigAzure(unittest.TestCase):
     """DatasourceConfigAzure unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_DatasourceConfigAzure(self):
+        """Test DatasourceConfigAzure"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = DatasourceConfigAzure()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

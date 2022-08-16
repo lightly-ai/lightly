@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.docker_run_state import DockerRunState
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDockerRunState(unittest.TestCase):
     """DockerRunState unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_DockerRunState(self):
+        """Test DockerRunState"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = DockerRunState()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

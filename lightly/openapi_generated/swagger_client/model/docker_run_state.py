@@ -13,7 +13,6 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
-import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -33,7 +32,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
-    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -55,7 +53,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
-    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -97,69 +94,69 @@ class DockerRunState(
     @classmethod
     @property
     def STARTED(cls):
-        return cls("STARTED")
+        return cls._enum_by_value["STARTED"]("STARTED")
     
     @classmethod
     @property
     def INITIALIZING(cls):
-        return cls("INITIALIZING")
+        return cls._enum_by_value["INITIALIZING"]("INITIALIZING")
     
     @classmethod
     @property
     def CHECKING_CORRUPTNESS(cls):
-        return cls("CHECKING_CORRUPTNESS")
+        return cls._enum_by_value["CHECKING_CORRUPTNESS"]("CHECKING_CORRUPTNESS")
     
     @classmethod
     @property
     def TRAINING(cls):
-        return cls("TRAINING")
+        return cls._enum_by_value["TRAINING"]("TRAINING")
     
     @classmethod
     @property
     def EMBEDDING(cls):
-        return cls("EMBEDDING")
+        return cls._enum_by_value["EMBEDDING"]("EMBEDDING")
     
     @classmethod
     @property
     def PRETAGGING(cls):
-        return cls("PRETAGGING")
+        return cls._enum_by_value["PRETAGGING"]("PRETAGGING")
     
     @classmethod
     @property
     def SAMPLING(cls):
-        return cls("SAMPLING")
+        return cls._enum_by_value["SAMPLING"]("SAMPLING")
     
     @classmethod
     @property
     def UPLOADING_DATASET(cls):
-        return cls("UPLOADING_DATASET")
+        return cls._enum_by_value["UPLOADING_DATASET"]("UPLOADING_DATASET")
     
     @classmethod
     @property
     def GENERATING_REPORT(cls):
-        return cls("GENERATING_REPORT")
+        return cls._enum_by_value["GENERATING_REPORT"]("GENERATING_REPORT")
     
     @classmethod
     @property
     def UPLOADING_REPORT(cls):
-        return cls("UPLOADING_REPORT")
+        return cls._enum_by_value["UPLOADING_REPORT"]("UPLOADING_REPORT")
     
     @classmethod
     @property
     def UPLOADED_REPORT(cls):
-        return cls("UPLOADED_REPORT")
+        return cls._enum_by_value["UPLOADED_REPORT"]("UPLOADED_REPORT")
     
     @classmethod
     @property
     def COMPLETED(cls):
-        return cls("COMPLETED")
+        return cls._enum_by_value["COMPLETED"]("COMPLETED")
     
     @classmethod
     @property
     def FAILED(cls):
-        return cls("FAILED")
+        return cls._enum_by_value["FAILED"]("FAILED")
     
     @classmethod
     @property
     def ABORTED(cls):
-        return cls("ABORTED")
+        return cls._enum_by_value["ABORTED"]("ABORTED")

@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.sample_data_modes import SampleDataModes
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestSampleDataModes(unittest.TestCase):
     """SampleDataModes unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_SampleDataModes(self):
+        """Test SampleDataModes"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = SampleDataModes()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.file_output_format import FileOutputFormat
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestFileOutputFormat(unittest.TestCase):
     """FileOutputFormat unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_FileOutputFormat(self):
+        """Test FileOutputFormat"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = FileOutputFormat()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

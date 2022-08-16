@@ -13,7 +13,6 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
-import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -33,7 +32,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
-    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -55,7 +53,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
-    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -75,37 +72,17 @@ class SamplingConfig(
 
     Do not edit the class manually.
     """
-    
-    
-    class stoppingCondition(
-        DictSchema
-    ):
-        nSamples = NumberSchema
-        minDistance = NumberSchema
-    
-    
-        def __new__(
-            cls,
-            *args: typing.Union[dict, frozendict, ],
-            nSamples: typing.Union[nSamples, Unset] = unset,
-            minDistance: typing.Union[minDistance, Unset] = unset,
-            _configuration: typing.Optional[Configuration] = None,
-            **kwargs: typing.Type[Schema],
-        ) -> 'stoppingCondition':
-            return super().__new__(
-                cls,
-                *args,
-                nSamples=nSamples,
-                minDistance=minDistance,
-                _configuration=_configuration,
-                **kwargs,
-            )
+
+    @classmethod
+    @property
+    def stoppingCondition(cls) -> typing.Type['SamplingConfigStoppingCondition']:
+        return SamplingConfigStoppingCondition
 
 
     def __new__(
         cls,
         *args: typing.Union[dict, frozendict, ],
-        stoppingCondition: typing.Union[stoppingCondition, Unset] = unset,
+        stoppingCondition: typing.Union['SamplingConfigStoppingCondition', Unset] = unset,
         _configuration: typing.Optional[Configuration] = None,
         **kwargs: typing.Type[Schema],
     ) -> 'SamplingConfig':
@@ -116,3 +93,5 @@ class SamplingConfig(
             _configuration=_configuration,
             **kwargs,
         )
+
+from lightly.openapi_generated.swagger_client.model.sampling_config_stopping_condition import SamplingConfigStoppingCondition

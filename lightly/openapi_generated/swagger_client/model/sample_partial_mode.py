@@ -13,7 +13,6 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
-import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -33,7 +32,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
-    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -55,7 +53,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
-    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -91,14 +88,14 @@ full: return all data
     @classmethod
     @property
     def IDS(cls):
-        return cls("ids")
+        return cls._enum_by_value["ids"]("ids")
     
     @classmethod
     @property
     def FILENAMES(cls):
-        return cls("fileNames")
+        return cls._enum_by_value["fileNames"]("fileNames")
     
     @classmethod
     @property
     def FULL(cls):
-        return cls("full")
+        return cls._enum_by_value["full"]("full")

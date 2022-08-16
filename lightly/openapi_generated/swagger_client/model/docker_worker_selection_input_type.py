@@ -13,7 +13,6 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
-import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -33,7 +32,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
-    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -55,7 +53,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
-    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -87,19 +84,19 @@ class DockerWorkerSelectionInputType(
     @classmethod
     @property
     def EMBEDDINGS(cls):
-        return cls("EMBEDDINGS")
+        return cls._enum_by_value["EMBEDDINGS"]("EMBEDDINGS")
     
     @classmethod
     @property
     def SCORES(cls):
-        return cls("SCORES")
+        return cls._enum_by_value["SCORES"]("SCORES")
     
     @classmethod
     @property
     def METADATA(cls):
-        return cls("METADATA")
+        return cls._enum_by_value["METADATA"]("METADATA")
     
     @classmethod
     @property
     def PREDICTIONS(cls):
-        return cls("PREDICTIONS")
+        return cls._enum_by_value["PREDICTIONS"]("PREDICTIONS")

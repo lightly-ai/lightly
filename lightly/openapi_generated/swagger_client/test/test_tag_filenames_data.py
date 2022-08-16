@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.tag_filenames_data import TagFilenamesData
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestTagFilenamesData(unittest.TestCase):
     """TagFilenamesData unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_TagFilenamesData(self):
+        """Test TagFilenamesData"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = TagFilenamesData()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

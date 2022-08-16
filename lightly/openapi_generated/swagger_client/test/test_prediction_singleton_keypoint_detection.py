@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.prediction_singleton_keypoint_detection import PredictionSingletonKeypointDetection
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestPredictionSingletonKeypointDetection(unittest.TestCase):
     """PredictionSingletonKeypointDetection unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_PredictionSingletonKeypointDetection(self):
+        """Test PredictionSingletonKeypointDetection"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = PredictionSingletonKeypointDetection()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

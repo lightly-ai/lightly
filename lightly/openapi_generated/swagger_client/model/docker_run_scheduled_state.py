@@ -13,7 +13,6 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
-import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -33,7 +32,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
-    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -55,7 +53,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
-    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -87,19 +84,19 @@ class DockerRunScheduledState(
     @classmethod
     @property
     def OPEN(cls):
-        return cls("OPEN")
+        return cls._enum_by_value["OPEN"]("OPEN")
     
     @classmethod
     @property
     def LOCKED(cls):
-        return cls("LOCKED")
+        return cls._enum_by_value["LOCKED"]("LOCKED")
     
     @classmethod
     @property
     def DONE(cls):
-        return cls("DONE")
+        return cls._enum_by_value["DONE"]("DONE")
     
     @classmethod
     @property
     def CANCELED(cls):
-        return cls("CANCELED")
+        return cls._enum_by_value["CANCELED"]("CANCELED")

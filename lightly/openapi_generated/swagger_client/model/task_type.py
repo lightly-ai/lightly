@@ -13,7 +13,6 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
-import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -33,7 +32,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
-    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -55,7 +53,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
-    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -89,19 +86,19 @@ class TaskType(
     @classmethod
     @property
     def CLASSIFICATION(cls):
-        return cls("CLASSIFICATION")
+        return cls._enum_by_value["CLASSIFICATION"]("CLASSIFICATION")
     
     @classmethod
     @property
     def OBJECT_DETECTION(cls):
-        return cls("OBJECT_DETECTION")
+        return cls._enum_by_value["OBJECT_DETECTION"]("OBJECT_DETECTION")
     
     @classmethod
     @property
     def INSTANCE_SEGMENTATION(cls):
-        return cls("INSTANCE_SEGMENTATION")
+        return cls._enum_by_value["INSTANCE_SEGMENTATION"]("INSTANCE_SEGMENTATION")
     
     @classmethod
     @property
     def KEYPOINT_DETECTION(cls):
-        return cls("KEYPOINT_DETECTION")
+        return cls._enum_by_value["KEYPOINT_DETECTION"]("KEYPOINT_DETECTION")

@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.sama_task import SamaTask
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestSamaTask(unittest.TestCase):
     """SamaTask unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_SamaTask(self):
+        """Test SamaTask"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = SamaTask()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

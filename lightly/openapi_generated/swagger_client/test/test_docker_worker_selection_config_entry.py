@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.docker_worker_selection_config_entry import DockerWorkerSelectionConfigEntry
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDockerWorkerSelectionConfigEntry(unittest.TestCase):
     """DockerWorkerSelectionConfigEntry unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_DockerWorkerSelectionConfigEntry(self):
+        """Test DockerWorkerSelectionConfigEntry"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = DockerWorkerSelectionConfigEntry()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

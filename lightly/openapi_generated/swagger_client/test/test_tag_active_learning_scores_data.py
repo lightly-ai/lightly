@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.tag_active_learning_scores_data import TagActiveLearningScoresData
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestTagActiveLearningScoresData(unittest.TestCase):
     """TagActiveLearningScoresData unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_TagActiveLearningScoresData(self):
+        """Test TagActiveLearningScoresData"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = TagActiveLearningScoresData()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

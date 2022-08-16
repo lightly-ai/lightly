@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.s3_server_side_encryption_kms_key import S3ServerSideEncryptionKMSKey
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestS3ServerSideEncryptionKMSKey(unittest.TestCase):
     """S3ServerSideEncryptionKMSKey unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_S3ServerSideEncryptionKMSKey(self):
+        """Test S3ServerSideEncryptionKMSKey"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = S3ServerSideEncryptionKMSKey()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

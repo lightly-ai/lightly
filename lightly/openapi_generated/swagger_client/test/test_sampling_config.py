@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.sampling_config import SamplingConfig
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestSamplingConfig(unittest.TestCase):
     """SamplingConfig unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_SamplingConfig(self):
+        """Test SamplingConfig"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = SamplingConfig()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

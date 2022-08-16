@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.datasource_config_s3 import DatasourceConfigS3
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDatasourceConfigS3(unittest.TestCase):
     """DatasourceConfigS3 unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_DatasourceConfigS3(self):
+        """Test DatasourceConfigS3"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = DatasourceConfigS3()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

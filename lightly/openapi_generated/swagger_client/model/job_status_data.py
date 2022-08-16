@@ -13,7 +13,6 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
-import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -33,7 +32,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
-    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -55,7 +53,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
-    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -118,39 +115,11 @@ class JobStatusData(
     def finishedAt(cls) -> typing.Type['Timestamp']:
         return Timestamp
     error = StrSchema
-    
-    
-    class result(
-        DictSchema
-    ):
-        _required_property_names = set((
-        ))
-    
-        @classmethod
-        @property
-        def type(cls) -> typing.Type['JobResultType']:
-            return JobResultType
-    
-        @classmethod
-        @property
-        def data(cls) -> typing.Type['GeneralJobResult']:
-            return GeneralJobResult
-    
-    
-        def __new__(
-            cls,
-            *args: typing.Union[dict, frozendict, ],
-            data: typing.Union['GeneralJobResult', Unset] = unset,
-            _configuration: typing.Optional[Configuration] = None,
-            **kwargs: typing.Type[Schema],
-        ) -> 'result':
-            return super().__new__(
-                cls,
-                *args,
-                data=data,
-                _configuration=_configuration,
-                **kwargs,
-            )
+
+    @classmethod
+    @property
+    def result(cls) -> typing.Type['JobStatusDataResult']:
+        return JobStatusDataResult
 
 
     def __new__(
@@ -165,7 +134,7 @@ class JobStatusData(
         lastModifiedAt: typing.Union['Timestamp', Unset] = unset,
         finishedAt: typing.Union['Timestamp', Unset] = unset,
         error: typing.Union[error, Unset] = unset,
-        result: typing.Union[result, Unset] = unset,
+        result: typing.Union['JobStatusDataResult', Unset] = unset,
         _configuration: typing.Optional[Configuration] = None,
         **kwargs: typing.Type[Schema],
     ) -> 'JobStatusData':
@@ -186,9 +155,8 @@ class JobStatusData(
             **kwargs,
         )
 
-from lightly.openapi_generated.swagger_client.model.general_job_result import GeneralJobResult
-from lightly.openapi_generated.swagger_client.model.job_result_type import JobResultType
 from lightly.openapi_generated.swagger_client.model.job_state import JobState
+from lightly.openapi_generated.swagger_client.model.job_status_data_result import JobStatusDataResult
 from lightly.openapi_generated.swagger_client.model.job_status_meta import JobStatusMeta
 from lightly.openapi_generated.swagger_client.model.mongo_object_id import MongoObjectID
 from lightly.openapi_generated.swagger_client.model.timestamp import Timestamp

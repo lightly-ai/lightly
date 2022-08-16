@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.docker_user_stats import DockerUserStats
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDockerUserStats(unittest.TestCase):
     """DockerUserStats unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_DockerUserStats(self):
+        """Test DockerUserStats"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = DockerUserStats()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.job_status_upload_method import JobStatusUploadMethod
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestJobStatusUploadMethod(unittest.TestCase):
     """JobStatusUploadMethod unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_JobStatusUploadMethod(self):
+        """Test JobStatusUploadMethod"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = JobStatusUploadMethod()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

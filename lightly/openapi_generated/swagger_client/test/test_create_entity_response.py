@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.create_entity_response import CreateEntityResponse
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestCreateEntityResponse(unittest.TestCase):
     """CreateEntityResponse unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_CreateEntityResponse(self):
+        """Test CreateEntityResponse"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = CreateEntityResponse()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

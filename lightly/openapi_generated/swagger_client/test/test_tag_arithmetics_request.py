@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.tag_arithmetics_request import TagArithmeticsRequest
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestTagArithmeticsRequest(unittest.TestCase):
     """TagArithmeticsRequest unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_TagArithmeticsRequest(self):
+        """Test TagArithmeticsRequest"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = TagArithmeticsRequest()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

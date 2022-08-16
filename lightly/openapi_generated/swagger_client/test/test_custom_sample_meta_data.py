@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.custom_sample_meta_data import CustomSampleMetaData
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestCustomSampleMetaData(unittest.TestCase):
     """CustomSampleMetaData unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_CustomSampleMetaData(self):
+        """Test CustomSampleMetaData"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = CustomSampleMetaData()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

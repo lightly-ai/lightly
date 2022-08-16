@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.datasource_processed_until_timestamp_response import DatasourceProcessedUntilTimestampResponse
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDatasourceProcessedUntilTimestampResponse(unittest.TestCase):
     """DatasourceProcessedUntilTimestampResponse unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_DatasourceProcessedUntilTimestampResponse(self):
+        """Test DatasourceProcessedUntilTimestampResponse"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = DatasourceProcessedUntilTimestampResponse()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

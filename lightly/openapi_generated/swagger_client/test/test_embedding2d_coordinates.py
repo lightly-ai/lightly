@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.embedding2d_coordinates import Embedding2dCoordinates
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestEmbedding2dCoordinates(unittest.TestCase):
     """Embedding2dCoordinates unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_Embedding2dCoordinates(self):
+        """Test Embedding2dCoordinates"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = Embedding2dCoordinates()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

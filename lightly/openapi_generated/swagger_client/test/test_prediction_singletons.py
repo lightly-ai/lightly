@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.prediction_singletons import PredictionSingletons
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestPredictionSingletons(unittest.TestCase):
     """PredictionSingletons unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_PredictionSingletons(self):
+        """Test PredictionSingletons"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = PredictionSingletons()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':

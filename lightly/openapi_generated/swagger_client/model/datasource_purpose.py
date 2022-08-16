@@ -13,7 +13,6 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
-import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -33,7 +32,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
-    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -55,7 +53,6 @@ from lightly.openapi_generated.swagger_client.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
-    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
@@ -89,14 +86,14 @@ class DatasourcePurpose(
     @classmethod
     @property
     def INPUT_OUTPUT(cls):
-        return cls("INPUT_OUTPUT")
+        return cls._enum_by_value["INPUT_OUTPUT"]("INPUT_OUTPUT")
     
     @classmethod
     @property
     def INPUT(cls):
-        return cls("INPUT")
+        return cls._enum_by_value["INPUT"]("INPUT")
     
     @classmethod
     @property
     def LIGHTLY(cls):
-        return cls("LIGHTLY")
+        return cls._enum_by_value["LIGHTLY"]("LIGHTLY")

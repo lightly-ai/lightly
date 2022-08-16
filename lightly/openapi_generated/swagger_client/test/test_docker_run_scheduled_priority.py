@@ -14,12 +14,22 @@ import unittest
 
 import lightly.openapi_generated.swagger_client
 from lightly.openapi_generated.swagger_client.model.docker_run_scheduled_priority import DockerRunScheduledPriority
-from lightly.openapi_generated.swagger_client import configuration
 
 
 class TestDockerRunScheduledPriority(unittest.TestCase):
     """DockerRunScheduledPriority unit test stubs"""
-    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_DockerRunScheduledPriority(self):
+        """Test DockerRunScheduledPriority"""
+        # FIXME: construct object with mandatory attributes with example values
+        # model = DockerRunScheduledPriority()  # noqa: E501
+        pass
 
 
 if __name__ == '__main__':
