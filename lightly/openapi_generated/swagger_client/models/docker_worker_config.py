@@ -36,7 +36,7 @@ class DockerWorkerConfig(object):
         'worker_type': 'DockerWorkerType',
         'docker': 'dict(str, object)',
         'lightly': 'dict(str, object)',
-        'selection': 'DockerWorkerSelectionConfig'
+        'selection': 'SelectionConfig'
     }
 
     attribute_map = {
@@ -139,7 +139,7 @@ class DockerWorkerConfig(object):
 
 
         :return: The selection of this DockerWorkerConfig.  # noqa: E501
-        :rtype: DockerWorkerSelectionConfig
+        :rtype: SelectionConfig
         """
         return self._selection
 
@@ -149,7 +149,7 @@ class DockerWorkerConfig(object):
 
 
         :param selection: The selection of this DockerWorkerConfig.  # noqa: E501
-        :type: DockerWorkerSelectionConfig
+        :type: SelectionConfig
         """
 
         self._selection = selection
