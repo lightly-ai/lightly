@@ -43,6 +43,7 @@ extensions = [
     "sphinx_gallery.gen_gallery",
     "sphinx_tabs.tabs",
     "sphinx_copybutton",
+    "sphinx_reredirects",
 ]
 
 sphinx_gallery_conf = {
@@ -98,4 +99,8 @@ html_logo = '../logos/lightly_logo_crop_white_text.png'
 html_context = {
     'copyright_year': copyright_year,
     'website_url': website_url,
+}
+
+redirects = {
+        "getting_started/install": "https://docs2.lightly.ai/docs/installing-lightly",
 }

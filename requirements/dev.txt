@@ -8,6 +8,7 @@ sphinx-copybutton
 sphinx-gallery
 sphinx-tabs
 sphinx_rtd_theme
+sphinx-reredirects
 matplotlib
 pre-commit
 opencv-python

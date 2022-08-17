@@ -155,3 +155,9 @@ class SampleClass:
                 Some explanation for x.
         """
 ```
+
+### Moving Pages to readme.com
+
+If a page is to be moved, update the "redirects" dictionary in `source/conf.py` mapping the old page to the new one.
+
+More info is available at [reredirects docs](https://documatt.gitlab.io/sphinx-reredirects/usage.html).
