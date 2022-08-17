@@ -57,27 +57,31 @@ The configuration of a selection needs to specify both the maximum number of sam
 .. code-block:: python
     :emphasize-lines: 2
 
-    SelectionConfig(
-        n_samples=50,
-        strategies=[
-            SelectionConfigEntry(
-                input=SelectionConfigEntryInput(type=SelectionInputType.CHANGEME, extra parameters),
-                strategy=SelectionConfigEntryStrategy(type=SelectionStrategyType.CHANGEME, extra parameters)
-            ),
+    {
+        "n_samples": 50,
+        "strategies": [
+            {
+                "input": {
+                    "type": ...
+                },
+                "strategy": {
+                    "type": ...
+                }
+            },
             ... more strategies
         ]
-    )
+    }
 
 The variable :code:`n_samples` must be a positive integer specifying the absolute number of samples which should be selected.
 
-Each strategy is specified by a :code:`SelectionConfigEntry`, which is always made up of an :code:`input` and the actual :code:`strategy`.
+Each strategy is specified by a :code:`dictionary`, which is always made up of an :code:`input` and the actual :code:`strategy`.
 
 .. code-block:: python
 
-    SelectionConfigEntry(
-        input=...,
-        strategy=...
-    ),
+    {
+        "input": ...,
+        "strategy": ...
+    },
 
 
 Selection Input
@@ -98,9 +102,9 @@ The input or :code:`SelectionConfigEntryInput` can be one of the following:
 
         .. code-block:: python
 
-            input=SelectionConfigEntryInput(
-                type=SelectionInputType.EMBEDDINGS
-            )
+            "input": {
+                "type": "EMBEDDINGS"
+            }
 
     .. tab:: SCORES
 
@@ -109,18 +113,18 @@ The input or :code:`SelectionConfigEntryInput` can be one of the following:
         .. code-block:: python
 
             # using your own predictions
-            input=SelectionConfigEntryInput(
-                type=SelectionInputType.SCORES,
-                task="YOUR_TASK_NAME",
-                score="uncertainty_entropy"
-            )
+            "input": {
+                "type": "SCORES",
+                "task": "YOUR_TASK_NAME",
+                "score": "uncertainty_entropy"
+            }
 
             # using the lightly pretagging model
-            input=SelectionConfigEntryInput(
-                type=SelectionInputType.SCORES,
-                task="lightly_pretagging",
-                score="uncertainty_entropy"
-            )
+            "input": {
+                "type": "SCORES",
+                "task": "lightly_pretagging",
+                "score": "uncertainty_entropy"
+            }
 
         You can specify one of the tasks you specified in your datasource, see :ref:`docker-datasource-predictions` for reference.
         Alternatively, you can use **lightly_pretagging** as the task to use object detections created by the Lightly Worker itself.
@@ -150,18 +154,18 @@ The input or :code:`SelectionConfigEntryInput` can be one of the following:
         .. code-block:: python
             
             # using your own predictions
-            input=SelectionConfigEntryInput(
-                type=SelectionInputType.PREDICTIONS,
-                task="my_object_detection_task",
-                name=SelectionInputPredictionsName.CLASS_DISTRIBUTION
-            )
+            "input": {
+                "type": "PREDICTIONS",
+                "task": "my_object_detection_task",
+                "name": "CLASS_DISTRIBUTION"
+            }
 
             # using the lightly pretagging model
-            input=SelectionConfigEntryInput(
-                type=SelectionInputType.PREDICTIONS,
-                task="lightly_pretagging",
-                name=SelectionInputPredictionsName.CLASS_DISTRIBUTION
-            )
+            "input": {
+                "type": "PREDICTIONS",
+                "task": "lightly_pretagging",
+                "name": "CLASS_DISTRIBUTION"
+            }
 
     .. tab:: METADATA
 
@@ -174,10 +178,10 @@ The input or :code:`SelectionConfigEntryInput` can be one of the following:
 
             .. code-block:: python
 
-                input=SelectionConfigEntryInput(
-                    type=SelectionInputType.METADATA,
-                    key="weather.temperature"
-                )
+                "input": {
+                    "type": "METADATA",
+                    "key": "weather.temperature"
+                }
 
             Use as key the “path” you specified when creating the metadata in the datasource.
 
@@ -188,10 +192,10 @@ The input or :code:`SelectionConfigEntryInput` can be one of the following:
 
             .. code-block:: python
 
-                input=SelectionConfigEntryInput(
-                    type=SelectionInputType.METADATA,
-                    key="lightly.sharpness"
-                )
+                "input": {
+                    "type": "METADATA",
+                    "key": "lightly.sharpness"
+                }
 
         - **Numerical** vs. **Categorical** values
 
@@ -218,9 +222,9 @@ They can be created using the :code:`SelectionConfigEntryStrategy` object.
 
         .. code-block:: python
 
-            strategy=SelectionConfigEntryStrategy(
-                type=SelectionStrategyType.DIVERSIFY
-            )
+            "strategy": {
+                "type": "DIVERSIFY"
+            }
 
         If you want to preserve a minimum distance between chosen samples, you 
         can specify it as an additional stopping condition. The selection process
@@ -229,10 +233,10 @@ They can be created using the :code:`SelectionConfigEntryStrategy` object.
         .. code-block:: python
             :emphasize-lines: 3
 
-            strategy=SelectionConfigEntryStrategy(
-                type=SelectionStrategyType.DIVERSIFY,
-                stopping_condition_minimum_distance=0.2
-            )
+            "strategy": {
+                "type": "DIVERSIFY",
+                "stopping_condition_minimum_distance": 0.2
+            }
 
         Setting :code:`stopping_condition_minimum_distance=0.2` will remove all samples which are
         closer to each other than 0.2. 
@@ -251,9 +255,9 @@ They can be created using the :code:`SelectionConfigEntryStrategy` object.
 
         .. code-block:: python
 
-            strategy=SelectionConfigEntryStrategy(
-                type=SelectionStrategyType.WEIGHTS
-            )
+            "strategy": {
+                "type": "WEIGHTS"
+            }
 
     .. tab:: THRESHOLD
 
@@ -264,11 +268,11 @@ They can be created using the :code:`SelectionConfigEntryStrategy` object.
 
         .. code-block:: python
 
-            strategy=SelectionConfigEntryStrategy(
-                type=SelectionStrategyType.THRESHOLD,
-                threshold=20,
-                operation=SelectionStrategyThresholdOperation.BIGGER_EQUAL
-            )
+            "strategy": {
+                "type": "THRESHOLD",
+                "threshold": 20,
+                "operation": "BIGGER_EQUAL"
+            }
 
         The allowed operations are :code:`SMALLER`, :code:`SMALLER_EQUAL`, :code:`BIGGER`, :code:`BIGGER_EQUAL`.
 
@@ -283,13 +287,13 @@ They can be created using the :code:`SelectionConfigEntryStrategy` object.
 
         .. code-block:: python
 
-            strategy=SelectionConfigEntryStrategy(
-                type=SelectionStrategyType.BALANCE,
-                target={
+            "strategy": {
+                "type": "BALANCE",
+                "target": {
                     "Ambulance": 0.2, # `Ambulance` should be a valid class in your `schema.json`
                     "Bus": 0.4
                 }
-            )
+            }
 
         If the values of the target do not sum up to 1, the remainder is assumed to be the target for the other classes.
         In this example with 20% ambulance and 40% bus, there is the implicit assumption, that the remaining 40% should come from any other class,
@@ -311,19 +315,19 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            SelectionConfig(
-                n_samples=100, # set to the number of samples you want to select
-                strategies=[
-                    SelectionConfigEntry(
-                        input=SelectionConfigEntryInput(
-                            type=SelectionInputType.EMBEDDINGS
-                        ),
-                        strategy=SelectionConfigEntryStrategy(
-                            type=SelectionStrategyType.DIVERSIFY
-                        )
-                    )
+            {
+                ""n_samples": 100, # set to the number of samples you want to select
+                "strategies": [
+                    {
+                        "input": {
+                            "type": "EMBEDDINGS"
+                        },
+                        "strategy": {
+                            "type": "DIVERSIFY"
+                        }
+                    }
                 ]
-            )
+            }
             
 
     .. tab:: Active Learning
@@ -332,21 +336,21 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            SelectionConfig(
-                n_samples=100, # set to the number of samples you want to select
-                strategies=[
-                    SelectionConfigEntry(
-                        input=SelectionConfigEntryInput(
-                            type=SelectionInputType.SCORES, 
-                            task="my_object_detection_task", # change to your task
-                            score="uncertainty_entropy" # change to your preferred score
-                        ),
-                        strategy=SelectionConfigEntryStrategy(
-                            type=SelectionStrategyType.WEIGHTS
-                        )
-                    )
+            {
+                "n_samples": 100, # set to the number of samples you want to select
+                "strategies": [
+                    {
+                        "input": {
+                            "type": "SCORES", 
+                            "task": "my_object_detection_task", # change to your task
+                            "score": "uncertainty_entropy" # change to your preferred score
+                        },
+                        "strategy": {
+                            "type": "WEIGHTS"
+                        }
+                    }
                 ]
-            )
+            }
 
         .. note:: This works as well for Image Classifciation or Segmentation!
 
@@ -356,29 +360,29 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            SelectionConfig(
-                n_samples=100, # set to the number of samples you want to select
-                strategies=[
-                    SelectionConfigEntry(
-                        input=SelectionConfigEntryInput(
-                            type=SelectionInputType.EMBEDDINGS
-                        ),
-                        strategy=SelectionConfigEntryStrategy(
-                            type=SelectionStrategyType.DIVERSIFY
-                        )
-                    ),
-                    SelectionConfigEntry(
-                        input=SelectionConfigEntryInput(
-                            type=SelectionInputType.SCORES,
-                            task="my_object_detection_task", # change to your task
-                            score="uncertainty_entropy" # change to your preferred score
-                        ),
-                        strategy=SelectionConfigEntryStrategy(
-                            type=SelectionStrategyType.WEIGHTS
-                        )
-                    )
+            {
+                "n_samples": 100, # set to the number of samples you want to select
+                "strategies": [
+                    {
+                        "input": {
+                            "type": "EMBEDDINGS"
+                        },
+                        "strategy": {
+                            "type": "DIVERSIFY"
+                        }
+                    },
+                    {
+                        "input": {
+                            "type": "SCORES",
+                            "task": "my_object_detection_task", # change to your task
+                            "score": "uncertainty_entropy" # change to your preferred score
+                        },
+                        "strategy": {
+                            "type": "WEIGHTS"
+                        }
+                    }
                 ]
-            )
+            }
 
     .. tab:: Metadata Thresholding
 
@@ -387,22 +391,22 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            SelectionConfig(
-                n_samples=100, # set to the number of samples you want to select
-                strategies=[
-                    SelectionConfigEntry(
-                        input=SelectionConfigEntryInput(
-                            type=SelectionInputType.METADATA, 
-                            key="lightly.sharpness"
-                        ),
-                        strategy=SelectionConfigEntryStrategy(
-                            type=SelectionStrategyType.THRESHOLD,
-                            threshold=20,
-                            operation=SelectionStrategyThresholdOperation.BIGGER
-                        )
-                    )
+            {
+                "n_samples": 100, # set to the number of samples you want to select
+                "strategies": [
+                    {
+                        "input": {
+                            "type": "METADATA", 
+                            "key": "lightly.sharpness"
+                        },
+                        "strategy": {
+                            "type": "THRESHOLD",
+                            "threshold": 20,
+                            "operation": "BIGGER"
+                        }
+                    }
                 ]
-            )
+            }
 
     .. tab:: Score Thresholding
 
@@ -410,23 +414,23 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            SelectionConfig(
-                n_samples=100, # set to the number of samples you want to select
-                strategies=[
-                    SelectionConfigEntry(
-                        input=SelectionConfigEntryInput(
-                            type=SelectionInputType.SCORES,
-                            task="my_object_detection_task", # change to your task
-                            score="object_frequency"
-                        ),
-                        strategy=SelectionConfigEntryStrategy(
-                            type=SelectionStrategyType.THRESHOLD,
-                            threshold=2,
-                            operation=SelectionStrategyThresholdOperation.BIGGER_EQUAL
-                        )
-                    )
+            {
+                "n_samples": 100, # set to the number of samples you want to select
+                "strategies": [
+                    {
+                        "input": {
+                            "type": "SCORES",
+                            "task": "my_object_detection_task", # change to your task
+                            "score": "object_frequency"
+                        },
+                        "strategy": {
+                            "type": "THRESHOLD",
+                            "threshold": 2,
+                            "operation": "BIGGER_EQUAL"
+                        }
+                    }
                 ]
-            )
+            }
 
     .. tab:: Object Balancing
 
@@ -434,18 +438,18 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            SelectionConfig(
-                n_samples=100, # set to the number of samples you want to select
-                strategies=[
-                    SelectionConfigEntry(
-                        input=SelectionConfigEntryInput(
-                            type=SelectionInputType.PREDICTIONS,
-                            task="lightly_pretagging", # (optional) change to your task
-                            name=SelectionInputPredictionsName.CLASS_DISTRIBUTION
-                        ),
-                        strategy=SelectionConfigEntryStrategy(
-                            type=SelectionStrategyType.BALANCE,
-                            target={
+            {
+                "n_samples": 100, # set to the number of samples you want to select
+                "strategies": [
+                    {
+                        "input": {
+                            "type": "PREDICTIONS",
+                            "task": "lightly_pretagging", # (optional) change to your task
+                            "name": "CLASS_DISTRIBUTION"
+                        },
+                        "strategy": {
+                            "type": "BALANCE",
+                            "target": {
                                 "car": 0.1, 
                                 "bicycle": 0.5, 
                                 "bus": 0.1, 
@@ -454,10 +458,10 @@ Here are examples for the full configuration including the input for several obj
                                 "train": 0.05, 
                                 "truck": 0.05
                             }
-                        )
-                    )
+                        }
+                    }
                 ]
-            )
+            }
 
     .. tab:: Metadata Balancing
 
@@ -466,24 +470,24 @@ Here are examples for the full configuration including the input for several obj
 
         .. code-block:: python
 
-            SelectionConfig(
-                n_samples=100, # set to the number of samples you want to select
-                strategies=[
-                    SelectionConfigEntry(
-                        input=SelectionConfigEntryInput(
-                            type=SelectionInputType.METADATA,
-                            key="weather.description"
-                        ),
-                        strategy=SelectionConfigEntryStrategy(
-                            type=SelectionStrategyType.BALANCE,
-                            target={
+            {
+                "n_samples": 100, # set to the number of samples you want to select
+                "strategies": [
+                    {
+                        "input": {
+                            "type": "METADATA",
+                            "key": "weather.description"
+                        },
+                        "strategy": {
+                            "type": "BALANCE",
+                            "target": {
                                 "sunny": 0.2,
                                 "cloudy": 0.4
                             }
-                        )
-                    )
+                        }
+                    }
                 ]
-            )
+            }
 
 Application of Strategies
 -------------------------

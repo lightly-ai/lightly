@@ -241,16 +241,20 @@ Now that everything is in place, let's configure and run a simple job.
         worker_config={
             "enable_corruptness_check": True,
             "remove_exact_duplicates": True,
-        }
-        selection_config=SelectionConfig(
-            n_samples=50,
-            strategies=[
-                SelectionConfigEntry(
-                    input=SelectionConfigEntry(type=SelectionInputType.EMBEDDINGS),
-                    strategy=SelectionConfigEntry(type=SelectionStrategyType.DIVERSIFY)
-                )
+        },
+        selection_config={
+            "n_samples": 50,
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSIFY"
+                    }
+                }
             ]
-        )
+        }
     )
 
 
@@ -299,15 +303,19 @@ epochs on the input images before embedding the images and selecting from them.
             "pretagging": False,
             "pretagging_debug": False,
         },
-        selection_config=SelectionConfig(
-            n_samples=50,
-            strategies=[
-                SelectionConfigEntry(
-                    input=SelectionConfigEntry(type=SelectionInputType.EMBEDDINGS),
-                    strategy=SelectionConfigEntry(type=SelectionStrategyType.DIVERSIFY)
-                )
+        selection_config={
+            "n_samples": 50,
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSIFY"
+                    }
+                }
             ]
-        )
+        }
     )
 
 You may not always want to train for exactly 100 epochs with the default settings.
@@ -407,15 +415,19 @@ a `shared directory` and then passing the checkpoint filename to the container.
             "pretagging_debug": False,
             "checkpoint": "lightly_epoch_X.ckpt"
         },
-        selection_config=SelectionConfig(
-            n_samples=50,
-            strategies=[
-                SelectionConfigEntry(
-                    input=SelectionConfigEntry(type=SelectionInputType.EMBEDDINGS),
-                    strategy=SelectionConfigEntry(type=SelectionStrategyType.DIVERSIFY)
-                )
+        selection_config={
+            "n_samples": 50,
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSIFY"
+                    }
+                }
             ]
-        )
+        }
     )
 
 For example, if the :code:`{OUTPUT_DIR}` is :code:`/home/ubuntu/outputs`, the checkpoint will
@@ -482,15 +494,19 @@ The corresponding Python command to submit a job would then be as follows:
             "pretagging": False,
             "pretagging_debug": False,
         },
-        selection_config=SelectionConfig(
-            n_samples=50,
-            strategies=[
-                SelectionConfigEntry(
-                    input=SelectionConfigEntry(type=SelectionInputType.EMBEDDINGS),
-                    strategy=SelectionConfigEntry(type=SelectionStrategyType.DIVERSIFY)
-                )
+        selection_config={
+            "n_samples": 50,
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSIFY"
+                    }
+                }
             ]
-        )
+        }
     )
 
 

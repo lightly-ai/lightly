@@ -16,19 +16,19 @@ client.schedule_compute_worker_run(
         'remove_exact_duplicates': True,
         'enable_training': False,
     },
-    selection_config=SelectionConfig(
-        n_samples=50,
-        strategies=[
-            SelectionConfigEntry(
-                input=SelectionConfigEntryInput(
-                    type=SelectionInputType.EMBEDDINGS
-                ),
-                strategy=SelectionConfigEntryStrategy(
-                    type=SelectionStrategyType.DIVERSIFY
-                )
-            ),
+    selection_config={
+        "n_samples": 50,
+        "strategies": [
+            {
+                "input": {
+                    "type": "EMBEDDINGS"
+                },
+                "strategy": {
+                    "type": "DIVERSIFY"
+                }
+            }
         ]
-    ),
+    },
     lightly_config={
         'loader': {
             'batch_size': 16,
