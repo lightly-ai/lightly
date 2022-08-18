@@ -29,6 +29,30 @@ The Lightly worker can be easily triggered from your Python code. There are vari
 configure and we also expose the full configuration of the lightly self-supervised learning framework.
 You can use the Lightly worker to train a self-supervised model instead of using the Lightly Python framework.
 
+Using Docker
+-------------
+
+We use docker containers to ship the Lightly Worker. Docker allows us to run the
+same worker on various operating systems with different setups. 
+
+`To learn more about docker please head over to the official docs! <https://docs.docker.com/>`_
+
+Here, we quickly explain the most important parts of the typical **docker run** command.
+
+.. code-block:: console
+
+    docker run --shm-size="1024m" --gpus all --rm -it lightly/worker:latest
+
+- :code:`docker run` this is the command to run/start a container
+- :code:`--shm-size="1024m"` because we do lots of parallel computations we
+  want to give our container some extra shared memory for inter process communication
+- :code:`--gpus all` passes all the host GPUs to the container and makes them accessible
+- :code:`--rm` makes sure we remove the container after running
+- :code:`-it` enables interactive mode (user input gets passed to container).
+  This allows you to use `ctrl-c` to stop the container
+- :code:`lightly/worker:latest` is the docker image we want to run
+
+
 Volume Mapping
 --------------
 
@@ -37,7 +61,7 @@ worker mode (as outlined in :ref:`docker-setup`).
 
 .. code-block:: console
 
-    docker run --gpus all --rm -it \
+    docker run --shm-size="1024m" --gpus all --rm -it \
         -v {OUTPUT_DIR}:/home/output_dir \
         lightly/worker:latest \
         token=MY_AWESOME_TOKEN \
@@ -370,7 +394,7 @@ a `shared directory` and then passing the checkpoint filename to the container.
     :emphasize-lines: 3
     :caption: Starting the worker with a `shared directory`
 
-    docker run --gpus all --rm -it \
+    docker run --shm-size="1024m" --gpus all --rm -it \
         -v {OUTPUT_DIR}:/home/output_dir \
         -v {SHARED_DIR}:/home/shared_dir \
         lightly/worker:latest \
