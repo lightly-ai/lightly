@@ -52,20 +52,6 @@ selects a diverse set of frames:
 .. code-block:: python
 
     # in this example we use a diversifying selection strategy (CORESET)
-    selection_config = SelectionConfig(
-        n_samples=500000,
-        strategies=[
-            SelectionConfigEntry(
-                input=SelectionConfigEntryInput(
-                    type=SelectionInputType.EMBEDDINGS
-                ),
-                strategy=SelectionConfigEntryStrategy(
-                    type=SelectionStrategyType.DIVERSIFY,
-                    stopping_condition_minimum_distance=0.1
-                )
-            )
-        ]
-    )
 
     client.schedule_compute_worker_run(
         worker_config={
@@ -75,7 +61,20 @@ selects a diverse set of frames:
             "pretagging": False,
             "pretagging_debug": False
         },
-        selection_config=selection_config
+        selection_config = {
+            "n_samples": 500000,
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSIFY",
+                        "stopping_condition_minimum_distance": 0.1
+                    }
+                }
+            ]
+        }
     )
 
 
@@ -137,20 +136,6 @@ The following command schedules a job to select a subset from Cityscapes:
 .. code-block:: python
 
     # in this example we use a diversifying selection strategy (CORESET)
-    selection_config = SelectionConfig(
-        n_samples=10_000, # maket this number high (upper limit)
-        strategies=[
-            SelectionConfigEntry(
-                input=SelectionConfigEntryInput(
-                    type=SelectionInputType.EMBEDDINGS
-                ),
-                strategy=SelectionConfigEntryStrategy(
-                    type=SelectionStrategyType.DIVERSIFY,
-                    stopping_condition_minimum_distance=0.2
-                )
-            )
-        ]
-    )
 
     client.schedule_compute_worker_run(
         worker_config={
@@ -160,7 +145,20 @@ The following command schedules a job to select a subset from Cityscapes:
             "pretagging": False,
             "pretagging_debug": False
         },
-        selection_config=selection_config
+        selection_config = {
+            "n_samples": 10_000, # maket this number high (upper limit)
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSIFY",
+                        "stopping_condition_minimum_distance": 0.2
+                    }
+                }
+            ]
+        }
     )
 
 
@@ -194,11 +192,20 @@ the new images.
             "enable_training": False,
             "pretagging": False,
             "pretagging_debug": False,
-            "method": "coreset",
-            "stopping_condition": {
-                "n_samples": -1,
-                "min_distance": 0.2,
-            }
+        },
+        selection_config = {
+            "n_samples": 10_000, # maket this number high (upper limit)
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSIFY",
+                        "stopping_condition_minimum_distance": 0.2
+                    }
+                }
+            ]
         }
     )
 
