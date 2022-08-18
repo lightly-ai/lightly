@@ -55,7 +55,6 @@ Selection Configuration
 The configuration of a selection needs to specify both the maximum number of samples to select and the strategies:
 
 .. code-block:: python
-    :emphasize-lines: 2
 
     {
         "n_samples": 50,
@@ -237,7 +236,7 @@ There are several types of selection strategies, all trying to reach different o
                 "stopping_condition_minimum_distance": 0.2
             }
 
-        Setting :code:`stopping_condition_minimum_distance=0.2` will remove all samples which are
+        Setting :code:`"stopping_condition_minimum_distance": 0.2` will remove all samples which are
         closer to each other than 0.2. 
         This allows you to specify the minimum allowed distance between two image
         embeddings in the output dataset. Since we normalize the input embeddings
@@ -315,7 +314,7 @@ Here are examples for the full configuration including the input for several obj
         .. code-block:: python
 
             {
-                ""n_samples": 100, # set to the number of samples you want to select
+                "n_samples": 100, # set to the number of samples you want to select
                 "strategies": [
                     {
                         "input": {
