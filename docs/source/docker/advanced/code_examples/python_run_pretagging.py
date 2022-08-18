@@ -77,7 +77,7 @@ client.schedule_compute_worker_run(
         'pretagging_debug': True,   # we also want debugging images in the report
     },
     selection_config={
-        "n_samples": 100,
+        "nSamples": 100,
         "strategies": [
             {
                 "input": {

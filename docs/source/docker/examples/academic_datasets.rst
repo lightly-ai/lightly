@@ -62,7 +62,7 @@ selects a diverse set of frames:
             "pretagging_debug": False
         },
         selection_config = {
-            "n_samples": 500000,
+            "nSamples": 500000,
             "strategies": [
                 {
                     "input": {
@@ -146,7 +146,7 @@ The following command schedules a job to select a subset from Cityscapes:
             "pretagging_debug": False
         },
         selection_config = {
-            "n_samples": 10_000, # maket this number high (upper limit)
+            "nSamples": 10_000, # maket this number high (upper limit)
             "strategies": [
                 {
                     "input": {
@@ -194,7 +194,7 @@ the new images.
             "pretagging_debug": False,
         },
         selection_config = {
-            "n_samples": 10_000, # maket this number high (upper limit)
+            "nSamples": 10_000, # maket this number high (upper limit)
             "strategies": [
                 {
                     "input": {

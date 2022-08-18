@@ -114,7 +114,7 @@ selects a diverse set of frames:
           "pretagging_debug": False,
       },
       selection_config = {
-          "n_samples": 99,
+          "nSamples": 99,
           "strategies": [
               {
                   "input": {

@@ -78,7 +78,7 @@ client.schedule_compute_worker_run(
         'pretagging_debug': False,
     },
     selection_config={
-        "n_samples": 100,
+        "nSamples": 100,
         "strategies": [
             {
                 "input": {

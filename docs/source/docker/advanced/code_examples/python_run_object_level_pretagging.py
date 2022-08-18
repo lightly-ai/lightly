@@ -80,7 +80,7 @@ client.schedule_compute_worker_run(
         }
     },
     selection_config={
-        "n_samples": 100,
+        "nSamples": 100,
         "strategies": [
             {
                 "input": {

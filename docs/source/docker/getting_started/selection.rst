@@ -57,7 +57,7 @@ The configuration of a selection needs to specify both the maximum number of sam
 .. code-block:: python
 
     {
-        "n_samples": 50,
+        "nSamples": 50,
         "strategies": [
             {
                 "input": {
@@ -314,7 +314,7 @@ Here are examples for the full configuration including the input for several obj
         .. code-block:: python
 
             {
-                "n_samples": 100, # set to the number of samples you want to select
+                "nSamples": 100, # set to the number of samples you want to select
                 "strategies": [
                     {
                         "input": {
@@ -335,7 +335,7 @@ Here are examples for the full configuration including the input for several obj
         .. code-block:: python
 
             {
-                "n_samples": 100, # set to the number of samples you want to select
+                "nSamples": 100, # set to the number of samples you want to select
                 "strategies": [
                     {
                         "input": {
@@ -359,7 +359,7 @@ Here are examples for the full configuration including the input for several obj
         .. code-block:: python
 
             {
-                "n_samples": 100, # set to the number of samples you want to select
+                "nSamples": 100, # set to the number of samples you want to select
                 "strategies": [
                     {
                         "input": {
@@ -390,7 +390,7 @@ Here are examples for the full configuration including the input for several obj
         .. code-block:: python
 
             {
-                "n_samples": 100, # set to the number of samples you want to select
+                "nSamples": 100, # set to the number of samples you want to select
                 "strategies": [
                     {
                         "input": {
@@ -413,7 +413,7 @@ Here are examples for the full configuration including the input for several obj
         .. code-block:: python
 
             {
-                "n_samples": 100, # set to the number of samples you want to select
+                "nSamples": 100, # set to the number of samples you want to select
                 "strategies": [
                     {
                         "input": {
@@ -437,7 +437,7 @@ Here are examples for the full configuration including the input for several obj
         .. code-block:: python
 
             {
-                "n_samples": 100, # set to the number of samples you want to select
+                "nSamples": 100, # set to the number of samples you want to select
                 "strategies": [
                     {
                         "input": {
@@ -469,7 +469,7 @@ Here are examples for the full configuration including the input for several obj
         .. code-block:: python
 
             {
-                "n_samples": 100, # set to the number of samples you want to select
+                "nSamples": 100, # set to the number of samples you want to select
                 "strategies": [
                     {
                         "input": {

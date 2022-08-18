@@ -13,7 +13,7 @@ client.schedule_compute_worker_run(
         'enable_training': False,
     },
     selection_config={
-        "n_samples": 50,
+        "nSamples": 50,
         "strategies": [
             {
                 "input": {

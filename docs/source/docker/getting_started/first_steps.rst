@@ -243,7 +243,7 @@ Now that everything is in place, let's configure and run a simple job.
             "remove_exact_duplicates": True,
         },
         selection_config={
-            "n_samples": 50,
+            "nSamples": 50,
             "strategies": [
                 {
                     "input": {
@@ -304,7 +304,7 @@ epochs on the input images before embedding the images and selecting from them.
             "pretagging_debug": False,
         },
         selection_config={
-            "n_samples": 50,
+            "nSamples": 50,
             "strategies": [
                 {
                     "input": {
@@ -416,7 +416,7 @@ a `shared directory` and then passing the checkpoint filename to the container.
             "checkpoint": "lightly_epoch_X.ckpt"
         },
         selection_config={
-            "n_samples": 50,
+            "nSamples": 50,
             "strategies": [
                 {
                     "input": {
@@ -495,7 +495,7 @@ The corresponding Python command to submit a job would then be as follows:
             "pretagging_debug": False,
         },
         selection_config={
-            "n_samples": 50,
+            "nSamples": 50,
             "strategies": [
                 {
                     "input": {

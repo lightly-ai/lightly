@@ -335,7 +335,7 @@ Set the `YOUR_LIGHTLY_TOKEN`, `YOUR_DATASET_ID` accordingly.
                     "pretagging_debug": False,
                 },
                 selection_config={
-                    "n_samples": 50,
+                    "nSamples": 50,
                     "strategies": [
                         {
                             "input": {
