@@ -79,7 +79,7 @@ client.schedule_compute_worker_run(
             "task_name": "vehicles_object_detections" 
         },
     },
-selection_config={
+    selection_config={
         "n_samples": 100,
         "strategies": [
             {
