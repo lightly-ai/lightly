@@ -1,7 +1,3 @@
-from lightly.openapi_generated.swagger_client import SelectionInputType, \
-     SelectionStrategyType, SelectionConfig, SelectionConfigEntry, \
-     SelectionConfigEntryInput, SelectionConfigEntryStrategy
-
 # You can reuse the client previous scripts. If you want to create a new
 # one you can uncomment the following line:
 # client = lightly.api.ApiWorkflowClient(token="TOKEN", dataset_id="DATASET_ID")
