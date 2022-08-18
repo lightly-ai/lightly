@@ -148,7 +148,7 @@ Sanity Check
 
 .. code-block:: console
 
-    docker run --rm -it lightly/worker:latest sanity_check=True
+    docker run --shm-size="1024m" --rm -it lightly/worker:latest sanity_check=True
 
 You should see an output similar to this one:
 
@@ -185,7 +185,7 @@ Store the `worker_id` in a secure location and then start the worker with
 
 .. code-block:: console
 
-    docker run --gpus all --rm -it \
+    docker run --shm-size="1024m" --gpus all --rm -it \
         -v {OUTPUT_DIR}:/home/output_dir \
         lightly/worker:latest \
         token=MY_AWESOME_TOKEN \

@@ -144,7 +144,7 @@ code to sping up a Lightly Worker
 
 .. code-block:: console
 
-  docker run --rm --gpus all -it \
+  docker run --shm-size="1024m" --rm --gpus all -it \
     -v /docker-output:/home/output_dir lightly/worker:latest \
     token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
@@ -164,7 +164,7 @@ code to sping up a Lightly Worker
 
 .. code-block:: console
 
-  docker run --rm --gpus all -it \
+  docker run --shm-size="1024m" --rm --gpus all -it \
     -v /docker-output:/home/output_dir lightly/worker:latest \
     token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
