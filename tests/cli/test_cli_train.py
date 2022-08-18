@@ -58,9 +58,11 @@ class TestCLITrain(MockedApiWorkflowSetup):
     def test_parse_cli_string(self):
         cli_string = "lightly-train trainer.weights_summary=top"
         self.parse_cli_string(cli_string)
+        # TODO MICHAL
         assert self.cfg["trainer"]["weights_summary"] == 'top'
 
     def test_train_weights_summary(self):
+        # TODO MICHAL
         for weights_summary in ["None", "top", "full"]:
             cli_string = f"lightly-train trainer.weights_summary={weights_summary}"
             with self.subTest(cli_string):

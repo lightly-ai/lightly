@@ -47,9 +47,6 @@ def _train_cli(cfg, is_cli_call=True):
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
 
-    if cfg["trainer"]["weights_summary"] == "None":
-        cfg["trainer"]["weights_summary"] = None
-
     if torch.cuda.is_available():
         device = 'cuda'
     elif cfg['trainer'] and cfg['trainer']['gpus']:
