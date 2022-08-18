@@ -112,11 +112,19 @@ selects a diverse set of frames:
           "enable_training": False,
           "pretagging": False,
           "pretagging_debug": False,
-          "method": "coreset",
-          "stopping_condition": {
-              "n_samples": 99,
-              "min_distance": -1
-          }
+      },
+      selection_config = {
+          "n_samples": 99,
+          "strategies": [
+              {
+                  "input": {
+                      "type": "EMBEDDINGS"
+                  },
+                  "strategy": {
+                      "type": "DIVERSIFY"
+                  }
+              }
+          ]
       }
   )
 
