@@ -65,21 +65,6 @@ client.set_azure_config(
     purpose=DatasourcePurpose.LIGHTLY
 )
 
-# in this example we use a diversifying selection strategy (CORESET)
-selection_config = SelectionConfig(
-    n_samples=100,
-    strategies=[
-        SelectionConfigEntry(
-            input=SelectionConfigEntryInput(
-                type=SelectionInputType.EMBEDDINGS
-            ),
-            strategy=SelectionConfigEntryStrategy(
-                type=SelectionStrategyType.DIVERSIFY
-            )
-        )
-    ]
-)
-
 # Schedule the compute run using our custom config.
 # We show here the full default config so you can easily edit the
 # values according to your needs.
@@ -91,7 +76,19 @@ client.schedule_compute_worker_run(
         'pretagging': True,         # to enable pretagging
         'pretagging_debug': True,   # we also want debugging images in the report
     },
-    selection_config=selection_config,
+    selection_config={
+        "n_samples": 100,
+        "strategies": [
+            {
+                "input": {
+                    "type": "EMBEDDINGS"
+                },
+                "strategy": {
+                    "type": "DIVERSIFY",
+                }
+            }
+        ]
+    },
     lightly_config={
         'loader': {
             'batch_size': 128,

@@ -66,50 +66,6 @@ client.set_azure_config(
     purpose=DatasourcePurpose.LIGHTLY
 )
 
-# in this example we use a diversifying selection strategy (CORESET)
-selection_config = SelectionConfig(
-    n_samples=100,
-    strategies=[
-        SelectionConfigEntry(
-            input=SelectionConfigEntryInput(
-                type=SelectionInputType.EMBEDDINGS
-            ),
-            strategy=SelectionConfigEntryStrategy(
-                type=SelectionStrategyType.DIVERSIFY
-            )
-        ),
-        SelectionConfigEntry(
-            input=SelectionConfigEntryInput(
-                type=SelectionInputType.SCORES,
-                task="my_object_detection_task", # change to your task
-                score="uncertainty_entropy" # change to your preferred score
-            ),
-            strategy=SelectionConfigEntryStrategy(
-                type=SelectionStrategyType.WEIGHTS
-            )
-        ),
-        SelectionConfigEntry(
-            input=SelectionConfigEntryInput(
-                type=SelectionInputType.PREDICTIONS,
-                task="my_object_detection_task", 
-                name=SelectionInputPredictionsName.CLASS_DISTRIBUTION
-            ),
-            strategy=SelectionConfigEntryStrategy(
-                type=SelectionStrategyType.BALANCE,
-                target={
-                    "car": 0.1, # add your own classes here (defined in your `schema.json`)
-                    "bicycle": 0.5, 
-                    "bus": 0.1, 
-                    "motorcycle": 0.1, 
-                    "person": 0.1, 
-                    "train": 0.05, 
-                    "truck": 0.05
-                }
-            )
-        )
-    ]
-)
-
 # Schedule the docker run with 
 #  - "active_learning.task_name" set to your task name
 #  - "method" set to "coral"
@@ -123,7 +79,48 @@ client.schedule_compute_worker_run(
         "pretagging": False,
         "pretagging_debug": False,
     },
-    selection_config=selection_config,
+    selection_config={
+        "n_samples": 100,
+        "strategies": [
+            {
+                "input": {
+                    "type": "EMBEDDINGS"
+                },
+                "strategy": {
+                    "type": "DIVERSIFY",
+                }
+            },
+            {
+                "input": {
+                    "type": "SCORES",
+                    "task": "my_object_detection_task", # change to your task
+                    "score": "uncertainty_entropy" # change to your preferred score
+                },
+                "strategy": {
+                    "type": "WEIGHTS"
+                }
+            },
+            {
+                "input": {
+                    "type": "PREDICTIONS",
+                    "task": "my_object_detection_task", 
+                    "name": "CLASS_DISTRIBUTION"
+                },
+                "strategy": {
+                    "type": "BALANCE",
+                    "target": {
+                        "car": 0.1, # add your own classes here (defined in your `schema.json`)
+                        "bicycle": 0.5, 
+                        "bus": 0.1, 
+                        "motorcycle": 0.1, 
+                        "person": 0.1, 
+                        "train": 0.05, 
+                        "truck": 0.05
+                    }
+                }
+            }
+        ]
+    }
     lightly_config={
         'loader': {
             'batch_size': 16,
