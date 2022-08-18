@@ -79,19 +79,29 @@ client.schedule_compute_worker_run(
             "task_name": "vehicles_object_detections" 
         },
     },
-    selection_config=SelectionConfig(
-        n_samples=50,
-        strategies=[
-            SelectionConfigEntry(
-                input=SelectionConfigEntryInput(type=SelectionInputType.EMBEDDINGS),
-                strategy=SelectionConfigEntryStrategy(type=SelectionStrategyType.DIVERSIFY)
-            ),
-            SelectionConfigEntry(
-                input=SelectionConfigEntryInput(type=SelectionInputType.SCORES, task="my_object_detection_task", score="uncertainty_entropy"),
-                strategy=SelectionConfigEntryStrategy(type=SelectionStrategyType.WEIGHTS)
-            )
+selection_config={
+        "n_samples": 100,
+        "strategies": [
+            {
+                "input": {
+                    "type": "EMBEDDINGS"
+                },
+                "strategy": {
+                    "type": "DIVERSIFY",
+                }
+            },
+            {
+                "input": {
+                    "type": "SCORES",
+                    "task": "my_object_detection_task", # change to your task
+                    "score": "uncertainty_entropy" # change to your preferred score
+                },
+                "strategy": {
+                    "type": "WEIGHTS"
+                }
+            }
         ]
-    ).__dict__,
+    },
     lightly_config={
         'loader': {
             'batch_size': 16,
