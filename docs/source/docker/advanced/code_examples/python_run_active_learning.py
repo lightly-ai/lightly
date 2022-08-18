@@ -120,7 +120,7 @@ client.schedule_compute_worker_run(
                 }
             }
         ]
-    }
+    },
     lightly_config={
         'loader': {
             'batch_size': 16,
