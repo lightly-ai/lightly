@@ -87,7 +87,7 @@ Each strategy is specified by a :code:`dictionary`, which is always made up of a
 Selection Input
 ^^^^^^^^^^^^^^^^
 
-The input or :code:`SelectionConfigEntryInput` can be one of the following:
+The input can be one of the following:
 
 .. tabs::
 
@@ -209,7 +209,6 @@ Selection Strategy
 ^^^^^^^^^^^^^^^^^^^
 
 There are several types of selection strategies, all trying to reach different objectives.
-They can be created using the :code:`SelectionConfigEntryStrategy` object.
 
 .. tabs::
 
