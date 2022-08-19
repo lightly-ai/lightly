@@ -37,7 +37,9 @@ class SelectionConfigEntryInput(object):
         'task': 'str',
         'score': 'ActiveLearningScoreType',
         'key': 'str',
-        'name': 'SelectionInputPredictionsName'
+        'name': 'SelectionInputPredictionsName',
+        'dataset_id': 'MongoObjectID',
+        'tag_name': 'TagName'
     }
 
     attribute_map = {
@@ -45,10 +47,12 @@ class SelectionConfigEntryInput(object):
         'task': 'task',
         'score': 'score',
         'key': 'key',
-        'name': 'name'
+        'name': 'name',
+        'dataset_id': 'datasetId',
+        'tag_name': 'tagName'
     }
 
-    def __init__(self, type=None, task=None, score=None, key=None, name=None, _configuration=None):  # noqa: E501
+    def __init__(self, type=None, task=None, score=None, key=None, name=None, dataset_id=None, tag_name=None, _configuration=None):  # noqa: E501
         """SelectionConfigEntryInput - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -59,6 +63,8 @@ class SelectionConfigEntryInput(object):
         self._score = None
         self._key = None
         self._name = None
+        self._dataset_id = None
+        self._tag_name = None
         self.discriminator = None
 
         self.type = type
@@ -70,6 +76,10 @@ class SelectionConfigEntryInput(object):
             self.key = key
         if name is not None:
             self.name = name
+        if dataset_id is not None:
+            self.dataset_id = dataset_id
+        if tag_name is not None:
+            self.tag_name = tag_name
 
     @property
     def type(self):
@@ -177,6 +187,48 @@ class SelectionConfigEntryInput(object):
         """
 
         self._name = name
+
+    @property
+    def dataset_id(self):
+        """Gets the dataset_id of this SelectionConfigEntryInput.  # noqa: E501
+
+
+        :return: The dataset_id of this SelectionConfigEntryInput.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._dataset_id
+
+    @dataset_id.setter
+    def dataset_id(self, dataset_id):
+        """Sets the dataset_id of this SelectionConfigEntryInput.
+
+
+        :param dataset_id: The dataset_id of this SelectionConfigEntryInput.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._dataset_id = dataset_id
+
+    @property
+    def tag_name(self):
+        """Gets the tag_name of this SelectionConfigEntryInput.  # noqa: E501
+
+
+        :return: The tag_name of this SelectionConfigEntryInput.  # noqa: E501
+        :rtype: TagName
+        """
+        return self._tag_name
+
+    @tag_name.setter
+    def tag_name(self, tag_name):
+        """Sets the tag_name of this SelectionConfigEntryInput.
+
+
+        :param tag_name: The tag_name of this SelectionConfigEntryInput.  # noqa: E501
+        :type: TagName
+        """
+
+        self._tag_name = tag_name
 
     def to_dict(self):
         """Returns the model properties as a dict"""
