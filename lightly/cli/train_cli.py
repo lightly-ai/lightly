@@ -14,6 +14,7 @@ import torch
 import torch.nn as nn
 import warnings
 
+from omegaconf import OmegaConf
 from torch.utils.hipify.hipify_python import bcolors
 
 from lightly.cli._cli_simclr import _SimCLR
@@ -130,8 +131,15 @@ def _train_cli(cfg, is_cli_call=True):
                                              collate_fn=collate_fn)
 
     encoder = SelfSupervisedEmbedding(model, criterion, optimizer, dataloader)
-    encoder.init_checkpoint_callback(**cfg['checkpoint_callback'])
-    encoder.train_embedding(**cfg['trainer'], strategy=distributed_strategy)
+    # Add strategy field to trainer config
+    trainer_config = OmegaConf.create(
+        dict(strategy = distributed_strategy, **cfg['trainer'])
+    )
+    encoder.train_embedding(
+        trainer_config=trainer_config,
+        checkpoint_callback_config=cfg['checkpoint_callback'],
+        summary_callback_config=cfg['summary_callback'],
+    )
 
     print(f'Best model is stored at: {bcolors.OKBLUE}{encoder.checkpoint}{bcolors.ENDC}')
     os.environ[

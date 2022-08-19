@@ -4,11 +4,11 @@
 # All Rights Reserved
 import os
 
+from omegaconf import DictConfig
 import pytorch_lightning as pl
 import pytorch_lightning.core.lightning as lightning
-from pytorch_lightning.callbacks import ModelCheckpoint, ModelSummary
 
-from lightly.cli import _helpers
+from lightly.embedding import callbacks
 
 
 class BaseEmbedding(lightning.LightningModule):
@@ -41,9 +41,6 @@ class BaseEmbedding(lightning.LightningModule):
         self.checkpoint = None
         self.cwd = os.getcwd()
 
-        self._checkpoint_callback = None
-        self._summary_callback = None
-
     def forward(self, x0, x1):
         return self.model(x0, x1)
 
@@ -68,104 +65,50 @@ class BaseEmbedding(lightning.LightningModule):
     def train_dataloader(self):
         return self.dataloader
 
-    def train_embedding(self, **kwargs):
+    def train_embedding(
+        self,
+        trainer_config: DictConfig,
+        checkpoint_callback_config: DictConfig,
+        summary_callback_config: DictConfig,
+    ):
         """ Train the model on the provided dataset.
 
         Args:
-            **kwargs: pylightning_trainer arguments, examples include:
+            trainer_config: pylightning_trainer arguments, examples include:
                 min_epochs: (int) Minimum number of epochs to train
                 max_epochs: (int) Maximum number of epochs to train
                 gpus: (int) Number of gpus to use
                 enable_model_summary: (bool) Whether to enable model summarisation.
                 weights_summary: (str) DEPRECATED. How to print a summary of the model and weights.
+            checkpoint_callback_config: ModelCheckpoint callback arguments
+            summary_callback_config: ModelSummary callback arguments
 
         Returns:
             A trained encoder, ready for embedding datasets.
 
         """
-        # TODO: Drop support for the "weights_summary" argument.
-        if "weights_summary" in kwargs:
-            self._init_summary_callback_from_trainer_arguments(kwargs["weights_summary"])
-            del kwargs["weights_summary"]
+        trainer_callbacks = []
 
-        callbacks = [
-            callback for callback in [self._checkpoint_callback, self._summary_callback]
-            if callback is not None
-        ]
-        trainer = pl.Trainer(**kwargs, callbacks=callbacks)
+        checkpoint_cb = callbacks.create_checkpoint_callback(**checkpoint_callback_config)
+        trainer_callbacks.append(checkpoint_cb)
+
+        print(trainer_config)
+        summary_cb = callbacks.create_summary_callback(
+            summary_callback_config=summary_callback_config,
+            trainer_config=trainer_config,
+        )
+        print(trainer_config)
+        if summary_cb is not None:
+            trainer_callbacks.append(summary_cb)
+
+        trainer = pl.Trainer(**trainer_config, callbacks=trainer_callbacks)
 
         trainer.fit(self)
 
-        self.checkpoint = self._checkpoint_callback.best_model_path
-        self.checkpoint = os.path.join(self.cwd, self.checkpoint)
+        self.checkpoint = os.path.join(self.cwd, checkpoint_cb.best_model_path)
 
     def embed(self, *args, **kwargs):
         """Must be implemented by classes which inherit from BaseEmbedding.
 
         """
         raise NotImplementedError()
-
-    def init_checkpoint_callback(self,
-                                 save_last=False,
-                                 save_top_k=0,
-                                 monitor='loss',
-                                 dirpath=None):
-        """Initializes the checkpoint callback.
-
-        Args:
-            save_last:
-                Whether or not to save the checkpoint of the last epoch.
-            save_top_k:
-                Save the top_k model checkpoints.
-            monitor:
-                Which quantity to monitor.
-            dirpath:
-                Where to save the checkpoint.
-
-        """
-        self._checkpoint_callback = ModelCheckpoint(
-            dirpath=self.cwd if dirpath is None else dirpath,
-            filename='lightly_epoch_{epoch:d}',
-            save_last=save_last,
-            save_top_k=save_top_k,
-            monitor=monitor,
-            auto_insert_metric_name=False)
-
-    def init_summary_callback(self, max_depth: int):
-        """Initializes the model summary callback.
-        See `ModelSummary reference documentation <https://pytorch-lightning.readthedocs.io/en/stable/api/pytorch_lightning.callbacks.ModelSummary.html?highlight=ModelSummary>`.
-
-        Args:
-            max_depth:
-                The maximum depth of layer nesting that the summary will include.
-                A value of 0 turns the layer summary off. Options ``top`` and ``full``
-                from previous pytorch lightning versions correspond to values
-                1 and -1 respectively.
-        """
-        self._summary_callback = ModelSummary(max_depth=max_depth)
-
-    def _init_summary_callback_from_trainer_arguments(self, weights_summary: str):
-        """Constructs summary callback from the deprecated ``weights_summary`` argument.
-
-        The ``weights_summary`` trainer argument was deprecated with the release
-        of pytorch lightning 1.7 in 08/2022. Support for this will be removed
-        in the future.
-        """
-        _helpers.print_as_warning(
-            "The configuration parameter 'trainer.weights_summary' is deprecated."
-            " Please use 'trainer.weights_summary: True' and set"
-            " 'checkpoint_callback.max_depth' to value 1 for the option 'top'"
-            " or -1 for the option 'full'."
-        )
-        if weights_summary == "top":
-            max_depth = 1
-        elif weights_summary == "full":
-            max_depth = -1
-        elif weights_summary is None or weights_summary == "None":
-            max_depth = 0
-        else:
-            raise ValueError(
-                "Invalid value for the deprecated trainer.weights_summary"
-                " configuration parameter."
-            )
-        self.init_summary_callback(max_depth=max_depth)
