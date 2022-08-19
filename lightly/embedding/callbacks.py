@@ -11,7 +11,7 @@ def create_checkpoint_callback(
     save_top_k=0,
     monitor='loss',
     dirpath=None,
-):
+) -> ModelCheckpoint:
     """Initializes the checkpoint callback.
 
     Args:
@@ -34,7 +34,9 @@ def create_checkpoint_callback(
         auto_insert_metric_name=False)
 
 
-def create_summary_callback(summary_callback_config: DictConfig, trainer_config: DictConfig):
+def create_summary_callback(
+    summary_callback_config: DictConfig, trainer_config: DictConfig
+) -> ModelSummary:
     """Creates a summary callback.
 
     If the deprecated argument ``weights_summary`` is present
@@ -53,9 +55,10 @@ def create_summary_callback(summary_callback_config: DictConfig, trainer_config:
     return summary_callback
 
 
-def _create_summary_callback(max_depth: int):
+def _create_summary_callback(max_depth: int) -> ModelSummary:
     """Initializes the model summary callback.
-    See `ModelSummary reference documentation <https://pytorch-lightning.readthedocs.io/en/stable/api/pytorch_lightning.callbacks.ModelSummary.html?highlight=ModelSummary>`.
+    See `ModelSummary reference documentation
+    <https://pytorch-lightning.readthedocs.io/en/stable/api/pytorch_lightning.callbacks.ModelSummary.html?highlight=ModelSummary>`.
 
     Args:
         max_depth:
@@ -64,7 +67,7 @@ def _create_summary_callback(max_depth: int):
     return ModelSummary(max_depth=max_depth)
 
 
-def _create_summary_callback_deprecated(weights_summary: str):
+def _create_summary_callback_deprecated(weights_summary: str) -> ModelSummary:
     """Constructs summary callback from the deprecated ``weights_summary`` argument.
 
     The ``weights_summary`` trainer argument was deprecated with the release
@@ -86,4 +89,4 @@ def _create_summary_callback_deprecated(weights_summary: str):
             "Invalid value for the deprecated trainer.weights_summary"
             " configuration parameter."
         )
-    _create_summary_callback(max_depth=max_depth)
+    return _create_summary_callback(max_depth=max_depth)
