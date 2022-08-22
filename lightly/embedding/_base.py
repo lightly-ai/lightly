@@ -92,12 +92,10 @@ class BaseEmbedding(lightning.LightningModule):
         checkpoint_cb = callbacks.create_checkpoint_callback(**checkpoint_callback_config)
         trainer_callbacks.append(checkpoint_cb)
 
-        print(trainer_config)
         summary_cb = callbacks.create_summary_callback(
             summary_callback_config=summary_callback_config,
             trainer_config=trainer_config,
         )
-        print(trainer_config)
         if summary_cb is not None:
             trainer_callbacks.append(summary_cb)
 
@@ -105,7 +103,8 @@ class BaseEmbedding(lightning.LightningModule):
 
         trainer.fit(self)
 
-        self.checkpoint = os.path.join(self.cwd, checkpoint_cb.best_model_path)
+        if checkpoint_cb.best_model_path != "":
+            self.checkpoint = os.path.join(self.cwd, checkpoint_cb.best_model_path)
 
     def embed(self, *args, **kwargs):
         """Must be implemented by classes which inherit from BaseEmbedding.

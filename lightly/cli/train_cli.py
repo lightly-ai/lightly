@@ -133,7 +133,7 @@ def _train_cli(cfg, is_cli_call=True):
     encoder = SelfSupervisedEmbedding(model, criterion, optimizer, dataloader)
     # Add strategy field to trainer config
     trainer_config = OmegaConf.create(
-        dict(strategy = distributed_strategy, **cfg['trainer'])
+        dict(strategy=distributed_strategy, **cfg['trainer'])
     )
     encoder.train_embedding(
         trainer_config=trainer_config,

@@ -1,4 +1,5 @@
 from omegaconf import OmegaConf
+import pytest
 
 from lightly.embedding import callbacks
 
@@ -37,6 +38,12 @@ def test_create_summary_callback__weights_summary():
         trainer_config=OmegaConf.create({"weights_summary": "None"}),
     )
     assert summary_cb._max_depth == 99
+
+    with pytest.raises(ValueError):
+        callbacks.create_summary_callback(
+            summary_callback_config=OmegaConf.create(),
+            trainer_config=OmegaConf.create({"weights_summary": "invalid"}),
+        )
 
 
 def test_create_summary_callback__cleans_trainer_config():
