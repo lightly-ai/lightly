@@ -35,7 +35,7 @@ jobs:
     - name: Slack notification
       uses: rtCamp/action-slack-notify@v2
       env:
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_RELEASES_DEV }}
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_NIGHTLY }}
         SLACK_ICON_EMOJI: ":github:"
         SLACK_USERNAME: Lightly PIP Package ${{ github.workflow }}
         SLACK_COLOR: ${{ steps.run_tests.outcome }}
