@@ -39,5 +39,5 @@ jobs:
         # SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_RELEASES_DEV }}
         SLACK_ICON_EMOJI: ":github:"
         SLACK_USERNAME: ${{ github.workflow }}
-        SLACK_COLOR: ${{ steps.run_tests.job_status }}
+        SLACK_COLOR: ${{ steps.run_tests.outcome }}
         SLACK_FOOTER: ""
