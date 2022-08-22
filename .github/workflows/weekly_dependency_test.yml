@@ -8,9 +8,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 22 * * mon' # each Monday night, at 22:00 UTC
-  push: # TODO MICHAL: Remove
-    branches:
-      - michal-lig-1715-test-lightly-installation-from-scratch
 
 jobs:
   test_fresh_install:
@@ -29,8 +26,7 @@ jobs:
     - name: Run tests
       id: run_tests
       run: |
-        # pytest -n auto
-        pytest tests/core/test_Core.py
+        pytest -n auto
       continue-on-error: true
     - name: Slack notification
       uses: rtCamp/action-slack-notify@v2
