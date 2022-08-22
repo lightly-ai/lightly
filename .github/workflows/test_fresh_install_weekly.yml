@@ -1,0 +1,43 @@
+# Install lightly from scratch and run tests.
+# Python environment for regular unit tests is cached. In this workflow,
+# we always pick up the latest dependencies and therefore check if a new
+# external release breaks lightly.
+name: Weekly Fresh Install Test
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 22 * * mon' # each Monday night, at 22:00 UTC
+  push: # TODO MICHAL: Remove
+    branches:
+      - michal-lig-1715-test-lightly-installation-from-scratch
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test_fresh_install:
+    name: Test fresh install
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    - name: Set up a clean environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+    - name: Debug
+      run: |
+        which python
+        which pip
+        pip freeze
+    - name: Install Lightly from scratch
+      run: |
+        pip3 install ".[dev]"
+    - name: Run tests
+      run: |
+        pytest
