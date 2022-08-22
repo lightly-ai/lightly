@@ -8,17 +8,14 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 22 * * mon' # each Monday night, at 22:00 UTC
-  push: # TODO MICHAL: Remove
+  push: # TODO MICHAL: Remove test
     branches:
       - michal-lig-1715-test-lightly-installation-from-scratch
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   test_fresh_install:
     name: Test fresh install
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
