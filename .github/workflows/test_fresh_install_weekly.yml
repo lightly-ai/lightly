@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 22 * * mon' # each Monday night, at 22:00 UTC
-  push: # TODO MICHAL: Remove test
+  push: # TODO MICHAL: Remove
     branches:
       - michal-lig-1715-test-lightly-installation-from-scratch
 
@@ -17,7 +17,7 @@ jobs:
     name: Test fresh install
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Code
+    - name: Checkout code
       uses: actions/checkout@v3
     - name: Set up Python 3.10
       uses: actions/setup-python@v4
@@ -27,5 +27,17 @@ jobs:
       run: |
         pip3 install ".[dev]"
     - name: Run tests
+      id: run_tests
       run: |
-        pytest -n auto
+        # pytest -n auto
+        pytest tests/core/test_Core.py
+      continue-on-error: true
+    - name: Slack notification
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_TEST_CHANNEL }}
+        # SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_RELEASES_DEV }}
+        SLACK_ICON_EMOJI: ":github:"
+        SLACK_USERNAME: ${{ github.workflow }}
+        SLACK_COLOR: ${{ steps.run_tests.job_status }}
+        SLACK_FOOTER: ""
