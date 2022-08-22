@@ -82,6 +82,13 @@ Create and configure a dataset
     .. note:: Lightly requires list, read, and write access to the `output datasource`. Make sure you have configured it accordingly in the steps before. You can also use two different permissions to only allow listing and reading for the input datasource and additionally writing for the output datasource.
 7. Press save and ensure that at least the lights for List and Read turn green. If you added permissions for writing, this light should also turn green.
 
+
+More restrictive policies
+-------------------------
+
+It is possible to create more restrictive policies to e.g only permit certain IP ranges from accessing your data. (see: :ref:`dataset-creation-aws-bucket-minimum-policy`)
+
+
 Next steps
 ----------
 
