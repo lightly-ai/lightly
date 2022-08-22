@@ -2,7 +2,7 @@
 # Python environment for regular unit tests is cached. In this workflow,
 # we always pick up the latest dependencies and therefore check if a new
 # external release breaks lightly.
-name: Weekly Fresh Install Test
+name: Weekly Dependency Test
 
 on:
   workflow_dispatch:
@@ -35,9 +35,8 @@ jobs:
     - name: Slack notification
       uses: rtCamp/action-slack-notify@v2
       env:
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_TEST_CHANNEL }}
-        # SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_RELEASES_DEV }}
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_RELEASES_DEV }}
         SLACK_ICON_EMOJI: ":github:"
-        SLACK_USERNAME: ${{ github.workflow }}
+        SLACK_USERNAME: Lightly PIP Package ${{ github.workflow }}
         SLACK_COLOR: ${{ steps.run_tests.outcome }}
         SLACK_FOOTER: ""
