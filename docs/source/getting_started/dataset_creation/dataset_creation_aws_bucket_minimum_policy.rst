@@ -9,7 +9,7 @@ The only hard requirement Lightly requires to properly work is `S3:ListBucket`.
 With this permission Lightly will only be able to list the filenames within your bucket but can't actually access the contents of your data. Only you will be able to access your data's content.
 
 .. warning::
-    The Lightly Worker will need to be running within the permissioned zone (e.g within your VPC or IP range) and will need the configuration flag `datasource.bypass_verify` set to `True`.
+    The Lightly Worker will need to be running within the permissioned zone (e.g within your VPC or IP range) and will need the configuration flag `datasource.bypass_verify` set to `True` in the worker configuration.
 
     **Important:** When restricting `S3:GetObject`, it will no longer be possible to use the relevant filenames feature.
 
