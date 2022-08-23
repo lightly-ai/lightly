@@ -88,9 +88,7 @@ class _DatasourcesMixin:
                 )
             else:
                 sample_map[s.file_name] = s.read_url
-        # sample_map = {s.file_name: s.read_url for s in samples}
         samples = [(file_name, read_url) for file_name, read_url in sample_map.items()]
-        # samples = [(s.file_name, s.read_url) for s in samples]
         return samples
 
     def download_raw_samples(
