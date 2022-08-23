@@ -200,7 +200,7 @@ For our example from above, a metadata file corresponding to a image/video/frame
     .. tab:: Image
     
         .. code-block:: javascript
-            :caption: .lightly/metadata/my_image.png
+            :caption: .lightly/metadata/my_image.json
 
             {
                 "file_name": "my_image.png",
