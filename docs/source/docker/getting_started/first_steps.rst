@@ -299,9 +299,7 @@ epochs on the input images before embedding the images and selecting from them.
         worker_config={
             "enable_corruptness_check": True,
             "remove_exact_duplicates": True,
-            "enable_training": True,
-            "pretagging": False,
-            "pretagging_debug": False,
+            "enable_training": True
         },
         selection_config={
             "nSamples": 50,
