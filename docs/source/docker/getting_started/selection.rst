@@ -71,7 +71,7 @@ The configuration of a selection needs to specify both the maximum number of sam
         ]
     }
 
-The variable :code:`n_samples` must be a positive integer specifying the absolute number of samples which should be selected.
+The variable :code:`nSamples` must be a positive integer specifying the absolute number of samples which should be selected.
 
 Each strategy is specified by a :code:`dictionary`, which is always made up of an :code:`input` and the actual :code:`strategy`.
 
@@ -242,7 +242,7 @@ There are several types of selection strategies, all trying to reach different o
         embeddings in the output dataset. Since we normalize the input embeddings
         to unit length, this value should be between 0 and 2.0.
         This is often a convenient method when working with different data sources and trying to combine them in a balanced way.
-        If you want to use this stopping condition to stop the selection early, make sure that you allow selecting enough samples by setting :code:`n_samples` high enough.
+        If you want to use this stopping condition to stop the selection early, make sure that you allow selecting enough samples by setting :code:`nSamples` high enough.
 
     .. tab:: WEIGHTS
 
@@ -487,7 +487,7 @@ The Lightly optimizer tries to fulfil all strategies as good as possible.
   of 1000 images are selected, the output can only have a maximum of 1% ambulances. Thus a BALANCE target of having 20% ambulances cannot be fulfilled.
 
 - **Too little samples to choose.**
-  If the selection algorithm can only choose a small number of samples, it may not be possible to fulfil the objectives. You can solve this by increasing `n_samples`.
+  If the selection algorithm can only choose a small number of samples, it may not be possible to fulfil the objectives. You can solve this by increasing :code:`nSamples`.
 
 Selection on object level
 -------------------------
