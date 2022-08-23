@@ -38,21 +38,13 @@ def create_summary_callback(
     summary_callback_config: DictConfig, trainer_config: DictConfig
 ) -> ModelSummary:
     """Creates a summary callback.
-
-    If the deprecated argument ``weights_summary`` is present
-    it is removed from ``trainer_config``.
     """
     # TODO: Drop support for the "weights_summary" argument.
     weights_summary = trainer_config.get("weights_summary", None)
     if weights_summary not in [None, "None"]:
-        summary_callback = _create_summary_callback_deprecated(weights_summary)
+        return _create_summary_callback_deprecated(weights_summary)
     else:
-        summary_callback = _create_summary_callback(**summary_callback_config)
-
-    if "weights_summary" in trainer_config:
-        del trainer_config["weights_summary"]
-
-    return summary_callback
+        return _create_summary_callback(**summary_callback_config)
 
 
 def _create_summary_callback(max_depth: int) -> ModelSummary:

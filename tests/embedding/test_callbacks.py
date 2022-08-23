@@ -44,19 +44,3 @@ def test_create_summary_callback__weights_summary():
             summary_callback_config=OmegaConf.create(),
             trainer_config=OmegaConf.create({"weights_summary": "invalid"}),
         )
-
-
-def test_create_summary_callback__cleans_trainer_config():
-    trainer_config = OmegaConf.create({"weights_summary": "None"})
-    callbacks.create_summary_callback(
-        summary_callback_config=OmegaConf.create({"max_depth": 99}),
-        trainer_config=trainer_config,
-    )
-    assert "weights_summary" not in trainer_config
-
-    trainer_config = OmegaConf.create({"weights_summary": "top"})
-    callbacks.create_summary_callback(
-        summary_callback_config=OmegaConf.create({"max_depth": 99}),
-        trainer_config=trainer_config,
-    )
-    assert "weights_summary" not in trainer_config

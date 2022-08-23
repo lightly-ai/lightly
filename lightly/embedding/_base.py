@@ -99,7 +99,13 @@ class BaseEmbedding(lightning.LightningModule):
         if summary_cb is not None:
             trainer_callbacks.append(summary_cb)
 
-        trainer = pl.Trainer(**trainer_config, callbacks=trainer_callbacks)
+        # Remove weights_summary from trainer_config now that the summary callback
+        # has been created. TODO: Drop support for the "weights_summary" argument.
+        trainer_config_copy = trainer_config.copy()
+        if "weights_summary" in trainer_config_copy:
+            del trainer_config_copy["weights_summary"]
+
+        trainer = pl.Trainer(**trainer_config_copy, callbacks=trainer_callbacks)
 
         trainer.fit(self)
 
