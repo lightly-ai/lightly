@@ -160,10 +160,12 @@ dino_collate_fn = lightly.data.DINOCollateFunction(
 )
 
 # TODO
-smog_collate_function = collate_fn
-lightly.data.collate.SMoGCollateFunction(
+smog_collate_function = lightly.data.collate.SMoGCollateFunction(
     crop_sizes=[32, 32],
-    crop_counts=[1, 1]
+    crop_counts=[1, 1],
+    gaussian_blur_probs=[0., 0.],
+    crop_min_scales=[0.2, 0.2],
+    crop_max_scales=[1.0, 1.0],
 )
 
 # No additional augmentations for the test set
@@ -801,8 +803,8 @@ class SMoGModel(BenchmarkModule):
             self._reset_momentum_weights()
         else:
             # update momentum
-            utils.update_momentum(self.backbone, self.backbone_momentum, 0.99)
-            utils.update_momentum(self.projection_head, self.projection_head_momentum, 0.99)
+            utils.update_momentum(self.backbone, self.backbone_momentum, 0.999)
+            utils.update_momentum(self.projection_head, self.projection_head_momentum, 0.999)
 
         (x0, x1), _, _ = batch
         if batch_idx % 2:
@@ -834,7 +836,7 @@ class SMoGModel(BenchmarkModule):
             params, 
             lr=0.01,
             momentum=0.9,
-            weight_decay=5e-4,
+            weight_decay=1e-6,
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
