@@ -3,7 +3,8 @@ from unittest import mock
 import tqdm
 
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
-
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import DatasourceRawSamplesDataRow
+from collections import defaultdict
 
 class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
     def test_get_processed_until_timestamp(self):
@@ -158,3 +159,31 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         self.api_workflow_client._datasources_api.reset()
         read_url = self.api_workflow_client.get_prediction_read_url('test.json')
         self.assertIsNotNone(read_url)
+
+    def test_duplicate_filenames(self):
+        self.api_workflow_client._datasources_api.reset()
+        self.api_workflow_client._datasources_api._samples = defaultdict(lambda: [
+                DatasourceRawSamplesDataRow(file_name="file_0", read_url="url_0"),
+                DatasourceRawSamplesDataRow(file_name="file_0", read_url="url_0"),
+                DatasourceRawSamplesDataRow(file_name="file_1", read_url="url_1"),
+                DatasourceRawSamplesDataRow(file_name="file_2", read_url="url_2"),
+                DatasourceRawSamplesDataRow(file_name="file_3", read_url="url_3"),
+                DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
+                ])
+        with self.assertWarns(UserWarning):
+            samples = self.api_workflow_client.download_raw_samples()
+        assert len(samples) == 5
+        # expect a warning
+
+    def test_absolute_filenames(self):
+        self.api_workflow_client._datasources_api.reset
+        self.api_workflow_client._datasources_api._samples = defaultdict(lambda: [
+                DatasourceRawSamplesDataRow(file_name="/file_0", read_url="url_0"),
+                DatasourceRawSamplesDataRow(file_name="file_1", read_url="url_1"),
+                DatasourceRawSamplesDataRow(file_name="file_2", read_url="url_2"),
+                DatasourceRawSamplesDataRow(file_name="file_3", read_url="url_3"),
+                DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
+                ])
+        with self.assertRaises(ValueError):
+            samples = self.api_workflow_client.download_raw_samples()
+
