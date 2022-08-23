@@ -329,7 +329,7 @@ you might want to change:
 
 
 .. code-block:: python
-    :emphasize-lines: 13, 24
+    :emphasize-lines: 24, 35
     :caption: Accessing the lightly parameters from Python
 
     client.schedule_compute_worker_run(
@@ -337,8 +337,19 @@ you might want to change:
             "enable_corruptness_check": True,
             "remove_exact_duplicates": True,
             "enable_training": True,
-            "pretagging": False,
-            "pretagging_debug": False,
+        },
+        selection_config={
+            "nSamples": 50,
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSIFY"
+                    }
+                }
+            ]
         },
         lightly_config={
             'loader': {
@@ -402,15 +413,13 @@ a `shared directory` and then passing the checkpoint filename to the container.
 
 .. code-block:: python
     :caption: Scheduling a job with a pre-trained checkpoint
-    :emphasize-lines: 8
+    :emphasize-lines: 6
 
     client.schedule_compute_worker_run(
         worker_config={
             "enable_corruptness_check": True,
             "remove_exact_duplicates": True,
             "enable_training": False, # set to True if you want to continue training
-            "pretagging": False,
-            "pretagging_debug": False,
             "checkpoint": "lightly_epoch_X.ckpt"
         },
         selection_config={
