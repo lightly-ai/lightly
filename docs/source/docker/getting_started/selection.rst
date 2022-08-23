@@ -10,14 +10,14 @@ should only be sharp images, or have a certain distribution of classes, e.g. be 
 
 Each of these objectives is defined by a `strategy`. A strategy consists of two parts:
 
-- The input tells on which data the objective is defined on. It defines a scalar number or vector for each image in the dataset.
-- The strategy itself defines the objective to apply on the input data.
+- The :code:`input` specifies which data the objective is defined on. It defines a scalar number or vector for each image in the dataset.
+- The :code:`strategy` itself defines the objective to apply on the input data.
 
 Lightly allows you to specify several objectives at the same time. The algorithms try to fulfil all objectives simultaneously.
 
 Lightly's data selection algorithms are supporting three types of input:
 
-- **Embeddings** (either automatically computed using our OSS framework or provided by your model)
+- **Embeddings** computed using our OSS framework
 - (Optional)  :ref:`Model predictions <docker-datasource-predictions>` such as classifications, object detections or segmentations
 - (Optional) :ref:`Custom metadata <docker-datasource-metadata>` can be anything you can encode in a json file (from numbers to categorical strings)
 
@@ -401,30 +401,6 @@ Here are examples for the full configuration including the input for several obj
                             "type": "THRESHOLD",
                             "threshold": 20,
                             "operation": "BIGGER"
-                        }
-                    }
-                ]
-            }
-
-    .. tab:: Score Thresholding
-
-        You can specify to only choose images that have at least 2 objects in them:
-
-        .. code-block:: python
-
-            {
-                "nSamples": 100, # set to the number of samples you want to select
-                "strategies": [
-                    {
-                        "input": {
-                            "type": "SCORES",
-                            "task": "my_object_detection_task", # change to your task
-                            "score": "object_frequency"
-                        },
-                        "strategy": {
-                            "type": "THRESHOLD",
-                            "threshold": 2,
-                            "operation": "BIGGER_EQUAL"
                         }
                     }
                 ]
