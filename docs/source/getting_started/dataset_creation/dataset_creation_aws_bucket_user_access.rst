@@ -28,7 +28,7 @@ Please substitute `datalake` with the name of your bucket and `projects/farm-ani
             "Version": "2012-10-17",
             "Statement": [
                 {
-                    "Sid": "VisualEditor0",
+                    "Sid": "AllowListing",
                     "Effect": "Allow",
                     "Action": "s3:ListBucket",
                     "Resource": [
@@ -37,7 +37,7 @@ Please substitute `datalake` with the name of your bucket and `projects/farm-ani
                     ]
                 },
                 {
-                    "Sid": "VisualEditor1",
+                    "Sid": "AllowAccess",
                     "Effect": "Allow",
                     "Action": "s3:*",
                     "Resource": [
