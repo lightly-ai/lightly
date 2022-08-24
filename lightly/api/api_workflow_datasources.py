@@ -74,22 +74,28 @@ class _DatasourcesMixin:
                 progress_bar.update(len(response.data))
         sample_map = {}
         for s in samples:
-            if re.match("^\.*/", s.file_name):
+            if s.file_name.startswith("/"):
                 raise ValueError(
-                    f"Absolute file paths like {s.file_name} are not supported"
-                    " in relevant filenames file {relevant_filenames_file_name}"
+                        f"Absolute file paths like {s.file_name} are not supported"
+                        f" in relevant filenames file {relevant_filenames_file_name}"
                 )
-            if s.file_name in sample_map:
+            elif s.file_name.startswith(("./", "../")):
+                raise ValueError(
+                        f"Using dot notation ('./', '../') like in {s.file_name} is not supported"
+                        f" in relevant filenames file {relevant_filenames_file_name}"
+                )
+            elif s.file_name in sample_map:
                 warnings.warn(
                     UserWarning(
                         f"Duplicate filename {s.file_name} in relevant"
-                        " filenames file {relevant_filenames_file_name}"
+                        f" filenames file {relevant_filenames_file_name}"
                     )
                 )
             else:
                 sample_map[s.file_name] = s.read_url
         samples = [(file_name, read_url) for file_name, read_url in sample_map.items()]
-        return samples
+        sorted_samples = sorted(samples, key=lambda x: x[0])
+        return sorted_samples
 
     def download_raw_samples(
         self,

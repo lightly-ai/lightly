@@ -3,8 +3,11 @@ from unittest import mock
 import tqdm
 
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
-from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import DatasourceRawSamplesDataRow
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import (
+    DatasourceRawSamplesDataRow,
+)
 from collections import defaultdict
+
 
 class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
     def test_get_processed_until_timestamp(self):
@@ -24,7 +27,7 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
 
     def test_download_raw_samples_progress_bar(self):
         self.api_workflow_client._datasources_api.reset()
-        pbar = mock.Mock(wraps=tqdm.tqdm(unit='file'))
+        pbar = mock.Mock(wraps=tqdm.tqdm(unit="file"))
         samples = self.api_workflow_client.download_raw_samples(progress_bar=pbar)
         num_samples = self.api_workflow_client._datasources_api._num_samples
         assert len(samples) == num_samples
@@ -67,12 +70,11 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         self.api_workflow_client._datasources_api.reset()
         for method in [
             self.api_workflow_client.download_raw_samples,
-            self.api_workflow_client.download_raw_metadata
+            self.api_workflow_client.download_raw_metadata,
         ]:
             for relevant_filenames_path in [None, "", "relevant_filenames.txt"]:
                 with self.subTest(
-                        relevant_filenames_path=relevant_filenames_path,
-                        method=method
+                    relevant_filenames_path=relevant_filenames_path, method=method
                 ):
                     samples = method(
                         relevant_filenames_file_name=relevant_filenames_path
@@ -117,20 +119,22 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
             thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
             region="eu-central-1",
             role_arn="my-role-arn",
-            external_id="my-external-id"
+            external_id="my-external-id",
         )
 
     def test_download_raw_samples_predictions(self):
         self.api_workflow_client._datasources_api.reset()
 
-        predictions = self.api_workflow_client.download_raw_predictions('test')
+        predictions = self.api_workflow_client.download_raw_predictions("test")
         num_samples = self.api_workflow_client._datasources_api._num_samples
         assert len(predictions) == num_samples
 
     def test_download_raw_samples_predictions_progress_bar(self):
         self.api_workflow_client._datasources_api.reset()
-        pbar = mock.Mock(wraps=tqdm.tqdm(unit='file'))
-        predictions = self.api_workflow_client.download_raw_predictions('test', progress_bar=pbar)
+        pbar = mock.Mock(wraps=tqdm.tqdm(unit="file"))
+        predictions = self.api_workflow_client.download_raw_predictions(
+            "test", progress_bar=pbar
+        )
         num_samples = self.api_workflow_client._datasources_api._num_samples
         assert len(predictions) == num_samples
         pbar.update.assert_called()
@@ -143,7 +147,7 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
 
     def test_download_raw_sample_metadata_progress_bar(self):
         self.api_workflow_client._datasources_api.reset()
-        pbar = mock.Mock(wraps=tqdm.tqdm(unit='file'))
+        pbar = mock.Mock(wraps=tqdm.tqdm(unit="file"))
         predictions = self.api_workflow_client.download_raw_metadata(progress_bar=pbar)
         num_samples = self.api_workflow_client._datasources_api._num_samples
         assert len(predictions) == num_samples
@@ -151,39 +155,87 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
 
     def test_download_raw_samples_predictions_relevant_filenames(self):
         self.api_workflow_client._datasources_api.reset()
-        predictions = self.api_workflow_client.download_raw_predictions('test', relevant_filenames_file_name="test")
+        predictions = self.api_workflow_client.download_raw_predictions(
+            "test", relevant_filenames_file_name="test"
+        )
         num_samples = self.api_workflow_client._datasources_api._num_samples
         assert len(predictions) == num_samples
 
     def test_get_prediction_read_url(self):
         self.api_workflow_client._datasources_api.reset()
-        read_url = self.api_workflow_client.get_prediction_read_url('test.json')
+        read_url = self.api_workflow_client.get_prediction_read_url("test.json")
         self.assertIsNotNone(read_url)
 
     def test_duplicate_filenames(self):
         self.api_workflow_client._datasources_api.reset()
-        self.api_workflow_client._datasources_api._samples = defaultdict(lambda: [
+        self.api_workflow_client._datasources_api._samples = defaultdict(
+            lambda: [
                 DatasourceRawSamplesDataRow(file_name="file_0", read_url="url_0"),
                 DatasourceRawSamplesDataRow(file_name="file_0", read_url="url_0"),
                 DatasourceRawSamplesDataRow(file_name="file_1", read_url="url_1"),
                 DatasourceRawSamplesDataRow(file_name="file_2", read_url="url_2"),
                 DatasourceRawSamplesDataRow(file_name="file_3", read_url="url_3"),
                 DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
-                ])
-        with self.assertWarns(UserWarning):
+            ]
+        )
+        with self.assertWarns(UserWarning) as context:
             samples = self.api_workflow_client.download_raw_samples()
+        self.assertTrue(
+            "Duplicate filename file_0 in relevant filenames file"
+            in str(context.warning)
+        )
+
         assert len(samples) == 5
         # expect a warning
 
     def test_absolute_filenames(self):
         self.api_workflow_client._datasources_api.reset
-        self.api_workflow_client._datasources_api._samples = defaultdict(lambda: [
+        self.api_workflow_client._datasources_api._samples = defaultdict(
+            lambda: [
                 DatasourceRawSamplesDataRow(file_name="/file_0", read_url="url_0"),
                 DatasourceRawSamplesDataRow(file_name="file_1", read_url="url_1"),
                 DatasourceRawSamplesDataRow(file_name="file_2", read_url="url_2"),
                 DatasourceRawSamplesDataRow(file_name="file_3", read_url="url_3"),
                 DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
-                ])
-        with self.assertRaises(ValueError):
+            ]
+        )
+        with self.assertRaises(ValueError) as context:
             samples = self.api_workflow_client.download_raw_samples()
+        self.assertTrue(
+            "Absolute file paths like /file_0 are not supported in relevant filenames file"
+            in str(context.exception)
+        )
 
+    def test_dot_slash(self):
+        self.api_workflow_client._datasources_api.reset
+        self.api_workflow_client._datasources_api._samples = defaultdict(
+            lambda: [
+                DatasourceRawSamplesDataRow(file_name="./file_0", read_url="url_0"),
+                DatasourceRawSamplesDataRow(file_name="file_1", read_url="url_1"),
+                DatasourceRawSamplesDataRow(file_name="file_2", read_url="url_2"),
+                DatasourceRawSamplesDataRow(file_name="file_3", read_url="url_3"),
+                DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
+            ]
+        )
+        with self.assertRaises(ValueError) as context:
+            samples = self.api_workflow_client.download_raw_samples()
+        self.assertTrue(
+            "Using dot notation ('./', '../') like in ./file_0" in str(context.exception)
+        )
+
+    def test_dot_dot_slash(self):
+        self.api_workflow_client._datasources_api.reset
+        self.api_workflow_client._datasources_api._samples = defaultdict(
+            lambda: [
+                DatasourceRawSamplesDataRow(file_name="../file_0", read_url="url_0"),
+                DatasourceRawSamplesDataRow(file_name="file_1", read_url="url_1"),
+                DatasourceRawSamplesDataRow(file_name="file_2", read_url="url_2"),
+                DatasourceRawSamplesDataRow(file_name="file_3", read_url="url_3"),
+                DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
+            ]
+        )
+        with self.assertRaises(ValueError) as context:
+            samples = self.api_workflow_client.download_raw_samples()
+        self.assertTrue(
+            "Using dot notation ('./', '../') like in ../file_0" in str(context.exception)
+        )
