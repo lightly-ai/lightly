@@ -39,7 +39,7 @@ class _DatasourcesMixin:
         use_redirected_read_url: Optional[bool] = False,
         progress_bar: Optional[tqdm.tqdm] = None,
         **kwargs,
-    ):
+    ) -> List[Tuple[str, str]]:
         if to is None:
             to = int(time.time())
         relevant_filenames_kwargs = (
