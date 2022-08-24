@@ -72,17 +72,19 @@ class _DatasourcesMixin:
             samples.extend(response.data)
             if progress_bar is not None:
                 progress_bar.update(len(response.data))
+        samples_out = [None] * len(samples)
         sample_map = {}
-        for s in samples:
+        duplicates = 0
+        for idx, s in enumerate(samples):
             if s.file_name.startswith("/"):
                 raise ValueError(
-                        f"Absolute file paths like {s.file_name} are not supported"
-                        f" in relevant filenames file {relevant_filenames_file_name}"
+                    f"Absolute file paths like {s.file_name} are not supported"
+                    f" in relevant filenames file {relevant_filenames_file_name}"
                 )
             elif s.file_name.startswith(("./", "../")):
                 raise ValueError(
-                        f"Using dot notation ('./', '../') like in {s.file_name} is not supported"
-                        f" in relevant filenames file {relevant_filenames_file_name}"
+                    f"Using dot notation ('./', '../') like in {s.file_name} is not supported"
+                    f" in relevant filenames file {relevant_filenames_file_name}"
                 )
             elif s.file_name in sample_map:
                 warnings.warn(
@@ -91,10 +93,12 @@ class _DatasourcesMixin:
                         f" filenames file {relevant_filenames_file_name}"
                     )
                 )
+                duplicates += 1
             else:
                 sample_map[s.file_name] = s.read_url
-        samples = [(file_name, read_url) for file_name, read_url in sample_map.items()]
-        return samples
+                samples_out[idx] = (s.file_name, s.read_url)
+        return samples_out[0 : len(samples) - duplicates]
+        # return [(file_name, read_url) for file_name, read_url in sample_map.items()]
 
     def download_raw_samples(
         self,
