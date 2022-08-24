@@ -496,10 +496,7 @@ The corresponding Python command to submit a job would then be as follows:
         worker_config={
             "relevant_filenames_file": ".lightly/relevant_filenames.txt",
             "enable_corruptness_check": True,
-            "remove_exact_duplicates": True,
-            "enable_training": False,
-            "pretagging": False,
-            "pretagging_debug": False,
+            "remove_exact_duplicates": True
         },
         selection_config={
             "nSamples": 50,
