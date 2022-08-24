@@ -1,7 +1,5 @@
 import json
 import lightly
-from lightly.openapi_generated.swagger_client import SelectionConfig, SelectionConfigEntry, SelectionInputType, \
-    SelectionStrategyType, SelectionConfigEntryInput, SelectionConfigEntryStrategy
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 

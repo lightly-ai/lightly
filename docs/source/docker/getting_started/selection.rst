@@ -17,15 +17,13 @@ Lightly allows you to specify several objectives at the same time. The algorithm
 
 Lightly's data selection algorithms are supporting three types of input:
 
-- **Embeddings** computed using our OSS framework
+- **Embeddings** computed using `our open source framework for self-supervised learning <https://github.com/lightly-ai/lightly>`_
 - (Optional)  :ref:`Model predictions <docker-datasource-predictions>` such as classifications, object detections or segmentations
 - (Optional) :ref:`Custom metadata <docker-datasource-metadata>` can be anything you can encode in a json file (from numbers to categorical strings)
 
 .. warning:: Using the selection config is a new feature and **selecting a 
              proportion of samples (e.g. 50%) is not supported at the moment**, 
              but will be added soon.
-
-
 
 Prerequisites
 -------------
@@ -40,7 +38,7 @@ Scheduling a Lightly Worker run with selection
 ----------------------------------------------
 
 For scheduling a Lightly Worker run with a specific selection,
-you can use the python client and its :py:meth:`lightly.api.ApiWorkflowClient.schedule_compute_worker_run` method.
+you can use the python client and its :py:`schedule_compute_worker_run` method.
 You specify the selection with the :code:`selection_config` argument.
 
 Here is an example for scheduling a Lightly worker run with a specific selection configuration:
@@ -93,8 +91,7 @@ The input can be one of the following:
     .. tab:: EMBEDDINGS
 
         If you don't provide your own
-        embeddings, the `lightly OSS framework for self supervised learning <https://github.com/lightly-ai/lightly>`_ is used. It generates 32-dimensional
-        embeddings with default settings using self-supervised learning. 
+        embeddings, the `lightly OSS framework for self supervised learning <https://github.com/lightly-ai/lightly>`_ is used.
         The embeddings are a vector of numbers for each element. 
         
         You can define embeddings as input using:
@@ -129,19 +126,19 @@ The input can be one of the following:
         Alternatively, you can use **lightly_pretagging** as the task to use object detections created by the Lightly Worker itself.
         See :ref:`docker-pretagging` for reference.
 
-        The supported score types are explained here :ref:`lightly-active-learning-scorers`.
+        The supported score types are explained in :ref:`lightly-active-learning-scorers`.
 
     .. tab:: PREDICTIONS
 
         .. _worker-selection-predictions:
 
-        The class distribution probability vector of predictions can be used as well. Here, three case have to be distinguished:
+        The class distribution probability vector of predictions can be used as well. Here, three cases have to be distinguished:
 
             - **Image Classification** → The probability vector of each sample's prediction is used directly.
 
-            - **Object Detection** → The probability vector of the class predictions of all objects in an image are summed up.
+            - **Object Detection** → The probability vectors of the class predictions of all objects in an image are summed up.
 
-            - **Object Detection** and using the **Object Level** workflow → Each sample is a cropped object and has a single object prediction, whose probability vector is used.
+            - **Object Detection** and using the :ref:`docker-object-level` → Each sample is a cropped object and has a single object prediction, whose probability vector is used.
 
         This input is **specified using the prediction task**. Furthermore, it should be remembered, which class names are used for this task, as they are needed in later steps.
         
@@ -185,8 +182,7 @@ The input can be one of the following:
             Use as key the “path” you specified when creating the metadata in the datasource.
 
 
-            **Lightly Metadata**, on the contrary, is calculated out of image data on the fly. It is specified by appending a :code:`lightly` to the key.
-
+            **Lightly Metadata**, is calculated by the Lightly Worker. It is specified by prepending :code:`lightly` to the key. 
             An example configuration:
 
             .. code-block:: python
@@ -197,6 +193,8 @@ The input can be one of the following:
                 }
 
         - **Numerical** vs. **Categorical** values
+
+            Not all metadata types can be used in all selection strategies. Lightly differentiates between numerical and categorical metadata.
 
             **Numerical** metadata are numbers (int, float), e.g. `lightly.sharpness` or `weather.temperature`. It is usually real-valued.
             
@@ -213,10 +211,13 @@ There are several types of selection strategies, all trying to reach different o
 
     .. tab:: DIVERSIFY
 
-        Use this strategy to **select samples such that they have a high distance from each other**.
+        Use this strategy to **select samples such that they are as different as possible from each other**.
         This strategy requires the input to be a NxD matrix of numbers.
 
-        Can be used with **EMBEDDINGS**, **SCORES** and **numerical METADATA**. It is specified easily:
+        Can be used with **EMBEDDINGS**, **SCORES** and **numerical METADATA**. 
+        Samples with a high distance between their embeddings/scores/metadata are 
+        considered to be more *different* from each other than samples with a 
+        low distance. The strategy is specified like this:
 
         .. code-block:: python
 
@@ -226,7 +227,7 @@ There are several types of selection strategies, all trying to reach different o
 
         If you want to preserve a minimum distance between chosen samples, you 
         can specify it as an additional stopping condition. The selection process
-        will stop as soon as the stopping criteria has been reached.
+        will stop as soon as one of the stopping criteria has been reached.
 
         .. code-block:: python
             :emphasize-lines: 3
@@ -244,12 +245,16 @@ There are several types of selection strategies, all trying to reach different o
         This is often a convenient method when working with different data sources and trying to combine them in a balanced way.
         If you want to use this stopping condition to stop the selection early, make sure that you allow selecting enough samples by setting :code:`nSamples` high enough.
 
+        .. note:: Higher minimum distance in the embedding space results in more
+                  divers images being selected. Furthermore, increasing the 
+                  minimum distance will result in fewer samples being selected.
+
     .. tab:: WEIGHTS
 
         The objective of this strategy is to **select samples that have a high numerical value**. 
         It requires the input to be a Nx1 matrix of numbers.
         
-        Can be used with **SCORES** and **numerical METADATA**. It can be specified easily:
+        Can be used with **SCORES** and **numerical METADATA**. It can be specified with:
 
         .. code-block:: python
 
@@ -276,10 +281,10 @@ There are several types of selection strategies, all trying to reach different o
 
     .. tab:: BALANCE
 
-        The objective of this strategy to **select samples such the distribution of classes in them is as close to a target distribution as possible**.
+        The objective of this strategy is to **select samples such that the distribution of classes in them is as close to a target distribution as possible**.
 
-        E.g. the samples chosen should have 50% sunny and 10% rainy weather.
-        Or, the objects of the samples chosen should be 20% ambulance and 40% buses.
+        E.g. the samples chosen should have 50% sunny and 50% rainy weather.
+        Or, the objects of the samples chosen should be 40% ambulance and 60% buses.
 
         Can be used with **PREDICTIONS** and **categorical METADATA**.
 
@@ -288,13 +293,13 @@ There are several types of selection strategies, all trying to reach different o
             "strategy": {
                 "type": "BALANCE",
                 "target": {
-                    "Ambulance": 0.2, # `Ambulance` should be a valid class in your `schema.json`
-                    "Bus": 0.4
+                    "Ambulance": 0.4, # `Ambulance` should be a valid class in your `schema.json`
+                    "Bus": 0.6
                 }
             }
 
         If the values of the target do not sum up to 1, the remainder is assumed to be the target for the other classes.
-        In this example with 20% ambulance and 40% bus, there is the implicit assumption, that the remaining 40% should come from any other class,
+        For example, if we would set the target to 20% ambulance and 40% bus, there is the implicit assumption, that the remaining 40% should come from any other class,
         e.g. from cars, bicycles or pedestrians.
 
         Note that not specified classes do not influence the selection process!
@@ -436,6 +441,9 @@ Here are examples for the full configuration including the input for several obj
                     }
                 ]
             }
+
+        .. note:: To use the `lightly pretagging` you need to enable it using :code:`'pretagging': True` in the 
+                  worker config.
 
     .. tab:: Metadata Balancing
 
