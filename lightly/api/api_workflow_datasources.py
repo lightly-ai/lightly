@@ -94,8 +94,7 @@ class _DatasourcesMixin:
             else:
                 sample_map[s.file_name] = s.read_url
         samples = [(file_name, read_url) for file_name, read_url in sample_map.items()]
-        sorted_samples = sorted(samples, key=lambda x: x[0])
-        return sorted_samples
+        return samples
 
     def download_raw_samples(
         self,
