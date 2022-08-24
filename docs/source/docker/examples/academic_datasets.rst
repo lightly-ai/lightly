@@ -69,8 +69,7 @@ selects a diverse set of frames:
                         "type": "EMBEDDINGS"
                     },
                     "strategy": {
-                        "type": "DIVERSIFY",
-                        "stopping_condition_minimum_distance": 0.1
+                        "type": "DIVERSIFY"
                     }
                 }
             ]

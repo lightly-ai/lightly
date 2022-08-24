@@ -82,17 +82,17 @@ Usage
 ---------------
 
 Pretagging can be activated by passing the following argument to your
-Lightly Worker config: `pretagging=True`
+Lightly Worker config: :code:`'pretagging': True`
 
-- `pretagging=True` enables the use of the pretagging model
-- `pretagging_debug=True` add a few images to the report for debugging showing the image with the bounding box predictions.
+- :code:`'pretagging': True` enables the use of the pretagging model
+- :code:`'pretagging_debug': True` add a few images to the report for debugging showing the image with the bounding box predictions.
 
 
 A full Python script showing how to create such as job is shown here:
 
 .. literalinclude:: ./code_examples/python_run_pretagging.py
   :linenos:
-  :emphasize-lines: 92-93
+  :emphasize-lines: 75-76
   :language: python
 
 

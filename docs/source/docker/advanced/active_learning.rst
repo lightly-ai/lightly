@@ -39,9 +39,10 @@ iteration by using predictions and scores in your :code:`selection_config`:
 Here's an example of how to configure an active learning run using object detections.
 In this example we use a combination of three selection strategies.
 
-- **Diversify** the selected samples using embeddings
-- **Weight** samples with a larger uncertainty using predictions
-- **Rebalance** the dataset according to our target ratio using predictions
+- **DIVERSIFY** the selected samples using embeddings
+- **WEIGHTS** samples with a larger uncertainty using predictions
+- **THRESHOLD** samples based on metadata
+- **BALANCE** the dataset according to your target ratio using predictions
 
 .. literalinclude:: code_examples/python_run_active_learning.py
 

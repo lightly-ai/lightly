@@ -64,9 +64,6 @@ client.set_azure_config(
     purpose=DatasourcePurpose.LIGHTLY
 )
 
-# Schedule the docker run with 
-#  - "active_learning.task_name" set to your task name
-#  - "method" set to "coral"
 # All other settings are default values and we show them so you can easily edit
 # the values according to your need.
 client.schedule_compute_worker_run(

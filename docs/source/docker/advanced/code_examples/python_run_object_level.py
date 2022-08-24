@@ -91,7 +91,7 @@ client.schedule_compute_worker_run(
             {
                 "input": {
                     "type": "SCORES",
-                    "task": "my_object_detection_task", # change to your task
+                    "task": "vehicles_object_detections", # change to your task
                     "score": "uncertainty_entropy" # change to your preferred score
                 },
                 "strategy": {

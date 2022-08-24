@@ -99,8 +99,8 @@ a datasource. We call the dataset `frame-extraction-example` and use the input t
   )
 
 
-Next, we schedule a job which extracts 99 frames with the default Coreset strategy which
-selects a diverse set of frames:
+Next, we schedule a job which extracts 99 frames with a strategy to
+select a diverse set of frames:
 
 
 .. code-block:: python
@@ -108,10 +108,7 @@ selects a diverse set of frames:
   client.schedule_compute_worker_run(
       worker_config={
           "enable_corruptness_check": True,
-          "remove_exact_duplicates": True,
-          "enable_training": False,
-          "pretagging": False,
-          "pretagging_debug": False,
+          "remove_exact_duplicates": True
       },
       selection_config = {
           "nSamples": 99,
@@ -129,7 +126,6 @@ selects a diverse set of frames:
   )
 
 The extracted frames can now be found in the output bucket (`s3://output`) and can easily be accessed from the `Lightly Platform <https://app.lightly.ai>`_.
-To perform a random selection we can simply replace "coreset" with "random" as our selection method. Note that Coreset is the default method.
 
 
 For comparison, we extracted frames from the video using ffmpeg with the following command:
