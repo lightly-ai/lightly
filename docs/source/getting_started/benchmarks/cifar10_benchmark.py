@@ -758,10 +758,7 @@ class SMoGModel(BenchmarkModule):
 
         # create a model based on ResNet
         self.projection_head = heads.SMoGProjectionHead(512, 2048, 128)
-        self.prediction_head = heads.ProjectionHead([
-            (128, 2048, nn.BatchNorm1d(2048), nn.ReLU()),
-            (2048, 128, None, nn.ReLU())
-        ])
+        self.prediction_head = heads.SMoGPredictionHead(128, 2048, 128)
         self.backbone_momentum = copy.deepcopy(self.backbone)
         self.projection_head_momentum = copy.deepcopy(self.projection_head)
         utils.deactivate_requires_grad(self.backbone_momentum)
@@ -803,8 +800,8 @@ class SMoGModel(BenchmarkModule):
             self._reset_momentum_weights()
         else:
             # update momentum
-            utils.update_momentum(self.backbone, self.backbone_momentum, 0.999)
-            utils.update_momentum(self.projection_head, self.projection_head_momentum, 0.999)
+            utils.update_momentum(self.backbone, self.backbone_momentum, 0.99)
+            utils.update_momentum(self.projection_head, self.projection_head_momentum, 0.99)
 
         (x0, x1), _, _ = batch
         if batch_idx % 2:

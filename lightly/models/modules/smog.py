@@ -1,6 +1,3 @@
-from importlib.metadata import requires
-from typing import Optional
-
 import torch
 import torch.nn as nn
 
@@ -36,17 +33,6 @@ class SMoG(nn.Module):
 
         """
         assignments = self.assign_groups(x)
-        # bincount = torch.bincount(
-        #     assignments,
-        #     minlength=self.group_features.shape[0]
-        # )
-        # mask = torch.nonzero(bincount)
-        # self.group_features = self.group_features.detach()
-        # self.group_features[mask] *= self.beta
-
-        # factor = (1 - self.beta)
-        # for index, xi in zip(assignments, x):
-        #     self.group_features[index] += factor * xi / bincount[index]
         self.group_features = self.group_features.detach()
         for assigned_class in torch.unique(assignments): 
             mask = assignments == assigned_class

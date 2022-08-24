@@ -239,8 +239,29 @@ class SMoGProjectionHead(ProjectionHead):
                  output_dim: int = 128):
         super(SMoGProjectionHead, self).__init__([
             (input_dim, hidden_dim, nn.BatchNorm1d(2048), nn.ReLU()),
-            [hidden_dim, output_dim, nn.BatchNorm1d(128), nn.ReLU()]
+            (hidden_dim, output_dim, nn.BatchNorm1d(128, affine=False), None)
         ])
+
+
+class SMoGPredictionHead(ProjectionHead):
+    """Prediction head used for SMoG.
+
+    "The two kinds of head are both a two-layer MLP and their hidden layer is
+    followed by a BatchNorm [28] and an activation function. (...) The output
+    layer of projection head also has BN" [0]
+
+    [0]: SMoG, 2022, https://arxiv.org/pdf/2207.06167.pdf
+    
+    """
+    def __init__(self,
+                 input_dim: int = 128,
+                 hidden_dim: int = 2048,
+                 output_dim: int = 128):
+        super(SMoGPredictionHead, self).__init__([
+            (input_dim, hidden_dim, nn.BatchNorm1d(2048), nn.ReLU()),
+            (hidden_dim, output_dim, None, None)
+        ])
+
 
 
 class SimSiamPredictionHead(ProjectionHead):
