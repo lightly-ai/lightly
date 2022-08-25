@@ -452,7 +452,7 @@ you are only interested in `image_1.png` and `subdir/image_3.png`
             L image_3.png
 
 
-Then you can add a file called `relevant_filenames.txt` to your output bucket with the following content (note: only file paths relative to the bucket are supported!)
+Then you can add a file called `relevant_filenames.txt` to your output bucket with the following content (note: only file paths relative to the bucket are supported! Paths containing dots e.g. `./` or `../` are not supported)
 
 .. code-block:: text
     :caption: relevant_filenames.txt
