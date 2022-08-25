@@ -1,5 +1,5 @@
 import json
-import unittest
+import pytest
 from typing import Dict, Any
 from unittest import mock
 
@@ -11,7 +11,7 @@ from lightly.openapi_generated.swagger_client import SelectionConfig, SelectionC
 from lightly.openapi_generated.swagger_client.models.docker_run_data import DockerRunData
 from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import DockerRunScheduledData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
-
+from lightly.api import api_workflow_compute_worker
 
 class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
     def test_register_compute_worker(self):
@@ -40,6 +40,15 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
                 'loader': {
                     'batch_size': 64,
                 }
+            },
+            selection_config={
+                'n_samples': 20,
+                'strategies': [
+                    {
+                        "input": {"type": "EMBEDDINGS", "dataset_id": "some-dataset-id", "tag_name": "some-tag-name"},
+                        "strategy": {"type": "SIMILARITY"}
+                    },
+                ]
             }
         )
         assert config_id
@@ -115,3 +124,84 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
         config = DockerWorkerConfig(worker_type=DockerWorkerType.FULL, selection=selection_config)
 
         config_api = self._check_if_openapi_generated_obj_is_valid(config)
+
+def test___selection_config_from_dict() -> None:
+    cfg = {
+        "n_samples": 10,
+        "strategies": [
+            {
+                "input": {"type": "EMBEDDINGS", "dataset_id": "some-dataset-id", "tag_name": "some-tag-name"},
+                "strategy": {"type": "SIMILARITY"}
+            },
+            {
+                "input": {
+                    "type": "METADATA",
+                    "key": "lightly.sharpness",
+                },
+                "strategy": {
+                    "type": "THRESHOLD",
+                    "threshold": 20,
+                    "operation": "BIGGER",
+                },
+            },
+        ]
+    }
+    selection_cfg = api_workflow_compute_worker._selection_config_from_dict(cfg)
+    assert selection_cfg.n_samples == 10
+    assert selection_cfg.strategies is not None
+    assert len(selection_cfg.strategies) == 2
+    assert selection_cfg.strategies[0].input.type == "EMBEDDINGS"
+    assert selection_cfg.strategies[0].input.dataset_id == "some-dataset-id"
+    assert selection_cfg.strategies[0].input.tag_name == "some-tag-name"
+    assert selection_cfg.strategies[0].strategy.type == "SIMILARITY"
+    assert selection_cfg.strategies[1].input.type == "METADATA"
+    assert selection_cfg.strategies[1].input.key == "lightly.sharpness"
+    assert selection_cfg.strategies[1].strategy.type == "THRESHOLD"
+    assert selection_cfg.strategies[1].strategy.threshold == 20
+    assert selection_cfg.strategies[1].strategy.operation == "BIGGER"
+    # verify that original dict was not mutated
+    assert isinstance(cfg['strategies'][0]['input'], dict)
+
+
+def test___selection_config_from_dict__missing_n_samples() -> None:
+    cfg = {
+        "strategies": [
+            {"input": {"type": "EMBEDDINGS"}, "strategy": {"type": "DIVERSIFY"}},
+        ]
+    }
+    with pytest.raises(ValueError, match="Invalid value for `n_samples`, must not be `None`"):
+        api_workflow_compute_worker._selection_config_from_dict(cfg)
+
+
+def test___selection_config_from_dict__missing_strategies() -> None:
+    cfg = {"n_samples": 10}
+    selection_cfg = api_workflow_compute_worker._selection_config_from_dict(cfg)
+    assert selection_cfg.n_samples == 10
+    assert selection_cfg.strategies == []
+
+
+def test___selection_config_from_dict__extra_key() -> None:
+    cfg = {"n_samples": 10, "strategies": [], "invalid-key": 0}
+    with pytest.raises(TypeError, match="got an unexpected keyword argument 'invalid-key'"):
+        api_workflow_compute_worker._selection_config_from_dict(cfg)
+
+
+def test___selection_config_from_dict__extra_stratey_key() -> None:
+    cfg = {
+        "n_samples": 10, 
+        "strategies": [
+            {
+                "input": {"type": "EMBEDDINGS"}, 
+                "strategy": {"type": "DIVERSIFY"},
+                "invalid-key": {"type": ""},
+            },
+        ],
+    }
+    with pytest.raises(TypeError, match="got an unexpected keyword argument 'invalid-key'"):
+        api_workflow_compute_worker._selection_config_from_dict(cfg)
+
+
+def test___selection_config_from_dict__typo() -> None:
+    cfg = {"nSamples": 10}
+    with pytest.raises(TypeError, match="got an unexpected keyword argument 'nSamples'"):
+        api_workflow_compute_worker._selection_config_from_dict(cfg)
