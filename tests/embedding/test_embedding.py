@@ -66,7 +66,7 @@ class TestLightlyDataset(unittest.TestCase):
             device=device,
         )
 
-        np.testing.assert_allclose(embeddings_1_worker, embeddings_4_worker, rtol=1e-5)
+        np.testing.assert_allclose(embeddings_1_worker, embeddings_4_worker, rtol=2e-5)
         np.testing.assert_allclose(labels_1_worker, labels_4_worker, rtol=1e-5)
 
         self.assertListEqual(filenames_1_worker, filenames_4_worker)
