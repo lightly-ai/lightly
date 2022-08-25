@@ -1,6 +1,7 @@
 from unittest import mock
 
 import tqdm
+import pytest
 
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import (
@@ -178,12 +179,8 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
                 DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
             ]
         )
-        with self.assertWarns(UserWarning) as context:
+        with pytest.warns(UserWarning, match="Duplicate filename file_0 in relevant filenames file"):
             samples = self.api_workflow_client.download_raw_samples()
-        self.assertTrue(
-            "Duplicate filename file_0 in relevant filenames file"
-            in str(context.warning)
-        )
 
         assert len(samples) == 5
         # expect a warning
@@ -199,12 +196,8 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
                 DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
             ]
         )
-        with self.assertRaises(ValueError) as context:
+        with pytest.raises(ValueError, match="Absolute file paths like /file_0 are not supported in relevant filenames file"):
             samples = self.api_workflow_client.download_raw_samples()
-        self.assertTrue(
-            "Absolute file paths like /file_0 are not supported in relevant filenames file"
-            in str(context.exception)
-        )
 
     def test__download_raw_files_dot_slash(self):
         self.api_workflow_client._datasources_api.reset
@@ -217,11 +210,8 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
                 DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
             ]
         )
-        with self.assertRaises(ValueError) as context:
+        with pytest.raises(ValueError, match="Using dot notation \('\./', '\.\./'\) like in \./file_0 is not supported.*"):
             samples = self.api_workflow_client.download_raw_samples()
-        self.assertTrue(
-            "Using dot notation ('./', '../') like in ./file_0" in str(context.exception)
-        )
 
     def test__download_raw_files_dot_dot_slash(self):
         self.api_workflow_client._datasources_api.reset
@@ -234,8 +224,5 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
                 DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
             ]
         )
-        with self.assertRaises(ValueError) as context:
+        with pytest.raises(ValueError, match="Using dot notation \('\./', '\.\./'\) like in \.\./file_0 is not supported.*"):
             samples = self.api_workflow_client.download_raw_samples()
-        self.assertTrue(
-            "Using dot notation ('./', '../') like in ../file_0" in str(context.exception)
-        )
