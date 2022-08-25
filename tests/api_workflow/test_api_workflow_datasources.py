@@ -166,7 +166,7 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         read_url = self.api_workflow_client.get_prediction_read_url("test.json")
         self.assertIsNotNone(read_url)
 
-    def test_duplicate_filenames(self):
+    def test__download_raw_files_duplicate_filenames(self):
         self.api_workflow_client._datasources_api.reset()
         self.api_workflow_client._datasources_api._samples = defaultdict(
             lambda: [
@@ -188,7 +188,7 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         assert len(samples) == 5
         # expect a warning
 
-    def test_absolute_filenames(self):
+    def test__download_raw_files_absolute_filenames(self):
         self.api_workflow_client._datasources_api.reset
         self.api_workflow_client._datasources_api._samples = defaultdict(
             lambda: [
@@ -206,7 +206,7 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
             in str(context.exception)
         )
 
-    def test_dot_slash(self):
+    def test__download_raw_files_dot_slash(self):
         self.api_workflow_client._datasources_api.reset
         self.api_workflow_client._datasources_api._samples = defaultdict(
             lambda: [
@@ -223,7 +223,7 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
             "Using dot notation ('./', '../') like in ./file_0" in str(context.exception)
         )
 
-    def test_dot_dot_slash(self):
+    def test__download_raw_files_dot_dot_slash(self):
         self.api_workflow_client._datasources_api.reset
         self.api_workflow_client._datasources_api._samples = defaultdict(
             lambda: [
