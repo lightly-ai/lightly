@@ -125,7 +125,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
 
         config_api = self._check_if_openapi_generated_obj_is_valid(config)
 
-def test___selection_config_from_dict() -> None:
+def test__selection_config_from_dict() -> None:
     cfg = {
         "n_samples": 10,
         "strategies": [
@@ -163,7 +163,7 @@ def test___selection_config_from_dict() -> None:
     assert isinstance(cfg['strategies'][0]['input'], dict)
 
 
-def test___selection_config_from_dict__missing_n_samples() -> None:
+def test__selection_config_from_dict__missing_n_samples() -> None:
     cfg = {
         "strategies": [
             {"input": {"type": "EMBEDDINGS"}, "strategy": {"type": "DIVERSIFY"}},
@@ -173,20 +173,20 @@ def test___selection_config_from_dict__missing_n_samples() -> None:
         api_workflow_compute_worker._selection_config_from_dict(cfg)
 
 
-def test___selection_config_from_dict__missing_strategies() -> None:
+def test__selection_config_from_dict__missing_strategies() -> None:
     cfg = {"n_samples": 10}
     selection_cfg = api_workflow_compute_worker._selection_config_from_dict(cfg)
     assert selection_cfg.n_samples == 10
     assert selection_cfg.strategies == []
 
 
-def test___selection_config_from_dict__extra_key() -> None:
+def test__selection_config_from_dict__extra_key() -> None:
     cfg = {"n_samples": 10, "strategies": [], "invalid-key": 0}
     with pytest.raises(TypeError, match="got an unexpected keyword argument 'invalid-key'"):
         api_workflow_compute_worker._selection_config_from_dict(cfg)
 
 
-def test___selection_config_from_dict__extra_stratey_key() -> None:
+def test__selection_config_from_dict__extra_stratey_key() -> None:
     cfg = {
         "n_samples": 10, 
         "strategies": [
@@ -200,7 +200,7 @@ def test___selection_config_from_dict__extra_stratey_key() -> None:
     with pytest.raises(TypeError, match="got an unexpected keyword argument 'invalid-key'"):
         api_workflow_compute_worker._selection_config_from_dict(cfg)
 
-def test___selection_config_from_dict__extra_input_key() -> None:
+def test__selection_config_from_dict__extra_input_key() -> None:
     cfg = {
         "n_samples": 10, 
         "strategies": [
@@ -214,7 +214,7 @@ def test___selection_config_from_dict__extra_input_key() -> None:
         api_workflow_compute_worker._selection_config_from_dict(cfg)
 
 
-def test___selection_config_from_dict__extra_strategy_strategy_key() -> None:
+def test__selection_config_from_dict__extra_strategy_strategy_key() -> None:
     cfg = {
         "n_samples": 10, 
         "strategies": [
@@ -228,7 +228,7 @@ def test___selection_config_from_dict__extra_strategy_strategy_key() -> None:
         api_workflow_compute_worker._selection_config_from_dict(cfg)
 
 
-def test___selection_config_from_dict__typo() -> None:
+def test__selection_config_from_dict__typo() -> None:
     cfg = {"nSamples": 10}
     with pytest.raises(TypeError, match="got an unexpected keyword argument 'nSamples'"):
         api_workflow_compute_worker._selection_config_from_dict(cfg)
