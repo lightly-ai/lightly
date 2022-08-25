@@ -766,16 +766,15 @@ class SMoGModel(BenchmarkModule):
 
         # smog
         self.n_groups = 300 # 2% malus vs optimal setting of 3000 groups
-        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=10000)
+        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=153600)
         # create our loss
         group_features = torch.nn.functional.normalize(
             torch.rand(self.n_groups, 128), dim=1
         ).cuda()
-        self.smog = modules.SMoG(group_features=group_features, beta=0.99)
+        self.smog = heads.SMoGPrototypes(group_features=group_features, beta=0.99)
         self.criterion = nn.CrossEntropyLoss()
 
     def _reset_group_features(self):
-
         # see Table 7b)
         features = self.memory_bank.bank
         if features is not None:
