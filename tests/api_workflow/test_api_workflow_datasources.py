@@ -183,8 +183,7 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
             samples = self.api_workflow_client.download_raw_samples()
 
         assert len(samples) == 5
-        for sample in samples:
-            assert sample is not None
+        assert samples == [(f"file_{i}", f"url_{i}") for i in range(5)]
 
     def test__download_raw_files_absolute_filenames(self):
         self.api_workflow_client._datasources_api.reset
