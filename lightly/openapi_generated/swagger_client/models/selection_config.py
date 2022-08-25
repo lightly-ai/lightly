@@ -34,25 +34,31 @@ class SelectionConfig(object):
     """
     swagger_types = {
         'n_samples': 'int',
+        'proportion_samples': 'float',
         'strategies': 'list[SelectionConfigEntry]'
     }
 
     attribute_map = {
         'n_samples': 'nSamples',
+        'proportion_samples': 'proportionSamples',
         'strategies': 'strategies'
     }
 
-    def __init__(self, n_samples=None, strategies=None, _configuration=None):  # noqa: E501
+    def __init__(self, n_samples=None, proportion_samples=None, strategies=None, _configuration=None):  # noqa: E501
         """SelectionConfig - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._n_samples = None
+        self._proportion_samples = None
         self._strategies = None
         self.discriminator = None
 
-        self.n_samples = n_samples
+        if n_samples is not None:
+            self.n_samples = n_samples
+        if proportion_samples is not None:
+            self.proportion_samples = proportion_samples
         self.strategies = strategies
 
     @property
@@ -73,10 +79,29 @@ class SelectionConfig(object):
         :param n_samples: The n_samples of this SelectionConfig.  # noqa: E501
         :type: int
         """
-        if self._configuration.client_side_validation and n_samples is None:
-            raise ValueError("Invalid value for `n_samples`, must not be `None`")  # noqa: E501
 
         self._n_samples = n_samples
+
+    @property
+    def proportion_samples(self):
+        """Gets the proportion_samples of this SelectionConfig.  # noqa: E501
+
+
+        :return: The proportion_samples of this SelectionConfig.  # noqa: E501
+        :rtype: float
+        """
+        return self._proportion_samples
+
+    @proportion_samples.setter
+    def proportion_samples(self, proportion_samples):
+        """Sets the proportion_samples of this SelectionConfig.
+
+
+        :param proportion_samples: The proportion_samples of this SelectionConfig.  # noqa: E501
+        :type: float
+        """
+
+        self._proportion_samples = proportion_samples
 
     @property
     def strategies(self):
