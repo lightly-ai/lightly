@@ -246,7 +246,7 @@ There are several types of selection strategies, all trying to reach different o
         If you want to use this stopping condition to stop the selection early, make sure that you allow selecting enough samples by setting :code:`nSamples` high enough.
 
         .. note:: Higher minimum distance in the embedding space results in more
-                  divers images being selected. Furthermore, increasing the 
+                  diverse images being selected. Furthermore, increasing the
                   minimum distance will result in fewer samples being selected.
 
     .. tab:: WEIGHTS
@@ -310,166 +310,164 @@ Configuration Examples
 
 Here are examples for the full configuration including the input for several objectives:
 
-.. tabs::
+.. dropdown:: Visual Diversity (CORESET)
 
-    .. tab:: Visual Diversity (CORESET)
+    Choosing 100 samples that are visually diverse equals diversifying samples based on their embeddings:
 
-        Choosing 100 samples that are visually diverse equals diversifying samples based on their embeddings:
+    .. code-block:: python
 
-        .. code-block:: python
-
-            {
-                "nSamples": 100, # set to the number of samples you want to select
-                "strategies": [
-                    {
-                        "input": {
-                            "type": "EMBEDDINGS"
-                        },
-                        "strategy": {
-                            "type": "DIVERSIFY"
-                        }
-                    }
-                ]
-            }
-            
-
-    .. tab:: Active Learning
-
-        Active Learning equals weighting samples based on active learning scores:
-
-        .. code-block:: python
-
-            {
-                "nSamples": 100, # set to the number of samples you want to select
-                "strategies": [
-                    {
-                        "input": {
-                            "type": "SCORES", 
-                            "task": "my_object_detection_task", # change to your task
-                            "score": "uncertainty_entropy" # change to your preferred score
-                        },
-                        "strategy": {
-                            "type": "WEIGHTS"
-                        }
-                    }
-                ]
-            }
-
-        .. note:: This works as well for Image Classifciation or Segmentation!
-
-    .. tab:: Visual Diversity and Active Learning (CORAL)
-
-        For combining two strategies, just specify both of them:
-
-        .. code-block:: python
-
-            {
-                "nSamples": 100, # set to the number of samples you want to select
-                "strategies": [
-                    {
-                        "input": {
-                            "type": "EMBEDDINGS"
-                        },
-                        "strategy": {
-                            "type": "DIVERSIFY"
-                        }
+        {
+            "nSamples": 100, # set to the number of samples you want to select
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
                     },
-                    {
-                        "input": {
-                            "type": "SCORES",
-                            "task": "my_object_detection_task", # change to your task
-                            "score": "uncertainty_entropy" # change to your preferred score
-                        },
-                        "strategy": {
-                            "type": "WEIGHTS"
+                    "strategy": {
+                        "type": "DIVERSIFY"
+                    }
+                }
+            ]
+        }
+
+
+.. dropdown:: Active Learning
+
+    Active Learning equals weighting samples based on active learning scores:
+
+    .. code-block:: python
+
+        {
+            "nSamples": 100, # set to the number of samples you want to select
+            "strategies": [
+                {
+                    "input": {
+                        "type": "SCORES",
+                        "task": "my_object_detection_task", # change to your task
+                        "score": "uncertainty_entropy" # change to your preferred score
+                    },
+                    "strategy": {
+                        "type": "WEIGHTS"
+                    }
+                }
+            ]
+        }
+
+    .. note:: This works as well for Image Classifciation or Segmentation!
+
+.. dropdown:: Visual Diversity and Active Learning (CORAL)
+
+    For combining two strategies, just specify both of them:
+
+    .. code-block:: python
+
+        {
+            "nSamples": 100, # set to the number of samples you want to select
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSIFY"
+                    }
+                },
+                {
+                    "input": {
+                        "type": "SCORES",
+                        "task": "my_object_detection_task", # change to your task
+                        "score": "uncertainty_entropy" # change to your preferred score
+                    },
+                    "strategy": {
+                        "type": "WEIGHTS"
+                    }
+                }
+            ]
+        }
+
+.. dropdown:: Metadata Thresholding
+
+    This can be used e.g. to remove blurry images, which equals choosing
+    samples whose sharpness is over a threshold:
+
+    .. code-block:: python
+
+        {
+            "nSamples": 100, # set to the number of samples you want to select
+            "strategies": [
+                {
+                    "input": {
+                        "type": "METADATA",
+                        "key": "lightly.sharpness"
+                    },
+                    "strategy": {
+                        "type": "THRESHOLD",
+                        "threshold": 20,
+                        "operation": "BIGGER"
+                    }
+                }
+            ]
+        }
+
+.. dropdown:: Object Balancing
+
+    Use lightly pretagging to get the objects, then specify a target distribution of classes:
+
+    .. code-block:: python
+
+        {
+            "nSamples": 100, # set to the number of samples you want to select
+            "strategies": [
+                {
+                    "input": {
+                        "type": "PREDICTIONS",
+                        "task": "lightly_pretagging", # (optional) change to your task
+                        "name": "CLASS_DISTRIBUTION"
+                    },
+                    "strategy": {
+                        "type": "BALANCE",
+                        "target": {
+                            "car": 0.1,
+                            "bicycle": 0.5,
+                            "bus": 0.1,
+                            "motorcycle": 0.1,
+                            "person": 0.1,
+                            "train": 0.05,
+                            "truck": 0.05
                         }
                     }
-                ]
-            }
+                }
+            ]
+        }
 
-    .. tab:: Metadata Thresholding
+    .. note:: To use the `lightly pretagging` you need to enable it using :code:`'pretagging': True` in the
+              worker config.
 
-        This can be used e.g. to remove blurry images, which equals choosing 
-        samples whose sharpness is over a threshold:
+.. dropdown:: Metadata Balancing
 
-        .. code-block:: python
+    Let’s assume you have specified metadata with the path `weather.description`
+    and want your selected subset to have 20%  sunny, 40% cloudy and the rest other images:
 
-            {
-                "nSamples": 100, # set to the number of samples you want to select
-                "strategies": [
-                    {
-                        "input": {
-                            "type": "METADATA", 
-                            "key": "lightly.sharpness"
-                        },
-                        "strategy": {
-                            "type": "THRESHOLD",
-                            "threshold": 20,
-                            "operation": "BIGGER"
+    .. code-block:: python
+
+        {
+            "nSamples": 100, # set to the number of samples you want to select
+            "strategies": [
+                {
+                    "input": {
+                        "type": "METADATA",
+                        "key": "weather.description"
+                    },
+                    "strategy": {
+                        "type": "BALANCE",
+                        "target": {
+                            "sunny": 0.2,
+                            "cloudy": 0.4
                         }
                     }
-                ]
-            }
-
-    .. tab:: Object Balancing
-
-        Use lightly pretagging to get the objects, then specify a target distribution of classes:
-
-        .. code-block:: python
-
-            {
-                "nSamples": 100, # set to the number of samples you want to select
-                "strategies": [
-                    {
-                        "input": {
-                            "type": "PREDICTIONS",
-                            "task": "lightly_pretagging", # (optional) change to your task
-                            "name": "CLASS_DISTRIBUTION"
-                        },
-                        "strategy": {
-                            "type": "BALANCE",
-                            "target": {
-                                "car": 0.1, 
-                                "bicycle": 0.5, 
-                                "bus": 0.1, 
-                                "motorcycle": 0.1, 
-                                "person": 0.1, 
-                                "train": 0.05, 
-                                "truck": 0.05
-                            }
-                        }
-                    }
-                ]
-            }
-
-        .. note:: To use the `lightly pretagging` you need to enable it using :code:`'pretagging': True` in the 
-                  worker config.
-
-    .. tab:: Metadata Balancing
-
-        Let’s assume you have specified metadata with the path `weather.description` 
-        and want your selected subset to have 20%  sunny, 40% cloudy and the rest other images:
-
-        .. code-block:: python
-
-            {
-                "nSamples": 100, # set to the number of samples you want to select
-                "strategies": [
-                    {
-                        "input": {
-                            "type": "METADATA",
-                            "key": "weather.description"
-                        },
-                        "strategy": {
-                            "type": "BALANCE",
-                            "target": {
-                                "sunny": 0.2,
-                                "cloudy": 0.4
-                            }
-                        }
-                    }
-                ]
-            }
+                }
+            ]
+        }
 
 Application of Strategies
 -------------------------

@@ -43,6 +43,7 @@ extensions = [
     "sphinx_gallery.gen_gallery",
     "sphinx_tabs.tabs",
     "sphinx_copybutton",
+    "sphinx_design"
 ]
 
 sphinx_gallery_conf = {
