@@ -172,8 +172,8 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
         self.api_workflow_client._datasources_api._samples = defaultdict(
             lambda: [
                 DatasourceRawSamplesDataRow(file_name="file_0", read_url="url_0"),
-                DatasourceRawSamplesDataRow(file_name="file_0", read_url="url_0"),
                 DatasourceRawSamplesDataRow(file_name="file_1", read_url="url_1"),
+                DatasourceRawSamplesDataRow(file_name="file_0", read_url="url_0"),
                 DatasourceRawSamplesDataRow(file_name="file_2", read_url="url_2"),
                 DatasourceRawSamplesDataRow(file_name="file_3", read_url="url_3"),
                 DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
@@ -183,7 +183,8 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
             samples = self.api_workflow_client.download_raw_samples()
 
         assert len(samples) == 5
-        # expect a warning
+        for sample in samples:
+            assert sample is not None
 
     def test__download_raw_files_absolute_filenames(self):
         self.api_workflow_client._datasources_api.reset
