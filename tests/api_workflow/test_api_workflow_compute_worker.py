@@ -200,6 +200,33 @@ def test___selection_config_from_dict__extra_stratey_key() -> None:
     with pytest.raises(TypeError, match="got an unexpected keyword argument 'invalid-key'"):
         api_workflow_compute_worker._selection_config_from_dict(cfg)
 
+def test___selection_config_from_dict__extra_input_key() -> None:
+    cfg = {
+        "n_samples": 10, 
+        "strategies": [
+            {
+                "input": {"type": "EMBEDDINGS", "datasetId": ""},
+                "strategy": {"type": "DIVERSIFY"},
+            },
+        ],
+    }
+    with pytest.raises(TypeError, match="got an unexpected keyword argument 'datasetId'"):
+        api_workflow_compute_worker._selection_config_from_dict(cfg)
+
+
+def test___selection_config_from_dict__extra_strategy_strategy_key() -> None:
+    cfg = {
+        "n_samples": 10, 
+        "strategies": [
+            {
+                "input": {"type": "EMBEDDINGS"},
+                "strategy": {"type": "DIVERSIFY", "stoppingConditionMinimumDistance": 0},
+            },
+        ],
+    }
+    with pytest.raises(TypeError, match="got an unexpected keyword argument 'stoppingConditionMinimumDistance'"):
+        api_workflow_compute_worker._selection_config_from_dict(cfg)
+
 
 def test___selection_config_from_dict__typo() -> None:
     cfg = {"nSamples": 10}
