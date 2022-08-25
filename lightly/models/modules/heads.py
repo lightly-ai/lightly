@@ -242,7 +242,7 @@ class SMoGPrototypes(nn.Module):
         logits = torch.mm(x, group_features.t())
         return logits / temperature
 
-    def update_groups(self, x: torch.Tensor) -> torch.Tensor:
+    def update_groups(self, x: torch.Tensor) -> None:
         """Performs the synchronous momentum update of the group vectors.
 
         Args:
