@@ -1,3 +1,4 @@
+import copy
 from typing import Any, Dict, List, Optional, Union
 
 from lightly.openapi_generated.swagger_client import SelectionConfig
@@ -25,6 +26,7 @@ from lightly.openapi_generated.swagger_client.models.docker_worker_config import
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import (
     DockerWorkerConfigCreateRequest,
 )
+from lightly.openapi_generated.swagger_client import SelectionConfig, SelectionConfigEntryInput, SelectionConfigEntryStrategy, SelectionConfigEntry
 
 
 class _ComputeWorkerMixin:
@@ -85,11 +87,15 @@ class _ComputeWorkerMixin:
             The id of the created config.
 
         """
+        if isinstance(selection_config, dict):
+            selection = _selection_config_from_dict(cfg=selection_config)
+        else:
+            selection = selection_config
         config = DockerWorkerConfig(
             worker_type=DockerWorkerType.FULL,
             docker=worker_config,
             lightly=lightly_config,
-            selection=selection_config,
+            selection=selection,
         )
         request = DockerWorkerConfigCreateRequest(config)
         response = self._compute_worker_api.create_docker_worker_config(request)
@@ -148,3 +154,15 @@ class _ComputeWorkerMixin:
         return self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
             dataset_id=self.dataset_id
         )
+
+
+def _selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
+    """Recursively converts selection config from dict to a SelectionConfig instance."""
+    new_cfg = copy.deepcopy(cfg)
+    strategies = []
+    for entry in new_cfg.get('strategies', []):
+        entry['input'] = SelectionConfigEntryInput(**entry['input'])
+        entry['strategy'] = SelectionConfigEntryStrategy(**entry['strategy'])
+        strategies.append(SelectionConfigEntry(**entry))
+    new_cfg['strategies'] = strategies
+    return SelectionConfig(**new_cfg)
