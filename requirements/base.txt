@@ -4,11 +4,12 @@ hydra-core>=1.0.0
 lightly_utils~=0.0.0
 numpy>=1.18.1
 python_dateutil>=2.5.3
-pytorch_lightning>=1.5.0
 requests>=2.23.0
 setuptools>=21.0.0
 six>=1.10
-torch>=1.6.0
-torchvision>=0.7.0
+torchvision
 tqdm>=4.44
 urllib3>=1.15.1
+# Note: pytorch_lightning>=1.5 is required for CLI
+# https://github.com/lightly-ai/lightly/issues/912
+pytorch_lightning>=1.0.4
