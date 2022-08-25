@@ -55,7 +55,7 @@ We can start a Lightly Worker using the following command
 
 .. code-block:: console
 
-  docker run --rm --gpus all -it \
+  docker run --shm-size="1024m" --rm --gpus all -it \
     -v /docker-output:/home/output_dir lightly/worker:latest \
     token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
@@ -105,7 +105,7 @@ E.g. create and run a bash script with the following content:
     TOKEN= # put your token here
     N_SAMPLES=1.0
 
-    docker run --gpus all --rm -it \
+    docker run --shm-size="1024m" --gpus all --rm -it \
       -v ${INPUT_DIR}:/home/input_dir:ro  \
       -v ${SHARED_DIR}:/home/shared_dir:ro \
       -v ${OUTPUT_DIR}:/home/output_dir \
@@ -288,7 +288,7 @@ E.g. use the following bash script.
     TOKEN= # put your token here
     N_SAMPLES= # Choose how many samples you want to use here, e.g. 0.1 for 10 percent.
 
-    docker run --gpus all --rm -it \
+    docker run --shm-size="1024m" --gpus all --rm -it \
         -v ${INPUT_DIR}:/home/input_dir:ro  \
         -v ${SHARED_DIR}:/home/shared_dir:ro \
         -v ${OUTPUT_DIR}:/home/output_dir \

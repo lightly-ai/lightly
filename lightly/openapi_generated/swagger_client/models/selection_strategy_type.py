@@ -32,6 +32,7 @@ class SelectionStrategyType(object):
     WEIGHTS = "WEIGHTS"
     THRESHOLD = "THRESHOLD"
     BALANCE = "BALANCE"
+    SIMILARITY = "SIMILARITY"
 
     """
     Attributes:

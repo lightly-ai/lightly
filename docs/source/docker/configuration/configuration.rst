@@ -11,7 +11,7 @@ The following example shows how the `token` parameter is set.
 
 .. code-block:: console
 
-    docker run --rm -it \
+    docker run --shm-size="1024m" --rm -it \
         -v {OUTPUT_DIR}:/home/shared_dir \
         lightly/worker:latest \
         token=MYAWESOMETOKEN
@@ -20,7 +20,7 @@ Note that `token` can optionally be passed as a `LIGHTLY_TOKEN` environment vari
 
 .. code-block:: console
 
-    docker run --rm -it \
+    docker run --shm-size="1024m" --rm -it \
         -e LIGHTLY_TOKEN=MYAWESOMETOKEN
         -v {OUTPUT_DIR}:/home/shared_dir \
         lightly/worker:latest
