@@ -128,6 +128,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
 def test__selection_config_from_dict() -> None:
     cfg = {
         "n_samples": 10,
+        "proportion_samples": 0.1,
         "strategies": [
             {
                 "input": {"type": "EMBEDDINGS", "dataset_id": "some-dataset-id", "tag_name": "some-tag-name"},
@@ -148,6 +149,7 @@ def test__selection_config_from_dict() -> None:
     }
     selection_cfg = api_workflow_compute_worker._selection_config_from_dict(cfg)
     assert selection_cfg.n_samples == 10
+    assert selection_cfg.proportion_samples == 0.1
     assert selection_cfg.strategies is not None
     assert len(selection_cfg.strategies) == 2
     assert selection_cfg.strategies[0].input.type == "EMBEDDINGS"
@@ -163,32 +165,20 @@ def test__selection_config_from_dict() -> None:
     assert isinstance(cfg['strategies'][0]['input'], dict)
 
 
-def test__selection_config_from_dict__missing_n_samples() -> None:
-    cfg = {
-        "strategies": [
-            {"input": {"type": "EMBEDDINGS"}, "strategy": {"type": "DIVERSIFY"}},
-        ]
-    }
-    with pytest.raises(ValueError, match="Invalid value for `n_samples`, must not be `None`"):
-        api_workflow_compute_worker._selection_config_from_dict(cfg)
-
-
 def test__selection_config_from_dict__missing_strategies() -> None:
-    cfg = {"n_samples": 10}
+    cfg = {}
     selection_cfg = api_workflow_compute_worker._selection_config_from_dict(cfg)
-    assert selection_cfg.n_samples == 10
     assert selection_cfg.strategies == []
 
 
 def test__selection_config_from_dict__extra_key() -> None:
-    cfg = {"n_samples": 10, "strategies": [], "invalid-key": 0}
+    cfg = {"strategies": [], "invalid-key": 0}
     with pytest.raises(TypeError, match="got an unexpected keyword argument 'invalid-key'"):
         api_workflow_compute_worker._selection_config_from_dict(cfg)
 
 
 def test__selection_config_from_dict__extra_stratey_key() -> None:
     cfg = {
-        "n_samples": 10, 
         "strategies": [
             {
                 "input": {"type": "EMBEDDINGS"}, 
@@ -202,7 +192,6 @@ def test__selection_config_from_dict__extra_stratey_key() -> None:
 
 def test__selection_config_from_dict__extra_input_key() -> None:
     cfg = {
-        "n_samples": 10, 
         "strategies": [
             {
                 "input": {"type": "EMBEDDINGS", "datasetId": ""},
@@ -216,7 +205,6 @@ def test__selection_config_from_dict__extra_input_key() -> None:
 
 def test__selection_config_from_dict__extra_strategy_strategy_key() -> None:
     cfg = {
-        "n_samples": 10, 
         "strategies": [
             {
                 "input": {"type": "EMBEDDINGS"},
