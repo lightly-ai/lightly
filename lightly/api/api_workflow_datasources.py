@@ -72,9 +72,7 @@ class _DatasourcesMixin:
             samples.extend(response.data)
             if progress_bar is not None:
                 progress_bar.update(len(response.data))
-        samples_out = [None] * len(samples)
         sample_map = {}
-        duplicates = 0
         for idx, s in enumerate(samples):
             if s.file_name.startswith("/"):
                 raise ValueError(
@@ -93,12 +91,9 @@ class _DatasourcesMixin:
                         f" filenames file {relevant_filenames_file_name}"
                     )
                 )
-                duplicates += 1
             else:
                 sample_map[s.file_name] = s.read_url
-                samples_out[idx] = (s.file_name, s.read_url)
-        return samples_out[0 : len(samples) - duplicates]
-        # return [(file_name, read_url) for file_name, read_url in sample_map.items()]
+        return [(file_name, read_url) for file_name, read_url in sample_map.items()]
 
     def download_raw_samples(
         self,
