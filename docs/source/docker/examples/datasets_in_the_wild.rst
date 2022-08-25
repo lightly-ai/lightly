@@ -111,7 +111,7 @@ select a diverse set of frames:
           "remove_exact_duplicates": True
       },
       selection_config = {
-          "nSamples": 99,
+          "n_samples": 99,
           "strategies": [
               {
                   "input": {

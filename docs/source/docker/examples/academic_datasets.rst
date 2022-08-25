@@ -45,8 +45,8 @@ bucket under `s3://dataset/imagenet/`. Start by creating a dataset and configuri
 
 
 
-Next, we schedule a job which extracts 500000 frames with the default Coreset strategy which
-selects a diverse set of frames:
+Next, we schedule a job which extracts 500000 images with the CORESET strategy which
+selects a visually diverse set of images:
 
 
 .. code-block:: python
@@ -62,7 +62,7 @@ selects a diverse set of frames:
             "pretagging_debug": False
         },
         selection_config = {
-            "nSamples": 500000,
+            "n_samples": 500000,
             "strategies": [
                 {
                     "input": {
@@ -145,7 +145,7 @@ The following command schedules a job to select a subset from Cityscapes:
             "pretagging_debug": False
         },
         selection_config = {
-            "nSamples": 10_000, # maket this number high (upper limit)
+            "n_samples": 10_000, # maket this number high (upper limit)
             "strategies": [
                 {
                     "input": {
@@ -193,7 +193,7 @@ the new images.
             "pretagging_debug": False,
         },
         selection_config = {
-            "nSamples": 10_000, # maket this number high (upper limit)
+            "n_samples": 10_000, # maket this number high (upper limit)
             "strategies": [
                 {
                     "input": {
