@@ -71,15 +71,16 @@ loader:
   num_workers: -1             # Number of workers pre-fetching batches.
                               # -1 == number of available cores,
                               # if -1, minimum of 8, maximum of 32 workers for upload.
-  drop_last: True             # Wether to drop the last batch during training.
+  drop_last: True             # Whether to drop the last batch during training.
 
 # trainer namespace: Passed to pytorch_lightning.Trainer.
 trainer:
   gpus: 1                     # Number of gpus to use for training.
   max_epochs: 100             # Number of epochs to train for.
   precision: 32               # If set to 16, will use half-precision.
-  weights_summary: 'top'      # how to print the model architecture, one of {None, top, full},
-                                #see https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html#weights-summary
+  enable_model_summary: True  # Whether to enable model summarisation.
+  weights_summary:            # [deprecated] Use enable_model_summary
+                              # and summary_callback.max_depth.
 
 # checkpoint_callback namespace: Modify the checkpoint callback
 checkpoint_callback:
@@ -87,6 +88,10 @@ checkpoint_callback:
   save_top_k: 1               # Save the top k checkpoints.
   dirpath:                    # Where to store the checkpoints (empty field resolves to None).
                               # If not set, checkpoints are stored in the hydra output dir.
+
+# summary_callback namespace: Modify the summary callback
+summary_callback:
+  max_depth: 1                # The maximum depth of layer nesting that the summary will include.
 
 # environment variable namespace for saving artifacts
 environment_variable_names:
