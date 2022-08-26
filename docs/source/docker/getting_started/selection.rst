@@ -10,7 +10,7 @@ should only be sharp images, or have a certain distribution of classes, e.g. be 
 
 Each of these objectives is defined by a `strategy`. A strategy consists of two parts:
 
-- The :code:`input` specifies which data the objective is defined on. It defines a scalar number or vector for each image in the dataset.
+- The :code:`input` defines which data the objective is defined on. This data is either a scalar number or a vector for each sample in the dataset.
 - The :code:`strategy` itself defines the objective to apply on the input data.
 
 Lightly allows you to specify several objectives at the same time. The algorithms try to fulfil all objectives simultaneously.
@@ -56,6 +56,7 @@ The configuration of a selection needs to specify both the maximum number of sam
 
     {
         "n_samples": 50,
+        "proportion_samples": 0.1
         "strategies": [
             {
                 "input": {
@@ -70,6 +71,9 @@ The configuration of a selection needs to specify both the maximum number of sam
     }
 
 The variable :code:`n_samples` must be a positive integer specifying the absolute number of samples which should be selected.
+Alternative to :code:`n_samples`, you can also set :code:`proportion_samples` to set the number of samples to be selected relative to the input dataset size.
+E.g. set it to `0.1` to select 10% of all samples.
+Please set either on or the other. Setting both or none of them will cause an error.
 
 Each strategy is specified by a :code:`dictionary`, which is always made up of an :code:`input` and the actual :code:`strategy`.
 
@@ -191,6 +195,9 @@ The input can be one of the following:
                     "type": "METADATA",
                     "key": "lightly.sharpness"
                 }
+
+            Currently supported metadata are "sharpness", "snr" (signal-to-noise-ratio) and "sizeInBytes".
+            If you use case would profit from more metadata computed out of the image, please reach out to us.
 
         - **Numerical** vs. **Categorical** values
 
