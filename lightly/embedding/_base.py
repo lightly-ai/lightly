@@ -2,8 +2,11 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+import copy
 import os
 
+
+import omegaconf
 from omegaconf import DictConfig
 import pytorch_lightning as pl
 import pytorch_lightning.core.lightning as lightning
@@ -101,9 +104,10 @@ class BaseEmbedding(lightning.LightningModule):
 
         # Remove weights_summary from trainer_config now that the summary callback
         # has been created. TODO: Drop support for the "weights_summary" argument.
-        trainer_config_copy = trainer_config.copy()
+        trainer_config_copy = copy.deepcopy(trainer_config)
         if "weights_summary" in trainer_config_copy:
-            del trainer_config_copy["weights_summary"]
+            with omegaconf.open_dict(trainer_config_copy):
+                del trainer_config_copy["weights_summary"]
 
         trainer = pl.Trainer(**trainer_config_copy, callbacks=trainer_callbacks)
 
