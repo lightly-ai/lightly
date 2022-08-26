@@ -239,17 +239,20 @@ Example object detection:
             {
                 "category_id": 0,
                 "bbox": [140, 100, 80, 90], // x, y, w, h coordinates in pixels
-                "score": 0.8
+                "score": 0.8,
+                "probabilities": [0.2, 0.8] // optional, sum up to 1.0
             },
             {
                 "category_id": 1,
                 "bbox": [...],
-                "score": 0.9
+                "score": 0.9,
+                "probabilities": [0.9, 0.1] // optional, sum up to 1.0
             },
             {
                 "category_id": 0,
                 "bbox": [...],
-                "score": 0.5
+                "score": 0.5,
+                "probabilities": [0.6, 0.4] // optional, sum up to 1.0
             }
         ]
     }
@@ -261,16 +264,18 @@ Example semantic segmentation:
 
     {
         "file_name": "my_image.png",
-        "predictions": [ // classes: [background, car]
+        "predictions": [ // classes: [background, car, tree]
             {
                 "category_id": 0,
                 "segmentation": [100, 80, 90, 85, ...], //run length encoded binary segmentation mask
-                "score": 0.8
+                "score": 0.8,
+                "probabilities": [0.15, 0.8, 0.05] // optional, sum up to 1.0
             },
             {
                 "category_id": 1,
                 "segmentation": [...],
-                "score": 0.9
+                "score": 0.9,
+                "probabilities": [0.02, 0.08, 0.9] // optional, sum up to 1.0
             },
         ]
     }
