@@ -73,7 +73,7 @@ The configuration of a selection needs to specify both the maximum number of sam
 The variable :code:`n_samples` must be a positive integer specifying the absolute number of samples which should be selected.
 Alternative to :code:`n_samples`, you can also set :code:`proportion_samples` to set the number of samples to be selected relative to the input dataset size.
 E.g. set it to `0.1` to select 10% of all samples.
-Please set either on or the other. Setting both or none of them will cause an error.
+Please set either one or the other. Setting both or none of them will cause an error.
 
 Each strategy is specified by a :code:`dictionary`, which is always made up of an :code:`input` and the actual :code:`strategy`.
 
@@ -196,7 +196,7 @@ The input can be one of the following:
                     "key": "lightly.sharpness"
                 }
 
-            Currently supported metadata are "sharpness", "snr" (signal-to-noise-ratio) and "sizeInBytes".
+            Currently supported metadata are :code:`sharpness`, :code:`snr` (signal-to-noise-ratio) and :code:`sizeInBytes`.
             If you use case would profit from more metadata computed out of the image, please reach out to us.
 
         - **Numerical** vs. **Categorical** values
