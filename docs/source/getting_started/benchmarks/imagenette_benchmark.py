@@ -20,6 +20,7 @@ Results (5.3.2022):
 | DCL (*)       |        256 |    200 |              0.762 |   53.3 Min |      4.3 GByte |
 | DCLW (*)      |        256 |    200 |              0.755 |   53.7 Min |      4.3 GByte |
 | DINO (Res18)  |        256 |    200 |              0.736 |   86.5 Min |      4.1 GByte |
+| MSN (ViT-S)   |        256 |    200 |              0.741 |   92.7 Min |     16.3 GByte |
 | Moco          |        256 |    200 |              0.727 |   87.3 Min |      4.3 GByte |
 | NNCLR         |        256 |    200 |              0.726 |   86.8 Min |      4.2 GByte |
 | SimCLR        |        256 |    200 |              0.771 |   82.2 Min |      3.9 GByte |
@@ -31,6 +32,7 @@ Results (5.3.2022):
 | DCL (*)       |        256 |    800 |              0.816 |  213.1 Min |      4.3 GByte |
 | DCLW (*)      |        256 |    800 |              0.827 |  213.1 Min |      4.3 GByte |
 | DINO (Res18)  |        256 |    800 |              0.881 |  613.9 Min |      6.7 GByte |
+| MSN (ViT-S)   |        256 |    800 |              0.834 |  376.1 Min |     16.3 GByte |
 | Moco          |        256 |    800 |              0.832 |  322.8 Min |      4.2 GByte |
 | NNCLR         |        256 |    800 |              0.848 |  341.4 Min |      4.2 GByte |
 | SimCLR        |        256 |    800 |              0.858 |  324.8 Min |      3.9 GByte |
@@ -130,6 +132,9 @@ dino_collate_fn = lightly.data.DINOCollateFunction(
 # Single crop augmentation for MAE
 mae_collate_fn = lightly.data.MAECollateFunction()
 
+# Multi crop augmentation for MSN
+msn_collate_fn = lightly.data.MSNCollateFunction(random_size=128, focal_size=64)
+
 normalize_transform = torchvision.transforms.Normalize(
     mean=lightly.data.collate.imagenet_normalize['mean'],
     std=lightly.data.collate.imagenet_normalize['std'],
@@ -171,6 +176,8 @@ def get_data_loaders(batch_size: int, model):
         col_fn = dino_collate_fn
     elif model == MAEModel:
         col_fn = mae_collate_fn
+    elif model == MSNModel:
+        col_fn = msn_collate_fn
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
         batch_size=batch_size,
@@ -749,14 +756,93 @@ class MAEModel(BenchmarkModule):
         else:
             return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
 
+class MSNModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+
+        self.warmup_epochs = 15
+        # ViT small configuration (ViT-S/16)
+        self.mask_ratio = 0.15
+        self.backbone = masked_autoencoder.MAEBackbone(
+            image_size=224,
+            patch_size=16,
+            num_layers=12,
+            num_heads=6,
+            hidden_dim=384,
+            mlp_dim=384 * 4,
+        )
+        self.projection_head = heads.MSNProjectionHead(384)
+
+        self.anchor_backbone = copy.deepcopy(self.backbone)
+        self.anchor_projection_head = copy.deepcopy(self.projection_head)
+
+        utils.deactivate_requires_grad(self.backbone)
+        utils.deactivate_requires_grad(self.projection_head)
+
+        self.prototypes = nn.Linear(256, 1024, bias=False).weight
+        self.criterion = lightly.loss.MSNLoss()
+
+    def training_step(self, batch, batch_idx):
+        utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
+        utils.update_momentum(self.anchor_projection_head, self.projection_head, 0.996)
+
+        views, _, _ = batch
+        views = [view.to(self.device, non_blocking=True) for view in views]
+        targets = views[0]
+        anchors = views[1]
+        anchors_focal = torch.concat(views[2:], dim=0)
+
+        targets_out = self.backbone(targets)
+        targets_out = self.projection_head(targets_out)
+        anchors_out = self.encode_masked(anchors)
+        anchors_focal_out = self.encode_masked(anchors_focal)
+        anchors_out = torch.cat([anchors_out, anchors_focal_out], dim=0)
+
+        loss = self.criterion(anchors_out, targets_out, self.prototypes.data)
+        self.log('train_loss_ssl', loss)
+        return loss
+
+    def encode_masked(self, anchors):
+        batch_size, _, _, width = anchors.shape
+        seq_length = (width // self.anchor_backbone.patch_size) ** 2
+        idx_keep, _ = utils.random_token_mask(
+            size=(batch_size, seq_length),
+            mask_ratio=self.mask_ratio,
+            device=self.device,
+        )
+        out = self.anchor_backbone(anchors, idx_keep)
+        return self.anchor_projection_head(out)
+
+    def configure_optimizers(self):
+        params = [
+            *list(self.anchor_backbone.parameters()),
+            *list(self.anchor_projection_head.parameters()),
+            self.prototypes,
+        ]
+        optim = torch.optim.AdamW(
+            params=params,
+            lr=1.5e-4 * lr_factor,
+            weight_decay=0.05,
+            betas=(0.9, 0.95),
+        )
+        cosine_with_warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
+        return [optim], [cosine_with_warmup_scheduler]
+
+    def scale_lr(self, epoch):
+        if epoch < self.warmup_epochs:
+            return epoch / self.warmup_epochs 
+        else:
+            return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
+
 
 models = [
-    BarlowTwinsModel, 
+    BarlowTwinsModel,
     BYOLModel,
     DCL,
     DCLW,
     DINOModel,
-    # MAEModel, # disabled by default because MAE requires images to have size 224
+    # MAEModel, # disabled by default because MAE uses larger images with size 224
+    # MSNModel, # disabled by default because MSN uses larger images with size 224
     MocoModel,
     NNCLRModel,
     SimCLRModel,
