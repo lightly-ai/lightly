@@ -105,7 +105,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
             strategies=[
                 SelectionConfigEntry(
                     input=SelectionConfigEntryInput(type=SelectionInputType.EMBEDDINGS),
-                    strategy=SelectionConfigEntryStrategy(type=SelectionStrategyType.DIVERSIFY, stopping_condition_minimum_distance=-1)
+                    strategy=SelectionConfigEntryStrategy(type=SelectionStrategyType.DIVERSITY, stopping_condition_minimum_distance=-1)
                 ),
                 SelectionConfigEntry(
                     input=SelectionConfigEntryInput(type=SelectionInputType.SCORES, task="my-classification-task", score="uncertainty_margin"),
@@ -182,7 +182,7 @@ def test__selection_config_from_dict__extra_stratey_key() -> None:
         "strategies": [
             {
                 "input": {"type": "EMBEDDINGS"}, 
-                "strategy": {"type": "DIVERSIFY"},
+                "strategy": {"type": "DIVERSITY"},
                 "invalid-key": {"type": ""},
             },
         ],
@@ -195,7 +195,7 @@ def test__selection_config_from_dict__extra_input_key() -> None:
         "strategies": [
             {
                 "input": {"type": "EMBEDDINGS", "datasetId": ""},
-                "strategy": {"type": "DIVERSIFY"},
+                "strategy": {"type": "DIVERSITY"},
             },
         ],
     }
@@ -208,7 +208,7 @@ def test__selection_config_from_dict__extra_strategy_strategy_key() -> None:
         "strategies": [
             {
                 "input": {"type": "EMBEDDINGS"},
-                "strategy": {"type": "DIVERSIFY", "stoppingConditionMinimumDistance": 0},
+                "strategy": {"type": "DIVERSITY", "stoppingConditionMinimumDistance": 0},
             },
         ],
     }
