@@ -28,7 +28,7 @@ class SelectionStrategyType(object):
     """
     allowed enum values
     """
-    DIVERSIFY = "DIVERSIFY"
+    DIVERSITY = "DIVERSITY"
     WEIGHTS = "WEIGHTS"
     THRESHOLD = "THRESHOLD"
     BALANCE = "BALANCE"
