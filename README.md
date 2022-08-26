@@ -38,6 +38,7 @@ Some of our supported models:
 - [DCL & DCLW, 2021](https://arxiv.org/abs/2110.06848)
 - [DINO, 2021](https://arxiv.org/abs/2104.14294)
 - [MAE, 2021](https://arxiv.org/abs/2111.06377)
+- [MSN, 2022](https://arxiv.org/abs/2204.07141)
 - [MoCo, 2019](https://arxiv.org/abs/1911.05722)
 - [NNCLR, 2021](https://arxiv.org/abs/2104.14548)
 - [SimCLR, 2020](https://arxiv.org/abs/2002.05709)
