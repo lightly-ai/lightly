@@ -69,7 +69,7 @@ selects a visually diverse set of images:
                         "type": "EMBEDDINGS"
                     },
                     "strategy": {
-                        "type": "DIVERSIFY"
+                        "type": "DIVERSITY"
                     }
                 }
             ]
@@ -152,7 +152,7 @@ The following command schedules a job to select a subset from Cityscapes:
                         "type": "EMBEDDINGS"
                     },
                     "strategy": {
-                        "type": "DIVERSIFY",
+                        "type": "DIVERSITY",
                         "stopping_condition_minimum_distance": 0.2
                     }
                 }
@@ -200,7 +200,7 @@ the new images.
                         "type": "EMBEDDINGS"
                     },
                     "strategy": {
-                        "type": "DIVERSIFY",
+                        "type": "DIVERSITY",
                         "stopping_condition_minimum_distance": 0.2
                     }
                 }

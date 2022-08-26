@@ -216,7 +216,7 @@ There are several types of selection strategies, all trying to reach different o
 
 .. tabs::
 
-    .. tab:: DIVERSIFY
+    .. tab:: DIVERSITY
 
         Use this strategy to **select samples such that they are as different as possible from each other**.
         This strategy requires the input to be a NxD matrix of numbers.
@@ -229,7 +229,7 @@ There are several types of selection strategies, all trying to reach different o
         .. code-block:: python
 
             "strategy": {
-                "type": "DIVERSIFY"
+                "type": "DIVERSITY"
             }
 
         If you want to preserve a minimum distance between chosen samples, you 
@@ -240,7 +240,7 @@ There are several types of selection strategies, all trying to reach different o
             :emphasize-lines: 3
 
             "strategy": {
-                "type": "DIVERSIFY",
+                "type": "DIVERSITY",
                 "stopping_condition_minimum_distance": 0.2
             }
 
@@ -331,7 +331,7 @@ Here are examples for the full configuration including the input for several obj
                         "type": "EMBEDDINGS"
                     },
                     "strategy": {
-                        "type": "DIVERSIFY"
+                        "type": "DIVERSITY"
                     }
                 }
             ]
@@ -376,7 +376,7 @@ Here are examples for the full configuration including the input for several obj
                         "type": "EMBEDDINGS"
                     },
                     "strategy": {
-                        "type": "DIVERSIFY"
+                        "type": "DIVERSITY"
                     }
                 },
                 {
@@ -492,7 +492,7 @@ The Lightly optimizer tries to fulfil all strategies as good as possible.
 
 - **Tradeoff between different objectives.**
   The optimizer always has to tradeoff between different objectives.
-  E.g. it may happen that all samples with high WEIGHTS are close together. If you also specified the objective DIVERSIFY, then only a few of these high-weight samples
+  E.g. it may happen that all samples with high WEIGHTS are close together. If you also specified the objective DIVERSITY, then only a few of these high-weight samples
   may be chosen. Instead, also other sample that are visually more diverse, but have lower weights, are chosen.
 
 - **Restrictions in the input dataset.**

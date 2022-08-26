@@ -250,7 +250,7 @@ Now that everything is in place, let's configure and run a simple job.
                         "type": "EMBEDDINGS"
                     },
                     "strategy": {
-                        "type": "DIVERSIFY"
+                        "type": "DIVERSITY"
                     }
                 }
             ]
@@ -309,7 +309,7 @@ epochs on the input images before embedding the images and selecting from them.
                         "type": "EMBEDDINGS"
                     },
                     "strategy": {
-                        "type": "DIVERSIFY"
+                        "type": "DIVERSITY"
                     }
                 }
             ]
@@ -346,7 +346,7 @@ you might want to change:
                         "type": "EMBEDDINGS"
                     },
                     "strategy": {
-                        "type": "DIVERSIFY"
+                        "type": "DIVERSITY"
                     }
                 }
             ]
@@ -430,7 +430,7 @@ a `shared directory` and then passing the checkpoint filename to the container.
                         "type": "EMBEDDINGS"
                     },
                     "strategy": {
-                        "type": "DIVERSIFY"
+                        "type": "DIVERSITY"
                     }
                 }
             ]
@@ -506,7 +506,7 @@ The corresponding Python command to submit a job would then be as follows:
                         "type": "EMBEDDINGS"
                     },
                     "strategy": {
-                        "type": "DIVERSIFY"
+                        "type": "DIVERSITY"
                     }
                 }
             ]

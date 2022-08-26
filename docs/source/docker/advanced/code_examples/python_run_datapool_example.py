@@ -84,7 +84,7 @@ client.schedule_compute_worker_run(
                     "type": "EMBEDDINGS"
                 },
                 "strategy": {
-                    "type": "DIVERSIFY",
+                    "type": "DIVERSITY",
                     "stopping_condition_minimum_distance": 0.1
                 }
             }

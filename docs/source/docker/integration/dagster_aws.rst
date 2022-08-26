@@ -342,7 +342,7 @@ Set the `YOUR_LIGHTLY_TOKEN`, `YOUR_DATASET_ID` accordingly.
                                 "type": "EMBEDDINGS"
                             },
                             "strategy": {
-                                "type": "DIVERSIFY"
+                                "type": "DIVERSITY"
                             }
                         }
                     ]

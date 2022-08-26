@@ -83,7 +83,7 @@ client.schedule_compute_worker_run(
                     "type": "EMBEDDINGS"
                 },
                 "strategy": {
-                    "type": "DIVERSIFY",
+                    "type": "DIVERSITY",
                 }
             }
         ]

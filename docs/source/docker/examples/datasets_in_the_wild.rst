@@ -118,7 +118,7 @@ select a diverse set of frames:
                       "type": "EMBEDDINGS"
                   },
                   "strategy": {
-                      "type": "DIVERSIFY"
+                      "type": "DIVERSITY"
                   }
               }
           ]
