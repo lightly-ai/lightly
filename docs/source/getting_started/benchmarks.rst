@@ -42,7 +42,7 @@ The current benchmark contains the following models:
    "DCL (*)", 800, 256, 0.816, "213.1 Min", "4.3 GByte"
    "DCLW (*)", 800, 256, 0.827, "213.1 Min", "4.3 GByte"
    "DINO (ResNet 18)", 800, 256, 0.881, "613.9 Min", "6.7 GByte"
-   "MSN (ViT-S)", 800, 256, 0.820, "748.9 Min", "41.7 GByte"
+   "MSN (ViT-S)", 800, 256, 0.834, "376.1 Min", "16.3 GByte"
    "MoCo", 800, 256, 0.832, "322.8 Min", "4.2 GByte"
    "NNCLR", 800, 256, 0.848, "341.4 Min", "4.2 GByte"
    "SimCLR", 800, 256, 0.858, "324.8 Min", "3.9 GByte"
