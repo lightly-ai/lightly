@@ -94,9 +94,8 @@ The input can be one of the following:
 
     .. tab:: EMBEDDINGS
 
-        If you don't provide your own
-        embeddings, the `lightly OSS framework for self supervised learning <https://github.com/lightly-ai/lightly>`_ is used.
-        The embeddings are a vector of numbers for each element. 
+        The `lightly OSS framework for self supervised learning <https://github.com/lightly-ai/lightly>`_ is used to compute the embeddings.
+        They are a vector of numbers for each sample.
         
         You can define embeddings as input using:
 
