@@ -98,7 +98,7 @@ client.schedule_compute_worker_run(
             {
                 "input": {
                     "type": "PREDICTIONS",
-                    "task": "my_object_detection_task", 
+                    "task": "my_object_detection_task", # change to your task
                     "name": "CLASS_DISTRIBUTION"
                 },
                 "strategy": {

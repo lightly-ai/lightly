@@ -18,12 +18,9 @@ Lightly allows you to specify several objectives at the same time. The algorithm
 Lightly's data selection algorithms are supporting three types of input:
 
 - **Embeddings** computed using `our open source framework for self-supervised learning <https://github.com/lightly-ai/lightly>`_
+- **Lightly metadata** are metadata of images like the sharpness and computed out of the images themselves by Lightly.
 - (Optional)  :ref:`Model predictions <docker-datasource-predictions>` such as classifications, object detections or segmentations
 - (Optional) :ref:`Custom metadata <docker-datasource-metadata>` can be anything you can encode in a json file (from numbers to categorical strings)
-
-.. warning:: Using the selection config is a new feature and **selecting a 
-             proportion of samples (e.g. 50%) is not supported at the moment**, 
-             but will be added soon.
 
 Prerequisites
 -------------
@@ -40,6 +37,7 @@ Scheduling a Lightly Worker run with selection
 For scheduling a Lightly Worker run with a specific selection,
 you can use the python client and its :py:`schedule_compute_worker_run` method.
 You specify the selection with the :code:`selection_config` argument.
+See :ref:`worker-scheduling-a-job` for reference.
 
 Here is an example for scheduling a Lightly worker run with a specific selection configuration:
 
@@ -126,7 +124,7 @@ The input can be one of the following:
             }
 
         You can specify one of the tasks you specified in your datasource, see :ref:`docker-datasource-predictions` for reference.
-        Alternatively, you can use **lightly_pretagging** as the task to use object detections created by the Lightly Worker itself.
+        Alternatively, set the task to **lightly_pretagging** to use object detections created by the Lightly Worker itself.
         See :ref:`docker-pretagging` for reference.
 
         The supported score types are explained in :ref:`lightly-active-learning-scorers`.
@@ -137,17 +135,18 @@ The input can be one of the following:
 
         The class distribution probability vector of predictions can be used as well. Here, three cases have to be distinguished:
 
-            - **Image Classification** → The probability vector of each sample's prediction is used directly.
+            - **Image Classification**: The probability vector of each sample's prediction is used directly.
 
-            - **Object Detection** → The probability vectors of the class predictions of all objects in an image are summed up.
+            - **Object Detection**: The probability vectors of the class predictions of all objects in an image are summed up.
 
-            - **Object Detection** and using the :ref:`docker-object-level` → Each sample is a cropped object and has a single object prediction, whose probability vector is used.
+            - **Object Detection** and using the :ref:`docker-object-level`: Each sample is a cropped object and has a single object prediction, whose probability vector is used.
 
         This input is **specified using the prediction task**. Furthermore, it should be remembered, which class names are used for this task, as they are needed in later steps.
         
         If you use your own predictions (see :ref:`docker-datasource-predictions`), the task name and class names are taken from the specification in the prediction `schema.json`.
         
-        Alternatively, you can use the Lightly pretagging and the class names are specified here: :ref:`docker-pretagging`. In that case, the task name is `lightly_pretagging`.
+        Alternatively, set the task to **lightly_pretagging** to use object detections created by the Lightly Worker itself.
+        Its class names are specified here: :ref:`docker-pretagging`.
 
 
         .. code-block:: python
@@ -170,7 +169,7 @@ The input can be one of the following:
 
         Metadata is specified by the metadata key. It can be divided across two dimensions:
 
-        - **Custom Metadata** vs. **Lightly metadata**
+        - **Custom Metadata** vs. **Lightly Metadata**
 
             **Custom Metadata** must be specified when creating a datasource and you must have uploaded metadata to it.
             See :ref:`docker-datasource-metadata` for reference. An example configuration:
@@ -196,7 +195,7 @@ The input can be one of the following:
                 }
 
             Currently supported metadata are :code:`sharpness`, :code:`snr` (signal-to-noise-ratio) and :code:`sizeInBytes`.
-            If you use case would profit from more metadata computed out of the image, please reach out to us.
+            If your use case would profit from more metadata computed out of the image, please reach out to us.
 
         - **Numerical** vs. **Categorical** values
 
@@ -218,7 +217,6 @@ There are several types of selection strategies, all trying to reach different o
     .. tab:: DIVERSITY
 
         Use this strategy to **select samples such that they are as different as possible from each other**.
-        This strategy requires the input to be a NxD matrix of numbers.
 
         Can be used with **EMBEDDINGS**, **SCORES** and **numerical METADATA**. 
         Samples with a high distance between their embeddings/scores/metadata are 
@@ -245,11 +243,11 @@ There are several types of selection strategies, all trying to reach different o
 
         Setting :code:`"stopping_condition_minimum_distance": 0.2` will remove all samples which are
         closer to each other than 0.2. 
-        This allows you to specify the minimum allowed distance between two image
-        embeddings in the output dataset. Since we normalize the input embeddings
-        to unit length, this value should be between 0 and 2.0.
+        This allows you to specify the minimum allowed distance between two images in the output dataset.
+        If you use embeddings as input, this value should be between 0 and 2.0, as the embeddings are normalized to unit length.
         This is often a convenient method when working with different data sources and trying to combine them in a balanced way.
-        If you want to use this stopping condition to stop the selection early, make sure that you allow selecting enough samples by setting :code:`n_samples` high enough.
+        If you want to use this stopping condition to stop the selection early,
+        make sure that you allow selecting enough samples by setting :code:`n_samples` or :code:`proportion_samples` high enough.
 
         .. note:: Higher minimum distance in the embedding space results in more
                   diverse images being selected. Furthermore, increasing the
@@ -257,8 +255,7 @@ There are several types of selection strategies, all trying to reach different o
 
     .. tab:: WEIGHTS
 
-        The objective of this strategy is to **select samples that have a high numerical value**. 
-        It requires the input to be a Nx1 matrix of numbers.
+        The objective of this strategy is to **select samples that have a high numerical value**.
         
         Can be used with **SCORES** and **numerical METADATA**. It can be specified with:
 
@@ -271,7 +268,7 @@ There are several types of selection strategies, all trying to reach different o
     .. tab:: THRESHOLD
 
         The objective of this strategy is to only **select samples that have a numerical value fulfilling a threshold criterion**.
-        E.g. they should be bigger or smaller than a certain value. Like for weighting, this strategy requires the input to be a Nx1 matrix of numbers.
+        E.g. they should be bigger or smaller than a certain value.
 
         Can be used with **SCORES** and **numerical METADATA**. It is specified as follows:
 
@@ -393,7 +390,7 @@ Here are examples for the full configuration including the input for several obj
 
 .. dropdown:: Metadata Thresholding
 
-    This can be used e.g. to remove blurry images, which equals choosing
+    This can be used to remove e.g. blurry images, which equals selecting
     samples whose sharpness is over a threshold:
 
     .. code-block:: python
@@ -447,7 +444,7 @@ Here are examples for the full configuration including the input for several obj
         }
 
     .. note:: To use the `lightly pretagging` you need to enable it using :code:`'pretagging': True` in the
-              worker config.
+              worker config. See :ref:`docker-pretagging` for reference.
 
 .. dropdown:: Metadata Balancing
 
@@ -479,12 +476,12 @@ Application of Strategies
 -------------------------
 
 Generally, the order in which the different strategies were defined in the config does not matter.
-In a first steps, all the thresholding strategies are applied.
+In a first step, all the thresholding strategies are applied.
 In the next step, all other strategies are applied in parallel.
 
 .. note:: Note that different taskes can also be combined. E.g. you can use predictions 
-          from "YOUR_IMAGE_CLASSIFICATION_TASK" for one strategy combined with predictions from
-          "YOUR_OBJECT_DETECTION_TASK" from another strategy.
+          from "my_weather_classification_task" for one strategy combined with predictions from
+          "my_object_detection_task" from another strategy.
 
 The Lightly optimizer tries to fulfil all strategies as good as possible. 
 **Potential reasons why your objectives were not satisfied:**
@@ -492,7 +489,7 @@ The Lightly optimizer tries to fulfil all strategies as good as possible.
 - **Tradeoff between different objectives.**
   The optimizer always has to tradeoff between different objectives.
   E.g. it may happen that all samples with high WEIGHTS are close together. If you also specified the objective DIVERSITY, then only a few of these high-weight samples
-  may be chosen. Instead, also other sample that are visually more diverse, but have lower weights, are chosen.
+  may be chosen. Instead, also other samples that are visually more diverse, but have lower weights, are chosen.
 
 - **Restrictions in the input dataset.**
   This applies especially for BALANCE: E.g. if there are only 10 images of ambulances in the input dataset and a total
