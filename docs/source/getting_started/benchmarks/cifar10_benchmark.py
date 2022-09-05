@@ -766,7 +766,8 @@ class SMoGModel(BenchmarkModule):
 
         # smog
         self.n_groups = 300 # 2% malus vs optimal setting of 3000 groups
-        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=153600)
+        memory_bank_size = 300 * batch_size # because we reset the group features every 300 iterations
+        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=memory_bank_size)
         # create our loss
         group_features = torch.nn.functional.normalize(
             torch.rand(self.n_groups, 128), dim=1
