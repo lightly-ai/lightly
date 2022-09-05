@@ -877,7 +877,7 @@ class SMoGModel(BenchmarkModule):
         # create our loss
         group_features = torch.nn.functional.normalize(
             torch.rand(self.n_groups, 128), dim=1
-        ).cuda()
+        ).to(self.device)
         self.smog = heads.SMoGPrototypes(group_features=group_features, beta=0.99)
         self.criterion = nn.CrossEntropyLoss()
 
@@ -901,7 +901,7 @@ class SMoGModel(BenchmarkModule):
     def training_step(self, batch, batch_idx):
 
         if self.global_step > 0 and self.global_step % 300 == 0:
-            # reset group features and weights every 300
+            # reset group features and weights every 300 iterations
             self._reset_group_features()
             self._reset_momentum_weights()
         else:
