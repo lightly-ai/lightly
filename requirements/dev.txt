@@ -8,6 +8,7 @@ sphinx-copybutton
 sphinx-design
 sphinx-gallery
 sphinx-tabs
+sphinx-reredirects
 sphinx_rtd_theme
 matplotlib
 pre-commit

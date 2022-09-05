@@ -43,7 +43,8 @@ extensions = [
     "sphinx_gallery.gen_gallery",
     "sphinx_tabs.tabs",
     "sphinx_copybutton",
-    "sphinx_design"
+    "sphinx_design",
+    'sphinx_reredirects'
 ]
 
 sphinx_gallery_conf = {
@@ -99,4 +100,8 @@ html_logo = '../logos/lightly_logo_crop_white_text.png'
 html_context = {
     'copyright_year': copyright_year,
     'website_url': website_url,
+}
+
+redirects = {
+     "docker/advanced/active_learning": "../../docker_archive/advanced/active_learning.html"
 }
