@@ -5,7 +5,7 @@ Selection
 
 Lightly allows you to specify the subset to be selected based on several objectives.
 
-E.g. you can specify that the images in the subset should be visually diverse, be images the model struggles with,
+E.g. you can specify that the images in the subset should be visually diverse, be images the model struggles with (Active Learning),
 should only be sharp images, or have a certain distribution of classes, e.g. be 50% from sunny, 30% from cloudy and 20% from rainy weather.
 
 Each of these objectives is defined by a `strategy`. A strategy consists of two parts:
@@ -15,7 +15,7 @@ Each of these objectives is defined by a `strategy`. A strategy consists of two 
 
 Lightly allows you to specify several objectives at the same time. The algorithms try to fulfil all objectives simultaneously.
 
-Lightly's data selection algorithms are supporting three types of input:
+Lightly's data selection algorithms are supporting four types of input:
 
 - **Embeddings** computed using `our open source framework for self-supervised learning <https://github.com/lightly-ai/lightly>`_
 - **Lightly metadata** are metadata of images like the sharpness and computed out of the images themselves by Lightly.

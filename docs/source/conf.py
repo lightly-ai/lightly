@@ -103,5 +103,5 @@ html_context = {
 }
 
 redirects = {
-     "docker/advanced/active_learning": "../../docker_archive/advanced/active_learning.html"
+     "docker/advanced/active_learning": "../../docker/getting_started/selection.html"
 }
