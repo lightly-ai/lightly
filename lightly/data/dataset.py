@@ -159,6 +159,8 @@ class LightlyDataset:
                  num_workers_video_frame_counting: int = 0
                  ):
 
+
+
         # can pass input_dir=None to create an "empty" dataset
         self.input_dir = input_dir
         if filenames is not None:
@@ -246,15 +248,22 @@ class LightlyDataset:
             The image, target, and filename of the item at index.
 
         """
+        sample = None
+        target = None
+        fname = None
+
         fname = self.index_to_filename(self.dataset, index)
 
 
         # modified for video datasets
 
         try:
-            sample, target = self.dataset.__getitem__(index)
-        except ValueError:
             sample, audio, target = self.dataset.__getitem__(index)
+        except ValueError:
+            try:
+                sample, target = self.dataset.__getitem__(index)
+            except ValueError:
+                sample = self.dataset.__getitem__(index)
 
         return sample, target, fname
 
