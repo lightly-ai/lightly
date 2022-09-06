@@ -179,7 +179,9 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
                 DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
             ]
         )
-        with pytest.warns(UserWarning, match="Duplicate filename file_0 in relevant filenames file"):
+        with pytest.warns(
+            UserWarning, match="Duplicate filename file_0 in relevant filenames file"
+        ):
             samples = self.api_workflow_client.download_raw_samples()
 
         assert len(samples) == 5
@@ -196,7 +198,10 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
                 DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
             ]
         )
-        with pytest.raises(ValueError, match="Absolute file paths like /file_0 are not supported in relevant filenames file"):
+        with pytest.warns(
+            UserWarning,
+            match="Absolute file paths like /file_0 are not supported in relevant filenames file",
+        ):
             samples = self.api_workflow_client.download_raw_samples()
 
     def test__download_raw_files_dot_slash(self):
@@ -210,7 +215,10 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
                 DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
             ]
         )
-        with pytest.raises(ValueError, match="Using dot notation \('\./', '\.\./'\) like in \./file_0 is not supported.*"):
+        with pytest.warns(
+            UserWarning,
+            match="Using dot notation \('\./', '\.\./'\) like in \./file_0 is not supported.*",
+        ):
             samples = self.api_workflow_client.download_raw_samples()
 
     def test__download_raw_files_dot_dot_slash(self):
@@ -224,5 +232,8 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
                 DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
             ]
         )
-        with pytest.raises(ValueError, match="Using dot notation \('\./', '\.\./'\) like in \.\./file_0 is not supported.*"):
+        with pytest.warns(
+            UserWarning,
+            match="Using dot notation \('\./', '\.\./'\) like in \.\./file_0 is not supported.*",
+        ):
             samples = self.api_workflow_client.download_raw_samples()
