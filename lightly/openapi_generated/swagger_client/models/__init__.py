@@ -117,6 +117,8 @@ from lightly.openapi_generated.swagger_client.models.prediction_singletons impor
 from lightly.openapi_generated.swagger_client.models.prediction_task_schema import PredictionTaskSchema
 from lightly.openapi_generated.swagger_client.models.prediction_task_schema_category import PredictionTaskSchemaCategory
 from lightly.openapi_generated.swagger_client.models.probabilities import Probabilities
+from lightly.openapi_generated.swagger_client.models.read_url_mapping import ReadURLMapping
+from lightly.openapi_generated.swagger_client.models.read_url_mappings import ReadURLMappings
 from lightly.openapi_generated.swagger_client.models.read_url import ReadUrl
 from lightly.openapi_generated.swagger_client.models.redirected_read_url import RedirectedReadUrl
 from lightly.openapi_generated.swagger_client.models.s3_region import S3Region
