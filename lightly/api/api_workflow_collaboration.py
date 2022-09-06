@@ -37,6 +37,10 @@ class _CollaborationMixin:
           >>> user_emails = client.get_shared_users(dataset_id="MY_DATASET_ID")
           >>> user_emails.extend(["additional_user2@something.com"])
           >>> client.share_dataset(dataset_id="MY_DATASET_ID", user_emails=user_emails)
+          >>>
+          >>> # revoke access to all users
+          >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+          >>> user_emails = client.share_dataset(dataset_id="MY_DATASET_ID", user_emails=[])
         """
         body = SharedAccessConfigCreateRequest(access_type=SharedAccessType.WRITE, users=user_emails)
         self._collaboration_api.create_or_update_shared_access_config_by_dataset_id(body=body, dataset_id=dataset_id)
@@ -59,15 +63,11 @@ class _CollaborationMixin:
       """
 
       access_configs: List[SharedAccessConfigData] = self._collaboration_api.get_shared_access_configs_by_dataset_id(dataset_id=dataset_id)
-
       user_emails = []
 
       # iterate through configs and find first WRITE config
       # we use the same hard rule in the frontend to communicate with the API
       # as we currently only support WRITE access
-
-      print(access_configs)
-
       for access_config in access_configs:
         if access_config.access_type == SharedAccessType.WRITE:
           user_emails.extend(access_config.users)
