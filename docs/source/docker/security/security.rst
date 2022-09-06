@@ -2,11 +2,11 @@ Security
 ==========
 
 Security and data privacy is very important to us. In this section
-you find all security related docs. 
+you find all security related information. 
 Legal documents such as Privay Notice, T&C, DPA are available under
-`lightly.ai/legal <https://lightly.ai/legal>`_.
+`https://lightly.ai/legal <https://lightly.ai/legal>`_.
 
-.. note:: These docs apply to all personal, team and custom account plans.
+.. note:: These documents apply to all personal, team and custom account plans.
 
 Architecture Overview
 ----------------------
@@ -15,24 +15,28 @@ Here you find an overview of the cloud architecture.
 
 **A few important things to note:**
 
-- Data storage and processing happens on clients infrastructure 
-- Lightly only needs permission to list the cloud bucket and to create signed URLs
-- Any additional data besides the actual images such as metadata, predictions or
+- Data storage and processing occurs within the clients own cloud infrastructure
+- Lightly only needs permission to list files within your cloud storage 
+  (S3, GCS, Azure) and to create signed URLs
+- Lightly assets such as images, videos, sequences, frames, objects or thumbnails are
+  always stored within the clients storage. Any additional data such as metadata, predictions or
   any other non-sensitive data used to manage the datasets is stored in secured
-  databases within the Lightly Cloud
+  databases within Lightly's own infrastructure
 - Authentication is provided through our partner Auth0. Additional services such 
-  as 2FA, SAML can be added upon request
+  as 2FA/MFA, SAML can be added upon request.
 
 .. figure:: images/lightly-cloud-architecture.png
     :align: center
     :alt: Image of Lightly Architecture
     :figclass: align-center
 
-How is the data flowing around?
+How does your data flow around?
 -------------------------------
 
-We differentiate between usage data and the actual samples. Samples will be mostly 
-images or videos. Samples typically contain sensitive information (PII) and setup
+We differentiate between usage data and the actual samples stored in 
+your cloud storage. Samples can be images 
+or videos and their subtypes such as sequences, frames or object crops. 
+Samples typically contain sensitive information (PII) and setup
 the whole architecture in a way that you can fully restrict sensitive data from 
 leaving your cloud environment.
 
@@ -74,7 +78,8 @@ What data is stored where?
 
 **Data stored on your Cloud:**
 
-- Samples - the actual images and videos as well as extracted frames or thumbnails
+- Samples - the actual images and videos
+- extracted crops, frames or thumbnails
 
 
 .. note:: Lightly does caching of the predictions and metadata for faster retrieval.
