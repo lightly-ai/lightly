@@ -36,9 +36,9 @@ How does your data flow around?
 We differentiate between usage data and the actual samples stored in 
 your cloud storage. Samples can be images 
 or videos and their subtypes such as sequences, frames or object crops. 
-Samples typically contain sensitive information (PII) and setup
-the whole architecture in a way that you can fully restrict sensitive data from 
-leaving your cloud environment.
+Samples typically contain sensitive information (PII) and we setup
+the whole Lightly architecture in a way that you can fully restrict sensitive data from 
+leaving your cloud environment (see :ref:`dataset-creation-aws-bucket-minimum-policy`).
 
 **Whenever you process a new dataset using Lightly the following steps happen:**
 
@@ -63,7 +63,7 @@ leaving your cloud environment.
 - Lightly never stores sensitive data such as samples and therefore you don't have to worry
   about this
 - This setup allows for additional hardening of the access rules as the Lightly Cloud does not 
-  need to read the actual data in your bucket
+  need to read the actual data in your bucket (see :ref:`dataset-creation-aws-bucket-minimum-policy`)
 
 What data is stored where?
 --------------------------
