@@ -214,14 +214,15 @@ Here, `file_name` serves as a unique identifier to retrieve the image for which
 the predictions are made and predictions is a list of `Prediction Singletons` for the corresponding task.
 
 - :code:`probabilities` are the per class probabilities of the prediction
-- :code:`score` is the final prediction score/ confidence
+- :code:`score` is the final prediction score/confidence
 
 .. note:: Some frameworks only provide the score as the model output. Having
-          also the class probabilities could be valuable information for 
+          also the class probabilities can be valuable information for 
           active learning. For example, an object detection model could have a 
-          score of `0.6` and the predicted class is a tree. However, we don't 
-          know what the prediction margin or entropy is. With the class 
-          probabilities we would addiitonally know, whether the model thought 
+          score of `0.6` and the predicted class is a tree. However, without 
+          class probabilities we cannot know what the prediction margin or 
+          entropy is. With the class 
+          probabilities we would additionally know, whether the model thought 
           that it's `0.5` tree, `0.4` person and `0.1` car or `0.5` tree, 
           `0.25` person and `0.25` car.
 
