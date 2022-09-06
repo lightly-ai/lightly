@@ -88,7 +88,7 @@ class _ComputeWorkerMixin:
 
         """
         if isinstance(selection_config, dict):
-            selection = _selection_config_from_dict(cfg=selection_config)
+            selection = selection_config_from_dict(cfg=selection_config)
         else:
             selection = selection_config
         config = DockerWorkerConfig(
@@ -156,7 +156,7 @@ class _ComputeWorkerMixin:
         )
 
 
-def _selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
+def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
     """Recursively converts selection config from dict to a SelectionConfig instance."""
     new_cfg = copy.deepcopy(cfg)
     strategies = []
