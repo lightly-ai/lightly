@@ -11,6 +11,7 @@ from lightly.cli._helpers import print_as_warning
 from lightly.openapi_generated.swagger_client.models.sample_update_request import SampleUpdateRequest
 from lightly.openapi_generated.swagger_client.models.configuration_entry import ConfigurationEntry
 from lightly.openapi_generated.swagger_client.models.configuration_set_request import ConfigurationSetRequest
+from lightly.openapi_generated.swagger_client.models.sample_partial_mode import SamplePartialMode
 from lightly.utils.io import COCO_ANNOTATION_KEYS
 
 
@@ -160,7 +161,12 @@ class _UploadCustomMetadataMixin:
             for image_info in custom_metadata[COCO_ANNOTATION_KEYS.images]
         }
 
-        samples = self._samples_api.get_samples_by_dataset_id(self.dataset_id)
+        samples = retry(
+            self._samples_api.get_samples_partial_by_dataset_id,
+            dataset_id=self.dataset_id,
+            mode=SamplePartialMode.FILENAMES
+        )
+
         filename_to_sample_id = {
             sample.file_name: sample.id
             for sample in samples

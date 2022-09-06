@@ -18,7 +18,7 @@ def version_compare(v0: str, v1: str):
     """
     v0 = [int(n) for n in v0.split('.')][::-1]
     v1 = [int(n) for n in v1.split('.')][::-1]
-    if len(v0) is not 3 or len(v1) is not 3:
+    if len(v0) != 3 or len(v1) != 3:
         raise ValueError(
             f'Length of version strings is not 3 (expected pattern `x.y.z`) but is '
             f'{v0} and {v1}.'

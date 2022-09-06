@@ -378,3 +378,33 @@ class DINOProjectionHead(ProjectionHead):
         x = nn.functional.normalize(x, dim=-1, p=2)
         x = self.last_layer(x)
         return x
+
+class MSNProjectionHead(ProjectionHead):
+    """Projection head for MSN [0].
+
+    "We train with a 3-layer projection head with output dimension 256 and 
+    batch-normalization at the input and hidden layers.." [0]
+    Code inspired by [1].
+
+    - [0]: Masked Siamese Networks, 2022, https://arxiv.org/abs/2204.07141
+    - [1]: https://github.com/facebookresearch/msn
+
+    Attributes:
+        input_dim: 
+            Input dimension, default value 768 is for a ViT base model.
+        hidden_dim: 
+            Hidden dimension.
+        output_dim: 
+            Output dimension.
+    """
+    def __init__(
+        self,
+        input_dim: int = 768,
+        hidden_dim: int = 2048,
+        output_dim: int = 256,
+    ):
+        super().__init__(blocks=[
+            (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.GELU()),
+            (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.GELU()),
+            (hidden_dim, output_dim, None, None),
+        ])

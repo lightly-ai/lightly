@@ -1,4 +1,4 @@
-.. _ref-docker-active-learning:
+.. _docker-active-learning:
 
 Active Learning
 ===============
@@ -13,15 +13,15 @@ Learn more about the concept of active learning scores:
 
 .. note:: Note that the active learning features require a minimum 
     Lightly Worker of version 2.2. You can check your installed version of the 
-    Lightly Worker by running the :ref:`ref-docker-setup-sanity-check`.
+    Lightly Worker by running the :ref:`docker-setup-sanity-check`.
 
 Prerequisites
 --------------
 In order to do active learning with Lightly, you will need the following things:
 
-- The installed Lightly Worker (see :ref:`ref-docker-setup`)
+- The installed Lightly Worker (see :ref:`docker-setup`)
 - A dataset with a configured datasource (see :ref:`ref-docker-with-datasource-datapool`)
-- Your predictions uploaded to the datasource (see :ref:`ref-docker-datasource-predictions`)
+- Your predictions uploaded to the datasource (see :ref:`docker-datasource-predictions`)
 
 .. note::
 
@@ -55,7 +55,7 @@ We can start a Lightly Worker using the following command
 
 .. code-block:: console
 
-  docker run --rm --gpus all -it \
+  docker run --shm-size="1024m" --rm --gpus all -it \
     -v /docker-output:/home/output_dir lightly/worker:latest \
     token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
@@ -89,7 +89,7 @@ You can create embeddings using your own model. Just make sure the resulting
 :ref:`ref-cli-embeddings-lightly`. 
 
 Alternatively, you can run the docker as usual and as described in the 
-:ref:`rst-docker-first-steps` section.
+:ref:`docker-first-steps` section.
 The only difference is that you set the number of samples to be selected to 1.0,
 as this simply creates an embedding of the full dataset.
 
@@ -105,7 +105,7 @@ E.g. create and run a bash script with the following content:
     TOKEN= # put your token here
     N_SAMPLES=1.0
 
-    docker run --gpus all --rm -it \
+    docker run --shm-size="1024m" --gpus all --rm -it \
       -v ${INPUT_DIR}:/home/input_dir:ro  \
       -v ${SHARED_DIR}:/home/shared_dir:ro \
       -v ${OUTPUT_DIR}:/home/output_dir \
@@ -288,7 +288,7 @@ E.g. use the following bash script.
     TOKEN= # put your token here
     N_SAMPLES= # Choose how many samples you want to use here, e.g. 0.1 for 10 percent.
 
-    docker run --gpus all --rm -it \
+    docker run --shm-size="1024m" --gpus all --rm -it \
         -v ${INPUT_DIR}:/home/input_dir:ro  \
         -v ${SHARED_DIR}:/home/shared_dir:ro \
         -v ${OUTPUT_DIR}:/home/output_dir \

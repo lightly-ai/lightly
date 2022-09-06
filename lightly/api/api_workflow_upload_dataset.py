@@ -9,6 +9,8 @@ from concurrent.futures.thread import ThreadPoolExecutor
 import tqdm
 from lightly_utils import image_processing
 
+from torch.utils.hipify.hipify_python import bcolors
+
 from lightly.data.dataset import LightlyDataset
 from lightly.api.utils import check_filename
 from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
@@ -18,6 +20,9 @@ from lightly.openapi_generated.swagger_client import TagCreator
 from lightly.openapi_generated.swagger_client import SampleWriteUrls
 from lightly.openapi_generated.swagger_client.models.sample_create_request \
     import SampleCreateRequest
+from lightly.openapi_generated.swagger_client.models.sample_partial_mode \
+    import SamplePartialMode
+    
 from lightly.openapi_generated.swagger_client.models.tag_upsize_request \
     import TagUpsizeRequest
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request\
@@ -67,7 +72,7 @@ class _UploadDatasetMixin:
         tags = self.get_all_tags()
         if len(tags) > 0:
             print(
-                f'Dataset with id {self.dataset_id} has {len(tags)} tags.',
+                f'Dataset with id {self.dataset_id} has {bcolors.OKGREEN}{len(tags)}{bcolors.ENDC} tags.',
                 flush=True
             )
 
@@ -88,7 +93,7 @@ class _UploadDatasetMixin:
 
         # upload the samples
         print(
-            f'Uploading images (with {max_workers} workers).',
+            f'Uploading {bcolors.OKGREEN}{len(dataset)}{bcolors.ENDC} images (with {bcolors.OKGREEN}{max_workers}{bcolors.ENDC} workers).',
             flush=True
         )
 
@@ -97,14 +102,16 @@ class _UploadDatasetMixin:
             lambda img: 0 # pylint: disable=protected-access
 
         # get the filenames of the samples already on the server
-        samples = self._samples_api.get_samples_by_dataset_id(
-            dataset_id=self.dataset_id
+        samples = retry(
+            self._samples_api.get_samples_partial_by_dataset_id,
+            dataset_id=self.dataset_id,
+            mode=SamplePartialMode.FILENAMES
         )
         filenames_on_server = [sample.file_name for sample in samples]
         filenames_on_server_set = set(filenames_on_server)
         if len(filenames_on_server) > 0:
             print(
-                f'Found {len(filenames_on_server)} images already on the server'
+                f'Found {bcolors.OKGREEN}{len(filenames_on_server)}{bcolors.ENDC} images already on the server'
                 ', they are skipped during the upload.'
             )
 
@@ -115,8 +122,8 @@ class _UploadDatasetMixin:
         max_dataset_size = \
             int(self._quota_api.get_quota_maximum_dataset_size())
         if len(total_filenames) > max_dataset_size:
-            msg = f'Your dataset has {len(dataset)} samples which'
-            msg += f' is more than the allowed maximum of {max_dataset_size}'
+            msg = f'Your dataset has {bcolors.OKGREEN}{len(dataset)}{bcolors.ENDC} samples which'
+            msg += f' is more than the allowed maximum of {bcolors.OKGREEN}{max_dataset_size}{bcolors.ENDC}'
             raise ValueError(msg)
 
         # index custom metadata by filename (only if it exists)

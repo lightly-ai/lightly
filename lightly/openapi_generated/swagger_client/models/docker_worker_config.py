@@ -35,16 +35,18 @@ class DockerWorkerConfig(object):
     swagger_types = {
         'worker_type': 'DockerWorkerType',
         'docker': 'dict(str, object)',
-        'lightly': 'dict(str, object)'
+        'lightly': 'dict(str, object)',
+        'selection': 'SelectionConfig'
     }
 
     attribute_map = {
         'worker_type': 'workerType',
         'docker': 'docker',
-        'lightly': 'lightly'
+        'lightly': 'lightly',
+        'selection': 'selection'
     }
 
-    def __init__(self, worker_type=None, docker=None, lightly=None, _configuration=None):  # noqa: E501
+    def __init__(self, worker_type=None, docker=None, lightly=None, selection=None, _configuration=None):  # noqa: E501
         """DockerWorkerConfig - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -53,11 +55,14 @@ class DockerWorkerConfig(object):
         self._worker_type = None
         self._docker = None
         self._lightly = None
+        self._selection = None
         self.discriminator = None
 
         self.worker_type = worker_type
         self.docker = docker
         self.lightly = lightly
+        if selection is not None:
+            self.selection = selection
 
     @property
     def worker_type(self):
@@ -86,7 +91,7 @@ class DockerWorkerConfig(object):
     def docker(self):
         """Gets the docker of this DockerWorkerConfig.  # noqa: E501
 
-        docker run configurations, keys should match the structure of https://github.com/lightly-ai/lightly-core/blob/develop/onprem-docker/resources/docker/docker.yaml   # noqa: E501
+        docker run configurations, keys should match the structure of https://github.com/lightly-ai/lightly-core/blob/develop/onprem-docker/lightly_worker/src/lightly_worker/resources/docker/docker.yaml   # noqa: E501
 
         :return: The docker of this DockerWorkerConfig.  # noqa: E501
         :rtype: dict(str, object)
@@ -97,7 +102,7 @@ class DockerWorkerConfig(object):
     def docker(self, docker):
         """Sets the docker of this DockerWorkerConfig.
 
-        docker run configurations, keys should match the structure of https://github.com/lightly-ai/lightly-core/blob/develop/onprem-docker/resources/docker/docker.yaml   # noqa: E501
+        docker run configurations, keys should match the structure of https://github.com/lightly-ai/lightly-core/blob/develop/onprem-docker/lightly_worker/src/lightly_worker/resources/docker/docker.yaml   # noqa: E501
 
         :param docker: The docker of this DockerWorkerConfig.  # noqa: E501
         :type: dict(str, object)
@@ -127,6 +132,27 @@ class DockerWorkerConfig(object):
         """
 
         self._lightly = lightly
+
+    @property
+    def selection(self):
+        """Gets the selection of this DockerWorkerConfig.  # noqa: E501
+
+
+        :return: The selection of this DockerWorkerConfig.  # noqa: E501
+        :rtype: SelectionConfig
+        """
+        return self._selection
+
+    @selection.setter
+    def selection(self, selection):
+        """Sets the selection of this DockerWorkerConfig.
+
+
+        :param selection: The selection of this DockerWorkerConfig.  # noqa: E501
+        :type: SelectionConfig
+        """
+
+        self._selection = selection
 
     def to_dict(self):
         """Returns the model properties as a dict"""

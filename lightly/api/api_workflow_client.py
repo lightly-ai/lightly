@@ -2,6 +2,7 @@ import warnings
 from io import IOBase
 from typing import *
 import platform
+import os
 
 import requests
 from lightly.api.api_workflow_tags import _TagsMixin
@@ -17,7 +18,7 @@ from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
 from lightly.api.bitmask import BitMask
-from lightly.api.utils import getenv
+from lightly.api.utils import DatasourceType, get_signed_url_destination, getenv
 from lightly.api.version_checking import get_minimum_compatible_version, \
     version_compare
 from lightly.openapi_generated.swagger_client import ScoresApi, \
@@ -42,6 +43,9 @@ from lightly.openapi_generated.swagger_client.configuration import \
 from lightly.openapi_generated.swagger_client.models.dataset_data import \
     DatasetData
 from lightly.utils.reordering import sort_items_by_keys
+
+# Env variable for server side encryption on S3
+LIGHTLY_S3_SSE_KMS_KEY = 'LIGHTLY_S3_SSE_KMS_KEY' 
 
 class ApiWorkflowClient(_UploadEmbeddingsMixin,
                         _SelectionMixin,
@@ -213,6 +217,26 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             The response of the put request, usually a 200 for the success case.
 
         """
+
+        # check to see if server side encryption for S3 is desired
+        # see https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingServerSideEncryption.html
+        # see https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html
+        lightly_s3_sse_kms_key = os.environ.get(LIGHTLY_S3_SSE_KMS_KEY, '').strip()
+        # Only set s3 related headers when we are talking with s3
+        if get_signed_url_destination(signed_write_url)==DatasourceType.S3 and lightly_s3_sse_kms_key:
+            if headers is None:
+                headers = {}
+            # don't override previously set SSE
+            if 'x-amz-server-side-encryption' not in headers:
+                if lightly_s3_sse_kms_key.lower() == 'true':
+                    # enable SSE with the key of amazon
+                    headers['x-amz-server-side-encryption'] = 'AES256'
+                else:
+                    # enable SSE with specific customer KMS key
+                    headers['x-amz-server-side-encryption'] = 'aws:kms'
+                    headers['x-amz-server-side-encryption-aws-kms-key-id'] = lightly_s3_sse_kms_key
+
+        # start requests session and make put request
         sess = session or requests
         if headers is not None:
             response = sess.put(signed_write_url, data=file, headers=headers)

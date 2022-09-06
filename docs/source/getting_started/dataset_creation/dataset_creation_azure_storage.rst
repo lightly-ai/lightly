@@ -16,8 +16,6 @@ However, the thumbnails will be stored in your container and thus need storage.
   
     If you want to use thumbnails you need to give
     Lightly write access to your container to create the thumbnails there for you.
-    The write access can be configured not to allow overwriting and
-    deleting, thus existing data cannot get lost.
 
 Setting up Azure
 ------------------
@@ -64,9 +62,9 @@ Uploading your data
 4. Enter the storage account name and SAS token from the previous step.
 5. Toggle the **"Generate thumbnail"** switch if you want Lightly to generate thumbnails for you.
 6. If you want to store outputs from Lightly (like thumbnails or extracted frames) in a different directory, you can toggle **"Use a different output datasource"** and enter a different path in your bucket. This allows you to keep your input directory clean as nothing gets ever written there.
-  .. note:: 
 
-    Lightly requires list, read, and write access to the `output datasource`. Make sure you have configured it accordingly in the steps before.
+    .. note:: 
+        Lightly requires list, read, write and delete access to the `output datasource`. Make sure you have configured it accordingly in the steps before.
 7. Press save and ensure that at least the lights for List and Read turn green. If you added permissions for writing, this light should also turn green.
 
 

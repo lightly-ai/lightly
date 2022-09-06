@@ -1,4 +1,4 @@
-.. _ref-docker-configuration:
+.. _docker-configuration:
 
 Configuration
 ===================================
@@ -11,7 +11,7 @@ The following example shows how the `token` parameter is set.
 
 .. code-block:: console
 
-    docker run --rm -it \
+    docker run --shm-size="1024m" --rm -it \
         -v {OUTPUT_DIR}:/home/shared_dir \
         lightly/worker:latest \
         token=MYAWESOMETOKEN
@@ -20,7 +20,7 @@ Note that `token` can optionally be passed as a `LIGHTLY_TOKEN` environment vari
 
 .. code-block:: console
 
-    docker run --rm -it \
+    docker run --shm-size="1024m" --rm -it \
         -e LIGHTLY_TOKEN=MYAWESOMETOKEN
         -v {OUTPUT_DIR}:/home/shared_dir \
         lightly/worker:latest
@@ -150,6 +150,19 @@ The following are parameters which can be passed to the container:
     # Use video metadata to determine the number of frames in each video. Set to
     # True for faster processing. Set to False if you get video related errors.
     use_frame_count_metadata: False
+    # This feature flag enables runs which take longer than 7 days by bypassing
+    # the limitation of signed read URLs of S3, GCS and Azure.
+    # The tradeoff is that it will take longer to fully read and process all the
+    # data which is stored in the bucket configured as your datasource resulting
+    # in a longer total duration.
+    # Only enable this if you are certain that your run will take longer than
+    # 7 days to complete.
+    # This feature is always enabled when a S3 datasource with delegated access
+    # is configured. 
+    use_redirected_read_url: False
+    # Bypass the verification of read/write access to the datasource
+    bypass_verify: False
+
 
   # active learning
   active_learning:
@@ -208,4 +221,3 @@ close to 0 pairwise distance.
 
 
 .. image:: images/histograms_overview.png
-

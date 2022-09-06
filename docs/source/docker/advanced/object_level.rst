@@ -1,4 +1,4 @@
-.. _ref-docker-object-level:
+.. _docker-object-level:
 
 Object Level
 ============
@@ -16,7 +16,7 @@ workflow:
 
 .. note:: Note that the object level features require a minimum 
     Lightly Worker of version 2.2. You can check your installed version of the 
-    Lightly Worker by running the :ref:`ref-docker-setup-sanity-check`.
+    Lightly Worker by running the :ref:`docker-setup-sanity-check`.
 
 
 Prerequisites
@@ -24,7 +24,7 @@ Prerequisites
 In order to use the object level workflow with Lightly, you will need the
 following things:
 
-- The installed Lightly Worker (see :ref:`ref-docker-setup`)
+- The installed Lightly Worker (see :ref:`docker-setup`)
 - A dataset with a configured datasource (see :ref:`ref-docker-with-datasource-datapool`)
 - Object detection predictions uploaded to the datasource (see next section)
 
@@ -38,7 +38,7 @@ following things:
 Predictions
 -----------
 Lightly needs to know which objects to process. This information is provided
-by uploading a set of object predictions to the datasource (see :ref:`ref-docker-datasource-predictions`).
+by uploading a set of object predictions to the datasource (see :ref:`docker-datasource-predictions`).
 Let's say we are working with a dataset containing different types of vehicles
 and used an object detection model to find possible vehicle objects in the
 dataset. Then the file structure of the datasource should look like this:
@@ -123,13 +123,13 @@ directory in the datasource:
             ]
         }
 
-For more information regarding the predictions format please see :ref:`ref-docker-datasource-predictions`.
+For more information regarding the predictions format please see :ref:`docker-datasource-predictions`.
 
 
 Selection on Object Level
 -------------------------
 Once you have everything set up as described above, you can run selection on
-object level by setting the `object_level.task_name` argument in the :ref:`docker configuration <ref-docker-configuration>`. 
+object level by setting the `object_level.task_name` argument in the :ref:`docker configuration <docker-configuration>`. 
 The argument should be set to the task name you used for your predictions. 
 If you uploaded the predictions to e.g. `.lightly/predictions/vehicles_object_detections`
 then you should set `object_level.task_name` to `vehicles_object_detections`.
@@ -144,7 +144,7 @@ code to sping up a Lightly Worker
 
 .. code-block:: console
 
-  docker run --rm --gpus all -it \
+  docker run --shm-size="1024m" --rm --gpus all -it \
     -v /docker-output:/home/output_dir lightly/worker:latest \
     token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
@@ -154,7 +154,7 @@ Lightly Pretagging
 ------------------
 Instead of providing your own predictions, it's also possible to use the built-in pretagging model from Lightly. To do so,
 set `pretagging=True` in your config and use the `object_level.task_name="lightly_pretagging"`. For more information
-about the prediction model and classes, go to :ref:`Lightly Pretagging Model <ref-docker-pretagging>`
+about the prediction model and classes, go to :ref:`Lightly Pretagging Model <docker-pretagging>`
 
 .. literalinclude:: code_examples/python_run_object_level_pretagging.py
 
@@ -164,7 +164,7 @@ code to sping up a Lightly Worker
 
 .. code-block:: console
 
-  docker run --rm --gpus all -it \
+  docker run --shm-size="1024m" --rm --gpus all -it \
     -v /docker-output:/home/output_dir lightly/worker:latest \
     token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
@@ -245,7 +245,7 @@ take further steps to enhance the dataset using one of the workflows Lightly
 provides:
 
 - Select a subset of your data using our :ref:`Sampling Algorithms <plaform-sampling>`
-- Select new samples to add to your dataset using :ref:`Active Learning <ref-docker-active-learning>`
+- Select new samples to add to your dataset using :ref:`Active Learning <docker-active-learning>`
 - Prepare images for labelling by :ref:`exporting them to LabelStudio <lightly-tutorial-export-labelstudio>`
 
 

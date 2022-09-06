@@ -31,6 +31,11 @@ lightly.loss
 .. autoclass:: lightly.loss.memory_bank.MemoryBankModule
    :members:
 
+.msn_loss
+---------
+.. autoclass:: lightly.loss.msn_loss.MSNLoss
+   :members:
+
 .negative_cosine_similarity
 ---------------------------
 .. autoclass:: lightly.loss.negative_cosine_similarity.NegativeCosineSimilarity

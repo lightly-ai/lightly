@@ -7,6 +7,7 @@ import io
 import os
 import time
 import random
+from enum import Enum
 
 import numpy as np
 from PIL import Image, ImageFilter
@@ -19,6 +20,7 @@ JpegImagePlugin._getmp = lambda: None
 MAXIMUM_FILENAME_LENGTH = 255
 RETRY_MAX_BACKOFF = 32
 RETRY_MAX_RETRIES = 5
+
 
 def retry(func, *args, **kwargs):
     """Repeats a function until it completes successfully or fails too often.
@@ -58,7 +60,8 @@ def retry(func, *args, **kwargs):
 
             # max retries exceeded
             if current_retries >= max_retries:
-                raise RuntimeError(f'Maximum retries exceeded! Original exception: {type(e)}: {str(e)}') from e
+                raise RuntimeError(
+                    f'Maximum retries exceeded! Original exception: {type(e)}: {str(e)}') from e
 
 
 def getenv(key: str, default: str):
@@ -102,7 +105,6 @@ def check_filename(basename):
     return len(basename) <= MAXIMUM_FILENAME_LENGTH
 
 
-
 def build_azure_signed_url_write_headers(content_length: str,
                                          x_ms_blob_type: str = 'BlockBlob',
                                          accept: str = '*/*',
@@ -131,3 +133,32 @@ def build_azure_signed_url_write_headers(content_length: str,
         'Accept-Encoding': accept_encoding,
     }
     return headers
+
+
+class DatasourceType(Enum):
+    S3 = "S3"
+    GCS = "GCS"
+    AZURE = "AZURE"
+    LOCAL = "LOCAL"
+
+
+def get_signed_url_destination(signed_url: str = '') -> DatasourceType:
+    """
+    Tries to figure out the of which cloud provider/datasource type a signed url comes from (S3, GCS, Azure)
+    Args:
+        signed_url:
+            The signed url of a "bucket" provider
+    Returns:
+        DatasourceType
+    """
+
+    assert isinstance(signed_url, str)
+
+    if 'storage.googleapis.com/' in signed_url:
+        return DatasourceType.GCS
+    if '.amazonaws.com/' in signed_url and '.s3.' in signed_url:
+        return DatasourceType.S3
+    if '.windows.net/' in signed_url:
+        return DatasourceType.AZURE
+    # default to local as it must be some special setup
+    return DatasourceType.LOCAL

@@ -26,6 +26,7 @@ from lightly.openapi_generated.swagger_client.models.docker_worker_type import D
 from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
+from lightly.openapi_generated.swagger_client.models.sample_partial_mode import SamplePartialMode
 from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
 from lightly.openapi_generated.swagger_client.api.datasources_api import DatasourcesApi
 from lightly.openapi_generated.swagger_client.models.timestamp import Timestamp
@@ -40,9 +41,7 @@ from typing import *
 from lightly.openapi_generated.swagger_client import ScoresApi, \
     CreateEntityResponse, SamplesApi, SampleCreateRequest, \
     InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, \
-    TagArithmeticsRequest, TagBitMaskResponse, SampleWriteUrls, SampleData, \
-    Trigger2dEmbeddingJobRequest, SampleUpdateRequest, \
-    DatasourceRawSamplesMetadataData
+    TagArithmeticsRequest, TagBitMaskResponse, SampleWriteUrls, SampleData, SampleDataModes, DatasourceRawSamplesMetadataData, Trigger2dEmbeddingJobRequest, SampleUpdateRequest
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
@@ -271,6 +270,33 @@ class MockedSamplesApi(SamplesApi):
             )
             samples.append(sample)
         return samples
+    
+    def get_samples_partial_by_dataset_id(
+        self,
+        dataset_id = 'dataset_id_xyz',
+        mode: SamplePartialMode = SamplePartialMode.FULL,
+        **kwargs
+    ) -> List[SampleData]:
+        samples = []
+        for i, body in enumerate(self.sample_create_requests):
+            if mode==SamplePartialMode.IDS:
+                sample = SampleDataModes(
+                    id=f'{i}_xyz'
+                ) 
+            elif mode==SamplePartialMode.FILENAMES:
+                sample = SampleDataModes(
+                    id=f'{i}_xyz', 
+                    file_name=body.file_name,
+                )
+            else:
+                sample = SampleDataModes(
+                    id=f'{i}_xyz', 
+                    dataset_id=dataset_id, 
+                    file_name=body.file_name,
+                    type='Images',
+                )
+            samples.append(sample)
+        return samples
 
     def create_sample_by_dataset_id(self, body, dataset_id, **kwargs):
         _check_dataset_id(dataset_id)
@@ -417,7 +443,8 @@ class MockedDatasourcesApi(DatasourcesApi):
             cursor: str = None,
             _from: int = None,
             to: int = None,
-            relevant_filenames_file_name: str = -1
+            relevant_filenames_file_name: str = -1,
+            use_redirected_read_url: bool = False,
     ) -> DatasourceRawSamplesData:
         if relevant_filenames_file_name == -1:
             samples = self._samples[dataset_id]
@@ -451,8 +478,13 @@ class MockedDatasourcesApi(DatasourcesApi):
         )
 
     def get_list_of_raw_samples_predictions_from_datasource_by_dataset_id(
-        self, dataset_id: str, task_name: str,
-        cursor: str = None, _from: int = None, to: int = None, **kwargs,
+        self, dataset_id: str,
+        task_name: str,
+        cursor: str = None,
+        _from: int = None,
+        to: int = None,
+        use_redirected_read_url: bool = False,
+        **kwargs,
     ) -> DatasourceRawSamplesPredictionsData:
         if cursor is None:
             # initial request
@@ -479,8 +511,13 @@ class MockedDatasourcesApi(DatasourcesApi):
         )
 
     def get_list_of_raw_samples_metadata_from_datasource_by_dataset_id(
-        self, dataset_id: str,
-        cursor: str = None, _from: int = None, to: int = None, **kwargs,
+        self,
+        dataset_id: str,
+        cursor: str = None,
+        _from: int = None,
+        to: int = None,
+        use_redirected_read_url: bool = False,
+        **kwargs,
     ) -> DatasourceRawSamplesMetadataData:
         if cursor is None:
             # initial request

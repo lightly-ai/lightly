@@ -11,7 +11,7 @@ from lightly.data import SimCLRCollateFunction
 from lightly.data import MultiCropCollateFunction
 from lightly.data import SwaVCollateFunction
 from lightly.data import PIRLCollateFunction
-from lightly.data.collate import DINOCollateFunction, MAECollateFunction, MultiViewCollateFunction
+from lightly.data.collate import DINOCollateFunction, MAECollateFunction, MSNCollateFunction, MultiViewCollateFunction
 
 
 class TestDataCollate(unittest.TestCase):
@@ -177,3 +177,23 @@ class TestDataCollate(unittest.TestCase):
         self.assertEqual(len(samples0), len(samples1))
         self.assertEqual(len(samples1), len(labels), len(fnames))
         self.assertEqual(samples1.shape, (16,9,3,10,10))
+
+    def test_msn_collate_init(self):
+        MSNCollateFunction()
+
+    def test_msn_collate_forward(self):
+        batch = self.create_batch()
+        img_collate = MSNCollateFunction(
+            random_size=24,
+            focal_size=12,
+            random_views=2, 
+            focal_views=10
+        )
+        views, labels, fnames = img_collate(batch)
+        self.assertEqual(len(views), 2 + 10)
+        self.assertEqual(len(labels), len(batch))
+        self.assertEqual(len(fnames), len(batch))
+        for view in views[:2]:
+            self.assertEqual(view.shape, (16, 3, 24, 24))
+        for view in views[2:]:
+            self.assertEqual(view.shape, (16, 3, 12, 12))

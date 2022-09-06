@@ -1,4 +1,4 @@
-.. _rst-docker-first-steps:
+.. _docker-first-steps:
 
 First Steps
 ===================================
@@ -29,15 +29,39 @@ The Lightly worker can be easily triggered from your Python code. There are vari
 configure and we also expose the full configuration of the lightly self-supervised learning framework.
 You can use the Lightly worker to train a self-supervised model instead of using the Lightly Python framework.
 
+Using Docker
+-------------
+
+We use docker containers to ship the Lightly Worker. Docker allows us to run the
+same worker on various operating systems with different setups. 
+
+`To learn more about docker please head over to the official docs! <https://docs.docker.com/>`_
+
+Here, we quickly explain the most important parts of the typical **docker run** command.
+
+.. code-block:: console
+
+    docker run --shm-size="1024m" --gpus all --rm -it lightly/worker:latest
+
+- :code:`docker run` this is the command to run/start a container
+- :code:`--shm-size="1024m"` because we do lots of parallel computations we
+  want to give our container some extra shared memory for inter process communication
+- :code:`--gpus all` passes all the host GPUs to the container and makes them accessible
+- :code:`--rm` makes sure we remove the container after running
+- :code:`-it` enables interactive mode (user input gets passed to container).
+  This allows you to use `ctrl-c` to stop the container
+- :code:`lightly/worker:latest` is the docker image we want to run
+
+
 Volume Mapping
 --------------
 
 Before we jump into the details of how to submit jobs, we need to start the Lightly image in
-worker mode (as outlined in :ref:`ref-docker-setup`).
+worker mode (as outlined in :ref:`docker-setup`).
 
 .. code-block:: console
 
-    docker run --gpus all --rm -it \
+    docker run --shm-size="1024m" --gpus all --rm -it \
         -v {OUTPUT_DIR}:/home/output_dir \
         lightly/worker:latest \
         token=MY_AWESOME_TOKEN \
@@ -68,7 +92,7 @@ Creating a Dataset
 ------------------
 
 To set up inputs and outputs for your job you will need a `dataset_id`. You can either create
-a new dataset from Python or re-use an existing one (see :ref:`ref-datapool`).
+a new dataset from Python or re-use an existing one (see :ref:`datapool`).
 
 
 .. code-block:: python
@@ -230,14 +254,15 @@ Now that everything is in place, let's configure and run a simple job.
 
 The command schedules a job with the following configurations:
 
-- **enable_corruptness_check=True** Checks your dataset for corrupt images 
+- :code:`enable_corruptness_check` Checks your dataset for corrupt images if **True**.
 
-- **remove_exact_duplicates=True** Removes exact duplicates
+- :code:`remove_exact_duplicates` Removes exact duplicates if **True**.
 
-- **stopping_condition.n_samples=0.1** Selects 10% of the images using the
+- :code:`stopping_condition.n_samples` **0.1** selects 10% of the images using the
   default method (coreset). Selecting 10% means that the remaining dataset
-  will be 10% of the initial dataset size. You can also specify the exact 
-  number of remaining images by setting **n_samples** to an integer.
+  will be 10% of the initial dataset size. 
+  You can also specify the exact number of remaining images 
+  by setting the value to an integer.
 
 
 The worker should pick up the job after a few seconds and start working on it. The
@@ -249,10 +274,10 @@ report can be accessed from the compute worker runs page mentioned just above.
 
 There's an alternative stopping condition to `n_samples`, the `min_distance`
 
-- **stopping_condition.min_distance=0.2** would remove all samples which are
+- :code:`stopping_condition.min_distance` **0.2** would remove all samples which are
   closer to each other than 0.2. This allows you to specify the minimum allowed distance between two image 
   embeddings in the output dataset. After normalizing the input embeddings 
-  to unit length, this value should be between 0 and 2. This is often a more 
+  to unit length, this value should be between 0 and 2.0. This is often a more 
   convenient method when working with different data sources and trying to 
   combine them in a balanced way.
 
@@ -292,8 +317,16 @@ You may not always want to train for exactly 100 epochs with the default setting
 The Lightly worker is a wrapper around the lightly Python package.
 Hence, for training and embedding the user can access all the settings from the lightly command-line tool.
 
+Here are some of the most common parameters for the **lightly_config**
+you might want to change:
+
+- :code:`trainer.max_epochs` determines the number of epochs your SSL model should be trained for.
+- :code:`loader.num_workers` specifies the number of background workers for data processing.
+  -1 uses the number of available CPU cores. 
+
 
 .. code-block:: python
+    :emphasize-lines: 18, 29
     :caption: Accessing the lightly parameters from Python
 
     client.schedule_compute_worker_run(
@@ -353,6 +386,50 @@ Hence, for training and embedding the user can access all the settings from the 
     )
 
 
+**Checkpoints** from your training process will be stored in the output directory.
+You can use such a checkpoint in future worker runs by copying the checkpoint to
+a `shared directory` and then passing the checkpoint filename to the container.
+
+.. code-block:: console
+    :emphasize-lines: 3
+    :caption: Starting the worker with a `shared directory`
+
+    docker run --shm-size="1024m" --gpus all --rm -it \
+        -v {OUTPUT_DIR}:/home/output_dir \
+        -v {SHARED_DIR}:/home/shared_dir \
+        lightly/worker:latest \
+        token=MY_AWESOME_TOKEN \
+        worker.worker_id=MY_WORKER_ID
+
+
+.. code-block:: python
+    :caption: Scheduling a job with a pre-trained checkpoint
+    :emphasize-lines: 13
+
+    client.schedule_compute_worker_run(
+        worker_config={
+            "enable_corruptness_check": True,
+            "remove_exact_duplicates": True,
+            "enable_training": False, # set to True if you want to continue training
+            "pretagging": False,
+            "pretagging_debug": False,
+            "method": "coreset",
+            "stopping_condition": {
+                "n_samples": 0.1,
+                "min_distance": -1
+            }
+            "checkpoint": "lightly_epoch_X.ckpt"
+        }
+    )
+
+For example, if the :code:`{OUTPUT_DIR}` is :code:`/home/ubuntu/outputs`, the checkpoint will
+be called :code:`/home/ubuntu/outputs/{DATE}/{TIME}/lightly_epoch_X.ckpt`. Now you can create a new directory
+:code:`home/ubuntu/shared` and copy the checkpoint there. Finally, when running the worker
+you need to specify the newly created directory as the :code:`{SHARED_DIR}` and checkpoint as
+:code:`lightly_epoch_X.ckpt`.
+
+
+
 Specifying Relevant Files
 -------------------------
 Oftentimes not all files in a bucket are relevant. In that case, it's possible
@@ -375,7 +452,7 @@ you are only interested in `image_1.png` and `subdir/image_3.png`
             L image_3.png
 
 
-Then you can add a file called `relevant_filenames.txt` to your output bucket with the following content
+Then you can add a file called `relevant_filenames.txt` to your output bucket with the following content (note: only file paths relative to the bucket are supported! And relative paths cannot include dot notations `./` or `../`)
 
 .. code-block:: text
     :caption: relevant_filenames.txt

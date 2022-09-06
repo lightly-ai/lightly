@@ -56,7 +56,7 @@ running:
 
 .. code-block:: console
 
-  docker run --rm --gpus all -it \
+  docker run--shm-size="1024m" --rm --gpus all -it \
     -v /docker-output:/home/output_dir lightly/worker:latest \
     token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
@@ -106,6 +106,12 @@ exact contents for one sequence. In the case of video frame sequences the
                 377713014,
                 ...
             ],
+            "frame_timestamps_sec": [
+                4.886145,
+                5.008298625,
+                5.13045225,
+                ...
+            ],
             "frame_indices": [
                 40,
                 41,
@@ -125,6 +131,12 @@ exact contents for one sequence. In the case of video frame sequences the
                 422678849,
                 431672016,
                 440665183,
+                ...
+            ],
+            "frame_timestamps_sec": [
+                6.095856060606061, 
+                6.217773181818182, 
+                6.339690303030303,
                 ...
             ],
             "frame_indices": [
@@ -168,15 +180,21 @@ Cropping Sequences From Videos
 
 Using the timestamps stored in the `sequence_information.json` file, the selected
 video sequences can be cropped from the original videos. Make sure that 
-`ffmpeg <https://ffmpeg.org/>_` is available on your system for cropping the videos.
+`ffmpeg <https://ffmpeg.org/>`_ is available on your system for cropping the videos.
+
+There are two types of stored timestamps:
+
+* `frame_timestamps_pts`: Presentation timestamps in timebase units of the video.
+* `frame_timestamps_sec`: Presentation timestamps in seconds.
 
 To crop a sequence, the first and last timestamp from the `frame_timestamps_pts`
 list and the `video_name` stored in the `sequence_information.json` file are 
-required. The cropping can be done with the following command:
+required. The cropping can be done with the following command using an
+`ffmpeg trim filter <https://ffmpeg.org/ffmpeg-filters.html#trim>`_:
 
 .. code:: console
 
-    ffmpeg -i {VIDEO_NAME} -copyts -filter "trim=start_pts={FIRST_TIMESTAMP}:end_pts={LAST_TIMESTAMP + 1}" {SEQUENCE_NAME}
+    ffmpeg -i {VIDEO_NAME} -copyts -filter "trim=start_pts={FIRST_TIMESTAMP_PTS}:end_pts={LAST_TIMESTAMP_PTS + 1}" {SEQUENCE_NAME}
 
     # example using the videos from above
     ffmpeg -i Pexels_Videos_1409899.mp4 -copyts -filter "trim=start_pts=359726680:end_pts=377713015" sequence_1.mp4
@@ -185,3 +203,16 @@ required. The cropping can be done with the following command:
 
     Make sure that `end_pts` is set to `LAST_TIMESTAMP + 1` otherwise the last
     frame in the sequence will not be included in the cropped video!
+
+Sequences can also be cropped using the first and last timestamp from the `frame_timestamps_sec`
+list. However, depending on the video and sequence, this can result in the last frame
+of the sequence not being included in the cropped video. We recommend to use
+`frame_timestamps_pts` if possible. The following command can be used for cropping using
+`frame_timestamps_sec`:
+
+.. code:: console
+
+    ffmpeg -i {VIDEO_NAME} -copyts -filter "trim=start={FIRST_TIMESTAMP_SEC}:end={LAST_TIMESTAMP_SEC}" {SEQUENCE_NAME}
+
+    # example using the videos from above
+    ffmpeg -i Pexels_Videos_1409899.mp4 -copyts -filter "trim=start=4.886145:end=5.985527625" sequence_1.mp4

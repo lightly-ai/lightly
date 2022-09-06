@@ -5,7 +5,7 @@ Let's have a look at how to run the Lightly Worker to analyze and filter the fam
 ImageNet dataset. We are assuming here that the ImageNet dataset is located in an S3
 bucket under `s3://dataset/imagenet/`. Start by creating a dataset and configuring the datasource
 
-.. note:: For all examples we assume that the Lightly Worker is configured and running. See :ref:`ref-docker-setup` for more information.
+.. note:: For all examples we assume that the Lightly Worker is configured and running. See :ref:`docker-setup` for more information.
 
 
 .. code-block:: python

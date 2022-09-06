@@ -20,18 +20,25 @@ Lightly is a computer vision framework for self-supervised learning.
 
 Lightly offers features like
 
-- modular framework
+- modular framework which exposes low-level building blocks such as loss functions
 - support for multi-gpu training using PyTorch Lightning
 - easy to use and written in a PyTorch like style
 - supports custom backbone models for self-supervised pre-training
 
 #### Supported Models
 
+You can [find sample code for all the supported models here.](https://docs.lightly.ai/examples/models.html)
+We provide PyTorch, PyTorch Lightning and PyTorch Lightning distributed examples for each of the models
+to kickstart your project.
+
+Some of our supported models:
+
 - [Barlow Twins, 2021](https://arxiv.org/abs/2103.03230)
 - [BYOL, 2020](https://arxiv.org/abs/2006.07733)
 - [DCL & DCLW, 2021](https://arxiv.org/abs/2110.06848)
 - [DINO, 2021](https://arxiv.org/abs/2104.14294)
 - [MAE, 2021](https://arxiv.org/abs/2111.06377)
+- [MSN, 2022](https://arxiv.org/abs/2204.07141)
 - [MoCo, 2019](https://arxiv.org/abs/1911.05722)
 - [NNCLR, 2021](https://arxiv.org/abs/2104.14548)
 - [SimCLR, 2020](https://arxiv.org/abs/2002.05709)
@@ -47,6 +54,7 @@ Want to jump to the tutorials and see lightly in action?
 - [Train SimCLR on clothing data](https://docs.lightly.ai/tutorials/package/tutorial_simclr_clothing.html)
 - [Train SimSiam on satellite images](https://docs.lightly.ai/tutorials/package/tutorial_simsiam_esa.html)
 - [Use lightly with custom augmentations](https://docs.lightly.ai/tutorials/package/tutorial_custom_augmentations.html)
+- [Pre-train a Detectron2 Backbone with Lightly](https://docs.lightly.ai/tutorials/package/tutorial_pretrain_detectron2.html)
 
 Tutorials of using the lightly packge together with the Lightly Platform:
 
@@ -82,10 +90,10 @@ We strongly recommend that you install Lightly in a dedicated virtualenv, to avo
 
 ### Lightly in Action
 
-With lightly you can use latest self-supervised learning methods in a modular
+With lightly, you can use the latest self-supervised learning methods in a modular
 way using the full power of PyTorch. Experiment with different backbones,
-models and loss functions. The framework has been designed to be easy to use
-from the ground up.
+models, and loss functions. The framework has been designed to be easy to use
+from the ground up. [Find more examples in our docs](https://docs.lightly.ai/examples/models.html).
 
 ```python
 import torch
@@ -107,14 +115,31 @@ dataloader = torch.utils.data.DataLoader(
     shuffle=True,           # shuffling is important!
     collate_fn=collate_fn)  # apply transformations to the input images
 
+
+# create a PyTorch module for the SimCLR model
+class SimCLR(nn.Module):
+    def __init__(self, backbone):
+        super().__init__()
+        self.backbone = backbone
+        self.projection_head = models.modules.SimCLRProjectionHead(
+          input_dim=512, 
+          hidden_dim=512,
+          output_dim=128
+        )
+
+    def forward(self, x):
+        x = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(x)
+        return z
+
 # use a resnet backbone
-resnet = torchvision.models.resnet.resnet18()
-resnet = nn.Sequential(*list(resnet.children())[:-1])
+resnet = torchvision.models.resnet18()
+backbone = nn.Sequential(*list(resnet.children())[:-1])
 
 # build the simclr model
-model = models.SimCLR(resnet, num_ftrs=512)
+model = SimCLR(backbone)
 
-# use a criterion for self-supervised learning
+# lightly exposes building blocks such as loss functions
 criterion = loss.NTXentLoss(temperature=0.5)
 
 # get a PyTorch optimizer
@@ -124,12 +149,28 @@ optimizer = torch.optim.SGD(model.parameters(), lr=1e-0, weight_decay=1e-5)
 You can easily use another model like SimSiam by swapping the model and the
 loss function.
 ```python
-# build the simsiam model
-model = models.SimSiam(resnet, num_ftrs=512)
+# PyTorch module for the SimSiam model
+class SimSiam(nn.Module):
+    def __init__(self, backbone):
+        super().__init__()
+        self.backbone = backbone
+        self.projection_head = SimSiamProjectionHead(512, 512, 128)
+        self.prediction_head = SimSiamPredictionHead(128, 64, 128)
+
+    def forward(self, x):
+        f = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(f)
+        p = self.prediction_head(z)
+        z = z.detach()
+        return z, p
+
+model = SimSiam(backbone)
 
 # use the SimSiam loss function
-criterion = loss.SymNegCosineSimilarityLoss()
+criterion = loss.NegativeCosineSimilarity()
 ```
+You can [find a more complete example for SimSiam here.](https://docs.lightly.ai/examples/simsiam.html)
+
 
 Use PyTorch Lightning to train the model:
 
@@ -143,6 +184,10 @@ trainer.fit(
 
 Or train the model on 4 GPUs:
 ```python
+
+# use distributed version of loss functions
+criterion = NTXentLoss(gather_distributed=True)
+
 trainer = pl.Trainer(
     max_epochs=max_epochs, 
     gpus=4, 
@@ -154,30 +199,10 @@ trainer.fit(
 )
 ```
 
-We provide proper multi-GPU training with distributed gather and synchronized BatchNorm
+We provide proper multi-GPU training with distributed gather and synchronized BatchNorm.
 
 [Have a look at our docs regarding distributed training](https://docs.lightly.ai/getting_started/distributed_training.html)
 
-
-
-### Command-Line Interface
-
-Lightly is accessible also through a command-line interface (CLI).
-To train a SimCLR model on a folder of images you can simply run
-the following command:
-
-```
-lightly-train input_dir=/mydataset
-```
-
-To create an embedding of a dataset you can use:
-
-```
-lightly-embed input_dir=/mydataset checkpoint=/mycheckpoint
-```
-
-The embeddings with the corresponding filename are stored in a 
-[human-readable .csv file](https://docs.lightly.ai/getting_started/command_line_tool.html#create-embeddings-using-the-cli).
 
 
 ### Benchmarks
@@ -224,7 +249,7 @@ Below you can see a schematic overview of the different concepts present in the 
 
 
 ### Next Steps
-Head to the [documentation](https://docs.lightly.ai) and see the things you can achieve with Lightly!
+Head to the [documentation](https://docs.lightly.ai) and see the things you can achieve with lightly!
 
 
 ## Development
@@ -239,9 +264,9 @@ For more information about how to contribute have a look [here](CONTRIBUTING.md)
 
 ### Running Tests
 
-Unit tests are within the `tests` folder and we recommend to run them using 
+Unit tests are within the [tests folder](tests/) and we recommend running them using 
 [pytest](https://docs.pytest.org/en/stable/).
-There are two test configurations available. By default only a subset will be run.
+There are two test configurations available. By default, only a subset will be run.
 This is faster and should take less than a minute. You can run it using
 ```
 python -m pytest -s -v
@@ -287,10 +312,19 @@ pylint lightly/core.py
   we need to make training deep learning models more data efficient to achieve widespread adoption. One step to achieve this goal is by leveraging self-supervised learning. The company behind lightly commited to keep this framework open-source.
 
 - If this framework is free, how is the company behind lightly making money?
-  - Training self-supervised models is only part of the solution. The company behind lightly focuses on processing and analyzing embeddings created by self-supervised models. 
+  - Training self-supervised models is only one part of our solution. [The company behind lightly](https://lightly.ai/) focuses on processing and analyzing embeddings created by self-supervised models. 
   By building, what we call a self-supervised active learning loop we help companies understand and work with their data more efficiently. This framework acts as an interface
   for our platform to easily upload and download datasets, embeddings and models. Whereas 
   the platform will cost for additional features this frameworks will always remain free of charge (even for commercial use).
+
+
+## Lightly in Research
+
+- [Decoupled Contrastive Learning](https://arxiv.org/abs/2110.06848)
+- [DPCL: Constrative Representation Learning with Differential Privacy](https://assets.researchsquare.com/files/rs-1516950/v1_covered.pdf?c=1654486158)
+- [Self-Supervised Learning Methods for Label-Efficient Dental Caries Classification](https://www.mdpi.com/2075-4418/12/5/1237)
+- [solo-learn: A Library of Self-supervised Methods for Visual Representation Learning](https://www.jmlr.org/papers/volume23/21-1155/21-1155.pdf)
+
 
 ## BibTeX
 If you want to cite the framework feel free to use this:
