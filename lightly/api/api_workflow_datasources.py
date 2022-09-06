@@ -78,14 +78,14 @@ class _DatasourcesMixin:
                 warnings.warn(
                     UserWarning(
                         f"Absolute file paths like {s.file_name} are not supported"
-                        f" in relevant filenames file {relevant_filenames_file_name}"
+                        f" in relevant filenames file {relevant_filenames_file_name} due to blob storage"
                     )
                 )
             elif s.file_name.startswith(("./", "../")):
                 warnings.warn(
                     UserWarning(
                         f"Using dot notation ('./', '../') like in {s.file_name} is not supported"
-                        f" in relevant filenames file {relevant_filenames_file_name}"
+                        f" in relevant filenames file {relevant_filenames_file_name} due to blob storage"
                     )
                 )
             elif s.file_name in sample_map:
