@@ -88,13 +88,14 @@ class MockedEmbeddingsApi(EmbeddingsApi):
                 is_processed=True,
                 created_at=0,
             )
-        
+
         ]
 
     def get_embeddings_csv_write_url_by_id(self, dataset_id: str, **kwargs):
         _check_dataset_id(dataset_id)
         assert isinstance(dataset_id, str)
-        response_ = WriteCSVUrlData(signed_write_url="signed_write_url_valid", embedding_id="embedding_id_xyz")
+        response_ = WriteCSVUrlData(
+            signed_write_url="signed_write_url_valid", embedding_id="embedding_id_xyz")
         return response_
 
     def get_embeddings_by_dataset_id(self, dataset_id, **kwargs) -> List[DatasetEmbeddingData]:
@@ -130,7 +131,8 @@ class MockedJobsApi(JobsApi):
         assert isinstance(job_id, str)
         self.no_calls += 1
         if self.no_calls > 3:
-            result = JobStatusDataResult(type=JobResultType.SAMPLING, data="selection_tag_id_xyz")
+            result = JobStatusDataResult(
+                type=JobResultType.SAMPLING, data="selection_tag_id_xyz")
             response_ = JobStatusData(id="id_", status=JobState.FINISHED, wait_time_till_next_poll=0,
                                       created_at=1234, finished_at=1357, result=result)
         else:
@@ -211,20 +213,20 @@ class MockedTagsApi(TagsApi):
         assert all([tag.prev_tag_id != tag_id for tag in tags])
 
     def export_tag_to_label_studio_tasks(self, dataset_id: str, tag_id: str, **kwargs):
-        if (kwargs['page_offset'] and kwargs['page_offset']>0):
+        if (kwargs['page_offset'] and kwargs['page_offset'] > 0):
             return []
         return [{'id': 0, 'data': {'image': 'https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e213/readurlRedirect?type=full&CENSORED', 'lightlyFileName': '2008_006249_jpg.rf.fdd64460945ca901aa3c7e48ffceea83.jpg', 'lightlyMetaInfo': {'type': 'IMAGE', 'datasetId': '62383ab8f9cb290cd83ab5f9', 'fileName': '2008_006249_jpg.rf.fdd64460945ca901aa3c7e48ffceea83.jpg', 'exif': {}, 'index': 0, 'createdAt': 1647852727873, 'lastModifiedAt': 1647852727873, 'metaData': {'sharpness': 27.31265790443818, 'sizeInBytes': 48224, 'snr': 2.1969673926211217, 'mean': [0.24441662557257224, 0.4460417517905863, 0.6960984853824035], 'shape': [167, 500, 3], 'std': [0.12448681278605961, 0.09509570033043004, 0.0763725998175394], 'sumOfSquares': [6282.243860049413, 17367.702452895475, 40947.22059208768], 'sumOfValues': [20408.78823530978, 37244.486274513954, 58124.22352943069]}}}}]
 
     def export_tag_to_label_box_data_rows(self, dataset_id: str, tag_id: str, **kwargs):
-        if (kwargs['page_offset'] and kwargs['page_offset']>0):
+        if (kwargs['page_offset'] and kwargs['page_offset'] > 0):
             return []
         return [{'externalId': '2008_007291_jpg.rf.2fca436925b52ea33cf897125a34a2fb.jpg', 'imageUrl': 'https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e233/readurlRedirect?type=CENSORED'}]
 
     def export_tag_to_basic_filenames_and_read_urls(self, dataset_id: str, tag_id: str, **kwargs):
-        if (kwargs['page_offset'] and kwargs['page_offset']>0):
+        if (kwargs['page_offset'] and kwargs['page_offset'] > 0):
             return []
-        return [ { 'fileName': 'export-basic-test-sample-0.png', 'readUrl': 'https://storage.googleapis.com/somwhere/export-basic-test-sample-0.png?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=CENSORED' }]
-    
+        return [{'fileName': 'export-basic-test-sample-0.png', 'readUrl': 'https://storage.googleapis.com/somwhere/export-basic-test-sample-0.png?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=CENSORED'}]
+
     def export_tag_to_basic_filenames(self, dataset_id: str, tag_id: str):
         return """
 IMG_2276_jpeg_jpg.rf.7411b1902c81bad8cdefd2cc4eb3a97b.jpg
@@ -252,7 +254,6 @@ class MockedMappingsApi(MappingsApi):
         sample_names = [f'img_{i}.jpg' for i in range(self.n_samples)]
         sample_names.reverse()
         self.sample_names = sample_names
-        
 
     def get_sample_mappings_by_dataset_id(self, dataset_id, field, **kwargs):
         if dataset_id == 'xyz-no-tags':
@@ -271,35 +272,35 @@ class MockedSamplesApi(SamplesApi):
         samples = []
         for i, body in enumerate(self.sample_create_requests):
             sample = SampleData(
-                id=f'{i}_xyz', 
-                dataset_id='dataset_id_xyz', 
+                id=f'{i}_xyz',
+                dataset_id='dataset_id_xyz',
                 file_name=body.file_name,
                 type='Images',
             )
             samples.append(sample)
         return samples
-    
+
     def get_samples_partial_by_dataset_id(
         self,
-        dataset_id = 'dataset_id_xyz',
+        dataset_id='dataset_id_xyz',
         mode: SamplePartialMode = SamplePartialMode.FULL,
         **kwargs
     ) -> List[SampleData]:
         samples = []
         for i, body in enumerate(self.sample_create_requests):
-            if mode==SamplePartialMode.IDS:
+            if mode == SamplePartialMode.IDS:
                 sample = SampleDataModes(
                     id=f'{i}_xyz'
-                ) 
-            elif mode==SamplePartialMode.FILENAMES:
+                )
+            elif mode == SamplePartialMode.FILENAMES:
                 sample = SampleDataModes(
-                    id=f'{i}_xyz', 
+                    id=f'{i}_xyz',
                     file_name=body.file_name,
                 )
             else:
                 sample = SampleDataModes(
-                    id=f'{i}_xyz', 
-                    dataset_id=dataset_id, 
+                    id=f'{i}_xyz',
+                    dataset_id=dataset_id,
                     file_name=body.file_name,
                     type='Images',
                 )
@@ -340,12 +341,12 @@ class MockedDatasetsApi(DatasetsApi):
         no_datasets = 3
         self.default_datasets = [
             DatasetData(
-                name=f"dataset_{i}", 
-                id=f"dataset_{i}_id", 
+                name=f"dataset_{i}",
+                id=f"dataset_{i}_id",
                 last_modified_at=i,
-                type="", img_type="full", 
-                size_in_bytes=-1, 
-                n_samples=-1, 
+                type="", img_type="full",
+                size_in_bytes=-1,
+                n_samples=-1,
                 created_at=-1,
                 user_id='user_0',
             )
@@ -371,12 +372,12 @@ class MockedDatasetsApi(DatasetsApi):
         if body.name == 'xyz-no-tags':
             id = 'xyz-no-tags'
         dataset = DatasetData(
-            id=id, 
-            name=body.name, 
+            id=id,
+            name=body.name,
             last_modified_at=len(self.datasets) + 1,
-            type="Images", 
-            size_in_bytes=-1, 
-            n_samples=-1, 
+            type="Images",
+            size_in_bytes=-1,
+            n_samples=-1,
             created_at=-1,
             user_id='user_0',
         )
@@ -384,10 +385,10 @@ class MockedDatasetsApi(DatasetsApi):
         response_ = CreateEntityResponse(id=id)
         return response_
 
-
     def get_dataset_by_id(self, dataset_id):
         _check_dataset_id(dataset_id)
-        dataset = next((dataset for dataset in self.default_datasets if dataset_id == dataset.id), None)
+        dataset = next(
+            (dataset for dataset in self.default_datasets if dataset_id == dataset.id), None)
         if dataset is None:
             raise ApiException()
         return dataset
@@ -398,7 +399,8 @@ class MockedDatasetsApi(DatasetsApi):
 
     def delete_dataset_by_id(self, dataset_id, **kwargs):
         _check_dataset_id(dataset_id)
-        datasets_without_that_id = [dataset for dataset in self.datasets if dataset.id != dataset_id]
+        datasets_without_that_id = [
+            dataset for dataset in self.datasets if dataset.id != dataset_id]
         assert len(datasets_without_that_id) == len(self.datasets) - 1
         self.datasets = datasets_without_that_id
 
@@ -414,8 +416,10 @@ class MockedDatasourcesApi(DatasourcesApi):
 
     def reset(self):
 
-        local_datasource = DatasourceConfigBase(type='LOCAL', full_path='', purpose='INPUT_OUTPUT').to_dict()
-        azure_datasource = DatasourceConfigBase(type='AZURE', full_path='', purpose='INPUT_OUTPUT').to_dict()
+        local_datasource = DatasourceConfigBase(
+            type='LOCAL', full_path='', purpose='INPUT_OUTPUT').to_dict()
+        azure_datasource = DatasourceConfigBase(
+            type='AZURE', full_path='', purpose='INPUT_OUTPUT').to_dict()
 
         self._datasources = {
             "dataset_id_xyz": local_datasource,
@@ -551,24 +555,22 @@ class MockedDatasourcesApi(DatasourcesApi):
             data=samples,
         )
 
-
     def get_prediction_file_read_url_from_datasource_by_dataset_id(self, *args, **kwargs):
         return 'https://my-read-url.com'
-
 
     def update_datasource_by_dataset_id(
         self, body: DatasourceConfig, dataset_id: str, **kwargs
     ) -> None:
         # TODO: Enable assert once we switch/update to new api code generator.
         # assert isinstance(body, DatasourceConfig)
-        self._datasources[dataset_id] = body # type: ignore
+        self._datasources[dataset_id] = body  # type: ignore
 
     def update_datasource_processed_until_timestamp_by_dataset_id(
         self, body, dataset_id, **kwargs
     ) -> None:
         assert isinstance(body, DatasourceProcessedUntilTimestampRequest)
         to = body.processed_until_timestamp
-        self._processed_until_timestamp[dataset_id] = to # type: ignore
+        self._processed_until_timestamp[dataset_id] = to  # type: ignore
 
 
 class MockedComputeWorkerApi(DockerApi):
@@ -645,9 +647,11 @@ class MockedVersioningApi(VersioningApi):
     def get_minimum_compatible_pip_version(self, **kwargs):
         return "1.0.0"
 
+
 class MockedQuotaApi(QuotaApi):
     def get_quota_maximum_dataset_size(self, **kwargs):
         return "60000"
+
 
 def mocked_request_put(dst_url: str, data=IOBase) -> Response:
     assert isinstance(dst_url, str)
@@ -663,7 +667,8 @@ class MockedApiClient(ApiClient):
     def request(self, method, url, query_params=None, headers=None,
                 post_params=None, body=None, _preload_content=True,
                 _request_timeout=None):
-        raise ValueError("ERROR: calling ApiClient.request(), but this should be mocked.")
+        raise ValueError(
+            "ERROR: calling ApiClient.request(), but this should be mocked.")
 
     def call_api(self, resource_path, method,
                  path_params=None, query_params=None, header_params=None,
@@ -671,7 +676,8 @@ class MockedApiClient(ApiClient):
                  response_type=None, auth_settings=None, async_req=None,
                  _return_http_data_only=None, collection_formats=None,
                  _preload_content=True, _request_timeout=None):
-        raise ValueError("ERROR: calling ApiClient.call_api(), but this should be mocked.")
+        raise ValueError(
+            "ERROR: calling ApiClient.call_api(), but this should be mocked.")
 
 
 class MockedApiWorkflowClient(ApiWorkflowClient):
@@ -690,12 +696,14 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         self._embeddings_api = MockedEmbeddingsApi(api_client=self.api_client)
         self._samples_api = MockedSamplesApi(api_client=self.api_client)
         self._mappings_api = MockedMappingsApi(api_client=self.api_client,
-                                              samples_api=self._samples_api)
+                                               samples_api=self._samples_api)
         self._scores_api = MockedScoresApi(api_client=self.api_client)
         self._datasets_api = MockedDatasetsApi(api_client=self.api_client)
-        self._datasources_api = MockedDatasourcesApi(api_client=self.api_client)
+        self._datasources_api = MockedDatasourcesApi(
+            api_client=self.api_client)
         self._quota_api = MockedQuotaApi(api_client=self.api_client)
-        self._compute_worker_api = MockedComputeWorkerApi(api_client=self.api_client)
+        self._compute_worker_api = MockedComputeWorkerApi(
+            api_client=self.api_client)
 
         lightly.api.api_workflow_client.requests.put = mocked_request_put
 
@@ -713,7 +721,8 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         n_rows: int = self.n_embedding_rows_on_server
         n_dims: int = self.n_dims_embeddings_on_server
 
-        rows_csv = [['filenames'] + [f'embedding_{i}' for i in range(n_dims)] + ['labels']]
+        rows_csv = [['filenames'] +
+                    [f'embedding_{i}' for i in range(n_dims)] + ['labels']]
         for i in range(n_rows):
             row = [f'{self.embeddings_filename_base}_{i}.jpg']
             for _ in range(n_dims):
@@ -737,4 +746,5 @@ class MockedApiWorkflowSetup(unittest.TestCase):
     EMBEDDINGS_FILENAME_BASE: str = 'sample'
 
     def setUp(self, token="token_xyz",  dataset_id="dataset_id_xyz") -> None:
-        self.api_workflow_client = MockedApiWorkflowClient(token=token, dataset_id=dataset_id)
+        self.api_workflow_client = MockedApiWorkflowClient(
+            token=token, dataset_id=dataset_id)
