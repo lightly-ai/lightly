@@ -88,6 +88,10 @@ client.schedule_compute_worker_run(
                     "type": "DIVERSITY",
                 }
             },
+            # Optionally, you can combine diversity selection with active learning
+            # to prefer selecting objects the model struggles with.
+            # If you want that, just include the following code:
+            """
             {
                 "input": {
                     "type": "SCORES",
@@ -98,6 +102,7 @@ client.schedule_compute_worker_run(
                     "type": "WEIGHTS"
                 }
             }
+            """
         ]
     },
     lightly_config={
