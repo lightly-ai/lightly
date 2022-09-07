@@ -672,7 +672,6 @@ class MockedApiClient(ApiClient):
 
 class MockedAPICollaboration(CollaborationApi):
     def create_or_update_shared_access_config_by_dataset_id(self, body, dataset_id, **kwargs):
-    #def share_dataset(self, dataset_id: str, user_emails: List[str]):
         assert isinstance(body, SharedAccessConfigCreateRequest)
         return CreateEntityResponse(id='access-share-config')
 
