@@ -5,7 +5,7 @@ Selection
 
 Lightly allows you to specify the subset to be selected based on several objectives.
 
-E.g. you can specify that the images in the subset should be visually diverse, be images the model struggles with (Active Learning),
+E.g. you can specify that the images in the subset should be visually diverse, be images the model struggles with (active learning),
 should only be sharp images, or have a certain distribution of classes, e.g. be 50% from sunny, 30% from cloudy and 20% from rainy weather.
 
 Each of these objectives is defined by a `strategy`. A strategy consists of two parts:
@@ -15,7 +15,7 @@ Each of these objectives is defined by a `strategy`. A strategy consists of two 
 
 Lightly allows you to specify several objectives at the same time. The algorithms try to fulfil all objectives simultaneously.
 
-Lightly's data selection algorithms are supporting four types of input:
+Lightly's data selection algorithms support four types of input:
 
 - **Embeddings** computed using `our open source framework for self-supervised learning <https://github.com/lightly-ai/lightly>`_
 - **Lightly metadata** are metadata of images like the sharpness and computed out of the images themselves by Lightly.
@@ -25,9 +25,9 @@ Lightly's data selection algorithms are supporting four types of input:
 Prerequisites
 -------------
 
-For using the selection, you must have
+In order to use the selection feature, you need to
 
-- Started the Lightly Worker in worker mode. See :ref:`worker-register`.
+- Start the Lightly Worker in worker mode. See :ref:`worker-register`.
 
 - Set up a dataset in the Lightly Platform with a cloud storage as datasource. See :ref:`worker-creating-a-dataset`
 
@@ -35,7 +35,7 @@ Scheduling a Lightly Worker run with selection
 ----------------------------------------------
 
 For scheduling a Lightly Worker run with a specific selection,
-you can use the python client and its :py:`schedule_compute_worker_run` method.
+you can use the python client and its :py:meth:`schedule_compute_worker_run <lightly.api.api_workflow_client.ApiWorkflowClient.schedule_compute_worker_run>` method.
 You specify the selection with the :code:`selection_config` argument.
 See :ref:`worker-scheduling-a-job` for reference.
 
@@ -69,7 +69,7 @@ The configuration of a selection needs to specify both the maximum number of sam
     }
 
 The variable :code:`n_samples` must be a positive integer specifying the absolute number of samples which should be selected.
-Alternative to :code:`n_samples`, you can also set :code:`proportion_samples` to set the number of samples to be selected relative to the input dataset size.
+Alternatively to :code:`n_samples`, you can also set :code:`proportion_samples` to set the number of samples to be selected relative to the input dataset size.
 E.g. set it to `0.1` to select 10% of all samples.
 Please set either one or the other. Setting both or none of them will cause an error.
 
@@ -280,6 +280,7 @@ There are several types of selection strategies, all trying to reach different o
                 "operation": "BIGGER_EQUAL"
             }
 
+        This will keep all samples whose value (specified by the input) is >= 20 and remove all others.
         The allowed operations are :code:`SMALLER`, :code:`SMALLER_EQUAL`, :code:`BIGGER`, :code:`BIGGER_EQUAL`.
 
     .. tab:: BALANCE

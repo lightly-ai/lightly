@@ -121,7 +121,7 @@ class _ComputeWorkerMixin:
                 docs: https://docs.lightly.ai/lightly.cli.html#default-settings
             selection_config:
                 Selection configuration. See the docs for more information:
-                TODO: add link
+                https://docs.lightly.ai/docker/getting_started/selection.html
 
         Returns:
             The id of the scheduled run.
