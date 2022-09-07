@@ -588,13 +588,13 @@ class TagsApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def export_tag_to_basic_read_url_mapping(self, dataset_id, tag_id, **kwargs):  # noqa: E501
-        """export_tag_to_basic_read_url_mapping  # noqa: E501
+    def export_tag_to_basic_filenames_and_read_urls(self, dataset_id, tag_id, **kwargs):  # noqa: E501
+        """export_tag_to_basic_filenames_and_read_urls  # noqa: E501
 
         Export the samples filenames to map with their readURL.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.export_tag_to_basic_read_url_mapping(dataset_id, tag_id, async_req=True)
+        >>> thread = api.export_tag_to_basic_filenames_and_read_urls(dataset_id, tag_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
@@ -610,18 +610,18 @@ class TagsApi(object):
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.export_tag_to_basic_read_url_mapping_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
+            return self.export_tag_to_basic_filenames_and_read_urls_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
         else:
-            (data) = self.export_tag_to_basic_read_url_mapping_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
+            (data) = self.export_tag_to_basic_filenames_and_read_urls_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
             return data
 
-    def export_tag_to_basic_read_url_mapping_with_http_info(self, dataset_id, tag_id, **kwargs):  # noqa: E501
-        """export_tag_to_basic_read_url_mapping  # noqa: E501
+    def export_tag_to_basic_filenames_and_read_urls_with_http_info(self, dataset_id, tag_id, **kwargs):  # noqa: E501
+        """export_tag_to_basic_filenames_and_read_urls  # noqa: E501
 
         Export the samples filenames to map with their readURL.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.export_tag_to_basic_read_url_mapping_with_http_info(dataset_id, tag_id, async_req=True)
+        >>> thread = api.export_tag_to_basic_filenames_and_read_urls_with_http_info(dataset_id, tag_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
@@ -647,18 +647,18 @@ class TagsApi(object):
             if key not in all_params:
                 raise TypeError(
                     "Got an unexpected keyword argument '%s'"
-                    " to method export_tag_to_basic_read_url_mapping" % key
+                    " to method export_tag_to_basic_filenames_and_read_urls" % key
                 )
             params[key] = val
         del params['kwargs']
         # verify the required parameter 'dataset_id' is set
         if self.api_client.client_side_validation and ('dataset_id' not in params or
                                                        params['dataset_id'] is None):  # noqa: E501
-            raise ValueError("Missing the required parameter `dataset_id` when calling `export_tag_to_basic_read_url_mapping`")  # noqa: E501
+            raise ValueError("Missing the required parameter `dataset_id` when calling `export_tag_to_basic_filenames_and_read_urls`")  # noqa: E501
         # verify the required parameter 'tag_id' is set
         if self.api_client.client_side_validation and ('tag_id' not in params or
                                                        params['tag_id'] is None):  # noqa: E501
-            raise ValueError("Missing the required parameter `tag_id` when calling `export_tag_to_basic_read_url_mapping`")  # noqa: E501
+            raise ValueError("Missing the required parameter `tag_id` when calling `export_tag_to_basic_filenames_and_read_urls`")  # noqa: E501
 
         collection_formats = {}
 

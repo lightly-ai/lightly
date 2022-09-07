@@ -52,6 +52,10 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
         self.assertIsNotNone(tasks)
         self.assertTrue(all(isinstance(task, dict) for task in tasks))
 
+    def test_export_tag_to_basic_filenames_and_read_urls(self):
+        mappings = self.api_workflow_client.export_tag_to_basic_filenames_and_read_urls('initial-tag')
+        self.assertIsNotNone(mappings)
+        self.assertTrue(all(isinstance(mapping, dict) for mapping in mappings))
 
     def test_export_filenames_by_tag_name(self):
         filenames = self.api_workflow_client.export_filenames_by_tag_name('initial-tag')

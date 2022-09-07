@@ -308,7 +308,7 @@ class _DownloadDatasetMixin:
         return self.export_filenames_by_tag_id(tag.id)    
 
 
-    def export_read_url_mapping_by_tag_id(
+    def export_filenames_and_read_urls_by_tag_id(
         self,
         tag_id: str,
     ) -> List[Dict]:
@@ -323,14 +323,14 @@ class _DownloadDatasetMixin:
 
         """
         mappings = paginate_endpoint(
-            self._tags_api.export_tag_to_basic_read_url_mapping,
+            self._tags_api.export_tag_to_basic_filenames_and_read_urls,
             page_size=10000,
             dataset_id=self.dataset_id,
             tag_id=tag_id
         )
         return mappings
 
-    def export_read_url_mapping_by_tag_name(
+    def export_filenames_and_read_urls_by_tag_name(
         self,
         tag_name: str,
     ) -> List[Dict]:
@@ -345,7 +345,7 @@ class _DownloadDatasetMixin:
 
         Examples:
             >>> # write json file which can be used to access the actual file contents.
-            >>> mappings = client.export_read_url_mapping_by_tag_name(
+            >>> mappings = client.export_filenames_and_read_urls_by_tag_name(
             >>>     'initial-tag'
             >>> )
             >>> 
@@ -354,4 +354,4 @@ class _DownloadDatasetMixin:
 
         """
         tag = self.get_tag_by_name(tag_name)
-        return self.export_read_url_mapping_by_tag_id(tag.id)
+        return self.export_filenames_and_read_urls_by_tag_id(tag.id)
