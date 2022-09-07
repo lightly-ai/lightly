@@ -125,7 +125,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
 
         config_api = self._check_if_openapi_generated_obj_is_valid(config)
 
-def test__selection_config_from_dict() -> None:
+def test_selection_config_from_dict() -> None:
     cfg = {
         "n_samples": 10,
         "proportion_samples": 0.1,
@@ -147,7 +147,7 @@ def test__selection_config_from_dict() -> None:
             },
         ]
     }
-    selection_cfg = api_workflow_compute_worker._selection_config_from_dict(cfg)
+    selection_cfg = api_workflow_compute_worker.selection_config_from_dict(cfg)
     assert selection_cfg.n_samples == 10
     assert selection_cfg.proportion_samples == 0.1
     assert selection_cfg.strategies is not None
@@ -165,19 +165,19 @@ def test__selection_config_from_dict() -> None:
     assert isinstance(cfg['strategies'][0]['input'], dict)
 
 
-def test__selection_config_from_dict__missing_strategies() -> None:
+def test_selection_config_from_dict__missing_strategies() -> None:
     cfg = {}
-    selection_cfg = api_workflow_compute_worker._selection_config_from_dict(cfg)
+    selection_cfg = api_workflow_compute_worker.selection_config_from_dict(cfg)
     assert selection_cfg.strategies == []
 
 
-def test__selection_config_from_dict__extra_key() -> None:
+def test_selection_config_from_dict__extra_key() -> None:
     cfg = {"strategies": [], "invalid-key": 0}
     with pytest.raises(TypeError, match="got an unexpected keyword argument 'invalid-key'"):
-        api_workflow_compute_worker._selection_config_from_dict(cfg)
+        api_workflow_compute_worker.selection_config_from_dict(cfg)
 
 
-def test__selection_config_from_dict__extra_stratey_key() -> None:
+def test_selection_config_from_dict__extra_stratey_key() -> None:
     cfg = {
         "strategies": [
             {
@@ -188,9 +188,9 @@ def test__selection_config_from_dict__extra_stratey_key() -> None:
         ],
     }
     with pytest.raises(TypeError, match="got an unexpected keyword argument 'invalid-key'"):
-        api_workflow_compute_worker._selection_config_from_dict(cfg)
+        api_workflow_compute_worker.selection_config_from_dict(cfg)
 
-def test__selection_config_from_dict__extra_input_key() -> None:
+def test_selection_config_from_dict__extra_input_key() -> None:
     cfg = {
         "strategies": [
             {
@@ -200,10 +200,10 @@ def test__selection_config_from_dict__extra_input_key() -> None:
         ],
     }
     with pytest.raises(TypeError, match="got an unexpected keyword argument 'datasetId'"):
-        api_workflow_compute_worker._selection_config_from_dict(cfg)
+        api_workflow_compute_worker.selection_config_from_dict(cfg)
 
 
-def test__selection_config_from_dict__extra_strategy_strategy_key() -> None:
+def test_selection_config_from_dict__extra_strategy_strategy_key() -> None:
     cfg = {
         "strategies": [
             {
@@ -213,10 +213,10 @@ def test__selection_config_from_dict__extra_strategy_strategy_key() -> None:
         ],
     }
     with pytest.raises(TypeError, match="got an unexpected keyword argument 'stoppingConditionMinimumDistance'"):
-        api_workflow_compute_worker._selection_config_from_dict(cfg)
+        api_workflow_compute_worker.selection_config_from_dict(cfg)
 
 
-def test__selection_config_from_dict__typo() -> None:
+def test_selection_config_from_dict__typo() -> None:
     cfg = {"nSamples": 10}
     with pytest.raises(TypeError, match="got an unexpected keyword argument 'nSamples'"):
-        api_workflow_compute_worker._selection_config_from_dict(cfg)
+        api_workflow_compute_worker.selection_config_from_dict(cfg)
