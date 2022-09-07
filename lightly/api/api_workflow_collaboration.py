@@ -14,7 +14,7 @@ from lightly.openapi_generated.swagger_client.models.dataset_type import Dataset
 
 class _CollaborationMixin:
 
-    def share_dataset(self, dataset_id: str, user_emails: List[str]):
+    def share_dataset_only_with(self, dataset_id: str, user_emails: List[str]):
         """Shares dataset with a list of users
 
         This method overwrites the list of users that have had access to the dataset
