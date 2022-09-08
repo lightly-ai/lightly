@@ -551,6 +551,50 @@ It is also possible to directly download the actual files themselves as follows:
     )
 
 
+Sharing Datasets
+----------------
+
+Once a dataset has been created we can also make it accessible to other users by
+sharing it. Sharing works through e-mail addresses. 
+
+.. code-block:: python
+    :caption: Share a dataset
+
+    # we first need to have an api client (create a new or use an existing one)
+    client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+
+    # share a dataset with a user
+    client.share_dataset_only_with(dataset_id="MY_DATASET_ID", user_emails=["user@something.com"])
+
+    # share dataset with a user while keep sharing it with previous users
+    user_emails = client.get_shared_users(dataset_id="MY_DATASET_ID")
+    user_emails.append("additional_user2@something.com")
+    client.share_dataset_only_with(dataset_id="MY_DATASET_ID", user_emails=user_emails)
+
+    # revoke access to all users
+    client.share_dataset_only_with(dataset_id="MY_DATASET_ID", user_emails=[])
+
+
+If you want to get a list of users that have access to a given dataset we can do 
+this using the following code: 
+
+.. code-block:: python
+    :caption: Share a dataset
+
+    # we first need to have an api client (create a new or use an existing one)
+    client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+
+    # get a list of users that have access to a given dataset
+    client.get_shared_users(dataset_id="MY_DATASET_ID")
+    print(users)
+    # ["user@something.com"]
+
+
+.. note::
+
+    You can share a dataset immediately after creating the dataset. You don't have
+    to wait for a Lightly Worker run to complete!
+
 
 Reporting
 ---------

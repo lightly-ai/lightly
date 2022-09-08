@@ -9,6 +9,7 @@ from lightly.api.api_workflow_tags import _TagsMixin
 from requests import Response
 
 from lightly.__init__ import __version__
+from lightly.api.api_workflow_collaboration import _CollaborationMixin
 from lightly.api.api_workflow_compute_worker import _ComputeWorkerMixin
 from lightly.api.api_workflow_datasets import _DatasetsMixin
 from lightly.api.api_workflow_datasources import _DatasourcesMixin
@@ -21,6 +22,7 @@ from lightly.api.bitmask import BitMask
 from lightly.api.utils import DatasourceType, get_signed_url_destination, getenv
 from lightly.api.version_checking import get_minimum_compatible_version, \
     version_compare
+from lightly.openapi_generated.swagger_client.api.collaboration_api import CollaborationApi
 from lightly.openapi_generated.swagger_client import ScoresApi, \
     QuotaApi, MetaDataConfigurationsApi
 from lightly.openapi_generated.swagger_client.api.datasets_api import \
@@ -56,6 +58,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                         _TagsMixin,
                         _DatasourcesMixin,
                         _ComputeWorkerMixin,
+                        _CollaborationMixin,
                         ):
     """Provides a uniform interface to communicate with the api 
     
@@ -100,6 +103,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         if embedding_id is not None:
             self.embedding_id = embedding_id
 
+        self._collaboration_api = CollaborationApi(api_client=self.api_client)
         self._compute_worker_api = DockerApi(api_client=self.api_client)
         self._datasets_api = DatasetsApi(api_client=self.api_client)
         self._datasources_api = DatasourcesApi(api_client=self.api_client)

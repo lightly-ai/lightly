@@ -2,9 +2,9 @@ from typing import List
 
 from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
+
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
 from lightly.openapi_generated.swagger_client.rest import ApiException
-from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 
 class _DatasetsMixin:
 
