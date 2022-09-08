@@ -75,14 +75,22 @@ client.schedule_compute_worker_run(
         "enable_training": False,
         "pretagging": True,
         "pretagging_debug": False,
-        "method": "coreset",
-        "stopping_condition": {
-          "n_samples": 0.1,
-          "min_distance": -1
-        },
         "object_level": {
             "task_name": "lightly_pretagging"
         }
+    },
+    selection_config={
+        "n_samples": 100,
+        "strategies": [
+            {
+                "input": {
+                    "type": "EMBEDDINGS"
+                },
+                "strategy": {
+                    "type": "DIVERSITY",
+                }
+            }
+        ]
     },
     lightly_config={
         'loader': {

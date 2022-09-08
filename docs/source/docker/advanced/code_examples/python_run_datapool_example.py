@@ -3,6 +3,7 @@ import lightly
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 
+
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
 
@@ -74,11 +75,20 @@ client.schedule_compute_worker_run(
         'enable_training': False,
         'pretagging': False,
         'pretagging_debug': False,
-        'method': 'coreset',
-        'stopping_condition': {
-            'n_samples': -1,
-            'min_distance': 0.05 # we set the min_distance to 0.05 in this example
-        }
+    },
+    selection_config={
+        "n_samples": 100,
+        "strategies": [
+            {
+                "input": {
+                    "type": "EMBEDDINGS"
+                },
+                "strategy": {
+                    "type": "DIVERSITY",
+                    "stopping_condition_minimum_distance": 0.1
+                }
+            }
+        ]
     },
     lightly_config={
         'loader': {

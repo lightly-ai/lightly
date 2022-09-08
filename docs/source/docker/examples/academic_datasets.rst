@@ -45,11 +45,13 @@ bucket under `s3://dataset/imagenet/`. Start by creating a dataset and configuri
 
 
 
-Next, we schedule a job which extracts 500000 frames with the default Coreset strategy which
-selects a diverse set of frames:
+Next, we schedule a job which extracts 500000 images with the CORESET strategy which
+selects a visually diverse set of images:
 
 
 .. code-block:: python
+
+    # in this example we use a diversifying selection strategy (CORESET)
 
     client.schedule_compute_worker_run(
         worker_config={
@@ -57,12 +59,20 @@ selects a diverse set of frames:
             "remove_exact_duplicates": True,
             "enable_training": False,
             "pretagging": False,
-            "pretagging_debug": False,
-            "method": "coreset",
-            "stopping_condition": {
-                "n_samples": 500000,
-                "min_distance": -1
-            }
+            "pretagging_debug": False
+        },
+        selection_config = {
+            "n_samples": 500000,
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSITY"
+                    }
+                }
+            ]
         }
     )
 
@@ -124,18 +134,29 @@ The following command schedules a job to select a subset from Cityscapes:
 
 .. code-block:: python
 
+    # in this example we use a diversifying selection strategy (CORESET)
+
     client.schedule_compute_worker_run(
         worker_config={
             "enable_corruptness_check": False,
             "remove_exact_duplicates": True,
             "enable_training": False,
             "pretagging": False,
-            "pretagging_debug": False,
-            "method": "coreset",
-            "stopping_condition": {
-                "n_samples": -1,
-                "min_distance": 0.2,
-            }
+            "pretagging_debug": False
+        },
+        selection_config = {
+            "proportion_samples": 1.0,
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSITY",
+                        "stopping_condition_minimum_distance": 0.2
+                    }
+                }
+            ]
         }
     )
 
@@ -170,11 +191,20 @@ the new images.
             "enable_training": False,
             "pretagging": False,
             "pretagging_debug": False,
-            "method": "coreset",
-            "stopping_condition": {
-                "n_samples": -1,
-                "min_distance": 0.2,
-            }
+        },
+        selection_config = {
+            "proportion_samples": 1.0,
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSITY",
+                        "stopping_condition_minimum_distance": 0.2
+                    }
+                }
+            ]
         }
     )
 

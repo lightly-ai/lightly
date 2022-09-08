@@ -86,7 +86,7 @@ The worker requires **read and write access** to this directory.
 Now, let's see how this will look in action!
 
 
-.. _rst-worker-creating-a-dataset:
+.. _worker-creating-a-dataset:
 
 Creating a Dataset
 ------------------
@@ -227,6 +227,7 @@ make sure to specify the `dataset_id` in the constructor.
     :ref:`dataset-creation-aws-bucket`, and :ref:`dataset-creation-azure-storage` for help
     with configuring the different roles.
 
+.. _worker-scheduling-a-job:
 
 Scheduling a Simple Job
 -----------------------
@@ -240,14 +241,19 @@ Now that everything is in place, let's configure and run a simple job.
         worker_config={
             "enable_corruptness_check": True,
             "remove_exact_duplicates": True,
-            "enable_training": False,
-            "pretagging": False,
-            "pretagging_debug": False,
-            "method": "coreset",
-            "stopping_condition": {
-                "n_samples": 0.1,
-                "min_distance": -1
-            }
+        },
+        selection_config={
+            "n_samples": 50,
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSITY"
+                    }
+                }
+            ]
         }
     )
 
@@ -258,28 +264,18 @@ The command schedules a job with the following configurations:
 
 - :code:`remove_exact_duplicates` Removes exact duplicates if **True**.
 
-- :code:`stopping_condition.n_samples` **0.1** selects 10% of the images using the
-  default method (coreset). Selecting 10% means that the remaining dataset
-  will be 10% of the initial dataset size. 
-  You can also specify the exact number of remaining images 
-  by setting the value to an integer.
+- The :code:`selection_config` will make the Lightly Worker choose 50 samples 
+  from the initial dataset that are as diverse as possible. This is done using the
+  embeddings which are automatically created during the run.
 
+For more details and options regarding the worker config, head to :ref:`docker-configuration`.
+For more details and options regarding the selection config, head to :ref:`worker-selection`.
 
 The worker should pick up the job after a few seconds and start working on it. The
 status of the current run and scheduled jobs can be seen under https://app.lightly.ai/compute/runs
 
 After the job was processed, the selected data will be accessible in the configured dataset. The
 report can be accessed from the compute worker runs page mentioned just above.
-
-
-There's an alternative stopping condition to `n_samples`, the `min_distance`
-
-- :code:`stopping_condition.min_distance` **0.2** would remove all samples which are
-  closer to each other than 0.2. This allows you to specify the minimum allowed distance between two image 
-  embeddings in the output dataset. After normalizing the input embeddings 
-  to unit length, this value should be between 0 and 2.0. This is often a more 
-  convenient method when working with different data sources and trying to 
-  combine them in a balanced way.
 
 
 .. _training-a-self-supervised-model:
@@ -296,20 +292,27 @@ epochs on the input images before embedding the images and selecting from them.
 
 
 .. code-block:: python
+    :emphasize-lines: 5
     :caption: Scheduling a job with self-supervised training from Python
 
     client.schedule_compute_worker_run(
         worker_config={
             "enable_corruptness_check": True,
             "remove_exact_duplicates": True,
-            "enable_training": True,
-            "pretagging": False,
-            "pretagging_debug": False,
-            "method": "coreset",
-            "stopping_condition": {
-                "n_samples": 0.1,
-                "min_distance": -1
-            }
+            "enable_training": True
+        },
+        selection_config={
+            "n_samples": 50,
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSITY"
+                    }
+                }
+            ]
         }
     )
 
@@ -320,13 +323,13 @@ Hence, for training and embedding the user can access all the settings from the 
 Here are some of the most common parameters for the **lightly_config**
 you might want to change:
 
-- :code:`trainer.max_epochs` determines the number of epochs your SSL model should be trained for.
 - :code:`loader.num_workers` specifies the number of background workers for data processing.
   -1 uses the number of available CPU cores. 
+- :code:`trainer.max_epochs` determines the number of epochs your SSL model should be trained for.
 
 
 .. code-block:: python
-    :emphasize-lines: 18, 29
+    :emphasize-lines: 24, 35
     :caption: Accessing the lightly parameters from Python
 
     client.schedule_compute_worker_run(
@@ -334,13 +337,19 @@ you might want to change:
             "enable_corruptness_check": True,
             "remove_exact_duplicates": True,
             "enable_training": True,
-            "pretagging": False,
-            "pretagging_debug": False,
-            "method": "coreset",
-            "stopping_condition": {
-                "n_samples": 0.1,
-                "min_distance": -1
-            }
+        },
+        selection_config={
+            "n_samples": 50,
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSITY"
+                    }
+                }
+            ]
         },
         lightly_config={
             'loader': {
@@ -404,21 +413,27 @@ a `shared directory` and then passing the checkpoint filename to the container.
 
 .. code-block:: python
     :caption: Scheduling a job with a pre-trained checkpoint
-    :emphasize-lines: 13
+    :emphasize-lines: 6
 
     client.schedule_compute_worker_run(
         worker_config={
             "enable_corruptness_check": True,
             "remove_exact_duplicates": True,
             "enable_training": False, # set to True if you want to continue training
-            "pretagging": False,
-            "pretagging_debug": False,
-            "method": "coreset",
-            "stopping_condition": {
-                "n_samples": 0.1,
-                "min_distance": -1
-            }
             "checkpoint": "lightly_epoch_X.ckpt"
+        },
+        selection_config={
+            "n_samples": 50,
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSITY"
+                    }
+                }
+            ]
         }
     )
 
@@ -474,21 +489,27 @@ The output bucket should then look like this:
 The corresponding Python command to submit a job would then be as follows:
 
 .. code-block:: python
+    :emphasize-lines: 3
     :caption: Scheduling a job with relevant filenames from Python
 
     client.schedule_compute_worker_run(
         worker_config={
             "relevant_filenames_file": ".lightly/relevant_filenames.txt",
             "enable_corruptness_check": True,
-            "remove_exact_duplicates": True,
-            "enable_training": False,
-            "pretagging": False,
-            "pretagging_debug": False,
-            "method": "coreset",
-            "stopping_condition": {
-                "n_samples": 0.1,
-                "min_distance": -1
-            }
+            "remove_exact_duplicates": True
+        },
+        selection_config={
+            "n_samples": 50,
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS"
+                    },
+                    "strategy": {
+                        "type": "DIVERSITY"
+                    }
+                }
+            ]
         }
     )
 

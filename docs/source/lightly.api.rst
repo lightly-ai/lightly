@@ -26,3 +26,6 @@ lightly.api
 
 .. automodule:: lightly.api.api_workflow_upload_metadata
    :members:
+
+.. automodule:: lightly.api.api_workflow_compute_worker
+   :members:
