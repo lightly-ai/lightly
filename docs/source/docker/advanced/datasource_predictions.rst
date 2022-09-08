@@ -216,15 +216,21 @@ the predictions are made and predictions is a list of `Prediction Singletons` fo
 - :code:`probabilities` are the per class probabilities of the prediction
 - :code:`score` is the final prediction score/confidence
 
-.. note:: Some frameworks only provide the score as the model output. Having
-          also the class probabilities can be valuable information for 
+.. note:: Some frameworks only provide the score as the model output. 
+          The score is typically calculated during the Non-Max Suppression (NMS)
+          by multiplying the objectness probability with the highest class probability.
+
+          But having not only a single score, but also the class probabilities 
+          can be valuable information for 
           active learning. For example, an object detection model could have a 
           score of `0.6` and the predicted class is a tree. However, without 
-          class probabilities we cannot know what the prediction margin or 
+          class probabilities, we cannot know what the prediction margin or 
           entropy is. With the class 
-          probabilities we would additionally know, whether the model thought 
+          probabilities we would additionally know whether the model thought 
           that it's `0.5` tree, `0.4` person and `0.1` car or `0.5` tree, 
           `0.25` person and `0.25` car.
+
+          
 
 Example classification:
 
