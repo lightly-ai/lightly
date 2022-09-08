@@ -568,9 +568,6 @@ this using the following code:
     print(users)
     # ["user@something.com"]
 
-You find more details about the individual API requests in the docs for the
-Python client: :py:class:`lightly.api.api_workflow_client`
-
 
 .. note::
 
