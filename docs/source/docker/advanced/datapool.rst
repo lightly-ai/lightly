@@ -42,7 +42,7 @@ has the following advantages:
 
 If you want to search all data in your bucket for new samples
 instead of only newly added data,
-then set `datasource.process_all=True` in your docker run command. This has the
+then set :code:`'datasource.process_all': True` in your worker config. This has the
 same effect as creating a new Lightly dataset and running the Lightly Worker from scratch
 on the full dataset. We process all data instead of only the newly added ones.
 
@@ -68,7 +68,9 @@ first time.
     `-- terrace1-c0.avi
 
 Now we can run the following code to select a subset based on the 
-`min_distance` stopping condition. 
+:code:`'stopping_condition_minimum_distance': 0.1` stopping condition. In a first,
+selection run we only select images with the specific minimum distance between 
+each other based on the embeddings. 
 
 .. literalinclude:: ./code_examples/python_run_datapool_example.py
   :linenos:
@@ -106,4 +108,4 @@ How It Works
 The Lightly Datapool keeps track of the selected samples in a csv file called
 `datapool_latest.csv`. It contains the filenames of the selected images and their
 embeddings. This feature is currently only supported without training of a custom
-model. Please make sure `enable_training=False` is set in your worker config.
+model. Please make sure :code:`'enable_training': False` is set in your worker config.

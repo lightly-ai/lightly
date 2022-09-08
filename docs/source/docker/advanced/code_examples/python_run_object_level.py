@@ -73,14 +73,37 @@ client.schedule_compute_worker_run(
         "enable_training": False,
         "pretagging": False,
         "pretagging_debug": False,
-        "method": "coreset",
-        "stopping_condition": {
-          "n_samples": 0.1, # stopping condition is now based on objects
-          "min_distance": -1
-        },
         "object_level": { # used for object level workflow
             "task_name": "vehicles_object_detections" 
         },
+    },
+    selection_config={
+        "n_samples": 100,
+        "strategies": [
+            {
+                "input": {
+                    "type": "EMBEDDINGS"
+                },
+                "strategy": {
+                    "type": "DIVERSITY",
+                }
+            },
+            # Optionally, you can combine diversity selection with active learning
+            # to prefer selecting objects the model struggles with.
+            # If you want that, just include the following code:
+            """
+            {
+                "input": {
+                    "type": "SCORES",
+                    "task": "vehicles_object_detections", # change to your task
+                    "score": "uncertainty_entropy" # change to your preferred score
+                },
+                "strategy": {
+                    "type": "WEIGHTS"
+                }
+            }
+            """
+        ]
     },
     lightly_config={
         'loader': {

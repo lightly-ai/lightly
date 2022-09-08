@@ -333,11 +333,19 @@ Set the `YOUR_LIGHTLY_TOKEN`, `YOUR_DATASET_ID` accordingly.
                     "enable_training": False,
                     "pretagging": False,
                     "pretagging_debug": False,
-                    "method": "coreset",
-                    "stopping_condition": {
-                        "n_samples": 0.1,
-                        "min_distance": -1
-                    }
+                },
+                selection_config={
+                    "n_samples": 50,
+                    "strategies": [
+                        {
+                            "input": {
+                                "type": "EMBEDDINGS"
+                            },
+                            "strategy": {
+                                "type": "DIVERSITY"
+                            }
+                        }
+                    ]
                 }
             )
 
