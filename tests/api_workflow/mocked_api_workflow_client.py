@@ -1,5 +1,6 @@
 import csv
 import io
+from os import access
 import tempfile
 import unittest
 from io import IOBase
@@ -43,6 +44,7 @@ from lightly.openapi_generated.swagger_client import ScoresApi, \
     InitialTagCreateRequest, ApiClient, VersioningApi, QuotaApi, \
     TagArithmeticsRequest, TagBitMaskResponse, SampleWriteUrls, SampleData, SampleDataModes, DatasourceRawSamplesMetadataData, Trigger2dEmbeddingJobRequest, SampleUpdateRequest
 from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
+from lightly.openapi_generated.swagger_client.api.collaboration_api import CollaborationApi
 from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
 from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
 from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
@@ -62,7 +64,9 @@ from lightly.openapi_generated.swagger_client.models.datasource_processed_until_
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import DatasourceRawSamplesData
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import DatasourceRawSamplesDataRow
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_predictions_data import DatasourceRawSamplesPredictionsData
-
+from lightly.openapi_generated.swagger_client.models.shared_access_config_create_request import SharedAccessConfigCreateRequest
+from lightly.openapi_generated.swagger_client.models.shared_access_config_data import SharedAccessConfigData
+from lightly.openapi_generated.swagger_client.models.shared_access_type import SharedAccessType
 
 def _check_dataset_id(dataset_id: str):
     assert isinstance(dataset_id, str)
@@ -666,6 +670,22 @@ class MockedApiClient(ApiClient):
         raise ValueError("ERROR: calling ApiClient.call_api(), but this should be mocked.")
 
 
+class MockedAPICollaboration(CollaborationApi):
+    def create_or_update_shared_access_config_by_dataset_id(self, body, dataset_id, **kwargs):
+        assert isinstance(body, SharedAccessConfigCreateRequest)
+        return CreateEntityResponse(id='access-share-config')
+
+    def get_shared_access_configs_by_dataset_id(self, dataset_id, **kwargs):
+        write_config = SharedAccessConfigData(
+            id='some-id', 
+            owner='owner-id',
+            users=["user1@gmail.com", "user2@something.com"], 
+            organizations=['some-id'],
+            created_at=Timestamp(0),
+            last_modified_at=Timestamp(0),
+            access_type=SharedAccessType.WRITE)
+        return [write_config]
+
 class MockedApiWorkflowClient(ApiWorkflowClient):
 
     embeddings_filename_base = 'img'
@@ -688,6 +708,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
         self._datasources_api = MockedDatasourcesApi(api_client=self.api_client)
         self._quota_api = MockedQuotaApi(api_client=self.api_client)
         self._compute_worker_api = MockedComputeWorkerApi(api_client=self.api_client)
+        self._collaboration_api = MockedAPICollaboration(api_client=self.api_client)
 
         lightly.api.api_workflow_client.requests.put = mocked_request_put
 
@@ -730,3 +751,5 @@ class MockedApiWorkflowSetup(unittest.TestCase):
 
     def setUp(self, token="token_xyz",  dataset_id="dataset_id_xyz") -> None:
         self.api_workflow_client = MockedApiWorkflowClient(token=token, dataset_id=dataset_id)
+
+
