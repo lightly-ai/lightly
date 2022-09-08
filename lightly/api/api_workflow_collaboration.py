@@ -30,17 +30,17 @@ class _CollaborationMixin:
         Examples:
           >>> # share a dataset with an user
           >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
-          >>> client.share_dataset(dataset_id="MY_DATASET_ID", user_emails=["user@something.com"])
+          >>> client.share_dataset_only_with(dataset_id="MY_DATASET_ID", user_emails=["user@something.com"])
           >>>
           >>> # share dataset with a user while keep sharing it with previous users
           >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
           >>> user_emails = client.get_shared_users(dataset_id="MY_DATASET_ID")
           >>> user_emails.extend(["additional_user2@something.com"])
-          >>> client.share_dataset(dataset_id="MY_DATASET_ID", user_emails=user_emails)
+          >>> client.share_dataset_only_with(dataset_id="MY_DATASET_ID", user_emails=user_emails)
           >>>
           >>> # revoke access to all users
           >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
-          >>> user_emails = client.share_dataset(dataset_id="MY_DATASET_ID", user_emails=[])
+          >>> client.share_dataset_only_with(dataset_id="MY_DATASET_ID", user_emails=[])
         """
         body = SharedAccessConfigCreateRequest(access_type=SharedAccessType.WRITE, users=user_emails)
         self._collaboration_api.create_or_update_shared_access_config_by_dataset_id(body=body, dataset_id=dataset_id)
