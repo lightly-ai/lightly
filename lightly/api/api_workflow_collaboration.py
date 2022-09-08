@@ -28,14 +28,14 @@ class _CollaborationMixin:
             List of email addresses of users to grant write permission
 
         Examples:
-          >>> # share a dataset with an user
+          >>> # share a dataset with a user
           >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
           >>> client.share_dataset_only_with(dataset_id="MY_DATASET_ID", user_emails=["user@something.com"])
           >>>
           >>> # share dataset with a user while keep sharing it with previous users
           >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
           >>> user_emails = client.get_shared_users(dataset_id="MY_DATASET_ID")
-          >>> user_emails.extend(["additional_user2@something.com"])
+          >>> user_emails.append("additional_user2@something.com")
           >>> client.share_dataset_only_with(dataset_id="MY_DATASET_ID", user_emails=user_emails)
           >>>
           >>> # revoke access to all users

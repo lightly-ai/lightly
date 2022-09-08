@@ -542,12 +542,12 @@ sharing it. Sharing works through e-mail addresses.
     # we first need to have an api client (create a new or use an existing one)
     client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
 
-    # share a dataset with an user
+    # share a dataset with a user
     client.share_dataset_only_with(dataset_id="MY_DATASET_ID", user_emails=["user@something.com"])
 
     # share dataset with a user while keep sharing it with previous users
     user_emails = client.get_shared_users(dataset_id="MY_DATASET_ID")
-    user_emails.extend(["additional_user2@something.com"])
+    user_emails.append("additional_user2@something.com")
     client.share_dataset_only_with(dataset_id="MY_DATASET_ID", user_emails=user_emails)
 
     # revoke access to all users
@@ -565,6 +565,7 @@ this using the following code:
 
     # get a list of users that have access to a given dataset
     client.get_shared_users(dataset_id="MY_DATASET_ID")
+    print(users)
     # ["user@something.com"]
 
 You find more details about the individual API requests in the docs for the
