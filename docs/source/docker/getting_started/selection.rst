@@ -78,8 +78,12 @@ Each strategy is specified by a :code:`dictionary`, which is always made up of a
 .. code-block:: python
 
     {
-        "input": ...,
-        "strategy": ...
+        "input": {
+            "type": ...
+        },
+        "strategy": {
+            "type": ...
+        }
     },
 
 
@@ -490,14 +494,15 @@ The Lightly optimizer tries to fulfil all strategies as good as possible.
 - **Tradeoff between different objectives.**
   The optimizer always has to tradeoff between different objectives.
   E.g. it may happen that all samples with high WEIGHTS are close together. If you also specified the objective DIVERSITY, then only a few of these high-weight samples
-  may be chosen. Instead, also other samples that are visually more diverse, but have lower weights, are chosen.
+  may be chosen. Instead, also other samples that are more diverse, but have lower weights, are chosen.
 
 - **Restrictions in the input dataset.**
   This applies especially for BALANCE: E.g. if there are only 10 images of ambulances in the input dataset and a total
   of 1000 images are selected, the output can only have a maximum of 1% ambulances. Thus a BALANCE target of having 20% ambulances cannot be fulfilled.
 
 - **Too little samples to choose.**
-  If the selection algorithm can only choose a small number of samples, it may not be possible to fulfil the objectives. You can solve this by increasing :code:`n_samples`.
+  If the selection algorithm can only choose a small number of samples, it may not be possible to fulfil the objectives.
+  You can solve this by increasing :code:`n_samples` or :code:`proportion_samples`.
 
 Selection on object level
 -------------------------
