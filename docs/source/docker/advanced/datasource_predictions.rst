@@ -213,6 +213,25 @@ Predictions for an image must have a `file_name` and `predictions`.
 Here, `file_name` serves as a unique identifier to retrieve the image for which
 the predictions are made and predictions is a list of `Prediction Singletons` for the corresponding task.
 
+- :code:`probabilities` are the per class probabilities of the prediction
+- :code:`score` is the final prediction score/confidence
+
+.. note:: Some frameworks only provide the score as the model output. 
+          The score is typically calculated during the Non-Max Suppression (NMS)
+          by multiplying the objectness probability with the highest class probability.
+
+          But having not only a single score, but also the class probabilities 
+          can be valuable information for 
+          active learning. For example, an object detection model could have a 
+          score of `0.6` and the predicted class is a tree. However, without 
+          class probabilities, we cannot know what the prediction margin or 
+          entropy is. With the class 
+          probabilities we would additionally know whether the model thought 
+          that it's `0.5` tree, `0.4` person and `0.1` car or `0.5` tree, 
+          `0.25` person and `0.25` car.
+
+          
+
 Example classification:
 
 .. code-block:: javascript
@@ -239,17 +258,20 @@ Example object detection:
             {
                 "category_id": 0,
                 "bbox": [140, 100, 80, 90], // x, y, w, h coordinates in pixels
-                "score": 0.8
+                "score": 0.8,
+                "probabilities": [0.2, 0.8] // optional, sum up to 1.0
             },
             {
                 "category_id": 1,
                 "bbox": [...],
-                "score": 0.9
+                "score": 0.9,
+                "probabilities": [0.9, 0.1] // optional, sum up to 1.0
             },
             {
                 "category_id": 0,
                 "bbox": [...],
-                "score": 0.5
+                "score": 0.5,
+                "probabilities": [0.6, 0.4] // optional, sum up to 1.0
             }
         ]
     }
@@ -261,16 +283,18 @@ Example semantic segmentation:
 
     {
         "file_name": "my_image.png",
-        "predictions": [ // classes: [background, car]
+        "predictions": [ // classes: [background, car, tree]
             {
                 "category_id": 0,
                 "segmentation": [100, 80, 90, 85, ...], //run length encoded binary segmentation mask
-                "score": 0.8
+                "score": 0.8,
+                "probabilities": [0.15, 0.8, 0.05] // optional, sum up to 1.0
             },
             {
                 "category_id": 1,
                 "segmentation": [...],
-                "score": 0.9
+                "score": 0.9,
+                "probabilities": [0.02, 0.08, 0.9] // optional, sum up to 1.0
             },
         ]
     }
