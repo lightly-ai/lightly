@@ -56,6 +56,10 @@ from lightly.openapi_generated.swagger_client.models.label_box_data_row import (
 from lightly.openapi_generated.swagger_client.models.label_studio_task import (
     LabelStudioTask,
 )
+from lightly.openapi_generated.swagger_client.models.label_studio_task_data import (
+    LabelStudioTaskData,
+)
+
 
 from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import (
@@ -89,6 +93,7 @@ from lightly.openapi_generated.swagger_client import (
     TagBitMaskResponse,
     SampleWriteUrls,
     SampleData,
+    SampleMetaData,
     SampleDataModes,
     DatasourceRawSamplesMetadataData,
     Trigger2dEmbeddingJobRequest,
@@ -378,48 +383,48 @@ class MockedTagsApi(TagsApi):
         if kwargs["page_offset"] and kwargs["page_offset"] > 0:
             return []
         return [
-            {
-                "id": 0,
-                "data": {
-                    "image": "https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e213/readurlRedirect?type=full&CENSORED",
-                    "lightlyFileName": "2008_006249_jpg.rf.fdd64460945ca901aa3c7e48ffceea83.jpg",
-                    "lightlyMetaInfo": {
-                        "type": "IMAGE",
-                        "datasetId": "62383ab8f9cb290cd83ab5f9",
-                        "fileName": "2008_006249_jpg.rf.fdd64460945ca901aa3c7e48ffceea83.jpg",
-                        "exif": {},
-                        "index": 0,
-                        "createdAt": 1647852727873,
-                        "lastModifiedAt": 1647852727873,
-                        "metaData": {
-                            "sharpness": 27.31265790443818,
-                            "sizeInBytes": 48224,
-                            "snr": 2.1969673926211217,
-                            "mean": [
+            LabelStudioTask(
+                id = 0,
+                data = LabelStudioTaskData(
+                    image = "https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e213/readurlRedirect?type=full&CENSORED",
+                    lightly_file_name = "2008_006249_jpg.rf.fdd64460945ca901aa3c7e48ffceea83.jpg",
+                    lightly_meta_info = SampleData(
+                        type = "IMAGE",
+                        dataset_id = dataset_id,
+                        file_name =  "2008_006249_jpg.rf.fdd64460945ca901aa3c7e48ffceea83.jpg",
+                        exif = {},
+                        index = 0,
+                        created_at =  1647852727873,
+                        last_modified_at = 1647852727873,
+                        meta_data = SampleMetaData(
+                            sharpness = 27.31265790443818,
+                            size_in_bytes = 48224,
+                            snr = 2.1969673926211217,
+                            mean = [
                                 0.24441662557257224,
                                 0.4460417517905863,
                                 0.6960984853824035,
                             ],
-                            "shape": [167, 500, 3],
-                            "std": [
+                            shape = [167, 500, 3],
+                            std = [
                                 0.12448681278605961,
                                 0.09509570033043004,
                                 0.0763725998175394,
                             ],
-                            "sumOfSquares": [
+                            sum_of_squares = [
                                 6282.243860049413,
                                 17367.702452895475,
                                 40947.22059208768,
                             ],
-                            "sumOfValues": [
+                            sum_of_values = [
                                 20408.78823530978,
                                 37244.486274513954,
                                 58124.22352943069,
                             ],
-                        },
-                    },
-                },
-            }
+                        ),
+                    ),
+                )
+            )
         ]
 
     def export_tag_to_label_box_data_rows(
@@ -428,10 +433,10 @@ class MockedTagsApi(TagsApi):
         if kwargs["page_offset"] and kwargs["page_offset"] > 0:
             return []
         return [
-            {
-                "externalId": "2008_007291_jpg.rf.2fca436925b52ea33cf897125a34a2fb.jpg",
-                "imageUrl": "https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e233/readurlRedirect?type=CENSORED",
-            }
+            LabelBoxDataRow(
+                external_id = "2008_007291_jpg.rf.2fca436925b52ea33cf897125a34a2fb.jpg",
+                image_url = "https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e233/readurlRedirect?type=CENSORED",
+            )
         ]
 
     def export_tag_to_basic_filenames_and_read_urls(
@@ -440,10 +445,10 @@ class MockedTagsApi(TagsApi):
         if kwargs["page_offset"] and kwargs["page_offset"] > 0:
             return []
         return [
-            {
-                "fileName": "export-basic-test-sample-0.png",
-                "readUrl": "https://storage.googleapis.com/somwhere/export-basic-test-sample-0.png?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=CENSORED",
-            }
+            FilenameAndReadUrl(
+                file_name = "export-basic-test-sample-0.png",
+                read_url = "https://storage.googleapis.com/somwhere/export-basic-test-sample-0.png?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=CENSORED",
+            )
         ]
 
     def export_tag_to_basic_filenames(self, dataset_id: str, tag_id: str) -> str:
