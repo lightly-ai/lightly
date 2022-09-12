@@ -604,7 +604,7 @@ class TagsApi(object):
         :param bool preview_example: if true, will generate a preview example of how the structure will look
         :param float page_size: pagination size/limit of the number of samples to return
         :param float page_offset: pagination offset
-        :return: ReadURLMappings
+        :return: FilenameAndReadUrls
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -631,7 +631,7 @@ class TagsApi(object):
         :param bool preview_example: if true, will generate a preview example of how the structure will look
         :param float page_size: pagination size/limit of the number of samples to return
         :param float page_offset: pagination offset
-        :return: ReadURLMappings
+        :return: FilenameAndReadUrls
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -692,14 +692,14 @@ class TagsApi(object):
         auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/{tagId}/export/basic/readURLMapping', 'GET',
+            '/v1/datasets/{datasetId}/tags/{tagId}/export/basic/filenamesAndReadUrls', 'GET',
             path_params,
             query_params,
             header_params,
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='ReadURLMappings',  # noqa: E501
+            response_type='FilenameAndReadUrls',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),

@@ -13,6 +13,9 @@ from concurrent.futures.thread import ThreadPoolExecutor
 
 from lightly.api.bitmask import BitMask
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
+from lightly.openapi_generated.swagger_client.models.filename_and_read_url import FilenameAndReadUrl
+from lightly.openapi_generated.swagger_client.models.label_box_data_row import LabelBoxDataRow
+from lightly.openapi_generated.swagger_client.models.label_studio_task import LabelStudioTask
 
 
 
@@ -154,7 +157,7 @@ class _DownloadDatasetMixin:
     def export_label_studio_tasks_by_tag_id(
         self,
         tag_id: str,
-    ) -> List[Dict]:
+    ) -> List[LabelStudioTask]:
         """Exports samples in a format compatible with Label Studio.
 
         The format is documented here:
@@ -179,7 +182,7 @@ class _DownloadDatasetMixin:
     def export_label_studio_tasks_by_tag_name(
         self,
         tag_name: str,
-    ) -> List[Dict]:
+    ) -> List[LabelStudioTask]:
         """Exports samples in a format compatible with Label Studio.
 
         The format is documented here:
@@ -208,7 +211,7 @@ class _DownloadDatasetMixin:
     def export_label_box_data_rows_by_tag_id(
         self,
         tag_id: str,
-    ) -> List[Dict]:
+    ) -> List[LabelBoxDataRow]:
         """Exports samples in a format compatible with Labelbox.
 
         The format is documented here:
@@ -233,7 +236,7 @@ class _DownloadDatasetMixin:
     def export_label_box_data_rows_by_tag_name(
         self,
         tag_name: str,
-    ) -> List[Dict]:
+    ) -> List[LabelBoxDataRow]:
         """Exports samples in a format compatible with Labelbox.
 
         The format is documented here:
@@ -311,7 +314,7 @@ class _DownloadDatasetMixin:
     def export_filenames_and_read_urls_by_tag_id(
         self,
         tag_id: str,
-    ) -> List[Dict]:
+    ) -> List[FilenameAndReadUrl]:
         """Export the samples filenames to map with their readURL.
 
         Args:
@@ -333,7 +336,7 @@ class _DownloadDatasetMixin:
     def export_filenames_and_read_urls_by_tag_name(
         self,
         tag_name: str,
-    ) -> List[Dict]:
+    ) -> List[FilenameAndReadUrl]:
         """Export the samples filenames to map with their readURL.
 
         Args:
