@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 import PIL
 import numpy as np
+from lightly.openapi_generated.swagger_client.models.filename_and_read_url import FilenameAndReadUrl
 
 import torchvision
 
@@ -53,9 +54,9 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
         self.assertTrue(all(isinstance(task, dict) for task in tasks))
 
     def test_export_tag_to_basic_filenames_and_read_urls(self):
-        mappings = self.api_workflow_client.export_filenames_and_read_urls_by_tag_name('initial-tag')
-        self.assertIsNotNone(mappings)
-        self.assertTrue(all(isinstance(mapping, dict) for mapping in mappings))
+        filenames_and_read_urls = self.api_workflow_client.export_filenames_and_read_urls_by_tag_name('initial-tag')
+        self.assertIsNotNone(filenames_and_read_urls)
+        self.assertTrue(all(isinstance(filenames_and_read_url, FilenameAndReadUrl) for filenames_and_read_url in filenames_and_read_urls))
 
     def test_export_filenames_by_tag_name(self):
         filenames = self.api_workflow_client.export_filenames_by_tag_name('initial-tag')
