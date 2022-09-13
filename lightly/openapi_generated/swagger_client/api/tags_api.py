@@ -471,6 +471,8 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
+        :param float page_size: pagination size/limit of the number of samples to return
+        :param float page_offset: pagination offset
         :return: str
                  If the method is called asynchronously,
                  returns the request thread.
@@ -500,12 +502,14 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
+        :param float page_size: pagination size/limit of the number of samples to return
+        :param float page_offset: pagination offset
         :return: str
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_id', 'tag_id', 'expires_in', 'access_control', 'file_name_format', 'include_meta_data', 'format', 'preview_example']  # noqa: E501
+        all_params = ['dataset_id', 'tag_id', 'expires_in', 'access_control', 'file_name_format', 'include_meta_data', 'format', 'preview_example', 'page_size', 'page_offset']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -550,6 +554,10 @@ class TagsApi(object):
             query_params.append(('format', params['format']))  # noqa: E501
         if 'preview_example' in params:
             query_params.append(('previewExample', params['preview_example']))  # noqa: E501
+        if 'page_size' in params:
+            query_params.append(('pageSize', params['page_size']))  # noqa: E501
+        if 'page_offset' in params:
+            query_params.append(('pageOffset', params['page_offset']))  # noqa: E501
 
         header_params = {}
 
@@ -580,6 +588,125 @@ class TagsApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
+    def export_tag_to_basic_filenames_and_read_urls(self, dataset_id, tag_id, **kwargs):  # noqa: E501
+        """export_tag_to_basic_filenames_and_read_urls  # noqa: E501
+
+        Export the samples filenames to map with their readURL.   # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.export_tag_to_basic_filenames_and_read_urls(dataset_id, tag_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param MongoObjectID tag_id: ObjectId of the tag (required)
+        :param FileOutputFormat format:
+        :param bool preview_example: if true, will generate a preview example of how the structure will look
+        :param float page_size: pagination size/limit of the number of samples to return
+        :param float page_offset: pagination offset
+        :return: FilenameAndReadUrls
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.export_tag_to_basic_filenames_and_read_urls_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.export_tag_to_basic_filenames_and_read_urls_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
+            return data
+
+    def export_tag_to_basic_filenames_and_read_urls_with_http_info(self, dataset_id, tag_id, **kwargs):  # noqa: E501
+        """export_tag_to_basic_filenames_and_read_urls  # noqa: E501
+
+        Export the samples filenames to map with their readURL.   # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.export_tag_to_basic_filenames_and_read_urls_with_http_info(dataset_id, tag_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param MongoObjectID tag_id: ObjectId of the tag (required)
+        :param FileOutputFormat format:
+        :param bool preview_example: if true, will generate a preview example of how the structure will look
+        :param float page_size: pagination size/limit of the number of samples to return
+        :param float page_offset: pagination offset
+        :return: FilenameAndReadUrls
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['dataset_id', 'tag_id', 'format', 'preview_example', 'page_size', 'page_offset']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method export_tag_to_basic_filenames_and_read_urls" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'dataset_id' is set
+        if self.api_client.client_side_validation and ('dataset_id' not in params or
+                                                       params['dataset_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `dataset_id` when calling `export_tag_to_basic_filenames_and_read_urls`")  # noqa: E501
+        # verify the required parameter 'tag_id' is set
+        if self.api_client.client_side_validation and ('tag_id' not in params or
+                                                       params['tag_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `tag_id` when calling `export_tag_to_basic_filenames_and_read_urls`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'dataset_id' in params:
+            path_params['datasetId'] = params['dataset_id']  # noqa: E501
+        if 'tag_id' in params:
+            path_params['tagId'] = params['tag_id']  # noqa: E501
+
+        query_params = []
+        if 'format' in params:
+            query_params.append(('format', params['format']))  # noqa: E501
+        if 'preview_example' in params:
+            query_params.append(('previewExample', params['preview_example']))  # noqa: E501
+        if 'page_size' in params:
+            query_params.append(('pageSize', params['page_size']))  # noqa: E501
+        if 'page_offset' in params:
+            query_params.append(('pageOffset', params['page_offset']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v1/datasets/{datasetId}/tags/{tagId}/export/basic/filenamesAndReadUrls', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='FilenameAndReadUrls',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
     def export_tag_to_label_box_data_rows(self, dataset_id, tag_id, **kwargs):  # noqa: E501
         """export_tag_to_label_box_data_rows  # noqa: E501
 
@@ -598,6 +725,8 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
+        :param float page_size: pagination size/limit of the number of samples to return
+        :param float page_offset: pagination offset
         :return: LabelBoxDataRows
                  If the method is called asynchronously,
                  returns the request thread.
@@ -627,12 +756,14 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
+        :param float page_size: pagination size/limit of the number of samples to return
+        :param float page_offset: pagination offset
         :return: LabelBoxDataRows
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_id', 'tag_id', 'expires_in', 'access_control', 'file_name_format', 'include_meta_data', 'format', 'preview_example']  # noqa: E501
+        all_params = ['dataset_id', 'tag_id', 'expires_in', 'access_control', 'file_name_format', 'include_meta_data', 'format', 'preview_example', 'page_size', 'page_offset']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -677,6 +808,10 @@ class TagsApi(object):
             query_params.append(('format', params['format']))  # noqa: E501
         if 'preview_example' in params:
             query_params.append(('previewExample', params['preview_example']))  # noqa: E501
+        if 'page_size' in params:
+            query_params.append(('pageSize', params['page_size']))  # noqa: E501
+        if 'page_offset' in params:
+            query_params.append(('pageOffset', params['page_offset']))  # noqa: E501
 
         header_params = {}
 
@@ -725,6 +860,8 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
+        :param float page_size: pagination size/limit of the number of samples to return
+        :param float page_offset: pagination offset
         :return: LabelStudioTasks
                  If the method is called asynchronously,
                  returns the request thread.
@@ -754,12 +891,14 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
+        :param float page_size: pagination size/limit of the number of samples to return
+        :param float page_offset: pagination offset
         :return: LabelStudioTasks
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_id', 'tag_id', 'expires_in', 'access_control', 'file_name_format', 'include_meta_data', 'format', 'preview_example']  # noqa: E501
+        all_params = ['dataset_id', 'tag_id', 'expires_in', 'access_control', 'file_name_format', 'include_meta_data', 'format', 'preview_example', 'page_size', 'page_offset']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -804,6 +943,10 @@ class TagsApi(object):
             query_params.append(('format', params['format']))  # noqa: E501
         if 'preview_example' in params:
             query_params.append(('previewExample', params['preview_example']))  # noqa: E501
+        if 'page_size' in params:
+            query_params.append(('pageSize', params['page_size']))  # noqa: E501
+        if 'page_offset' in params:
+            query_params.append(('pageOffset', params['page_offset']))  # noqa: E501
 
         header_params = {}
 
@@ -852,6 +995,8 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
+        :param float page_size: pagination size/limit of the number of samples to return
+        :param float page_offset: pagination offset
         :return: SamaTasks
                  If the method is called asynchronously,
                  returns the request thread.
@@ -881,12 +1026,14 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
+        :param float page_size: pagination size/limit of the number of samples to return
+        :param float page_offset: pagination offset
         :return: SamaTasks
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_id', 'tag_id', 'expires_in', 'access_control', 'file_name_format', 'include_meta_data', 'format', 'preview_example']  # noqa: E501
+        all_params = ['dataset_id', 'tag_id', 'expires_in', 'access_control', 'file_name_format', 'include_meta_data', 'format', 'preview_example', 'page_size', 'page_offset']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -931,6 +1078,10 @@ class TagsApi(object):
             query_params.append(('format', params['format']))  # noqa: E501
         if 'preview_example' in params:
             query_params.append(('previewExample', params['preview_example']))  # noqa: E501
+        if 'page_size' in params:
+            query_params.append(('pageSize', params['page_size']))  # noqa: E501
+        if 'page_offset' in params:
+            query_params.append(('pageOffset', params['page_offset']))  # noqa: E501
 
         header_params = {}
 

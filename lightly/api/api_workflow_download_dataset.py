@@ -6,12 +6,16 @@ import tqdm
 from urllib.request import Request, urlopen
 from PIL import Image
 
+from lightly.api.utils import paginate_endpoint, retry
 from torch.utils.hipify.hipify_python import bcolors
 
 from concurrent.futures.thread import ThreadPoolExecutor
 
 from lightly.api.bitmask import BitMask
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
+from lightly.openapi_generated.swagger_client.models.filename_and_read_url import FilenameAndReadUrl
+from lightly.openapi_generated.swagger_client.models.label_box_data_row import LabelBoxDataRow
+from lightly.openapi_generated.swagger_client.models.label_studio_task import LabelStudioTask
 
 
 
@@ -153,7 +157,7 @@ class _DownloadDatasetMixin:
     def export_label_studio_tasks_by_tag_id(
         self,
         tag_id: str,
-    ) -> List[Dict]:
+    ) -> List[LabelStudioTask]:
         """Exports samples in a format compatible with Label Studio.
 
         The format is documented here:
@@ -167,16 +171,18 @@ class _DownloadDatasetMixin:
             A list of dictionaries in a format compatible with Label Studio.
 
         """
-        label_studio_tasks = self._tags_api.export_tag_to_label_studio_tasks(
-            self.dataset_id,
-            tag_id
+        label_studio_tasks = paginate_endpoint(
+            self._tags_api.export_tag_to_label_studio_tasks,
+            page_size=20000,
+            dataset_id=self.dataset_id,
+            tag_id=tag_id
         )
         return label_studio_tasks
 
     def export_label_studio_tasks_by_tag_name(
         self,
         tag_name: str,
-    ) -> List[Dict]:
+    ) -> List[LabelStudioTask]:
         """Exports samples in a format compatible with Label Studio.
 
         The format is documented here:
@@ -205,7 +211,7 @@ class _DownloadDatasetMixin:
     def export_label_box_data_rows_by_tag_id(
         self,
         tag_id: str,
-    ) -> List[Dict]:
+    ) -> List[LabelBoxDataRow]:
         """Exports samples in a format compatible with Labelbox.
 
         The format is documented here:
@@ -219,16 +225,18 @@ class _DownloadDatasetMixin:
             A list of dictionaries in a format compatible with Labelbox.
 
         """
-        label_box_data_rows = self._tags_api.export_tag_to_label_box_data_rows(
-            self.dataset_id,
-            tag_id,
+        label_box_data_rows = paginate_endpoint(
+            self._tags_api.export_tag_to_label_box_data_rows,
+            page_size=20000,
+            dataset_id=self.dataset_id,
+            tag_id=tag_id
         )
         return label_box_data_rows
 
     def export_label_box_data_rows_by_tag_name(
         self,
         tag_name: str,
-    ) -> List[Dict]:
+    ) -> List[LabelBoxDataRow]:
         """Exports samples in a format compatible with Labelbox.
 
         The format is documented here:
@@ -269,9 +277,10 @@ class _DownloadDatasetMixin:
             A list of the samples filenames within a certain tag.
 
         """
-        filenames = self._tags_api.export_tag_to_basic_filenames(
-            self.dataset_id,
-            tag_id,
+        filenames = retry(
+            self._tags_api.export_tag_to_basic_filenames,
+            dataset_id=self.dataset_id,
+            tag_id=tag_id,
         )
         return filenames
 
@@ -299,4 +308,53 @@ class _DownloadDatasetMixin:
 
         """
         tag = self.get_tag_by_name(tag_name)
-        return self.export_filenames_by_tag_id(tag.id)
+        return self.export_filenames_by_tag_id(tag.id)    
+
+
+    def export_filenames_and_read_urls_by_tag_id(
+        self,
+        tag_id: str,
+    ) -> List[FilenameAndReadUrl]:
+        """Export the samples filenames to map with their readURL.
+
+        Args:
+            tag_id:
+                Id of the tag which should exported.
+
+        Returns:
+            A list of mappings of the samples filenames and readURLs within a certain tag.
+
+        """
+        mappings = paginate_endpoint(
+            self._tags_api.export_tag_to_basic_filenames_and_read_urls,
+            page_size=20000,
+            dataset_id=self.dataset_id,
+            tag_id=tag_id
+        )
+        return mappings
+
+    def export_filenames_and_read_urls_by_tag_name(
+        self,
+        tag_name: str,
+    ) -> List[FilenameAndReadUrl]:
+        """Export the samples filenames to map with their readURL.
+
+        Args:
+            tag_name:
+                Name of the tag which should exported.
+
+        Returns:
+            A list of mappings of the samples filenames and readURLs within a certain tag.
+
+        Examples:
+            >>> # write json file which can be used to access the actual file contents.
+            >>> mappings = client.export_filenames_and_read_urls_by_tag_name(
+            >>>     'initial-tag'
+            >>> )
+            >>> 
+            >>> with open('my-readURL-mappings.json', 'w') as f:
+            >>>     json.dump(mappings, f)
+
+        """
+        tag = self.get_tag_by_name(tag_name)
+        return self.export_filenames_and_read_urls_by_tag_id(tag.id)

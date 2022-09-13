@@ -108,6 +108,8 @@ from lightly.openapi_generated.swagger_client.models.embedding_data import Embed
 from lightly.openapi_generated.swagger_client.models.embedding_id_is_processed_body import EmbeddingIdIsProcessedBody
 from lightly.openapi_generated.swagger_client.models.file_name_format import FileNameFormat
 from lightly.openapi_generated.swagger_client.models.file_output_format import FileOutputFormat
+from lightly.openapi_generated.swagger_client.models.filename_and_read_url import FilenameAndReadUrl
+from lightly.openapi_generated.swagger_client.models.filename_and_read_urls import FilenameAndReadUrls
 from lightly.openapi_generated.swagger_client.models.general_job_result import GeneralJobResult
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
 from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest

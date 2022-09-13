@@ -1,4 +1,5 @@
 from typing import List
+from xmlrpc.client import Boolean
 
 from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
 from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
@@ -22,7 +23,7 @@ class _DatasetsMixin:
         """
         return self.get_dataset_by_id(self.dataset_id)
 
-    def dataset_exists(self, dataset_id: str):
+    def dataset_exists(self, dataset_id: str) -> bool:
         """Returns True if a dataset with dataset_id exists. """
         try:
             self.get_dataset_by_id(dataset_id)
@@ -30,9 +31,9 @@ class _DatasetsMixin:
         except ApiException:
             return False
 
-    def get_dataset_by_id(self, dataset_id: str):
+    def get_dataset_by_id(self, dataset_id: str) -> DatasetData:
         """Returns the dataset for the given dataset id. """
-        dataset = self._datasets_api.get_dataset_by_id(dataset_id)
+        dataset: DatasetData = self._datasets_api.get_dataset_by_id(dataset_id)
         return dataset
 
     def get_datasets(self, shared: bool = False) -> List[DatasetData]:

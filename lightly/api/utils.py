@@ -8,6 +8,7 @@ import os
 import time
 import random
 from enum import Enum
+from typing import List
 
 import numpy as np
 from PIL import Image, ImageFilter
@@ -62,6 +63,35 @@ def retry(func, *args, **kwargs):
             if current_retries >= max_retries:
                 raise RuntimeError(
                     f'Maximum retries exceeded! Original exception: {type(e)}: {str(e)}') from e
+
+
+
+def paginate_endpoint(fn, page_size=5000, *args, **kwargs) -> List:
+    """Paginates an API endpoint
+
+    Args:
+        fn:
+            The endpoint which will be paginated until there is not any more data
+        page_size:
+            The size of the pages to pull
+    """
+    entries: List = []
+    offset = 0
+    has_more = True
+    while has_more:
+        chunk = retry(
+            fn, page_offset=offset * page_size, page_size=page_size, *args, **kwargs
+        )
+        # if we don't find more data, stop pagination otherwise get next chunk
+        if len(chunk) == 0:
+            has_more = False
+        else:
+            entries.extend(chunk)
+            offset += 1
+
+    return entries
+
+
 
 
 def getenv(key: str, default: str):
