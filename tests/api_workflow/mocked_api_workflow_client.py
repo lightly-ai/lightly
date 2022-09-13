@@ -389,6 +389,7 @@ class MockedTagsApi(TagsApi):
                     image = "https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e213/readurlRedirect?type=full&CENSORED",
                     lightly_file_name = "2008_006249_jpg.rf.fdd64460945ca901aa3c7e48ffceea83.jpg",
                     lightly_meta_info = SampleData(
+                        id = "sample_id_0"
                         type = "IMAGE",
                         dataset_id = dataset_id,
                         file_name =  "2008_006249_jpg.rf.fdd64460945ca901aa3c7e48ffceea83.jpg",

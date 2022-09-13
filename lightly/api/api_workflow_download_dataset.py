@@ -173,7 +173,7 @@ class _DownloadDatasetMixin:
         """
         label_studio_tasks = paginate_endpoint(
             self._tags_api.export_tag_to_label_studio_tasks,
-            page_size=10000,
+            page_size=20000,
             dataset_id=self.dataset_id,
             tag_id=tag_id
         )
@@ -227,7 +227,7 @@ class _DownloadDatasetMixin:
         """
         label_box_data_rows = paginate_endpoint(
             self._tags_api.export_tag_to_label_box_data_rows,
-            page_size=10000,
+            page_size=20000,
             dataset_id=self.dataset_id,
             tag_id=tag_id
         )
@@ -327,7 +327,7 @@ class _DownloadDatasetMixin:
         """
         mappings = paginate_endpoint(
             self._tags_api.export_tag_to_basic_filenames_and_read_urls,
-            page_size=10000,
+            page_size=20000,
             dataset_id=self.dataset_id,
             tag_id=tag_id
         )
