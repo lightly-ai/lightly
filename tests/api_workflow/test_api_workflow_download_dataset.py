@@ -5,6 +5,9 @@ from unittest.mock import patch
 
 import PIL
 import numpy as np
+from lightly.openapi_generated.swagger_client.models.filename_and_read_url import FilenameAndReadUrl
+from lightly.openapi_generated.swagger_client.models.label_box_data_row import LabelBoxDataRow
+from lightly.openapi_generated.swagger_client.models.label_studio_task import LabelStudioTask
 
 import torchvision
 
@@ -44,14 +47,18 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
     def test_export_label_box_data_rows_by_tag_name(self):
         rows = self.api_workflow_client.export_label_box_data_rows_by_tag_name('initial-tag')
         self.assertIsNotNone(rows)
-        self.assertTrue(all(isinstance(row, dict) for row in rows))
+        self.assertTrue(all(isinstance(row, LabelBoxDataRow) for row in rows))
 
 
     def test_export_label_studio_tasks_by_tag_name(self):
         tasks = self.api_workflow_client.export_label_studio_tasks_by_tag_name('initial-tag')
         self.assertIsNotNone(tasks)
-        self.assertTrue(all(isinstance(task, dict) for task in tasks))
+        self.assertTrue(all(isinstance(task, LabelStudioTask) for task in tasks))
 
+    def test_export_tag_to_basic_filenames_and_read_urls(self):
+        filenames_and_read_urls = self.api_workflow_client.export_filenames_and_read_urls_by_tag_name('initial-tag')
+        self.assertIsNotNone(filenames_and_read_urls)
+        self.assertTrue(all(isinstance(filenames_and_read_url, FilenameAndReadUrl) for filenames_and_read_url in filenames_and_read_urls))
 
     def test_export_filenames_by_tag_name(self):
         filenames = self.api_workflow_client.export_filenames_by_tag_name('initial-tag')
