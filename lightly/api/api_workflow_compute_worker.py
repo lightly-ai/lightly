@@ -2,7 +2,11 @@ import copy
 from typing import Any, Dict, List, Optional, Union, Tuple
 
 from lightly.api.utils import retry
-from lightly.openapi_generated.swagger_client import SelectionConfig, DockerRunScheduledState, DockerRunState
+from lightly.openapi_generated.swagger_client import (
+    SelectionConfig,
+    DockerRunScheduledState,
+    DockerRunState,
+)
 from lightly.openapi_generated.swagger_client.models.create_docker_worker_registry_entry_request import (
     CreateDockerWorkerRegistryEntryRequest,
 )
@@ -33,6 +37,7 @@ from lightly.openapi_generated.swagger_client import (
     SelectionConfigEntryStrategy,
     SelectionConfigEntry,
 )
+
 
 class ScheduledRunUnknown(ValueError):
     pass
@@ -168,16 +173,29 @@ class _ComputeWorkerMixin:
         try:
             run: DockerRunScheduledData = next(
                 run
-                for run in retry(lambda: self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
-                    self.dataset_id
-                ))
+                for run in retry(
+                    lambda: self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
+                        self.dataset_id
+                    )
+                )
                 if run.id == scheduled_run_id
             )
             return run
         except StopIteration:
-            raise ScheduledRunUnknown(f"No scheduled run found for {scheduled_run_id=}.")
+            raise ScheduledRunUnknown(
+                f"No scheduled run found for {scheduled_run_id=}."
+            )
 
-    def get_compute_worker_state_and_message(self, scheduled_run_id: str) -> Tuple[Union[DockerRunState, DockerRunScheduledState.OPEN, DockerRunScheduledState.CANCELED], str]:
+    def get_compute_worker_state_and_message(
+        self, scheduled_run_id: str
+    ) -> Tuple[
+        Union[
+            DockerRunState,
+            DockerRunScheduledState.OPEN,
+            DockerRunScheduledState.CANCELED,
+        ],
+        str,
+    ]:
         """Returns information about the compute worker run.
 
         Args:
@@ -206,7 +224,11 @@ class _ComputeWorkerMixin:
             state = scheduled_run.state
             message = scheduled_run_state_to_message[scheduled_run.state]
         else:
-            docker_run: DockerRunData = retry(lambda: self._compute_worker_api.get_docker_run_by_scheduled_id(scheduled_id=scheduled_run_id))
+            docker_run: DockerRunData = retry(
+                lambda: self._compute_worker_api.get_docker_run_by_scheduled_id(
+                    scheduled_id=scheduled_run_id
+                )
+            )
             state = docker_run.state
             message = docker_run.message
         return state, message
