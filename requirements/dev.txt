@@ -3,6 +3,7 @@ sphinx
 pytest
 pytest-forked
 pytest-xdist
+pytest-mock
 responses
 sphinx-copybutton
 sphinx-design
