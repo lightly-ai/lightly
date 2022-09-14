@@ -237,7 +237,7 @@ Now that everything is in place, let's configure and run a simple job.
 .. code-block:: python
     :caption: Scheduling a job from Python
 
-    client.schedule_compute_worker_run(
+    scheduled_run_id = client.schedule_compute_worker_run(
         worker_config={
             "enable_corruptness_check": True,
             "remove_exact_duplicates": True,
@@ -256,6 +256,24 @@ Now that everything is in place, let's configure and run a simple job.
             ]
         }
     )
+
+     """Optionally, You can use this code to track the state of the compute worker and only continue if it has finished."""
+    last_log = ("", "")
+    while True:
+        state, message = client.get_compute_worker_state_and_message(scheduled_run_id=scheduled_run_id)
+
+        # Print the state and message if either is new. You can adapt this log as you like, e.g. also print the time.
+        if (state, message) != last_log:
+            print(f"Compute worker run is now in {state=} with {message=}")
+
+        # Break if the scheduled run is in one of the end states.
+        if state in [DockerRunScheduledState.CANCELED, DockerRunState.ABORTED, DockerRunState.COMPLETED, DockerRunState.FAILED]:
+            break
+
+        # Wait before polling the state again
+        time.sleep(30)  # Keep this at 30s or larger to prevent rate limiting.
+
+        last_log = (state, message)
 
 
 The command schedules a job with the following configurations:

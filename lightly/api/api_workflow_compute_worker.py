@@ -1,7 +1,8 @@
 import copy
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Tuple
 
-from lightly.openapi_generated.swagger_client import SelectionConfig
+from lightly.api.utils import retry
+from lightly.openapi_generated.swagger_client import SelectionConfig, DockerRunScheduledState, DockerRunState
 from lightly.openapi_generated.swagger_client.models.create_docker_worker_registry_entry_request import (
     CreateDockerWorkerRegistryEntryRequest,
 )
@@ -26,7 +27,15 @@ from lightly.openapi_generated.swagger_client.models.docker_worker_config import
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import (
     DockerWorkerConfigCreateRequest,
 )
-from lightly.openapi_generated.swagger_client import SelectionConfig, SelectionConfigEntryInput, SelectionConfigEntryStrategy, SelectionConfigEntry
+from lightly.openapi_generated.swagger_client import (
+    SelectionConfig,
+    SelectionConfigEntryInput,
+    SelectionConfigEntryStrategy,
+    SelectionConfigEntry,
+)
+
+class ScheduledRunUnknown(ValueError):
+    pass
 
 
 class _ComputeWorkerMixin:
@@ -66,9 +75,7 @@ class _ComputeWorkerMixin:
         self,
         worker_config: Optional[Dict[str, Any]] = None,
         lightly_config: Optional[Dict[str, Any]] = None,
-        selection_config: Optional[
-            Union[Dict[str, Any], SelectionConfig]
-        ] = None,
+        selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
     ) -> str:
         """Creates a new configuration for a compute worker run.
 
@@ -105,9 +112,7 @@ class _ComputeWorkerMixin:
         self,
         worker_config: Optional[Dict[str, Any]] = None,
         lightly_config: Optional[Dict[str, Any]] = None,
-        selection_config: Optional[
-            Union[Dict[str, Any], SelectionConfig]
-        ] = None,
+        selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
         priority: str = DockerRunScheduledPriority.MID,
     ) -> str:
         """Schedules a run with the given configurations.
@@ -155,14 +160,65 @@ class _ComputeWorkerMixin:
             dataset_id=self.dataset_id
         )
 
+    def get_scheduled_run_by_id(self, scheduled_run_id: str) -> DockerRunScheduledData:
+        """Returns the schedule run data given the id of the scheduled run.
+
+        TODO (MALTE, 09/2022): Have a proper API endpoint for doing this.
+        """
+        try:
+            run: DockerRunScheduledData = next(
+                run
+                for run in retry(lambda: self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
+                    self.dataset_id
+                ))
+                if run.id == scheduled_run_id
+            )
+            return run
+        except StopIteration:
+            raise ScheduledRunUnknown(f"No scheduled run found for {scheduled_run_id=}.")
+
+    def get_compute_worker_state_and_message(self, scheduled_run_id: str) -> Tuple[Union[DockerRunState, DockerRunScheduledState.OPEN, DockerRunScheduledState.CANCELED], str]:
+        """Returns information about the compute worker run.
+
+        Args:
+            scheduled_run_id:
+                The id with which the run was scheduled.
+
+        Returns:
+            Tuple of (state, message):
+                state:
+                    The state the compute worker is in.
+                message:
+                    The last message of the compute worker.
+
+        """
+        try:
+            scheduled_run = self.get_scheduled_run_by_id(scheduled_run_id)
+        except ScheduledRunUnknown:
+            state = DockerRunScheduledState.CANCELED
+            message = "The scheduled run was either canceled or never existed."
+            return state, message
+
+        scheduled_run_state_to_message = {
+            DockerRunScheduledState.OPEN: "Waiting for pickup by compute worker.",
+        }
+        if scheduled_run.state in scheduled_run_state_to_message:
+            state = scheduled_run.state
+            message = scheduled_run_state_to_message[scheduled_run.state]
+        else:
+            docker_run: DockerRunData = retry(lambda: self._compute_worker_api.get_docker_run_by_scheduled_id(scheduled_id=scheduled_run_id))
+            state = docker_run.state
+            message = docker_run.message
+        return state, message
+
 
 def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
     """Recursively converts selection config from dict to a SelectionConfig instance."""
     new_cfg = copy.deepcopy(cfg)
     strategies = []
-    for entry in new_cfg.get('strategies', []):
-        entry['input'] = SelectionConfigEntryInput(**entry['input'])
-        entry['strategy'] = SelectionConfigEntryStrategy(**entry['strategy'])
+    for entry in new_cfg.get("strategies", []):
+        entry["input"] = SelectionConfigEntryInput(**entry["input"])
+        entry["strategy"] = SelectionConfigEntryStrategy(**entry["strategy"])
         strategies.append(SelectionConfigEntry(**entry))
-    new_cfg['strategies'] = strategies
+    new_cfg["strategies"] = strategies
     return SelectionConfig(**new_cfg)
