@@ -74,19 +74,19 @@ scheduled_run_id = client.schedule_compute_worker_run(
 )
 
 """Optionally, You can use this code to track the state of the compute worker and only continue if it has finished."""
-last_log = ("", "")
+last_run_info = None
 while True:
-    state, message = client.get_compute_worker_state_and_message(scheduled_run_id=scheduled_run_id)
+    run_info = client.get_compute_worker_run_info(scheduled_run_id=scheduled_run_id)
 
     # Print the state and message if either is new. You can adapt this log as you like, e.g. also print the time.
-    if (state, message) != last_log:
-        print(f"Compute worker run is now in {state=} with {message=}")
+    if run_info != last_run_info:
+        print(f"Compute worker run is now in state='{run_info.state}' with message='{run_info.message}'")
 
     # Break if the scheduled run is in one of the end states.
-    if state in [DockerRunScheduledState.CANCELED, DockerRunState.ABORTED, DockerRunState.COMPLETED, DockerRunState.FAILED]:
+    if run_info.in_end_state():
         break
 
     # Wait before polling the state again
     time.sleep(30)  # Keep this at 30s or larger to prevent rate limiting.
 
-    last_log = (state, message)
+    last_run_info = run_info

@@ -5,7 +5,7 @@ import pytest
 from typing import Any
 from unittest import mock
 
-from lightly.api.api_workflow_compute_worker import ScheduledRunUnknown
+from lightly.api.api_workflow_compute_worker import STATE_SCHEDULED_ID_NOT_FOUND
 from lightly.openapi_generated.swagger_client import (
     SelectionConfig,
     SelectionConfigEntry,
@@ -29,6 +29,7 @@ from lightly.openapi_generated.swagger_client.models.docker_run_data import (
 from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import (
     DockerRunScheduledData,
 )
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 from lightly.api import api_workflow_compute_worker, ApiWorkflowClient
 
@@ -341,8 +342,8 @@ def test_get_scheduled_run_by_id_not_found() -> None:
 
     scheduled_run_id = "id_5"
     with pytest.raises(
-        ScheduledRunUnknown,
-        match=f"No scheduled run found for scheduled_run_id='{scheduled_run_id}'.",
+        ApiException,
+        match=f"No scheduled run found for run with scheduled_run_id='{scheduled_run_id}'.",
     ):
         scheduled_run_data = ApiWorkflowClient.get_scheduled_run_by_id(
             self=mocked_api_client, scheduled_run_id=scheduled_run_id
@@ -360,43 +361,30 @@ def test_get_compute_worker_state_and_message_OPEN() -> None:
         created_at=0,
         last_modified_at=1,
     )
-    mocked_api_client = MagicMock(
-        dataset_id="asdf", get_scheduled_run_by_id=lambda id: scheduled_run
-    )
+    def mocked_raise_exception(*args, **kwargs):
+        raise ApiException
+    mocked_api_client = MagicMock(dataset_id="asdf", _compute_worker_api=MagicMock(get_docker_run_by_scheduled_id=mocked_raise_exception), get_scheduled_run_by_id=lambda id: scheduled_run)
 
-    state, message = ApiWorkflowClient.get_compute_worker_state_and_message(
+    run_info = ApiWorkflowClient.get_compute_worker_run_info(
         self=mocked_api_client, scheduled_run_id=""
     )
-    assert state == DockerRunScheduledState.OPEN
-    assert message == "Waiting for pickup by compute worker."
+    assert run_info.state == DockerRunScheduledState.OPEN
+    assert run_info.message == "Waiting for pickup by compute worker."
+    assert run_info.in_end_state() == False
 
 
 def test_get_compute_worker_state_and_message_CANCELED() -> None:
-    def mocked_get_scheduled_run_by_id(id):
-        raise ScheduledRunUnknown()
-
-    mocked_api_client = MagicMock(
-        dataset_id="asdf", get_scheduled_run_by_id=mocked_get_scheduled_run_by_id
-    )
-
-    state, message = ApiWorkflowClient.get_compute_worker_state_and_message(
-        self=mocked_api_client, scheduled_run_id=""
-    )
-    assert state == DockerRunScheduledState.CANCELED
-    assert message == "The scheduled run was either canceled or never existed."
+    def mocked_raise_exception(*args, **kwargs):
+        raise ApiException
+    mocked_api_client = MagicMock(dataset_id="asdf", _compute_worker_api=MagicMock(get_docker_run_by_scheduled_id=mocked_raise_exception), get_scheduled_run_by_id=mocked_raise_exception)
+    run_info = ApiWorkflowClient.get_compute_worker_run_info(self=mocked_api_client, scheduled_run_id="")
+    assert run_info.state == STATE_SCHEDULED_ID_NOT_FOUND
+    assert run_info.message == 'The scheduled run was either canceled or does not exist.'
+    assert run_info.in_end_state() == True
 
 
 def test_get_compute_worker_state_and_message_docker_state() -> None:
     message = "SOME_MESSAGE"
-    scheduled_run = DockerRunScheduledData(
-        id=f"id_2",
-        dataset_id="dataset_id",
-        config_id="config_id",
-        priority=DockerRunScheduledPriority,
-        state=DockerRunScheduledState.LOCKED,
-        created_at=0,
-        last_modified_at=1,
-    )
     docker_run = DockerRunData(
         id="id",
         state=DockerRunState.GENERATING_REPORT,
@@ -407,14 +395,14 @@ def test_get_compute_worker_state_and_message_docker_state() -> None:
     )
     mocked_api_client = MagicMock(
         dataset_id="asdf",
-        get_scheduled_run_by_id=lambda id: scheduled_run,
         _compute_worker_api=MagicMock(
             get_docker_run_by_scheduled_id=lambda scheduled_id: docker_run
         ),
     )
 
-    state, message = ApiWorkflowClient.get_compute_worker_state_and_message(
+    run_info = ApiWorkflowClient.get_compute_worker_run_info(
         self=mocked_api_client, scheduled_run_id=""
     )
-    assert state == DockerRunState.GENERATING_REPORT
-    assert message == message
+    assert run_info.state == DockerRunState.GENERATING_REPORT
+    assert run_info.message == message
+    assert run_info.in_end_state() == False
