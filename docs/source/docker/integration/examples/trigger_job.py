@@ -75,7 +75,12 @@ scheduled_run_id = client.schedule_compute_worker_run(
 
 """
 Optionally, You can use this code to track and print the state of the compute worker.
-The loop will end once the compute worker run has finished, was canceled or aborted.
+The loop will end once the compute worker run has finished, was canceled or aborted/failed.
 """
 for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
     print(f"Compute worker run is now in state='{run_info.state}' with message='{run_info.message}'")
+
+if run_info.ended_successfully():
+    print("SUCCESS")
+else:
+    print("FAILURE")

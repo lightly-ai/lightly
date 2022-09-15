@@ -313,7 +313,7 @@ def test_get_scheduled_run_by_id() -> None:
     )
 
     scheduled_run_id = "id_2"
-    scheduled_run_data = ApiWorkflowClient.get_scheduled_run_by_id(
+    scheduled_run_data = ApiWorkflowClient._get_scheduled_run_by_id(
         self=mocked_api_client, scheduled_run_id=scheduled_run_id
     )
     assert scheduled_run_data.id == scheduled_run_id
@@ -345,7 +345,7 @@ def test_get_scheduled_run_by_id_not_found() -> None:
         ApiException,
         match=f"No scheduled run found for run with scheduled_run_id='{scheduled_run_id}'.",
     ):
-        scheduled_run_data = ApiWorkflowClient.get_scheduled_run_by_id(
+        scheduled_run_data = ApiWorkflowClient._get_scheduled_run_by_id(
             self=mocked_api_client, scheduled_run_id=scheduled_run_id
         )
 
