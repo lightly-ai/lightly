@@ -1,6 +1,7 @@
 import copy
 import dataclasses
-from typing import Any, Dict, List, Optional, Union, Tuple, Literal
+import time
+from typing import Any, Dict, List, Optional, Union, Tuple, Literal, Iterator
 
 from lightly.api.utils import retry
 from lightly.openapi_generated.swagger_client import (
@@ -43,13 +44,22 @@ from lightly.openapi_generated.swagger_client.rest import ApiException
 
 STATE_SCHEDULED_ID_NOT_FOUND = "CANCELED_OR_NOT_EXISTING"
 
+
 @dataclasses.dataclass
 class ComputeWorkerRunInfo:
-    state: Union[DockerRunState, DockerRunScheduledState.OPEN, STATE_SCHEDULED_ID_NOT_FOUND]
+
+    state: Union[
+        DockerRunState, DockerRunScheduledState.OPEN, STATE_SCHEDULED_ID_NOT_FOUND
+    ]
     message: str
 
     def in_end_state(self):
-        return self.state in [DockerRunState.ABORTED, DockerRunState.COMPLETED, DockerRunState.FAILED, STATE_SCHEDULED_ID_NOT_FOUND]
+        return self.state in [
+            DockerRunState.ABORTED,
+            DockerRunState.COMPLETED,
+            DockerRunState.FAILED,
+            STATE_SCHEDULED_ID_NOT_FOUND,
+        ]
 
 
 class _ComputeWorkerMixin:
@@ -206,15 +216,64 @@ class _ComputeWorkerMixin:
 
         """
         try:
-            docker_run: DockerRunData = self._compute_worker_api.get_docker_run_by_scheduled_id(scheduled_id=scheduled_run_id)
-            info = ComputeWorkerRunInfo(state=docker_run.state, message=docker_run.message)
+            docker_run: DockerRunData = (
+                self._compute_worker_api.get_docker_run_by_scheduled_id(
+                    scheduled_id=scheduled_run_id
+                )
+            )
+            info = ComputeWorkerRunInfo(
+                state=docker_run.state, message=docker_run.message
+            )
         except ApiException:
             try:
                 _ = self.get_scheduled_run_by_id(scheduled_run_id)
-                info = ComputeWorkerRunInfo(state=DockerRunScheduledState.OPEN, message="Waiting for pickup by compute worker.")
+                info = ComputeWorkerRunInfo(
+                    state=DockerRunScheduledState.OPEN,
+                    message="Waiting for pickup by compute worker.",
+                )
             except ApiException:
-                info = ComputeWorkerRunInfo(state=STATE_SCHEDULED_ID_NOT_FOUND, message="The scheduled run was either canceled or does not exist.")
+                info = ComputeWorkerRunInfo(
+                    state=STATE_SCHEDULED_ID_NOT_FOUND,
+                    message="The scheduled run was either canceled or does not exist.",
+                )
         return info
+
+    def compute_worker_run_info_generator(
+        self, scheduled_run_id: str
+    ) -> Iterator[ComputeWorkerRunInfo]:
+        """
+        Yields information about a compute worker run
+
+        Polls the compute worker status every 30s.
+        If the status changed, it will yield a new ComputeWorkerRunInfo.
+        If the compute worker run finished, the generator stops
+
+        Args:
+            scheduled_run_id:
+                The id with which the run was scheduled.
+
+        Returns:
+            Generator of information about the compute worker run status
+
+        """
+        last_run_info = None
+        while True:
+            run_info = self.get_compute_worker_run_info(
+                scheduled_run_id=scheduled_run_id
+            )
+
+            # Only yield new run_info
+            if run_info != last_run_info:
+                yield run_info
+
+            # Break if the scheduled run is in one of the end states.
+            if run_info.in_end_state():
+                break
+
+            # Wait before polling the state again
+            time.sleep(30)  # Keep this at 30s or larger to prevent rate limiting.
+
+            last_run_info = run_info
 
 
 def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:

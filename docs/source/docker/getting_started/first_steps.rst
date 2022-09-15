@@ -257,23 +257,12 @@ Now that everything is in place, let's configure and run a simple job.
         }
     )
 
-    """Optionally, You can use this code to track the state of the compute worker and only continue if it has finished."""
-    last_run_info = None
-    while True:
-        run_info = client.get_compute_worker_run_info(scheduled_run_id=scheduled_run_id)
-
-        # Print the state and message if either is new. You can adapt this log as you like, e.g. also print the time.
-        if run_info != last_run_info:
-            print(f"Compute worker run is now in state='{run_info.state}' with message='{run_info.message}'")
-
-        # Break if the scheduled run is in one of the end states.
-        if run_info.in_end_state():
-            break
-
-        # Wait before polling the state again
-        time.sleep(30)  # Keep this at 30s or larger to prevent rate limiting.
-
-        last_run_info = run_info
+    """
+    Optionally, You can use this code to track and print the state of the compute worker.
+    The loop will end once the compute worker run has finished, was canceled or aborted.
+    """
+    for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
+        print(f"Compute worker run is now in state='{run_info.state}' with message='{run_info.message}'")
 
 The command schedules a job with the following configurations:
 
