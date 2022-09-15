@@ -98,9 +98,7 @@ class ScorerClassification(Scorer):
         if not isinstance(model_output, np.ndarray):
             model_output = np.array(model_output)
 
-        validated_model_output = self.ensure_valid_model_output(model_output)
-
-        super(ScorerClassification, self).__init__(validated_model_output)
+        self.model_output = self.ensure_valid_model_output(model_output)
 
     def ensure_valid_model_output(self, model_output: np.ndarray) -> np.ndarray:
         if len(model_output) == 0:
