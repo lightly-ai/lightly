@@ -137,3 +137,8 @@ class ScorerSemanticSegmentation(Scorer):
             scores[score_name] = np.array(score_list)
 
         return scores
+
+    @classmethod
+    def score_names(cls) -> List[str]:
+        """Returns the names of the calculated active learning scores"""
+        return ScorerClassification.score_names()

@@ -102,3 +102,10 @@ class TestScorerSemanticSegmentation(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             scorer.calculate_scores()
+
+    def test_scorer_semseg__score_names(self):
+
+        model_output = [np.empty(shape=(1,1,1))]
+        scorer = ScorerSemanticSegmentation(model_output=model_output)
+        scores = scorer.calculate_scores()
+        assert sorted(scores.keys()) == sorted(ScorerSemanticSegmentation.score_names())
