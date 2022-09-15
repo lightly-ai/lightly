@@ -105,7 +105,7 @@ class ScorerSemanticSegmentation(Scorer):
 
     def __init__(self,
                  model_output: Union[List[np.ndarray], Generator[np.ndarray, None, None]]):
-        super(ScorerSemanticSegmentation, self).__init__(model_output)
+        self.model_output = model_output
 
     def calculate_scores(self) -> Dict[str, np.ndarray]:
         """Calculates and returns the active learning scores.
@@ -137,3 +137,8 @@ class ScorerSemanticSegmentation(Scorer):
             scores[score_name] = np.array(score_list)
 
         return scores
+
+    @classmethod
+    def score_names(cls) -> List[str]:
+        """Returns the names of the calculated active learning scores"""
+        return ScorerClassification.score_names()

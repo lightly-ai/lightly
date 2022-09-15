@@ -197,7 +197,7 @@ class ScorerObjectDetection(Scorer):
     def __init__(self,
                  model_output: List[ObjectDetectionOutput],
                  config: Dict = None):
-        super(ScorerObjectDetection, self).__init__(model_output)
+        self.model_output = model_output
         self.config = config
         self._check_config()
 
