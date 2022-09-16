@@ -271,12 +271,12 @@ The command schedules a job with the following configurations:
 For more details and options regarding the worker config, head to :ref:`docker-configuration`.
 For more details and options regarding the selection config, head to :ref:`worker-selection`.
 
-Monitoring the compute worker run
+Monitoring the Compute Worker Run
 ---------------------------------
 
 The worker should pick up the job after a few seconds and start working on it. The
 status of the current run and scheduled jobs can be seen under https://app.lightly.ai/compute/runs.
-Alternatively, you can also monitor it from python.
+Alternatively, you can also monitor it from Python.
 
 .. code-block:: python
     :caption: Monitoring the compute worker run from Python

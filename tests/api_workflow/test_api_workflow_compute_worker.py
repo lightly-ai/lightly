@@ -1,11 +1,12 @@
 import json
+import random
 from unittest.mock import MagicMock
 
 import pytest
-from typing import Any
+from typing import Any, List
 from unittest import mock
 
-from lightly.api.api_workflow_compute_worker import STATE_SCHEDULED_ID_NOT_FOUND
+from lightly.api.api_workflow_compute_worker import STATE_SCHEDULED_ID_NOT_FOUND, ComputeWorkerRunInfo
 from lightly.openapi_generated.swagger_client import (
     SelectionConfig,
     SelectionConfigEntry,
@@ -406,3 +407,32 @@ def test_get_compute_worker_state_and_message_docker_state() -> None:
     assert run_info.state == DockerRunState.GENERATING_REPORT
     assert run_info.message == message
     assert run_info.in_end_state() == False
+
+def test_compute_worker_run_info_generator(mocker) -> None:
+
+    states = [f"state_{i}" for i in range(7)]
+    states[-1] = DockerRunState.COMPLETED
+
+    class MockedApiWorkflowClient:
+
+        def __init__(self, states: List[str]):
+            self.states = states
+            self.current_state_index = 0
+            random.seed(42)
+
+        def get_compute_worker_run_info(self, scheduled_run_id: str):
+            state = self.states[self.current_state_index]
+            if random.random() > 0.9:
+                self.current_state_index += 1
+            return ComputeWorkerRunInfo(state=state, message=state)
+
+    mocker.patch("time.sleep", lambda _: None)
+
+    mocked_client = MockedApiWorkflowClient(states)
+    run_infos = list(ApiWorkflowClient.compute_worker_run_info_generator(mocked_client, scheduled_run_id=""))
+
+    expected_run_infos = [ComputeWorkerRunInfo(state=state, message=state) for state in states]
+
+    assert run_infos == expected_run_infos
+
+

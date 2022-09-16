@@ -286,7 +286,7 @@ class _ComputeWorkerMixin:
 
         Polls the compute worker status every 30s.
         If the status changed, it will yield a new ComputeWorkerRunInfo.
-        If the compute worker run finished, the generator stops
+        If the compute worker run finished, the generator stops.
 
         Args:
             scheduled_run_id:
