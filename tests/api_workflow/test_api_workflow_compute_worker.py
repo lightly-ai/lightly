@@ -364,7 +364,7 @@ def test_get_compute_worker_state_and_message_OPEN() -> None:
     )
     def mocked_raise_exception(*args, **kwargs):
         raise ApiException
-    mocked_api_client = MagicMock(dataset_id="asdf", _compute_worker_api=MagicMock(get_docker_run_by_scheduled_id=mocked_raise_exception), get_scheduled_run_by_id=lambda id: scheduled_run)
+    mocked_api_client = MagicMock(dataset_id="asdf", _compute_worker_api=MagicMock(get_docker_run_by_scheduled_id=mocked_raise_exception), _get_scheduled_run_by_id=lambda id: scheduled_run)
 
     run_info = ApiWorkflowClient.get_compute_worker_run_info(
         self=mocked_api_client, scheduled_run_id=""
@@ -377,7 +377,7 @@ def test_get_compute_worker_state_and_message_OPEN() -> None:
 def test_get_compute_worker_state_and_message_CANCELED() -> None:
     def mocked_raise_exception(*args, **kwargs):
         raise ApiException
-    mocked_api_client = MagicMock(dataset_id="asdf", _compute_worker_api=MagicMock(get_docker_run_by_scheduled_id=mocked_raise_exception), get_scheduled_run_by_id=mocked_raise_exception)
+    mocked_api_client = MagicMock(dataset_id="asdf", _compute_worker_api=MagicMock(get_docker_run_by_scheduled_id=mocked_raise_exception), _get_scheduled_run_by_id=mocked_raise_exception)
     run_info = ApiWorkflowClient.get_compute_worker_run_info(self=mocked_api_client, scheduled_run_id="")
     assert run_info.state == STATE_SCHEDULED_ID_NOT_FOUND
     assert run_info.message == 'The scheduled run was either canceled or does not exist.'
