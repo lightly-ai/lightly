@@ -718,6 +718,101 @@ class DockerApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
+    def get_docker_run_by_scheduled_id(self, scheduled_id, **kwargs):  # noqa: E501
+        """get_docker_run_by_scheduled_id  # noqa: E501
+
+        Retrieves the associated docker run of a scheduled run; returns the docker run by the id of the scheduled run which caused this docker run. If a scheduled docker run has not yet started being processed by a worker, a 404 will be returned.    # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_docker_run_by_scheduled_id(scheduled_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID scheduled_id: ObjectId of the docker worker run (required)
+        :return: DockerRunData
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.get_docker_run_by_scheduled_id_with_http_info(scheduled_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.get_docker_run_by_scheduled_id_with_http_info(scheduled_id, **kwargs)  # noqa: E501
+            return data
+
+    def get_docker_run_by_scheduled_id_with_http_info(self, scheduled_id, **kwargs):  # noqa: E501
+        """get_docker_run_by_scheduled_id  # noqa: E501
+
+        Retrieves the associated docker run of a scheduled run; returns the docker run by the id of the scheduled run which caused this docker run. If a scheduled docker run has not yet started being processed by a worker, a 404 will be returned.    # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_docker_run_by_scheduled_id_with_http_info(scheduled_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID scheduled_id: ObjectId of the docker worker run (required)
+        :return: DockerRunData
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['scheduled_id']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_docker_run_by_scheduled_id" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'scheduled_id' is set
+        if self.api_client.client_side_validation and ('scheduled_id' not in params or
+                                                       params['scheduled_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `scheduled_id` when calling `get_docker_run_by_scheduled_id`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'scheduled_id' in params:
+            path_params['scheduledId'] = params['scheduled_id']  # noqa: E501
+
+        query_params = []
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v1/docker/runs/schedule/{scheduledId}', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='DockerRunData',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
     def get_docker_run_report_read_url_by_id(self, run_id, **kwargs):  # noqa: E501
         """get_docker_run_report_read_url_by_id  # noqa: E501
 

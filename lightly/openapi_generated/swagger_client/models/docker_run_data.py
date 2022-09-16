@@ -35,8 +35,10 @@ class DockerRunData(object):
     swagger_types = {
         'id': 'MongoObjectID',
         'docker_version': 'str',
-        'dataset_id': 'MongoObjectID',
         'state': 'DockerRunState',
+        'dataset_id': 'MongoObjectID',
+        'config_id': 'MongoObjectID',
+        'scheduled_id': 'MongoObjectID',
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp',
         'message': 'str',
@@ -47,8 +49,10 @@ class DockerRunData(object):
     attribute_map = {
         'id': 'id',
         'docker_version': 'dockerVersion',
-        'dataset_id': 'datasetId',
         'state': 'state',
+        'dataset_id': 'datasetId',
+        'config_id': 'configId',
+        'scheduled_id': 'scheduledId',
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt',
         'message': 'message',
@@ -56,7 +60,7 @@ class DockerRunData(object):
         'report_available': 'reportAvailable'
     }
 
-    def __init__(self, id=None, docker_version=None, dataset_id=None, state=None, created_at=None, last_modified_at=None, message=None, messages=None, report_available=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, docker_version=None, state=None, dataset_id=None, config_id=None, scheduled_id=None, created_at=None, last_modified_at=None, message=None, messages=None, report_available=None, _configuration=None):  # noqa: E501
         """DockerRunData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -64,8 +68,10 @@ class DockerRunData(object):
 
         self._id = None
         self._docker_version = None
-        self._dataset_id = None
         self._state = None
+        self._dataset_id = None
+        self._config_id = None
+        self._scheduled_id = None
         self._created_at = None
         self._last_modified_at = None
         self._message = None
@@ -75,9 +81,13 @@ class DockerRunData(object):
 
         self.id = id
         self.docker_version = docker_version
+        self.state = state
         if dataset_id is not None:
             self.dataset_id = dataset_id
-        self.state = state
+        if config_id is not None:
+            self.config_id = config_id
+        if scheduled_id is not None:
+            self.scheduled_id = scheduled_id
         self.created_at = created_at
         self.last_modified_at = last_modified_at
         if message is not None:
@@ -134,27 +144,6 @@ class DockerRunData(object):
         self._docker_version = docker_version
 
     @property
-    def dataset_id(self):
-        """Gets the dataset_id of this DockerRunData.  # noqa: E501
-
-
-        :return: The dataset_id of this DockerRunData.  # noqa: E501
-        :rtype: MongoObjectID
-        """
-        return self._dataset_id
-
-    @dataset_id.setter
-    def dataset_id(self, dataset_id):
-        """Sets the dataset_id of this DockerRunData.
-
-
-        :param dataset_id: The dataset_id of this DockerRunData.  # noqa: E501
-        :type: MongoObjectID
-        """
-
-        self._dataset_id = dataset_id
-
-    @property
     def state(self):
         """Gets the state of this DockerRunData.  # noqa: E501
 
@@ -176,6 +165,69 @@ class DockerRunData(object):
             raise ValueError("Invalid value for `state`, must not be `None`")  # noqa: E501
 
         self._state = state
+
+    @property
+    def dataset_id(self):
+        """Gets the dataset_id of this DockerRunData.  # noqa: E501
+
+
+        :return: The dataset_id of this DockerRunData.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._dataset_id
+
+    @dataset_id.setter
+    def dataset_id(self, dataset_id):
+        """Sets the dataset_id of this DockerRunData.
+
+
+        :param dataset_id: The dataset_id of this DockerRunData.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._dataset_id = dataset_id
+
+    @property
+    def config_id(self):
+        """Gets the config_id of this DockerRunData.  # noqa: E501
+
+
+        :return: The config_id of this DockerRunData.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._config_id
+
+    @config_id.setter
+    def config_id(self, config_id):
+        """Sets the config_id of this DockerRunData.
+
+
+        :param config_id: The config_id of this DockerRunData.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._config_id = config_id
+
+    @property
+    def scheduled_id(self):
+        """Gets the scheduled_id of this DockerRunData.  # noqa: E501
+
+
+        :return: The scheduled_id of this DockerRunData.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._scheduled_id
+
+    @scheduled_id.setter
+    def scheduled_id(self, scheduled_id):
+        """Sets the scheduled_id of this DockerRunData.
+
+
+        :param scheduled_id: The scheduled_id of this DockerRunData.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._scheduled_id = scheduled_id
 
     @property
     def created_at(self):

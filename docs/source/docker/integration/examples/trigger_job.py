@@ -1,3 +1,7 @@
+import time
+
+from lightly.openapi_generated.swagger_client import DockerRunScheduledState, DockerRunState
+
 # You can reuse the client from previous scripts. If you want to create a new
 # one you can uncomment the following line:
 # import lightly
@@ -6,7 +10,8 @@
 # Schedule the compute run using a custom config.
 # You can easily edit the values according to your needs.
 
-client.schedule_compute_worker_run(
+
+scheduled_run_id = client.schedule_compute_worker_run(
     worker_config={
         'enable_corruptness_check': True,
         'remove_exact_duplicates': True,
@@ -67,3 +72,15 @@ client.schedule_compute_worker_run(
         }
     }
 )
+
+"""
+Optionally, You can use this code to track and print the state of the compute worker.
+The loop will end once the compute worker run has finished, was canceled or aborted/failed.
+"""
+for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
+    print(f"Compute worker run is now in state='{run_info.state}' with message='{run_info.message}'")
+
+if run_info.ended_successfully():
+    print("SUCCESS")
+else:
+    print("FAILURE")
