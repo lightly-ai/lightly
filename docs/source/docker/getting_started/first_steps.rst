@@ -237,7 +237,7 @@ Now that everything is in place, let's configure and run a simple job.
 .. code-block:: python
     :caption: Scheduling a job from Python
 
-    client.schedule_compute_worker_run(
+    scheduled_run_id = client.schedule_compute_worker_run(
         worker_config={
             "enable_corruptness_check": True,
             "remove_exact_duplicates": True,
@@ -271,8 +271,27 @@ The command schedules a job with the following configurations:
 For more details and options regarding the worker config, head to :ref:`docker-configuration`.
 For more details and options regarding the selection config, head to :ref:`worker-selection`.
 
+Monitoring the Compute Worker Run
+---------------------------------
+
 The worker should pick up the job after a few seconds and start working on it. The
-status of the current run and scheduled jobs can be seen under https://app.lightly.ai/compute/runs
+status of the current run and scheduled jobs can be seen under https://app.lightly.ai/compute/runs.
+Alternatively, you can also monitor it from Python.
+
+.. code-block:: python
+    :caption: Monitoring the compute worker run from Python
+
+    """
+    You can use this code to track and print the state of the compute worker.
+    The loop will end once the compute worker run has finished, was canceled or aborted/failed.
+    """
+    for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
+        print(f"Compute worker run is now in state='{run_info.state}' with message='{run_info.message}'")
+
+    if run_info.ended_successfully():
+        print("SUCCESS")
+    else:
+        print("FAILURE")
 
 After the job was processed, the selected data will be accessible in the configured dataset. The
 report can be accessed from the compute worker runs page mentioned just above.
