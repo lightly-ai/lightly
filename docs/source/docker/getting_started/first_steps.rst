@@ -640,13 +640,12 @@ The output directory is structured in the following way:
 * data:
    The data directory contains everything to do with data. 
    
-    * `embeddings.csv` contains all computed embeddings for input samples.
+    * `embeddings.csv` contains the computed embeddings for all new input samples used in selection.
     * `selected_embeddings_including_datapool.csv` contains the embeddings of all selected samples.
-    * If `enable_corruptness_check=True`, `data` will contain a "clean" version of the dataset. 
+    * If `enable_corruptness_check=True`, `data` will contain a dataset filtered to ensure existence, accessibility, extension validity and absence of artefacts for all samples. 
     * If `selected_sequence_length > 1`, `data` will contain a `sequence_information.json`
       file with information about the selected sequences (filenames, video frame timestamps, ...).
       Head to :ref:`sequence-selection` for more details on sequence selection.
-    * With the object level workflow, `selected_image_embeddings_including_datapool.csv` contains embeddings of selected parent images.
 
 * filenames:
    This directory contains lists of filenames of the corrupt images, removed images, selected
