@@ -640,11 +640,10 @@ The output directory is structured in the following way:
 * data:
    The data directory contains everything to do with data. 
    
-    * If `enable_corruptness_check=True`, it will contain a "clean" version of the dataset. 
-    * If `remove_exact_duplicates=True`, it will contain a copy of the `embeddings.csv` 
-      where all duplicates are removed. Otherwise, it will simply store the 
-      embeddings computed by the model.
-    * If `selected_sequence_length > 1`, it will contain a `sequence_information.json`
+    * `embeddings.csv` contains the computed embeddings for all input samples used in selection (including datapool samples, but excluding corrupt or duplicate samples).
+    * `selected_embeddings_including_datapool.csv` contains the embeddings of all selected samples (including preselected datapool samples).
+    * If `enable_corruptness_check=True`, `data` will contain a filtered dataset. It will only contain samples whose files exist, are accessible, are of the type specified by their extension and don't have any artefacts.
+    * If `selected_sequence_length > 1`, `data` will contain a `sequence_information.json`
       file with information about the selected sequences (filenames, video frame timestamps, ...).
       Head to :ref:`sequence-selection` for more details on sequence selection.
 
