@@ -25,6 +25,7 @@ Results (5.3.2022):
 | NNCLR         |        256 |    200 |              0.726 |   86.8 Min |      4.2 GByte |
 | SimCLR        |        256 |    200 |              0.771 |   82.2 Min |      3.9 GByte |
 | SimSiam       |        256 |    200 |              0.669 |   78.6 Min |      3.9 GByte |
+| SMoG          |        128 |    200 |              0.698 |  220.9 Min |     14.3 GByte |
 | SwaV          |        256 |    200 |              0.748 |   77.6 Min |      4.0 GByte |
 ------------------------------------------------------------------------------------------
 | BarlowTwins   |        256 |    800 |              0.789 |  330.9 Min |      4.0 GByte |
@@ -129,6 +130,14 @@ dino_collate_fn = lightly.data.DINOCollateFunction(
     local_crop_size=64,
 )
 
+# Two crops for SMoG
+smog_collate_function = lightly.data.collate.SMoGCollateFunction(
+    crop_sizes=[128, 128],
+    crop_counts=[1, 1],
+    crop_min_scales=[0.2, 0.2],
+    crop_max_scales=[1.0, 1.0],
+)
+
 # Single crop augmentation for MAE
 mae_collate_fn = lightly.data.MAECollateFunction()
 
@@ -178,6 +187,8 @@ def get_data_loaders(batch_size: int, model):
         col_fn = mae_collate_fn
     elif model == MSNModel:
         col_fn = msn_collate_fn
+    elif model == SMoGModel:
+        col_fn = smog_collate_function
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
         batch_size=batch_size,
@@ -835,6 +846,106 @@ class MSNModel(BenchmarkModule):
             return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
 
 
+
+from sklearn.cluster import KMeans
+
+class SMoGModel(BenchmarkModule):
+
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+
+        # create a ResNet backbone and remove the classification head
+        resnet = lightly.models.ResNetGenerator('resnet-18')
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
+        )
+
+        # create a model based on ResNet
+        self.projection_head = heads.SMoGProjectionHead(512, 2048, 128)
+        self.prediction_head = heads.SMoGPredictionHead(128, 2048, 128)
+        self.backbone_momentum = copy.deepcopy(self.backbone)
+        self.projection_head_momentum = copy.deepcopy(self.projection_head)
+        utils.deactivate_requires_grad(self.backbone_momentum)
+        utils.deactivate_requires_grad(self.projection_head_momentum)
+
+        # smog
+        self.n_groups = 300 # 2% malus vs optimal setting of 3000 groups
+        memory_bank_size = 300 * batch_size # because we reset the group features every 300 iterations
+        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=memory_bank_size)
+        # create our loss
+        group_features = torch.nn.functional.normalize(
+            torch.rand(self.n_groups, 128), dim=1
+        ).to(self.device)
+        self.smog = heads.SMoGPrototypes(group_features=group_features, beta=0.99)
+        self.criterion = nn.CrossEntropyLoss()
+
+    def _reset_group_features(self):
+        # see Table 7b)
+        features = self.memory_bank.bank
+        if features is not None:
+            features = features.t().cpu().numpy()
+            kmeans = KMeans(self.n_groups).fit(features)
+            new_features = torch.from_numpy(kmeans.cluster_centers_).float()
+            new_features = torch.nn.functional.normalize(new_features, dim=1)
+            self.smog.group_features = new_features.cuda()
+
+    def _reset_momentum_weights(self):
+        # see Table 7b)
+        self.backbone_momentum = copy.deepcopy(self.backbone)
+        self.projection_head_momentum = copy.deepcopy(self.projection_head)
+        utils.deactivate_requires_grad(self.backbone_momentum)
+        utils.deactivate_requires_grad(self.projection_head_momentum)
+
+    def training_step(self, batch, batch_idx):
+
+        if self.global_step > 0 and self.global_step % 300 == 0:
+            # reset group features and weights every 300 iterations
+            self._reset_group_features()
+            self._reset_momentum_weights()
+        else:
+            # update momentum
+            utils.update_momentum(self.backbone, self.backbone_momentum, 0.99)
+            utils.update_momentum(self.projection_head, self.projection_head_momentum, 0.99)
+
+        (x0, x1), _, _ = batch
+        if batch_idx % 2:
+            tmp = x1
+            x1 = x0
+            x0 = tmp
+
+        x0_features = self.backbone(x0).flatten(start_dim=1)
+        x0_encoded = self.projection_head(x0_features)
+        x0_predicted = self.prediction_head(x0_encoded)
+        x1_features = self.backbone_momentum(x1).flatten(start_dim=1)
+        x1_encoded = self.projection_head_momentum(x1_features)
+
+        # update group features and get group assignments
+        assignments = self.smog.assign_groups(x1_encoded)
+        self.smog.update_groups(x0_encoded)
+
+        logits = self.smog(x0_predicted, temperature=0.1)
+        loss = self.criterion(logits, assignments)
+
+        # use memory bank to periodically reset the group features with k-means
+        self.memory_bank(x0_encoded, update=True)
+
+        return loss
+
+    def configure_optimizers(self):
+        params = list(self.backbone.parameters()) + list(self.projection_head.parameters()) + list(self.prediction_head.parameters())        
+        optim = torch.optim.SGD(
+            params, 
+            lr=0.01,
+            momentum=0.9,
+            weight_decay=1e-6,
+        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
+
+
+
+
 models = [
     BarlowTwinsModel,
     BYOLModel,
@@ -848,6 +959,7 @@ models = [
     SimCLRModel,
     SimSiamModel,
     SwaVModel,
+    SMoGModel
 ]
 bench_results = dict()
 
