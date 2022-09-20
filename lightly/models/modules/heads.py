@@ -310,7 +310,7 @@ class SMoGPredictionHead(ProjectionHead):
                  hidden_dim: int = 2048,
                  output_dim: int = 128):
         super(SMoGPredictionHead, self).__init__([
-            (input_dim, hidden_dim, nn.BatchNorm1d(2048), nn.ReLU()),
+            (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
             (hidden_dim, output_dim, None, None)
         ])
 
