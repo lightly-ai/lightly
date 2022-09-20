@@ -40,7 +40,8 @@ class DockerTaskDescription(object):
         'active_learning_scores_column_name': 'str',
         'masked_out_column_name': 'str',
         'sampling_config': 'SamplingConfig',
-        'n_data': 'float'
+        'n_data': 'float',
+        'seed': 'int'
     }
 
     attribute_map = {
@@ -51,10 +52,11 @@ class DockerTaskDescription(object):
         'active_learning_scores_column_name': 'activeLearningScoresColumnName',
         'masked_out_column_name': 'maskedOutColumnName',
         'sampling_config': 'samplingConfig',
-        'n_data': 'nData'
+        'n_data': 'nData',
+        'seed': 'seed'
     }
 
-    def __init__(self, embeddings_filename=None, embeddings_hash=None, method=None, existing_selection_column_name=None, active_learning_scores_column_name=None, masked_out_column_name=None, sampling_config=None, n_data=None, _configuration=None):  # noqa: E501
+    def __init__(self, embeddings_filename=None, embeddings_hash=None, method=None, existing_selection_column_name=None, active_learning_scores_column_name=None, masked_out_column_name=None, sampling_config=None, n_data=None, seed=-1, _configuration=None):  # noqa: E501
         """DockerTaskDescription - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -68,6 +70,7 @@ class DockerTaskDescription(object):
         self._masked_out_column_name = None
         self._sampling_config = None
         self._n_data = None
+        self._seed = None
         self.discriminator = None
 
         self.embeddings_filename = embeddings_filename
@@ -78,6 +81,7 @@ class DockerTaskDescription(object):
         self.masked_out_column_name = masked_out_column_name
         self.sampling_config = sampling_config
         self.n_data = n_data
+        self.seed = seed
 
     @property
     def embeddings_filename(self):
@@ -264,6 +268,31 @@ class DockerTaskDescription(object):
             raise ValueError("Invalid value for `n_data`, must not be `None`")  # noqa: E501
 
         self._n_data = n_data
+
+    @property
+    def seed(self):
+        """Gets the seed of this DockerTaskDescription.  # noqa: E501
+
+        seed for selection, set to -1 to deactivate  # noqa: E501
+
+        :return: The seed of this DockerTaskDescription.  # noqa: E501
+        :rtype: int
+        """
+        return self._seed
+
+    @seed.setter
+    def seed(self, seed):
+        """Sets the seed of this DockerTaskDescription.
+
+        seed for selection, set to -1 to deactivate  # noqa: E501
+
+        :param seed: The seed of this DockerTaskDescription.  # noqa: E501
+        :type: int
+        """
+        if self._configuration.client_side_validation and seed is None:
+            raise ValueError("Invalid value for `seed`, must not be `None`")  # noqa: E501
+
+        self._seed = seed
 
     def to_dict(self):
         """Returns the model properties as a dict"""
