@@ -842,16 +842,16 @@ class SMoGModel(BenchmarkModule):
 
 
 models = [
-    # BarlowTwinsModel, 
-    # BYOLModel,
-    # DCL,
-    # DCLW,
-    # DINOModel,
-    # MocoModel,
-    # NNCLRModel,
-    # SimCLRModel,
-    # SimSiamModel,
-    # SwaVModel,
+    BarlowTwinsModel,
+    BYOLModel,
+    DCL,
+    DCLW,
+    DINOModel,
+    MocoModel,
+    NNCLRModel,
+    SimCLRModel,
+    SimSiamModel,
+    SwaVModel,
     SMoGModel
 ]
 bench_results = dict()

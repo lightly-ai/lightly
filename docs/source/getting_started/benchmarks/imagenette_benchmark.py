@@ -21,6 +21,7 @@ Results (5.3.2022):
 | DCLW (*)      |        256 |    200 |              0.755 |   53.7 Min |      4.3 GByte |
 | DINO (Res18)  |        256 |    200 |              0.736 |   86.5 Min |      4.1 GByte |
 | MSN (ViT-S)   |        256 |    200 |              0.741 |   92.7 Min |     16.3 GByte |
+| SMoG          |        128 |    200 |              0.698 |  220.9 Min |     14.3 GByte |
 | Moco          |        256 |    200 |              0.727 |   87.3 Min |      4.3 GByte |
 | NNCLR         |        256 |    200 |              0.726 |   86.8 Min |      4.2 GByte |
 | SimCLR        |        256 |    200 |              0.771 |   82.2 Min |      3.9 GByte |
@@ -129,7 +130,7 @@ dino_collate_fn = lightly.data.DINOCollateFunction(
     local_crop_size=64,
 )
 
-# TODO
+# Two crops for SMoG
 smog_collate_function = lightly.data.collate.SMoGCollateFunction(
     crop_sizes=[128, 128],
     crop_counts=[1, 1],
@@ -846,8 +847,6 @@ class MSNModel(BenchmarkModule):
 
 
 
-# import here so as to not have an additional dependency
-# TODO: replace by faiss?
 from sklearn.cluster import KMeans
 
 class SMoGModel(BenchmarkModule):
@@ -948,18 +947,18 @@ class SMoGModel(BenchmarkModule):
 
 
 models = [
-    # BarlowTwinsModel, 
-    # BYOLModel,
-    # DCL,
-    # DCLW,
-    # DINOModel,
+    BarlowTwinsModel,
+    BYOLModel,
+    DCL,
+    DCLW,
+    DINOModel,
     # MAEModel, # disabled by default because MAE uses larger images with size 224
     # MSNModel, # disabled by default because MSN uses larger images with size 224
-    # MocoModel,
-    # NNCLRModel,
-    # SimCLRModel,
-    # SimSiamModel,
-    # SwaVModel,
+    MocoModel,
+    NNCLRModel,
+    SimCLRModel,
+    SimSiamModel,
+    SwaVModel,
     SMoGModel
 ]
 bench_results = dict()
