@@ -97,7 +97,7 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1 # optional, increase to create multiple runs and report mean + std
-batch_size = 512#128
+batch_size = 128
 lr_factor = batch_size / 128 # scales the learning rate linearly with batch size
 
 # use a GPU if available
@@ -159,7 +159,7 @@ dino_collate_fn = lightly.data.DINOCollateFunction(
     gaussian_blur=(0, 0, 0),
 )
 
-# TODO
+# Two crops for SMoG
 smog_collate_function = lightly.data.collate.SMoGCollateFunction(
     crop_sizes=[32, 32],
     crop_counts=[1, 1],
@@ -741,7 +741,6 @@ class DCLW(BenchmarkModule):
 
 
 # import here so as to not have an additional dependency
-# TODO: replace by faiss?
 from sklearn.cluster import KMeans
 
 class SMoGModel(BenchmarkModule):
