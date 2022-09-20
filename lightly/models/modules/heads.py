@@ -223,6 +223,99 @@ class SimSiamProjectionHead(ProjectionHead):
         ])
 
 
+class SMoGPrototypes(nn.Module):
+    """SMoG prototypes module for synchronous momentum grouping.
+    
+    """
+
+    def __init__(
+        self, group_features: torch.Tensor, beta: float,
+    ):
+        super(SMoGPrototypes, self).__init__()
+        self.group_features = group_features
+        self.beta = beta
+
+    def forward(self, x: torch.Tensor, temperature: float = 0.1) -> torch.Tensor:
+        """TODO"""
+        x = torch.nn.functional.normalize(x, dim=1)
+        group_features = torch.nn.functional.normalize(self.group_features, dim=1)
+        logits = torch.mm(x, group_features.t())
+        return logits / temperature
+
+    def update_groups(self, x: torch.Tensor) -> None:   
+        """Performs the synchronous momentum update of the group vectors.
+
+        Args:
+            x:
+                Tensor of shape bsz x dim.
+
+        Returns:
+            The update group features.
+
+        """
+        assignments = self.assign_groups(x)
+        self.group_features = self.group_features.detach()
+        for assigned_class in torch.unique(assignments): 
+            mask = assignments == assigned_class
+            self.group_features[assigned_class] = self.beta * self.group_features[assigned_class] + (1 - self.beta) * x[mask].mean(axis=0)
+
+        self.group_features= nn.functional.normalize(self.group_features, dim=1)
+
+    @torch.no_grad()
+    def assign_groups(self, x: torch.Tensor) -> torch.LongTensor:
+        """Assigns each representation in x to a group based on cosine similarity.
+
+        Args:
+            Tensor of shape bsz x dim.
+
+        Returns:
+            LongTensor of shape bsz indicating group assignments.
+        
+        """
+        return torch.argmax(self.forward(x), dim=-1)
+
+
+class SMoGProjectionHead(ProjectionHead):
+    """Projection head used for SMoG.
+
+    "The two kinds of head are both a two-layer MLP and their hidden layer is
+    followed by a BatchNorm [28] and an activation function. (...) The output
+    layer of projection head also has BN" [0]
+
+    [0]: SMoG, 2022, https://arxiv.org/pdf/2207.06167.pdf
+    
+    """
+    def __init__(self,
+                 input_dim: int = 2048,
+                 hidden_dim: int = 2048,
+                 output_dim: int = 128):
+        super(SMoGProjectionHead, self).__init__([
+            (input_dim, hidden_dim, nn.BatchNorm1d(2048), nn.ReLU()),
+            (hidden_dim, output_dim, nn.BatchNorm1d(128, affine=False), None)
+        ])
+
+
+class SMoGPredictionHead(ProjectionHead):
+    """Prediction head used for SMoG.
+
+    "The two kinds of head are both a two-layer MLP and their hidden layer is
+    followed by a BatchNorm [28] and an activation function. (...) The output
+    layer of projection head also has BN" [0]
+
+    [0]: SMoG, 2022, https://arxiv.org/pdf/2207.06167.pdf
+    
+    """
+    def __init__(self,
+                 input_dim: int = 128,
+                 hidden_dim: int = 2048,
+                 output_dim: int = 128):
+        super(SMoGPredictionHead, self).__init__([
+            (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+            (hidden_dim, output_dim, None, None)
+        ])
+
+
+
 class SimSiamPredictionHead(ProjectionHead):
     """Prediction head used for SimSiam.
 
