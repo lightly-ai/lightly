@@ -107,6 +107,17 @@ The input can be one of the following:
                 "type": "EMBEDDINGS"
             }
 
+        You can also use embeddings from other datasets to create strategies such as 
+        similarity search:
+
+        .. code-block:: python
+
+            "input": {
+                "type": "EMBEDDINGS",
+                "dataset_id": "DATASET_ID_OF_THE_QUERY_IMAGES",
+                "tag_name": "TAG_NAME_OF_THE_QUERY_IMAGES" # e.g. "initial-tag"
+            },
+
     .. tab:: SCORES
 
         They are a scalar number for each element. They are **specified by the prediction task and the scorer**:
@@ -312,6 +323,20 @@ There are several types of selection strategies, all trying to reach different o
 
         Note that not specified classes do not influence the selection process!
 
+    .. tab:: SIMILARITY
+
+        With this strategy you can use the input emebeddings from another dataset
+        to **select similar images**. This can be useful if you are looking for more 
+        examples of certain edge cases.
+
+        Can be used with **EMBEDDINGS**.
+
+        .. code-block:: python
+
+            "strategy": {
+                "type": "SIMILARITY",
+            }
+
 
 Configuration Examples
 ----------------------
@@ -472,6 +497,33 @@ Here are examples for the full configuration including the input for several obj
                             "sunny": 0.2,
                             "cloudy": 0.4
                         }
+                    }
+                }
+            ]
+        }
+
+.. dropdown:: Similarity Search
+
+    To perform simlarity search you need a dataset and tag
+    consisting of the query images.
+
+    We can then use the following configuration to find similar images from the
+    input dataset. This example will select 100 images from the input dataset that 
+    are the most similar to the images in the tag from the query dataset.
+
+    .. code-block:: python
+
+        {
+            "n_samples": 100, # put your number here
+            "strategies": [
+                {
+                    "input": {
+                        "type": "EMBEDDINGS",
+                        "dataset_id": "DATASET_ID_OF_THE_QUERY_IMAGES", 
+                        "tag_name": "TAG_NAME_OF_THE_QUERY_IMAGES" # e.g. "initial-tag"
+                    },
+                    "strategy": {
+                        "type": "SIMILARITY",
                     }
                 }
             ]
