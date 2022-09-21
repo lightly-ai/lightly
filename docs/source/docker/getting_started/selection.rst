@@ -508,7 +508,8 @@ Here are examples for the full configuration including the input for several obj
     consisting of the query images.
 
     We can then use the following configuration to find similar images from the
-    input dataset.
+    input dataset. This example will select 100 images from the input dataset that 
+    are the most similar to the images in the tag from the query dataset.
 
     .. code-block:: python
 
