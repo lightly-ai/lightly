@@ -81,7 +81,11 @@ class _DatasetsMixin:
             )
 
     def create_dataset(self, dataset_name: str, dataset_type: Optional[str] = None):
-        """Creates a dataset on the Lightly Platform..
+        """Creates a dataset on the Lightly Platform.
+
+        The dataset_id of the created dataset is stored in the client.dataset_id
+        attribute and all further requests with the client will use the created dataset
+        by default.
 
         Args:
             dataset_name:
@@ -102,6 +106,13 @@ class _DatasetsMixin:
             >>>
             >>> # or to work with videos
             >>> client.create_dataset('your-dataset-name', dataset_type=DatasetType.VIDEOS)
+            >>>
+            >>> # retrieving dataset_id of the created dataset
+            >>> dataset_id = client.dataset_id
+            >>>
+            >>> # future client requests use the created dataset by default
+            >>> client.dataset_type
+            'Videos'
         """
 
         if self.dataset_name_exists(dataset_name=dataset_name):
