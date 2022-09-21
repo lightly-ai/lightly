@@ -83,14 +83,15 @@ class _DatasetsMixin:
     def create_dataset(self, dataset_name: str, dataset_type: Optional[str] = None):
         """Creates a dataset on the Lightly Platform..
 
-        Raises a ValueError if a dataset with the given name already exists.
-
         Args:
             dataset_name:
                 The name of the dataset to be created.
             dataset_type:
                 The type of the dataset. We recommend to use the API provided constants
                 `DatasetType.IMAGES` and `DatasetType.VIDEOS`.
+
+        Raises:
+            ValueError: If a dataset with dataset_name already exists.
 
         Examples:
             >>> from lightly.api import ApiWorkflowClient
