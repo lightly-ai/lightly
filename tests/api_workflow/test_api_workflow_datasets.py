@@ -12,7 +12,16 @@ class TestApiWorkflowDatasets(MockedApiWorkflowSetup):
 
     def test_create_dataset_existing(self):
         self.api_workflow_client._datasets_api.reset()
-        self.api_workflow_client.create_dataset(dataset_name="dataset_1")
+        with self.assertRaises(ValueError):
+            self.api_workflow_client.create_dataset(dataset_name="dataset_1")
+
+    def test_dataset_name_exists__new(self):
+        self.api_workflow_client._datasets_api.reset()
+        assert self.api_workflow_client.dataset_name_exists(dataset_name="dataset_new") == False
+
+    def test_dataset_name_exists__existing(self):
+        self.api_workflow_client._datasets_api.reset()
+        assert self.api_workflow_client.dataset_name_exists(dataset_name="dataset_1") == True
 
     def test_create_dataset_with_counter(self):
         self.api_workflow_client._datasets_api.reset()
@@ -55,4 +64,3 @@ class TestApiWorkflowDatasets(MockedApiWorkflowSetup):
         self.api_workflow_client.create_new_dataset_with_unique_name('dataset')
         num_datasets_after = len(self.api_workflow_client.get_datasets())
         assert num_datasets_before + 1 == num_datasets_after
-
