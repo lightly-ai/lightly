@@ -33,7 +33,7 @@ Using Docker
 -------------
 
 We use docker containers to ship the Lightly Worker. Docker allows us to run the
-same worker on various operating systems with different setups. 
+same worker on various operating systems with different setups.
 
 `To learn more about docker please head over to the official docs! <https://docs.docker.com/>`_
 
@@ -69,7 +69,7 @@ worker mode (as outlined in :ref:`docker-setup`).
 
 
 Here, we use volume mapping provided by the docker run command to provide an output directory.
-A docker container itself is not considered to be a good place to store data. 
+A docker container itself is not considered to be a good place to store data.
 Volume mapping allows the worker to interact with the filesystem of the host system.
 
 The Lightly worker requires that an `{OUTPUT_DIR}` is specified where it can store
@@ -114,10 +114,36 @@ a new dataset from Python or re-use an existing one (see :ref:`datapool`).
 
 You can see the dataset under https://app.lightly.ai/datasets
 
+.. _worker-setting-datasource-configs:
+
+Setting the datasource configs
+------------------------------
+
 The Lightly worker reads input data from a cloud storage folder and will upload selection results
-to cloud storage as well. You therefore need to provide read and write access to your storage bucket.
+to cloud storage as well. You therefore need to define an `INPUT` and `LIGHTLY` bucket.
 You can re-use the `client` from the previous step. If you create a new `ApiWorkflowClient`
 make sure to specify the `dataset_id` in the constructor.
+
+INPUT bucket
+^^^^^^^^^^^^
+
+The `INPUT` bucket is where Lightly reads your input data from. You must specify it and you must provide Lightly `LIST` and `READ` access to it.
+
+LIGHTLY bucket
+^^^^^^^^^^^^^^
+
+The `LIGHTLY` bucket must be specified as well and you must provide Lightly `LIST`, `READ` and `WRITE` access to it.
+You can have separate credentials for it or use the same as for the `INPUT` bucket.
+The `LIGHTLY` bucket can point to a different directory in the same bucket or a different bucket (even located at a different cloud storage provider).
+Its `resource_path` must point to an existing directory. This directory must exist, but can be empty.
+The `LIGHTLY` bucket is used for many purposes:
+
+- Saving thumbnails of images for a more responsive Lightly Platform.
+- Saving images of cropped out objects, if you use the object-level workflow. See also :ref:`docker-object-level`.
+- Saving frames of videos, if your input consists of videos.
+- Providing the relevant filenames file if you want to to run the lightly worker only on a subset of input files: See also :ref:`specifying_relevant_files`.
+- Providing predictions for running the object level workflow or as additional information for the selection process. See also :ref:`docker-datasource-predictions`.
+- Providing metadata as additional information for the selection process. See also :ref:`docker-datasource-metadata`.
 
 
 .. tabs::
@@ -138,9 +164,9 @@ make sure to specify the `dataset_id` in the constructor.
                 secret_access_key='S3-SECRET-ACCESS-KEY',
                 purpose=DatasourcePurpose.INPUT
             )
-            # Output bucket
+            # Lightly bucket
             client.set_s3_config(
-                resource_path="s3://bucket/output/",
+                resource_path="s3://bucket/lightly/",
                 region='eu-central-1',
                 access_key='S3-ACCESS-KEY',
                 secret_access_key='S3-SECRET-ACCESS-KEY',
@@ -163,9 +189,9 @@ make sure to specify the `dataset_id` in the constructor.
                 external_id='S3-EXTERNAL-ID'
                 purpose=DatasourcePurpose.INPUT
             )
-            # Output bucket
+            # Lightly bucket
             client.set_s3_delegated_access_config(
-                resource_path="s3://bucket/output/",
+                resource_path="s3://bucket/lightly/",
                 region='eu-central-1',
                 role_arn='S3-ROLE-ARN',
                 external_id='S3-EXTERNAL-ID'
@@ -188,9 +214,9 @@ make sure to specify the `dataset_id` in the constructor.
                 credentials=json.dumps(json.load(open('credentials_read.json'))),
                 purpose=DatasourcePurpose.INPUT
             )
-            # Output bucket
+            # Lightly bucket
             client.set_gcs_config(
-                resource_path="gs://bucket/output/",
+                resource_path="gs://bucket/lightly/",
                 project_id="PROJECT-ID",
                 credentials=json.dumps(json.load(open('credentials_write.json'))),
                 purpose=DatasourcePurpose.LIGHTLY
@@ -212,20 +238,21 @@ make sure to specify the `dataset_id` in the constructor.
                 sas_token='SAS-TOKEN',
                 purpose=DatasourcePurpose.INPUT
             )
-            # Output bucket
+            # Lightly bucket
             client.set_azure_config(
-                container_name='my-container/output/',
+                container_name='my-container/lightly/',
                 account_name='ACCOUNT-NAME',
                 sas_token='SAS-TOKEN',
                 purpose=DatasourcePurpose.LIGHTLY
             )
 
-
 .. warning::
-    The credentials passed above need to provide Lightly with `LIST` and `READ` access to the input bucket and
-    with `LIST`, `READ`, and `WRITE` access to the output bucket. See :ref:`dataset-creation-gcloud-bucket`, 
+    The credentials passed above need to provide Lightly with `LIST` and `READ` access to the `INPUT` bucket and
+    with `LIST`, `READ`, and `WRITE` access to the `LIGHTLY` bucket. See :ref:`dataset-creation-gcloud-bucket`,
     :ref:`dataset-creation-aws-bucket`, and :ref:`dataset-creation-azure-storage` for help
     with configuring the different roles.
+
+
 
 .. _worker-scheduling-a-job:
 
@@ -264,7 +291,7 @@ The command schedules a job with the following configurations:
 
 - :code:`remove_exact_duplicates` Removes exact duplicates if **True**.
 
-- The :code:`selection_config` will make the Lightly Worker choose 50 samples 
+- The :code:`selection_config` will make the Lightly Worker choose 50 samples
   from the initial dataset that are as diverse as possible. This is done using the
   embeddings which are automatically created during the run.
 
@@ -302,11 +329,11 @@ report can be accessed from the compute worker runs page mentioned just above.
 Training a Self-Supervised Model
 --------------------------------
 
-Sometimes it may be beneficial to finetune a self-supervised model on your 
-dataset before embedding the images. This may be the case when the dataset is 
+Sometimes it may be beneficial to finetune a self-supervised model on your
+dataset before embedding the images. This may be the case when the dataset is
 from a specific domain (e.g. for medical images).
 
-The command below will **train a self-supervised model** for (default: 100) 
+The command below will **train a self-supervised model** for (default: 100)
 epochs on the input images before embedding the images and selecting from them.
 
 
@@ -343,7 +370,7 @@ Here are some of the most common parameters for the **lightly_config**
 you might want to change:
 
 - :code:`loader.num_workers` specifies the number of background workers for data processing.
-  -1 uses the number of available CPU cores. 
+  -1 uses the number of available CPU cores.
 - :code:`trainer.max_epochs` determines the number of epochs your SSL model should be trained for.
 
 
@@ -463,6 +490,7 @@ you need to specify the newly created directory as the :code:`{SHARED_DIR}` and 
 :code:`lightly_epoch_X.ckpt`.
 
 
+.. _specifying_relevant_files:
 
 Specifying Relevant Files
 -------------------------
@@ -471,7 +499,7 @@ to pass a list of filenames to the worker using the `relevant_filenames_file` co
 It will then only consider the listed filenames and ignore all others. To do so, you can create a text file which
 contains one relevant filename per line and then pass the path to the text file when scheduling the job. This works for videos and images.
 
-.. warning:: The `relevant_filenames_file` is expected to be in the **output bucket** as specified above (see `Creating a Dataset`_). And must always be
+.. warning:: The `relevant_filenames_file` is expected to be in the **lightly bucket** as specified above (see :ref:`worker-setting-datasource-configs`). And must always be
     located in a subdirectory called `.lightly`.
 
 For example, let's say you're working with the following file structure in an S3 bucket where
@@ -486,7 +514,7 @@ you are only interested in `image_1.png` and `subdir/image_3.png`
             L image_3.png
 
 
-Then you can add a file called `relevant_filenames.txt` to your output bucket with the following content (note: only file paths relative to the bucket are supported! And relative paths cannot include dot notations `./` or `../`)
+Then you can add a file called `relevant_filenames.txt` to your Lightly bucket with the following content (note: only file paths relative to the bucket are supported! And relative paths cannot include dot notations `./` or `../`)
 
 .. code-block:: text
     :caption: relevant_filenames.txt
@@ -495,12 +523,12 @@ Then you can add a file called `relevant_filenames.txt` to your output bucket wi
     subdir/image_3.png
 
 
-The output bucket should then look like this:
+The Lightly bucket should then look like this:
 
 
 .. code-block:: console
 
-    s3://my-output-bucket/
+    s3://my-Lightly-bucket/
         L .lightly/
             L relevant_filenames.txt
 
@@ -547,7 +575,7 @@ export and download the filenames for further processing:
 
     client = ApiWorkflowClient(token='MY_AWESOME_TOKEN', dataset_id='xyz') # replace this with your token
     filenames = client.export_filenames_by_tag_name(
-        'initial-tag' # name of the datasets tag 
+        'initial-tag' # name of the datasets tag
     )
     with open('filenames-of-initial-tag.txt', 'w') as f:
         f.write(filenames)
@@ -565,7 +593,7 @@ It is also possible to directly download the actual files themselves as follows:
 
     client = ApiWorkflowClient(token='MY_AWESOME_TOKEN', dataset_id='xyz') # replace this with your token
     client.download_dataset(
-        './my/output/path/', # path to where the files should be saved 
+        './my/output/path/', # path to where the files should be saved
         'initial-tag'        # name of the datasets tag
     )
 
@@ -574,7 +602,7 @@ Sharing Datasets
 ----------------
 
 Once a dataset has been created we can also make it accessible to other users by
-sharing it. Sharing works through e-mail addresses. 
+sharing it. Sharing works through e-mail addresses.
 
 .. code-block:: python
     :caption: Share a dataset
@@ -594,8 +622,8 @@ sharing it. Sharing works through e-mail addresses.
     client.share_dataset_only_with(dataset_id="MY_DATASET_ID", user_emails=[])
 
 
-If you want to get a list of users that have access to a given dataset we can do 
-this using the following code: 
+If you want to get a list of users that have access to a given dataset we can do
+this using the following code:
 
 .. code-block:: python
     :caption: Share a dataset
@@ -620,7 +648,7 @@ Reporting
 
 To facilitate sustainability and reproducibility in ML, the Lightly worker
 has an integrated reporting component. For every dataset, you run through the container
-an output directory gets created with the exact configuration used for the experiment. 
+an output directory gets created with the exact configuration used for the experiment.
 Additionally, plots, statistics, and more information collected
 during the various processing steps are provided.
 E.g. there is information about the corruptness check, embedding process and selection process.
@@ -638,8 +666,8 @@ The output directory is structured in the following way:
 * config:
    A directory containing copies of the configuration files and overwrites.
 * data:
-   The data directory contains everything to do with data. 
-   
+   The data directory contains everything to do with data.
+
     * `embeddings.csv` contains the computed embeddings for all input samples used in selection (including datapool samples, but excluding corrupt or duplicate samples).
     * `selected_embeddings_including_datapool.csv` contains the embeddings of all selected samples (including preselected datapool samples).
     * If `enable_corruptness_check=True`, `data` will contain a filtered dataset. It will only contain samples whose files exist, are accessible, are of the type specified by their extension and don't have any artefacts.
@@ -725,8 +753,8 @@ Evaluation of the Selection Process
 The report contains histograms of the pairwise distance between images before and after the selection process.
 
 An example of such a histogram before and after filtering for the CamVid dataset consisting of 367
-samples is shown below. We marked the region which is of special interest with an orange rectangle. 
-Our goal is to make this histogram more symmetric by removing samples of short distances from each other. 
+samples is shown below. We marked the region which is of special interest with an orange rectangle.
+Our goal is to make this histogram more symmetric by removing samples of short distances from each other.
 
 If we remove 25 samples (7%) out of the 367 samples of the CamVid dataset the histogram looks more symmetric
 as shown below. In our experiments, removing 7% of the dataset results in a model with higher validation set accuracy.
