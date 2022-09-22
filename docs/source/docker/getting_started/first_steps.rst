@@ -135,7 +135,7 @@ LIGHTLY bucket
 The `LIGHTLY` bucket must be specified as well and you must provide Lightly `LIST`, `READ` and `WRITE` access to it.
 You can have separate credentials for it or use the same as for the `INPUT` bucket.
 The `LIGHTLY` bucket can point to a different directory in the same bucket or a different bucket (even located at a different cloud storage provider).
-Its `resource_path` must point to an existing directory. This directory can be empty, but most not.
+Its `resource_path` must point to an existing directory. This directory must exist, but can be empty.
 The `LIGHTLY` bucket is used for many purposes:
 
 - Saving thumbnails of images for a more responsive Lightly Platform.
