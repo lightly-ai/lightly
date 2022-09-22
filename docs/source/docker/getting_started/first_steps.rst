@@ -114,20 +114,31 @@ a new dataset from Python or re-use an existing one (see :ref:`datapool`).
 
 You can see the dataset under https://app.lightly.ai/datasets
 
+.. _worker-setting-datasource-configs:
+
+Setting the datasource configs
+------------------------------
+
 The Lightly worker reads input data from a cloud storage folder and will upload selection results
 to cloud storage as well. You therefore need to define an `INPUT` and `LIGHTLY` bucket.
 You can re-use the `client` from the previous step. If you create a new `ApiWorkflowClient`
 make sure to specify the `dataset_id` in the constructor.
 
+INPUT bucket
+^^^^^^^^^^^^
+
 The `INPUT` bucket is where Lightly reads your input data from. You must specify it and you must provide Lightly `LIST` and `READ` access to it.
+
+LIGHTLY bucket
+^^^^^^^^^^^^^^
 
 The `LIGHTLY` bucket must be specified as well and you must provide Lightly `LIST`, `READ` and `WRITE` access to it.
 You can have separate credentials for it or use the same as for the `INPUT` bucket.
-The `LIGHTLY` bucket can be on a completely different bucket as the INPUT bucket or point to a different directory in the same bucket.
+The `LIGHTLY` bucket can point to a different directory in the same bucket or a different bucket (even located at a different cloud storage provider).
 Its `resource_path` must point to an existing directory. This directory can be empty, but most not.
 The `LIGHTLY` bucket is used for many purposes:
 
-- Saving thumbnails of images for a more responsive WebApp.
+- Saving thumbnails of images for a more responsive Lightly Platform.
 - Saving images of cropped out objects, if you use the object-level workflow. See also :ref:`docker-object-level`.
 - Saving frames of videos, if your input consists of videos.
 - Providing the relevant filenames file if you want to to run the lightly worker only on a subset of input files: See also :ref:`specifying_relevant_files`.
@@ -480,6 +491,7 @@ you need to specify the newly created directory as the :code:`{SHARED_DIR}` and 
 
 
 .. _specifying_relevant_files:
+
 Specifying Relevant Files
 -------------------------
 Oftentimes not all files in a bucket are relevant. In that case, it's possible
@@ -487,7 +499,7 @@ to pass a list of filenames to the worker using the `relevant_filenames_file` co
 It will then only consider the listed filenames and ignore all others. To do so, you can create a text file which
 contains one relevant filename per line and then pass the path to the text file when scheduling the job. This works for videos and images.
 
-.. warning:: The `relevant_filenames_file` is expected to be in the **lightly bucket** as specified above (see `Creating a Dataset`_). And must always be
+.. warning:: The `relevant_filenames_file` is expected to be in the **lightly bucket** as specified above (see :ref:`worker-setting-datasource-configs`). And must always be
     located in a subdirectory called `.lightly`.
 
 For example, let's say you're working with the following file structure in an S3 bucket where
