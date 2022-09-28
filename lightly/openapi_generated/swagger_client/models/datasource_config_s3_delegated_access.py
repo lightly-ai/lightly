@@ -91,7 +91,7 @@ class DatasourceConfigS3DelegatedAccess(object):
     def s3_external_id(self):
         """Gets the s3_external_id of this DatasourceConfigS3DelegatedAccess.  # noqa: E501
 
-        the external ID specified when creating the role.  # noqa: E501
+        The external ID specified when creating the role.  # noqa: E501
 
         :return: The s3_external_id of this DatasourceConfigS3DelegatedAccess.  # noqa: E501
         :rtype: str
@@ -102,7 +102,7 @@ class DatasourceConfigS3DelegatedAccess(object):
     def s3_external_id(self, s3_external_id):
         """Sets the s3_external_id of this DatasourceConfigS3DelegatedAccess.
 
-        the external ID specified when creating the role.  # noqa: E501
+        The external ID specified when creating the role.  # noqa: E501
 
         :param s3_external_id: The s3_external_id of this DatasourceConfigS3DelegatedAccess.  # noqa: E501
         :type: str
@@ -116,7 +116,7 @@ class DatasourceConfigS3DelegatedAccess(object):
     def s3_arn(self):
         """Gets the s3_arn of this DatasourceConfigS3DelegatedAccess.  # noqa: E501
 
-        the ARN of the role you created  # noqa: E501
+        The ARN of the role you created  # noqa: E501
 
         :return: The s3_arn of this DatasourceConfigS3DelegatedAccess.  # noqa: E501
         :rtype: str
@@ -127,7 +127,7 @@ class DatasourceConfigS3DelegatedAccess(object):
     def s3_arn(self, s3_arn):
         """Sets the s3_arn of this DatasourceConfigS3DelegatedAccess.
 
-        the ARN of the role you created  # noqa: E501
+        The ARN of the role you created  # noqa: E501
 
         :param s3_arn: The s3_arn of this DatasourceConfigS3DelegatedAccess.  # noqa: E501
         :type: str
