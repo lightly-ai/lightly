@@ -18,8 +18,10 @@ filenames, or any other information which can be sensitive to our customers.
 Licensing
 ^^^^^^^^^
 
-The licensing and account management is done through the :ref:`ref-authentication-token` 
-as if you would use lightly. The token will be used to authenticate your account. 
+The licensing and account management is done through the :ref:`ref-authentication-token`
+obtained from the Lightly Platform (https://app.lightly.ai). 
+
+The token will be used to authenticate your account. 
 The authentication happens at every run of the worker. Make sure the Lightly worker
 has a working internet connection and has access to https://api.lightly.ai.
 
@@ -138,6 +140,14 @@ Don't forget to tag the image again after pulling it.
 .. note:: You can download a specific version of the Docker image by indicating the version number
           instead of `latest`. We follow semantic versioning standards. 
 
+
+Furthermore, we always recommend using the latest version of the lightly pip package 
+alongside the latest version of the Lightly Worker. You can update the 
+pip package using the following command.
+
+.. code-block:: console
+
+    pip install lightly --upgrade
 
 .. _docker-setup-sanity-check:
 
