@@ -59,7 +59,7 @@ class DatasourceConfigGCS(object):
     def gcs_project_id(self):
         """Gets the gcs_project_id of this DatasourceConfigGCS.  # noqa: E501
 
-        the projectId where you have your bucket configured  # noqa: E501
+        The projectId where you have your bucket configured  # noqa: E501
 
         :return: The gcs_project_id of this DatasourceConfigGCS.  # noqa: E501
         :rtype: str
@@ -70,7 +70,7 @@ class DatasourceConfigGCS(object):
     def gcs_project_id(self, gcs_project_id):
         """Sets the gcs_project_id of this DatasourceConfigGCS.
 
-        the projectId where you have your bucket configured  # noqa: E501
+        The projectId where you have your bucket configured  # noqa: E501
 
         :param gcs_project_id: The gcs_project_id of this DatasourceConfigGCS.  # noqa: E501
         :type: str
