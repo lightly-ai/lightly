@@ -32,32 +32,18 @@ lightly-magic token=$TOKEN input_dir=$INPUT_DIR trainer.max_epochs=1 new_dataset
 
 echo "############################### Test 3"
 lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_3_${DATE_TIME}
-# This would fail, since a dataset with this name already exists
-# lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_3_${DATE_TIME}
 ((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
 echo "############################### Test 4"
-lightly-magic token=$TOKEN input_dir=$INPUT_DIR trainer.max_epochs=0 new_dataset_name=test_unmocked_cli_4_${DATE_TIME}
-# This would fail, since a dataset with this name already exists
-# lightly-magic token=$TOKEN input_dir=$INPUT_DIR trainer.max_epochs=0 new_dataset_name=test_unmocked_cli_4_${DATE_TIME}
+lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_4_${DATE_TIME} upload=metadata
 ((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
 echo "############################### Test 5"
-lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_5_${DATE_TIME} upload=metadata
+lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_5_${DATE_TIME} upload=thumbnails
 ((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
 echo "############################### Test 6"
-lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_6_${DATE_TIME} upload=thumbnails
-((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
-
-echo "############################### Test 7"
-lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_7_${DATE_TIME} upload=metadata custom_metadata=$CUSTOM_METADATA_FILENAME
-((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
-
-echo "############################### Test 8"
-lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_8_${DATE_TIME} upload=metadata custom_metadata=$CUSTOM_METADATA_FILENAME
-# This would fail, since a dataset with this name already exists
-# lightly-upload token=$TOKEN new_dataset_name=test_unmocked_cli_8_${DATE_TIME} custom_metadata=$CUSTOM_METADATA_FILENAME
+lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_6_${DATE_TIME} upload=metadata custom_metadata=$CUSTOM_METADATA_FILENAME
 ((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
 
