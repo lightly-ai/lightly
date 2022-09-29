@@ -32,7 +32,8 @@ lightly-magic token=$TOKEN input_dir=$INPUT_DIR trainer.max_epochs=1 new_dataset
 
 echo "############################### Test 3"
 lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_3_${DATE_TIME}
-lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_3_${DATE_TIME}
+# This would fail, since a dataset with this name already exists
+# lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_3_${DATE_TIME}
 ((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
 echo "############################### Test 4"
