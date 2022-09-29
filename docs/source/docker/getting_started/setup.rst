@@ -45,8 +45,8 @@ See :ref:`rst-installing` for details.
 Docker Installation
 ^^^^^^^^^^^^^^^^^^^^
 
-Lightly Worker requires docker to run. We highly recommend a docker Installation 
-that supports using GPUs for hardware acceleration.
+Lightly Worker requires docker to run. We highly recommend a docker installation 
+that supports using GPUs for hardware acceleration using a Linux operating system.
 
 **Check if docker is installed:**
 
@@ -78,16 +78,16 @@ In short, installing the Docker image consists of the following steps:
     a :code:`container-credentials.json` file from your account manager.
 
 2. Authenticate your docker account
-    To be able to download the Docker image you need to log in with these credentials. 
+    To be able to download docker images of Lightly you need to log in with these credentials. 
 
-    The following command will authenticate your installed Docker account. 
+    The following command will authenticate yourself to gain access to the Lightly docker images. 
     We assume :code:`container-credentials.json` is in your current directory.
 
     .. code-block:: console
 
         cat container-credentials.json | docker login -u _json_key --password-stdin https://eu.gcr.io
 
-    You should see a message stating `Loging Succeeded`.
+    You should see a message stating `Login Succeeded`.
 
 3. Pull the Lightly Worker docker image
     Using the following command you pull the latest image from our European cloud server:
