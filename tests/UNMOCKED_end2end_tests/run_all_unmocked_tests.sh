@@ -55,8 +55,9 @@ lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_
 ((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
 echo "############################### Test 8"
-lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_8_${DATE_TIME} upload=metadata
-lightly-upload token=$TOKEN new_dataset_name=test_unmocked_cli_8 custom_metadata=$CUSTOM_METADATA_FILENAME
+lightly-upload token=$TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_8_${DATE_TIME} upload=metadata custom_metadata=$CUSTOM_METADATA_FILENAME
+# This would fail, since a dataset with this name already exists
+# lightly-upload token=$TOKEN new_dataset_name=test_unmocked_cli_8_${DATE_TIME} custom_metadata=$CUSTOM_METADATA_FILENAME
 ((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
 
