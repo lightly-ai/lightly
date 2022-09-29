@@ -61,7 +61,7 @@ lightly-upload token=$TOKEN new_dataset_name=test_unmocked_cli_8 custom_metadata
 
 
 echo "############################### Deleting all datasets again"
-python tests/UNMOCKED_end2end_tests/delete_datasets_test_unmocked_cli.py $NUMBER_OF_DATASETS $TOKEN
+python tests/UNMOCKED_end2end_tests/delete_datasets_test_unmocked_cli.py $NUMBER_OF_DATASETS $TOKEN ${DATE_TIME}
 
 echo "############################### Test active learning"
 INPUT_DIR="${PWD}/clothing_dataset_small/test"
