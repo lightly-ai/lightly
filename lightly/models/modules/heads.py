@@ -350,8 +350,8 @@ class SwaVProjectionHead(ProjectionHead):
         ])
 
 
-class SwaVPrototypes(ProjectionHead):
-    """Prototypes used for SwaV.
+class SwaVPrototypes(nn.Module):
+    """Multihead Prototypes used for SwaV.
 
     Each output feature is assigned to a prototype, SwaV solves the swapped
     predicition problem where the features of one augmentation are used to
@@ -370,14 +370,18 @@ class SwaVPrototypes(ProjectionHead):
 
     """
     def __init__(self,
-                 input_dim: int = 128,
-                 n_prototypes: int = 3000):
-        super(SwaVPrototypes, self).__init__([])
-        self.layers = nn.Linear(input_dim, n_prototypes, bias=False)
+                input_dim: int,
+                n_prototypes: List[int]):
+        super(SwaVPrototypes, self).__init__()
+        self.number_of_heads = len(n_prototypes)
+        for layerNum, k in enumerate(self.number_of_heads):
+            self.add_module("prototypes" + str(layerNum), nn.Linear(input_dim, k, bias = False))
 
-    def normalize(self):
-        """Normalizes the prototypes so that they are on the unit sphere."""
-        utils.normalize_weight(self.layers.weight)
+    def forward(self, x):
+        out = []
+        for head in range(self.number_of_heads):
+            out.append(getattr(self, "prototypes" + str(head))(x))
+        return out
 
 
 class DINOProjectionHead(ProjectionHead):
