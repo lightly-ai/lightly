@@ -376,7 +376,7 @@ class SwaVPrototypes(nn.Module):
         self.number_of_heads = len(n_prototypes) if isinstance(n_prototypes, list) else 1
         #Default to a list of 1 if n_prototypes is an int.
         self.n_prototypes = n_prototypes if isinstance(n_prototypes, list) else [n_prototypes]
-        for layerNum, k in enumerate(n_prototypes):
+        for layerNum, k in enumerate(self.n_prototypes):
             self.add_module("prototypes" + str(layerNum), nn.Linear(input_dim, k, bias = False))
 
     def forward(self, x):
