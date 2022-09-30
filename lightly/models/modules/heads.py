@@ -3,7 +3,7 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -370,11 +370,13 @@ class SwaVPrototypes(nn.Module):
 
     """
     def __init__(self,
-                input_dim: int,
-                n_prototypes: List[int]):
+                input_dim: int = 128,
+                n_prototypes: Union[List[int], int] = 3000):
         super(SwaVPrototypes, self).__init__()
-        self.number_of_heads = len(n_prototypes)
-        for layerNum, k in enumerate(self.number_of_heads):
+        self.number_of_heads = len(n_prototypes) if isinstance(n_prototypes, list) else 1
+        #Default to a list of 1 if n_prototypes is an int.
+        self.n_prototypes = n_prototypes if isinstance(n_prototypes, list) else [n_prototypes]
+        for layerNum, k in enumerate(n_prototypes):
             self.add_module("prototypes" + str(layerNum), nn.Linear(input_dim, k, bias = False))
 
     def forward(self, x):
