@@ -30,6 +30,7 @@ class TestProjectionHeads(unittest.TestCase):
             (32, 8, 16),
             (32, 16, 8),
         ]
+        self.swavProtoypes = [(8,16,[32,64,128])]
         self.heads = [
             BarlowTwinsProjectionHead,
             BYOLProjectionHead,
@@ -85,8 +86,25 @@ class TestProjectionHeads(unittest.TestCase):
                         x = torch.torch.rand((batch_size, in_features)).to(device)
                         with torch.no_grad():
                             y = prototypes(x)
-                        self.assertEqual(y.shape[0], batch_size)
-                        self.assertEqual(y.shape[1], n_prototypes)
+                        self.assertEqual(y[0].shape[0], batch_size)
+                        self.assertEqual(y[1].shape[1], n_prototypes)
+    
+    def test_swav_mutli_prototypes(self, device: str = "cpu", seed=0):
+        for in_features, _, n_prototypes in self.swavProtoypes:
+            torch.manual_seed(seed)
+            prototypes = SwaVPrototypes(in_features, n_prototypes)
+            prototypes = prototypes.eval()
+            prototypes = prototypes.to(device)
+            for batch_size in [1, 2]:
+                msg = 'prototypes d_in, n_prototypes = ' +\
+                    f'{in_features} x {n_prototypes}'
+                with self.subTest(msg=msg):
+                        x = torch.torch.rand((batch_size, in_features)).to(device)
+                        with torch.no_grad():
+                            y = prototypes(x)
+                        for layerNum, prototypeSize in enumerate(n_prototypes):
+                            self.assertEqual(y[layerNum].shape[0], batch_size)
+                            self.assertEqual(y[layerNum].shape[1], prototypeSize)
 
     @unittest.skipUnless(torch.cuda.is_available(), "skip")
     def test_swav_prototypes_cuda(self, seed=0):
