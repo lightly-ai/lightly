@@ -97,7 +97,7 @@ global_step = 0
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for batch in dataloader:
+    for batch_idx, batch in enumerate(dataloader):
         (x0, x1), _, _ = batch
         if batch_idx % 2:
             tmp = x1
@@ -129,17 +129,13 @@ for epoch in range(10):
         model.smog.update_groups(x0_encoded)
 
         logits = model.smog(x0_predicted, temperature=0.1)
-        loss = self.criterion(logits, assignments)
+        loss = criterion(logits, assignments)
 
         # use memory bank to periodically reset the group features with k-means
-        self.memory_bank(x0_encoded, update=True)
+        memory_bank(x0_encoded, update=True)
 
         global_step += 1
 
-        z0, p0 = model(x0)
-        z1, p1 = model(x1)
-        loss = 0.5 * (criterion(z0, p1) + criterion(z1, p0))
-        total_loss += loss.detach()
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
