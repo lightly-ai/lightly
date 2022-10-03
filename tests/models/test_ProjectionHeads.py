@@ -86,8 +86,8 @@ class TestProjectionHeads(unittest.TestCase):
                         x = torch.torch.rand((batch_size, in_features)).to(device)
                         with torch.no_grad():
                             y = prototypes(x)
-                        self.assertEqual(y[0].shape[0], batch_size)
-                        self.assertEqual(y[0].shape[1], n_prototypes)
+                        self.assertEqual(y.shape[0], batch_size)
+                        self.assertEqual(y.shape[1], n_prototypes)
     
     def test_swav_mutli_prototypes(self, device: str = "cpu", seed=0):
         for in_features, _, n_prototypes in self.swavProtoypes:

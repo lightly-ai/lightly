@@ -373,17 +373,16 @@ class SwaVPrototypes(nn.Module):
                 input_dim: int = 128,
                 n_prototypes: Union[List[int], int] = 3000):
         super(SwaVPrototypes, self).__init__()
-        self.number_of_heads = len(n_prototypes) if isinstance(n_prototypes, list) else 1
         #Default to a list of 1 if n_prototypes is an int.
         self.n_prototypes = n_prototypes if isinstance(n_prototypes, list) else [n_prototypes]
-        for layerNum, k in enumerate(self.n_prototypes):
-            self.add_module("prototypes" + str(layerNum), nn.Linear(input_dim, k, bias = False))
+        self._is_single_prototype = True if isinstance(n_prototypes, int) else False
+        self.heads = nn.ModuleList([nn.Linear(input_dim, prototypes) for prototypes in self.n_prototypes])
 
     def forward(self, x):
         out = []
-        for head in range(self.number_of_heads):
-            out.append(getattr(self, "prototypes" + str(head))(x))
-        return out
+        for layer in self.heads:
+            out.append(layer(x))
+        return out[0] if self._is_single_prototype else out
 
 
 class DINOProjectionHead(ProjectionHead):
