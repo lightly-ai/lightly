@@ -378,7 +378,7 @@ class SwaVPrototypes(nn.Module):
         self._is_single_prototype = True if isinstance(n_prototypes, int) else False
         self.heads = nn.ModuleList([nn.Linear(input_dim, prototypes) for prototypes in self.n_prototypes])
 
-    def forward(self, x):
+    def forward(self, x) -> Union[torch.Tensor, List[torch.Tensor]]:
         out = []
         for layer in self.heads:
             out.append(layer(x))
