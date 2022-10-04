@@ -53,11 +53,14 @@ Here, we quickly explain the most important parts of the typical **docker run** 
 - :code:`lightly/worker:latest` is the docker image we want to run
 
 
-Volume Mapping
---------------
+Start the Lightly Worker Docker
+--------------------------------
 
 Before we jump into the details of how to submit jobs, we need to start the Lightly image in
 worker mode (as outlined in :ref:`docker-setup`).
+
+
+**This is how you start your Lightly Worker:**
 
 .. code-block:: console
 
