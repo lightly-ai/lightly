@@ -76,7 +76,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
     def embed(self,
               dataloader: torch.utils.data.DataLoader,
               device: torch.device = None
-    ) -> Tuple[np.ndarray, np.ndarray, List[str]]:
+    ) -> Tuple[np.ndarray, List[int], List[str]]:
         """Embeds images in a vector space.
 
         Args:
@@ -166,6 +166,6 @@ class SelfSupervisedEmbedding(BaseEmbedding):
             filenames, labels, sorted_filenames
         )
         embeddings = np.stack(sorted_embeddings)
-        labels = np.stack(sorted_labels)
+        labels = np.stack(sorted_labels).tolist()
 
         return embeddings, labels, sorted_filenames
