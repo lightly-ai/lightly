@@ -381,7 +381,7 @@ def test_get_compute_worker_state_and_message_OPEN() -> None:
         self=mocked_api_client, scheduled_run_id=""
     )
     assert run_info.state == DockerRunScheduledState.OPEN
-    assert run_info.message.startswith("Waiting for pickup by compute worker.")
+    assert run_info.message.startswith("Waiting for pickup by Lightly Worker.")
     assert run_info.in_end_state() == False
 
 
