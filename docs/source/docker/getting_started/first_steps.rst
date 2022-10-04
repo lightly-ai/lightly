@@ -76,8 +76,13 @@ A docker container itself is not considered to be a good place to store data.
 Volume mapping allows the worker to interact with the filesystem of the host system.
 
 The Lightly worker requires that an `{OUTPUT_DIR}` is specified where it can store
-the results of all the computations. See `Reporting`_ and `Worker Output`_ for additional information.
+the results of all the computations including log files that can help
+with debuggin in case something goes wrong. 
+See `Reporting`_ and `Worker Output`_ for additional information.
 The worker requires **read and write access** to this directory.
+
+Don't forget to also remove the curly brakets :code:`{ }` when replacing 
+:code:`{OUTPUT_DIR}` with the path where you want to have the output directory.
 
 .. warning:: Docker volume or port mappings always follow the scheme that you first
           specify the host systems port followed by the internal port of the
@@ -677,7 +682,10 @@ The output directory is structured in the following way:
     * If `selected_sequence_length > 1`, `data` will contain a `sequence_information.json`
       file with information about the selected sequences (filenames, video frame timestamps, ...).
       Head to :ref:`sequence-selection` for more details on sequence selection.
-
+* log.txt
+   A file containing useful log messages for debugging. In case your job does not get 
+   processed properly and an error occured this file contains more detailed information
+   about what went wrong.
 * filenames:
    This directory contains lists of filenames of the corrupt images, removed images, selected
    images and the images which were removed because they have an exact duplicate in the dataset.
