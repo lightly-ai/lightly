@@ -157,7 +157,7 @@ class _DownloadDatasetMixin:
     def export_label_studio_tasks_by_tag_id(
         self,
         tag_id: str,
-    ) -> List[LabelStudioTask]:
+    ) -> List[Dict]:
         """Exports samples in a format compatible with Label Studio.
 
         The format is documented here:
@@ -182,7 +182,7 @@ class _DownloadDatasetMixin:
     def export_label_studio_tasks_by_tag_name(
         self,
         tag_name: str,
-    ) -> List[LabelStudioTask]:
+    ) -> List[Dict]:
         """Exports samples in a format compatible with Label Studio.
 
         The format is documented here:
@@ -211,7 +211,7 @@ class _DownloadDatasetMixin:
     def export_label_box_data_rows_by_tag_id(
         self,
         tag_id: str,
-    ) -> List[LabelBoxDataRow]:
+    ) -> List[Dict]:
         """Exports samples in a format compatible with Labelbox.
 
         The format is documented here:
@@ -236,7 +236,7 @@ class _DownloadDatasetMixin:
     def export_label_box_data_rows_by_tag_name(
         self,
         tag_name: str,
-    ) -> List[LabelBoxDataRow]:
+    ) -> List[Dict]:
         """Exports samples in a format compatible with Labelbox.
 
         The format is documented here:
@@ -314,7 +314,7 @@ class _DownloadDatasetMixin:
     def export_filenames_and_read_urls_by_tag_id(
         self,
         tag_id: str,
-    ) -> List[FilenameAndReadUrl]:
+    ) -> List[Dict]:
         """Export the samples filenames to map with their readURL.
 
         Args:
@@ -336,7 +336,7 @@ class _DownloadDatasetMixin:
     def export_filenames_and_read_urls_by_tag_name(
         self,
         tag_name: str,
-    ) -> List[FilenameAndReadUrl]:
+    ) -> List[Dict]:
         """Export the samples filenames to map with their readURL.
 
         Args:
