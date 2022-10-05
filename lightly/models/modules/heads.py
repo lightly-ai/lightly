@@ -383,6 +383,11 @@ class SwaVPrototypes(nn.Module):
         for layer in self.heads:
             out.append(layer(x))
         return out[0] if self._is_single_prototype else out
+    
+    def normalize(self):
+        """Normalizes the prototypes so that they are on the unit sphere."""
+        for layer in self.heads:
+            utils.normalize_weight(layer.weight)
 
 
 class DINOProjectionHead(ProjectionHead):
