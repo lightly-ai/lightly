@@ -156,7 +156,8 @@ class LightlyDataset:
                  Callable[[datasets.VisionDataset, int], str] = None,
                  filenames: List[str] = None,
                  tqdm_args: Dict[str, Any] = None,
-                 num_workers_video_frame_counting: int = 0
+                 num_workers_video_frame_counting: int = 0,
+                 frames_per_video: int = 1,
                  ):
 
 
@@ -181,7 +182,8 @@ class LightlyDataset:
                 transform,
                 is_valid_file=is_valid_file,
                 tqdm_args=tqdm_args,
-                num_workers_video_frame_counting=num_workers_video_frame_counting
+                num_workers_video_frame_counting=num_workers_video_frame_counting,
+                frames_per_video=frames_per_video,
             )
         elif transform is not None:
             raise ValueError(
