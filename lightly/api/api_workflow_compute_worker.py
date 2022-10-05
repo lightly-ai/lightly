@@ -268,13 +268,17 @@ class _ComputeWorkerMixin:
                 _ = self._get_scheduled_run_by_id(scheduled_run_id)
                 info = ComputeWorkerRunInfo(
                     state=DockerRunScheduledState.OPEN,
-                    message="Waiting for pickup by compute worker.",
+                    message="Waiting for pickup by Lightly Worker. "
+                    "Make sure to start a Lightly Worker connected to your "
+                    "user token to process the job.",
                 )
             except ApiException:
                 # Case 3: NEITHER the DockerRun NOR the ScheduledRun exist.
                 info = ComputeWorkerRunInfo(
                     state=STATE_SCHEDULED_ID_NOT_FOUND,
-                    message="The scheduled run was either canceled or does not exist.",
+                    message=f"Could not find a job for the given run_id: '{scheduled_run_id}'. "
+                    "The scheduled run does not exist or was canceled before "
+                    "being picked up by a Lightly Worker.",
                 )
         return info
 
