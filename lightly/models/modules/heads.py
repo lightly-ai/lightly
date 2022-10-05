@@ -3,7 +3,7 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -350,8 +350,8 @@ class SwaVProjectionHead(ProjectionHead):
         ])
 
 
-class SwaVPrototypes(ProjectionHead):
-    """Prototypes used for SwaV.
+class SwaVPrototypes(nn.Module):
+    """Multihead Prototypes used for SwaV.
 
     Each output feature is assigned to a prototype, SwaV solves the swapped
     predicition problem where the features of one augmentation are used to
@@ -370,14 +370,24 @@ class SwaVPrototypes(ProjectionHead):
 
     """
     def __init__(self,
-                 input_dim: int = 128,
-                 n_prototypes: int = 3000):
-        super(SwaVPrototypes, self).__init__([])
-        self.layers = nn.Linear(input_dim, n_prototypes, bias=False)
+                input_dim: int = 128,
+                n_prototypes: Union[List[int], int] = 3000):
+        super(SwaVPrototypes, self).__init__()
+        #Default to a list of 1 if n_prototypes is an int.
+        self.n_prototypes = n_prototypes if isinstance(n_prototypes, list) else [n_prototypes]
+        self._is_single_prototype = True if isinstance(n_prototypes, int) else False
+        self.heads = nn.ModuleList([nn.Linear(input_dim, prototypes) for prototypes in self.n_prototypes])
 
+    def forward(self, x) -> Union[torch.Tensor, List[torch.Tensor]]:
+        out = []
+        for layer in self.heads:
+            out.append(layer(x))
+        return out[0] if self._is_single_prototype else out
+    
     def normalize(self):
         """Normalizes the prototypes so that they are on the unit sphere."""
-        utils.normalize_weight(self.layers.weight)
+        for layer in self.heads:
+            utils.normalize_weight(layer.weight)
 
 
 class DINOProjectionHead(ProjectionHead):
