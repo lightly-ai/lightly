@@ -161,6 +161,30 @@ adding `--shm-size="512m"` to the docker run command:
     docker run --shm-size="2G" --gpus all
 
 
+
+CUDA error: all CUDA-capable devices are busy or unavailable
+------------------------------------------------------------
+
+It might happen that you bump into this error when running the Lightly Worker
+to process a job.
+
+.. code-block:: console
+
+    CUDA error: all CUDA-capable devices are busy or unavailable CUDA kernel 
+    errors might be asynchronously reported at some other API call,so the 
+    stacktrace below might be incorrect. For debugging consider 
+    passing CUDA_LAUNCH_BLOCKING=1.
+
+The reason this error occurs is most likely that some process on your machine 
+reserved resources on the GPU without properly releasing them. It can be
+that this is a particular software running. It can also be that a combination
+of CUDA version and other software caused this.
+
+Very often you might be lucky and a simple reboot will resolve the problem as
+during the reboot all GPU resources will be freshly allocated. However, if a 
+reboot does not help we suggest you to use another CUDA version on your system.
+
+
 Lightly Worker crashes because of too many open files
 -----------------------------------------------
 
