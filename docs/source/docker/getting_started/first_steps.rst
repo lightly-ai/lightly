@@ -194,7 +194,7 @@ The `LIGHTLY` bucket is used for many purposes:
                 resource_path="s3://bucket/input/",
                 region='eu-central-1',
                 role_arn='S3-ROLE-ARN',
-                external_id='S3-EXTERNAL-ID'
+                external_id='S3-EXTERNAL-ID',
                 purpose=DatasourcePurpose.INPUT
             )
             # Lightly bucket
@@ -202,7 +202,7 @@ The `LIGHTLY` bucket is used for many purposes:
                 resource_path="s3://bucket/lightly/",
                 region='eu-central-1',
                 role_arn='S3-ROLE-ARN',
-                external_id='S3-EXTERNAL-ID'
+                external_id='S3-EXTERNAL-ID',
                 purpose=DatasourcePurpose.LIGHTLY
             )
 
