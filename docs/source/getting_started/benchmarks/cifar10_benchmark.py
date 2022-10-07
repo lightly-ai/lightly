@@ -764,13 +764,13 @@ class SMoGModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
         # smog
-        self.n_groups = 300 # 2% malus vs optimal setting of 3000 groups
-        memory_bank_size = 300 * batch_size # because we reset the group features every 300 iterations
+        self.n_groups = 3000 # 2% malus vs optimal setting of 3000 groups
+        memory_bank_size = 80 * batch_size # because we reset the group features every 300 iterations
         self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=memory_bank_size)
         # create our loss
         group_features = torch.nn.functional.normalize(
             torch.rand(self.n_groups, 128), dim=1
-        ).to(self.device)
+        )
         self.smog = heads.SMoGPrototypes(group_features=group_features, beta=0.99)
         self.criterion = nn.CrossEntropyLoss()
 
@@ -782,7 +782,7 @@ class SMoGModel(BenchmarkModule):
             kmeans = KMeans(self.n_groups).fit(features)
             new_features = torch.from_numpy(kmeans.cluster_centers_).float()
             new_features = torch.nn.functional.normalize(new_features, dim=1)
-            self.smog.group_features = new_features.cuda()
+            self.smog.group_features.data = new_features.cuda()
 
     def _reset_momentum_weights(self):
         # see Table 7b)
@@ -816,9 +816,10 @@ class SMoGModel(BenchmarkModule):
 
         # update group features and get group assignments
         assignments = self.smog.assign_groups(x1_encoded)
-        self.smog.update_groups(x0_encoded)
+        group_features = self.smog.get_updated_group_features(x0_encoded)
+        logits = self.smog(x0_predicted, group_features, temperature=0.1)
+        self.smog.set_group_features(group_features)
 
-        logits = self.smog(x0_predicted, temperature=0.1)
         loss = self.criterion(logits, assignments)
 
         # use memory bank to periodically reset the group features with k-means
@@ -841,16 +842,16 @@ class SMoGModel(BenchmarkModule):
 
 
 models = [
-    BarlowTwinsModel,
-    BYOLModel,
-    DCL,
-    DCLW,
-    DINOModel,
-    MocoModel,
-    NNCLRModel,
-    SimCLRModel,
-    SimSiamModel,
-    SwaVModel,
+    # BarlowTwinsModel,
+    # BYOLModel,
+    # DCL,
+    # DCLW,
+    # DINOModel,
+    # MocoModel,
+    # NNCLRModel,
+    # SimCLRModel,
+    # SimSiamModel,
+    # SwaVModel,
     SMoGModel
 ]
 bench_results = dict()
