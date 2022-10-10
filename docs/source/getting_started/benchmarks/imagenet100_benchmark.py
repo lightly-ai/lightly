@@ -30,7 +30,7 @@ memory_bank_size = 2**16
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
 max_epochs = 200
-knn_k = 200
+knn_k = 20
 knn_t = 0.1
 classes = 100
 input_size=224
@@ -149,7 +149,7 @@ def get_data_loaders(batch_size: int, model):
 
 class MocoModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
-        super().__init__(dataloader_kNN, num_classes)
+        super().__init__(dataloader_kNN, num_classes, knn_k=knn_k, knn_t=knn_t)
 
         # create a ResNet backbone and remove the classification head
         num_splits = 0 if sync_batchnorm else 8
@@ -217,7 +217,7 @@ class MocoModel(BenchmarkModule):
 
 class SimCLRModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
-        super().__init__(dataloader_kNN, num_classes)
+        super().__init__(dataloader_kNN, num_classes, knn_k=knn_k, knn_t=knn_t)
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
@@ -253,7 +253,7 @@ class SimCLRModel(BenchmarkModule):
 
 class SimSiamModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
-        super().__init__(dataloader_kNN, num_classes)
+        super().__init__(dataloader_kNN, num_classes, knn_k=knn_k, knn_t=knn_t)
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
@@ -292,7 +292,7 @@ class SimSiamModel(BenchmarkModule):
 
 class BarlowTwinsModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
-        super().__init__(dataloader_kNN, num_classes)
+        super().__init__(dataloader_kNN, num_classes, knn_k=knn_k, knn_t=knn_t)
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
@@ -330,7 +330,7 @@ class BarlowTwinsModel(BenchmarkModule):
 
 class BYOLModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
-        super().__init__(dataloader_kNN, num_classes)
+        super().__init__(dataloader_kNN, num_classes, knn_k=knn_k, knn_t=knn_t)
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
@@ -391,7 +391,7 @@ class BYOLModel(BenchmarkModule):
 
 class NNCLRModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
-        super().__init__(dataloader_kNN, num_classes)
+        super().__init__(dataloader_kNN, num_classes, knn_k=knn_k, knn_t=knn_t)
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
@@ -434,7 +434,7 @@ class NNCLRModel(BenchmarkModule):
 
 class SwaVModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
-        super().__init__(dataloader_kNN, num_classes)
+        super().__init__(dataloader_kNN, num_classes, knn_k=knn_k, knn_t=knn_t)
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
@@ -490,7 +490,7 @@ class SwaVModel(BenchmarkModule):
 
 class DINOModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
-        super().__init__(dataloader_kNN, num_classes)
+        super().__init__(dataloader_kNN, num_classes, knn_k=knn_k, knn_t=knn_t)
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
@@ -543,14 +543,14 @@ class DINOModel(BenchmarkModule):
 
 
 models = [
-    BarlowTwinsModel, 
-    BYOLModel,
-    DINOModel,
+    # BarlowTwinsModel, 
+    # BYOLModel,
+    # DINOModel,
     MocoModel,
-    NNCLRModel,
+    # NNCLRModel,
     SimCLRModel,
     SimSiamModel,
-    SwaVModel,
+    # SwaVModel,
 ]
 bench_results = dict()
 
