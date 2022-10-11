@@ -821,8 +821,7 @@ class MockedComputeWorkerApi(DockerApi):
                 created_at=Timestamp(0),
                 last_modified_at=Timestamp(100),
                 message=None,
-                messages=[],
-                report_available=False,
+                artifacts=[],
             )
         ]
         self._scheduled_compute_worker_runs = [
