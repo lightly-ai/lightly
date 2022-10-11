@@ -93,7 +93,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         self.user_agent = f"Lightly/{__version__}/python ({platform.platform()})"
         self.set_request_timeout(DEFAULT_API_TIMEOUT)
 
-        self.token = token
+        self.token = configuration.api_key["token"]
         if dataset_id is not None:
             self._dataset_id = dataset_id
         if embedding_id is not None:
