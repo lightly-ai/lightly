@@ -293,7 +293,7 @@ def set_api_client_request_timeout(
 
 
 def get_api_client_configuration(
-    token: Optional[str]
+    token: Optional[str] = None,
 ) -> Configuration:
 
     host = getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai")
