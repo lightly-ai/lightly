@@ -1,12 +1,12 @@
 .. _smog:
 
 SMoG
-===
+====
 
 Example implementation of the Synchronous Momentum Grouping (SMoG) paper. 
 SMoG follows the framework of contrastive learning but replaces the contrastive
 unit from instance to group, mimicking clustering-based methods. To
-achieve this, we propose the momentum grouping scheme which synchronously 
+achieve this, they propose the momentum grouping scheme which synchronously 
 conducts feature grouping with representation learning. 
 
 Reference:
