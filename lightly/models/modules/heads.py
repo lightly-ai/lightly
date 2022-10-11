@@ -236,7 +236,20 @@ class SMoGPrototypes(nn.Module):
         self.beta = beta
 
     def forward(self, x: torch.Tensor, group_features: torch.Tensor, temperature: float = 0.1) -> torch.Tensor:
-        """TODO"""
+        """Computes the logits for given model outputs and group features.
+
+        Args:
+            x:
+                Tensor of shape bsz x dim.
+            group_features:
+                Momentum updated group features of shape n_groups x dim.
+            temperature:
+                Temperature parameter for calculating the logits.
+
+        Returns:
+            The logits.
+
+        """
         x = torch.nn.functional.normalize(x, dim=1)
         group_features = torch.nn.functional.normalize(group_features, dim=1)
         logits = torch.mm(x, group_features.t())
@@ -250,20 +263,21 @@ class SMoGPrototypes(nn.Module):
                 Tensor of shape bsz x dim.
 
         Returns:
-            The update group features.
+            The updated group features.
 
         """
         assignments = self.assign_groups(x)
-        group_features = self.group_features.data
+        group_features = torch.clone(self.group_features.data)
         for assigned_class in torch.unique(assignments): 
             mask = assignments == assigned_class
             group_features[assigned_class] = self.beta * self.group_features[assigned_class] + (1 - self.beta) * x[mask].mean(axis=0)
 
+        assert group_features.requires_grad
         return group_features
-        #self.group_features= nn.functional.normalize(self.group_features, dim=1)
 
     def set_group_features(self, x: torch.Tensor) -> None:
-        self.group_features.data = x
+        """Sets the group features and asserts they don't require gradient. """
+        self.group_features.data = x.to(self.group_features.device)
         assert not self.group_features.requires_grad
 
     @torch.no_grad()
