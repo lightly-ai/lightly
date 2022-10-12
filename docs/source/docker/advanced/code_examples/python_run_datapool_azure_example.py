@@ -7,48 +7,15 @@ from lightly.openapi_generated.swagger_client.models.datasource_purpose import D
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
 
-# Create a new dataset on the Lightly Platform.
-client.create_dataset('pedestrian-videos-datapool',
-                      dataset_type=DatasetType.VIDEOS)
+try:
+  # Create a new dataset on the Lightly Platform.
+  client.create_dataset('pedestrian-videos-datapool',
+                        dataset_type=DatasetType.VIDEOS)
+except ValueError:
+  # Our dataset already exists, so let's use it
+  client.set_dataset_id_by_name('pedestrian-videos-datapool')
 
-# Pick one of the following three blocks depending on where your data is
-# AWS S3
-# Input bucket
-client.set_s3_config(
-    resource_path="s3://bucket/input/",
-    region='eu-central-1',
-    access_key='S3-ACCESS-KEY',
-    secret_access_key='S3-SECRET-ACCESS-KEY',
-    purpose=DatasourcePurpose.INPUT
-)
-# Output bucket
-client.set_s3_config(
-    resource_path="s3://bucket/output/",
-    region='eu-central-1',
-    access_key='S3-ACCESS-KEY',
-    secret_access_key='S3-SECRET-ACCESS-KEY',
-    purpose=DatasourcePurpose.LIGHTLY
-)
-
-
-# or Google Cloud Storage
-# Input bucket
-client.set_gcs_config(
-    resource_path="gs://bucket/input/",
-    project_id="PROJECT-ID",
-    credentials=json.dumps(json.load(open('credentials_read.json'))),
-    purpose=DatasourcePurpose.INPUT
-)
-# Output bucket
-client.set_gcs_config(
-    resource_path="gs://bucket/output/",
-    project_id="PROJECT-ID",
-    credentials=json.dumps(json.load(open('credentials_write.json'))),
-    purpose=DatasourcePurpose.LIGHTLY
-)
-
-
-# or Azure Blob Storage
+# Azure Blob Storage
 # Input bucket
 client.set_azure_config(
     container_name='my-container/input/',
@@ -63,7 +30,6 @@ client.set_azure_config(
     sas_token='SAS-TOKEN',
     purpose=DatasourcePurpose.LIGHTLY
 )
-
 
 # Schedule the compute run using our custom config.
 # We show here the full default config so you can easily edit the

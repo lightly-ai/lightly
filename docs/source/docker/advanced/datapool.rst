@@ -72,9 +72,25 @@ Now we can run the following code to select a subset based on the
 selection run we only select images with the specific minimum distance between 
 each other based on the embeddings. 
 
-.. literalinclude:: ./code_examples/python_run_datapool_example.py
-  :linenos:
-  :language: python
+.. tab-set::
+  .. tab-item:: AWS S3 Datasource
+
+    .. literalinclude:: ./code_examples/python_run_datapool_s3_example.py
+      :linenos:
+      :language: python
+
+  .. tab-item:: GCS Datasource
+
+    .. literalinclude:: ./code_examples/python_run_datapool_gcs_example.py
+      :linenos:
+      :language: python
+
+  .. tab-item:: Azure Datasource
+
+    .. literalinclude:: ./code_examples/python_run_datapool_azure_example.py
+      :linenos:
+      :language: python
+
 
 After running the code we have to make sure we have a running Lightly Worker 
 to process the job.
