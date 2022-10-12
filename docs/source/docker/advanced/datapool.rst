@@ -67,7 +67,7 @@ first time.
     |-- passageway1-c1.avi
     `-- terrace1-c0.avi
 
-Let's create a Lightly dataset which uses that bucket as both its "input datasource" and "output datasource":
+Let's create a Lightly dataset which uses that bucket (choose your tab - S3, GCS or Azure):
 
 .. tab-set::
   .. tab-item:: AWS S3 Datasource
@@ -96,7 +96,6 @@ each other based on the embeddings.
 .. literalinclude:: ./code_examples/python_run_datapool_example.py
   :linenos:
   :language: python
-
 
 After running the code we have to make sure we have a running Lightly Worker 
 to process the job.
