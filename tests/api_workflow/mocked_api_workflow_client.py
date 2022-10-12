@@ -844,6 +844,7 @@ class MockedComputeWorkerApi(DockerApi):
                 state=DockerWorkerState.OFFLINE,
                 created_at=Timestamp(0),
                 last_modified_at=Timestamp(0),
+                labels=["label-1"],
             )
         ]
 

@@ -38,7 +38,8 @@ class DockerWorkerRegistryEntryData(object):
         'worker_type': 'DockerWorkerType',
         'state': 'DockerWorkerState',
         'created_at': 'Timestamp',
-        'last_modified_at': 'Timestamp'
+        'last_modified_at': 'Timestamp',
+        'labels': 'DockerWorkerLabels'
     }
 
     attribute_map = {
@@ -47,10 +48,11 @@ class DockerWorkerRegistryEntryData(object):
         'worker_type': 'workerType',
         'state': 'state',
         'created_at': 'createdAt',
-        'last_modified_at': 'lastModifiedAt'
+        'last_modified_at': 'lastModifiedAt',
+        'labels': 'labels'
     }
 
-    def __init__(self, id=None, name=None, worker_type=None, state=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, name=None, worker_type=None, state=None, created_at=None, last_modified_at=None, labels=None, _configuration=None):  # noqa: E501
         """DockerWorkerRegistryEntryData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -62,6 +64,7 @@ class DockerWorkerRegistryEntryData(object):
         self._state = None
         self._created_at = None
         self._last_modified_at = None
+        self._labels = None
         self.discriminator = None
 
         self.id = id
@@ -70,6 +73,7 @@ class DockerWorkerRegistryEntryData(object):
         self.state = state
         self.created_at = created_at
         self.last_modified_at = last_modified_at
+        self.labels = labels
 
     @property
     def id(self):
@@ -208,6 +212,29 @@ class DockerWorkerRegistryEntryData(object):
             raise ValueError("Invalid value for `last_modified_at`, must not be `None`")  # noqa: E501
 
         self._last_modified_at = last_modified_at
+
+    @property
+    def labels(self):
+        """Gets the labels of this DockerWorkerRegistryEntryData.  # noqa: E501
+
+
+        :return: The labels of this DockerWorkerRegistryEntryData.  # noqa: E501
+        :rtype: DockerWorkerLabels
+        """
+        return self._labels
+
+    @labels.setter
+    def labels(self, labels):
+        """Sets the labels of this DockerWorkerRegistryEntryData.
+
+
+        :param labels: The labels of this DockerWorkerRegistryEntryData.  # noqa: E501
+        :type: DockerWorkerLabels
+        """
+        if self._configuration.client_side_validation and labels is None:
+            raise ValueError("Invalid value for `labels`, must not be `None`")  # noqa: E501
+
+        self._labels = labels
 
     def to_dict(self):
         """Returns the model properties as a dict"""
