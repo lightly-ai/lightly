@@ -29,6 +29,7 @@ class DockerRunArtifactType(object):
     allowed enum values
     """
     LOG = "LOG"
+    MEMLOG = "MEMLOG"
     CHECKPOINT = "CHECKPOINT"
     REPORT_PDF = "REPORT_PDF"
     REPORT_JSON = "REPORT_JSON"
