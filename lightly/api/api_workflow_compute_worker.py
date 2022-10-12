@@ -80,19 +80,22 @@ class ComputeWorkerRunInfo:
 
 
 class _ComputeWorkerMixin:
-    def register_compute_worker(self, name: str = "Default") -> str:
+    def register_compute_worker(self, name: str = "Default", labels=None) -> str:
         """Registers a new compute worker.
 
         Args:
             name:
                 The name of the compute worker.
+            labels:
+                The labels of the compute worker.
+                TODO: Add link to docs.
 
         Returns:
             The id of the newly registered compute worker.
 
         """
         request = CreateDockerWorkerRegistryEntryRequest(
-            name=name, worker_type=DockerWorkerType.FULL
+            name=name, worker_type=DockerWorkerType.FULL, labels=labels
         )
         response = self._compute_worker_api.register_docker_worker(request)
         return response.id
@@ -151,6 +154,7 @@ class _ComputeWorkerMixin:
 
     def schedule_compute_worker_run(
         self,
+        runs_on: List[str],
         worker_config: Optional[Dict[str, Any]] = None,
         lightly_config: Optional[Dict[str, Any]] = None,
         selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
