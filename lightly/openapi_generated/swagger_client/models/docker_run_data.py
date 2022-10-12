@@ -42,8 +42,7 @@ class DockerRunData(object):
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp',
         'message': 'str',
-        'messages': 'list[DockerRunDataLog]',
-        'report_available': 'bool'
+        'artifacts': 'list[DockerRunArtifactData]'
     }
 
     attribute_map = {
@@ -56,11 +55,10 @@ class DockerRunData(object):
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt',
         'message': 'message',
-        'messages': 'messages',
-        'report_available': 'reportAvailable'
+        'artifacts': 'artifacts'
     }
 
-    def __init__(self, id=None, docker_version=None, state=None, dataset_id=None, config_id=None, scheduled_id=None, created_at=None, last_modified_at=None, message=None, messages=None, report_available=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, docker_version=None, state=None, dataset_id=None, config_id=None, scheduled_id=None, created_at=None, last_modified_at=None, message=None, artifacts=None, _configuration=None):  # noqa: E501
         """DockerRunData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -75,8 +73,7 @@ class DockerRunData(object):
         self._created_at = None
         self._last_modified_at = None
         self._message = None
-        self._messages = None
-        self._report_available = None
+        self._artifacts = None
         self.discriminator = None
 
         self.id = id
@@ -92,10 +89,8 @@ class DockerRunData(object):
         self.last_modified_at = last_modified_at
         if message is not None:
             self.message = message
-        if messages is not None:
-            self.messages = messages
-        if report_available is not None:
-            self.report_available = report_available
+        if artifacts is not None:
+            self.artifacts = artifacts
 
     @property
     def id(self):
@@ -279,6 +274,7 @@ class DockerRunData(object):
     def message(self):
         """Gets the message of this DockerRunData.  # noqa: E501
 
+        last message sent to the docker run  # noqa: E501
 
         :return: The message of this DockerRunData.  # noqa: E501
         :rtype: str
@@ -289,6 +285,7 @@ class DockerRunData(object):
     def message(self, message):
         """Sets the message of this DockerRunData.
 
+        last message sent to the docker run  # noqa: E501
 
         :param message: The message of this DockerRunData.  # noqa: E501
         :type: str
@@ -297,46 +294,27 @@ class DockerRunData(object):
         self._message = message
 
     @property
-    def messages(self):
-        """Gets the messages of this DockerRunData.  # noqa: E501
+    def artifacts(self):
+        """Gets the artifacts of this DockerRunData.  # noqa: E501
 
+        list of artifacts that were created for a run  # noqa: E501
 
-        :return: The messages of this DockerRunData.  # noqa: E501
-        :rtype: list[DockerRunDataLog]
+        :return: The artifacts of this DockerRunData.  # noqa: E501
+        :rtype: list[DockerRunArtifactData]
         """
-        return self._messages
+        return self._artifacts
 
-    @messages.setter
-    def messages(self, messages):
-        """Sets the messages of this DockerRunData.
+    @artifacts.setter
+    def artifacts(self, artifacts):
+        """Sets the artifacts of this DockerRunData.
 
+        list of artifacts that were created for a run  # noqa: E501
 
-        :param messages: The messages of this DockerRunData.  # noqa: E501
-        :type: list[DockerRunDataLog]
-        """
-
-        self._messages = messages
-
-    @property
-    def report_available(self):
-        """Gets the report_available of this DockerRunData.  # noqa: E501
-
-
-        :return: The report_available of this DockerRunData.  # noqa: E501
-        :rtype: bool
-        """
-        return self._report_available
-
-    @report_available.setter
-    def report_available(self, report_available):
-        """Sets the report_available of this DockerRunData.
-
-
-        :param report_available: The report_available of this DockerRunData.  # noqa: E501
-        :type: bool
+        :param artifacts: The artifacts of this DockerRunData.  # noqa: E501
+        :type: list[DockerRunArtifactData]
         """
 
-        self._report_available = report_available
+        self._artifacts = artifacts
 
     def to_dict(self):
         """Returns the model properties as a dict"""
