@@ -116,8 +116,8 @@ as the image or video in the `.lightly/metadata` directory but change the file e
 
 .. code-block:: bash
 
-    # filename of the metadata for file input/bucket/SUBDIR/FILENAME.EXT
-    .lightly/metadata/${SUBDIR}/${FILENAME}.json
+    # filename of the metadata for file input/bucket/FILENAME.EXT
+    .lightly/metadata/${FILENAME}.json
 
     # example: input/bucket/subdir/image_1.png
     .lightly/metadata/subdir/image_1.json
@@ -140,9 +140,9 @@ to length three. For a video with 1000 frames, the frame number will be padded t
 
 .. code-block:: bash
 
-    # filename of the metadata of the Xth frame of video input/bucket/SUBDIR/FILENAME.EXT
+    # filename of the metadata of the Xth frame of video input/bucket/FILENAME.EXT
     # with 200 frames (padding: len(str(200)) = 3)
-    .lightly/metadata/${SUBDIR}/${FILENAME}-${X:03d}-${EXT}.json
+    .lightly/metadata/${FILENAME}-${X:03d}-${EXT}.json
 
     # example: input/bucket/subdir/video_1.mp4, frame 99/200
     .lightly/metadata/subdir/video_1-099-mp4.json

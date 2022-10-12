@@ -175,8 +175,8 @@ it's necessary to follow the naming convention:
 
 .. code-block:: bash
 
-    # filename of the prediction for image input/bucket/SUBDIR/FILENAME.EXT
-    .lightly/predictions/${TASK_NAME}/${SUBDIR}/${FILENAME}.json
+    # filename of the prediction for image input/bucket/FILENAME.EXT
+    .lightly/predictions/${TASK_NAME}/${FILENAME}.json
 
     # example: input/bucket/subdir/image_1.png, classification
     .lightly/predictions/my_classification_task/subdir/image_1.json
@@ -198,9 +198,9 @@ with 1000 frames, the frame number will be padded to length four (99 becomes 009
 
 .. code-block:: bash
 
-    # filename of the predictions of the Xth frame of video input/bucket/SUBDIR/FILENAME.EXT
+    # filename of the predictions of the Xth frame of video input/bucket/FILENAME.EXT
     # with 200 frames (padding: len(str(200)) = 3)
-    .lightly/predictions/${TASK_NAME}/${SUBDIR}/${FILENAME}-${X:03d}-${EXT}.json
+    .lightly/predictions/${TASK_NAME}/${FILENAME}-${X:03d}-${EXT}.json
 
     # example: input/bucket/subdir/video_1.mp4, frame 99/200
     .lightly/predictions/my_classification_task/subdir/video_1-099-mp4.json
