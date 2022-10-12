@@ -29,24 +29,30 @@ of your input and output bucket will look like this:
 .. code-block:: bash
 
     input/bucket/
-        + image_1.png
-        + image_2.png
-        + ...
-        + image_N.png
+        + image_0.png
+        + subdir/
+            + image_1.png
+            + image_2.png
+            + ...
+            + image_N.png
   
     output/bucket/
         + .lightly/predictions/
             + tasks.json
             + task_1/
                  + schema.json
-                 + image_1.json
-                 ...
-                 + image_N.json
+                 + image_0.json
+                 + subdir/
+                    + image_1.json
+                    ...
+                    + image_N.json
             + task_2/
                  + schema.json
-                 + image_1.json
-                 ...
-                 + image_N.json
+                 + image_0.json
+                 + subdir/
+                    + image_1.json
+                    ...
+                    + image_N.json
 
 
 
@@ -169,14 +175,14 @@ it's necessary to follow the naming convention:
 
 .. code-block:: bash
 
-    # filename of the prediction for image FILENAME.EXT
+    # filename of the prediction for image input/bucket/FILENAME.EXT
     .lightly/predictions/${TASK_NAME}/${FILENAME}.json
 
-    # example: my_image.png, classification
-    .lightly/predictions/my_classification_task/my_image.json
+    # example: input/bucket/subdir/image_1.png, classification
+    .lightly/predictions/my_classification_task/subdir/image_1.json
 
-    # example: my_subdir/my_image.png, classification
-    .lightly/predictions/my_classification_task/my_subdir/my_image.json
+    # example: input/bucket/image_0.png, classification
+    .lightly/predictions/my_classification_task/image_0.json
 
 
 .. _prediction-files-for-videos:
@@ -192,15 +198,15 @@ with 1000 frames, the frame number will be padded to length four (99 becomes 009
 
 .. code-block:: bash
 
-    # filename of the predictions of the Xth frame of video FILENAME.EXT
+    # filename of the predictions of the Xth frame of video input/bucket/FILENAME.EXT
     # with 200 frames (padding: len(str(200)) = 3)
     .lightly/predictions/${TASK_NAME}/${FILENAME}-${X:03d}-${EXT}.json
 
-    # example: my_video.mp4, frame 99/200
-    .lightly/predictions/my_classification_task/my_video-099-mp4.json
+    # example: input/bucket/subdir/video_1.mp4, frame 99/200
+    .lightly/predictions/my_classification_task/subdir/video_1-099-mp4.json
 
-    # example: my_subdir/my_video.mp4, frame 99/200
-    .lightly/predictions/my_classification_task/my_subdir/my_video-099-mp4.json
+    # example: input/bucket/video_0.mp4, frame 99/200
+    .lightly/predictions/my_classification_task/video_0-099-mp4.json
 
 See :ref:`creating-prediction-files-for-videos` on how to extract video frames
 and create predictions using `ffmpeg <https://ffmpeg.org/>`_ or Python.
@@ -235,10 +241,10 @@ the predictions are made and predictions is a list of `Prediction Singletons` fo
 Example classification:
 
 .. code-block:: javascript
-    :caption: .lightly/predictions/classification_weather/my_image.json
+    :caption: .lightly/predictions/classification_weather/subdir/image_1.json
 
     {
-        "file_name": "my_image.png",
+        "file_name": "subdir/image_1.png",
         "predictions": [ // classes: [sunny, clouded, rainy]
             {
                 "category_id": 0,
@@ -250,10 +256,10 @@ Example classification:
 Example object detection:
 
 .. code-block:: javascript
-    :caption: .lightly/predictions/object_detection/my_image.json
+    :caption: .lightly/predictions/object_detection/subdir/image_1.json
 
     {
-        "file_name": "my_image.png",
+        "file_name": "subdir/image_1.png",
         "predictions": [ // classes: [person, car]
             {
                 "category_id": 0,
@@ -279,10 +285,10 @@ Example object detection:
 Example semantic segmentation:
 
 .. code-block:: javascript
-    :caption: .lightly/predictions/semantic_segmentation_cars/my_image.json
+    :caption: .lightly/predictions/semantic_segmentation_cars/subdir/image_1.json
 
     {
-        "file_name": "my_image.png",
+        "file_name": "subdir/image_1.png",
         "predictions": [ // classes: [background, car, tree]
             {
                 "category_id": 0,
@@ -422,7 +428,7 @@ format required by Lightly.
         })
 
     prediction = {
-        'file_name': 'image_name.png',
+        'file_name': 'subdir/image_name.png',
         'predictions': predictions,
     }
 
