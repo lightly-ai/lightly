@@ -272,13 +272,11 @@ class SMoGPrototypes(nn.Module):
             mask = assignments == assigned_class
             group_features[assigned_class] = self.beta * self.group_features[assigned_class] + (1 - self.beta) * x[mask].mean(axis=0)
 
-        assert group_features.requires_grad
         return group_features
 
     def set_group_features(self, x: torch.Tensor) -> None:
         """Sets the group features and asserts they don't require gradient. """
         self.group_features.data = x.to(self.group_features.device)
-        assert not self.group_features.requires_grad
 
     @torch.no_grad()
     def assign_groups(self, x: torch.Tensor) -> torch.LongTensor:
