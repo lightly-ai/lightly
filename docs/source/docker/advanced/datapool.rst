@@ -67,29 +67,35 @@ first time.
     |-- passageway1-c1.avi
     `-- terrace1-c0.avi
 
-Now we can run the following code to select a subset based on the 
-:code:`'stopping_condition_minimum_distance': 0.1` stopping condition. In a first,
-selection run we only select images with the specific minimum distance between 
-each other based on the embeddings. 
+Let's create a Lightly dataset which uses that bucket as both its "input datasource" and "output datasource":
 
 .. tab-set::
   .. tab-item:: AWS S3 Datasource
 
-    .. literalinclude:: ./code_examples/python_run_datapool_s3_example.py
+    .. literalinclude:: ./code_examples/python_create_dataset_s3_example.py
       :linenos:
       :language: python
 
   .. tab-item:: GCS Datasource
 
-    .. literalinclude:: ./code_examples/python_run_datapool_gcs_example.py
+    .. literalinclude:: ./code_examples/python_create_dataset_gcs_example.py
       :linenos:
       :language: python
 
   .. tab-item:: Azure Datasource
 
-    .. literalinclude:: ./code_examples/python_run_datapool_azure_example.py
+    .. literalinclude:: ./code_examples/python_create_dataset_azure_example.py
       :linenos:
       :language: python
+
+Now we can run the following code to select a subset based on the 
+:code:`'stopping_condition_minimum_distance': 0.1` stopping condition. In a first,
+selection run we only select images with the specific minimum distance between 
+each other based on the embeddings. 
+
+.. literalinclude:: ./code_examples/python_run_datapool_example.py
+  :linenos:
+  :language: python
 
 
 After running the code we have to make sure we have a running Lightly Worker 

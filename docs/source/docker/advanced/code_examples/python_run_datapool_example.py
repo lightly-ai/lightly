@@ -1,35 +1,11 @@
-import json
 import lightly
-from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
-from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 
 
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
 
-try:
-  # Create a new dataset on the Lightly Platform.
-  client.create_dataset('pedestrian-videos-datapool',
-                        dataset_type=DatasetType.VIDEOS)
-except ValueError:
-  # Our dataset already exists, so let's use it
-  client.set_dataset_id_by_name('pedestrian-videos-datapool')
-
-# Azure Blob Storage
-# Input bucket
-client.set_azure_config(
-    container_name='my-container/input/',
-    account_name='ACCOUNT-NAME',
-    sas_token='SAS-TOKEN',
-    purpose=DatasourcePurpose.INPUT
-)
-# Output bucket
-client.set_azure_config(
-    container_name='my-container/output/',
-    account_name='ACCOUNT-NAME',
-    sas_token='SAS-TOKEN',
-    purpose=DatasourcePurpose.LIGHTLY
-)
+# Let's fetch the dataset we created above, by name
+client.set_dataset_id_by_name('pedestrian-videos-datapool')
 
 # Schedule the compute run using our custom config.
 # We show here the full default config so you can easily edit the
