@@ -22,7 +22,7 @@ Predictions Folder Structure
 
 In the following, we will outline the format of the predictions required by the
 Lightly Worker. Everything regarding predictions will take place in a subdirectory
-of your configured **Lightly Bucket** called `.lightly/predictions`. The general structure
+of your configured **Lightly Bucket** called :code:`.lightly/predictions`. The general structure
 of your input and Lightly bucket will look like this:
 
 
