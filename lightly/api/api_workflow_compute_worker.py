@@ -1,46 +1,34 @@
 import copy
 import dataclasses
+import os
 import time
 from typing import Any, Dict, List, Optional, Union, Iterator
 
 from lightly.api.utils import retry
+from lightly.api import download
 from lightly.openapi_generated.swagger_client import (
+    CreateDockerWorkerRegistryEntryRequest,
+    DockerRunData,
+    DockerRunScheduledCreateRequest,
+    DockerRunScheduledData,
+    DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
-)
-from lightly.openapi_generated.swagger_client import (
+    DockerWorkerConfig,
+    DockerWorkerConfigCreateRequest,
+    DockerWorkerType,
     SelectionConfig,
+    SelectionConfigEntry,
     SelectionConfigEntryInput,
     SelectionConfigEntryStrategy,
-    SelectionConfigEntry,
 )
-from lightly.openapi_generated.swagger_client.models.create_docker_worker_registry_entry_request import (
-    CreateDockerWorkerRegistryEntryRequest,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_data import (
-    DockerRunData,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_create_request import (
-    DockerRunScheduledCreateRequest,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import (
-    DockerRunScheduledData,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_priority import (
-    DockerRunScheduledPriority,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_config import (
-    DockerWorkerConfig,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import (
-    DockerWorkerConfigCreateRequest,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_type import (
-    DockerWorkerType,
-)
+from lightly.openapi_generated.swagger_client.models.docker_run_artifact_type import DockerRunArtifactType
 from lightly.openapi_generated.swagger_client.rest import ApiException
 
 STATE_SCHEDULED_ID_NOT_FOUND = "CANCELED_OR_NOT_EXISTING"
+
+class ArtifactNotExist(Exception):
+    pass
 
 
 @dataclasses.dataclass
@@ -187,9 +175,50 @@ class _ComputeWorkerMixin:
         )
         return response.id
 
-    def get_compute_worker_runs(self) -> List[DockerRunData]:
-        """Returns all compute worker runs for the user."""
-        return self._compute_worker_api.get_docker_runs()
+    def get_compute_worker_runs(
+        self,
+        dataset_id: Optional[str] = None,
+    ) -> List[DockerRunData]:
+        """Get all compute worker runs for the user.
+
+        Args:
+            dataset_id:
+                If set, then only runs for the given dataset are returned.
+
+        Returns:
+            Runs sorted by creation time from old to new.
+
+        """
+        runs: List[DockerRunData] = self._compute_worker_api.get_docker_runs()
+        if dataset_id is not None:
+            runs = [run for run in runs if run.dataset_id == dataset_id]
+        sorted_runs = sorted(runs, key=lambda run: run.created_at or -1)
+        return sorted_runs
+
+    def get_compute_worker_run(self, run_id: str) -> DockerRunData:
+        """Returns a run given its id.
+
+        Raises:
+            ApiException:
+                If no run with the given id exists.
+        """
+        return self._compute_worker_api.get_docker_run_by_id(
+            run_id=run_id
+        )
+
+    def get_compute_worker_run_from_scheduled_run(
+        self, 
+        scheduled_run_id: str,
+    ) -> DockerRunData:
+        """Returns a run given its scheduled run id.
+
+        Raises:
+            ApiException:
+                If no run with the given scheduled run id exists.
+        """
+        return self._compute_worker_api.get_docker_run_by_scheduled_id(
+            scheduled_id=scheduled_run_id
+        )
 
     def get_scheduled_compute_worker_runs(
         self,
@@ -326,6 +355,289 @@ class _ComputeWorkerMixin:
 
             last_run_info = run_info
 
+    def download_compute_worker_run_artifacts(
+        self,
+        run: DockerRunData,
+        output_dir: str,
+        timeout: int = 60,
+    ) -> None:
+        """Downloads all artifacts from a run.
+        
+        Args:
+            run:
+                Run from which to download artifacts.
+            output_dir:
+                Output directory where artifacts will be saved.
+            timeout:
+                Timeout in seconds after which an artifact download is interrupted.
+
+        Examples:
+            >>> # schedule run
+            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
+            >>>
+            >>> # wait until run completed
+            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
+            >>>     pass
+            >>>
+            >>> # download artifacts
+            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> client.download_compute_worker_run_artifacts(run=run, output_dir="my_run/artifacts")
+
+        """
+        if run.artifacts is None:
+            return
+        for artifact in run.artifacts:
+            self._download_compute_worker_run_artifact(
+                run_id=run.id,
+                artifact_id=artifact.id,
+                output_path=os.path.join(output_dir, artifact.file_name),
+                timeout=timeout,
+            )
+
+    def download_compute_worker_run_checkpoint(
+        self,
+        run: DockerRunData,
+        output_path: str,
+        timeout: int = 60,
+    ) -> None:
+        """Downloads the last training checkpoint from a run.
+
+        See https://docs.lightly.ai/docker/advanced/load_model_from_checkpoint.html
+        for information on how to use the checkpoint.
+
+        Args:
+            run: 
+                Run from which to download the checkpoint.
+            output_path: 
+                Path where checkpoint will be saved.
+            timeout:
+                Timeout in seconds after which download is interrupted.
+
+        Raises:
+            ArtifactNotExist:
+                If the run has no checkpoint artifact or the checkpoint has not yet been
+                uploaded.
+
+        Examples:
+            >>> # schedule run
+            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
+            >>>
+            >>> # wait until run completed
+            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
+            >>>     pass
+            >>>
+            >>> # download checkpoint
+            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> client.download_compute_worker_run_checkpoint(run=run, output_path="my_checkpoint.ckpt")
+
+        """
+        return self._download_compute_worker_run_artifact_by_type(
+            run=run,
+            artifact_type=DockerRunArtifactType.CHECKPOINT,
+            output_path=output_path,
+            timeout=timeout,
+        )
+
+    def download_compute_worker_run_report_pdf(
+        self, 
+        run: DockerRunData, 
+        output_path: str, 
+        timeout: int = 60,
+    ) -> None:
+        """Download the report in pdf format from a run.
+
+        Args:
+            run: 
+                Run from which to download the report.
+            output_path: 
+                Path where report will be saved.
+            timeout: 
+                Timeout in seconds after which download is interrupted.
+
+        Raises:
+            ArtifactNotExist:
+                If the run has no report artifact or the report has not yet been
+                uploaded.
+
+        Examples:
+            >>> # schedule run
+            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
+            >>>
+            >>> # wait until run completed
+            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
+            >>>     pass
+            >>>
+            >>> # download report
+            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> client.download_compute_worker_run_report_pdf(run=run, output_path="report.pdf")
+
+        """
+        return self._download_compute_worker_run_artifact_by_type(
+            run=run,
+            artifact_type=DockerRunArtifactType.REPORT_PDF,
+            output_path=output_path,
+            timeout=timeout,
+        )
+
+    def download_compute_worker_run_report_json(
+        self,
+        run: DockerRunData,
+        output_path: str,
+        timeout: int = 60,
+    ) -> None:
+        """Download the report in json format from a run.
+
+        Args:
+            run: 
+                Run from which to download the report.
+            output_path: 
+                Path where report will be saved.
+            timeout: 
+                Timeout in seconds after which download is interrupted.
+
+        Raises:
+            ArtifactNotExist:
+                If the run has no report artifact or the report has not yet been
+                uploaded.
+
+        Examples:
+            >>> # schedule run
+            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
+            >>>
+            >>> # wait until run completed
+            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
+            >>>     pass
+            >>>
+            >>> # download checkpoint
+            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> client.download_compute_worker_run_report_json(run=run, output_path="report.json")
+
+        """
+        return self._download_compute_worker_run_artifact_by_type(
+            run=run,
+            artifact_type=DockerRunArtifactType.REPORT_JSON,
+            output_path=output_path,
+            timeout=timeout,
+        )
+
+    def download_compute_worker_run_log(
+        self,
+        run: DockerRunData,
+        output_path: str,
+        timeout: int = 60,
+    ) -> None:
+        """Download the log file from a run.
+
+        Args:
+            run: 
+                Run from which to download the log file.
+            output_path: 
+                Path where log file will be saved.
+            timeout: 
+                Timeout in seconds after which download is interrupted.
+
+        Raises:
+            ArtifactNotExist:
+                If the run has no log artifact or the log file has not yet been 
+                uploaded.
+
+        Examples:
+            >>> # schedule run
+            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
+            >>>
+            >>> # wait until run completed
+            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
+            >>>     pass
+            >>>
+            >>> # download log file
+            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> client.download_compute_worker_run_log(run=run, output_path="log.txt")
+
+        """
+        return self._download_compute_worker_run_artifact_by_type(
+            run=run,
+            artifact_type=DockerRunArtifactType.LOG,
+            output_path=output_path,
+            timeout=timeout,
+        )
+
+    def download_compute_worker_run_memory_log(
+        self,
+        run: DockerRunData,
+        output_path: str,
+        timeout: int = 60,
+    ) -> None:
+        """Download the memory consumption log file from a run.
+
+        Args:
+            run: 
+                Run from which to download the memory log file.
+            output_path: 
+                Path where memory log file will be saved.
+            timeout: 
+                Timeout in seconds after which download is interrupted.
+
+        Raises:
+            ArtifactNotExist:
+                If the run has no memory log artifact or the memory log file has not yet
+                been uploaded.
+
+        Examples:
+            >>> # schedule run
+            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
+            >>>
+            >>> # wait until run completed
+            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
+            >>>     pass
+            >>>
+            >>> # download memory log file
+            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> client.download_compute_worker_run_memory_log(run=run, output_path="memlog.txt")
+
+        """
+        return self._download_compute_worker_run_artifact_by_type(
+            run=run,
+            artifact_type=DockerRunArtifactType.MEMLOG,
+            output_path=output_path,
+            timeout=timeout,
+        )
+
+    def _download_compute_worker_run_artifact_by_type(
+        self,
+        run: DockerRunData,
+        artifact_type: str,
+        output_path: str,
+        timeout: int,
+    ) -> None:
+        if run.artifacts is None:
+            raise ArtifactNotExist(f"Run has no artifacts.")
+        try:
+            artifact = next(art for art in run.artifacts if art.type == artifact_type)
+        except StopIteration:
+            raise ArtifactNotExist(f"No artifact with type '{artifact_type}' in artifacts.")
+        self._download_compute_worker_run_artifact(
+            run_id=run.id,
+            artifact_id=artifact.id,
+            output_path=output_path,
+            timeout=timeout,
+        )
+
+    def _download_compute_worker_run_artifact(
+        self,
+        run_id: str,
+        artifact_id: str,
+        output_path: str,
+        timeout: int,
+    ) -> None:
+        read_url = self._compute_worker_api.get_docker_run_artifact_read_url_by_id(
+            run_id=run_id,
+            artifact_id=artifact_id,
+        )
+        download.download_and_write_file(
+            url=read_url,
+            output_path=output_path,
+            request_kwargs=dict(timeout=timeout),
+        )
 
 def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
     """Recursively converts selection config from dict to a SelectionConfig instance."""

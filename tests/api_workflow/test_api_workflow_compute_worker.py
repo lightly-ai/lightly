@@ -3,11 +3,13 @@ import random
 from unittest.mock import MagicMock
 
 import pytest
+from pytest_mock import MockerFixture
 from typing import Any, List
 from unittest import mock
 
 from lightly.api.api_workflow_compute_worker import (
     STATE_SCHEDULED_ID_NOT_FOUND,
+    ArtifactNotExist,
     ComputeWorkerRunInfo,
 )
 from lightly.openapi_generated.swagger_client import (
@@ -23,10 +25,12 @@ from lightly.openapi_generated.swagger_client import (
     SelectionConfigEntryStrategy,
     DockerWorkerConfig,
     DockerWorkerType,
+    DockerRunArtifactData,
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
 )
+from lightly.openapi_generated.swagger_client.models.docker_run_artifact_type import DockerRunArtifactType
 from lightly.openapi_generated.swagger_client.models.docker_run_data import (
     DockerRunData,
 )
@@ -460,3 +464,162 @@ def test_compute_worker_run_info_generator(mocker) -> None:
     ]
 
     assert run_infos == expected_run_infos
+
+def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
+    client = ApiWorkflowClient(token="123")
+    mock_compute_worker_api = mocker.create_autospec(DockerApi, spec_set=True).return_value
+    mock_compute_worker_api.get_docker_runs.return_value = [
+        DockerRunData(id="run-1", created_at=20,  dataset_id="", docker_version="", state="", last_modified_at=0),
+        DockerRunData(id="run-2", created_at=10,  dataset_id="", docker_version="", state="", last_modified_at=0),
+    ]
+    client._compute_worker_api = mock_compute_worker_api
+    runs = client.get_compute_worker_runs()
+    assert runs == [
+        DockerRunData(id="run-2", created_at=10,  dataset_id="", docker_version="", state="", last_modified_at=0),
+        DockerRunData(id="run-1", created_at=20,  dataset_id="", docker_version="", state="", last_modified_at=0),
+    ]
+
+def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
+    client = ApiWorkflowClient(token="123")
+    mock_compute_worker_api = mocker.create_autospec(DockerApi, spec_set=True).return_value
+    mock_compute_worker_api.get_docker_runs.return_value = [
+        DockerRunData(id="run-1", dataset_id="dataset-1", docker_version="", state="", created_at=0, last_modified_at=0),
+        DockerRunData(id="run-2", dataset_id="dataset-2", docker_version="", state="", created_at=0, last_modified_at=0),
+    ]
+    client._compute_worker_api = mock_compute_worker_api
+    runs = client.get_compute_worker_runs(dataset_id="dataset-2")
+    assert runs == [
+        DockerRunData(id="run-2", dataset_id="dataset-2", docker_version="", state="", created_at=0, last_modified_at=0),
+    ]
+
+def test_download_compute_worker_run_artifacts(mocker: MockerFixture) -> None:
+    client = ApiWorkflowClient(token="123")
+    mock_download_compute_worker_run_artifact = mocker.MagicMock(
+        spec_set=client._download_compute_worker_run_artifact
+    )
+    client._download_compute_worker_run_artifact = mock_download_compute_worker_run_artifact
+    run = DockerRunData(
+        id="run-1", 
+        dataset_id="dataset-1", 
+        docker_version="", 
+        state="", 
+        created_at=0, 
+        last_modified_at=0, 
+        artifacts=[
+            DockerRunArtifactData(
+                id="artifact-1",
+                file_name="report.pdf",
+                type=DockerRunArtifactType.REPORT_PDF,
+            ),
+            DockerRunArtifactData(
+                id="artifact-2",
+                file_name="checkpoint.ckpt",
+                type=DockerRunArtifactType.CHECKPOINT,
+            ),
+        ],
+    )
+    client.download_compute_worker_run_artifacts(run=run, output_dir="output_dir")
+    calls = [
+        mocker.call(run_id="run-1", artifact_id="artifact-1", output_path="output_dir/report.pdf", timeout=60),
+        mocker.call(run_id="run-1", artifact_id="artifact-2", output_path="output_dir/checkpoint.ckpt", timeout=60),
+    ]
+    mock_download_compute_worker_run_artifact.assert_has_calls(calls=calls)
+    assert mock_download_compute_worker_run_artifact.call_count == len(calls)
+
+def test__download_compute_worker_run_artifact_by_type(
+    mocker: MockerFixture,
+) -> None:
+    client = ApiWorkflowClient(token="123")
+    mock_download_compute_worker_run_artifact = mocker.MagicMock(
+        spec_set=client._download_compute_worker_run_artifact
+    )
+    client._download_compute_worker_run_artifact = mock_download_compute_worker_run_artifact
+    run = DockerRunData(
+        id="run-1", 
+        dataset_id="dataset-1", 
+        docker_version="", 
+        state="", 
+        created_at=0, 
+        last_modified_at=0, 
+        artifacts=[
+            DockerRunArtifactData(
+                id="artifact-1",
+                file_name="report.pdf",
+                type=DockerRunArtifactType.REPORT_PDF,
+            ),
+            DockerRunArtifactData(
+                id="artifact-2",
+                file_name="checkpoint.ckpt",
+                type=DockerRunArtifactType.CHECKPOINT,
+            ),
+        ],
+    )
+    client._download_compute_worker_run_artifact_by_type(
+        run=run,
+        artifact_type=DockerRunArtifactType.CHECKPOINT,
+        output_path="output_dir/checkpoint.ckpt",
+        timeout=0,
+    )
+    mock_download_compute_worker_run_artifact.assert_called_once_with(
+        run_id="run-1",
+        artifact_id="artifact-2",
+        output_path="output_dir/checkpoint.ckpt",
+        timeout=0,
+    )
+
+def test__download_compute_worker_run_artifact_by_type__no_artifacts(
+    mocker: MockerFixture,
+) -> None:
+    client = ApiWorkflowClient(token="123")
+    mock_download_compute_worker_run_artifact = mocker.MagicMock(
+        spec_set=client._download_compute_worker_run_artifact
+    )
+    client._download_compute_worker_run_artifact = mock_download_compute_worker_run_artifact
+    run = DockerRunData(
+        id="run-1", 
+        dataset_id="dataset-1", 
+        docker_version="", 
+        state="", 
+        created_at=0, 
+        last_modified_at=0, 
+        artifacts=None,
+    )
+    with pytest.raises(ArtifactNotExist, match="Run has no artifacts."):
+        client._download_compute_worker_run_artifact_by_type(
+            run=run,
+            artifact_type=DockerRunArtifactType.CHECKPOINT,
+            output_path="output_dir/checkpoint.ckpt",
+            timeout=0,
+        )
+
+
+def test__download_compute_worker_run_artifact_by_type__no_artifact_with_type(
+    mocker: MockerFixture,
+) -> None:
+    client = ApiWorkflowClient(token="123")
+    mock_download_compute_worker_run_artifact = mocker.MagicMock(
+        spec_set=client._download_compute_worker_run_artifact
+    )
+    client._download_compute_worker_run_artifact = mock_download_compute_worker_run_artifact
+    run = DockerRunData(
+        id="run-1", 
+        dataset_id="dataset-1", 
+        docker_version="", 
+        state="", 
+        created_at=0, 
+        last_modified_at=0, 
+        artifacts=[
+            DockerRunArtifactData(
+                id="artifact-1",
+                file_name="report.pdf",
+                type=DockerRunArtifactType.REPORT_PDF,
+            ),
+        ],
+    )
+    with pytest.raises(ArtifactNotExist, match="No artifact with type"):
+        client._download_compute_worker_run_artifact_by_type(
+            run=run,
+            artifact_type=DockerRunArtifactType.CHECKPOINT,
+            output_path="output_dir/checkpoint.ckpt",
+            timeout=0,
+        )
