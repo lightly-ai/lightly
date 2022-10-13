@@ -740,7 +740,6 @@ class DCLW(BenchmarkModule):
         return [optim], [scheduler]
 
 
-# import here so as to not have an additional dependency
 from sklearn.cluster import KMeans
 
 class SMoGModel(BenchmarkModule):
@@ -764,28 +763,31 @@ class SMoGModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
         # smog
-        self.n_groups = 300 # 2% malus vs optimal setting of 3000 groups
-        memory_bank_size = 300 * batch_size # because we reset the group features every 300 iterations
+        self.n_groups = 300
+        memory_bank_size = 10000
         self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=memory_bank_size)
         # create our loss
         group_features = torch.nn.functional.normalize(
             torch.rand(self.n_groups, 128), dim=1
-        ).to(self.device)
+        )
         self.smog = heads.SMoGPrototypes(group_features=group_features, beta=0.99)
         self.criterion = nn.CrossEntropyLoss()
 
+    def _cluster_features(self, features: torch.Tensor) -> torch.Tensor:
+        features = features.cpu().numpy()
+        kmeans = KMeans(self.n_groups).fit(features)
+        clustered = torch.from_numpy(kmeans.cluster_centers_).float()
+        clustered = torch.nn.functional.normalize(clustered, dim=1)
+        return clustered
+
     def _reset_group_features(self):
-        # see Table 7b)
+        # see https://arxiv.org/pdf/2207.06167.pdf Table 7b)
         features = self.memory_bank.bank
-        if features is not None:
-            features = features.t().cpu().numpy()
-            kmeans = KMeans(self.n_groups).fit(features)
-            new_features = torch.from_numpy(kmeans.cluster_centers_).float()
-            new_features = torch.nn.functional.normalize(new_features, dim=1)
-            self.smog.group_features = new_features.cuda()
+        group_features = self._cluster_features(features.t())
+        self.smog.set_group_features(group_features)
 
     def _reset_momentum_weights(self):
-        # see Table 7b)
+        # see https://arxiv.org/pdf/2207.06167.pdf Table 7b)
         self.backbone_momentum = copy.deepcopy(self.backbone)
         self.projection_head_momentum = copy.deepcopy(self.projection_head)
         utils.deactivate_requires_grad(self.backbone_momentum)
@@ -803,10 +805,10 @@ class SMoGModel(BenchmarkModule):
             utils.update_momentum(self.projection_head, self.projection_head_momentum, 0.99)
 
         (x0, x1), _, _ = batch
+
         if batch_idx % 2:
-            tmp = x1
-            x1 = x0
-            x0 = tmp
+            # swap batches every second iteration
+            x0, x1 = x1, x0
 
         x0_features = self.backbone(x0).flatten(start_dim=1)
         x0_encoded = self.projection_head(x0_features)
@@ -816,9 +818,10 @@ class SMoGModel(BenchmarkModule):
 
         # update group features and get group assignments
         assignments = self.smog.assign_groups(x1_encoded)
-        self.smog.update_groups(x0_encoded)
+        group_features = self.smog.get_updated_group_features(x0_encoded)
+        logits = self.smog(x0_predicted, group_features, temperature=0.1)
+        self.smog.set_group_features(group_features)
 
-        logits = self.smog(x0_predicted, temperature=0.1)
         loss = self.criterion(logits, assignments)
 
         # use memory bank to periodically reset the group features with k-means

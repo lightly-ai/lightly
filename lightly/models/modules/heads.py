@@ -232,17 +232,30 @@ class SMoGPrototypes(nn.Module):
         self, group_features: torch.Tensor, beta: float,
     ):
         super(SMoGPrototypes, self).__init__()
-        self.group_features = group_features
+        self.group_features = nn.Parameter(group_features, requires_grad=False)
         self.beta = beta
 
-    def forward(self, x: torch.Tensor, temperature: float = 0.1) -> torch.Tensor:
-        """TODO"""
+    def forward(self, x: torch.Tensor, group_features: torch.Tensor, temperature: float = 0.1) -> torch.Tensor:
+        """Computes the logits for given model outputs and group features.
+
+        Args:
+            x:
+                Tensor of shape bsz x dim.
+            group_features:
+                Momentum updated group features of shape n_groups x dim.
+            temperature:
+                Temperature parameter for calculating the logits.
+
+        Returns:
+            The logits.
+
+        """
         x = torch.nn.functional.normalize(x, dim=1)
-        group_features = torch.nn.functional.normalize(self.group_features, dim=1)
+        group_features = torch.nn.functional.normalize(group_features, dim=1)
         logits = torch.mm(x, group_features.t())
         return logits / temperature
 
-    def update_groups(self, x: torch.Tensor) -> None:   
+    def get_updated_group_features(self, x: torch.Tensor) -> None:   
         """Performs the synchronous momentum update of the group vectors.
 
         Args:
@@ -250,16 +263,20 @@ class SMoGPrototypes(nn.Module):
                 Tensor of shape bsz x dim.
 
         Returns:
-            The update group features.
+            The updated group features.
 
         """
         assignments = self.assign_groups(x)
-        self.group_features = self.group_features.detach()
+        group_features = torch.clone(self.group_features.data)
         for assigned_class in torch.unique(assignments): 
             mask = assignments == assigned_class
-            self.group_features[assigned_class] = self.beta * self.group_features[assigned_class] + (1 - self.beta) * x[mask].mean(axis=0)
+            group_features[assigned_class] = self.beta * self.group_features[assigned_class] + (1 - self.beta) * x[mask].mean(axis=0)
 
-        self.group_features= nn.functional.normalize(self.group_features, dim=1)
+        return group_features
+
+    def set_group_features(self, x: torch.Tensor) -> None:
+        """Sets the group features and asserts they don't require gradient. """
+        self.group_features.data = x.to(self.group_features.device)
 
     @torch.no_grad()
     def assign_groups(self, x: torch.Tensor) -> torch.LongTensor:
@@ -272,7 +289,7 @@ class SMoGPrototypes(nn.Module):
             LongTensor of shape bsz indicating group assignments.
         
         """
-        return torch.argmax(self.forward(x), dim=-1)
+        return torch.argmax(self.forward(x, self.group_features), dim=-1)
 
 
 class SMoGProjectionHead(ProjectionHead):
