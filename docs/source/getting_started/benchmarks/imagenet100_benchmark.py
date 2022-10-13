@@ -207,7 +207,7 @@ class MocoModel(BenchmarkModule):
         params = list(self.backbone.parameters()) + list(self.projection_head.parameters())
         optim = torch.optim.SGD(
             params, 
-            lr=0.03 * lr_factor,
+            lr=0.3 * lr_factor,
             momentum=0.9,
             weight_decay=1e-4,
         )
@@ -244,9 +244,9 @@ class SimCLRModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.SGD(
             self.parameters(), 
-            lr=0.3 * lr_factor,
+            lr=3.0 * lr_factor,
             momentum=0.9, 
-            weight_decay=1e-4,
+            weight_decay=1e-6,
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
@@ -283,7 +283,7 @@ class SimSiamModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.SGD(
             self.parameters(), 
-            lr=0.05 * lr_factor,
+            lr=0.5 * lr_factor,
             momentum=0.9,
             weight_decay=1e-4,
         )
@@ -321,7 +321,7 @@ class BarlowTwinsModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.SGD(
             self.parameters(), 
-            lr=0.2 * lr_factor,
+            lr=2.0 * lr_factor,
             momentum=0.9, 
             weight_decay=1.5 * 1e-6,
         )
@@ -381,7 +381,7 @@ class BYOLModel(BenchmarkModule):
             + list(self.prediction_head.parameters())
         optim = torch.optim.SGD(
             params,
-            lr=0.2 * lr_factor,
+            lr=2.0 * lr_factor,
             momentum=0.9,
             weight_decay=1.5 * 1e-6,
         )
@@ -424,7 +424,7 @@ class NNCLRModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.SGD(
             self.parameters(), 
-            lr=0.3 * lr_factor,
+            lr=10.0 * lr_factor,
             momentum=0.9, 
             weight_decay=1e-6,
         )
@@ -481,7 +481,8 @@ class SwaVModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.SGD(
             self.parameters(),
-            lr=4.8 * lr_factor,
+            lr=48.0 * lr_factor,
+            momentum=0.9,
             weight_decay=1e-6,
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
@@ -532,25 +533,24 @@ class DINOModel(BenchmarkModule):
     def configure_optimizers(self):
         param = list(self.backbone.parameters()) \
             + list(self.head.parameters())
-        optim = torch.optim.SGD(
+        optim = torch.optim.AdamW(
             param,
-            lr=0.3 * lr_factor,
-            momentum=0.9,
-            weight_decay=1e-6,
+            lr=0.005 * lr_factor,
+            weight_decay=0.4,
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
 
 models = [
-    # BarlowTwinsModel, 
-    # BYOLModel,
-    # DINOModel,
+    BarlowTwinsModel, 
+    BYOLModel,
+    DINOModel,
     MocoModel,
-    # NNCLRModel,
+    NNCLRModel,
     SimCLRModel,
     SimSiamModel,
-    # SwaVModel,
+    SwaVModel,
 ]
 bench_results = dict()
 
