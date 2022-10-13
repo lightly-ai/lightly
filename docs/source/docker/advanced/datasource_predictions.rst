@@ -305,7 +305,7 @@ Example semantic segmentation:
         ]
     }
 
-Note: The filename should always be the full path from the root directory.
+Note: The filename should always be the relative path from the root directory.
 
 
 Prediction Singletons
@@ -362,6 +362,10 @@ corresponding score. The score determines the likelihood of the segmentation
 belonging to that category. Optionally, a list of probabilities can be provided
 containing a probability for each category, indicating the likeliness that the
 segment belongs to that category.
+
+To kickstart using Lightly with semantic segmentation predictions we created an 
+example script that takes model predictions and converts them to the correct 
+format :download:`semantic_segmentation_inference.py <code_examples/semantic_segmentation_inference.py>` 
 
 Segmentations are defined with binary masks where each pixel is either set to 0
 or 1 if it belongs to the background or the object, respectively. 
