@@ -91,7 +91,7 @@ class DatasourceConfigS3(object):
     def s3_access_key_id(self):
         """Gets the s3_access_key_id of this DatasourceConfigS3.  # noqa: E501
 
-        the accessKeyId of the credential you are providing Lightly to use  # noqa: E501
+        The accessKeyId of the credential you are providing Lightly to use  # noqa: E501
 
         :return: The s3_access_key_id of this DatasourceConfigS3.  # noqa: E501
         :rtype: str
@@ -102,7 +102,7 @@ class DatasourceConfigS3(object):
     def s3_access_key_id(self, s3_access_key_id):
         """Sets the s3_access_key_id of this DatasourceConfigS3.
 
-        the accessKeyId of the credential you are providing Lightly to use  # noqa: E501
+        The accessKeyId of the credential you are providing Lightly to use  # noqa: E501
 
         :param s3_access_key_id: The s3_access_key_id of this DatasourceConfigS3.  # noqa: E501
         :type: str
@@ -116,7 +116,7 @@ class DatasourceConfigS3(object):
     def s3_secret_access_key(self):
         """Gets the s3_secret_access_key of this DatasourceConfigS3.  # noqa: E501
 
-        the secretAccessKey of the credential you are providing Lightly to use  # noqa: E501
+        The secretAccessKey of the credential you are providing Lightly to use  # noqa: E501
 
         :return: The s3_secret_access_key of this DatasourceConfigS3.  # noqa: E501
         :rtype: str
@@ -127,7 +127,7 @@ class DatasourceConfigS3(object):
     def s3_secret_access_key(self, s3_secret_access_key):
         """Sets the s3_secret_access_key of this DatasourceConfigS3.
 
-        the secretAccessKey of the credential you are providing Lightly to use  # noqa: E501
+        The secretAccessKey of the credential you are providing Lightly to use  # noqa: E501
 
         :param s3_secret_access_key: The s3_secret_access_key of this DatasourceConfigS3.  # noqa: E501
         :type: str

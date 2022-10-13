@@ -379,7 +379,7 @@ class MockedTagsApi(TagsApi):
 
     def export_tag_to_label_studio_tasks(
         self, dataset_id: str, tag_id: str, **kwargs
-    ) -> List[LabelStudioTask]:
+    ) -> List[Dict]:
         if kwargs["page_offset"] and kwargs["page_offset"] > 0:
             return []
         return [
@@ -425,31 +425,31 @@ class MockedTagsApi(TagsApi):
                         ),
                     ),
                 )
-            )
+            ).to_dict() # temporary until we have a proper openapi generator
         ]
 
     def export_tag_to_label_box_data_rows(
         self, dataset_id: str, tag_id: str, **kwargs
-    ) -> List[LabelBoxDataRow]:
+    ) -> List[Dict]:
         if kwargs["page_offset"] and kwargs["page_offset"] > 0:
             return []
         return [
             LabelBoxDataRow(
                 external_id = "2008_007291_jpg.rf.2fca436925b52ea33cf897125a34a2fb.jpg",
                 image_url = "https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e233/readurlRedirect?type=CENSORED",
-            )
+            ).to_dict() # temporary until we have a proper openapi generator
         ]
 
     def export_tag_to_basic_filenames_and_read_urls(
         self, dataset_id: str, tag_id: str, **kwargs
-    ) -> List[FilenameAndReadUrl]:
+    ) -> List[Dict]:
         if kwargs["page_offset"] and kwargs["page_offset"] > 0:
             return []
         return [
             FilenameAndReadUrl(
                 file_name = "export-basic-test-sample-0.png",
                 read_url = "https://storage.googleapis.com/somwhere/export-basic-test-sample-0.png?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=CENSORED",
-            )
+            ).to_dict() # temporary until we have a proper openapi generator
         ]
 
     def export_tag_to_basic_filenames(self, dataset_id: str, tag_id: str) -> str:
@@ -821,8 +821,7 @@ class MockedComputeWorkerApi(DockerApi):
                 created_at=Timestamp(0),
                 last_modified_at=Timestamp(100),
                 message=None,
-                messages=[],
-                report_available=False,
+                artifacts=[],
             )
         ]
         self._scheduled_compute_worker_runs = [
@@ -845,6 +844,7 @@ class MockedComputeWorkerApi(DockerApi):
                 state=DockerWorkerState.OFFLINE,
                 created_at=Timestamp(0),
                 last_modified_at=Timestamp(0),
+                labels=["label-1"],
             )
         ]
 

@@ -47,6 +47,7 @@ class DatasourceConfigBase(object):
     }
 
     discriminator_value_class_map = {
+        'DatasourceConfigOBS': 'DatasourceConfigOBS',
         'DatasourceConfigAzure': 'DatasourceConfigAzure',
         'DatasourceConfigS3DelegatedAccess': 'DatasourceConfigS3DelegatedAccess',
         'DatasourceConfigLOCAL': 'DatasourceConfigLOCAL',
@@ -65,7 +66,7 @@ class DatasourceConfigBase(object):
         self._type = None
         self._full_path = None
         self._thumb_suffix = None
-        self.discriminator = 'Discriminator{propertyName&#x3D;&#39;type&#39;, mapping&#x3D;null}'
+        self.discriminator = 'Discriminator{propertyName&#x3D;&#39;type&#39;, mapping&#x3D;null, extensions&#x3D;null}'
 
         self.purpose = purpose
         self.type = type

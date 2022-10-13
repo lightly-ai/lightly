@@ -18,8 +18,10 @@ filenames, or any other information which can be sensitive to our customers.
 Licensing
 ^^^^^^^^^
 
-The licensing and account management is done through the :ref:`ref-authentication-token` 
-as if you would use lightly. The token will be used to authenticate your account. 
+The licensing and account management is done through the :ref:`ref-authentication-token`
+obtained from the Lightly Platform (https://app.lightly.ai). 
+
+The token will be used to authenticate your account. 
 The authentication happens at every run of the worker. Make sure the Lightly worker
 has a working internet connection and has access to https://api.lightly.ai.
 
@@ -40,83 +42,82 @@ See :ref:`rst-installing` for details.
 
 .. _docker-download-and-install:
 
+Docker Installation
+^^^^^^^^^^^^^^^^^^^^
+
+Lightly Worker requires docker to run. We highly recommend a docker installation 
+that supports using GPUs for hardware acceleration using a Linux operating system.
+
+**Check if docker is installed:**
+
+.. code-block:: console
+
+    sudo docker run --rm --gpus all nvidia/cuda:11.0.3-base-ubuntu20.04 nvidia-smi
+
+You might get an error message like this if docker is installed but without GPU support
+
+.. code-block:: console
+
+    docker could not select device driver with capabilities gpu
+
+
+If you don't have docker installed or without GPU support we recommend following
+our guide about :ref:`rst-docker-known-issues-faq-install-docker`. 
+
+.. note::
+   If you use a cloud instance (e.g. on AWS, GCP or Azure) Docker is most likely
+   already installed!
+
 Download the Lightly Worker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The Lightly worker comes as a Docker image. Ask your account manager from Lightly for the credentials
-to download the image.
-
-
 In short, installing the Docker image consists of the following steps:
 
-#. Copy the *container-credentials.json* to the instance you want to use for filtering 
-#. Authenticate Docker to download the Lightly image
-#. Pull the Docker image
-#. Check whether the container works
+1. Make sure :code:`container-credentials.json` is on your machine where you want to run Lightly Worker. 
+    We need to access the private container registry of Lightly. You received 
+    a :code:`container-credentials.json` file from your account manager.
 
-**First**, we need to access the private container registry of Lightly. 
-You received a *container-credentials.json* file from your account manager.
+2. Authenticate your docker account
+    To be able to download docker images of Lightly you need to log in with these credentials. 
 
-**Second**, to be able to download the Docker image you need to log in with these credentials. 
-The following command will authenticate your installed Docker account. 
-We assume *container-credentials.json* is in your current directory.
+    The following command will authenticate yourself to gain access to the Lightly docker images. 
+    We assume :code:`container-credentials.json` is in your current directory.
 
-.. code-block:: console
+    .. code-block:: console
 
-    cat container-credentials.json | docker login -u _json_key --password-stdin https://eu.gcr.io
+        cat container-credentials.json | docker login -u _json_key --password-stdin https://eu.gcr.io
 
-If the above command does not work, try the following. And please make sure the 
-json format is correct (no sudden newlines etc.):
+    You should see a message stating `Login Succeeded`.
 
-.. code-block:: console
+3. Pull the Lightly Worker docker image
+    Using the following command you pull the latest image from our European cloud server:
 
-    cat container-credentials.json | docker login -u json_key --password-stdin https://eu.gcr.io
+    .. code-block:: console
 
+        docker pull eu.gcr.io/boris-250909/lightly/worker:latest
 
-.. note:: When docker is freshly installed only the root user
-    can run Docker commands. There are two ways to work in this case. 
+    In case you experience any issues pulling the docker image after successful
+    authentication :ref:`check out our FAQ section<rst-docker-known-issues-faq-pulling-docker>`.
 
+    .. warning::
 
-#. give your user permission to run - recommended
-   docker (see https://docs.docker.com/engine/install/linux-postinstall/) 
-#. run Docker commands as root (always replace `docker` with `sudo docker`) - functional but less secure
+        Until version 2.1.8 the latest image was named `eu.gcr.io/boris-250909/lightly/sampling:latest` 
+        from version 2.2 onwards the image is now called `eu.gcr.io/boris-250909/lightly/worker:latest`.
+        Please make sure to update any old Docker run commands to use the new image name.
 
-For example, to authenticate  as non-root user you would run 
+4. Shorten the name of the docker image using :code:`docker tag`
+    The downloaded image has a long name. We can reduce it by making use of *docker tag*. 
+    The following experiments are using the following image name 
+    *lightly/worker:latest*. 
+    Create a new Docker tag using the following command:
 
-.. code-block:: console
+    .. code-block:: console
 
-    cat container-credentials.json | sudo docker login -u _json_key --password-stdin https://eu.gcr.io
-
-
-**Third**, after authentication you should be able to pull our latest image. 
-Using the following command you pull the latest image from our European cloud server:
-
-.. code-block:: console
-
-    docker pull eu.gcr.io/boris-250909/lightly/worker:latest
-
-In case you experience any issues pulling the docker image after successful
-authentication :ref:`check out our FAQ section<rst-docker-known-issues-faq-pulling-docker>`.
-
-.. warning::
-
-    Until version 2.1.8 the latest image was named `eu.gcr.io/boris-250909/lightly/sampling:latest` 
-    from version 2.2 onwards the image is now called `eu.gcr.io/boris-250909/lightly/worker:latest`.
-    Please make sure to update any old Docker run commands to use the new image name.
+        docker tag eu.gcr.io/boris-250909/lightly/worker:latest lightly/worker:latest
 
 
-The downloaded image has a long name. We can reduce it by making use of *docker tag*. 
-The following experiments are using the following image name 
-*lightly/worker:latest*. 
-Create a new Docker tag using the following command:
-
-.. code-block:: console
-
-    docker tag eu.gcr.io/boris-250909/lightly/worker:latest lightly/worker:latest
-
-
-.. note:: If you don't want to tag the image name you can replace lightly/worker:latest
-          by eu.gcr.io/boris-250909/lightly/worker:latest for all commands in this documentation.
+    .. note:: If you do not want to tag the image name you can replace lightly/worker:latest
+            by eu.gcr.io/boris-250909/lightly/worker:latest for all commands in this documentation.
 
 
 Update the Lightly Worker
@@ -138,6 +139,14 @@ Don't forget to tag the image again after pulling it.
 .. note:: You can download a specific version of the Docker image by indicating the version number
           instead of `latest`. We follow semantic versioning standards. 
 
+
+Furthermore, we always recommend using the latest version of the lightly pip package 
+alongside the latest version of the Lightly Worker. You can update the 
+pip package using the following command.
+
+.. code-block:: console
+
+    pip install lightly --upgrade
 
 .. _docker-setup-sanity-check:
 

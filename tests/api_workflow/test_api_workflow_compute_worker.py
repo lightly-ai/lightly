@@ -6,7 +6,10 @@ import pytest
 from typing import Any, List
 from unittest import mock
 
-from lightly.api.api_workflow_compute_worker import STATE_SCHEDULED_ID_NOT_FOUND, ComputeWorkerRunInfo
+from lightly.api.api_workflow_compute_worker import (
+    STATE_SCHEDULED_ID_NOT_FOUND,
+    ComputeWorkerRunInfo,
+)
 from lightly.openapi_generated.swagger_client import (
     SelectionConfig,
     SelectionConfigEntry,
@@ -362,25 +365,42 @@ def test_get_compute_worker_state_and_message_OPEN() -> None:
         created_at=0,
         last_modified_at=1,
     )
+
     def mocked_raise_exception(*args, **kwargs):
         raise ApiException
-    mocked_api_client = MagicMock(dataset_id="asdf", _compute_worker_api=MagicMock(get_docker_run_by_scheduled_id=mocked_raise_exception), _get_scheduled_run_by_id=lambda id: scheduled_run)
+
+    mocked_api_client = MagicMock(
+        dataset_id="asdf",
+        _compute_worker_api=MagicMock(
+            get_docker_run_by_scheduled_id=mocked_raise_exception
+        ),
+        _get_scheduled_run_by_id=lambda id: scheduled_run,
+    )
 
     run_info = ApiWorkflowClient.get_compute_worker_run_info(
         self=mocked_api_client, scheduled_run_id=""
     )
     assert run_info.state == DockerRunScheduledState.OPEN
-    assert run_info.message == "Waiting for pickup by compute worker."
+    assert run_info.message.startswith("Waiting for pickup by Lightly Worker.")
     assert run_info.in_end_state() == False
 
 
 def test_get_compute_worker_state_and_message_CANCELED() -> None:
     def mocked_raise_exception(*args, **kwargs):
         raise ApiException
-    mocked_api_client = MagicMock(dataset_id="asdf", _compute_worker_api=MagicMock(get_docker_run_by_scheduled_id=mocked_raise_exception), _get_scheduled_run_by_id=mocked_raise_exception)
-    run_info = ApiWorkflowClient.get_compute_worker_run_info(self=mocked_api_client, scheduled_run_id="")
+
+    mocked_api_client = MagicMock(
+        dataset_id="asdf",
+        _compute_worker_api=MagicMock(
+            get_docker_run_by_scheduled_id=mocked_raise_exception
+        ),
+        _get_scheduled_run_by_id=mocked_raise_exception,
+    )
+    run_info = ApiWorkflowClient.get_compute_worker_run_info(
+        self=mocked_api_client, scheduled_run_id=""
+    )
     assert run_info.state == STATE_SCHEDULED_ID_NOT_FOUND
-    assert run_info.message == 'The scheduled run was either canceled or does not exist.'
+    assert run_info.message.startswith("Could not find a job for the given run_id:")
     assert run_info.in_end_state() == True
 
 
@@ -408,13 +428,13 @@ def test_get_compute_worker_state_and_message_docker_state() -> None:
     assert run_info.message == message
     assert run_info.in_end_state() == False
 
+
 def test_compute_worker_run_info_generator(mocker) -> None:
 
     states = [f"state_{i}" for i in range(7)]
     states[-1] = DockerRunState.COMPLETED
 
     class MockedApiWorkflowClient:
-
         def __init__(self, states: List[str]):
             self.states = states
             self.current_state_index = 0
@@ -429,10 +449,14 @@ def test_compute_worker_run_info_generator(mocker) -> None:
     mocker.patch("time.sleep", lambda _: None)
 
     mocked_client = MockedApiWorkflowClient(states)
-    run_infos = list(ApiWorkflowClient.compute_worker_run_info_generator(mocked_client, scheduled_run_id=""))
+    run_infos = list(
+        ApiWorkflowClient.compute_worker_run_info_generator(
+            mocked_client, scheduled_run_id=""
+        )
+    )
 
-    expected_run_infos = [ComputeWorkerRunInfo(state=state, message=state) for state in states]
+    expected_run_infos = [
+        ComputeWorkerRunInfo(state=state, message=state) for state in states
+    ]
 
     assert run_infos == expected_run_infos
-
-

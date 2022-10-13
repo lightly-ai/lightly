@@ -47,7 +47,7 @@ class DatasourceConfig(object):
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
-        self.discriminator = 'Discriminator{propertyName&#x3D;&#39;type&#39;, mapping&#x3D;{LIGHTLY&#x3D;#/components/schemas/DatasourceConfigLIGHTLY, S3&#x3D;#/components/schemas/DatasourceConfigS3, S3DelegatedAccess&#x3D;#/components/schemas/DatasourceConfigS3DelegatedAccess, GCS&#x3D;#/components/schemas/DatasourceConfigGCS, AZURE&#x3D;#/components/schemas/DatasourceConfigAzure, LOCAL&#x3D;#/components/schemas/DatasourceConfigLOCAL}}'
+        self.discriminator = 'Discriminator{propertyName&#x3D;&#39;type&#39;, mapping&#x3D;{LIGHTLY&#x3D;#/components/schemas/DatasourceConfigLIGHTLY, S3&#x3D;#/components/schemas/DatasourceConfigS3, S3DelegatedAccess&#x3D;#/components/schemas/DatasourceConfigS3DelegatedAccess, GCS&#x3D;#/components/schemas/DatasourceConfigGCS, AZURE&#x3D;#/components/schemas/DatasourceConfigAzure, OBS&#x3D;#/components/schemas/DatasourceConfigOBS, LOCAL&#x3D;#/components/schemas/DatasourceConfigLOCAL}, extensions&#x3D;null}'
 
     def get_real_child_model(self, data):
         """Returns the real base class specified by the discriminator"""

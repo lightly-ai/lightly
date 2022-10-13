@@ -3,7 +3,7 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import List
+from typing import List, Optional
 
 from lightly.active_learning.utils.bounding_box import BoundingBox
 
@@ -19,9 +19,12 @@ class ObjectDetectionOutput:
         class_probabilities:
             List of probabilities for the different classes for each box.
         scores:
-            List of confidence scores (i.e. max(class prob) * objectness).
+            List of confidence scores. Scores are automatically calculated if they
+            are not passed on initialisation. Scores are by default set to
+            `max(class prob) * objectness` for each bounding box.
         labels:
-            List of labels (i.e. argmax(class prob)).
+            List of labels (i.e. argmax(class prob)). Are automatically inferred from 
+            the class probabilities.
 
     Examples:
         >>> # typical model output
@@ -45,32 +48,37 @@ class ObjectDetectionOutput:
 
     """
 
-    def __init__(self,
-                 boxes: List[BoundingBox],
-                 object_probabilities: List[float],
-                 class_probabilities: List[List[float]]):
-
+    def __init__(
+        self,
+        boxes: List[BoundingBox],
+        object_probabilities: List[float],
+        class_probabilities: List[List[float]],
+        scores: Optional[List[float]] = None,
+    ):
         if len(boxes) != len(object_probabilities) or \
             len(object_probabilities) != len(class_probabilities):
-            raise ValueError('Boxes, object and class probabilities must be of '
-                             f'same length but are {len(boxes)}, '
-                             f'{len(object_probabilities)}, and '
-                             f'{len(class_probabilities)}')
+            raise ValueError(
+                'Boxes, object and class probabilities must be of same length but are '
+                f'{len(boxes)}, {len(object_probabilities)}, and '
+                f'{len(class_probabilities)}'
+            )
 
-        scores = []
-        labels = []
-        for o, c in zip(object_probabilities, class_probabilities):
-            # calculate the score as the object probability times the maximum
-            # of the class probabilities
-            scores.append(o * max(c))
-            # the label is the argmax of the class probabilities
-            labels.append(c.index(max(c)))
+        if scores is not None and len(scores) != len(boxes):
+            raise ValueError(
+                f'Boxes and scores must be of same length but are {len(boxes)} and '
+                f'{len(scores)}'
+            )
 
         self.boxes = boxes
-        self.scores = scores
-        self.labels = labels
+        self.labels = [c.index(max(c)) for c in class_probabilities]
         self.object_probabilities = object_probabilities
         self.class_probabilities = class_probabilities
+        if scores is None:
+            # calculate the score as the object probability times the maximum
+            # of the class probabilities
+            self.scores = [o * max(c) for o, c in zip(object_probabilities, class_probabilities)]
+        else:
+            self.scores = scores
 
 
     @classmethod

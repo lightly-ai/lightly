@@ -5,6 +5,7 @@ pytest-forked
 pytest-xdist
 pytest-mock
 responses
+docutils<=0.16
 sphinx-copybutton
 sphinx-design
 sphinx-gallery
