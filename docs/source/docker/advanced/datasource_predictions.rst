@@ -36,7 +36,7 @@ of your input and Lightly bucket will look like this:
             + ...
             + image_N.png
   
-    output/bucket/
+    lightly/bucket/
         + .lightly/predictions/
             + tasks.json
             + task_1/
@@ -64,7 +64,7 @@ Prediction Tasks
 ----------------
 To let Lightly know what kind of prediction tasks you want to work with, Lightly
 needs to know their names. It's very easy to let Lightly know which tasks exist:
-simply add a `tasks.json` in your output bucket stored at the subdirectory `.lightly/predictions/`.
+simply add a `tasks.json` in your lightly bucket stored at the subdirectory `.lightly/predictions/`.
 
 The `tasks.json` file must include a list of your task names which must match name
 of the subdirectory where your prediction schemas will be located.
@@ -447,7 +447,7 @@ saves them in the format just outlined. You can either save the predictions firs
 and then upload them to your datasource or save them directly to your datasource.
 
 As an example, the following script takes an object detection `COCO predictions file <https://cocodataset.org/#format-results>`_.
-It needs the path to the predictions file and the output directory
+It needs the path to the predictions file and the lightly directory
 where the `.lightly` folder should be created as input.
 Don't forget to change these 2 parameters at the top of the script.
 
