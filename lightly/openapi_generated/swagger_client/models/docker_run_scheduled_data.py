@@ -37,6 +37,7 @@ class DockerRunScheduledData(object):
         'dataset_id': 'MongoObjectID',
         'config_id': 'MongoObjectID',
         'priority': 'DockerRunScheduledPriority',
+        'runs_on': 'DockerWorkerLabels',
         'state': 'DockerRunScheduledState',
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp',
@@ -48,13 +49,14 @@ class DockerRunScheduledData(object):
         'dataset_id': 'datasetId',
         'config_id': 'configId',
         'priority': 'priority',
+        'runs_on': 'runsOn',
         'state': 'state',
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt',
         'owner': 'owner'
     }
 
-    def __init__(self, id=None, dataset_id=None, config_id=None, priority=None, state=None, created_at=None, last_modified_at=None, owner=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, dataset_id=None, config_id=None, priority=None, runs_on=None, state=None, created_at=None, last_modified_at=None, owner=None, _configuration=None):  # noqa: E501
         """DockerRunScheduledData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -64,6 +66,7 @@ class DockerRunScheduledData(object):
         self._dataset_id = None
         self._config_id = None
         self._priority = None
+        self._runs_on = None
         self._state = None
         self._created_at = None
         self._last_modified_at = None
@@ -74,6 +77,7 @@ class DockerRunScheduledData(object):
         self.dataset_id = dataset_id
         self.config_id = config_id
         self.priority = priority
+        self.runs_on = runs_on
         self.state = state
         self.created_at = created_at
         self.last_modified_at = last_modified_at
@@ -171,6 +175,29 @@ class DockerRunScheduledData(object):
             raise ValueError("Invalid value for `priority`, must not be `None`")  # noqa: E501
 
         self._priority = priority
+
+    @property
+    def runs_on(self):
+        """Gets the runs_on of this DockerRunScheduledData.  # noqa: E501
+
+
+        :return: The runs_on of this DockerRunScheduledData.  # noqa: E501
+        :rtype: DockerWorkerLabels
+        """
+        return self._runs_on
+
+    @runs_on.setter
+    def runs_on(self, runs_on):
+        """Sets the runs_on of this DockerRunScheduledData.
+
+
+        :param runs_on: The runs_on of this DockerRunScheduledData.  # noqa: E501
+        :type: DockerWorkerLabels
+        """
+        if self._configuration.client_side_validation and runs_on is None:
+            raise ValueError("Invalid value for `runs_on`, must not be `None`")  # noqa: E501
+
+        self._runs_on = runs_on
 
     @property
     def state(self):
