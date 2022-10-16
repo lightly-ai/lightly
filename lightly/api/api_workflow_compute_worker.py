@@ -49,7 +49,7 @@ class ComputeWorkerRunInfo:
         DockerRunState, DockerRunScheduledState.OPEN, STATE_SCHEDULED_ID_NOT_FOUND
     ]
     message: str
-    last_modified_at: str # if immutable, we might stick to created_at... but we need some way to know that the worker is talking even if state and messages are unchanged
+    last_modified_at: int # if immutable, we might stick to created_at... but we need some way to know that the worker is talking even if state and messages are unchanged
 
     def in_end_state(self) -> bool:
         """Returns wether the compute worker has ended"""
@@ -303,7 +303,7 @@ class _ComputeWorkerMixin:
                     message="Waiting for pickup by Lightly Worker. "
                     "Make sure to start a Lightly Worker connected to your "
                     "user token to process the job.",
-                    last_modified_at='',
+                    last_modified_at=(1000*time.time()),
                 )
             except ApiException:
                 # Case 3: NEITHER the DockerRun NOR the ScheduledRun exist.
@@ -312,7 +312,7 @@ class _ComputeWorkerMixin:
                     message=f"Could not find a job for the given run_id: '{scheduled_run_id}'. "
                     "The scheduled run does not exist or was canceled before "
                     "being picked up by a Lightly Worker.",
-                    last_modified_at='',
+                    last_modified_at=(1000*time.time()),
                 )
         return info
 
