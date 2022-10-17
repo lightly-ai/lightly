@@ -7,9 +7,12 @@ TASK_NAME = "lightly_semantic_segmentation"
 CATEGORIES = ["background", "car", "person"]
 
 
-def get_dummy_prediction(h: int = 500, w: int = 500):
-    """Returns a dummy prediction of shape h x w x n_classes."""
-    return np.random.rand(h, w, len(CATEGORIES))
+def get_dummy_prediction(height: int = 500, width: int = 500):
+    """Returns a dummy prediction of shape h x w x n_classes.
+
+    Height and width are in pixels.
+    """
+    return np.random.rand(height, width, len(CATEGORIES))
 
 
 def filename_to_json(filename: str):
