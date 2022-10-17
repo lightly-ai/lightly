@@ -51,7 +51,7 @@ If it is not, change it to uniform.
   E.g. call it `LIGHTLY_DATASET_ACCESS`.
 - Click on **"Add Permissions"**, search for `storage.objects`
 - Add the permissions `storage.objects.get`, `storage.objects.list`, `storage.objects.create`,
-   `storage.objects.delete` and `storage.objects.update`.
+  `storage.objects.delete` and `storage.objects.update` (as shown in screenshot below).
 - After adding the permissions, create the role.
 
 .. figure:: ./images_gcloud_bucket/screenshot_gcloud_storage_role.jpg

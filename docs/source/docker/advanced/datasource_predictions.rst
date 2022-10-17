@@ -22,8 +22,8 @@ Predictions Folder Structure
 
 In the following, we will outline the format of the predictions required by the
 Lightly Worker. Everything regarding predictions will take place in a subdirectory
-of your configured **output datasource** called `.lightly/predictions`. The general structure
-of your input and output bucket will look like this:
+of your configured **lightly datasource** called :code:`.lightly/predictions`. The general structure
+of your input and lightly bucket will look like this:
 
 
 .. code-block:: bash
@@ -36,7 +36,7 @@ of your input and output bucket will look like this:
             + ...
             + image_N.png
   
-    output/bucket/
+    lightly/bucket/
         + .lightly/predictions/
             + tasks.json
             + task_1/
@@ -64,7 +64,7 @@ Prediction Tasks
 ----------------
 To let Lightly know what kind of prediction tasks you want to work with, Lightly
 needs to know their names. It's very easy to let Lightly know which tasks exist:
-simply add a `tasks.json` in your output bucket stored at the subdirectory `.lightly/predictions/`.
+simply add a `tasks.json` in your lightly bucket stored at the subdirectory `.lightly/predictions/`.
 
 The `tasks.json` file must include a list of your task names which must match name
 of the subdirectory where your prediction schemas will be located.
@@ -305,7 +305,7 @@ Example semantic segmentation:
         ]
     }
 
-Note: The filename should always be the full path from the root directory.
+Note: The filename should always be the relative path from the root directory.
 
 
 Prediction Singletons
@@ -362,6 +362,10 @@ corresponding score. The score determines the likelihood of the segmentation
 belonging to that category. Optionally, a list of probabilities can be provided
 containing a probability for each category, indicating the likeliness that the
 segment belongs to that category.
+
+To kickstart using Lightly with semantic segmentation predictions we created an 
+example script that takes model predictions and converts them to the correct 
+format :download:`semantic_segmentation_inference.py <code_examples/semantic_segmentation_inference.py>` 
 
 Segmentations are defined with binary masks where each pixel is either set to 0
 or 1 if it belongs to the background or the object, respectively. 
@@ -447,7 +451,7 @@ saves them in the format just outlined. You can either save the predictions firs
 and then upload them to your datasource or save them directly to your datasource.
 
 As an example, the following script takes an object detection `COCO predictions file <https://cocodataset.org/#format-results>`_.
-It needs the path to the predictions file and the output directory
+It needs the path to the predictions file and the lightly directory
 where the `.lightly` folder should be created as input.
 Don't forget to change these 2 parameters at the top of the script.
 

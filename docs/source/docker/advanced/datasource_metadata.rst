@@ -13,8 +13,8 @@ Metadata Folder Structure
 
 Following, we outline the format in which metadata can be added to a
 Lightly datasource. Everything regarding metadata will take place in a subdirectory
-of your configured **output datasource** called `.lightly/metadata`. The general structure
-your input and output bucket will look like this:
+of your configured **lightly datasource** called :code:`.lightly/metadata`. The general structure
+your input and lightly bucket will look like this:
 
 .. code-block:: bash
 
@@ -26,7 +26,7 @@ your input and output bucket will look like this:
             + ...
             + image_N.png
 
-    output/bucket/
+    lightly/bucket/
         + .lightly/metadata
             + schema.json
             + image_0.json
