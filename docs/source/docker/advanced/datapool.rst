@@ -69,20 +69,20 @@ first time.
 
 Let's create a Lightly dataset which uses that bucket (choose your tab - S3, GCS or Azure):
 
-.. tab-set::
-  .. tab-item:: AWS S3 Datasource
+.. tabs::
+  .. tab:: AWS S3 Datasource
 
     .. literalinclude:: ./code_examples/python_create_dataset_s3_example.py
       :linenos:
       :language: python
 
-  .. tab-item:: GCS Datasource
+  .. tab:: GCS Datasource
 
     .. literalinclude:: ./code_examples/python_create_dataset_gcs_example.py
       :linenos:
       :language: python
 
-  .. tab-item:: Azure Datasource
+  .. tab:: Azure Datasource
 
     .. literalinclude:: ./code_examples/python_create_dataset_azure_example.py
       :linenos:
@@ -96,6 +96,7 @@ each other based on the embeddings.
 .. literalinclude:: ./code_examples/python_run_datapool_example.py
   :linenos:
   :language: python
+  :emphasize-lines: 8, 30
 
 After running the code we have to make sure we have a running Lightly Worker 
 to process the job.
@@ -120,7 +121,13 @@ we've collected more data and our bucket now looks like this:
     `-- terrace1-c3.avi
 
 We can run the same script again (it won't create a new dataset but use the
-existing one based on the dataset name).
+existing one based on the dataset name). Let's increase the 
+stopping_condition_minimum_distance to 0.2:
+
+.. literalinclude:: ./code_examples/python_run_datapool_example_2.py
+  :linenos:
+  :language: python
+  :emphasize-lines: 30
 
 
 How It Works
