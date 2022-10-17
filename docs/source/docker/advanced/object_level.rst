@@ -144,8 +144,8 @@ code to sping up a Lightly Worker
 
 .. code-block:: console
 
-  docker run --shm-size="1024m" --rm --gpus all -it \
-    -v /docker-output:/home/output_dir lightly/worker:latest \
+    docker run --shm-size="1024m" --rm --gpus all -it \
+    lightly/worker:latest \
     token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
 .. _object-level-pretagging:
@@ -164,8 +164,8 @@ code to sping up a Lightly Worker
 
 .. code-block:: console
 
-  docker run --shm-size="1024m" --rm --gpus all -it \
-    -v /docker-output:/home/output_dir lightly/worker:latest \
+    docker run --shm-size="1024m" --rm --gpus all -it \
+    lightly/worker:latest \
     token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
 Padding
