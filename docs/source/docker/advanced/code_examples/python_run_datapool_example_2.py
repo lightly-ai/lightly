@@ -27,7 +27,7 @@ client.schedule_compute_worker_run(
                 },
                 "strategy": {
                     "type": "DIVERSITY",
-                    "stopping_condition_minimum_distance": 0.1
+                    "stopping_condition_minimum_distance": 0.2
                 }
             }
         ]
