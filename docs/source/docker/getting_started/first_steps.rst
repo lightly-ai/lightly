@@ -511,7 +511,7 @@ contains one relevant filename per line and then pass the path to the text file 
     located in a subdirectory called `.lightly`.
 
 For example, let's say you're working with the following file structure in an S3 bucket where
-you are only interested in `image_1.png` and `subdir/image_3.png`
+you are only interested in `image_1.png`, `subdir/image_2.png` and `subdir/image_3.png`
 
 .. code-block:: console
 
@@ -520,6 +520,9 @@ you are only interested in `image_1.png` and `subdir/image_3.png`
         L subdir/
             L image_2.png
             L image_3.png
+            L image_40.png
+            L image_41.png
+            L image_42.png
 
 
 Then you can add a file called `relevant_filenames.txt` to your Lightly bucket with the following content (note: only file paths relative to the bucket are supported! And relative paths cannot include dot notations `./` or `../`)
@@ -528,10 +531,35 @@ Then you can add a file called `relevant_filenames.txt` to your Lightly bucket w
     :caption: relevant_filenames.txt
 
     image_1.png
+    subdir/image_2.png
     subdir/image_3.png
 
 
-The Lightly bucket should then look like this:
+It's also possible to specify a prefix by denoting it with an asterisk `*` to include whole folders instead of listing many files individually.
+
+.. code-block:: text
+    :emphasize-lines: 2
+    :caption: relevant_filenames.txt
+
+    image_1.png
+    subdir/*
+
+
+You can also combine the power of the prefix with the `gitignore syntax <https://git-scm.com/docs/gitignore>`_ to exclude certain files again.
+
+.. code-block:: text
+    :emphasize-lines: 2
+    :caption: relevant_filenames.txt
+
+    image_1.png
+    subdir/* subdir/image_4* !subdir/image_41.png !subdir/image_42.png
+    ^^^^^^^^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    prefix   gitignore patterns separated by a whitespace
+
+
+In the above example `image_1.png`, `subdir/image_2.png`, `subdir/image_3.png`, `subdir/image_41.png`, `subdir/image_42.png` would be considered, while `subdir/image_40.png` would be ignored.
+
+When using this feature, the Lightly bucket should then look like this:
 
 
 .. code-block:: console
