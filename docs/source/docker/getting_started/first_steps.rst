@@ -722,6 +722,119 @@ See :ref:`load-model-from-checkpoint` on how to use the checkpoint file.
     client.download_compute_worker_run_checkpoint(run=run, output_path="my_run/artifacts/checkpoint.ckpt")
 
 
+
+Other Outputs
+-------------
+
+The Lightly Worker produces a variety of different files which can be used for debugging or further
+processing of the selected images. To access *all* of the generated files, it's necessary to mount
+a local volume to the docker container when starting the Lightly Worker.
+
+Don't forget to also remove the curly brakets :code:`{ }` when replacing
+:code:`{OUTPUT_DIR}` with the path where you want to have the output directory.
+
+
+.. code-block:: console
+    :emphasize-lines: 2
+    :caption: Starting the worker with an `output directory`
+
+    docker run --shm-size="1024m" --gpus all --rm -it \
+        -v {OUTPUT_DIR}:/home/output_dir \
+        lightly/worker:latest \
+        token=MY_AWESOME_TOKEN \
+        worker.worker_id=MY_WORKER_ID
+
+
+.. warning:: Docker volume or port mappings always follow the scheme that you first
+          specify the host systems port followed by the internal port of the
+          container. E.g. **-v /outputs:/home/outputs** would mount /outputs
+          from your system to /home/outputs in the docker container.
+
+
+The output directory is structured in the following way:
+
+* config:
+   A directory containing copies of the configuration files and overwrites.
+* data:
+   The data directory contains everything to do with data.
+    * `embeddings.csv` contains the computed embeddings for all input samples used in selection (including datapool samples, but excluding corrupt or duplicate samples).
+    * `selected_embeddings_including_datapool.csv` contains the embeddings of all selected samples (including preselected datapool samples).
+    * If `enable_corruptness_check=True`, `data` will contain a filtered dataset. It will only contain samples whose files exist, are accessible, are of the type specified by their extension and don't have any artefacts.
+    * If `selected_sequence_length > 1`, `data` will contain a `sequence_information.json`
+      file with information about the selected sequences (filenames, video frame timestamps, ...).
+      Head to :ref:`sequence-selection` for more details on sequence selection.
+* log.txt
+   A file containing useful log messages for debugging. In case your job does not get 
+   processed properly and an error occured this file contains more detailed information
+   about what went wrong.
+* filenames:
+   This directory contains lists of filenames of the corrupt images, removed images, selected
+   images and the images which were removed because they have an exact duplicate in the dataset.
+* lightly_epoch_X.ckpt
+   Checkpoint with the trained model weights (exists only if `enable_training=True`).
+   See :ref:`load-model-from-checkpoint` on how to use the checkpoint file.
+* plots:
+   A directory containing the plots which were produced for the report.
+* report.pdf
+   To provide a simple overview of the filtering process the Lightly worker automatically generates a report.
+   The report contains
+   * information about the job (duration, processed files etc.)
+   * estimated savings in terms of labeling costs and CO2 due to the smaller dataset
+   * statistics about the dataset before and after the selection process
+   * histogram before and after filtering
+   * visualizations of the dataset
+   * nearest neighbors of retained images among the removed ones
+* The report is also available as a report.json file. Any value from the pdf report can be easily be accessed.
+
+
+Below you find a typical output folder structure.
+
+
+.. code-block:: console
+
+    |-- config
+    |   |-- config.yaml
+    |   |-- hydra.yaml
+    |   '-- overrides.yaml
+    |-- data
+    |   |-- al_score_embeddings.csv
+    |   |-- bounding_boxes.json
+    |   |-- bounding_boxes_examples
+    |   |-- embeddings.csv
+    |   |-- normalized_embeddings.csv
+    |   |-- sampled
+    |   |-- selected_embeddings.csv
+    |   '-- sequence_information.json
+    |-- filenames
+    |   |-- corrupt_filenames.txt
+    |   |-- duplicate_filenames.txt
+    |   |-- removed_filenames.txt
+    |   '-- sampled_filenames_excluding_datapool.txt
+    |-- lightly_epoch_X.ckpt
+    |-- plots
+    |   |-- distance_distr_after.png
+    |   |-- distance_distr_before.png
+    |   |-- filter_decision_0.png
+    |   |-- filter_decision_11.png
+    |   |-- filter_decision_22.png
+    |   |-- filter_decision_33.png
+    |   |-- filter_decision_44.png
+    |   |-- filter_decision_55.png
+    |   |-- pretagging_histogram_after.png
+    |   |-- pretagging_histogram_before.png
+    |   |-- scatter_pca.png
+    |   |-- scatter_pca_no_overlay.png
+    |   |-- scatter_umap_k_15.png
+    |   |-- scatter_umap_k_15_no_overlay.png
+    |   |-- scatter_umap_k_5.png
+    |   |-- scatter_umap_k_50.png
+    |   |-- scatter_umap_k_50_no_overlay.png
+    |   '-- scatter_umap_k_5_no_overlay.png
+    |-- report.json
+    '-- report.pdf
+
+
+
 Downloading
 -----------
 
