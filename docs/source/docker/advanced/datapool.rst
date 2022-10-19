@@ -105,7 +105,7 @@ We can start the Lightly Worker using the following command
 .. code-block:: console
 
   docker run --shm-size="1024m" --rm --gpus all -it \
-    -v /docker-output:/home/output_dir lightly/worker:latest \
+    lightly/worker:latest \
     token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
 After we have processed the initial data and created a dataset, 
