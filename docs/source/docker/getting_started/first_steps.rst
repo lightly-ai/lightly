@@ -536,7 +536,7 @@ Then you can add a file called `relevant_filenames.txt` to your Lightly bucket w
 
 
 It's also possible to specify a prefix by denoting it with an asterisk `*` to include whole folders instead of listing many files individually.
-Everything up until the first `*` of a line will be considered the prefix.
+Everything up until the first `*` of a line will be considered as the prefix.
 
 .. code-block:: text
     :emphasize-lines: 2
