@@ -233,8 +233,8 @@ There are several types of selection strategies, all trying to reach different o
 
         Use this strategy to **select samples such that they are as different as possible from each other**.
 
-        Can be used with **EMBEDDINGS**, **SCORES** and **numerical METADATA**. 
-        Samples with a high distance between their embeddings/scores/metadata are 
+        Can be used with **EMBEDDINGS**. 
+        Samples with a high distance between their embeddings are 
         considered to be more *different* from each other than samples with a 
         low distance. The strategy is specified like this:
 
@@ -568,9 +568,3 @@ While embeddings are fully available, there are some limitations regarding the u
 - Lightly metadata is generated on the fly for the object crops and can thus be used for selection. However, other metadata is on image level and thus NOT available at the moment.
 
 If your use case would profit from using image-level data for object-level selection, please reach out to us.
-
-
-
-
-
-
