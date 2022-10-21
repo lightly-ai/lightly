@@ -22,7 +22,8 @@ class InfoNCELoss(nn.Module):
     def normalize(self, x: torch.Tensor) -> torch.Tensor:
         """Function to normalize the tensor
         Args:
-            x : The torch tensor to be normalized.
+            x:
+                The torch tensor to be normalized.
         """
         return nn.functional.normalize(x, dim = 1)
 
