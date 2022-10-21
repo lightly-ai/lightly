@@ -5,7 +5,7 @@ import torch.nn as nn
 #Adapted from https://github.com/facebookresearch/directclr/blob/main/directclr/main.py
 class InfoNCELoss(nn.Module):
     """Implementation of InfoNCELoss as required for DIRECTCLR"""
-    def __init__(self, dim:int ,temprature:float = 0.1):
+    def __init__(self, dim: int, temperature: float = 0.1):
         """Parameters
         Args:
             dim : Dimension of subvector to be used to compute InfoNCELoss.
