@@ -8,6 +8,10 @@ class InfoNCELoss(nn.Module):
     def __init__(self, dim: int, temperature: float = 0.1):
         """Parameters
         Args:
+            dim:
+                Dimension of subvector to be used to compute InfoNCELoss.
+            temprature:
+                The value used to scale logits.
             dim : Dimension of subvector to be used to compute InfoNCELoss.
             temprature: The value used to scale logits.
         """
