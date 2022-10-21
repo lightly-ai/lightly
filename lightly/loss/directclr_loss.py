@@ -19,7 +19,7 @@ class InfoNCELoss(nn.Module):
         #dimension of subvector sent to infoNCE
         self.dim = dim
     
-    def normalize(self, x:torch.Tensor) -> torch.Tensor:
+    def normalize(self, x: torch.Tensor) -> torch.Tensor:
         """Function to normalize the tensor
         Args:
             x : The torch tensor to be normalized.
