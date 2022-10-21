@@ -30,7 +30,8 @@ class InfoNCELoss(nn.Module):
     def compute_loss(self, z1:torch.Tensor, z2:torch.Tensor) -> torch.Tensor:
         """Method to compute InfoNCELoss
         Args:
-            z1,z2 : The representations from the encoder.
+            z1,z2:
+                The representations from the encoder.
         """
         z1 = self.normalize(z1)
         z2 = self.normalize(z2)
