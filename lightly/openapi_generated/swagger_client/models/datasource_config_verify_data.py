@@ -35,16 +35,20 @@ class DatasourceConfigVerifyData(object):
     swagger_types = {
         'can_read': 'bool',
         'can_write': 'bool',
-        'can_list': 'bool'
+        'can_list': 'bool',
+        'can_overwrite': 'bool',
+        'errors': 'DatasourceConfigVerifyDataErrors'
     }
 
     attribute_map = {
         'can_read': 'canRead',
         'can_write': 'canWrite',
-        'can_list': 'canList'
+        'can_list': 'canList',
+        'can_overwrite': 'canOverwrite',
+        'errors': 'errors'
     }
 
-    def __init__(self, can_read=None, can_write=None, can_list=None, _configuration=None):  # noqa: E501
+    def __init__(self, can_read=None, can_write=None, can_list=None, can_overwrite=None, errors=None, _configuration=None):  # noqa: E501
         """DatasourceConfigVerifyData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -53,11 +57,16 @@ class DatasourceConfigVerifyData(object):
         self._can_read = None
         self._can_write = None
         self._can_list = None
+        self._can_overwrite = None
+        self._errors = None
         self.discriminator = None
 
         self.can_read = can_read
         self.can_write = can_write
         self.can_list = can_list
+        self.can_overwrite = can_overwrite
+        if errors is not None:
+            self.errors = errors
 
     @property
     def can_read(self):
@@ -127,6 +136,50 @@ class DatasourceConfigVerifyData(object):
             raise ValueError("Invalid value for `can_list`, must not be `None`")  # noqa: E501
 
         self._can_list = can_list
+
+    @property
+    def can_overwrite(self):
+        """Gets the can_overwrite of this DatasourceConfigVerifyData.  # noqa: E501
+
+
+        :return: The can_overwrite of this DatasourceConfigVerifyData.  # noqa: E501
+        :rtype: bool
+        """
+        return self._can_overwrite
+
+    @can_overwrite.setter
+    def can_overwrite(self, can_overwrite):
+        """Sets the can_overwrite of this DatasourceConfigVerifyData.
+
+
+        :param can_overwrite: The can_overwrite of this DatasourceConfigVerifyData.  # noqa: E501
+        :type: bool
+        """
+        if self._configuration.client_side_validation and can_overwrite is None:
+            raise ValueError("Invalid value for `can_overwrite`, must not be `None`")  # noqa: E501
+
+        self._can_overwrite = can_overwrite
+
+    @property
+    def errors(self):
+        """Gets the errors of this DatasourceConfigVerifyData.  # noqa: E501
+
+
+        :return: The errors of this DatasourceConfigVerifyData.  # noqa: E501
+        :rtype: DatasourceConfigVerifyDataErrors
+        """
+        return self._errors
+
+    @errors.setter
+    def errors(self, errors):
+        """Sets the errors of this DatasourceConfigVerifyData.
+
+
+        :param errors: The errors of this DatasourceConfigVerifyData.  # noqa: E501
+        :type: DatasourceConfigVerifyDataErrors
+        """
+
+        self._errors = errors
 
     def to_dict(self):
         """Returns the model properties as a dict"""
