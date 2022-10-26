@@ -16,6 +16,7 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
+from torch.optim.lr_scheduler import LambdaLR
 import torchvision
 from lightly.models import modules
 from lightly.models.modules import heads
@@ -253,11 +254,18 @@ class SimCLRModel(BenchmarkModule):
             momentum=0.9, 
             weight_decay=1e-6,
         )
-        scheduler = linear_warmup_decay(
-            warmup_steps=steps_per_epoch * 10, 
-            total_steps=steps_per_epoch * max_epochs, 
-            cosine=True,
-        )
+        scheduler = {
+            "scheduler": LambdaLR(
+                optimizer=optim,
+                lr_lambda=linear_warmup_decay(
+                    warmup_steps=steps_per_epoch * 10, 
+                    total_steps=steps_per_epoch * max_epochs, 
+                    cosine=True,
+                )
+            ),
+            "interval": "step",
+            "frequency": 1,
+        }
         return [optim], [scheduler]
 
 class SimSiamModel(BenchmarkModule):
@@ -334,11 +342,18 @@ class BarlowTwinsModel(BenchmarkModule):
             momentum=0.9, 
             weight_decay=1.5 * 1e-6,
         )
-        scheduler = linear_warmup_decay(
-            warmup_steps=steps_per_epoch * 10,
-            total_steps=steps_per_epoch * max_epochs,
-            cosine=True,
-        )
+        scheduler = {
+            "scheduler": LambdaLR(
+                optimizer=optim,
+                lr_lambda=linear_warmup_decay(
+                    warmup_steps=steps_per_epoch * 10, 
+                    total_steps=steps_per_epoch * max_epochs, 
+                    cosine=True,
+                )
+            ),
+            "interval": "step",
+            "frequency": 1,
+        }
         return [optim], [scheduler]
 
 class BYOLModel(BenchmarkModule):
@@ -398,11 +413,18 @@ class BYOLModel(BenchmarkModule):
             momentum=0.9,
             weight_decay=1.5 * 1e-6,
         )
-        scheduler = linear_warmup_decay(
-            warmup_steps=steps_per_epoch * 10, 
-            total_steps=steps_per_epoch * max_epochs, 
-            cosine=True,
-        )
+        scheduler = {
+            "scheduler": LambdaLR(
+                optimizer=optim,
+                lr_lambda=linear_warmup_decay(
+                    warmup_steps=steps_per_epoch * 10, 
+                    total_steps=steps_per_epoch * max_epochs, 
+                    cosine=True,
+                )
+            ),
+            "interval": "step",
+            "frequency": 1,
+        }
         return [optim], [scheduler]
 
 
@@ -502,11 +524,18 @@ class SwaVModel(BenchmarkModule):
             momentum=0.9,
             weight_decay=1e-6,
         )
-        scheduler = linear_warmup_decay(
-            warmup_steps=steps_per_epoch * 10, 
-            total_steps=steps_per_epoch * max_epochs, 
-            cosine=True,
-        )
+        scheduler = {
+            "scheduler": LambdaLR(
+                optimizer=optim,
+                lr_lambda=linear_warmup_decay(
+                    warmup_steps=steps_per_epoch * 10, 
+                    total_steps=steps_per_epoch * max_epochs, 
+                    cosine=True,
+                )
+            ),
+            "interval": "step",
+            "frequency": 1,
+        }
         return [optim], [scheduler]
 
 
@@ -560,11 +589,18 @@ class DINOModel(BenchmarkModule):
             weight_decay=1e-6,
             momentum=0.9,
         )
-        scheduler = linear_warmup_decay(
-            warmup_steps=steps_per_epoch * 10, 
-            total_steps=steps_per_epoch * max_epochs, 
-            cosine=True,
-        )
+        scheduler = {
+            "scheduler": LambdaLR(
+                optimizer=optim,
+                lr_lambda=linear_warmup_decay(
+                    warmup_steps=steps_per_epoch * 10, 
+                    total_steps=steps_per_epoch * max_epochs, 
+                    cosine=True,
+                )
+            ),
+            "interval": "step",
+            "frequency": 1,
+        }
         return [optim], [scheduler]
 
 
