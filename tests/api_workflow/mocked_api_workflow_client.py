@@ -173,9 +173,9 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         self.embeddings = [
             DatasetEmbeddingData(
                 id="embedding_id_xyz",
-                name="embedding_name_xxyyzz",
+                name="embedding_newest",
                 is_processed=True,
-                created_at=0,
+                created_at=1111111,
             ),
             DatasetEmbeddingData(
                 id="embedding_id_xyz_2",

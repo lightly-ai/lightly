@@ -41,7 +41,10 @@ class _UploadEmbeddingsMixin:
             self._embeddings_api.get_embeddings_by_dataset_id(
                 dataset_id=self.dataset_id
             )
-        self.embedding_id = embeddings_on_server[-1].id
+        if len(embeddings_on_server) == 0:
+            raise RuntimeError(f"There are no known embeddings for dataset_id {self.dataset_id}.")
+        # return first entry as the API returns newest first
+        self.embedding_id = embeddings_on_server[0].id
 
     def get_embedding_by_name(
             self, name: str, ignore_suffix: bool = True
