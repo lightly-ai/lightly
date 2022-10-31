@@ -89,6 +89,12 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
 
     def test_set_embedding_id_default(self):
         self.api_workflow_client.set_embedding_id_to_latest()
+        self.assertEqual(self.api_workflow_client.embedding_id, 'embedding_id_xyz')
+    
+    def test_set_embedding_id_no_embeddings(self):
+        self.api_workflow_client._embeddings_api.embeddings = []
+        with self.assertRaises(RuntimeError):
+            self.api_workflow_client.set_embedding_id_to_latest()
 
     def test_upload_existing_embedding(self):
     
