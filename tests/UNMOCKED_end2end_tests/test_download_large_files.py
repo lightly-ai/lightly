@@ -10,7 +10,7 @@ url_5MB = "https://cdn.eso.org/images/large/potw1130a.jpg"
 url_1_5MB = "https://cdn.eso.org/images/publicationjpg/potw1130a.jpg"
 
 start = time.time()
-img = download_image(url_5MB)
+img = download_image(url_5MB, request_kwargs={"verify": False})
 print(f"Took {time.time()-start:5.2f}s to download the image.")
 
 img.show()

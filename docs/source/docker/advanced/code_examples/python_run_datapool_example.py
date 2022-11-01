@@ -1,68 +1,11 @@
-import json
 import lightly
-from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
-from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
+
 
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
 
-# Create a new dataset on the Lightly Platform.
-client.create_dataset('pedestrian-videos-datapool',
-                      dataset_type=DatasetType.VIDEOS)
-
-# Pick one of the following three blocks depending on where your data is
-# AWS S3
-# Input bucket
-client.set_s3_config(
-    resource_path="s3://bucket/input/",
-    region='eu-central-1',
-    access_key='S3-ACCESS-KEY',
-    secret_access_key='S3-SECRET-ACCESS-KEY',
-    purpose=DatasourcePurpose.INPUT
-)
-# Output bucket
-client.set_s3_config(
-    resource_path="s3://bucket/output/",
-    region='eu-central-1',
-    access_key='S3-ACCESS-KEY',
-    secret_access_key='S3-SECRET-ACCESS-KEY',
-    purpose=DatasourcePurpose.LIGHTLY
-)
-
-
-# or Google Cloud Storage
-# Input bucket
-client.set_gcs_config(
-    resource_path="gs://bucket/input/",
-    project_id="PROJECT-ID",
-    credentials=json.dumps(json.load(open('credentials_read.json'))),
-    purpose=DatasourcePurpose.INPUT
-)
-# Output bucket
-client.set_gcs_config(
-    resource_path="gs://bucket/output/",
-    project_id="PROJECT-ID",
-    credentials=json.dumps(json.load(open('credentials_write.json'))),
-    purpose=DatasourcePurpose.LIGHTLY
-)
-
-
-# or Azure Blob Storage
-# Input bucket
-client.set_azure_config(
-    container_name='my-container/input/',
-    account_name='ACCOUNT-NAME',
-    sas_token='SAS-TOKEN',
-    purpose=DatasourcePurpose.INPUT
-)
-# Output bucket
-client.set_azure_config(
-    container_name='my-container/output/',
-    account_name='ACCOUNT-NAME',
-    sas_token='SAS-TOKEN',
-    purpose=DatasourcePurpose.LIGHTLY
-)
-
+# Let's fetch the dataset we created above, by name
+client.set_dataset_id_by_name('pedestrian-videos-datapool')
 
 # Schedule the compute run using our custom config.
 # We show here the full default config so you can easily edit the
@@ -74,11 +17,20 @@ client.schedule_compute_worker_run(
         'enable_training': False,
         'pretagging': False,
         'pretagging_debug': False,
-        'method': 'coreset',
-        'stopping_condition': {
-            'n_samples': -1,
-            'min_distance': 0.05 # we set the min_distance to 0.05 in this example
-        }
+    },
+    selection_config={
+        "n_samples": 100,
+        "strategies": [
+            {
+                "input": {
+                    "type": "EMBEDDINGS"
+                },
+                "strategy": {
+                    "type": "DIVERSITY",
+                    "stopping_condition_minimum_distance": 0.1
+                }
+            }
+        ]
     },
     lightly_config={
         'loader': {

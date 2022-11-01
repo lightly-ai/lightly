@@ -66,9 +66,11 @@ We worked hard to make this happen and are very proud to present you with the fo
 
    getting_started/setup.rst
    getting_started/first_steps.rst
+   getting_started/selection.rst
    advanced/overview.rst
    integration/overview.rst
    configuration/configuration.rst
    examples/overview.rst
+   security/security.rst
    known_issues_faq.rst
    getting_started/hardware_recommendations.rst

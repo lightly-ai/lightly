@@ -82,17 +82,17 @@ Usage
 ---------------
 
 Pretagging can be activated by passing the following argument to your
-Lightly Worker config: `pretagging=True`
+Lightly Worker config: :code:`'pretagging': True`
 
-- `pretagging=True` enables the use of the pretagging model
-- `pretagging_debug=True` add a few images to the report for debugging showing the image with the bounding box predictions.
-- `pretagging_upload=True` enables uploading of the predictions to a configured datasource.
+- :code:`'pretagging': True` enables the use of the pretagging model
+- :code:`'pretagging_debug': True` add a few images to the report for debugging showing the image with the bounding box predictions.
 
 
 A full Python script showing how to create such as job is shown here:
 
 .. literalinclude:: ./code_examples/python_run_pretagging.py
   :linenos:
+  :emphasize-lines: 75-76
   :language: python
 
 
@@ -103,7 +103,7 @@ code to sping up a Lightly Worker
 .. code-block:: console
 
   docker run --shm-size="1024m" --rm --gpus all -it \
-    -v /docker-output:/home/output_dir lightly/worker:latest \
+    lightly/worker:latest \
     token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
 The following shows an example of how the debugging images in the report look like:

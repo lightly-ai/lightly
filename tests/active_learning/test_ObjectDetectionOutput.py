@@ -145,3 +145,28 @@ class TestObjectDetectionOutput(unittest.TestCase):
                 ['hello'],
             )
 
+        with self.assertRaises(ValueError):
+            # scores must have same length as boxes
+            ObjectDetectionOutput(
+                boxes=[],
+                object_probabilities=[],
+                class_probabilities=[],
+                scores=[1.0],
+            )
+
+def test_ObjectDetectionOutput__with_scores():
+    output = ObjectDetectionOutput(
+        boxes=[BoundingBox(0, 0, 1, 1)],
+        object_probabilities=[0.1],
+        class_probabilities=[[0.2]],
+        scores=[0.3],
+    )
+    assert output.scores == [0.3]
+
+def test_ObjectDetectionOutput__without_scores():
+    output = ObjectDetectionOutput(
+        boxes=[BoundingBox(0, 0, 1, 1)],
+        object_probabilities=[0.1],
+        class_probabilities=[[0.2]],
+    )
+    assert output.scores == [0.1 * 0.2]

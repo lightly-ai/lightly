@@ -13,23 +13,27 @@ Metadata Folder Structure
 
 Following, we outline the format in which metadata can be added to a
 Lightly datasource. Everything regarding metadata will take place in a subdirectory
-of your configured **output datasource** called `.lightly/metadata`. The general structure
-your input and output bucket will look like this:
+of your configured **lightly datasource** called :code:`.lightly/metadata`. The general structure
+your input and lightly bucket will look like this:
 
 .. code-block:: bash
 
     input/bucket/
-        + image_1.png
-        + image_2.png
-        + ...
-        + image_N.png
+        + image_0.png
+        + subdir/
+            + image_1.png
+            + image_2.png
+            + ...
+            + image_N.png
 
-    output/bucket/
+    lightly/bucket/
         + .lightly/metadata
             + schema.json
-            + image_1.json
-            ...
-            + image_N.json
+            + image_0.json
+            + subdir/
+                + image_1.json
+                ...
+                + image_N.json
 
 
 All of the `.json` files are explained in the next sections.
@@ -112,14 +116,17 @@ as the image or video in the `.lightly/metadata` directory but change the file e
 
 .. code-block:: bash
 
-    # filename of the metadata for file FILENAME.EXT
+    # filename of the metadata for file input/bucket/FILENAME.EXT
     .lightly/metadata/${FILENAME}.json
 
-    # example: my_image.png
-    .lightly/metadata/my_image.json
+    # example: input/bucket/subdir/image_1.png
+    .lightly/metadata/subdir/image_1.json
 
-    # example: my_video.mp4
-    .lightly/metadata/my_video.json
+    # example: input/bucket/image_0.png
+    .lightly/metadata/image_0.json
+
+    # example: input/bucket/subdir/video_1.mp4
+    .lightly/metadata/subdir/video_1.json
 
 
 When working with videos it's also possible to provide metadata on a per-frame basis.
@@ -133,15 +140,15 @@ to length three. For a video with 1000 frames, the frame number will be padded t
 
 .. code-block:: bash
 
-    # filename of the metadata of the Xth frame of video FILENAME.EXT
+    # filename of the metadata of the Xth frame of video input/bucket/FILENAME.EXT
     # with 200 frames (padding: len(str(200)) = 3)
     .lightly/metadata/${FILENAME}-${X:03d}-${EXT}.json
 
-    # example: my_video.mp4, frame 99/200
-    .lightly/metadata/my_video-099-mp4.json
+    # example: input/bucket/subdir/video_1.mp4, frame 99/200
+    .lightly/metadata/subdir/video_1-099-mp4.json
 
-    # example: my_subdir/my_video.mp4, frame 99/200
-    .lightly/metadata/my_subdir/my_video-099-mp4.json
+    # example: input/bucket/video_0.mp4, frame 99/200
+    .lightly/metadata/video_0-099-mp4.json
 
 
 .. _metadata-format:
@@ -162,10 +169,10 @@ For our example from above, a metadata file corresponding to a image/video/frame
     .. tab:: Video
     
         .. code-block:: javascript
-            :caption: .lightly/metadata/my_video.json
+            :caption: .lightly/metadata/subdir/video_1.json
 
             {
-                "file_name": "my_video.mp4",
+                "file_name": "subdir/video_1.mp4",
                 "type": "video",
                 "metadata": {
                     "scene": "city street",
@@ -181,10 +188,10 @@ For our example from above, a metadata file corresponding to a image/video/frame
     .. tab:: Frame
     
         .. code-block:: javascript
-            :caption: .lightly/metadata/my_video-099-mp4.json
+            :caption: .lightly/metadata/subdir/video_1-099-mp4.json
 
             {
-                "file_name": "my_video-099-mp4.png",
+                "file_name": "subdir/video_1-099-mp4.png",
                 "type": "frame",
                 "metadata": {
                     "scene": "city street",
@@ -200,10 +207,10 @@ For our example from above, a metadata file corresponding to a image/video/frame
     .. tab:: Image
     
         .. code-block:: javascript
-            :caption: .lightly/metadata/my_image.json
+            :caption: .lightly/metadata/subdir/image_1.json
 
             {
-                "file_name": "my_image.png",
+                "file_name": "subdir/image_1.png",
                 "type": "image",
                 "metadata": {
                     "scene": "highway",

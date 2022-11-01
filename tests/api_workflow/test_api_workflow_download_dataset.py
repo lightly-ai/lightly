@@ -5,6 +5,9 @@ from unittest.mock import patch
 
 import PIL
 import numpy as np
+from lightly.openapi_generated.swagger_client.models.filename_and_read_url import FilenameAndReadUrl
+from lightly.openapi_generated.swagger_client.models.label_box_data_row import LabelBoxDataRow
+from lightly.openapi_generated.swagger_client.models.label_studio_task import LabelStudioTask
 
 import torchvision
 
@@ -52,6 +55,10 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
         self.assertIsNotNone(tasks)
         self.assertTrue(all(isinstance(task, dict) for task in tasks))
 
+    def test_export_tag_to_basic_filenames_and_read_urls(self):
+        filenames_and_read_urls = self.api_workflow_client.export_filenames_and_read_urls_by_tag_name('initial-tag')
+        self.assertIsNotNone(filenames_and_read_urls)
+        self.assertTrue(all(isinstance(filenames_and_read_url, dict) for filenames_and_read_url in filenames_and_read_urls))
 
     def test_export_filenames_by_tag_name(self):
         filenames = self.api_workflow_client.export_filenames_by_tag_name('initial-tag')

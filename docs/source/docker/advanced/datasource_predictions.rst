@@ -22,31 +22,37 @@ Predictions Folder Structure
 
 In the following, we will outline the format of the predictions required by the
 Lightly Worker. Everything regarding predictions will take place in a subdirectory
-of your configured **output datasource** called `.lightly/predictions`. The general structure
-of your input and output bucket will look like this:
+of your configured **lightly datasource** called :code:`.lightly/predictions`. The general structure
+of your input and lightly bucket will look like this:
 
 
 .. code-block:: bash
 
     input/bucket/
-        + image_1.png
-        + image_2.png
-        + ...
-        + image_N.png
+        + image_0.png
+        + subdir/
+            + image_1.png
+            + image_2.png
+            + ...
+            + image_N.png
   
-    output/bucket/
+    lightly/bucket/
         + .lightly/predictions/
             + tasks.json
             + task_1/
                  + schema.json
-                 + image_1.json
-                 ...
-                 + image_N.json
+                 + image_0.json
+                 + subdir/
+                    + image_1.json
+                    ...
+                    + image_N.json
             + task_2/
                  + schema.json
-                 + image_1.json
-                 ...
-                 + image_N.json
+                 + image_0.json
+                 + subdir/
+                    + image_1.json
+                    ...
+                    + image_N.json
 
 
 
@@ -58,7 +64,7 @@ Prediction Tasks
 ----------------
 To let Lightly know what kind of prediction tasks you want to work with, Lightly
 needs to know their names. It's very easy to let Lightly know which tasks exist:
-simply add a `tasks.json` in your output bucket stored at the subdirectory `.lightly/predictions/`.
+simply add a `tasks.json` in your lightly bucket stored at the subdirectory `.lightly/predictions/`.
 
 The `tasks.json` file must include a list of your task names which must match name
 of the subdirectory where your prediction schemas will be located.
@@ -169,14 +175,14 @@ it's necessary to follow the naming convention:
 
 .. code-block:: bash
 
-    # filename of the prediction for image FILENAME.EXT
+    # filename of the prediction for image input/bucket/FILENAME.EXT
     .lightly/predictions/${TASK_NAME}/${FILENAME}.json
 
-    # example: my_image.png, classification
-    .lightly/predictions/my_classification_task/my_image.json
+    # example: input/bucket/subdir/image_1.png, classification
+    .lightly/predictions/my_classification_task/subdir/image_1.json
 
-    # example: my_subdir/my_image.png, classification
-    .lightly/predictions/my_classification_task/my_subdir/my_image.json
+    # example: input/bucket/image_0.png, classification
+    .lightly/predictions/my_classification_task/image_0.json
 
 
 .. _prediction-files-for-videos:
@@ -192,15 +198,15 @@ with 1000 frames, the frame number will be padded to length four (99 becomes 009
 
 .. code-block:: bash
 
-    # filename of the predictions of the Xth frame of video FILENAME.EXT
+    # filename of the predictions of the Xth frame of video input/bucket/FILENAME.EXT
     # with 200 frames (padding: len(str(200)) = 3)
     .lightly/predictions/${TASK_NAME}/${FILENAME}-${X:03d}-${EXT}.json
 
-    # example: my_video.mp4, frame 99/200
-    .lightly/predictions/my_classification_task/my_video-099-mp4.json
+    # example: input/bucket/subdir/video_1.mp4, frame 99/200
+    .lightly/predictions/my_classification_task/subdir/video_1-099-mp4.json
 
-    # example: my_subdir/my_video.mp4, frame 99/200
-    .lightly/predictions/my_classification_task/my_subdir/my_video-099-mp4.json
+    # example: input/bucket/video_0.mp4, frame 99/200
+    .lightly/predictions/my_classification_task/video_0-099-mp4.json
 
 See :ref:`creating-prediction-files-for-videos` on how to extract video frames
 and create predictions using `ffmpeg <https://ffmpeg.org/>`_ or Python.
@@ -213,13 +219,32 @@ Predictions for an image must have a `file_name` and `predictions`.
 Here, `file_name` serves as a unique identifier to retrieve the image for which
 the predictions are made and predictions is a list of `Prediction Singletons` for the corresponding task.
 
+- :code:`probabilities` are the per class probabilities of the prediction
+- :code:`score` is the final prediction score/confidence
+
+.. note:: Some frameworks only provide the score as the model output. 
+          The score is typically calculated during the Non-Max Suppression (NMS)
+          by multiplying the objectness probability with the highest class probability.
+
+          But having not only a single score, but also the class probabilities 
+          can be valuable information for 
+          active learning. For example, an object detection model could have a 
+          score of `0.6` and the predicted class is a tree. However, without 
+          class probabilities, we cannot know what the prediction margin or 
+          entropy is. With the class 
+          probabilities we would additionally know whether the model thought 
+          that it's `0.5` tree, `0.4` person and `0.1` car or `0.5` tree, 
+          `0.25` person and `0.25` car.
+
+          
+
 Example classification:
 
 .. code-block:: javascript
-    :caption: .lightly/predictions/classification_weather/my_image.json
+    :caption: .lightly/predictions/classification_weather/subdir/image_1.json
 
     {
-        "file_name": "my_image.png",
+        "file_name": "subdir/image_1.png",
         "predictions": [ // classes: [sunny, clouded, rainy]
             {
                 "category_id": 0,
@@ -231,25 +256,28 @@ Example classification:
 Example object detection:
 
 .. code-block:: javascript
-    :caption: .lightly/predictions/object_detection/my_image.json
+    :caption: .lightly/predictions/object_detection/subdir/image_1.json
 
     {
-        "file_name": "my_image.png",
+        "file_name": "subdir/image_1.png",
         "predictions": [ // classes: [person, car]
             {
                 "category_id": 0,
                 "bbox": [140, 100, 80, 90], // x, y, w, h coordinates in pixels
-                "score": 0.8
+                "score": 0.8,
+                "probabilities": [0.2, 0.8] // optional, sum up to 1.0
             },
             {
                 "category_id": 1,
                 "bbox": [...],
-                "score": 0.9
+                "score": 0.9,
+                "probabilities": [0.9, 0.1] // optional, sum up to 1.0
             },
             {
                 "category_id": 0,
                 "bbox": [...],
-                "score": 0.5
+                "score": 0.5,
+                "probabilities": [0.6, 0.4] // optional, sum up to 1.0
             }
         ]
     }
@@ -257,25 +285,27 @@ Example object detection:
 Example semantic segmentation:
 
 .. code-block:: javascript
-    :caption: .lightly/predictions/semantic_segmentation_cars/my_image.json
+    :caption: .lightly/predictions/semantic_segmentation_cars/subdir/image_1.json
 
     {
-        "file_name": "my_image.png",
-        "predictions": [ // classes: [background, car]
+        "file_name": "subdir/image_1.png",
+        "predictions": [ // classes: [background, car, tree]
             {
                 "category_id": 0,
                 "segmentation": [100, 80, 90, 85, ...], //run length encoded binary segmentation mask
-                "score": 0.8
+                "score": 0.8,
+                "probabilities": [0.15, 0.8, 0.05] // optional, sum up to 1.0
             },
             {
                 "category_id": 1,
                 "segmentation": [...],
-                "score": 0.9
+                "score": 0.9,
+                "probabilities": [0.02, 0.08, 0.9] // optional, sum up to 1.0
             },
         ]
     }
 
-Note: The filename should always be the full path from the root directory.
+Note: The filename should always be the relative path from the root directory.
 
 
 Prediction Singletons
@@ -332,6 +362,10 @@ corresponding score. The score determines the likelihood of the segmentation
 belonging to that category. Optionally, a list of probabilities can be provided
 containing a probability for each category, indicating the likeliness that the
 segment belongs to that category.
+
+To kickstart using Lightly with semantic segmentation predictions we created an 
+example script that takes model predictions and converts them to the correct 
+format :download:`semantic_segmentation_inference.py <code_examples/semantic_segmentation_inference.py>` 
 
 Segmentations are defined with binary masks where each pixel is either set to 0
 or 1 if it belongs to the background or the object, respectively. 
@@ -398,7 +432,7 @@ format required by Lightly.
         })
 
     prediction = {
-        'file_name': 'image_name.png',
+        'file_name': 'subdir/image_name.png',
         'predictions': predictions,
     }
 
@@ -417,7 +451,7 @@ saves them in the format just outlined. You can either save the predictions firs
 and then upload them to your datasource or save them directly to your datasource.
 
 As an example, the following script takes an object detection `COCO predictions file <https://cocodataset.org/#format-results>`_.
-It needs the path to the predictions file and the output directory
+It needs the path to the predictions file and the lightly directory
 where the `.lightly` folder should be created as input.
 Don't forget to change these 2 parameters at the top of the script.
 

@@ -18,13 +18,17 @@ from lightly.models.modules.heads import NNCLRPredictionHead
 from lightly.models.modules.heads import SimCLRProjectionHead
 from lightly.models.modules.heads import SimSiamProjectionHead
 from lightly.models.modules.heads import SimSiamPredictionHead
+from lightly.models.modules.heads import SMoGPrototypes
+from lightly.models.modules.heads import SMoGProjectionHead
+from lightly.models.modules.heads import SMoGPredictionHead
 from lightly.models.modules.heads import SwaVProjectionHead
 from lightly.models.modules.heads import SwaVPrototypes
 from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
 
 from lightly import _torchvision_vit_available
+
 if _torchvision_vit_available:
-    # Requires torchvision >=0.12
+    # Requires torchvision >=0.12
     from lightly.models.modules.masked_autoencoder import MAEBackbone
     from lightly.models.modules.masked_autoencoder import MAEDecoder
     from lightly.models.modules.masked_autoencoder import MAEEncoder

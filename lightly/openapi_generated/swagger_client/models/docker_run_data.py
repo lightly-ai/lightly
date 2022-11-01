@@ -35,28 +35,30 @@ class DockerRunData(object):
     swagger_types = {
         'id': 'MongoObjectID',
         'docker_version': 'str',
-        'dataset_id': 'MongoObjectID',
         'state': 'DockerRunState',
+        'dataset_id': 'MongoObjectID',
+        'config_id': 'MongoObjectID',
+        'scheduled_id': 'MongoObjectID',
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp',
         'message': 'str',
-        'messages': 'list[DockerRunDataLog]',
-        'report_available': 'bool'
+        'artifacts': 'list[DockerRunArtifactData]'
     }
 
     attribute_map = {
         'id': 'id',
         'docker_version': 'dockerVersion',
-        'dataset_id': 'datasetId',
         'state': 'state',
+        'dataset_id': 'datasetId',
+        'config_id': 'configId',
+        'scheduled_id': 'scheduledId',
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt',
         'message': 'message',
-        'messages': 'messages',
-        'report_available': 'reportAvailable'
+        'artifacts': 'artifacts'
     }
 
-    def __init__(self, id=None, docker_version=None, dataset_id=None, state=None, created_at=None, last_modified_at=None, message=None, messages=None, report_available=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, docker_version=None, state=None, dataset_id=None, config_id=None, scheduled_id=None, created_at=None, last_modified_at=None, message=None, artifacts=None, _configuration=None):  # noqa: E501
         """DockerRunData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -64,28 +66,31 @@ class DockerRunData(object):
 
         self._id = None
         self._docker_version = None
-        self._dataset_id = None
         self._state = None
+        self._dataset_id = None
+        self._config_id = None
+        self._scheduled_id = None
         self._created_at = None
         self._last_modified_at = None
         self._message = None
-        self._messages = None
-        self._report_available = None
+        self._artifacts = None
         self.discriminator = None
 
         self.id = id
         self.docker_version = docker_version
+        self.state = state
         if dataset_id is not None:
             self.dataset_id = dataset_id
-        self.state = state
+        if config_id is not None:
+            self.config_id = config_id
+        if scheduled_id is not None:
+            self.scheduled_id = scheduled_id
         self.created_at = created_at
         self.last_modified_at = last_modified_at
         if message is not None:
             self.message = message
-        if messages is not None:
-            self.messages = messages
-        if report_available is not None:
-            self.report_available = report_available
+        if artifacts is not None:
+            self.artifacts = artifacts
 
     @property
     def id(self):
@@ -134,27 +139,6 @@ class DockerRunData(object):
         self._docker_version = docker_version
 
     @property
-    def dataset_id(self):
-        """Gets the dataset_id of this DockerRunData.  # noqa: E501
-
-
-        :return: The dataset_id of this DockerRunData.  # noqa: E501
-        :rtype: MongoObjectID
-        """
-        return self._dataset_id
-
-    @dataset_id.setter
-    def dataset_id(self, dataset_id):
-        """Sets the dataset_id of this DockerRunData.
-
-
-        :param dataset_id: The dataset_id of this DockerRunData.  # noqa: E501
-        :type: MongoObjectID
-        """
-
-        self._dataset_id = dataset_id
-
-    @property
     def state(self):
         """Gets the state of this DockerRunData.  # noqa: E501
 
@@ -176,6 +160,69 @@ class DockerRunData(object):
             raise ValueError("Invalid value for `state`, must not be `None`")  # noqa: E501
 
         self._state = state
+
+    @property
+    def dataset_id(self):
+        """Gets the dataset_id of this DockerRunData.  # noqa: E501
+
+
+        :return: The dataset_id of this DockerRunData.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._dataset_id
+
+    @dataset_id.setter
+    def dataset_id(self, dataset_id):
+        """Sets the dataset_id of this DockerRunData.
+
+
+        :param dataset_id: The dataset_id of this DockerRunData.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._dataset_id = dataset_id
+
+    @property
+    def config_id(self):
+        """Gets the config_id of this DockerRunData.  # noqa: E501
+
+
+        :return: The config_id of this DockerRunData.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._config_id
+
+    @config_id.setter
+    def config_id(self, config_id):
+        """Sets the config_id of this DockerRunData.
+
+
+        :param config_id: The config_id of this DockerRunData.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._config_id = config_id
+
+    @property
+    def scheduled_id(self):
+        """Gets the scheduled_id of this DockerRunData.  # noqa: E501
+
+
+        :return: The scheduled_id of this DockerRunData.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._scheduled_id
+
+    @scheduled_id.setter
+    def scheduled_id(self, scheduled_id):
+        """Sets the scheduled_id of this DockerRunData.
+
+
+        :param scheduled_id: The scheduled_id of this DockerRunData.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._scheduled_id = scheduled_id
 
     @property
     def created_at(self):
@@ -227,6 +274,7 @@ class DockerRunData(object):
     def message(self):
         """Gets the message of this DockerRunData.  # noqa: E501
 
+        last message sent to the docker run  # noqa: E501
 
         :return: The message of this DockerRunData.  # noqa: E501
         :rtype: str
@@ -237,6 +285,7 @@ class DockerRunData(object):
     def message(self, message):
         """Sets the message of this DockerRunData.
 
+        last message sent to the docker run  # noqa: E501
 
         :param message: The message of this DockerRunData.  # noqa: E501
         :type: str
@@ -245,46 +294,27 @@ class DockerRunData(object):
         self._message = message
 
     @property
-    def messages(self):
-        """Gets the messages of this DockerRunData.  # noqa: E501
+    def artifacts(self):
+        """Gets the artifacts of this DockerRunData.  # noqa: E501
 
+        list of artifacts that were created for a run  # noqa: E501
 
-        :return: The messages of this DockerRunData.  # noqa: E501
-        :rtype: list[DockerRunDataLog]
+        :return: The artifacts of this DockerRunData.  # noqa: E501
+        :rtype: list[DockerRunArtifactData]
         """
-        return self._messages
+        return self._artifacts
 
-    @messages.setter
-    def messages(self, messages):
-        """Sets the messages of this DockerRunData.
+    @artifacts.setter
+    def artifacts(self, artifacts):
+        """Sets the artifacts of this DockerRunData.
 
+        list of artifacts that were created for a run  # noqa: E501
 
-        :param messages: The messages of this DockerRunData.  # noqa: E501
-        :type: list[DockerRunDataLog]
-        """
-
-        self._messages = messages
-
-    @property
-    def report_available(self):
-        """Gets the report_available of this DockerRunData.  # noqa: E501
-
-
-        :return: The report_available of this DockerRunData.  # noqa: E501
-        :rtype: bool
-        """
-        return self._report_available
-
-    @report_available.setter
-    def report_available(self, report_available):
-        """Sets the report_available of this DockerRunData.
-
-
-        :param report_available: The report_available of this DockerRunData.  # noqa: E501
-        :type: bool
+        :param artifacts: The artifacts of this DockerRunData.  # noqa: E501
+        :type: list[DockerRunArtifactData]
         """
 
-        self._report_available = report_available
+        self._artifacts = artifacts
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -34,15 +34,17 @@ class CreateDockerWorkerRegistryEntryRequest(object):
     """
     swagger_types = {
         'name': 'DockerWorkerName',
-        'worker_type': 'DockerWorkerType'
+        'worker_type': 'DockerWorkerType',
+        'labels': 'DockerWorkerLabels'
     }
 
     attribute_map = {
         'name': 'name',
-        'worker_type': 'workerType'
+        'worker_type': 'workerType',
+        'labels': 'labels'
     }
 
-    def __init__(self, name=None, worker_type=None, _configuration=None):  # noqa: E501
+    def __init__(self, name=None, worker_type=None, labels=None, _configuration=None):  # noqa: E501
         """CreateDockerWorkerRegistryEntryRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -50,10 +52,13 @@ class CreateDockerWorkerRegistryEntryRequest(object):
 
         self._name = None
         self._worker_type = None
+        self._labels = None
         self.discriminator = None
 
         self.name = name
         self.worker_type = worker_type
+        if labels is not None:
+            self.labels = labels
 
     @property
     def name(self):
@@ -100,6 +105,27 @@ class CreateDockerWorkerRegistryEntryRequest(object):
             raise ValueError("Invalid value for `worker_type`, must not be `None`")  # noqa: E501
 
         self._worker_type = worker_type
+
+    @property
+    def labels(self):
+        """Gets the labels of this CreateDockerWorkerRegistryEntryRequest.  # noqa: E501
+
+
+        :return: The labels of this CreateDockerWorkerRegistryEntryRequest.  # noqa: E501
+        :rtype: DockerWorkerLabels
+        """
+        return self._labels
+
+    @labels.setter
+    def labels(self, labels):
+        """Sets the labels of this CreateDockerWorkerRegistryEntryRequest.
+
+
+        :param labels: The labels of this CreateDockerWorkerRegistryEntryRequest.  # noqa: E501
+        :type: DockerWorkerLabels
+        """
+
+        self._labels = labels
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -3,6 +3,7 @@ import lightly
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 
+
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
 
@@ -73,11 +74,19 @@ client.schedule_compute_worker_run(
         'enable_training': False,
         'pretagging': True,         # to enable pretagging
         'pretagging_debug': True,   # we also want debugging images in the report
-        'method': 'coreset',
-        'stopping_condition': {
-            'n_samples': 0.9,
-            'min_distance': -1
-        }
+    },
+    selection_config={
+        "n_samples": 100,
+        "strategies": [
+            {
+                "input": {
+                    "type": "EMBEDDINGS"
+                },
+                "strategy": {
+                    "type": "DIVERSITY",
+                }
+            }
+        ]
     },
     lightly_config={
         'loader': {

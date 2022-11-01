@@ -9,6 +9,7 @@ from lightly.api.api_workflow_tags import _TagsMixin
 from requests import Response
 
 from lightly.__init__ import __version__
+from lightly.api.api_workflow_collaboration import _CollaborationMixin
 from lightly.api.api_workflow_compute_worker import _ComputeWorkerMixin
 from lightly.api.api_workflow_datasets import _DatasetsMixin
 from lightly.api.api_workflow_datasources import _DatasourcesMixin
@@ -21,6 +22,7 @@ from lightly.api.bitmask import BitMask
 from lightly.api.utils import DatasourceType, get_signed_url_destination, getenv
 from lightly.api.version_checking import get_minimum_compatible_version, \
     version_compare
+from lightly.openapi_generated.swagger_client.api.collaboration_api import CollaborationApi
 from lightly.openapi_generated.swagger_client import ScoresApi, \
     QuotaApi, MetaDataConfigurationsApi
 from lightly.openapi_generated.swagger_client.api.datasets_api import \
@@ -56,6 +58,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                         _TagsMixin,
                         _DatasourcesMixin,
                         _ComputeWorkerMixin,
+                        _CollaborationMixin,
                         ):
     """Provides a uniform interface to communicate with the api 
     
@@ -76,43 +79,40 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             but used by a workflow, the newest embedding is taken by default
     """
 
-    def __init__(self, token: str = None, dataset_id: str = None, embedding_id: str = None):
+    def __init__(
+        self,
+        token: Optional[str] = None,
+        dataset_id: Optional[str] = None,
+        embedding_id: Optional[str] = None
+    ):
 
         self.check_version_compatibility()
 
-        configuration = Configuration()
-        configuration.host = getenv('LIGHTLY_SERVER_LOCATION', 'https://api.lightly.ai')
-        if token is None:
-            token = getenv('LIGHTLY_TOKEN', None)
-            if token is None:
-                raise ValueError(f"Either provide a 'token' argument or export"
-                                 f" a LIGHTLY_TOKEN environment variable")
-                
-        configuration.api_key = {'token': token}
-        api_client = ApiClient(configuration=configuration)
+        configuration = get_api_client_configuration(token=token)
+        self.api_client = ApiClient(configuration=configuration)
         self.user_agent = f"Lightly/{__version__}/python ({platform.platform()})"
-        self.api_client = api_client
         self.set_request_timeout(DEFAULT_API_TIMEOUT)
 
-        self.token = token
+        self.token = configuration.api_key["token"]
         if dataset_id is not None:
             self._dataset_id = dataset_id
         if embedding_id is not None:
             self.embedding_id = embedding_id
 
+        self._collaboration_api = CollaborationApi(api_client=self.api_client)
         self._compute_worker_api = DockerApi(api_client=self.api_client)
         self._datasets_api = DatasetsApi(api_client=self.api_client)
         self._datasources_api = DatasourcesApi(api_client=self.api_client)
         self._selection_api = SamplingsApi(api_client=self.api_client)
         self._jobs_api = JobsApi(api_client=self.api_client)
         self._tags_api = TagsApi(api_client=self.api_client)
-        self._embeddings_api = EmbeddingsApi(api_client=api_client)
-        self._mappings_api = MappingsApi(api_client=api_client)
-        self._scores_api = ScoresApi(api_client=api_client)
-        self._samples_api = SamplesApi(api_client=api_client)
-        self._quota_api = QuotaApi(api_client=api_client)
+        self._embeddings_api = EmbeddingsApi(api_client=self.api_client)
+        self._mappings_api = MappingsApi(api_client=self.api_client)
+        self._scores_api = ScoresApi(api_client=self.api_client)
+        self._samples_api = SamplesApi(api_client=self.api_client)
+        self._quota_api = QuotaApi(api_client=self.api_client)
         self._metadata_configurations_api = \
-            MetaDataConfigurationsApi(api_client=api_client)
+            MetaDataConfigurationsApi(api_client=self.api_client)
 
     def check_version_compatibility(self):
         minimum_version = get_minimum_compatible_version()
@@ -290,3 +290,25 @@ def set_api_client_request_timeout(
         return request_fn(*args, **kwargs)
 
     client.rest_client.request = new_request_fn
+
+
+def get_api_client_configuration(
+    token: Optional[str] = None,
+) -> Configuration:
+
+    host = getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai")
+    ssl_ca_cert = getenv("LIGHTLY_CA_CERTS", None)
+
+    if token is None:
+        token = getenv("LIGHTLY_TOKEN", None)
+    if token is None:
+        raise ValueError(
+            "Either provide a 'token' argument or export a LIGHTLY_TOKEN environment variable"
+        )
+
+    configuration = Configuration()
+    configuration.api_key = {"token": token}
+    configuration.ssl_ca_cert = ssl_ca_cert
+    configuration.host = host
+
+    return configuration

@@ -3,7 +3,7 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -223,6 +223,116 @@ class SimSiamProjectionHead(ProjectionHead):
         ])
 
 
+class SMoGPrototypes(nn.Module):
+    """SMoG prototypes module for synchronous momentum grouping.
+    
+    """
+
+    def __init__(
+        self, group_features: torch.Tensor, beta: float,
+    ):
+        super(SMoGPrototypes, self).__init__()
+        self.group_features = nn.Parameter(group_features, requires_grad=False)
+        self.beta = beta
+
+    def forward(self, x: torch.Tensor, group_features: torch.Tensor, temperature: float = 0.1) -> torch.Tensor:
+        """Computes the logits for given model outputs and group features.
+
+        Args:
+            x:
+                Tensor of shape bsz x dim.
+            group_features:
+                Momentum updated group features of shape n_groups x dim.
+            temperature:
+                Temperature parameter for calculating the logits.
+
+        Returns:
+            The logits.
+
+        """
+        x = torch.nn.functional.normalize(x, dim=1)
+        group_features = torch.nn.functional.normalize(group_features, dim=1)
+        logits = torch.mm(x, group_features.t())
+        return logits / temperature
+
+    def get_updated_group_features(self, x: torch.Tensor) -> None:   
+        """Performs the synchronous momentum update of the group vectors.
+
+        Args:
+            x:
+                Tensor of shape bsz x dim.
+
+        Returns:
+            The updated group features.
+
+        """
+        assignments = self.assign_groups(x)
+        group_features = torch.clone(self.group_features.data)
+        for assigned_class in torch.unique(assignments): 
+            mask = assignments == assigned_class
+            group_features[assigned_class] = self.beta * self.group_features[assigned_class] + (1 - self.beta) * x[mask].mean(axis=0)
+
+        return group_features
+
+    def set_group_features(self, x: torch.Tensor) -> None:
+        """Sets the group features and asserts they don't require gradient. """
+        self.group_features.data = x.to(self.group_features.device)
+
+    @torch.no_grad()
+    def assign_groups(self, x: torch.Tensor) -> torch.LongTensor:
+        """Assigns each representation in x to a group based on cosine similarity.
+
+        Args:
+            Tensor of shape bsz x dim.
+
+        Returns:
+            LongTensor of shape bsz indicating group assignments.
+        
+        """
+        return torch.argmax(self.forward(x, self.group_features), dim=-1)
+
+
+class SMoGProjectionHead(ProjectionHead):
+    """Projection head used for SMoG.
+
+    "The two kinds of head are both a two-layer MLP and their hidden layer is
+    followed by a BatchNorm [28] and an activation function. (...) The output
+    layer of projection head also has BN" [0]
+
+    [0]: SMoG, 2022, https://arxiv.org/pdf/2207.06167.pdf
+    
+    """
+    def __init__(self,
+                 input_dim: int = 2048,
+                 hidden_dim: int = 2048,
+                 output_dim: int = 128):
+        super(SMoGProjectionHead, self).__init__([
+            (input_dim, hidden_dim, nn.BatchNorm1d(2048), nn.ReLU()),
+            (hidden_dim, output_dim, nn.BatchNorm1d(128, affine=False), None)
+        ])
+
+
+class SMoGPredictionHead(ProjectionHead):
+    """Prediction head used for SMoG.
+
+    "The two kinds of head are both a two-layer MLP and their hidden layer is
+    followed by a BatchNorm [28] and an activation function. (...) The output
+    layer of projection head also has BN" [0]
+
+    [0]: SMoG, 2022, https://arxiv.org/pdf/2207.06167.pdf
+    
+    """
+    def __init__(self,
+                 input_dim: int = 128,
+                 hidden_dim: int = 2048,
+                 output_dim: int = 128):
+        super(SMoGPredictionHead, self).__init__([
+            (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+            (hidden_dim, output_dim, None, None)
+        ])
+
+
+
 class SimSiamPredictionHead(ProjectionHead):
     """Prediction head used for SimSiam.
 
@@ -257,8 +367,8 @@ class SwaVProjectionHead(ProjectionHead):
         ])
 
 
-class SwaVPrototypes(ProjectionHead):
-    """Prototypes used for SwaV.
+class SwaVPrototypes(nn.Module):
+    """Multihead Prototypes used for SwaV.
 
     Each output feature is assigned to a prototype, SwaV solves the swapped
     predicition problem where the features of one augmentation are used to
@@ -277,14 +387,24 @@ class SwaVPrototypes(ProjectionHead):
 
     """
     def __init__(self,
-                 input_dim: int = 128,
-                 n_prototypes: int = 3000):
-        super(SwaVPrototypes, self).__init__([])
-        self.layers = nn.Linear(input_dim, n_prototypes, bias=False)
+                input_dim: int = 128,
+                n_prototypes: Union[List[int], int] = 3000):
+        super(SwaVPrototypes, self).__init__()
+        #Default to a list of 1 if n_prototypes is an int.
+        self.n_prototypes = n_prototypes if isinstance(n_prototypes, list) else [n_prototypes]
+        self._is_single_prototype = True if isinstance(n_prototypes, int) else False
+        self.heads = nn.ModuleList([nn.Linear(input_dim, prototypes) for prototypes in self.n_prototypes])
 
+    def forward(self, x) -> Union[torch.Tensor, List[torch.Tensor]]:
+        out = []
+        for layer in self.heads:
+            out.append(layer(x))
+        return out[0] if self._is_single_prototype else out
+    
     def normalize(self):
         """Normalizes the prototypes so that they are on the unit sphere."""
-        utils.normalize_weight(self.layers.weight)
+        for layer in self.heads:
+            utils.normalize_weight(layer.weight)
 
 
 class DINOProjectionHead(ProjectionHead):

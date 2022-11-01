@@ -42,7 +42,7 @@ has the following advantages:
 
 If you want to search all data in your bucket for new samples
 instead of only newly added data,
-then set `datasource.process_all=True` in your docker run command. This has the
+then set :code:`'datasource.process_all': True` in your worker config. This has the
 same effect as creating a new Lightly dataset and running the Lightly Worker from scratch
 on the full dataset. We process all data instead of only the newly added ones.
 
@@ -67,12 +67,36 @@ first time.
     |-- passageway1-c1.avi
     `-- terrace1-c0.avi
 
+Let's create a Lightly dataset which uses that bucket (choose your tab - S3, GCS or Azure):
+
+.. tabs::
+  .. tab:: AWS S3 Datasource
+
+    .. literalinclude:: ./code_examples/python_create_dataset_s3_example.py
+      :linenos:
+      :language: python
+
+  .. tab:: GCS Datasource
+
+    .. literalinclude:: ./code_examples/python_create_dataset_gcs_example.py
+      :linenos:
+      :language: python
+
+  .. tab:: Azure Datasource
+
+    .. literalinclude:: ./code_examples/python_create_dataset_azure_example.py
+      :linenos:
+      :language: python
+
 Now we can run the following code to select a subset based on the 
-`min_distance` stopping condition. 
+:code:`'stopping_condition_minimum_distance': 0.1` stopping condition. In a first,
+selection run we only select images with the specific minimum distance between 
+each other based on the embeddings. 
 
 .. literalinclude:: ./code_examples/python_run_datapool_example.py
   :linenos:
   :language: python
+  :emphasize-lines: 8, 30
 
 After running the code we have to make sure we have a running Lightly Worker 
 to process the job.
@@ -81,7 +105,7 @@ We can start the Lightly Worker using the following command
 .. code-block:: console
 
   docker run --shm-size="1024m" --rm --gpus all -it \
-    -v /docker-output:/home/output_dir lightly/worker:latest \
+    lightly/worker:latest \
     token=YOUR_TOKEN  worker.worker_id=YOUR_WORKER_ID
 
 After we have processed the initial data and created a dataset, 
@@ -97,7 +121,13 @@ we've collected more data and our bucket now looks like this:
     `-- terrace1-c3.avi
 
 We can run the same script again (it won't create a new dataset but use the
-existing one based on the dataset name).
+existing one based on the dataset name). Let's increase the 
+stopping_condition_minimum_distance to 0.2:
+
+.. literalinclude:: ./code_examples/python_run_datapool_example_2.py
+  :linenos:
+  :language: python
+  :emphasize-lines: 30
 
 
 How It Works
@@ -106,4 +136,4 @@ How It Works
 The Lightly Datapool keeps track of the selected samples in a csv file called
 `datapool_latest.csv`. It contains the filenames of the selected images and their
 embeddings. This feature is currently only supported without training of a custom
-model. Please make sure `enable_training=False` is set in your worker config.
+model. Please make sure :code:`'enable_training': False` is set in your worker config.

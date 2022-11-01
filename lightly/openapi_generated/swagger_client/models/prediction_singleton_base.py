@@ -69,7 +69,7 @@ class PredictionSingletonBase(object):
         self._crop_sample_id = None
         self._category_id = None
         self._score = None
-        self.discriminator = 'Discriminator{propertyName&#x3D;&#39;type&#39;, mapping&#x3D;null}'
+        self.discriminator = 'Discriminator{propertyName&#x3D;&#39;type&#39;, mapping&#x3D;null, extensions&#x3D;null}'
 
         self.type = type
         self.task_name = task_name
