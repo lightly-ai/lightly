@@ -143,6 +143,7 @@ class _ComputeWorkerMixin:
         lightly_config: Optional[Dict[str, Any]] = None,
         selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
         priority: str = DockerRunScheduledPriority.MID,
+        runs_on: List[str] = []
     ) -> str:
         """Schedules a run with the given configurations.
 
@@ -156,6 +157,8 @@ class _ComputeWorkerMixin:
             selection_config:
                 Selection configuration. See the docs for more information:
                 https://docs.lightly.ai/docker/getting_started/selection.html
+            runs_on:
+                The required labels the Lightly Worker must have to take the job.
 
         Returns:
             The id of the scheduled run.
@@ -167,7 +170,7 @@ class _ComputeWorkerMixin:
             selection_config=selection_config,
         )
         request = DockerRunScheduledCreateRequest(
-            config_id=config_id, priority=priority
+            config_id=config_id, priority=priority, runs_on=runs_on
         )
         response = self._compute_worker_api.create_docker_run_scheduled_by_dataset_id(
             body=request,
