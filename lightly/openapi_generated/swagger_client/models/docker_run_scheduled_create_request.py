@@ -34,15 +34,17 @@ class DockerRunScheduledCreateRequest(object):
     """
     swagger_types = {
         'config_id': 'MongoObjectID',
-        'priority': 'DockerRunScheduledPriority'
+        'priority': 'DockerRunScheduledPriority',
+        'runs_on': 'DockerWorkerLabels'
     }
 
     attribute_map = {
         'config_id': 'configId',
-        'priority': 'priority'
+        'priority': 'priority',
+        'runs_on': 'runsOn'
     }
 
-    def __init__(self, config_id=None, priority=None, _configuration=None):  # noqa: E501
+    def __init__(self, config_id=None, priority=None, runs_on=None, _configuration=None):  # noqa: E501
         """DockerRunScheduledCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -50,10 +52,13 @@ class DockerRunScheduledCreateRequest(object):
 
         self._config_id = None
         self._priority = None
+        self._runs_on = None
         self.discriminator = None
 
         self.config_id = config_id
         self.priority = priority
+        if runs_on is not None:
+            self.runs_on = runs_on
 
     @property
     def config_id(self):
@@ -100,6 +105,27 @@ class DockerRunScheduledCreateRequest(object):
             raise ValueError("Invalid value for `priority`, must not be `None`")  # noqa: E501
 
         self._priority = priority
+
+    @property
+    def runs_on(self):
+        """Gets the runs_on of this DockerRunScheduledCreateRequest.  # noqa: E501
+
+
+        :return: The runs_on of this DockerRunScheduledCreateRequest.  # noqa: E501
+        :rtype: DockerWorkerLabels
+        """
+        return self._runs_on
+
+    @runs_on.setter
+    def runs_on(self, runs_on):
+        """Sets the runs_on of this DockerRunScheduledCreateRequest.
+
+
+        :param runs_on: The runs_on of this DockerRunScheduledCreateRequest.  # noqa: E501
+        :type: DockerWorkerLabels
+        """
+
+        self._runs_on = runs_on
 
     def to_dict(self):
         """Returns the model properties as a dict"""
