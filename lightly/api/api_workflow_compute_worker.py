@@ -68,19 +68,23 @@ class ComputeWorkerRunInfo:
 
 
 class _ComputeWorkerMixin:
-    def register_compute_worker(self, name: str = "Default") -> str:
+    def register_compute_worker(self, name: str = "Default", labels=None) -> str:
         """Registers a new compute worker.
 
         Args:
             name:
-                The name of the compute worker.
+                The name of the Lightly Worker.
+            labels:
+                The labels of the Lightly Worker.
 
         Returns:
             The id of the newly registered compute worker.
 
         """
+        if labels is None:
+            labels = []
         request = CreateDockerWorkerRegistryEntryRequest(
-            name=name, worker_type=DockerWorkerType.FULL
+            name=name, worker_type=DockerWorkerType.FULL, labels=labels
         )
         response = self._compute_worker_api.register_docker_worker(request)
         return response.id
