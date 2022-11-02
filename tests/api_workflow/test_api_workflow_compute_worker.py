@@ -310,6 +310,7 @@ def test_get_scheduled_run_by_id() -> None:
             state=DockerRunScheduledState.OPEN,
             created_at=0,
             last_modified_at=1,
+            runs_on=[]
         )
         for i in range(3)
     ]
@@ -338,6 +339,7 @@ def test_get_scheduled_run_by_id_not_found() -> None:
             state=DockerRunScheduledState.OPEN,
             created_at=0,
             last_modified_at=1,
+            runs_on=[]
         )
         for i in range(3)
     ]
@@ -368,6 +370,7 @@ def test_get_compute_worker_state_and_message_OPEN() -> None:
         state=DockerRunScheduledState.OPEN,
         created_at=0,
         last_modified_at=1,
+        runs_on=[6]
     )
 
     def mocked_raise_exception(*args, **kwargs):
