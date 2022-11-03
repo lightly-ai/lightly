@@ -390,7 +390,7 @@ def test_get_compute_worker_state_and_message_OPEN() -> None:
         state=DockerRunScheduledState.OPEN,
         created_at=0,
         last_modified_at=1,
-        runs_on=[6]
+        runs_on=["asdf"]
     )
 
     def mocked_raise_exception(*args, **kwargs):

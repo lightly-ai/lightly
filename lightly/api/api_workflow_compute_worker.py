@@ -68,7 +68,7 @@ class ComputeWorkerRunInfo:
 
 
 class _ComputeWorkerMixin:
-    def register_compute_worker(self, name: str = "Default", labels=None) -> str:
+    def register_compute_worker(self, name: str = "Default", labels: List[str] = None) -> str:
         """Registers a new compute worker.
 
         Args:
@@ -147,7 +147,7 @@ class _ComputeWorkerMixin:
         lightly_config: Optional[Dict[str, Any]] = None,
         selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
         priority: str = DockerRunScheduledPriority.MID,
-        runs_on: List[str] = []
+        runs_on=None
     ) -> str:
         """Schedules a run with the given configurations.
 
@@ -168,6 +168,8 @@ class _ComputeWorkerMixin:
             The id of the scheduled run.
 
         """
+        if runs_on is None:
+            runs_on = []
         config_id = self.create_compute_worker_config(
             worker_config=worker_config,
             lightly_config=lightly_config,
