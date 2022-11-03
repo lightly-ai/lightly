@@ -103,6 +103,26 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
         )
         assert scheduled_run_id
 
+    def test_schedule_compute_worker_run__priority(self):
+        scheduled_run_id = self.api_workflow_client.schedule_compute_worker_run(
+            worker_config={
+            },
+            lightly_config={
+            },
+            priority=DockerRunScheduledPriority.HIGH
+        )
+        assert scheduled_run_id
+
+    def test_schedule_compute_worker_run__runs_on(self):
+        scheduled_run_id = self.api_workflow_client.schedule_compute_worker_run(
+            worker_config={
+            },
+            lightly_config={
+            },
+            runs_on=["AAA", "BBB"]
+        )
+        assert scheduled_run_id
+
     def test_get_compute_worker_ids(self):
         ids = self.api_workflow_client.get_compute_worker_ids()
         assert all(isinstance(id_, str) for id_ in ids)
