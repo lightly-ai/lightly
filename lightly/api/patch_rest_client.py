@@ -2,6 +2,26 @@ from typing import Type
 
 
 def patch_rest_client(rest_client: Type):
+    """
+
+    Patches the rest client to flatten out array query parameters.
+
+    Example:
+        query_params: [('labels', ['AAA', 'BBB'])]
+        new_query_params: [('labels', 'AAA'), ('labels', 'BBB')]
+        url part in query: "labels=AAA&labels=BBB"
+
+        Without this patch, the query_params would be translated into
+        "labels=['AAA', 'BBB']" in the url itself, which fails.
+
+    Args:
+        rest_client:
+            Must be the class swagger_client.rest.RESTClientObject to patch.
+            Note: it must be the class itself, not an instance of it.
+
+    Returns:
+
+    """
     request = rest_client.request
 
     def request_patched(self, method, url, query_params=None, headers=None,
