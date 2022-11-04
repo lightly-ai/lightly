@@ -103,6 +103,26 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
         )
         assert scheduled_run_id
 
+    def test_schedule_compute_worker_run__priority(self):
+        scheduled_run_id = self.api_workflow_client.schedule_compute_worker_run(
+            worker_config={
+            },
+            lightly_config={
+            },
+            priority=DockerRunScheduledPriority.HIGH
+        )
+        assert scheduled_run_id
+
+    def test_schedule_compute_worker_run__runs_on(self):
+        scheduled_run_id = self.api_workflow_client.schedule_compute_worker_run(
+            worker_config={
+            },
+            lightly_config={
+            },
+            runs_on=["AAA", "BBB"]
+        )
+        assert scheduled_run_id
+
     def test_get_compute_worker_ids(self):
         ids = self.api_workflow_client.get_compute_worker_ids()
         assert all(isinstance(id_, str) for id_ in ids)
@@ -310,6 +330,7 @@ def test_get_scheduled_run_by_id() -> None:
             state=DockerRunScheduledState.OPEN,
             created_at=0,
             last_modified_at=1,
+            runs_on=[]
         )
         for i in range(3)
     ]
@@ -338,6 +359,7 @@ def test_get_scheduled_run_by_id_not_found() -> None:
             state=DockerRunScheduledState.OPEN,
             created_at=0,
             last_modified_at=1,
+            runs_on=[]
         )
         for i in range(3)
     ]
@@ -368,6 +390,7 @@ def test_get_compute_worker_state_and_message_OPEN() -> None:
         state=DockerRunScheduledState.OPEN,
         created_at=0,
         last_modified_at=1,
+        runs_on=["asdf"]
     )
 
     def mocked_raise_exception(*args, **kwargs):
