@@ -11,19 +11,39 @@ class TagDoesNotExistError(ValueError):
 class _TagsMixin:
 
     def get_all_tags(self) -> List[TagData]:
-        """ Gets all tags on the server
+        """Get all tags in the Lightly Platform for current dataset id.
 
         Returns:
-            one TagData entry for each tag on the server
+            A list of TagData entries for each tag on the server.
 
         """
         return self._tags_api.get_tags_by_dataset_id(self.dataset_id)
 
     def get_tag_by_id(self, tag_id: str) -> TagData:
+        """Gets a tag by its id.
+
+        Args:
+            tag_id:
+                The id of the requested tag.
+
+        Returns:
+            Tag data for the requested tag.
+
+        """
         tag_data = self._tags_api.get_tag_by_tag_id(self.dataset_id, tag_id)
         return tag_data
 
     def get_tag_by_name(self, tag_name: str) -> TagData:
+        """Gets a tag by its name.
+
+        Args:
+            tag_name:
+                The name of the requested tag.
+
+        Returns:
+            Tag data for the requested tag.
+
+        """
         tag_name_id_dict = {tag.name: tag.id for tag in self.get_all_tags()}
         tag_id = tag_name_id_dict.get(tag_name, None)
         if tag_id is None:
@@ -36,7 +56,7 @@ class _TagsMixin:
             filenames_on_server: List[str] = None,
             exclude_parent_tag: bool = False,
     ) -> List[str]:
-        """ Gets the filenames of a tag
+        """Gets the filenames of a tag
 
         Args:
             tag_data:
@@ -155,3 +175,14 @@ class _TagsMixin:
         
         """
         self._tags_api.delete_tag_by_tag_id(self.dataset_id, tag_id)
+
+    def delete_tag_by_name(self, tag_name: str):
+        """Deletes a tag on the web platform.
+        
+        Args:
+            tag_name:
+                The name of the tag to be deleted.
+
+        """
+        tag_data = self.get_tag_by_name(tag_name=tag_name)
+        self.delete_tag_by_id(tag_data.id)
