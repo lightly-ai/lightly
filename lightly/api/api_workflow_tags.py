@@ -11,7 +11,7 @@ class TagDoesNotExistError(ValueError):
 class _TagsMixin:
 
     def get_all_tags(self) -> List[TagData]:
-        """Get all tags in the Lightly Platform for current dataset id.
+        """Gets all tags in the Lightly Platform for current dataset id.
 
         Returns:
             A list of TagData entries for each tag on the server.
@@ -20,7 +20,7 @@ class _TagsMixin:
         return self._tags_api.get_tags_by_dataset_id(self.dataset_id)
 
     def get_tag_by_id(self, tag_id: str) -> TagData:
-        """Gets a tag by its id.
+        """Gets a tag from the current dataset by tag id.
 
         Args:
             tag_id:
@@ -34,7 +34,7 @@ class _TagsMixin:
         return tag_data
 
     def get_tag_by_name(self, tag_name: str) -> TagData:
-        """Gets a tag by its name.
+        """Gets a tag from the current dataset by tag name.
 
         Args:
             tag_name:
@@ -166,8 +166,8 @@ class _TagsMixin:
 
         return new_tag
 
-    def delete_tag_by_id(self, tag_id: str):
-        """Deletes a tag on the web platform.
+    def delete_tag_by_id(self, tag_id: str) -> None:
+        """Deletes a tag from the current dataset on the Lightly Platform.
         
         Args:
             tag_id:
@@ -176,8 +176,8 @@ class _TagsMixin:
         """
         self._tags_api.delete_tag_by_tag_id(self.dataset_id, tag_id)
 
-    def delete_tag_by_name(self, tag_name: str):
-        """Deletes a tag on the web platform.
+    def delete_tag_by_name(self, tag_name: str) -> None:
+        """Deletes a tag from the current dataset on the Lightly Platform.
         
         Args:
             tag_name:
