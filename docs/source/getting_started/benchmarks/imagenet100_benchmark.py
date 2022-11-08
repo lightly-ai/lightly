@@ -518,7 +518,7 @@ class SwaVModel(BenchmarkModule):
         return loss
 
     def configure_optimizers(self):
-        optim = LARS(
+        optim = torch.optim.SGD(
             self.parameters(),
             lr=4.8 * lr_factor,
             momentum=0.9,
