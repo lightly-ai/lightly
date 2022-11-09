@@ -312,3 +312,7 @@ def get_api_client_configuration(
     configuration.host = host
 
     return configuration
+
+
+def get_api_client_configuration_no_token() -> Configuration:
+    return get_api_client_configuration(token="dummy_token")
