@@ -3,14 +3,11 @@ import warnings
 from multiprocessing import current_process
 from typing import Tuple
 
-import requests
-
-from lightly.openapi_generated.swagger_client import VersioningApi, VersionNumber
+from lightly.openapi_generated.swagger_client import VersioningApi
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 
-from lightly.openapi_generated.swagger_client.configuration import Configuration
+import lightly.api.api_workflow_client as api_workflow_client
 from lightly.api.utils import getenv
-
 from lightly.utils import version_compare
 
 
@@ -52,8 +49,9 @@ def do_version_check(current_version: str):
 
 
 def get_versioning_api() -> VersioningApi:
-    configuration = Configuration()
-    configuration.host = getenv('LIGHTLY_SERVER_LOCATION', 'https://api.lightly.ai')
+    configuration = api_workflow_client.get_api_client_configuration(
+        raise_if_no_token_specified=False,
+    )
     api_client = ApiClient(configuration=configuration)
     versioning_api = VersioningApi(api_client)
     return versioning_api
