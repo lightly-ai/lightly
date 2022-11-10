@@ -294,6 +294,7 @@ def set_api_client_request_timeout(
 
 def get_api_client_configuration(
     token: Optional[str] = None,
+    raise_if_no_token_specified: bool = True,
 ) -> Configuration:
 
     host = getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai")
@@ -301,7 +302,7 @@ def get_api_client_configuration(
 
     if token is None:
         token = getenv("LIGHTLY_TOKEN", None)
-    if token is None:
+    if token is None and raise_if_no_token_specified:
         raise ValueError(
             "Either provide a 'token' argument or export a LIGHTLY_TOKEN environment variable"
         )
@@ -312,7 +313,3 @@ def get_api_client_configuration(
     configuration.host = host
 
     return configuration
-
-
-def get_api_client_configuration_no_token() -> Configuration:
-    return get_api_client_configuration(token="dummy_token")

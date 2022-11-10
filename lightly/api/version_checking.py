@@ -49,8 +49,9 @@ def do_version_check(current_version: str):
 
 
 def get_versioning_api() -> VersioningApi:
-    configuration = api_workflow_client.get_api_client_configuration_no_token()
-    configuration.host = getenv('LIGHTLY_SERVER_LOCATION', 'https://api.lightly.ai')
+    configuration = api_workflow_client.get_api_client_configuration(
+        raise_if_no_token_specified=False,
+    )
     api_client = ApiClient(configuration=configuration)
     versioning_api = VersioningApi(api_client)
     return versioning_api
