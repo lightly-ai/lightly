@@ -118,7 +118,7 @@ E.g. create and run a bash script with the following content:
     SHARED_DIR=/path/to/shared
     OUTPUT_DIR=/path/to/output
 
-    TOKEN= # put your token here
+    LIGHTLY_TOKEN= # put your token here
     N_SAMPLES=1.0
 
     docker run --gpus all --rm -it \
@@ -126,7 +126,7 @@ E.g. create and run a bash script with the following content:
       -v ${SHARED_DIR}:/home/shared_dir:ro \
       -v ${OUTPUT_DIR}:/home/output_dir \
       lightly/worker:latest \
-      token=${TOKEN} \
+      token=${LIGHTLY_TOKEN} \
       lightly.loader.num_workers=4     \
       stopping_condition.n_samples=${N_SAMPLES}\
       method=coreset \
@@ -301,7 +301,7 @@ E.g. use the following bash script.
     EMBEDDINGS_REL_TO_SHARED=embeddings_al.csv
     
 
-    TOKEN= # put your token here
+    LIGHTLY_TOKEN= # put your token here
     N_SAMPLES= # Choose how many samples you want to use here, e.g. 0.1 for 10 percent.
 
     docker run --gpus all --rm -it \
@@ -309,7 +309,7 @@ E.g. use the following bash script.
         -v ${SHARED_DIR}:/home/shared_dir:ro \
         -v ${OUTPUT_DIR}:/home/output_dir \
         lightly/worker:latest \
-        token=${TOKEN} \
+        token=${LIGHTLY_TOKEN} \
         lightly.loader.num_workers=4     \
         stopping_condition.n_samples=${N_SAMPLES}\
         method=coral \

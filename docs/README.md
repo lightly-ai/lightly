@@ -30,7 +30,7 @@ make html-noplot
 
 Shortcut to build the docs (with env variables for active-learning tutorial) use:
 ```
-LIGHTLY_SERVER_LOCATION='https://api.lightly.ai' TOKEN='YOUR_TOKEN' AL_TUTORIAL_DATASET_ID='YOUR_DATASET_ID' make html && python -m http.server 1234 -d build/html
+LIGHTLY_SERVER_LOCATION='https://api.lightly.ai' LIGHTLY_TOKEN='YOUR_TOKEN' AL_TUTORIAL_DATASET_ID='YOUR_DATASET_ID' make html && python -m http.server 1234 -d build/html
 ```
 
 You can host the docs after building using the following python command 

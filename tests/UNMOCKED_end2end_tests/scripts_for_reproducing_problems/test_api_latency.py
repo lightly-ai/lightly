@@ -8,7 +8,7 @@ from lightly.api import ApiWorkflowClient
 from lightly.openapi_generated.swagger_client import Configuration, ApiClient, QuotaApi
 
 if __name__ == "__main__":
-    token = os.getenv("TOKEN")
+    token = os.getenv("LIGHTLY_TOKEN")
     api_client = ApiWorkflowClient(token=token).api_client
     quota_api = QuotaApi(api_client)
 
