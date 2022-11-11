@@ -15,7 +15,7 @@ class InfoNCELoss(nn.Module):
             dim : Dimension of subvector to be used to compute InfoNCELoss.
             temprature: The value used to scale logits.
         """
-        self.temprature = temprature
+        self.temprature = temperature
         #dimension of subvector sent to infoNCE
         self.dim = dim
     
