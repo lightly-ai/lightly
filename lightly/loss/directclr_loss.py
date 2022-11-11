@@ -15,7 +15,7 @@ class InfoNCELoss(nn.Module):
             dim : Dimension of subvector to be used to compute InfoNCELoss.
             temprature: The value used to scale logits.
         """
-        self.temprature = temperature
+        self.temperature = temperature
         #dimension of subvector sent to infoNCE
         self.dim = dim
     
@@ -37,7 +37,7 @@ class InfoNCELoss(nn.Module):
         z2 = self.normalize(z2)
         #DDP step
         logits = z1 @ z2.T
-        logits = logits/self.temprature
+        logits = logits/self.temperature
         labels = torch.arange(0, z2.shape[0]).type_as(logits)
         loss = torch.nn.functional.cross_entropy(logits, labels)
         return loss
