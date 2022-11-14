@@ -834,6 +834,7 @@ class MockedComputeWorkerApi(DockerApi):
                 created_at=Timestamp(0),
                 last_modified_at=Timestamp(100),
                 owner="user-id-1",
+                runs_on=[]
             )
         ]
         self._registered_workers = [
