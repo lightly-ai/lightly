@@ -9,7 +9,6 @@ SOURCEDIR	  			= source
 BUILDDIR	   			= build
 DATADIR		   			= _data
 PACKAGESOURCE  			= source/tutorials_source/package
-PLATFORMSOURCE 			= source/tutorials_source/platform
 DOCKERSOURCE   			= source/docker
 DOCKER_ARCHIVE_SOURCE   = source/docker_archive
 GETTING_STARTED_IMAGES 	= source/getting_started/resources
@@ -60,16 +59,6 @@ download-noplot:
 	unzip $(ZIPOPTS) $(DATADIR)/resources.zip  -d $(DOCKERSOURCE);\
 	unzip $(ZIPOPTS) $(DATADIR)/resources.zip  -d $(DOCKER_ARCHIVE_SOURCE); \
 
-	# pizza dataset
-	@if [ ! -d $(PLATFORMSOURCE)/pizzas/salami ]; then \
-		wget -N https://storage.googleapis.com/datasets_boris/pizzas.zip -P $(DATADIR);\
-		unzip $(ZIPOPTS) $(DATADIR)/pizzas.zip  -d $(PLATFORMSOURCE);\
-		mkdir -p $(PLATFORMSOURCE)/pizzas/margherita;\
-		mkdir -p $(PLATFORMSOURCE)/pizzas/salami;\
-		mv $(PLATFORMSOURCE)/pizzas/margherita*.jpg $(PLATFORMSOURCE)/pizzas/margherita;\
-		mv $(PLATFORMSOURCE)/pizzas/salami*.jpg $(PLATFORMSOURCE)/pizzas/salami;\
-	fi
-
 	# sunflowers dataset
 	@if [ ! -f $(DATADIR)/Sunflowers.zip ]; then \
 		wget -N https://storage.googleapis.com/datasets_boris/Sunflowers.zip -P $(DATADIR);\
@@ -104,10 +93,6 @@ download: download-noplot
 
 clean-tutorials:
 	rm -fr source/tutorials/package
-	rm -fr source/tutorials/platform
-	rm -fr $(PLATFORMSOURCE)/lightning_logs
-	rm -fr $(PLATFORMSOURCE)/data
-	rm -fr $(PLATFORMSOURCE)/pizzas
 	rm -fr $(DOCKERSOURCE)/resources
 	rm -fr $(GETTING_STARTED_IMAGES)
 

@@ -48,8 +48,8 @@ extensions = [
 ]
 
 sphinx_gallery_conf = {
-     'examples_dirs': ['tutorials_source/package', 'tutorials_source/platform'],
-     'gallery_dirs': ['tutorials/package', 'tutorials/platform'],  # path to where to save gallery generated output
+     'examples_dirs': ['tutorials_source/package'],
+     'gallery_dirs': ['tutorials/package'],  # path to where to save gallery generated output
      'filename_pattern': '/tutorial_',
 }
 
