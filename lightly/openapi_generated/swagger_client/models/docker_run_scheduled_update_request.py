@@ -34,15 +34,17 @@ class DockerRunScheduledUpdateRequest(object):
     """
     swagger_types = {
         'state': 'DockerRunScheduledState',
-        'priority': 'DockerRunScheduledPriority'
+        'priority': 'DockerRunScheduledPriority',
+        'runs_on': 'DockerWorkerLabels'
     }
 
     attribute_map = {
         'state': 'state',
-        'priority': 'priority'
+        'priority': 'priority',
+        'runs_on': 'runsOn'
     }
 
-    def __init__(self, state=None, priority=None, _configuration=None):  # noqa: E501
+    def __init__(self, state=None, priority=None, runs_on=None, _configuration=None):  # noqa: E501
         """DockerRunScheduledUpdateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -50,11 +52,14 @@ class DockerRunScheduledUpdateRequest(object):
 
         self._state = None
         self._priority = None
+        self._runs_on = None
         self.discriminator = None
 
         self.state = state
         if priority is not None:
             self.priority = priority
+        if runs_on is not None:
+            self.runs_on = runs_on
 
     @property
     def state(self):
@@ -99,6 +104,27 @@ class DockerRunScheduledUpdateRequest(object):
         """
 
         self._priority = priority
+
+    @property
+    def runs_on(self):
+        """Gets the runs_on of this DockerRunScheduledUpdateRequest.  # noqa: E501
+
+
+        :return: The runs_on of this DockerRunScheduledUpdateRequest.  # noqa: E501
+        :rtype: DockerWorkerLabels
+        """
+        return self._runs_on
+
+    @runs_on.setter
+    def runs_on(self, runs_on):
+        """Sets the runs_on of this DockerRunScheduledUpdateRequest.
+
+
+        :param runs_on: The runs_on of this DockerRunScheduledUpdateRequest.  # noqa: E501
+        :type: DockerWorkerLabels
+        """
+
+        self._runs_on = runs_on
 
     def to_dict(self):
         """Returns the model properties as a dict"""

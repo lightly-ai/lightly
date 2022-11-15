@@ -68,19 +68,23 @@ class ComputeWorkerRunInfo:
 
 
 class _ComputeWorkerMixin:
-    def register_compute_worker(self, name: str = "Default") -> str:
+    def register_compute_worker(self, name: str = "Default", labels: Optional[List[str]] = None) -> str:
         """Registers a new compute worker.
 
         Args:
             name:
-                The name of the compute worker.
+                The name of the Lightly Worker.
+            labels:
+                The labels of the Lightly Worker.
 
         Returns:
             The id of the newly registered compute worker.
 
         """
+        if labels is None:
+            labels = []
         request = CreateDockerWorkerRegistryEntryRequest(
-            name=name, worker_type=DockerWorkerType.FULL
+            name=name, worker_type=DockerWorkerType.FULL, labels=labels
         )
         response = self._compute_worker_api.register_docker_worker(request)
         return response.id
@@ -143,6 +147,7 @@ class _ComputeWorkerMixin:
         lightly_config: Optional[Dict[str, Any]] = None,
         selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
         priority: str = DockerRunScheduledPriority.MID,
+        runs_on: Optional[List[str]] = None
     ) -> str:
         """Schedules a run with the given configurations.
 
@@ -156,18 +161,22 @@ class _ComputeWorkerMixin:
             selection_config:
                 Selection configuration. See the docs for more information:
                 https://docs.lightly.ai/docker/getting_started/selection.html
+            runs_on:
+                The required labels the Lightly Worker must have to take the job.
 
         Returns:
             The id of the scheduled run.
 
         """
+        if runs_on is None:
+            runs_on = []
         config_id = self.create_compute_worker_config(
             worker_config=worker_config,
             lightly_config=lightly_config,
             selection_config=selection_config,
         )
         request = DockerRunScheduledCreateRequest(
-            config_id=config_id, priority=priority
+            config_id=config_id, priority=priority, runs_on=runs_on
         )
         response = self._compute_worker_api.create_docker_run_scheduled_by_dataset_id(
             body=request,
