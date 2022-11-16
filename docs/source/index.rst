@@ -20,12 +20,6 @@ Lightly has been built to help you understand and work with large unlabeled
 datasets. It is built on top of PyTorch and therefore fully compatible with 
 other frameworks such as Fast.ai.
 
-**NEW** Lightly now has integrated support for active learning in combination 
-with the Lightly platform. Use the open-source framework to create embeddings 
-of your unlabeled data and combine them with model predictions to select 
-the most valuable samples for labeling.
-Check it out here: :ref:`lightly-tutorial-active-learning-detectron2`
-
 
 .. toctree::
    :maxdepth: 1
@@ -36,7 +30,6 @@ Check it out here: :ref:`lightly-tutorial-active-learning-detectron2`
    getting_started/command_line_tool.rst
    getting_started/lightly_at_a_glance.rst
    getting_started/active_learning.rst
-   getting_started/platform.rst
 
 .. toctree::
    :maxdepth: 1
@@ -79,7 +72,6 @@ Check it out here: :ref:`lightly-tutorial-active-learning-detectron2`
    :maxdepth: 1
    :caption: On-Premise
 
-   docker/overview.rst
    docker_archive/overview.rst
 
 
