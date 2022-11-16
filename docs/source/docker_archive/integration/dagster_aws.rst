@@ -65,7 +65,7 @@ be changed by passing command line arguments. Use the following as a starting po
     OUTPUT_DIR=/home/ubuntu/lightly-aws-bucket/output_dir
 
     # api
-    TOKEN=YOUR_LIGHTLY_TOKEN
+    LIGHTLY_TOKEN=YOUR_LIGHTLY_TOKEN
 
     # run command
     docker run --gpus all --rm --shm-size="512m" \
@@ -73,7 +73,7 @@ be changed by passing command line arguments. Use the following as a starting po
             -v ${OUTPUT_DIR}:/home/output_dir \
             -v ${SHARED_DIR}:/home/shared_dir \
             --ipc="host" --network "host" \
-            ${IMAGE} token=${TOKEN} \
+            ${IMAGE} token=${LIGHTLY_TOKEN} \
             lightly.loader.num_workers=0 \
             enable_corruptness_check=True \
             remove_exact_duplicates=True \

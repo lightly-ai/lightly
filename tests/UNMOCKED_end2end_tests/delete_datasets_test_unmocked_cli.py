@@ -8,7 +8,7 @@ if __name__ == "__main__":
             (sys.argv[1 + i] for i in range(3))
     else:
         raise ValueError("ERROR in number of command line arguments, must be 3."
-                         "Example: python delete_datasets_test_unmocked_cli.py 6 TOKEN 2022-09-29-13-41-24")
+                         "Example: python delete_datasets_test_unmocked_cli.py 6 LIGHTLY_TOKEN 2022-09-29-13-41-24")
 
     api_workflow_client = ApiWorkflowClient(token=token)
 
