@@ -168,6 +168,8 @@ with the default ImageNet-1k training parameters from the respective papers.
   "SimSiam", 200, 256, 0.453, "1161.0 Min", "11.5 GByte"
   "SwaV", 200, 256, 0.098, "1569.2 Min", "18.9 GByte"
 
+You can reproduce the benchmarks using the following script:
+:download:`imagenet100_benchmark.py <benchmarks/imagenet100_benchmark.py>` 
 
 
 Next Steps
