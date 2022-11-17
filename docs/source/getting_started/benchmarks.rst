@@ -8,6 +8,7 @@ We have benchmarks we regularly update for these datasets:
 
 - CIFAR10 `CIFAR10`_
 - ImageNette `ImageNette`_
+- Imagenet100 `Imagenet100`_
 
 
 ImageNette
@@ -141,6 +142,32 @@ Interactive plots of the 800 epoch accuracy and training loss are hosted on
 
 You can reproduce the benchmarks using the following script:
 :download:`cifar10_benchmark.py <benchmarks/cifar10_benchmark.py>` 
+
+
+Imagenet100
+-----------
+
+Imagenet100 is a subset of the popular ImageNet-1k dataset. It consists of 100 classes
+with 1300 training and 50 validation images per class. We train the
+self-supervised models from scratch on the training data. At the end of every
+epoch we embed all training images and use the features for a kNN classifier 
+with k=20 on the test set. The reported kNN test accuracy is the max accuracy
+over all epochs the model reached. All experiments use the same ResNet-18 backbone and
+with the default ImageNet-1k training parameters from the respective papers.
+
+
+.. csv-table:: Imagenet100 benchmark results showing kNN test accuracy, runtime and peak GPU memory consumption for different training setups.
+  :header: "Model", "Epochs", "Batch Size", "Accuracy", "Runtime", "GPU Memory"
+  :widths: 20, 20, 20, 20, 20, 20
+
+  "BarlowTwins", 200, 256, 0.333, "1201.4 Min", "13.8 GByte"
+  "BYOL", 200, 256, 0.362, "1238.2 Min", "13.2 GByte"
+  "DINO", 200, 256, 0.452, "1678.3 Min", "19.5 GByte"
+  "Moco", 200, 256, 0.506, "1235.8 Min", "13.4 GByte"
+  "SimCLR", 200, 256, 0.372, "1170.0 Min", "12.8 GByte"
+  "SimSiam", 200, 256, 0.453, "1161.0 Min", "11.5 GByte"
+  "SwaV", 200, 256, 0.098, "1569.2 Min", "18.9 GByte"
+
 
 
 Next Steps
