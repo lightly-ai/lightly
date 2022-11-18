@@ -6,7 +6,7 @@
 import torch
 import torch.nn as nn
 
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Tuple, Union
 
 from PIL import Image
 import torchvision
@@ -14,7 +14,6 @@ import torchvision.transforms as T
 
 from lightly.transforms import GaussianBlur
 from lightly.transforms import Jigsaw
-from lightly.transforms import RandomRotate
 from lightly.transforms import RandomSolarization
 
 imagenet_normalize = {
@@ -125,7 +124,11 @@ class ImageCollateFunction(BaseCollateFunction):
         hf_prob:
             Probability that horizontal flip is applied.
         rr_prob:
-            Probability that random (+90 degree) rotation is applied.
+            Probability that random rotation is applied.
+        rr_degrees:
+            Range of degrees to select from for random rotation. If degrees is a number,
+            the range will be (-rr_degrees, +rr_degrees). Otherwise a tuple with min and
+            max degrees is expected.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
@@ -145,6 +148,7 @@ class ImageCollateFunction(BaseCollateFunction):
                  vf_prob: float = 0.0,
                  hf_prob: float = 0.5,
                  rr_prob: float = 0.0,
+                 rr_degrees: Union[float, Tuple[float, float]] = 90.0,
                  normalize: dict = imagenet_normalize):
 
         if isinstance(input_size, tuple):
@@ -158,7 +162,7 @@ class ImageCollateFunction(BaseCollateFunction):
 
         transform = [T.RandomResizedCrop(size=input_size,
                                          scale=(min_scale, 1.0)),
-             RandomRotate(prob=rr_prob),
+             T.RandomApply([T.RandomRotation(degrees=rr_degrees)], p=rr_prob),
              T.RandomHorizontalFlip(p=hf_prob),
              T.RandomVerticalFlip(p=vf_prob),
              T.RandomApply([color_jitter], p=cj_prob),
@@ -240,7 +244,11 @@ class SimCLRCollateFunction(ImageCollateFunction):
         hf_prob:
             Probability that horizontal flip is applied.
         rr_prob:
-            Probability that random (+90 degree) rotation is applied.
+            Probability that random rotation is applied.
+        rr_degrees:
+            Range of degrees to select from for random rotation. If degrees is a number,
+            the range will be (-rr_degrees, +rr_degrees). Otherwise a tuple with min and
+            max degrees is expected.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
@@ -268,6 +276,7 @@ class SimCLRCollateFunction(ImageCollateFunction):
                  vf_prob: float = 0.0,
                  hf_prob: float = 0.5,
                  rr_prob: float = 0.0,
+                 rr_degrees: Union[float, Tuple[float, float]] = 90.0,
                  normalize: dict = imagenet_normalize):
 
         super(SimCLRCollateFunction, self).__init__(
@@ -284,6 +293,7 @@ class SimCLRCollateFunction(ImageCollateFunction):
             vf_prob=vf_prob,
             hf_prob=hf_prob,
             rr_prob=rr_prob,
+            rr_degrees=rr_degrees,
             normalize=normalize,
         )
 
@@ -313,7 +323,11 @@ class MoCoCollateFunction(ImageCollateFunction):
         hf_prob:
             Probability that horizontal flip is applied.
         rr_prob:
-            Probability that random (+90 degree) rotation is applied.
+            Probability that random rotation is applied.
+        rr_degrees:
+            Range of degrees to select from for random rotation. If degrees is a number,
+            the range will be (-rr_degrees, +rr_degrees). Otherwise a tuple with min and
+            max degrees is expected.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
@@ -340,6 +354,7 @@ class MoCoCollateFunction(ImageCollateFunction):
                  vf_prob: float = 0.0,
                  hf_prob: float = 0.5,
                  rr_prob: float = 0.0,
+                 rr_degrees: Union[float, Tuple[float, float]] = 90.0,
                  normalize: dict = imagenet_normalize):
 
         super(MoCoCollateFunction, self).__init__(
@@ -356,6 +371,7 @@ class MoCoCollateFunction(ImageCollateFunction):
             vf_prob=vf_prob,
             hf_prob=hf_prob,
             rr_prob=rr_prob,
+            rr_degrees=rr_degrees,
             normalize=normalize,
         )
 
@@ -437,7 +453,11 @@ class SwaVCollateFunction(MultiCropCollateFunction):
         vf_prob:
             Probability that vertical flip is applied.
         rr_prob:
-            Probability that random (+90 degree) rotation is applied.
+            Probability that random rotation is applied.
+        rr_degrees:
+            Range of degrees to select from for random rotation. If degrees is a number,
+            the range will be (-rr_degrees, +rr_degrees). Otherwise a tuple with min and
+            max degrees is expected.
         cj_prob:
             Probability that color jitter is applied.
         cj_strength:
@@ -472,6 +492,7 @@ class SwaVCollateFunction(MultiCropCollateFunction):
                  hf_prob: float = 0.5,
                  vf_prob: float = 0.0,
                  rr_prob: float = 0.0,
+                 rr_degrees: Union[float, Tuple[float, float]] = 90.0,
                  cj_prob: float = 0.8,
                  cj_strength: float = 0.8,
                  random_gray_scale: float = 0.2,
@@ -486,7 +507,7 @@ class SwaVCollateFunction(MultiCropCollateFunction):
         transforms = T.Compose([
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomVerticalFlip(p=vf_prob),
-            RandomRotate(prob=rr_prob),
+            T.RandomApply([T.RandomRotation(degrees=rr_degrees)], p=rr_prob),
             T.ColorJitter(),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
@@ -529,7 +550,11 @@ class DINOCollateFunction(MultiViewCollateFunction):
         vf_prob:
             Probability that vertical flip is applied.
         rr_prob:
-            Probability that random (+90 degree) rotation is applied.
+            Probability that random rotation is applied.
+        rr_degrees:
+            Range of degrees to select from for random rotation. If degrees is a number,
+            the range will be (-rr_degrees, +rr_degrees). Otherwise a tuple with min and
+            max degrees is expected.
         cj_prob:
             Probability that color jitter is applied.
         cj_bright:
@@ -567,6 +592,7 @@ class DINOCollateFunction(MultiViewCollateFunction):
         hf_prob=0.5,
         vf_prob=0,
         rr_prob=0,
+        rr_degrees: Union[float, Tuple[float, float]] = 90.0,
         cj_prob=0.8,
         cj_bright=0.4,
         cj_contrast=0.4,
@@ -583,7 +609,7 @@ class DINOCollateFunction(MultiViewCollateFunction):
         flip_and_color_jitter = T.Compose([
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomVerticalFlip(p=vf_prob),
-            RandomRotate(prob=rr_prob),
+            T.RandomApply([T.RandomRotation(degrees=rr_degrees)], p=rr_prob),
             T.RandomApply(
                 [T.ColorJitter(
                     brightness=cj_bright, 
@@ -757,7 +783,7 @@ class PIRLCollateFunction(nn.Module):
         color_jitter = T.ColorJitter(
             cj_bright, cj_contrast, cj_sat, cj_hue
         )
-        
+
         # Transform for transformed jigsaw image
         transform = [
             T.RandomHorizontalFlip(p=hf_prob),

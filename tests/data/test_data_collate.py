@@ -63,6 +63,26 @@ class TestDataCollate(unittest.TestCase):
         self.assertEqual(len(samples0), len(samples1))
         self.assertEqual(len(samples1), len(labels), len(fnames))
 
+    def test_image_collate_random_rotate(self):
+        batch = self.create_batch()
+        img_collate = ImageCollateFunction(rr_prob=1.0, rr_degrees=45.0)
+        samples, labels, fnames = img_collate(batch)
+        samples0, samples1 = samples
+
+        self.assertIsNotNone(img_collate)
+        self.assertEqual(len(samples0), len(samples1))
+        self.assertEqual(len(samples1), len(labels), len(fnames))
+
+    def test_image_collate_random_rotate__tuple_degrees(self):
+        batch = self.create_batch()
+        img_collate = ImageCollateFunction(rr_prob=1.0, rr_degrees=(-15.0, 45.0))
+        samples, labels, fnames = img_collate(batch)
+        samples0, samples1 = samples
+
+        self.assertIsNotNone(img_collate)
+        self.assertEqual(len(samples0), len(samples1))
+        self.assertEqual(len(samples1), len(labels), len(fnames))
+
     def test_simclr_collate_tuple_input_size(self):
         batch = self.create_batch()
         img_collate = SimCLRCollateFunction(
