@@ -5,6 +5,8 @@ import torch
 import torchvision
 import torchvision.transforms as transforms
 
+from lightly.transforms import RandomRotate
+from lightly.data import collate
 from lightly.data import BaseCollateFunction
 from lightly.data import ImageCollateFunction
 from lightly.data import SimCLRCollateFunction
@@ -217,3 +219,11 @@ class TestDataCollate(unittest.TestCase):
             self.assertEqual(view.shape, (16, 3, 24, 24))
         for view in views[2:]:
             self.assertEqual(view.shape, (16, 3, 12, 12))
+
+    def test__random_rotation_transform(self):
+        transform = collate._random_rotation_transform(rr_prob=1.0, rr_degrees=None)
+        assert isinstance(transform, RandomRotate)
+        transform = collate._random_rotation_transform(rr_prob=1.0, rr_degrees=45)
+        assert isinstance(transform, transforms.RandomApply)
+        transform = collate._random_rotation_transform(rr_prob=1.0, rr_degrees=(30, 45))
+        assert isinstance(transform, transforms.RandomApply)
