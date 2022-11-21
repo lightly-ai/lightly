@@ -2,6 +2,8 @@ import torch
 import torch.distributed as dist
 import torch.nn.functional as F
 
+from lightly.utils.dist import gather
+
 class VICRegLoss(torch.nn.Module):
     """Implementation of the VICReg Loss from VICReg[0] paper.
     This implementation follows the code published by the authors. [1]
@@ -66,8 +68,8 @@ class VICRegLoss(torch.nn.Module):
         if self.gather_distributed and dist.is_initialized():
             world_size = dist.get_world_size()
             if world_size > 1:
-                dist.all_reduce(z_a)
-                dist.all_reduce(z_b)
+                z_a = torch.cat(gather(z_a), dim=0)
+                z_b = torch.cat(gather(z_b), dim=0)
 
         # normalize repr. along the batch dimension
         z_a = z_a - z_a.mean(0) # NxD
