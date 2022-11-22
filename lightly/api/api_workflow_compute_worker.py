@@ -76,6 +76,8 @@ class _ComputeWorkerMixin:
                 The name of the Lightly Worker.
             labels:
                 The labels of the Lightly Worker.
+                See our docs for more information regarding the labels parameter: 
+                https://docs.lightly.ai/docs/assign-scheduled-runs-to-specific-workers
 
         Returns:
             The id of the newly registered compute worker.
@@ -112,16 +114,16 @@ class _ComputeWorkerMixin:
     ) -> str:
         """Creates a new configuration for a compute worker run.
 
+        See our docs for more information regarding the different configurations:
+        https://docs.lightly.ai/docs/all-configuration-options
+
         Args:
             worker_config:
-                Compute worker configuration. All possible values are listed in
-                our docs: https://docs.lightly.ai/docker/configuration/configuration.html#list-of-parameters
+                Compute worker configuration.
             lightly_config:
-                Lightly configuration. All possible values are listed in our
-                docs: https://docs.lightly.ai/lightly.cli.html#default-settings
+                Lightly configuration.
             selection_config:
-                Selection configuration. See the docs for more information:
-                TODO: add link
+                Selection configuration.
 
         Returns:
             The id of the created config.
@@ -151,18 +153,20 @@ class _ComputeWorkerMixin:
     ) -> str:
         """Schedules a run with the given configurations.
 
+        See our docs for more information regarding the different configurations: 
+        https://docs.lightly.ai/docs/all-configuration-options
+
         Args:
             worker_config:
-                Compute worker configuration. All possible values are listed in
-                our docs: https://docs.lightly.ai/docker/configuration/configuration.html#list-of-parameters
+                Compute worker configuration.
             lightly_config:
-                Lightly configuration. All possible values are listed in our
-                docs: https://docs.lightly.ai/lightly.cli.html#default-settings
+                Lightly configuration.
             selection_config:
-                Selection configuration. See the docs for more information:
-                https://docs.lightly.ai/docker/getting_started/selection.html
+                Selection configuration.
             runs_on:
                 The required labels the Lightly Worker must have to take the job.
+                See our docs for more information regarding the runs_on paramter:
+                https://docs.lightly.ai/docs/assign-scheduled-runs-to-specific-workers
 
         Returns:
             The id of the scheduled run.
@@ -411,8 +415,8 @@ class _ComputeWorkerMixin:
     ) -> None:
         """Downloads the last training checkpoint from a run.
 
-        See https://docs.lightly.ai/docker/advanced/load_model_from_checkpoint.html
-        for information on how to use the checkpoint.
+        See our docs for more information regarding checkpoints:
+        https://docs.lightly.ai/docs/train-a-self-supervised-model#checkpoints
 
         Args:
             run: 
