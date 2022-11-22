@@ -128,13 +128,17 @@ class _PredictionsMixin:
             dataset_id=self.dataset_id,
             mode=SamplePartialMode.FILENAMES,
         )
-        filename_to_sample_id = {sample.file_name: sample.id for sample in samples}
+        api_filename_to_sample_id = {sample.file_name: sample.id for sample in samples}
 
-        def upload_prediction(filename_and_predictions_tuple):
+        if any(filename_to_upload not in api_filename_to_sample_id for filename_to_upload in filename_to_prediction_singletons.keys()):
+            raise ValueError(f"Some filenames to upload are not found as samples on the server.")
+
+        def upload_prediction(filename_and_predictions_tuple) -> bool:
             (filename, predictions) = filename_and_predictions_tuple
-            sample_id = filename_to_sample_id[filename]
+            sample_id = api_filename_to_sample_id[filename]
             prediction_singletons_for_sending = [vars(singleton) for singleton in predictions]
-            self._predictions_api.create_or_update_prediction_by_sample_id(
+            retry(
+                self._predictions_api.create_or_update_prediction_by_sample_id,
                 body=prediction_singletons_for_sending,
                 dataset_id=self.dataset_id,
                 sample_id=sample_id,
@@ -142,7 +146,7 @@ class _PredictionsMixin:
             )
 
         # handle the case where len(filename_to_sample_id) < max_workers
-        max_workers = min(len(filename_to_sample_id), max_workers)
+        max_workers = min(len(api_filename_to_sample_id), max_workers)
         max_workers = max(max_workers, 1)
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
