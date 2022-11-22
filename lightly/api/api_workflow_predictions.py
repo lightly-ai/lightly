@@ -38,6 +38,10 @@ class _PredictionsMixin:
           >>>     PredictionTaskSchemaCategory,
           >>> )
           >>>
+          >>> client = ApiWorkflowClient(
+          >>>     token="MY_LIGHTLY_TOKEN", dataset_id="MY_DATASET_ID"
+          >>> )
+          >>>
           >>> timestamp = int(time.time())
           >>> schema = PredictionTaskSchema(
           >>>     name="my-object-detection",
@@ -46,9 +50,6 @@ class _PredictionsMixin:
           >>>         PredictionTaskSchemaCategory(id=0, name="dog"),
           >>>         PredictionTaskSchemaCategory(id=1, name="cat"),
           >>>     ],
-          >>> )
-          >>> client = ApiWorkflowClient(
-          >>>     token="MY_LIGHTLY_TOKEN", dataset_id="MY_DATASET_ID"
           >>> )
           >>> client.create_or_update_prediction_task_schema(
           >>>     schema=schema, prediction_uuid_timestamp=timestamp
@@ -74,7 +75,6 @@ class _PredictionsMixin:
         prediction_uuid_timestamp: int,
         progress_bar: Optional[tqdm.tqdm] = None,
         max_workers: int = 8
-
     ) -> None:
         """Creates or updates the predictions for specific samples
 
@@ -90,7 +90,35 @@ class _PredictionsMixin:
                 Tqdm progress bar to show how many prediction files have already been
                 uploaded.
 
+            max_workers:
+                Maximum number of workers uploading predictions in parallel.
+
         Example:
+          >>> import time
+          >>> from tqdm import tqdm
+          >>> from lightly.api import ApiWorkflowClient
+          >>> from lightly.openapi_generated.swagger_client import (
+          >>>     PredictionTaskSchema,
+          >>>     TaskType,
+          >>>     PredictionTaskSchemaCategory,
+          >>> )
+          >>> from lightly.api.prediction_singletons import PredictionSingletonClassificationRepr
+          >>>
+          >>> client = ApiWorkflowClient(
+          >>>     token="MY_LIGHTLY_TOKEN", dataset_id="MY_DATASET_ID"
+          >>> )
+          >>>
+          >>> timestamp = int(time.time())
+          >>> filenames = client.get_filenames()
+          >>> filename_to_prediction_singletons_dummy = {
+          >>>     filename: [PredictionSingletonClassificationRepr(taskName="my-task", categoryId=i%4, score=0.9, probabilities=[0.1, 0.2, 0.3, 0.4])]
+          >>>     for i, filename in enumerate(filenames)
+          >>> }
+          >>> client.create_or_update_predictions(
+          >>>     filename_to_prediction_singletons_dummy,
+          >>>     prediction_uuid_timestamp=timestamp,
+          >>>     progress_bar=tqdm(desc="Uploading predictions", total=len(filenames), unit=" predictions")
+          >>> )
 
 
         """
@@ -113,7 +141,7 @@ class _PredictionsMixin:
                 prediction_uuid_timestamp=prediction_uuid_timestamp,
             )
 
-        # handle the case where len(sample_ids) < max_workers
+        # handle the case where len(filename_to_sample_id) < max_workers
         max_workers = min(len(filename_to_sample_id), max_workers)
         max_workers = max(max_workers, 1)
 
