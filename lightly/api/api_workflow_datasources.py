@@ -321,8 +321,8 @@ class _DatasourcesMixin:
     ) -> None:
         """Sets the Azure configuration for the datasource of the current dataset.
 
-        Find a detailed explanation on how to setup Lightly with
-        Azure Blob Storage in our docs: https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_azure_storage.html#
+        See our docs for a detailed explanation on how to setup Lightly with
+        Azure: https://docs.lightly.ai/docs/azure
 
         Args:
             container_name:
@@ -368,8 +368,8 @@ class _DatasourcesMixin:
         """Sets the Google Cloud Storage configuration for the datasource of the
         current dataset.
 
-        Find a detailed explanation on how to setup Lightly with
-        Google Cloud Storage in our docs: https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_gcloud_bucket.html
+        See our docs for a detailed explanation on how to setup Lightly with
+        Google Cloud Storage: https://docs.lightly.ai/docs/google-cloud-storage
 
         Args:
             resource_path:
@@ -448,6 +448,9 @@ class _DatasourcesMixin:
     ) -> None:
         """Sets the S3 configuration for the datasource of the current dataset.
 
+        See our docs for a detailed explanation on how to setup Lightly with
+        AWS S3: https://docs.lightly.ai/docs/aws-s3
+
         Args:
             resource_path:
                 S3 url of your dataset, for example "s3://my_bucket/path/to/my/data".
@@ -494,6 +497,9 @@ class _DatasourcesMixin:
         purpose: str = DatasourcePurpose.INPUT_OUTPUT,
     ) -> None:
         """Sets the S3 configuration for the datasource of the current dataset.
+
+        See our docs for a detailed explanation on how to setup Lightly with
+        AWS S3 and delegated access: https://docs.lightly.ai/docs/aws-s3#delegated-access
 
         Args:
             resource_path:
