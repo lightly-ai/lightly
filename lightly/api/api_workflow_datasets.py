@@ -56,7 +56,7 @@ class _DatasetsMixin:
         self,
         dataset_name: str,
         shared: Optional[bool] = False,
-    ) -> list[DatasetData]:
+    ) -> List[DatasetData]:
         """Returns datasets by name.
 
         An empty list is returned if no datasets with the name exist.
