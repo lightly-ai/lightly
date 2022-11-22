@@ -135,6 +135,9 @@ DATASET_ROOT = '/datasets/comma10k/imgs/'
 # allow setting of token and dataset_id from environment variables
 def try_get_token_and_id_from_env():
     token = os.getenv('TOKEN', YOUR_TOKEN)
+    lightly_token = os.getenv('LIGHTLY_TOKEN', YOUR_TOKEN)
+    print("token", token[:4])
+    print("lightly_token", lightly_token[:4])
     dataset_id = os.getenv('AL_TUTORIAL_DATASET_ID', YOUR_DATASET_ID)
     return token, dataset_id
 
