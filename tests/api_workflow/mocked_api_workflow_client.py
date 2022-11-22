@@ -908,8 +908,6 @@ class MockedComputeWorkerApi(DockerApi):
 
     def get_docker_runs(self, page_size: Optional[int] = None, page_offset: Optional[int] = None, **kwargs):
         start, end = _start_and_end_offset(page_size=page_size, page_offset=page_offset)
-        print(start, end)
-        print(self._compute_worker_runs)
         return self._compute_worker_runs[start:end]
 
     def get_docker_runs_count(self, **kwargs):

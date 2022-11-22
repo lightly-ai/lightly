@@ -504,6 +504,7 @@ def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
         DockerRunData(id="run-2", created_at=10,  dataset_id="", docker_version="", state="", last_modified_at=0),
         DockerRunData(id="run-1", created_at=20,  dataset_id="", docker_version="", state="", last_modified_at=0),
     ]
+    assert mock_compute_worker_api.get_docker_runs.call_count == 2
 
 def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient(token="123")
@@ -516,12 +517,12 @@ def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
         [],
     ]
 
-    # mock_compute_worker_api.side_effect = get_docker_runs
     client._compute_worker_api = mock_compute_worker_api
     runs = client.get_compute_worker_runs(dataset_id="dataset-2")
     assert runs == [
         DockerRunData(id="run-2", dataset_id="dataset-2", docker_version="", state="", created_at=0, last_modified_at=0),
     ]
+    assert mock_compute_worker_api.get_docker_runs.call_count == 2
 
 def test_download_compute_worker_run_artifacts(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient(token="123")
