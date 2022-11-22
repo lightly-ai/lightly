@@ -603,7 +603,6 @@ class MockedDatasetsApi(DatasetsApi):
         self.datasets = self._default_datasets
         self.shared_datasets = self._shared_datasets
 
-    #
     def get_datasets(
         self, 
         shared: bool, 
@@ -615,12 +614,6 @@ class MockedDatasetsApi(DatasetsApi):
             return self.shared_datasets[start:end]
         else:
             return self.datasets[start:end]
-
-    # def get_all_datasets(self, **kwargs):
-    #     return self.get_datasets()
-
-    # def dataset_exists(self, dataset_id: str):
-    #     return dataset_id in [d.id for d in self._default_datasets]
 
     def create_dataset(self, body: DatasetCreateRequest, **kwargs):
         assert isinstance(body, DatasetCreateRequest)
