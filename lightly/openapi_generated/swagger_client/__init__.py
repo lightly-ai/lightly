@@ -194,6 +194,7 @@ from lightly.openapi_generated.swagger_client.models.tag_update_request import T
 from lightly.openapi_generated.swagger_client.models.tag_upsize_request import TagUpsizeRequest
 from lightly.openapi_generated.swagger_client.models.task_name import TaskName
 from lightly.openapi_generated.swagger_client.models.task_type import TaskType
+from lightly.openapi_generated.swagger_client.models.team_basic_data import TeamBasicData
 from lightly.openapi_generated.swagger_client.models.timestamp import Timestamp
 from lightly.openapi_generated.swagger_client.models.timestamp_seconds import TimestampSeconds
 from lightly.openapi_generated.swagger_client.models.trigger2d_embedding_job_request import Trigger2dEmbeddingJobRequest
