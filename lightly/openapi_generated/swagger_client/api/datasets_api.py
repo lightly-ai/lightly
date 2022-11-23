@@ -432,8 +432,8 @@ class DatasetsApi(object):
 
         :param async_req bool
         :param bool shared: if set, only returns the datasets which have been shared with the user
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: list[DatasetData]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -456,8 +456,8 @@ class DatasetsApi(object):
 
         :param async_req bool
         :param bool shared: if set, only returns the datasets which have been shared with the user
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: list[DatasetData]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -532,8 +532,8 @@ class DatasetsApi(object):
         :param async_req bool
         :param bool shared: if set, only returns the datasets which have been shared with the user
         :param int limit: DEPRECATED, use pageSize instead. if set, only returns the newest up until limit
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: list[DatasetDataEnriched]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -557,8 +557,8 @@ class DatasetsApi(object):
         :param async_req bool
         :param bool shared: if set, only returns the datasets which have been shared with the user
         :param int limit: DEPRECATED, use pageSize instead. if set, only returns the newest up until limit
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: list[DatasetDataEnriched]
                  If the method is called asynchronously,
                  returns the request thread.

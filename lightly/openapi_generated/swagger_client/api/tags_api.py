@@ -471,8 +471,8 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: str
                  If the method is called asynchronously,
                  returns the request thread.
@@ -502,8 +502,8 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: str
                  If the method is called asynchronously,
                  returns the request thread.
@@ -602,8 +602,8 @@ class TagsApi(object):
         :param MongoObjectID tag_id: ObjectId of the tag (required)
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: FilenameAndReadUrls
                  If the method is called asynchronously,
                  returns the request thread.
@@ -629,8 +629,8 @@ class TagsApi(object):
         :param MongoObjectID tag_id: ObjectId of the tag (required)
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: FilenameAndReadUrls
                  If the method is called asynchronously,
                  returns the request thread.
@@ -725,8 +725,8 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: LabelBoxDataRows
                  If the method is called asynchronously,
                  returns the request thread.
@@ -756,8 +756,8 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: LabelBoxDataRows
                  If the method is called asynchronously,
                  returns the request thread.
@@ -860,8 +860,8 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: LabelStudioTasks
                  If the method is called asynchronously,
                  returns the request thread.
@@ -891,8 +891,8 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: LabelStudioTasks
                  If the method is called asynchronously,
                  returns the request thread.
@@ -995,8 +995,8 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: SamaTasks
                  If the method is called asynchronously,
                  returns the request thread.
@@ -1026,8 +1026,8 @@ class TagsApi(object):
         :param bool include_meta_data: if true, will also include metadata
         :param FileOutputFormat format:
         :param bool preview_example: if true, will generate a preview example of how the structure will look
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: SamaTasks
                  If the method is called asynchronously,
                  returns the request thread.
