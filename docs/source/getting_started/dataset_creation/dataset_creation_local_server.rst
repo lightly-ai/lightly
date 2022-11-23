@@ -54,6 +54,6 @@ server can continue running.
     pip install lightly
 
     # Compute embeddings, create the dataset and upload metadata
-    lightly-magic token=TOKEN dataset_id=DATASET_ID input_dir=/projects/animals \
+    lightly-magic token=LIGHTLY_TOKEN dataset_id=DATASET_ID input_dir=/projects/animals \
     trainer.max_epochs=0 upload='meta'
 
