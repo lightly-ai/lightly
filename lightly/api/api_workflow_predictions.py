@@ -1,9 +1,9 @@
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List, Union, Optional
+from typing import Dict, List, Union, Optional, Tuple
 
 import tqdm
 
-from lightly.api.prediction_singletons import PredictionSingletonClassificationRepr
+from lightly.api.prediction_singletons import PredictionSingletonClassificationRepr, PredictionSingletonRepr
 from lightly.api.utils import retry
 from lightly.openapi_generated.swagger_client import (
     PredictionTaskSchema,
@@ -67,7 +67,7 @@ class _PredictionsMixin:
 
     def create_or_update_predictions(
         self,
-        filename_to_prediction_singletons: Dict[str, List[Union[PredictionSingletonClassificationRepr]]],
+        filename_to_prediction_singletons: Dict[str, List[PredictionSingletonRepr]],
         prediction_uuid_timestamp: int,
         progress_bar: Optional[tqdm.tqdm] = None,
         max_workers: int = 8
@@ -77,7 +77,7 @@ class _PredictionsMixin:
         Args:
             filename_to_prediction_singletons
                 A mapping from the filename of the sample to its corresponding prediction singletons.
-                All singletons must be of the same type.
+                The singletons can be from different tasks and different types.
 
             prediction_uuid_timestamp:
                 This timestamp is used as a key to distinguish different predictions for the same sample.
@@ -130,10 +130,10 @@ class _PredictionsMixin:
         if any(filename_to_upload not in api_filename_to_sample_id for filename_to_upload in filename_to_prediction_singletons.keys()):
             raise ValueError(f"Some filenames to upload are not found as samples on the server.")
 
-        def upload_prediction(filename_and_predictions_tuple) -> bool:
+        def upload_prediction(filename_and_predictions_tuple: Tuple[str, List[PredictionSingletonRepr]]) -> None:
             (filename, predictions) = filename_and_predictions_tuple
             sample_id = api_filename_to_sample_id[filename]
-            prediction_singletons_for_sending = [vars(singleton) for singleton in predictions]
+            prediction_singletons_for_sending = [singleton.to_dict() for singleton in predictions]
             retry(
                 self._predictions_api.create_or_update_prediction_by_sample_id,
                 body=prediction_singletons_for_sending,
