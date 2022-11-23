@@ -206,11 +206,15 @@ class _ComputeWorkerMixin:
             Runs sorted by creation time from old to new.
 
         """
-        runs: List[DockerRunData] = utils.paginate_endpoint(
-            self._compute_worker_api.get_docker_runs,
-        )
         if dataset_id is not None:
-            runs = [run for run in runs if run.dataset_id == dataset_id]
+            runs:List[DockerRunData] = utils.paginate_endpoint(
+                self._compute_worker_api.get_docker_runs_query_by_dataset_id,
+                dataset_id=dataset_id
+            )
+        else:
+            runs: List[DockerRunData] = utils.paginate_endpoint(
+                self._compute_worker_api.get_docker_runs,
+            )
         sorted_runs = sorted(runs, key=lambda run: run.created_at or -1)
         return sorted_runs
 
