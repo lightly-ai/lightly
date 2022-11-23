@@ -27,7 +27,8 @@ class _PredictionsMixin:
             schema:
                 The prediction task schema.
             prediction_uuid_timestamp:
-                The uuid timestamp in nanoseconds since 1970. Get it via 'int(time.time())'.
+                This timestamp is used as a key to distinguish different predictions for the same sample.
+                Get it e.g. via 'int(time.time())'
 
         Example:
           >>> import time
@@ -66,12 +67,7 @@ class _PredictionsMixin:
 
     def create_or_update_predictions(
         self,
-        filename_to_prediction_singletons: Union[
-            Dict[str, List[PredictionSingletonClassificationRepr]],
-            Dict[str, List[PredictionSingletonObjectDetection]],
-            Dict[str, List[PredictionSingletonInstanceSegmentation]],
-            Dict[str, List[PredictionSingletonKeypointDetection]],
-        ],
+        filename_to_prediction_singletons: Dict[str, List[Union[PredictionSingletonClassificationRepr]]],
         prediction_uuid_timestamp: int,
         progress_bar: Optional[tqdm.tqdm] = None,
         max_workers: int = 8
@@ -84,7 +80,8 @@ class _PredictionsMixin:
                 All singletons must be of the same type.
 
             prediction_uuid_timestamp:
-                The uuid timestamp in nanoseconds since 1970. Get it via 'int(time.time())'.
+                This timestamp is used as a key to distinguish different predictions for the same sample.
+                Get it e.g. via 'int(time.time())'.
 
             progress_bar:
                 Tqdm progress bar to show how many prediction files have already been
