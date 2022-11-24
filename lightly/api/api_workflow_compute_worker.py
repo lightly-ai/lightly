@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Union, Iterator
 
 from lightly.api.utils import retry
 from lightly.api import download
+from lightly.api import utils
 from lightly.openapi_generated.swagger_client import (
     CreateDockerWorkerRegistryEntryRequest,
     DockerRunData,
@@ -69,13 +70,18 @@ class ComputeWorkerRunInfo:
 
 class _ComputeWorkerMixin:
     def register_compute_worker(self, name: str = "Default", labels: Optional[List[str]] = None) -> str:
-        """Registers a new compute worker.
+        """Registers a new compute worker. 
+
+        If a worker with the same name already exists, the worker id of the existing
+        worker is returned instead of registering a new worker.
 
         Args:
             name:
                 The name of the Lightly Worker.
             labels:
                 The labels of the Lightly Worker.
+                See our docs for more information regarding the labels parameter: 
+                https://docs.lightly.ai/docs/assign-scheduled-runs-to-specific-workers
 
         Returns:
             The id of the newly registered compute worker.
@@ -112,16 +118,16 @@ class _ComputeWorkerMixin:
     ) -> str:
         """Creates a new configuration for a compute worker run.
 
+        See our docs for more information regarding the different configurations:
+        https://docs.lightly.ai/docs/all-configuration-options
+
         Args:
             worker_config:
-                Compute worker configuration. All possible values are listed in
-                our docs: https://docs.lightly.ai/docker/configuration/configuration.html#list-of-parameters
+                Compute worker configuration.
             lightly_config:
-                Lightly configuration. All possible values are listed in our
-                docs: https://docs.lightly.ai/lightly.cli.html#default-settings
+                Lightly configuration.
             selection_config:
-                Selection configuration. See the docs for more information:
-                TODO: add link
+                Selection configuration.
 
         Returns:
             The id of the created config.
@@ -151,18 +157,20 @@ class _ComputeWorkerMixin:
     ) -> str:
         """Schedules a run with the given configurations.
 
+        See our docs for more information regarding the different configurations: 
+        https://docs.lightly.ai/docs/all-configuration-options
+
         Args:
             worker_config:
-                Compute worker configuration. All possible values are listed in
-                our docs: https://docs.lightly.ai/docker/configuration/configuration.html#list-of-parameters
+                Compute worker configuration.
             lightly_config:
-                Lightly configuration. All possible values are listed in our
-                docs: https://docs.lightly.ai/lightly.cli.html#default-settings
+                Lightly configuration.
             selection_config:
-                Selection configuration. See the docs for more information:
-                https://docs.lightly.ai/docker/getting_started/selection.html
+                Selection configuration.
             runs_on:
                 The required labels the Lightly Worker must have to take the job.
+                See our docs for more information regarding the runs_on paramter:
+                https://docs.lightly.ai/docs/assign-scheduled-runs-to-specific-workers
 
         Returns:
             The id of the scheduled run.
@@ -198,9 +206,15 @@ class _ComputeWorkerMixin:
             Runs sorted by creation time from old to new.
 
         """
-        runs: List[DockerRunData] = self._compute_worker_api.get_docker_runs()
         if dataset_id is not None:
-            runs = [run for run in runs if run.dataset_id == dataset_id]
+            runs: List[DockerRunData] = utils.paginate_endpoint(
+                self._compute_worker_api.get_docker_runs_query_by_dataset_id,
+                dataset_id=dataset_id
+            )
+        else:
+            runs: List[DockerRunData] = utils.paginate_endpoint(
+                self._compute_worker_api.get_docker_runs,
+            )
         sorted_runs = sorted(runs, key=lambda run: run.created_at or -1)
         return sorted_runs
 
@@ -223,7 +237,8 @@ class _ComputeWorkerMixin:
 
         Raises:
             ApiException:
-                If no run with the given scheduled run id exists.
+                If no run with the given scheduled run id exists or if the scheduled 
+                run has not yet started being processed by a worker.
         """
         return self._compute_worker_api.get_docker_run_by_scheduled_id(
             scheduled_id=scheduled_run_id
@@ -231,12 +246,24 @@ class _ComputeWorkerMixin:
 
     def get_scheduled_compute_worker_runs(
         self,
+        state: Optional[str] = None,
     ) -> List[DockerRunScheduledData]:
         """Returns a list of all scheduled compute worker runs for the current
         dataset.
+
+        Args:
+            state:
+                DockerRunScheduledState value. If specified, then only runs in the given
+                state are returned. If omitted, then runs which have not yet finished 
+                (neither 'DONE' nor 'CANCELED') are returned. Valid states are 'OPEN',
+                'LOCKED', 'DONE', and 'CANCELED'.
         """
+        if state is not None:
+            return self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
+                dataset_id=self.dataset_id, state=state,
+            )
         return self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
-            dataset_id=self.dataset_id
+            dataset_id=self.dataset_id,
         )
 
     def _get_scheduled_run_by_id(self, scheduled_run_id: str) -> DockerRunScheduledData:
@@ -411,8 +438,8 @@ class _ComputeWorkerMixin:
     ) -> None:
         """Downloads the last training checkpoint from a run.
 
-        See https://docs.lightly.ai/docker/advanced/load_model_from_checkpoint.html
-        for information on how to use the checkpoint.
+        See our docs for more information regarding checkpoints:
+        https://docs.lightly.ai/docs/train-a-self-supervised-model#checkpoints
 
         Args:
             run: 

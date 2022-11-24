@@ -17,14 +17,14 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Hack to get setup-python to work on nektos/act
       run: |
         if [ ! -f "/etc/lsb-release" ] ; then
           echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
         fi
     - name: Set up Python 3.7
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.7
     - uses: actions/cache@v2

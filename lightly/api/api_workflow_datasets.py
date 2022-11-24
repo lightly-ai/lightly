@@ -1,10 +1,14 @@
+import warnings
 from typing import List, Optional
 
-from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
-from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
-
-from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
+from lightly.api import utils
+from lightly.openapi_generated.swagger_client import (
+    CreateEntityResponse,
+    DatasetCreateRequest,
+    DatasetData,
+)
 from lightly.openapi_generated.swagger_client.rest import ApiException
+
 
 class _DatasetsMixin:
 
@@ -20,7 +24,7 @@ class _DatasetsMixin:
         """Returns the dataset with id == self.dataset_id.
 
         """
-        return self.get_dataset_by_id(self.dataset_id)
+        return self.get_dataset_by_id(dataset_id=self.dataset_id)
 
     def dataset_exists(self, dataset_id: str) -> bool:
         """Returns True if a dataset with dataset_id exists. """
@@ -30,55 +34,137 @@ class _DatasetsMixin:
         except ApiException:
             return False
 
-    def dataset_name_exists(self, dataset_name: str) -> bool:
-        """Returns True if a dataset with dataset_name exists."""
-        return any(dataset.name == dataset_name for dataset in self.get_all_datasets())
+    def dataset_name_exists(self, dataset_name: str, shared: Optional[bool] = False) -> bool:
+        """Returns True if a dataset with dataset_name exists and False otherwise.
+
+        Args:
+            dataset_name:
+                Name of the dataset.
+            shared:
+                If False, considers only datasets owned by the user.
+                If True, considers only datasets which have been shared with the user.
+                If None, considers all datasets the users has access to.
+        """
+        return bool(self.get_datasets_by_name(dataset_name=dataset_name, shared=shared))
 
     def get_dataset_by_id(self, dataset_id: str) -> DatasetData:
         """Returns the dataset for the given dataset id. """
         dataset: DatasetData = self._datasets_api.get_dataset_by_id(dataset_id)
         return dataset
 
-    def get_datasets(self, shared: bool = False) -> List[DatasetData]:
+    def get_datasets_by_name(
+        self,
+        dataset_name: str,
+        shared: Optional[bool] = False,
+    ) -> List[DatasetData]:
+        """Returns datasets by name.
+
+        An empty list is returned if no datasets with the name exist.
+
+        Args:
+            dataset_name:
+                Name of the dataset.
+            shared:
+                If False, returns only datasets owned by the user. In this case at most
+                one dataset will be returned.
+                If True, returns only datasets which have been shared with the user. Can
+                return multiple datasets.
+                If None, returns datasets the users has access to. Can return multiple
+                datasets.
+        """
+        datasets = []
+        if not shared or shared is None:
+            datasets.extend(
+                self._datasets_api.get_datasets_query_by_name(
+                    dataset_name=dataset_name,
+                    exact=True,
+                    shared=False,
+                )
+            )
+        if shared or shared is None:
+            datasets.extend(
+                self._datasets_api.get_datasets_query_by_name(
+                    dataset_name=dataset_name,
+                    exact=True,
+                    shared=True,
+                )
+            )
+        return datasets
+
+    def get_datasets(self, shared: Optional[bool] = False) -> List[DatasetData]:
         """Returns all datasets the user owns.
 
         Args:
             shared:
-                If True, only returns the datasets which have been shared with
-                the user.
+                If False, returns only datasets owned by the user.
+                If True, returns only the datasets which have been shared with the user.
+                If None, returns all datasets the user has access to (owned and shared).
 
         """
-        datasets = self._datasets_api.get_datasets(shared=shared)
+        datasets = []
+        if not shared or shared is None:
+            datasets.extend(utils.paginate_endpoint(
+                self._datasets_api.get_datasets,
+                shared=False,
+            ))
+        if shared or shared is None:
+            datasets.extend(utils.paginate_endpoint(
+                self._datasets_api.get_datasets,
+                shared=True,
+            ))
         return datasets
 
     def get_all_datasets(self) -> List[DatasetData]:
-        """Returns all datasets the user has access to. """
-        owned_datasets = self.get_datasets(shared=False)
-        shared_datasets = self.get_datasets(shared=True)
-        owned_datasets.extend(shared_datasets)
+        """Returns all datasets the user has access to.
+
+        DEPRECATED in favour of get_datasets(shared=None) and will be removed in the
+        future.
+        """
+        warnings.warn(
+            "get_all_datasets() is deprecated in favour of get_datasets(shared=None) "
+            "and will be removed in the future.",
+            PendingDeprecationWarning,
+        )
+        owned_datasets = self.get_datasets(shared=None)
         return owned_datasets
 
-    def set_dataset_id_by_name(self, dataset_name: str):
+
+    def set_dataset_id_by_name(self, dataset_name: str, shared: Optional[bool] = False):
         """Sets the dataset id given the name of the dataset
 
         Args:
             dataset_name:
-                The name of the dataset for which the dataset_id
-                should be set as attribute
+                The name of the dataset for which the dataset_id should be set as 
+                attribute.
+            shared:
+                If False, considers only datasets owned by the user.
+                If True, considers only the datasets which have been shared with the user.
+                If None, consider all datasets the user has access to (owned and shared).
 
         Raises: ValueError
 
         """
-        current_datasets: List[DatasetData] = self.get_all_datasets()
-
-        try:
-            dataset_with_specified_name = next(dataset for dataset in current_datasets if dataset.name == dataset_name)
-            self._dataset_id = dataset_with_specified_name.id
-        except StopIteration:
+        datasets = self.get_datasets_by_name(dataset_name=dataset_name, shared=shared)
+        if not datasets:
             raise ValueError(
-                f"A dataset with the name {dataset_name} does not exist on the "
+                f"A dataset with the name '{dataset_name}' does not exist on the "
                 f"Lightly Platform. Please create it first."
             )
+        self._dataset_id = datasets[0].id
+        if len(datasets) > 1:
+            msg = (
+                f"Found {len(datasets)} datasets with the name '{dataset_name}'. Their "
+                f"ids are {[dataset.id for dataset in datasets]}. "
+                f"The dataset_id of the client was set to '{self._dataset_id}'. "
+            )
+            if shared or shared is None:
+                msg += (
+                    f"We noticed that you set shared={shared} which also retrieves "
+                    f"datasets shared with you. Set shared=False to only consider "
+                    "datasets you own."
+                )
+            warnings.warn(msg)
+
 
     def create_dataset(self, dataset_name: str, dataset_type: Optional[str] = None):
         """Creates a dataset on the Lightly Platform.
@@ -166,18 +252,21 @@ class _DatasetsMixin:
                 constants `DatasetType.IMAGES` and `DatasetType.VIDEOS`.
 
         """
-        current_datasets = self.get_datasets()
-        current_datasets_names = [dataset.name for dataset in current_datasets]
-
-        if dataset_basename not in current_datasets_names:
+        if not self.dataset_name_exists(dataset_name=dataset_basename):
             self._create_dataset_without_check_existing(
                 dataset_name=dataset_basename,
                 dataset_type=dataset_type
             )
         else:
+            existing_datasets = self._datasets_api.get_datasets_query_by_name(
+                dataset_name=dataset_basename,
+                exact=False,
+                shared=False,
+            )
+            existing_dataset_names = {dataset.name for dataset in existing_datasets}
             counter = 1
             dataset_name = f"{dataset_basename}_{counter}"
-            while dataset_name in current_datasets_names:
+            while dataset_name in existing_dataset_names:
                 counter += 1
                 dataset_name = f"{dataset_basename}_{counter}"
             self._create_dataset_without_check_existing(
