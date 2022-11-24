@@ -60,6 +60,8 @@ class VICRegLoss(torch.nn.Module):
         self.eps = eps
 
     def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
+        assert z_a.shape[0] > 1 and z_b.shape[0] > 1, f"z_a and z_b must have batch size > 1 but found {z_a.shape[0]} and  {z_b.shape[0]}"
+        assert z_a.shape == z_b.shape, f"z_a and z_b must have same shape but found {z_a.shape} and {z_b.shape}."
 
         # invariance term of the loss
         repr_loss = F.mse_loss(z_a, z_b)
