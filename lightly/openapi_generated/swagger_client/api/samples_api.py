@@ -687,8 +687,8 @@ class SamplesApi(object):
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param str file_name: filter the samples by filename
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: list[SampleData]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -712,8 +712,8 @@ class SamplesApi(object):
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param str file_name: filter the samples by filename
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: list[SampleData]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -795,8 +795,8 @@ class SamplesApi(object):
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param SamplePartialMode mode:
         :param str file_name: filter the samples by filename
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: list[SampleDataModes]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -821,8 +821,8 @@ class SamplesApi(object):
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param SamplePartialMode mode:
         :param str file_name: filter the samples by filename
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: list[SampleDataModes]
                  If the method is called asynchronously,
                  returns the request thread.
