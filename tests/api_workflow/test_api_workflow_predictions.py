@@ -109,11 +109,8 @@ def test_create_or_update_prediction() -> None:
 
 
 def test_create_or_update_predictions() -> None:
-    mocked_client = MagicMock(spec=ApiWorkflowClient)
+    mocked_client = MagicMock(spec=ApiWorkflowClient).return_value
     mocked_client.dataset_id = "some_dataset_id"
-    mocked_client.create_or_update_prediction = MagicMock(
-        spec_set=ApiWorkflowClient.create_or_update_prediction
-    )
 
     sample_id_to_prediction_singletons_dummy = {
         f"sample_id_{i}": [
@@ -136,7 +133,6 @@ def test_create_or_update_predictions() -> None:
 
     expected_calls = [
         call(
-            mocked_client,
             sample_id=sample_id,
             prediction_singletons=singletons,
             prediction_version_timestamp=timestamp,
