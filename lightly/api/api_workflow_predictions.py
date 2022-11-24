@@ -3,7 +3,10 @@ from typing import Dict, List, Union, Optional, Tuple
 
 import tqdm
 
-from lightly.api.prediction_singletons import PredictionSingletonClassificationRepr, PredictionSingletonRepr
+from lightly.api.prediction_singletons import (
+    PredictionSingletonClassificationRepr,
+    PredictionSingletonRepr,
+)
 from lightly.api.utils import retry
 from lightly.openapi_generated.swagger_client import (
     PredictionTaskSchema,
@@ -64,22 +67,21 @@ class _PredictionsMixin:
             prediction_uuid_timestamp=prediction_uuid_timestamp,
         )
 
-
     def create_or_update_predictions(
         self,
-        filename_to_prediction_singletons: Dict[str, List[PredictionSingletonRepr]],
-        prediction_uuid_timestamp: int,
+        sample_id_to_prediction_singletons: Dict[str, List[PredictionSingletonRepr]],
+        prediction_version_timestamp: int,
         progress_bar: Optional[tqdm.tqdm] = None,
-        max_workers: int = 8
+        max_workers: int = 8,
     ) -> None:
         """Creates or updates the predictions for specific samples
 
         Args:
-            filename_to_prediction_singletons
-                A mapping from the filename of the sample to its corresponding prediction singletons.
+            sample_id_to_prediction_singletons
+                A mapping from the sample_id of the sample to its corresponding prediction singletons.
                 The singletons can be from different tasks and different types.
 
-            prediction_uuid_timestamp:
+            prediction_version_timestamp:
                 This timestamp is used as a key to distinguish different predictions for the same sample.
                 Get it e.g. via 'int(time.time())'.
 
@@ -120,33 +122,41 @@ class _PredictionsMixin:
 
         """
 
-        samples = retry(
-            self._samples_api.get_samples_partial_by_dataset_id,
-            dataset_id=self.dataset_id,
-            mode=SamplePartialMode.FILENAMES,
-        )
-        api_filename_to_sample_id = {sample.file_name: sample.id for sample in samples}
-
-        if any(filename_to_upload not in api_filename_to_sample_id for filename_to_upload in filename_to_prediction_singletons.keys()):
-            raise ValueError(f"Some filenames to upload are not found as samples on the server.")
-
-        def upload_prediction(filename_and_predictions_tuple: Tuple[str, List[PredictionSingletonRepr]]) -> None:
-            (filename, predictions) = filename_and_predictions_tuple
-            sample_id = api_filename_to_sample_id[filename]
-            prediction_singletons_for_sending = [singleton.to_dict() for singleton in predictions]
-            retry(
-                self._predictions_api.create_or_update_prediction_by_sample_id,
-                body=prediction_singletons_for_sending,
-                dataset_id=self.dataset_id,
-                sample_id=sample_id,
-                prediction_uuid_timestamp=prediction_uuid_timestamp,
-            )
-
         # handle the case where len(filename_to_sample_id) < max_workers
-        max_workers = min(len(api_filename_to_sample_id), max_workers)
+        max_workers = min(len(sample_id_to_prediction_singletons), max_workers)
         max_workers = max(max_workers, 1)
 
+        def upload_prediction(
+            sample_id_prediction_singletons_tuple: Tuple[
+                str, List[PredictionSingletonRepr]
+            ]
+        ) -> None:
+            (sample_id, prediction_singletons) = sample_id_prediction_singletons_tuple
+            self.create_or_update_prediction(
+                sample_id=sample_id,
+                prediction_singletons=prediction_singletons,
+                prediction_version_timestamp=prediction_version_timestamp,
+            )
+
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            for _ in executor.map(upload_prediction, filename_to_prediction_singletons.items()):
+            for _ in executor.map(
+                upload_prediction, sample_id_to_prediction_singletons.items()
+            ):
                 if progress_bar is not None:
                     progress_bar.update(1)
+
+    def create_or_update_prediction(
+        self,
+        sample_id: str,
+        prediction_singletons: List[PredictionSingletonRepr],
+        prediction_version_timestamp: int,
+    ) -> None:
+        prediction_singletons_for_sending = [
+            singleton.to_dict() for singleton in prediction_singletons
+        ]
+        self._predictions_api.create_or_update_prediction_by_sample_id(
+            body=prediction_singletons_for_sending,
+            dataset_id=self.dataset_id,
+            sample_id=sample_id,
+            prediction_uuid_timestamp=prediction_version_timestamp,
+        )

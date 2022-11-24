@@ -18,13 +18,11 @@ class PredictionSingletonRepr(ABC):
         self.taskName = taskName
         self.categoryId = categoryId
         self.score = score
-        if cropDatasetId is not None:
-            self.cropDatasetId = cropDatasetId
-        if cropSampleId is not None:
-            self.cropSampleId = cropSampleId
+        self.cropDatasetId = cropDatasetId
+        self.cropSampleId = cropSampleId
 
     def to_dict(self):
-        return vars(self)
+        return {key: value for key, value in vars(self).items() if value is not None}
 
 
 class PredictionSingletonClassificationRepr(PredictionSingletonRepr):
@@ -35,11 +33,69 @@ class PredictionSingletonClassificationRepr(PredictionSingletonRepr):
         score: float,
         probabilities: Optional[List[float]] = None,
     ):
-        PredictionSingletonRepr.__init__(
-            self,
+        super().__init__(
             type=TaskType.CLASSIFICATION,
             taskName=taskName,
             categoryId=categoryId,
             score=score,
         )
+        self.probabilities = probabilities
+
+
+class PredictionSingletonObjectDetectionRepr(PredictionSingletonRepr):
+    def __init__(
+        self,
+        taskName: str,
+        cropDatasetId: str,
+        cropSampleId: str,
+        categoryId: int,
+        score: float,
+        bbox: List[int],
+        probabilities: Optional[List[float]] = None,
+    ):
+        super().__init__(
+            type=TaskType.OBJECT_DETECTION,
+            taskName=taskName,
+            categoryId=categoryId,
+            score=score,
+            cropDatasetId=cropDatasetId,
+            cropSampleId=cropSampleId,
+        )
+        self.bbox = bbox
+        self.probabilities = probabilities
+
+
+class PredictionSingletonInstanceSegmentationRepr(PredictionSingletonRepr):
+    def __init__(
+        self,
+        taskName: str,
+        categoryId: int,
+        score: float,
+        segmentation: str,
+    ):
+        super().__init__(
+            type=TaskType.INSTANCE_SEGMENTATION,
+            taskName=taskName,
+            categoryId=categoryId,
+            score=score,
+        )
+        self.segmentation = segmentation
+
+
+class PredictionSingletonKeypointDetectionRepr(PredictionSingletonRepr):
+    def __init__(
+        self,
+        taskName: str,
+        categoryId: int,
+        score: float,
+        keypoints: List[int],
+        probabilities: Optional[List[float]] = None,
+    ):
+        super().__init__(
+            type=TaskType.KEYPOINT_DETECTION,
+            taskName=taskName,
+            categoryId=categoryId,
+            score=score,
+        )
+        self.keypoints = keypoints
         self.probabilities = probabilities
