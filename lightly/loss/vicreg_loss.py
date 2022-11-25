@@ -10,7 +10,9 @@ class VICRegLoss(torch.nn.Module):
 
     [0] Bardes, A. et. al, 2022, VICReg... https://arxiv.org/abs/2105.04906
     [1] https://github.com/facebookresearch/vicreg/
-        Examples:
+        
+    Examples:
+    
         >>> # initialize loss function
         >>> loss_fn = VICRegLoss()
         >>>

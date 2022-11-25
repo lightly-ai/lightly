@@ -45,6 +45,7 @@ Some of our supported models:
 - [SimSiam, 2021](https://arxiv.org/abs/2011.10566)
 - [SMoG, 2022](https://arxiv.org/abs/2207.06167)
 - [SwaV, 2020](https://arxiv.org/abs/2006.09882)
+- [VICReg, 2022](https://arxiv.org/abs/2105.04906)
 
 
 ### Tutorials
