@@ -57,6 +57,6 @@ lightly.loss
    :members:
 
 .vicreg_loss
-----------
-.. autoclass:: lightly.loss.dino_loss.VICRegLoss
+-------------
+.. autoclass:: lightly.loss.vicreg_loss.VICRegLoss
    :members:
