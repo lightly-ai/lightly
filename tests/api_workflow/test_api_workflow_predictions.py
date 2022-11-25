@@ -30,7 +30,7 @@ def test_create_or_update_prediction_task_schema() -> None:
     ApiWorkflowClient.create_or_update_prediction_task_schema(
         self=mocked_client,
         schema=schema,
-        prediction_uuid_timestamp=timestamp,
+        prediction_version_id=timestamp,
     )
 
     mocked_client._predictions_api.create_or_update_prediction_task_schema_by_dataset_id.assert_called_once_with(
@@ -97,7 +97,7 @@ def test_create_or_update_prediction() -> None:
         self=mocked_client,
         sample_id=sample_id,
         prediction_singletons=prediction_singletons,
-        prediction_version_timestamp=timestamp,
+        prediction_version_id=timestamp,
     )
 
     mocked_client._predictions_api.create_or_update_prediction_by_sample_id.assert_called_once_with(
@@ -128,14 +128,14 @@ def test_create_or_update_predictions() -> None:
     ApiWorkflowClient.create_or_update_predictions(
         self=mocked_client,
         sample_id_to_prediction_singletons=sample_id_to_prediction_singletons_dummy,
-        prediction_version_timestamp=timestamp,
+        prediction_version_id=timestamp,
     )
 
     expected_calls = [
         call(
             sample_id=sample_id,
             prediction_singletons=singletons,
-            prediction_version_timestamp=timestamp,
+            prediction_version_id=timestamp,
         )
         for sample_id, singletons in sample_id_to_prediction_singletons_dummy.items()
     ]

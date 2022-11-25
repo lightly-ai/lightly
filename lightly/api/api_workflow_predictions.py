@@ -22,16 +22,15 @@ class _PredictionsMixin:
     def create_or_update_prediction_task_schema(
         self,
         schema: PredictionTaskSchema,
-        prediction_uuid_timestamp: int,
+        prediction_version_id: int = -1,
     ) -> None:
         """Creates or updates the prediction task schema
 
         Args:
             schema:
                 The prediction task schema.
-            prediction_uuid_timestamp:
-                This timestamp is used as a key to distinguish different predictions for the same sample.
-                Get it e.g. via 'int(time.time())'
+            prediction_version_id:
+                And id to distinguish different predictions for the same sample.
 
         Example:
           >>> import time
@@ -46,7 +45,6 @@ class _PredictionsMixin:
           >>>     token="MY_LIGHTLY_TOKEN", dataset_id="MY_DATASET_ID"
           >>> )
           >>>
-          >>> timestamp = int(time.time())
           >>> schema = PredictionTaskSchema(
           >>>     name="my-object-detection",
           >>>     type=TaskType.OBJECT_DETECTION,
@@ -56,7 +54,7 @@ class _PredictionsMixin:
           >>>     ],
           >>> )
           >>> client.create_or_update_prediction_task_schema(
-          >>>     schema=schema, prediction_uuid_timestamp=timestamp
+          >>>     schema=schema
           >>> )
 
 
@@ -64,13 +62,13 @@ class _PredictionsMixin:
         self._predictions_api.create_or_update_prediction_task_schema_by_dataset_id(
             body=schema,
             dataset_id=self.dataset_id,
-            prediction_uuid_timestamp=prediction_uuid_timestamp,
+            prediction_uuid_timestamp=prediction_version_id,
         )
 
     def create_or_update_predictions(
         self,
         sample_id_to_prediction_singletons: Dict[str, List[PredictionSingletonRepr]],
-        prediction_version_timestamp: int,
+        prediction_version_id: int = -1,
         progress_bar: Optional[tqdm.tqdm] = None,
         max_workers: int = 8,
     ) -> None:
@@ -81,9 +79,8 @@ class _PredictionsMixin:
                 A mapping from the sample_id of the sample to its corresponding prediction singletons.
                 The singletons can be from different tasks and different types.
 
-            prediction_version_timestamp:
-                This timestamp is used as a key to distinguish different predictions for the same sample.
-                Get it e.g. via 'int(time.time())'.
+            prediction_version_id:
+                And id to distinguish different predictions for the same sample.
 
             progress_bar:
                 Tqdm progress bar to show how many prediction files have already been
@@ -107,22 +104,20 @@ class _PredictionsMixin:
           >>>     token="MY_LIGHTLY_TOKEN", dataset_id="MY_DATASET_ID"
           >>> )
           >>>
-          >>> timestamp = int(time.time())
-          >>> filenames = client.get_filenames()
-          >>> filename_to_prediction_singletons_dummy = {
-          >>>     filename: [PredictionSingletonClassificationRepr(taskName="my-task", categoryId=i%4, score=0.9, probabilities=[0.1, 0.2, 0.3, 0.4])]
-          >>>     for i, filename in enumerate(filenames)
+          >>> samples = client._samples_api.get_samples_partial_by_dataset_id(dataset_id=client.dataset_id, mode=SamplePartialMode.FILENAMES)
+          >>> sample_id_to_prediction_singletons_dummy = {
+          >>>     sample.id: [PredictionSingletonClassificationRepr(taskName="my-task", categoryId=i%4, score=0.9, probabilities=[0.1, 0.2, 0.3, 0.4])]
+          >>>     for i, sample in enumerate(samples)
           >>> }
           >>> client.create_or_update_predictions(
-          >>>     filename_to_prediction_singletons_dummy,
-          >>>     prediction_uuid_timestamp=timestamp,
-          >>>     progress_bar=tqdm(desc="Uploading predictions", total=len(filenames), unit=" predictions")
+          >>>     sample_id_to_prediction_singletons=sample_id_to_prediction_singletons_dummy,
+          >>>     progress_bar=tqdm(desc="Uploading predictions", total=len(samples), unit=" predictions")
           >>> )
 
 
         """
 
-        # handle the case where len(filename_to_sample_id) < max_workers
+        # handle the case where len(sample_id_to_prediction_singletons) < max_workers
         max_workers = min(len(sample_id_to_prediction_singletons), max_workers)
         max_workers = max(max_workers, 1)
 
@@ -135,7 +130,7 @@ class _PredictionsMixin:
             self.create_or_update_prediction(
                 sample_id=sample_id,
                 prediction_singletons=prediction_singletons,
-                prediction_version_timestamp=prediction_version_timestamp,
+                prediction_version_id=prediction_version_id,
             )
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -149,8 +144,20 @@ class _PredictionsMixin:
         self,
         sample_id: str,
         prediction_singletons: List[PredictionSingletonRepr],
-        prediction_version_timestamp: int,
+        prediction_version_id: int = -1,
     ) -> None:
+        """Creates or updates the predictions for one specific sample
+
+        Args:
+            sample_id
+                The id of the sample
+
+            prediction_version_id:
+                And id to distinguish different predictions for the same sample.
+
+            prediction_singletons:
+                The predictions to upload for that sample
+        """
         prediction_singletons_for_sending = [
             singleton.to_dict() for singleton in prediction_singletons
         ]
@@ -158,5 +165,5 @@ class _PredictionsMixin:
             body=prediction_singletons_for_sending,
             dataset_id=self.dataset_id,
             sample_id=sample_id,
-            prediction_uuid_timestamp=prediction_version_timestamp,
+            prediction_uuid_timestamp=prediction_version_id,
         )
