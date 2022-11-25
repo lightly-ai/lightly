@@ -46,10 +46,10 @@ class PredictionSingletonObjectDetectionRepr(PredictionSingletonRepr):
     def __init__(
         self,
         taskName: str,
-        cropDatasetId: str,
-        cropSampleId: str,
         categoryId: int,
         score: float,
+        cropDatasetId: str,
+        cropSampleId: str,
         bbox: List[int],
         probabilities: Optional[List[float]] = None,
     ):
@@ -71,6 +71,8 @@ class PredictionSingletonInstanceSegmentationRepr(PredictionSingletonRepr):
         taskName: str,
         categoryId: int,
         score: float,
+        cropDatasetId: str,
+        cropSampleId: str,
         segmentation: str,
     ):
         super().__init__(
@@ -78,6 +80,8 @@ class PredictionSingletonInstanceSegmentationRepr(PredictionSingletonRepr):
             taskName=taskName,
             categoryId=categoryId,
             score=score,
+            cropDatasetId=cropDatasetId,
+            cropSampleId=cropSampleId,
         )
         self.segmentation = segmentation
 
