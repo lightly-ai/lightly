@@ -42,7 +42,6 @@ Reference:
 
         - Distributed Data Parallel is enabled
         - Distributed Sampling is used in the dataloader
-        - Distributed Sinkhorn is used in the loss calculation 
 
         Distributed Sampling makes sure that each distributed process sees only
         a subset of the data.
