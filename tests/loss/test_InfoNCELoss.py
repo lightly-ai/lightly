@@ -5,8 +5,8 @@ import torchvision
 
 class InfoNCETest(unittest.TestCase):
     def setUp(self):
-        resnet = torchvision.models.resnet50(pretrained = False)
-        self.model = torch.nn.Sequential(*list(resnet.children())[:-1])
+        resnet = torchvision.models.resnet50(pretrained = False).children()
+        self.model = torch.nn.Sequential(*list(resnet.children)[:-1])
         self.dim = 360
         self.loss = InfoNCELoss(dim = self.dim)
 
