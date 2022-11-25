@@ -5,8 +5,9 @@ import torchvision
 from lightly.data import LightlyDataset
 from lightly.data import ImageCollateFunction
 from lightly.models.modules import BarlowTwinsProjectionHead
-from lightly.loss import VICRegLoss
 
+## The projection head is the same as the Barlow Twins one
+from lightly.loss import VICRegLoss
 
 class VICReg(nn.Module):
     def __init__(self, backbone):
