@@ -33,6 +33,7 @@ class DatasourceConfigBase(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'id': 'MongoObjectID',
         'purpose': 'DatasourcePurpose',
         'type': 'str',
         'full_path': 'str',
@@ -40,6 +41,7 @@ class DatasourceConfigBase(object):
     }
 
     attribute_map = {
+        'id': 'id',
         'purpose': 'purpose',
         'type': 'type',
         'full_path': 'fullPath',
@@ -56,23 +58,47 @@ class DatasourceConfigBase(object):
         'DatasourceConfigS3': 'DatasourceConfigS3'
     }
 
-    def __init__(self, purpose=None, type=None, full_path=None, thumb_suffix=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, purpose=None, type=None, full_path=None, thumb_suffix=None, _configuration=None):  # noqa: E501
         """DatasourceConfigBase - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
+        self._id = None
         self._purpose = None
         self._type = None
         self._full_path = None
         self._thumb_suffix = None
         self.discriminator = 'Discriminator{propertyName&#x3D;&#39;type&#39;, mapping&#x3D;null, extensions&#x3D;null}'
 
+        if id is not None:
+            self.id = id
         self.purpose = purpose
         self.type = type
         self.full_path = full_path
         if thumb_suffix is not None:
             self.thumb_suffix = thumb_suffix
+
+    @property
+    def id(self):
+        """Gets the id of this DatasourceConfigBase.  # noqa: E501
+
+
+        :return: The id of this DatasourceConfigBase.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._id
+
+    @id.setter
+    def id(self, id):
+        """Sets the id of this DatasourceConfigBase.
+
+
+        :param id: The id of this DatasourceConfigBase.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._id = id
 
     @property
     def purpose(self):

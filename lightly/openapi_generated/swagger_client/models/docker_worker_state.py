@@ -29,6 +29,7 @@ class DockerWorkerState(object):
     allowed enum values
     """
     OFFLINE = "OFFLINE"
+    CRASHED = "CRASHED"
     IDLE = "IDLE"
     BUSY = "BUSY"
 

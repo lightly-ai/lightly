@@ -137,6 +137,7 @@ from lightly.openapi_generated.swagger_client.models.sample_data import SampleDa
 from lightly.openapi_generated.swagger_client.models.sample_data_modes import SampleDataModes
 from lightly.openapi_generated.swagger_client.models.sample_meta_data import SampleMetaData
 from lightly.openapi_generated.swagger_client.models.sample_partial_mode import SamplePartialMode
+from lightly.openapi_generated.swagger_client.models.sample_sort_by import SampleSortBy
 from lightly.openapi_generated.swagger_client.models.sample_type import SampleType
 from lightly.openapi_generated.swagger_client.models.sample_update_request import SampleUpdateRequest
 from lightly.openapi_generated.swagger_client.models.sample_write_urls import SampleWriteUrls
