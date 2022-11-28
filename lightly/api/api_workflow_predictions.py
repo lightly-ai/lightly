@@ -81,10 +81,10 @@ class _PredictionsMixin:
             prediction_version_id:
                  A numerical id (e.g timestamp) to distinguish different predictions of different model versions.
                  Use the same id if you don't require versioning or if you wish to overwrite the previous schema.
+                 This id must match th id of a prediction task schema.
 
             progress_bar:
-                Tqdm progress bar to show how many prediction files have already been
-                uploaded.
+                Tqdm progress bar to show how many prediction files have already been uploaded.
 
             max_workers:
                 Maximum number of workers uploading predictions in parallel.
