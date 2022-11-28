@@ -18,3 +18,4 @@ opencv-python
 scikit-learn
 pandas
 torchmetrics
+lightning-bolts # for LARS optimizer

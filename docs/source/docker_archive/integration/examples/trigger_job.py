@@ -1,6 +1,6 @@
 # You can reuse the client from the previous script. If you want to create a new
 # one you can uncomment the following line:
-# client = lightly.api.ApiWorkflowClient(token="TOKEN", dataset_id="DATASET_ID")
+# client = lightly.api.ApiWorkflowClient(token="LIGHTLY_TOKEN", dataset_id="DATASET_ID")
 
 # Schedule the compute run using our custom config.
 # We show here the full default config so you can easily edit the

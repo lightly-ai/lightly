@@ -1,10 +1,9 @@
 import csv
 import io
-from os import access
 import tempfile
 import unittest
 from io import IOBase
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 import json
 
 import numpy as np
@@ -173,9 +172,9 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         self.embeddings = [
             DatasetEmbeddingData(
                 id="embedding_id_xyz",
-                name="embedding_name_xxyyzz",
+                name="embedding_newest",
                 is_processed=True,
-                created_at=0,
+                created_at=1111111,
             ),
             DatasetEmbeddingData(
                 id="embedding_id_xyz_2",
@@ -565,7 +564,7 @@ class MockedSamplesApi(SamplesApi):
 class MockedDatasetsApi(DatasetsApi):
     def __init__(self, api_client):
         no_datasets = 3
-        self.default_datasets = [
+        self._default_datasets = [
             DatasetData(
                 name=f"dataset_{i}",
                 id=f"dataset_{i}_id",
@@ -579,19 +578,42 @@ class MockedDatasetsApi(DatasetsApi):
             )
             for i in range(no_datasets)
         ]
+        self._shared_datasets = [
+            DatasetData(
+                name=f"shared_dataset_{i}",
+                id=f"shared_dataset_{i}_id",
+                last_modified_at=-1,
+                type="Images",
+                img_type="full",
+                size_in_bytes=-1,
+                n_samples=-1,
+                created_at=-1,
+                user_id="another_user",
+            )
+            for i in range(2)
+        ]
         self.reset()
 
+    @property
+    def _all_datasets(self) -> List[DatasetData]:
+        return [*self.datasets, *self.shared_datasets]
+
+
     def reset(self):
-        self.datasets = self.default_datasets
+        self.datasets = self._default_datasets
+        self.shared_datasets = self._shared_datasets
 
-    def get_datasets(self, **kwargs):
-        return self.datasets
-
-    def get_all_datasets(self, **kwargs):
-        return self.get_datasets()
-
-    def dataset_exists(self, dataset_id: str):
-        return dataset_id in [d.id for d in self.default_datasets]
+    def get_datasets(
+        self, 
+        shared: bool, 
+        page_size: Optional[int] = None, 
+        page_offset: Optional[int] = None,
+    ):
+        start, end = _start_and_end_offset(page_size=page_size, page_offset=page_offset)
+        if shared:
+            return self.shared_datasets[start:end]
+        else:
+            return self.datasets[start:end]
 
     def create_dataset(self, body: DatasetCreateRequest, **kwargs):
         assert isinstance(body, DatasetCreateRequest)
@@ -608,14 +630,14 @@ class MockedDatasetsApi(DatasetsApi):
             created_at=-1,
             user_id="user_0",
         )
-        self.datasets += [dataset]
+        self.datasets.append(dataset)
         response_ = CreateEntityResponse(id=id)
         return response_
 
     def get_dataset_by_id(self, dataset_id):
         _check_dataset_id(dataset_id)
         dataset = next(
-            (dataset for dataset in self.default_datasets if dataset_id == dataset.id),
+            (dataset for dataset in self._all_datasets if dataset_id == dataset.id),
             None,
         )
         if dataset is None:
@@ -626,13 +648,29 @@ class MockedDatasetsApi(DatasetsApi):
         _check_dataset_id(dataset_id)
         return True
 
-    def delete_dataset_by_id(self, dataset_id, **kwargs):
+    def delete_dataset_by_id(self, dataset_id, **kwargs) -> None:
         _check_dataset_id(dataset_id)
         datasets_without_that_id = [
             dataset for dataset in self.datasets if dataset.id != dataset_id
         ]
         assert len(datasets_without_that_id) == len(self.datasets) - 1
         self.datasets = datasets_without_that_id
+
+    def get_children_of_dataset_id(self, dataset_id, **kwargs):
+        raise NotImplementedError()
+
+    def get_datasets_enriched(self, **kwargs):
+        raise NotImplementedError()
+
+    def get_datasets_query_by_name(self, dataset_name: str, shared: bool, exact: bool) -> List[DatasetData]:
+        datasets = self.get_datasets(shared=shared)
+        if exact:
+            return [dataset for dataset in datasets if dataset.name == dataset_name]
+        else:
+            return [dataset for dataset in datasets if dataset.name is not None and dataset.name.startswith(dataset_name)]
+
+    def update_dataset_by_id(self, body, dataset_id, **kwargs):
+        raise NotImplementedError()
 
 
 class MockedDatasourcesApi(DatasourcesApi):
@@ -834,6 +872,7 @@ class MockedComputeWorkerApi(DockerApi):
                 created_at=Timestamp(0),
                 last_modified_at=Timestamp(100),
                 owner="user-id-1",
+                runs_on=[]
             )
         ]
         self._registered_workers = [
@@ -867,14 +906,86 @@ class MockedComputeWorkerApi(DockerApi):
         _check_dataset_id(dataset_id)
         return CreateEntityResponse(id=f"scheduled-run-id-123-dataset-{dataset_id}")
 
-    def get_docker_runs(self, **kwargs):
-        return self._compute_worker_runs
+    def get_docker_runs(self, page_size: Optional[int] = None, page_offset: Optional[int] = None, **kwargs):
+        start, end = _start_and_end_offset(page_size=page_size, page_offset=page_offset)
+        return self._compute_worker_runs[start:end]
 
-    def get_docker_runs_scheduled_by_dataset_id(self, dataset_id, **kwargs):
+    def get_docker_runs_count(self, **kwargs):
+        return len(self._compute_worker_runs)
+
+    def get_docker_runs_scheduled_by_dataset_id(self, dataset_id, state: Optional[str] = None, **kwargs):
         runs = self._scheduled_compute_worker_runs
         runs = [run for run in runs if run.dataset_id == dataset_id]
         return runs
 
+    def cancel_scheduled_docker_run_state_by_id(self, dataset_id: str, scheduled_id: str, **kwargs):
+        raise NotImplementedError()
+
+    def confirm_docker_run_artifact_creation(self, run_id: str, artifact_id: str, **kwargs):
+        raise NotImplementedError()
+
+    def create_docker_run(self, body, **kwargs):
+        raise NotImplementedError()
+
+    def create_docker_run_artifact(self, body, run_id, **kwargs):
+        raise NotImplementedError()
+
+    def get_docker_license_information(self, **kwargs):
+        raise NotImplementedError()
+
+    def get_docker_run_artifact_read_url_by_id(self, run_id, artifact_id, **kwargs):
+        raise NotImplementedError()
+
+    def get_docker_run_by_id(self, run_id, **kwargs):
+        raise NotImplementedError()
+
+    def get_docker_run_by_scheduled_id(self, scheduled_id, **kwargs):
+        raise NotImplementedError()
+
+    def get_docker_run_logs_by_id(self, run_id, **kwargs):
+        raise NotImplementedError()
+
+    def get_docker_run_report_read_url_by_id(self, run_id, **kwargs):
+        raise NotImplementedError()
+
+    def get_docker_run_report_write_url_by_id(self, run_id, **kwargs):
+        raise NotImplementedError()
+
+    def get_docker_runs_scheduled_by_state_and_labels(self, **kwargs):
+        raise NotImplementedError()
+
+    def get_docker_runs_scheduled_by_worker_id(self, worker_id, **kwargs):
+        raise NotImplementedError()
+
+    def get_docker_worker_config_by_id(self, config_id, **kwargs):
+        raise NotImplementedError()
+    
+    def get_docker_worker_configs(self, **kwargs):
+        raise NotImplementedError()
+    
+    def get_docker_worker_registry_entry_by_id(self, worker_id, **kwargs):
+        raise NotImplementedError()
+
+    def post_docker_authorization_request(self, body, **kwargs):
+        raise NotImplementedError()
+
+    def post_docker_usage_stats(self, body, **kwargs):
+        raise NotImplementedError()
+
+    def post_docker_worker_authorization_request(self, body, **kwargs):
+        raise NotImplementedError()
+
+    def update_docker_run_by_id(self, body, run_id, **kwargs):
+        raise NotImplementedError()
+
+    def update_docker_worker_config_by_id(self, body, config_id, **kwargs):
+        raise NotImplementedError()
+
+    def update_docker_worker_registry_entry_by_id(self, body, worker_id, **kwargs):
+        raise NotImplementedError()
+
+    def update_scheduled_docker_run_state_by_id(self, body, dataset_id, worker_id, scheduled_id, **kwargs):
+        raise NotImplementedError()
 
 class MockedVersioningApi(VersioningApi):
     def get_latest_pip_version(self, **kwargs):
@@ -1032,3 +1143,14 @@ class MockedApiWorkflowSetup(unittest.TestCase):
         self.api_workflow_client = MockedApiWorkflowClient(
             token=token, dataset_id=dataset_id
         )
+
+def _start_and_end_offset(
+    page_size: Optional[int], 
+    page_offset: Optional[int],
+) -> Union[Tuple[int, int], Tuple[None, None]]:
+    if page_size is None and page_offset is None:
+        return None, None
+    elif page_size is not None and page_offset is not None:
+        return page_offset, page_offset + page_size
+    else:
+        assert False, "page_size and page_offset must either both be None or both set"

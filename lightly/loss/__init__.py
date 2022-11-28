@@ -12,3 +12,4 @@ from lightly.loss.ntx_ent_loss import NTXentLoss
 from lightly.loss.swav_loss import SwaVLoss
 from lightly.loss.sym_neg_cos_sim_loss import SymNegCosineSimilarityLoss
 from lightly.loss.directclr_loss import InfoNCELoss
+from lightly.loss.vicreg_loss import VICRegLoss

@@ -1,7 +1,7 @@
 import lightly
 
 # Create the Lightly client to connect to the API.
-client = lightly.api.ApiWorkflowClient(token="TOKEN")
+client = lightly.api.ApiWorkflowClient(token="LIGHTLY_TOKEN")
 
 # Create a new dataset on the Lightly Platform.
 client.create_dataset('dataset-name')

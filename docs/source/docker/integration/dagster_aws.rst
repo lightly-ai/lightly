@@ -100,14 +100,14 @@ Make sure you have the API token and the worker id from the setup steps. Start t
     OUTPUT_DIR=/home/ubuntu/output_dir/
 
     # api
-    TOKEN=YOUR_LIGHTLY_TOKEN
+    LIGHTLY_TOKEN=YOUR_LIGHTLY_TOKEN
     WORKER_ID=MY_WORKER_ID
 
     # run command
     # this makes the Lightly Worker start up and wait for jobs
     docker run --shm-size="1024m" --gpus all --rm -it \
         lightly/worker:latest \
-        token=${TOKEN} \
+        token=${LIGHTLY_TOKEN} \
         worker.worker_id=${WORKER_ID}
 
 
@@ -302,7 +302,7 @@ Set the `YOUR_LIGHTLY_TOKEN`, `YOUR_DATASET_ID` accordingly.
 
     from dagster import solid
 
-    TOKEN: str = 'YOUR_LIGHTLY_TOKEN'
+    LIGHTLY_TOKEN: str = 'YOUR_LIGHTLY_TOKEN'
     DATASET_ID: str = 'YOUR_DATASET_ID'
 
 
@@ -355,7 +355,7 @@ Set the `YOUR_LIGHTLY_TOKEN`, `YOUR_DATASET_ID` accordingly.
 
         """
 
-        lightly_client = LightlyClient(TOKEN, DATASET_ID)
+        lightly_client = LightlyClient(LIGHTLY_TOKEN, DATASET_ID)
         lightly_client.run_lightly_worker()
 
 
