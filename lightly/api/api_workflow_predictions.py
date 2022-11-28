@@ -30,7 +30,8 @@ class _PredictionsMixin:
             schema:
                 The prediction task schema.
             prediction_version_id:
-                And id to distinguish different predictions for the same sample.
+                A numerical id (e.g timestamp) to distinguish different predictions of different model versions.
+                Use the same id if you don't require versioning or if you wish to overwrite the previous schema.
 
         Example:
           >>> import time
@@ -53,9 +54,7 @@ class _PredictionsMixin:
           >>>         PredictionTaskSchemaCategory(id=1, name="cat"),
           >>>     ],
           >>> )
-          >>> client.create_or_update_prediction_task_schema(
-          >>>     schema=schema
-          >>> )
+          >>> client.create_or_update_prediction_task_schema(schema=schema)
 
 
         """
@@ -80,7 +79,8 @@ class _PredictionsMixin:
                 The singletons can be from different tasks and different types.
 
             prediction_version_id:
-                And id to distinguish different predictions for the same sample.
+                 A numerical id (e.g timestamp) to distinguish different predictions of different model versions.
+                 Use the same id if you don't require versioning or if you wish to overwrite the previous schema.
 
             progress_bar:
                 Tqdm progress bar to show how many prediction files have already been

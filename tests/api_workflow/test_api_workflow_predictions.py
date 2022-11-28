@@ -26,7 +26,7 @@ def test_create_or_update_prediction_task_schema() -> None:
             PredictionTaskSchemaCategory(id=1, name="cat"),
         ],
     )
-    timestamp = int(time.time())
+    timestamp = 1234
     ApiWorkflowClient.create_or_update_prediction_task_schema(
         self=mocked_client,
         schema=schema,
@@ -58,7 +58,7 @@ def test_create_or_update_prediction() -> None:
     ]
 
     sample_id = "some_sample_id"
-    timestamp = int(time.time())
+    timestamp = 1234
     ApiWorkflowClient.create_or_update_prediction(
         self=mocked_client,
         sample_id=sample_id,
@@ -92,7 +92,7 @@ def test_create_or_update_prediction() -> None:
     ]
 
     sample_id = "some_sample_id"
-    timestamp = int(time.time())
+    timestamp = 1234
     ApiWorkflowClient.create_or_update_prediction(
         self=mocked_client,
         sample_id=sample_id,
@@ -124,7 +124,7 @@ def test_create_or_update_predictions() -> None:
         for i in range(4)
     }
 
-    timestamp = int(time.time())
+    timestamp = 1234
     ApiWorkflowClient.create_or_update_predictions(
         self=mocked_client,
         sample_id_to_prediction_singletons=sample_id_to_prediction_singletons_dummy,
