@@ -6,11 +6,11 @@ from lightly.loss.memory_bank import MemoryBankModule
 
 class TestNTXentLoss(unittest.TestCase):
 
-    def test_NegativeSize(self):
+    def test_init__negative_size(self):
         with self.assertRaises(ValueError):
             MemoryBankModule(size=-1)
 
-    def test_ForwardEasy(self):
+    def test_forward_easy(self):
         bsz = 3
         dim, size = 2, 9
         n = 33 * bsz
@@ -36,7 +36,7 @@ class TestNTXentLoss(unittest.TestCase):
 
             ptr = (ptr + bsz) % size
 
-    def test_Forward(self):
+    def test_forward(self):
         bsz = 3
         dim, size = 2, 10
         n = 33 * bsz
@@ -47,4 +47,20 @@ class TestNTXentLoss(unittest.TestCase):
             # see if there are any problems when the bank size
             # is no multiple of the batch size
             output = torch.randn(bsz, dim)
+            _, _ = memory_bank(output)
+
+    @unittest.skipUnless(torch.cuda.is_available(), "cuda not available")
+    def test_forward__cuda(self):
+        bsz = 3
+        dim, size = 2, 10
+        n = 33 * bsz
+        memory_bank = MemoryBankModule(size=size)
+        device = torch.device('cuda')
+        memory_bank.to(device=device)
+
+        for i in range(0, n, bsz):
+
+            # see if there are any problems when the bank size
+            # is no multiple of the batch size
+            output = torch.randn(bsz, dim, device=device)
             _, _ = memory_bank(output)
