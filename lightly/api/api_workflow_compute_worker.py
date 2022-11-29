@@ -55,6 +55,7 @@ class ComputeWorkerRunInfo:
             DockerRunState.COMPLETED,
             DockerRunState.ABORTED,
             DockerRunState.FAILED,
+            DockerRunState.CRASHED,
             STATE_SCHEDULED_ID_NOT_FOUND,
         ]
 
