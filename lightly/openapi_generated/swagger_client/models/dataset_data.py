@@ -42,6 +42,7 @@ class DatasetData(object):
         'n_samples': 'int',
         'size_in_bytes': 'int',
         'meta_data_configuration_id': 'MongoObjectID',
+        'datasources': 'list[MongoObjectID]',
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp',
         'datasource_processed_until_timestamp': 'TimestampSeconds',
@@ -59,6 +60,7 @@ class DatasetData(object):
         'n_samples': 'nSamples',
         'size_in_bytes': 'sizeInBytes',
         'meta_data_configuration_id': 'metaDataConfigurationId',
+        'datasources': 'datasources',
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt',
         'datasource_processed_until_timestamp': 'datasourceProcessedUntilTimestamp',
@@ -66,7 +68,7 @@ class DatasetData(object):
         'parent_dataset_id': 'parentDatasetId'
     }
 
-    def __init__(self, id=None, name=None, user_id=None, access_type=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, meta_data_configuration_id=None, created_at=None, last_modified_at=None, datasource_processed_until_timestamp=None, access_role=None, parent_dataset_id=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, name=None, user_id=None, access_type=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, meta_data_configuration_id=None, datasources=None, created_at=None, last_modified_at=None, datasource_processed_until_timestamp=None, access_role=None, parent_dataset_id=None, _configuration=None):  # noqa: E501
         """DatasetData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -81,6 +83,7 @@ class DatasetData(object):
         self._n_samples = None
         self._size_in_bytes = None
         self._meta_data_configuration_id = None
+        self._datasources = None
         self._created_at = None
         self._last_modified_at = None
         self._datasource_processed_until_timestamp = None
@@ -100,6 +103,8 @@ class DatasetData(object):
         self.size_in_bytes = size_in_bytes
         if meta_data_configuration_id is not None:
             self.meta_data_configuration_id = meta_data_configuration_id
+        if datasources is not None:
+            self.datasources = datasources
         self.created_at = created_at
         self.last_modified_at = last_modified_at
         if datasource_processed_until_timestamp is not None:
@@ -311,6 +316,27 @@ class DatasetData(object):
         """
 
         self._meta_data_configuration_id = meta_data_configuration_id
+
+    @property
+    def datasources(self):
+        """Gets the datasources of this DatasetData.  # noqa: E501
+
+
+        :return: The datasources of this DatasetData.  # noqa: E501
+        :rtype: list[MongoObjectID]
+        """
+        return self._datasources
+
+    @datasources.setter
+    def datasources(self, datasources):
+        """Sets the datasources of this DatasetData.
+
+
+        :param datasources: The datasources of this DatasetData.  # noqa: E501
+        :type: list[MongoObjectID]
+        """
+
+        self._datasources = datasources
 
     @property
     def created_at(self):

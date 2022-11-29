@@ -44,6 +44,7 @@ class DatasetDataEnriched(object):
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp',
         'meta_data_configuration_id': 'MongoObjectID',
+        'datasources': 'list[MongoObjectID]',
         'samples': 'list[MongoObjectID]',
         'n_tags': 'int',
         'n_embeddings': 'int'
@@ -61,12 +62,13 @@ class DatasetDataEnriched(object):
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt',
         'meta_data_configuration_id': 'metaDataConfigurationId',
+        'datasources': 'datasources',
         'samples': 'samples',
         'n_tags': 'nTags',
         'n_embeddings': 'nEmbeddings'
     }
 
-    def __init__(self, id=None, name=None, user_id=None, access_type=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, created_at=None, last_modified_at=None, meta_data_configuration_id=None, samples=None, n_tags=None, n_embeddings=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, name=None, user_id=None, access_type=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, created_at=None, last_modified_at=None, meta_data_configuration_id=None, datasources=None, samples=None, n_tags=None, n_embeddings=None, _configuration=None):  # noqa: E501
         """DatasetDataEnriched - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -83,6 +85,7 @@ class DatasetDataEnriched(object):
         self._created_at = None
         self._last_modified_at = None
         self._meta_data_configuration_id = None
+        self._datasources = None
         self._samples = None
         self._n_tags = None
         self._n_embeddings = None
@@ -102,6 +105,8 @@ class DatasetDataEnriched(object):
         self.last_modified_at = last_modified_at
         if meta_data_configuration_id is not None:
             self.meta_data_configuration_id = meta_data_configuration_id
+        if datasources is not None:
+            self.datasources = datasources
         self.samples = samples
         self.n_tags = n_tags
         self.n_embeddings = n_embeddings
@@ -354,6 +359,27 @@ class DatasetDataEnriched(object):
         """
 
         self._meta_data_configuration_id = meta_data_configuration_id
+
+    @property
+    def datasources(self):
+        """Gets the datasources of this DatasetDataEnriched.  # noqa: E501
+
+
+        :return: The datasources of this DatasetDataEnriched.  # noqa: E501
+        :rtype: list[MongoObjectID]
+        """
+        return self._datasources
+
+    @datasources.setter
+    def datasources(self, datasources):
+        """Sets the datasources of this DatasetDataEnriched.
+
+
+        :param datasources: The datasources of this DatasetDataEnriched.  # noqa: E501
+        :type: list[MongoObjectID]
+        """
+
+        self._datasources = datasources
 
     @property
     def samples(self):
