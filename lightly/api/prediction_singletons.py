@@ -71,8 +71,6 @@ class PredictionSingletonSemanticSegmentationRepr(PredictionSingletonRepr):
         taskName: str,
         categoryId: int,
         score: float,
-        cropDatasetId: str,
-        cropSampleId: str,
         segmentation: str,
         probabilities: Optional[List[float]] = None,
     ):
@@ -81,8 +79,6 @@ class PredictionSingletonSemanticSegmentationRepr(PredictionSingletonRepr):
             taskName=taskName,
             categoryId=categoryId,
             score=score,
-            cropDatasetId=cropDatasetId,
-            cropSampleId=cropSampleId,
         )
         self.segmentation = segmentation
         self.probabilities = probabilities
