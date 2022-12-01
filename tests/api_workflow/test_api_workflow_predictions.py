@@ -1,7 +1,4 @@
-import time
-from unittest.mock import MagicMock, _Call, call
-
-from pytest_mock import MockerFixture
+from unittest.mock import MagicMock, call
 
 from lightly.api import ApiWorkflowClient
 from lightly.api.prediction_singletons import PredictionSingletonClassificationRepr

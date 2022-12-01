@@ -1,20 +1,13 @@
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List, Union, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import tqdm
 
 from lightly.api.prediction_singletons import (
-    PredictionSingletonClassificationRepr,
     PredictionSingletonRepr,
 )
-from lightly.api.utils import retry
 from lightly.openapi_generated.swagger_client import (
     PredictionTaskSchema,
-    SamplePartialMode,
-    PredictionSingletonClassification,
-    PredictionSingletonObjectDetection,
-    PredictionSingletonInstanceSegmentation,
-    PredictionSingletonKeypointDetection,
 )
 
 
