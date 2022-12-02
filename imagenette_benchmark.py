@@ -71,11 +71,13 @@ num_workers = 12
 memory_bank_size = 4096
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 3
+max_epochs = 800
 knn_k = 200
 knn_t = 0.1
 classes = 10
-input_size = 128
+original_size = 128
+reduction_factor = 4
+input_size = original_size // reduction_factor
 
 # Set to True to enable Distributed Data Parallel training.
 distributed = False
@@ -120,19 +122,19 @@ collate_fn = lightly.data.SimCLRCollateFunction(
 
 # Multi crop augmentation for SwAV
 swav_collate_fn = lightly.data.SwaVCollateFunction(
-    crop_sizes=[128, 64],
+    crop_sizes=[input_size, input_size//2],
     crop_counts=[2, 6] # 2 crops @ 128x128px and 6 crops @ 64x64px
 )
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
 dino_collate_fn = lightly.data.DINOCollateFunction(
-    global_crop_size=128,
-    local_crop_size=64,
+    global_crop_size=input_size,
+    local_crop_size=input_size//2,
 )
 
 # Two crops for SMoG
 smog_collate_function = lightly.data.collate.SMoGCollateFunction(
-    crop_sizes=[128, 128],
+    crop_sizes=[input_size, input_size],
     crop_counts=[1, 1],
     crop_min_scales=[0.2, 0.2],
     crop_max_scales=[1.0, 1.0],
@@ -142,7 +144,7 @@ smog_collate_function = lightly.data.collate.SMoGCollateFunction(
 mae_collate_fn = lightly.data.MAECollateFunction()
 
 # Multi crop augmentation for MSN
-msn_collate_fn = lightly.data.MSNCollateFunction(random_size=128, focal_size=64)
+msn_collate_fn = lightly.data.MSNCollateFunction(random_size=input_size, focal_size=input_size//2)
 
 normalize_transform = torchvision.transforms.Normalize(
     mean=lightly.data.collate.imagenet_normalize['mean'],
@@ -152,7 +154,7 @@ normalize_transform = torchvision.transforms.Normalize(
 # No additional augmentations for the test set
 test_transforms = torchvision.transforms.Compose([
     torchvision.transforms.Resize(input_size),
-    torchvision.transforms.CenterCrop(128),
+    torchvision.transforms.CenterCrop(input_size),
     torchvision.transforms.ToTensor(),
     normalize_transform,
 ])
@@ -961,7 +963,7 @@ models = [
     MocoModel,
     NNCLRModel,
     SimCLRModel,
-    SimSiamModel,
+    # SimSiamModel,
     # SwaVModel,
     # SMoGModel
 ]
@@ -977,7 +979,7 @@ for BenchmarkModel in models:
     for seed in range(n_runs):
 
         wandb_logger = WandbLogger(
-            project="mini_bench", entity="maggu", name=f"{model_name}--training--{seed}", log_model="all"
+            project="mini_bench", entity="maggu", name=f"{model_name}--_reduction--{reduction_factor}--training--{seed}", log_model="all"
         )
 
         pl.seed_everything(seed)

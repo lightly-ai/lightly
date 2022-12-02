@@ -156,11 +156,8 @@ class LightlyDataset:
                  Callable[[datasets.VisionDataset, int], str] = None,
                  filenames: List[str] = None,
                  tqdm_args: Dict[str, Any] = None,
-                 num_workers_video_frame_counting: int = 0,
-                 frames_per_video: int = 1,
+                 num_workers_video_frame_counting: int = 0
                  ):
-
-
 
         # can pass input_dir=None to create an "empty" dataset
         self.input_dir = input_dir
@@ -182,8 +179,7 @@ class LightlyDataset:
                 transform,
                 is_valid_file=is_valid_file,
                 tqdm_args=tqdm_args,
-                num_workers_video_frame_counting=num_workers_video_frame_counting,
-                frames_per_video=frames_per_video,
+                num_workers_video_frame_counting=num_workers_video_frame_counting
             )
         elif transform is not None:
             raise ValueError(
@@ -250,22 +246,8 @@ class LightlyDataset:
             The image, target, and filename of the item at index.
 
         """
-        sample = None
-        target = None
-        fname = None
-
         fname = self.index_to_filename(self.dataset, index)
-
-
-        # modified for video datasets
-
-        try:
-            sample, audio, target = self.dataset.__getitem__(index)
-        except ValueError:
-            try:
-                sample, target = self.dataset.__getitem__(index)
-            except ValueError:
-                sample = self.dataset.__getitem__(index)
+        sample, target = self.dataset.__getitem__(index)
 
         return sample, target, fname
 
