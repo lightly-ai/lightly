@@ -1211,18 +1211,21 @@ for BenchmarkModel in models:
                 benchmark_model, log="all", log_graph=False
             )
 
+            # trainer = pl.Trainer(
+            #     max_epochs=max_epochs,
+            #     accelerator="cpu",
+            #     default_root_dir=logs_root_dir,
+            #     strategy="dp",
+            #     num_processes=0,
+            # )
             trainer = pl.Trainer(
                 max_epochs=max_epochs,
-                # gpus=0,
-                accelerator="cpu",
+                gpus=gpus,
                 default_root_dir=logs_root_dir,
-                strategy="dp",
-                # strategy=distributed_backend,
-                # sync_batchnorm=sync_batchnorm,
-                # logger=wandb_logger,
-                # callbacks=[checkpoint_callback],
-                num_processes=0,
-                # devices=1,
+                strategy=distributed_backend,
+                sync_batchnorm=sync_batchnorm,
+                logger=wandb_logger,
+                callbacks=[checkpoint_callback]
             )
             start = time.time()
             trainer.fit(
