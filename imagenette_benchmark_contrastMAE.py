@@ -99,8 +99,8 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1  # optional, increase to create multiple runs and report mean + std
-# batch_size = 256
-batch_size = 32
+batch_size = 256
+# batch_size = 32
 lr_factor = batch_size / 256  #  scales the learning rate linearly with batch size
 
 # use a GPU if available
