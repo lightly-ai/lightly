@@ -67,7 +67,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 import os
 
 # wandb offline
-os.environ['WANDB_MODE'] = 'offline'
+# os.environ['WANDB_MODE'] = 'offline'
 
 import wandb
 
