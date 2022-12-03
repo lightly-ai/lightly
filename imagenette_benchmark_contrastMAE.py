@@ -1177,7 +1177,7 @@ for BenchmarkModel in models:
         for seed in range(n_runs):
 
             wandb_logger = WandbLogger(
-                project="cvmae_benchmark", entity="maggu", name=f"{model_name}--training--{seed}", log_model="all"
+                project="cvmae_benchmark", entity="maggu", name=f"{model_name}--training--{seed}"
             )
 
             pl.seed_everything(seed)
@@ -1208,7 +1208,7 @@ for BenchmarkModel in models:
             )
 
             wandb_logger.watch(
-                benchmark_model, log="all", log_graph=False
+                benchmark_model, log_graph=False
             )
 
             # trainer = pl.Trainer(
