@@ -749,9 +749,6 @@ class MAEModel(BenchmarkModule):
             mask_ratio=self.mask_ratio,
             device=images.device,
         )
-        print(images.shape)
-        print(idx_keep.shape)
-        print(idx_mask.shape)
         x_encoded = self.forward_encoder(images, idx_keep)
         x_pred = self.forward_decoder(x_encoded, idx_keep, idx_mask)
 
