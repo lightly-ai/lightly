@@ -923,7 +923,9 @@ class contrastMAEModel(BenchmarkModule):
 
         loss_reconstruction = self.criterion(x_pred, target)
 
-        loss = 0.1 * loss_contrastive + loss_reconstruction
+        # loss = loss_contrastive + loss_reconstruction
+        # loss as average of both losses
+        loss = 0.5 * (loss_contrastive + loss_reconstruction)
 
         self.log('train_loss_ssl', loss)
         self.log('train_loss_contrastive', loss_contrastive)
