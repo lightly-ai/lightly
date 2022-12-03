@@ -912,8 +912,6 @@ class contrastMAEModel(BenchmarkModule):
             mask_ratio=self.mask_ratio,
             device=x.device,
         )
-        print(idx_keep.shape, idx_mask.shape)
-        print(x.shape)
 
         x_encoded = self.forward_encoder(x, idx_keep)
         x_pred = self.forward_decoder(x_encoded, idx_keep, idx_mask)
@@ -925,7 +923,6 @@ class contrastMAEModel(BenchmarkModule):
 
         loss_reconstruction = self.criterion(x_pred, target)
 
-        print(loss_contrastive, loss_reconstruction)
         loss = 0.1 * loss_contrastive + loss_reconstruction
 
         self.log('train_loss_ssl', loss)
