@@ -1134,16 +1134,16 @@ class SMoGModel(BenchmarkModule):
 
 models = [
     # BarlowTwinsModel,
-    contrastMAEModel,
     BYOLModel,
+    MocoModel,
+    SimCLRModel,
+    contrastMAEModel,
     # DCL,
     # DCLW,
     # DINOModel,
     #  MAEModel, # disabled by default because MAE uses larger images with size 224
     #  MSNModel, # disabled by default because MSN uses larger images with size 224
-    MocoModel,
     # NNCLRModel,
-    SimCLRModel,
     # SimSiamModel,
     # SwaVModel,
     # SMoGModel,
