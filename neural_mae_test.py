@@ -53,7 +53,7 @@ input_size = original_size // reduction_factor
 
 # benchmark
 n_runs = 1  # optional, increase to create multiple runs and report mean + std
-batch_size = 28
+batch_size = 1024
 lr_factor = batch_size / 256  #  scales the learning rate linearly with batch size
 
 # use a GPU if available
