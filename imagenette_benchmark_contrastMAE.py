@@ -67,7 +67,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 import os
 
 # wandb offline
-# os.environ['WANDB_MODE'] = 'offline'
+os.environ['WANDB_MODE'] = 'offline'
 
 import wandb
 
@@ -802,7 +802,7 @@ class contrastMAEModel(BenchmarkModule):
             dropout=0,
             attention_dropout=0,
         )
-        self.criterion = nn.MSELoss()
+        self.criterion_reconstruction = nn.MSELoss()
         self.contrastive_type = contrastive_type
         feature_dim = 768
 
@@ -825,7 +825,7 @@ class contrastMAEModel(BenchmarkModule):
             utils.deactivate_requires_grad(self.backbone_momentum)
             utils.deactivate_requires_grad(self.projection_head_momentum)
 
-            self.criterion = lightly.loss.NegativeCosineSimilarity()
+            self.contrastive_criterion = lightly.loss.NegativeCosineSimilarity()
         elif self.contrastive_type == 'moco':
             self.projection_head = heads.MoCoProjectionHead(feature_dim, 2048, 128)
             self.backbone_momentum = copy.deepcopy(self.backbone)
@@ -834,7 +834,7 @@ class contrastMAEModel(BenchmarkModule):
             utils.deactivate_requires_grad(self.projection_head_momentum)
 
             # create our loss with the optional memory bank
-            self.criterion = lightly.loss.NTXentLoss(
+            self.contrastive_criterion = lightly.loss.NTXentLoss(
                 temperature=0.1,
                 memory_bank_size=memory_bank_size)
         else:
@@ -869,7 +869,7 @@ class contrastMAEModel(BenchmarkModule):
             p1 = self.prediction_head(self.projection_head(self.backbone(x1).flatten(start_dim=1)))
             z1 = self.projection_head_momentum(self.backbone_momentum(x1).flatten(start_dim=1)).detach()
 
-            loss_contrastive = 0.5 * (self.criterion(p0, z1) + self.criterion(p1, z0))
+            loss_contrastive = 0.5 * (self.contrastive_criterion(p0, z1) + self.contrastive_criterion(p1, z0))
             # x_encoded = self.forward_encoder(x)
             # x_encoded = self.projection_head(x_encoded)
             # x_encoded = x_encoded.reshape(batch_size, 2, -1).mean(dim=1)
@@ -891,8 +891,8 @@ class contrastMAEModel(BenchmarkModule):
 
             # We use a symmetric loss (model trains faster at little compute overhead)
             # https://colab.research.google.com/github/facebookresearch/moco/blob/colab-notebook/colab/moco_cifar10_demo.ipynb
-            loss_1 = self.criterion(*step(x0, x1))
-            loss_2 = self.criterion(*step(x1, x0))
+            loss_1 = self.contrastive_criterion(*step(x0, x1))
+            loss_2 = self.contrastive_criterion(*step(x1, x0))
 
             loss_contrastive = 0.5 * (loss_1 + loss_2)
             # self.log('train_loss_ssl', loss)
@@ -901,7 +901,7 @@ class contrastMAEModel(BenchmarkModule):
             z0 = self.forward(self.projection_head(self.backbone(x0).flatten(start_dim=1)))
             z1 = self.forward(self.projection_head(self.backbone(x1).flatten(start_dim=1)))
 
-            loss_contrastive = self.criterion(z0, z1)
+            loss_contrastive = self.contrastive_criterion(z0, z1)
             # self.log('train_loss_ssl', loss)
 
         x = torch.cat([x0, x1], dim=0)
@@ -921,7 +921,7 @@ class contrastMAEModel(BenchmarkModule):
         # must adjust idx_mask for missing class token
         target = utils.get_at_index(patches, idx_mask - 1)
 
-        loss_reconstruction = self.criterion(x_pred, target)
+        loss_reconstruction = self.criterion_reconstruction(x_pred, target)
 
         # loss = loss_contrastive + loss_reconstruction
         # loss as average of both losses
@@ -1153,7 +1153,7 @@ bench_results = dict()
 from pytorch_lightning.loggers import WandbLogger
 
 contrastive_types = [
-    'byol',
+    # 'byol',
     'moco',
     'simclr',
 ]
