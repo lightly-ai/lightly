@@ -43,6 +43,7 @@ wandb.init(
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
 max_epochs = 800
+num_workers = 8
 knn_k = 200
 knn_t = 0.1
 classes = 10
@@ -191,14 +192,14 @@ class MAE(nn.Module):
         return x_pred_images, target_images
 
 
-dataset_path = "./mc_rtt_smoothing_output_val.h5"
-# load data
-with h5py.File(dataset_path, "r") as f:
-    data = f["mc_rtt"]
-    X_train = np.asarray(data["train_rates_heldin"])
-    X_val = np.asarray(data["eval_rates_heldin"])
-    y_train = np.array(data["train_rates_heldout"])
-    y_val = np.array(data["eval_rates_heldout"])
+# dataset_path = "./mc_rtt_smoothing_output_val.h5"
+# # load data
+# with h5py.File(dataset_path, "r") as f:
+#     data = f["mc_rtt"]
+#     X_train = np.asarray(data["train_rates_heldin"])
+#     X_val = np.asarray(data["eval_rates_heldin"])
+#     y_train = np.array(data["train_rates_heldout"])
+#     y_val = np.array(data["eval_rates_heldout"])
 
 # X_train = X_train[:, np.newaxis, :, :]
 # X_val = X_val[:, np.newaxis, :, :]
@@ -249,8 +250,8 @@ for folder_id, folder in enumerate(os.listdir(path_to_train)):
 train_images = np.array(train_images)
 train_labels = np.array(train_labels)
 
-train_images = train_images[:100]
-train_labels = train_labels[:100]
+# train_images = train_images[:100]
+# train_labels = train_labels[:100]
 
 train_dataset = torch.utils.data.TensorDataset(
     torch.from_numpy(train_images),
@@ -278,14 +279,14 @@ dataloader = torch.utils.data.DataLoader(
     # collate_fn=collate_fn,
     shuffle=False,
     drop_last=False,
-    num_workers=0,
+    num_workers=num_workers,
 )
 
 criterion = nn.MSELoss()
 optimizer = torch.optim.AdamW(model.parameters(), lr=1.5e-4)
 
 print("Starting Training")
-for epoch in range(10):
+for epoch in range(max_epochs):
     total_loss = 0
     # for images, _, _ in tqdm(dataloader):
     for images, labels in tqdm(dataloader):
@@ -313,7 +314,7 @@ for epoch in range(10):
     # log with wandb
     wandb.log({"loss": avg_loss})
 
-    if epoch % 1 == 0:
+    if epoch % 50 == 0:
         x_pred_images, target_images = model.predict(images)
         vis_images = torch.cat(
             [rearrange(images, 'b c h w -> b h w c'), target_images.to(device), x_pred_images.to(device)], dim=2)
