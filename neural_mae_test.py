@@ -10,6 +10,7 @@ import math
 
 from PIL import Image, ImageOps
 from torchvision.datasets import ImageFolder
+from torchvision.models.vision_transformer import _vision_transformer
 from torchvision.transforms import transforms
 from tqdm import tqdm
 
@@ -27,7 +28,6 @@ from einops import rearrange
 import os
 
 # os.environ['WANDB_MODE'] = 'offline'
-
 import wandb
 
 wandb.init(
@@ -50,6 +50,11 @@ classes = 10
 original_size = 128
 reduction_factor = 4
 input_size = original_size // reduction_factor
+masking_ratio = 0.75
+patch_size = 16
+
+# dataset_name = 'imagenette'
+dataset_name = 'neuro'
 
 # benchmark
 n_runs = 1  # optional, increase to create multiple runs and report mean + std
@@ -68,8 +73,18 @@ class MAE(nn.Module):
         vit = torchvision.models.vit_b_32(pretrained=False)
 
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
-        self.mask_ratio = 0.75
-        self.patch_size = vit.patch_size
+        self.mask_ratio = masking_ratio
+        # self.patch_size = vit.patch_size
+        self.patch_size = patch_size
+        vit = _vision_transformer(
+                    patch_size=self.patch_size,
+                    num_layers=12,
+                    num_heads=12,
+                    hidden_dim=768,
+                    mlp_dim=3072,
+                    progress = True,
+                    weights=None,
+        )
         self.sequence_length = vit.seq_length
         self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
         self.backbone = masked_autoencoder.MAEBackbone.from_vit(vit)
@@ -192,83 +207,98 @@ class MAE(nn.Module):
         return x_pred_images, target_images
 
 
-# dataset_path = "./mc_rtt_smoothing_output_val.h5"
-# # load data
-# with h5py.File(dataset_path, "r") as f:
-#     data = f["mc_rtt"]
-#     X_train = np.asarray(data["train_rates_heldin"])
-#     X_val = np.asarray(data["eval_rates_heldin"])
-#     y_train = np.array(data["train_rates_heldout"])
-#     y_val = np.array(data["eval_rates_heldout"])
+    def predict_full(self, images):
+        x_encoded = self.forward_encoder(images)
+        x_pred = self.forward_decoder(x_encoded)
+        x_pred = x_pred[:, 1:] # drop class token
 
-# X_train = X_train[:, np.newaxis, :, :]
-# X_val = X_val[:, np.newaxis, :, :]
-# y_train = y_train[:, np.newaxis, :, :]
-# y_val = y_val[:, np.newaxis, :, :]
-# # copy second dimension to make it 3d
-# X_train = np.repeat(X_train, 3, axis=1)
-# X_val = np.repeat(X_val, 3, axis=1)
-# y_train = np.repeat(y_train, 3, axis=1)
-# y_val = np.repeat(y_val, 3, axis=1)
-#
-# pad_size = 224
-# # zero pad dimensions 2 and 3 to make them 128x128
-# X_train = np.pad(X_train, ((0, 0), (0, 0), (0, pad_size - X_train.shape[2]), (0, pad_size - X_train.shape[3])), 'constant')
-# X_val = np.pad(X_val, ((0, 0), (0, 0), (0, pad_size - X_val.shape[2]), (0, pad_size - X_val.shape[3])), 'constant')
+        # reshape back into image
+        x_pred = x_pred.reshape(shape=(x_pred.shape[0], x_pred.shape[1], self.patch_size, self.patch_size, 3))
+        x_pred_images = torch.zeros(size=(x_pred.shape[0], images.shape[2], images.shape[3], images.shape[1]))
+        for image_id in range(x_pred.shape[0]):
 
-# torch dataset from numpy arrays
-# train_dataset = torch.utils.data.TensorDataset(
-#     torch.from_numpy(X_train).float(),
-#     torch.from_numpy(y_train).float(),
-# )
-# val_dataset = torch.utils.data.TensorDataset(
-#     torch.from_numpy(X_val).float(), torch.from_numpy(y_val).float()
-# )
+            for idx in range(x_pred.shape[1]):
+                i, j = idx // (images.shape[2] / self.patch_size), idx % (images.shape[3] / self.patch_size)
+                x_pred_images[image_id, int(i * self.patch_size):int((i + 1) * self.patch_size), int(j * self.patch_size):int((j + 1) * self.patch_size), :] = x_pred[image_id, idx, :, :, :]
 
-path_to_train = './datasets/imagenette2-160/train/'
-path_to_test = './datasets/imagenette2-160/val/'
+        return x_pred_images
 
-# load each image into a list
-train_images = []
-train_labels = []
-for folder_id, folder in enumerate(os.listdir(path_to_train)):
-    if folder == '.DS_Store':
-        continue
-    for file in os.listdir(path_to_train + folder):
-        img_path = path_to_train + folder + '/' + file
-        # img = np.array(, dtype='uint8')
-        img = Image.open(img_path)
-        pad_size = 224
-        # pad image using PIL
-        img = ImageOps.expand(img, border=(0, 0, pad_size - img.size[0], pad_size - img.size[1]), fill=0)
-        img = np.array(img, dtype='uint8')
-        # make image 3d
-        if img.ndim == 2:
-            img = np.repeat(img[:, :, np.newaxis], 3, axis=2)
-        train_images.append(img)
-        train_labels.append(folder_id)
-train_images = np.array(train_images)
-train_labels = np.array(train_labels)
 
-# train_images = train_images[:100]
-# train_labels = train_labels[:100]
+original_shape = ()
+if dataset_name == 'neuro':
+    dataset_path = "./mc_rtt_smoothing_output_val.h5"
+    # load data
+    with h5py.File(dataset_path, "r") as f:
+        data = f["mc_rtt"]
+        X_train = np.asarray(data["train_rates_heldin"])
+        X_val = np.asarray(data["eval_rates_heldin"])
+        y_train = np.array(data["train_rates_heldout"])
+        y_val = np.array(data["eval_rates_heldout"])
 
-train_dataset = torch.utils.data.TensorDataset(
-    torch.from_numpy(train_images),
-    torch.from_numpy(train_labels),
-)
+    X_train = X_train[:, np.newaxis, :, :]
+    X_val = X_val[:, np.newaxis, :, :]
+    y_train = y_train[:, np.newaxis, :, :]
+    y_val = y_val[:, np.newaxis, :, :]
+    # copy second dimension to make it 3d
+    X_train = np.repeat(X_train, 3, axis=1)
+    X_val = np.repeat(X_val, 3, axis=1)
+    y_train = np.repeat(y_train, 3, axis=1)
+    y_val = np.repeat(y_val, 3, axis=1)
 
-vit = torchvision.models.vit_b_16(pretrained=False)
+    # original shape
+    original_shape = (X_train.shape[2], X_train.shape[3], X_train.shape[1])
+    pad_size = 224
+    # zero pad dimensions 2 and 3 to make them 128x128
+    X_train = np.pad(X_train, ((0, 0), (0, 0), (0, pad_size - X_train.shape[2]), (0, pad_size - X_train.shape[3])), 'constant')
+    X_val = np.pad(X_val, ((0, 0), (0, 0), (0, pad_size - X_val.shape[2]), (0, pad_size - X_val.shape[3])), 'constant')
+
+    # torch dataset from numpy arrays
+    train_dataset = torch.utils.data.TensorDataset(
+        torch.from_numpy(X_train).float(),
+        torch.from_numpy(y_train).float(),
+    )
+    val_dataset = torch.utils.data.TensorDataset(
+        torch.from_numpy(X_val).float(), torch.from_numpy(y_val).float()
+    )
+
+elif dataset_name == 'imagenette':
+    path_to_train = './datasets/imagenette2-160/train/'
+    path_to_test = './datasets/imagenette2-160/val/'
+
+    # load each image into a list
+    train_images = []
+    train_labels = []
+    for folder_id, folder in enumerate(os.listdir(path_to_train)):
+        if folder == '.DS_Store':
+            continue
+        for file in os.listdir(path_to_train + folder):
+            img_path = path_to_train + folder + '/' + file
+            # img = np.array(, dtype='uint8')
+            img = Image.open(img_path)
+            pad_size = 224
+            # pad image using PIL
+            img = ImageOps.expand(img, border=(0, 0, pad_size - img.size[0], pad_size - img.size[1]), fill=0)
+            img = np.array(img, dtype='uint8')
+            # make image 3d
+            if img.ndim == 2:
+                img = np.repeat(img[:, :, np.newaxis], 3, axis=2)
+            train_images.append(img)
+            train_labels.append(folder_id)
+    train_images = np.array(train_images)
+    train_labels = np.array(train_labels)
+
+    train_dataset = torch.utils.data.TensorDataset(
+        torch.from_numpy(train_images),
+        torch.from_numpy(train_labels),
+    )
+else:
+    raise ValueError('Dataset not supported')
+
 model = MAE()
-
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
 dataset = LightlyDataset.from_torch_dataset(train_dataset)
-
-# or create a dataset from a folder containing images or videos:
-# dataset = LightlyDataset("path/to/folder")
-
 
 collate_fn = MAECollateFunction()
 
@@ -292,13 +322,13 @@ for epoch in range(max_epochs):
     for images, labels in tqdm(dataloader):
         images = images.to(device)
 
-        images = rearrange(images, 'b h w c -> b c h w')
-
-        # train transform
-        images = images[:, :, 0:224, 0:224]
-        images = images.float() / 255.
-        images = images - 0.5
-        images = images * 2
+        if dataset_name == 'imagenette':
+            images = rearrange(images, 'b h w c -> b c h w')
+            # train transform
+            images = images[:, :, 0:224, 0:224]
+            images = images.float() / 255.
+            images = images - 0.5
+            images = images * 2
 
         predictions, targets = model(images)
         loss = criterion(predictions, targets)
@@ -314,11 +344,18 @@ for epoch in range(max_epochs):
 
     if epoch % 50 == 0:
         x_pred_images, target_images = model.predict(images)
+        images = rearrange(images, 'b c h w -> b h w c')
+        if dataset_name == 'neuro':
+            print('neuro')
+            x_pred_images = x_pred_images[:, 0:original_shape[0], 0:original_shape[1], :]
+            target_images = target_images[:, 0:original_shape[0], 0:original_shape[1], :]
+            images = images[:, 0:original_shape[0], 0:original_shape[1], :]
         vis_images = torch.cat(
-            [rearrange(images, 'b c h w -> b h w c'), target_images.to(device), x_pred_images.to(device)], dim=2)
-        vis_images /= 2
-        vis_images += 0.5
-        vis_images *= 255
+            [images, target_images.to(device), x_pred_images.to(device)], dim=2)
+        if dataset_name == 'imagenette':
+            vis_images /= 2
+            vis_images += 0.5
+            vis_images *= 255
         vis_images = vis_images[:8]
         vis_images = rearrange(vis_images, 'b h w c -> (b h) w c')
         # to unit8 using torch
@@ -332,3 +369,17 @@ for epoch in range(max_epochs):
             },
             step=epoch,
         )
+
+        # if dataset_name == 'neuro':
+        #     # evaluate on validation set
+        #     x_pred_images, target_images = model.predict(images)
+        #     # extract original shape
+        #     x_pred_images = x_pred_images[:, 0:original_shape[0], 0:original_shape[1], :]
+        #     target_images = target_images[:, 0:original_shape[0], 0:original_shape[1], :]
+        #     # compute mse
+        #     # visualize images
+        #     vis_images = torch.cat([target_images.to(device), x_pred_images.to(device)], dim=2)
+        #     vis_images = rearrange(vis_images, 'b h w c -> (b h) w c')
+        #     # to unit8 using torch
+        #     vis_images = vis_images.detach().cpu().numpy()
+        #     print('d')
