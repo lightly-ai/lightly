@@ -32,6 +32,7 @@ class SelectionInputType(object):
     SCORES = "SCORES"
     METADATA = "METADATA"
     PREDICTIONS = "PREDICTIONS"
+    RANDOM = "RANDOM"
 
     """
     Attributes:
