@@ -334,7 +334,7 @@ If you want to cite the framework feel free to use this:
 ```bibtex
 @article{susmelj2020lightly,
   title={Lightly},
-  author={Igor Susmelj, Matthias Heller, Philipp Wirth, Jeremy Prescott, Malte Ebner et al.},
+  author={Igor Susmelj and Matthias Heller and Philipp Wirth and Jeremy Prescott and Malte Ebner et al.},
   journal={GitHub. Note: https://github.com/lightly-ai/lightly},
   year={2020}
 }
