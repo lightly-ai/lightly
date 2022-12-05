@@ -1,14 +1,10 @@
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List, Optional, Tuple
+from typing import List, Mapping, Optional, Sequence, Tuple
 
 import tqdm
 
-from lightly.api.prediction_singletons import (
-    PredictionSingletonRepr,
-)
-from lightly.openapi_generated.swagger_client import (
-    PredictionTaskSchema,
-)
+from lightly.api.prediction_singletons import PredictionSingletonRepr
+from lightly.openapi_generated.swagger_client import PredictionTaskSchema
 
 
 class _PredictionsMixin:
@@ -59,7 +55,7 @@ class _PredictionsMixin:
 
     def create_or_update_predictions(
         self,
-        sample_id_to_prediction_singletons: Dict[str, List[PredictionSingletonRepr]],
+        sample_id_to_prediction_singletons: Mapping[str, Sequence[PredictionSingletonRepr]],
         prediction_version_id: int = -1,
         progress_bar: Optional[tqdm.tqdm] = None,
         max_workers: int = 8,
@@ -116,7 +112,7 @@ class _PredictionsMixin:
 
         def upload_prediction(
             sample_id_prediction_singletons_tuple: Tuple[
-                str, List[PredictionSingletonRepr]
+                str, Sequence[PredictionSingletonRepr]
             ]
         ) -> None:
             (sample_id, prediction_singletons) = sample_id_prediction_singletons_tuple
@@ -136,7 +132,7 @@ class _PredictionsMixin:
     def create_or_update_prediction(
         self,
         sample_id: str,
-        prediction_singletons: List[PredictionSingletonRepr],
+        prediction_singletons: Sequence[PredictionSingletonRepr],
         prediction_version_id: int = -1,
     ) -> None:
         """Creates or updates the predictions for one specific sample

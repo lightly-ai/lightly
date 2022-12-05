@@ -33,7 +33,7 @@ class PredictionSingletonSemanticSegmentation(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'segmentation': 'str',
+        'segmentation': 'list[int]',
         'probabilities': 'Probabilities'
     }
 
@@ -60,10 +60,10 @@ class PredictionSingletonSemanticSegmentation(object):
     def segmentation(self):
         """Gets the segmentation of this PredictionSingletonSemanticSegmentation.  # noqa: E501
 
-        Run Length Encoding (RLE) as outlined by the coco format https://cocodataset.org/#format-results   # noqa: E501
+        Run Length Encoding (RLE) as outlined by https://docs.lightly.ai/docs/prediction-format#semantic-segmentation   # noqa: E501
 
         :return: The segmentation of this PredictionSingletonSemanticSegmentation.  # noqa: E501
-        :rtype: str
+        :rtype: list[int]
         """
         return self._segmentation
 
@@ -71,10 +71,10 @@ class PredictionSingletonSemanticSegmentation(object):
     def segmentation(self, segmentation):
         """Sets the segmentation of this PredictionSingletonSemanticSegmentation.
 
-        Run Length Encoding (RLE) as outlined by the coco format https://cocodataset.org/#format-results   # noqa: E501
+        Run Length Encoding (RLE) as outlined by https://docs.lightly.ai/docs/prediction-format#semantic-segmentation   # noqa: E501
 
         :param segmentation: The segmentation of this PredictionSingletonSemanticSegmentation.  # noqa: E501
-        :type: str
+        :type: list[int]
         """
         if self._configuration.client_side_validation and segmentation is None:
             raise ValueError("Invalid value for `segmentation`, must not be `None`")  # noqa: E501

@@ -48,9 +48,9 @@ class PredictionSingletonObjectDetectionRepr(PredictionSingletonRepr):
         taskName: str,
         categoryId: int,
         score: float,
-        cropDatasetId: str,
-        cropSampleId: str,
         bbox: List[int],
+        cropDatasetId: Optional[str] = None,
+        cropSampleId: Optional[str] = None,
         probabilities: Optional[List[float]] = None,
     ):
         super().__init__(
@@ -71,7 +71,7 @@ class PredictionSingletonSemanticSegmentationRepr(PredictionSingletonRepr):
         taskName: str,
         categoryId: int,
         score: float,
-        segmentation: str,
+        segmentation: List[int],
         probabilities: Optional[List[float]] = None,
     ):
         super().__init__(
