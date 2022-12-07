@@ -82,7 +82,7 @@ num_workers = 12
 memory_bank_size = 4096
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 1
+max_epochs = 800
 knn_k = 200
 knn_t = 0.1
 classes = 10
@@ -1053,8 +1053,8 @@ class MSNModel(BenchmarkModule):
             anchors_out = torch.cat([anchors_out, sobel_anchors_out], dim=0)
         elif msn_aug_mode == 'v2':
             out_anchors = []
-            for i in range(10):
-                kernel = torch.randn(1, 3, 3, 3).to(self.device)
+            for i in range(5):
+                kernel = torch.randn(3, 3, 3, 3).to(self.device)
                 test = F.conv2d(anchors, kernel, padding=1)
                 out_anchors.append(test)
             out_anchors = torch.cat(out_anchors, dim=0)
