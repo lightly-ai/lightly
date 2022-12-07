@@ -3,7 +3,7 @@ from torch import nn
 import torchvision
 
 from lightly.data import LightlyDataset
-from lightly.data.collate import MAECollateFunction #Same collate as MAE
+from lightly.data.collate import MAECollateFunction # Same collate as MAE
 from lightly.models import utils
 from lightly.models.modules import masked_autoencoder
 
@@ -27,7 +27,7 @@ class SimMIM(nn.Module):
 
     def forward_encoder(self, images, batch_size, idx_keep=None):
         # pass all the tokens to the encoder, both masked and non masked ones
-        tokens = self.backbone.images_to_tokens(images, prepend_class_token = True)
+        tokens = self.backbone.images_to_tokens(images, prepend_class_token=True)
         tokens_masked = utils.mask_at_index(tokens, idx_keep , self.mask_token)
         return self.backbone.encoder(tokens_masked)
 
@@ -66,7 +66,7 @@ model.to(device)
 
 # we ignore object detection annotations by setting target_transform to return 0
 pascal_voc = torchvision.datasets.VOCDetection(
-    "/home/ubuntu/datasets/pascal_voc", download=False, target_transform=lambda t: 0
+    "datasets/pascal_voc", download=False, target_transform=lambda t: 0
 )
 dataset = LightlyDataset.from_torch_dataset(pascal_voc)
 # or create a dataset from a folder containing images or videos:

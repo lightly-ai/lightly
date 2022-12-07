@@ -347,18 +347,20 @@ def set_at_index(
     index = expand_index_like(index, tokens)
     return torch.scatter(tokens, 1, index, value)
 
-def mask_at_index(tokens, idx_keep, value):
-    """Copies all values into the input tensor at the given indices using mask instead
-    of scatter. Use this istead of set_at_index if you are concatenating learnable and 
-    non learnable tensors
+def mask_at_index(
+    tokens: torch.Tensor, 
+    index: torch.Tensor, 
+    mask_token: torch.Tensor
+) -> torch.Tensor:
+    """Copies mask token into the input tensor at the given indices.
     
     Args:
         tokens:
             Tokens tensor with shape (batch_size, sequence_length, dim).
-        idx_keep:
+        index:
             Index tensor with shape (batch_size, index_length).
         value:
-            Value tensor with shape (batch_size, sequence_length, dim).
+            Value tensor with shape (1, 1, dim).
     
     Returns:
         Tokens tensor with shape (batch_size, sequence_length, dim) containing
@@ -366,8 +368,8 @@ def mask_at_index(tokens, idx_keep, value):
 
     """
     mask = tokens.new_zeros(tokens.shape)
-    mask = set_at_index(mask, idx_keep, 1)
-    return (1 - mask) * tokens + mask * value
+    mask = set_at_index(mask, index, 1)
+    return (1 - mask) * tokens + mask * mask_token
 
 def prepend_class_token(
     tokens: torch.Tensor, 

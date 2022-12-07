@@ -4,7 +4,7 @@ import torchvision
 import pytorch_lightning as pl
 
 from lightly.data import LightlyDataset
-from lightly.data.collate import MAECollateFunction #Same collate as MAE
+from lightly.data.collate import MAECollateFunction # Same collate as MAE
 from lightly.models import utils
 from lightly.models.modules import masked_autoencoder
 
@@ -32,7 +32,7 @@ class SimMIM(pl.LightningModule):
 
     def forward_encoder(self, images, batch_size, idx_keep=None):
         # pass all the tokens to the encoder, both masked and non masked ones
-        tokens = self.backbone.images_to_tokens(images, prepend_class_token = True)
+        tokens = self.backbone.images_to_tokens(images, prepend_class_token=True)
         tokens_masked = utils.mask_at_index(tokens, idx_keep , self.mask_token)
         return self.backbone.encoder(tokens_masked)
 
