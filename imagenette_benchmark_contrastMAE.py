@@ -77,7 +77,7 @@ import wandb
 
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
-num_workers = 0
+num_workers = 12
 memory_bank_size = 4096
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
@@ -1229,9 +1229,14 @@ for BenchmarkModel in models:
             model_name = model_name + contrastive_type
         for seed in range(n_runs):
 
-            wandb_logger = WandbLogger(
-                project="cvmae_benchmark", entity="maggu", name=f"{model_name}--training--{seed}"
-            )
+            if 'MSN' in model_name:
+                wandb_logger = WandbLogger(
+                    project="cvmae_benchmark", entity="maggu", name=f"{model_name}--_{msn_aug_mode}_training--{seed}"
+                )
+            else:
+                wandb_logger = WandbLogger(
+                    project="cvmae_benchmark", entity="maggu", name=f"{model_name}--training--{seed}"
+                )
 
             pl.seed_everything(seed)
 
