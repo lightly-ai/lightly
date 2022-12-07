@@ -1069,9 +1069,11 @@ class MSNModel(BenchmarkModule):
             out_anchors_out = self.encode_masked(out_anchors)
             anchors_out = torch.cat([anchors_out, out_anchors_out], dim=0)
         elif msn_aug_mode == 'v3':
-            test = torch.mul(anchors, self.mask.to(self.device))
-            out_anchors_out = self.encode_masked(test)
-            anchors_out = torch.cat([anchors_out, out_anchors_out], dim=0)
+            # shuffle anchors on dimension 1
+            permutation = torch.randperm(anchors_out.size(1))
+            # Shuffle the tensor's second dimension according to the permutation
+            shuffled_tensor = anchors_out[:, permutation]
+            anchors_out = torch.cat([anchors_out, shuffled_tensor], dim=0)
 
         loss = self.criterion(anchors_out, targets_out, self.prototypes.data)
         self.log('train_loss_ssl', loss)
