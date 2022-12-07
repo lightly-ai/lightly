@@ -66,8 +66,10 @@ from pytorch_lightning.loggers import TensorBoardLogger
 
 import os
 
+from torchvision.models.vision_transformer import _vision_transformer
+
 # wandb offline
-# os.environ['WANDB_MODE'] = 'offline'
+os.environ['WANDB_MODE'] = 'offline'
 
 import wandb
 
@@ -77,11 +79,15 @@ num_workers = 12
 memory_bank_size = 4096
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 800
+max_epochs = 1
 knn_k = 200
 knn_t = 0.1
 classes = 10
-input_size = 224
+input_size = 32
+masking_ratio = 0.75
+patch_size = 16
+dataset_name = 'cifar10'
+# dataset_name = 'imagenette'
 
 #  Set to True to enable Distributed Data Parallel training.
 distributed = False
@@ -104,7 +110,8 @@ batch_size = 128
 lr_factor = batch_size / 256  #  scales the learning rate linearly with batch size
 
 # use a GPU if available
-gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
+# gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
+gpus = 0
 
 if distributed:
     distributed_backend = 'ddp'
@@ -117,33 +124,60 @@ else:
 
 # The dataset structure should be like this:
 
-path_to_train = './datasets/imagenette2-160/train/'
-path_to_test = './datasets/imagenette2-160/val/'
-
 # Use SimCLR augmentations
-collate_fn = lightly.data.SimCLRCollateFunction(
-    input_size=input_size,
-)
+if dataset_name == 'imagenette':
+    collate_fn = lightly.data.SimCLRCollateFunction(
+        input_size=input_size,
+    )
 
-# Multi crop augmentation for SwAV
-swav_collate_fn = lightly.data.SwaVCollateFunction(
-    crop_sizes=[128, 64],
-    crop_counts=[2, 6]  # 2 crops @ 128x128px and 6 crops @ 64x64px
-)
+    # Multi crop augmentation for SwAV
+    swav_collate_fn = lightly.data.SwaVCollateFunction(
+        crop_sizes=[128, 64],
+        crop_counts=[2, 6]  # 2 crops @ 128x128px and 6 crops @ 64x64px
+    )
 
-# Multi crop augmentation for DINO, additionally, disable blur for cifar10
-dino_collate_fn = lightly.data.DINOCollateFunction(
-    global_crop_size=128,
-    local_crop_size=64,
-)
+    # Multi crop augmentation for DINO, additionally, disable blur for cifar10
+    dino_collate_fn = lightly.data.DINOCollateFunction(
+        global_crop_size=128,
+        local_crop_size=64,
+    )
 
-# Two crops for SMoG
-smog_collate_function = lightly.data.collate.SMoGCollateFunction(
-    crop_sizes=[128, 128],
-    crop_counts=[1, 1],
-    crop_min_scales=[0.2, 0.2],
-    crop_max_scales=[1.0, 1.0],
-)
+    # Two crops for SMoG
+    smog_collate_function = lightly.data.collate.SMoGCollateFunction(
+        crop_sizes=[128, 128],
+        crop_counts=[1, 1],
+        crop_min_scales=[0.2, 0.2],
+        crop_max_scales=[1.0, 1.0],
+    )
+elif dataset_name == 'cifar10':
+    collate_fn = lightly.data.SimCLRCollateFunction(
+        input_size=32,
+        gaussian_blur=0.,
+    )
+
+    # Multi crop augmentation for SwAV, additionally, disable blur for cifar10
+    swav_collate_fn = lightly.data.SwaVCollateFunction(
+        crop_sizes=[32],
+        crop_counts=[2],  # 2 crops @ 32x32px
+        crop_min_scales=[0.14],
+        gaussian_blur=0,
+    )
+
+    # Multi crop augmentation for DINO, additionally, disable blur for cifar10
+    dino_collate_fn = lightly.data.DINOCollateFunction(
+        global_crop_size=32,
+        n_local_views=0,
+        gaussian_blur=(0, 0, 0),
+    )
+
+    # Two crops for SMoG
+    smog_collate_function = lightly.data.collate.SMoGCollateFunction(
+        crop_sizes=[32, 32],
+        crop_counts=[1, 1],
+        gaussian_blur_probs=[0., 0.],
+        crop_min_scales=[0.2, 0.2],
+        crop_max_scales=[1.0, 1.0],
+    )
 
 #  Single crop augmentation for MAE
 mae_collate_fn = lightly.data.MAECollateFunction()
@@ -163,6 +197,15 @@ test_transforms = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
     normalize_transform,
 ])
+
+if dataset_name == 'imagenette':
+    path_to_train = './datasets/imagenette2-160/train/'
+    path_to_test = './datasets/imagenette2-160/val/'
+elif dataset_name == 'cifar10':
+    path_to_train = './datasets/cifar10/train/'
+    path_to_test = './datasets/cifar10/test/'
+else:
+    raise ValueError('Unknown dataset name')
 
 dataset_train_ssl = lightly.data.LightlyDataset(
     input_dir=path_to_train
@@ -701,11 +744,20 @@ class MAEModel(BenchmarkModule):
         super().__init__(dataloader_kNN, num_classes)
 
         decoder_dim = 512
-        vit = torchvision.models.vit_b_32(pretrained=False)
+        vit = _vision_transformer(
+                    patch_size=self.patch_size,
+                    num_layers=12,
+                    num_heads=12,
+                    hidden_dim=768,
+                    mlp_dim=3072,
+                    progress = True,
+                    weights=None,
+        )
 
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
-        self.mask_ratio = 0.75
-        self.patch_size = vit.patch_size
+        self.mask_ratio = masking_ratio
+        # self.patch_size = vit.patch_size
+        self.patch_size = patch_size
         self.sequence_length = vit.seq_length
         self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
         self.backbone = masked_autoencoder.MAEBackbone.from_vit(vit)
