@@ -1034,7 +1034,7 @@ class MSNModel(BenchmarkModule):
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
         self.criterion = lightly.loss.MSNLoss()
 
-        self.mask = torch.ones(3,128,128, dtype=torch.float, requires_grad=True).to(self.device)
+        self.mask = torch.ones(3, 128, 128, dtype=torch.float, requires_grad=True)
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
@@ -1069,7 +1069,7 @@ class MSNModel(BenchmarkModule):
             out_anchors_out = self.encode_masked(out_anchors)
             anchors_out = torch.cat([anchors_out, out_anchors_out], dim=0)
         elif msn_aug_mode == 'v3':
-            test = torch.matmul(anchors, self.mask)
+            test = torch.matmul(anchors, self.mask.to(self.device))
             out_anchors_out = self.encode_masked(test)
             anchors_out = torch.cat([anchors_out, out_anchors_out], dim=0)
 
