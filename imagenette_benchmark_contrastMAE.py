@@ -57,6 +57,7 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchvision
+from kornia.feature import DenseSIFTDescriptor
 from lightly.models import modules
 from lightly.models.modules import heads
 from lightly.models.modules import masked_autoencoder
@@ -89,7 +90,8 @@ classes = 10
 input_size = 32
 masking_ratio = 0.75
 patch_size = 16
-msn_aug_mode = 'v0'
+msn_aug_mode = 'v3'
+msn_masking_ratio = 0.15
 # dataset_name = 'cifar10'
 dataset_name = 'imagenette'
 
@@ -1012,7 +1014,7 @@ class MSNModel(BenchmarkModule):
 
         self.warmup_epochs = 15
         #  ViT small configuration (ViT-S/16)
-        self.mask_ratio = 0.15
+        self.mask_ratio = msn_masking_ratio
         self.backbone = masked_autoencoder.MAEBackbone(
             image_size=224,
             patch_size=16,
@@ -1031,6 +1033,8 @@ class MSNModel(BenchmarkModule):
 
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
         self.criterion = lightly.loss.MSNLoss()
+
+        self.mask = torch.ones(3,128,128, dtype=torch.float, requires_grad=True).to(self.device)
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
@@ -1054,11 +1058,19 @@ class MSNModel(BenchmarkModule):
         elif msn_aug_mode == 'v2':
             out_anchors = []
             for i in range(5):
+                # TODO: make this learnable?
+                # TODO: try other ftures of kornia
+                # TODO: try with random numbers for the kernel, but limited numbers and not too big and dont apply to image
+                # also try with bigger image in this case
                 kernel = torch.randn(3, 3, 3, 3).to(self.device)
                 test = F.conv2d(anchors, kernel, padding=1)
                 out_anchors.append(test)
             out_anchors = torch.cat(out_anchors, dim=0)
             out_anchors_out = self.encode_masked(out_anchors)
+            anchors_out = torch.cat([anchors_out, out_anchors_out], dim=0)
+        elif msn_aug_mode == 'v3':
+            test = torch.matmul(anchors, self.mask)
+            out_anchors_out = self.encode_masked(test)
             anchors_out = torch.cat([anchors_out, out_anchors_out], dim=0)
 
         loss = self.criterion(anchors_out, targets_out, self.prototypes.data)
