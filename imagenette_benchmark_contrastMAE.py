@@ -1069,7 +1069,7 @@ class MSNModel(BenchmarkModule):
             out_anchors_out = self.encode_masked(out_anchors)
             anchors_out = torch.cat([anchors_out, out_anchors_out], dim=0)
         elif msn_aug_mode == 'v3':
-            test = torch.matmul(anchors, self.mask.to(self.device))
+            test = torch.mul(anchors, self.mask.to(self.device))
             out_anchors_out = self.encode_masked(test)
             anchors_out = torch.cat([anchors_out, out_anchors_out], dim=0)
 
