@@ -64,6 +64,7 @@ from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
 from kornia import filters
+from torch.nn import functional as F
 
 import os
 
@@ -113,8 +114,8 @@ batch_size = 128
 lr_factor = batch_size / 256  #  scales the learning rate linearly with batch size
 
 # use a GPU if available
-# gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
-gpus = 0
+gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
+
 
 if distributed:
     distributed_backend = 'ddp'
@@ -1048,15 +1049,12 @@ class MSNModel(BenchmarkModule):
         anchors_out = torch.cat([anchors_out, anchors_focal_out], dim=0)
         if msn_aug_mode == 'v1':
             sobel_anchors = filters.sobel(anchors)
-            sobel_anchors = sobel_anchors.to(self.device)
             sobel_anchors_out = self.encode_masked(sobel_anchors)
             anchors_out = torch.cat([anchors_out, sobel_anchors_out], dim=0)
         elif msn_aug_mode == 'v2':
             out_anchors = []
             for i in range(10):
                 kernel = torch.randn(1, 3, 3, 3).to(self.device)
-                # import Filter2D
-                from torch.nn import functional as F
                 test = F.conv2d(anchors, kernel, padding=1)
                 out_anchors.append(test)
             out_anchors = torch.cat(out_anchors, dim=0)
