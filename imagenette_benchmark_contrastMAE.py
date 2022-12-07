@@ -63,19 +63,21 @@ from lightly.models.modules import masked_autoencoder
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
+from kornia import filters
 
 import os
 
 from torchvision.models.vision_transformer import _vision_transformer
+import matplotlib.pyplot as plt
 
 # wandb offline
-os.environ['WANDB_MODE'] = 'offline'
+# os.environ['WANDB_MODE'] = 'offline'
 
 import wandb
 
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
-num_workers = 12
+num_workers = 0
 memory_bank_size = 4096
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
@@ -87,6 +89,7 @@ input_size = 32
 masking_ratio = 0.75
 patch_size = 16
 dataset_name = 'cifar10'
+msn_aug_mode = 'v0'
 # dataset_name = 'imagenette'
 
 #  Set to True to enable Distributed Data Parallel training.
@@ -1043,6 +1046,22 @@ class MSNModel(BenchmarkModule):
         anchors_out = self.encode_masked(anchors)
         anchors_focal_out = self.encode_masked(anchors_focal)
         anchors_out = torch.cat([anchors_out, anchors_focal_out], dim=0)
+        if msn_aug_mode == 'v1':
+            sobel_anchors = filters.sobel(anchors)
+            sobel_anchors = sobel_anchors.to(self.device)
+            sobel_anchors_out = self.encode_masked(sobel_anchors)
+            anchors_out = torch.cat([anchors_out, sobel_anchors_out], dim=0)
+        elif msn_aug_mode == 'v2':
+            out_anchors = []
+            for i in range(10):
+                kernel = torch.randn(1, 3, 3, 3).to(self.device)
+                # import Filter2D
+                from torch.nn import functional as F
+                test = F.conv2d(anchors, kernel, padding=1)
+                out_anchors.append(test)
+            out_anchors = torch.cat(out_anchors, dim=0)
+            out_anchors_out = self.encode_masked(out_anchors)
+            anchors_out = torch.cat([anchors_out, out_anchors_out], dim=0)
 
         loss = self.criterion(anchors_out, targets_out, self.prototypes.data)
         self.log('train_loss_ssl', loss)
@@ -1185,27 +1204,13 @@ class SMoGModel(BenchmarkModule):
 
 
 models = [
-    # BarlowTwinsModel,
-    BYOLModel,
-    MocoModel,
-    SimCLRModel,
-    contrastMAEModel,
-    # DCL,
-    # DCLW,
-    # DINOModel,
-    #  MAEModel, # disabled by default because MAE uses larger images with size 224
-    #  MSNModel, # disabled by default because MSN uses larger images with size 224
-    # NNCLRModel,
-    # SimSiamModel,
-    # SwaVModel,
-    # SMoGModel,
-    MAEModel,
+    MSNModel,
 ]
 bench_results = dict()
 from pytorch_lightning.loggers import WandbLogger
 
 contrastive_types = [
-    # 'byol',
+    'byol',
     'moco',
     'simclr',
 ]
