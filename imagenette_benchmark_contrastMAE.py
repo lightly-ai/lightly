@@ -88,9 +88,9 @@ classes = 10
 input_size = 32
 masking_ratio = 0.75
 patch_size = 16
-dataset_name = 'cifar10'
 msn_aug_mode = 'v0'
-# dataset_name = 'imagenette'
+# dataset_name = 'cifar10'
+dataset_name = 'imagenette'
 
 #  Set to True to enable Distributed Data Parallel training.
 distributed = False
