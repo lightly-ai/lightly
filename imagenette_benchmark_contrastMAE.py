@@ -87,7 +87,7 @@ max_epochs = 800
 knn_k = 200
 knn_t = 0.1
 classes = 10
-input_size = 32
+input_size = 223
 masking_ratio = 0.75
 patch_size = 16
 msn_aug_mode = 'v3'
@@ -1243,7 +1243,7 @@ for BenchmarkModel in models:
 
             if 'MSN' in model_name:
                 wandb_logger = WandbLogger(
-                    project="cvmae_benchmark", entity="maggu", name=f"{model_name}--_{msn_aug_mode}_{masking_ratio}_training--{seed}"
+                    project="cvmae_benchmark", entity="maggu", name=f"{model_name}--_{msn_aug_mode}_224_{masking_ratio}_training--{seed}"
                 )
             else:
                 wandb_logger = WandbLogger(
