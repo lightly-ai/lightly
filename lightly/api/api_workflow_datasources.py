@@ -572,3 +572,22 @@ class _DatasourcesMixin:
             self.dataset_id,
             filename,
         )
+
+    def get_custom_embedding_read_url(
+        self,
+        filename: str,
+    ) -> str:
+        """Returns a read-url for .lightly/embeddings/{filename}.
+
+        Args:
+            filename:
+                Filename for which to get the read-url.
+
+        Returns the read-url. If the file does not exist, a read-url is returned
+        anyways.
+
+        """
+        return self._datasources_api.get_custom_embedding_file_read_url_from_datasource_by_dataset_id(
+            self.dataset_id,
+            filename,
+        )
