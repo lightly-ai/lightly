@@ -359,7 +359,7 @@ def mask_at_index(
             Tokens tensor with shape (batch_size, sequence_length, dim).
         index:
             Index tensor with shape (batch_size, index_length).
-        value:
+        mask_token:
             Value tensor with shape (1, 1, dim).
     
     Returns:

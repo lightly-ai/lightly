@@ -6,7 +6,7 @@ SimMIM
 Example implementation of SimMIM: A Simple Framework for Masked Image Modeling architecture. SimMIM is a
 very similar architecture to `Masked Autoencoders Are Scalable Vision Learners, 2021 <https://arxiv.org/abs/2111.06377>`_.
 It uses a ViT encoder using as input both masked and non-masked patches. Other differences with respect to MAE
-is that it has just a simple linear as a decoder and uses L1 instead of L2 loss.
+is that it has just a simple linear layer as a decoder and uses L1 instead of L2 loss.
 
 Reference:
     `SimMIM: A Simple Framework for Masked Image Modeling, 2021 <https://arxiv.org/abs/2111.09886>`_

@@ -25,10 +25,10 @@ class SimMIM(nn.Module):
         self.decoder = nn.Linear(vit.hidden_dim, vit.patch_size ** 2 * 3)
         
 
-    def forward_encoder(self, images, batch_size, idx_keep=None):
+    def forward_encoder(self, images, batch_size, idx_mask):
         # pass all the tokens to the encoder, both masked and non masked ones
         tokens = self.backbone.images_to_tokens(images, prepend_class_token=True)
-        tokens_masked = utils.mask_at_index(tokens, idx_keep , self.mask_token)
+        tokens_masked = utils.mask_at_index(tokens, idx_mask , self.mask_token)
         return self.backbone.encoder(tokens_masked)
 
     def forward_decoder(self, x_encoded):
@@ -43,7 +43,7 @@ class SimMIM(nn.Module):
         )
         
         # Encoding...
-        x_encoded = self.forward_encoder(images, batch_size, idx_keep)
+        x_encoded = self.forward_encoder(images, batch_size, idx_mask)
         x_encoded_masked = utils.get_at_index(x_encoded, idx_mask)
 
         # Decoding...
