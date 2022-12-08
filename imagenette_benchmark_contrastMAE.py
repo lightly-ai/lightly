@@ -91,7 +91,7 @@ input_size = 32
 masking_ratio = 0.75
 patch_size = 16
 msn_aug_mode = 'v3'
-msn_masking_ratio = 0.15
+msn_masking_ratio = 0.90
 # dataset_name = 'cifar10'
 dataset_name = 'imagenette'
 
@@ -1243,7 +1243,7 @@ for BenchmarkModel in models:
 
             if 'MSN' in model_name:
                 wandb_logger = WandbLogger(
-                    project="cvmae_benchmark", entity="maggu", name=f"{model_name}--_{msn_aug_mode}_training--{seed}"
+                    project="cvmae_benchmark", entity="maggu", name=f"{model_name}--_{msn_aug_mode}_{masking_ratio}_training--{seed}"
                 )
             else:
                 wandb_logger = WandbLogger(
