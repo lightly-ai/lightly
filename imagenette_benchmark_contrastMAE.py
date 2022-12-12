@@ -62,9 +62,6 @@ from lightly.models import modules
 from lightly.models.modules import heads
 # from lightly.models.modules import masked_autoencoder
 
-import sys
-sys.path.append('./')
-
 from modified_items import MAEBackbone, MAEDecoder
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
