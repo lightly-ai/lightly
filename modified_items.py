@@ -1,7 +1,7 @@
 from __future__ import annotations
 from functools import partial
 import math
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Tuple, Any
 
 import torch
 import torch.nn as nn
@@ -270,8 +270,34 @@ class MAEBackbone(vision_transformer.VisionTransformer):
         """
         out, blocks = self.encode(images, idx_keep)
         class_token = out[:, 0]
+        return class_token
+
+    def forward_blocks(
+            self,
+            images: torch.Tensor,
+            idx_keep: Optional[torch.Tensor] = None
+    ) -> Tuple[Any, List[Any]]:
+        """Returns encoded class tokens from a batch of images.
+
+        Args:
+            images:
+                Tensor with shape (batch_size, channels, image_size, image_size).
+            idx_keep:
+                Tensor with shape (batch_size, num_tokens_to_keep) where each
+                entry is an index of the token to keep in the respective batch.
+                If specified, only the indexed tokens will be passed to the
+                encoder.
+
+        Returns:
+            Tensor with shape (batch_size, hidden_dim) containing the
+            encoded class token for every image.
+
+        """
+        out, blocks = self.encode(images, idx_keep)
+        class_token = out[:, 0]
         blocks_class_token = [block[:, 0] for block in blocks]
         return class_token, blocks_class_token
+
 
     def encode(
             self,

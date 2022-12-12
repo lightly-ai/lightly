@@ -113,7 +113,7 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1  # optional, increase to create multiple runs and report mean + std
-batch_size = 128
+batch_size = 64
 # batch_size = 32
 lr_factor = batch_size / 256  #  scales the learning rate linearly with batch size
 
@@ -1048,11 +1048,11 @@ class MSNModel(BenchmarkModule):
         anchors = views[1]
         anchors_focal = torch.concat(views[2:], dim=0)
 
-        targets_out, targets_blocks = self.backbone(targets)
+        targets_out = self.backbone(targets)
         targets_out = self.projection_head(targets_out)
-        anchors_out, anchors_blocks = self.encode_masked(anchors)
+        anchors_out = self.encode_masked(anchors)
         anchors_out = self.anchor_projection_head(anchors_out)
-        anchors_focal_out, anchors_focal_blocks = self.encode_masked(anchors_focal)
+        anchors_focal_out = self.encode_masked(anchors_focal)
         anchors_focal_out = self.anchor_projection_head(anchors_focal_out)
         anchors_out = torch.cat([anchors_out, anchors_focal_out], dim=0)
         if msn_aug_mode == 'v1':
@@ -1080,6 +1080,10 @@ class MSNModel(BenchmarkModule):
             anchors_out = torch.cat([anchors_out, shuffled_tensor], dim=0)
         elif msn_aug_mode == 'v4':
             # embed targets_blocks, anchors_blocks, anchors_focal_blocks
+            _, targets_blocks = self.backbone.forward_blocks(targets)
+            _, anchors_blocks = self.encode_blocks(anchors)
+            _, anchors_focal_blocks = self.encode_blocks(anchors_focal)
+
             targets_blocks = [self.projection_head(block) for block in targets_blocks]
             anchors_blocks = [self.anchor_projection_head(block) for block in anchors_blocks]
             anchors_focal_blocks = [self.anchor_projection_head(block) for block in anchors_focal_blocks]
@@ -1103,7 +1107,18 @@ class MSNModel(BenchmarkModule):
             mask_ratio=self.mask_ratio,
             device=self.device,
         )
-        out, blocks_out = self.anchor_backbone(anchors, idx_keep)
+        out = self.anchor_backbone(anchors, idx_keep)
+        return out
+
+    def encode_blocks(self, anchors):
+        batch_size, _, _, width = anchors.shape
+        seq_length = (width // self.anchor_backbone.patch_size) ** 2
+        idx_keep, _ = utils.random_token_mask(
+            size=(batch_size, seq_length),
+            mask_ratio=self.mask_ratio,
+            device=self.device,
+        )
+        out, blocks_out = self.anchor_backbone.forward_blocks(anchors, idx_keep)
         return out, blocks_out
 
     def configure_optimizers(self):
