@@ -60,7 +60,8 @@ import torchvision
 from kornia.feature import DenseSIFTDescriptor
 from lightly.models import modules
 from lightly.models.modules import heads
-from lightly.models.modules import masked_autoencoder
+# from lightly.models.modules import masked_autoencoder
+from modified_items import masked_autoencoder
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -90,8 +91,8 @@ classes = 10
 input_size = 223
 masking_ratio = 0.75
 patch_size = 16
-msn_aug_mode = 'v3'
-msn_masking_ratio = 0.90
+msn_aug_mode = 'v4'
+msn_masking_ratio = 0.15
 # dataset_name = 'cifar10'
 dataset_name = 'imagenette'
 
@@ -1046,10 +1047,12 @@ class MSNModel(BenchmarkModule):
         anchors = views[1]
         anchors_focal = torch.concat(views[2:], dim=0)
 
-        targets_out = self.backbone(targets)
+        targets_out, targets_blocks = self.backbone(targets)
         targets_out = self.projection_head(targets_out)
-        anchors_out = self.encode_masked(anchors)
-        anchors_focal_out = self.encode_masked(anchors_focal)
+        anchors_out, anchors_blocks = self.encode_masked(anchors)
+        anchors_out = self.anchor_projection_head(anchors_out)
+        anchors_focal_out, anchors_focal_blocks = self.encode_masked(anchors_focal)
+        anchors_focal_out = self.anchor_projection_head(anchors_focal_out)
         anchors_out = torch.cat([anchors_out, anchors_focal_out], dim=0)
         if msn_aug_mode == 'v1':
             sobel_anchors = filters.sobel(anchors)
@@ -1074,8 +1077,20 @@ class MSNModel(BenchmarkModule):
             # Shuffle the tensor's second dimension according to the permutation
             shuffled_tensor = anchors_out[:, permutation]
             anchors_out = torch.cat([anchors_out, shuffled_tensor], dim=0)
+        elif msn_aug_mode == 'v4':
+            # embed targets_blocks, anchors_blocks, anchors_focal_blocks
+            targets_blocks = [self.projection_head(block) for block in targets_blocks]
+            anchors_blocks = [self.anchor_projection_head(block) for block in anchors_blocks]
+            anchors_focal_blocks = [self.anchor_projection_head(block) for block in anchors_focal_blocks]
+            targets_blocks = torch.cat(targets_blocks, dim=0)
+            anchors_blocks = torch.cat(anchors_blocks, dim=0)
+            anchors_focal_blocks = torch.cat(anchors_focal_blocks, dim=0)
+            anchors_blocks = torch.cat([anchors_blocks, anchors_focal_blocks], dim=0)
+            # anchors_out = torch.cat([anchors_out, targets_blocks, anchors_blocks], dim=0)
 
         loss = self.criterion(anchors_out, targets_out, self.prototypes.data)
+        if msn_aug_mode == 'v4':
+            loss += self.criterion(anchors_blocks, targets_blocks, self.prototypes.data)
         self.log('train_loss_ssl', loss)
         return loss
 
@@ -1087,8 +1102,8 @@ class MSNModel(BenchmarkModule):
             mask_ratio=self.mask_ratio,
             device=self.device,
         )
-        out = self.anchor_backbone(anchors, idx_keep)
-        return self.anchor_projection_head(out)
+        out, blocks_out = self.anchor_backbone(anchors, idx_keep)
+        return out, blocks_out
 
     def configure_optimizers(self):
         params = [
