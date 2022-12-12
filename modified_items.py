@@ -10,6 +10,58 @@ from lightly.models import utils
 #  vision_transformer requires torchvision >= 0.12
 from torchvision.models import vision_transformer
 from torchvision.models.vision_transformer import ConvStemConfig
+from typing import Optional, Tuple, Union
+
+
+def learned_token_mask(
+    size: Tuple[int, int],
+    mask_ratio: float = 0.6,
+    mask_class_token: bool = False,
+    device: Optional[Union[torch.device, str]] = None,
+    mask=None,
+):
+    """Creates random token masks.
+
+    Args:
+        size:
+            Size of the token batch for which to generate masks.
+            Should be (batch_size, sequence_length).
+        mask_ratio:
+            Percentage of tokens to mask.
+        mask_class_token:
+            If False the class token is never masked. If True the class token
+            might be masked.
+        device:
+            Device on which to create the index masks.
+
+    Returns:
+        A (index_keep, index_mask) tuple where each index is a tensor.
+        index_keep contains the indices of the unmasked tokens and has shape
+        (batch_size, num_keep). index_mask contains the indices of the masked
+        tokens and has shape (batch_size, sequence_length - num_keep).
+        num_keep is equal to sequence_length * (1- mask_ratio).
+
+    """
+    batch_size, sequence_length = size
+    num_keep = int(sequence_length * (1 - mask_ratio))
+
+    if mask is not None:
+        # topk from mask
+        # keep = torch.topk(mask, num_keep, dim=1, largest=False)[1]
+        keep = torch.topk(mask, num_keep, dim=1)[1]
+    else:
+        noise = torch.rand(batch_size, sequence_length, device=device)
+        if not mask_class_token and sequence_length > 0:
+            # make sure that class token is not masked
+            noise[:, 0] = -1
+            num_keep = max(1, num_keep)
+
+        # get indices of tokens to keep
+        indices = torch.argsort(noise, dim=1)
+        idx_keep = indices[:, :num_keep]
+        idx_mask = indices[:, num_keep:]
+
+    return idx_keep, idx_mask
 
 
 class MAEEncoder(vision_transformer.Encoder):
@@ -105,7 +157,7 @@ class MAEEncoder(vision_transformer.Encoder):
         blocks = []
         for blk in self.layers:
             a = blk(a)
-            blocks.append(a)
+            blocks.append(self.ln(a))
         return self.ln(a), blocks
         # return self.ln(self.layers(self.dropout(input)))
 
