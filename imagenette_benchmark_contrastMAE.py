@@ -61,7 +61,11 @@ from kornia.feature import DenseSIFTDescriptor
 from lightly.models import modules
 from lightly.models.modules import heads
 # from lightly.models.modules import masked_autoencoder
-from modified_items import masked_autoencoder
+
+import sys
+sys.path.append('./')
+
+from .modified_items import masked_autoencoder
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
