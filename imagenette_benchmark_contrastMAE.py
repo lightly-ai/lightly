@@ -65,7 +65,7 @@ from lightly.models.modules import heads
 import sys
 sys.path.append('./')
 
-import modified_items as masked_autoencoder
+from modified_items import MAEBackbone, MAEDecoder
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -771,8 +771,8 @@ class MAEModel(BenchmarkModule):
         self.patch_size = patch_size
         self.sequence_length = vit.seq_length
         self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
-        self.backbone = masked_autoencoder.MAEBackbone.from_vit(vit)
-        self.decoder = masked_autoencoder.MAEDecoder(
+        self.backbone = MAEBackbone.from_vit(vit)
+        self.decoder = MAEDecoder(
             seq_length=vit.seq_length,
             num_layers=1,
             num_heads=16,
@@ -853,8 +853,8 @@ class contrastMAEModel(BenchmarkModule):
         self.patch_size = vit.patch_size
         self.sequence_length = vit.seq_length
         self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
-        self.backbone = masked_autoencoder.MAEBackbone.from_vit(vit)
-        self.decoder = masked_autoencoder.MAEDecoder(
+        self.backbone = MAEBackbone.from_vit(vit)
+        self.decoder = MAEDecoder(
             seq_length=vit.seq_length,
             num_layers=1,
             num_heads=16,
@@ -1020,7 +1020,7 @@ class MSNModel(BenchmarkModule):
         self.warmup_epochs = 15
         #  ViT small configuration (ViT-S/16)
         self.mask_ratio = msn_masking_ratio
-        self.backbone = masked_autoencoder.MAEBackbone(
+        self.backbone = MAEBackbone(
             image_size=224,
             patch_size=16,
             num_layers=12,
