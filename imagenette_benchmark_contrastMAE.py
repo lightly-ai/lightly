@@ -60,7 +60,7 @@ import torchvision
 from kornia.feature import DenseSIFTDescriptor
 from lightly.models import modules
 from lightly.models.modules import heads
-from lightly.models.modules import masked_autoencoder
+# from lightly.models.modules import masked_autoencoder
 
 import sys
 sys.path.append('./')
