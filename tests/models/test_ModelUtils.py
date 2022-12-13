@@ -133,19 +133,6 @@ class TestModelUtils(unittest.TestCase):
             for j in range(index.shape[1]):
                 self._assert_tensor_equal(new_tokens[i, index[i, j]], values[i, j])
 
-    def test_mask_at_index(self, seed=0):
-        torch.manual_seed(seed)
-        index = torch.Tensor([
-            [1, 0, 3, 2],
-            [1, 2, 0, 3],
-        ]).long()
-        tokens = torch.rand(2, 4, 5)
-        values = torch.rand(2, 4, 5)
-        new_tokens = utils.mask_at_index(tokens, index, values)
-        new_tokens_set = utils.set_at_index(tokens, index, values)
-        # make sure that values are copied correctly
-        self._assert_tensor_equal(torch.sort(new_tokens, 1)[0], torch.sort(new_tokens_set,1)[0])
-
     def test_prepend_class_token(self, seed=0):
         torch.manual_seed(seed)
         tokens = torch.rand(2, 3, 5)
