@@ -32,7 +32,7 @@ num_workers = 12
 memory_bank_size = 2**16
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 200
+max_epochs = 400
 knn_k = 20
 knn_t = 0.1
 classes = 100
@@ -211,11 +211,11 @@ class MocoModel(BenchmarkModule):
 
     def configure_optimizers(self):
         params = list(self.backbone.parameters()) + list(self.projection_head.parameters())
-        optim = torch.optim.SGD(
+        optim = LARS(
             params, 
-            lr=0.03 * lr_factor,
-            momentum=0.9,
-            weight_decay=1e-4,
+            lr=0.3 * lr_factor,
+            momentum=0.9, 
+            weight_decay=1e-6,
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
@@ -252,7 +252,7 @@ class SimCLRModel(BenchmarkModule):
             self.parameters(), 
             lr=0.3 * lr_factor,
             momentum=0.9, 
-            weight_decay=1e-6,
+            weight_decay=0.0001,
         )
         scheduler = {
             "scheduler": LambdaLR(
@@ -298,11 +298,11 @@ class SimSiamModel(BenchmarkModule):
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.SGD(
+        optim = LARS(
             self.parameters(), 
-            lr=0.05 * lr_factor,
+            lr=0.1 * lr_factor,
             momentum=0.9,
-            weight_decay=1e-4,
+            weight_decay=1e-5,
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
@@ -338,9 +338,9 @@ class BarlowTwinsModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = LARS(
             self.parameters(), 
-            lr=0.2 * lr_factor,
+            lr=0.3 * lr_factor,
             momentum=0.9, 
-            weight_decay=1.5 * 1e-6,
+            weight_decay=0.0001,
         )
         scheduler = {
             "scheduler": LambdaLR(
@@ -409,9 +409,9 @@ class BYOLModel(BenchmarkModule):
             + list(self.prediction_head.parameters())
         optim = LARS(
             params,
-            lr=0.2 * lr_factor,
+            lr=0.5 * lr_factor,
             momentum=0.9,
-            weight_decay=1.5 * 1e-6,
+            weight_decay=1e-5,
         )
         scheduler = {
             "scheduler": LambdaLR(
@@ -463,9 +463,9 @@ class NNCLRModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = LARS(
             self.parameters(), 
-            lr=0.3 * lr_factor,
+            lr=0.4 * lr_factor,
             momentum=0.9, 
-            weight_decay=1e-6,
+            weight_decay=1e-5,
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
@@ -518,9 +518,9 @@ class SwaVModel(BenchmarkModule):
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.SGD(
+        optim = LARS(
             self.parameters(),
-            lr=4.8 * lr_factor,
+            lr=0.6 * lr_factor,
             momentum=0.9,
             weight_decay=1e-6,
         )
