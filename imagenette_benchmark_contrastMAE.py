@@ -62,7 +62,7 @@ from lightly.models import modules
 from lightly.models.modules import heads
 # from lightly.models.modules import masked_autoencoder
 
-from modified_items import MAEBackbone, MAEDecoder
+from modified_items import MAEBackbone, MAEDecoder, learned_token_mask
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -113,7 +113,7 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1  # optional, increase to create multiple runs and report mean + std
-batch_size = 64
+batch_size = 128
 # batch_size = 32
 lr_factor = batch_size / 256  #  scales the learning rate linearly with batch size
 
@@ -1036,7 +1036,27 @@ class MSNModel(BenchmarkModule):
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
         self.criterion = lightly.loss.MSNLoss()
 
-        self.mask = torch.ones(3, 128, 128, dtype=torch.float, requires_grad=True)
+        # self.mask = torch.ones(3, 128, 128, dtype=torch.float, requires_grad=True)
+        # self.mask = torch.rand(128, 64, dtype=torch.float, requires_grad=True)
+        import torch
+        from torchvision import transforms
+        self.freeze_mask_model = True
+        self.maskmodel_backbone = torchvision.models.mobilenet_v3_small(
+            pretrained=True if self.pretrained_mask_model else False
+        ).features
+        if self.freeze_mask_model:
+            for param in self.model.parameters():
+                param.requires_grad = False
+        self.maskmodel_head = nn.Sequential(
+            # nn.AdaptiveAvgPool2d((1, 1)),
+            nn.Flatten(),
+            nn.Linear(576, 64),
+            nn.ReLU(),
+            nn.LayerNorm(64),
+        )
+        # self.maskmodel_decoder = nn.Sequential(
+
+
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
@@ -1092,6 +1112,9 @@ class MSNModel(BenchmarkModule):
             anchors_focal_blocks = torch.cat(anchors_focal_blocks, dim=0)
             anchors_blocks = torch.cat([anchors_blocks, anchors_focal_blocks], dim=0)
             # anchors_out = torch.cat([anchors_out, targets_blocks, anchors_blocks], dim=0)
+        elif msn_aug_mode == 'v5':
+            # use self.maks to mask the image
+            anchors_out_new = self.encode_masked(anchors, mask=self.mask)
 
         loss = self.criterion(anchors_out, targets_out, self.prototypes.data)
         if msn_aug_mode == 'v4':
@@ -1099,14 +1122,22 @@ class MSNModel(BenchmarkModule):
         self.log('train_loss_ssl', loss)
         return loss
 
-    def encode_masked(self, anchors):
+    def encode_masked(self, anchors, mask=None):
         batch_size, _, _, width = anchors.shape
         seq_length = (width // self.anchor_backbone.patch_size) ** 2
-        idx_keep, _ = utils.random_token_mask(
-            size=(batch_size, seq_length),
-            mask_ratio=self.mask_ratio,
-            device=self.device,
-        )
+        if mask is None:
+            idx_keep, _ = learned_token_mask(
+                size=(batch_size, seq_length),
+                mask_ratio=self.mask_ratio,
+                device=self.device,
+                mask = self.mask,
+            )
+        else:
+            idx_keep, _ = utils.random_token_mask(
+                size=(batch_size, seq_length),
+                mask_ratio=self.mask_ratio,
+                device=self.device,
+            )
         out = self.anchor_backbone(anchors, idx_keep)
         return out
 
