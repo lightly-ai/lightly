@@ -63,7 +63,7 @@ class MemoryBankModule(torch.nn.Module):
         # https://github.com/facebookresearch/moco but we don't
         # want to pollute our checkpoints
         self.bank = torch.randn(dim, self.size).type_as(self.bank)
-        torch.nn.functional.normalize(self.bank, dim=0)
+        self.bank = torch.nn.functional.normalize(self.bank, dim=0)
         self.bank_ptr = torch.zeros(1).type_as(self.bank_ptr)
 
     @torch.no_grad()
