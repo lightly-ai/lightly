@@ -371,7 +371,7 @@ class SwaVPrototypes(nn.Module):
     """Multihead Prototypes used for SwaV.
 
     Each output feature is assigned to a prototype, SwaV solves the swapped
-    predicition problem where the features of one augmentation are used to
+    prediction problem where the features of one augmentation are used to
     predict the assigned prototypes of the other augmentation.
 
     Examples:
