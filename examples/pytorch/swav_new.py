@@ -14,7 +14,7 @@ from lightly.models import SwaV
 
 resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(*list(resnet.children())[:-1])
-model = SwaV(backbone, num_ftrs=512, out_dim=128, n_prototypes=512)
+model = SwaV(backbone, num_ftrs=512, out_dim=128, n_prototypes=512, queue_length=3840)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
@@ -47,8 +47,8 @@ for epoch in range(10):
     for batch, _, _ in dataloader:
         batch = [x.to(device) for x in batch]
         high_resolution, low_resolution = batch[:2], batch[2:]
-        high_resolution, low_resolution = model(high_resolution, low_resolution)
-        loss = criterion(high_resolution, low_resolution)
+        high_resolution, low_resolution, queue = model(high_resolution, low_resolution)
+        loss = criterion(high_resolution, low_resolution, queue)
         total_loss += loss.detach()
         loss.backward()
         optimizer.step()

@@ -110,7 +110,8 @@ class SwaVLoss(nn.Module):
 
     def forward(self,
                 high_resolution_outputs: List[torch.Tensor],
-                low_resolution_outputs: List[torch.Tensor]):
+                low_resolution_outputs: List[torch.Tensor],
+                queue_outputs: List[torch.Tensor]):
         """Computes the SwaV loss for a set of high and low resolution outputs.
 
         Args:
@@ -120,6 +121,9 @@ class SwaVLoss(nn.Module):
             low_resolution_outputs:
                 List of similarities of features and SwaV prototypes for the
                 low resolution crops.
+            queue_outputs:
+                List of similarities of features and SwaV prototypes for the
+                queue of high resolution crops from previous batches.
 
         Returns:
             Swapping assignments between views loss (SwaV) as described in [0].
@@ -132,15 +136,25 @@ class SwaVLoss(nn.Module):
         # multi-crop iterations
         loss = 0.
         for i in range(len(high_resolution_outputs)):
-
             # compute codes of i-th high resolution crop
             with torch.no_grad():
+                outputs = high_resolution_outputs[i].detach()
+
+                # Append queue outputs
+                if queue_outputs:
+                    outputs = torch.cat((outputs, queue_outputs.detach()))
+
+                # Compute the codes
                 q = sinkhorn(
-                    high_resolution_outputs[i].detach(),
+                    outputs,
                     iterations=self.sinkhorn_iterations,
                     epsilon=self.sinkhorn_epsilon,
                     gather_distributed=self.sinkhorn_gather_distributed,
                 )
+
+                # Drop queue similarities
+                if queue_outputs is not None:
+                    q = q[:len(high_resolution_outputs[i])]
 
             # compute subloss for each pair of crops
             subloss = 0.
