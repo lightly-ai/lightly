@@ -92,7 +92,7 @@ classes = 10
 input_size = 223
 masking_ratio = 0.75
 patch_size = 16
-msn_aug_mode = 'v4'
+msn_aug_mode = 'v5'
 msn_masking_ratio = 0.15
 # dataset_name = 'cifar10'
 dataset_name = 'imagenette'
@@ -1041,11 +1041,13 @@ class MSNModel(BenchmarkModule):
         import torch
         from torchvision import transforms
         self.freeze_mask_model = True
+        self.pretrained_mask_model = False
+        self.mask = None
         self.maskmodel_backbone = torchvision.models.mobilenet_v3_small(
             pretrained=True if self.pretrained_mask_model else False
         ).features
         if self.freeze_mask_model:
-            for param in self.model.parameters():
+            for param in self.maskmodel_backbone.parameters():
                 param.requires_grad = False
         self.maskmodel_head = nn.Sequential(
             # nn.AdaptiveAvgPool2d((1, 1)),
@@ -1113,8 +1115,21 @@ class MSNModel(BenchmarkModule):
             anchors_blocks = torch.cat([anchors_blocks, anchors_focal_blocks], dim=0)
             # anchors_out = torch.cat([anchors_out, targets_blocks, anchors_blocks], dim=0)
         elif msn_aug_mode == 'v5':
-            # use self.maks to mask the image
-            anchors_out_new = self.encode_masked(anchors, mask=self.mask)
+            _, targets_blocks = self.backbone.forward_blocks(targets)
+            _, anchors_blocks = self.encode_blocks(anchors)
+            _, anchors_focal_blocks = self.encode_blocks(anchors_focal)
+
+            targets_blocks = [self.projection_head(block) for block in targets_blocks]
+            anchors_blocks = [self.anchor_projection_head(block) for block in anchors_blocks]
+            anchors_focal_blocks = [self.anchor_projection_head(block) for block in anchors_focal_blocks]
+            idx = 0
+            for target_block, anchor_block, anchor_focal_block in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
+                anchors_block_out = torch.cat([anchor_block, anchor_focal_block], dim=0)
+                if idx == 0:
+                    loss = self.criterion(anchors_block_out, target_block, self.prototypes.data) * 0.5 ** idx
+                else:
+                    loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * 0.5 ** idx
+                idx += 1
 
         loss = self.criterion(anchors_out, targets_out, self.prototypes.data)
         if msn_aug_mode == 'v4':
