@@ -22,7 +22,6 @@ from lightly.models.resnet import ResNetGenerator
 from lightly.models.barlowtwins import BarlowTwins
 from lightly.models.simclr import SimCLR
 from lightly.models.simsiam import SimSiam
-from lightly.models.swav import SwaV
 from lightly.models.byol import BYOL
 from lightly.models.moco import MoCo
 from lightly.models.nnclr import NNCLR

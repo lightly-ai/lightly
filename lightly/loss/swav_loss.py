@@ -111,7 +111,7 @@ class SwaVLoss(nn.Module):
     def forward(self,
                 high_resolution_outputs: List[torch.Tensor],
                 low_resolution_outputs: List[torch.Tensor],
-                queue_outputs: List[torch.Tensor]):
+                queue_outputs: List[torch.Tensor]=None):
         """Computes the SwaV loss for a set of high and low resolution outputs.
 
         Args:
@@ -141,8 +141,8 @@ class SwaVLoss(nn.Module):
                 outputs = high_resolution_outputs[i].detach()
 
                 # Append queue outputs
-                if queue_outputs:
-                    outputs = torch.cat((outputs, queue_outputs.detach()))
+                if queue_outputs is not None:
+                    outputs = torch.cat((outputs, queue_outputs[i].detach()))
 
                 # Compute the codes
                 q = sinkhorn(
