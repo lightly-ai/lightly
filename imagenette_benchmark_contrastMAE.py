@@ -92,7 +92,7 @@ classes = 10
 input_size = 224
 masking_ratio = 0.75
 patch_size = 16
-msn_aug_mode = 'v6'
+msn_aug_mode = 'v9'
 msn_masking_ratio = 0.15
 # dataset_name = 'cifar10'
 dataset_name = 'imagenette'
@@ -1189,6 +1189,25 @@ class MSNModel(BenchmarkModule):
                 idx += 1
 
         elif msn_aug_mode == 'v9':
+            _, targets_blocks = self.backbone.forward_blocks(targets)
+            _, anchors_blocks = self.encode_blocks(anchors)
+            _, anchors_focal_blocks = self.encode_blocks(anchors_focal)
+
+            targets_blocks = [self.projection_head(block) for block in targets_blocks]
+            anchors_blocks = [self.anchor_projection_head(block) for block in anchors_blocks]
+            anchors_focal_blocks = [self.anchor_projection_head(block) for block in anchors_focal_blocks]
+            idx = 0
+            num_blocks = len(targets_blocks)
+            for target_block, anchor_block, anchor_focal_block in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
+                anchors_block_out = torch.cat([anchor_block, anchor_focal_block], dim=0)
+                for target_block_2, anchor_block_2, anchor_focal_block_2 in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
+                    if idx == 0:
+                        loss = self.criterion(anchors_block_out, target_block_2, self.prototypes.data) * (idx+1/num_blocks)
+                    else:
+                        loss += self.criterion(anchors_block_out, target_block_2, self.prototypes.data) * (idx+1/num_blocks)
+                idx += 1
+
+        elif msn_aug_mode == 'v10':
             # add noise to anchors
             anchors_out = anchors_out + torch.randn_like(anchors_out) * 0.1
 
