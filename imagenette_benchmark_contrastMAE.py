@@ -1063,6 +1063,7 @@ class MSNModel(BenchmarkModule):
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
         utils.update_momentum(self.anchor_projection_head, self.projection_head, 0.996)
+        loss = 0
 
         views, _, _ = batch
         views = [view.to(self.device, non_blocking=True) for view in views]
@@ -1125,10 +1126,7 @@ class MSNModel(BenchmarkModule):
             idx = 0
             for target_block, anchor_block, anchor_focal_block in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
                 anchors_block_out = torch.cat([anchor_block, anchor_focal_block], dim=0)
-                if idx == 0:
-                    loss = self.criterion(anchors_block_out, target_block, self.prototypes.data) * 0.5 ** idx
-                else:
-                    loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * 0.5 ** idx
+                loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * 0.5 ** idx
                 idx += 1
 
         elif msn_aug_mode == 'v6':
@@ -1142,10 +1140,7 @@ class MSNModel(BenchmarkModule):
             idx = 0
             for target_block, anchor_block, anchor_focal_block in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
                 anchors_block_out = torch.cat([anchor_block, anchor_focal_block], dim=0)
-                if idx == 0:
-                    loss = self.criterion(anchors_block_out, target_block, self.prototypes.data) * (1 - 0.5 ** idx)
-                else:
-                    loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * (1 - 0.5 ** idx)
+                loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * (1 - 0.5 ** idx)
                 idx += 1
 
         elif msn_aug_mode == 'v7':
@@ -1160,10 +1155,7 @@ class MSNModel(BenchmarkModule):
             num_blocks = len(targets_blocks)
             for target_block, anchor_block, anchor_focal_block in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
                 anchors_block_out = torch.cat([anchor_block, anchor_focal_block], dim=0)
-                if idx == 0:
-                    loss = self.criterion(anchors_block_out, target_block, self.prototypes.data) * (idx+1/num_blocks)
-                else:
-                    loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * (idx+1/num_blocks)
+                loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * (idx+1/num_blocks)
                 idx += 1
 
         elif msn_aug_mode == 'v8':
@@ -1182,10 +1174,7 @@ class MSNModel(BenchmarkModule):
                     if anchor_block_2 is anchor_block:
                         continue
                     anchors_block_out = torch.cat([anchors_block_out, anchor_block_2, anchor_focal_block_2], dim=0)
-                if idx == 0:
-                    loss = self.criterion(anchors_block_out, target_block, self.prototypes.data) * (idx+1/num_blocks)
-                else:
-                    loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * (idx+1/num_blocks)
+                loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * (idx+1/num_blocks)
                 idx += 1
 
         elif msn_aug_mode == 'v9':
@@ -1201,17 +1190,14 @@ class MSNModel(BenchmarkModule):
             for target_block, anchor_block, anchor_focal_block in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
                 anchors_block_out = torch.cat([anchor_block, anchor_focal_block], dim=0)
                 for target_block_2, anchor_block_2, anchor_focal_block_2 in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
-                    if idx == 0:
-                        loss = self.criterion(anchors_block_out, target_block_2, self.prototypes.data) * (idx+1/num_blocks)
-                    else:
-                        loss += self.criterion(anchors_block_out, target_block_2, self.prototypes.data) * (idx+1/num_blocks)
+                    loss += self.criterion(anchors_block_out, target_block_2, self.prototypes.data) * (idx+1/num_blocks)
                 idx += 1
 
         elif msn_aug_mode == 'v10':
             # add noise to anchors
             anchors_out = anchors_out + torch.randn_like(anchors_out) * 0.1
 
-        loss = self.criterion(anchors_out, targets_out, self.prototypes.data)
+        loss += self.criterion(anchors_out, targets_out, self.prototypes.data)
         if msn_aug_mode == 'v4':
             loss += self.criterion(anchors_blocks, targets_blocks, self.prototypes.data)
         self.log('train_loss_ssl', loss)
@@ -1400,7 +1386,7 @@ for BenchmarkModel in models:
 
             if 'MSN' in model_name:
                 wandb_logger = WandbLogger(
-                    project="cvmae_benchmark", entity="maggu", name=f"{model_name}--_{msn_aug_mode}_224_{masking_ratio}_training--{seed}"
+                    project="cvmae_benchmark", entity="maggu", name=f"{model_name}--_{msn_aug_mode}_224_FIXLOSS_{masking_ratio}_training--{seed}"
                 )
             else:
                 wandb_logger = WandbLogger(
