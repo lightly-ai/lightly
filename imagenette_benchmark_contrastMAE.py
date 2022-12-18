@@ -1131,7 +1131,6 @@ class MSNModel(BenchmarkModule):
                     loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * 0.5 ** idx
                 idx += 1
 
-
         elif msn_aug_mode == 'v6':
             _, targets_blocks = self.backbone.forward_blocks(targets)
             _, anchors_blocks = self.encode_blocks(anchors)
@@ -1166,6 +1165,32 @@ class MSNModel(BenchmarkModule):
                 else:
                     loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * (idx+1/num_blocks)
                 idx += 1
+
+        elif msn_aug_mode == 'v8':
+            _, targets_blocks = self.backbone.forward_blocks(targets)
+            _, anchors_blocks = self.encode_blocks(anchors)
+            _, anchors_focal_blocks = self.encode_blocks(anchors_focal)
+
+            targets_blocks = [self.projection_head(block) for block in targets_blocks]
+            anchors_blocks = [self.anchor_projection_head(block) for block in anchors_blocks]
+            anchors_focal_blocks = [self.anchor_projection_head(block) for block in anchors_focal_blocks]
+            idx = 0
+            num_blocks = len(targets_blocks)
+            for target_block, anchor_block, anchor_focal_block in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
+                anchors_block_out = torch.cat([anchor_block, anchor_focal_block], dim=0)
+                for target_block_2, anchor_block_2, anchor_focal_block_2 in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
+                    if anchor_block_2 is anchor_block:
+                        continue
+                    anchors_block_out = torch.cat([anchors_block_out, anchor_block_2, anchor_focal_block_2], dim=0)
+                if idx == 0:
+                    loss = self.criterion(anchors_block_out, target_block, self.prototypes.data) * (idx+1/num_blocks)
+                else:
+                    loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * (idx+1/num_blocks)
+                idx += 1
+
+        elif msn_aug_mode == 'v9':
+            # add noise to anchors
+            anchors_out = anchors_out + torch.randn_like(anchors_out) * 0.1
 
         loss = self.criterion(anchors_out, targets_out, self.prototypes.data)
         if msn_aug_mode == 'v4':
