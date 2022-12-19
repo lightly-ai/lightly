@@ -93,7 +93,7 @@ input_size = 224
 masking_ratio = 0.75
 patch_size = 16
 msn_aug_mode = 'v9'
-byol_mode = 'v1'
+byol_mode = 'v2'
 msn_masking_ratio = 0.15
 # dataset_name = 'cifar10'
 dataset_name = 'imagenette'
@@ -491,7 +491,7 @@ class BYOLModel(BenchmarkModule):
 
         self.criterion = lightly.loss.NegativeCosineSimilarity()
 
-        if byol_mode == 'v1':
+        if byol_mode == 'v1' or byol_mode == 'v2':
             import clip
             self.clip_model, self.preprocess = clip.load("ViT-B/16", device=self.device)
             utils.deactivate_requires_grad(self.clip_model)
