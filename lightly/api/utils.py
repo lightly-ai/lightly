@@ -8,15 +8,14 @@ import os
 import time
 import random
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
-import numpy as np
-from PIL import Image, ImageFilter
 # the following two lines are needed because
 # PIL misidentifies certain jpeg images as MPOs
 from PIL import JpegImagePlugin
-
 JpegImagePlugin._getmp = lambda: None
+
+from lightly.openapi_generated.swagger_client.configuration import Configuration
 
 MAXIMUM_FILENAME_LENGTH = 255
 RETRY_MAX_BACKOFF = 32
@@ -192,3 +191,26 @@ def get_signed_url_destination(signed_url: str = '') -> DatasourceType:
         return DatasourceType.AZURE
     # default to local as it must be some special setup
     return DatasourceType.LOCAL
+
+
+def get_api_client_configuration(
+    token: Optional[str] = None,
+    raise_if_no_token_specified: bool = True,
+) -> Configuration:
+
+    host = getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai")
+    ssl_ca_cert = getenv("LIGHTLY_CA_CERTS", None)
+
+    if token is None:
+        token = getenv("LIGHTLY_TOKEN", None)
+    if token is None and raise_if_no_token_specified:
+        raise ValueError(
+            "Either provide a 'token' argument or export a LIGHTLY_TOKEN environment variable"
+        )
+
+    configuration = Configuration()
+    configuration.api_key = {"token": token}
+    configuration.ssl_ca_cert = ssl_ca_cert
+    configuration.host = host
+
+    return configuration
