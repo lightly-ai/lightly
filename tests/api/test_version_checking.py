@@ -5,7 +5,7 @@ import unittest
 import lightly
 from lightly.api.version_checking import get_latest_version, \
     get_minimum_compatible_version, pretty_print_latest_version, \
-    LightlyAPITimeoutException, do_version_check
+    LightlyAPITimeoutException, is_latest_version, is_compatible_version
 
 from tests.api_workflow.mocked_api_workflow_client import MockedVersioningApi
 
@@ -20,6 +20,18 @@ class TestVersionChecking(unittest.TestCase):
 
     def test_get_minimum_compatible_version(self):
         get_minimum_compatible_version()
+
+    def test_is_latest_version(self) -> None:
+        assert is_latest_version("1.2.8")
+        assert not is_latest_version("1.2.7")
+        assert not is_latest_version("1.1.8")
+        assert not is_latest_version("0.2.8")
+
+    def test_is_compatible_version(self) -> None:
+        assert is_compatible_version("1.2.1")
+        assert not is_compatible_version("1.2.0")
+        assert not is_compatible_version("1.1.9")
+        assert not is_compatible_version("0.2.1")
 
     def test_pretty_print(self):
         pretty_print_latest_version(current_version="curr", latest_version="1.1.1")
@@ -48,7 +60,7 @@ class TestVersionChecking(unittest.TestCase):
             start_time = time.time()
 
             with self.assertRaises(LightlyAPITimeoutException):
-                do_version_check(lightly.__version__)
+                is_latest_version(lightly.__version__)
 
             duration = time.time() - start_time
 
