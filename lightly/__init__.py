@@ -75,7 +75,7 @@ The framework is structured into the following modules:
 # All Rights Reserved
 
 __name__ = 'lightly'
-__version__ = '1.2.39'
+__version__ = '1.2.28'
 
 import os
 
@@ -123,12 +123,11 @@ else:
     from lightly import transforms
     from lightly import utils
     
-    from lightly.api.version_checking import do_version_check
-
     if os.getenv('LIGHTLY_DID_VERSION_CHECK', 'False') == 'False':
         os.environ['LIGHTLY_DID_VERSION_CHECK'] = 'True'
 
         try:
-            do_version_check(current_version=__version__)
+          from lightly.api.version_checking import do_version_check
+          do_version_check(current_version=__version__)
         except Exception as e:
             pass

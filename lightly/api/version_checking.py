@@ -6,9 +6,7 @@ from typing import Tuple
 from lightly.openapi_generated.swagger_client import VersioningApi
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 
-import lightly.api.api_workflow_client as api_workflow_client
-from lightly.api.utils import getenv
-from lightly.utils import version_compare
+from lightly.api import utils
 
 
 class LightlyAPITimeoutException(Exception):
@@ -33,23 +31,13 @@ def do_version_check(current_version: str):
     if current_process().name == 'MainProcess':
         with TimeoutDecorator(1):
             versioning_api = get_versioning_api()
-            current_version: str = versioning_api.get_latest_pip_version(
+            latest_version: str = versioning_api.get_latest_pip_version(
                 current_version=current_version)
-            latest_version: str = versioning_api.get_minimum_compatible_pip_version()
-
-            try:
-                if version_compare(current_version, latest_version) < 0:
-                    # local version is behind latest version
-                    pretty_print_latest_version(current_version, latest_version)
-            except ValueError:
-                pass
-                # error during version compare
-                # we just skip the version check
-
+            compatible_version: str = versioning_api.get_minimum_compatible_pip_version()
 
 
 def get_versioning_api() -> VersioningApi:
-    configuration = api_workflow_client.get_api_client_configuration(
+    configuration = utils.get_api_client_configuration(
         raise_if_no_token_specified=False,
     )
     api_client = ApiClient(configuration=configuration)
