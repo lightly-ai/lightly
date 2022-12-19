@@ -55,10 +55,9 @@ class SwaV(nn.Module):
         # Get the queue features
         queue_features = []
         for i in range(len(self.queues)):
-            # TODO: High resolution features are of dim batch_size X out_dim,
-            # TODO: however, the returned queue features' dimension are swapped - out_dim X queue_length
             _, features = self.queues[i](high_resolution_features[i], update=True)
-            # TODO: flipping the axes because of the above explained problem
+            # Queue features are in (num_ftrs X queue_length) shape, while the high res
+            # features are in (batch_size X num_ftrs). Swap the axes for interoperability.
             features = torch.permute(features, (1,0))
             queue_features.append(features)
 
