@@ -27,7 +27,7 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
 
     def test_error_if_version_is_incompatible(self):
         lightly.api.api_workflow_client.__version__ = "0.0.0"
-        with self.assertRaises(ValueError):
+        with self.assertWarns(UserWarning):
             MockedApiWorkflowClient(token="token_xyz")
         lightly.api.api_workflow_client.__version__ = lightly.__version__
 
