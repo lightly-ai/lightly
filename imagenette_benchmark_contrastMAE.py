@@ -138,7 +138,7 @@ if dataset_name == 'imagenette':
     collate_fn = lightly.data.SimCLRCollateFunction(
         input_size=input_size,
     )
-    if byol_mode == 'v1' or byol_mode == 'v2' byol_mode == 'v3':
+    if byol_mode == 'v1' or byol_mode == 'v2' or byol_mode == 'v3':
         # import Normalize from torchvision transforms
         from torchvision.transforms import Normalize
         collate_fn = lightly.data.SimCLRCollateFunction(
@@ -491,7 +491,7 @@ class BYOLModel(BenchmarkModule):
 
         self.criterion = lightly.loss.NegativeCosineSimilarity()
 
-        if byol_mode == 'v1' or byol_mode == 'v2' byol_mode == 'v3':
+        if byol_mode == 'v1' or byol_mode == 'v2' or byol_mode == 'v3':
             import clip
             self.clip_model, self.preprocess = clip.load("ViT-B/16", device=self.device)
             utils.deactivate_requires_grad(self.clip_model)
