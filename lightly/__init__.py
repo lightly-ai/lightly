@@ -129,6 +129,6 @@ else:
         if current_process().name == 'MainProcess':
             from lightly.api.version_checking import is_latest_version
             try:
-              is_latest_version(current_version=__version__)
+                is_latest_version(current_version=__version__)
             except Exception as e:
                 pass
