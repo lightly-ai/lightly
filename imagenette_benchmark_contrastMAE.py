@@ -138,6 +138,13 @@ if dataset_name == 'imagenette':
     collate_fn = lightly.data.SimCLRCollateFunction(
         input_size=input_size,
     )
+    if byol_mode == 'v1' or byol_mode == 'v2':
+        # import Normalize from torchvision transforms
+        from torchvision.transforms import Normalize
+        collate_fn = lightly.data.SimCLRCollateFunction(
+            input_size=input_size,
+            normalize={'mean':(0.48145466, 0.4578275, 0.40821073), 'std':(0.26862954, 0.26130258, 0.27577711)},
+        )
 
     # Multi crop augmentation for SwAV
     swav_collate_fn = lightly.data.SwaVCollateFunction(
@@ -514,6 +521,10 @@ class BYOLModel(BenchmarkModule):
             x0_clip = self.clip_model.encode_image(x0)
             x1_clip = self.clip_model.encode_image(x1)
             loss += 0.5 * (self.criterion(py0, x0_clip) + self.criterion(py1, x1_clip))
+        if byol_mode == 'v2':
+            x0_clip = self.clip_model.encode_image(x0)
+            x1_clip = self.clip_model.encode_image(x1)
+            loss += (0.5 * (self.criterion(py0, x1_clip) + self.criterion(py1, x0_clip))) * 0.1
         self.log('train_loss_ssl', loss)
         return loss
 
