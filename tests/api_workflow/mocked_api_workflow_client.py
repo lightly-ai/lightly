@@ -989,7 +989,7 @@ class MockedComputeWorkerApi(DockerApi):
 
 class MockedVersioningApi(VersioningApi):
     def get_latest_pip_version(self, **kwargs):
-        return "1.1.8"
+        return "1.2.8"
 
     def get_minimum_compatible_pip_version(self, **kwargs):
         return "1.2.1"
