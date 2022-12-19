@@ -1401,6 +1401,10 @@ for BenchmarkModel in models:
                 wandb_logger = WandbLogger(
                     project="cvmae_benchmark", entity="maggu", name=f"{model_name}--_{msn_aug_mode}_224_FIXLOSS_{masking_ratio}_training--{seed}"
                 )
+            elif 'BYOL' in model_name:
+                wandb_logger = WandbLogger(
+                    project="cvmae_benchmark", entity="maggu", name=f"{model_name}--_{byol_mode}_224_FIXLOSS_{masking_ratio}_training--{seed}"
+                )
             else:
                 wandb_logger = WandbLogger(
                     project="cvmae_benchmark", entity="maggu", name=f"{model_name}--training--{seed}"
