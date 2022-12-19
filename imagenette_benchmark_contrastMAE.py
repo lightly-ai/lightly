@@ -93,7 +93,7 @@ input_size = 224
 masking_ratio = 0.75
 patch_size = 16
 msn_aug_mode = 'v9'
-byol_mode = 'v2'
+byol_mode = 'v3'
 msn_masking_ratio = 0.15
 # dataset_name = 'cifar10'
 dataset_name = 'imagenette'
@@ -138,7 +138,7 @@ if dataset_name == 'imagenette':
     collate_fn = lightly.data.SimCLRCollateFunction(
         input_size=input_size,
     )
-    if byol_mode == 'v1' or byol_mode == 'v2':
+    if byol_mode == 'v1' or byol_mode == 'v2' byol_mode == 'v3':
         # import Normalize from torchvision transforms
         from torchvision.transforms import Normalize
         collate_fn = lightly.data.SimCLRCollateFunction(
@@ -491,7 +491,7 @@ class BYOLModel(BenchmarkModule):
 
         self.criterion = lightly.loss.NegativeCosineSimilarity()
 
-        if byol_mode == 'v1' or byol_mode == 'v2':
+        if byol_mode == 'v1' or byol_mode == 'v2' byol_mode == 'v3':
             import clip
             self.clip_model, self.preprocess = clip.load("ViT-B/16", device=self.device)
             utils.deactivate_requires_grad(self.clip_model)
@@ -525,6 +525,10 @@ class BYOLModel(BenchmarkModule):
             x0_clip = self.clip_model.encode_image(x0)
             x1_clip = self.clip_model.encode_image(x1)
             loss += (0.5 * (self.criterion(py0, x1_clip) + self.criterion(py1, x0_clip))) * 0.1
+        if byol_mode == 'v3':
+            x0_clip = self.clip_model.encode_image(x0)
+            x1_clip = self.clip_model.encode_image(x1)
+            loss += (0.5 * (self.criterion(py0, x0_clip) + self.criterion(py1, x1_clip))) * 0.1
         self.log('train_loss_ssl', loss)
         return loss
 
