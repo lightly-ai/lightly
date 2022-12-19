@@ -27,7 +27,7 @@ class TestVersionChecking(unittest.TestCase):
         assert not is_latest_version("1.1.8")
         assert not is_latest_version("0.2.8")
 
-    def test_is_latest_version(self) -> None:
+    def test_is_compatible_version(self) -> None:
         assert is_compatible_version("1.2.1")
         assert not is_compatible_version("1.2.0")
         assert not is_compatible_version("1.1.9")
