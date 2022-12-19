@@ -93,6 +93,7 @@ input_size = 224
 masking_ratio = 0.75
 patch_size = 16
 msn_aug_mode = 'v9'
+byol_mode = 'v1'
 msn_masking_ratio = 0.15
 # dataset_name = 'cifar10'
 dataset_name = 'imagenette'
@@ -483,27 +484,36 @@ class BYOLModel(BenchmarkModule):
 
         self.criterion = lightly.loss.NegativeCosineSimilarity()
 
+        if byol_mode == 'v1':
+            import clip
+            self.clip_model, self.preprocess = clip.load("ViT-B/16", device=self.device)
+            utils.deactivate_requires_grad(self.clip_model)
+
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)
         z = self.projection_head(y)
         p = self.prediction_head(z)
-        return p
+        return p, y
 
     def forward_momentum(self, x):
         y = self.backbone_momentum(x).flatten(start_dim=1)
         z = self.projection_head_momentum(y)
         z = z.detach()
-        return z
+        return z, y
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.backbone, self.backbone_momentum, m=0.99)
         utils.update_momentum(self.projection_head, self.projection_head_momentum, m=0.99)
         (x0, x1), _, _ = batch
-        p0 = self.forward(x0)
-        z0 = self.forward_momentum(x0)
-        p1 = self.forward(x1)
-        z1 = self.forward_momentum(x1)
+        p0, py0 = self.forward(x0)
+        z0, zy0 = self.forward_momentum(x0)
+        p1, py1 = self.forward(x1)
+        z1, zy1 = self.forward_momentum(x1)
         loss = 0.5 * (self.criterion(p0, z1) + self.criterion(p1, z0))
+        if byol_mode == 'v1':
+            x0_clip = self.clip_model.encode_image(x0)
+            x1_clip = self.clip_model.encode_image(x1)
+            loss += 0.5 * (self.criterion(py0, x0_clip) + self.criterion(py1, x1_clip))
         self.log('train_loss_ssl', loss)
         return loss
 
@@ -1359,7 +1369,10 @@ class SMoGModel(BenchmarkModule):
 
 
 models = [
-    MSNModel,
+    # MSNModel,
+    # SimCLRModel,
+    # MocoModel,
+    BYOLModel,
 ]
 bench_results = dict()
 from pytorch_lightning.loggers import WandbLogger
