@@ -1,12 +1,12 @@
 import signal
 import warnings
-from multiprocessing import current_process
 from typing import Tuple
 
 from lightly.openapi_generated.swagger_client import VersioningApi
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 
 from lightly.api import utils
+from lightly.utils import version_compare
 
 
 class LightlyAPITimeoutException(Exception):
@@ -27,13 +27,18 @@ class TimeoutDecorator:
         signal.alarm(0)
 
 
-def do_version_check(current_version: str):
-    if current_process().name == 'MainProcess':
-        with TimeoutDecorator(1):
-            versioning_api = get_versioning_api()
-            latest_version: str = versioning_api.get_latest_pip_version(
-                current_version=current_version)
-            compatible_version: str = versioning_api.get_minimum_compatible_pip_version()
+def is_latest_version(current_version: str) -> bool:
+    versioning_api = get_versioning_api()
+    latest_version: str = versioning_api.get_latest_pip_version(
+        current_version=current_version)
+    return version_compare.version_compare(current_version, latest_version) >= 0
+
+
+
+def is_compatible_version(current_version: str) -> bool:
+    versioning_api = get_versioning_api()
+    minimum_version: str = versioning_api.get_minimum_compatible_pip_version()
+    return version_compare.version_compare(current_version, minimum_version) >= 0
 
 
 def get_versioning_api() -> VersioningApi:

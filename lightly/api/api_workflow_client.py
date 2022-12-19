@@ -21,8 +21,7 @@ from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
 from lightly.api.utils import DatasourceType, get_signed_url_destination, get_api_client_configuration
-from lightly.api.version_checking import get_minimum_compatible_version
-from lightly.utils import version_compare
+from lightly.api.version_checking import is_compatible_version
 from lightly.openapi_generated.swagger_client.api.collaboration_api import CollaborationApi
 from lightly.openapi_generated.swagger_client import ScoresApi, QuotaApi, MetaDataConfigurationsApi, PredictionsApi
 from lightly.openapi_generated.swagger_client.api.datasets_api import \
@@ -85,7 +84,13 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         embedding_id: Optional[str] = None
     ):
 
-        self.check_version_compatibility()
+        if not is_compatible_version(__version__):
+            warnings.warn(
+                UserWarning((f"Incompatible version of lightly pip package.\n"
+                             f"Please upgrade to the latest version "
+                             f"to be able to access the api.")
+                )
+            )
 
         configuration = get_api_client_configuration(token=token)
         self.api_client = ApiClient(configuration=configuration)
@@ -113,13 +118,6 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         self._metadata_configurations_api = \
             MetaDataConfigurationsApi(api_client=self.api_client)
         self._predictions_api = PredictionsApi(api_client=self.api_client)
-
-    def check_version_compatibility(self):
-        minimum_version = get_minimum_compatible_version()
-        if version_compare(__version__, minimum_version) < 0:
-            raise ValueError(f"Incompatible version of lightly pip package. "
-                             f"Please upgrade to at least version '{minimum_version}' "
-                             f"to be able to access the api.")
 
     @property
     def dataset_id(self) -> str:

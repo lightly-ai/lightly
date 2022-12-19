@@ -125,9 +125,10 @@ else:
     
     if os.getenv('LIGHTLY_DID_VERSION_CHECK', 'False') == 'False':
         os.environ['LIGHTLY_DID_VERSION_CHECK'] = 'True'
-
-        try:
-          from lightly.api.version_checking import do_version_check
-          do_version_check(current_version=__version__)
-        except Exception as e:
-            pass
+        from multiprocessing import current_process
+        if current_process().name == 'MainProcess':
+            from lightly.api.version_checking import is_latest_version
+            try:
+              is_latest_version(current_version=__version__)
+            except Exception as e:
+                pass
