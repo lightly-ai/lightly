@@ -86,7 +86,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
 
         if not is_compatible_version(__version__):
             warnings.warn(
-                UserWarning((f"Incompatible version of lightly pip package.\n"
+                UserWarning((f"Incompatible version of lightly pip package. "
                              f"Please upgrade to the latest version "
                              f"to be able to access the api.")
                 )
