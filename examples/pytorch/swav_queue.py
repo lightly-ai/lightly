@@ -13,17 +13,20 @@ from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
 
 
 class SwaV(nn.Module):
-    def __init__(self, backbone, num_ftrs, out_dim, n_prototypes, n_queues, queue_length=0):
+    def __init__(self, backbone, num_ftrs, out_dim, n_prototypes,
+                 n_queues, queue_length=0, start_queue_at_epoch=0):
         super().__init__()
         self.backbone = backbone
         self.projection_head = SwaVProjectionHead(num_ftrs, num_ftrs, out_dim)
         self.prototypes = SwaVPrototypes(out_dim, n_prototypes=n_prototypes)
+
+        self.start_queue_at_epoch = start_queue_at_epoch
         self.queues = None
         if n_queues > 0:
             self.queues = [MemoryBankModule(size=queue_length) for _ in range(n_queues)]
             self.queues = nn.ModuleList(self.queues)
 
-    def forward(self, high_resolution, low_resolution):
+    def forward(self, high_resolution, low_resolution, epoch=None):
         self.prototypes.normalize()
 
         high_resolution_features = [self._subforward(x) for x in high_resolution]
@@ -31,7 +34,7 @@ class SwaV(nn.Module):
 
         high_resolution_prototypes = [self.prototypes(x) for x in high_resolution_features]
         low_resolution_prototypes = [self.prototypes(x) for x in low_resolution_features]
-        queue_prototypes = self._get_queue_prototypes(high_resolution_features)
+        queue_prototypes = self._get_queue_prototypes(high_resolution_features, epoch)
 
         return high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
 
@@ -42,7 +45,7 @@ class SwaV(nn.Module):
         return features
 
     @torch.no_grad()
-    def _get_queue_prototypes(self, high_resolution_features):
+    def _get_queue_prototypes(self, high_resolution_features, epoch=None):
         if self.queues is None:
             return None
 
@@ -60,6 +63,15 @@ class SwaV(nn.Module):
             # features are in (batch_size X num_ftrs). Swap the axes for interoperability.
             features = torch.permute(features, (1,0))
             queue_features.append(features)
+        
+        # If loss calculation with queue prototypes starts at a later epoch,
+        # just queue the features and return None instead of queue prototypes.
+        if self.start_queue_at_epoch > 0:
+            if epoch is None:
+                raise ValueError("The epoch number must be passed to the `forward()` "
+                                 "method if `start_queue_at_epoch` is greater than 0.")
+            if epoch < self.start_queue_at_epoch:
+                return None
 
         # Assign prototypes
         queue_prototypes = [self.prototypes(x) for x in queue_features]
@@ -68,7 +80,8 @@ class SwaV(nn.Module):
 
 resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(*list(resnet.children())[:-1])
-model = SwaV(backbone, num_ftrs=512, out_dim=128, n_prototypes=512, n_queues=2, queue_length=640)
+model = SwaV(backbone, num_ftrs=512, out_dim=128, n_prototypes=512,
+             n_queues=2, queue_length=512, start_queue_at_epoch=5)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
@@ -101,7 +114,7 @@ for epoch in range(10):
     for batch, _, _ in dataloader:
         batch = [x.to(device) for x in batch]
         high_resolution, low_resolution = batch[:2], batch[2:]
-        high_resolution, low_resolution, queue = model(high_resolution, low_resolution)
+        high_resolution, low_resolution, queue = model(high_resolution, low_resolution, epoch)
         loss = criterion(high_resolution, low_resolution, queue)
         total_loss += loss.detach()
         loss.backward()
