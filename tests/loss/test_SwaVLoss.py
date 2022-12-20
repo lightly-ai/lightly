@@ -6,7 +6,7 @@ import torch
 from lightly.loss import SwaVLoss
 
 
-class TestNTXentLoss(unittest.TestCase):
+class TestSwaVLoss(unittest.TestCase):
 
     def test_forward_pass(self):
 
@@ -21,6 +21,25 @@ class TestNTXentLoss(unittest.TestCase):
                 
                 with self.subTest(msg=f'n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}'):
                     loss = criterion(high_res, low_res)
+                    # loss should be almost zero for unit matrix
+                    self.assertGreater(0.5, loss.cpu().numpy())
+
+    
+    def test_forward_pass_queue(self):
+
+        n = 32
+        n_high_res = 2
+        high_res = [torch.eye(32, 32) for i in range(n_high_res)]
+        queue_length = 128
+        queue = [torch.eye(128, 32) for i in range(n_high_res)]
+
+        for n_low_res in range(6):
+            for sinkhorn_iterations in range(3):
+                criterion = SwaVLoss(sinkhorn_iterations=sinkhorn_iterations)
+                low_res = [torch.eye(n, n) for i in range(n_low_res)]
+                
+                with self.subTest(msg=f'n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}'):
+                    loss = criterion(high_res, low_res, queue)
                     # loss should be almost zero for unit matrix
                     self.assertGreater(0.5, loss.cpu().numpy())
 
