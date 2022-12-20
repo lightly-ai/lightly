@@ -149,14 +149,15 @@ class _DownloadDatasetMixin:
             warnings.warn(msg)
 
     def download_embeddings_csv(self, output_path: str) -> None:
-        """Downloads the last created embedding from the dataset to the output path.
+        """Downloads the latest embeddings from the dataset and saves them to the output
+        path.
 
         Raises:
             RuntimeError:
-                If no embedding could be found for the dataset.
+                If no embeddings could be found for the dataset.
 
         """
-        last_embedding = self._get_last_default_embeddings_data()
+        last_embedding = self._get_latest_default_embeddings_data()
         if last_embedding is None:
             raise RuntimeError(
                 f"Could not find embedding for dataset with id '{self.dataset_id}'."
@@ -167,9 +168,9 @@ class _DownloadDatasetMixin:
         )
         download.download_and_write_file(url=read_url, output_path=output_path)
 
-    def _get_last_default_embeddings_data(self) -> Optional[DatasetEmbeddingData]:
-        """Returns the last created embedding with a default name from the dataset or
-        None if no such embedding exists.
+    def _get_latest_default_embeddings_data(self) -> Optional[DatasetEmbeddingData]:
+        """Returns the latest embeddings with a default name from the dataset or None
+        if no such embedding exists.
         """
         embeddings = self._embeddings_api.get_embeddings_by_dataset_id(
             dataset_id=self.dataset_id
