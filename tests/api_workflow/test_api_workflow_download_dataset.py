@@ -35,50 +35,58 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
         self.api_workflow_client.download_dataset('path-to-dir-remove-me', tag_name='initial-tag')
         shutil.rmtree('path-to-dir-remove-me')
 
-    def test_download_embeddings_csv(self) -> None:
+    def test_get_embedding_data_by_name(self) -> None:
+        embedding_0 = DatasetEmbeddingData(
+            id="0",
+            name="embedding_0",
+            created_at=0,
+            is_processed=False,
+        )
+        embedding_1 = DatasetEmbeddingData(
+            id="1",
+            name="embedding_1",
+            created_at=1,
+            is_processed=False,
+        )
         with mock.patch.object(
-                self.api_workflow_client,
-                "_get_latest_default_embeddings_data",
-                return_value=DatasetEmbeddingData(
-                    id="0",
-                    name="default_20221209_10h45m49s",
-                    created_at=0,
-                    is_processed=False,
-                )
-            ) as mock_get_latest_default_embeddings_data, \
-            mock.patch.object(
-                self.api_workflow_client._embeddings_api,
-                "get_embeddings_csv_read_url_by_id",
-                return_value="read-url",
-            ) as mock_get_embeddings_csv_read_url_by_id, \
-            mock.patch.object(download, "download_and_write_file") as mock_download:
+            self.api_workflow_client._embeddings_api,
+            "get_embeddings_by_dataset_id",
+            return_value=[embedding_0, embedding_1]
+        ) as mock_get_embeddings_by_dataset_id:
 
-            self.api_workflow_client.download_embeddings_csv(output_path="embeddings.csv")
-            mock_get_latest_default_embeddings_data.assert_called_once()
-            mock_get_embeddings_csv_read_url_by_id.assert_called_once_with(
+            embedding = self.api_workflow_client.get_embedding_data_by_name(
+                name="embedding_0"
+            )
+            mock_get_embeddings_by_dataset_id.assert_called_once_with(
                 dataset_id="dataset_0_id",
-                embedding_id="0",
             )
-            mock_download.assert_called_once_with(
-                url="read-url",
-                output_path="embeddings.csv",
-            )
+            assert embedding == embedding_0
 
-    def test_download_embeddings_csv__no_default_embedding(self) -> None:
+    def test_get_embedding_data_by_name__no_embedding_with_name(self) -> None:
+        embedding_0 = DatasetEmbeddingData(
+            id="0",
+            name="embedding_0",
+            created_at=0,
+            is_processed=False,
+        )
         with mock.patch.object(
-                self.api_workflow_client,
-                "_get_latest_default_embeddings_data",
-                return_value=None,
-            ) as mock_get_latest_default_embeddings_data, \
+                self.api_workflow_client._embeddings_api,
+                "get_embeddings_by_dataset_id",
+                return_value=[embedding_0]
+            ) as mock_get_embeddings_by_dataset_id, \
             self.assertRaisesRegex(
-                RuntimeError,
-                "Could not find embedding for dataset with id 'dataset_0_id'."
+                ValueError, 
+                "There are no embeddings with name 'other_embedding' for dataset with id 'dataset_0_id'."
             ):
 
-            self.api_workflow_client.download_embeddings_csv(output_path="embeddings.csv")
-            mock_get_latest_default_embeddings_data.assert_called_once()
+            self.api_workflow_client.get_embedding_data_by_name(
+                name="other_embedding"
+            )
+            mock_get_embeddings_by_dataset_id.assert_called_once_with(
+                dataset_id="dataset_0_id",
+            )
 
-    def test__get_latest_default_embeddings_data(self) -> None:
+    def test__get_latest_default_embedding_data(self) -> None:
         embedding_0 = DatasetEmbeddingData(
             id="0",
             name="default_20221209_10h45m49s",
@@ -102,13 +110,13 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
             "get_embeddings_by_dataset_id",
             return_value=[embedding_0, embedding_1, embedding_2],
         ) as mock_get_embeddings_by_dataset_id:
-            embedding = self.api_workflow_client._get_latest_default_embeddings_data()
+            embedding = self.api_workflow_client._get_latest_default_embedding_data()
             mock_get_embeddings_by_dataset_id.assert_called_once_with(
                 dataset_id="dataset_0_id"
             )
             assert embedding == embedding_1
 
-    def test__get_latest_default_embeddings_data__no_default_embedding(self) -> None:
+    def test__get_latest_default_embedding_data__no_default_embedding(self) -> None:
         custom_embedding = DatasetEmbeddingData(
             id="0",
             name="custom-name",
@@ -120,11 +128,73 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
             "get_embeddings_by_dataset_id",
             return_value=[custom_embedding],
         ) as mock_get_embeddings_by_dataset_id:
-            embedding = self.api_workflow_client._get_latest_default_embeddings_data()
+            embedding = self.api_workflow_client._get_latest_default_embedding_data()
             mock_get_embeddings_by_dataset_id.assert_called_once_with(
                 dataset_id="dataset_0_id"
             )
             assert embedding is None
+
+    def test_download_embeddings_csv_by_id(self) -> None:
+        with mock.patch.object(
+                self.api_workflow_client._embeddings_api,
+                "get_embeddings_csv_read_url_by_id",
+                return_value="read_url",
+            ) as mock_get_embeddings_csv_read_url_by_id, \
+            mock.patch.object(
+                download,
+                "download_and_write_file"
+            ) as mock_download:
+
+            self.api_workflow_client.download_embeddings_csv_by_id(
+                embedding_id="embedding_id",
+                output_path="embeddings.csv",
+            )
+            mock_get_embeddings_csv_read_url_by_id.assert_called_once_with(
+                dataset_id="dataset_0_id",
+                embedding_id="embedding_id",
+            )
+            mock_download.assert_called_once_with(
+                url="read_url",
+                output_path="embeddings.csv",
+            )
+
+    def test_download_embeddings_csv(self) -> None:
+        with mock.patch.object(
+                self.api_workflow_client,
+                "_get_latest_default_embedding_data",
+                return_value=DatasetEmbeddingData(
+                    id="0",
+                    name="default_20221209_10h45m49s",
+                    created_at=0,
+                    is_processed=False,
+                )
+            ) as mock_get_latest_default_embedding_data, \
+            mock.patch.object(
+                self.api_workflow_client,
+                "download_embeddings_csv_by_id",
+            ) as mock_download_embeddings_csv_by_id:
+
+            self.api_workflow_client.download_embeddings_csv(output_path="embeddings.csv")
+            mock_get_latest_default_embedding_data.assert_called_once()
+            mock_download_embeddings_csv_by_id.assert_called_once_with(
+                embedding_id="0",
+                output_path="embeddings.csv",
+            )
+
+    def test_download_embeddings_csv__no_default_embedding(self) -> None:
+        with mock.patch.object(
+                self.api_workflow_client,
+                "_get_latest_default_embedding_data",
+                return_value=None,
+            ) as mock_get_latest_default_embedding_data, \
+            self.assertRaisesRegex(
+                RuntimeError,
+                "Could not find embeddings for dataset with id 'dataset_0_id'."
+            ):
+
+            self.api_workflow_client.download_embeddings_csv(output_path="embeddings.csv")
+            mock_get_latest_default_embedding_data.assert_called_once()
+
 
     def test_export_label_box_data_rows_by_tag_name(self):
         rows = self.api_workflow_client.export_label_box_data_rows_by_tag_name('initial-tag')

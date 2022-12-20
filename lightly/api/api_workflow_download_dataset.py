@@ -148,6 +148,54 @@ class _DownloadDatasetMixin:
             msg += 'Failed at image: {}'.format(results.index(False))
             warnings.warn(msg)
 
+    def get_all_embedding_data(self) -> List[DatasetEmbeddingData]:
+        """Returns embedding data of all embeddings for this dataset."""
+        return self._embeddings_api.get_embeddings_by_dataset_id(
+            dataset_id=self.dataset_id
+        )
+
+    def get_embedding_data_by_name(self, name: str) -> DatasetEmbeddingData:
+        """Returns embedding data with the given name for this dataset.
+
+        Raises:
+            ValueError:
+                If no embedding with this name exists.
+
+        """
+        for embedding_data in self.get_all_embedding_data():
+            if embedding_data.name == name:
+                return embedding_data
+        raise ValueError(
+            f"There are no embeddings with name '{name}' for dataset with id "
+            f"'{self.dataset_id}'."
+        )
+
+    def _get_latest_default_embedding_data(self) -> Optional[DatasetEmbeddingData]:
+        """Returns the latest embedding data with a default name from the dataset or
+        None if no such embedding exists.
+        """
+        embeddings = self.get_all_embedding_data()
+        default_embeddings = [e for e in embeddings if e.name.startswith("default")]
+        if default_embeddings:
+            last_embedding = sorted(default_embeddings, key=lambda e: e.created_at)[-1]
+            return last_embedding
+        else:
+            return None
+
+    def download_embeddings_csv_by_id(
+        self, 
+        embedding_id: str, 
+        output_path: str,
+    ) -> None:
+        """Downloads embeddings with the given embedding id from the dataset and saves
+        them to the output path.
+        """
+        read_url = self._embeddings_api.get_embeddings_csv_read_url_by_id(
+            dataset_id=self.dataset_id,
+            embedding_id=embedding_id
+        )
+        download.download_and_write_file(url=read_url, output_path=output_path)
+
     def download_embeddings_csv(self, output_path: str) -> None:
         """Downloads the latest embeddings from the dataset and saves them to the output
         path.
@@ -157,30 +205,16 @@ class _DownloadDatasetMixin:
                 If no embeddings could be found for the dataset.
 
         """
-        last_embedding = self._get_latest_default_embeddings_data()
+        last_embedding = self._get_latest_default_embedding_data()
         if last_embedding is None:
             raise RuntimeError(
-                f"Could not find embedding for dataset with id '{self.dataset_id}'."
+                f"Could not find embeddings for dataset with id '{self.dataset_id}'."
             )
-        read_url = self._embeddings_api.get_embeddings_csv_read_url_by_id(
-            dataset_id=self.dataset_id,
-            embedding_id=last_embedding.id,
+        self.download_embeddings_csv_by_id(
+            embedding_id=last_embedding.id, 
+            output_path=output_path,
         )
-        download.download_and_write_file(url=read_url, output_path=output_path)
 
-    def _get_latest_default_embeddings_data(self) -> Optional[DatasetEmbeddingData]:
-        """Returns the latest embeddings with a default name from the dataset or None
-        if no such embedding exists.
-        """
-        embeddings = self._embeddings_api.get_embeddings_by_dataset_id(
-            dataset_id=self.dataset_id
-        )
-        default_embeddings = [e for e in embeddings if e.name.startswith("default")]
-        if default_embeddings:
-            last_embedding = sorted(default_embeddings, key=lambda e: e.created_at)[-1]
-            return last_embedding
-        else:
-            return None
 
     def export_label_studio_tasks_by_tag_id(
         self,
