@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 import io
 import warnings
 import os
@@ -11,11 +11,9 @@ from torch.utils.hipify.hipify_python import bcolors
 
 from concurrent.futures.thread import ThreadPoolExecutor
 
+from lightly.api import download
 from lightly.api.bitmask import BitMask
-from lightly.openapi_generated.swagger_client.models.image_type import ImageType
-from lightly.openapi_generated.swagger_client.models.filename_and_read_url import FilenameAndReadUrl
-from lightly.openapi_generated.swagger_client.models.label_box_data_row import LabelBoxDataRow
-from lightly.openapi_generated.swagger_client.models.label_studio_task import LabelStudioTask
+from lightly.openapi_generated.swagger_client import DatasetEmbeddingData, ImageType
 
 
 
@@ -120,7 +118,7 @@ class _DownloadDatasetMixin:
             # try to download image
             try:
                 read_url = self._samples_api.get_sample_image_read_url_by_id(
-                    self.dataset_id, 
+                    self.dataset_id,
                     sample_id,
                     type="full",
                 )
@@ -150,9 +148,38 @@ class _DownloadDatasetMixin:
             msg += 'Failed at image: {}'.format(results.index(False))
             warnings.warn(msg)
 
+    def download_embeddings_csv(self, output_path: str) -> None:
+        """Downloads the last created embedding from the dataset to the output path.
 
+        Raises:
+            RuntimeError:
+                If no embedding could be found for the dataset.
 
+        """
+        last_embedding = self._get_last_default_embeddings_data()
+        if last_embedding is None:
+            raise RuntimeError(
+                f"Could not find embedding for dataset with id '{self.dataset_id}'."
+            )
+        read_url = self._embeddings_api.get_embeddings_csv_read_url_by_id(
+            dataset_id=self.dataset_id,
+            embedding_id=last_embedding.id,
+        )
+        download.download_and_write_file(url=read_url, output_path=output_path)
 
+    def _get_last_default_embeddings_data(self) -> Optional[DatasetEmbeddingData]:
+        """Returns the last created embedding with a default name from the dataset or
+        None if no such embedding exists.
+        """
+        embeddings = self._embeddings_api.get_embeddings_by_dataset_id(
+            dataset_id=self.dataset_id
+        )
+        default_embeddings = [e for e in embeddings if e.name.startswith("default")]
+        if default_embeddings:
+            last_embedding = sorted(default_embeddings, key=lambda e: e.created_at)[-1]
+            return last_embedding
+        else:
+            return None
 
     def export_label_studio_tasks_by_tag_id(
         self,
@@ -200,7 +227,7 @@ class _DownloadDatasetMixin:
             >>> tasks = client.export_label_studio_tasks_by_tag_name(
             >>>     'initial-tag'
             >>> )
-            >>> 
+            >>>
             >>> with open('my-label-studio-tasks.json', 'w') as f:
             >>>     json.dump(tasks, f)
 
@@ -254,7 +281,7 @@ class _DownloadDatasetMixin:
             >>> tasks = client.export_label_box_data_rows_by_tag_name(
             >>>     'initial-tag'
             >>> )
-            >>> 
+            >>>
             >>> with open('my-labelbox-rows.json', 'w') as f:
             >>>     json.dump(tasks, f)
 
@@ -302,13 +329,13 @@ class _DownloadDatasetMixin:
             >>> filenames = client.export_filenames_by_tag_name(
             >>>     'initial-tag'
             >>> )
-            >>> 
+            >>>
             >>> with open('filenames-of-initial-tag.txt', 'w') as f:
             >>>     f.write(filenames)
 
         """
         tag = self.get_tag_by_name(tag_name)
-        return self.export_filenames_by_tag_id(tag.id)    
+        return self.export_filenames_by_tag_id(tag.id)
 
 
     def export_filenames_and_read_urls_by_tag_id(
@@ -351,7 +378,7 @@ class _DownloadDatasetMixin:
             >>> mappings = client.export_filenames_and_read_urls_by_tag_name(
             >>>     'initial-tag'
             >>> )
-            >>> 
+            >>>
             >>> with open('my-readURL-mappings.json', 'w') as f:
             >>>     json.dump(mappings, f)
 
