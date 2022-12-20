@@ -18,6 +18,7 @@ import torch
 import torch.nn as nn
 from torch.optim.lr_scheduler import LambdaLR
 import torchvision
+from lightly.loss.memory_bank import MemoryBankModule
 from lightly.models import modules
 from lightly.models.modules import heads
 from lightly.models import utils
@@ -28,11 +29,11 @@ from pytorch_lightning.loggers import TensorBoardLogger
 
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
-num_workers = 12
+num_workers = 6
 memory_bank_size = 2**16
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 200
+max_epochs = 100
 knn_k = 20
 knn_t = 0.1
 classes = 100
@@ -54,7 +55,7 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1 # optional, increase to create multiple runs and report mean + std
-batch_size = 256
+batch_size = 128
 lr_factor = batch_size / 256 # scales the learning rate linearly with batch size
 
 
@@ -485,16 +486,27 @@ class SwaVModel(BenchmarkModule):
         self.projection_head = heads.SwaVProjectionHead(feature_dim, 2048, 128)
         self.prototypes = heads.SwaVPrototypes(128, 3000) # use 3000 prototypes
 
+        # queue for small batch sizes
+        self.start_queue_at_epoch = 15
+        queue_size = self.start_queue_at_epoch * batch_size
+        self.queues = nn.ModuleList(
+            [MemoryBankModule(size=queue_size) for _ in range(2)]
+        )
+
         self.criterion = lightly.loss.SwaVLoss(sinkhorn_gather_distributed=gather_distributed)
 
+
     def forward(self, x):
-        x = self.backbone(x).flatten(start_dim=1)
-        x = self.projection_head(x)
-        x = nn.functional.normalize(x, dim=1, p=2)
+        x = self._subforward(x)
         return self.prototypes(x)
 
-    def training_step(self, batch, batch_idx):
+    def _subforward(self, input):
+        features = self.backbone(input).flatten(start_dim=1)
+        features = self.projection_head(features)
+        features = nn.functional.normalize(features, dim=1, p=2)
+        return features
 
+    def training_step(self, batch, batch_idx):
         # normalize the prototypes so they are on the unit sphere
         self.prototypes.normalize()
 
@@ -502,20 +514,58 @@ class SwaVModel(BenchmarkModule):
         # first two items are the high resolution crops and the rest are low
         # resolution crops
         multi_crops, _, _ = batch
-        multi_crop_features = [self.forward(x) for x in multi_crops]
+        multi_crop_features = [self._subforward(x) for x in multi_crops]
 
         # split list of crop features into high and low resolution
         high_resolution_features = multi_crop_features[:2]
         low_resolution_features = multi_crop_features[2:]
 
+        high_resolution_prototypes = [self.prototypes(x) for x in high_resolution_features]
+        low_resolution_prototypes = [self.prototypes(x) for x in low_resolution_features]
+        queue_prototypes = self._get_queue_prototypes(high_resolution_features, self.current_epoch)
+
         # calculate the SwaV loss
         loss = self.criterion(
-            high_resolution_features,
-            low_resolution_features
+            high_resolution_prototypes,
+            low_resolution_prototypes,
+            queue_prototypes,
         )
 
         self.log('train_loss_ssl', loss)
         return loss
+
+    @torch.no_grad()
+    def _get_queue_prototypes(self, high_resolution_features, epoch=None):
+        if self.queues is None:
+            return None
+
+        if len(high_resolution_features) != len(self.queues):
+            raise ValueError(
+                f"The number of queues ({len(self.queues)}) should be equal to the number of high "
+                f"resolution inputs ({len(high_resolution_features)}). Set `n_queues` accordingly."
+            )
+
+        # Get the queue features
+        queue_features = []
+        for i in range(len(self.queues)):
+            _, features = self.queues[i](high_resolution_features[i], update=True)
+            # Queue features are in (num_ftrs X queue_length) shape, while the high res
+            # features are in (batch_size X num_ftrs). Swap the axes for interoperability.
+            features = torch.permute(features, (1,0))
+            queue_features.append(features)
+
+        # If loss calculation with queue prototypes starts at a later epoch,
+        # just queue the features and return None instead of queue prototypes.
+        if self.start_queue_at_epoch > 0:
+            if epoch is None:
+                raise ValueError("The epoch number must be passed to the `forward()` "
+                                 "method if `start_queue_at_epoch` is greater than 0.")
+            if epoch < self.start_queue_at_epoch:
+                return None
+
+        # Assign prototypes
+        queue_prototypes = [self.prototypes(x) for x in queue_features]
+        return queue_prototypes
 
     def configure_optimizers(self):
         optim = torch.optim.SGD(
@@ -605,13 +655,13 @@ class DINOModel(BenchmarkModule):
 
 
 models = [
-    BarlowTwinsModel, 
-    BYOLModel,
-    DINOModel,
-    MocoModel,
-    NNCLRModel,
-    SimCLRModel,
-    SimSiamModel,
+    # BarlowTwinsModel, 
+    # BYOLModel,
+    # DINOModel,
+    # MocoModel,
+    # NNCLRModel,
+    # SimCLRModel,
+    # SimSiamModel,
     SwaVModel,
 ]
 bench_results = dict()
