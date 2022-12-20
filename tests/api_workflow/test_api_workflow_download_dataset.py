@@ -36,8 +36,7 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
         shutil.rmtree('path-to-dir-remove-me')
 
     def test_download_embeddings_csv(self) -> None:
-        with (
-            mock.patch.object(
+        with mock.patch.object(
                 self.api_workflow_client,
                 "_get_last_default_embeddings_data",
                 return_value=DatasetEmbeddingData(
@@ -46,14 +45,14 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
                     created_at=0,
                     is_processed=False,
                 )
-            ) as mock_get_last_default_embeddings_data,
+            ) as mock_get_last_default_embeddings_data, \
             mock.patch.object(
                 self.api_workflow_client._embeddings_api,
                 "get_embeddings_csv_read_url_by_id",
                 return_value="read-url",
-            ) as mock_get_embeddings_csv_read_url_by_id,
-            mock.patch.object(download, "download_and_write_file") as mock_download,
-        ):
+            ) as mock_get_embeddings_csv_read_url_by_id, \
+            mock.patch.object(download, "download_and_write_file") as mock_download:
+
             self.api_workflow_client.download_embeddings_csv(output_path="embeddings.csv")
             mock_get_last_default_embeddings_data.assert_called_once()
             mock_get_embeddings_csv_read_url_by_id.assert_called_once_with(
@@ -66,17 +65,16 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
             )
 
     def test_download_embeddings_csv__no_default_embedding(self) -> None:
-        with (
-            mock.patch.object(
+        with mock.patch.object(
                 self.api_workflow_client,
                 "_get_last_default_embeddings_data",
                 return_value=None,
-            ) as mock_get_last_default_embeddings_data,
+            ) as mock_get_last_default_embeddings_data, \
             self.assertRaisesRegex(
                 RuntimeError,
                 "Could not find embedding for dataset with id 'dataset_0_id'."
-            )
-        ):
+            ):
+
             self.api_workflow_client.download_embeddings_csv(output_path="embeddings.csv")
             mock_get_last_default_embeddings_data.assert_called_once()
 
