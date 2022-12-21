@@ -488,10 +488,7 @@ class SwaVModel(BenchmarkModule):
 
         # queue for small batch sizes
         self.start_queue_at_epoch = 15
-        queue_size = self.start_queue_at_epoch * batch_size
-        self.queues = nn.ModuleList(
-            [MemoryBankModule(size=queue_size) for _ in range(2)]
-        )
+        self.queues = nn.ModuleList([MemoryBankModule(size=3840) for _ in range(2)])
 
         self.criterion = lightly.loss.SwaVLoss(sinkhorn_gather_distributed=gather_distributed)
 
