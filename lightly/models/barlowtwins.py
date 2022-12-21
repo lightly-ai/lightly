@@ -35,11 +35,13 @@ class BarlowTwins(nn.Module):
 
     """
 
-    def __init__(self,
-                 backbone: nn.Module,
-                 num_ftrs: int = 2048,
-                 proj_hidden_dim: int = 8192,
-                 out_dim: int = 8192):
+    def __init__(
+        self,
+        backbone: nn.Module,
+        num_ftrs: int = 2048,
+        proj_hidden_dim: int = 8192,
+        out_dim: int = 8192,
+    ):
 
         super(BarlowTwins, self).__init__()
 
@@ -49,21 +51,21 @@ class BarlowTwins(nn.Module):
         self.out_dim = out_dim
 
         self.projection_mlp = BarlowTwinsProjectionHead(
-            num_ftrs,
-            proj_hidden_dim,
-            out_dim
+            num_ftrs, proj_hidden_dim, out_dim
         )
 
-        warnings.warn(Warning(
-            'The high-level building block BarlowTwins will be deprecated in version 1.3.0. '
-            + 'Use low-level building blocks instead. '
-            + 'See https://docs.lightly.ai/lightly.models.html for more information'),
-            PendingDeprecationWarning)
+        warnings.warn(
+            Warning(
+                "The high-level building block BarlowTwins will be deprecated in version 1.3.0. "
+                + "Use low-level building blocks instead. "
+                + "See https://docs.lightly.ai/self-supervised-learning/lightly.models.html for more information"
+            ),
+            PendingDeprecationWarning,
+        )
 
-    def forward(self,
-                x0: torch.Tensor,
-                x1: torch.Tensor = None,
-                return_features: bool = False):
+    def forward(
+        self, x0: torch.Tensor, x1: torch.Tensor = None, return_features: bool = False
+    ):
 
         """Forward pass through BarlowTwins.
 

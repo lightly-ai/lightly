@@ -28,26 +28,25 @@ class SimCLR(nn.Module):
 
     """
 
-    def __init__(self,
-                 backbone: nn.Module,
-                 num_ftrs: int = 32,
-                 out_dim: int = 128):
+    def __init__(self, backbone: nn.Module, num_ftrs: int = 32, out_dim: int = 128):
 
         super(SimCLR, self).__init__()
 
         self.backbone = backbone
         self.projection_head = SimCLRProjectionHead(num_ftrs, num_ftrs, out_dim)
 
-        warnings.warn(Warning(
-            'The high-level building block SimCLR will be deprecated in version 1.3.0. '
-            + 'Use low-level building blocks instead. '
-            + 'See https://docs.lightly.ai/lightly.models.html for more information'),
-            PendingDeprecationWarning)
+        warnings.warn(
+            Warning(
+                "The high-level building block SimCLR will be deprecated in version 1.3.0. "
+                + "Use low-level building blocks instead. "
+                + "See https://docs.lightly.ai/self-supervised-learning/lightly.models.html for more information"
+            ),
+            PendingDeprecationWarning,
+        )
 
-    def forward(self,
-                x0: torch.Tensor,
-                x1: torch.Tensor = None,
-                return_features: bool = False):
+    def forward(
+        self, x0: torch.Tensor, x1: torch.Tensor = None, return_features: bool = False
+    ):
         """Embeds and projects the input images.
 
         Extracts features with the backbone and applies the projection
@@ -71,8 +70,8 @@ class SimCLR(nn.Module):
 
         Examples:
             >>> # single input, single output
-            >>> out = model(x) 
-            >>> 
+            >>> out = model(x)
+            >>>
             >>> # single input with return_features=True
             >>> out, f = model(x, return_features=True)
             >>>
@@ -83,7 +82,7 @@ class SimCLR(nn.Module):
             >>> (out0, f0), (out1, f1) = model(x0, x1, return_features=True)
 
         """
-        
+
         # forward pass of first input x0
         f0 = self.backbone(x0).flatten(start_dim=1)
         out0 = self.projection_head(f0)
