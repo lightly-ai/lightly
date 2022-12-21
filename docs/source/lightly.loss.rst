@@ -56,6 +56,11 @@ lightly.loss
 .. autoclass:: lightly.loss.sym_neg_cos_sim_loss.SymNegCosineSimilarityLoss
    :members:
 
+.tico_loss
+----------
+.. autoclass:: lightly.loss.tico_loss.TiCoLoss
+   :members:
+
 .vicreg_loss
 -------------
 .. autoclass:: lightly.loss.vicreg_loss.VICRegLoss

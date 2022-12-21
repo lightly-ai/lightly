@@ -10,6 +10,7 @@ import warnings
 import torch
 import torch.distributed as dist
 import torch.nn as nn
+import numpy as np
 
 @torch.no_grad()
 def batch_shuffle(
@@ -423,7 +424,7 @@ def random_token_mask(
     mask_ratio: float = 0.6,
     mask_class_token: bool = False,
     device: Optional[Union[torch.device, str]] = None,
-):
+) -> torch.Tensor : 
     """Creates random token masks.
 
     Args:
@@ -461,3 +462,31 @@ def random_token_mask(
     idx_mask = indices[:, num_keep:]
 
     return idx_keep, idx_mask
+
+def schedule_momentum(
+    iteration: int, 
+    max_iter: int, 
+    m: float = 0.99
+) -> float:
+
+    """
+    Add sinusoidal noise to momentum value based on iteration number. Common
+    training tecnique in SSL
+
+    Args:
+        iteration:
+            Size of the token batch for which to generate masks.
+            Should be (batch_size, sequence_length).
+        max_iter:
+            Percentage of tokens to mask.
+        m:
+            If False the class token is never masked. If True the class token
+            might be masked.
+            
+    Returns:
+        New momentum value to be used with update_momentum
+
+    """
+    
+    momentum = m + (1 - m)*np.sin((np.pi / 2)* iteration / (max_iter - 1))
+    return momentum
