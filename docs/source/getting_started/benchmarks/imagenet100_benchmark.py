@@ -29,7 +29,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
-num_workers = 6
+num_workers = 12
 memory_bank_size = 2**16
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
@@ -652,13 +652,13 @@ class DINOModel(BenchmarkModule):
 
 
 models = [
-    # BarlowTwinsModel, 
-    # BYOLModel,
-    # DINOModel,
-    # MocoModel,
-    # NNCLRModel,
-    # SimCLRModel,
-    # SimSiamModel,
+    BarlowTwinsModel, 
+    BYOLModel,
+    DINOModel,
+    MocoModel,
+    NNCLRModel,
+    SimCLRModel,
+    SimSiamModel,
     SwaVModel,
 ]
 bench_results = dict()
