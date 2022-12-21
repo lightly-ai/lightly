@@ -33,7 +33,7 @@ num_workers = 6
 memory_bank_size = 2**16
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 100
+max_epochs = 200
 knn_k = 20
 knn_t = 0.1
 classes = 100
@@ -55,7 +55,7 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1 # optional, increase to create multiple runs and report mean + std
-batch_size = 128
+batch_size = 256
 lr_factor = batch_size / 256 # scales the learning rate linearly with batch size
 
 
