@@ -1,6 +1,7 @@
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
+from typing import Tuple
 
 from lightly.utils.dist import gather
 
@@ -51,7 +52,7 @@ class TiCoLoss(torch.nn.Module):
         self.ro_param = ro_param
         self.gather_distributed = gather_distributed
 
-    def forward(self, C: torch.Tensor, z_a: torch.Tensor, z_b: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, C: torch.Tensor, z_a: torch.Tensor, z_b: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         assert z_a.shape[0] > 1 and z_b.shape[0] > 1, f"z_a and z_b must have batch size > 1 but found {z_a.shape[0]} and {z_b.shape[0]}"
         assert z_a.shape == z_b.shape, f"z_a and z_b must have same shape but found {z_a.shape} and {z_b.shape}."
         
