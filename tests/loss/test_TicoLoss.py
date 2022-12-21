@@ -14,7 +14,7 @@ class TestVICRegLoss(unittest.TestCase):
             # symmetry
             l1, C1 = loss(C, x0, x1)
             l2, C2 = loss(C, x1, x0)
-            self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.0, 6)
+            self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.0, 4)
 
     @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available")
     def test_forward_pass_cuda(self):
