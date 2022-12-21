@@ -170,18 +170,6 @@ class _DownloadDatasetMixin:
             f"'{self.dataset_id}'."
         )
 
-    def _get_latest_default_embedding_data(self) -> Optional[DatasetEmbeddingData]:
-        """Returns the latest embedding data with a default name from the dataset or
-        None if no such embedding exists.
-        """
-        embeddings = self.get_all_embedding_data()
-        default_embeddings = [e for e in embeddings if e.name.startswith("default")]
-        if default_embeddings:
-            last_embedding = sorted(default_embeddings, key=lambda e: e.created_at)[-1]
-            return last_embedding
-        else:
-            return None
-
     def download_embeddings_csv_by_id(
         self, 
         embedding_id: str, 
@@ -205,7 +193,9 @@ class _DownloadDatasetMixin:
                 If no embeddings could be found for the dataset.
 
         """
-        last_embedding = self._get_latest_default_embedding_data()
+        last_embedding = _get_latest_default_embedding_data(
+            embeddings=self.get_all_embedding_data()
+        )
         if last_embedding is None:
             raise RuntimeError(
                 f"Could not find embeddings for dataset with id '{self.dataset_id}'."
@@ -420,3 +410,17 @@ class _DownloadDatasetMixin:
         """
         tag = self.get_tag_by_name(tag_name)
         return self.export_filenames_and_read_urls_by_tag_id(tag.id)
+
+
+def _get_latest_default_embedding_data(
+    embeddings: List[DatasetEmbeddingData]
+) -> Optional[DatasetEmbeddingData]:
+    """Returns the latest embedding data with a default name or None if no such
+    default embedding exists.
+    """
+    default_embeddings = [e for e in embeddings if e.name.startswith("default")]
+    if default_embeddings:
+        last_embedding = sorted(default_embeddings, key=lambda e: e.created_at)[-1]
+        return last_embedding
+    else:
+        return None

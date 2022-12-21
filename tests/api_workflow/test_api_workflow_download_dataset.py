@@ -5,9 +5,11 @@ import numpy as np
 import PIL
 
 import lightly
+from lightly.api import api_workflow_download_dataset
 from lightly.api import download
 from lightly.openapi_generated.swagger_client import DatasetData, DatasetEmbeddingData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
+
 
 
 class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
@@ -86,54 +88,6 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
                 dataset_id="dataset_0_id",
             )
 
-    def test__get_latest_default_embedding_data(self) -> None:
-        embedding_0 = DatasetEmbeddingData(
-            id="0",
-            name="default_20221209_10h45m49s",
-            created_at=0,
-            is_processed=False,
-        )
-        embedding_1 = DatasetEmbeddingData(
-            id="1",
-            name="default_20221209_10h45m50s",
-            created_at=1,
-            is_processed=False,
-        )
-        embedding_2 = DatasetEmbeddingData(
-            id="2",
-            name="custom-name",
-            created_at=2,
-            is_processed=False,
-        )
-        with mock.patch.object(
-            self.api_workflow_client._embeddings_api,
-            "get_embeddings_by_dataset_id",
-            return_value=[embedding_0, embedding_1, embedding_2],
-        ) as mock_get_embeddings_by_dataset_id:
-            embedding = self.api_workflow_client._get_latest_default_embedding_data()
-            mock_get_embeddings_by_dataset_id.assert_called_once_with(
-                dataset_id="dataset_0_id"
-            )
-            assert embedding == embedding_1
-
-    def test__get_latest_default_embedding_data__no_default_embedding(self) -> None:
-        custom_embedding = DatasetEmbeddingData(
-            id="0",
-            name="custom-name",
-            created_at=0,
-            is_processed=False,
-        )
-        with mock.patch.object(
-            self.api_workflow_client._embeddings_api,
-            "get_embeddings_by_dataset_id",
-            return_value=[custom_embedding],
-        ) as mock_get_embeddings_by_dataset_id:
-            embedding = self.api_workflow_client._get_latest_default_embedding_data()
-            mock_get_embeddings_by_dataset_id.assert_called_once_with(
-                dataset_id="dataset_0_id"
-            )
-            assert embedding is None
-
     def test_download_embeddings_csv_by_id(self) -> None:
         with mock.patch.object(
                 self.api_workflow_client._embeddings_api,
@@ -161,21 +115,21 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
     def test_download_embeddings_csv(self) -> None:
         with mock.patch.object(
                 self.api_workflow_client,
-                "_get_latest_default_embedding_data",
-                return_value=DatasetEmbeddingData(
+                "get_all_embedding_data",
+                return_value=[DatasetEmbeddingData(
                     id="0",
                     name="default_20221209_10h45m49s",
                     created_at=0,
                     is_processed=False,
-                )
-            ) as mock_get_latest_default_embedding_data, \
+                )]
+            ) as mock_get_all_embedding_data, \
             mock.patch.object(
                 self.api_workflow_client,
                 "download_embeddings_csv_by_id",
             ) as mock_download_embeddings_csv_by_id:
 
             self.api_workflow_client.download_embeddings_csv(output_path="embeddings.csv")
-            mock_get_latest_default_embedding_data.assert_called_once()
+            mock_get_all_embedding_data.assert_called_once()
             mock_download_embeddings_csv_by_id.assert_called_once_with(
                 embedding_id="0",
                 output_path="embeddings.csv",
@@ -184,16 +138,16 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
     def test_download_embeddings_csv__no_default_embedding(self) -> None:
         with mock.patch.object(
                 self.api_workflow_client,
-                "_get_latest_default_embedding_data",
-                return_value=None,
-            ) as mock_get_latest_default_embedding_data, \
+                "get_all_embedding_data",
+                return_value=[],
+            ) as mock_get_all_embedding_data, \
             self.assertRaisesRegex(
                 RuntimeError,
                 "Could not find embeddings for dataset with id 'dataset_0_id'."
             ):
 
             self.api_workflow_client.download_embeddings_csv(output_path="embeddings.csv")
-            mock_get_latest_default_embedding_data.assert_called_once()
+            mock_get_all_embedding_data.assert_called_once()
 
 
     def test_export_label_box_data_rows_by_tag_name(self):
@@ -215,3 +169,41 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
         filenames = self.api_workflow_client.export_filenames_by_tag_name('initial-tag')
         self.assertIsNotNone(filenames)
         self.assertTrue(isinstance(filenames, str))
+
+
+def test__get_latest_default_embedding_data() -> None:
+    embedding_0 = DatasetEmbeddingData(
+        id="0",
+        name="default_20221209_10h45m49s",
+        created_at=0,
+        is_processed=False,
+    )
+    embedding_1 = DatasetEmbeddingData(
+        id="1",
+        name="default_20221209_10h45m50s",
+        created_at=1,
+        is_processed=False,
+    )
+    embedding_2 = DatasetEmbeddingData(
+        id="2",
+        name="custom-name",
+        created_at=2,
+        is_processed=False,
+    )
+
+    embedding = api_workflow_download_dataset._get_latest_default_embedding_data(
+        embeddings=[embedding_0, embedding_1, embedding_2]
+    )
+    assert embedding == embedding_1
+
+def test__get_latest_default_embedding_data__no_default_embedding() -> None:
+    custom_embedding = DatasetEmbeddingData(
+        id="0",
+        name="custom-name",
+        created_at=0,
+        is_processed=False,
+    )
+    embedding = api_workflow_download_dataset._get_latest_default_embedding_data(
+        embeddings=[custom_embedding]
+    )
+    assert embedding is None
