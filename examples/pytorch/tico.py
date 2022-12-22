@@ -13,8 +13,8 @@ from lightly.loss.tico_loss import TiCoLoss
 from lightly.models.modules.heads import TiCoProjectionHead
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
-from lightly.models.utils import cosine_decay_schedule
-from torch.autograd import Variable
+from lightly.models.utils import cosine_schedule
+
 
 class TiCo(nn.Module):
     def __init__(self, backbone):
@@ -47,7 +47,7 @@ model = TiCo(backbone)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-cifar10 = torchvision.datasets.CIFAR10("/home/ubuntu/datasets/cifar10", download=True)
+cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
 dataset = LightlyDataset.from_torch_dataset(cifar10)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
@@ -72,7 +72,7 @@ epochs = 10
 print("Starting Training")
 for epoch in range(epochs):
     total_loss = 0
-    momentum_val = cosine_decay_schedule(epoch, epochs)
+    momentum_val = cosine_schedule(epoch, epochs, 0.996, 1)
     for (x0, x1), _, _ in dataloader:
         update_momentum(model.backbone, model.backbone_momentum, m=momentum_val)
         update_momentum(model.projection_head, model.projection_head_momentum, m=momentum_val)

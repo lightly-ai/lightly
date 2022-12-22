@@ -463,16 +463,15 @@ def random_token_mask(
 
     return idx_keep, idx_mask
 
-def cosine_decay_schedule(
+def cosine_schedule(
     step: int, 
     max_steps: int, 
-    start_value: float = 0.996,
-    end_value: float = 1
+    start_value: float,
+    end_value: float
 ) -> float:
 
     """
     Use cosine decay to gradually modify start_value to reach target end_value during training.
-    Introduced in BYOL (https://arxiv.org/pdf/2006.07733.pdf) to update the momentum.
 
     Args:
         step:
@@ -488,6 +487,10 @@ def cosine_decay_schedule(
         New momentum value to be used with update_momentum.
 
     """
+    assert step >= 0, "Current number can't be negative"
+    assert max_steps > 0, "Total epochs must be > 0"
+    assert step <= max_steps, f"Current step is bigger than total number of steps. Found {step} > {max_steps}."
+
     if (max_steps == 1):
         momentum = end_value
     else: 

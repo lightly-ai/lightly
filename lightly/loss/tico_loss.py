@@ -85,7 +85,7 @@ class TiCoLoss(torch.nn.Module):
         z_a = torch.nn.functional.normalize(z_a, dim = 1)
         z_b = torch.nn.functional.normalize(z_b, dim = 1)
         
-        # compute ausiliary matrix B
+        # compute auxiliary matrix B
         B = torch.mm(z_a.T, z_a)/z_a.shape[0]
 
         # init covariance matrix

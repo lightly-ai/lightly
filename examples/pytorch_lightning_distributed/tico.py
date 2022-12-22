@@ -10,8 +10,7 @@ from lightly.loss.tico_loss import TiCoLoss
 from lightly.models.modules.heads import TiCoProjectionHead
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
-from lightly.models.utils import cosine_decay_schedule
-from torch.autograd import Variable
+from lightly.models.utils import cosine_schedule
 
 
 
@@ -43,7 +42,7 @@ class TiCo(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         (x0, x1), _, _ = batch
-        momentum = cosine_decay_schedule(batch_idx, 10)
+        momentum = cosine_schedule(batch_idx, 10, 0.996, 1)
         update_momentum(self.backbone, self.backbone_momentum, m=momentum)
         update_momentum(self.projection_head, self.projection_head_momentum, m=momentum)
         x0 = x0.to(self.device)
