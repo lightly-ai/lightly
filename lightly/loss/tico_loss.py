@@ -22,9 +22,6 @@ class TiCoLoss(torch.nn.Module):
             rho:
                 Weight for the covariance term of the loss
                 Defaults to 20.0 [0].
-            C:
-                Covariance matrix. Initialized to zero, it carries through the 
-                learning process the covariance of the batch images.
             gather_distributed:
                 If True then the cross-correlation matrices from all gpus are
                 gathered and summed before the loss calculation.
@@ -49,13 +46,12 @@ class TiCoLoss(torch.nn.Module):
         self,
         beta: float = 0.9,
         rho: float = 20.0,
-        C: torch.Tensor = Variable(torch.zeros(256, 256), requires_grad=True),
         gather_distributed: bool = False,
     ):
         super(TiCoLoss, self).__init__()
         self.beta = beta
         self.rho = rho
-        self.C = C
+        self.C = None
         self.gather_distributed = gather_distributed
 
     def forward(self, z_a: torch.Tensor, z_b: torch.Tensor, update_covariance_matrix: bool = True) -> torch.Tensor:
@@ -77,9 +73,6 @@ class TiCoLoss(torch.nn.Module):
 
         assert z_a.shape[0] > 1 and z_b.shape[0] > 1, f"z_a and z_b must have batch size > 1 but found {z_a.shape[0]} and {z_b.shape[0]}"
         assert z_a.shape == z_b.shape, f"z_a and z_b must have same shape but found {z_a.shape} and {z_b.shape}."
-        
-        # detach covariance matrix 
-        self.C = self.C.to(z_a.device).detach()
 
         # gather all batches
         if self.gather_distributed and dist.is_initialized():
@@ -92,13 +85,19 @@ class TiCoLoss(torch.nn.Module):
         z_a = torch.nn.functional.normalize(z_a, dim = 1)
         z_b = torch.nn.functional.normalize(z_b, dim = 1)
         
+        # compute ausiliary matrix B
+        B = torch.mm(z_a.T, z_a)/z_a.shape[0]
+
+        # init covariance matrix
+        if self.C is None:
+            self.C = B.new_zeros(B.shape).detach()   
+
         # compute loss
-        B = torch.mm(z_a.T, z_a)/z_a.shape[0]        
         C = self.beta * self.C + (1 - self.beta) * B
         loss = 1 - (z_a * z_b).sum(dim=1).mean() + self.rho * (torch.mm(z_a, C) * z_a).sum(dim=1).mean()
 
         # update covariance matrix
         if update_covariance_matrix:
-            self.C = C
+            self.C = C.detach()
         
         return loss

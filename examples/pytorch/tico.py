@@ -13,7 +13,7 @@ from lightly.loss.tico_loss import TiCoLoss
 from lightly.models.modules.heads import TiCoProjectionHead
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
-from lightly.models.utils import schedule_momentum
+from lightly.models.utils import cosine_decay_schedule
 from torch.autograd import Variable
 
 class TiCo(nn.Module):
@@ -72,7 +72,7 @@ epochs = 10
 print("Starting Training")
 for epoch in range(epochs):
     total_loss = 0
-    momentum_val = schedule_momentum(epoch, epochs, m = 0.99)
+    momentum_val = cosine_decay_schedule(epoch, epochs)
     for (x0, x1), _, _ in dataloader:
         update_momentum(model.backbone, model.backbone_momentum, m=momentum_val)
         update_momentum(model.projection_head, model.projection_head_momentum, m=momentum_val)

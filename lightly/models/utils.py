@@ -463,28 +463,33 @@ def random_token_mask(
 
     return idx_keep, idx_mask
 
-def schedule_momentum(
-    iteration: int, 
-    max_iter: int, 
-    m: float = 0.99
+def cosine_decay_schedule(
+    step: int, 
+    max_steps: int, 
+    start_value: float = 0.996,
+    end_value: float = 1
 ) -> float:
 
     """
-    Add sinusoidal noise to momentum value based on iteration number. Common
-    training technique in SSL.
+    Use cosine decay to gradually modify start_value to reach target end_value during training.
+    Introduced in BYOL (https://arxiv.org/pdf/2006.07733.pdf) to update the momentum.
 
     Args:
-        iteration:
+        step:
             Current epoch number.
-        max_iter:
+        max_steps:
             Total number of epochs.
-        m:
+        start_value:
             Starting momentum value.
+        end_value:
+            Target momentum value.
             
     Returns:
         New momentum value to be used with update_momentum.
 
     """
-    
-    momentum = m + (1 - m)*np.sin((np.pi / 2)* iteration / (max_iter - 1))
+    if (max_steps == 1):
+        momentum = end_value
+    else: 
+        momentum = end_value - (end_value - start_value)*(np.cos(np.pi * step/ (max_steps - 1)) + 1) / 2
     return momentum
