@@ -56,22 +56,16 @@ collate_fn = SimCLRCollateFunction(input_size=32)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
-    batch_size=8,
+    batch_size=256,
     collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,
 )
 
-criterion = TiCoLoss(
-    beta_param = 0.9,
-    ro_param = 20.0,
-)
+criterion = TiCoLoss()
 
 optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
-
-C_prev = Variable(torch.zeros(256, 256), requires_grad=True).to(device)
-C_prev = C_prev.detach()
 
 epochs = 10
 
@@ -86,8 +80,7 @@ for epoch in range(epochs):
         x1 = x1.to(device)
         z0 = model(x0)
         z1 = model.forward_momentum(x1)
-        loss, C = criterion(C_prev, z0, z1)
-        C_prev = C.detach()
+        loss = criterion(z0, z1)
         total_loss += loss.detach()
         loss.backward()
         optimizer.step()

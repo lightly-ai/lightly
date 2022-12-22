@@ -2,9 +2,10 @@ import unittest
 import torch
 
 from lightly.loss.tico_loss import TiCoLoss
-torch.manual_seed(0)
-class TestVICRegLoss(unittest.TestCase):
+
+class TestTiCoLoss(unittest.TestCase):
     def test_forward_pass(self):
+        torch.manual_seed(0)
         loss = TiCoLoss()
         for bsz in range(2, 4):
             x0 = torch.randn((bsz, 32))
@@ -18,6 +19,7 @@ class TestVICRegLoss(unittest.TestCase):
 
     @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available")
     def test_forward_pass_cuda(self):
+        torch.manual_seed(0)
         loss = TiCoLoss()
         for bsz in range(2, 4):
             x0 = torch.randn((bsz, 32)).cuda()
@@ -30,6 +32,7 @@ class TestVICRegLoss(unittest.TestCase):
             self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.0, 4)
 
     def test_forward_pass__error_batch_size_1(self):
+        torch.manual_seed(0)
         loss = TiCoLoss()
         x0 = torch.randn((1, 32))
         x1 = torch.randn((1, 32))
@@ -38,6 +41,7 @@ class TestVICRegLoss(unittest.TestCase):
             loss(C, x0, x1)
 
     def test_forward_pass__error_different_shapes(self):
+        torch.manual_seed(0)
         loss = TiCoLoss()
         x0 = torch.randn((2, 32))
         x1 = torch.randn((2, 16))

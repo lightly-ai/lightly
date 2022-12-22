@@ -28,11 +28,7 @@ class TiCo(pl.LightningModule):
         deactivate_requires_grad(self.backbone_momentum)
         deactivate_requires_grad(self.projection_head_momentum)
 
-        self.criterion = TiCoLoss(
-            beta_param = 0.9,
-            ro_param = 20.0,
-        )
-        self.C_prev = Variable(torch.zeros(256, 256), requires_grad=True).to(self.device)
+        self.criterion = TiCoLoss()
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)
@@ -52,11 +48,9 @@ class TiCo(pl.LightningModule):
         update_momentum(self.projection_head, self.projection_head_momentum, m=momentum)
         x0 = x0.to(self.device)
         x1 = x1.to(self.device)
-        self.C_prev = self.C_prev.to(self.device)
         z0 = self.forward(x0)
         z1 = self.forward_momentum(x1)
-        loss, C = self.criterion(self.C_prev, z0, z1)
-        self.C_prev = C.detach()
+        loss = self.criterion(z0, z1)
         return loss
 
     def configure_optimizers(self):

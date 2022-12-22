@@ -471,20 +471,18 @@ def schedule_momentum(
 
     """
     Add sinusoidal noise to momentum value based on iteration number. Common
-    training tecnique in SSL
+    training technique in SSL.
 
     Args:
         iteration:
-            Size of the token batch for which to generate masks.
-            Should be (batch_size, sequence_length).
+            Current epoch number.
         max_iter:
-            Percentage of tokens to mask.
+            Total number of epochs.
         m:
-            If False the class token is never masked. If True the class token
-            might be masked.
+            Starting momentum value.
             
     Returns:
-        New momentum value to be used with update_momentum
+        New momentum value to be used with update_momentum.
 
     """
     

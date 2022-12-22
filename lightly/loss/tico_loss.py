@@ -1,7 +1,7 @@
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
-from typing import Tuple
+from torch.autograd import Variable
 
 from lightly.utils.dist import gather
 
@@ -12,6 +12,22 @@ class TiCoLoss(torch.nn.Module):
 
     [0] Jiachen Zhu et. al, 2022, Tico... https://arxiv.org/abs/2206.10698
     [1] https://github.com/sayannag/TiCo-pytorch
+        
+    Attributes:
+        
+        Args:
+            beta:
+                Coefficient for the EMA update of the covariance
+                Defaults to 0.9 [0].
+            rho:
+                Weight for the covariance term of the loss
+                Defaults to 20.0 [0].
+            C:
+                Covariance matrix. Initialized to zero, it carries through the 
+                learning process the covariance of the batch images.
+            gather_distributed:
+                If True then the cross-correlation matrices from all gpus are
+                gathered and summed before the loss calculation.
         
     Examples:
     
@@ -31,31 +47,39 @@ class TiCoLoss(torch.nn.Module):
 
     def __init__(
         self,
-        beta_param: float = 0.9,
-        ro_param: float = 20.0,
-        gather_distributed : bool = False,
+        beta: float = 0.9,
+        rho: float = 20.0,
+        C: torch.Tensor = Variable(torch.zeros(256, 256), requires_grad=True),
+        gather_distributed: bool = False,
     ):
-        """Lambda, mu and nu params configuration with default value like in [0]
-        Args:
-            beta_param:
-                Coefficient for the EMA update of the covariance
-                Defaults to 0.9 [0].
-            ro_param:
-                Weight for the covariance term of the loss
-                Defaults to 20.0 [0].
-            gather_distributed:
-                If True then the cross-correlation matrices from all gpus are
-                gathered and summed before the loss calculation.
-        """
         super(TiCoLoss, self).__init__()
-        self.beta_param = beta_param
-        self.ro_param = ro_param
+        self.beta = beta
+        self.rho = rho
+        self.C = C
         self.gather_distributed = gather_distributed
 
-    def forward(self, C: torch.Tensor, z_a: torch.Tensor, z_b: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, z_a: torch.Tensor, z_b: torch.Tensor, update_covariance_matrix: bool = True) -> torch.Tensor:
+        """Tico Loss computation. It maximize the agreement among embeddings of different distorted versions of the same image
+        while avoiding collapse using Covariance matrix.
+
+        Args:
+            z_a:
+                Tensor of shape [batch_size, num_features=256]. Output of the learned backbone.
+            z_b:
+                Tensor of shape [batch_size, num_features=256]. Output of the momentum updated backbone.
+            update_covariance_matrix:
+                Parameter to update the covariance matrix at each iteration.
+
+        Returns:
+            The loss.
+
+        """
+
         assert z_a.shape[0] > 1 and z_b.shape[0] > 1, f"z_a and z_b must have batch size > 1 but found {z_a.shape[0]} and {z_b.shape[0]}"
         assert z_a.shape == z_b.shape, f"z_a and z_b must have same shape but found {z_a.shape} and {z_b.shape}."
         
+        # detach covariance matrix 
+        self.C = self.C.to(z_a.device).detach()
 
         # gather all batches
         if self.gather_distributed and dist.is_initialized():
@@ -64,17 +88,17 @@ class TiCoLoss(torch.nn.Module):
                 z_a = torch.cat(gather(z_a), dim=0)
                 z_b = torch.cat(gather(z_b), dim=0)
 
-        # normalize repr. along the batch dimension
-        z_a = z_a - z_a.mean(0) # NxD
-        z_b = z_b - z_b.mean(0) # NxD
-
         # normalize image
-        z_a = torch.nn.functional.normalize(z_a, dim = -1)
-        z_b = torch.nn.functional.normalize(z_b, dim = -1)
+        z_a = torch.nn.functional.normalize(z_a, dim = 1)
+        z_b = torch.nn.functional.normalize(z_b, dim = 1)
         
         # compute loss
         B = torch.mm(z_a.T, z_a)/z_a.shape[0]        
-        C = self.beta_param * C + (1 - self.beta_param) * B
-        loss = 1 - (z_a * z_b).sum(dim=1).mean() + self.ro_param * (torch.mm(z_a, C) * z_a).sum(dim=1).mean()
+        C = self.beta * self.C + (1 - self.beta) * B
+        loss = 1 - (z_a * z_b).sum(dim=1).mean() + self.rho * (torch.mm(z_a, C) * z_a).sum(dim=1).mean()
 
-        return loss, C
+        # update covariance matrix
+        if update_covariance_matrix:
+            self.C = C
+        
+        return loss
