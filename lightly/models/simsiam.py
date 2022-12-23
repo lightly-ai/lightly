@@ -35,12 +35,14 @@ class SimSiam(nn.Module):
 
     """
 
-    def __init__(self,
-                 backbone: nn.Module,
-                 num_ftrs: int = 2048,
-                 proj_hidden_dim: int = 2048,
-                 pred_hidden_dim: int = 512,
-                 out_dim: int = 2048):
+    def __init__(
+        self,
+        backbone: nn.Module,
+        num_ftrs: int = 2048,
+        proj_hidden_dim: int = 2048,
+        pred_hidden_dim: int = 512,
+        out_dim: int = 2048,
+    ):
 
         super(SimSiam, self).__init__()
 
@@ -62,16 +64,18 @@ class SimSiam(nn.Module):
             out_dim,
         )
 
-        warnings.warn(Warning(
-            'The high-level building block SimSiam will be deprecated in version 1.3.0. '
-            + 'Use low-level building blocks instead. '
-            + 'See https://docs.lightly.ai/lightly.models.html for more information'),
-            PendingDeprecationWarning)
-        
-    def forward(self, 
-                x0: torch.Tensor, 
-                x1: torch.Tensor = None,
-                return_features: bool = False):
+        warnings.warn(
+            Warning(
+                "The high-level building block SimSiam will be deprecated in version 1.3.0. "
+                + "Use low-level building blocks instead. "
+                + "See https://docs.lightly.ai/self-supervised-learning/lightly.models.html for more information"
+            ),
+            PendingDeprecationWarning,
+        )
+
+    def forward(
+        self, x0: torch.Tensor, x1: torch.Tensor = None, return_features: bool = False
+    ):
         """Forward pass through SimSiam.
 
         Extracts features with the backbone and applies the projection
@@ -92,11 +96,11 @@ class SimSiam(nn.Module):
             the output prediction and projection of x1. If return_features is
             True, the output for each x is a tuple (out, f) where f are the
             features before the projection head.
-            
+
         Examples:
             >>> # single input, single output
-            >>> out = model(x) 
-            >>> 
+            >>> out = model(x)
+            >>>
             >>> # single input with return_features=True
             >>> out, f = model(x, return_features=True)
             >>>
@@ -118,7 +122,7 @@ class SimSiam(nn.Module):
 
         if x1 is None:
             return out0
-        
+
         f1 = self.backbone(x1).flatten(start_dim=1)
         z1 = self.projection_mlp(f1)
         p1 = self.prediction_mlp(z1)

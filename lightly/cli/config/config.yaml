@@ -183,4 +183,4 @@ hydra:
       Use self-supervised methods to understand and filter raw image data:
 
       Website: https://www.lightly.ai
-      Documentation: https://docs.lightly.ai/getting_started/command_line_tool.html
+      Documentation: https://docs.lightly.ai/self-supervised-learning/getting_started/command_line_tool.html
