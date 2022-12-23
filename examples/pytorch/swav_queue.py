@@ -26,7 +26,7 @@ class SwaV(nn.Module):
             self.queues = [MemoryBankModule(size=queue_length) for _ in range(n_queues)]
             self.queues = nn.ModuleList(self.queues)
             self.queue_length = queue_length
-            self.num_batches_queued = 0
+            self.num_features_queued = 0
             self.start_queue_at_epoch = start_queue_at_epoch
 
     def forward(self, high_resolution, low_resolution, epoch=None):
@@ -68,8 +68,8 @@ class SwaV(nn.Module):
             queue_features.append(features)
 
         # Do not return queue prototypes if not enough features have been queued
-        self.num_batches_queued += high_resolution_features[0].shape[0]
-        if self.num_batches_queued < self.queue_length:
+        self.num_features_queued += high_resolution_features[0].shape[0]
+        if self.num_features_queued < self.queue_length:
             return None
 
         # If loss calculation with queue prototypes starts at a later epoch,
