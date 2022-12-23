@@ -12,7 +12,7 @@ Lightly is a computer vision framework for self-supervised learning.
 
 - [Homepage](https://www.lightly.ai)
 - [Web-App](https://app.lightly.ai)
-- [Documentation](https://docs.lightly.ai)
+- [Documentation](https://docs.lightly.ai/self-supervised-learning/)
 - [Github](https://github.com/lightly-ai/lightly)
 - [Discord](https://discord.gg/xvNJW94)
 
@@ -27,7 +27,7 @@ Lightly offers features like
 
 #### Supported Models
 
-You can [find sample code for all the supported models here.](https://docs.lightly.ai/examples/models.html)
+You can [find sample code for all the supported models here.](https://docs.lightly.ai/self-supervised-learning/examples/models.html)
 We provide PyTorch, PyTorch Lightning and PyTorch Lightning distributed examples for each of the models
 to kickstart your project.
 
@@ -53,15 +53,15 @@ Some of our supported models:
 
 Want to jump to the tutorials and see lightly in action?
 
-- [Train MoCo on CIFAR-10](https://docs.lightly.ai/tutorials/package/tutorial_moco_memory_bank.html)
-- [Train SimCLR on clothing data](https://docs.lightly.ai/tutorials/package/tutorial_simclr_clothing.html)
-- [Train SimSiam on satellite images](https://docs.lightly.ai/tutorials/package/tutorial_simsiam_esa.html)
-- [Use lightly with custom augmentations](https://docs.lightly.ai/tutorials/package/tutorial_custom_augmentations.html)
-- [Pre-train a Detectron2 Backbone with Lightly](https://docs.lightly.ai/tutorials/package/tutorial_pretrain_detectron2.html)
+- [Train MoCo on CIFAR-10](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_moco_memory_bank.html)
+- [Train SimCLR on clothing data](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_simclr_clothing.html)
+- [Train SimSiam on satellite images](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_simsiam_esa.html)
+- [Use lightly with custom augmentations](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_custom_augmentations.html)
+- [Pre-train a Detectron2 Backbone with Lightly](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_pretrain_detectron2.html)
 
 Tutorials of using the lightly packge together with the Lightly Platform:
 
-- [Active Learning using Detectron2 on Comma10k](https://docs.lightly.ai/tutorials/platform/tutorial_active_learning_detectron2.html)
+- [Active Learning Using YOLOv7 and Comma10k](https://docs.lightly.ai/docs/active-learning-yolov7)
 - [Active Learning with the Nvidia TLT](https://github.com/lightly-ai/NvidiaTLTActiveLearning)
 
 Community and partner projects:
@@ -96,7 +96,7 @@ We strongly recommend that you install Lightly in a dedicated virtualenv, to avo
 With lightly, you can use the latest self-supervised learning methods in a modular
 way using the full power of PyTorch. Experiment with different backbones,
 models, and loss functions. The framework has been designed to be easy to use
-from the ground up. [Find more examples in our docs](https://docs.lightly.ai/examples/models.html).
+from the ground up. [Find more examples in our docs](https://docs.lightly.ai/self-supervised-learning/examples/models.html).
 
 ```python
 import torch
@@ -172,7 +172,7 @@ model = SimSiam(backbone)
 # use the SimSiam loss function
 criterion = loss.NegativeCosineSimilarity()
 ```
-You can [find a more complete example for SimSiam here.](https://docs.lightly.ai/examples/simsiam.html)
+You can [find a more complete example for SimSiam here.](https://docs.lightly.ai/self-supervised-learning/examples/simsiam.html)
 
 
 Use PyTorch Lightning to train the model:
@@ -204,14 +204,14 @@ trainer.fit(
 
 We provide proper multi-GPU training with distributed gather and synchronized BatchNorm.
 
-[Have a look at our docs regarding distributed training](https://docs.lightly.ai/getting_started/distributed_training.html)
+[Have a look at our docs regarding distributed training](https://docs.lightly.ai/self-supervised-learning/getting_started/distributed_training.html)
 
 
 
 ### Benchmarks
 
 Currently implemented models and their accuracy on cifar10 and imagenette. All models have been evaluated using kNN. We report the max test accuracy over the epochs as well as the maximum GPU memory consumption. All models in this benchmark use the same augmentations as well as the same ResNet-18 backbone. Training precision is set to FP32 and SGD is used as an optimizer with cosineLR.
-One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifar10 and imagenette benchmark here](https://docs.lightly.ai/getting_started/benchmarks.html)
+One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifar10 and imagenette benchmark here](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html)
 
 #### ImageNette
 
@@ -246,7 +246,7 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 
 ## Terminology
 
-Below you can see a schematic overview of the different concepts present in the lightly Python package. The terms in bold are explained in more detail in our [documentation](https://docs.lightly.ai).
+Below you can see a schematic overview of the different concepts present in the lightly Python package. The terms in bold are explained in more detail in our [documentation](https://docs.lightly.ai/self-supervised-learning/).
 
 <img src="/docs/source/getting_started/images/lightly_overview.png" alt="Overview of the lightly pip package"/></a>
 
