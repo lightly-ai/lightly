@@ -13,12 +13,14 @@ from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
 
 
 class SwaV(nn.Module):
-    def __init__(self, backbone, num_ftrs, out_dim, n_prototypes,
-                 n_queues, queue_length=0, start_queue_at_epoch=0):
+    def __init__(self, backbone, num_ftrs, out_dim,
+                 n_prototypes, n_queues, queue_length=0,
+                 start_queue_at_epoch=0, num_steps_frozen_prototypes=0):
         super().__init__()
         self.backbone = backbone
         self.projection_head = SwaVProjectionHead(num_ftrs, num_ftrs, out_dim)
         self.prototypes = SwaVPrototypes(out_dim, n_prototypes=n_prototypes)
+        self.num_steps_frozen_prototypes = num_steps_frozen_prototypes
 
         self.start_queue_at_epoch = start_queue_at_epoch
         self.queues = None
@@ -29,7 +31,8 @@ class SwaV(nn.Module):
             self.num_features_queued = 0
             self.start_queue_at_epoch = start_queue_at_epoch
 
-    def forward(self, high_resolution, low_resolution, epoch=None):
+    def forward(self, high_resolution, low_resolution, epoch=None, step=None):
+        self._freeze_prototypes_if_required(step)
         self.prototypes.normalize()
 
         high_resolution_features = [self._subforward(x) for x in high_resolution]
@@ -46,6 +49,13 @@ class SwaV(nn.Module):
         features = self.projection_head(features)
         features = nn.functional.normalize(features, dim=1, p=2)
         return features
+
+    def _freeze_prototypes_if_required(self, step):
+        if step is None and self.num_steps_frozen_prototypes > 0:
+            raise ValueError("`num_steps_frozen_prototypes` is greater than 0, please"
+                             " provide the `step` argument to the `forward()` method.")
+        use_grad = step >= self.num_steps_frozen_prototypes
+        self.prototypes.requires_grad_(use_grad)
 
     @torch.no_grad()
     def _get_queue_prototypes(self, high_resolution_features, epoch=None):
@@ -89,7 +99,8 @@ class SwaV(nn.Module):
 resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(*list(resnet.children())[:-1])
 model = SwaV(backbone, num_ftrs=512, out_dim=128, n_prototypes=512,
-             n_queues=2, queue_length=512, start_queue_at_epoch=5)
+             n_queues=2, queue_length=512, start_queue_at_epoch=5,
+             num_steps_frozen_prototypes=0)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
@@ -117,16 +128,19 @@ criterion = SwaVLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 print("Starting Training")
+step = 0
 for epoch in range(10):
     total_loss = 0
     for batch, _, _ in dataloader:
         batch = [x.to(device) for x in batch]
         high_resolution, low_resolution = batch[:2], batch[2:]
-        high_resolution, low_resolution, queue = model(high_resolution, low_resolution, epoch)
+        high_resolution, low_resolution, queue = model(high_resolution, low_resolution, epoch, step)
         loss = criterion(high_resolution, low_resolution, queue)
         total_loss += loss.detach()
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
+        step += 1
+
     avg_loss = total_loss / len(dataloader)
     print(f"epoch: {epoch:>02}, loss: {avg_loss:.5f}")
