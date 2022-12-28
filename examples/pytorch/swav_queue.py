@@ -15,14 +15,12 @@ from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
 class SwaV(nn.Module):
     def __init__(self, backbone, num_ftrs, out_dim,
                  n_prototypes, n_queues, queue_length=0,
-                 start_queue_at_epoch=0, num_steps_frozen_prototypes=0):
+                 start_queue_at_epoch=0, n_steps_frozen_prototypes=0):
         super().__init__()
         self.backbone = backbone
         self.projection_head = SwaVProjectionHead(num_ftrs, num_ftrs, out_dim)
-        self.prototypes = SwaVPrototypes(out_dim, n_prototypes=n_prototypes)
-        self.num_steps_frozen_prototypes = num_steps_frozen_prototypes
+        self.prototypes = SwaVPrototypes(out_dim, n_prototypes, n_steps_frozen_prototypes)
 
-        self.start_queue_at_epoch = start_queue_at_epoch
         self.queues = None
         if n_queues > 0:
             self.queues = [MemoryBankModule(size=queue_length) for _ in range(n_queues)]
@@ -32,14 +30,13 @@ class SwaV(nn.Module):
             self.start_queue_at_epoch = start_queue_at_epoch
 
     def forward(self, high_resolution, low_resolution, epoch=None, step=None):
-        self._freeze_prototypes_if_required(step)
         self.prototypes.normalize()
 
         high_resolution_features = [self._subforward(x) for x in high_resolution]
         low_resolution_features = [self._subforward(x) for x in low_resolution]
 
-        high_resolution_prototypes = [self.prototypes(x) for x in high_resolution_features]
-        low_resolution_prototypes = [self.prototypes(x) for x in low_resolution_features]
+        high_resolution_prototypes = [self.prototypes(x, step) for x in high_resolution_features]
+        low_resolution_prototypes = [self.prototypes(x, step) for x in low_resolution_features]
         queue_prototypes = self._get_queue_prototypes(high_resolution_features, epoch)
 
         return high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
@@ -49,13 +46,6 @@ class SwaV(nn.Module):
         features = self.projection_head(features)
         features = nn.functional.normalize(features, dim=1, p=2)
         return features
-
-    def _freeze_prototypes_if_required(self, step):
-        if step is None and self.num_steps_frozen_prototypes > 0:
-            raise ValueError("`num_steps_frozen_prototypes` is greater than 0, please"
-                             " provide the `step` argument to the `forward()` method.")
-        use_grad = step >= self.num_steps_frozen_prototypes
-        self.prototypes.requires_grad_(use_grad)
 
     @torch.no_grad()
     def _get_queue_prototypes(self, high_resolution_features, epoch=None):
@@ -100,7 +90,7 @@ resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(*list(resnet.children())[:-1])
 model = SwaV(backbone, num_ftrs=512, out_dim=128, n_prototypes=512,
              n_queues=2, queue_length=512, start_queue_at_epoch=5,
-             num_steps_frozen_prototypes=0)
+             n_steps_frozen_prototypes=10)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
