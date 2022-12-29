@@ -13,6 +13,7 @@ import torchvision
 import torchvision.transforms as T
 
 from lightly.transforms import GaussianBlur, Jigsaw, RandomRotate, RandomSolarization
+from lightly.transforms.random_crop_and_flip_with_grid import ReturnGrid
 
 imagenet_normalize = {
     'mean': [0.485, 0.456, 0.406],
@@ -40,7 +41,7 @@ class BaseCollateFunction(nn.Module):
         super(BaseCollateFunction, self).__init__()
         self.transform = transform
 
-    def forward(self, batch: List[tuple]):
+    def forward(self, batch: List[Tuple[Image.Image, int, str]]):
         """Turns a batch of tuples into a tuple of batches.
 
             Args:
@@ -1009,6 +1010,104 @@ class SMoGCollateFunction(MultiViewCollateFunction):
             ] * crop_counts[i])
 
         super().__init__(transforms)
+
+class VICRegLCollateFunction(nn.Module):
+    """Implements the transformations for VICRegL.
+
+    Attributes:
+        crop_sizes:
+            Size of the input image in pixels for each crop category.
+        crop_counts:
+            Number of crops for each crop category.
+        crop_min_scales:
+            Min scales for each crop category.
+        crop_max_scales:
+            Max_scales for each crop category.
+        gaussian_blur_probs:
+            Probability of Gaussian blur for each crop category.
+        gaussian_blur_kernel_sizes:
+            Kernel size of Gaussian blur for each crop category.
+        solarize_probs:
+            Probability of solarization for each crop category.
+        hf_prob:
+            Probability that horizontal flip is applied.
+        cj_prob:
+            Probability that color jitter is applied.
+        cj_strength:
+            Strength of the color jitter.
+        random_gray_scale:
+            Probability of conversion to grayscale.
+        normalize:
+            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
+
+    """
+
+    def __init__(
+        self,
+        transforms: List[torchvision.transforms.Compose] = [None, None],
+        crop_sizes: List[int] = [224, 96],
+        crop_min_scales: List[float] = [0.2, 0.05],
+        crop_max_scales: List[float] = [1.0, 0.2],
+        gaussian_blur_probs: List[float] = [0.5, 0.1],
+        gaussian_blur_kernel_sizes: List[float] = [0.1, 0.1],
+        solarize_probs: List[float] = [0.0, 0.2],
+        hf_prob: float = 0.5,
+        cj_prob: float = 1.0,
+        cj_strength: float = 0.5,
+        random_gray_scale: float = 0.2,
+        
+    ):
+        super().__init__()
+        self.gridcreator0 = ReturnGrid(crop_size=crop_sizes[0], crop_min_scale=crop_min_scales[0], crop_max_scale=crop_max_scales[0], hf_prob=hf_prob)
+        self.gridcreator1 = ReturnGrid(crop_size=crop_sizes[1], crop_min_scale=crop_min_scales[1], crop_max_scale=crop_max_scales[1], hf_prob=hf_prob)
+
+        color_jitter = T.ColorJitter(
+            0.8 * cj_strength,
+            0.8 * cj_strength,
+            0.4 * cj_strength,
+            0.2 * cj_strength,
+        )
+
+        transforms[0] = T.Compose([
+            T.RandomApply([color_jitter], p=cj_prob),
+            T.RandomGrayscale(p=random_gray_scale),
+            GaussianBlur(prob=gaussian_blur_probs[0], kernel_size=gaussian_blur_kernel_sizes[0]), 
+            RandomSolarization(prob=solarize_probs[0]),
+        ])
+
+        transforms[1] = T.Compose([
+            T.RandomApply([color_jitter], p=cj_prob),
+            T.RandomGrayscale(p=random_gray_scale),
+            GaussianBlur(prob=gaussian_blur_probs[1], kernel_size=gaussian_blur_kernel_sizes[1]), 
+            RandomSolarization(prob=solarize_probs[1]),
+        ])
+
+        self.transforms = transforms
+        
+        
+        
+    def forward(self, batch: List[Tuple[Image.Image, int, str]]) -> Tuple[Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor], List[int], List[str]]:
+
+        # list of transformed images
+        
+        transforms_0 = [self.gridcreator0.forward(self.transforms[0](item[0])) for item in batch]
+        transforms_1 = [self.gridcreator1.forward(self.transforms[1](item[0])) for item in batch]
+        x0 = [item_and_grid.image.unsqueeze(0) for item_and_grid in transforms_0]
+        x1 = [item_and_grid.image.unsqueeze(0) for item_and_grid in transforms_1]
+        grid0 = [item_and_grid.grid for item_and_grid in transforms_0]
+        grid1 = [item_and_grid.grid for item_and_grid in transforms_1]
+        x0 = torch.cat(x0, dim=0)
+        x1 = torch.cat(x1, dim=0)
+        grid0 = torch.cat(grid0, dim=0)
+        grid1 = torch.cat(grid1, dim=0)
+        # list of labels
+        labels = torch.LongTensor([item[1] for item in batch])
+        # list of filenames
+        fnames = [item[2] for item in batch]
+
+        # tuple of transforms
+        return (x0, x1, grid0, grid1), labels, fnames
+
 
 def _random_rotation_transform(
     rr_prob: float,

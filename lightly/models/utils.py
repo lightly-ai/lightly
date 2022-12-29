@@ -461,3 +461,36 @@ def random_token_mask(
     idx_mask = indices[:, num_keep:]
 
     return idx_keep, idx_mask
+
+def location_to_NxN_grid(location, N=7, flip=False):
+    i, j, h, w, H, W = location
+    size_h_case = h / N
+    size_w_case = w / N
+    half_size_h_case = size_h_case / 2
+    half_size_w_case = size_w_case / 2
+    final_grid_x = torch.zeros(N, N)
+    final_grid_y = torch.zeros(N, N)
+
+    final_grid_x[0][0] = i + half_size_h_case
+    final_grid_y[0][0] = j + half_size_w_case
+    for k in range(1, N):
+        final_grid_x[k][0] = final_grid_x[k - 1][0] + size_h_case
+        final_grid_y[k][0] = final_grid_y[k - 1][0]
+    for l in range(1, N):
+        final_grid_x[0][l] = final_grid_x[0][l - 1]
+        final_grid_y[0][l] = final_grid_y[0][l - 1] + size_w_case
+    for k in range(1, N):
+        for l in range(1, N):
+            final_grid_x[k][l] = final_grid_x[k - 1][l] + size_h_case
+            final_grid_y[k][l] = final_grid_y[k][l - 1] + size_w_case
+
+    final_grid = torch.stack([final_grid_x, final_grid_y], dim=-1)
+    if flip:
+        # start_grid = final_grid.clone()
+        for k in range(0, N):
+            for l in range(0, N // 2):
+                swap = final_grid[k, l].clone()
+                final_grid[k, l] = final_grid[k, N - 1 - l]
+                final_grid[k, N - 1 - l] = swap
+
+    return final_grid

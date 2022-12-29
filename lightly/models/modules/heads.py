@@ -528,3 +528,24 @@ class MSNProjectionHead(ProjectionHead):
             (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.GELU()),
             (hidden_dim, output_dim, None, None),
         ])
+
+class VicRegLLocalProjector(ProjectionHead):
+    """Projection head used for Barlow Twins.
+
+    "The projector network has three linear layers, each with 8192 output
+    units. The first two layers of the projector are followed by a batch
+    normalization layer and rectified linear units." [0]
+
+    [0]: 2021, Barlow Twins, https://arxiv.org/abs/2103.03230
+
+    """
+
+    def __init__(self,
+                 input_dim: int = 2048,
+                 hidden_dim: int = 8192,
+                 output_dim: int = 8192):
+        super(VicRegLLocalProjector, self).__init__([
+            (input_dim, hidden_dim, nn.BatchNorm2d(hidden_dim), nn.ReLU()),
+            (hidden_dim, hidden_dim, nn.BatchNorm2d(hidden_dim), nn.ReLU()),
+            (hidden_dim, output_dim, None, None),
+        ])
