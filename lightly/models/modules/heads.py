@@ -418,10 +418,11 @@ class SwaVPrototypes(nn.Module):
             utils.normalize_weight(layer.weight)
     
     def _freeze_prototypes_if_required(self, step):
-        if step is None and self.n_steps_frozen_prototypes > 0:
-            raise ValueError("`freeze_prototypes` is greater than 0, please provide"
-                             " the `step` argument to the `forward()` method.")
-        self.requires_grad_(step >= self.n_steps_frozen_prototypes)
+        if self.n_steps_frozen_prototypes > 0:
+            if step is None:
+                raise ValueError("`n_steps_frozen_prototypes` is greater than 0, please"
+                                 " provide the `step` argument to the `forward()` method.")
+            self.requires_grad_(step >= self.n_steps_frozen_prototypes)
 
 
 class DINOProjectionHead(ProjectionHead):
