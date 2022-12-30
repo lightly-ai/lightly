@@ -33,6 +33,7 @@ class DockerRunArtifactType(object):
     CHECKPOINT = "CHECKPOINT"
     REPORT_PDF = "REPORT_PDF"
     REPORT_JSON = "REPORT_JSON"
+    CORRUPTNESS_CHECK_INFORMATION = "CORRUPTNESS_CHECK_INFORMATION"
 
     """
     Attributes:
