@@ -639,6 +639,53 @@ class _ComputeWorkerMixin:
             timeout=timeout,
         )
 
+    def download_compute_worker_run_corruptness_check_information(
+        self,
+        run: DockerRunData,
+        output_path: str,
+        timeout: int = 60,
+    ) -> None:
+        """Download the corruptness check information file from a run.
+
+        Args:
+            run:
+                Run from which to download the memory log file.
+            output_path:
+                Path where memory log file will be saved.
+            timeout:
+                Timeout in seconds after which download is interrupted.
+
+        Raises:
+            ArtifactNotExist:
+                If the run has no memory log artifact or the memory log file has not yet
+                been uploaded.
+
+        Examples:
+            >>> # schedule run
+            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
+            >>>
+            >>> # wait until run completed
+            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
+            >>>     pass
+            >>>
+            >>> # download corruptness check information file
+            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> client.download_compute_worker_run_corruptness_check_information(run=run, output_path="corruptness_check_information.json")
+            >>>
+            >>> # print all corrupt samples together with their reason for being corrupt
+            >>> with open("corruptness_check_information.json", 'r') as f:
+            >>>     corruptness_check_information = json.load(f)
+            >>> for sample_name, error in corruptness_check_information["corrupt_samples"].items():
+            >>>     print(f"Sample '{sample_name}' is corrupt because of the error '{error}'.")
+
+        """
+        return self._download_compute_worker_run_artifact_by_type(
+            run=run,
+            artifact_type=DockerRunArtifactType.CORRUPTNESS_CHECK_INFORMATION,
+            output_path=output_path,
+            timeout=timeout,
+        )
+
     def _download_compute_worker_run_artifact_by_type(
         self,
         run: DockerRunData,
