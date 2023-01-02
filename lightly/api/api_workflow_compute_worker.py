@@ -468,7 +468,7 @@ class _ComputeWorkerMixin:
             >>> client.download_compute_worker_run_checkpoint(run=run, output_path="my_checkpoint.ckpt")
 
         """
-        return self._download_compute_worker_run_artifact_by_type(
+        self._download_compute_worker_run_artifact_by_type(
             run=run,
             artifact_type=DockerRunArtifactType.CHECKPOINT,
             output_path=output_path,
@@ -509,7 +509,7 @@ class _ComputeWorkerMixin:
             >>> client.download_compute_worker_run_report_pdf(run=run, output_path="report.pdf")
 
         """
-        return self._download_compute_worker_run_artifact_by_type(
+        self._download_compute_worker_run_artifact_by_type(
             run=run,
             artifact_type=DockerRunArtifactType.REPORT_PDF,
             output_path=output_path,
@@ -550,7 +550,7 @@ class _ComputeWorkerMixin:
             >>> client.download_compute_worker_run_report_json(run=run, output_path="report.json")
 
         """
-        return self._download_compute_worker_run_artifact_by_type(
+        self._download_compute_worker_run_artifact_by_type(
             run=run,
             artifact_type=DockerRunArtifactType.REPORT_JSON,
             output_path=output_path,
@@ -591,7 +591,7 @@ class _ComputeWorkerMixin:
             >>> client.download_compute_worker_run_log(run=run, output_path="log.txt")
 
         """
-        return self._download_compute_worker_run_artifact_by_type(
+        self._download_compute_worker_run_artifact_by_type(
             run=run,
             artifact_type=DockerRunArtifactType.LOG,
             output_path=output_path,
@@ -632,7 +632,7 @@ class _ComputeWorkerMixin:
             >>> client.download_compute_worker_run_memory_log(run=run, output_path="memlog.txt")
 
         """
-        return self._download_compute_worker_run_artifact_by_type(
+        self._download_compute_worker_run_artifact_by_type(
             run=run,
             artifact_type=DockerRunArtifactType.MEMLOG,
             output_path=output_path,
@@ -679,7 +679,7 @@ class _ComputeWorkerMixin:
             >>>     print(f"Sample '{sample_name}' is corrupt because of the error '{error}'.")
 
         """
-        return self._download_compute_worker_run_artifact_by_type(
+        self._download_compute_worker_run_artifact_by_type(
             run=run,
             artifact_type=DockerRunArtifactType.CORRUPTNESS_CHECK_INFORMATION,
             output_path=output_path,
@@ -721,7 +721,7 @@ class _ComputeWorkerMixin:
             >>> client.download_compute_worker_run_sequence_information(run=run, output_path="sequence_information.json")
 
         """
-        return self._download_compute_worker_run_artifact_by_type(
+        self._download_compute_worker_run_artifact_by_type(
             run=run,
             artifact_type=DockerRunArtifactType.SEQUENCE_INFORMATION,
             output_path=output_path,
