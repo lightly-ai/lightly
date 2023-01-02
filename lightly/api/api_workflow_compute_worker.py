@@ -417,7 +417,7 @@ class _ComputeWorkerMixin:
             >>>     pass
             >>>
             >>> # download artifacts
-            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
             >>> client.download_compute_worker_run_artifacts(run=run, output_dir="my_run/artifacts")
 
         """
@@ -464,7 +464,7 @@ class _ComputeWorkerMixin:
             >>>     pass
             >>>
             >>> # download checkpoint
-            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
             >>> client.download_compute_worker_run_checkpoint(run=run, output_path="my_checkpoint.ckpt")
 
         """
@@ -505,7 +505,7 @@ class _ComputeWorkerMixin:
             >>>     pass
             >>>
             >>> # download report
-            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
             >>> client.download_compute_worker_run_report_pdf(run=run, output_path="report.pdf")
 
         """
@@ -546,7 +546,7 @@ class _ComputeWorkerMixin:
             >>>     pass
             >>>
             >>> # download checkpoint
-            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
             >>> client.download_compute_worker_run_report_json(run=run, output_path="report.json")
 
         """
@@ -587,7 +587,7 @@ class _ComputeWorkerMixin:
             >>>     pass
             >>>
             >>> # download log file
-            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
             >>> client.download_compute_worker_run_log(run=run, output_path="log.txt")
 
         """
@@ -628,7 +628,7 @@ class _ComputeWorkerMixin:
             >>>     pass
             >>>
             >>> # download memory log file
-            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
             >>> client.download_compute_worker_run_memory_log(run=run, output_path="memlog.txt")
 
         """
@@ -669,7 +669,7 @@ class _ComputeWorkerMixin:
             >>>     pass
             >>>
             >>> # download corruptness check information file
-            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
             >>> client.download_compute_worker_run_corruptness_check_information(run=run, output_path="corruptness_check_information.json")
             >>>
             >>> # print all corrupt samples and corruptions
@@ -717,7 +717,7 @@ class _ComputeWorkerMixin:
             >>>     pass
             >>>
             >>> # download sequence information file
-            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
             >>> client.download_compute_worker_run_sequence_information(run=run, output_path="sequence_information.json")
 
         """
