@@ -160,13 +160,14 @@ with the default ImageNet-1k training parameters from the respective papers.
   :header: "Model", "Epochs", "Batch Size", "Accuracy", "Runtime", "GPU Memory"
   :widths: 20, 20, 20, 20, 20, 20
 
-  "BarlowTwins", 200, 256, 0.333, "1201.4 Min", "13.8 GByte"
-  "BYOL", 200, 256, 0.362, "1238.2 Min", "13.2 GByte"
-  "DINO", 200, 256, 0.452, "1678.3 Min", "19.5 GByte"
-  "Moco", 200, 256, 0.506, "1235.8 Min", "13.4 GByte"
-  "SimCLR", 200, 256, 0.372, "1170.0 Min", "12.8 GByte"
-  "SimSiam", 200, 256, 0.453, "1161.0 Min", "11.5 GByte"
-  "SwaV", 200, 256, 0.098, "1569.2 Min", "18.9 GByte"
+  "BarlowTwins", 400, 256, 0.483, "3200.5 Min", "13.8 GByte"
+  "BYOL", 400, 256, 0.511, "2606.9 Min", "13.6 GByte"
+  "DINO", 400, 256, 0.570, "3634.1 Min", "20.5 GByte"
+  "Moco", 400, 256, 0.456, "2617.4 Min", "14.4 GByte"
+  "NNCLR", 400, 256, 0.516, "2364.1 Min", "12.7 GByte"
+  "SimCLR", 400, 256, 0.428, "2344.5 Min", "12.3 GByte"
+  "SimSiam", 400, 256, 0.189, "2337.1 Min", "12.3 GByte"
+  "SwaV", 400, 256, 0.623, "3173.8 Min", "18.5 GByte"
 
 You can reproduce the benchmarks using the following script:
 :download:`imagenet100_benchmark.py <benchmarks/imagenet100_benchmark.py>` 
@@ -180,6 +181,5 @@ looking into a tutorial to implement your favorite model?
 
 - :ref:`input-structure-label`
 - :ref:`lightly-moco-tutorial-2`
-- :ref:`lightly-simclr-tutorial-3`  
-- :ref:`lightly-simsiam-tutorial-4`
+- :ref:`lightly-simclr-tutorial-3`
 - :ref:`lightly-custom-augmentation-5`

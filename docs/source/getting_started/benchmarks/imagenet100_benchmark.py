@@ -212,7 +212,7 @@ class MocoModel(BenchmarkModule):
     def configure_optimizers(self):
         params = list(self.backbone.parameters()) + list(self.projection_head.parameters())
         optim = LARS(
-            self.parameters(), 
+            params,
             lr=0.3 * lr_factor,
             momentum=0.9, 
             weight_decay=1e-6,
