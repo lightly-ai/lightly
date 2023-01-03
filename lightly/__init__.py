@@ -75,7 +75,7 @@ The framework is structured into the following modules:
 # All Rights Reserved
 
 __name__ = 'lightly'
-__version__ = '1.2.40'
+__version__ = '1.2.41'
 
 import os
 
@@ -131,5 +131,5 @@ else:
             from lightly.openapi_generated.swagger_client.rest import ApiException
             try:
                 is_latest_version(current_version=__version__)
-            except (ValueError, ApiException, LightlyAPITimeoutException):
+            except (ValueError, ApiException, LightlyAPITimeoutException, AttributeError):
                 pass
