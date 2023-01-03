@@ -462,35 +462,96 @@ def random_token_mask(
 
     return idx_keep, idx_mask
 
-def location_to_NxN_grid(location, N=7, flip=False):
-    i, j, h, w, H, W = location
-    size_h_case = h / N
-    size_w_case = w / N
-    half_size_h_case = size_h_case / 2
-    half_size_w_case = size_w_case / 2
-    final_grid_x = torch.zeros(N, N)
-    final_grid_y = torch.zeros(N, N)
+def _batched_index_select(
+    input: torch.Tensor, 
+    dim: int, 
+    index: torch.Tensor
+) -> torch.Tensor:
 
-    final_grid_x[0][0] = i + half_size_h_case
-    final_grid_y[0][0] = j + half_size_w_case
-    for k in range(1, N):
-        final_grid_x[k][0] = final_grid_x[k - 1][0] + size_h_case
-        final_grid_y[k][0] = final_grid_y[k - 1][0]
-    for l in range(1, N):
-        final_grid_x[0][l] = final_grid_x[0][l - 1]
-        final_grid_y[0][l] = final_grid_y[0][l - 1] + size_w_case
-    for k in range(1, N):
-        for l in range(1, N):
-            final_grid_x[k][l] = final_grid_x[k - 1][l] + size_h_case
-            final_grid_y[k][l] = final_grid_y[k][l - 1] + size_w_case
+    """
+    Selects elements from the input tensor along a given dimension using the indices in the index tensor.
 
-    final_grid = torch.stack([final_grid_x, final_grid_y], dim=-1)
-    if flip:
-        # start_grid = final_grid.clone()
-        for k in range(0, N):
-            for l in range(0, N // 2):
-                swap = final_grid[k, l].clone()
-                final_grid[k, l] = final_grid[k, N - 1 - l]
-                final_grid[k, N - 1 - l] = swap
+    Args:
+        input: The input tensor.
+        dim: The dimension along which to select elements.
+        index: A tensor of indices to use for selection.
 
-    return final_grid
+    Returns:
+        A tensor containing the selected elements.
+
+    """
+
+    for ii in range(1, len(input.shape)):
+        if ii != dim:
+            index = index.unsqueeze(ii)
+    expanse = list(input.shape)
+    expanse[0] = -1
+    expanse[dim] = -1
+    index = index.expand(expanse)
+    return torch.gather(input, dim, index)
+
+def nearest_neighbors(
+    input_maps: torch.Tensor,
+    candidate_maps: torch.Tensor,
+    distances: torch.Tensor, 
+    num_matches: int
+) -> Tuple[torch.Tensor, torch.Tensor]:
+
+    """Finds the nearest neighbors of the maps in input_maps in candidate_maps.
+
+    Args:
+        input_maps: 
+            A tensor of maps for which to find nearest neighbors.
+            It has size: [batch_size, map_size, num_input_maps]
+        candidate_maps: 
+            A tensor of maps to search for nearest neighbors.
+            It has size: [batch_size, map_size, num_candidate_maps]
+        distances: 
+            A tensor of distances between the maps in input_maps and candidate_maps.
+            It has size: [batch_size, num_input_maps, num_candidate_maps]
+        num_matches: 
+            Number of nearest neighbors to return. If num_matches is None or -1,
+            all the maps in candidate_maps are considered.
+
+    Returns:
+        A tuple of tensors, containing the nearest neighbors in input_maps and candidate_maps.
+
+    """
+
+    batch_size = input_maps.size(0)
+
+    if num_matches is None or num_matches == -1:
+        num_matches = input_maps.size(1)
+
+    topk_values, topk_indices = distances.topk(k=1, largest=False)
+    topk_values = topk_values.squeeze(-1)
+    topk_indices = topk_indices.squeeze(-1)
+
+    sorted_values, sorted_values_indices = torch.sort(topk_values, dim=1)
+    sorted_indices, sorted_indices_indices = torch.sort(sorted_values_indices, dim=1)
+
+    mask = torch.stack(
+        [
+            torch.where(sorted_indices_indices[i] < num_matches, True, False)
+            for i in range(batch_size)
+        ]
+    )
+    topk_indices_selected = topk_indices.masked_select(mask)
+
+    topk_indices_selected = topk_indices_selected.reshape(batch_size, num_matches)
+
+    indices = (
+        torch.arange(0, topk_values.size(1))
+        .unsqueeze(0)
+        .repeat(batch_size, 1)
+        .to(topk_values.device)
+    )
+    indices_selected = indices.masked_select(mask)
+    indices_selected = indices_selected.reshape(batch_size, num_matches)
+
+    filtered_input_maps = _batched_index_select(input_maps, 1, indices_selected)
+    filtered_candidate_maps = _batched_index_select(
+        candidate_maps, 1, topk_indices_selected
+    )
+
+    return filtered_input_maps, filtered_candidate_maps

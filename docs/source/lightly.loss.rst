@@ -60,3 +60,8 @@ lightly.loss
 -------------
 .. autoclass:: lightly.loss.vicreg_loss.VICRegLoss
    :members:
+
+.vicregl_loss
+-------------
+.. autoclass:: lightly.loss.vicregl_loss.VICRegLLoss
+   :members:

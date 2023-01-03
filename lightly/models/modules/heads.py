@@ -530,13 +530,12 @@ class MSNProjectionHead(ProjectionHead):
         ])
 
 class VicRegLLocalProjector(ProjectionHead):
-    """Projection head used for Barlow Twins.
+    """Projection head used for the local head of VICRegL.
 
-    "The projector network has three linear layers, each with 8192 output
-    units. The first two layers of the projector are followed by a batch
-    normalization layer and rectified linear units." [0]
+    The projector network has three linear layers. The first two layers of the projector 
+    are followed by a batch normalization layer and rectified linear units.
 
-    [0]: 2021, Barlow Twins, https://arxiv.org/abs/2103.03230
+    2022, VICRegL, https://arxiv.org/abs/2210.01571
 
     """
 
@@ -545,7 +544,7 @@ class VicRegLLocalProjector(ProjectionHead):
                  hidden_dim: int = 8192,
                  output_dim: int = 8192):
         super(VicRegLLocalProjector, self).__init__([
-            (input_dim, hidden_dim, nn.BatchNorm2d(hidden_dim), nn.ReLU()),
-            (hidden_dim, hidden_dim, nn.BatchNorm2d(hidden_dim), nn.ReLU()),
+            (input_dim, hidden_dim, nn.LayerNorm(hidden_dim), nn.ReLU()),
+            (hidden_dim, hidden_dim, nn.LayerNorm(hidden_dim), nn.ReLU()),
             (hidden_dim, output_dim, None, None),
         ])

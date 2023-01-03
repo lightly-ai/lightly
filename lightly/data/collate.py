@@ -1015,10 +1015,10 @@ class VICRegLCollateFunction(nn.Module):
     """Implements the transformations for VICRegL.
 
     Attributes:
+        transforms:
+            List of transforms to apply to the images
         crop_sizes:
             Size of the input image in pixels for each crop category.
-        crop_counts:
-            Number of crops for each crop category.
         crop_min_scales:
             Min scales for each crop category.
         crop_max_scales:
@@ -1037,8 +1037,6 @@ class VICRegLCollateFunction(nn.Module):
             Strength of the color jitter.
         random_gray_scale:
             Probability of conversion to grayscale.
-        normalize:
-            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     """
 
@@ -1058,8 +1056,8 @@ class VICRegLCollateFunction(nn.Module):
         
     ):
         super().__init__()
-        self.gridcreator0 = ReturnGrid(crop_size=crop_sizes[0], crop_min_scale=crop_min_scales[0], crop_max_scale=crop_max_scales[0], hf_prob=hf_prob)
-        self.gridcreator1 = ReturnGrid(crop_size=crop_sizes[1], crop_min_scale=crop_min_scales[1], crop_max_scale=crop_max_scales[1], hf_prob=hf_prob)
+        self.gridcreator0 = ReturnGrid(crop_size=crop_sizes[0], crop_min_scale=crop_min_scales[0], crop_max_scale=crop_max_scales[0], hf_prob=hf_prob, N=7)
+        self.gridcreator1 = ReturnGrid(crop_size=crop_sizes[1], crop_min_scale=crop_min_scales[1], crop_max_scale=crop_max_scales[1], hf_prob=hf_prob, N=3)
 
         color_jitter = T.ColorJitter(
             0.8 * cj_strength,
@@ -1088,14 +1086,24 @@ class VICRegLCollateFunction(nn.Module):
         
     def forward(self, batch: List[Tuple[Image.Image, int, str]]) -> Tuple[Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor], List[int], List[str]]:
 
-        # list of transformed images
-        
+        """
+        Applies transforms to images in the input batch.
+
+        Args:
+            batch:
+                A list of tuples containing an image (as a PIL Image), a label (int), and a filename (str).
+
+        Returns:
+            A tuple of transformed images (as a 4-tuple of torch.Tensors), labels (as a list of ints), and filenames (as a list of strs).
+
+        """
+       
         transforms_0 = [self.gridcreator0.forward(self.transforms[0](item[0])) for item in batch]
         transforms_1 = [self.gridcreator1.forward(self.transforms[1](item[0])) for item in batch]
         x0 = [item_and_grid.image.unsqueeze(0) for item_and_grid in transforms_0]
         x1 = [item_and_grid.image.unsqueeze(0) for item_and_grid in transforms_1]
-        grid0 = [item_and_grid.grid for item_and_grid in transforms_0]
-        grid1 = [item_and_grid.grid for item_and_grid in transforms_1]
+        grid0 = [item_and_grid.grid.unsqueeze(0) for item_and_grid in transforms_0]
+        grid1 = [item_and_grid.grid.unsqueeze(0) for item_and_grid in transforms_1]
         x0 = torch.cat(x0, dim=0)
         x1 = torch.cat(x1, dim=0)
         grid0 = torch.cat(grid0, dim=0)

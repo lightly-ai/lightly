@@ -4,13 +4,12 @@ import torchvision
 
 from lightly.data import LightlyDataset
 from lightly.data.collate import VICRegLCollateFunction
+## The global projection head is the same as the Barlow Twins one
 from lightly.models.modules import BarlowTwinsProjectionHead
 from lightly.models.modules.heads import VicRegLLocalProjector
+from lightly.loss import VICRegLLoss
 
-## The projection head is the same as the Barlow Twins one
-from lightly.loss.vicreg_loss import VICRegLoss
-
-class VICReg(nn.Module):
+class VICRegL(nn.Module):
     def __init__(self, backbone):
         super().__init__()
         self.backbone = backbone
@@ -29,16 +28,14 @@ class VICReg(nn.Module):
         z = self.local_projector(x)
         return z
 
-
-
 resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(*list(resnet.children())[:-2])
-model = VICReg(backbone)
+model = VICRegL(backbone)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-cifar10 = torchvision.datasets.CIFAR10("home/ubuntu/datasets/cifar10", download=True)
+cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
 dataset = LightlyDataset.from_torch_dataset(cifar10)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
@@ -47,14 +44,14 @@ collate_fn = VICRegLCollateFunction()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
-    batch_size=256, #2048 from the paper if enough memory
+    batch_size=128, #2048 from the paper if enough memory
     collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,
 )
 
-criterion = VICRegLoss()
+criterion = VICRegLLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
 
 print("Starting Training")
@@ -63,9 +60,26 @@ for epoch in range(10):
     for (x0, x1, grid0, grid1), _, _ in dataloader:
         x0 = x0.to(device)
         x1 = x1.to(device)
-        z0 = model(x0)
-        z1 = model(x1)
-        loss = criterion(z0, z1, )
+        grid0 = grid0.to(device)
+        grid1 = grid1.to(device)
+        z0 = model.forward(x=x0)
+        z1 = model.forward(x=x1)
+        z0_local = model.forward_local(x0)
+        z1_local = model.forward_local(x1)
+        print("shapes: ", z0.shape, 
+            z1.shape, 
+            z0_local.shape, 
+            z1_local.shape, 
+            grid0.shape, 
+            grid1.shape)
+        loss = criterion.forward(
+            z_a=z0, 
+            z_b=z1, 
+            z_a_local=z0_local, 
+            z_b_local=z1_local, 
+            location_a=grid0, 
+            location_b=grid1
+            )
         total_loss += loss.detach()
         loss.backward()
         optimizer.step()

@@ -47,6 +47,7 @@ Some of our supported models:
 - [SMoG, 2022](https://arxiv.org/abs/2207.06167)
 - [SwaV, 2020](https://arxiv.org/abs/2006.09882)
 - [VICReg, 2022](https://arxiv.org/abs/2105.04906)
+- [VICRegL, 2022](https://arxiv.org/abs/2210.01571)
 
 
 ### Tutorials

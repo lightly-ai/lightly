@@ -12,7 +12,7 @@ from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
 from lightly.models.utils import normalize_weight
 from lightly.models.utils import _no_grad_trunc_normal
-
+from lightly.models.utils import nearest_neighbors
 
 def has_grad(model: nn.Module):
     """Helper method to check if a model has `requires_grad` set to True
@@ -221,6 +221,54 @@ class TestModelUtils(unittest.TestCase):
 
     def test_random_token_mask(self):
         self._test_random_token_mask_parameters(device='cpu')
+
+    def test_nearest_neighbors(self):
+        # Test input with shape (batch_size, map_size, num_input_maps)
+        input_maps = torch.tensor([
+            [[1, 4], [2, 5], [3, 6]],
+            [[7, 10], [8, 11], [9, 12]],
+            [[13, 16], [14, 17], [15, 18]]
+        ])
+        # Test candidate maps with shape (batch_size, map_size, num_candidate_maps)
+        candidate_maps = torch.tensor([
+            [[1, 1], [2, 2], [3, 3]],
+            [[1, 1], [2, 2], [3, 3]],
+            [[1, 1], [2, 2], [3, 3]]
+        ])
+        # Test distances with shape (batch_size, num_input_maps, num_candidate_maps)
+        distances = torch.tensor([
+            [[0, 1, 2], [1, 0, 3]],
+            [[4, 3, 2], [3, 2, 1]],
+            [[2, 3, 4], [3, 4, 5]]
+        ])
+        # Test num_matches = 2
+        input_maps_filtered, candidate_maps_filtered = nearest_neighbors(input_maps, candidate_maps, distances, num_matches=2)
+        assert input_maps_filtered.shape == (3, 2, 2)
+        assert input_maps_filtered.equal(torch.tensor([
+            [[1, 4], [2, 5]],
+            [[7, 10], [8, 11]],
+            [[13, 16], [14, 17]]
+        ]))
+        assert candidate_maps_filtered.shape == (3, 2, 2)
+        assert candidate_maps_filtered.equal(torch.tensor([
+            [[1, 1], [2, 2]],
+            [[3, 3], [3, 3]],
+            [[1, 1], [1, 1]]
+        ]))
+        # Test num_matches = 1
+        input_maps_filtered, candidate_maps_filtered = nearest_neighbors(input_maps, candidate_maps, distances, num_matches=1)
+        assert input_maps_filtered.shape == (3, 1, 2)
+        assert input_maps_filtered.equal(torch.tensor([
+            [[1, 4]],
+            [[8, 11]],
+            [[13, 16]]
+        ]))
+        assert candidate_maps_filtered.shape == (3, 1, 2)
+        assert candidate_maps_filtered.equal(torch.tensor([
+            [[1, 1]],
+            [[3, 3]],
+            [[1, 1]]
+        ]))
 
     @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
     def test_random_token_mask_cuda(self):

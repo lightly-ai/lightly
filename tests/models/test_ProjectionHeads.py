@@ -16,6 +16,9 @@ from lightly.models.modules.heads import SimSiamProjectionHead
 from lightly.models.modules.heads import SimSiamPredictionHead
 from lightly.models.modules.heads import SwaVProjectionHead
 from lightly.models.modules.heads import SwaVPrototypes
+from lightly.models.modules.heads import VicRegLLocalProjector
+
+
 
 
 class TestProjectionHeads(unittest.TestCase):
@@ -43,7 +46,8 @@ class TestProjectionHeads(unittest.TestCase):
             SimSiamProjectionHead,
             SimSiamPredictionHead,
             SwaVProjectionHead,
-            DINOProjectionHead,       
+            DINOProjectionHead,
+            VicRegLLocalProjector,     
         ]
 
 
