@@ -491,7 +491,7 @@ def cosine_schedule(
         raise ValueError("Current epoch number can't be negative")
     if max_steps < 1:
         raise ValueError("Total epochs number must be >= 1")
-    if step > max_steps:
+    if step >= max_steps:
         raise ValueError(f"Current step is bigger than total number of steps. Found {step} > {max_steps}.")
 
     if (max_steps == 1):
