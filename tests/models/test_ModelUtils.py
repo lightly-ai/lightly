@@ -228,7 +228,7 @@ class TestModelUtils(unittest.TestCase):
         momentum_hand_computed_0 = 0.99030154
         momentum_1 = cosine_schedule(95, 100, 0.7, 2)
         momentum_hand_computed_1 = 1.99477063
-        momentum_2 = cosine_schedule(1, 1, 0.996, 1)
+        momentum_2 = cosine_schedule(0, 1, 0.996, 1)
         momentum_hand_computed_2 = 1
 
         self.assertAlmostEqual(momentum_0, momentum_hand_computed_0, 6)
