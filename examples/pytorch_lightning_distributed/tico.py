@@ -42,7 +42,7 @@ class TiCo(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         (x0, x1), _, _ = batch
-        momentum = cosine_schedule(batch_idx, 10, 0.996, 1)
+        momentum = cosine_schedule(self.current_epoch, 10, 0.996, 1)
         update_momentum(self.backbone, self.backbone_momentum, m=momentum)
         update_momentum(self.projection_head, self.projection_head_momentum, m=momentum)
         x0 = x0.to(self.device)
@@ -54,7 +54,7 @@ class TiCo(pl.LightningModule):
 
     def configure_optimizers(self):
         return torch.optim.SGD(self.parameters(), lr=0.06)
-
+        
 model = TiCo()
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)

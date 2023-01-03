@@ -484,12 +484,15 @@ def cosine_schedule(
             Target momentum value.
             
     Returns:
-        New momentum value to be used with update_momentum.
+        Cosine decay value.
 
     """
-    assert step >= 0, "Current number can't be negative"
-    assert max_steps > 0, "Total epochs must be > 0"
-    assert step <= max_steps, f"Current step is bigger than total number of steps. Found {step} > {max_steps}."
+    if step < 0:
+        raise ValueError("Current epoch number can't be negative")
+    if max_steps < 2:
+        raise ValueError("Total epochs number must be > 1")
+    if step > max_steps:
+        raise ValueError(f"Current step is bigger than total number of steps. Found {step} > {max_steps}.")
 
     if (max_steps == 1):
         momentum = end_value
