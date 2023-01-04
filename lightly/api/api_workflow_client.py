@@ -21,7 +21,7 @@ from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
 from lightly.api.utils import DatasourceType, get_signed_url_destination, get_api_client_configuration
-from lightly.api.version_checking import is_compatible_version
+from lightly.api.version_checking import is_compatible_version, LightlyAPITimeoutException
 from lightly.openapi_generated.swagger_client.api.collaboration_api import CollaborationApi
 from lightly.openapi_generated.swagger_client import ScoresApi, QuotaApi, MetaDataConfigurationsApi, PredictionsApi
 from lightly.openapi_generated.swagger_client.api.datasets_api import \
@@ -84,13 +84,16 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         embedding_id: Optional[str] = None
     ):
 
-        if not is_compatible_version(__version__):
-            warnings.warn(
-                UserWarning((f"Incompatible version of lightly pip package. "
-                             f"Please upgrade to the latest version "
-                             f"to be able to access the api.")
+        try:
+            if not is_compatible_version(__version__):
+                warnings.warn(
+                    UserWarning((f"Incompatible version of lightly pip package. "
+                                f"Please upgrade to the latest version "
+                                f"to be able to access the api.")
+                    )
                 )
-            )
+        except LightlyAPITimeoutException:
+            pass
 
         configuration = get_api_client_configuration(token=token)
         self.api_client = ApiClient(configuration=configuration)
