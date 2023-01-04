@@ -471,31 +471,31 @@ def cosine_schedule(
 ) -> float:
 
     """
-    Use cosine decay to gradually modify start_value to reach target end_value during training.
+    Use cosine decay to gradually modify start_value to reach target end_value during iterations.
 
     Args:
         step:
-            Current epoch number.
+            Current step number.
         max_steps:
-            Total number of epochs.
+            Total number of steps.
         start_value:
-            Starting momentum value.
+            Starting value.
         end_value:
-            Target momentum value.
+            Target value.
             
     Returns:
         Cosine decay value.
 
     """
     if step < 0:
-        raise ValueError("Current epoch number can't be negative")
+        raise ValueError("Current step number can't be negative")
     if max_steps < 1:
-        raise ValueError("Total epochs number must be >= 1")
+        raise ValueError("Total step number must be >= 1")
     if step >= max_steps:
-        raise ValueError(f"Current step is bigger than total number of steps. Found {step} > {max_steps}.")
+        raise ValueError(f"The current step must be smaller than max_steps but found step equal to {step} and max_steps equal to {max_steps}.")
 
     if (max_steps == 1):
-        momentum = end_value
+        decay = end_value
     else: 
-        momentum = end_value - (end_value - start_value)*(np.cos(np.pi * step/ (max_steps - 1)) + 1) / 2
-    return momentum
+        decay = end_value - (end_value - start_value)*(np.cos(np.pi * step/ (max_steps - 1)) + 1) / 2
+    return decay
