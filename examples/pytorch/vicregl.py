@@ -6,7 +6,7 @@ from lightly.data import LightlyDataset
 from lightly.data.collate import VICRegLCollateFunction
 ## The global projection head is the same as the Barlow Twins one
 from lightly.models.modules import BarlowTwinsProjectionHead
-from lightly.models.modules.heads import VicRegLLocalProjector
+from lightly.models.modules.heads import VicRegLLocalProjectionHead
 from lightly.loss import VICRegLLoss
 
 class VICRegL(nn.Module):
@@ -14,19 +14,16 @@ class VICRegL(nn.Module):
         super().__init__()
         self.backbone = backbone
         self.projection_head = BarlowTwinsProjectionHead(512, 2048, 2048)
-        self.local_projector = VicRegLLocalProjector(512, 128, 128)
+        self.local_projector = VicRegLLocalProjectionHead(512, 128, 128)
         self.average_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
 
     def forward(self, x):
         x = self.backbone(x)
         y = self.average_pool(x).flatten(start_dim=1)
         z = self.projection_head(y)
-        return z
-    
-    def forward_local(self, x):
-        x = self.backbone(x).transpose(1, 3).transpose(1, 2)
-        z = self.local_projector(x)
-        return z
+        y_local = x.permute(0, 2, 3, 1) # torch.Size([128, 512, 7, 7]) to torch.Size([128, 7, 7, 512])
+        z_local = self.local_projector(y_local)         
+        return z, z_local
 
 resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(*list(resnet.children())[:-2])
@@ -52,33 +49,25 @@ dataloader = torch.utils.data.DataLoader(
 )
 
 criterion = VICRegLLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
+optimizer = torch.optim.SGD(model.parameters(), momentum=0.9, lr=0.06)
 
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for (x0, x1, grid0, grid1), _, _ in dataloader:
-        x0 = x0.to(device)
-        x1 = x1.to(device)
-        grid0 = grid0.to(device)
-        grid1 = grid1.to(device)
-        z0 = model.forward(x=x0)
-        z1 = model.forward(x=x1)
-        z0_local = model.forward_local(x0)
-        z1_local = model.forward_local(x1)
-        print("shapes: ", z0.shape, 
-            z1.shape, 
-            z0_local.shape, 
-            z1_local.shape, 
-            grid0.shape, 
-            grid1.shape)
-        loss = criterion.forward(
-            z_a=z0, 
-            z_b=z1, 
-            z_a_local=z0_local, 
-            z_b_local=z1_local, 
-            location_a=grid0, 
-            location_b=grid1
+    for (x_a, x_b, location_a, location_b), _, _ in dataloader:
+        x_a = x_a.to(device)
+        x_b = x_b.to(device)
+        location_a = location_a.to(device)
+        location_b = location_b.to(device)
+        z_a, z_a_local = model(x_a)
+        z_b, z_b_local = model(x_b)
+        loss = criterion(
+            z_a=z_a, 
+            z_b=z_b, 
+            z_a_local=z_a_local, 
+            z_b_local=z_b_local, 
+            location_a=location_a, 
+            location_b=location_b
             )
         total_loss += loss.detach()
         loss.backward()

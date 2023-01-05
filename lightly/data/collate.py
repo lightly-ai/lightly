@@ -13,7 +13,7 @@ import torchvision
 import torchvision.transforms as T
 
 from lightly.transforms import GaussianBlur, Jigsaw, RandomRotate, RandomSolarization
-from lightly.transforms.random_crop_and_flip_with_grid import ReturnGrid
+from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropAndFlip
 
 imagenet_normalize = {
     'mean': [0.485, 0.456, 0.406],
@@ -1012,52 +1012,69 @@ class SMoGCollateFunction(MultiViewCollateFunction):
         super().__init__(transforms)
 
 class VICRegLCollateFunction(nn.Module):
-    """Implements the transformations for VICRegL.
+    """Transforms images for VICRegL.
 
     Attributes:
-        transforms:
-            List of transforms to apply to the images
-        crop_sizes:
-            Size of the input image in pixels for each crop category.
-        crop_min_scales:
-            Min scales for each crop category.
-        crop_max_scales:
-            Max_scales for each crop category.
-        gaussian_blur_probs:
-            Probability of Gaussian blur for each crop category.
-        gaussian_blur_kernel_sizes:
-            Kernel size of Gaussian blur for each crop category.
-        solarize_probs:
-            Probability of solarization for each crop category.
-        hf_prob:
+        global_crop_size: 
+            Size of the input image in pixels for the global crop category.
+        local_crop_size:    
+            Size of the input image in pixels for the local crop category.
+        global_crop_scale: 
+            Min and max scales for the global crop category.
+        local_crop_scale: 
+            Min and max scales for the local crop category.
+        global_grid_size: 
+            Grid size for the global crop category.
+        local_grid_size: 
+            Grid size for the local crop category.
+        global_gaussian_blur_prob: 
+            Probability of Gaussian blur for the global crop category.
+        local_gaussian_blur_prob: 
+            Probability of Gaussian blur for the local crop category.
+        global_gaussian_blur_kernel_size: 
+            Kernel size of Gaussian blur for the global crop category.
+        local_gaussian_blur_kernel_size: 
+            Kernel size of Gaussian blur for the local crop category.
+        global_solarize_prob: 
+            Probability of solarization for the global crop category.
+        local_solarize_prob: 
+            Probability of solarization for the local crop category.
+        hf_prob: 
             Probability that horizontal flip is applied.
-        cj_prob:
+        cj_prob: 
             Probability that color jitter is applied.
-        cj_strength:
+        cj_strength: 
             Strength of the color jitter.
-        random_gray_scale:
+        random_gray_scale: 
             Probability of conversion to grayscale.
-
+        normalize: 
+            Dictionary with mean and standard deviation for normalization.
     """
 
     def __init__(
         self,
-        transforms: List[torchvision.transforms.Compose] = [None, None],
-        crop_sizes: List[int] = [224, 96],
-        crop_min_scales: List[float] = [0.2, 0.05],
-        crop_max_scales: List[float] = [1.0, 0.2],
-        gaussian_blur_probs: List[float] = [0.5, 0.1],
-        gaussian_blur_kernel_sizes: List[float] = [0.1, 0.1],
-        solarize_probs: List[float] = [0.0, 0.2],
+        global_crop_size: int = 224,
+        local_crop_size: int = 96,
+        global_crop_scale: Tuple[int] = (0.2, 1.0),
+        local_crop_scale: Tuple[int] = (0.05, 0.2),
+        global_grid_size: int = 7,
+        local_grid_size: int = 3,
+        global_gaussian_blur_prob: float = 0.5,
+        local_gaussian_blur_prob: float = 0.1,
+        global_gaussian_blur_kernel_size: float = 0.1,
+        local_gaussian_blur_kernel_size: float = 0.1,
+        global_solarize_prob: float = 0.0,
+        local_solarize_prob: float = 0.2,
         hf_prob: float = 0.5,
         cj_prob: float = 1.0,
         cj_strength: float = 0.5,
         random_gray_scale: float = 0.2,
+        normalize: dict = imagenet_normalize,
         
     ):
         super().__init__()
-        self.gridcreator0 = ReturnGrid(crop_size=crop_sizes[0], crop_min_scale=crop_min_scales[0], crop_max_scale=crop_max_scales[0], hf_prob=hf_prob, N=7)
-        self.gridcreator1 = ReturnGrid(crop_size=crop_sizes[1], crop_min_scale=crop_min_scales[1], crop_max_scale=crop_max_scales[1], hf_prob=hf_prob, N=3)
+        self.global_crop_and_flip = RandomResizedCropAndFlip(crop_size=global_crop_size, crop_min_scale=global_crop_scale[0], crop_max_scale=global_crop_scale[1], hf_prob=hf_prob, grid_size=global_grid_size)
+        self.local_crop_and_flip = RandomResizedCropAndFlip(crop_size=local_crop_size, crop_min_scale=local_crop_scale[0], crop_max_scale=local_crop_scale[1], hf_prob=hf_prob, grid_size=local_grid_size)
 
         color_jitter = T.ColorJitter(
             0.8 * cj_strength,
@@ -1065,26 +1082,26 @@ class VICRegLCollateFunction(nn.Module):
             0.4 * cj_strength,
             0.2 * cj_strength,
         )
-
-        transforms[0] = T.Compose([
+        self.global_transform = T.Compose([
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
-            GaussianBlur(prob=gaussian_blur_probs[0], kernel_size=gaussian_blur_kernel_sizes[0]), 
-            RandomSolarization(prob=solarize_probs[0]),
+            GaussianBlur(prob=global_gaussian_blur_prob, kernel_size=global_gaussian_blur_kernel_size), 
+            RandomSolarization(prob=global_solarize_prob),
+            T.ToTensor(),
+            T.Normalize(mean=normalize["mean"], std=normalize["std"]),
         ])
 
-        transforms[1] = T.Compose([
+        self.local_transform = T.Compose([
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
-            GaussianBlur(prob=gaussian_blur_probs[1], kernel_size=gaussian_blur_kernel_sizes[1]), 
-            RandomSolarization(prob=solarize_probs[1]),
-        ])
+            GaussianBlur(prob=local_gaussian_blur_prob, kernel_size=local_gaussian_blur_kernel_size), 
+            RandomSolarization(prob=local_solarize_prob),
+            T.ToTensor(),
+            T.Normalize(mean=normalize["mean"], std=normalize["std"]),
 
-        self.transforms = transforms
+        ])
         
-        
-        
-    def forward(self, batch: List[Tuple[Image.Image, int, str]]) -> Tuple[Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor], List[int], List[str]]:
+    def forward(self, batch: List[Tuple[Image.Image, int, str]]) -> Tuple[Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor, torch.Tensor]:
 
         """
         Applies transforms to images in the input batch.
@@ -1094,26 +1111,32 @@ class VICRegLCollateFunction(nn.Module):
                 A list of tuples containing an image (as a PIL Image), a label (int), and a filename (str).
 
         Returns:
-            A tuple of transformed images (as a 4-tuple of torch.Tensors), labels (as a list of ints), and filenames (as a list of strs).
+            A tuple of transformed images (as a 4-tuple of torch.Tensors), labels (as torch.Tensor), and filenames (as torch.Tensor).
 
         """
-       
-        transforms_0 = [self.gridcreator0.forward(self.transforms[0](item[0])) for item in batch]
-        transforms_1 = [self.gridcreator1.forward(self.transforms[1](item[0])) for item in batch]
-        x0 = [item_and_grid.image.unsqueeze(0) for item_and_grid in transforms_0]
-        x1 = [item_and_grid.image.unsqueeze(0) for item_and_grid in transforms_1]
-        grid0 = [item_and_grid.grid.unsqueeze(0) for item_and_grid in transforms_0]
-        grid1 = [item_and_grid.grid.unsqueeze(0) for item_and_grid in transforms_1]
-        x0 = torch.cat(x0, dim=0)
-        x1 = torch.cat(x1, dim=0)
-        grid0 = torch.cat(grid0, dim=0)
-        grid1 = torch.cat(grid1, dim=0)
-        # list of labels
-        labels = torch.LongTensor([item[1] for item in batch])
-        # list of filenames
-        fnames = [item[2] for item in batch]
 
-        # tuple of transforms
+        x0 = []
+        x1 = []
+        grid0 = []
+        grid1 = []
+        labels = []
+        fnames = []
+        
+        for item in batch:
+            image_0, location_0 = self.global_crop_and_flip.forward(item[0])
+            image_1, location_1 = self.local_crop_and_flip.forward(item[0])
+            x0.append(self.global_transform(image_0))
+            x1.append(self.local_transform(image_1))
+            grid0.append(location_0)
+            grid1.append(location_1)
+            labels.append(torch.LongTensor(item[1]))
+            fnames.append(item[2])
+       
+        x0 = torch.stack(x0)
+        x1 = torch.stack(x1)
+        grid0 = torch.stack(grid0)
+        grid1 = torch.stack(grid1)
+
         return (x0, x1, grid0, grid1), labels, fnames
 
 

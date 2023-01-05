@@ -529,7 +529,7 @@ class MSNProjectionHead(ProjectionHead):
             (hidden_dim, output_dim, None, None),
         ])
 
-class VicRegLLocalProjector(ProjectionHead):
+class VicRegLLocalProjectionHead(ProjectionHead):
     """Projection head used for the local head of VICRegL.
 
     The projector network has three linear layers. The first two layers of the projector 
@@ -543,7 +543,7 @@ class VicRegLLocalProjector(ProjectionHead):
                  input_dim: int = 2048,
                  hidden_dim: int = 8192,
                  output_dim: int = 8192):
-        super(VicRegLLocalProjector, self).__init__([
+        super(VicRegLLocalProjectionHead, self).__init__([
             (input_dim, hidden_dim, nn.LayerNorm(hidden_dim), nn.ReLU()),
             (hidden_dim, hidden_dim, nn.LayerNorm(hidden_dim), nn.ReLU()),
             (hidden_dim, output_dim, None, None),

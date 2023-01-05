@@ -502,13 +502,16 @@ def nearest_neighbors(
     Args:
         input_maps: 
             A tensor of maps for which to find nearest neighbors.
-            It has size: [batch_size, map_size, num_input_maps]
+            It has size: [batch_size, map_size_0, num_input_maps] 
+
         candidate_maps: 
             A tensor of maps to search for nearest neighbors.
-            It has size: [batch_size, map_size, num_candidate_maps]
+            It has size: [batch_size, map_size_1, num_candidate_maps]
+
         distances: 
             A tensor of distances between the maps in input_maps and candidate_maps.
-            It has size: [batch_size, num_input_maps, num_candidate_maps]
+            It has size: [batch_size, map_size_0, map_size_1]
+
         num_matches: 
             Number of nearest neighbors to return. If num_matches is None or -1,
             all the maps in candidate_maps are considered.
@@ -518,40 +521,15 @@ def nearest_neighbors(
 
     """
 
-    batch_size = input_maps.size(0)
-
     if num_matches is None or num_matches == -1:
         num_matches = input_maps.size(1)
 
-    topk_values, topk_indices = distances.topk(k=1, largest=False)
-    topk_values = topk_values.squeeze(-1)
-    topk_indices = topk_indices.squeeze(-1)
-
-    sorted_values, sorted_values_indices = torch.sort(topk_values, dim=1)
-    sorted_indices, sorted_indices_indices = torch.sort(sorted_values_indices, dim=1)
-
-    mask = torch.stack(
-        [
-            torch.where(sorted_indices_indices[i] < num_matches, True, False)
-            for i in range(batch_size)
-        ]
-    )
-    topk_indices_selected = topk_indices.masked_select(mask)
-
-    topk_indices_selected = topk_indices_selected.reshape(batch_size, num_matches)
-
-    indices = (
-        torch.arange(0, topk_values.size(1))
-        .unsqueeze(0)
-        .repeat(batch_size, 1)
-        .to(topk_values.device)
-    )
-    indices_selected = indices.masked_select(mask)
-    indices_selected = indices_selected.reshape(batch_size, num_matches)
-
-    filtered_input_maps = _batched_index_select(input_maps, 1, indices_selected)
-    filtered_candidate_maps = _batched_index_select(
-        candidate_maps, 1, topk_indices_selected
-    )
+    topk_values, topk_indices = distances.topk(k=1, dim=2, largest=False) # [bsz, map_size_0, 1]
+    topk_values = topk_values.squeeze(-1) # [bsz, map_size_0]
+    topk_indices = topk_indices.squeeze(-1) # [bsz, map_size_0]
+    min_values_1, min_indices_2 = topk_values.topk(k=num_matches, dim=1, largest=False) # [bsz, num_matches]
+    filtered_input_maps = _batched_index_select(input_maps, 1, min_indices_2) # [bsz, num_matches, num_input_maps]
+    selected_candidate_maps = torch.gather(candidate_maps, 1, topk_indices.unsqueeze(-1).repeat(1,1, input_maps.shape[2])) # [bsz, map_size_0, num_input_maps]
+    filtered_candidate_maps = _batched_index_select(selected_candidate_maps, 1, min_indices_2) # [bsz, num_matches, num_input_maps]
 
     return filtered_input_maps, filtered_candidate_maps

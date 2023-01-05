@@ -11,7 +11,7 @@ from lightly.data import LightlyDataset
 from lightly.data.collate import VICRegLCollateFunction
 ## The global projection head is the same as the Barlow Twins one
 from lightly.models.modules import BarlowTwinsProjectionHead
-from lightly.models.modules.heads import VicRegLLocalProjector
+from lightly.models.modules.heads import VicRegLLocalProjectionHead
 from lightly.loss import VICRegLLoss
 
 
@@ -22,7 +22,7 @@ class VICRegL(pl.LightningModule):
         resnet = torchvision.models.resnet18()
         self.backbone = nn.Sequential(*list(resnet.children())[:-2])
         self.projection_head = BarlowTwinsProjectionHead(512, 2048, 2048)
-        self.local_projector = VicRegLLocalProjector(512, 128, 128)
+        self.local_projector = VicRegLLocalProjectionHead(512, 128, 128)
         self.average_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
         self.criterion = VICRegLLoss()
 
@@ -30,31 +30,26 @@ class VICRegL(pl.LightningModule):
         x = self.backbone(x)
         y = self.average_pool(x).flatten(start_dim=1)
         z = self.projection_head(y)
-        return z
+        y_local = x.permute(0, 2, 3, 1) # torch.Size([128, 512, 7, 7]) to torch.Size([128, 7, 7, 512])
+        z_local = self.local_projector(y_local)         
+        return z, z_local
     
-    def forward_local(self, x):
-        x = self.backbone(x).transpose(1, 3).transpose(1, 2)
-        z = self.local_projector(x)
-        return z
-
     def training_step(self, batch, batch_index):
-        (x0, x1, grid0, grid1), _, _ = batch
-        z0 = model.forward(x=x0)
-        z1 = model.forward(x=x1)
-        z0_local = model.forward_local(x0)
-        z1_local = model.forward_local(x1)
-        loss = self.criterion.forward(
-            z_a=z0, 
-            z_b=z1, 
-            z_a_local=z0_local, 
-            z_b_local=z1_local, 
-            location_a=grid0, 
-            location_b=grid1
+        (x_a, x_b, location_a, location_b), _, _ = batch
+        z_a, z_a_local = model(x_a)
+        z_b, z_b_local = model(x_b)
+        loss = self.criterion(
+            z_a=z_a, 
+            z_b=z_b, 
+            z_a_local=z_a_local, 
+            z_b_local=z_b_local, 
+            location_a=location_a, 
+            location_b=location_b
             )
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.SGD(self.parameters(), lr=0.06)
+        optim = torch.optim.SGD(model.parameters(), momentum=0.9, lr=0.06)
         return optim
 
 

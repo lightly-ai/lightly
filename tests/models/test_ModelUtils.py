@@ -223,30 +223,33 @@ class TestModelUtils(unittest.TestCase):
         self._test_random_token_mask_parameters(device='cpu')
 
     def test_nearest_neighbors(self):
-        # Test input with shape (batch_size, map_size, num_input_maps)
+        # Test input with shape (batch_size, map_size_0, num_input_maps)
         input_maps = torch.tensor([
             [[1, 4], [2, 5], [3, 6]],
             [[7, 10], [8, 11], [9, 12]],
             [[13, 16], [14, 17], [15, 18]]
         ])
-        # Test candidate maps with shape (batch_size, map_size, num_candidate_maps)
+        print(input_maps.shape)
+        # Test candidate maps with shape (batch_size, map_size_1, num_candidate_maps)
         candidate_maps = torch.tensor([
             [[1, 1], [2, 2], [3, 3]],
             [[1, 1], [2, 2], [3, 3]],
             [[1, 1], [2, 2], [3, 3]]
         ])
-        # Test distances with shape (batch_size, num_input_maps, num_candidate_maps)
+        print(candidate_maps.shape)
+        # Test distances with shape (batch_size, map_size_0, map_size_1)
         distances = torch.tensor([
             [[0, 1, 2], [1, 0, 3]],
             [[4, 3, 2], [3, 2, 1]],
             [[2, 3, 4], [3, 4, 5]]
         ])
+        print(input_maps.shape)
         # Test num_matches = 2
         input_maps_filtered, candidate_maps_filtered = nearest_neighbors(input_maps, candidate_maps, distances, num_matches=2)
         assert input_maps_filtered.shape == (3, 2, 2)
         assert input_maps_filtered.equal(torch.tensor([
             [[1, 4], [2, 5]],
-            [[7, 10], [8, 11]],
+            [[8, 11], [7, 10]],
             [[13, 16], [14, 17]]
         ]))
         assert candidate_maps_filtered.shape == (3, 2, 2)
