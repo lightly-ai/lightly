@@ -110,8 +110,8 @@ else:
 
 # The dataset structure should be like this:
 
-path_to_train = '/datasets/imagenette2-160/train/'
-path_to_test = '/datasets/imagenette2-160/val/'
+path_to_train = '/home/ubuntu/datasets/imagenette/imagenette2-320/train/'
+path_to_test = '/home/ubuntu/datasets/imagenette/imagenette2-320/val/'
 
 # Use SimCLR augmentations
 collate_fn = lightly.data.SimCLRCollateFunction(
@@ -184,6 +184,8 @@ def get_data_loaders(batch_size: int, model):
     elif model == DINOModel:
         col_fn = dino_collate_fn
     elif model == MAEModel:
+        col_fn = mae_collate_fn
+    elif model == SimMIMModel:
         col_fn = mae_collate_fn
     elif model == MSNModel:
         col_fn = msn_collate_fn
@@ -947,23 +949,126 @@ class SMoGModel(BenchmarkModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
+class SimMIMModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        
+        vit = torchvision.models.vit_b_32(pretrained=False)
+        self.warmup_epochs = 40 if max_epochs >= 800 else 20
+        decoder_dim = vit.hidden_dim
+        self.mask_ratio = 0.75
+        self.patch_size = vit.patch_size
+        self.sequence_length = vit.seq_length
+        self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
 
+        # same backbone as MAE
+        self.backbone = masked_autoencoder.MAEBackbone.from_vit(vit) 
+
+        # the decoder is a simple linear layer
+        self.decoder = nn.Linear(vit.hidden_dim, vit.patch_size ** 2 * 3)
+
+        # L1 loss as paper suggestion
+        self.criterion = nn.L1Loss()
+    
+    def forward_encoder(self, images, batch_size, idx_mask):
+        # pass all the tokens to the encoder, both masked and non masked ones
+        tokens = self.backbone.images_to_tokens(images, prepend_class_token=True)
+        tokens_masked = utils.mask_at_index(tokens, idx_mask , self.mask_token)
+        return self.backbone.encoder(tokens_masked)
+
+    def forward_decoder(self, x_encoded):
+        return self.decoder(x_encoded)
+
+    def training_step(self, batch, batch_idx):
+        images, _, _ = batch
+
+        batch_size = images.shape[0]
+        idx_keep, idx_mask = utils.random_token_mask(
+            size=(batch_size, self.sequence_length),
+            mask_ratio=self.mask_ratio,
+            device=images.device,
+        )
+        
+        # Encoding...
+        x_encoded = self.forward_encoder(images, batch_size, idx_mask)
+        x_encoded_masked = utils.get_at_index(x_encoded, idx_mask)
+
+        # Decoding...
+        x_out = self.forward_decoder(x_encoded_masked)
+
+        # get image patches for masked tokens
+        patches = utils.patchify(images, self.patch_size)
+        
+        # must adjust idx_mask for missing class token
+        target = utils.get_at_index(patches, idx_mask - 1)
+
+        loss = self.criterion(x_out, target)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.AdamW(
+            self.parameters(),
+            lr=1.5e-4 * lr_factor,
+            weight_decay=0.05,
+            betas=(0.9, 0.95),
+        )
+        cosine_with_warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
+        return [optim], [cosine_with_warmup_scheduler]
+
+    def scale_lr(self, epoch):
+        if epoch < self.warmup_epochs:
+            return epoch / self.warmup_epochs 
+        else:
+            return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
+
+class VICRegModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
+        self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
+        self.criterion = lightly.loss.VICRegLoss()
+
+    def forward(self, x):
+        x = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(x)
+        return z
+
+    def training_step(self, batch, batch_index):
+        (x0, x1), _, _ = batch
+        z0 = self.forward(x0)
+        z1 = self.forward(x1)
+        loss = self.criterion(z0, z1)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.SGD(
+            self.parameters(), 
+            lr=6e-2 * lr_factor,
+            momentum=0.9, 
+            weight_decay=5e-4
+        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
 
 
 models = [
-    BarlowTwinsModel,
-    BYOLModel,
-    DCL,
-    DCLW,
-    DINOModel,
+    #BarlowTwinsModel,
+    #BYOLModel,
+    #DCL,
+    #DCLW,
+    #DINOModel,
     # MAEModel, # disabled by default because MAE uses larger images with size 224
     # MSNModel, # disabled by default because MSN uses larger images with size 224
-    MocoModel,
-    NNCLRModel,
-    SimCLRModel,
-    SimSiamModel,
-    SwaVModel,
-    SMoGModel
+    #MocoModel,
+    #NNCLRModel,
+    #SimCLRModel,
+    #SimSiamModel,
+    #SimMIMModel, # disabled by default because MSN uses larger images with size 224
+    #SwaVModel,
+    #SMoGModel,
+    VICRegModel
 ]
 bench_results = dict()
 
