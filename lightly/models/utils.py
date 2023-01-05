@@ -10,6 +10,7 @@ import warnings
 import torch
 import torch.distributed as dist
 import torch.nn as nn
+import numpy as np
 
 @torch.no_grad()
 def batch_shuffle(
@@ -423,7 +424,7 @@ def random_token_mask(
     mask_ratio: float = 0.6,
     mask_class_token: bool = False,
     device: Optional[Union[torch.device, str]] = None,
-):
+) -> torch.Tensor : 
     """Creates random token masks.
 
     Args:
@@ -461,3 +462,40 @@ def random_token_mask(
     idx_mask = indices[:, num_keep:]
 
     return idx_keep, idx_mask
+
+def cosine_schedule(
+    step: int, 
+    max_steps: int, 
+    start_value: float,
+    end_value: float
+) -> float:
+
+    """
+    Use cosine decay to gradually modify start_value to reach target end_value during iterations.
+
+    Args:
+        step:
+            Current step number.
+        max_steps:
+            Total number of steps.
+        start_value:
+            Starting value.
+        end_value:
+            Target value.
+            
+    Returns:
+        Cosine decay value.
+
+    """
+    if step < 0:
+        raise ValueError("Current step number can't be negative")
+    if max_steps < 1:
+        raise ValueError("Total step number must be >= 1")
+    if step >= max_steps:
+        raise ValueError(f"The current step must be smaller than max_steps but found step equal to {step} and max_steps equal to {max_steps}.")
+
+    if (max_steps == 1):
+        decay = end_value
+    else: 
+        decay = end_value - (end_value - start_value)*(np.cos(np.pi * step/ (max_steps - 1)) + 1) / 2
+    return decay

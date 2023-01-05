@@ -12,6 +12,7 @@ from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
 from lightly.models.utils import normalize_weight
 from lightly.models.utils import _no_grad_trunc_normal
+from lightly.models.utils import cosine_schedule
 
 
 def has_grad(model: nn.Module):
@@ -221,6 +222,18 @@ class TestModelUtils(unittest.TestCase):
 
     def test_random_token_mask(self):
         self._test_random_token_mask_parameters(device='cpu')
+
+    def test_cosine_schedule(self):
+        momentum_0 = cosine_schedule(1, 10, 0.99, 1)
+        momentum_hand_computed_0 = 0.99030154
+        momentum_1 = cosine_schedule(95, 100, 0.7, 2)
+        momentum_hand_computed_1 = 1.99477063
+        momentum_2 = cosine_schedule(0, 1, 0.996, 1)
+        momentum_hand_computed_2 = 1
+
+        self.assertAlmostEqual(momentum_0, momentum_hand_computed_0, 6)
+        self.assertAlmostEqual(momentum_1, momentum_hand_computed_1, 6)
+        self.assertAlmostEqual(momentum_2, momentum_hand_computed_2, 6)
 
     @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
     def test_random_token_mask_cuda(self):
