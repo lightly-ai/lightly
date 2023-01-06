@@ -524,14 +524,18 @@ def nearest_neighbors(
     if num_matches is None or num_matches == -1:
         num_matches = input_maps.size(1)
 
-    # find closest neighbour in the other map 
+    # Find nearest neighbour of each input element in the candidate map 
     topk_values, topk_indices = distances.topk(k=1, dim=2, largest=False) # [bsz, map_size_0, 1]
     topk_values = topk_values.squeeze(-1) # [bsz, map_size_0]
     topk_indices = topk_indices.squeeze(-1) # [bsz, map_size_0]
     
-    # Select num_matches closest neighbors pairs.
+    # Select num_matches neighbors pairs having the lowest distance value.
     _, min_indices = topk_values.topk(k=num_matches, dim=1, largest=False) # [bsz, num_matches]
+    
+    # Create the filtered input map with num_matches lowest distance values.
     filtered_input_maps = _batched_index_select(input_maps, 1, min_indices) # [bsz, num_matches, num_input_maps]
+    
+    # Create candidate maps in the same way as input maps, but using corrispondent candidate values
     selected_candidate_maps = torch.gather(candidate_maps, 1, topk_indices.unsqueeze(-1).repeat(1,1, input_maps.shape[2])) # [bsz, map_size_0, num_input_maps]
     filtered_candidate_maps = _batched_index_select(selected_candidate_maps, 1, min_indices) # [bsz, num_matches, num_input_maps]
 
