@@ -14,15 +14,15 @@ class VICRegL(nn.Module):
         super().__init__()
         self.backbone = backbone
         self.projection_head = BarlowTwinsProjectionHead(512, 2048, 2048)
-        self.local_projector = VicRegLLocalProjectionHead(512, 128, 128)
+        self.local_projection_head = VicRegLLocalProjectionHead(512, 128, 128)
         self.average_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
 
     def forward(self, x):
         x = self.backbone(x)
         y = self.average_pool(x).flatten(start_dim=1)
         z = self.projection_head(y)
-        y_local = x.permute(0, 2, 3, 1) # torch.Size([128, 512, 7, 7]) to torch.Size([128, 7, 7, 512])
-        z_local = self.local_projector(y_local)         
+        y_local = x.permute(0, 2, 3, 1) # (B, D, W, H) to (B, W, H, D)
+        z_local = self.local_projection_head(y_local)         
         return z, z_local
 
 resnet = torchvision.models.resnet18()
@@ -54,21 +54,21 @@ optimizer = torch.optim.SGD(model.parameters(), momentum=0.9, lr=0.06)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for (x_a, x_b, location_a, location_b), _, _ in dataloader:
-        x_a = x_a.to(device)
-        x_b = x_b.to(device)
-        location_a = location_a.to(device)
-        location_b = location_b.to(device)
-        z_a, z_a_local = model(x_a)
-        z_b, z_b_local = model(x_b)
+    for (view_global, view_local, grid_global, grid_local), _, _ in dataloader:
+        view_global = view_global.to(device)
+        view_local = view_local.to(device)
+        grid_global = grid_global.to(device)
+        grid_local = grid_local.to(device)
+        z_global, z_global_local_features = model(view_global)
+        z_local, z_local_local_features = model(view_local)
         loss = criterion(
-            z_a=z_a, 
-            z_b=z_b, 
-            z_a_local=z_a_local, 
-            z_b_local=z_b_local, 
-            location_a=location_a, 
-            location_b=location_b
-            )
+            z_a=z_global, 
+            z_b=z_local, 
+            z_a_local=z_global_local_features, 
+            z_b_local=z_local_local_features, 
+            location_a=grid_global, 
+            location_b=grid_local
+        )
         total_loss += loss.detach()
         loss.backward()
         optimizer.step()

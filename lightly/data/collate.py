@@ -1111,33 +1111,33 @@ class VICRegLCollateFunction(nn.Module):
                 A list of tuples containing an image (as a PIL Image), a label (int), and a filename (str).
 
         Returns:
-            A tuple of transformed images (as a 4-tuple of torch.Tensors), labels (as torch.Tensor), and filenames (as torch.Tensor).
+            A tuple of transformed images (as a 4-tuple of torch.Tensors containing view_global, view_local, grid_global, grid_local), labels (as torch.Tensor), and filenames (as torch.Tensor).
 
         """
 
-        x0 = []
-        x1 = []
-        grid0 = []
-        grid1 = []
+        views_global = []
+        views_local = []
+        grids_global = []
+        grids_local = []
         labels = []
         fnames = []
         
-        for item in batch:
-            image_0, location_0 = self.global_crop_and_flip.forward(item[0])
-            image_1, location_1 = self.local_crop_and_flip.forward(item[0])
-            x0.append(self.global_transform(image_0))
-            x1.append(self.local_transform(image_1))
-            grid0.append(location_0)
-            grid1.append(location_1)
-            labels.append(torch.LongTensor(item[1]))
-            fnames.append(item[2])
+        for image, label, filename in batch:
+            view_global, grid_global = self.global_crop_and_flip.forward(image)
+            view_local, grid_local = self.local_crop_and_flip.forward(image)
+            views_global.append(self.global_transform(view_global))
+            views_local.append(self.local_transform(view_local))
+            grids_global.append(grid_global)
+            grids_local.append(grid_local)
+            labels.append(torch.LongTensor(label))
+            fnames.append(filename)
        
-        x0 = torch.stack(x0)
-        x1 = torch.stack(x1)
-        grid0 = torch.stack(grid0)
-        grid1 = torch.stack(grid1)
+        views_global = torch.stack(views_global)
+        views_local = torch.stack(views_local)
+        grids_global = torch.stack(grids_global)
+        grids_local = torch.stack(grids_local)
 
-        return (x0, x1, grid0, grid1), labels, fnames
+        return (views_global, views_local, grids_global, grids_local), labels, fnames
 
 
 def _random_rotation_transform(

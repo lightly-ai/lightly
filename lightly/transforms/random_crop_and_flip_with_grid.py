@@ -18,9 +18,9 @@ class Location:
     # The width of the crop.
     width: float
     # The height of the original image.
-    HEIGHT: float
+    image_height: float
     # The width of the original image.
-    WIDTH: float
+    image_width: float
     # Whether to flip the image horizontally.
     horizontal_flip: bool = False
     # Whether to flip the image vertically.
@@ -43,10 +43,10 @@ class RandomResizedCropWithLocation(T.RandomResizedCrop):
             
         """
         top, left, height, width = self.get_params(img, self.scale, self.ratio)
-        width, height = T.functional.get_image_size(img)
-        location = Location(top=top, left=left, height=height, width=width, HEIGHT=height, WIDTH=width)
+        image_width, image_height = T.functional.get_image_size(img)
+        location = Location(top=top, left=left, height=height, width=width, image_height=image_height, image_width=image_width)
         img = T.functional.resized_crop(
-                img, top, left, height, width, self.size, self.interpolation, antialias=self.antialias
+                img, top, left, height, width, self.size, self.interpolation
             )
         return img, location
         
@@ -104,7 +104,7 @@ class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):
         """
         
         if torch.rand(1) < self.p:
-            img = F.hflip(img)
+            img = F.vflip(img)
             location.vertical_flip = True
         return img, location
 
@@ -150,7 +150,7 @@ class RandomResizedCropAndFlip(nn.Module):
         self.horizontal_flip = RandomHorizontalFlipWithLocation(self.hf_prob)
         self.vertical_flip = RandomVerticalFlipWithLocation(self.hf_prob)
 
-    def forward(self, img: Image.Image) -> Tuple[Image.Image, Location]:
+    def forward(self, img: Image.Image) -> Tuple[Image.Image, torch.Tensor]:
 
         """
         
@@ -159,11 +159,10 @@ class RandomResizedCropAndFlip(nn.Module):
         space in an NxN grid.
 
         Args:
-            img: The input image.
+            img: The input PIL image.
 
         Returns:
-            An `ImageTensorAndGrid` object containing the transformed image tensor and the
-            grid tensor.
+            A tuple containing the transformed PIL image and the grid tensor.
 
         """
 
