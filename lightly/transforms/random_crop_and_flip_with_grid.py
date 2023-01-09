@@ -29,7 +29,7 @@ class Location:
 
 class RandomResizedCropWithLocation(T.RandomResizedCrop):
     """
-    Do a random resized crop and return both the resulting image and the grid
+    Do a random resized crop and return both the resulting image and the location. See base class.
 
     """
 
@@ -53,19 +53,14 @@ class RandomResizedCropWithLocation(T.RandomResizedCrop):
 
 
 class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):
-    """
-    Horizontally flip the given image randomly with a given probability.
-    If the image is torch Tensor, it is expected
-    to have [..., H, W] shape, where ... means an arbitrary number of leading
-    dimensions
-
-
-    Args:
-        p (float): probability of the image being flipped. Default value is 0.5
-    """
+    """See base class."""
 
     def forward(self, img: Image.Image, location:Location) -> Tuple[Image.Image, Location]:
-        """
+        """Horizontal flip image
+
+        Horizontally flip the given image randomly with a given probability and
+        return both the resulting image and the location. 
+
         Args:
             img (PIL Image or Tensor): Image to be flipped..
             Location: Location object linked to the image
@@ -80,27 +75,20 @@ class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):
         return img, location
 
 class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):
-
-    """Vertically flip the given image randomly with a given probability.
-    If the image is torch Tensor, it is expected
-    to have [..., H, W] shape, where ... means an arbitrary number of leading
-    dimensions
-
-
-    Args:
-        p (float): probability of the image being flipped. Default value is 0.5
-    """
-
+    """See base class."""
 
     def forward(self, img: Image.Image, location:Location) -> Tuple[Image.Image, Location]:
-        """
+        """Vertical flip image
+
+        Vertically flip the given image randomly with a given probability and
+        return both the resulting image and the location. 
+
         Args:
             img (PIL Image or Tensor): Image to be flipped..
             Location: Location object linked to the image
         Returns:
             PIL Image or Tensor: Randomly flipped image 
             Location: Location object with updated location.vertical_flip parameter
-
         """
         
         if torch.rand(1) < self.p:
@@ -109,26 +97,26 @@ class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):
         return img, location
 
 class RandomResizedCropAndFlip(nn.Module):
+    """Flip and crop and image and return grid
+
+    A PyTorch module that applies random cropping, horizontal and vertical flipping to an image,
+    and returns the transformed image and a grid tensor used to map the image back to the
+    original image space in an NxN grid.
+
+    Args:
+        N: 
+            The number of grid cells in the output grid tensor.
+        crop_size: 
+            The size (in pixels) of the random crops.
+        crop_min_scale: 
+            The minimum scale factor for random resized crops.
+        crop_max_scale:
+            The maximum scale factor for random resized crops.
+        hf_prob: 
+            The probability of applying horizontal flipping to the image.
+        normalize: 
+            A dictionary containing the mean and std values for normalizing the image.
     """
-        A PyTorch module that applies random cropping and horizontal flipping to an image,
-        and returns the transformed image and a grid tensor used to map the image back to the
-        original image space in an NxN grid.
-
-        Args:
-            N: 
-                The number of grid cells in the output grid tensor.
-            crop_size: 
-                The size (in pixels) of the random crops.
-            crop_min_scale: 
-                The minimum scale factor for random resized crops.
-            crop_max_scale:
-                The maximum scale factor for random resized crops.
-            hf_prob: 
-                The probability of applying horizontal flipping to the image.
-            normalize: 
-                A dictionary containing the mean and std values for normalizing the image.
-
-        """
 
     def __init__(
         self,
@@ -151,8 +139,7 @@ class RandomResizedCropAndFlip(nn.Module):
         self.vertical_flip = RandomVerticalFlipWithLocation(self.hf_prob)
 
     def forward(self, img: Image.Image) -> Tuple[Image.Image, torch.Tensor]:
-
-        """
+        """Forward method
         
         Applies random cropping and horizontal flipping to an image, and returns the
         transformed image and a grid tensor used to map the image back to the original image
@@ -163,7 +150,6 @@ class RandomResizedCropAndFlip(nn.Module):
 
         Returns:
             A tuple containing the transformed PIL image and the grid tensor.
-
         """
 
         img, location = self.resized_crop.forward(img=img)
@@ -174,8 +160,8 @@ class RandomResizedCropAndFlip(nn.Module):
         return img, grid
 
     def location_to_NxN_grid(self, location: Location) -> torch.Tensor:
+        """Create grid from location object
 
-        """
         Create a grid tensor with grid_size rows and grid_size columns, where each cell represents a region of
         the original image. The grid is used to map the cropped and transformed image back to the
         original image space.

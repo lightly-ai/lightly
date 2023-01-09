@@ -39,12 +39,12 @@ class VICRegL(pl.LightningModule):
         z_global, z_global_local_features = model(view_global)
         z_local, z_local_local_features = model(view_local)
         loss = self.criterion(
-            z_a=z_global, 
-            z_b=z_local, 
-            z_a_local=z_global_local_features, 
-            z_b_local=z_local_local_features, 
-            location_a=grid_global, 
-            location_b=grid_local
+            z_global=z_global, 
+            z_local=z_local, 
+            z_global_local_features=z_global_local_features, 
+            z_local_local_features=z_local_local_features, 
+            grid_global=grid_global, 
+            grid_local=grid_local
         )
         return loss
 
