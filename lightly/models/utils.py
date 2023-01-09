@@ -462,36 +462,6 @@ def random_token_mask(
 
     return idx_keep, idx_mask
 
-def _batched_index_select(
-    input: torch.Tensor, 
-    dim: int, 
-    index: torch.Tensor
-) -> torch.Tensor:
-    """Select elements from indexes
-
-    Selects elements from the input tensor along a given dimension using the indices in the index tensor.
-
-    Args:
-        input: 
-            The input tensor.
-        dim: 
-            The dimension along which to select elements.
-        index: 
-            A tensor of indices to use for selection.
-
-    Returns:
-        A tensor containing the selected elements.
-    """
-
-    for ii in range(1, len(input.shape)):
-        if ii != dim:
-            index = index.unsqueeze(ii)
-    expanse = list(input.shape)
-    expanse[0] = -1
-    expanse[dim] = -1
-    index = index.expand(expanse)
-    return torch.gather(input, dim, index)
-
 def nearest_neighbors(
     input_maps: torch.Tensor,
     candidate_maps: torch.Tensor,
@@ -505,10 +475,10 @@ def nearest_neighbors(
     Args:
         input_maps: 
             A tensor of maps for which to find nearest neighbors.
-            It has size: [batch_size, input_map_size, input_feature_dimension] 
+            It has size: [batch_size, input_map_size, feature_dimension] 
         candidate_maps: 
             A tensor of maps to search for nearest neighbors.
-            It has size: [batch_size, candidate_map_size, candidate_feature_dimension]
+            It has size: [batch_size, candidate_map_size, feature_dimension]
         distances: 
             A tensor of distances between the maps in input_maps and candidate_maps.
             It has size: [batch_size, input_map_size, candidate_map_size]
@@ -518,7 +488,7 @@ def nearest_neighbors(
 
     Returns:
         A tuple of tensors, containing the nearest neighbors in input_maps and candidate_maps.
-        They both have size: 
+        They both have size: [batch_size, input_map_size, feature_dimension] 
     """
 
     if num_matches is None or num_matches == -1:
@@ -527,16 +497,16 @@ def nearest_neighbors(
     # Find nearest neighbour of each input element in the candidate map 
     topk_values, topk_indices = distances.topk(k=1, dim=2, largest=False) # [bsz, input_map_size, 1]
     topk_values = topk_values.squeeze(-1) # [bsz, input_map_size]
-    topk_indices = topk_indices.squeeze(-1) # [bsz, input_map_size]
     
     # Select num_matches neighbors pairs having the lowest distance value.
     _, min_indices = topk_values.topk(k=num_matches, dim=1, largest=False) # [bsz, num_matches]
-    
+
     # Create the filtered input map with num_matches lowest distance values.
-    filtered_input_maps = _batched_index_select(input_maps, 1, min_indices) # [bsz, num_matches, input_feature_dimension]
+    feature_dimension = input_maps.shape[2]
+    filtered_input_maps =  torch.gather(input_maps, 1, min_indices.unsqueeze(-1).expand(-1, -1, feature_dimension))# [bsz, num_matches, feature_dimension]
     
     # Create candidate maps in the same way as input maps, but using corrispondent candidate values
-    selected_candidate_maps = torch.gather(candidate_maps, 1, topk_indices.unsqueeze(-1).repeat(1,1, input_maps.shape[2])) # [bsz, input_map_size, input_feature_dimension]
-    filtered_candidate_maps = _batched_index_select(selected_candidate_maps, 1, min_indices) # [bsz, num_matches, input_feature_dimension]
+    selected_candidate_maps = torch.gather(candidate_maps, 1, topk_indices.expand(-1, -1, feature_dimension)) # [bsz, input_map_size, feature_dimension]
+    filtered_candidate_maps = torch.gather(selected_candidate_maps, 1, min_indices.unsqueeze(-1).expand(-1, -1, feature_dimension)) # [bsz, num_matches, feature_dimension]
 
     return filtered_input_maps, filtered_candidate_maps
