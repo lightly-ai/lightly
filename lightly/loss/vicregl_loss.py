@@ -212,8 +212,8 @@ class VICRegLLoss(torch.nn.Module):
         """
         
         if (
-            z_global_local_features.shape[0] <= 1
-            or z_local_local_features.shape[0] <= 1
+            z_global_local_features.shape[0] < 1
+            or z_local_local_features.shape[0] < 1
         ):
             raise ValueError(
                 f"z_global_local and z_local_local must have batch size > 1 but found {z_global_local_features.shape[0]} and  {z_local_local_features.shape[0]}"
