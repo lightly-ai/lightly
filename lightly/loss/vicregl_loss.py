@@ -190,7 +190,7 @@ class VICRegLLoss(torch.nn.Module):
     ) -> torch.Tensor:
         """Compute the overall loss between two sets of maps, using global loss and local loss.
 
-        It computes global loss using the VICReg loss module and z_global and z_local, and local loss .
+        Computes the global loss using VicRegLoss and local loss using nearest neighbor search.
         It then combines the global and local loss using a scalar value alpha, and returns the result as loss.
 
         Args:
