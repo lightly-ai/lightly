@@ -405,7 +405,7 @@ class _DownloadDatasetMixin:
                 "fileName": filename,
                 "readUrl": read_url,
             }
-            for filename, read_url in zip(filenames, read_urls, strict=True)
+            for filename, read_url in zip(filenames, read_urls)
         ]
 
     def export_filenames_and_read_urls_by_tag_name(
