@@ -3,7 +3,6 @@ import io
 import warnings
 import os
 import tqdm
-import json
 from urllib.request import Request, urlopen
 from PIL import Image
 
@@ -401,14 +400,13 @@ class _DownloadDatasetMixin:
         read_urls = read_urls_string.split("\n")
         # The order of the fileNames and readUrls is guaranteed to be the same
         # by the API so we can simply zip them.
-        mappings = [
+        return [
             {
                 "fileName": filename,
                 "readUrl": read_url,
             }
             for filename, read_url in zip(filenames, read_urls, strict=True)
         ]
-        return mappings
 
     def export_filenames_and_read_urls_by_tag_name(
         self,
