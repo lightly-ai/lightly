@@ -13,8 +13,11 @@ from concurrent.futures.thread import ThreadPoolExecutor
 
 from lightly.api import download
 from lightly.api.bitmask import BitMask
-from lightly.openapi_generated.swagger_client import DatasetEmbeddingData, ImageType
-
+from lightly.openapi_generated.swagger_client import (
+    DatasetEmbeddingData,
+    ImageType,
+    FileNameFormat,
+)
 
 
 def _make_dir_and_save_image(output_dir: str, filename: str, img: Image):
@@ -377,13 +380,33 @@ class _DownloadDatasetMixin:
             A list of mappings of the samples filenames and readURLs within a certain tag.
 
         """
-        mappings = paginate_endpoint(
-            self._tags_api.export_tag_to_basic_filenames_and_read_urls,
-            page_size=20000,
+        # TODO (Philipp, 10.01.2023): Switch to the exportTagToBasicFilenamesAndReadUrls
+        # when the read-urls are fixed.
+        filenames_string = retry(
+            self._tags_api.export_tag_to_basic_filenames,
             dataset_id=self.dataset_id,
-            tag_id=tag_id
+            tag_id=tag_id,
+            file_name_format=FileNameFormat.NAME,
         )
-        return mappings
+        read_urls_string = retry(
+            self._tags_api.export_tag_to_basic_filenames,
+            dataset_id=self.dataset_id,
+            tag_id=tag_id,
+            file_name_format=FileNameFormat.REDIRECTED_READ_URL,
+        )
+        # The endpoint exportTagToBasicFilenames returns a plain string so we
+        # have to split it by newlines in order to get the individual entries.
+        filenames = filenames_string.split("\n")
+        read_urls = read_urls_string.split("\n")
+        # The order of the fileNames and readUrls is guaranteed to be the same
+        # by the API so we can simply zip them.
+        return [
+            {
+                "fileName": filename,
+                "readUrl": read_url,
+            }
+            for filename, read_url in zip(filenames, read_urls)
+        ]
 
     def export_filenames_and_read_urls_by_tag_name(
         self,
