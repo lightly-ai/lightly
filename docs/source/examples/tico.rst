@@ -1,12 +1,15 @@
-.. _byol:
+.. _tico:
 
-BYOL
+TiCo
 ====
 
-Example implementation of the BYOL architecture.
+Example implementation of Transformation Invariance and Covariance Contrast (TiCo)
+for self-supervised visual representation learning. Similar to BYOL, this method is based on maximizing 
+the agreement among embeddings of different distorted versions of the same image, which pushes the encoder to 
+produce transformation invariant representations.
 
 Reference:
-    `Bootstrap your own latent: A new approach to self-supervised Learning, 2020 <https://arxiv.org/abs/2006.07733>`_
+    `TiCo: Transformation Invariance and Covariance Contrast for Self-Supervised Visual Representation Learning, 2022 <https://arxiv.org/pdf/2206.10698.pdf>`_
 
 
 .. tabs::
@@ -15,17 +18,17 @@ Reference:
 
         This example can be run from the command line with::
 
-            python lightly/examples/pytorch/byol.py
+            python lightly/examples/pytorch/tico.py
 
-        .. literalinclude:: ../../../examples/pytorch/byol.py
+        .. literalinclude:: ../../../examples/pytorch/tico.py
 
     .. tab:: Lightning
 
         This example can be run from the command line with::
 
-            python lightly/examples/pytorch_lightning/byol.py
+            python lightly/examples/pytorch_lightning/tico.py
 
-        .. literalinclude:: ../../../examples/pytorch_lightning/byol.py
+        .. literalinclude:: ../../../examples/pytorch_lightning/tico.py
 
     .. tab:: Lightning Distributed
 
@@ -33,7 +36,7 @@ Reference:
         training with Pytorch Lightning. At least one GPU must be available on 
         the system. The example can be run from the command line with::
 
-            python lightly/examples/pytorch_lightning_distributed/byol.py
+            python lightly/examples/pytorch_lightning_distributed/tico.py
 
         The model differs in the following ways from the non-distributed
         implementation:
@@ -45,4 +48,4 @@ Reference:
         trained without it. Without Synchronized Batch Norm the batch norm for 
         each GPU is only calculated based on the features on that specific GPU.
 
-        .. literalinclude:: ../../../examples/pytorch_lightning_distributed/byol.py
+        .. literalinclude:: ../../../examples/pytorch_lightning_distributed/tico.py

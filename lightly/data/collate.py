@@ -1029,6 +1029,108 @@ class SMoGCollateFunction(MultiViewCollateFunction):
         super().__init__(transforms)
 
 
+class VICRegCollateFunction(BaseCollateFunction):
+    """Implementation of a collate function for images.
+
+    This is an implementation of the BaseCollateFunction with a concrete
+    set of transforms.
+
+    The set of transforms is inspired by the SimCLR paper as it has shown
+    to produce powerful embeddings. 
+
+    Attributes:
+        input_size:
+            Size of the input image in pixels.
+        cj_prob:
+            Probability that color jitter is applied.
+        cj_bright:
+            How much to jitter brightness.
+        cj_contrast:
+            How much to jitter constrast.
+        cj_sat:
+            How much to jitter saturation.
+        cj_hue:
+            How much to jitter hue.
+        min_scale:
+            Minimum size of the randomized crop relative to the input_size.
+        random_gray_scale:
+            Probability of conversion to grayscale.
+        solarize_prob:
+            Probability of solarization.
+        gaussian_blur:
+            Probability of Gaussian blur.
+        kernel_size:
+            Sigma of gaussian blur is kernel_size * input_size.
+        vf_prob:
+            Probability that vertical flip is applied.
+        hf_prob:
+            Probability that horizontal flip is applied.
+        rr_prob:
+            Probability that random rotation is applied.
+        rr_degrees:
+            Range of degrees to select from for random rotation. If rr_degrees is None, 
+            images are rotated by 90 degrees. If rr_degrees is a (min, max) tuple, 
+            images are rotated by a random angle in [min, max]. If rr_degrees is a
+            single number, images are rotated by a random angle in 
+            [-rr_degrees, +rr_degrees]. All rotations are counter-clockwise.
+        normalize:
+            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
+
+    """
+
+    def __init__(self,
+                 input_size: int = 224,
+                 cj_prob: float = 0.8,
+                 cj_bright: float = 0.4,
+                 cj_contrast: float = 0.4,
+                 cj_sat: float = 0.2,
+                 cj_hue: float = 0.1,
+                 min_scale: float = 0.08,
+                 random_gray_scale: float = 0.2,
+                 solarize_prob: float = 0.1,
+                 gaussian_blur: float = 0.5,
+                 kernel_size: float = 0.1,
+                 vf_prob: float = 0.0,
+                 hf_prob: float = 0.5,
+                 rr_prob: float = 0.0,
+                 rr_degrees: Union[None, float, Tuple[float, float]] = None,
+                 normalize: dict = imagenet_normalize):
+
+        if isinstance(input_size, tuple):
+            input_size_ = max(input_size)
+        else:
+            input_size_ = input_size
+
+        color_jitter = T.ColorJitter(
+            cj_bright, cj_contrast, cj_sat, cj_hue
+        )
+
+        transform = [T.RandomResizedCrop(size=input_size,
+                                         scale=(min_scale, 1.0)),
+             _random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
+             T.RandomHorizontalFlip(p=hf_prob),
+             T.RandomVerticalFlip(p=vf_prob),
+             T.RandomApply([color_jitter], p=cj_prob),
+             T.RandomGrayscale(p=random_gray_scale),
+             RandomSolarization(prob=solarize_prob),
+             GaussianBlur(
+                 kernel_size=kernel_size * input_size_,
+                 prob=gaussian_blur),
+             T.ToTensor()
+        ]
+
+        if normalize:
+            transform += [
+             T.Normalize(
+                mean=normalize['mean'],
+                std=normalize['std'])
+             ]
+           
+        transform = T.Compose(transform)
+
+        super(VICRegCollateFunction, self).__init__(transform)
+
+
 class VICRegLCollateFunction(nn.Module):
     """Transforms images for VICRegL.
 

@@ -307,8 +307,8 @@ class SMoGProjectionHead(ProjectionHead):
                  hidden_dim: int = 2048,
                  output_dim: int = 128):
         super(SMoGProjectionHead, self).__init__([
-            (input_dim, hidden_dim, nn.BatchNorm1d(2048), nn.ReLU()),
-            (hidden_dim, output_dim, nn.BatchNorm1d(128, affine=False), None)
+            (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+            (hidden_dim, output_dim, nn.BatchNorm1d(output_dim, affine=False), None)
         ])
 
 
@@ -374,6 +374,14 @@ class SwaVPrototypes(nn.Module):
     prediction problem where the features of one augmentation are used to
     predict the assigned prototypes of the other augmentation.
 
+    Attributes:
+        input_dim:
+            The input dimension of the head.
+        n_prototypes:
+            Number of prototypes.
+        n_steps_frozen_prototypes:
+            Number of steps during which we keep the prototypes fixed.
+
     Examples:
         >>> # use features with 128 dimensions and 512 prototypes
         >>> prototypes = SwaVPrototypes(128, 512)
@@ -388,14 +396,17 @@ class SwaVPrototypes(nn.Module):
     """
     def __init__(self,
                 input_dim: int = 128,
-                n_prototypes: Union[List[int], int] = 3000):
+                n_prototypes: Union[List[int], int] = 3000,
+                n_steps_frozen_prototypes: int = 0):
         super(SwaVPrototypes, self).__init__()
-        #Default to a list of 1 if n_prototypes is an int.
+        # Default to a list of 1 if n_prototypes is an int.
         self.n_prototypes = n_prototypes if isinstance(n_prototypes, list) else [n_prototypes]
         self._is_single_prototype = True if isinstance(n_prototypes, int) else False
         self.heads = nn.ModuleList([nn.Linear(input_dim, prototypes) for prototypes in self.n_prototypes])
+        self.n_steps_frozen_prototypes = n_steps_frozen_prototypes
 
-    def forward(self, x) -> Union[torch.Tensor, List[torch.Tensor]]:
+    def forward(self, x, step=None) -> Union[torch.Tensor, List[torch.Tensor]]:
+        self._freeze_prototypes_if_required(step)
         out = []
         for layer in self.heads:
             out.append(layer(x))
@@ -405,6 +416,13 @@ class SwaVPrototypes(nn.Module):
         """Normalizes the prototypes so that they are on the unit sphere."""
         for layer in self.heads:
             utils.normalize_weight(layer.weight)
+    
+    def _freeze_prototypes_if_required(self, step):
+        if self.n_steps_frozen_prototypes > 0:
+            if step is None:
+                raise ValueError("`n_steps_frozen_prototypes` is greater than 0, please"
+                                 " provide the `step` argument to the `forward()` method.")
+            self.requires_grad_(step >= self.n_steps_frozen_prototypes)
 
 
 class DINOProjectionHead(ProjectionHead):
@@ -528,6 +546,25 @@ class MSNProjectionHead(ProjectionHead):
             (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.GELU()),
             (hidden_dim, output_dim, None, None),
         ])
+
+class TiCoProjectionHead(ProjectionHead):
+     """Projection head used for TiCo.
+
+     "This MLP consists in a linear layer with output size 4096 followed by
+     batch normalization, rectified linear units (ReLU), and a final
+     linear layer with output dimension 256." [0]
+
+     [0]: TiCo, 2022, https://arxiv.org/pdf/2206.10698.pdf
+
+     """
+     def __init__(self,
+                  input_dim: int = 2048,
+                  hidden_dim: int = 4096,
+                  output_dim: int = 256):
+         super(TiCoProjectionHead, self).__init__([
+             (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+             (hidden_dim, output_dim, None, None),
+         ])
 
 class VicRegLLocalProjectionHead(ProjectionHead):
     """Projection head used for the local head of VICRegL.

@@ -40,6 +40,7 @@ class S3Region(object):
     CA_CENTRAL_1 = "ca-central-1"
     CN_NORTHWEST_1 = "cn-northwest-1"
     EU_CENTRAL_1 = "eu-central-1"
+    EU_CENTRAL_2 = "eu-central-2"
     EU_NORTH_1 = "eu-north-1"
     EU_SOUTH_1 = "eu-south-1"
     EU_WEST_1 = "eu-west-1"
