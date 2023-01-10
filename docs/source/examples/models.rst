@@ -25,3 +25,4 @@ for PyTorch and PyTorch Lightning to give you a headstart when implementing your
     swav.rst
     tico.rst
     vicreg.rst
+    vicregl.rst
