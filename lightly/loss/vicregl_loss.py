@@ -115,16 +115,16 @@ class VICRegLLoss(torch.nn.Module):
         """Compute the local loss
 
         Compute the local loss between two sets of maps using nearest neighbors and location loss.
-        
+
         Args:
-        z_global: 
-            A tensor of global maps. It has size: [batch_size, global_image_height_crop, global_image_width_crop, global_feature_dimension]
-        z_local: 
-            A tensor of local maps. It has size: [batch_size, local_image_height_crop, local_image_width_crop, local_feature_dimension]
-        grid_global: 
-            A tensor of grids for the global maps. It has size: [batch_size, grid_size, grid_size, 2]
-        grid_local: 
-            A tensor of grids for the local maps. It has size: [batch_size, grid_size, grid_size, 2]
+            z_global:
+                A tensor of global maps. It has size: [batch_size, global_image_height_crop, global_image_width_crop, global_feature_dimension]
+            z_local:
+                A tensor of local maps. It has size: [batch_size, local_image_height_crop, local_image_width_crop, local_feature_dimension]
+            grid_global:
+                A tensor of grids for the global maps. It has size: [batch_size, grid_size, grid_size, 2]
+            grid_local:
+                A tensor of grids for the local maps. It has size: [batch_size, grid_size, grid_size, 2]
 
         Returns:
             A tensor of the local loss between the two sets of maps. It has size: [batch_size]"""
@@ -190,31 +190,28 @@ class VICRegLLoss(torch.nn.Module):
     ) -> torch.Tensor:
         """Compute the overall loss between two sets of maps, using global loss and local loss.
 
-        it computes global loss using the VICReg loss module and z_global and z_local, and local loss .
+        It computes global loss using the VICReg loss module and z_global and z_local, and local loss .
         It then combines the global and local loss using a scalar value alpha, and returns the result as loss.
 
         Args:
-        z_global: 
-            A tensor of global maps. It has size: [batch_size, global_image_height, global_image_width, global_feature_dimension]
-        z_local: 
-            A tensor of local maps. It has size: [batch_size, local_image_height, local_image_width, local_feature_dimension]
-        z_global_local_features: 
-            A tensor of local features for the global maps. It has size: [batch_size, global_image_height_crop, global_image_width_crop, global_feature_dimension]
-        z_local_local_features: 
-            A tensor of local features for the local maps. It has size: [batch_size, global_image_height_crop, global_image_width_crop, global_feature_dimension]
-        grid_global: 
-            A tensor of grids for the global maps. It has size: [batch_size, grid_size, grid_size, 2]
-        grid_local: 
-            A tensor of grids for the local maps. It has size: [batch_size, grid_size, grid_size, 2]
+            z_global:
+                A tensor of global maps. It has size: [batch_size, global_image_height, global_image_width, global_feature_dimension]
+            z_local:
+                A tensor of local maps. It has size: [batch_size, local_image_height, local_image_width, local_feature_dimension]
+            z_global_local_features:
+                A tensor of local features for the global maps. It has size: [batch_size, global_image_height_crop, global_image_width_crop, global_feature_dimension]
+            z_local_local_features:
+                A tensor of local features for the local maps. It has size: [batch_size, global_image_height_crop, global_image_width_crop, global_feature_dimension]
+            grid_global:
+                A tensor of grids for the global maps. It has size: [batch_size, grid_size, grid_size, 2]
+            grid_local:
+                A tensor of grids for the local maps. It has size: [batch_size, grid_size, grid_size, 2]
 
         Returns:
-        A tensor of the overall loss between the two sets of maps. It has size: [batch_size]"
+            A tensor of the overall loss between the two sets of maps. It has size: [batch_size]"
         """
-        
-        if (
-            z_global_local_features.shape[0] < 1
-            or z_local_local_features.shape[0] < 1
-        ):
+
+        if z_global_local_features.shape[0] < 1 or z_local_local_features.shape[0] < 1:
             raise ValueError(
                 f"z_global_local and z_local_local must have batch size > 1 but found {z_global_local_features.shape[0]} and  {z_local_local_features.shape[0]}"
             )

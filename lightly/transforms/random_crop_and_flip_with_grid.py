@@ -10,7 +10,7 @@ from PIL import Image
 @dataclass
 class Location:
     # The row index of the top-left corner of the crop.
-    top: float 
+    top: float
     # The column index of the top-left corner of the crop.
     left: float
     # The height of the crop.
@@ -40,81 +40,93 @@ class RandomResizedCropWithLocation(T.RandomResizedCrop):
         Returns:
             PIL Image or Tensor: Randomly cropped image
             Location: Location object containing crop parameters
-            
+
         """
         top, left, height, width = self.get_params(img, self.scale, self.ratio)
         image_width, image_height = T.functional.get_image_size(img)
-        location = Location(top=top, left=left, height=height, width=width, image_height=image_height, image_width=image_width)
+        location = Location(
+            top=top,
+            left=left,
+            height=height,
+            width=width,
+            image_height=image_height,
+            image_width=image_width,
+        )
         img = T.functional.resized_crop(
-                img, top, left, height, width, self.size, self.interpolation
-            )
+            img, top, left, height, width, self.size, self.interpolation
+        )
         return img, location
-        
 
 
 class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):
     """See base class."""
 
-    def forward(self, img: Image.Image, location:Location) -> Tuple[Image.Image, Location]:
-        """Horizontal flip image
+    def forward(
+        self, img: Image.Image, location: Location
+    ) -> Tuple[Image.Image, Location]:
+        """Horizontal flip image.
 
         Horizontally flip the given image randomly with a given probability and
-        return both the resulting image and the location. 
+        return both the resulting image and the location.
 
         Args:
             img (PIL Image or Tensor): Image to be flipped..
             Location: Location object linked to the image
         Returns:
-            PIL Image or Tensor: Randomly flipped image 
+            PIL Image or Tensor: Randomly flipped image
             Location: Location object with updated location.horizontal_flip parameter
         """
-        
+
         if torch.rand(1) < self.p:
             img = F.hflip(img)
             location.horizontal_flip = True
         return img, location
 
+
 class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):
     """See base class."""
 
-    def forward(self, img: Image.Image, location:Location) -> Tuple[Image.Image, Location]:
-        """Vertical flip image
+    def forward(
+        self, img: Image.Image, location: Location
+    ) -> Tuple[Image.Image, Location]:
+        """Vertical flip image.
 
         Vertically flip the given image randomly with a given probability and
-        return both the resulting image and the location. 
+        return both the resulting image and the location.
 
         Args:
             img (PIL Image or Tensor): Image to be flipped..
             Location: Location object linked to the image
         Returns:
-            PIL Image or Tensor: Randomly flipped image 
+            PIL Image or Tensor: Randomly flipped image
             Location: Location object with updated location.vertical_flip parameter
         """
-        
+
         if torch.rand(1) < self.p:
             img = F.vflip(img)
             location.vertical_flip = True
         return img, location
 
+
 class RandomResizedCropAndFlip(nn.Module):
-    """Flip and crop and image and return grid
+    """Randomly flip and crop an image.
 
     A PyTorch module that applies random cropping, horizontal and vertical flipping to an image,
     and returns the transformed image and a grid tensor used to map the image back to the
     original image space in an NxN grid.
 
     Args:
-        N: 
+        grid_size:
             The number of grid cells in the output grid tensor.
-        crop_size: 
+        crop_size:
             The size (in pixels) of the random crops.
-        crop_min_scale: 
+        crop_min_scale:
             The minimum scale factor for random resized crops.
         crop_max_scale:
             The maximum scale factor for random resized crops.
-        hf_prob: 
+        hf_prob:
             The probability of applying horizontal flipping to the image.
-        normalize: 
+        normalize:
             A dictionary containing the mean and std values for normalizing the image.
     """
 
@@ -139,9 +151,7 @@ class RandomResizedCropAndFlip(nn.Module):
         self.vertical_flip = RandomVerticalFlipWithLocation(self.hf_prob)
 
     def forward(self, img: Image.Image) -> Tuple[Image.Image, torch.Tensor]:
-        """Forward method
-        
-        Applies random cropping and horizontal flipping to an image, and returns the
+        """Applies random cropping and horizontal flipping to an image, and returns the
         transformed image and a grid tensor used to map the image back to the original image
         space in an NxN grid.
 
@@ -160,7 +170,7 @@ class RandomResizedCropAndFlip(nn.Module):
         return img, grid
 
     def location_to_NxN_grid(self, location: Location) -> torch.Tensor:
-        """Create grid from location object
+        """Create grid from location object.
 
         Create a grid tensor with grid_size rows and grid_size columns, where each cell represents a region of
         the original image. The grid is used to map the cropped and transformed image back to the
@@ -174,11 +184,15 @@ class RandomResizedCropAndFlip(nn.Module):
             A grid tensor of shape (grid_size, grid_size, 2), where the last dimension represents the (x, y) coordinate
             of the center of each cell in the original image space.
         """
-        
-        cell_width = location.width / self.grid_size 
+
+        cell_width = location.width / self.grid_size
         cell_height = location.height / self.grid_size
-        x = torch.linspace(location.left, location.left + location.width, self.grid_size) + (cell_width / 2)
-        y = torch.linspace(location.top, location.top + location.height, self.grid_size) + (cell_height / 2)
+        x = torch.linspace(
+            location.left, location.left + location.width, self.grid_size
+        ) + (cell_width / 2)
+        y = torch.linspace(
+            location.top, location.top + location.height, self.grid_size
+        ) + (cell_height / 2)
         if location.horizontal_flip:
             x = torch.flip(x, dims=[0])
         if location.vertical_flip:
