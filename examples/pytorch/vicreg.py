@@ -3,7 +3,7 @@ from torch import nn
 import torchvision
 
 from lightly.data import LightlyDataset
-from lightly.data import ImageCollateFunction
+from lightly.data.collate import VICRegCollateFunction
 from lightly.models.modules import BarlowTwinsProjectionHead
 
 ## The projection head is the same as the Barlow Twins one
@@ -33,7 +33,7 @@ dataset = LightlyDataset.from_torch_dataset(cifar10)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = ImageCollateFunction(input_size=32)
+collate_fn = VICRegCollateFunction(input_size=32)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
