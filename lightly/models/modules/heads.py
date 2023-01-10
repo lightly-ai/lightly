@@ -548,20 +548,40 @@ class MSNProjectionHead(ProjectionHead):
         ])
 
 class TiCoProjectionHead(ProjectionHead):
-    """Projection head used for TiCo.
+     """Projection head used for TiCo.
 
-    "This MLP consists in a linear layer with output size 4096 followed by
-    batch normalization, rectified linear units (ReLU), and a final
-    linear layer with output dimension 256." [0]
+     "This MLP consists in a linear layer with output size 4096 followed by
+     batch normalization, rectified linear units (ReLU), and a final
+     linear layer with output dimension 256." [0]
 
-    [0]: TiCo, 2022, https://arxiv.org/pdf/2206.10698.pdf
+     [0]: TiCo, 2022, https://arxiv.org/pdf/2206.10698.pdf
+
+     """
+     def __init__(self,
+                  input_dim: int = 2048,
+                  hidden_dim: int = 4096,
+                  output_dim: int = 256):
+         super(TiCoProjectionHead, self).__init__([
+             (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+             (hidden_dim, output_dim, None, None),
+         ])
+
+class VicRegLLocalProjectionHead(ProjectionHead):
+    """Projection head used for the local head of VICRegL.
+
+    The projector network has three linear layers. The first two layers of the projector 
+    are followed by a batch normalization layer and rectified linear units.
+
+    2022, VICRegL, https://arxiv.org/abs/2210.01571
 
     """
+
     def __init__(self,
                  input_dim: int = 2048,
-                 hidden_dim: int = 4096,
-                 output_dim: int = 256):
-        super(TiCoProjectionHead, self).__init__([
-            (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+                 hidden_dim: int = 8192,
+                 output_dim: int = 8192):
+        super(VicRegLLocalProjectionHead, self).__init__([
+            (input_dim, hidden_dim, nn.LayerNorm(hidden_dim), nn.ReLU()),
+            (hidden_dim, hidden_dim, nn.LayerNorm(hidden_dim), nn.ReLU()),
             (hidden_dim, output_dim, None, None),
         ])
