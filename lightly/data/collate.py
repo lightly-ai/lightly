@@ -1109,7 +1109,7 @@ class VICRegCollateFunction(BaseCollateFunction):
            
         transform = T.Compose(transform)
 
-        super(ImageCollateFunction, self).__init__(transform)
+        super(VICRegCollateFunction, self).__init__(transform)
 
 def _random_rotation_transform(
     rr_prob: float,
