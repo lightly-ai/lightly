@@ -451,7 +451,7 @@ class MockedTagsApi(TagsApi):
             ).to_dict() # temporary until we have a proper openapi generator
         ]
 
-    def export_tag_to_basic_filenames(self, dataset_id: str, tag_id: str) -> str:
+    def export_tag_to_basic_filenames(self, dataset_id: str, tag_id: str, **kwargs) -> str:
         return """
 IMG_2276_jpeg_jpg.rf.7411b1902c81bad8cdefd2cc4eb3a97b.jpg
 IMG_2285_jpeg_jpg.rf.4a93d99b9f0b6cccfb27bf2f4a13b99e.jpg
