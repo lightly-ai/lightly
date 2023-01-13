@@ -42,6 +42,12 @@ def _upload_cli(cfg, is_cli_call=True) -> Union[str, None]:
             None
 
     """
+    # TODO (Malte, 19.01,2023): Remove the _upload_cli completely
+    print_as_warning(
+        message="DeprecationWarning: Uploading via CLI is deprecated and will be removed soon! "
+        "Please use the Lightly Worker instead: https://docs.lightly.ai/docs/install-lightly\n",
+    )
+
     input_dir = cfg['input_dir']
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)
