@@ -27,6 +27,7 @@ Results (5.3.2022):
 | SimSiam       |        256 |    200 |              0.669 |   78.6 Min |      3.9 GByte |
 | SMoG          |        128 |    200 |              0.698 |  220.9 Min |     14.3 GByte |
 | SwaV          |        256 |    200 |              0.748 |   77.6 Min |      4.0 GByte |
+| VICReg        |        256 |    200 |              0.679 |   79.1 Min |      5.7 GByte |
 ------------------------------------------------------------------------------------------
 | BarlowTwins   |        256 |    800 |              0.789 |  330.9 Min |      4.0 GByte |
 | BYOL          |        256 |    800 |              0.851 |  332.7 Min |      4.3 GByte |
@@ -39,6 +40,7 @@ Results (5.3.2022):
 | SimCLR        |        256 |    800 |              0.858 |  324.8 Min |      3.9 GByte |
 | SimSiam       |        256 |    800 |              0.852 |  316.0 Min |      3.9 GByte |
 | SwaV          |        256 |    800 |              0.899 |  554.7 Min |      6.6 GByte |
+| VICReg        |        256 |    800 |              0.783 |  316.0 Min |      5.7 GByte |
 ------------------------------------------------------------------------------------------
 
 (*): Different runtime and memory requirements due to different hardware settings
@@ -63,7 +65,7 @@ from lightly.models.modules import masked_autoencoder
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
-
+from pl_bolts.optimizers.lars import LARS
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
 num_workers = 12
@@ -110,8 +112,8 @@ else:
 
 # The dataset structure should be like this:
 
-path_to_train = '/home/ubuntu/datasets/imagenette/imagenette2-320/train/'
-path_to_test = '/home/ubuntu/datasets/imagenette/imagenette2-320/val/'
+path_to_train = '/home/lightly/Documents/niccolo/datasets/imagenette2/train/'
+path_to_test = '/home/lightly/Documents/niccolo/datasets/imagenette2/val/'
 
 # Use SimCLR augmentations
 collate_fn = lightly.data.SimCLRCollateFunction(
@@ -1008,9 +1010,9 @@ class SimMIMModel(BenchmarkModule):
     def configure_optimizers(self):
         optim = torch.optim.AdamW(
             self.parameters(),
-            lr=1.5e-4 * lr_factor,
+            lr=8e-4 * lr_factor,
             weight_decay=0.05,
-            betas=(0.9, 0.95),
+            betas=(0.9, 0.999),
         )
         cosine_with_warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
         return [optim], [cosine_with_warmup_scheduler]
@@ -1029,6 +1031,7 @@ class VICRegModel(BenchmarkModule):
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
         self.criterion = lightly.loss.VICRegLoss()
+        self.warmup_epochs = 40 if max_epochs >= 800 else 20
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -1043,31 +1046,36 @@ class VICRegModel(BenchmarkModule):
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.SGD(
+        optim = LARS(
             self.parameters(), 
-            lr=6e-2 * lr_factor,
-            momentum=0.9, 
-            weight_decay=5e-4
+            lr=0.3 * lr_factor,
+            weight_decay=1e-4,
+            momentum=0.9,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
         return [optim], [scheduler]
 
+    def scale_lr(self, epoch):
+        if epoch < self.warmup_epochs:
+            return epoch / self.warmup_epochs
+        else:
+            return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
 
 models = [
-    #BarlowTwinsModel,
-    #BYOLModel,
-    #DCL,
-    #DCLW,
-    #DINOModel,
+    BarlowTwinsModel,
+    BYOLModel,
+    DCL,
+    DCLW,
+    DINOModel,
     # MAEModel, # disabled by default because MAE uses larger images with size 224
     # MSNModel, # disabled by default because MSN uses larger images with size 224
-    #MocoModel,
-    #NNCLRModel,
-    #SimCLRModel,
-    #SimSiamModel,
-    #SimMIMModel, # disabled by default because MSN uses larger images with size 224
-    #SwaVModel,
-    #SMoGModel,
+    MocoModel,
+    NNCLRModel,
+    SimCLRModel,
+    SimSiamModel,
+    # SimMIMModel, # disabled by default because MSN uses larger images with size 224
+    SwaVModel,
+    SMoGModel,
     VICRegModel
 ]
 bench_results = dict()
