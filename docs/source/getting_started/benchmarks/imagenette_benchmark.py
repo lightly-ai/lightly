@@ -25,6 +25,7 @@ Results (5.3.2022):
 | NNCLR         |        256 |    200 |              0.726 |   86.8 Min |      4.2 GByte |
 | SimCLR        |        256 |    200 |              0.771 |   82.2 Min |      3.9 GByte |
 | SimSiam       |        256 |    200 |              0.669 |   78.6 Min |      3.9 GByte |
+| SimMIM (ViT-S)|        256 |    200 |              0.342 |   98.8 Min |     10.5 GByte |
 | SMoG          |        128 |    200 |              0.698 |  220.9 Min |     14.3 GByte |
 | SwaV          |        256 |    200 |              0.748 |   77.6 Min |      4.0 GByte |
 | VICReg        |        256 |    200 |              0.679 |   79.1 Min |      5.7 GByte |
@@ -39,6 +40,7 @@ Results (5.3.2022):
 | NNCLR         |        256 |    800 |              0.848 |  341.4 Min |      4.2 GByte |
 | SimCLR        |        256 |    800 |              0.858 |  324.8 Min |      3.9 GByte |
 | SimSiam       |        256 |    800 |              0.852 |  316.0 Min |      3.9 GByte |
+| SimMIM (ViT-S)|        256 |    800 |              0.355 |  397.8 Min |     10.5 GByte |
 | SwaV          |        256 |    800 |              0.899 |  554.7 Min |      6.6 GByte |
 | VICReg        |        256 |    800 |              0.783 |  316.0 Min |      5.7 GByte |
 ------------------------------------------------------------------------------------------
@@ -112,8 +114,8 @@ else:
 
 # The dataset structure should be like this:
 
-path_to_train = '/home/lightly/Documents/niccolo/datasets/imagenette2/train/'
-path_to_test = '/home/lightly/Documents/niccolo/datasets/imagenette2/val/'
+path_to_train = '/datasets/imagenette2-160/train/'
+path_to_test = '/datasets/imagenette2-160/val/'
 
 # Use SimCLR augmentations
 collate_fn = lightly.data.SimCLRCollateFunction(
