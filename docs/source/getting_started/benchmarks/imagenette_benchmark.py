@@ -1075,7 +1075,7 @@ models = [
     NNCLRModel,
     SimCLRModel,
     SimSiamModel,
-    # SimMIMModel, # disabled by default because MSN uses larger images with size 224
+    # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
     SwaVModel,
     SMoGModel,
     VICRegModel
