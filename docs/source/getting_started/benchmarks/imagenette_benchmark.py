@@ -1075,8 +1075,8 @@ models = [
     MocoModel,
     NNCLRModel,
     SimCLRModel,
-    SimSiamModel,
     # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
+    SimSiamModel,
     SwaVModel,
     SMoGModel,
     VICRegModel
