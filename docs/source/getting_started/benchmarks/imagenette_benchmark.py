@@ -12,34 +12,38 @@ Code has been tested on a V100 GPU with 16GBytes of video memory.
 Code to reproduce the benchmark results:
 
 Results (5.3.2022):
-------------------------------------------------------------------------------------------
-| Model         | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
-------------------------------------------------------------------------------------------
-| BarlowTwins   |        256 |    200 |              0.587 |   86.2 Min |      4.0 GByte |
-| BYOL          |        256 |    200 |              0.619 |   88.6 Min |      4.3 GByte |
-| DCL (*)       |        256 |    200 |              0.762 |   53.3 Min |      4.3 GByte |
-| DCLW (*)      |        256 |    200 |              0.755 |   53.7 Min |      4.3 GByte |
-| DINO (Res18)  |        256 |    200 |              0.736 |   86.5 Min |      4.1 GByte |
-| MSN (ViT-S)   |        256 |    200 |              0.741 |   92.7 Min |     16.3 GByte |
-| Moco          |        256 |    200 |              0.727 |   87.3 Min |      4.3 GByte |
-| NNCLR         |        256 |    200 |              0.726 |   86.8 Min |      4.2 GByte |
-| SimCLR        |        256 |    200 |              0.771 |   82.2 Min |      3.9 GByte |
-| SimSiam       |        256 |    200 |              0.669 |   78.6 Min |      3.9 GByte |
-| SMoG          |        128 |    200 |              0.698 |  220.9 Min |     14.3 GByte |
-| SwaV          |        256 |    200 |              0.748 |   77.6 Min |      4.0 GByte |
-------------------------------------------------------------------------------------------
-| BarlowTwins   |        256 |    800 |              0.789 |  330.9 Min |      4.0 GByte |
-| BYOL          |        256 |    800 |              0.851 |  332.7 Min |      4.3 GByte |
-| DCL (*)       |        256 |    800 |              0.816 |  213.1 Min |      4.3 GByte |
-| DCLW (*)      |        256 |    800 |              0.827 |  213.1 Min |      4.3 GByte |
-| DINO (Res18)  |        256 |    800 |              0.881 |  613.9 Min |      6.7 GByte |
-| MSN (ViT-S)   |        256 |    800 |              0.834 |  376.1 Min |     16.3 GByte |
-| Moco          |        256 |    800 |              0.832 |  322.8 Min |      4.2 GByte |
-| NNCLR         |        256 |    800 |              0.848 |  341.4 Min |      4.2 GByte |
-| SimCLR        |        256 |    800 |              0.858 |  324.8 Min |      3.9 GByte |
-| SimSiam       |        256 |    800 |              0.852 |  316.0 Min |      3.9 GByte |
-| SwaV          |        256 |    800 |              0.899 |  554.7 Min |      6.6 GByte |
-------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+| Model            | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
+---------------------------------------------------------------------------------------------
+| BarlowTwins      |        256 |    200 |              0.587 |   86.2 Min |      4.0 GByte |
+| BYOL             |        256 |    200 |              0.619 |   88.6 Min |      4.3 GByte |
+| DCL (*)          |        256 |    200 |              0.762 |   53.3 Min |      4.3 GByte |
+| DCLW (*)         |        256 |    200 |              0.755 |   53.7 Min |      4.3 GByte |
+| DINO (Res18)     |        256 |    200 |              0.736 |   86.5 Min |      4.1 GByte |
+| MSN (ViT-S)      |        256 |    200 |              0.741 |   92.7 Min |     16.3 GByte |
+| Moco             |        256 |    200 |              0.727 |   87.3 Min |      4.3 GByte |
+| NNCLR            |        256 |    200 |              0.726 |   86.8 Min |      4.2 GByte |
+| SimCLR           |        256 |    200 |              0.771 |   82.2 Min |      3.9 GByte |
+| SimMIM (ViT-B32) |        256 |    200 |              0.342 |   98.8 Min |     10.5 GByte |
+| SimSiam          |        256 |    200 |              0.669 |   78.6 Min |      3.9 GByte |
+| SMoG             |        128 |    200 |              0.698 |  220.9 Min |     14.3 GByte |
+| SwaV             |        256 |    200 |              0.748 |   77.6 Min |      4.0 GByte |
+| VICReg           |        256 |    200 |              0.679 |   79.1 Min |      5.7 GByte |
+---------------------------------------------------------------------------------------------
+| BarlowTwins      |        256 |    800 |              0.789 |  330.9 Min |      4.0 GByte |
+| BYOL             |        256 |    800 |              0.851 |  332.7 Min |      4.3 GByte |
+| DCL (*)          |        256 |    800 |              0.816 |  213.1 Min |      4.3 GByte |
+| DCLW (*)         |        256 |    800 |              0.827 |  213.1 Min |      4.3 GByte |
+| DINO (Res18)     |        256 |    800 |              0.881 |  613.9 Min |      6.7 GByte |
+| MSN (ViT-S)      |        256 |    800 |              0.834 |  376.1 Min |     16.3 GByte |
+| Moco             |        256 |    800 |              0.832 |  322.8 Min |      4.2 GByte |
+| NNCLR            |        256 |    800 |              0.848 |  341.4 Min |      4.2 GByte |
+| SimCLR           |        256 |    800 |              0.858 |  324.8 Min |      3.9 GByte |
+| SimMIM (ViT-B32) |        256 |    800 |              0.355 |  397.8 Min |     10.5 GByte |
+| SimSiam          |        256 |    800 |              0.852 |  316.0 Min |      3.9 GByte |
+| SwaV             |        256 |    800 |              0.899 |  554.7 Min |      6.6 GByte |
+| VICReg           |        256 |    800 |              0.783 |  316.0 Min |      5.7 GByte |
+---------------------------------------------------------------------------------------------
 
 (*): Different runtime and memory requirements due to different hardware settings
 and pytorch version. Runtime and memory requirements are comparable to SimCLR
@@ -63,7 +67,7 @@ from lightly.models.modules import masked_autoencoder
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
-
+from pl_bolts.optimizers.lars import LARS
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
 num_workers = 12
@@ -184,6 +188,8 @@ def get_data_loaders(batch_size: int, model):
     elif model == DINOModel:
         col_fn = dino_collate_fn
     elif model == MAEModel:
+        col_fn = mae_collate_fn
+    elif model == SimMIMModel:
         col_fn = mae_collate_fn
     elif model == MSNModel:
         col_fn = msn_collate_fn
@@ -947,8 +953,115 @@ class SMoGModel(BenchmarkModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
+class SimMIMModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        
+        vit = torchvision.models.vit_b_32(pretrained=False)
+        self.warmup_epochs = 40 if max_epochs >= 800 else 20
+        decoder_dim = vit.hidden_dim
+        self.mask_ratio = 0.75
+        self.patch_size = vit.patch_size
+        self.sequence_length = vit.seq_length
+        self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
 
+        # same backbone as MAE
+        self.backbone = masked_autoencoder.MAEBackbone.from_vit(vit) 
 
+        # the decoder is a simple linear layer
+        self.decoder = nn.Linear(vit.hidden_dim, vit.patch_size ** 2 * 3)
+
+        # L1 loss as paper suggestion
+        self.criterion = nn.L1Loss()
+    
+    def forward_encoder(self, images, batch_size, idx_mask):
+        # pass all the tokens to the encoder, both masked and non masked ones
+        tokens = self.backbone.images_to_tokens(images, prepend_class_token=True)
+        tokens_masked = utils.mask_at_index(tokens, idx_mask , self.mask_token)
+        return self.backbone.encoder(tokens_masked)
+
+    def forward_decoder(self, x_encoded):
+        return self.decoder(x_encoded)
+
+    def training_step(self, batch, batch_idx):
+        images, _, _ = batch
+
+        batch_size = images.shape[0]
+        idx_keep, idx_mask = utils.random_token_mask(
+            size=(batch_size, self.sequence_length),
+            mask_ratio=self.mask_ratio,
+            device=images.device,
+        )
+        
+        # Encoding...
+        x_encoded = self.forward_encoder(images, batch_size, idx_mask)
+        x_encoded_masked = utils.get_at_index(x_encoded, idx_mask)
+
+        # Decoding...
+        x_out = self.forward_decoder(x_encoded_masked)
+
+        # get image patches for masked tokens
+        patches = utils.patchify(images, self.patch_size)
+        
+        # must adjust idx_mask for missing class token
+        target = utils.get_at_index(patches, idx_mask - 1)
+
+        loss = self.criterion(x_out, target)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.AdamW(
+            self.parameters(),
+            lr=8e-4 * lr_factor,
+            weight_decay=0.05,
+            betas=(0.9, 0.999),
+        )
+        cosine_with_warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
+        return [optim], [cosine_with_warmup_scheduler]
+
+    def scale_lr(self, epoch):
+        if epoch < self.warmup_epochs:
+            return epoch / self.warmup_epochs 
+        else:
+            return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
+
+class VICRegModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
+        self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
+        self.criterion = lightly.loss.VICRegLoss()
+        self.warmup_epochs = 40 if max_epochs >= 800 else 20
+
+    def forward(self, x):
+        x = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(x)
+        return z
+
+    def training_step(self, batch, batch_index):
+        (x0, x1), _, _ = batch
+        z0 = self.forward(x0)
+        z1 = self.forward(x1)
+        loss = self.criterion(z0, z1)
+        return loss
+
+    def configure_optimizers(self):
+        optim = LARS(
+            self.parameters(), 
+            lr=0.3 * lr_factor,
+            weight_decay=1e-4,
+            momentum=0.9,
+        )
+        scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
+        return [optim], [scheduler]
+
+    def scale_lr(self, epoch):
+        if epoch < self.warmup_epochs:
+            return epoch / self.warmup_epochs
+        else:
+            return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
 
 models = [
     BarlowTwinsModel,
@@ -961,9 +1074,11 @@ models = [
     MocoModel,
     NNCLRModel,
     SimCLRModel,
+    # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
     SimSiamModel,
     SwaVModel,
-    SMoGModel
+    SMoGModel,
+    VICRegModel
 ]
 bench_results = dict()
 

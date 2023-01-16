@@ -30,8 +30,10 @@ The current benchmark contains the following models:
 - :ref:`MoCo <moco>`
 - :ref:`NNCLR <nnclr>`
 - :ref:`SimCLR <simclr>`
+- :ref:`SimMiM <simmim>`
 - :ref:`SimSiam <simsiam>`
 - :ref:`SwAV <swav>`
+- :ref:`VICReg <vicreg>`
 
 
 .. csv-table:: ImageNette benchmark results using kNN evaluation on the test set using 128x128 input resolution.
@@ -47,8 +49,10 @@ The current benchmark contains the following models:
    "MoCo", 800, 256, 0.832, "322.8 Min", "4.2 GByte"
    "NNCLR", 800, 256, 0.848, "341.4 Min", "4.2 GByte"
    "SimCLR", 800, 256, 0.858, "324.8 Min", "3.9 GByte"
+   "SimMiM", 800, 256, 0.355, "397.8 Min", "10.5 GByte"
    "SimSiam", 800, 256, 0.852, "316.0 Min", "3.9 GByte"
    "SwaV", 800, 256, 0.899, "554.7 Min", "6.6 GByte"
+   "VICReg", 800, 256, 0.783, "316.7 Min", "5.7 GByte"
 
 (*): Different runtime and memory requirements due to different hardware settings
 and pytorch version. Runtime and memory requirements are comparable to SimCLR
