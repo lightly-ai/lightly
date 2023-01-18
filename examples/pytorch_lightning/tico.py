@@ -8,10 +8,9 @@ from lightly.data import LightlyDataset
 from lightly.data import SimCLRCollateFunction
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.models.modules.heads import TiCoProjectionHead
+from lightly.models.utils import cosine_schedule
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
-from lightly.models.utils import cosine_schedule
-
 
 
 class TiCo(pl.LightningModule):
@@ -54,6 +53,7 @@ class TiCo(pl.LightningModule):
 
     def configure_optimizers(self):
         return torch.optim.SGD(self.parameters(), lr=0.06)
+
 
 model = TiCo()
 

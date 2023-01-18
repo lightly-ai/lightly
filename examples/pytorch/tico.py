@@ -1,6 +1,6 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
 import torch
 from torch import nn
@@ -11,9 +11,9 @@ from lightly.data import LightlyDataset
 from lightly.data import SimCLRCollateFunction
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.models.modules.heads import TiCoProjectionHead
+from lightly.models.utils import cosine_schedule
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
-from lightly.models.utils import cosine_schedule
 
 
 class TiCo(nn.Module):
@@ -39,6 +39,7 @@ class TiCo(nn.Module):
         z = self.projection_head_momentum(y)
         z = z.detach()
         return z
+
 
 resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(*list(resnet.children())[:-1])
@@ -75,7 +76,9 @@ for epoch in range(epochs):
     momentum_val = cosine_schedule(epoch, epochs, 0.996, 1)
     for (x0, x1), _, _ in dataloader:
         update_momentum(model.backbone, model.backbone_momentum, m=momentum_val)
-        update_momentum(model.projection_head, model.projection_head_momentum, m=momentum_val)
+        update_momentum(
+            model.projection_head, model.projection_head_momentum, m=momentum_val
+        )
         x0 = x0.to(device)
         x1 = x1.to(device)
         z0 = model(x0)
