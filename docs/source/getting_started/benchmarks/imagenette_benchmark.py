@@ -114,8 +114,8 @@ else:
 
 # The dataset structure should be like this:
 
-path_to_train = '/datasets/imagenette2-160/train/'
-path_to_test = '/datasets/imagenette2-160/val/'
+path_to_train = '/home/ubuntu/datasets/imagenette/imagenette2-320/train/'
+path_to_test = '/home/ubuntu/datasets/imagenette/imagenette2-320/val/'
 
 # Use SimCLR augmentations
 collate_fn = lightly.data.SimCLRCollateFunction(
@@ -147,6 +147,9 @@ mae_collate_fn = lightly.data.MAECollateFunction()
 
 # Multi crop augmentation for MSN
 msn_collate_fn = lightly.data.MSNCollateFunction(random_size=128, focal_size=64)
+
+# Collate function passing geometrical transformation for VICRegL
+vicregl_collate_fn = lightly.data.VICRegLCollateFunction()
 
 normalize_transform = torchvision.transforms.Normalize(
     mean=lightly.data.collate.imagenet_normalize['mean'],
@@ -195,6 +198,8 @@ def get_data_loaders(batch_size: int, model):
         col_fn = msn_collate_fn
     elif model == SMoGModel:
         col_fn = smog_collate_function
+    elif model == VICRegLModel:
+        col_fn = vicregl_collate_fn
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
         batch_size=batch_size,
@@ -1063,22 +1068,136 @@ class VICRegModel(BenchmarkModule):
         else:
             return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
 
+class VICRegLModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+
+        # The train_backbone/backbone is introduced in order to fit with the 
+        # structure of BenchmarkModule. During training train_backbone is used 
+        # to extract local and global features. Durig evaluation backbone is used
+        # to evaluate only global features.
+        self.train_backbone = nn.Sequential(*list(resnet.children())[:-2])
+        self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
+        self.local_projection_head = heads.VicRegLLocalProjectionHead(512, 128, 128)
+        self.average_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
+        self.criterion = lightly.loss.VICRegLLoss(alpha=0.75)
+        self.backbone = nn.Sequential(self.train_backbone, self.average_pool)
+        self.warmup_epochs = 40 if max_epochs >= 800 else 20
+
+    def forward(self, x):
+        x = self.train_backbone(x)
+        y = self.average_pool(x).flatten(start_dim=1)
+        z = self.projection_head(y)
+        y_local = x.permute(0, 2, 3, 1) # (B, D, W, H) to (B, W, H, D)
+        z_local = self.local_projection_head(y_local)         
+        return z, z_local
+
+    def training_step(self, batch, batch_index):
+        (view_global, view_local, grid_global, grid_local), _, _ = batch
+        z_global, z_global_local_features = self.forward(view_global)
+        z_local, z_local_local_features = self.forward(view_local)
+        loss = self.criterion(
+            z_global=z_global, 
+            z_local=z_local, 
+            z_global_local_features=z_global_local_features, 
+            z_local_local_features=z_local_local_features, 
+            grid_global=grid_global, 
+            grid_local=grid_local
+        )
+        return loss
+
+    def configure_optimizers(self):
+        optim = LARS(
+            self.parameters(), 
+            lr=0.3 * lr_factor,
+            weight_decay=1e-4,
+            momentum=0.9,
+        )
+        scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
+        return [optim], [scheduler]
+
+    def scale_lr(self, epoch):
+        if epoch < self.warmup_epochs:
+            return epoch / self.warmup_epochs
+        else:
+            return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
+
+class TiCoModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+
+        resnet = torchvision.models.resnet18()
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
+        self.projection_head = heads.TiCoProjectionHead(512, 1024, 256)
+
+        self.backbone_momentum = copy.deepcopy(self.backbone)
+        self.projection_head_momentum = copy.deepcopy(self.projection_head)
+
+        utils.deactivate_requires_grad(self.backbone_momentum)
+        utils.deactivate_requires_grad(self.projection_head_momentum)
+
+        self.criterion = lightly.loss.TiCoLoss()
+        self.warmup_epochs = 40 if max_epochs >= 800 else 20
+        
+    def forward(self, x):
+        y = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(y)
+        return z
+
+    def forward_momentum(self, x):
+        y = self.backbone_momentum(x).flatten(start_dim=1)
+        z = self.projection_head_momentum(y)
+        z = z.detach()
+        return z
+
+    def training_step(self, batch, batch_index):
+        (x0, x1), _, _ = batch
+        momentum = utils.cosine_schedule(self.current_epoch, 10, 0.996, 1)
+        utils.update_momentum(self.backbone, self.backbone_momentum, m=momentum)
+        utils.update_momentum(self.projection_head, self.projection_head_momentum, m=momentum)
+        x0 = x0.to(self.device)
+        x1 = x1.to(self.device)
+        z0 = self.forward(x0)
+        z1 = self.forward_momentum(x1)
+        loss = self.criterion(z0, z1)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.SGD(
+            self.parameters(), 
+            lr=0.3 * lr_factor,
+            weight_decay=1e-4,
+            momentum=0.9,
+        )
+        scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
+        return [optim], [scheduler]
+
+    def scale_lr(self, epoch):
+        if epoch < self.warmup_epochs:
+            return epoch / self.warmup_epochs
+        else:
+            return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
+
 models = [
-    BarlowTwinsModel,
-    BYOLModel,
-    DCL,
-    DCLW,
-    DINOModel,
+    #BarlowTwinsModel,
+    #BYOLModel,
+    #DCL,
+    #DCLW,
+    #DINOModel,
     # MAEModel, # disabled by default because MAE uses larger images with size 224
     # MSNModel, # disabled by default because MSN uses larger images with size 224
-    MocoModel,
-    NNCLRModel,
-    SimCLRModel,
+    #MocoModel,
+    #NNCLRModel,
+    #SimCLRModel,
     # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
-    SimSiamModel,
-    SwaVModel,
-    SMoGModel,
-    VICRegModel
+    #SimSiamModel,
+    #SwaVModel,
+    #SMoGModel,
+    TiCoModel,
+    #VICRegModel,
+    VICRegLModel
 ]
 bench_results = dict()
 
