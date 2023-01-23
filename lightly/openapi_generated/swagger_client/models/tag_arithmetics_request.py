@@ -37,7 +37,8 @@ class TagArithmeticsRequest(object):
         'tag_id2': 'MongoObjectID',
         'operation': 'TagArithmeticsOperation',
         'new_tag_name': 'TagName',
-        'creator': 'TagCreator'
+        'creator': 'TagCreator',
+        'run_id': 'MongoObjectID'
     }
 
     attribute_map = {
@@ -45,10 +46,11 @@ class TagArithmeticsRequest(object):
         'tag_id2': 'tagId2',
         'operation': 'operation',
         'new_tag_name': 'newTagName',
-        'creator': 'creator'
+        'creator': 'creator',
+        'run_id': 'runId'
     }
 
-    def __init__(self, tag_id1=None, tag_id2=None, operation=None, new_tag_name=None, creator=None, _configuration=None):  # noqa: E501
+    def __init__(self, tag_id1=None, tag_id2=None, operation=None, new_tag_name=None, creator=None, run_id=None, _configuration=None):  # noqa: E501
         """TagArithmeticsRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -59,6 +61,7 @@ class TagArithmeticsRequest(object):
         self._operation = None
         self._new_tag_name = None
         self._creator = None
+        self._run_id = None
         self.discriminator = None
 
         self.tag_id1 = tag_id1
@@ -68,6 +71,8 @@ class TagArithmeticsRequest(object):
             self.new_tag_name = new_tag_name
         if creator is not None:
             self.creator = creator
+        if run_id is not None:
+            self.run_id = run_id
 
     @property
     def tag_id1(self):
@@ -179,6 +184,27 @@ class TagArithmeticsRequest(object):
         """
 
         self._creator = creator
+
+    @property
+    def run_id(self):
+        """Gets the run_id of this TagArithmeticsRequest.  # noqa: E501
+
+
+        :return: The run_id of this TagArithmeticsRequest.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._run_id
+
+    @run_id.setter
+    def run_id(self, run_id):
+        """Sets the run_id of this TagArithmeticsRequest.
+
+
+        :param run_id: The run_id of this TagArithmeticsRequest.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._run_id = run_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -34,15 +34,17 @@ class TagUpsizeRequest(object):
     """
     swagger_types = {
         'upsize_tag_name': 'TagName',
-        'upsize_tag_creator': 'TagCreator'
+        'upsize_tag_creator': 'TagCreator',
+        'run_id': 'MongoObjectID'
     }
 
     attribute_map = {
         'upsize_tag_name': 'upsizeTagName',
-        'upsize_tag_creator': 'upsizeTagCreator'
+        'upsize_tag_creator': 'upsizeTagCreator',
+        'run_id': 'runId'
     }
 
-    def __init__(self, upsize_tag_name=None, upsize_tag_creator=None, _configuration=None):  # noqa: E501
+    def __init__(self, upsize_tag_name=None, upsize_tag_creator=None, run_id=None, _configuration=None):  # noqa: E501
         """TagUpsizeRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -50,10 +52,13 @@ class TagUpsizeRequest(object):
 
         self._upsize_tag_name = None
         self._upsize_tag_creator = None
+        self._run_id = None
         self.discriminator = None
 
         self.upsize_tag_name = upsize_tag_name
         self.upsize_tag_creator = upsize_tag_creator
+        if run_id is not None:
+            self.run_id = run_id
 
     @property
     def upsize_tag_name(self):
@@ -100,6 +105,27 @@ class TagUpsizeRequest(object):
             raise ValueError("Invalid value for `upsize_tag_creator`, must not be `None`")  # noqa: E501
 
         self._upsize_tag_creator = upsize_tag_creator
+
+    @property
+    def run_id(self):
+        """Gets the run_id of this TagUpsizeRequest.  # noqa: E501
+
+
+        :return: The run_id of this TagUpsizeRequest.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._run_id
+
+    @run_id.setter
+    def run_id(self, run_id):
+        """Sets the run_id of this TagUpsizeRequest.
+
+
+        :param run_id: The run_id of this TagUpsizeRequest.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._run_id = run_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""
