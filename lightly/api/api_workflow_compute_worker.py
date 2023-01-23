@@ -749,7 +749,7 @@ class _ComputeWorkerMixin:
             >>> client = ApiWorkflowClient(
             >>>     token="MY_LIGHTLY_TOKEN", dataset_id="MY_DATASET_ID"
             >>> )
-            >>> tags = client.get_tags_by_run_id(run_id="MY_LAST_RUN_ID")
+            >>> tags = client.get_compute_worker_run_tags(run_id="MY_LAST_RUN_ID")
             >>> filenames = client.export_filenames_by_tag_name(tag_name=tags[0].name)
 
         """
