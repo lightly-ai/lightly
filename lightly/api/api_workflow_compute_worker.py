@@ -22,6 +22,7 @@ from lightly.openapi_generated.swagger_client import (
     SelectionConfigEntry,
     SelectionConfigEntryInput,
     SelectionConfigEntryStrategy,
+    TagData,
 )
 from lightly.openapi_generated.swagger_client.models.docker_run_artifact_type import DockerRunArtifactType
 from lightly.openapi_generated.swagger_client.rest import ApiException
@@ -727,6 +728,34 @@ class _ComputeWorkerMixin:
             output_path=output_path,
             timeout=timeout,
         )
+
+    def get_compute_worker_run_tags(self, run_id: str) -> List[TagData]:
+        """Returns all tags from a run for the current dataset.
+
+        Only returns tags for runs made with Lightly Worker version >=2.4.2.
+
+        Args:
+            run_id:
+                Run id from which to return tags.
+
+        Returns:
+            List of tags created by the run. The tags are ordered by creation date from
+            newest to oldest.
+
+        Examples:
+            >>> # Get filenames from last run.
+            >>>
+            >>> from lightly.api import ApiWorkflowClient
+            >>> client = ApiWorkflowClient(
+            >>>     token="MY_LIGHTLY_TOKEN", dataset_id="MY_DATASET_ID"
+            >>> )
+            >>> tags = client.get_tags_by_run_id(run_id="MY_LAST_RUN_ID")
+            >>> filenames = client.export_filenames_by_tag_name(tag_name=tags[0].name)
+
+        """
+        tags = self._compute_worker_api.get_docker_run_tags(run_id=run_id)
+        tags_in_dataset = [tag for tag in tags if tag.dataset_id == self.dataset_id]
+        return tags_in_dataset
 
 
     def _download_compute_worker_run_artifact_by_type(
