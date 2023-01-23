@@ -601,7 +601,7 @@ def test_get_compute_worker_run_tags__multiple_tags(mocker: MockerFixture) -> No
     tag_1 = TagData(
         id="tag-1",
         dataset_id="dataset-0",
-        prev_tag_id=None,
+        prev_tag_id="tag-0",
         bit_mask_data="0x1",
         name="tag-1",
         tot_size=0,
