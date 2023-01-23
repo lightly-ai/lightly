@@ -43,7 +43,8 @@ class TagData(object):
         'tot_size': 'int',
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp',
-        'changes': 'TagChangeData'
+        'changes': 'TagChangeData',
+        'run_id': 'MongoObjectID'
     }
 
     attribute_map = {
@@ -57,10 +58,11 @@ class TagData(object):
         'tot_size': 'totSize',
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt',
-        'changes': 'changes'
+        'changes': 'changes',
+        'run_id': 'runId'
     }
 
-    def __init__(self, id=None, dataset_id=None, prev_tag_id=None, query_tag_id=None, preselected_tag_id=None, name=None, bit_mask_data=None, tot_size=None, created_at=None, last_modified_at=None, changes=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, dataset_id=None, prev_tag_id=None, query_tag_id=None, preselected_tag_id=None, name=None, bit_mask_data=None, tot_size=None, created_at=None, last_modified_at=None, changes=None, run_id=None, _configuration=None):  # noqa: E501
         """TagData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -77,6 +79,7 @@ class TagData(object):
         self._created_at = None
         self._last_modified_at = None
         self._changes = None
+        self._run_id = None
         self.discriminator = None
 
         self.id = id
@@ -94,6 +97,8 @@ class TagData(object):
             self.last_modified_at = last_modified_at
         if changes is not None:
             self.changes = changes
+        if run_id is not None:
+            self.run_id = run_id
 
     @property
     def id(self):
@@ -339,6 +344,27 @@ class TagData(object):
         """
 
         self._changes = changes
+
+    @property
+    def run_id(self):
+        """Gets the run_id of this TagData.  # noqa: E501
+
+
+        :return: The run_id of this TagData.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._run_id
+
+    @run_id.setter
+    def run_id(self, run_id):
+        """Sets the run_id of this TagData.
+
+
+        :param run_id: The run_id of this TagData.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._run_id = run_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""
