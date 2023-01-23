@@ -1116,10 +1116,10 @@ class VICRegLModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
 
-        # The train_backbone/backbone is introduced in order to fit with the
-        # structure of BenchmarkModule. During training train_backbone is used
-        # to extract local and global features. Durig evaluation backbone is used
-        # to evaluate only global features.
+        # The train_backbone variable is introduced in order to fit with the
+        # structure of BenchmarkModule. During training, train_backbone is used
+        # to extract local and global features. Durig evaluation, backbone is used
+        # to evaluate global features.
         self.train_backbone = nn.Sequential(*list(resnet.children())[:-2])
         self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
         self.local_projection_head = heads.VicRegLLocalProjectionHead(512, 128, 128)
