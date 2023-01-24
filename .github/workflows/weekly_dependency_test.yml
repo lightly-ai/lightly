@@ -7,7 +7,7 @@ name: Weekly Dependency Test
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 22 * * mon' # each Monday night, at 22:00 UTC
+    - cron: '0 22 * * THU' # each Thursday night, at 22:00 UTC
 
 jobs:
   test_fresh_install:
@@ -27,8 +27,8 @@ jobs:
       id: run_tests
       run: |
         pytest -n auto
-      continue-on-error: true
     - name: Slack notification
+      if: always()
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_NIGHTLY }}
