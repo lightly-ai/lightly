@@ -5,16 +5,14 @@
 import copy
 import os
 
-
 import omegaconf
 from omegaconf import DictConfig
-import pytorch_lightning as pl
-import pytorch_lightning.core.lightning as lightning
+from pytorch_lightning import LightningModule, Trainer
 
 from lightly.embedding import callbacks
 
 
-class BaseEmbedding(lightning.LightningModule):
+class BaseEmbedding(LightningModule):
     """All trainable embeddings must inherit from BaseEmbedding.
 
     """
@@ -109,7 +107,7 @@ class BaseEmbedding(lightning.LightningModule):
             with omegaconf.open_dict(trainer_config_copy):
                 del trainer_config_copy["weights_summary"]
 
-        trainer = pl.Trainer(**trainer_config_copy, callbacks=trainer_callbacks)
+        trainer = Trainer(**trainer_config_copy, callbacks=trainer_callbacks)
 
         trainer.fit(self)
 
