@@ -1,6 +1,6 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
 import torch
 from torch import nn
@@ -12,6 +12,7 @@ from lightly.data import LightlyDataset
 from lightly.data import MoCoCollateFunction
 from lightly.loss import NTXentLoss
 from lightly.models.modules import MoCoProjectionHead
+from lightly.models.utils import cosine_schedule
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
 
@@ -42,8 +43,9 @@ class MoCo(pl.LightningModule):
         return key
 
     def training_step(self, batch, batch_idx):
-        update_momentum(self.backbone, self.backbone_momentum, m=0.99)
-        update_momentum(self.projection_head, self.projection_head_momentum, m=0.99)
+        momentum = cosine_schedule(self.current_epoch, 10, 0.996, 1)
+        update_momentum(self.backbone, self.backbone_momentum, m=momentum)
+        update_momentum(self.projection_head, self.projection_head_momentum, m=momentum)
         (x_query, x_key), _, _ = batch
         query = self.forward(x_query)
         key = self.forward_momentum(x_key)

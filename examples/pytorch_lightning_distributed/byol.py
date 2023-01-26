@@ -1,6 +1,6 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
 import torch
 from torch import nn
@@ -13,8 +13,10 @@ from lightly.data import SimCLRCollateFunction
 from lightly.loss import NegativeCosineSimilarity
 from lightly.models.modules import BYOLProjectionHead
 from lightly.models.modules.heads import BYOLPredictionHead
+from lightly.models.utils import cosine_schedule
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
+
 
 class BYOL(pl.LightningModule):
     def __init__(self):
@@ -45,8 +47,9 @@ class BYOL(pl.LightningModule):
         return z
 
     def training_step(self, batch, batch_idx):
-        update_momentum(self.backbone, self.backbone_momentum, m=0.99)
-        update_momentum(self.projection_head, self.projection_head_momentum, m=0.99)
+        momentum = cosine_schedule(self.current_epoch, 10, 0.996, 1)
+        update_momentum(self.backbone, self.backbone_momentum, m=momentum)
+        update_momentum(self.projection_head, self.projection_head_momentum, m=momentum)
         (x0, x1), _, _ = batch
         p0 = self.forward(x0)
         z0 = self.forward_momentum(x0)
@@ -82,9 +85,9 @@ gpus = torch.cuda.device_count()
 # train with DDP and use Synchronized Batch Norm for a more accurate batch norm
 # calculation
 trainer = pl.Trainer(
-    max_epochs=10, 
+    max_epochs=10,
     gpus=gpus,
-    strategy='ddp',
+    strategy="ddp",
     sync_batchnorm=True,
 )
 trainer.fit(model=model, train_dataloaders=dataloader)

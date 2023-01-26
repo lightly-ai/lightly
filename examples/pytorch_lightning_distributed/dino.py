@@ -1,7 +1,8 @@
 import copy
-# Note: The model and training settings do not follow the reference settings
+
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
 import torch
 from torch import nn
@@ -12,6 +13,7 @@ from lightly.data import LightlyDataset
 from lightly.data import DINOCollateFunction
 from lightly.loss import DINOLoss
 from lightly.models.modules import DINOProjectionHead
+from lightly.models.utils import cosine_schedule
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
 
@@ -24,11 +26,13 @@ class DINO(pl.LightningModule):
         input_dim = 512
         # instead of a resnet you can also use a vision transformer backbone as in the
         # original paper (you might have to reduce the batch size in this case):
-        # backbone = torch.hub.load('facebookresearch/dino:main', 'dino_vits16', pretrained=False)
-        # input_dim = backbone.embed_dim
+        # backbone = torch.hub.load('facebookresearch/dino:main', 'dino_vits16', pretrained=False)
+        # input_dim = backbone.embed_dim
 
         self.student_backbone = backbone
-        self.student_head = DINOProjectionHead(input_dim, 512, 64, 2048, freeze_last_layer=1)
+        self.student_head = DINOProjectionHead(
+            input_dim, 512, 64, 2048, freeze_last_layer=1
+        )
         self.teacher_backbone = copy.deepcopy(backbone)
         self.teacher_head = DINOProjectionHead(input_dim, 512, 64, 2048)
         deactivate_requires_grad(self.teacher_backbone)
@@ -47,8 +51,9 @@ class DINO(pl.LightningModule):
         return z
 
     def training_step(self, batch, batch_idx):
-        update_momentum(self.student_backbone, self.teacher_backbone, m=0.99)
-        update_momentum(self.student_head, self.teacher_head, m=0.99)
+        momentum = cosine_schedule(self.current_epoch, 10, 0.996, 1)
+        update_momentum(self.student_backbone, self.teacher_backbone, m=momentum)
+        update_momentum(self.student_head, self.teacher_head, m=momentum)
         views, _, _ = batch
         views = [view.to(self.device) for view in views]
         global_views = views[:2]
@@ -89,12 +94,12 @@ dataloader = torch.utils.data.DataLoader(
 gpus = torch.cuda.device_count()
 
 # Train with DDP and use Synchronized Batch Norm for a more accurate batch norm
-# calculation. Distributed sampling is also enabled with 
+# calculation. Distributed sampling is also enabled with
 # replace_sampler_ddp=True.
 trainer = pl.Trainer(
     max_epochs=10,
     gpus=gpus,
-    strategy='ddp',
+    strategy="ddp",
     sync_batchnorm=True,
     replace_sampler_ddp=True,
 )
