@@ -1,6 +1,6 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
 import torch
 from torch import nn
@@ -16,14 +16,23 @@ from lightly.models.modules import SwaVPrototypes
 
 
 class SwaV(pl.LightningModule):
-    def __init__(self, num_ftrs, out_dim,
-                 n_prototypes, n_queues, queue_length=0,
-                 start_queue_at_epoch=0, n_steps_frozen_prototypes=0):
+    def __init__(
+        self,
+        num_ftrs,
+        out_dim,
+        n_prototypes,
+        n_queues,
+        queue_length=0,
+        start_queue_at_epoch=0,
+        n_steps_frozen_prototypes=0,
+    ):
         super().__init__()
         resnet = torchvision.models.resnet18()
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = SwaVProjectionHead(num_ftrs, num_ftrs, out_dim)
-        self.prototypes = SwaVPrototypes(out_dim, n_prototypes, n_steps_frozen_prototypes)
+        self.prototypes = SwaVPrototypes(
+            out_dim, n_prototypes, n_steps_frozen_prototypes
+        )
         self.queues = None
         if n_queues > 0:
             self.queues = [MemoryBankModule(size=queue_length) for _ in range(n_queues)]
@@ -40,18 +49,22 @@ class SwaV(pl.LightningModule):
         high_resolution_features = [self._subforward(x) for x in high_resolution]
         low_resolution_features = [self._subforward(x) for x in low_resolution]
 
-        high_resolution_prototypes = [self.prototypes(x, step) for x in high_resolution_features]
-        low_resolution_prototypes = [self.prototypes(x, step) for x in low_resolution_features]
+        high_resolution_prototypes = [
+            self.prototypes(x, step) for x in high_resolution_features
+        ]
+        low_resolution_prototypes = [
+            self.prototypes(x, step) for x in low_resolution_features
+        ]
         queue_prototypes = self._get_queue_prototypes(high_resolution_features, epoch)
 
         return high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
-    
+
     def _subforward(self, input):
         features = self.backbone(input).flatten(start_dim=1)
         features = self.projection_head(features)
         features = nn.functional.normalize(features, dim=1, p=2)
         return features
-    
+
     @torch.no_grad()
     def _get_queue_prototypes(self, high_resolution_features, epoch=None):
         if self.queues is None:
@@ -69,7 +82,7 @@ class SwaV(pl.LightningModule):
             _, features = self.queues[i](high_resolution_features[i], update=True)
             # Queue features are in (num_ftrs X queue_length) shape, while the high res
             # features are in (batch_size X num_ftrs). Swap the axes for interoperability.
-            features = torch.permute(features, (1,0))
+            features = torch.permute(features, (1, 0))
             queue_features.append(features)
 
         # Do not return queue prototypes if not enough features have been queued
@@ -81,8 +94,10 @@ class SwaV(pl.LightningModule):
         # just queue the features and return None instead of queue prototypes.
         if self.start_queue_at_epoch > 0:
             if epoch is None:
-                raise ValueError("The epoch number must be passed to the `forward()` "
-                                 "method if `start_queue_at_epoch` is greater than 0.")
+                raise ValueError(
+                    "The epoch number must be passed to the `forward()` "
+                    "method if `start_queue_at_epoch` is greater than 0."
+                )
             if epoch < self.start_queue_at_epoch:
                 return None
 
@@ -93,7 +108,9 @@ class SwaV(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         batch_swav, _, _ = batch
         high_resolution, low_resolution = batch_swav[:2], batch_swav[2:]
-        high_resolution, low_resolution, queue = model(high_resolution, low_resolution, self.current_epoch, self.step)
+        high_resolution, low_resolution, queue = model(
+            high_resolution, low_resolution, self.current_epoch, self.step
+        )
         loss = self.criterion(high_resolution, low_resolution, queue)
         self.step += 1
         return loss
@@ -103,9 +120,15 @@ class SwaV(pl.LightningModule):
         return optim
 
 
-model = SwaV(num_ftrs=512, out_dim=128, n_prototypes=512,
-             n_queues=2, queue_length=512, start_queue_at_epoch=5,
-             n_steps_frozen_prototypes=10)
+model = SwaV(
+    num_ftrs=512,
+    out_dim=128,
+    n_prototypes=512,
+    n_queues=2,
+    queue_length=512,
+    start_queue_at_epoch=5,
+    n_steps_frozen_prototypes=10,
+)
 
 # we ignore object detection annotations by setting target_transform to return 0
 pascal_voc = torchvision.datasets.VOCDetection(
