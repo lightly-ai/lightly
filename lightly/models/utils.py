@@ -498,7 +498,7 @@ def nearest_neighbors(
         They both have size: [batch_size, input_map_size, feature_dimension]
     """
 
-    if num_matches is None or num_matches == -1:
+    if num_matches is None or num_matches == -1 or num_matches > input_maps.size(1):
         num_matches = input_maps.size(1)
 
     # Find nearest neighbour of each input element in the candidate map
