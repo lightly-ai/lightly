@@ -155,10 +155,7 @@ msn_collate_fn = lightly.data.MSNCollateFunction(random_size=128, focal_size=64)
 
 # Collate function passing geometrical transformation for VICRegL
 vicregl_collate_fn = lightly.data.VICRegLCollateFunction(
-    global_crop_size=128,
-    local_crop_size=64,
-    global_grid_size=4,
-    local_grid_size=2
+    global_crop_size=128, local_crop_size=64, global_grid_size=4, local_grid_size=2
 )
 
 normalize_transform = torchvision.transforms.Normalize(
@@ -235,6 +232,25 @@ def get_data_loaders(batch_size: int, model):
     )
 
     return dataloader_train_ssl, dataloader_train_kNN, dataloader_test
+
+
+class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
+    def __init__(self, optimizer, warmup_epochs, last_epoch=-1, verbose=False):
+        self.warmup_epochs = warmup_epochs
+        super().__init__(optimizer, self.scale_lr, last_epoch, verbose=False)
+
+    def scale_lr(self, epoch):
+        if epoch < self.warmup_epochs:
+            return epoch / self.warmup_epochs
+        else:
+            return 0.5 * (
+                1.0
+                + math.cos(
+                    math.pi
+                    * (epoch - self.warmup_epochs)
+                    / (max_epochs - self.warmup_epochs)
+                )
+            )
 
 
 class MocoModel(BenchmarkModule):
@@ -771,23 +787,8 @@ class MAEModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.95),
         )
-        cosine_with_warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(
-            optim, self.scale_lr
-        )
-        return [optim], [cosine_with_warmup_scheduler]
-
-    def scale_lr(self, epoch):
-        if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs
-        else:
-            return 0.5 * (
-                1.0
-                + math.cos(
-                    math.pi
-                    * (epoch - self.warmup_epochs)
-                    / (max_epochs - self.warmup_epochs)
-                )
-            )
+        scheduler = CosineWarmupScheduler(optim, self.warmup_epochs)
+        return [optim], [scheduler]
 
 
 class MSNModel(BenchmarkModule):
@@ -859,23 +860,8 @@ class MSNModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.95),
         )
-        cosine_with_warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(
-            optim, self.scale_lr
-        )
-        return [optim], [cosine_with_warmup_scheduler]
-
-    def scale_lr(self, epoch):
-        if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs
-        else:
-            return 0.5 * (
-                1.0
-                + math.cos(
-                    math.pi
-                    * (epoch - self.warmup_epochs)
-                    / (max_epochs - self.warmup_epochs)
-                )
-            )
+        scheduler = CosineWarmupScheduler(optim, self.warmup_epochs)
+        return [optim], [scheduler]
 
 
 from sklearn.cluster import KMeans
@@ -1049,23 +1035,8 @@ class SimMIMModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.999),
         )
-        cosine_with_warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(
-            optim, self.scale_lr
-        )
-        return [optim], [cosine_with_warmup_scheduler]
-
-    def scale_lr(self, epoch):
-        if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs
-        else:
-            return 0.5 * (
-                1.0
-                + math.cos(
-                    math.pi
-                    * (epoch - self.warmup_epochs)
-                    / (max_epochs - self.warmup_epochs)
-                )
-            )
+        scheduler = CosineWarmupScheduler(optim, self.warmup_epochs)
+        return [optim], [scheduler]
 
 
 class VICRegModel(BenchmarkModule):
@@ -1098,21 +1069,8 @@ class VICRegModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
+        scheduler = CosineWarmupScheduler(optim, self.warmup_epochs)
         return [optim], [scheduler]
-
-    def scale_lr(self, epoch):
-        if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs
-        else:
-            return 0.5 * (
-                1.0
-                + math.cos(
-                    math.pi
-                    * (epoch - self.warmup_epochs)
-                    / (max_epochs - self.warmup_epochs)
-                )
-            )
 
 
 class VICRegLModel(BenchmarkModule):
@@ -1129,7 +1087,7 @@ class VICRegLModel(BenchmarkModule):
         self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
         self.local_projection_head = heads.VicRegLLocalProjectionHead(512, 128, 128)
         self.average_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
-        self.criterion = lightly.loss.VICRegLLoss(alpha=0.75, num_matches=(16,4))
+        self.criterion = lightly.loss.VICRegLLoss(alpha=0.75, num_matches=(16, 4))
         self.backbone = nn.Sequential(self.train_backbone, self.average_pool)
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
 
@@ -1163,21 +1121,8 @@ class VICRegLModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
+        scheduler = CosineWarmupScheduler(optim, self.warmup_epochs)
         return [optim], [scheduler]
-
-    def scale_lr(self, epoch):
-        if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs
-        else:
-            return 0.5 * (
-                1.0
-                + math.cos(
-                    math.pi
-                    * (epoch - self.warmup_epochs)
-                    / (max_epochs - self.warmup_epochs)
-                )
-            )
 
 
 class TiCoModel(BenchmarkModule):
@@ -1229,21 +1174,8 @@ class TiCoModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
+        scheduler = CosineWarmupScheduler(optim, self.warmup_epochs)
         return [optim], [scheduler]
-
-    def scale_lr(self, epoch):
-        if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs
-        else:
-            return 0.5 * (
-                1.0
-                + math.cos(
-                    math.pi
-                    * (epoch - self.warmup_epochs)
-                    / (max_epochs - self.warmup_epochs)
-                )
-            )
 
 
 models = [
