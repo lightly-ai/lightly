@@ -3,9 +3,7 @@
 SwaV
 ====
 
-Example implementation of the SwaV architecture. This model takes advantage of contrastive methods without requiring to compute pairwise comparisons. 
-Specifically, this method simultaneously clusters the data while enforcing consistency between cluster assignments produced for different augmentations of the same image,
-instead of comparing features directly as in contrastive learning. It can be trained with large and small batches and can scale to virtually unlimited amounts of data.
+Example implementation of the SwaV architecture.
 
 Reference:
     `Unsupervised Learning of Visual Features by Contrasting Cluster Assignments, 2020 <https://arxiv.org/abs/2006.09882>`_
@@ -49,22 +47,3 @@ Reference:
         are only calculated based on the features on that specific GPU.
 
         .. literalinclude:: ../../../examples/pytorch_lightning_distributed/swav.py
-
-If you are planning to work with small batch sizes (less than 256), please use the SwaV implementation with queue:
-
-.. tabs::
-    .. tab:: PyTorch
-
-        This example can be run from the command line with::
-
-            python lightly/examples/pytorch/swav_queue.py
-
-        .. literalinclude:: ../../../examples/pytorch/swav_queue.py
-
-    .. tab:: Lightning
-
-        This example can be run from the command line with::
-
-            python lightly/examples/pytorch_lightning/swav_queue.py
-
-        .. literalinclude:: ../../../examples/pytorch_lightning/swav_queue.py
