@@ -47,3 +47,4 @@ Reference:
         are only calculated based on the features on that specific GPU.
 
         .. literalinclude:: ../../../examples/pytorch_lightning_distributed/swav.py
+
