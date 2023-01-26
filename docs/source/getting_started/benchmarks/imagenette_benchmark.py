@@ -30,7 +30,7 @@ Results (5.3.2022):
 | SwaV             |        256 |    200 |              0.748 |   77.6 Min |      4.0 GByte |
 | TiCo             |        256 |    200 |              0.531 |   78.2 Min |      4.3 GByte |
 | VICReg           |        256 |    200 |              0.679 |   79.1 Min |      5.7 GByte |
-| VICRegL          |        256 |    200 |              0.688 |  103.9 Min |      8.6 GByte |
+| VICRegL          |        256 |    200 |              0.703 |   79.5 Min |      4.4 GByte |
 ---------------------------------------------------------------------------------------------
 | BarlowTwins      |        256 |    800 |              0.789 |  330.9 Min |      4.0 GByte |
 | BYOL             |        256 |    800 |              0.851 |  332.7 Min |      4.3 GByte |
@@ -46,7 +46,7 @@ Results (5.3.2022):
 | SwaV             |        256 |    800 |              0.899 |  554.7 Min |      6.6 GByte |
 | TiCo             |        256 |    800 |              0.672 |  321.1 Min |      4.0 GByte |
 | VICReg           |        256 |    800 |              0.783 |  316.0 Min |      5.7 GByte |
-| VICRegL          |        256 |    800 |              0.800 |  414.8 Min |      8.6 GByte |
+| VICRegL          |        256 |    800 |              0.817 |  302.0 Min |      4.4 GByte |
 ---------------------------------------------------------------------------------------------
 
 (*): Different runtime and memory requirements due to different hardware settings
@@ -154,7 +154,12 @@ mae_collate_fn = lightly.data.MAECollateFunction()
 msn_collate_fn = lightly.data.MSNCollateFunction(random_size=128, focal_size=64)
 
 # Collate function passing geometrical transformation for VICRegL
-vicregl_collate_fn = lightly.data.VICRegLCollateFunction()
+vicregl_collate_fn = lightly.data.VICRegLCollateFunction(
+    global_crop_size=128,
+    local_crop_size=64,
+    global_grid_size=4,
+    local_grid_size=2
+)
 
 normalize_transform = torchvision.transforms.Normalize(
     mean=lightly.data.collate.imagenet_normalize["mean"],
@@ -1124,7 +1129,7 @@ class VICRegLModel(BenchmarkModule):
         self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
         self.local_projection_head = heads.VicRegLLocalProjectionHead(512, 128, 128)
         self.average_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
-        self.criterion = lightly.loss.VICRegLLoss(alpha=0.75)
+        self.criterion = lightly.loss.VICRegLLoss(alpha=0.75, num_matches=(16,4))
         self.backbone = nn.Sequential(self.train_backbone, self.average_pool)
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
 

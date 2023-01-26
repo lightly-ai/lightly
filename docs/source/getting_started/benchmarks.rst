@@ -56,7 +56,7 @@ The current benchmark contains the following models:
    "SwaV", 800, 256, 0.899, "554.7 Min", "6.6 GByte"
    "TiCo", 800, 256, 0.672, "321.1 Min", "4.0 GByte"
    "VICReg", 800, 256, 0.783, "316.7 Min", "5.7 GByte"
-   "VICRegL", 800, 256, 0.800, "414.8 Min", "8.6 GByte"
+   "VICRegL", 800, 256, 0.817, "302.0 Min", "4.4 GByte"
 
 (*): Different runtime and memory requirements due to different hardware settings
 and pytorch version. Runtime and memory requirements are comparable to SimCLR
