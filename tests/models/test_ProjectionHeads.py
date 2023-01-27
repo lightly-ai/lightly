@@ -92,6 +92,22 @@ class TestProjectionHeads(unittest.TestCase):
                             y = prototypes(x)
                         self.assertEqual(y.shape[0], batch_size)
                         self.assertEqual(y.shape[1], n_prototypes)
+
+    def test_swav_frozen_prototypes(self, device: str = 'cpu', seed=0):
+        for in_features, _, n_prototypes in self.n_features:
+            torch.manual_seed(seed)
+            prototypes = SwaVPrototypes(in_features, n_prototypes, 3)
+            prototypes = prototypes.eval()
+            prototypes = prototypes.to(device)
+            for batch_size in [1, 2]:
+                msg = 'prototypes d_in, n_prototypes = ' +\
+                    f'{in_features} x {n_prototypes}'
+                with self.subTest(msg=msg):
+                        x = torch.torch.rand((batch_size, in_features)).to(device)
+                        with torch.no_grad():
+                            y = prototypes(x, 1)
+                        self.assertEqual(y.shape[0], batch_size)
+                        self.assertEqual(y.shape[1], n_prototypes)
     
     def test_swav_mutli_prototypes(self, device: str = "cpu", seed=0):
         for in_features, _, n_prototypes in self.swavProtoypes:
