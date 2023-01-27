@@ -1036,6 +1036,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
     n_embedding_rows_on_server = N_FILES_ON_SERVER
 
     def __init__(self, *args, **kwargs):
+        lightly.api.version_checking.VersioningApi = MockedVersioningApi
 
         ApiWorkflowClient.__init__(self, *args, **kwargs)
 
