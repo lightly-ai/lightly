@@ -33,13 +33,8 @@ class SwaV(pl.LightningModule):
         self.prototypes = SwaVPrototypes(
             out_dim, n_prototypes, n_steps_frozen_prototypes
         )
-        self.queues = None
-        if n_queues > 0:
-            self.queues = [MemoryBankModule(size=queue_length) for _ in range(n_queues)]
-            self.queues = nn.ModuleList(self.queues)
-            self.queue_length = queue_length
-            self.num_features_queued = 0
-            self.start_queue_at_epoch = start_queue_at_epoch
+        self.start_queue_at_epoch = 15
+        self.queues = nn.ModuleList([MemoryBankModule(size=3840) for _ in range(2)])
         self.criterion = SwaVLoss()
         self.step = 0
 
