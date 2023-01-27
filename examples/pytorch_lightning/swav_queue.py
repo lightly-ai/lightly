@@ -55,11 +55,6 @@ class SwaV(pl.LightningModule):
             features = torch.permute(features, (1, 0))
             queue_features.append(features)
 
-        # Do not return queue prototypes if not enough features have been queued
-        self.num_features_queued += high_resolution_features[0].shape[0]
-        if self.num_features_queued < self.queue_length:
-            return None
-
         # If loss calculation with queue prototypes starts at a later epoch,
         # just queue the features and return None instead of queue prototypes.
         if self.start_queue_at_epoch > 0:
