@@ -1037,7 +1037,6 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
 
     def __init__(self, *args, **kwargs):
         lightly.api.version_checking.VersioningApi = MockedVersioningApi
-
         ApiWorkflowClient.__init__(self, *args, **kwargs)
 
         self._selection_api = MockedSamplingsApi(api_client=self.api_client)
