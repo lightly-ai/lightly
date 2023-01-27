@@ -987,13 +987,6 @@ class MockedComputeWorkerApi(DockerApi):
     def update_scheduled_docker_run_state_by_id(self, body, dataset_id, worker_id, scheduled_id, **kwargs):
         raise NotImplementedError()
 
-class MockedVersioningApi(VersioningApi):
-    def get_latest_pip_version(self, **kwargs):
-        return "1.2.8"
-
-    def get_minimum_compatible_pip_version(self, **kwargs):
-        return "1.2.1"
-
 
 class MockedQuotaApi(QuotaApi):
     def get_quota_maximum_dataset_size(self, **kwargs):
@@ -1008,45 +1001,6 @@ def mocked_request_put(dst_url: str, data=IOBase) -> Response:
     response_ = Response()
     response_.status_code = 200
     return response_
-
-
-class MockedApiClient(ApiClient):
-    def request(
-        self,
-        method,
-        url,
-        query_params=None,
-        headers=None,
-        post_params=None,
-        body=None,
-        _preload_content=True,
-        _request_timeout=None,
-    ):
-        raise ValueError(
-            "ERROR: calling ApiClient.request(), but this should be mocked."
-        )
-
-    def call_api(
-        self,
-        resource_path,
-        method,
-        path_params=None,
-        query_params=None,
-        header_params=None,
-        body=None,
-        post_params=None,
-        files=None,
-        response_type=None,
-        auth_settings=None,
-        async_req=None,
-        _return_http_data_only=None,
-        collection_formats=None,
-        _preload_content=True,
-        _request_timeout=None,
-    ):
-        raise ValueError(
-            "ERROR: calling ApiClient.call_api(), but this should be mocked."
-        )
 
 
 class MockedAPICollaboration(CollaborationApi):
@@ -1075,8 +1029,7 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
     n_embedding_rows_on_server = N_FILES_ON_SERVER
 
     def __init__(self, *args, **kwargs):
-        lightly.api.api_workflow_client.ApiClient = MockedApiClient
-        lightly.api.version_checking.VersioningApi = MockedVersioningApi
+
         ApiWorkflowClient.__init__(self, *args, **kwargs)
 
         self._selection_api = MockedSamplingsApi(api_client=self.api_client)

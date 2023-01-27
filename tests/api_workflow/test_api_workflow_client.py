@@ -8,8 +8,7 @@ import os
 
 from pytest_mock import MockerFixture
 
-from lightly.api import ApiWorkflowClient
-from lightly.api.api_workflow_client import LIGHTLY_S3_SSE_KMS_KEY
+from lightly.api.api_workflow_client import ApiWorkflowClient, LIGHTLY_S3_SSE_KMS_KEY
 from lightly.__init__ import __version__
 
 class TestApiWorkflowClient(unittest.TestCase):
@@ -85,7 +84,7 @@ class TestApiWorkflowClient(unittest.TestCase):
                     signed_write_url='',
                 )
 
-def test_user_agent(mocker: MockerFixture) -> None:
+def test_user_agent_header(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient(token="")
     patched_request = mocker.patch.object(client._mappings_api.api_client, "request")
 
