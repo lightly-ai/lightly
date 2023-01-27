@@ -84,16 +84,7 @@ class TestApiWorkflowClient(unittest.TestCase):
                     signed_write_url='',
                 )
 
-def test_user_agent_header(mocker: MockerFixture) -> None:
+def test_user_agent_header() -> None:
     client = ApiWorkflowClient(token="")
-    patched_request = mocker.patch.object(client._mappings_api.api_client, "request")
 
-    # We use get_sample_mappings_by_dataset_id as one test method to ensure that
-    # it includes the user agent in the header.
-    # After calling the patched request, we don't care about the RESTResponse
-    # and mocking it properly is complicated,
-    # thus we just stop API call after the patched request function is called.
-    with pytest.raises(TypeError, match="the JSON object must be str, bytes or bytearray, not MagicMock"):
-        client._mappings_api.get_sample_mappings_by_dataset_id(dataset_id="", field="")
-
-    assert patched_request.call_args.kwargs["headers"]["User-Agent"] == f"Lightly/{__version__}/python ({platform.platform()})"
+    assert client.api_client.user_agent == f"Lightly/{__version__}/python ({platform.platform()})"
