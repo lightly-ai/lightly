@@ -987,6 +987,13 @@ class MockedComputeWorkerApi(DockerApi):
     def update_scheduled_docker_run_state_by_id(self, body, dataset_id, worker_id, scheduled_id, **kwargs):
         raise NotImplementedError()
 
+class MockedVersioningApi(VersioningApi):
+    def get_latest_pip_version(self, **kwargs):
+        return "1.2.8"
+
+    def get_minimum_compatible_pip_version(self, **kwargs):
+        return "1.2.1"
+
 
 class MockedQuotaApi(QuotaApi):
     def get_quota_maximum_dataset_size(self, **kwargs):
