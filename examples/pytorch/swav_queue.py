@@ -76,9 +76,7 @@ class SwaV(nn.Module):
 
 resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(*list(resnet.children())[:-1])
-model = SwaV(backbone, num_ftrs=512, out_dim=128, n_prototypes=512,
-             n_queues=2, queue_length=512, start_queue_at_epoch=5,
-             n_steps_frozen_prototypes=10)
+model = SwaV(backbone)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
