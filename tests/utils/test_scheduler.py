@@ -6,7 +6,7 @@ from lightly.utils import cosine_schedule
 from lightly.utils import CosineWarmupScheduler
 
 
-class TestModelUtils(unittest.TestCase):
+class TestScheduler(unittest.TestCase):
     def test_cosine_schedule(self):
         momentum_0 = cosine_schedule(1, 10, 0.99, 1)
         momentum_hand_computed_0 = 0.99030154
