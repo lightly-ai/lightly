@@ -13,7 +13,7 @@ from lightly.data import LightlyDataset
 from lightly.data import DINOCollateFunction
 from lightly.loss import DINOLoss
 from lightly.models.modules import DINOProjectionHead
-from lightly.models.utils import cosine_schedule
+from lightly.utils.scheduler import cosine_schedule
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
 

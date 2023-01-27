@@ -22,3 +22,5 @@ from lightly.utils.debug import std_of_l2_normalized
 from lightly.utils.debug import generate_grid_of_augmented_images
 from lightly.utils.debug import plot_augmented_images
 from lightly.utils.version_compare import version_compare
+from lightly.utils.scheduler import cosine_schedule
+from lightly.utils.scheduler import CosineWarmupScheduler
