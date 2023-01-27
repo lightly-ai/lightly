@@ -13,21 +13,14 @@ from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
 
 
 class SwaV(nn.Module):
-    def __init__(self, backbone, num_ftrs, out_dim,
-                 n_prototypes, n_queues, queue_length=0,
-                 start_queue_at_epoch=0, n_steps_frozen_prototypes=0):
+    def __init__(self, backbone):
         super().__init__()
         self.backbone = backbone
-        self.projection_head = SwaVProjectionHead(num_ftrs, num_ftrs, out_dim)
-        self.prototypes = SwaVPrototypes(out_dim, n_prototypes, n_steps_frozen_prototypes)
+        self.projection_head = SwaVProjectionHead(512, 512, 128)
+        self.prototypes = SwaVPrototypes(128, 512, 10)
 
-        self.queues = None
-        if n_queues > 0:
-            self.queues = [MemoryBankModule(size=queue_length) for _ in range(n_queues)]
-            self.queues = nn.ModuleList(self.queues)
-            self.queue_length = queue_length
-            self.num_features_queued = 0
-            self.start_queue_at_epoch = start_queue_at_epoch
+        self.start_queue_at_epoch = 15
+        self.queues = nn.ModuleList([MemoryBankModule(size=3840) for _ in range(2)])
 
     def forward(self, high_resolution, low_resolution, epoch=None, step=None):
         self.prototypes.normalize()
