@@ -5,6 +5,7 @@
 
 import numpy as np
 from PIL import ImageFilter
+from typing import Tuple
 
 
 class GaussianBlur(object):
@@ -21,19 +22,16 @@ class GaussianBlur(object):
         prob:
             Probability with which the blur is applied.
         scale:
-            Fraction of the kernel size which is used for upper and lower
-            limits of the randomized kernel size.
+            Old unused parameters kept for compatibility
+        sigmas:
+            Tuple of min and max value from which the std of the gaussian kernel is sampled
 
     """
 
     def __init__(self, kernel_size: float, prob: float = 0.5,
-                 scale: float = 0.2):
+                 scale: float = 0.2, sigmas: Tuple[float, float] = (.2, 2)):
         self.prob = prob
-        self.scale = scale
-        # limits for random kernel sizes
-        self.min_size = (1 - scale) * kernel_size
-        self.max_size = (1 + scale) * kernel_size
-        self.kernel_size = kernel_size
+        self.sigmas = sigmas
 
     def __call__(self, sample):
         """Blurs the image with a given probability.
@@ -48,14 +46,8 @@ class GaussianBlur(object):
         """
         prob = np.random.random_sample()
         if prob < self.prob:
-            # choose randomized kernel size
-            kernel_size = np.random.normal(
-                self.kernel_size, self.scale * self.kernel_size
-            )
-            kernel_size = max(self.min_size, kernel_size)
-            kernel_size = min(self.max_size, kernel_size)
-            radius = int(kernel_size / 2)
-            # return blurred image
-            return sample.filter(ImageFilter.GaussianBlur(radius=radius))
+            # choose randomized std for Gaussian filtering
+            sigma = np.random.uniform(self.sigmas[0], self.sigmas[1])
+            return sample.filter(ImageFilter.GaussianBlur(radius=sigma))
         # return original image
         return sample
