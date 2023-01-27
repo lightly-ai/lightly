@@ -1,5 +1,5 @@
 import torch
-import numpy as np 
+import numpy as np
 
 
 def cosine_schedule(
@@ -61,12 +61,24 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
             If True, prints a message to stdout for each update. Default: False.
     """
 
-    def __init__(self, optimizer, warmup_epochs, max_epochs, last_epoch=-1, verbose=False):
+    def __init__(
+        self,
+        optimizer: torch.optim.Optimizer,
+        warmup_epochs: int,
+        max_epochs: int,
+        last_epoch: int = -1,
+        verbose: bool = False,
+    ) -> None:
         self.warmup_epochs = warmup_epochs
         self.max_epochs = max_epochs
-        super().__init__(optimizer=optimizer, lr_lambda=self.scale_lr, last_epoch=last_epoch, verbose=verbose)
+        super().__init__(
+            optimizer=optimizer,
+            lr_lambda=self.scale_lr,
+            last_epoch=last_epoch,
+            verbose=verbose,
+        )
 
-    def scale_lr(self, epoch):
+    def scale_lr(self, epoch: int) -> float:
         """
         Scale learning rate according to the current epoch number.
 
@@ -81,4 +93,6 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
         if epoch < self.warmup_epochs:
             return epoch / self.warmup_epochs
         else:
-            return cosine_schedule(epoch - self.warmup_epochs, self.max_epochs - self.warmup_epochs, 0, 1)
+            return cosine_schedule(
+                epoch - self.warmup_epochs, self.max_epochs - self.warmup_epochs, 0, 1
+            )
