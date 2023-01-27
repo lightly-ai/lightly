@@ -70,6 +70,7 @@ from lightly.models.modules import heads
 from lightly.models.modules import masked_autoencoder
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
+from lightly.utils import scheduler
 from pytorch_lightning.loggers import TensorBoardLogger
 from pl_bolts.optimizers.lars import LARS
 
@@ -155,10 +156,7 @@ msn_collate_fn = lightly.data.MSNCollateFunction(random_size=128, focal_size=64)
 
 # Collate function passing geometrical transformation for VICRegL
 vicregl_collate_fn = lightly.data.VICRegLCollateFunction(
-    global_crop_size=128,
-    local_crop_size=64,
-    global_grid_size=4,
-    local_grid_size=2
+    global_crop_size=128, local_crop_size=64, global_grid_size=4, local_grid_size=2
 )
 
 normalize_transform = torchvision.transforms.Normalize(
@@ -236,7 +234,6 @@ def get_data_loaders(batch_size: int, model):
 
     return dataloader_train_ssl, dataloader_train_kNN, dataloader_test
 
-
 class MocoModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
@@ -302,8 +299,8 @@ class MocoModel(BenchmarkModule):
             momentum=0.9,
             weight_decay=5e-4,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class SimCLRModel(BenchmarkModule):
@@ -335,8 +332,8 @@ class SimCLRModel(BenchmarkModule):
         optim = torch.optim.SGD(
             self.parameters(), lr=6e-2 * lr_factor, momentum=0.9, weight_decay=5e-4
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class SimSiamModel(BenchmarkModule):
@@ -374,8 +371,8 @@ class SimSiamModel(BenchmarkModule):
             momentum=0.9,
             weight_decay=5e-4,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class BarlowTwinsModel(BenchmarkModule):
@@ -411,8 +408,8 @@ class BarlowTwinsModel(BenchmarkModule):
         optim = torch.optim.SGD(
             self.parameters(), lr=6e-2 * lr_factor, momentum=0.9, weight_decay=5e-4
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class BYOLModel(BenchmarkModule):
@@ -475,8 +472,8 @@ class BYOLModel(BenchmarkModule):
             momentum=0.9,
             weight_decay=5e-4,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class NNCLRModel(BenchmarkModule):
@@ -517,8 +514,8 @@ class NNCLRModel(BenchmarkModule):
             momentum=0.9,
             weight_decay=5e-4,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class SwaVModel(BenchmarkModule):
@@ -571,8 +568,8 @@ class SwaVModel(BenchmarkModule):
             lr=1e-3 * lr_factor,
             weight_decay=1e-6,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class DINOModel(BenchmarkModule):
@@ -627,8 +624,8 @@ class DINOModel(BenchmarkModule):
             momentum=0.9,
             weight_decay=5e-4,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class DCL(BenchmarkModule):
@@ -660,8 +657,8 @@ class DCL(BenchmarkModule):
         optim = torch.optim.SGD(
             self.parameters(), lr=6e-2 * lr_factor, momentum=0.9, weight_decay=5e-4
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class DCLW(BenchmarkModule):
@@ -693,8 +690,8 @@ class DCLW(BenchmarkModule):
         optim = torch.optim.SGD(
             self.parameters(), lr=6e-2 * lr_factor, momentum=0.9, weight_decay=5e-4
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class MAEModel(BenchmarkModule):
@@ -771,23 +768,8 @@ class MAEModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.95),
         )
-        cosine_with_warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(
-            optim, self.scale_lr
-        )
-        return [optim], [cosine_with_warmup_scheduler]
-
-    def scale_lr(self, epoch):
-        if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs
-        else:
-            return 0.5 * (
-                1.0
-                + math.cos(
-                    math.pi
-                    * (epoch - self.warmup_epochs)
-                    / (max_epochs - self.warmup_epochs)
-                )
-            )
+        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class MSNModel(BenchmarkModule):
@@ -859,23 +841,8 @@ class MSNModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.95),
         )
-        cosine_with_warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(
-            optim, self.scale_lr
-        )
-        return [optim], [cosine_with_warmup_scheduler]
-
-    def scale_lr(self, epoch):
-        if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs
-        else:
-            return 0.5 * (
-                1.0
-                + math.cos(
-                    math.pi
-                    * (epoch - self.warmup_epochs)
-                    / (max_epochs - self.warmup_epochs)
-                )
-            )
+        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 from sklearn.cluster import KMeans
@@ -982,8 +949,8 @@ class SMoGModel(BenchmarkModule):
             momentum=0.9,
             weight_decay=1e-6,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class SimMIMModel(BenchmarkModule):
@@ -1049,23 +1016,8 @@ class SimMIMModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.999),
         )
-        cosine_with_warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(
-            optim, self.scale_lr
-        )
-        return [optim], [cosine_with_warmup_scheduler]
-
-    def scale_lr(self, epoch):
-        if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs
-        else:
-            return 0.5 * (
-                1.0
-                + math.cos(
-                    math.pi
-                    * (epoch - self.warmup_epochs)
-                    / (max_epochs - self.warmup_epochs)
-                )
-            )
+        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class VICRegModel(BenchmarkModule):
@@ -1098,21 +1050,8 @@ class VICRegModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
-        return [optim], [scheduler]
-
-    def scale_lr(self, epoch):
-        if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs
-        else:
-            return 0.5 * (
-                1.0
-                + math.cos(
-                    math.pi
-                    * (epoch - self.warmup_epochs)
-                    / (max_epochs - self.warmup_epochs)
-                )
-            )
+        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class VICRegLModel(BenchmarkModule):
@@ -1129,7 +1068,7 @@ class VICRegLModel(BenchmarkModule):
         self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
         self.local_projection_head = heads.VicRegLLocalProjectionHead(512, 128, 128)
         self.average_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
-        self.criterion = lightly.loss.VICRegLLoss(alpha=0.75, num_matches=(16,4))
+        self.criterion = lightly.loss.VICRegLLoss(alpha=0.75, num_matches=(16, 4))
         self.backbone = nn.Sequential(self.train_backbone, self.average_pool)
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
 
@@ -1163,21 +1102,8 @@ class VICRegLModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
-        return [optim], [scheduler]
-
-    def scale_lr(self, epoch):
-        if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs
-        else:
-            return 0.5 * (
-                1.0
-                + math.cos(
-                    math.pi
-                    * (epoch - self.warmup_epochs)
-                    / (max_epochs - self.warmup_epochs)
-                )
-            )
+        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class TiCoModel(BenchmarkModule):
@@ -1210,7 +1136,7 @@ class TiCoModel(BenchmarkModule):
 
     def training_step(self, batch, batch_index):
         (x0, x1), _, _ = batch
-        momentum = utils.cosine_schedule(self.current_epoch, 10, 0.996, 1)
+        momentum = scheduler.cosine_schedule(self.current_epoch, 10, 0.996, 1)
         utils.update_momentum(self.backbone, self.backbone_momentum, m=momentum)
         utils.update_momentum(
             self.projection_head, self.projection_head_momentum, m=momentum
@@ -1229,21 +1155,8 @@ class TiCoModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
-        return [optim], [scheduler]
-
-    def scale_lr(self, epoch):
-        if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs
-        else:
-            return 0.5 * (
-                1.0
-                + math.cos(
-                    math.pi
-                    * (epoch - self.warmup_epochs)
-                    / (max_epochs - self.warmup_epochs)
-                )
-            )
+        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 models = [

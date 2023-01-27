@@ -11,7 +11,7 @@ from lightly.data import LightlyDataset
 from lightly.data import SimCLRCollateFunction
 from lightly.loss import NegativeCosineSimilarity
 from lightly.models.modules import BYOLProjectionHead, BYOLPredictionHead
-from lightly.models.utils import cosine_schedule
+from lightly.utils.scheduler import cosine_schedule
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
 
