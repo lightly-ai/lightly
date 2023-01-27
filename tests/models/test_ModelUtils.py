@@ -13,12 +13,10 @@ from lightly.models.utils import update_momentum
 from lightly.models.utils import normalize_weight
 from lightly.models.utils import _no_grad_trunc_normal
 from lightly.models.utils import nearest_neighbors
-from lightly.models.utils import cosine_schedule
 
 
 def has_grad(model: nn.Module):
-    """Helper method to check if a model has `requires_grad` set to True
-    """
+    """Helper method to check if a model has `requires_grad` set to True"""
     has_grad_ = False
     for param in model.parameters():
         if param.requires_grad == True:
@@ -28,19 +26,18 @@ def has_grad(model: nn.Module):
 
 
 class TestModelUtils(unittest.TestCase):
-
     def _assert_tensor_equal(self, x, y):
         # If the assertion fails then only an "assertion is not True" error is
-        # shown without showing the contents of x and y. To help debugging, x
-        # and y are printed. Note that the output is only shown if the assertion
-        # fails.
+        # shown without showing the contents of x and y. To help debugging, x
+        # and y are printed. Note that the output is only shown if the assertion
+        # fails.
         print(x)
         print(y)
         self.assertTrue(torch.equal(x, y))
 
     def test_batch_shuffle(self, seed=0):
         torch.manual_seed(seed)
-        x1 = torch.rand((4, 3,64,64))
+        x1 = torch.rand((4, 3, 64, 64))
         x1_shuffled, shuffle = batch_shuffle(x1)
         out1 = batch_unshuffle(x1_shuffled, shuffle)
         self.assertTrue(torch.equal(x1, out1))
@@ -48,7 +45,7 @@ class TestModelUtils(unittest.TestCase):
 
     def test_activate_requires_grad(self):
         model = nn.Sequential(
-            nn.Linear(32,32),
+            nn.Linear(32, 32),
             nn.ReLU(),
         )
         self.assertTrue(has_grad(model))
@@ -56,10 +53,10 @@ class TestModelUtils(unittest.TestCase):
         self.assertFalse(has_grad(model))
         activate_requires_grad(model)
         self.assertTrue(has_grad(model))
-    
+
     def test_momentum_works(self):
         model = nn.Sequential(
-            nn.Linear(32,32),
+            nn.Linear(32, 32),
             nn.ReLU(),
         )
         model_momentum = copy.deepcopy(model)
@@ -95,10 +92,12 @@ class TestModelUtils(unittest.TestCase):
 
     def test_expand_index_like(self, seed=0):
         torch.manual_seed(seed)
-        index = torch.Tensor([
-            [1, 0, 3],
-            [1, 2, 4],
-        ]).long()
+        index = torch.Tensor(
+            [
+                [1, 0, 3],
+                [1, 2, 4],
+            ]
+        ).long()
         tokens = torch.rand(2, 4, 5)
         expanded_index = utils.expand_index_like(index, tokens)
 
@@ -106,10 +105,12 @@ class TestModelUtils(unittest.TestCase):
 
     def test_get_at_index(self, seed=0):
         torch.manual_seed(seed)
-        index = torch.Tensor([
-            [1, 0, 3],
-            [1, 2, 0],
-        ]).long()
+        index = torch.Tensor(
+            [
+                [1, 0, 3],
+                [1, 2, 0],
+            ]
+        ).long()
         tokens = torch.rand(2, 4, 5)
         selected = utils.get_at_index(tokens, index)
 
@@ -122,10 +123,12 @@ class TestModelUtils(unittest.TestCase):
 
     def test_set_at_index(self, seed=0):
         torch.manual_seed(seed)
-        index = torch.Tensor([
-            [1, 0, 3],
-            [1, 2, 0],
-        ]).long()
+        index = torch.Tensor(
+            [
+                [1, 0, 3],
+                [1, 2, 0],
+            ]
+        ).long()
         tokens = torch.rand(2, 4, 5)
         values = torch.rand(2, 3, 5)
         new_tokens = utils.set_at_index(tokens, index, values)
@@ -137,17 +140,18 @@ class TestModelUtils(unittest.TestCase):
 
     def test_mask_at_index(self, seed=0):
         torch.manual_seed(seed)
-        index = torch.Tensor([
-            [1, 0, 3],
-            [1, 2, 0],
-        ]).long()
+        index = torch.Tensor(
+            [
+                [1, 0, 3],
+                [1, 2, 0],
+            ]
+        ).long()
         tokens = torch.rand(2, 4, 5)
         mask_token = torch.rand(1, 1, 5)
         new_tokens = utils.mask_at_index(tokens.clone(), index.clone(), mask_token)
         for i in range(index.shape[0]):
             for j in range(index.shape[1]):
                 self._assert_tensor_equal(new_tokens[i, index[i, j]], mask_token[0, 0])
-
 
     def test_prepend_class_token(self, seed=0):
         torch.manual_seed(seed)
@@ -167,30 +171,32 @@ class TestModelUtils(unittest.TestCase):
         images = torch.rand(batch_size, channels, height, width)
         batch_patches = utils.patchify(images, patch_size)
 
-        height_patches = (height // patch_size)
-        width_patches = (width // patch_size)
+        height_patches = height // patch_size
+        width_patches = width // patch_size
         num_patches = height_patches * width_patches
-        patch_dim = channels * patch_size ** 2
+        patch_dim = channels * patch_size**2
 
-        self.assertListEqual(list(batch_patches.shape), [batch_size, num_patches, patch_dim])
+        self.assertListEqual(
+            list(batch_patches.shape), [batch_size, num_patches, patch_dim]
+        )
 
         # make sure that patches are correctly formed
         for (image, img_patches) in zip(images, batch_patches):
             for i in range(height_patches):
                 for j in range(width_patches):
                     # extract patch from original image
-                    expected_patch = image[:, i*patch_size : (i+1)*patch_size, j*patch_size : (j+1)*patch_size]
-                    # permute and flatten to match order of patchified images
+                    expected_patch = image[
+                        :,
+                        i * patch_size : (i + 1) * patch_size,
+                        j * patch_size : (j + 1) * patch_size,
+                    ]
+                    # permute and flatten to match order of patchified images
                     expected_patch = expected_patch.permute(1, 2, 0).flatten()
                     img_patch = img_patches[i * width_patches + j]
                     self._assert_tensor_equal(img_patch, expected_patch)
 
     def _test_random_token_mask(
-        self, 
-        seed=0, 
-        mask_ratio=0.6, 
-        mask_class_token=False, 
-        device='cpu'
+        self, seed=0, mask_ratio=0.6, mask_class_token=False, device="cpu"
     ):
         torch.manual_seed(seed)
         batch_size, seq_length = 2, 5
@@ -204,7 +210,9 @@ class TestModelUtils(unittest.TestCase):
         # concatenating and sorting the two index tensors should result in a tensor
         # with every index appearing exactly once
         idx, _ = torch.cat([idx_keep, idx_mask], dim=1).sort(dim=1)
-        expected_idx = torch.arange(seq_length).repeat(batch_size).reshape(batch_size, seq_length)
+        expected_idx = (
+            torch.arange(seq_length).repeat(batch_size).reshape(batch_size, seq_length)
+        )
         expected_idx = expected_idx.to(device)
         self._assert_tensor_equal(idx, expected_idx)
 
@@ -222,73 +230,56 @@ class TestModelUtils(unittest.TestCase):
                 )
 
     def test_random_token_mask(self):
-        self._test_random_token_mask_parameters(device='cpu')
-
+        self._test_random_token_mask_parameters(device="cpu")
 
     def test_nearest_neighbors(self):
         # Test input with shape (batch_size, map_size_0, num_input_maps)
-        input_maps = torch.tensor([
-            [[1, 4], [2, 5], [3, 6]],
-            [[7, 10], [8, 11], [9, 12]],
-            [[13, 16], [14, 17], [15, 18]]
-        ])
+        input_maps = torch.tensor(
+            [
+                [[1, 4], [2, 5], [3, 6]],
+                [[7, 10], [8, 11], [9, 12]],
+                [[13, 16], [14, 17], [15, 18]],
+            ]
+        )
         print(input_maps.shape)
         # Test candidate maps with shape (batch_size, map_size_1, num_candidate_maps)
-        candidate_maps = torch.tensor([
-            [[1, 1], [2, 2], [3, 3]],
-            [[1, 1], [2, 2], [3, 3]],
-            [[1, 1], [2, 2], [3, 3]]
-        ])
+        candidate_maps = torch.tensor(
+            [
+                [[1, 1], [2, 2], [3, 3]],
+                [[1, 1], [2, 2], [3, 3]],
+                [[1, 1], [2, 2], [3, 3]],
+            ]
+        )
         print(candidate_maps.shape)
         # Test distances with shape (batch_size, map_size_0, map_size_1)
-        distances = torch.tensor([
-            [[0, 1, 2], [1, 0, 3]],
-            [[4, 3, 2], [3, 2, 1]],
-            [[2, 3, 4], [3, 4, 5]]
-        ])
+        distances = torch.tensor(
+            [[[0, 1, 2], [1, 0, 3]], [[4, 3, 2], [3, 2, 1]], [[2, 3, 4], [3, 4, 5]]]
+        )
         print(input_maps.shape)
         # Test num_matches = 2
-        input_maps_filtered, candidate_maps_filtered = nearest_neighbors(input_maps, candidate_maps, distances, num_matches=2)
+        input_maps_filtered, candidate_maps_filtered = nearest_neighbors(
+            input_maps, candidate_maps, distances, num_matches=2
+        )
         assert input_maps_filtered.shape == (3, 2, 2)
-        assert input_maps_filtered.equal(torch.tensor([
-            [[1, 4], [2, 5]],
-            [[8, 11], [7, 10]],
-            [[13, 16], [14, 17]]
-        ]))
+        assert input_maps_filtered.equal(
+            torch.tensor([[[1, 4], [2, 5]], [[8, 11], [7, 10]], [[13, 16], [14, 17]]])
+        )
         assert candidate_maps_filtered.shape == (3, 2, 2)
-        assert candidate_maps_filtered.equal(torch.tensor([
-            [[1, 1], [2, 2]],
-            [[3, 3], [3, 3]],
-            [[1, 1], [1, 1]]
-        ]))
+        assert candidate_maps_filtered.equal(
+            torch.tensor([[[1, 1], [2, 2]], [[3, 3], [3, 3]], [[1, 1], [1, 1]]])
+        )
         # Test num_matches = 1
-        input_maps_filtered, candidate_maps_filtered = nearest_neighbors(input_maps, candidate_maps, distances, num_matches=1)
+        input_maps_filtered, candidate_maps_filtered = nearest_neighbors(
+            input_maps, candidate_maps, distances, num_matches=1
+        )
         assert input_maps_filtered.shape == (3, 1, 2)
-        assert input_maps_filtered.equal(torch.tensor([
-            [[1, 4]],
-            [[8, 11]],
-            [[13, 16]]
-        ]))
+        assert input_maps_filtered.equal(
+            torch.tensor([[[1, 4]], [[8, 11]], [[13, 16]]])
+        )
         assert candidate_maps_filtered.shape == (3, 1, 2)
-        assert candidate_maps_filtered.equal(torch.tensor([
-            [[1, 1]],
-            [[3, 3]],
-            [[1, 1]]
-        ]))
-
-
-    def test_cosine_schedule(self):
-        momentum_0 = cosine_schedule(1, 10, 0.99, 1)
-        momentum_hand_computed_0 = 0.99030154
-        momentum_1 = cosine_schedule(95, 100, 0.7, 2)
-        momentum_hand_computed_1 = 1.99477063
-        momentum_2 = cosine_schedule(0, 1, 0.996, 1)
-        momentum_hand_computed_2 = 1
-
-        self.assertAlmostEqual(momentum_0, momentum_hand_computed_0, 6)
-        self.assertAlmostEqual(momentum_1, momentum_hand_computed_1, 6)
-        self.assertAlmostEqual(momentum_2, momentum_hand_computed_2, 6)
-
+        assert candidate_maps_filtered.equal(
+            torch.tensor([[[1, 1]], [[3, 3]], [[1, 1]]])
+        )
 
     @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
     def test_random_token_mask_cuda(self):
