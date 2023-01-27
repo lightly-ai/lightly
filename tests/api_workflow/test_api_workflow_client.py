@@ -1,11 +1,16 @@
+import platform
 import unittest
 from unittest import mock
 
+import pytest
 import requests
 import os
 
+from pytest_mock import MockerFixture
+
 from lightly.api import ApiWorkflowClient
 from lightly.api.api_workflow_client import LIGHTLY_S3_SSE_KMS_KEY
+from lightly.__init__ import __version__
 
 class TestApiWorkflowClient(unittest.TestCase):
 
@@ -79,3 +84,17 @@ class TestApiWorkflowClient(unittest.TestCase):
                     file=mock.Mock(),
                     signed_write_url='',
                 )
+
+def test_user_agent(mocker: MockerFixture) -> None:
+    client = ApiWorkflowClient(token="")
+    patched_request = mocker.patch.object(client._mappings_api.api_client, "request")
+
+    # We use get_sample_mappings_by_dataset_id as one test method to ensure that
+    # it includes the user agent in the header.
+    # After calling the patched request, we don't care about the RESTResponse
+    # and mocking it properly is complicated,
+    # thus we just stop API call after the patched request function is called.
+    with pytest.raises(TypeError, match="the JSON object must be str, bytes or bytearray, not MagicMock"):
+        client._mappings_api.get_sample_mappings_by_dataset_id(dataset_id="")
+
+    assert patched_request.call_args.kwargs["headers"]["User-Agent"] == f"Lightly/{__version__}/python ({platform.platform()})"

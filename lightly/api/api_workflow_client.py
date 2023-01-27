@@ -97,7 +97,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
 
         configuration = get_api_client_configuration(token=token)
         self.api_client = ApiClient(configuration=configuration)
-        self.user_agent = f"Lightly/{__version__}/python ({platform.platform()})"
+        self.api_client.user_agent = f"Lightly/{__version__}/python ({platform.platform()})"
         self.set_request_timeout(DEFAULT_API_TIMEOUT)
 
         self.token = configuration.api_key["token"]
