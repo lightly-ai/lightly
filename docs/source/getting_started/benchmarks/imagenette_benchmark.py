@@ -237,7 +237,7 @@ def get_data_loaders(batch_size: int, model):
 class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
     def __init__(self, optimizer, warmup_epochs, last_epoch=-1, verbose=False):
         self.warmup_epochs = warmup_epochs
-        super().__init__(optimizer, self.scale_lr, last_epoch, verbose=False)
+        super().__init__(optimizer=optimizer, lr_lambda=self.scale_lr, last_epoch=last_epoch, verbose=verbose)
 
     def scale_lr(self, epoch):
         if epoch < self.warmup_epochs:
