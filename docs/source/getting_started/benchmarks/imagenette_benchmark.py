@@ -120,8 +120,8 @@ else:
 
 # The dataset structure should be like this:
 
-path_to_train = "/datasets/imagenette2-160/train/"
-path_to_test = "/datasets/imagenette2-160/val/"
+path_to_train = "/home/lightly/Documents/niccolo/datasets/imagenette2/train/"
+path_to_test = "/home/lightly/Documents/niccolo/datasets/imagenette2/val/"
 
 # Use SimCLR augmentations
 collate_fn = lightly.data.SimCLRCollateFunction(
@@ -1178,7 +1178,7 @@ class SwaVQueueModel(BenchmarkModule):
 
          high_resolution_prototypes = [self.prototypes(x, self.global_step) for x in high_resolution_features]
          low_resolution_prototypes = [self.prototypes(x, self.global_step) for x in low_resolution_features]
-         queue_prototypes = self._get_queue_prototypes(high_resolution_features, self.current_epoch)
+         queue_prototypes = self._get_queue_prototypes(high_resolution_features)
 
          return high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
     
