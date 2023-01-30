@@ -13,8 +13,8 @@ class GaussianBlur(object):
 
     Utilizes the built-in ImageFilter method from PIL to apply a Gaussian 
     blur to the input image with a certain probability. The blur is further
-    randomized as the kernel size is chosen randomly around a mean specified
-    by the user.
+    randomized by sampling uniformly the values of the standard deviation of
+    the Gaussian kernel.
 
     Attributes:
         kernel_size:
@@ -42,7 +42,6 @@ class GaussianBlur(object):
         
         Returns:
             Blurred image or original image.
-
         """
         prob = np.random.random_sample()
         if prob < self.prob:

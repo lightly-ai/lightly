@@ -505,7 +505,7 @@ class SwaVCollateFunction(MultiCropCollateFunction):
         cj_prob: float = 0.8,
         cj_strength: float = 0.8,
         random_gray_scale: float = 0.2,
-        gaussian_blur: float = 0.0,
+        gaussian_blur: float = .5,
         kernel_size: float = 1.0,
         normalize: dict = imagenet_normalize,
     ):
