@@ -67,7 +67,7 @@ class SwaV(nn.Module):
             return None
 
         # Assign prototypes
-        queue_prototypes = [self.prototypes(x) for x in queue_features]
+        queue_prototypes = [self.prototypes(x, self.global_step) for x in queue_features]
         return queue_prototypes
 
 
