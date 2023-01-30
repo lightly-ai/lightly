@@ -1,6 +1,6 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
 import torch
 import torchvision
@@ -19,17 +19,21 @@ class SwaV(nn.Module):
         self.projection_head = SwaVProjectionHead(512, 512, 128)
         self.prototypes = SwaVPrototypes(128, 512, 10)
 
-        self.start_queue_at_epoch = 15
+        self.start_queue_at_epoch = 2
         self.queues = nn.ModuleList([MemoryBankModule(size=3840) for _ in range(2)])
 
-    def forward(self, high_resolution, low_resolution, epoch=None, step=None):
+    def forward(self, high_resolution, low_resolution, epoch, step):
         self.prototypes.normalize()
 
         high_resolution_features = [self._subforward(x) for x in high_resolution]
         low_resolution_features = [self._subforward(x) for x in low_resolution]
 
-        high_resolution_prototypes = [self.prototypes(x, step) for x in high_resolution_features]
-        low_resolution_prototypes = [self.prototypes(x, step) for x in low_resolution_features]
+        high_resolution_prototypes = [
+            self.prototypes(x, step) for x in high_resolution_features
+        ]
+        low_resolution_prototypes = [
+            self.prototypes(x, step) for x in low_resolution_features
+        ]
         queue_prototypes = self._get_queue_prototypes(high_resolution_features, epoch)
 
         return high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
@@ -41,10 +45,7 @@ class SwaV(nn.Module):
         return features
 
     @torch.no_grad()
-    def _get_queue_prototypes(self, high_resolution_features, epoch=None):
-        if self.queues is None:
-            return None
-
+    def _get_queue_prototypes(self, high_resolution_features, epoch):
         if len(high_resolution_features) != len(self.queues):
             raise ValueError(
                 f"The number of queues ({len(self.queues)}) should be equal to the number of high "
@@ -57,17 +58,13 @@ class SwaV(nn.Module):
             _, features = self.queues[i](high_resolution_features[i], update=True)
             # Queue features are in (num_ftrs X queue_length) shape, while the high res
             # features are in (batch_size X num_ftrs). Swap the axes for interoperability.
-            features = torch.permute(features, (1,0))
+            features = torch.permute(features, (1, 0))
             queue_features.append(features)
 
         # If loss calculation with queue prototypes starts at a later epoch,
         # just queue the features and return None instead of queue prototypes.
-        if self.start_queue_at_epoch > 0:
-            if epoch is None:
-                raise ValueError("The epoch number must be passed to the `forward()` "
-                                 "method if `start_queue_at_epoch` is greater than 0.")
-            if epoch < self.start_queue_at_epoch:
-                return None
+        if self.start_queue_at_epoch > 0 and epoch < self.start_queue_at_epoch:
+            return None
 
         # Assign prototypes
         queue_prototypes = [self.prototypes(x) for x in queue_features]
@@ -110,7 +107,9 @@ for epoch in range(10):
     for batch, _, _ in dataloader:
         batch = [x.to(device) for x in batch]
         high_resolution, low_resolution = batch[:2], batch[2:]
-        high_resolution, low_resolution, queue = model(high_resolution, low_resolution, epoch, step)
+        high_resolution, low_resolution, queue = model(
+            high_resolution, low_resolution, epoch, step
+        )
         loss = criterion(high_resolution, low_resolution, queue)
         total_loss += loss.detach()
         loss.backward()

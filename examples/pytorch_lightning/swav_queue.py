@@ -21,13 +21,35 @@ class SwaV(pl.LightningModule):
         resnet = torchvision.models.resnet18()
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = SwaVProjectionHead(512, 512, 128)
-        self.prototypes = SwaVPrototypes(
-            128, 512, 10
-        )
-        self.start_queue_at_epoch = 15
+        self.prototypes = SwaVPrototypes(128, 512, 10)
+        self.start_queue_at_epoch = 2
         self.queues = nn.ModuleList([MemoryBankModule(size=3840) for _ in range(2)])
         self.criterion = SwaVLoss()
         self.step = 0
+
+    def training_step(self, batch, batch_idx):
+        batch_swav, _, _ = batch
+        high_resolution, low_resolution = batch_swav[:2], batch_swav[2:]
+        self.prototypes.normalize()
+
+        high_resolution_features = [self._subforward(x) for x in high_resolution]
+        low_resolution_features = [self._subforward(x) for x in low_resolution]
+
+        high_resolution_prototypes = [
+            self.prototypes(x, self.global_step) for x in high_resolution_features
+        ]
+        low_resolution_prototypes = [
+            self.prototypes(x, self.global_step) for x in low_resolution_features
+        ]
+        queue_prototypes = self._get_queue_prototypes(high_resolution_features)
+        loss = self.criterion(
+            high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
+        )
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.Adam(self.parameters(), lr=0.001)
+        return optim
 
     def _subforward(self, input):
         features = self.backbone(input).flatten(start_dim=1)
@@ -37,8 +59,6 @@ class SwaV(pl.LightningModule):
 
     @torch.no_grad()
     def _get_queue_prototypes(self, high_resolution_features):
-        if self.queues is None:
-            return None
 
         if len(high_resolution_features) != len(self.queues):
             raise ValueError(
@@ -57,40 +77,15 @@ class SwaV(pl.LightningModule):
 
         # If loss calculation with queue prototypes starts at a later epoch,
         # just queue the features and return None instead of queue prototypes.
-        if self.start_queue_at_epoch > 0:
-            if self.current_epoch is None:
-                raise ValueError(
-                    "The epoch number must be passed to the `forward()` "
-                    "method if `start_queue_at_epoch` is greater than 0."
-                )
-            if self.current_epoch < self.start_queue_at_epoch:
-                return None
+        if (
+            self.start_queue_at_epoch > 0
+            and self.current_epoch < self.start_queue_at_epoch
+        ):
+            return None
 
         # Assign prototypes
         queue_prototypes = [self.prototypes(x) for x in queue_features]
         return queue_prototypes
-
-    def training_step(self, batch, batch_idx):
-        batch_swav, _, _ = batch
-        high_resolution, low_resolution = batch_swav[:2], batch_swav[2:]
-        self.prototypes.normalize()
-
-        high_resolution_features = [self._subforward(x) for x in high_resolution]
-        low_resolution_features = [self._subforward(x) for x in low_resolution]
-
-        high_resolution_prototypes = [
-            self.prototypes(x, self.global_step) for x in high_resolution_features
-        ]
-        low_resolution_prototypes = [
-            self.prototypes(x, self.global_step) for x in low_resolution_features
-        ]
-        queue_prototypes = self._get_queue_prototypes(high_resolution_features)
-        loss = self.criterion(high_resolution_prototypes, low_resolution_prototypes, queue_prototypes)
-        return loss
-
-    def configure_optimizers(self):
-        optim = torch.optim.Adam(self.parameters(), lr=0.001)
-        return optim
 
 
 model = SwaV()
