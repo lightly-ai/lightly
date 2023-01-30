@@ -84,4 +84,4 @@ class TestApiWorkflowClient(unittest.TestCase):
 def test_user_agent_header() -> None:
     client = ApiWorkflowClient(token="")
 
-    assert client.api_client.user_agent == f"Lightly/{__version__}/python ({platform.platform()})"
+    assert client.api_client.user_agent == f"Lightly/{__version__} ({platform.system()}/{platform.release()}; {platform.platform()}; {platform.processor()};) python/{platform.python_version()}"
