@@ -17,7 +17,7 @@ class SwaV(nn.Module):
         super().__init__()
         self.backbone = backbone
         self.projection_head = SwaVProjectionHead(512, 512, 128)
-        self.prototypes = SwaVPrototypes(128, 512, 10)
+        self.prototypes = SwaVPrototypes(128, 512, 5)
 
         self.start_queue_at_epoch = 2
         self.queues = nn.ModuleList([MemoryBankModule(size=3840) for _ in range(2)])

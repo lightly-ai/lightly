@@ -21,7 +21,7 @@ class SwaV(pl.LightningModule):
         resnet = torchvision.models.resnet18()
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = SwaVProjectionHead(512, 512, 128)
-        self.prototypes = SwaVPrototypes(128, 512, 10)
+        self.prototypes = SwaVPrototypes(128, 512, 5)
         self.start_queue_at_epoch = 2
         self.queues = nn.ModuleList([MemoryBankModule(size=3840) for _ in range(2)])
         self.criterion = SwaVLoss()
