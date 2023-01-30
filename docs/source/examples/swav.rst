@@ -5,7 +5,7 @@ SwaV
 
 Example implementation of the SwaV architecture. This model takes advantage of contrastive methods without requiring to compute pairwise comparisons. 
 Specifically, this method simultaneously clusters the data while enforcing consistency between cluster assignments produced for different augmentations of the same image,
-instead of comparing features directly as in contrastive learning. It can be trained with large and small batches and can scale to virtually unlimited amounts of data.
+instead of comparing features directly as in contrastive learning. It can be trained with large and small batch sizes.
 
 Reference:
     `Unsupervised Learning of Visual Features by Contrasting Cluster Assignments, 2020 <https://arxiv.org/abs/2006.09882>`_
