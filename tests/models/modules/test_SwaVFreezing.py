@@ -11,7 +11,6 @@ class TestSwavFreezingPrototypes(unittest.TestCase):
         prototypes = SwaVPrototypes(8, 8, 2)
         optimizer = torch.optim.SGD(prototypes.parameters(), lr=0.01)
         for step in range(4):
-            print(f"{step=}")
             torch.manual_seed(seed)
             in_features = torch.rand(4, 8, device="cpu")
             out_features = linear_layer(in_features)
