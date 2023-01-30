@@ -2,11 +2,13 @@ import platform
 import unittest
 from unittest import mock
 
+import lightly
 import requests
 import os
 
+from pytest_mock import MockerFixture
+
 from lightly.api.api_workflow_client import ApiWorkflowClient, LIGHTLY_S3_SSE_KMS_KEY
-from lightly.__init__ import __version__
 
 class TestApiWorkflowClient(unittest.TestCase):
 
@@ -81,7 +83,17 @@ class TestApiWorkflowClient(unittest.TestCase):
                     signed_write_url='',
                 )
 
-def test_user_agent_header() -> None:
+def test_user_agent_header(mocker: MockerFixture) -> None:
+    mocker.patch.object(lightly.api.api_workflow_client, "__version__", new="VERSION")
+    mocker.patch.object(lightly.api.api_workflow_client, "is_compatible_version", new=lambda _: True)
+    mocked_platform = mocker.patch.object(lightly.api.api_workflow_client, "platform", spec_set=platform)
+    mocked_platform.system.return_value = "SYSTEM"
+    mocked_platform.release.return_value = "RELEASE"
+    mocked_platform.platform.return_value = "PLATFORM"
+    mocked_platform.processor.return_value = "PROCESSOR"
+    mocked_platform.python_version.return_value = "PYTHON_VERSION"
+
+
     client = ApiWorkflowClient(token="")
 
-    assert client.api_client.user_agent == f"Lightly/{__version__} ({platform.system()}/{platform.release()}; {platform.platform()}; {platform.processor()};) python/{platform.python_version()}"
+    assert client.api_client.user_agent == f"Lightly/VERSION (SYSTEM/RELEASE; PLATFORM; PROCESSOR;) python/PYTHON_VERSION"
