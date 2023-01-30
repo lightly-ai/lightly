@@ -34,7 +34,7 @@ class SwaV(nn.Module):
         low_resolution_prototypes = [
             self.prototypes(x, step) for x in low_resolution_features
         ]
-        queue_prototypes = self._get_queue_prototypes(high_resolution_features, epoch)
+        queue_prototypes = self._get_queue_prototypes(high_resolution_features, epoch, step)
 
         return high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
 
@@ -45,7 +45,7 @@ class SwaV(nn.Module):
         return features
 
     @torch.no_grad()
-    def _get_queue_prototypes(self, high_resolution_features, epoch):
+    def _get_queue_prototypes(self, high_resolution_features, epoch, step):
         if len(high_resolution_features) != len(self.queues):
             raise ValueError(
                 f"The number of queues ({len(self.queues)}) should be equal to the number of high "
@@ -67,7 +67,7 @@ class SwaV(nn.Module):
             return None
 
         # Assign prototypes
-        queue_prototypes = [self.prototypes(x, self.global_step) for x in queue_features]
+        queue_prototypes = [self.prototypes(x, step) for x in queue_features]
         return queue_prototypes
 
 
