@@ -1010,45 +1010,6 @@ def mocked_request_put(dst_url: str, data=IOBase) -> Response:
     return response_
 
 
-class MockedApiClient(ApiClient):
-    def request(
-        self,
-        method,
-        url,
-        query_params=None,
-        headers=None,
-        post_params=None,
-        body=None,
-        _preload_content=True,
-        _request_timeout=None,
-    ):
-        raise ValueError(
-            "ERROR: calling ApiClient.request(), but this should be mocked."
-        )
-
-    def call_api(
-        self,
-        resource_path,
-        method,
-        path_params=None,
-        query_params=None,
-        header_params=None,
-        body=None,
-        post_params=None,
-        files=None,
-        response_type=None,
-        auth_settings=None,
-        async_req=None,
-        _return_http_data_only=None,
-        collection_formats=None,
-        _preload_content=True,
-        _request_timeout=None,
-    ):
-        raise ValueError(
-            "ERROR: calling ApiClient.call_api(), but this should be mocked."
-        )
-
-
 class MockedAPICollaboration(CollaborationApi):
     def create_or_update_shared_access_config_by_dataset_id(
         self, body, dataset_id, **kwargs
@@ -1075,7 +1036,6 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
     n_embedding_rows_on_server = N_FILES_ON_SERVER
 
     def __init__(self, *args, **kwargs):
-        lightly.api.api_workflow_client.ApiClient = MockedApiClient
         lightly.api.version_checking.VersioningApi = MockedVersioningApi
         ApiWorkflowClient.__init__(self, *args, **kwargs)
 
