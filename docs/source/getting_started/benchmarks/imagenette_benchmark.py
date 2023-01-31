@@ -1171,23 +1171,28 @@ class SwaVQueueModel(BenchmarkModule):
         self.queues = nn.ModuleList([lightly.loss.memory_bank.MemoryBankModule(size=3840) for _ in range(2)])
         self.criterion = lightly.loss.SwaVLoss()
 
-    def forward(self, high_resolution, low_resolution):
-         self.prototypes.normalize()
+    def forward(self, x):
+        x = self._subforward(x)
+        return self.prototypes(x)
 
-         high_resolution_features = [self._subforward(x) for x in high_resolution]
-         low_resolution_features = [self._subforward(x) for x in low_resolution]
-
-         high_resolution_prototypes = [self.prototypes(x, self.current_epoch) for x in high_resolution_features]
-         low_resolution_prototypes = [self.prototypes(x, self.current_epoch) for x in low_resolution_features]
-         queue_prototypes = self._get_queue_prototypes(high_resolution_features)
-
-         return high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
-    
     def training_step(self, batch, batch_idx):
         batch_swav, _, _ = batch
         high_resolution, low_resolution = batch_swav[:2], batch_swav[2:]
-        high_resolution, low_resolution, queue = self.forward(high_resolution, low_resolution)
-        loss = self.criterion(high_resolution, low_resolution, queue)
+        self.prototypes.normalize()
+
+        high_resolution_features = [self._subforward(x) for x in high_resolution]
+        low_resolution_features = [self._subforward(x) for x in low_resolution]
+
+        high_resolution_prototypes = [
+            self.prototypes(x, self.global_step) for x in high_resolution_features
+        ]
+        low_resolution_prototypes = [
+            self.prototypes(x, self.global_step) for x in low_resolution_features
+        ]
+        queue_prototypes = self._get_queue_prototypes(high_resolution_features)
+        loss = self.criterion(
+            high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
+        )
         return loss
     
     def _subforward(self, input):
