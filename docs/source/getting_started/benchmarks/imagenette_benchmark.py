@@ -1163,9 +1163,10 @@ class SwaVQueueModel(BenchmarkModule):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
+        feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
-        self.projection_head = heads.SwaVProjectionHead(512, 512, 128)
-        self.prototypes = heads.SwaVPrototypes(128, 512, 10)
+        self.projection_head = heads.SwaVProjectionHead(feature_dim, 2048, 128)
+        self.prototypes = heads.SwaVPrototypes(128, 3000, 1)
         self.start_queue_at_epoch = 15
         self.queues = nn.ModuleList([lightly.loss.memory_bank.MemoryBankModule(size=3840) for _ in range(2)])
         self.criterion = lightly.loss.SwaVLoss()
@@ -1176,8 +1177,8 @@ class SwaVQueueModel(BenchmarkModule):
          high_resolution_features = [self._subforward(x) for x in high_resolution]
          low_resolution_features = [self._subforward(x) for x in low_resolution]
 
-         high_resolution_prototypes = [self.prototypes(x, self.global_step) for x in high_resolution_features]
-         low_resolution_prototypes = [self.prototypes(x, self.global_step) for x in low_resolution_features]
+         high_resolution_prototypes = [self.prototypes(x, self.current_epoch) for x in high_resolution_features]
+         low_resolution_prototypes = [self.prototypes(x, self.current_epoch) for x in low_resolution_features]
          queue_prototypes = self._get_queue_prototypes(high_resolution_features)
 
          return high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
@@ -1222,13 +1223,13 @@ class SwaVQueueModel(BenchmarkModule):
             return None
 
         # Assign prototypes
-        queue_prototypes = [self.prototypes(x, self.global_step) for x in queue_features]
+        queue_prototypes = [self.prototypes(x, self.current_epoch) for x in queue_features]
         return queue_prototypes
 
     def configure_optimizers(self):
-        optim = torch.optim.Adam(
+        optim = torch.optim.SGD(
             self.parameters(),
-            lr=1e-3 * lr_factor,
+            lr=4.8 * lr_factor,
             weight_decay=1e-6,
         )
         cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
