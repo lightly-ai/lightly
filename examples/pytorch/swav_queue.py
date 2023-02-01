@@ -17,24 +17,24 @@ class SwaV(nn.Module):
         super().__init__()
         self.backbone = backbone
         self.projection_head = SwaVProjectionHead(512, 512, 128)
-        self.prototypes = SwaVPrototypes(128, 512, 5)
+        self.prototypes = SwaVPrototypes(128, 512, 1)
 
         self.start_queue_at_epoch = 2
         self.queues = nn.ModuleList([MemoryBankModule(size=3840) for _ in range(2)])
 
-    def forward(self, high_resolution, low_resolution, epoch, step):
+    def forward(self, high_resolution, low_resolution, epoch):
         self.prototypes.normalize()
 
         high_resolution_features = [self._subforward(x) for x in high_resolution]
         low_resolution_features = [self._subforward(x) for x in low_resolution]
 
         high_resolution_prototypes = [
-            self.prototypes(x, step) for x in high_resolution_features
+            self.prototypes(x, epoch) for x in high_resolution_features
         ]
         low_resolution_prototypes = [
-            self.prototypes(x, step) for x in low_resolution_features
+            self.prototypes(x, epoch) for x in low_resolution_features
         ]
-        queue_prototypes = self._get_queue_prototypes(high_resolution_features, epoch, step)
+        queue_prototypes = self._get_queue_prototypes(high_resolution_features, epoch)
 
         return high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
 
@@ -45,7 +45,7 @@ class SwaV(nn.Module):
         return features
 
     @torch.no_grad()
-    def _get_queue_prototypes(self, high_resolution_features, epoch, step):
+    def _get_queue_prototypes(self, high_resolution_features, epoch):
         if len(high_resolution_features) != len(self.queues):
             raise ValueError(
                 f"The number of queues ({len(self.queues)}) should be equal to the number of high "
@@ -67,7 +67,7 @@ class SwaV(nn.Module):
             return None
 
         # Assign prototypes
-        queue_prototypes = [self.prototypes(x, step) for x in queue_features]
+        queue_prototypes = [self.prototypes(x, epoch) for x in queue_features]
         return queue_prototypes
 
 
@@ -101,21 +101,19 @@ criterion = SwaVLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 print("Starting Training")
-step = 0
 for epoch in range(10):
     total_loss = 0
     for batch, _, _ in dataloader:
         batch = [x.to(device) for x in batch]
         high_resolution, low_resolution = batch[:2], batch[2:]
         high_resolution, low_resolution, queue = model(
-            high_resolution, low_resolution, epoch, step
+            high_resolution, low_resolution, epoch
         )
         loss = criterion(high_resolution, low_resolution, queue)
         total_loss += loss.detach()
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
-        step += 1
 
     avg_loss = total_loss / len(dataloader)
     print(f"epoch: {epoch:>02}, loss: {avg_loss:.5f}")

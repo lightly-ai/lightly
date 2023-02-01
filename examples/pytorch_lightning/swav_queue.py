@@ -21,7 +21,7 @@ class SwaV(pl.LightningModule):
         resnet = torchvision.models.resnet18()
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = SwaVProjectionHead(512, 512, 128)
-        self.prototypes = SwaVPrototypes(128, 512, 5)
+        self.prototypes = SwaVPrototypes(128, 512, 1)
         self.start_queue_at_epoch = 2
         self.queues = nn.ModuleList([MemoryBankModule(size=3840) for _ in range(2)])
         self.criterion = SwaVLoss()
@@ -35,10 +35,10 @@ class SwaV(pl.LightningModule):
         low_resolution_features = [self._subforward(x) for x in low_resolution]
 
         high_resolution_prototypes = [
-            self.prototypes(x, self.global_step) for x in high_resolution_features
+            self.prototypes(x, self.current_epoch) for x in high_resolution_features
         ]
         low_resolution_prototypes = [
-            self.prototypes(x, self.global_step) for x in low_resolution_features
+            self.prototypes(x, self.current_epoch) for x in low_resolution_features
         ]
         queue_prototypes = self._get_queue_prototypes(high_resolution_features)
         loss = self.criterion(
@@ -83,7 +83,7 @@ class SwaV(pl.LightningModule):
             return None
 
         # Assign prototypes
-        queue_prototypes = [self.prototypes(x, self.global_step) for x in queue_features]
+        queue_prototypes = [self.prototypes(x, self.current_epoch) for x in queue_features]
         return queue_prototypes
 
 
