@@ -3,40 +3,52 @@
 # run on a small dataset with a single GPU.
 
 import torch
-import torchvision
 from torch import nn
+import torchvision
+import pytorch_lightning as pl
 
-from lightly.data import LightlyDataset, SwaVCollateFunction
+from lightly.data import LightlyDataset
+from lightly.data import SwaVCollateFunction
 from lightly.loss import SwaVLoss
 from lightly.loss.memory_bank import MemoryBankModule
-from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
+from lightly.models.modules import SwaVProjectionHead
+from lightly.models.modules import SwaVPrototypes
 
 
-class SwaV(nn.Module):
-    def __init__(self, backbone):
+class SwaV(pl.LightningModule):
+    def __init__(self):
         super().__init__()
-        self.backbone = backbone
+        resnet = torchvision.models.resnet18()
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = SwaVProjectionHead(512, 512, 128)
         self.prototypes = SwaVPrototypes(128, 512, 1)
-
         self.start_queue_at_epoch = 2
         self.queues = nn.ModuleList([MemoryBankModule(size=3840) for _ in range(2)])
+        self.criterion = SwaVLoss()
 
-    def forward(self, high_resolution, low_resolution, epoch):
+    def training_step(self, batch, batch_idx):
+        batch_swav, _, _ = batch
+        high_resolution, low_resolution = batch_swav[:2], batch_swav[2:]
         self.prototypes.normalize()
 
         high_resolution_features = [self._subforward(x) for x in high_resolution]
         low_resolution_features = [self._subforward(x) for x in low_resolution]
 
         high_resolution_prototypes = [
-            self.prototypes(x, epoch) for x in high_resolution_features
+            self.prototypes(x, self.current_epoch) for x in high_resolution_features
         ]
         low_resolution_prototypes = [
-            self.prototypes(x, epoch) for x in low_resolution_features
+            self.prototypes(x, self.current_epoch) for x in low_resolution_features
         ]
-        queue_prototypes = self._get_queue_prototypes(high_resolution_features, epoch)
+        queue_prototypes = self._get_queue_prototypes(high_resolution_features)
+        loss = self.criterion(
+            high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
+        )
+        return loss
 
-        return high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
+    def configure_optimizers(self):
+        optim = torch.optim.Adam(self.parameters(), lr=0.001)
+        return optim
 
     def _subforward(self, input):
         features = self.backbone(input).flatten(start_dim=1)
@@ -45,7 +57,8 @@ class SwaV(nn.Module):
         return features
 
     @torch.no_grad()
-    def _get_queue_prototypes(self, high_resolution_features, epoch):
+    def _get_queue_prototypes(self, high_resolution_features):
+
         if len(high_resolution_features) != len(self.queues):
             raise ValueError(
                 f"The number of queues ({len(self.queues)}) should be equal to the number of high "
@@ -63,20 +76,18 @@ class SwaV(nn.Module):
 
         # If loss calculation with queue prototypes starts at a later epoch,
         # just queue the features and return None instead of queue prototypes.
-        if self.start_queue_at_epoch > 0 and epoch < self.start_queue_at_epoch:
+        if (
+            self.start_queue_at_epoch > 0
+            and self.current_epoch < self.start_queue_at_epoch
+        ):
             return None
 
         # Assign prototypes
-        queue_prototypes = [self.prototypes(x, epoch) for x in queue_features]
+        queue_prototypes = [self.prototypes(x, self.current_epoch) for x in queue_features]
         return queue_prototypes
 
 
-resnet = torchvision.models.resnet18()
-backbone = nn.Sequential(*list(resnet.children())[:-1])
-model = SwaV(backbone)
-
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model.to(device)
+model = SwaV()
 
 # we ignore object detection annotations by setting target_transform to return 0
 pascal_voc = torchvision.datasets.VOCDetection(
@@ -97,23 +108,7 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-criterion = SwaVLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+gpus = 1 if torch.cuda.is_available() else 0
 
-print("Starting Training")
-for epoch in range(10):
-    total_loss = 0
-    for batch, _, _ in dataloader:
-        batch = [x.to(device) for x in batch]
-        high_resolution, low_resolution = batch[:2], batch[2:]
-        high_resolution, low_resolution, queue = model(
-            high_resolution, low_resolution, epoch
-        )
-        loss = criterion(high_resolution, low_resolution, queue)
-        total_loss += loss.detach()
-        loss.backward()
-        optimizer.step()
-        optimizer.zero_grad()
-
-    avg_loss = total_loss / len(dataloader)
-    print(f"epoch: {epoch:>02}, loss: {avg_loss:.5f}")
+trainer = pl.Trainer(max_epochs=10, gpus=gpus)
+trainer.fit(model=model, train_dataloaders=dataloader)
