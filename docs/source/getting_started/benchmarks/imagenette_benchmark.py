@@ -80,7 +80,7 @@ num_workers = 12
 memory_bank_size = 4096
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 800
+max_epochs = 200
 knn_k = 200
 knn_t = 0.1
 classes = 10
