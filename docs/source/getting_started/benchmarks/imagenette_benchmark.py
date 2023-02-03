@@ -80,7 +80,7 @@ num_workers = 12
 memory_bank_size = 4096
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 200
+max_epochs = 800
 knn_k = 200
 knn_t = 0.1
 classes = 10
@@ -120,8 +120,8 @@ else:
 
 # The dataset structure should be like this:
 
-path_to_train = "/home/lightly/Documents/niccolo/datasets/imagenette2/train/"
-path_to_test = "/home/lightly/Documents/niccolo/datasets/imagenette2/val/"
+path_to_train = "/datasets/imagenette2-160/train/"
+path_to_test = "/datasets/imagenette2-160/val/"
 
 # Use SimCLR augmentations
 collate_fn = lightly.data.SimCLRCollateFunction(
@@ -1242,24 +1242,24 @@ class SwaVQueueModel(BenchmarkModule):
 
 
 models = [
-    #BarlowTwinsModel,
-    #BYOLModel,
-    #DCL,
-    #DCLW,
-    #DINOModel,
+    BarlowTwinsModel,
+    BYOLModel,
+    DCL,
+    DCLW,
+    DINOModel,
     # MAEModel, # disabled by default because MAE uses larger images with size 224
     # MSNModel, # disabled by default because MSN uses larger images with size 224
-    #MocoModel,
-    #NNCLRModel,
-    #SimCLRModel,
+    MocoModel,
+    NNCLRModel,
+    SimCLRModel,
     # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
-    #SimSiamModel,
-    #SwaVModel,
+    SimSiamModel,
+    SwaVModel,
     SwaVQueueModel,
-    #SMoGModel,
-    #TiCoModel,
-    #VICRegModel,
-    #VICRegLModel,
+    SMoGModel,
+    TiCoModel,
+    VICRegModel,
+    VICRegLModel,
 ]
 bench_results = dict()
 
