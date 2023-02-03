@@ -6,7 +6,7 @@
 import torch
 import torch.nn as nn
 
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 
 from PIL import Image
 import torchvision
@@ -115,6 +115,8 @@ class ImageCollateFunction(BaseCollateFunction):
             Probability of conversion to grayscale.
         gaussian_blur:
             Probability of Gaussian blur.
+        kernel_size:
+            Old argument. Value is deprecated in favor of sigmas.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
         vf_prob:
@@ -145,6 +147,7 @@ class ImageCollateFunction(BaseCollateFunction):
         min_scale: float = 0.15,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
+        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.2, 2),
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
@@ -167,7 +170,7 @@ class ImageCollateFunction(BaseCollateFunction):
             T.RandomVerticalFlip(p=vf_prob),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
-            GaussianBlur(sigmas=sigmas, prob=gaussian_blur),
+            GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
             T.ToTensor(),
         ]
 
@@ -232,6 +235,8 @@ class SimCLRCollateFunction(ImageCollateFunction):
             Probability of conversion to grayscale.
         gaussian_blur:
             Probability of Gaussian blur.
+        kernel_size:
+            Old argument. Value is deprecated in favor of sigmas.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
         vf_prob:
@@ -270,6 +275,7 @@ class SimCLRCollateFunction(ImageCollateFunction):
         min_scale: float = 0.08,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
+        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.2, 2),
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
@@ -315,6 +321,8 @@ class MoCoCollateFunction(ImageCollateFunction):
             Probability of conversion to grayscale.
         gaussian_blur:
             Probability of Gaussian blur.
+        kernel_size:
+            Old argument. Value is deprecated in favor of sigmas.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
         vf_prob:
@@ -352,6 +360,7 @@ class MoCoCollateFunction(ImageCollateFunction):
         min_scale: float = 0.2,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.0,
+        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.2, 2),
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
@@ -474,6 +483,8 @@ class SwaVCollateFunction(MultiCropCollateFunction):
             Probability of conversion to grayscale.
         gaussian_blur:
             Probability of Gaussian blur.
+        kernel_size:
+            Old argument. Value is deprecated in favor of sigmas.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
         normalize:
@@ -505,7 +516,8 @@ class SwaVCollateFunction(MultiCropCollateFunction):
         cj_prob: float = 0.8,
         cj_strength: float = 0.8,
         random_gray_scale: float = 0.2,
-        gaussian_blur: float = .5,
+        gaussian_blur: float = 0.5,
+        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.2, 2),
         normalize: dict = imagenet_normalize,
     ):
@@ -525,7 +537,9 @@ class SwaVCollateFunction(MultiCropCollateFunction):
                 T.ColorJitter(),
                 T.RandomApply([color_jitter], p=cj_prob),
                 T.RandomGrayscale(p=random_gray_scale),
-                GaussianBlur(sigmas=sigmas, prob=gaussian_blur),
+                GaussianBlur(
+                    kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur
+                ),
                 T.ToTensor(),
                 T.Normalize(mean=normalize["mean"], std=normalize["std"]),
             ]
@@ -588,6 +602,10 @@ class DINOCollateFunction(MultiViewCollateFunction):
             Tuple of probabilities to apply gaussian blur on the different
             views. The input is ordered as follows:
             (global_view_0, global_view_1, local_views)
+        kernel_size:
+            Old argument. Value is deprecated in favor of sigmas.
+        kernel_scale:
+            Old argument. Value is deprecated in favor of sigmas.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
         solarization:
@@ -615,6 +633,8 @@ class DINOCollateFunction(MultiViewCollateFunction):
         cj_hue=0.1,
         random_gray_scale=0.2,
         gaussian_blur=(1.0, 0.1, 0.5),
+        kernel_size: Optional[float] = None,
+        kernel_scale: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         solarization_prob=0.2,
         normalize=imagenet_normalize,
@@ -657,7 +677,7 @@ class DINOCollateFunction(MultiViewCollateFunction):
                 global_crop,
                 flip_and_color_jitter,
                 GaussianBlur(
-                    sigmas=sigmas, prob=gaussian_blur[0]
+                    kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur[0]
                 ),
                 normalize,
             ]
@@ -669,7 +689,7 @@ class DINOCollateFunction(MultiViewCollateFunction):
                 global_crop,
                 flip_and_color_jitter,
                 GaussianBlur(
-                    sigmas=sigmas, prob=gaussian_blur[1]
+                    kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur[1]
                 ),
                 RandomSolarization(prob=solarization_prob),
                 normalize,
@@ -684,7 +704,7 @@ class DINOCollateFunction(MultiViewCollateFunction):
                 ),
                 flip_and_color_jitter,
                 GaussianBlur(
-                    sigmas=sigmas, prob=gaussian_blur[2]
+                    kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur[2]
                 ),
                 normalize,
             ]
@@ -876,6 +896,8 @@ class MSNCollateFunction(MultiViewCollateFunction):
             Strength of the color jitter.
         gaussian_blur:
             Probability of Gaussian blur.
+        kernel_size:
+            Old argument. Value is deprecated in favor of sigmas.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
         random_gray_scale:
@@ -899,6 +921,7 @@ class MSNCollateFunction(MultiViewCollateFunction):
         cj_prob: float = 0.8,
         cj_strength: float = 1.0,
         gaussian_blur: float = 0.5,
+        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.2, 2),
         random_gray_scale: float = 0.2,
         hf_prob: float = 0.5,
@@ -918,7 +941,9 @@ class MSNCollateFunction(MultiViewCollateFunction):
                 T.RandomVerticalFlip(p=vf_prob),
                 T.RandomApply([color_jitter], p=cj_prob),
                 T.RandomGrayscale(p=random_gray_scale),
-                GaussianBlur(sigmas=sigmas, prob=gaussian_blur),
+                GaussianBlur(
+                    kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur
+                ),
                 T.ToTensor(),
                 T.Normalize(mean=normalize["mean"], std=normalize["std"]),
             ]
@@ -930,7 +955,9 @@ class MSNCollateFunction(MultiViewCollateFunction):
                 T.RandomVerticalFlip(p=vf_prob),
                 T.RandomApply([color_jitter], p=cj_prob),
                 T.RandomGrayscale(p=random_gray_scale),
-                GaussianBlur(sigmas=sigmas, prob=gaussian_blur),
+                GaussianBlur(
+                    kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur
+                ),
                 T.ToTensor(),
                 T.Normalize(mean=normalize["mean"], std=normalize["std"]),
             ]
@@ -954,6 +981,8 @@ class SMoGCollateFunction(MultiViewCollateFunction):
             Max_scales for each crop category.
         gaussian_blur_probs:
             Probability of Gaussian blur for each crop category.
+        gaussian_blur_kernel_sizes:
+            Deprecated values in favour of sigmas.
         gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
         solarize_probs:
@@ -978,6 +1007,7 @@ class SMoGCollateFunction(MultiViewCollateFunction):
         crop_min_scales: List[float] = [0.2, 0.05],
         crop_max_scales: List[float] = [1.0, 0.2],
         gaussian_blur_probs: List[float] = [0.5, 0.1],
+        gaussian_blur_kernel_sizes: Optional[List[float]] = [None, None],
         gaussian_blur_sigmas: Tuple[float, float] = (0.2, 2),
         solarize_probs: List[float] = [0.0, 0.2],
         hf_prob: float = 0.5,
@@ -1010,8 +1040,9 @@ class SMoGCollateFunction(MultiViewCollateFunction):
                             T.RandomApply([color_jitter], p=cj_prob),
                             T.RandomGrayscale(p=random_gray_scale),
                             GaussianBlur(
+                                kernel_size=gaussian_blur_kernel_sizes[i],
                                 prob=gaussian_blur_probs[i],
-                                kernel_size=gaussian_blur_sigmas,
+                                sigmas=gaussian_blur_sigmas,
                             ),  # TODO
                             RandomSolarization(prob=solarize_probs[i]),
                             T.ToTensor(),
@@ -1032,7 +1063,7 @@ class VICRegCollateFunction(BaseCollateFunction):
     set of transforms.
 
     The set of transforms is inspired by the SimCLR paper as it has shown
-    to produce powerful embeddings. 
+    to produce powerful embeddings.
 
     Attributes:
         input_size:
@@ -1055,6 +1086,8 @@ class VICRegCollateFunction(BaseCollateFunction):
             Probability of solarization.
         gaussian_blur:
             Probability of Gaussian blur.
+        kernel_size:
+            Old argument. Value is deprecated in favor of sigmas.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
         vf_prob:
@@ -1064,64 +1097,59 @@ class VICRegCollateFunction(BaseCollateFunction):
         rr_prob:
             Probability that random rotation is applied.
         rr_degrees:
-            Range of degrees to select from for random rotation. If rr_degrees is None, 
-            images are rotated by 90 degrees. If rr_degrees is a (min, max) tuple, 
+            Range of degrees to select from for random rotation. If rr_degrees is None,
+            images are rotated by 90 degrees. If rr_degrees is a (min, max) tuple,
             images are rotated by a random angle in [min, max]. If rr_degrees is a
-            single number, images are rotated by a random angle in 
+            single number, images are rotated by a random angle in
             [-rr_degrees, +rr_degrees]. All rotations are counter-clockwise.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     """
 
-    def __init__(self,
-                 input_size: int = 224,
-                 cj_prob: float = 0.8,
-                 cj_bright: float = 0.4,
-                 cj_contrast: float = 0.4,
-                 cj_sat: float = 0.2,
-                 cj_hue: float = 0.1,
-                 min_scale: float = 0.08,
-                 random_gray_scale: float = 0.2,
-                 solarize_prob: float = 0.1,
-                 gaussian_blur: float = 0.5,
-                 sigmas: Tuple[float, float] = (0.2, 2),
-                 vf_prob: float = 0.0,
-                 hf_prob: float = 0.5,
-                 rr_prob: float = 0.0,
-                 rr_degrees: Union[None, float, Tuple[float, float]] = None,
-                 normalize: dict = imagenet_normalize):
+    def __init__(
+        self,
+        input_size: int = 224,
+        cj_prob: float = 0.8,
+        cj_bright: float = 0.4,
+        cj_contrast: float = 0.4,
+        cj_sat: float = 0.2,
+        cj_hue: float = 0.1,
+        min_scale: float = 0.08,
+        random_gray_scale: float = 0.2,
+        solarize_prob: float = 0.1,
+        gaussian_blur: float = 0.5,
+        kernel_size: Optional[float] = None,
+        sigmas: Tuple[float, float] = (0.2, 2),
+        vf_prob: float = 0.0,
+        hf_prob: float = 0.5,
+        rr_prob: float = 0.0,
+        rr_degrees: Union[None, float, Tuple[float, float]] = None,
+        normalize: dict = imagenet_normalize,
+    ):
 
         if isinstance(input_size, tuple):
             input_size_ = max(input_size)
         else:
             input_size_ = input_size
 
-        color_jitter = T.ColorJitter(
-            cj_bright, cj_contrast, cj_sat, cj_hue
-        )
+        color_jitter = T.ColorJitter(cj_bright, cj_contrast, cj_sat, cj_hue)
 
-        transform = [T.RandomResizedCrop(size=input_size,
-                                         scale=(min_scale, 1.0)),
-             _random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
-             T.RandomHorizontalFlip(p=hf_prob),
-             T.RandomVerticalFlip(p=vf_prob),
-             T.RandomApply([color_jitter], p=cj_prob),
-             T.RandomGrayscale(p=random_gray_scale),
-             RandomSolarization(prob=solarize_prob),
-             GaussianBlur(
-                sigmas=sigmas,
-                prob=gaussian_blur),
-             T.ToTensor()
+        transform = [
+            T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
+            _random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
+            T.RandomHorizontalFlip(p=hf_prob),
+            T.RandomVerticalFlip(p=vf_prob),
+            T.RandomApply([color_jitter], p=cj_prob),
+            T.RandomGrayscale(p=random_gray_scale),
+            RandomSolarization(prob=solarize_prob),
+            GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
+            T.ToTensor(),
         ]
 
         if normalize:
-            transform += [
-             T.Normalize(
-                mean=normalize['mean'],
-                std=normalize['std'])
-             ]
-           
+            transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]
+
         transform = T.Compose(transform)
 
         super(VICRegCollateFunction, self).__init__(transform)
@@ -1147,8 +1175,12 @@ class VICRegLCollateFunction(nn.Module):
             Probability of Gaussian blur for the global crop category.
         local_gaussian_blur_prob:
             Probability of Gaussian blur for the local crop category.
+        global_gaussian_blur_kernel_size:
+            Old argument. Value is deprecated in favor of sigmas.
+        local_gaussian_blur_kernel_size:
+            Old argument. Value is deprecated in favor of sigmas.
         global_gaussian_blur_sigmas:
-            Tuple of min and max value from which the std of the 
+            Tuple of min and max value from which the std of the
             gaussian kernel is sampled for the global crop category.
         local_gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the
@@ -1179,6 +1211,8 @@ class VICRegLCollateFunction(nn.Module):
         local_grid_size: int = 3,
         global_gaussian_blur_prob: float = 0.5,
         local_gaussian_blur_prob: float = 0.1,
+        global_gaussian_blur_kernel_size: Optional[float] = None,
+        local_gaussian_blur_kernel_size: Optional[float] = None,
         global_gaussian_blur_sigmas: Tuple[float, float] = (0.2, 2),
         local_gaussian_blur_sigmas: Tuple[float, float] = (0.2, 2),
         global_solarize_prob: float = 0.0,
@@ -1216,6 +1250,7 @@ class VICRegLCollateFunction(nn.Module):
                 T.RandomApply([color_jitter], p=cj_prob),
                 T.RandomGrayscale(p=random_gray_scale),
                 GaussianBlur(
+                    kernel_size=global_gaussian_blur_kernel_size,
                     prob=global_gaussian_blur_prob,
                     sigmas=global_gaussian_blur_sigmas,
                 ),
@@ -1230,6 +1265,7 @@ class VICRegLCollateFunction(nn.Module):
                 T.RandomApply([color_jitter], p=cj_prob),
                 T.RandomGrayscale(p=random_gray_scale),
                 GaussianBlur(
+                    kernel_size=local_gaussian_blur_kernel_size,
                     prob=local_gaussian_blur_prob,
                     sigmas=local_gaussian_blur_sigmas,
                 ),
