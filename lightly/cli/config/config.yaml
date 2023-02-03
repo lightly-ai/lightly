@@ -59,7 +59,7 @@ collate:
   min_scale: 0.15             # Minimum size of random crop relative to input_size.
   random_gray_scale: 0.2      # Probability of converting image to gray scale.
   gaussian_blur: 0.5          # Probability of Gaussian blur.
-  kernel_size: 0.1            # Kernel size of gaussian blur relative to input_size.
+  sigmas: [0.2, 2]            # Sigmas of Gaussian blur 
   vf_prob: 0.0                # Probability that vertical flip is applied.
   hf_prob: 0.5                # Probability that horizontal flip is applied.
   rr_prob: 0.0                # Probability that random rotation is applied.
