@@ -33,32 +33,37 @@ class PredictionSingletonInstanceSegmentation(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'segmentation': 'str'
+        'segmentation': 'list[int]',
+        'probabilities': 'Probabilities'
     }
 
     attribute_map = {
-        'segmentation': 'segmentation'
+        'segmentation': 'segmentation',
+        'probabilities': 'probabilities'
     }
 
-    def __init__(self, segmentation=None, _configuration=None):  # noqa: E501
+    def __init__(self, segmentation=None, probabilities=None, _configuration=None):  # noqa: E501
         """PredictionSingletonInstanceSegmentation - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._segmentation = None
+        self._probabilities = None
         self.discriminator = None
 
         self.segmentation = segmentation
+        if probabilities is not None:
+            self.probabilities = probabilities
 
     @property
     def segmentation(self):
         """Gets the segmentation of this PredictionSingletonInstanceSegmentation.  # noqa: E501
 
-        Run Length Encoding (RLE) as outlined by the coco format https://cocodataset.org/#format-results   # noqa: E501
+        Run Length Encoding (RLE) as outlined by https://docs.lightly.ai/docs/prediction-format#semantic-segmentation   # noqa: E501
 
         :return: The segmentation of this PredictionSingletonInstanceSegmentation.  # noqa: E501
-        :rtype: str
+        :rtype: list[int]
         """
         return self._segmentation
 
@@ -66,15 +71,36 @@ class PredictionSingletonInstanceSegmentation(object):
     def segmentation(self, segmentation):
         """Sets the segmentation of this PredictionSingletonInstanceSegmentation.
 
-        Run Length Encoding (RLE) as outlined by the coco format https://cocodataset.org/#format-results   # noqa: E501
+        Run Length Encoding (RLE) as outlined by https://docs.lightly.ai/docs/prediction-format#semantic-segmentation   # noqa: E501
 
         :param segmentation: The segmentation of this PredictionSingletonInstanceSegmentation.  # noqa: E501
-        :type: str
+        :type: list[int]
         """
         if self._configuration.client_side_validation and segmentation is None:
             raise ValueError("Invalid value for `segmentation`, must not be `None`")  # noqa: E501
 
         self._segmentation = segmentation
+
+    @property
+    def probabilities(self):
+        """Gets the probabilities of this PredictionSingletonInstanceSegmentation.  # noqa: E501
+
+
+        :return: The probabilities of this PredictionSingletonInstanceSegmentation.  # noqa: E501
+        :rtype: Probabilities
+        """
+        return self._probabilities
+
+    @probabilities.setter
+    def probabilities(self, probabilities):
+        """Sets the probabilities of this PredictionSingletonInstanceSegmentation.
+
+
+        :param probabilities: The probabilities of this PredictionSingletonInstanceSegmentation.  # noqa: E501
+        :type: Probabilities
+        """
+
+        self._probabilities = probabilities
 
     def to_dict(self):
         """Returns the model properties as a dict"""

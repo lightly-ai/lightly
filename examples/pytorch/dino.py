@@ -1,6 +1,6 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
 import torch
 from torch import nn
@@ -11,19 +11,23 @@ from lightly.data import LightlyDataset
 from lightly.data import DINOCollateFunction
 from lightly.loss import DINOLoss
 from lightly.models.modules import DINOProjectionHead
+from lightly.utils.scheduler import cosine_schedule
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
+
 
 class DINO(torch.nn.Module):
     def __init__(self, backbone, input_dim):
         super().__init__()
         self.student_backbone = backbone
-        self.student_head = DINOProjectionHead(input_dim, 512, 64, 2048, freeze_last_layer=1)
+        self.student_head = DINOProjectionHead(
+            input_dim, 512, 64, 2048, freeze_last_layer=1
+        )
         self.teacher_backbone = copy.deepcopy(backbone)
         self.teacher_head = DINOProjectionHead(input_dim, 512, 64, 2048)
         deactivate_requires_grad(self.teacher_backbone)
         deactivate_requires_grad(self.teacher_head)
-    
+
     def forward(self, x):
         y = self.student_backbone(x).flatten(start_dim=1)
         z = self.student_head(y)
@@ -34,13 +38,14 @@ class DINO(torch.nn.Module):
         z = self.teacher_head(y)
         return z
 
+
 resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(*list(resnet.children())[:-1])
 input_dim = 512
 # instead of a resnet you can also use a vision transformer backbone as in the
 # original paper (you might have to reduce the batch size in this case):
-# backbone = torch.hub.load('facebookresearch/dino:main', 'dino_vits16', pretrained=False)
-# input_dim = backbone.embed_dim
+# backbone = torch.hub.load('facebookresearch/dino:main', 'dino_vits16', pretrained=False)
+# input_dim = backbone.embed_dim
 
 model = DINO(backbone, input_dim)
 
@@ -75,12 +80,15 @@ criterion = criterion.to(device)
 
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
+epochs = 10
+
 print("Starting Training")
-for epoch in range(10):
+for epoch in range(epochs):
     total_loss = 0
+    momentum_val = cosine_schedule(epoch, epochs, 0.996, 1)
     for views, _, _ in dataloader:
-        update_momentum(model.student_backbone, model.teacher_backbone, m=0.99)
-        update_momentum(model.student_head, model.teacher_head, m=0.99)
+        update_momentum(model.student_backbone, model.teacher_backbone, m=momentum_val)
+        update_momentum(model.student_head, model.teacher_head, m=momentum_val)
         views = [view.to(device) for view in views]
         global_views = views[:2]
         teacher_out = [model.forward_teacher(view) for view in global_views]
@@ -92,6 +100,6 @@ for epoch in range(10):
         model.student_head.cancel_last_layer_gradients(current_epoch=epoch)
         optimizer.step()
         optimizer.zero_grad()
-        
+
     avg_loss = total_loss / len(dataloader)
     print(f"epoch: {epoch:>02}, loss: {avg_loss:.5f}")

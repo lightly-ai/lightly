@@ -11,13 +11,11 @@ from itertools import compress
 
 import numpy as np
 
-INVALID_FILENAME_CHARACTERS = [',']
+INVALID_FILENAME_CHARACTERS = [","]
 
 
 def _is_valid_filename(filename: str) -> bool:
-    """Returns False if the filename is misformatted.
-
-    """
+    """Returns False if the filename is misformatted."""
     for character in INVALID_FILENAME_CHARACTERS:
         if character in filename:
             return False
@@ -34,16 +32,16 @@ def check_filenames(filenames: List[str]):
     """
     invalid_filenames = [f for f in filenames if not _is_valid_filename(f)]
     if len(invalid_filenames) > 0:
-        raise ValueError(f'Invalid filename(s): {invalid_filenames}')
+        raise ValueError(f"Invalid filename(s): {invalid_filenames}")
 
 
-def check_embeddings(path: str, remove_additional_columns: bool=False):
+def check_embeddings(path: str, remove_additional_columns: bool = False):
     """Raises an error if the embeddings csv file has not the correct format
-    
-    Use this check whenever you want to upload an embedding to the Lightly 
+
+    Use this check whenever you want to upload an embedding to the Lightly
     Platform.
     This method only checks whether the header row matches the specs:
-    https://docs.lightly.ai/getting_started/command_line_tool.html#id1
+    https://docs.lightly.ai/self-supervised-learning/getting_started/command_line_tool.html#id1
 
     Args:
         path:
@@ -56,55 +54,53 @@ def check_embeddings(path: str, remove_additional_columns: bool=False):
     Raises:
         RuntimeError
     """
-    with open(path, 'r', newline='') as csv_file:
-        reader = csv.reader(csv_file, delimiter=',')
+    with open(path, "r", newline="") as csv_file:
+        reader = csv.reader(csv_file, delimiter=",")
         header: List[str] = next(reader)
 
         # check for whitespace in the header (we don't allow this)
         if any(x != x.strip() for x in header):
-            raise RuntimeError(
-                'Embeddings csv file must not contain whitespaces.'
-                )
+            raise RuntimeError("Embeddings csv file must not contain whitespaces.")
 
         # first col is `filenames`
-        if header[0] != 'filenames':
+        if header[0] != "filenames":
             raise RuntimeError(
-                f'Embeddings csv file must start with `filenames` '
-                f'column but had {header[0]} instead.'
-                )
+                f"Embeddings csv file must start with `filenames` "
+                f"column but had {header[0]} instead."
+            )
 
         # `labels` exists
         try:
-            header_labels_idx = header.index('labels')
+            header_labels_idx = header.index("labels")
         except ValueError:
-            raise RuntimeError(f'Embeddings csv file has no `labels` column.')
+            raise RuntimeError(f"Embeddings csv file has no `labels` column.")
 
         # cols between first and `labels` are `embedding_x`
         for embedding_header in header[1:header_labels_idx]:
-            if not re.match(r'embedding_\d+', embedding_header):
+            if not re.match(r"embedding_\d+", embedding_header):
                 # check if we have a special column
-                if not embedding_header in ['masked', 'selected']:
+                if not embedding_header in ["masked", "selected"]:
                     raise RuntimeError(
-                        f'Embeddings csv file must have `embedding_x` columns but '
-                        f'found {embedding_header} instead.'
-                        )
-        
+                        f"Embeddings csv file must have `embedding_x` columns but "
+                        f"found {embedding_header} instead."
+                    )
+
         # check for empty rows in the body of the csv file
         for i, row in enumerate(reader):
             if len(row) == 0:
                 raise RuntimeError(
-                    f'Embeddings csv file must not have empty rows. '
-                    f'Found empty row on line {i}.'
-                    )
+                    f"Embeddings csv file must not have empty rows. "
+                    f"Found empty row on line {i}."
+                )
 
     if remove_additional_columns:
         new_rows = []
-        with open(path, 'r', newline='') as csv_file:
-            reader = csv.reader(csv_file, delimiter=',')
+        with open(path, "r", newline="") as csv_file:
+            reader = csv.reader(csv_file, delimiter=",")
             header_row = next(reader)
 
             # create mask of columns to keep only filenames, embedding_ or labels
-            regexp = r'filenames|(embedding_\d+)|labels'
+            regexp = r"filenames|(embedding_\d+)|labels"
             col_mask = []
             for i, col in enumerate(header_row):
                 col_mask += [True] if re.match(regexp, col) else [False]
@@ -116,15 +112,14 @@ def check_embeddings(path: str, remove_additional_columns: bool=False):
                 # apply mask to only use filenames, embedding_ or labels
                 new_rows.append(list(compress(row, col_mask)))
 
-        with open(path, 'w', newline='') as csv_file:
-            writer = csv.writer(csv_file, delimiter=',')
+        with open(path, "w", newline="") as csv_file:
+            writer = csv.writer(csv_file, delimiter=",")
             writer.writerows(new_rows)
 
 
-def save_embeddings(path: str,
-                    embeddings: np.ndarray,
-                    labels: List[int],
-                    filenames: List[str]):
+def save_embeddings(
+    path: str, embeddings: np.ndarray, labels: List[int], filenames: List[str]
+):
     """Saves embeddings in a csv file in a Lightly compatible format.
 
     Creates a csv file at the location specified by path and saves embeddings,
@@ -158,15 +153,15 @@ def save_embeddings(path: str,
     n_labels = len(labels)
 
     if n_embeddings != n_labels or n_filenames != n_labels:
-        msg = 'Length of embeddings, labels, and filenames should be equal '
-        msg += f' but are not: ({n_embeddings}, {n_filenames}, {n_labels})'
+        msg = "Length of embeddings, labels, and filenames should be equal "
+        msg += f" but are not: ({n_embeddings}, {n_filenames}, {n_labels})"
         raise ValueError(msg)
 
-    header = ['filenames']
-    header = header + [f'embedding_{i}' for i in range(embeddings.shape[-1])]
-    header = header + ['labels']
-    with open(path, 'w', newline='') as csv_file:
-        writer = csv.writer(csv_file, delimiter=',')
+    header = ["filenames"]
+    header = header + [f"embedding_{i}" for i in range(embeddings.shape[-1])]
+    header = header + ["labels"]
+    with open(path, "w", newline="") as csv_file:
+        writer = csv.writer(csv_file, delimiter=",")
         writer.writerow(header)
         for filename, embedding, label in zip(filenames, embeddings, labels):
             writer.writerow([filename] + list(embedding) + [str(label)])
@@ -195,8 +190,8 @@ def load_embeddings(path: str):
 
     filenames, labels = [], []
     embeddings = []
-    with open(path, 'r', newline='') as csv_file:
-        reader = csv.reader(csv_file, delimiter=',')
+    with open(path, "r", newline="") as csv_file:
+        reader = csv.reader(csv_file, delimiter=",")
         for i, row in enumerate(reader):
             # skip header
             if i == 0:
@@ -213,16 +208,16 @@ def load_embeddings(path: str):
     return embeddings, labels, filenames
 
 
-def load_embeddings_as_dict(path: str,
-                            embedding_name: str = 'default',
-                            return_all: bool = False):
+def load_embeddings_as_dict(
+    path: str, embedding_name: str = "default", return_all: bool = False
+):
     """Loads embeddings from csv and store it in a dictionary for transfer.
 
     Loads embeddings to a dictionary which can be serialized and sent to the
     Lightly servers. It is recommended that the embedding_name is always
     specified because the Lightly web-app does not allow two embeddings with
     the same name.
-    
+
     Args:
         path:
             Path to the csv file.
@@ -250,12 +245,10 @@ def load_embeddings_as_dict(path: str,
     embeddings, labels, filenames = load_embeddings(path)
 
     # build dictionary
-    data = {'embeddingName': embedding_name, 'embeddings': []}
+    data = {"embeddingName": embedding_name, "embeddings": []}
     for embedding, filename, label in zip(embeddings, filenames, labels):
-        item = {'fileName': filename,
-                'value': embedding.tolist(),
-                'label': label}
-        data['embeddings'].append(item)
+        item = {"fileName": filename, "value": embedding.tolist(), "label": label}
+        data["embeddings"].append(item)
 
     # return embeddings along with dictionary
     if return_all:
@@ -265,17 +258,16 @@ def load_embeddings_as_dict(path: str,
 
 
 class COCO_ANNOTATION_KEYS:
-    """Enum of coco annotation keys complemented with a key for custom metadata.
+    """Enum of coco annotation keys complemented with a key for custom metadata."""
 
-    """
     # image keys
-    images: str = 'images'
-    images_id: str = 'id'
-    images_filename: str = 'file_name'
+    images: str = "images"
+    images_id: str = "id"
+    images_filename: str = "file_name"
 
     # metadata keys
-    custom_metadata: str = 'metadata'
-    custom_metadata_image_id: str = 'image_id'
+    custom_metadata: str = "metadata"
+    custom_metadata_image_id: str = "image_id"
 
 
 def format_custom_metadata(custom_metadata: List[Tuple[str, Dict]]):
@@ -293,13 +285,13 @@ def format_custom_metadata(custom_metadata: List[Tuple[str, Dict]]):
         >>>     ('hello.png', {'number_of_people': 1}),
         >>>     ('world.png', {'number_of_people': 3}),
         >>> ]
-        >>> 
+        >>>
         >>> format_custom_metadata(custom_metadata)
         >>> > {
         >>> >   'images': [{'id': 0, 'file_name': 'hello.png'}, {'id': 1, 'file_name': 'world.png'}],
         >>> >   'metadata': [{'image_id': 0, 'number_of_people': 1}, {'image_id': 1, 'number_of_people': 3}]
         >>> > }
-    
+
     """
     formatted = {
         COCO_ANNOTATION_KEYS.images: [],
@@ -307,14 +299,18 @@ def format_custom_metadata(custom_metadata: List[Tuple[str, Dict]]):
     }
 
     for i, (filename, metadata) in enumerate(custom_metadata):
-        formatted[COCO_ANNOTATION_KEYS.images].append({
-            COCO_ANNOTATION_KEYS.images_id: i,
-            COCO_ANNOTATION_KEYS.images_filename: filename,
-        })
-        formatted[COCO_ANNOTATION_KEYS.custom_metadata].append({
-            COCO_ANNOTATION_KEYS.custom_metadata_image_id: i,
-            **metadata,
-        })
+        formatted[COCO_ANNOTATION_KEYS.images].append(
+            {
+                COCO_ANNOTATION_KEYS.images_id: i,
+                COCO_ANNOTATION_KEYS.images_filename: filename,
+            }
+        )
+        formatted[COCO_ANNOTATION_KEYS.custom_metadata].append(
+            {
+                COCO_ANNOTATION_KEYS.custom_metadata_image_id: i,
+                **metadata,
+            }
+        )
 
     return formatted
 
@@ -327,12 +323,11 @@ def save_custom_metadata(path: str, custom_metadata: List[Tuple[str, Dict]]):
             Filename of the .json file where the data should be stored.
         custom_metadata:
             List of tuples (filename, metadata) where metadata is a dictionary.
-    
+
     """
     formatted = format_custom_metadata(custom_metadata)
-    with open(path, 'w') as f:
+    with open(path, "w") as f:
         json.dump(formatted, f)
-
 
 
 def save_tasks(
@@ -348,16 +343,11 @@ def save_tasks(
             List of task names.
 
     """
-    with open(path, 'w') as f:
+    with open(path, "w") as f:
         json.dump(tasks, f)
 
 
-def save_schema(
-    path: str,
-    task_type: str,
-    ids: List[int],
-    names: List[str]
-):
+def save_schema(path: str, task_type: str, ids: List[int], names: List[str]):
     """Saves a prediction schema in the right format.
 
     Args:
@@ -371,14 +361,11 @@ def save_schema(
             List of category names.
     """
     if len(ids) != len(names):
-        raise ValueError('ids and names must have same length!')
+        raise ValueError("ids and names must have same length!")
 
     schema = {
-        'task_type': task_type,
-        'categories': [
-            { 'id': id, 'name': name}
-            for id, name in zip(ids, names)
-        ]
+        "task_type": task_type,
+        "categories": [{"id": id, "name": name} for id, name in zip(ids, names)],
     }
-    with open(path, 'w') as f:
+    with open(path, "w") as f:
         json.dump(schema, f)

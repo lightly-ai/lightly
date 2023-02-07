@@ -4,11 +4,11 @@
 # All Rights Reserved
 
 import torch
+import torch.distributed as dist
 import torch.nn as nn
-import torch.distributed as dist 
-from torch.utils.data import DataLoader
 import torch.nn.functional as F
-import pytorch_lightning as pl
+from pytorch_lightning import LightningModule
+from torch.utils.data import DataLoader
 
 # code for kNN prediction from here:
 # https://colab.research.google.com/github/facebookresearch/moco/blob/colab-notebook/colab/moco_cifar10_demo.ipynb
@@ -80,7 +80,7 @@ def knn_predict(feature: torch.Tensor,
     return pred_labels
 
 
-class BenchmarkModule(pl.LightningModule):
+class BenchmarkModule(LightningModule):
     """A PyTorch Lightning Module for automated kNN callback
 
     At the end of every training epoch we create a feature bank by feeding the

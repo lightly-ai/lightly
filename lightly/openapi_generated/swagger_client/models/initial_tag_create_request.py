@@ -35,16 +35,18 @@ class InitialTagCreateRequest(object):
     swagger_types = {
         'name': 'TagName',
         'creator': 'TagCreator',
-        'img_type': 'ImageType'
+        'img_type': 'ImageType',
+        'run_id': 'MongoObjectID'
     }
 
     attribute_map = {
         'name': 'name',
         'creator': 'creator',
-        'img_type': 'imgType'
+        'img_type': 'imgType',
+        'run_id': 'runId'
     }
 
-    def __init__(self, name=None, creator=None, img_type=None, _configuration=None):  # noqa: E501
+    def __init__(self, name=None, creator=None, img_type=None, run_id=None, _configuration=None):  # noqa: E501
         """InitialTagCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -53,6 +55,7 @@ class InitialTagCreateRequest(object):
         self._name = None
         self._creator = None
         self._img_type = None
+        self._run_id = None
         self.discriminator = None
 
         if name is not None:
@@ -60,6 +63,8 @@ class InitialTagCreateRequest(object):
         if creator is not None:
             self.creator = creator
         self.img_type = img_type
+        if run_id is not None:
+            self.run_id = run_id
 
     @property
     def name(self):
@@ -125,6 +130,27 @@ class InitialTagCreateRequest(object):
             raise ValueError("Invalid value for `img_type`, must not be `None`")  # noqa: E501
 
         self._img_type = img_type
+
+    @property
+    def run_id(self):
+        """Gets the run_id of this InitialTagCreateRequest.  # noqa: E501
+
+
+        :return: The run_id of this InitialTagCreateRequest.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._run_id
+
+    @run_id.setter
+    def run_id(self, run_id):
+        """Sets the run_id of this InitialTagCreateRequest.
+
+
+        :param run_id: The run_id of this InitialTagCreateRequest.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._run_id = run_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -15,6 +15,7 @@ from lightly.data.collate import MoCoCollateFunction
 from lightly.data.collate import MultiCropCollateFunction
 from lightly.data.collate import SwaVCollateFunction
 from lightly.data.collate import imagenet_normalize
+from lightly.data.collate import VICRegLCollateFunction
 from lightly.data._video import VideoError
 from lightly.data._video import EmptyVideoError
 from lightly.data._video import NonIncreasingTimestampError

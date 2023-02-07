@@ -48,6 +48,7 @@ class DockerRunState(object):
     UPLOADED_ARTIFACTS = "UPLOADED_ARTIFACTS"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
+    CRASHED = "CRASHED"
     ABORTED = "ABORTED"
 
     """

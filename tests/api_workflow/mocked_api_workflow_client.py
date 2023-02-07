@@ -451,7 +451,7 @@ class MockedTagsApi(TagsApi):
             ).to_dict() # temporary until we have a proper openapi generator
         ]
 
-    def export_tag_to_basic_filenames(self, dataset_id: str, tag_id: str) -> str:
+    def export_tag_to_basic_filenames(self, dataset_id: str, tag_id: str, **kwargs) -> str:
         return """
 IMG_2276_jpeg_jpg.rf.7411b1902c81bad8cdefd2cc4eb3a97b.jpg
 IMG_2285_jpeg_jpg.rf.4a93d99b9f0b6cccfb27bf2f4a13b99e.jpg
@@ -989,10 +989,10 @@ class MockedComputeWorkerApi(DockerApi):
 
 class MockedVersioningApi(VersioningApi):
     def get_latest_pip_version(self, **kwargs):
-        return "1.0.8"
+        return "1.2.8"
 
     def get_minimum_compatible_pip_version(self, **kwargs):
-        return "1.0.0"
+        return "1.2.1"
 
 
 class MockedQuotaApi(QuotaApi):
@@ -1008,45 +1008,6 @@ def mocked_request_put(dst_url: str, data=IOBase) -> Response:
     response_ = Response()
     response_.status_code = 200
     return response_
-
-
-class MockedApiClient(ApiClient):
-    def request(
-        self,
-        method,
-        url,
-        query_params=None,
-        headers=None,
-        post_params=None,
-        body=None,
-        _preload_content=True,
-        _request_timeout=None,
-    ):
-        raise ValueError(
-            "ERROR: calling ApiClient.request(), but this should be mocked."
-        )
-
-    def call_api(
-        self,
-        resource_path,
-        method,
-        path_params=None,
-        query_params=None,
-        header_params=None,
-        body=None,
-        post_params=None,
-        files=None,
-        response_type=None,
-        auth_settings=None,
-        async_req=None,
-        _return_http_data_only=None,
-        collection_formats=None,
-        _preload_content=True,
-        _request_timeout=None,
-    ):
-        raise ValueError(
-            "ERROR: calling ApiClient.call_api(), but this should be mocked."
-        )
 
 
 class MockedAPICollaboration(CollaborationApi):
@@ -1075,7 +1036,6 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
     n_embedding_rows_on_server = N_FILES_ON_SERVER
 
     def __init__(self, *args, **kwargs):
-        lightly.api.api_workflow_client.ApiClient = MockedApiClient
         lightly.api.version_checking.VersioningApi = MockedVersioningApi
         ApiWorkflowClient.__init__(self, *args, **kwargs)
 

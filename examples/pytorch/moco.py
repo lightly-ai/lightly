@@ -1,6 +1,6 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
 import torch
 from torch import nn
@@ -11,6 +11,7 @@ from lightly.data import LightlyDataset
 from lightly.data import MoCoCollateFunction
 from lightly.loss import NTXentLoss
 from lightly.models.modules import MoCoProjectionHead
+from lightly.utils.scheduler import cosine_schedule
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
 
@@ -65,12 +66,17 @@ dataloader = torch.utils.data.DataLoader(
 criterion = NTXentLoss(memory_bank_size=4096)
 optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
 
+epochs = 10
+
 print("Starting Training")
-for epoch in range(10):
+for epoch in range(epochs):
     total_loss = 0
+    momentum_val = cosine_schedule(epoch, epochs, 0.996, 1)
     for (x_query, x_key), _, _ in dataloader:
-        update_momentum(model.backbone, model.backbone_momentum, m=0.99)
-        update_momentum(model.projection_head, model.projection_head_momentum, m=0.99)
+        update_momentum(model.backbone, model.backbone_momentum, m=momentum_val)
+        update_momentum(
+            model.projection_head, model.projection_head_momentum, m=momentum_val
+        )
         x_query = x_query.to(device)
         x_key = x_key.to(device)
         query = model(x_query)

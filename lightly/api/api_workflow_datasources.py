@@ -3,7 +3,6 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import tqdm
 import warnings
-import re
 
 from lightly.openapi_generated.swagger_client.models.datasource_config import (
     DatasourceConfig,
@@ -20,9 +19,7 @@ from lightly.openapi_generated.swagger_client.models.datasource_processed_until_
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import (
     DatasourceRawSamplesData,
 )
-from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_predictions_data import (
-    DatasourceRawSamplesPredictionsData,
-)
+from lightly.openapi_generated.swagger_client import DatasourceConfigVerifyDataErrors
 
 
 class _DatasourcesMixin:
@@ -571,4 +568,49 @@ class _DatasourcesMixin:
         return self._datasources_api.get_metadata_file_read_url_from_datasource_by_dataset_id(
             self.dataset_id,
             filename,
+        )
+
+    def get_custom_embedding_read_url(
+        self,
+        filename: str,
+    ) -> str:
+        """Returns a read-url for .lightly/embeddings/{filename}.
+
+        Args:
+            filename:
+                Filename for which to get the read-url.
+
+        Returns the read-url. If the file does not exist, a read-url is returned
+        anyways.
+
+        """
+        return self._datasources_api.get_custom_embedding_file_read_url_from_datasource_by_dataset_id(
+            self.dataset_id,
+            filename,
+        )
+
+    def list_datasource_permissions(
+        self,
+    ) -> Dict[str, Union[bool, Optional[DatasourceConfigVerifyDataErrors]]]:
+        """List granted access permissions for the datasource set up with a dataset.
+
+        Returns a string dictionary, with each permission mapped to a boolean value,
+        see the example below. Additionally, there is the ``errors`` key. If there
+        are permission errors it maps to a dictionary from permission name to the
+        error message, otherwise the value is ``None``.
+
+        >>> from lightly.api import ApiWorkflowClient
+        >>> client = ApiWorkflowClient(
+        ...    token="MY_LIGHTLY_TOKEN", dataset_id="MY_DATASET_ID"
+        ... )
+        >>> client.list_datasource_permissions()
+        {'can_list': True,
+         'can_overwrite': True,
+         'can_read': True,
+         'can_write': True,
+         'errors': None}
+
+        """
+        return self._datasources_api.verify_datasource_by_dataset_id(
+            dataset_id=self.dataset_id,
         )

@@ -19,7 +19,10 @@ for PyTorch and PyTorch Lightning to give you a headstart when implementing your
     moco.rst
     nnclr.rst
     simclr.rst
+    simmim.rst
     simsiam.rst
     smog.rst
     swav.rst
+    tico.rst
     vicreg.rst
+    vicregl.rst

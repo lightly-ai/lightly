@@ -10,11 +10,12 @@ import warnings
 import torch
 import torch.distributed as dist
 import torch.nn as nn
+import numpy as np
+
 
 @torch.no_grad()
 def batch_shuffle(
-    batch: torch.Tensor, 
-    distributed: bool = False
+    batch: torch.Tensor, distributed: bool = False
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """Randomly shuffles all tensors in the batch.
 
@@ -25,7 +26,7 @@ def batch_shuffle(
             If True then batches are shuffles across multiple gpus.
 
     Returns:
-        A (batch, shuffle) tuple where batch is the shuffled version of the 
+        A (batch, shuffle) tuple where batch is the shuffled version of the
         input batch and shuffle is an index to restore the original order.
 
     Examples:
@@ -41,13 +42,14 @@ def batch_shuffle(
     shuffle = torch.randperm(batch_size, device=batch.device)
     return batch[shuffle], shuffle
 
+
 @torch.no_grad()
 def batch_unshuffle(
-    batch: torch.Tensor, 
+    batch: torch.Tensor,
     shuffle: torch.Tensor,
     distributed: bool = False,
 ) -> torch.Tensor:
-    """Unshuffles a batch. 
+    """Unshuffles a batch.
 
     Args:
         batch:
@@ -56,7 +58,7 @@ def batch_unshuffle(
             Index to unshuffle the batch.
         distributed:
             If True then the batch is unshuffled across multiple gpus.
-    
+
     Returns:
         The unshuffled batch.
 
@@ -72,6 +74,7 @@ def batch_unshuffle(
     unshuffle = torch.argsort(shuffle)
     return batch[unshuffle]
 
+
 @torch.no_grad()
 def concat_all_gather(x: torch.Tensor) -> torch.Tensor:
     """Returns concatenated instances of x gathered from all gpus.
@@ -85,6 +88,7 @@ def concat_all_gather(x: torch.Tensor) -> torch.Tensor:
     output = torch.cat(output, dim=0)
     return output
 
+
 @torch.no_grad()
 def batch_shuffle_distributed(batch: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
     """Shuffles batch over multiple gpus.
@@ -97,9 +101,9 @@ def batch_shuffle_distributed(batch: torch.Tensor) -> Tuple[torch.Tensor, torch.
             The tensor to shuffle.
 
     Returns:
-        A (batch, shuffle) tuple where batch is the shuffled version of the 
+        A (batch, shuffle) tuple where batch is the shuffled version of the
         input batch and shuffle is an index to restore the original order.
-    
+
     """
     # gather from all gpus
     batch_size_this = batch.shape[0]
@@ -123,10 +127,10 @@ def batch_shuffle_distributed(batch: torch.Tensor) -> Tuple[torch.Tensor, torch.
 
     return batch_gather[idx_this], shuffle
 
+
 @torch.no_grad()
 def batch_unshuffle_distributed(
-    batch: torch.Tensor, 
-    shuffle: torch.Tensor
+    batch: torch.Tensor, shuffle: torch.Tensor
 ) -> torch.Tensor:
     """Undo batch shuffle over multiple gpus.
 
@@ -156,9 +160,10 @@ def batch_unshuffle_distributed(
 
     return batch_gather[idx_this]
 
+
 def deactivate_requires_grad(model: nn.Module):
     """Deactivates the requires_grad flag for all parameters of a model.
-    
+
     This has the same effect as permanently executing the model within a `torch.no_grad()`
     context. Use this method to disable gradient computation and therefore
     training for a model.
@@ -169,6 +174,7 @@ def deactivate_requires_grad(model: nn.Module):
     """
     for param in model.parameters():
         param.requires_grad = False
+
 
 def activate_requires_grad(model: nn.Module):
     """Activates the requires_grad flag for all parameters of a model.
@@ -183,10 +189,11 @@ def activate_requires_grad(model: nn.Module):
     for param in model.parameters():
         param.requires_grad = True
 
+
 def update_momentum(model: nn.Module, model_ema: nn.Module, m: float):
     """Updates parameters of `model_ema` with Exponential Moving Average of `model`
 
-    Momentum encoders are a crucial component fo models such as MoCo or BYOL. 
+    Momentum encoders are a crucial component fo models such as MoCo or BYOL.
 
     Examples:
         >>> backbone = resnet18()
@@ -199,14 +206,12 @@ def update_momentum(model: nn.Module, model_ema: nn.Module, m: float):
         >>> update_momentum(projection_head, projection_head_momentum, m=0.999)
     """
     for model_ema, model in zip(model_ema.parameters(), model.parameters()):
-        model_ema.data = model_ema.data * m + model.data * (1. - m)
+        model_ema.data = model_ema.data * m + model.data * (1.0 - m)
 
 
 @torch.no_grad()
 def normalize_weight(weight: nn.Parameter, dim: int = 1, keepdim: bool = True):
-    """Normalizes the weight to unit length along the specified dimension.
-
-    """
+    """Normalizes the weight to unit length along the specified dimension."""
     weight.div_(torch.norm(weight, dim=dim, keepdim=keepdim))
 
 
@@ -236,15 +241,16 @@ def _no_grad_trunc_normal(
             Maximum value of the distribution, values above will be clamped.
 
     """
+
     def norm_cdf(x):
         # Computes standard normal cumulative distribution function
-        return (1. + math.erf(x / math.sqrt(2.))) / 2.
+        return (1.0 + math.erf(x / math.sqrt(2.0))) / 2.0
 
     if (mean < a - 2 * std) or (mean > b + 2 * std):
         warnings.warn(
             "mean is more than 2 std from [a, b] in nn.init.trunc_normal_. "
             "The distribution of values may be incorrect.",
-            stacklevel=2
+            stacklevel=2,
         )
 
     with torch.no_grad():
@@ -263,12 +269,13 @@ def _no_grad_trunc_normal(
         tensor.erfinv_()
 
         # Transform to proper mean, std
-        tensor.mul_(std * math.sqrt(2.))
+        tensor.mul_(std * math.sqrt(2.0))
         tensor.add_(mean)
 
         # Clamp to ensure it's in the proper range
         tensor.clamp_(min=a, max=b)
         return tensor
+
 
 def repeat_token(token: torch.Tensor, size: Tuple[int, int]) -> torch.Tensor:
     """Repeats a token size times.
@@ -286,6 +293,7 @@ def repeat_token(token: torch.Tensor, size: Tuple[int, int]) -> torch.Tensor:
     """
     batch_size, sequence_length = size
     return token.repeat(batch_size, sequence_length, 1)
+
 
 def expand_index_like(index: torch.Tensor, tokens: torch.Tensor) -> torch.Tensor:
     """Expands the index along the last dimension of the input tokens.
@@ -306,9 +314,10 @@ def expand_index_like(index: torch.Tensor, tokens: torch.Tensor) -> torch.Tensor
     index = index.unsqueeze(-1).expand(-1, -1, dim)
     return index
 
+
 def get_at_index(tokens: torch.Tensor, index: torch.Tensor) -> torch.Tensor:
     """Selects tokens at index.
-    
+
     Args:
         tokens:
             Token tensor with shape (batch_size, sequence_length, dim).
@@ -324,13 +333,12 @@ def get_at_index(tokens: torch.Tensor, index: torch.Tensor) -> torch.Tensor:
     index = expand_index_like(index, tokens)
     return torch.gather(tokens, 1, index)
 
+
 def set_at_index(
-    tokens: torch.Tensor, 
-    index: torch.Tensor, 
-    value: torch.Tensor
+    tokens: torch.Tensor, index: torch.Tensor, value: torch.Tensor
 ) -> torch.Tensor:
     """Copies all values into the input tensor at the given indices.
-    
+
     Args:
         tokens:
             Tokens tensor with shape (batch_size, sequence_length, dim).
@@ -338,7 +346,7 @@ def set_at_index(
             Index tensor with shape (batch_size, index_length).
         value:
             Value tensor with shape (batch_size, index_length, dim).
-    
+
     Returns:
         Tokens tensor with shape (batch_size, sequence_length, dim) containing
         the new values.
@@ -347,18 +355,41 @@ def set_at_index(
     index = expand_index_like(index, tokens)
     return torch.scatter(tokens, 1, index, value)
 
+
+def mask_at_index(
+    tokens: torch.Tensor, index: torch.Tensor, mask_token: torch.Tensor
+) -> torch.Tensor:
+    """Copies mask token into the input tensor at the given indices.
+
+    Args:
+        tokens:
+            Tokens tensor with shape (batch_size, sequence_length, dim).
+        index:
+            Index tensor with shape (batch_size, index_length).
+        mask_token:
+            Value tensor with shape (1, 1, dim).
+
+    Returns:
+        Tokens tensor with shape (batch_size, sequence_length, dim) containing
+        the new values.
+
+    """
+    mask = tokens.new_zeros(tokens.shape)
+    mask = set_at_index(mask, index, 1)
+    return (1 - mask) * tokens + mask * mask_token
+
+
 def prepend_class_token(
-    tokens: torch.Tensor, 
-    class_token: torch.Tensor
+    tokens: torch.Tensor, class_token: torch.Tensor
 ) -> torch.Tensor:
     """Prepends class token to tokens.
-    
+
     Args:
         tokens:
             Tokens tensor with shape (batch_size, sequence_length, dim).
         class_token:
             Class token with shape (1, 1, dim).
-    
+
     Returns:
         Tokens tensor with the class token prepended at index 0 in every
         sequence. The tensor has shape (batch_size, sequence_length + 1, dim).
@@ -367,9 +398,10 @@ def prepend_class_token(
     batch_class_token = class_token.expand(batch_size, -1, -1)
     return torch.cat([batch_class_token, tokens], dim=1)
 
+
 def patchify(images: torch.Tensor, patch_size: int) -> torch.Tensor:
     """Converts a batch of input images into patches.
-    
+
     Args:
         images:
             Images tensor with shape (batch_size, channels, height, width)
@@ -389,17 +421,17 @@ def patchify(images: torch.Tensor, patch_size: int) -> torch.Tensor:
     patch_h = patch_w = H // patch_size
     num_patches = patch_h * patch_w
     patches = images.reshape(shape=(N, C, patch_h, patch_size, patch_w, patch_size))
-    patches = torch.einsum('nchpwq->nhwpqc', patches)
-    patches = patches.reshape(shape=(N, num_patches, patch_size ** 2 * C))
+    patches = torch.einsum("nchpwq->nhwpqc", patches)
+    patches = patches.reshape(shape=(N, num_patches, patch_size**2 * C))
     return patches
 
 
 def random_token_mask(
-    size: Tuple[int, int], 
+    size: Tuple[int, int],
     mask_ratio: float = 0.6,
     mask_class_token: bool = False,
     device: Optional[Union[torch.device, str]] = None,
-):
+) -> torch.Tensor:
     """Creates random token masks.
 
     Args:
@@ -418,7 +450,7 @@ def random_token_mask(
         A (index_keep, index_mask) tuple where each index is a tensor.
         index_keep contains the indices of the unmasked tokens and has shape
         (batch_size, num_keep). index_mask contains the indices of the masked
-        tokens and has shape (batch_size, sequence_length - num_keep). 
+        tokens and has shape (batch_size, sequence_length - num_keep).
         num_keep is equal to sequence_length * (1- mask_ratio).
 
     """
@@ -427,13 +459,73 @@ def random_token_mask(
 
     noise = torch.rand(batch_size, sequence_length, device=device)
     if not mask_class_token and sequence_length > 0:
-        # make sure that class token is not masked
+        # make sure that class token is not masked
         noise[:, 0] = -1
         num_keep = max(1, num_keep)
 
-    # get indices of tokens to keep
+    # get indices of tokens to keep
     indices = torch.argsort(noise, dim=1)
     idx_keep = indices[:, :num_keep]
     idx_mask = indices[:, num_keep:]
 
     return idx_keep, idx_mask
+
+
+def nearest_neighbors(
+    input_maps: torch.Tensor,
+    candidate_maps: torch.Tensor,
+    distances: torch.Tensor,
+    num_matches: int,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Finds the nearest neighbors of the maps in input_maps in candidate_maps.
+
+    Args:
+        input_maps:
+            A tensor of maps for which to find nearest neighbors.
+            It has size: [batch_size, input_map_size, feature_dimension]
+        candidate_maps:
+            A tensor of maps to search for nearest neighbors.
+            It has size: [batch_size, candidate_map_size, feature_dimension]
+        distances:
+            A tensor of distances between the maps in input_maps and candidate_maps.
+            It has size: [batch_size, input_map_size, candidate_map_size]
+        num_matches:
+            Number of nearest neighbors to return. If num_matches is None or -1,
+            all the maps in candidate_maps are considered.
+
+    Returns:
+        A tuple of tensors, containing the nearest neighbors in input_maps and candidate_maps.
+        They both have size: [batch_size, input_map_size, feature_dimension]
+    """
+
+    if num_matches is None or num_matches == -1 or num_matches > input_maps.size(1):
+        num_matches = input_maps.size(1)
+
+    # Find nearest neighbour of each input element in the candidate map
+    topk_values, topk_indices = distances.topk(
+        k=1, dim=2, largest=False
+    )  # [bsz, input_map_size, 1]
+    topk_values = topk_values.squeeze(-1)  # [bsz, input_map_size]
+
+    # Select num_matches neighbors pairs having the lowest distance value.
+    _, min_indices = topk_values.topk(
+        k=num_matches, dim=1, largest=False
+    )  # [bsz, num_matches]
+
+    # Create the filtered input map with num_matches lowest distance values.
+    feature_dimension = input_maps.shape[2]
+    filtered_input_maps = torch.gather(
+        input_maps, 1, min_indices.unsqueeze(-1).expand(-1, -1, feature_dimension)
+    )  # [bsz, num_matches, feature_dimension]
+
+    # Create candidate maps in the same way as input maps, but using corrispondent candidate values
+    selected_candidate_maps = torch.gather(
+        candidate_maps, 1, topk_indices.expand(-1, -1, feature_dimension)
+    )  # [bsz, input_map_size, feature_dimension]
+    filtered_candidate_maps = torch.gather(
+        selected_candidate_maps,
+        1,
+        min_indices.unsqueeze(-1).expand(-1, -1, feature_dimension),
+    )  # [bsz, num_matches, feature_dimension]
+
+    return filtered_input_maps, filtered_candidate_maps

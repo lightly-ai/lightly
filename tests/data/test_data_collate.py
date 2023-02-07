@@ -13,7 +13,7 @@ from lightly.data import SimCLRCollateFunction
 from lightly.data import MultiCropCollateFunction
 from lightly.data import SwaVCollateFunction
 from lightly.data import PIRLCollateFunction
-from lightly.data.collate import DINOCollateFunction, MAECollateFunction, MSNCollateFunction, MultiViewCollateFunction
+from lightly.data.collate import DINOCollateFunction, MAECollateFunction, MSNCollateFunction, MultiViewCollateFunction, VICRegCollateFunction, VICRegLCollateFunction
 
 
 class TestDataCollate(unittest.TestCase):
@@ -219,6 +219,22 @@ class TestDataCollate(unittest.TestCase):
             self.assertEqual(view.shape, (16, 3, 24, 24))
         for view in views[2:]:
             self.assertEqual(view.shape, (16, 3, 12, 12))
+
+    def test_vicreg_collate_init(self):
+        VICRegCollateFunction()
+
+    def test_vicreg_collate_forward(self):
+        batch = self.create_batch()
+        collate_fn = VICRegCollateFunction()
+        views, labels, fnames = collate_fn(batch)
+    
+    def test_vicregl_collate_init(self):
+        VICRegLCollateFunction()
+
+    def test_vicregl_collate_forward(self):
+        batch = self.create_batch()
+        collate_fn = VICRegLCollateFunction()
+        views, labels, fnames = collate_fn(batch)
 
     def test__random_rotation_transform(self):
         transform = collate._random_rotation_transform(rr_prob=1.0, rr_degrees=None)

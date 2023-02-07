@@ -19,7 +19,7 @@ Reference:
 
         .. literalinclude:: ../../../examples/pytorch/byol.py
 
-    .. tab:: Lighning
+    .. tab:: Lightning
 
         This example can be run from the command line with::
 
