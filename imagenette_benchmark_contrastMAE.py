@@ -69,6 +69,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from kornia import filters
 from torch.nn import functional as F
 
+from sklearn.cluster import KMeans
 import os
 
 from torchvision.models.vision_transformer import _vision_transformer
@@ -95,7 +96,10 @@ patch_size = 16
 msn_aug_mode = 'v4'
 msn_masking_ratio = 0.15
 # dataset_name = 'cifar10'
-dataset_name = 'imagenette'
+# dataset_name = 'imagenette'
+dataset_name = 'iNat2021mini'
+project_name = dataset_name + '_benchmark'
+log_model = False
 
 #  Set to True to enable Distributed Data Parallel training.
 distributed = False
@@ -186,6 +190,30 @@ elif dataset_name == 'cifar10':
         crop_min_scales=[0.2, 0.2],
         crop_max_scales=[1.0, 1.0],
     )
+elif dataset_name == 'iNat2021mini': # for now same augmentations as imagenette
+    collate_fn = lightly.data.SimCLRCollateFunction(
+        input_size=input_size,
+    )
+
+    # Multi crop augmentation for SwAV
+    swav_collate_fn = lightly.data.SwaVCollateFunction(
+        crop_sizes=[128, 64],
+        crop_counts=[2, 6]  # 2 crops @ 128x128px and 6 crops @ 64x64px
+    )
+
+    # Multi crop augmentation for DINO, additionally, disable blur for cifar10
+    dino_collate_fn = lightly.data.DINOCollateFunction(
+        global_crop_size=128,
+        local_crop_size=64,
+    )
+
+    # Two crops for SMoG
+    smog_collate_function = lightly.data.collate.SMoGCollateFunction(
+        crop_sizes=[128, 128],
+        crop_counts=[1, 1],
+        crop_min_scales=[0.2, 0.2],
+        crop_max_scales=[1.0, 1.0],
+    )
 
 #  Single crop augmentation for MAE
 mae_collate_fn = lightly.data.MAECollateFunction()
@@ -212,6 +240,9 @@ if dataset_name == 'imagenette':
 elif dataset_name == 'cifar10':
     path_to_train = './datasets/cifar10/train/'
     path_to_test = './datasets/cifar10/test/'
+elif dataset_name == 'iNat2021mini':
+    path_to_train = './datasets/iNat2021mini/train_mini/'
+    path_to_test = './datasets/iNat2021mini/val/'
 else:
     raise ValueError('Unknown dataset name')
 
@@ -753,7 +784,8 @@ class MAEModel(BenchmarkModule):
 
         decoder_dim = 512
         vit = _vision_transformer(
-                    patch_size=self.patch_size,
+                    # patch_size=self.patch_size,
+                    patch_size=16,
                     num_layers=12,
                     num_heads=12,
                     hidden_dim=768,
@@ -765,7 +797,8 @@ class MAEModel(BenchmarkModule):
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
         self.mask_ratio = masking_ratio
         # self.patch_size = vit.patch_size
-        self.patch_size = patch_size
+        # self.patch_size = patch_size
+        self.patch_size = 16
         self.sequence_length = vit.seq_length
         self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
         self.backbone = MAEBackbone.from_vit(vit)
@@ -809,7 +842,8 @@ class MAEModel(BenchmarkModule):
             mask_ratio=self.mask_ratio,
             device=images.device,
         )
-        x_encoded = self.forward_encoder(images, idx_keep)
+        #TODO: check why [0] is needed
+        x_encoded = self.forward_encoder(images, idx_keep)[0]
         x_pred = self.forward_decoder(x_encoded, idx_keep, idx_mask)
 
         # get image patches for masked tokens
@@ -1040,12 +1074,13 @@ class MSNModel(BenchmarkModule):
         # self.mask = torch.rand(128, 64, dtype=torch.float, requires_grad=True)
         import torch
         from torchvision import transforms
+        self.pretrained_mask_model = False
         self.freeze_mask_model = True
         self.maskmodel_backbone = torchvision.models.mobilenet_v3_small(
             pretrained=True if self.pretrained_mask_model else False
         ).features
         if self.freeze_mask_model:
-            for param in self.model.parameters():
+            for param in self.maskmodel_backbone.parameters():
                 param.requires_grad = False
         self.maskmodel_head = nn.Sequential(
             # nn.AdaptiveAvgPool2d((1, 1)),
@@ -1055,8 +1090,6 @@ class MSNModel(BenchmarkModule):
             nn.LayerNorm(64),
         )
         # self.maskmodel_decoder = nn.Sequential(
-
-
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
@@ -1174,9 +1207,6 @@ class MSNModel(BenchmarkModule):
             return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
 
 
-from sklearn.cluster import KMeans
-
-
 class SMoGModel(BenchmarkModule):
 
     def __init__(self, dataloader_kNN, num_classes):
@@ -1278,7 +1308,13 @@ class SMoGModel(BenchmarkModule):
 
 
 models = [
-    MSNModel,
+    # MSNModel,
+    # MSNContrastModel,
+    # MSNContrastSimCLRModel,
+    # DCLW,
+    # DCL,
+    # MAEModel,
+    SimCLRModel,
 ]
 bench_results = dict()
 from pytorch_lightning.loggers import WandbLogger
@@ -1305,11 +1341,11 @@ for BenchmarkModel in models:
 
             if 'MSN' in model_name:
                 wandb_logger = WandbLogger(
-                    project="cvmae_benchmark", entity="maggu", name=f"{model_name}--_{msn_aug_mode}_224_{masking_ratio}_training--{seed}"
+                    project=project_name, entity="maggu", name=f"{model_name}--_{msn_aug_mode}_224_{masking_ratio}_training--{seed}", log_model=log_model
                 )
             else:
                 wandb_logger = WandbLogger(
-                    project="cvmae_benchmark", entity="maggu", name=f"{model_name}--training--{seed}"
+                    project=project_name, entity="maggu", name=f"{model_name}--training--{seed}", log_model=log_model
                 )
 
             pl.seed_everything(seed)
@@ -1326,21 +1362,21 @@ for BenchmarkModel in models:
             # Save logs to: {CWD}/benchmark_logs/cifar10/{experiment_version}/{model_name}/
             # If multiple runs are specified a subdirectory for each run is created.
             sub_dir = model_name if n_runs <= 1 else f'{model_name}/run{seed}'
-            logger = TensorBoardLogger(
-                save_dir=os.path.join(logs_root_dir, 'imagenette'),
-                name='',
-                sub_dir=sub_dir,
-                version=experiment_version,
-            )
-            if experiment_version is None:
-                # Save results of all models under same version directory
-                experiment_version = logger.version
-            checkpoint_callback = pl.callbacks.ModelCheckpoint(
-                dirpath=os.path.join(logger.log_dir, 'checkpoints')
-            )
+            # logger = TensorBoardLogger(
+            #     save_dir=os.path.join(logs_root_dir, dataset_name),
+            #     name='',
+            #     sub_dir=sub_dir,
+            #     version=experiment_version,
+            # )
+            # if experiment_version is None:
+            #     # Save results of all models under same version directory
+            #     experiment_version = logger.version
+            # checkpoint_callback = pl.callbacks.ModelCheckpoint(
+            #     dirpath=os.path.join(logger.log_dir, 'checkpoints')
+            # )
 
             wandb_logger.watch(
-                benchmark_model, log_graph=False
+                benchmark_model, log_graph=False, log="all", log_freq=5
             )
 
             # trainer = pl.Trainer(
@@ -1357,7 +1393,7 @@ for BenchmarkModel in models:
                 strategy=distributed_backend,
                 sync_batchnorm=sync_batchnorm,
                 logger=wandb_logger,
-                callbacks=[checkpoint_callback]
+                # callbacks=[checkpoint_callback]
             )
             start = time.time()
             trainer.fit(
@@ -1365,6 +1401,13 @@ for BenchmarkModel in models:
                 train_dataloaders=dataloader_train_ssl,
                 val_dataloaders=dataloader_test
             )
+
+            # do linear probing
+            #TODO
+
+            # do fine tuning
+            #TODO
+
             end = time.time()
             run = {
                 'model': model_name,
@@ -1401,7 +1444,7 @@ print('-' * len(header))
 idx = 0
 for model, results in bench_results.items():
     wandb.init(
-        project="constrast_mae_benchmark",
+        project=project_name,
         entity="maggu",
         # settings=wandb.Settings(start_method="thread"),
         save_code=False,
