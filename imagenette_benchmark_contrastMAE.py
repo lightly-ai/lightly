@@ -90,10 +90,11 @@ max_epochs = 800
 knn_k = 200
 knn_t = 0.1
 classes = 10
-input_size = 223
+input_size = 224
 masking_ratio = 0.75
 patch_size = 16
-msn_aug_mode = 'v4'
+msn_aug_mode = 'v9'
+byol_mode = 'v3'
 msn_masking_ratio = 0.15
 # dataset_name = 'cifar10'
 # dataset_name = 'imagenette'
@@ -141,6 +142,13 @@ if dataset_name == 'imagenette':
     collate_fn = lightly.data.SimCLRCollateFunction(
         input_size=input_size,
     )
+    if byol_mode == 'v1' or byol_mode == 'v2' or byol_mode == 'v3':
+        # import Normalize from torchvision transforms
+        from torchvision.transforms import Normalize
+        collate_fn = lightly.data.SimCLRCollateFunction(
+            input_size=input_size,
+            normalize={'mean':(0.48145466, 0.4578275, 0.40821073), 'std':(0.26862954, 0.26130258, 0.27577711)},
+        )
 
     # Multi crop augmentation for SwAV
     swav_collate_fn = lightly.data.SwaVCollateFunction(
@@ -514,27 +522,44 @@ class BYOLModel(BenchmarkModule):
 
         self.criterion = lightly.loss.NegativeCosineSimilarity()
 
+        if byol_mode == 'v1' or byol_mode == 'v2' or byol_mode == 'v3':
+            import clip
+            self.clip_model, self.preprocess = clip.load("ViT-B/16", device=self.device)
+            utils.deactivate_requires_grad(self.clip_model)
+
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)
         z = self.projection_head(y)
         p = self.prediction_head(z)
-        return p
+        return p, y
 
     def forward_momentum(self, x):
         y = self.backbone_momentum(x).flatten(start_dim=1)
         z = self.projection_head_momentum(y)
         z = z.detach()
-        return z
+        return z, y
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.backbone, self.backbone_momentum, m=0.99)
         utils.update_momentum(self.projection_head, self.projection_head_momentum, m=0.99)
         (x0, x1), _, _ = batch
-        p0 = self.forward(x0)
-        z0 = self.forward_momentum(x0)
-        p1 = self.forward(x1)
-        z1 = self.forward_momentum(x1)
+        p0, py0 = self.forward(x0)
+        z0, zy0 = self.forward_momentum(x0)
+        p1, py1 = self.forward(x1)
+        z1, zy1 = self.forward_momentum(x1)
         loss = 0.5 * (self.criterion(p0, z1) + self.criterion(p1, z0))
+        if byol_mode == 'v1':
+            x0_clip = self.clip_model.encode_image(x0)
+            x1_clip = self.clip_model.encode_image(x1)
+            loss += 0.5 * (self.criterion(py0, x0_clip) + self.criterion(py1, x1_clip))
+        if byol_mode == 'v2':
+            x0_clip = self.clip_model.encode_image(x0)
+            x1_clip = self.clip_model.encode_image(x1)
+            loss += (0.5 * (self.criterion(py0, x1_clip) + self.criterion(py1, x0_clip))) * 0.1
+        if byol_mode == 'v3':
+            x0_clip = self.clip_model.encode_image(x0)
+            x1_clip = self.clip_model.encode_image(x1)
+            loss += (0.5 * (self.criterion(py0, x0_clip) + self.criterion(py1, x1_clip))) * 0.1
         self.log('train_loss_ssl', loss)
         return loss
 
@@ -1074,8 +1099,9 @@ class MSNModel(BenchmarkModule):
         # self.mask = torch.rand(128, 64, dtype=torch.float, requires_grad=True)
         import torch
         from torchvision import transforms
-        self.pretrained_mask_model = False
         self.freeze_mask_model = True
+        self.pretrained_mask_model = False
+        self.mask = None
         self.maskmodel_backbone = torchvision.models.mobilenet_v3_small(
             pretrained=True if self.pretrained_mask_model else False
         ).features
@@ -1094,6 +1120,7 @@ class MSNModel(BenchmarkModule):
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
         utils.update_momentum(self.anchor_projection_head, self.projection_head, 0.996)
+        loss = 0
 
         views, _, _ = batch
         views = [view.to(self.device, non_blocking=True) for view in views]
@@ -1146,10 +1173,88 @@ class MSNModel(BenchmarkModule):
             anchors_blocks = torch.cat([anchors_blocks, anchors_focal_blocks], dim=0)
             # anchors_out = torch.cat([anchors_out, targets_blocks, anchors_blocks], dim=0)
         elif msn_aug_mode == 'v5':
-            # use self.maks to mask the image
-            anchors_out_new = self.encode_masked(anchors, mask=self.mask)
+            _, targets_blocks = self.backbone.forward_blocks(targets)
+            _, anchors_blocks = self.encode_blocks(anchors)
+            _, anchors_focal_blocks = self.encode_blocks(anchors_focal)
 
-        loss = self.criterion(anchors_out, targets_out, self.prototypes.data)
+            targets_blocks = [self.projection_head(block) for block in targets_blocks]
+            anchors_blocks = [self.anchor_projection_head(block) for block in anchors_blocks]
+            anchors_focal_blocks = [self.anchor_projection_head(block) for block in anchors_focal_blocks]
+            idx = 0
+            for target_block, anchor_block, anchor_focal_block in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
+                anchors_block_out = torch.cat([anchor_block, anchor_focal_block], dim=0)
+                loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * 0.5 ** idx
+                idx += 1
+
+        elif msn_aug_mode == 'v6':
+            _, targets_blocks = self.backbone.forward_blocks(targets)
+            _, anchors_blocks = self.encode_blocks(anchors)
+            _, anchors_focal_blocks = self.encode_blocks(anchors_focal)
+
+            targets_blocks = [self.projection_head(block) for block in targets_blocks]
+            anchors_blocks = [self.anchor_projection_head(block) for block in anchors_blocks]
+            anchors_focal_blocks = [self.anchor_projection_head(block) for block in anchors_focal_blocks]
+            idx = 0
+            for target_block, anchor_block, anchor_focal_block in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
+                anchors_block_out = torch.cat([anchor_block, anchor_focal_block], dim=0)
+                loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * (1 - 0.5 ** idx)
+                idx += 1
+
+        elif msn_aug_mode == 'v7':
+            _, targets_blocks = self.backbone.forward_blocks(targets)
+            _, anchors_blocks = self.encode_blocks(anchors)
+            _, anchors_focal_blocks = self.encode_blocks(anchors_focal)
+
+            targets_blocks = [self.projection_head(block) for block in targets_blocks]
+            anchors_blocks = [self.anchor_projection_head(block) for block in anchors_blocks]
+            anchors_focal_blocks = [self.anchor_projection_head(block) for block in anchors_focal_blocks]
+            idx = 0
+            num_blocks = len(targets_blocks)
+            for target_block, anchor_block, anchor_focal_block in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
+                anchors_block_out = torch.cat([anchor_block, anchor_focal_block], dim=0)
+                loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * (idx+1/num_blocks)
+                idx += 1
+
+        elif msn_aug_mode == 'v8':
+            _, targets_blocks = self.backbone.forward_blocks(targets)
+            _, anchors_blocks = self.encode_blocks(anchors)
+            _, anchors_focal_blocks = self.encode_blocks(anchors_focal)
+
+            targets_blocks = [self.projection_head(block) for block in targets_blocks]
+            anchors_blocks = [self.anchor_projection_head(block) for block in anchors_blocks]
+            anchors_focal_blocks = [self.anchor_projection_head(block) for block in anchors_focal_blocks]
+            idx = 0
+            num_blocks = len(targets_blocks)
+            for target_block, anchor_block, anchor_focal_block in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
+                anchors_block_out = torch.cat([anchor_block, anchor_focal_block], dim=0)
+                for target_block_2, anchor_block_2, anchor_focal_block_2 in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
+                    if anchor_block_2 is anchor_block:
+                        continue
+                    anchors_block_out = torch.cat([anchors_block_out, anchor_block_2, anchor_focal_block_2], dim=0)
+                loss += self.criterion(anchors_block_out, target_block, self.prototypes.data) * (idx+1/num_blocks)
+                idx += 1
+
+        elif msn_aug_mode == 'v9':
+            _, targets_blocks = self.backbone.forward_blocks(targets)
+            _, anchors_blocks = self.encode_blocks(anchors)
+            _, anchors_focal_blocks = self.encode_blocks(anchors_focal)
+
+            targets_blocks = [self.projection_head(block) for block in targets_blocks]
+            anchors_blocks = [self.anchor_projection_head(block) for block in anchors_blocks]
+            anchors_focal_blocks = [self.anchor_projection_head(block) for block in anchors_focal_blocks]
+            idx = 0
+            num_blocks = len(targets_blocks)
+            for target_block, anchor_block, anchor_focal_block in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
+                anchors_block_out = torch.cat([anchor_block, anchor_focal_block], dim=0)
+                for target_block_2, anchor_block_2, anchor_focal_block_2 in zip(targets_blocks, anchors_blocks, anchors_focal_blocks):
+                    loss += self.criterion(anchors_block_out, target_block_2, self.prototypes.data) * (idx+1/num_blocks)
+                idx += 1
+
+        elif msn_aug_mode == 'v10':
+            # add noise to anchors
+            anchors_out = anchors_out + torch.randn_like(anchors_out) * 0.1
+
+        loss += self.criterion(anchors_out, targets_out, self.prototypes.data)
         if msn_aug_mode == 'v4':
             loss += self.criterion(anchors_blocks, targets_blocks, self.prototypes.data)
         self.log('train_loss_ssl', loss)
