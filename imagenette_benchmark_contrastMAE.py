@@ -60,7 +60,6 @@ import torchvision
 from kornia.feature import DenseSIFTDescriptor
 from lightly.models import modules
 from lightly.models.modules import heads
-# from lightly.models.modules import masked_autoencoder
 
 from modified_items import MAEBackbone, MAEDecoder, learned_token_mask
 from lightly.models import utils
