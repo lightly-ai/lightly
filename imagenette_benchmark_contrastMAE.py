@@ -1586,6 +1586,6 @@ for model, results in bench_results.items():
         'gpu_memory_usage': gpu_memory_usage,
     })
     wandb.finish()
-    time.sleep(5)
+    time.sleep(6)
 print('-' * len(header))
 
