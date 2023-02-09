@@ -248,8 +248,8 @@ elif dataset_name == 'cifar10':
     path_to_train = './datasets/cifar10/train/'
     path_to_test = './datasets/cifar10/test/'
 elif dataset_name == 'iNat2021mini':
-    path_to_train = './datasets/iNat2021mini/train_mini/'
-    path_to_test = './datasets/iNat2021mini/val/'
+    path_to_train = './datasets/inat/train_mini/'
+    path_to_test = './datasets/inat/val/'
 else:
     raise ValueError('Unknown dataset name')
 
