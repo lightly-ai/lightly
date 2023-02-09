@@ -1,7 +1,7 @@
 import lightly
 
 # Create the Lightly client to connect to the API.
-client = lightly.api.ApiWorkflowClient(token="TOKEN", dataset_id="DATASET_ID")
+client = lightly.api.ApiWorkflowClient(token="LIGHTLY_TOKEN", dataset_id="DATASET_ID")
 
 # Schedule the docker run with the "object_level.task_name" argument set. 
 # All other settings are default values and we show them so you can easily edit

@@ -12,34 +12,42 @@ Code has been tested on a V100 GPU with 16GBytes of video memory.
 Code to reproduce the benchmark results:
 
 Results (5.3.2022):
-------------------------------------------------------------------------------------------
-| Model         | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
-------------------------------------------------------------------------------------------
-| BarlowTwins   |        256 |    200 |              0.587 |   86.2 Min |      4.0 GByte |
-| BYOL          |        256 |    200 |              0.619 |   88.6 Min |      4.3 GByte |
-| DCL (*)       |        256 |    200 |              0.762 |   53.3 Min |      4.3 GByte |
-| DCLW (*)      |        256 |    200 |              0.755 |   53.7 Min |      4.3 GByte |
-| DINO (Res18)  |        256 |    200 |              0.736 |   86.5 Min |      4.1 GByte |
-| MSN (ViT-S)   |        256 |    200 |              0.741 |   92.7 Min |     16.3 GByte |
-| Moco          |        256 |    200 |              0.727 |   87.3 Min |      4.3 GByte |
-| NNCLR         |        256 |    200 |              0.726 |   86.8 Min |      4.2 GByte |
-| SimCLR        |        256 |    200 |              0.771 |   82.2 Min |      3.9 GByte |
-| SimSiam       |        256 |    200 |              0.669 |   78.6 Min |      3.9 GByte |
-| SMoG          |        128 |    200 |              0.698 |  220.9 Min |     14.3 GByte |
-| SwaV          |        256 |    200 |              0.748 |   77.6 Min |      4.0 GByte |
-------------------------------------------------------------------------------------------
-| BarlowTwins   |        256 |    800 |              0.789 |  330.9 Min |      4.0 GByte |
-| BYOL          |        256 |    800 |              0.851 |  332.7 Min |      4.3 GByte |
-| DCL (*)       |        256 |    800 |              0.816 |  213.1 Min |      4.3 GByte |
-| DCLW (*)      |        256 |    800 |              0.827 |  213.1 Min |      4.3 GByte |
-| DINO (Res18)  |        256 |    800 |              0.881 |  613.9 Min |      6.7 GByte |
-| MSN (ViT-S)   |        256 |    800 |              0.834 |  376.1 Min |     16.3 GByte |
-| Moco          |        256 |    800 |              0.832 |  322.8 Min |      4.2 GByte |
-| NNCLR         |        256 |    800 |              0.848 |  341.4 Min |      4.2 GByte |
-| SimCLR        |        256 |    800 |              0.858 |  324.8 Min |      3.9 GByte |
-| SimSiam       |        256 |    800 |              0.852 |  316.0 Min |      3.9 GByte |
-| SwaV          |        256 |    800 |              0.899 |  554.7 Min |      6.6 GByte |
-------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+| Model            | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
+---------------------------------------------------------------------------------------------
+| BarlowTwins      |        256 |    200 |              0.587 |   86.2 Min |      4.0 GByte |
+| BYOL             |        256 |    200 |              0.619 |   88.6 Min |      4.3 GByte |
+| DCL (*)          |        256 |    200 |              0.762 |   53.3 Min |      4.3 GByte |
+| DCLW (*)         |        256 |    200 |              0.755 |   53.7 Min |      4.3 GByte |
+| DINO (Res18)     |        256 |    200 |              0.736 |   86.5 Min |      4.1 GByte |
+| MSN (ViT-S)      |        256 |    200 |              0.741 |   92.7 Min |     16.3 GByte |
+| Moco             |        256 |    200 |              0.727 |   87.3 Min |      4.3 GByte |
+| NNCLR            |        256 |    200 |              0.726 |   86.8 Min |      4.2 GByte |
+| SimCLR           |        256 |    200 |              0.771 |   82.2 Min |      3.9 GByte |
+| SimMIM (ViT-B32) |        256 |    200 |              0.342 |   98.8 Min |     10.5 GByte |
+| SimSiam          |        256 |    200 |              0.669 |   78.6 Min |      3.9 GByte |
+| SMoG             |        128 |    200 |              0.698 |  220.9 Min |     14.3 GByte |
+| SwaV             |        256 |    200 |              0.748 |   77.6 Min |      4.0 GByte |
+| TiCo             |        256 |    200 |              0.531 |   78.2 Min |      4.3 GByte |
+| VICReg           |        256 |    200 |              0.679 |   79.1 Min |      5.7 GByte |
+| VICRegL          |        256 |    200 |              0.703 |   79.5 Min |      4.4 GByte |
+---------------------------------------------------------------------------------------------
+| BarlowTwins      |        256 |    800 |              0.789 |  330.9 Min |      4.0 GByte |
+| BYOL             |        256 |    800 |              0.851 |  332.7 Min |      4.3 GByte |
+| DCL (*)          |        256 |    800 |              0.816 |  213.1 Min |      4.3 GByte |
+| DCLW (*)         |        256 |    800 |              0.827 |  213.1 Min |      4.3 GByte |
+| DINO (Res18)     |        256 |    800 |              0.881 |  613.9 Min |      6.7 GByte |
+| MSN (ViT-S)      |        256 |    800 |              0.834 |  376.1 Min |     16.3 GByte |
+| Moco             |        256 |    800 |              0.832 |  322.8 Min |      4.2 GByte |
+| NNCLR            |        256 |    800 |              0.848 |  341.4 Min |      4.2 GByte |
+| SimCLR           |        256 |    800 |              0.858 |  324.8 Min |      3.9 GByte |
+| SimMIM (ViT-B32) |        256 |    800 |              0.355 |  397.8 Min |     10.5 GByte |
+| SimSiam          |        256 |    800 |              0.852 |  316.0 Min |      3.9 GByte |
+| SwaV             |        256 |    800 |              0.899 |  554.7 Min |      6.6 GByte |
+| TiCo             |        256 |    800 |              0.672 |  321.1 Min |      4.0 GByte |
+| VICReg           |        256 |    800 |              0.783 |  316.0 Min |      5.7 GByte |
+| VICRegL          |        256 |    800 |              0.817 |  302.0 Min |      4.4 GByte |
+---------------------------------------------------------------------------------------------
 
 (*): Different runtime and memory requirements due to different hardware settings
 and pytorch version. Runtime and memory requirements are comparable to SimCLR
@@ -62,9 +70,11 @@ from lightly.models.modules import heads
 from lightly.models.modules import masked_autoencoder
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
+from lightly.utils import scheduler
 from pytorch_lightning.loggers import TensorBoardLogger
+from pl_bolts.optimizers.lars import LARS
 
-logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
+logs_root_dir = os.path.join(os.getcwd(), "benchmark_logs")
 
 num_workers = 12
 memory_bank_size = 4096
@@ -76,31 +86,31 @@ knn_t = 0.1
 classes = 10
 input_size = 128
 
-# Set to True to enable Distributed Data Parallel training.
+# Set to True to enable Distributed Data Parallel training.
 distributed = False
 
-# Set to True to enable Synchronized Batch Norm (requires distributed=True). 
+# Set to True to enable Synchronized Batch Norm (requires distributed=True).
 # If enabled the batch norm is calculated over all gpus, otherwise the batch
 # norm is only calculated from samples on the same gpu.
 sync_batchnorm = False
 
-# Set to True to gather features from all gpus before calculating 
+# Set to True to gather features from all gpus before calculating
 # the loss (requires distributed=True).
-# If enabled then the loss on every gpu is calculated with features from all 
+# If enabled then the loss on every gpu is calculated with features from all
 # gpus, otherwise only features from the same gpu are used.
-gather_distributed = False 
+gather_distributed = False
 
 # benchmark
-n_runs = 1 # optional, increase to create multiple runs and report mean + std
+n_runs = 1  # optional, increase to create multiple runs and report mean + std
 batch_size = 256
-lr_factor = batch_size / 256 # scales the learning rate linearly with batch size
+lr_factor = batch_size / 256  # scales the learning rate linearly with batch size
 
 
 # use a GPU if available
 gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
 
 if distributed:
-    distributed_backend = 'ddp'
+    distributed_backend = "ddp"
     # reduce batch size for distributed training
     batch_size = batch_size // gpus
 else:
@@ -110,8 +120,8 @@ else:
 
 # The dataset structure should be like this:
 
-path_to_train = '/datasets/imagenette2-160/train/'
-path_to_test = '/datasets/imagenette2-160/val/'
+path_to_train = "/datasets/imagenette2-160/train/"
+path_to_test = "/datasets/imagenette2-160/val/"
 
 # Use SimCLR augmentations
 collate_fn = lightly.data.SimCLRCollateFunction(
@@ -121,7 +131,7 @@ collate_fn = lightly.data.SimCLRCollateFunction(
 # Multi crop augmentation for SwAV
 swav_collate_fn = lightly.data.SwaVCollateFunction(
     crop_sizes=[128, 64],
-    crop_counts=[2, 6] # 2 crops @ 128x128px and 6 crops @ 64x64px
+    crop_counts=[2, 6],  # 2 crops @ 128x128px and 6 crops @ 64x64px
 )
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
@@ -138,39 +148,43 @@ smog_collate_function = lightly.data.collate.SMoGCollateFunction(
     crop_max_scales=[1.0, 1.0],
 )
 
-# Single crop augmentation for MAE
+# Single crop augmentation for MAE
 mae_collate_fn = lightly.data.MAECollateFunction()
 
 # Multi crop augmentation for MSN
 msn_collate_fn = lightly.data.MSNCollateFunction(random_size=128, focal_size=64)
 
+# Collate function passing geometrical transformation for VICRegL
+vicregl_collate_fn = lightly.data.VICRegLCollateFunction(
+    global_crop_size=128, local_crop_size=64, global_grid_size=4, local_grid_size=2
+)
+
 normalize_transform = torchvision.transforms.Normalize(
-    mean=lightly.data.collate.imagenet_normalize['mean'],
-    std=lightly.data.collate.imagenet_normalize['std'],
+    mean=lightly.data.collate.imagenet_normalize["mean"],
+    std=lightly.data.collate.imagenet_normalize["std"],
 )
 
 # No additional augmentations for the test set
-test_transforms = torchvision.transforms.Compose([
-    torchvision.transforms.Resize(input_size),
-    torchvision.transforms.CenterCrop(128),
-    torchvision.transforms.ToTensor(),
-    normalize_transform,
-])
-
-dataset_train_ssl = lightly.data.LightlyDataset(
-    input_dir=path_to_train
+test_transforms = torchvision.transforms.Compose(
+    [
+        torchvision.transforms.Resize(input_size),
+        torchvision.transforms.CenterCrop(128),
+        torchvision.transforms.ToTensor(),
+        normalize_transform,
+    ]
 )
+
+dataset_train_ssl = lightly.data.LightlyDataset(input_dir=path_to_train)
 
 # we use test transformations for getting the feature for kNN on train data
 dataset_train_kNN = lightly.data.LightlyDataset(
-    input_dir=path_to_train,
-    transform=test_transforms
+    input_dir=path_to_train, transform=test_transforms
 )
 
 dataset_test = lightly.data.LightlyDataset(
-    input_dir=path_to_test,
-    transform=test_transforms
+    input_dir=path_to_test, transform=test_transforms
 )
+
 
 def get_data_loaders(batch_size: int, model):
     """Helper method to create dataloaders for ssl, kNN train and kNN test
@@ -185,17 +199,21 @@ def get_data_loaders(batch_size: int, model):
         col_fn = dino_collate_fn
     elif model == MAEModel:
         col_fn = mae_collate_fn
+    elif model == SimMIMModel:
+        col_fn = mae_collate_fn
     elif model == MSNModel:
         col_fn = msn_collate_fn
     elif model == SMoGModel:
         col_fn = smog_collate_function
+    elif model == VICRegLModel:
+        col_fn = vicregl_collate_fn
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
         batch_size=batch_size,
         shuffle=True,
         collate_fn=col_fn,
         drop_last=True,
-        num_workers=num_workers
+        num_workers=num_workers,
     )
 
     dataloader_train_kNN = torch.utils.data.DataLoader(
@@ -203,7 +221,7 @@ def get_data_loaders(batch_size: int, model):
         batch_size=batch_size,
         shuffle=False,
         drop_last=False,
-        num_workers=num_workers
+        num_workers=num_workers,
     )
 
     dataloader_test = torch.utils.data.DataLoader(
@@ -211,11 +229,10 @@ def get_data_loaders(batch_size: int, model):
         batch_size=batch_size,
         shuffle=False,
         drop_last=False,
-        num_workers=num_workers
+        num_workers=num_workers,
     )
 
     return dataloader_train_ssl, dataloader_train_kNN, dataloader_test
-
 
 class MocoModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
@@ -227,8 +244,7 @@ class MocoModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
 
         # create a moco model based on ResNet
@@ -240,8 +256,8 @@ class MocoModel(BenchmarkModule):
 
         # create our loss with the optional memory bank
         self.criterion = lightly.loss.NTXentLoss(
-            temperature=0.1,
-            memory_bank_size=memory_bank_size)
+            temperature=0.1, memory_bank_size=memory_bank_size
+        )
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -270,19 +286,21 @@ class MocoModel(BenchmarkModule):
         loss_2 = self.criterion(*step(x1, x0))
 
         loss = 0.5 * (loss_1 + loss_2)
-        self.log('train_loss_ssl', loss)
+        self.log("train_loss_ssl", loss)
         return loss
 
     def configure_optimizers(self):
-        params = list(self.backbone.parameters()) + list(self.projection_head.parameters())
+        params = list(self.backbone.parameters()) + list(
+            self.projection_head.parameters()
+        )
         optim = torch.optim.SGD(
-            params, 
+            params,
             lr=6e-2 * lr_factor,
-            momentum=0.9, 
+            momentum=0.9,
             weight_decay=5e-4,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class SimCLRModel(BenchmarkModule):
@@ -292,8 +310,7 @@ class SimCLRModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
         self.criterion = lightly.loss.NTXentLoss()
@@ -308,18 +325,16 @@ class SimCLRModel(BenchmarkModule):
         z0 = self.forward(x0)
         z1 = self.forward(x1)
         loss = self.criterion(z0, z1)
-        self.log('train_loss_ssl', loss)
+        self.log("train_loss_ssl", loss)
         return loss
 
     def configure_optimizers(self):
         optim = torch.optim.SGD(
-            self.parameters(), 
-            lr=6e-2 * lr_factor,
-            momentum=0.9, 
-            weight_decay=5e-4
+            self.parameters(), lr=6e-2 * lr_factor, momentum=0.9, weight_decay=5e-4
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
+
 
 class SimSiamModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
@@ -328,13 +343,12 @@ class SimSiamModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.SimSiamProjectionHead(feature_dim, 2048, 2048)
         self.prediction_head = heads.SimSiamPredictionHead(2048, 512, 2048)
         self.criterion = lightly.loss.NegativeCosineSimilarity()
-            
+
     def forward(self, x):
         f = self.backbone(x).flatten(start_dim=1)
         z = self.projection_head(f)
@@ -347,18 +361,19 @@ class SimSiamModel(BenchmarkModule):
         z0, p0 = self.forward(x0)
         z1, p1 = self.forward(x1)
         loss = 0.5 * (self.criterion(z0, p1) + self.criterion(z1, p0))
-        self.log('train_loss_ssl', loss)
+        self.log("train_loss_ssl", loss)
         return loss
 
     def configure_optimizers(self):
         optim = torch.optim.SGD(
-            self.parameters(), 
-            lr=6e-2, # no lr-scaling, results in better training stability
+            self.parameters(),
+            lr=6e-2,  # no lr-scaling, results in better training stability
             momentum=0.9,
-            weight_decay=5e-4
+            weight_decay=5e-4,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
+
 
 class BarlowTwinsModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
@@ -367,13 +382,14 @@ class BarlowTwinsModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
         # use a 2-layer projection head for cifar10 as described in the paper
         self.projection_head = heads.BarlowTwinsProjectionHead(feature_dim, 2048, 2048)
 
-        self.criterion = lightly.loss.BarlowTwinsLoss(gather_distributed=gather_distributed)
+        self.criterion = lightly.loss.BarlowTwinsLoss(
+            gather_distributed=gather_distributed
+        )
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -385,18 +401,16 @@ class BarlowTwinsModel(BenchmarkModule):
         z0 = self.forward(x0)
         z1 = self.forward(x1)
         loss = self.criterion(z0, z1)
-        self.log('train_loss_ssl', loss)
+        self.log("train_loss_ssl", loss)
         return loss
 
     def configure_optimizers(self):
         optim = torch.optim.SGD(
-            self.parameters(), 
-            lr=6e-2 * lr_factor,
-            momentum=0.9, 
-            weight_decay=5e-4
+            self.parameters(), lr=6e-2 * lr_factor, momentum=0.9, weight_decay=5e-4
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
+
 
 class BYOLModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
@@ -405,8 +419,7 @@ class BYOLModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
 
         # create a byol model based on ResNet
@@ -435,28 +448,32 @@ class BYOLModel(BenchmarkModule):
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.backbone, self.backbone_momentum, m=0.99)
-        utils.update_momentum(self.projection_head, self.projection_head_momentum, m=0.99)
+        utils.update_momentum(
+            self.projection_head, self.projection_head_momentum, m=0.99
+        )
         (x0, x1), _, _ = batch
         p0 = self.forward(x0)
         z0 = self.forward_momentum(x0)
         p1 = self.forward(x1)
         z1 = self.forward_momentum(x1)
         loss = 0.5 * (self.criterion(p0, z1) + self.criterion(p1, z0))
-        self.log('train_loss_ssl', loss)
+        self.log("train_loss_ssl", loss)
         return loss
 
     def configure_optimizers(self):
-        params = list(self.backbone.parameters()) \
-            + list(self.projection_head.parameters()) \
+        params = (
+            list(self.backbone.parameters())
+            + list(self.projection_head.parameters())
             + list(self.prediction_head.parameters())
+        )
         optim = torch.optim.SGD(
-            params, 
+            params,
             lr=6e-2 * lr_factor,
-            momentum=0.9, 
+            momentum=0.9,
             weight_decay=5e-4,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class NNCLRModel(BenchmarkModule):
@@ -466,8 +483,7 @@ class NNCLRModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.NNCLRProjectionHead(feature_dim, 2048, 256)
         self.prediction_head = heads.NNCLRPredictionHead(256, 4096, 256)
@@ -493,13 +509,13 @@ class NNCLRModel(BenchmarkModule):
 
     def configure_optimizers(self):
         optim = torch.optim.SGD(
-            self.parameters(), 
+            self.parameters(),
             lr=6e-2 * lr_factor,
-            momentum=0.9, 
+            momentum=0.9,
             weight_decay=5e-4,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class SwaVModel(BenchmarkModule):
@@ -509,14 +525,15 @@ class SwaVModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
 
         self.projection_head = heads.SwaVProjectionHead(feature_dim, 2048, 128)
-        self.prototypes = heads.SwaVPrototypes(128, 3000) # use 3000 prototypes
+        self.prototypes = heads.SwaVPrototypes(128, 3000)  # use 3000 prototypes
 
-        self.criterion = lightly.loss.SwaVLoss(sinkhorn_gather_distributed=gather_distributed)
+        self.criterion = lightly.loss.SwaVLoss(
+            sinkhorn_gather_distributed=gather_distributed
+        )
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -540,12 +557,9 @@ class SwaVModel(BenchmarkModule):
         low_resolution_features = multi_crop_features[2:]
 
         # calculate the SwaV loss
-        loss = self.criterion(
-            high_resolution_features,
-            low_resolution_features
-        )
+        loss = self.criterion(high_resolution_features, low_resolution_features)
 
-        self.log('train_loss_ssl', loss)
+        self.log("train_loss_ssl", loss)
         return loss
 
     def configure_optimizers(self):
@@ -554,8 +568,8 @@ class SwaVModel(BenchmarkModule):
             lr=1e-3 * lr_factor,
             weight_decay=1e-6,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class DINOModel(BenchmarkModule):
@@ -565,12 +579,15 @@ class DINOModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
-        self.head = heads.DINOProjectionHead(feature_dim, 2048, 256, 2048, batch_norm=True)
+        self.head = heads.DINOProjectionHead(
+            feature_dim, 2048, 256, 2048, batch_norm=True
+        )
         self.teacher_backbone = copy.deepcopy(self.backbone)
-        self.teacher_head = heads.DINOProjectionHead(feature_dim, 2048, 256, 2048, batch_norm=True)
+        self.teacher_head = heads.DINOProjectionHead(
+            feature_dim, 2048, 256, 2048, batch_norm=True
+        )
 
         utils.deactivate_requires_grad(self.teacher_backbone)
         utils.deactivate_requires_grad(self.teacher_head)
@@ -596,20 +613,19 @@ class DINOModel(BenchmarkModule):
         teacher_out = [self.forward_teacher(view) for view in global_views]
         student_out = [self.forward(view) for view in views]
         loss = self.criterion(teacher_out, student_out, epoch=self.current_epoch)
-        self.log('train_loss_ssl', loss)
+        self.log("train_loss_ssl", loss)
         return loss
 
     def configure_optimizers(self):
-        param = list(self.backbone.parameters()) \
-            + list(self.head.parameters())
+        param = list(self.backbone.parameters()) + list(self.head.parameters())
         optim = torch.optim.SGD(
             param,
             lr=6e-2 * lr_factor,
             momentum=0.9,
             weight_decay=5e-4,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class DCL(BenchmarkModule):
@@ -619,8 +635,7 @@ class DCL(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
         self.criterion = lightly.loss.DCLLoss()
@@ -635,18 +650,15 @@ class DCL(BenchmarkModule):
         z0 = self.forward(x0)
         z1 = self.forward(x1)
         loss = self.criterion(z0, z1)
-        self.log('train_loss_ssl', loss)
+        self.log("train_loss_ssl", loss)
         return loss
 
     def configure_optimizers(self):
         optim = torch.optim.SGD(
-            self.parameters(), 
-            lr=6e-2 * lr_factor,
-            momentum=0.9, 
-            weight_decay=5e-4
+            self.parameters(), lr=6e-2 * lr_factor, momentum=0.9, weight_decay=5e-4
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class DCLW(BenchmarkModule):
@@ -656,8 +668,7 @@ class DCLW(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
         self.criterion = lightly.loss.DCLWLoss()
@@ -672,24 +683,21 @@ class DCLW(BenchmarkModule):
         z0 = self.forward(x0)
         z1 = self.forward(x1)
         loss = self.criterion(z0, z1)
-        self.log('train_loss_ssl', loss)
+        self.log("train_loss_ssl", loss)
         return loss
 
     def configure_optimizers(self):
         optim = torch.optim.SGD(
-            self.parameters(), 
-            lr=6e-2 * lr_factor,
-            momentum=0.9, 
-            weight_decay=5e-4
+            self.parameters(), lr=6e-2 * lr_factor, momentum=0.9, weight_decay=5e-4
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 class MAEModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
-        
+
         decoder_dim = 512
         vit = torchvision.models.vit_b_32(pretrained=False)
 
@@ -706,7 +714,7 @@ class MAEModel(BenchmarkModule):
             embed_input_dim=vit.hidden_dim,
             hidden_dim=decoder_dim,
             mlp_dim=decoder_dim * 4,
-            out_dim=vit.patch_size ** 2 * 3,
+            out_dim=vit.patch_size**2 * 3,
             dropout=0,
             attention_dropout=0,
         )
@@ -719,7 +727,9 @@ class MAEModel(BenchmarkModule):
         # build decoder input
         batch_size = x_encoded.shape[0]
         x_decode = self.decoder.embed(x_encoded)
-        x_masked = utils.repeat_token(self.mask_token, (batch_size, self.sequence_length))
+        x_masked = utils.repeat_token(
+            self.mask_token, (batch_size, self.sequence_length)
+        )
         x_masked = utils.set_at_index(x_masked, idx_keep, x_decode)
 
         # decoder forward pass
@@ -732,7 +742,7 @@ class MAEModel(BenchmarkModule):
 
     def training_step(self, batch, batch_idx):
         images, _, _ = batch
-        
+
         batch_size = images.shape[0]
         idx_keep, idx_mask = utils.random_token_mask(
             size=(batch_size, self.sequence_length),
@@ -746,9 +756,9 @@ class MAEModel(BenchmarkModule):
         patches = utils.patchify(images, self.patch_size)
         # must adjust idx_mask for missing class token
         target = utils.get_at_index(patches, idx_mask - 1)
-        
+
         loss = self.criterion(x_pred, target)
-        self.log('train_loss_ssl', loss)
+        self.log("train_loss_ssl", loss)
         return loss
 
     def configure_optimizers(self):
@@ -758,21 +768,16 @@ class MAEModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.95),
         )
-        cosine_with_warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
-        return [optim], [cosine_with_warmup_scheduler]
+        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        return [optim], [cosine_scheduler]
 
-    def scale_lr(self, epoch):
-        if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs 
-        else:
-            return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
 
 class MSNModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
 
         self.warmup_epochs = 15
-        # ViT small configuration (ViT-S/16)
+        # ViT small configuration (ViT-S/16)
         self.mask_ratio = 0.15
         self.backbone = masked_autoencoder.MAEBackbone(
             image_size=224,
@@ -810,7 +815,7 @@ class MSNModel(BenchmarkModule):
         anchors_out = torch.cat([anchors_out, anchors_focal_out], dim=0)
 
         loss = self.criterion(anchors_out, targets_out, self.prototypes.data)
-        self.log('train_loss_ssl', loss)
+        self.log("train_loss_ssl", loss)
         return loss
 
     def encode_masked(self, anchors):
@@ -836,28 +841,21 @@ class MSNModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.95),
         )
-        cosine_with_warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optim, self.scale_lr)
-        return [optim], [cosine_with_warmup_scheduler]
-
-    def scale_lr(self, epoch):
-        if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs 
-        else:
-            return 0.5 * (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (max_epochs - self.warmup_epochs)))
+        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 from sklearn.cluster import KMeans
 
-class SMoGModel(BenchmarkModule):
 
+class SMoGModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
 
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator('resnet-18')
+        resnet = lightly.models.ResNetGenerator("resnet-18")
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
 
         # create a model based on ResNet
@@ -871,7 +869,9 @@ class SMoGModel(BenchmarkModule):
         # smog
         self.n_groups = 300
         memory_bank_size = 10000
-        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=memory_bank_size)
+        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(
+            size=memory_bank_size
+        )
         # create our loss
         group_features = torch.nn.functional.normalize(
             torch.rand(self.n_groups, 128), dim=1
@@ -908,7 +908,9 @@ class SMoGModel(BenchmarkModule):
         else:
             # update momentum
             utils.update_momentum(self.backbone, self.backbone_momentum, 0.99)
-            utils.update_momentum(self.projection_head, self.projection_head_momentum, 0.99)
+            utils.update_momentum(
+                self.projection_head, self.projection_head_momentum, 0.99
+            )
 
         (x0, x1), _, _ = batch
 
@@ -935,19 +937,226 @@ class SMoGModel(BenchmarkModule):
 
         return loss
 
-
     def configure_optimizers(self):
-        params = list(self.backbone.parameters()) + list(self.projection_head.parameters()) + list(self.prediction_head.parameters())        
+        params = (
+            list(self.backbone.parameters())
+            + list(self.projection_head.parameters())
+            + list(self.prediction_head.parameters())
+        )
         optim = torch.optim.SGD(
-            params, 
+            params,
             lr=0.01,
             momentum=0.9,
             weight_decay=1e-6,
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
-        return [optim], [scheduler]
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
+class SimMIMModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+
+        vit = torchvision.models.vit_b_32(pretrained=False)
+        self.warmup_epochs = 40 if max_epochs >= 800 else 20
+        decoder_dim = vit.hidden_dim
+        self.mask_ratio = 0.75
+        self.patch_size = vit.patch_size
+        self.sequence_length = vit.seq_length
+        self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
+
+        # same backbone as MAE
+        self.backbone = masked_autoencoder.MAEBackbone.from_vit(vit)
+
+        # the decoder is a simple linear layer
+        self.decoder = nn.Linear(vit.hidden_dim, vit.patch_size**2 * 3)
+
+        # L1 loss as paper suggestion
+        self.criterion = nn.L1Loss()
+
+    def forward_encoder(self, images, batch_size, idx_mask):
+        # pass all the tokens to the encoder, both masked and non masked ones
+        tokens = self.backbone.images_to_tokens(images, prepend_class_token=True)
+        tokens_masked = utils.mask_at_index(tokens, idx_mask, self.mask_token)
+        return self.backbone.encoder(tokens_masked)
+
+    def forward_decoder(self, x_encoded):
+        return self.decoder(x_encoded)
+
+    def training_step(self, batch, batch_idx):
+        images, _, _ = batch
+
+        batch_size = images.shape[0]
+        idx_keep, idx_mask = utils.random_token_mask(
+            size=(batch_size, self.sequence_length),
+            mask_ratio=self.mask_ratio,
+            device=images.device,
+        )
+
+        # Encoding...
+        x_encoded = self.forward_encoder(images, batch_size, idx_mask)
+        x_encoded_masked = utils.get_at_index(x_encoded, idx_mask)
+
+        # Decoding...
+        x_out = self.forward_decoder(x_encoded_masked)
+
+        # get image patches for masked tokens
+        patches = utils.patchify(images, self.patch_size)
+
+        # must adjust idx_mask for missing class token
+        target = utils.get_at_index(patches, idx_mask - 1)
+
+        loss = self.criterion(x_out, target)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.AdamW(
+            self.parameters(),
+            lr=8e-4 * lr_factor,
+            weight_decay=0.05,
+            betas=(0.9, 0.999),
+        )
+        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        return [optim], [cosine_scheduler]
+
+
+class VICRegModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
+        self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
+        self.criterion = lightly.loss.VICRegLoss()
+        self.warmup_epochs = 40 if max_epochs >= 800 else 20
+
+    def forward(self, x):
+        x = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(x)
+        return z
+
+    def training_step(self, batch, batch_index):
+        (x0, x1), _, _ = batch
+        z0 = self.forward(x0)
+        z1 = self.forward(x1)
+        loss = self.criterion(z0, z1)
+        return loss
+
+    def configure_optimizers(self):
+        # Training diverges without LARS
+        optim = LARS(
+            self.parameters(),
+            lr=0.3 * lr_factor,
+            weight_decay=1e-4,
+            momentum=0.9,
+        )
+        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        return [optim], [cosine_scheduler]
+
+
+class VICRegLModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+
+        # The train_backbone variable is introduced in order to fit with the
+        # structure of BenchmarkModule. During training, train_backbone is used
+        # to extract local and global features. Durig evaluation, backbone is used
+        # to evaluate global features.
+        self.train_backbone = nn.Sequential(*list(resnet.children())[:-2])
+        self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
+        self.local_projection_head = heads.VicRegLLocalProjectionHead(512, 128, 128)
+        self.average_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
+        self.criterion = lightly.loss.VICRegLLoss(alpha=0.75, num_matches=(16, 4))
+        self.backbone = nn.Sequential(self.train_backbone, self.average_pool)
+        self.warmup_epochs = 40 if max_epochs >= 800 else 20
+
+    def forward(self, x):
+        x = self.train_backbone(x)
+        y = self.average_pool(x).flatten(start_dim=1)
+        z = self.projection_head(y)
+        y_local = x.permute(0, 2, 3, 1)  # (B, D, W, H) to (B, W, H, D)
+        z_local = self.local_projection_head(y_local)
+        return z, z_local
+
+    def training_step(self, batch, batch_index):
+        (view_global, view_local, grid_global, grid_local), _, _ = batch
+        z_global, z_global_local_features = self.forward(view_global)
+        z_local, z_local_local_features = self.forward(view_local)
+        loss = self.criterion(
+            z_global=z_global,
+            z_local=z_local,
+            z_global_local_features=z_global_local_features,
+            z_local_local_features=z_local_local_features,
+            grid_global=grid_global,
+            grid_local=grid_local,
+        )
+        return loss
+
+    def configure_optimizers(self):
+        # Training diverges without LARS
+        optim = LARS(
+            self.parameters(),
+            lr=0.3 * lr_factor,
+            weight_decay=1e-4,
+            momentum=0.9,
+        )
+        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        return [optim], [cosine_scheduler]
+
+
+class TiCoModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+
+        resnet = torchvision.models.resnet18()
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
+        self.projection_head = heads.TiCoProjectionHead(512, 1024, 256)
+
+        self.backbone_momentum = copy.deepcopy(self.backbone)
+        self.projection_head_momentum = copy.deepcopy(self.projection_head)
+
+        utils.deactivate_requires_grad(self.backbone_momentum)
+        utils.deactivate_requires_grad(self.projection_head_momentum)
+
+        self.criterion = lightly.loss.TiCoLoss()
+        self.warmup_epochs = 40 if max_epochs >= 800 else 20
+
+    def forward(self, x):
+        y = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(y)
+        return z
+
+    def forward_momentum(self, x):
+        y = self.backbone_momentum(x).flatten(start_dim=1)
+        z = self.projection_head_momentum(y)
+        z = z.detach()
+        return z
+
+    def training_step(self, batch, batch_index):
+        (x0, x1), _, _ = batch
+        momentum = scheduler.cosine_schedule(self.current_epoch, 10, 0.996, 1)
+        utils.update_momentum(self.backbone, self.backbone_momentum, m=momentum)
+        utils.update_momentum(
+            self.projection_head, self.projection_head_momentum, m=momentum
+        )
+        x0 = x0.to(self.device)
+        x1 = x1.to(self.device)
+        z0 = self.forward(x0)
+        z1 = self.forward_momentum(x1)
+        loss = self.criterion(z0, z1)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.SGD(
+            self.parameters(),
+            lr=0.3 * lr_factor,
+            weight_decay=1e-4,
+            momentum=0.9,
+        )
+        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        return [optim], [cosine_scheduler]
 
 
 models = [
@@ -956,14 +1165,18 @@ models = [
     DCL,
     DCLW,
     DINOModel,
-    # MAEModel, # disabled by default because MAE uses larger images with size 224
-    # MSNModel, # disabled by default because MSN uses larger images with size 224
+    # MAEModel, # disabled by default because MAE uses larger images with size 224
+    # MSNModel, # disabled by default because MSN uses larger images with size 224
     MocoModel,
     NNCLRModel,
     SimCLRModel,
+    # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
     SimSiamModel,
     SwaVModel,
-    SMoGModel
+    SMoGModel,
+    TiCoModel,
+    VICRegModel,
+    VICRegLModel,
 ]
 bench_results = dict()
 
@@ -971,21 +1184,21 @@ experiment_version = None
 # loop through configurations and train models
 for BenchmarkModel in models:
     runs = []
-    model_name = BenchmarkModel.__name__.replace('Model', '')
+    model_name = BenchmarkModel.__name__.replace("Model", "")
     for seed in range(n_runs):
         pl.seed_everything(seed)
         dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(
-            batch_size=batch_size, 
+            batch_size=batch_size,
             model=BenchmarkModel,
         )
         benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
 
         # Save logs to: {CWD}/benchmark_logs/cifar10/{experiment_version}/{model_name}/
         # If multiple runs are specified a subdirectory for each run is created.
-        sub_dir = model_name if n_runs <= 1 else f'{model_name}/run{seed}'
+        sub_dir = model_name if n_runs <= 1 else f"{model_name}/run{seed}"
         logger = TensorBoardLogger(
-            save_dir=os.path.join(logs_root_dir, 'imagenette'),
-            name='',
+            save_dir=os.path.join(logs_root_dir, "imagenette"),
+            name="",
             sub_dir=sub_dir,
             version=experiment_version,
         )
@@ -993,32 +1206,32 @@ for BenchmarkModel in models:
             # Save results of all models under same version directory
             experiment_version = logger.version
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
-            dirpath=os.path.join(logger.log_dir, 'checkpoints')
+            dirpath=os.path.join(logger.log_dir, "checkpoints")
         )
         trainer = pl.Trainer(
-            max_epochs=max_epochs, 
+            max_epochs=max_epochs,
             gpus=gpus,
             default_root_dir=logs_root_dir,
             strategy=distributed_backend,
             sync_batchnorm=sync_batchnorm,
             logger=logger,
-            callbacks=[checkpoint_callback]
+            callbacks=[checkpoint_callback],
         )
         start = time.time()
         trainer.fit(
             benchmark_model,
             train_dataloaders=dataloader_train_ssl,
-            val_dataloaders=dataloader_test
+            val_dataloaders=dataloader_test,
         )
         end = time.time()
         run = {
-            'model': model_name,
-            'batch_size': batch_size,
-            'epochs': max_epochs,
-            'max_accuracy': benchmark_model.max_accuracy,
-            'runtime': end - start,
-            'gpu_memory_usage': torch.cuda.max_memory_allocated(),
-            'seed': seed,
+            "model": model_name,
+            "batch_size": batch_size,
+            "epochs": max_epochs,
+            "max_accuracy": benchmark_model.max_accuracy,
+            "runtime": end - start,
+            "gpu_memory_usage": torch.cuda.max_memory_allocated(),
+            "seed": seed,
         }
         runs.append(run)
         print(run)
@@ -1028,23 +1241,23 @@ for BenchmarkModel in models:
         del trainer
         torch.cuda.reset_peak_memory_stats()
         torch.cuda.empty_cache()
-    
+
     bench_results[model_name] = runs
 
-# print results table
+# print results table
 header = (
     f"| {'Model':<13} | {'Batch Size':>10} | {'Epochs':>6} "
     f"| {'KNN Test Accuracy':>18} | {'Time':>10} | {'Peak GPU Usage':>14} |"
 )
-print('-' * len(header))
+print("-" * len(header))
 print(header)
-print('-' * len(header))
+print("-" * len(header))
 for model, results in bench_results.items():
-    runtime = np.array([result['runtime'] for result in results])
-    runtime = runtime.mean() / 60 # convert to min
-    accuracy = np.array([result['max_accuracy'] for result in results])
-    gpu_memory_usage = np.array([result['gpu_memory_usage'] for result in results])
-    gpu_memory_usage = gpu_memory_usage.max() / (1024**3) # convert to gbyte
+    runtime = np.array([result["runtime"] for result in results])
+    runtime = runtime.mean() / 60  # convert to min
+    accuracy = np.array([result["max_accuracy"] for result in results])
+    gpu_memory_usage = np.array([result["gpu_memory_usage"] for result in results])
+    gpu_memory_usage = gpu_memory_usage.max() / (1024**3)  # convert to gbyte
 
     if len(accuracy) > 1:
         accuracy_msg = f"{accuracy.mean():>8.3f} +- {accuracy.std():>4.3f}"
@@ -1055,6 +1268,6 @@ for model, results in bench_results.items():
         f"| {model:<13} | {batch_size:>10} | {max_epochs:>6} "
         f"| {accuracy_msg} | {runtime:>6.1f} Min "
         f"| {gpu_memory_usage:>8.1f} GByte |",
-        flush=True
+        flush=True,
     )
-print('-' * len(header))
+print("-" * len(header))

@@ -23,7 +23,7 @@ def _get_byol_mlp(num_ftrs: int, hidden_dim: int, out_dim: int):
         nn.Linear(num_ftrs, hidden_dim),
         nn.BatchNorm1d(hidden_dim),
         nn.ReLU(),
-        nn.Linear(hidden_dim, out_dim)
+        nn.Linear(hidden_dim, out_dim),
     ]
     return nn.Sequential(*modules)
 
@@ -44,12 +44,14 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
             Momentum for the momentum update of encoder.
     """
 
-    def __init__(self,
-                 backbone: nn.Module,
-                 num_ftrs: int = 2048,
-                 hidden_dim: int = 4096,
-                 out_dim: int = 256,
-                 m: float = 0.9):
+    def __init__(
+        self,
+        backbone: nn.Module,
+        num_ftrs: int = 2048,
+        hidden_dim: int = 4096,
+        out_dim: int = 256,
+        m: float = 0.9,
+    ):
 
         super(BYOL, self).__init__()
 
@@ -63,15 +65,16 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
         self._init_momentum_encoder()
         self.m = m
 
-        warnings.warn(Warning(
-            'The high-level building block BYOL will be deprecated in version 1.3.0. '
-            + 'Use low-level building blocks instead. '
-            + 'See https://docs.lightly.ai/lightly.models.html for more information'),
-            PendingDeprecationWarning)
+        warnings.warn(
+            Warning(
+                "The high-level building block BYOL will be deprecated in version 1.3.0. "
+                + "Use low-level building blocks instead. "
+                + "See https://docs.lightly.ai/self-supervised-learning/lightly.models.html for more information"
+            ),
+            PendingDeprecationWarning,
+        )
 
-    def _forward(self,
-                 x0: torch.Tensor,
-                 x1: torch.Tensor = None):
+    def _forward(self, x0: torch.Tensor, x1: torch.Tensor = None):
         """Forward pass through the encoder and the momentum encoder.
 
         Performs the momentum update, extracts features with the backbone and
@@ -86,9 +89,9 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
                 Tensor of shape bsz x channels x W x H.
 
         Returns:
-            The output proejction of x0 and (if x1 is not None) the output 
+            The output proejction of x0 and (if x1 is not None) the output
             projection of x1.
-        
+
         Examples:
             >>> # single input, single output
             >>> out = model._forward(x)
@@ -113,19 +116,18 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
 
             f1 = self.momentum_backbone(x1).flatten(start_dim=1)
             out1 = self.momentum_projection_head(f1)
-        
+
         return out0, out1
 
-    def forward(self,
-                x0: torch.Tensor,
-                x1: torch.Tensor,
-                return_features: bool = False):
+    def forward(
+        self, x0: torch.Tensor, x1: torch.Tensor, return_features: bool = False
+    ):
         """Symmetrizes the forward pass (see _forward).
 
         Performs two forward passes, once where x0 is passed through the encoder
         and x1 through the momentum encoder and once the other way around.
 
-        Note that this model currently requires two inputs for the forward pass 
+        Note that this model currently requires two inputs for the forward pass
         (x0 and x1) which correspond to the two augmentations.
         Furthermore, `the return_features` argument does not work yet.
 
@@ -135,7 +137,7 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
             x1:
                 Tensor of shape bsz x channels x W x H.
 
-        Returns: 
+        Returns:
             A tuple out0, out1, where out0 and out1 are tuples containing the
             predictions and projections of x0 and x1: out0 = (z0, p0) and
             out1 = (z1, p1).
@@ -152,13 +154,13 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
         """
 
         if x0 is None:
-            raise ValueError('x0 must not be None!')
+            raise ValueError("x0 must not be None!")
         if x1 is None:
-            raise ValueError('x1 must not be None!')
+            raise ValueError("x1 must not be None!")
 
         if not all([s0 == s1 for s0, s1 in zip(x0.shape, x1.shape)]):
             raise ValueError(
-                f'x0 and x1 must have same shape but got shapes {x0.shape} and {x1.shape}!'
+                f"x0 and x1 must have same shape but got shapes {x0.shape} and {x1.shape}!"
             )
 
         p0, z1 = self._forward(x0, x1)

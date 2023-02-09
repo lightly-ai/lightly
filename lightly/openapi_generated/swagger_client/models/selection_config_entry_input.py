@@ -39,7 +39,8 @@ class SelectionConfigEntryInput(object):
         'key': 'str',
         'name': 'SelectionInputPredictionsName',
         'dataset_id': 'MongoObjectID',
-        'tag_name': 'TagName'
+        'tag_name': 'TagName',
+        'random_seed': 'int'
     }
 
     attribute_map = {
@@ -49,10 +50,11 @@ class SelectionConfigEntryInput(object):
         'key': 'key',
         'name': 'name',
         'dataset_id': 'datasetId',
-        'tag_name': 'tagName'
+        'tag_name': 'tagName',
+        'random_seed': 'randomSeed'
     }
 
-    def __init__(self, type=None, task=None, score=None, key=None, name=None, dataset_id=None, tag_name=None, _configuration=None):  # noqa: E501
+    def __init__(self, type=None, task=None, score=None, key=None, name=None, dataset_id=None, tag_name=None, random_seed=None, _configuration=None):  # noqa: E501
         """SelectionConfigEntryInput - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -65,6 +67,7 @@ class SelectionConfigEntryInput(object):
         self._name = None
         self._dataset_id = None
         self._tag_name = None
+        self._random_seed = None
         self.discriminator = None
 
         self.type = type
@@ -80,6 +83,8 @@ class SelectionConfigEntryInput(object):
             self.dataset_id = dataset_id
         if tag_name is not None:
             self.tag_name = tag_name
+        if random_seed is not None:
+            self.random_seed = random_seed
 
     @property
     def type(self):
@@ -229,6 +234,27 @@ class SelectionConfigEntryInput(object):
         """
 
         self._tag_name = tag_name
+
+    @property
+    def random_seed(self):
+        """Gets the random_seed of this SelectionConfigEntryInput.  # noqa: E501
+
+
+        :return: The random_seed of this SelectionConfigEntryInput.  # noqa: E501
+        :rtype: int
+        """
+        return self._random_seed
+
+    @random_seed.setter
+    def random_seed(self, random_seed):
+        """Sets the random_seed of this SelectionConfigEntryInput.
+
+
+        :param random_seed: The random_seed of this SelectionConfigEntryInput.  # noqa: E501
+        :type: int
+        """
+
+        self._random_seed = random_seed
 
     def to_dict(self):
         """Returns the model properties as a dict"""

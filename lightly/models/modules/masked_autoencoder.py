@@ -290,6 +290,7 @@ class MAEBackbone(vision_transformer.VisionTransformer):
         out = self.images_to_tokens(images, prepend_class_token=True)
         return self.encoder(out, idx_keep)
 
+
     def images_to_tokens(self, images: torch.Tensor, prepend_class_token: bool) -> torch.Tensor:
         """Converts images into patch tokens.
 
@@ -302,7 +303,7 @@ class MAEBackbone(vision_transformer.VisionTransformer):
             containing the patch tokens.
         """
         x = self.conv_proj(images)
-        tokens = x.flatten(2).transpose(1, 2)
+        tokens =  x.flatten(2).transpose(1, 2)
         if prepend_class_token:
             tokens = utils.prepend_class_token(tokens, self.class_token)
         return tokens

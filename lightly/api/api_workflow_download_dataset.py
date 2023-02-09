@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 import io
 import warnings
 import os
@@ -11,12 +11,13 @@ from torch.utils.hipify.hipify_python import bcolors
 
 from concurrent.futures.thread import ThreadPoolExecutor
 
+from lightly.api import download
 from lightly.api.bitmask import BitMask
-from lightly.openapi_generated.swagger_client.models.image_type import ImageType
-from lightly.openapi_generated.swagger_client.models.filename_and_read_url import FilenameAndReadUrl
-from lightly.openapi_generated.swagger_client.models.label_box_data_row import LabelBoxDataRow
-from lightly.openapi_generated.swagger_client.models.label_studio_task import LabelStudioTask
-
+from lightly.openapi_generated.swagger_client import (
+    DatasetEmbeddingData,
+    ImageType,
+    FileNameFormat,
+)
 
 
 def _make_dir_and_save_image(output_dir: str, filename: str, img: Image):
@@ -120,7 +121,7 @@ class _DownloadDatasetMixin:
             # try to download image
             try:
                 read_url = self._samples_api.get_sample_image_read_url_by_id(
-                    self.dataset_id, 
+                    self.dataset_id,
                     sample_id,
                     type="full",
                 )
@@ -150,8 +151,62 @@ class _DownloadDatasetMixin:
             msg += 'Failed at image: {}'.format(results.index(False))
             warnings.warn(msg)
 
+    def get_all_embedding_data(self) -> List[DatasetEmbeddingData]:
+        """Returns embedding data of all embeddings for this dataset."""
+        return self._embeddings_api.get_embeddings_by_dataset_id(
+            dataset_id=self.dataset_id
+        )
 
+    def get_embedding_data_by_name(self, name: str) -> DatasetEmbeddingData:
+        """Returns embedding data with the given name for this dataset.
 
+        Raises:
+            ValueError:
+                If no embedding with this name exists.
+
+        """
+        for embedding_data in self.get_all_embedding_data():
+            if embedding_data.name == name:
+                return embedding_data
+        raise ValueError(
+            f"There are no embeddings with name '{name}' for dataset with id "
+            f"'{self.dataset_id}'."
+        )
+
+    def download_embeddings_csv_by_id(
+        self, 
+        embedding_id: str, 
+        output_path: str,
+    ) -> None:
+        """Downloads embeddings with the given embedding id from the dataset and saves
+        them to the output path.
+        """
+        read_url = self._embeddings_api.get_embeddings_csv_read_url_by_id(
+            dataset_id=self.dataset_id,
+            embedding_id=embedding_id
+        )
+        download.download_and_write_file(url=read_url, output_path=output_path)
+
+    def download_embeddings_csv(self, output_path: str) -> None:
+        """Downloads the latest embeddings from the dataset and saves them to the output
+        path.
+
+        Raises:
+            RuntimeError:
+                If no embeddings could be found for the dataset.
+
+        """
+        last_embedding = _get_latest_default_embedding_data(
+            embeddings=self.get_all_embedding_data()
+        )
+        if last_embedding is None:
+            raise RuntimeError(
+                f"Could not find embeddings for dataset with id '{self.dataset_id}'."
+            )
+        self.download_embeddings_csv_by_id(
+            embedding_id=last_embedding.id, 
+            output_path=output_path,
+        )
 
 
     def export_label_studio_tasks_by_tag_id(
@@ -200,7 +255,7 @@ class _DownloadDatasetMixin:
             >>> tasks = client.export_label_studio_tasks_by_tag_name(
             >>>     'initial-tag'
             >>> )
-            >>> 
+            >>>
             >>> with open('my-label-studio-tasks.json', 'w') as f:
             >>>     json.dump(tasks, f)
 
@@ -254,7 +309,7 @@ class _DownloadDatasetMixin:
             >>> tasks = client.export_label_box_data_rows_by_tag_name(
             >>>     'initial-tag'
             >>> )
-            >>> 
+            >>>
             >>> with open('my-labelbox-rows.json', 'w') as f:
             >>>     json.dump(tasks, f)
 
@@ -302,13 +357,13 @@ class _DownloadDatasetMixin:
             >>> filenames = client.export_filenames_by_tag_name(
             >>>     'initial-tag'
             >>> )
-            >>> 
+            >>>
             >>> with open('filenames-of-initial-tag.txt', 'w') as f:
             >>>     f.write(filenames)
 
         """
         tag = self.get_tag_by_name(tag_name)
-        return self.export_filenames_by_tag_id(tag.id)    
+        return self.export_filenames_by_tag_id(tag.id)
 
 
     def export_filenames_and_read_urls_by_tag_id(
@@ -325,13 +380,33 @@ class _DownloadDatasetMixin:
             A list of mappings of the samples filenames and readURLs within a certain tag.
 
         """
-        mappings = paginate_endpoint(
-            self._tags_api.export_tag_to_basic_filenames_and_read_urls,
-            page_size=20000,
+        # TODO (Philipp, 10.01.2023): Switch to the exportTagToBasicFilenamesAndReadUrls
+        # when the read-urls are fixed.
+        filenames_string = retry(
+            self._tags_api.export_tag_to_basic_filenames,
             dataset_id=self.dataset_id,
-            tag_id=tag_id
+            tag_id=tag_id,
+            file_name_format=FileNameFormat.NAME,
         )
-        return mappings
+        read_urls_string = retry(
+            self._tags_api.export_tag_to_basic_filenames,
+            dataset_id=self.dataset_id,
+            tag_id=tag_id,
+            file_name_format=FileNameFormat.REDIRECTED_READ_URL,
+        )
+        # The endpoint exportTagToBasicFilenames returns a plain string so we
+        # have to split it by newlines in order to get the individual entries.
+        filenames = filenames_string.split("\n")
+        read_urls = read_urls_string.split("\n")
+        # The order of the fileNames and readUrls is guaranteed to be the same
+        # by the API so we can simply zip them.
+        return [
+            {
+                "fileName": filename,
+                "readUrl": read_url,
+            }
+            for filename, read_url in zip(filenames, read_urls)
+        ]
 
     def export_filenames_and_read_urls_by_tag_name(
         self,
@@ -351,10 +426,24 @@ class _DownloadDatasetMixin:
             >>> mappings = client.export_filenames_and_read_urls_by_tag_name(
             >>>     'initial-tag'
             >>> )
-            >>> 
+            >>>
             >>> with open('my-readURL-mappings.json', 'w') as f:
             >>>     json.dump(mappings, f)
 
         """
         tag = self.get_tag_by_name(tag_name)
         return self.export_filenames_and_read_urls_by_tag_id(tag.id)
+
+
+def _get_latest_default_embedding_data(
+    embeddings: List[DatasetEmbeddingData]
+) -> Optional[DatasetEmbeddingData]:
+    """Returns the latest embedding data with a default name or None if no such
+    default embedding exists.
+    """
+    default_embeddings = [e for e in embeddings if e.name.startswith("default")]
+    if default_embeddings:
+        last_embedding = sorted(default_embeddings, key=lambda e: e.created_at)[-1]
+        return last_embedding
+    else:
+        return None

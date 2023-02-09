@@ -687,8 +687,9 @@ class SamplesApi(object):
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param str file_name: filter the samples by filename
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param SampleSortBy sort_by: sort the samples
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: list[SampleData]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -712,14 +713,15 @@ class SamplesApi(object):
         :param async_req bool
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param str file_name: filter the samples by filename
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param SampleSortBy sort_by: sort the samples
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: list[SampleData]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_id', 'file_name', 'page_size', 'page_offset']  # noqa: E501
+        all_params = ['dataset_id', 'file_name', 'sort_by', 'page_size', 'page_offset']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -748,6 +750,8 @@ class SamplesApi(object):
         query_params = []
         if 'file_name' in params:
             query_params.append(('fileName', params['file_name']))  # noqa: E501
+        if 'sort_by' in params:
+            query_params.append(('sortBy', params['sort_by']))  # noqa: E501
         if 'page_size' in params:
             query_params.append(('pageSize', params['page_size']))  # noqa: E501
         if 'page_offset' in params:
@@ -795,8 +799,8 @@ class SamplesApi(object):
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param SamplePartialMode mode:
         :param str file_name: filter the samples by filename
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: list[SampleDataModes]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -821,8 +825,8 @@ class SamplesApi(object):
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
         :param SamplePartialMode mode:
         :param str file_name: filter the samples by filename
-        :param float page_size: pagination size/limit of the number of samples to return
-        :param float page_offset: pagination offset
+        :param int page_size: pagination size/limit of the number of samples to return
+        :param int page_offset: pagination offset
         :return: list[SampleDataModes]
                  If the method is called asynchronously,
                  returns the request thread.

@@ -1,7 +1,7 @@
 import lightly
 
 # Create the Lightly client to connect to the API.
-client = lightly.api.ApiWorkflowClient(token="TOKEN", dataset_id="DATASET_ID")
+client = lightly.api.ApiWorkflowClient(token="LIGHTLY_TOKEN", dataset_id="DATASET_ID")
 
 # Schedule the docker run with 
 #  - "active_learning.task_name" set to your task name

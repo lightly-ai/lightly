@@ -46,10 +46,9 @@ class MemoryBankModule(torch.nn.Module):
             raise ValueError(msg)
 
         self.size = size
+        self.register_buffer("bank", tensor=torch.empty(0, dtype=torch.float), persistent=False)
+        self.register_buffer("bank_ptr", tensor=torch.empty(0, dtype=torch.long), persistent=False)
 
-        self.bank = None
-        self.bank_ptr = None
-    
     @torch.no_grad()
     def _init_memory_bank(self, dim: int):
         """Initialize the memory bank if it's empty
@@ -63,9 +62,9 @@ class MemoryBankModule(torch.nn.Module):
         # we could use register buffers like in the moco repo
         # https://github.com/facebookresearch/moco but we don't
         # want to pollute our checkpoints
-        self.bank = torch.randn(dim, self.size)
+        self.bank = torch.randn(dim, self.size).type_as(self.bank)
         self.bank = torch.nn.functional.normalize(self.bank, dim=0)
-        self.bank_ptr = torch.LongTensor([0])
+        self.bank_ptr = torch.zeros(1).type_as(self.bank_ptr)
 
     @torch.no_grad()
     def _dequeue_and_enqueue(self, batch: torch.Tensor):
@@ -111,7 +110,7 @@ class MemoryBankModule(torch.nn.Module):
         _, dim = output.shape
 
         # initialize the memory bank if it is not already done
-        if self.bank is None:
+        if self.bank.nelement() == 0:
             self._init_memory_bank(dim)
 
         # query and update memory bank

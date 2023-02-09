@@ -5,6 +5,8 @@ import platform
 import os
 
 import requests
+
+from lightly.api.api_workflow_predictions import _PredictionsMixin
 from lightly.api.api_workflow_tags import _TagsMixin
 from requests import Response
 
@@ -18,13 +20,10 @@ from lightly.api.api_workflow_selection import _SelectionMixin
 from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
-from lightly.api.bitmask import BitMask
-from lightly.api.utils import DatasourceType, get_signed_url_destination, getenv
-from lightly.api.version_checking import get_minimum_compatible_version, \
-    version_compare
+from lightly.api.utils import DatasourceType, get_signed_url_destination, get_api_client_configuration
+from lightly.api.version_checking import is_compatible_version, LightlyAPITimeoutException
 from lightly.openapi_generated.swagger_client.api.collaboration_api import CollaborationApi
-from lightly.openapi_generated.swagger_client import ScoresApi, \
-    QuotaApi, MetaDataConfigurationsApi
+from lightly.openapi_generated.swagger_client import ScoresApi, QuotaApi, MetaDataConfigurationsApi, PredictionsApi
 from lightly.openapi_generated.swagger_client.api.datasets_api import \
     DatasetsApi
 from lightly.openapi_generated.swagger_client.api.datasources_api import \
@@ -40,8 +39,6 @@ from lightly.openapi_generated.swagger_client.api.samplings_api import \
     SamplingsApi
 from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
-from lightly.openapi_generated.swagger_client.configuration import \
-    Configuration
 from lightly.openapi_generated.swagger_client.models.dataset_data import \
     DatasetData
 from lightly.utils.reordering import sort_items_by_keys
@@ -59,6 +56,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                         _DatasourcesMixin,
                         _ComputeWorkerMixin,
                         _CollaborationMixin,
+                        _PredictionsMixin,
                         ):
     """Provides a uniform interface to communicate with the api 
     
@@ -86,11 +84,20 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         embedding_id: Optional[str] = None
     ):
 
-        self.check_version_compatibility()
+        try:
+            if not is_compatible_version(__version__):
+                warnings.warn(
+                    UserWarning((f"Incompatible version of lightly pip package. "
+                                f"Please upgrade to the latest version "
+                                f"to be able to access the api.")
+                    )
+                )
+        except LightlyAPITimeoutException:
+            pass
 
         configuration = get_api_client_configuration(token=token)
         self.api_client = ApiClient(configuration=configuration)
-        self.user_agent = f"Lightly/{__version__}/python ({platform.platform()})"
+        self.api_client.user_agent = f"Lightly/{__version__} ({platform.system()}/{platform.release()}; {platform.platform()}; {platform.processor()};) python/{platform.python_version()}"
         self.set_request_timeout(DEFAULT_API_TIMEOUT)
 
         self.token = configuration.api_key["token"]
@@ -113,13 +120,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         self._quota_api = QuotaApi(api_client=self.api_client)
         self._metadata_configurations_api = \
             MetaDataConfigurationsApi(api_client=self.api_client)
-
-    def check_version_compatibility(self):
-        minimum_version = get_minimum_compatible_version()
-        if version_compare(__version__, minimum_version) < 0:
-            raise ValueError(f"Incompatible Version of lightly pip package. "
-                             f"Please upgrade to at least version {minimum_version} "
-                             f"to be able to access the api and webapp")
+        self._predictions_api = PredictionsApi(api_client=self.api_client)
 
     @property
     def dataset_id(self) -> str:
@@ -290,26 +291,3 @@ def set_api_client_request_timeout(
         return request_fn(*args, **kwargs)
 
     client.rest_client.request = new_request_fn
-
-
-def get_api_client_configuration(
-    token: Optional[str] = None,
-    raise_if_no_token_specified: bool = True,
-) -> Configuration:
-
-    host = getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai")
-    ssl_ca_cert = getenv("LIGHTLY_CA_CERTS", None)
-
-    if token is None:
-        token = getenv("LIGHTLY_TOKEN", None)
-    if token is None and raise_if_no_token_specified:
-        raise ValueError(
-            "Either provide a 'token' argument or export a LIGHTLY_TOKEN environment variable"
-        )
-
-    configuration = Configuration()
-    configuration.api_key = {"token": token}
-    configuration.ssl_ca_cert = ssl_ca_cert
-    configuration.host = host
-
-    return configuration

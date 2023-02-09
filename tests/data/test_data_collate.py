@@ -5,13 +5,15 @@ import torch
 import torchvision
 import torchvision.transforms as transforms
 
+from lightly.transforms import RandomRotate
+from lightly.data import collate
 from lightly.data import BaseCollateFunction
 from lightly.data import ImageCollateFunction
 from lightly.data import SimCLRCollateFunction
 from lightly.data import MultiCropCollateFunction
 from lightly.data import SwaVCollateFunction
 from lightly.data import PIRLCollateFunction
-from lightly.data.collate import DINOCollateFunction, MAECollateFunction, MSNCollateFunction, MultiViewCollateFunction
+from lightly.data.collate import DINOCollateFunction, MAECollateFunction, MSNCollateFunction, MultiViewCollateFunction, VICRegCollateFunction, VICRegLCollateFunction
 
 
 class TestDataCollate(unittest.TestCase):
@@ -56,6 +58,26 @@ class TestDataCollate(unittest.TestCase):
         img_collate = ImageCollateFunction(
             input_size=(32, 32),
         )
+        samples, labels, fnames = img_collate(batch)
+        samples0, samples1 = samples
+
+        self.assertIsNotNone(img_collate)
+        self.assertEqual(len(samples0), len(samples1))
+        self.assertEqual(len(samples1), len(labels), len(fnames))
+
+    def test_image_collate_random_rotate(self):
+        batch = self.create_batch()
+        img_collate = ImageCollateFunction(rr_prob=1.0, rr_degrees=45.0)
+        samples, labels, fnames = img_collate(batch)
+        samples0, samples1 = samples
+
+        self.assertIsNotNone(img_collate)
+        self.assertEqual(len(samples0), len(samples1))
+        self.assertEqual(len(samples1), len(labels), len(fnames))
+
+    def test_image_collate_random_rotate__tuple_degrees(self):
+        batch = self.create_batch()
+        img_collate = ImageCollateFunction(rr_prob=1.0, rr_degrees=(-15.0, 45.0))
         samples, labels, fnames = img_collate(batch)
         samples0, samples1 = samples
 
@@ -197,3 +219,27 @@ class TestDataCollate(unittest.TestCase):
             self.assertEqual(view.shape, (16, 3, 24, 24))
         for view in views[2:]:
             self.assertEqual(view.shape, (16, 3, 12, 12))
+
+    def test_vicreg_collate_init(self):
+        VICRegCollateFunction()
+
+    def test_vicreg_collate_forward(self):
+        batch = self.create_batch()
+        collate_fn = VICRegCollateFunction()
+        views, labels, fnames = collate_fn(batch)
+    
+    def test_vicregl_collate_init(self):
+        VICRegLCollateFunction()
+
+    def test_vicregl_collate_forward(self):
+        batch = self.create_batch()
+        collate_fn = VICRegLCollateFunction()
+        views, labels, fnames = collate_fn(batch)
+
+    def test__random_rotation_transform(self):
+        transform = collate._random_rotation_transform(rr_prob=1.0, rr_degrees=None)
+        assert isinstance(transform, RandomRotate)
+        transform = collate._random_rotation_transform(rr_prob=1.0, rr_degrees=45)
+        assert isinstance(transform, transforms.RandomApply)
+        transform = collate._random_rotation_transform(rr_prob=1.0, rr_degrees=(30, 45))
+        assert isinstance(transform, transforms.RandomApply)

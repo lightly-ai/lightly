@@ -53,6 +53,7 @@ class PredictionSingletonBase(object):
     discriminator_value_class_map = {
         'PredictionSingletonObjectDetection': 'PredictionSingletonObjectDetection',
         'PredictionSingletonClassification': 'PredictionSingletonClassification',
+        'PredictionSingletonSemanticSegmentation': 'PredictionSingletonSemanticSegmentation',
         'PredictionSingletonInstanceSegmentation': 'PredictionSingletonInstanceSegmentation',
         'PredictionSingletonKeypointDetection': 'PredictionSingletonKeypointDetection'
     }

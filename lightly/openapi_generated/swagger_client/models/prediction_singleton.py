@@ -47,7 +47,7 @@ class PredictionSingleton(object):
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
-        self.discriminator = 'Discriminator{propertyName&#x3D;&#39;type&#39;, mapping&#x3D;{CLASSIFICATION&#x3D;#/components/schemas/PredictionSingletonClassification, OBJECT_DETECTION&#x3D;#/components/schemas/PredictionSingletonObjectDetection, INSTANCE_SEGMENTATION&#x3D;#/components/schemas/PredictionSingletonInstanceSegmentation, KEYPOINT_DETECTION&#x3D;#/components/schemas/PredictionSingletonKeypointDetection}, extensions&#x3D;null}'
+        self.discriminator = 'Discriminator{propertyName&#x3D;&#39;type&#39;, mapping&#x3D;{CLASSIFICATION&#x3D;#/components/schemas/PredictionSingletonClassification, OBJECT_DETECTION&#x3D;#/components/schemas/PredictionSingletonObjectDetection, SEMANTIC_SEGMENTATION&#x3D;#/components/schemas/PredictionSingletonSemanticSegmentation, INSTANCE_SEGMENTATION&#x3D;#/components/schemas/PredictionSingletonInstanceSegmentation, KEYPOINT_DETECTION&#x3D;#/components/schemas/PredictionSingletonKeypointDetection}, extensions&#x3D;null}'
 
     def get_real_child_model(self, data):
         """Returns the real base class specified by the discriminator"""

@@ -5,7 +5,9 @@ lightly_utils~=0.0.0
 numpy>=1.18.1
 python_dateutil>=2.5.3
 requests>=2.23.0
-setuptools>=21.0.0
+# Temporarily force setuptools<=65.5.1 until https://github.com/pypa/setuptools/issues/3693
+# is resolved.
+setuptools>=21.0.0,<=65.5.1
 six>=1.10
 torchvision
 tqdm>=4.44

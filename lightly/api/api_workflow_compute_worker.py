@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Union, Iterator
 
 from lightly.api.utils import retry
 from lightly.api import download
+from lightly.api import utils
 from lightly.openapi_generated.swagger_client import (
     CreateDockerWorkerRegistryEntryRequest,
     DockerRunData,
@@ -21,6 +22,7 @@ from lightly.openapi_generated.swagger_client import (
     SelectionConfigEntry,
     SelectionConfigEntryInput,
     SelectionConfigEntryStrategy,
+    TagData,
 )
 from lightly.openapi_generated.swagger_client.models.docker_run_artifact_type import DockerRunArtifactType
 from lightly.openapi_generated.swagger_client.rest import ApiException
@@ -54,6 +56,7 @@ class ComputeWorkerRunInfo:
             DockerRunState.COMPLETED,
             DockerRunState.ABORTED,
             DockerRunState.FAILED,
+            DockerRunState.CRASHED,
             STATE_SCHEDULED_ID_NOT_FOUND,
         ]
 
@@ -69,13 +72,18 @@ class ComputeWorkerRunInfo:
 
 class _ComputeWorkerMixin:
     def register_compute_worker(self, name: str = "Default", labels: Optional[List[str]] = None) -> str:
-        """Registers a new compute worker.
+        """Registers a new compute worker. 
+
+        If a worker with the same name already exists, the worker id of the existing
+        worker is returned instead of registering a new worker.
 
         Args:
             name:
                 The name of the Lightly Worker.
             labels:
                 The labels of the Lightly Worker.
+                See our docs for more information regarding the labels parameter:
+                https://docs.lightly.ai/docs/assign-scheduled-runs-to-specific-workers
 
         Returns:
             The id of the newly registered compute worker.
@@ -112,16 +120,16 @@ class _ComputeWorkerMixin:
     ) -> str:
         """Creates a new configuration for a compute worker run.
 
+        See our docs for more information regarding the different configurations:
+        https://docs.lightly.ai/docs/all-configuration-options
+
         Args:
             worker_config:
-                Compute worker configuration. All possible values are listed in
-                our docs: https://docs.lightly.ai/docker/configuration/configuration.html#list-of-parameters
+                Compute worker configuration.
             lightly_config:
-                Lightly configuration. All possible values are listed in our
-                docs: https://docs.lightly.ai/lightly.cli.html#default-settings
+                Lightly configuration.
             selection_config:
-                Selection configuration. See the docs for more information:
-                TODO: add link
+                Selection configuration.
 
         Returns:
             The id of the created config.
@@ -151,18 +159,20 @@ class _ComputeWorkerMixin:
     ) -> str:
         """Schedules a run with the given configurations.
 
+        See our docs for more information regarding the different configurations:
+        https://docs.lightly.ai/docs/all-configuration-options
+
         Args:
             worker_config:
-                Compute worker configuration. All possible values are listed in
-                our docs: https://docs.lightly.ai/docker/configuration/configuration.html#list-of-parameters
+                Compute worker configuration.
             lightly_config:
-                Lightly configuration. All possible values are listed in our
-                docs: https://docs.lightly.ai/lightly.cli.html#default-settings
+                Lightly configuration.
             selection_config:
-                Selection configuration. See the docs for more information:
-                https://docs.lightly.ai/docker/getting_started/selection.html
+                Selection configuration.
             runs_on:
                 The required labels the Lightly Worker must have to take the job.
+                See our docs for more information regarding the runs_on paramter:
+                https://docs.lightly.ai/docs/assign-scheduled-runs-to-specific-workers
 
         Returns:
             The id of the scheduled run.
@@ -198,9 +208,15 @@ class _ComputeWorkerMixin:
             Runs sorted by creation time from old to new.
 
         """
-        runs: List[DockerRunData] = self._compute_worker_api.get_docker_runs()
         if dataset_id is not None:
-            runs = [run for run in runs if run.dataset_id == dataset_id]
+            runs: List[DockerRunData] = utils.paginate_endpoint(
+                self._compute_worker_api.get_docker_runs_query_by_dataset_id,
+                dataset_id=dataset_id
+            )
+        else:
+            runs: List[DockerRunData] = utils.paginate_endpoint(
+                self._compute_worker_api.get_docker_runs,
+            )
         sorted_runs = sorted(runs, key=lambda run: run.created_at or -1)
         return sorted_runs
 
@@ -223,7 +239,8 @@ class _ComputeWorkerMixin:
 
         Raises:
             ApiException:
-                If no run with the given scheduled run id exists.
+                If no run with the given scheduled run id exists or if the scheduled 
+                run has not yet started being processed by a worker.
         """
         return self._compute_worker_api.get_docker_run_by_scheduled_id(
             scheduled_id=scheduled_run_id
@@ -231,12 +248,24 @@ class _ComputeWorkerMixin:
 
     def get_scheduled_compute_worker_runs(
         self,
+        state: Optional[str] = None,
     ) -> List[DockerRunScheduledData]:
         """Returns a list of all scheduled compute worker runs for the current
         dataset.
+
+        Args:
+            state:
+                DockerRunScheduledState value. If specified, then only runs in the given
+                state are returned. If omitted, then runs which have not yet finished 
+                (neither 'DONE' nor 'CANCELED') are returned. Valid states are 'OPEN',
+                'LOCKED', 'DONE', and 'CANCELED'.
         """
+        if state is not None:
+            return self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
+                dataset_id=self.dataset_id, state=state,
+            )
         return self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
-            dataset_id=self.dataset_id
+            dataset_id=self.dataset_id,
         )
 
     def _get_scheduled_run_by_id(self, scheduled_run_id: str) -> DockerRunScheduledData:
@@ -389,7 +418,7 @@ class _ComputeWorkerMixin:
             >>>     pass
             >>>
             >>> # download artifacts
-            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
             >>> client.download_compute_worker_run_artifacts(run=run, output_dir="my_run/artifacts")
 
         """
@@ -411,13 +440,13 @@ class _ComputeWorkerMixin:
     ) -> None:
         """Downloads the last training checkpoint from a run.
 
-        See https://docs.lightly.ai/docker/advanced/load_model_from_checkpoint.html
-        for information on how to use the checkpoint.
+        See our docs for more information regarding checkpoints:
+        https://docs.lightly.ai/docs/train-a-self-supervised-model#checkpoints
 
         Args:
-            run: 
+            run:
                 Run from which to download the checkpoint.
-            output_path: 
+            output_path:
                 Path where checkpoint will be saved.
             timeout:
                 Timeout in seconds after which download is interrupted.
@@ -436,11 +465,11 @@ class _ComputeWorkerMixin:
             >>>     pass
             >>>
             >>> # download checkpoint
-            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
             >>> client.download_compute_worker_run_checkpoint(run=run, output_path="my_checkpoint.ckpt")
 
         """
-        return self._download_compute_worker_run_artifact_by_type(
+        self._download_compute_worker_run_artifact_by_type(
             run=run,
             artifact_type=DockerRunArtifactType.CHECKPOINT,
             output_path=output_path,
@@ -456,11 +485,11 @@ class _ComputeWorkerMixin:
         """Download the report in pdf format from a run.
 
         Args:
-            run: 
+            run:
                 Run from which to download the report.
-            output_path: 
+            output_path:
                 Path where report will be saved.
-            timeout: 
+            timeout:
                 Timeout in seconds after which download is interrupted.
 
         Raises:
@@ -477,11 +506,11 @@ class _ComputeWorkerMixin:
             >>>     pass
             >>>
             >>> # download report
-            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
             >>> client.download_compute_worker_run_report_pdf(run=run, output_path="report.pdf")
 
         """
-        return self._download_compute_worker_run_artifact_by_type(
+        self._download_compute_worker_run_artifact_by_type(
             run=run,
             artifact_type=DockerRunArtifactType.REPORT_PDF,
             output_path=output_path,
@@ -497,11 +526,11 @@ class _ComputeWorkerMixin:
         """Download the report in json format from a run.
 
         Args:
-            run: 
+            run:
                 Run from which to download the report.
-            output_path: 
+            output_path:
                 Path where report will be saved.
-            timeout: 
+            timeout:
                 Timeout in seconds after which download is interrupted.
 
         Raises:
@@ -518,11 +547,11 @@ class _ComputeWorkerMixin:
             >>>     pass
             >>>
             >>> # download checkpoint
-            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
             >>> client.download_compute_worker_run_report_json(run=run, output_path="report.json")
 
         """
-        return self._download_compute_worker_run_artifact_by_type(
+        self._download_compute_worker_run_artifact_by_type(
             run=run,
             artifact_type=DockerRunArtifactType.REPORT_JSON,
             output_path=output_path,
@@ -538,11 +567,11 @@ class _ComputeWorkerMixin:
         """Download the log file from a run.
 
         Args:
-            run: 
+            run:
                 Run from which to download the log file.
-            output_path: 
+            output_path:
                 Path where log file will be saved.
-            timeout: 
+            timeout:
                 Timeout in seconds after which download is interrupted.
 
         Raises:
@@ -559,11 +588,11 @@ class _ComputeWorkerMixin:
             >>>     pass
             >>>
             >>> # download log file
-            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
             >>> client.download_compute_worker_run_log(run=run, output_path="log.txt")
 
         """
-        return self._download_compute_worker_run_artifact_by_type(
+        self._download_compute_worker_run_artifact_by_type(
             run=run,
             artifact_type=DockerRunArtifactType.LOG,
             output_path=output_path,
@@ -579,11 +608,11 @@ class _ComputeWorkerMixin:
         """Download the memory consumption log file from a run.
 
         Args:
-            run: 
+            run:
                 Run from which to download the memory log file.
-            output_path: 
+            output_path:
                 Path where memory log file will be saved.
-            timeout: 
+            timeout:
                 Timeout in seconds after which download is interrupted.
 
         Raises:
@@ -600,16 +629,134 @@ class _ComputeWorkerMixin:
             >>>     pass
             >>>
             >>> # download memory log file
-            >>> run = client.get_compute_worker_run_from_scheduled(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
             >>> client.download_compute_worker_run_memory_log(run=run, output_path="memlog.txt")
 
         """
-        return self._download_compute_worker_run_artifact_by_type(
+        self._download_compute_worker_run_artifact_by_type(
             run=run,
             artifact_type=DockerRunArtifactType.MEMLOG,
             output_path=output_path,
             timeout=timeout,
         )
+
+    def download_compute_worker_run_corruptness_check_information(
+        self,
+        run: DockerRunData,
+        output_path: str,
+        timeout: int = 60,
+    ) -> None:
+        """Download the corruptness check information file from a run.
+
+        Args:
+            run:
+                Run from which to download the file.
+            output_path:
+                Path where the file will be saved.
+            timeout:
+                Timeout in seconds after which download is interrupted.
+
+        Raises:
+            ArtifactNotExist:
+                If the run has no corruptness check information artifact or the file
+                has not yet been uploaded.
+
+        Examples:
+            >>> # schedule run
+            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
+            >>>
+            >>> # wait until run completed
+            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
+            >>>     pass
+            >>>
+            >>> # download corruptness check information file
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
+            >>> client.download_compute_worker_run_corruptness_check_information(run=run, output_path="corruptness_check_information.json")
+            >>>
+            >>> # print all corrupt samples and corruptions
+            >>> with open("corruptness_check_information.json", 'r') as f:
+            >>>     corruptness_check_information = json.load(f)
+            >>> for sample_name, error in corruptness_check_information["corrupt_samples"].items():
+            >>>     print(f"Sample '{sample_name}' is corrupt because of the error '{error}'.")
+
+        """
+        self._download_compute_worker_run_artifact_by_type(
+            run=run,
+            artifact_type=DockerRunArtifactType.CORRUPTNESS_CHECK_INFORMATION,
+            output_path=output_path,
+            timeout=timeout,
+        )
+
+
+    def download_compute_worker_run_sequence_information(
+        self,
+        run: DockerRunData,
+        output_path: str,
+        timeout: int = 60,
+    ) -> None:
+        """Download the sequence information from a run.
+
+        Args:
+            run:
+                Run from which to download the the file.
+            output_path:
+                Path where the file will be saved.
+            timeout:
+                Timeout in seconds after which download is interrupted.
+
+        Raises:
+            ArtifactNotExist:
+                If the run has no sequence information artifact or the file has not yet
+                been uploaded.
+
+        Examples:
+            >>> # schedule run
+            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
+            >>>
+            >>> # wait until run completed
+            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
+            >>>     pass
+            >>>
+            >>> # download sequence information file
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
+            >>> client.download_compute_worker_run_sequence_information(run=run, output_path="sequence_information.json")
+
+        """
+        self._download_compute_worker_run_artifact_by_type(
+            run=run,
+            artifact_type=DockerRunArtifactType.SEQUENCE_INFORMATION,
+            output_path=output_path,
+            timeout=timeout,
+        )
+
+    def get_compute_worker_run_tags(self, run_id: str) -> List[TagData]:
+        """Returns all tags from a run for the current dataset.
+
+        Only returns tags for runs made with Lightly Worker version >=2.4.2.
+
+        Args:
+            run_id:
+                Run id from which to return tags.
+
+        Returns:
+            List of tags created by the run. The tags are ordered by creation date from
+            newest to oldest.
+
+        Examples:
+            >>> # Get filenames from last run.
+            >>>
+            >>> from lightly.api import ApiWorkflowClient
+            >>> client = ApiWorkflowClient(
+            >>>     token="MY_LIGHTLY_TOKEN", dataset_id="MY_DATASET_ID"
+            >>> )
+            >>> tags = client.get_compute_worker_run_tags(run_id="MY_LAST_RUN_ID")
+            >>> filenames = client.export_filenames_by_tag_name(tag_name=tags[0].name)
+
+        """
+        tags = self._compute_worker_api.get_docker_run_tags(run_id=run_id)
+        tags_in_dataset = [tag for tag in tags if tag.dataset_id == self.dataset_id]
+        return tags_in_dataset
+
 
     def _download_compute_worker_run_artifact_by_type(
         self,

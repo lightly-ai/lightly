@@ -40,7 +40,8 @@ class TagCreateRequest(object):
         'bit_mask_data': 'TagBitMaskData',
         'tot_size': 'int',
         'creator': 'TagCreator',
-        'changes': 'TagChangeData'
+        'changes': 'TagChangeData',
+        'run_id': 'MongoObjectID'
     }
 
     attribute_map = {
@@ -51,10 +52,11 @@ class TagCreateRequest(object):
         'bit_mask_data': 'bitMaskData',
         'tot_size': 'totSize',
         'creator': 'creator',
-        'changes': 'changes'
+        'changes': 'changes',
+        'run_id': 'runId'
     }
 
-    def __init__(self, name=None, prev_tag_id=None, query_tag_id=None, preselected_tag_id=None, bit_mask_data=None, tot_size=None, creator=None, changes=None, _configuration=None):  # noqa: E501
+    def __init__(self, name=None, prev_tag_id=None, query_tag_id=None, preselected_tag_id=None, bit_mask_data=None, tot_size=None, creator=None, changes=None, run_id=None, _configuration=None):  # noqa: E501
         """TagCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -68,6 +70,7 @@ class TagCreateRequest(object):
         self._tot_size = None
         self._creator = None
         self._changes = None
+        self._run_id = None
         self.discriminator = None
 
         self.name = name
@@ -82,6 +85,8 @@ class TagCreateRequest(object):
             self.creator = creator
         if changes is not None:
             self.changes = changes
+        if run_id is not None:
+            self.run_id = run_id
 
     @property
     def name(self):
@@ -258,6 +263,27 @@ class TagCreateRequest(object):
         """
 
         self._changes = changes
+
+    @property
+    def run_id(self):
+        """Gets the run_id of this TagCreateRequest.  # noqa: E501
+
+
+        :return: The run_id of this TagCreateRequest.  # noqa: E501
+        :rtype: MongoObjectID
+        """
+        return self._run_id
+
+    @run_id.setter
+    def run_id(self, run_id):
+        """Sets the run_id of this TagCreateRequest.
+
+
+        :param run_id: The run_id of this TagCreateRequest.  # noqa: E501
+        :type: MongoObjectID
+        """
+
+        self._run_id = run_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""

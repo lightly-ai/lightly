@@ -26,16 +26,13 @@ from lightly.openapi_generated.swagger_client import (
     DockerWorkerConfig,
     DockerWorkerType,
     DockerRunArtifactData,
+    DockerRunArtifactType,
+    DockerRunData,
+    DockerRunScheduledData,
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_artifact_type import DockerRunArtifactType
-from lightly.openapi_generated.swagger_client.models.docker_run_data import (
-    DockerRunData,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import (
-    DockerRunScheduledData,
+    TagData,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
@@ -491,9 +488,12 @@ def test_compute_worker_run_info_generator(mocker) -> None:
 def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient(token="123")
     mock_compute_worker_api = mocker.create_autospec(DockerApi, spec_set=True).return_value
-    mock_compute_worker_api.get_docker_runs.return_value = [
-        DockerRunData(id="run-1", created_at=20,  dataset_id="", docker_version="", state="", last_modified_at=0),
-        DockerRunData(id="run-2", created_at=10,  dataset_id="", docker_version="", state="", last_modified_at=0),
+    mock_compute_worker_api.get_docker_runs.side_effect = [
+        [
+            DockerRunData(id="run-1", created_at=20,  dataset_id="", docker_version="", state="", last_modified_at=0),
+            DockerRunData(id="run-2", created_at=10,  dataset_id="", docker_version="", state="", last_modified_at=0),
+        ], 
+        [],
     ]
     client._compute_worker_api = mock_compute_worker_api
     runs = client.get_compute_worker_runs()
@@ -501,19 +501,24 @@ def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
         DockerRunData(id="run-2", created_at=10,  dataset_id="", docker_version="", state="", last_modified_at=0),
         DockerRunData(id="run-1", created_at=20,  dataset_id="", docker_version="", state="", last_modified_at=0),
     ]
+    assert mock_compute_worker_api.get_docker_runs.call_count == 2
 
 def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient(token="123")
     mock_compute_worker_api = mocker.create_autospec(DockerApi, spec_set=True).return_value
-    mock_compute_worker_api.get_docker_runs.return_value = [
-        DockerRunData(id="run-1", dataset_id="dataset-1", docker_version="", state="", created_at=0, last_modified_at=0),
-        DockerRunData(id="run-2", dataset_id="dataset-2", docker_version="", state="", created_at=0, last_modified_at=0),
+    mock_compute_worker_api.get_docker_runs_query_by_dataset_id.side_effect = [
+        [
+            DockerRunData(id="run-2", dataset_id="dataset-2", docker_version="", state="", created_at=0, last_modified_at=0),
+        ],
+        [],
     ]
+
     client._compute_worker_api = mock_compute_worker_api
     runs = client.get_compute_worker_runs(dataset_id="dataset-2")
     assert runs == [
         DockerRunData(id="run-2", dataset_id="dataset-2", docker_version="", state="", created_at=0, last_modified_at=0),
     ]
+    assert mock_compute_worker_api.get_docker_runs_query_by_dataset_id.call_count == 2
 
 def test_download_compute_worker_run_artifacts(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient(token="123")
@@ -548,6 +553,82 @@ def test_download_compute_worker_run_artifacts(mocker: MockerFixture) -> None:
     ]
     mock_download_compute_worker_run_artifact.assert_has_calls(calls=calls)
     assert mock_download_compute_worker_run_artifact.call_count == len(calls)
+
+def test_get_compute_worker_run_tags__no_tags(mocker: MockerFixture) -> None:
+    client = ApiWorkflowClient(token="123", dataset_id="dataset-0")
+    mock_compute_worker_api = mocker.create_autospec(DockerApi, spec_set=True).return_value
+    mock_compute_worker_api.get_docker_run_tags.return_value = []
+    client._compute_worker_api = mock_compute_worker_api
+    tags = client.get_compute_worker_run_tags(run_id="run-0")
+    assert len(tags) == 0
+    mock_compute_worker_api.get_docker_run_tags.assert_called_once_with(run_id="run-0")
+
+def test_get_compute_worker_run_tags__single_tag(mocker: MockerFixture) -> None:
+    client = ApiWorkflowClient(token="123", dataset_id="dataset-0")
+    mock_compute_worker_api = mocker.create_autospec(DockerApi, spec_set=True).return_value
+    mock_compute_worker_api.get_docker_run_tags.return_value = [
+        TagData(
+            id="tag-0",
+            dataset_id="dataset-0",
+            prev_tag_id=None,
+            bit_mask_data="0x1",
+            name="tag-0",
+            tot_size=0,
+            created_at=0,
+            changes=dict(),
+            run_id="run-0",
+        )
+    ]
+    client._compute_worker_api = mock_compute_worker_api
+    tags = client.get_compute_worker_run_tags(run_id="run-0")
+    assert len(tags) == 1
+    mock_compute_worker_api.get_docker_run_tags.assert_called_once_with(run_id="run-0")
+
+def test_get_compute_worker_run_tags__multiple_tags(mocker: MockerFixture) -> None:
+    client = ApiWorkflowClient(token="123", dataset_id="dataset-0")
+    mock_compute_worker_api = mocker.create_autospec(DockerApi, spec_set=True).return_value
+    tag_0 = TagData(
+        id="tag-0",
+        dataset_id="dataset-0",
+        prev_tag_id=None,
+        bit_mask_data="0x1",
+        name="tag-0",
+        tot_size=0,
+        created_at=0,
+        changes=dict(),
+        run_id="run-0",
+    )
+    tag_1 = TagData(
+        id="tag-1",
+        dataset_id="dataset-0",
+        prev_tag_id="tag-0",
+        bit_mask_data="0x1",
+        name="tag-1",
+        tot_size=0,
+        created_at=1,
+        changes=dict(),
+        run_id="run-0",
+    )
+    # tag from a different dataset
+    tag_2 = TagData(
+        id="tag-2",
+        dataset_id="dataset-1",
+        prev_tag_id=None,
+        bit_mask_data="0x1",
+        name="tag-2",
+        tot_size=0,
+        created_at=2,
+        changes=dict(),
+        run_id="run-0",
+    )
+    # tags are returned ordered by decreasing creation date
+    mock_compute_worker_api.get_docker_run_tags.return_value = [tag_2, tag_1, tag_0]
+    client._compute_worker_api = mock_compute_worker_api
+    tags = client.get_compute_worker_run_tags(run_id="run-0")
+    assert len(tags) == 2
+    assert tags[0] == tag_1
+    assert tags[1] == tag_0
+    mock_compute_worker_api.get_docker_run_tags.assert_called_once_with(run_id="run-0")
 
 def test__download_compute_worker_run_artifact_by_type(
     mocker: MockerFixture,

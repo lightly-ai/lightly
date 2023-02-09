@@ -5,7 +5,7 @@ from lightly.openapi_generated.swagger_client import DockerRunScheduledState, Do
 # You can reuse the client from previous scripts. If you want to create a new
 # one you can uncomment the following line:
 # import lightly
-# client = lightly.api.ApiWorkflowClient(token="TOKEN", dataset_id="DATASET_ID")
+# client = lightly.api.ApiWorkflowClient(token="LIGHTLY_TOKEN", dataset_id="DATASET_ID")
 
 # Schedule the compute run using a custom config.
 # You can easily edit the values according to your needs.
