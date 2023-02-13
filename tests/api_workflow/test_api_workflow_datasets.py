@@ -179,7 +179,7 @@ class TestApiWorkflowDatasets(MockedApiWorkflowSetup):
 def test_create_dataset(mocker: MockerFixture) -> None:
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     client = ApiWorkflowClient()
-    client.dataset_creator = DatasetCreator.USER_PIP
+    client._dataset_creator = DatasetCreator.USER_PIP
     client._datasets_api = mocker.create_autospec(DatasetsApi)
 
     client.create_dataset(dataset_name="name")

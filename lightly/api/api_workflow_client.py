@@ -108,7 +108,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             self._dataset_id = dataset_id
         if embedding_id is not None:
             self.embedding_id = embedding_id
-        self.dataset_creator = dataset_creator
+        self._dataset_creator = dataset_creator
 
         self._collaboration_api = CollaborationApi(api_client=self.api_client)
         self._compute_worker_api = DockerApi(api_client=self.api_client)
