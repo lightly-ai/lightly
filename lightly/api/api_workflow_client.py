@@ -84,7 +84,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         token: Optional[str] = None,
         dataset_id: Optional[str] = None,
         embedding_id: Optional[str] = None,
-        dataset_creator: DatasetCreator = DatasetCreator.USER_PIP,
+        dataset_creator: str = DatasetCreator.USER_PIP,
     ):
 
         try:
