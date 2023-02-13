@@ -176,59 +176,14 @@ class TestApiWorkflowDatasets(MockedApiWorkflowSetup):
         assert num_datasets_before + 1 == num_datasets_after
 
 
-def test_create_dataset__dataset_creator_unset(mocker: MockerFixture) -> None:
+def test_create_dataset(mocker: MockerFixture) -> None:
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     client = ApiWorkflowClient()
+    client.dataset_creator = DatasetCreator.USER_PIP
     client._datasets_api = mocker.create_autospec(DatasetsApi)
 
     client.create_dataset(dataset_name="name")
     expected_body = DatasetCreateRequest(
         name="name", type=DatasetType.IMAGES, creator=DatasetCreator.USER_PIP
-    )
-    client._datasets_api.create_dataset.assert_called_once_with(expected_body)
-
-
-def test_create_dataset__dataset_creator_set(mocker: MockerFixture) -> None:
-    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
-    client = ApiWorkflowClient()
-    client._datasets_api = mocker.create_autospec(DatasetsApi)
-
-    client.create_dataset(
-        dataset_name="name", dataset_creator=DatasetCreator.USER_WORKER
-    )
-    expected_body = DatasetCreateRequest(
-        name="name", type=DatasetType.IMAGES, creator=DatasetCreator.USER_WORKER
-    )
-    client._datasets_api.create_dataset.assert_called_once_with(expected_body)
-
-
-def test_create_new_dataset_with_unique_name__dataset_creator_unset(
-    mocker: MockerFixture,
-) -> None:
-    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
-    client = ApiWorkflowClient()
-    client._datasets_api = mocker.create_autospec(DatasetsApi)
-
-    client.create_new_dataset_with_unique_name(dataset_basename="name")
-
-    expected_body = DatasetCreateRequest(
-        name="name", type=DatasetType.IMAGES, creator=DatasetCreator.USER_PIP
-    )
-    client._datasets_api.create_dataset.assert_called_once_with(expected_body)
-
-
-def test_create_new_dataset_with_unique_name__dataset_creator_set(
-    mocker: MockerFixture,
-) -> None:
-    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
-    client = ApiWorkflowClient()
-    client._datasets_api = mocker.create_autospec(DatasetsApi)
-
-    client.create_new_dataset_with_unique_name(
-        dataset_basename="name", dataset_creator=DatasetCreator.USER_WORKER
-    )
-
-    expected_body = DatasetCreateRequest(
-        name="name", type=DatasetType.IMAGES, creator=DatasetCreator.USER_WORKER
     )
     client._datasets_api.create_dataset.assert_called_once_with(expected_body)

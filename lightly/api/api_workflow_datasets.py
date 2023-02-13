@@ -2,7 +2,12 @@ import warnings
 from typing import List, Optional
 
 from lightly.api import utils
-from lightly.openapi_generated.swagger_client import (CreateEntityResponse, DatasetCreateRequest, DatasetData, DatasetCreator, DatasetType, )
+from lightly.openapi_generated.swagger_client import (
+    CreateEntityResponse,
+    DatasetCreateRequest,
+    DatasetData,
+    DatasetType,
+)
 from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
@@ -165,7 +170,6 @@ class _DatasetsMixin:
         self,
         dataset_name: str,
         dataset_type: str = DatasetType.IMAGES,
-        dataset_creator: Optional[DatasetCreator] = DatasetCreator.USER_PIP,
     ):
         """Creates a dataset on the Lightly Platform.
 
@@ -179,8 +183,6 @@ class _DatasetsMixin:
             dataset_type:
                 The type of the dataset. We recommend to use the API provided constants
                 `DatasetType.IMAGES` and `DatasetType.VIDEOS`.
-            dataset_creator:
-                Telling from where the dataset is created.
 
         Raises:
             ValueError: If a dataset with dataset_name already exists.
@@ -212,11 +214,10 @@ class _DatasetsMixin:
         self._create_dataset_without_check_existing(
             dataset_name=dataset_name,
             dataset_type=dataset_type,
-            dataset_creator=dataset_creator,
         )
 
     def _create_dataset_without_check_existing(
-        self, dataset_name: str, dataset_type: str, dataset_creator: DatasetCreator
+        self, dataset_name: str, dataset_type: str
     ):
         """Creates a dataset on the Lightly Platform.
 
@@ -230,7 +231,9 @@ class _DatasetsMixin:
                 constants `DatasetType.IMAGES` and `DatasetType.VIDEOS`.
 
         """
-        body = DatasetCreateRequest(name=dataset_name, type=dataset_type, creator=dataset_creator)
+        body = DatasetCreateRequest(
+            name=dataset_name, type=dataset_type, creator=self.dataset_creator
+        )
         response: CreateEntityResponse = self._datasets_api.create_dataset(body=body)
         self._dataset_id = response.id
 
@@ -238,7 +241,6 @@ class _DatasetsMixin:
         self,
         dataset_basename: str,
         dataset_type: str = DatasetType.IMAGES,
-        dataset_creator: Optional[DatasetCreator] = DatasetCreator.USER_PIP,
     ):
         """Creates a new dataset on the Lightly Platform.
 
@@ -251,15 +253,12 @@ class _DatasetsMixin:
             dataset_type:
                 The type of the dataset. We recommend to use the API provided
                 constants `DatasetType.IMAGES` and `DatasetType.VIDEOS`.
-            dataset_creator:
-                Telling from where the dataset is created.
 
         """
         if not self.dataset_name_exists(dataset_name=dataset_basename):
             self._create_dataset_without_check_existing(
                 dataset_name=dataset_basename,
                 dataset_type=dataset_type,
-                dataset_creator=dataset_creator,
             )
         else:
             existing_datasets = self._datasets_api.get_datasets_query_by_name(
@@ -276,7 +275,6 @@ class _DatasetsMixin:
             self._create_dataset_without_check_existing(
                 dataset_name=dataset_name,
                 dataset_type=dataset_type,
-                dataset_creator=dataset_creator,
             )
 
     def delete_dataset_by_id(self, dataset_id: str):

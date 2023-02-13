@@ -23,7 +23,7 @@ from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
 from lightly.api.utils import DatasourceType, get_signed_url_destination, get_api_client_configuration
 from lightly.api.version_checking import is_compatible_version, LightlyAPITimeoutException
 from lightly.openapi_generated.swagger_client.api.collaboration_api import CollaborationApi
-from lightly.openapi_generated.swagger_client import ScoresApi, QuotaApi, MetaDataConfigurationsApi, PredictionsApi
+from lightly.openapi_generated.swagger_client import ScoresApi, QuotaApi, MetaDataConfigurationsApi, PredictionsApi, DatasetCreator
 from lightly.openapi_generated.swagger_client.api.datasets_api import \
     DatasetsApi
 from lightly.openapi_generated.swagger_client.api.datasources_api import \
@@ -75,13 +75,16 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         embedding_id:
             the id of the embedding to use. If it is not set, \
             but used by a workflow, the newest embedding is taken by default
+        dataset_creator:
+            Telling from where the dataset is created.
     """
 
     def __init__(
         self,
         token: Optional[str] = None,
         dataset_id: Optional[str] = None,
-        embedding_id: Optional[str] = None
+        embedding_id: Optional[str] = None,
+        dataset_creator: DatasetCreator = DatasetCreator.USER_PIP,
     ):
 
         try:
@@ -105,6 +108,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             self._dataset_id = dataset_id
         if embedding_id is not None:
             self.embedding_id = embedding_id
+        self.dataset_creator = dataset_creator
 
         self._collaboration_api = CollaborationApi(api_client=self.api_client)
         self._compute_worker_api = DockerApi(api_client=self.api_client)
