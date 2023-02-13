@@ -1168,7 +1168,7 @@ class SwaVQueueModel(BenchmarkModule):
         self.projection_head = heads.SwaVProjectionHead(feature_dim, 2048, 128)
         self.prototypes = heads.SwaVPrototypes(128, 3000, 1)
         self.start_queue_at_epoch = 15
-        self.queues = nn.ModuleList([lightly.loss.memory_bank.MemoryBankModule(size=3840) for _ in range(2)])
+        self.queues = nn.ModuleList([lightly.loss.memory_bank.MemoryBankModule(size=384) for _ in range(2)])
         self.criterion = lightly.loss.SwaVLoss()
 
     def forward(self, x):
@@ -1184,10 +1184,10 @@ class SwaVQueueModel(BenchmarkModule):
         low_resolution_features = [self._subforward(x) for x in low_resolution]
 
         high_resolution_prototypes = [
-            self.prototypes(x, self.global_step) for x in high_resolution_features
+            self.prototypes(x, self.current_epoch) for x in high_resolution_features
         ]
         low_resolution_prototypes = [
-            self.prototypes(x, self.global_step) for x in low_resolution_features
+            self.prototypes(x, self.current_epoch) for x in low_resolution_features
         ]
         queue_prototypes = self._get_queue_prototypes(high_resolution_features)
         loss = self.criterion(
@@ -1232,9 +1232,9 @@ class SwaVQueueModel(BenchmarkModule):
         return queue_prototypes
 
     def configure_optimizers(self):
-        optim = torch.optim.SGD(
+        optim = torch.optim.Adam(
             self.parameters(),
-            lr=4.8 * lr_factor,
+            lr=1e-3 * lr_factor,
             weight_decay=1e-6,
         )
         cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
@@ -1242,24 +1242,24 @@ class SwaVQueueModel(BenchmarkModule):
 
 
 models = [
-    BarlowTwinsModel,
-    BYOLModel,
-    DCL,
-    DCLW,
-    DINOModel,
-    # MAEModel, # disabled by default because MAE uses larger images with size 224
-    # MSNModel, # disabled by default because MSN uses larger images with size 224
-    MocoModel,
-    NNCLRModel,
-    SimCLRModel,
-    # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
-    SimSiamModel,
-    SwaVModel,
+    #BarlowTwinsModel,
+    #BYOLModel,
+    #DCL,
+    #DCLW,
+    #DINOModel,
+    ## MAEModel, # disabled by default because MAE uses larger images with size 224
+    ## MSNModel, # disabled by default because MSN uses larger images with size 224
+    #MocoModel,
+    #NNCLRModel,
+    #SimCLRModel,
+    ## SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
+    #SimSiamModel,
+    #SwaVModel,
     SwaVQueueModel,
-    SMoGModel,
-    TiCoModel,
-    VICRegModel,
-    VICRegLModel,
+    #SMoGModel,
+    #TiCoModel,
+    #VICRegModel,
+    #VICRegLModel,
 ]
 bench_results = dict()
 
