@@ -35,16 +35,18 @@ class DockerWorkerConfigData(object):
     swagger_types = {
         'id': 'MongoObjectID',
         'config': 'DockerWorkerConfig',
+        'config_orig': 'DockerWorkerConfig',
         'created_at': 'Timestamp'
     }
 
     attribute_map = {
         'id': 'id',
         'config': 'config',
+        'config_orig': 'configOrig',
         'created_at': 'createdAt'
     }
 
-    def __init__(self, id=None, config=None, created_at=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, config=None, config_orig=None, created_at=None, _configuration=None):  # noqa: E501
         """DockerWorkerConfigData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -52,11 +54,14 @@ class DockerWorkerConfigData(object):
 
         self._id = None
         self._config = None
+        self._config_orig = None
         self._created_at = None
         self.discriminator = None
 
         self.id = id
         self.config = config
+        if config_orig is not None:
+            self.config_orig = config_orig
         if created_at is not None:
             self.created_at = created_at
 
@@ -105,6 +110,27 @@ class DockerWorkerConfigData(object):
             raise ValueError("Invalid value for `config`, must not be `None`")  # noqa: E501
 
         self._config = config
+
+    @property
+    def config_orig(self):
+        """Gets the config_orig of this DockerWorkerConfigData.  # noqa: E501
+
+
+        :return: The config_orig of this DockerWorkerConfigData.  # noqa: E501
+        :rtype: DockerWorkerConfig
+        """
+        return self._config_orig
+
+    @config_orig.setter
+    def config_orig(self, config_orig):
+        """Sets the config_orig of this DockerWorkerConfigData.
+
+
+        :param config_orig: The config_orig of this DockerWorkerConfigData.  # noqa: E501
+        :type: DockerWorkerConfig
+        """
+
+        self._config_orig = config_orig
 
     @property
     def created_at(self):

@@ -6,35 +6,33 @@ from lightly.openapi_generated.swagger_client import (
     CreateEntityResponse,
     DatasetCreateRequest,
     DatasetData,
+    DatasetType,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class _DatasetsMixin:
-
     @property
     def dataset_type(self) -> str:
-        """Returns the dataset type of the current dataset.
-
-        """
+        """Returns the dataset type of the current dataset."""
         dataset = self._get_current_dataset()
-        return dataset.type # type: ignore
+        return dataset.type  #  type: ignore
 
     def _get_current_dataset(self) -> DatasetData:
-        """Returns the dataset with id == self.dataset_id.
-
-        """
+        """Returns the dataset with id == self.dataset_id."""
         return self.get_dataset_by_id(dataset_id=self.dataset_id)
 
     def dataset_exists(self, dataset_id: str) -> bool:
-        """Returns True if a dataset with dataset_id exists. """
+        """Returns True if a dataset with dataset_id exists."""
         try:
             self.get_dataset_by_id(dataset_id)
             return True
         except ApiException:
             return False
 
-    def dataset_name_exists(self, dataset_name: str, shared: Optional[bool] = False) -> bool:
+    def dataset_name_exists(
+        self, dataset_name: str, shared: Optional[bool] = False
+    ) -> bool:
         """Returns True if a dataset with dataset_name exists and False otherwise.
 
         Args:
@@ -48,7 +46,7 @@ class _DatasetsMixin:
         return bool(self.get_datasets_by_name(dataset_name=dataset_name, shared=shared))
 
     def get_dataset_by_id(self, dataset_id: str) -> DatasetData:
-        """Returns the dataset for the given dataset id. """
+        """Returns the dataset for the given dataset id."""
         dataset: DatasetData = self._datasets_api.get_dataset_by_id(dataset_id)
         return dataset
 
@@ -103,15 +101,19 @@ class _DatasetsMixin:
         """
         datasets = []
         if not shared or shared is None:
-            datasets.extend(utils.paginate_endpoint(
-                self._datasets_api.get_datasets,
-                shared=False,
-            ))
+            datasets.extend(
+                utils.paginate_endpoint(
+                    self._datasets_api.get_datasets,
+                    shared=False,
+                )
+            )
         if shared or shared is None:
-            datasets.extend(utils.paginate_endpoint(
-                self._datasets_api.get_datasets,
-                shared=True,
-            ))
+            datasets.extend(
+                utils.paginate_endpoint(
+                    self._datasets_api.get_datasets,
+                    shared=True,
+                )
+            )
         return datasets
 
     def get_all_datasets(self) -> List[DatasetData]:
@@ -128,13 +130,12 @@ class _DatasetsMixin:
         owned_datasets = self.get_datasets(shared=None)
         return owned_datasets
 
-
     def set_dataset_id_by_name(self, dataset_name: str, shared: Optional[bool] = False):
         """Sets the dataset id given the name of the dataset
 
         Args:
             dataset_name:
-                The name of the dataset for which the dataset_id should be set as 
+                The name of the dataset for which the dataset_id should be set as
                 attribute.
             shared:
                 If False, considers only datasets owned by the user.
@@ -165,8 +166,11 @@ class _DatasetsMixin:
                 )
             warnings.warn(msg)
 
-
-    def create_dataset(self, dataset_name: str, dataset_type: Optional[str] = None):
+    def create_dataset(
+        self,
+        dataset_name: str,
+        dataset_type: str = DatasetType.IMAGES,
+    ):
         """Creates a dataset on the Lightly Platform.
 
         The dataset_id of the created dataset is stored in the client.dataset_id
@@ -212,11 +216,8 @@ class _DatasetsMixin:
             dataset_type=dataset_type,
         )
 
-
     def _create_dataset_without_check_existing(
-        self,
-        dataset_name: str,
-        dataset_type: Optional[str] = None,
+        self, dataset_name: str, dataset_type: str
     ):
         """Creates a dataset on the Lightly Platform.
 
@@ -230,14 +231,16 @@ class _DatasetsMixin:
                 constants `DatasetType.IMAGES` and `DatasetType.VIDEOS`.
 
         """
-        body = DatasetCreateRequest(name=dataset_name, type=dataset_type)
+        body = DatasetCreateRequest(
+            name=dataset_name, type=dataset_type, creator=self._dataset_creator
+        )
         response: CreateEntityResponse = self._datasets_api.create_dataset(body=body)
         self._dataset_id = response.id
 
     def create_new_dataset_with_unique_name(
         self,
         dataset_basename: str,
-        dataset_type: Optional[str] = None,
+        dataset_type: str = DatasetType.IMAGES,
     ):
         """Creates a new dataset on the Lightly Platform.
 
@@ -255,7 +258,7 @@ class _DatasetsMixin:
         if not self.dataset_name_exists(dataset_name=dataset_basename):
             self._create_dataset_without_check_existing(
                 dataset_name=dataset_basename,
-                dataset_type=dataset_type
+                dataset_type=dataset_type,
             )
         else:
             existing_datasets = self._datasets_api.get_datasets_query_by_name(
@@ -271,7 +274,7 @@ class _DatasetsMixin:
                 dataset_name = f"{dataset_basename}_{counter}"
             self._create_dataset_without_check_existing(
                 dataset_name=dataset_name,
-                dataset_type=dataset_type
+                dataset_type=dataset_type,
             )
 
     def delete_dataset_by_id(self, dataset_id: str):
