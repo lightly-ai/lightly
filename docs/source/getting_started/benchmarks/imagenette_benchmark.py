@@ -28,6 +28,7 @@ Results (5.3.2022):
 | SimSiam          |        256 |    200 |              0.669 |   78.6 Min |      3.9 GByte |
 | SMoG             |        128 |    200 |              0.698 |  220.9 Min |     14.3 GByte |
 | SwaV             |        256 |    200 |              0.748 |   77.6 Min |      4.0 GByte |
+| SwaVQueue        |        256 |    200 |              0.845 |   68.8 Min |      6.4 GByte |
 | TiCo             |        256 |    200 |              0.531 |   78.2 Min |      4.3 GByte |
 | VICReg           |        256 |    200 |              0.679 |   79.1 Min |      5.7 GByte |
 | VICRegL          |        256 |    200 |              0.703 |   79.5 Min |      4.4 GByte |
@@ -44,6 +45,7 @@ Results (5.3.2022):
 | SimMIM (ViT-B32) |        256 |    800 |              0.355 |  397.8 Min |     10.5 GByte |
 | SimSiam          |        256 |    800 |              0.852 |  316.0 Min |      3.9 GByte |
 | SwaV             |        256 |    800 |              0.899 |  554.7 Min |      6.6 GByte |
+| SwaVQueue        |        256 |    800 |              0.894 |  273.7 Min |      6.4 GByte |
 | TiCo             |        256 |    800 |              0.672 |  321.1 Min |      4.0 GByte |
 | VICReg           |        256 |    800 |              0.783 |  316.0 Min |      5.7 GByte |
 | VICRegL          |        256 |    800 |              0.817 |  302.0 Min |      4.4 GByte |
@@ -194,7 +196,7 @@ def get_data_loaders(batch_size: int, model):
     """
     col_fn = collate_fn
     if model == SwaVModel or model == SwaVQueueModel:
-        col_fn = swav_collate_fn        
+        col_fn = swav_collate_fn
     elif model == DINOModel:
         col_fn = dino_collate_fn
     elif model == MAEModel:
@@ -233,6 +235,7 @@ def get_data_loaders(batch_size: int, model):
     )
 
     return dataloader_train_ssl, dataloader_train_kNN, dataloader_test
+
 
 class MocoModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
@@ -768,7 +771,9 @@ class MAEModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.95),
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        cosine_scheduler = scheduler.CosineWarmupScheduler(
+            optim, self.warmup_epochs, max_epochs
+        )
         return [optim], [cosine_scheduler]
 
 
@@ -841,7 +846,9 @@ class MSNModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.95),
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        cosine_scheduler = scheduler.CosineWarmupScheduler(
+            optim, self.warmup_epochs, max_epochs
+        )
         return [optim], [cosine_scheduler]
 
 
@@ -1016,7 +1023,9 @@ class SimMIMModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.999),
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        cosine_scheduler = scheduler.CosineWarmupScheduler(
+            optim, self.warmup_epochs, max_epochs
+        )
         return [optim], [cosine_scheduler]
 
 
@@ -1050,7 +1059,9 @@ class VICRegModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        cosine_scheduler = scheduler.CosineWarmupScheduler(
+            optim, self.warmup_epochs, max_epochs
+        )
         return [optim], [cosine_scheduler]
 
 
@@ -1102,7 +1113,9 @@ class VICRegLModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        cosine_scheduler = scheduler.CosineWarmupScheduler(
+            optim, self.warmup_epochs, max_epochs
+        )
         return [optim], [cosine_scheduler]
 
 
@@ -1155,8 +1168,11 @@ class TiCoModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        cosine_scheduler = scheduler.CosineWarmupScheduler(
+            optim, self.warmup_epochs, max_epochs
+        )
         return [optim], [cosine_scheduler]
+
 
 class SwaVQueueModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
@@ -1168,7 +1184,9 @@ class SwaVQueueModel(BenchmarkModule):
         self.projection_head = heads.SwaVProjectionHead(feature_dim, 2048, 128)
         self.prototypes = heads.SwaVPrototypes(128, 3000, 1)
         self.start_queue_at_epoch = 15
-        self.queues = nn.ModuleList([lightly.loss.memory_bank.MemoryBankModule(size=384) for _ in range(2)])
+        self.queues = nn.ModuleList(
+            [lightly.loss.memory_bank.MemoryBankModule(size=384) for _ in range(2)]
+        )  # Queue size reduced in order to work with a smaller dataset
         self.criterion = lightly.loss.SwaVLoss()
 
     def forward(self, x):
@@ -1194,13 +1212,13 @@ class SwaVQueueModel(BenchmarkModule):
             high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
         )
         return loss
-    
+
     def _subforward(self, input):
-         features = self.backbone(input).flatten(start_dim=1)
-         features = self.projection_head(features)
-         features = nn.functional.normalize(features, dim=1, p=2)
-         return features
-    
+        features = self.backbone(input).flatten(start_dim=1)
+        features = self.projection_head(features)
+        features = nn.functional.normalize(features, dim=1, p=2)
+        return features
+
     @torch.no_grad()
     def _get_queue_prototypes(self, high_resolution_features):
 
@@ -1228,7 +1246,9 @@ class SwaVQueueModel(BenchmarkModule):
             return None
 
         # Assign prototypes
-        queue_prototypes = [self.prototypes(x, self.current_epoch) for x in queue_features]
+        queue_prototypes = [
+            self.prototypes(x, self.current_epoch) for x in queue_features
+        ]
         return queue_prototypes
 
     def configure_optimizers(self):
@@ -1242,24 +1262,24 @@ class SwaVQueueModel(BenchmarkModule):
 
 
 models = [
-    #BarlowTwinsModel,
-    #BYOLModel,
-    #DCL,
-    #DCLW,
-    #DINOModel,
+    BarlowTwinsModel,
+    BYOLModel,
+    DCL,
+    DCLW,
+    DINOModel,
     ## MAEModel, # disabled by default because MAE uses larger images with size 224
     ## MSNModel, # disabled by default because MSN uses larger images with size 224
-    #MocoModel,
-    #NNCLRModel,
-    #SimCLRModel,
+    MocoModel,
+    NNCLRModel,
+    SimCLRModel,
     ## SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
-    #SimSiamModel,
-    #SwaVModel,
+    SimSiamModel,
+    SwaVModel,
     SwaVQueueModel,
-    #SMoGModel,
-    #TiCoModel,
-    #VICRegModel,
-    #VICRegLModel,
+    SMoGModel,
+    TiCoModel,
+    VICRegModel,
+    VICRegLModel,
 ]
 bench_results = dict()
 
