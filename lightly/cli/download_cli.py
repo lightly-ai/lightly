@@ -50,7 +50,7 @@ def _download_cli(cfg, is_cli_call=True):
         cfg['loader']['num_workers'] = num_workers
 
     api_workflow_client = ApiWorkflowClient(
-        token=token, dataset_id=dataset_id
+        token=token, dataset_id=dataset_id, dataset_creator=DatasetCreator.USER_PIP_LIGHTLY_MAGIC
     )
 
     # get tag id
