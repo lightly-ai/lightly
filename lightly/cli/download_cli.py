@@ -25,9 +25,7 @@ from lightly.cli._helpers import cpu_count
 from lightly.api.utils import getenv
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.api.bitmask import BitMask
-from lightly.openapi_generated.swagger_client import TagData, TagArithmeticsRequest, TagArithmeticsOperation, \
-    TagBitMaskResponse
-
+from lightly.openapi_generated.swagger_client import TagData, TagArithmeticsRequest, TagArithmeticsOperation, TagBitMaskResponse, DatasetCreator
 
 
 def _download_cli(cfg, is_cli_call=True):
