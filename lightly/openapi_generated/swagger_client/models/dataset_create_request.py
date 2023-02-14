@@ -36,6 +36,7 @@ class DatasetCreateRequest(object):
         'name': 'DatasetName',
         'type': 'DatasetType',
         'img_type': 'ImageType',
+        'creator': 'DatasetCreator',
         'parent_dataset_id': 'MongoObjectID'
     }
 
@@ -43,10 +44,11 @@ class DatasetCreateRequest(object):
         'name': 'name',
         'type': 'type',
         'img_type': 'imgType',
+        'creator': 'creator',
         'parent_dataset_id': 'parentDatasetId'
     }
 
-    def __init__(self, name=None, type=None, img_type=None, parent_dataset_id=None, _configuration=None):  # noqa: E501
+    def __init__(self, name=None, type=None, img_type=None, creator=None, parent_dataset_id=None, _configuration=None):  # noqa: E501
         """DatasetCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -55,6 +57,7 @@ class DatasetCreateRequest(object):
         self._name = None
         self._type = None
         self._img_type = None
+        self._creator = None
         self._parent_dataset_id = None
         self.discriminator = None
 
@@ -63,6 +66,8 @@ class DatasetCreateRequest(object):
             self.type = type
         if img_type is not None:
             self.img_type = img_type
+        if creator is not None:
+            self.creator = creator
         if parent_dataset_id is not None:
             self.parent_dataset_id = parent_dataset_id
 
@@ -130,6 +135,27 @@ class DatasetCreateRequest(object):
         """
 
         self._img_type = img_type
+
+    @property
+    def creator(self):
+        """Gets the creator of this DatasetCreateRequest.  # noqa: E501
+
+
+        :return: The creator of this DatasetCreateRequest.  # noqa: E501
+        :rtype: DatasetCreator
+        """
+        return self._creator
+
+    @creator.setter
+    def creator(self, creator):
+        """Sets the creator of this DatasetCreateRequest.
+
+
+        :param creator: The creator of this DatasetCreateRequest.  # noqa: E501
+        :type: DatasetCreator
+        """
+
+        self._creator = creator
 
     @property
     def parent_dataset_id(self):
