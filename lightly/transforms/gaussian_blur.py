@@ -63,7 +63,7 @@ class GaussianBlur(object):
             # choose randomized std for Gaussian filtering
             sigma = np.random.uniform(self.sigmas[0], self.sigmas[1])
             # PIL GaussianBlur https://github.com/python-pillow/Pillow/blob/76478c6865c78af10bf48868345db2af92f86166/src/PIL/ImageFilter.py#L154 label the
-            # sigma parameter of the gaussian filter as radius. Before v1.2.45, the radius of the patch was passed as the argument.
+            # sigma parameter of the gaussian filter as radius. Before, the radius of the patch was passed as the argument.
             # The issue was addressed here https://github.com/lightly-ai/lightly/issues/1051 and solved by AurelienGauffre.
             return sample.filter(ImageFilter.GaussianBlur(radius=sigma))
         # return original image
