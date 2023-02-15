@@ -238,9 +238,11 @@ class SimCLRCollateFunction(ImageCollateFunction):
         gaussian_blur:
             Probability of Gaussian blur.
         kernel_size:
-            Old argument. Value is deprecated in favor of sigmas.
+            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
+            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
+            Is ignored if `kernel_size` is set.
         vf_prob:
             Probability that vertical flip is applied.
         hf_prob:
@@ -296,6 +298,7 @@ class SimCLRCollateFunction(ImageCollateFunction):
             min_scale=min_scale,
             random_gray_scale=random_gray_scale,
             gaussian_blur=gaussian_blur,
+            kernel_size=kernel_size,
             sigmas=sigmas,
             vf_prob=vf_prob,
             hf_prob=hf_prob,
@@ -324,9 +327,11 @@ class MoCoCollateFunction(ImageCollateFunction):
         gaussian_blur:
             Probability of Gaussian blur.
         kernel_size:
-            Old argument. Value is deprecated in favor of sigmas.
+            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
+            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
+            Is ignored if `kernel_size` is set.
         vf_prob:
             Probability that vertical flip is applied.
         hf_prob:
@@ -381,6 +386,7 @@ class MoCoCollateFunction(ImageCollateFunction):
             min_scale=min_scale,
             random_gray_scale=random_gray_scale,
             gaussian_blur=gaussian_blur,
+            kernel_size=kernel_size,
             sigmas=sigmas,
             vf_prob=vf_prob,
             hf_prob=hf_prob,
@@ -486,9 +492,11 @@ class SwaVCollateFunction(MultiCropCollateFunction):
         gaussian_blur:
             Probability of Gaussian blur.
         kernel_size:
-            Old argument. Value is deprecated in favor of sigmas.
+            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
+            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
+            Is ignored if `kernel_size` is set.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
@@ -605,11 +613,14 @@ class DINOCollateFunction(MultiViewCollateFunction):
             views. The input is ordered as follows:
             (global_view_0, global_view_1, local_views)
         kernel_size:
-            Old argument. Value is deprecated in favor of sigmas.
+            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
+            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         kernel_scale:
-            Old argument. Value is deprecated in favor of sigmas.
+            Old argument. Value is deprecated in favor of sigmas. If set, the old behavior applies and `sigmas` is ignored.
+            Used to scale the `kernel_size` of a factor of `kernel_scale`
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
+            Is ignored if `kernel_size` is set.
         solarization:
             Probability to apply solarization on the second global view.
         normalize:
@@ -679,7 +690,7 @@ class DINOCollateFunction(MultiViewCollateFunction):
                 global_crop,
                 flip_and_color_jitter,
                 GaussianBlur(
-                    kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur[0]
+                    kernel_size=kernel_size, kernel_scale=kernel_scale, sigmas=sigmas, prob=gaussian_blur[0]
                 ),
                 normalize,
             ]
@@ -691,7 +702,7 @@ class DINOCollateFunction(MultiViewCollateFunction):
                 global_crop,
                 flip_and_color_jitter,
                 GaussianBlur(
-                    kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur[1]
+                    kernel_size=kernel_size, kernel_scale=kernel_scale, sigmas=sigmas, prob=gaussian_blur[1]
                 ),
                 RandomSolarization(prob=solarization_prob),
                 normalize,
@@ -706,7 +717,7 @@ class DINOCollateFunction(MultiViewCollateFunction):
                 ),
                 flip_and_color_jitter,
                 GaussianBlur(
-                    kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur[2]
+                    kernel_size=kernel_size, kernel_scale=kernel_scale, sigmas=sigmas, prob=gaussian_blur[2]
                 ),
                 normalize,
             ]
@@ -899,9 +910,11 @@ class MSNCollateFunction(MultiViewCollateFunction):
         gaussian_blur:
             Probability of Gaussian blur.
         kernel_size:
-            Old argument. Value is deprecated in favor of sigmas.
+            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
+            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
+            Is ignored if `kernel_size` is set.
         random_gray_scale:
             Probability of conversion to grayscale.
         hf_prob:
@@ -1089,9 +1102,11 @@ class VICRegCollateFunction(BaseCollateFunction):
         gaussian_blur:
             Probability of Gaussian blur.
         kernel_size:
-            Old argument. Value is deprecated in favor of sigmas.
+            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
+            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
+            Is ignored if `kernel_size` is set.
         vf_prob:
             Probability that vertical flip is applied.
         hf_prob:
@@ -1178,15 +1193,17 @@ class VICRegLCollateFunction(nn.Module):
         local_gaussian_blur_prob:
             Probability of Gaussian blur for the local crop category.
         global_gaussian_blur_kernel_size:
-            Old argument. Value is deprecated in favor of sigmas.
+            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
+            Used to calculate sigma of gaussian blur with kernel_size * input_size. Applied to global crop category.
         local_gaussian_blur_kernel_size:
-            Old argument. Value is deprecated in favor of sigmas.
+            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
+            Used to calculate sigma of gaussian blur with kernel_size * input_size. Applied to local crop category.
         global_gaussian_blur_sigmas:
-            Tuple of min and max value from which the std of the
-            gaussian kernel is sampled for the global crop category.
+            Tuple of min and max value from which the std of the gaussian kernel is sampled.
+            Is ignored if `kernel_size` is set. Applied to global crop category.
         local_gaussian_blur_sigmas:
-            Tuple of min and max value from which the std of the
-            gaussian kernel is sampled for the local crop category.
+            Tuple of min and max value from which the std of the gaussian kernel is sampled.
+            Is ignored if `kernel_size` is set. Applied to local crop category.
         global_solarize_prob:
             Probability of solarization for the global crop category.
         local_solarize_prob:

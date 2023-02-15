@@ -19,13 +19,16 @@ class GaussianBlur(object):
 
     Attributes:
         kernel_size:
-            Old unused parameter kept for compatibility
+            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
+            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         prob:
             Probability with which the blur is applied.
         scale:
-            Old unused parameter kept for compatibility
+            Old argument. Value is deprecated in favor of sigmas. If set, the old behavior applies and `sigmas` is ignored.
+            Used to scale the `kernel_size` of a factor of `kernel_scale`
         sigmas:
-            Tuple of min and max value from which the std of the gaussian kernel is sampled
+            Tuple of min and max value from which the std of the gaussian kernel is sampled.
+            Is ignored if `kernel_size` is set.
 
     """
 
