@@ -116,7 +116,8 @@ class ImageCollateFunction(BaseCollateFunction):
         gaussian_blur:
             Probability of Gaussian blur.
         kernel_size:
-            Old argument. Value is deprecated in favor of sigmas.
+            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
+            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
         vf_prob:
