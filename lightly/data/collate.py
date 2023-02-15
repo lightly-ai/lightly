@@ -1193,11 +1193,11 @@ class VICRegLCollateFunction(nn.Module):
         local_gaussian_blur_prob:
             Probability of Gaussian blur for the local crop category.
         global_gaussian_blur_kernel_size:
-            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
-            Used to calculate sigma of gaussian blur with kernel_size * input_size. Applied to global crop category.
+            Will be deprecated in favor of `global_gaussian_blur_sigmas` argument. If set, the old behavior applies and `global_gaussian_blur_sigmas` is ignored.
+            Used to calculate sigma of gaussian blur with global_gaussian_blur_kernel_size * input_size. Applied to global crop category.
         local_gaussian_blur_kernel_size:
-            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
-            Used to calculate sigma of gaussian blur with kernel_size * input_size. Applied to local crop category.
+            Will be deprecated in favor of `local_gaussian_blur_sigmas` argument. If set, the old behavior applies and `local_gaussian_blur_sigmas` is ignored.
+            Used to calculate sigma of gaussian blur with local_gaussian_blur_kernel_size * input_size. Applied to local crop category.
         global_gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
             Is ignored if `kernel_size` is set. Applied to global crop category.

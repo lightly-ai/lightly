@@ -60,7 +60,9 @@ collate:
   random_gray_scale: 0.2      # Probability of converting image to gray scale.
   gaussian_blur: 0.5          # Probability of Gaussian blur.
   sigmas: [0.2, 2]            # Sigmas of Gaussian blur 
-  kernel_size: null           # Will be deprecated in favor of `sigmas` argument.
+  kernel_size: null           # Will be deprecated in favor of `sigmas` argument. If set, the old behavior
+                              # applies and `sigmas` is ignored. Used to calculate sigma of gaussian blur 
+                              # with kernel_size * input_size.
   vf_prob: 0.0                # Probability that vertical flip is applied.
   hf_prob: 0.5                # Probability that horizontal flip is applied.
   rr_prob: 0.0                # Probability that random rotation is applied.
