@@ -5,7 +5,6 @@ from lightly.openapi_generated.swagger_client import (
     TagArithmeticsRequest, 
     TagArithmeticsOperation, 
     TagBitMaskResponse, 
-    TagCreator,
     TagData,
 )
 
@@ -162,7 +161,7 @@ class _TagsMixin:
             'prevTagId': parent_tag_id, 
             'bitMaskData': bitmask.to_hex(), 
             'totSize': tot_size,
-            'creator': TagCreator.USER_PIP,
+            'creator': self._creator,
         }
 
         new_tag = self._tags_api.create_tag_by_dataset_id(

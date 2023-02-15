@@ -16,7 +16,6 @@ from lightly.api.utils import check_filename
 from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
 from lightly.api.utils import retry
 from lightly.api.utils import build_azure_signed_url_write_headers
-from lightly.openapi_generated.swagger_client import TagCreator
 from lightly.openapi_generated.swagger_client import SampleWriteUrls
 from lightly.openapi_generated.swagger_client.models.sample_create_request \
     import SampleCreateRequest
@@ -218,7 +217,7 @@ class _UploadDatasetMixin:
             # create initial tag
             initial_tag_create_request = InitialTagCreateRequest(
                 img_type=img_type,
-                creator=TagCreator.USER_PIP
+                creator=self._creator,
             )
             self._tags_api.create_initial_tag_by_dataset_id(
                 body=initial_tag_create_request,
@@ -228,7 +227,7 @@ class _UploadDatasetMixin:
             # upsize existing tags
             upsize_tags_request = TagUpsizeRequest(
                 upsize_tag_name=datetime.now().strftime('%Y%m%d_%Hh%Mm%Ss'),
-                upsize_tag_creator=TagCreator.USER_PIP,
+                upsize_tag_creator=self._creator,
             )
             self._tags_api.upsize_tags_by_dataset_id(
                 body=upsize_tags_request,
