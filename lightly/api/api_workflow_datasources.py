@@ -543,11 +543,26 @@ class _DatasourcesMixin:
         ] = ".lightly/thumbnails/[filename]_thumb.[extension]",
         purpose: str = DatasourcePurpose.INPUT_OUTPUT,
     ) -> None:
-        """TODO
+        """Sets the Telekom OBS configuration for the datasource of the current dataset.
 
         Args:
-
-
+            resource_path:
+                S3 url of your dataset, for example "s3://my_bucket/path/to/my/data".
+            obs_endpoint:
+                OBS endpoint.
+            obs_access_key_id:
+                OBS access key id.
+            obs_secret_access_key:
+                OBS secret access key.
+            thumbnail_suffix:
+                Where to save thumbnails of the images in the dataset, for
+                example ".lightly/thumbnails/[filename]_thumb.[extension]".
+                Set to None to disable thumbnails and use the full images from the
+                datasource instead.
+            purpose:
+                Datasource purpose, determines if datasource is read only (INPUT)
+                or can be written to as well (LIGHTLY, INPUT_OUTPUT).
+                The latter is required when Lightly extracts frames from input videos.
         """
         # TODO: Use DatasourceConfigOBS once we switch/update the api generator.
         self._datasources_api.update_datasource_by_dataset_id(
@@ -555,9 +570,9 @@ class _DatasourcesMixin:
                 "type": "OBS",
                 "fullPath": resource_path,
                 "thumbSuffix": thumbnail_suffix,
-                "obs_endpoint": obs_endpoint,
-                "obs_access_key_id": obs_access_key_id,
-                "obs_secret_access_key": obs_secret_access_key,
+                "obsEndpoint": obs_endpoint,
+                "obsAccessKeyId": obs_access_key_id,
+                "obsSecretAccessKey": obs_secret_access_key,
                 "purpose": purpose,
             },
             dataset_id=self.dataset_id,
