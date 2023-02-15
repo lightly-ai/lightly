@@ -120,6 +120,7 @@ class ImageCollateFunction(BaseCollateFunction):
             Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
+            Is ignored if `kernel_size` is set.
         vf_prob:
             Probability that vertical flip is applied.
         hf_prob:
