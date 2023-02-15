@@ -690,7 +690,7 @@ class DINOCollateFunction(MultiViewCollateFunction):
                 global_crop,
                 flip_and_color_jitter,
                 GaussianBlur(
-                    kernel_size=kernel_size, kernel_scale=kernel_scale, sigmas=sigmas, prob=gaussian_blur[0]
+                    kernel_size=kernel_size, scale=kernel_scale, sigmas=sigmas, prob=gaussian_blur[0]
                 ),
                 normalize,
             ]
@@ -702,7 +702,7 @@ class DINOCollateFunction(MultiViewCollateFunction):
                 global_crop,
                 flip_and_color_jitter,
                 GaussianBlur(
-                    kernel_size=kernel_size, kernel_scale=kernel_scale, sigmas=sigmas, prob=gaussian_blur[1]
+                    kernel_size=kernel_size, scale=kernel_scale, sigmas=sigmas, prob=gaussian_blur[1]
                 ),
                 RandomSolarization(prob=solarization_prob),
                 normalize,
@@ -717,7 +717,7 @@ class DINOCollateFunction(MultiViewCollateFunction):
                 ),
                 flip_and_color_jitter,
                 GaussianBlur(
-                    kernel_size=kernel_size, kernel_scale=kernel_scale, sigmas=sigmas, prob=gaussian_blur[2]
+                    kernel_size=kernel_size, scale=kernel_scale, sigmas=sigmas, prob=gaussian_blur[2]
                 ),
                 normalize,
             ]

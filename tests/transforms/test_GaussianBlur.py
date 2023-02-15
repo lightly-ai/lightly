@@ -12,3 +12,11 @@ class TestGaussianBlur(unittest.TestCase):
                 gaussian_blur = GaussianBlur()
                 sample = Image.new('RGB', (w, h))
                 gaussian_blur(sample)
+    
+    def test_raise_kernel_size_deprecation(self):
+        gaussian_blur = GaussianBlur(kernel_size=2)
+        self.assertWarns(PendingDeprecationWarning)
+
+    def test_raise_scale_deprecation(self):
+        gaussian_blur = GaussianBlur(scale=0.1)
+        self.assertWarns(PendingDeprecationWarning)
