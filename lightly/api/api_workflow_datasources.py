@@ -531,6 +531,37 @@ class _DatasourcesMixin:
             },
             dataset_id=self.dataset_id,
         )
+    
+    def set_obs_config(
+        self,
+        resource_path: str,
+        obs_endpoint: str,
+        obs_access_key_id: str,
+        obs_secret_access_key: str,
+        thumbnail_suffix: Optional[
+            str
+        ] = ".lightly/thumbnails/[filename]_thumb.[extension]",
+        purpose: str = DatasourcePurpose.INPUT_OUTPUT,
+    ) -> None:
+        """TODO
+
+        Args:
+
+
+        """
+        # TODO: Use DatasourceConfigOBS once we switch/update the api generator.
+        self._datasources_api.update_datasource_by_dataset_id(
+            body={
+                "type": "OBS",
+                "fullPath": resource_path,
+                "thumbSuffix": thumbnail_suffix,
+                "obs_endpoint": obs_endpoint,
+                "obs_access_key_id": obs_access_key_id,
+                "obs_secret_access_key": obs_secret_access_key,
+                "purpose": purpose,
+            },
+            dataset_id=self.dataset_id,
+        )
 
     def get_prediction_read_url(
         self,
