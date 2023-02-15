@@ -59,8 +59,10 @@ class DockerWorkerConfigV2(object):
         self.discriminator = None
 
         self.worker_type = worker_type
-        self.docker = docker
-        self.lightly = lightly
+        if docker is not None:
+            self.docker = docker
+        if lightly is not None:
+            self.lightly = lightly
         if selection is not None:
             self.selection = selection
 
@@ -105,8 +107,6 @@ class DockerWorkerConfigV2(object):
         :param docker: The docker of this DockerWorkerConfigV2.  # noqa: E501
         :type: DockerWorkerConfigV2Docker
         """
-        if self._configuration.client_side_validation and docker is None:
-            raise ValueError("Invalid value for `docker`, must not be `None`")  # noqa: E501
 
         self._docker = docker
 
@@ -128,8 +128,6 @@ class DockerWorkerConfigV2(object):
         :param lightly: The lightly of this DockerWorkerConfigV2.  # noqa: E501
         :type: DockerWorkerConfigV2Lightly
         """
-        if self._configuration.client_side_validation and lightly is None:
-            raise ValueError("Invalid value for `lightly`, must not be `None`")  # noqa: E501
 
         self._lightly = lightly
 

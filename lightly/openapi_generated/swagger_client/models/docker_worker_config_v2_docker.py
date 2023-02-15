@@ -33,59 +33,178 @@ class DockerWorkerConfigV2Docker(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'checkpoint': 'str',
+        'corruptness_check': 'DockerWorkerConfigV2DockerCorruptnessCheck',
+        'datasource': 'DockerWorkerConfigV2DockerDatasource',
+        'embeddings': 'str',
         'enable_training': 'bool',
+        'method': 'str',
+        'normalize_embeddings': 'bool',
+        'output_image_format': 'str',
+        'object_level': 'DockerWorkerConfigV2DockerObjectLevel',
         'pretagging': 'bool',
+        'pretagging_upload': 'bool',
         'relevant_filenames_file': 'str',
         'selected_sequence_length': 'int',
-        'datasource': 'DockerWorkerConfigV2DockerDatasource',
-        'corruptness_check': 'DockerWorkerConfigV2DockerCorruptnessCheck',
-        'output_image_format': 'str',
-        'embeddings': 'str'
+        'stopping_condition': 'DockerWorkerConfigV2DockerStoppingCondition',
+        'upload_report': 'bool'
     }
 
     attribute_map = {
+        'checkpoint': 'checkpoint',
+        'corruptness_check': 'corruptnessCheck',
+        'datasource': 'datasource',
+        'embeddings': 'embeddings',
         'enable_training': 'enableTraining',
+        'method': 'method',
+        'normalize_embeddings': 'normalizeEmbeddings',
+        'output_image_format': 'outputImageFormat',
+        'object_level': 'objectLevel',
         'pretagging': 'pretagging',
+        'pretagging_upload': 'pretaggingUpload',
         'relevant_filenames_file': 'relevantFilenamesFile',
         'selected_sequence_length': 'selectedSequenceLength',
-        'datasource': 'datasource',
-        'corruptness_check': 'corruptnessCheck',
-        'output_image_format': 'outputImageFormat',
-        'embeddings': 'embeddings'
+        'stopping_condition': 'stoppingCondition',
+        'upload_report': 'uploadReport'
     }
 
-    def __init__(self, enable_training=None, pretagging=None, relevant_filenames_file=None, selected_sequence_length=None, datasource=None, corruptness_check=None, output_image_format=None, embeddings=None, _configuration=None):  # noqa: E501
+    def __init__(self, checkpoint=None, corruptness_check=None, datasource=None, embeddings=None, enable_training=None, method=None, normalize_embeddings=None, output_image_format=None, object_level=None, pretagging=None, pretagging_upload=None, relevant_filenames_file=None, selected_sequence_length=None, stopping_condition=None, upload_report=None, _configuration=None):  # noqa: E501
         """DockerWorkerConfigV2Docker - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
+        self._checkpoint = None
+        self._corruptness_check = None
+        self._datasource = None
+        self._embeddings = None
         self._enable_training = None
+        self._method = None
+        self._normalize_embeddings = None
+        self._output_image_format = None
+        self._object_level = None
         self._pretagging = None
+        self._pretagging_upload = None
         self._relevant_filenames_file = None
         self._selected_sequence_length = None
-        self._datasource = None
-        self._corruptness_check = None
-        self._output_image_format = None
-        self._embeddings = None
+        self._stopping_condition = None
+        self._upload_report = None
         self.discriminator = None
 
+        if checkpoint is not None:
+            self.checkpoint = checkpoint
+        if corruptness_check is not None:
+            self.corruptness_check = corruptness_check
+        if datasource is not None:
+            self.datasource = datasource
+        if embeddings is not None:
+            self.embeddings = embeddings
         if enable_training is not None:
             self.enable_training = enable_training
+        if method is not None:
+            self.method = method
+        if normalize_embeddings is not None:
+            self.normalize_embeddings = normalize_embeddings
+        if output_image_format is not None:
+            self.output_image_format = output_image_format
+        if object_level is not None:
+            self.object_level = object_level
         if pretagging is not None:
             self.pretagging = pretagging
+        if pretagging_upload is not None:
+            self.pretagging_upload = pretagging_upload
         if relevant_filenames_file is not None:
             self.relevant_filenames_file = relevant_filenames_file
         if selected_sequence_length is not None:
             self.selected_sequence_length = selected_sequence_length
-        if datasource is not None:
-            self.datasource = datasource
-        if corruptness_check is not None:
-            self.corruptness_check = corruptness_check
-        if output_image_format is not None:
-            self.output_image_format = output_image_format
-        if embeddings is not None:
-            self.embeddings = embeddings
+        if stopping_condition is not None:
+            self.stopping_condition = stopping_condition
+        if upload_report is not None:
+            self.upload_report = upload_report
+
+    @property
+    def checkpoint(self):
+        """Gets the checkpoint of this DockerWorkerConfigV2Docker.  # noqa: E501
+
+
+        :return: The checkpoint of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :rtype: str
+        """
+        return self._checkpoint
+
+    @checkpoint.setter
+    def checkpoint(self, checkpoint):
+        """Sets the checkpoint of this DockerWorkerConfigV2Docker.
+
+
+        :param checkpoint: The checkpoint of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :type: str
+        """
+
+        self._checkpoint = checkpoint
+
+    @property
+    def corruptness_check(self):
+        """Gets the corruptness_check of this DockerWorkerConfigV2Docker.  # noqa: E501
+
+
+        :return: The corruptness_check of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :rtype: DockerWorkerConfigV2DockerCorruptnessCheck
+        """
+        return self._corruptness_check
+
+    @corruptness_check.setter
+    def corruptness_check(self, corruptness_check):
+        """Sets the corruptness_check of this DockerWorkerConfigV2Docker.
+
+
+        :param corruptness_check: The corruptness_check of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :type: DockerWorkerConfigV2DockerCorruptnessCheck
+        """
+
+        self._corruptness_check = corruptness_check
+
+    @property
+    def datasource(self):
+        """Gets the datasource of this DockerWorkerConfigV2Docker.  # noqa: E501
+
+
+        :return: The datasource of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :rtype: DockerWorkerConfigV2DockerDatasource
+        """
+        return self._datasource
+
+    @datasource.setter
+    def datasource(self, datasource):
+        """Sets the datasource of this DockerWorkerConfigV2Docker.
+
+
+        :param datasource: The datasource of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :type: DockerWorkerConfigV2DockerDatasource
+        """
+
+        self._datasource = datasource
+
+    @property
+    def embeddings(self):
+        """Gets the embeddings of this DockerWorkerConfigV2Docker.  # noqa: E501
+
+
+        :return: The embeddings of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :rtype: str
+        """
+        return self._embeddings
+
+    @embeddings.setter
+    def embeddings(self, embeddings):
+        """Sets the embeddings of this DockerWorkerConfigV2Docker.
+
+
+        :param embeddings: The embeddings of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :type: str
+        """
+
+        self._embeddings = embeddings
 
     @property
     def enable_training(self):
@@ -109,6 +228,90 @@ class DockerWorkerConfigV2Docker(object):
         self._enable_training = enable_training
 
     @property
+    def method(self):
+        """Gets the method of this DockerWorkerConfigV2Docker.  # noqa: E501
+
+
+        :return: The method of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :rtype: str
+        """
+        return self._method
+
+    @method.setter
+    def method(self, method):
+        """Sets the method of this DockerWorkerConfigV2Docker.
+
+
+        :param method: The method of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :type: str
+        """
+
+        self._method = method
+
+    @property
+    def normalize_embeddings(self):
+        """Gets the normalize_embeddings of this DockerWorkerConfigV2Docker.  # noqa: E501
+
+
+        :return: The normalize_embeddings of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :rtype: bool
+        """
+        return self._normalize_embeddings
+
+    @normalize_embeddings.setter
+    def normalize_embeddings(self, normalize_embeddings):
+        """Sets the normalize_embeddings of this DockerWorkerConfigV2Docker.
+
+
+        :param normalize_embeddings: The normalize_embeddings of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :type: bool
+        """
+
+        self._normalize_embeddings = normalize_embeddings
+
+    @property
+    def output_image_format(self):
+        """Gets the output_image_format of this DockerWorkerConfigV2Docker.  # noqa: E501
+
+
+        :return: The output_image_format of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :rtype: str
+        """
+        return self._output_image_format
+
+    @output_image_format.setter
+    def output_image_format(self, output_image_format):
+        """Sets the output_image_format of this DockerWorkerConfigV2Docker.
+
+
+        :param output_image_format: The output_image_format of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :type: str
+        """
+
+        self._output_image_format = output_image_format
+
+    @property
+    def object_level(self):
+        """Gets the object_level of this DockerWorkerConfigV2Docker.  # noqa: E501
+
+
+        :return: The object_level of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :rtype: DockerWorkerConfigV2DockerObjectLevel
+        """
+        return self._object_level
+
+    @object_level.setter
+    def object_level(self, object_level):
+        """Sets the object_level of this DockerWorkerConfigV2Docker.
+
+
+        :param object_level: The object_level of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :type: DockerWorkerConfigV2DockerObjectLevel
+        """
+
+        self._object_level = object_level
+
+    @property
     def pretagging(self):
         """Gets the pretagging of this DockerWorkerConfigV2Docker.  # noqa: E501
 
@@ -128,6 +331,27 @@ class DockerWorkerConfigV2Docker(object):
         """
 
         self._pretagging = pretagging
+
+    @property
+    def pretagging_upload(self):
+        """Gets the pretagging_upload of this DockerWorkerConfigV2Docker.  # noqa: E501
+
+
+        :return: The pretagging_upload of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :rtype: bool
+        """
+        return self._pretagging_upload
+
+    @pretagging_upload.setter
+    def pretagging_upload(self, pretagging_upload):
+        """Sets the pretagging_upload of this DockerWorkerConfigV2Docker.
+
+
+        :param pretagging_upload: The pretagging_upload of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :type: bool
+        """
+
+        self._pretagging_upload = pretagging_upload
 
     @property
     def relevant_filenames_file(self):
@@ -172,88 +396,46 @@ class DockerWorkerConfigV2Docker(object):
         self._selected_sequence_length = selected_sequence_length
 
     @property
-    def datasource(self):
-        """Gets the datasource of this DockerWorkerConfigV2Docker.  # noqa: E501
+    def stopping_condition(self):
+        """Gets the stopping_condition of this DockerWorkerConfigV2Docker.  # noqa: E501
 
 
-        :return: The datasource of this DockerWorkerConfigV2Docker.  # noqa: E501
-        :rtype: DockerWorkerConfigV2DockerDatasource
+        :return: The stopping_condition of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :rtype: DockerWorkerConfigV2DockerStoppingCondition
         """
-        return self._datasource
+        return self._stopping_condition
 
-    @datasource.setter
-    def datasource(self, datasource):
-        """Sets the datasource of this DockerWorkerConfigV2Docker.
+    @stopping_condition.setter
+    def stopping_condition(self, stopping_condition):
+        """Sets the stopping_condition of this DockerWorkerConfigV2Docker.
 
 
-        :param datasource: The datasource of this DockerWorkerConfigV2Docker.  # noqa: E501
-        :type: DockerWorkerConfigV2DockerDatasource
+        :param stopping_condition: The stopping_condition of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :type: DockerWorkerConfigV2DockerStoppingCondition
         """
 
-        self._datasource = datasource
+        self._stopping_condition = stopping_condition
 
     @property
-    def corruptness_check(self):
-        """Gets the corruptness_check of this DockerWorkerConfigV2Docker.  # noqa: E501
+    def upload_report(self):
+        """Gets the upload_report of this DockerWorkerConfigV2Docker.  # noqa: E501
 
 
-        :return: The corruptness_check of this DockerWorkerConfigV2Docker.  # noqa: E501
-        :rtype: DockerWorkerConfigV2DockerCorruptnessCheck
+        :return: The upload_report of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :rtype: bool
         """
-        return self._corruptness_check
+        return self._upload_report
 
-    @corruptness_check.setter
-    def corruptness_check(self, corruptness_check):
-        """Sets the corruptness_check of this DockerWorkerConfigV2Docker.
-
-
-        :param corruptness_check: The corruptness_check of this DockerWorkerConfigV2Docker.  # noqa: E501
-        :type: DockerWorkerConfigV2DockerCorruptnessCheck
-        """
-
-        self._corruptness_check = corruptness_check
-
-    @property
-    def output_image_format(self):
-        """Gets the output_image_format of this DockerWorkerConfigV2Docker.  # noqa: E501
+    @upload_report.setter
+    def upload_report(self, upload_report):
+        """Sets the upload_report of this DockerWorkerConfigV2Docker.
 
 
-        :return: The output_image_format of this DockerWorkerConfigV2Docker.  # noqa: E501
-        :rtype: str
-        """
-        return self._output_image_format
-
-    @output_image_format.setter
-    def output_image_format(self, output_image_format):
-        """Sets the output_image_format of this DockerWorkerConfigV2Docker.
-
-
-        :param output_image_format: The output_image_format of this DockerWorkerConfigV2Docker.  # noqa: E501
-        :type: str
+        :param upload_report: The upload_report of this DockerWorkerConfigV2Docker.  # noqa: E501
+        :type: bool
         """
 
-        self._output_image_format = output_image_format
-
-    @property
-    def embeddings(self):
-        """Gets the embeddings of this DockerWorkerConfigV2Docker.  # noqa: E501
-
-
-        :return: The embeddings of this DockerWorkerConfigV2Docker.  # noqa: E501
-        :rtype: str
-        """
-        return self._embeddings
-
-    @embeddings.setter
-    def embeddings(self, embeddings):
-        """Sets the embeddings of this DockerWorkerConfigV2Docker.
-
-
-        :param embeddings: The embeddings of this DockerWorkerConfigV2Docker.  # noqa: E501
-        :type: str
-        """
-
-        self._embeddings = embeddings
+        self._upload_report = upload_report
 
     def to_dict(self):
         """Returns the model properties as a dict"""

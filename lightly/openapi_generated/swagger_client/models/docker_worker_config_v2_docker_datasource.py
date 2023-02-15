@@ -33,55 +33,55 @@ class DockerWorkerConfigV2DockerDatasource(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'process_all': 'bool',
+        'bypass_verify': 'bool',
         'enable_datapool_update': 'bool',
-        'bypass_verify': 'bool'
+        'process_all': 'bool'
     }
 
     attribute_map = {
-        'process_all': 'processAll',
+        'bypass_verify': 'bypassVerify',
         'enable_datapool_update': 'enableDatapoolUpdate',
-        'bypass_verify': 'bypassVerify'
+        'process_all': 'processAll'
     }
 
-    def __init__(self, process_all=None, enable_datapool_update=None, bypass_verify=None, _configuration=None):  # noqa: E501
+    def __init__(self, bypass_verify=None, enable_datapool_update=None, process_all=None, _configuration=None):  # noqa: E501
         """DockerWorkerConfigV2DockerDatasource - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
-        self._process_all = None
-        self._enable_datapool_update = None
         self._bypass_verify = None
+        self._enable_datapool_update = None
+        self._process_all = None
         self.discriminator = None
 
-        if process_all is not None:
-            self.process_all = process_all
-        if enable_datapool_update is not None:
-            self.enable_datapool_update = enable_datapool_update
         if bypass_verify is not None:
             self.bypass_verify = bypass_verify
+        if enable_datapool_update is not None:
+            self.enable_datapool_update = enable_datapool_update
+        if process_all is not None:
+            self.process_all = process_all
 
     @property
-    def process_all(self):
-        """Gets the process_all of this DockerWorkerConfigV2DockerDatasource.  # noqa: E501
+    def bypass_verify(self):
+        """Gets the bypass_verify of this DockerWorkerConfigV2DockerDatasource.  # noqa: E501
 
 
-        :return: The process_all of this DockerWorkerConfigV2DockerDatasource.  # noqa: E501
+        :return: The bypass_verify of this DockerWorkerConfigV2DockerDatasource.  # noqa: E501
         :rtype: bool
         """
-        return self._process_all
+        return self._bypass_verify
 
-    @process_all.setter
-    def process_all(self, process_all):
-        """Sets the process_all of this DockerWorkerConfigV2DockerDatasource.
+    @bypass_verify.setter
+    def bypass_verify(self, bypass_verify):
+        """Sets the bypass_verify of this DockerWorkerConfigV2DockerDatasource.
 
 
-        :param process_all: The process_all of this DockerWorkerConfigV2DockerDatasource.  # noqa: E501
+        :param bypass_verify: The bypass_verify of this DockerWorkerConfigV2DockerDatasource.  # noqa: E501
         :type: bool
         """
 
-        self._process_all = process_all
+        self._bypass_verify = bypass_verify
 
     @property
     def enable_datapool_update(self):
@@ -105,25 +105,25 @@ class DockerWorkerConfigV2DockerDatasource(object):
         self._enable_datapool_update = enable_datapool_update
 
     @property
-    def bypass_verify(self):
-        """Gets the bypass_verify of this DockerWorkerConfigV2DockerDatasource.  # noqa: E501
+    def process_all(self):
+        """Gets the process_all of this DockerWorkerConfigV2DockerDatasource.  # noqa: E501
 
 
-        :return: The bypass_verify of this DockerWorkerConfigV2DockerDatasource.  # noqa: E501
+        :return: The process_all of this DockerWorkerConfigV2DockerDatasource.  # noqa: E501
         :rtype: bool
         """
-        return self._bypass_verify
+        return self._process_all
 
-    @bypass_verify.setter
-    def bypass_verify(self, bypass_verify):
-        """Sets the bypass_verify of this DockerWorkerConfigV2DockerDatasource.
+    @process_all.setter
+    def process_all(self, process_all):
+        """Sets the process_all of this DockerWorkerConfigV2DockerDatasource.
 
 
-        :param bypass_verify: The bypass_verify of this DockerWorkerConfigV2DockerDatasource.  # noqa: E501
+        :param process_all: The process_all of this DockerWorkerConfigV2DockerDatasource.  # noqa: E501
         :type: bool
         """
 
-        self._bypass_verify = bypass_verify
+        self._process_all = process_all
 
     def to_dict(self):
         """Returns the model properties as a dict"""

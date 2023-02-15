@@ -35,16 +35,18 @@ class CreateDockerWorkerRegistryEntryRequest(object):
     swagger_types = {
         'name': 'DockerWorkerName',
         'worker_type': 'DockerWorkerType',
-        'labels': 'DockerWorkerLabels'
+        'labels': 'DockerWorkerLabels',
+        'creator': 'Creator'
     }
 
     attribute_map = {
         'name': 'name',
         'worker_type': 'workerType',
-        'labels': 'labels'
+        'labels': 'labels',
+        'creator': 'creator'
     }
 
-    def __init__(self, name=None, worker_type=None, labels=None, _configuration=None):  # noqa: E501
+    def __init__(self, name=None, worker_type=None, labels=None, creator=None, _configuration=None):  # noqa: E501
         """CreateDockerWorkerRegistryEntryRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -53,12 +55,15 @@ class CreateDockerWorkerRegistryEntryRequest(object):
         self._name = None
         self._worker_type = None
         self._labels = None
+        self._creator = None
         self.discriminator = None
 
         self.name = name
         self.worker_type = worker_type
         if labels is not None:
             self.labels = labels
+        if creator is not None:
+            self.creator = creator
 
     @property
     def name(self):
@@ -126,6 +131,27 @@ class CreateDockerWorkerRegistryEntryRequest(object):
         """
 
         self._labels = labels
+
+    @property
+    def creator(self):
+        """Gets the creator of this CreateDockerWorkerRegistryEntryRequest.  # noqa: E501
+
+
+        :return: The creator of this CreateDockerWorkerRegistryEntryRequest.  # noqa: E501
+        :rtype: Creator
+        """
+        return self._creator
+
+    @creator.setter
+    def creator(self, creator):
+        """Sets the creator of this CreateDockerWorkerRegistryEntryRequest.
+
+
+        :param creator: The creator of this CreateDockerWorkerRegistryEntryRequest.  # noqa: E501
+        :type: Creator
+        """
+
+        self._creator = creator
 
     def to_dict(self):
         """Returns the model properties as a dict"""
