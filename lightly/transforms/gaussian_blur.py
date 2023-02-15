@@ -41,7 +41,8 @@ class GaussianBlur(object):
     ):
         if scale != None or kernel_size != None:
             warn(
-                "Starting from Lightly v1.2.45, the 'kernel_size' and 'scale' arguments of the GaussianBlur augmentation are deprecated and ignored. Please use the 'sigmas' parameter instead.",
+                "The 'kernel_size' and 'scale' arguments of the GaussianBlur augmentation will be deprecated.  "
+                "Please use the 'sigmas' parameter instead.",
                 PendingDeprecationWarning,
             )
         self.prob = prob
