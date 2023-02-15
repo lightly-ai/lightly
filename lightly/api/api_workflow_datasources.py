@@ -547,7 +547,7 @@ class _DatasourcesMixin:
 
         Args:
             resource_path:
-                S3 url of your dataset, for example "s3://my_bucket/path/to/my/data".
+                OBS url of your dataset. For example, "obs://my_bucket/path/to/my/data".
             obs_endpoint:
                 OBS endpoint.
             obs_access_key_id:
