@@ -232,7 +232,7 @@ class _DatasetsMixin:
 
         """
         body = DatasetCreateRequest(
-            name=dataset_name, type=dataset_type, creator=self._dataset_creator
+            name=dataset_name, type=dataset_type, creator=self._creator
         )
         response: CreateEntityResponse = self._datasets_api.create_dataset(body=body)
         self._dataset_id = response.id

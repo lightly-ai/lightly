@@ -1,8 +1,12 @@
 from typing import *
 
 from lightly.api.bitmask import BitMask
-from lightly.openapi_generated.swagger_client import TagData, \
-    TagArithmeticsRequest, TagArithmeticsOperation, TagBitMaskResponse
+from lightly.openapi_generated.swagger_client import (
+    TagArithmeticsRequest, 
+    TagArithmeticsOperation, 
+    TagBitMaskResponse, 
+    TagData,
+)
 
 
 class TagDoesNotExistError(ValueError):
@@ -156,12 +160,13 @@ class _TagsMixin:
             'name': new_tag_name, 
             'prevTagId': parent_tag_id, 
             'bitMaskData': bitmask.to_hex(), 
-            'totSize': tot_size
+            'totSize': tot_size,
+            'creator': self._creator,
         }
 
         new_tag = self._tags_api.create_tag_by_dataset_id(
             tag_data_dict,
-            self.dataset_id
+            self.dataset_id,
         )
 
         return new_tag

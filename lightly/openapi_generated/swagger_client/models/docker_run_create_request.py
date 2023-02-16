@@ -37,7 +37,8 @@ class DockerRunCreateRequest(object):
         'dataset_id': 'MongoObjectID',
         'scheduled_id': 'MongoObjectID',
         'config_id': 'MongoObjectID',
-        'message': 'str'
+        'message': 'str',
+        'creator': 'Creator'
     }
 
     attribute_map = {
@@ -45,10 +46,11 @@ class DockerRunCreateRequest(object):
         'dataset_id': 'datasetId',
         'scheduled_id': 'scheduledId',
         'config_id': 'configId',
-        'message': 'message'
+        'message': 'message',
+        'creator': 'creator'
     }
 
-    def __init__(self, docker_version=None, dataset_id=None, scheduled_id=None, config_id=None, message=None, _configuration=None):  # noqa: E501
+    def __init__(self, docker_version=None, dataset_id=None, scheduled_id=None, config_id=None, message=None, creator=None, _configuration=None):  # noqa: E501
         """DockerRunCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -59,6 +61,7 @@ class DockerRunCreateRequest(object):
         self._scheduled_id = None
         self._config_id = None
         self._message = None
+        self._creator = None
         self.discriminator = None
 
         self.docker_version = docker_version
@@ -70,6 +73,8 @@ class DockerRunCreateRequest(object):
             self.config_id = config_id
         if message is not None:
             self.message = message
+        if creator is not None:
+            self.creator = creator
 
     @property
     def docker_version(self):
@@ -177,6 +182,27 @@ class DockerRunCreateRequest(object):
         """
 
         self._message = message
+
+    @property
+    def creator(self):
+        """Gets the creator of this DockerRunCreateRequest.  # noqa: E501
+
+
+        :return: The creator of this DockerRunCreateRequest.  # noqa: E501
+        :rtype: Creator
+        """
+        return self._creator
+
+    @creator.setter
+    def creator(self, creator):
+        """Sets the creator of this DockerRunCreateRequest.
+
+
+        :param creator: The creator of this DockerRunCreateRequest.  # noqa: E501
+        :type: Creator
+        """
+
+        self._creator = creator
 
     def to_dict(self):
         """Returns the model properties as a dict"""

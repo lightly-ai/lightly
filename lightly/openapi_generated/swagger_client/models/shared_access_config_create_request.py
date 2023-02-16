@@ -35,16 +35,18 @@ class SharedAccessConfigCreateRequest(object):
     swagger_types = {
         'access_type': 'SharedAccessType',
         'users': 'list[str]',
-        'organizations': 'list[str]'
+        'organizations': 'list[str]',
+        'creator': 'Creator'
     }
 
     attribute_map = {
         'access_type': 'accessType',
         'users': 'users',
-        'organizations': 'organizations'
+        'organizations': 'organizations',
+        'creator': 'creator'
     }
 
-    def __init__(self, access_type=None, users=None, organizations=None, _configuration=None):  # noqa: E501
+    def __init__(self, access_type=None, users=None, organizations=None, creator=None, _configuration=None):  # noqa: E501
         """SharedAccessConfigCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -53,6 +55,7 @@ class SharedAccessConfigCreateRequest(object):
         self._access_type = None
         self._users = None
         self._organizations = None
+        self._creator = None
         self.discriminator = None
 
         self.access_type = access_type
@@ -60,6 +63,8 @@ class SharedAccessConfigCreateRequest(object):
             self.users = users
         if organizations is not None:
             self.organizations = organizations
+        if creator is not None:
+            self.creator = creator
 
     @property
     def access_type(self):
@@ -129,6 +134,27 @@ class SharedAccessConfigCreateRequest(object):
         """
 
         self._organizations = organizations
+
+    @property
+    def creator(self):
+        """Gets the creator of this SharedAccessConfigCreateRequest.  # noqa: E501
+
+
+        :return: The creator of this SharedAccessConfigCreateRequest.  # noqa: E501
+        :rtype: Creator
+        """
+        return self._creator
+
+    @creator.setter
+    def creator(self, creator):
+        """Sets the creator of this SharedAccessConfigCreateRequest.
+
+
+        :param creator: The creator of this SharedAccessConfigCreateRequest.  # noqa: E501
+        :type: Creator
+        """
+
+        self._creator = creator
 
     def to_dict(self):
         """Returns the model properties as a dict"""

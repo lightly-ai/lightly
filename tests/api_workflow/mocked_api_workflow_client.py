@@ -352,7 +352,10 @@ class MockedTagsApi(TagsApi):
 
     def upsize_tags_by_dataset_id(self, body, dataset_id, **kwargs):
         _check_dataset_id(dataset_id)
-        assert body.upsize_tag_creator == TagCreator.USER_PIP
+        assert body.upsize_tag_creator in (
+            TagCreator.USER_PIP, 
+            TagCreator.USER_PIP_LIGHTLY_MAGIC,
+        )
 
     def create_tag_by_dataset_id(self, body, dataset_id, **kwargs) -> TagData:
         _check_dataset_id(dataset_id)
