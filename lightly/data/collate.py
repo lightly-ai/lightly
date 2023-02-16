@@ -1200,10 +1200,10 @@ class VICRegLCollateFunction(nn.Module):
             Used to calculate sigma of gaussian blur with local_gaussian_blur_kernel_size * input_size. Applied to local crop category.
         global_gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
-            Is ignored if `kernel_size` is set. Applied to global crop category.
+            Is ignored if `global_gaussian_blur_kernel_size` is set. Applied to global crop category.
         local_gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
-            Is ignored if `kernel_size` is set. Applied to local crop category.
+            Is ignored if `local_gaussian_blur_kernel_size` is set. Applied to local crop category.
         global_solarize_prob:
             Probability of solarization for the global crop category.
         local_solarize_prob:
