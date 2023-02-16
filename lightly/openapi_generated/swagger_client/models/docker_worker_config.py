@@ -59,8 +59,10 @@ class DockerWorkerConfig(object):
         self.discriminator = None
 
         self.worker_type = worker_type
-        self.docker = docker
-        self.lightly = lightly
+        if docker is not None:
+            self.docker = docker
+        if lightly is not None:
+            self.lightly = lightly
         if selection is not None:
             self.selection = selection
 
