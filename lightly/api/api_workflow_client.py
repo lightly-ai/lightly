@@ -77,10 +77,8 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         embedding_id:
             The id of the embedding to use. If it is not set, but used by a workflow,
             the newest embedding is taken by default
-        dataset_creator:
-            Dataset creator.
         creator:
-            Creator.
+            Creator passed to API requests.
     """
 
     def __init__(
@@ -88,7 +86,6 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         token: Optional[str] = None,
         dataset_id: Optional[str] = None,
         embedding_id: Optional[str] = None,
-        dataset_creator: str = DatasetCreator.USER_PIP,
         creator: str = Creator.USER_PIP,
     ):
 
@@ -113,7 +110,6 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             self._dataset_id = dataset_id
         if embedding_id is not None:
             self.embedding_id = embedding_id
-        self._dataset_creator = dataset_creator
         self._creator = creator
 
         self._collaboration_api = CollaborationApi(api_client=self.api_client)

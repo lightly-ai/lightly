@@ -1,12 +1,10 @@
 from pytest_mock import MockerFixture
 
-from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.api import ApiWorkflowClient
 from lightly.openapi_generated.swagger_client import (
-    TagData,
+    Creator,
     DatasetsApi,
     DatasetType,
-    DatasetCreator,
     DatasetCreateRequest,
 )
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
@@ -179,11 +177,11 @@ class TestApiWorkflowDatasets(MockedApiWorkflowSetup):
 def test_create_dataset(mocker: MockerFixture) -> None:
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     client = ApiWorkflowClient()
-    client._dataset_creator = DatasetCreator.USER_PIP
+    client._creator = Creator.USER_PIP
     client._datasets_api = mocker.create_autospec(DatasetsApi)
 
     client.create_dataset(dataset_name="name")
     expected_body = DatasetCreateRequest(
-        name="name", type=DatasetType.IMAGES, creator=DatasetCreator.USER_PIP
+        name="name", type=DatasetType.IMAGES, creator=Creator.USER_PIP
     )
     client._datasets_api.create_dataset.assert_called_once_with(expected_body)
