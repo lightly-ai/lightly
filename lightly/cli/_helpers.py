@@ -13,7 +13,7 @@ from hydra import utils
 from torch import nn as nn
 from torch.utils.hipify.hipify_python import bcolors
 
-from lightly.utils import version_compare
+from lightly.utils.version_compare import version_compare
 
 from lightly.cli._cli_simclr import _SimCLR
 from lightly.embedding import SelfSupervisedEmbedding
