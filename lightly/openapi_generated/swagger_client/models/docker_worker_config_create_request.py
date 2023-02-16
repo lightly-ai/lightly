@@ -33,23 +33,28 @@ class DockerWorkerConfigCreateRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'config': 'DockerWorkerConfig'
+        'config': 'DockerWorkerConfig',
+        'creator': 'Creator'
     }
 
     attribute_map = {
-        'config': 'config'
+        'config': 'config',
+        'creator': 'creator'
     }
 
-    def __init__(self, config=None, _configuration=None):  # noqa: E501
+    def __init__(self, config=None, creator=None, _configuration=None):  # noqa: E501
         """DockerWorkerConfigCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._config = None
+        self._creator = None
         self.discriminator = None
 
         self.config = config
+        if creator is not None:
+            self.creator = creator
 
     @property
     def config(self):
@@ -73,6 +78,27 @@ class DockerWorkerConfigCreateRequest(object):
             raise ValueError("Invalid value for `config`, must not be `None`")  # noqa: E501
 
         self._config = config
+
+    @property
+    def creator(self):
+        """Gets the creator of this DockerWorkerConfigCreateRequest.  # noqa: E501
+
+
+        :return: The creator of this DockerWorkerConfigCreateRequest.  # noqa: E501
+        :rtype: Creator
+        """
+        return self._creator
+
+    @creator.setter
+    def creator(self, creator):
+        """Sets the creator of this DockerWorkerConfigCreateRequest.
+
+
+        :param creator: The creator of this DockerWorkerConfigCreateRequest.  # noqa: E501
+        :type: Creator
+        """
+
+        self._creator = creator
 
     def to_dict(self):
         """Returns the model properties as a dict"""

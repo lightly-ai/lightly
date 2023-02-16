@@ -7,11 +7,8 @@ command-line interface.
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-import csv
 import json
 import os
-import warnings
-from datetime import datetime
 from typing import Union
 
 import hydra
@@ -29,7 +26,7 @@ from lightly.cli._helpers import fix_hydra_arguments
 
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.data import LightlyDataset
-from lightly.openapi_generated.swagger_client import DatasetCreator
+from lightly.openapi_generated.swagger_client import Creator
 
 SUCCESS_RETURN_VALUE = "Success"
 
@@ -76,10 +73,10 @@ def _upload_cli(cfg, is_cli_call=True) -> Union[str, None]:
             cli_api_args_wrong = True
         else:
             api_workflow_client = \
-                ApiWorkflowClient(token=token, dataset_id=dataset_id, dataset_creator=DatasetCreator.USER_PIP_LIGHTLY_MAGIC)
+                ApiWorkflowClient(token=token, dataset_id=dataset_id, creator=Creator.USER_PIP_LIGHTLY_MAGIC)
     else:
         if new_dataset_name:
-            api_workflow_client = ApiWorkflowClient(token=token, dataset_creator=DatasetCreator.USER_PIP_LIGHTLY_MAGIC)
+            api_workflow_client = ApiWorkflowClient(token=token, creator=Creator.USER_PIP_LIGHTLY_MAGIC)
             api_workflow_client.create_dataset(dataset_name=new_dataset_name)
         else:
             print_as_warning(

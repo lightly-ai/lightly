@@ -35,16 +35,18 @@ class DockerRunScheduledCreateRequest(object):
     swagger_types = {
         'config_id': 'MongoObjectID',
         'priority': 'DockerRunScheduledPriority',
-        'runs_on': 'DockerWorkerLabels'
+        'runs_on': 'DockerWorkerLabels',
+        'creator': 'Creator'
     }
 
     attribute_map = {
         'config_id': 'configId',
         'priority': 'priority',
-        'runs_on': 'runsOn'
+        'runs_on': 'runsOn',
+        'creator': 'creator'
     }
 
-    def __init__(self, config_id=None, priority=None, runs_on=None, _configuration=None):  # noqa: E501
+    def __init__(self, config_id=None, priority=None, runs_on=None, creator=None, _configuration=None):  # noqa: E501
         """DockerRunScheduledCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -53,12 +55,15 @@ class DockerRunScheduledCreateRequest(object):
         self._config_id = None
         self._priority = None
         self._runs_on = None
+        self._creator = None
         self.discriminator = None
 
         self.config_id = config_id
         self.priority = priority
         if runs_on is not None:
             self.runs_on = runs_on
+        if creator is not None:
+            self.creator = creator
 
     @property
     def config_id(self):
@@ -126,6 +131,27 @@ class DockerRunScheduledCreateRequest(object):
         """
 
         self._runs_on = runs_on
+
+    @property
+    def creator(self):
+        """Gets the creator of this DockerRunScheduledCreateRequest.  # noqa: E501
+
+
+        :return: The creator of this DockerRunScheduledCreateRequest.  # noqa: E501
+        :rtype: Creator
+        """
+        return self._creator
+
+    @creator.setter
+    def creator(self, creator):
+        """Sets the creator of this DockerRunScheduledCreateRequest.
+
+
+        :param creator: The creator of this DockerRunScheduledCreateRequest.  # noqa: E501
+        :type: Creator
+        """
+
+        self._creator = creator
 
     def to_dict(self):
         """Returns the model properties as a dict"""
