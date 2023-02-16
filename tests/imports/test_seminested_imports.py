@@ -78,11 +78,7 @@ class TestSemiNestedImports(unittest.TestCase):
 
         # utils imports
         from lightly import utils
-        utils.save_embeddings
         utils.io.save_embeddings
-        utils.load_embeddings
         utils.io.load_embeddings
-        utils.load_embeddings_as_dict
         utils.io.load_embeddings_as_dict
-        utils.fit_pca
         utils.embeddings_2d.fit_pca
