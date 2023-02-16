@@ -14,7 +14,7 @@ from lightly.api.api_workflow_upload_embeddings import \
     EmbeddingDoesNotExistError
 from lightly.cli.upload_cli import SUCCESS_RETURN_VALUE
 from lightly.openapi_generated.swagger_client import DatasetEmbeddingData
-from lightly.utils import save_embeddings
+from lightly.utils.io import save_embeddings
 from tests.api_workflow.mocked_api_workflow_client import \
     MockedApiWorkflowSetup, MockedApiWorkflowClient, N_FILES_ON_SERVER
 

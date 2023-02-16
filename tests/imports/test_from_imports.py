@@ -66,16 +66,6 @@ class TestFromImports(unittest.TestCase):
         from lightly.transforms import RandomRotate
         from lightly.transforms.rotation import RandomRotate
 
-        # utils imports
-        from lightly.utils import save_embeddings
-        from lightly.utils.io import save_embeddings
-        from lightly.utils import load_embeddings
-        from lightly.utils.io import load_embeddings
-        from lightly.utils import load_embeddings_as_dict
-        from lightly.utils.io import load_embeddings_as_dict
-        from lightly.utils import fit_pca
-        from lightly.utils.embeddings_2d import fit_pca
-
         # core imports
         from lightly import train_model_and_embed_images
         from lightly import train_embedding_model
