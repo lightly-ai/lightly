@@ -3,7 +3,7 @@
 
 import os
 import warnings
-from typing import TypeAlias, Union, Dict
+from typing import Union, Dict
 from datetime import datetime
 from concurrent.futures.thread import ThreadPoolExecutor
 
@@ -37,7 +37,7 @@ from lightly.openapi_generated.swagger_client.rest import ApiException
 
 try:
     from lightly.data import LightlyDataset
-    LightlyDatasetType: TypeAlias = LightlyDataset
+    LightlyDatasetType = LightlyDataset
     _lightly_dataset_available = True
 except (
     ImportError,
