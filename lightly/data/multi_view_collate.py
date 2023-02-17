@@ -1,39 +1,44 @@
 import torch
+from torch import Tensor
 from typing import List, Tuple, Union
+from warnings import warn
+
 
 class MultiViewCollate:
-
-    def __call__(self, batch: List[Tuple[List[torch.Tensor], int, str]]) -> Tuple[List[torch.Tensor], List[int], List[str]]: 
+    def __call__(
+        self, batch: List[Tuple[List[Tensor], int, str]]
+    ) -> Tuple[List[Tensor], List[int], List[str]]:
         """Turns a batch of tuples into a tuple of batches.
 
         Args:
             batch:
-                The input batch.
+                The input batch. It is a list of Tuples containing image, label and filename for each file in the dataset.
+                In particular, image is the output of the augmentation, so it is a list of tensors comprehending n views.
+                Structure example:
+                [
+                    ([image_0_view_0, image_0_view_1, ...], label_0, filename_0),
+                    ([image_1_view_0, image_1_view_1, ...], label_1, filename_1),
+                    ...
+                ]
 
         Returns:
-            A tuple containing lists of views, labels and filenames.
+            A tuple containing lists of images, labels and filenames.
+            Structure example:
+            (
+                [
+                    Tensor([image_0_view_0, image_1_view_0]),
+                    Tensor([image_0_view_1, image_1_view_1]),
+                    ...
+                ],
+                [label_0, label_1, ...],
+                [filename_0, filename_1, ...]
+            )
+
 
         """
-        """List[Tuple[List[Tensor(C, H, W)], int, str]]
-        Tuple[List[Tensor(B, C, H, W)], List[int], List[str]]"""
-
-        '''
-        [
-            ([image_0_view_0, image_0_view_1], target_0, filename_0),
-            ([image_1_view_0, image_1_view_1], target_1, filename_1),
-        ]
-
-        --> 
-
-        (
-            [
-                Tensor([image_0_view_0, image_1_view_0]),
-                Tensor([image_0_view_1, image_1_view_1]),
-            ],
-            [target_0, target_1],
-            [filename_0, filename_1],
-        )
-        '''
+        if len(batch) == 0:
+            warn("The batch is empty. Collate returned empty lists.")
+            return [], [], []
 
         views = [[] for _ in range(len(batch[0][0]))]
         labels = []
@@ -45,5 +50,5 @@ class MultiViewCollate:
             fnames.append(fname)
         for i, view in enumerate(views):
             views[i] = torch.cat(view)
-        
-        return views, labels, fnames 
+
+        return views, labels, fnames
