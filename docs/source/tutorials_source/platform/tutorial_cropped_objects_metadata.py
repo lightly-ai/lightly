@@ -68,7 +68,7 @@ For 100 input images with 150 predicted objects on each image, the tutorial runs
 
     from lightly.active_learning.utils import BoundingBox
     from lightly.data import LightlyDataset
-    from lightly.utils import save_custom_metadata
+    from lightly.utils.io import save_custom_metadata
     from lightly.utils.cropping.crop_image_by_bounding_boxes import crop_dataset_by_bounding_boxes_and_save
 
     BASE_PATH = "path/to/dataset/"
