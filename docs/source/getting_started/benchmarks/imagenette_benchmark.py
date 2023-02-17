@@ -57,22 +57,41 @@ with the default settings.
 
 """
 import copy
-import math
 import os
 
 import time
-import lightly
 import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchvision
-from lightly.models import modules
-from lightly.models.modules import heads
-from lightly.models.modules import masked_autoencoder
-from lightly.models import utils
-from lightly.utils import BenchmarkModule
-from lightly.utils import scheduler
+from lightly.data import (
+    LightlyDataset,
+    SimCLRCollateFunction,
+    SwaVCollateFunction,
+    DINOCollateFunction,
+    MSNCollateFunction,
+    MAECollateFunction,
+    VICRegLCollateFunction,
+    collate,
+)
+from lightly.loss import (
+    NTXentLoss,
+    NegativeCosineSimilarity,
+    DINOLoss,
+    BarlowTwinsLoss,
+    SwaVLoss,
+    MSNLoss,
+    DCLLoss,
+    DCLWLoss,
+    VICRegLLoss,
+    VICRegLoss,
+    TiCoLoss,
+    memory_bank,
+)
+from lightly.models import modules, utils
+from lightly.models.modules import heads, masked_autoencoder
+from lightly.utils import BenchmarkModule, scheduler
 from pytorch_lightning.loggers import TensorBoardLogger
 from pl_bolts.optimizers.lars import LARS
 
@@ -126,24 +145,24 @@ path_to_train = "/datasets/imagenette2-160/train/"
 path_to_test = "/datasets/imagenette2-160/val/"
 
 # Use SimCLR augmentations
-collate_fn = lightly.data.SimCLRCollateFunction(
+collate_fn = SimCLRCollateFunction(
     input_size=input_size,
 )
 
 # Multi crop augmentation for SwAV
-swav_collate_fn = lightly.data.SwaVCollateFunction(
+swav_collate_fn = SwaVCollateFunction(
     crop_sizes=[128, 64],
     crop_counts=[2, 6],  # 2 crops @ 128x128px and 6 crops @ 64x64px
 )
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
-dino_collate_fn = lightly.data.DINOCollateFunction(
+dino_collate_fn = DINOCollateFunction(
     global_crop_size=128,
     local_crop_size=64,
 )
 
 # Two crops for SMoG
-smog_collate_function = lightly.data.collate.SMoGCollateFunction(
+smog_collate_function = collate.SMoGCollateFunction(
     crop_sizes=[128, 128],
     crop_counts=[1, 1],
     crop_min_scales=[0.2, 0.2],
@@ -151,19 +170,19 @@ smog_collate_function = lightly.data.collate.SMoGCollateFunction(
 )
 
 # Single crop augmentation for MAE
-mae_collate_fn = lightly.data.MAECollateFunction()
+mae_collate_fn = MAECollateFunction()
 
 # Multi crop augmentation for MSN
-msn_collate_fn = lightly.data.MSNCollateFunction(random_size=128, focal_size=64)
+msn_collate_fn = MSNCollateFunction(random_size=128, focal_size=64)
 
 # Collate function passing geometrical transformation for VICRegL
-vicregl_collate_fn = lightly.data.VICRegLCollateFunction(
+vicregl_collate_fn = VICRegLCollateFunction(
     global_crop_size=128, local_crop_size=64, global_grid_size=4, local_grid_size=2
 )
 
 normalize_transform = torchvision.transforms.Normalize(
-    mean=lightly.data.collate.imagenet_normalize["mean"],
-    std=lightly.data.collate.imagenet_normalize["std"],
+    mean=collate.imagenet_normalize["mean"],
+    std=collate.imagenet_normalize["std"],
 )
 
 # No additional augmentations for the test set
@@ -176,14 +195,14 @@ test_transforms = torchvision.transforms.Compose(
     ]
 )
 
-dataset_train_ssl = lightly.data.LightlyDataset(input_dir=path_to_train)
+dataset_train_ssl = LightlyDataset(input_dir=path_to_train)
 
 # we use test transformations for getting the feature for kNN on train data
-dataset_train_kNN = lightly.data.LightlyDataset(
+dataset_train_kNN = LightlyDataset(
     input_dir=path_to_train, transform=test_transforms
 )
 
-dataset_test = lightly.data.LightlyDataset(
+dataset_test = LightlyDataset(
     input_dir=path_to_test, transform=test_transforms
 )
 
@@ -258,7 +277,7 @@ class MocoModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
         # create our loss with the optional memory bank
-        self.criterion = lightly.loss.NTXentLoss(
+        self.criterion = NTXentLoss(
             temperature=0.1, memory_bank_size=memory_bank_size
         )
 
@@ -316,7 +335,7 @@ class SimCLRModel(BenchmarkModule):
             *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
-        self.criterion = lightly.loss.NTXentLoss()
+        self.criterion = NTXentLoss()
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -350,7 +369,7 @@ class SimSiamModel(BenchmarkModule):
         )
         self.projection_head = heads.SimSiamProjectionHead(feature_dim, 2048, 2048)
         self.prediction_head = heads.SimSiamPredictionHead(2048, 512, 2048)
-        self.criterion = lightly.loss.NegativeCosineSimilarity()
+        self.criterion = NegativeCosineSimilarity()
 
     def forward(self, x):
         f = self.backbone(x).flatten(start_dim=1)
@@ -390,7 +409,7 @@ class BarlowTwinsModel(BenchmarkModule):
         # use a 2-layer projection head for cifar10 as described in the paper
         self.projection_head = heads.BarlowTwinsProjectionHead(feature_dim, 2048, 2048)
 
-        self.criterion = lightly.loss.BarlowTwinsLoss(
+        self.criterion = BarlowTwinsLoss(
             gather_distributed=gather_distributed
         )
 
@@ -435,7 +454,7 @@ class BYOLModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.backbone_momentum)
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
-        self.criterion = lightly.loss.NegativeCosineSimilarity()
+        self.criterion = NegativeCosineSimilarity()
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)
@@ -491,7 +510,7 @@ class NNCLRModel(BenchmarkModule):
         self.projection_head = heads.NNCLRProjectionHead(feature_dim, 2048, 256)
         self.prediction_head = heads.NNCLRPredictionHead(256, 4096, 256)
 
-        self.criterion = lightly.loss.NTXentLoss()
+        self.criterion = NTXentLoss()
         self.memory_bank = modules.NNMemoryBankModule(size=4096)
 
     def forward(self, x):
@@ -534,7 +553,7 @@ class SwaVModel(BenchmarkModule):
         self.projection_head = heads.SwaVProjectionHead(feature_dim, 2048, 128)
         self.prototypes = heads.SwaVPrototypes(128, 3000)  # use 3000 prototypes
 
-        self.criterion = lightly.loss.SwaVLoss(
+        self.criterion = SwaVLoss(
             sinkhorn_gather_distributed=gather_distributed
         )
 
@@ -595,7 +614,7 @@ class DINOModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.teacher_backbone)
         utils.deactivate_requires_grad(self.teacher_head)
 
-        self.criterion = lightly.loss.DINOLoss(output_dim=2048)
+        self.criterion = DINOLoss(output_dim=2048)
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)
@@ -641,7 +660,7 @@ class DCL(BenchmarkModule):
             *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
-        self.criterion = lightly.loss.DCLLoss()
+        self.criterion = DCLLoss()
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -674,7 +693,7 @@ class DCLW(BenchmarkModule):
             *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
-        self.criterion = lightly.loss.DCLWLoss()
+        self.criterion = DCLWLoss()
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -801,7 +820,7 @@ class MSNModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head)
 
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
-        self.criterion = lightly.loss.MSNLoss()
+        self.criterion = MSNLoss()
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
@@ -860,7 +879,7 @@ class SMoGModel(BenchmarkModule):
         super().__init__(dataloader_kNN, num_classes)
 
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator("resnet-18")
+        resnet = torchvision.models.resnet18()
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
@@ -876,7 +895,7 @@ class SMoGModel(BenchmarkModule):
         # smog
         self.n_groups = 300
         memory_bank_size = 10000
-        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(
+        self.memory_bank = memory_bank.MemoryBankModule(
             size=memory_bank_size
         )
         # create our loss
@@ -1036,7 +1055,7 @@ class VICRegModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
-        self.criterion = lightly.loss.VICRegLoss()
+        self.criterion = VICRegLoss()
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
 
     def forward(self, x):
@@ -1079,7 +1098,7 @@ class VICRegLModel(BenchmarkModule):
         self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
         self.local_projection_head = heads.VicRegLLocalProjectionHead(512, 128, 128)
         self.average_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
-        self.criterion = lightly.loss.VICRegLLoss(alpha=0.75, num_matches=(16, 4))
+        self.criterion = VICRegLLoss(alpha=0.75, num_matches=(16, 4))
         self.backbone = nn.Sequential(self.train_backbone, self.average_pool)
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
 
@@ -1133,7 +1152,7 @@ class TiCoModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.backbone_momentum)
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
-        self.criterion = lightly.loss.TiCoLoss()
+        self.criterion = TiCoLoss()
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
 
     def forward(self, x):
@@ -1185,9 +1204,9 @@ class SwaVQueueModel(BenchmarkModule):
         self.prototypes = heads.SwaVPrototypes(128, 3000, 1)
         self.start_queue_at_epoch = 15
         self.queues = nn.ModuleList(
-            [lightly.loss.memory_bank.MemoryBankModule(size=384) for _ in range(2)]
+            [memory_bank.MemoryBankModule(size=384) for _ in range(2)]
         )  # Queue size reduced in order to work with a smaller dataset
-        self.criterion = lightly.loss.SwaVLoss()
+        self.criterion = SwaVLoss()
 
     def forward(self, x):
         x = self._subforward(x)
