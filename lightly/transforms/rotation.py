@@ -5,6 +5,8 @@
 
 import numpy as np
 from torchvision.transforms import functional as TF
+import torchvision.transforms as T
+from typing import Tuple, Union
 
 
 class RandomRotate(object):
@@ -46,3 +48,21 @@ class RandomRotate(object):
         if prob < self.prob:
             sample = TF.rotate(sample, self.angle)
         return sample
+
+class RandomRotationTransform(object):
+    def __init__(self,
+        rr_prob: float,
+        rr_degrees: Union[None, float, Tuple[float, float]],
+    ) -> Union[RandomRotate, T.RandomApply]:
+        self.rr_prob = rr_prob,
+        self.rr_degrees = rr_degrees
+
+    def __call__(self, sample):
+        if self.rr_degrees is None:
+            # Random rotation by 90 degrees.
+            rr = RandomRotate(prob=self.rr_prob[0], angle=90)
+            return rr(sample)
+        else:
+            # Random rotation with random angle defined by rr_degrees.
+            rr = T.RandomApply([T.RandomRotation(degrees=self.rr_degrees)], p=self.rr_prob)
+            return rr(sample)
