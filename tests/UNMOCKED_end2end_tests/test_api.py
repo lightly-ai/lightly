@@ -21,7 +21,7 @@ from lightly.active_learning.agents.agent import ActiveLearningAgent
 from lightly.openapi_generated.swagger_client.models.sampling_method import SamplingMethod
 
 from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.utils import save_embeddings
+from lightly.utils.io import save_embeddings
 
 
 class CSVEmbeddingDataset:

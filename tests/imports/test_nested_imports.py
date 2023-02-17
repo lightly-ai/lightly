@@ -75,13 +75,3 @@ class TestNestedImports(unittest.TestCase):
         lightly.transforms.gaussian_blur.GaussianBlur
         lightly.transforms.RandomRotate
         lightly.transforms.rotation.RandomRotate
-
-        # utils imports
-        lightly.utils.save_embeddings
-        lightly.utils.io.save_embeddings
-        lightly.utils.load_embeddings
-        lightly.utils.io.load_embeddings
-        lightly.utils.load_embeddings_as_dict
-        lightly.utils.io.load_embeddings_as_dict
-        lightly.utils.fit_pca
-        lightly.utils.embeddings_2d.fit_pca
