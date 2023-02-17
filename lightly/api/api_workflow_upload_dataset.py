@@ -1,8 +1,9 @@
 """ Upload Dataset Mixin """
 
+
 import os
 import warnings
-from typing import Union, Dict
+from typing import TypeAlias, Union, Dict
 from datetime import datetime
 from concurrent.futures.thread import ThreadPoolExecutor
 
@@ -11,7 +12,6 @@ from lightly_utils import image_processing
 
 from torch.utils.hipify.hipify_python import bcolors
 
-from lightly.data.dataset import LightlyDataset
 from lightly.api.utils import check_filename
 from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
 from lightly.api.utils import retry
@@ -35,13 +35,26 @@ from lightly.openapi_generated.swagger_client.models.datasource_config_base impo
 from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
+try:
+    from lightly.data import LightlyDataset
+    LightlyDatasetType: TypeAlias = LightlyDataset
+    _lightly_dataset_available = True
+except (
+    ImportError,
+    OSError,
+    ModuleNotFoundError
+):
+    _lightly_dataset_available = False
+    LightlyDatasetType: str = "LightlyDataset"
+
+
 class _UploadDatasetMixin:
     """Mixin to upload datasets to the Lightly Api.
 
     """
 
     def upload_dataset(self,
-                       input: Union[str, LightlyDataset],
+                       input: Union[str, LightlyDatasetType],
                        max_workers: int = 8,
                        mode: str = 'thumbnails',
                        custom_metadata: Union[Dict, None] = None):
@@ -77,14 +90,14 @@ class _UploadDatasetMixin:
 
         # parse "input" variable
         if isinstance(input, str):
-            dataset = LightlyDataset(input_dir=input)
-        elif isinstance(input, LightlyDataset):
-            dataset = input
+            if _lightly_dataset_available:
+                dataset = LightlyDataset(input_dir=input)
+            else:
+                raise RuntimeError(
+                    "Can't create LightlyDataset! Requires torch and torchvision."
+                )
         else:
-            raise ValueError(
-                f'input must either be a LightlyDataset or the path to the'
-                f'dataset as str, but has type {type(input)}'
-            )
+            dataset = input
 
         # handle the case where len(dataset) < max_workers
         max_workers = min(len(dataset), max_workers)
