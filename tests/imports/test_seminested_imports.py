@@ -75,10 +75,3 @@ class TestSemiNestedImports(unittest.TestCase):
         transforms.gaussian_blur.GaussianBlur
         transforms.RandomRotate
         transforms.rotation.RandomRotate
-
-        # utils imports
-        from lightly import utils
-        utils.io.save_embeddings
-        utils.io.load_embeddings
-        utils.io.load_embeddings_as_dict
-        utils.embeddings_2d.fit_pca

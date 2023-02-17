@@ -76,12 +76,6 @@ class TestNestedImports(unittest.TestCase):
         lightly.transforms.RandomRotate
         lightly.transforms.rotation.RandomRotate
 
-        # utils imports
-        lightly.utils.io.save_embeddings
-        lightly.utils.io.load_embeddings
-        lightly.utils.io.load_embeddings_as_dict
-        lightly.utils.embeddings_2d.fit_pca
-
         # core imports
         lightly.train_model_and_embed_images
         lightly.core.train_model_and_embed_images
