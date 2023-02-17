@@ -85,11 +85,3 @@ class TestNestedImports(unittest.TestCase):
         lightly.utils.io.load_embeddings_as_dict
         lightly.utils.fit_pca
         lightly.utils.embeddings_2d.fit_pca
-
-        # core imports
-        lightly.train_model_and_embed_images
-        lightly.core.train_model_and_embed_images
-        lightly.train_embedding_model
-        lightly.core.train_embedding_model
-        lightly.embed_images
-        lightly.core.embed_images

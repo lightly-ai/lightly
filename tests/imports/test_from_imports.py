@@ -75,8 +75,3 @@ class TestFromImports(unittest.TestCase):
         from lightly.utils.io import load_embeddings_as_dict
         from lightly.utils import fit_pca
         from lightly.utils.embeddings_2d import fit_pca
-
-        # core imports
-        from lightly import train_model_and_embed_images
-        from lightly import train_embedding_model
-        from lightly import embed_images
