@@ -20,9 +20,9 @@ from lightly.api.api_workflow_upload_embeddings import \
     EmbeddingDoesNotExistError
     
 from lightly.cli._helpers import fix_input_path
-from lightly.cli._helpers import print_as_warning
 from lightly.cli._helpers import cpu_count
 from lightly.cli._helpers import fix_hydra_arguments
+from lightly.utils.hipify import print_as_warning
 
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.data import LightlyDataset
