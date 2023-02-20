@@ -11,41 +11,42 @@ Code has been tested on a V100 GPU with 16GBytes of video memory.
 
 Code to reproduce the benchmark results:
 
-Results (5.3.2022):
+Results (17.2.2023):
 ---------------------------------------------------------------------------------------------
 | Model            | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
 ---------------------------------------------------------------------------------------------
-| BarlowTwins      |        256 |    200 |              0.587 |   86.2 Min |      4.0 GByte |
-| BYOL             |        256 |    200 |              0.619 |   88.6 Min |      4.3 GByte |
-| DCL (*)          |        256 |    200 |              0.762 |   53.3 Min |      4.3 GByte |
-| DCLW (*)         |        256 |    200 |              0.755 |   53.7 Min |      4.3 GByte |
-| DINO (Res18)     |        256 |    200 |              0.736 |   86.5 Min |      4.1 GByte |
-| MSN (ViT-S)      |        256 |    200 |              0.741 |   92.7 Min |     16.3 GByte |
-| Moco             |        256 |    200 |              0.727 |   87.3 Min |      4.3 GByte |
-| NNCLR            |        256 |    200 |              0.726 |   86.8 Min |      4.2 GByte |
-| SimCLR           |        256 |    200 |              0.771 |   82.2 Min |      3.9 GByte |
-| SimMIM (ViT-B32) |        256 |    200 |              0.342 |   98.8 Min |     10.5 GByte |
-| SimSiam          |        256 |    200 |              0.669 |   78.6 Min |      3.9 GByte |
-| SMoG             |        128 |    200 |              0.698 |  220.9 Min |     14.3 GByte |
-| SwaV             |        256 |    200 |              0.748 |   77.6 Min |      4.0 GByte |
-| TiCo             |        256 |    200 |              0.531 |   78.2 Min |      4.3 GByte |
-| VICReg           |        256 |    200 |              0.679 |   79.1 Min |      5.7 GByte |
-| VICRegL          |        256 |    200 |              0.703 |   79.5 Min |      4.4 GByte |
+| BarlowTwins      |        256 |    200 |              0.491 |   57.7 Min |      4.0 GByte |
+| BYOL             |        256 |    200 |              0.713 |   51.3 Min |      4.3 GByte |
+| DCL              |        256 |    200 |              0.814 |   47.5 Min |      3.7 GByte |
+| DCLW             |        256 |    200 |              0.802 |   48.0 Min |      3.7 GByte |
+| DINO             |        256 |    200 |              0.872 |   76.6 Min |      6.6 GByte |
+| MSN (ViT-S)      |        256 |    200 |              0.721 |  123.3 Min |     16.3 GByte |
+| Moco             |        256 |    200 |              0.778 |   51.3 Min |      4.2 GByte |
+| NNCLR            |        256 |    200 |              0.801 |   47.3 Min |      3.8 GByte |
+| SimCLR           |        256 |    200 |              0.834 |   46.5 Min |      3.7 GByte |
+| SimMIM (ViT-B32) |        256 |    200 |              0.322 |   98.8 Min |     10.5 GByte |
+| SimSiam          |        256 |    200 |              0.729 |   46.9 Min |      3.8 GByte |
+| SwaV             |        256 |    200 |              0.864 |   69.1 Min |      6.4 GByte |
+| SMoG             |        256 |    200 |              0.634 |  176.9 Min |     24.2 GByte |
+| TiCo             |        256 |    200 |              0.423 |   43.2 Min |      2.5 GByte |
+| VICReg           |        256 |    200 |              0.733 |   49.2 Min |      3.8 GByte |
+| VICRegL          |        256 |    200 |              0.643 |   48.0 Min |      2.6 GByte |
 ---------------------------------------------------------------------------------------------
-| BarlowTwins      |        256 |    800 |              0.789 |  330.9 Min |      4.0 GByte |
-| BYOL             |        256 |    800 |              0.851 |  332.7 Min |      4.3 GByte |
-| DCL (*)          |        256 |    800 |              0.816 |  213.1 Min |      4.3 GByte |
-| DCLW (*)         |        256 |    800 |              0.827 |  213.1 Min |      4.3 GByte |
-| DINO (Res18)     |        256 |    800 |              0.881 |  613.9 Min |      6.7 GByte |
+| BarlowTwins      |        256 |    800 |              0.834 |  330.9 Min |      4.0 GByte |
+| BYOL             |        256 |    800 |              0.887 |  332.7 Min |      4.3 GByte |
+| DCL (*)          |        256 |    800 |              0.862 |  213.1 Min |      4.3 GByte |
+| DCLW (*)         |        256 |    800 |              0.866 |  213.1 Min |      4.3 GByte |
+| DINO (Res18)     |        256 |    800 |              0.866 |  613.9 Min |      6.7 GByte |
 | MSN (ViT-S)      |        256 |    800 |              0.834 |  376.1 Min |     16.3 GByte |
-| Moco             |        256 |    800 |              0.832 |  322.8 Min |      4.2 GByte |
-| NNCLR            |        256 |    800 |              0.848 |  341.4 Min |      4.2 GByte |
-| SimCLR           |        256 |    800 |              0.858 |  324.8 Min |      3.9 GByte |
+| Moco             |        256 |    800 |              0.876 |  322.8 Min |      4.2 GByte |
+| NNCLR            |        256 |    800 |              0.888 |  341.4 Min |      4.2 GByte |
+| SimCLR           |        256 |    800 |              0.892 |  324.8 Min |      3.9 GByte |
 | SimMIM (ViT-B32) |        256 |    800 |              0.355 |  397.8 Min |     10.5 GByte |
-| SimSiam          |        256 |    800 |              0.852 |  316.0 Min |      3.9 GByte |
-| SwaV             |        256 |    800 |              0.899 |  554.7 Min |      6.6 GByte |
-| TiCo             |        256 |    800 |              0.672 |  321.1 Min |      4.0 GByte |
-| VICReg           |        256 |    800 |              0.783 |  316.0 Min |      5.7 GByte |
+| SimSiam          |        256 |    800 |              0.888 |  316.0 Min |      3.9 GByte |
+| SwaV             |        256 |    800 |              0.902 |  554.7 Min |      6.6 GByte |
+| SMoG             |        128 |    200 |              0.806 |  220.9 Min |     14.3 GByte |
+| TiCo             |        256 |    800 |              0.816 |  321.1 Min |      4.0 GByte |
+| VICReg           |        256 |    800 |              0.815 |  316.0 Min |      5.7 GByte |
 | VICRegL          |        256 |    800 |              0.817 |  302.0 Min |      4.4 GByte |
 ---------------------------------------------------------------------------------------------
 

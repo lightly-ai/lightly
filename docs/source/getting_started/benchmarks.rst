@@ -42,26 +42,27 @@ The current benchmark contains the following models:
    :header: "Model", "Epochs", "Batch Size", "Accuracy", "Runtime", "GPU Memory"
    :widths: 20, 20, 20, 20, 20, 20
 
-   "BarlowTwins", 800, 256, 0.789, "330.9 Min", "4.0 GByte"
-   "BYOL", 800, 256, 0.851, "332.7 Min", "4.3 GByte"
-   "DCL (*)", 800, 256, 0.816, "213.1 Min", "4.3 GByte"
-   "DCLW (*)", 800, 256, 0.827, "213.1 Min", "4.3 GByte"
-   "DINO (ResNet 18)", 800, 256, 0.881, "613.9 Min", "6.7 GByte"
+   "BarlowTwins", 800, 256, 0.834, "238.4 Min", "4.3 GByte"
+   "BYOL", 800, 256, 0.887, "208.45 Min", "4.3 GByte"
+   "DCL (*)", 800, 256, 0.862, "191.0 Min", "4.2 GByte"
+   "DCLW (*)", 800, 256, 0.866, "190.0 Min", "3.9 GByte"
+   "DINO (ResNet 18)", 800, 256, 0.886, "306.3 Min", "7.0 GByte"
    "MSN (ViT-S)", 800, 256, 0.834, "376.1 Min", "16.3 GByte"
-   "MoCo", 800, 256, 0.832, "322.8 Min", "4.2 GByte"
-   "NNCLR", 800, 256, 0.848, "341.4 Min", "4.2 GByte"
-   "SimCLR", 800, 256, 0.858, "324.8 Min", "3.9 GByte"
+   "MoCo", 800, 256, 0.876, "204.7 Min", "4.5 GByte"
+   "NNCLR", 800, 256, 0.888, "192.0 Min", "4.1 GByte"
+   "SimCLR", 800, 256, 0.892, "192.6 Min", "3.9 GByte"
    "SimMiM", 800, 256, 0.355, "397.8 Min", "10.5 GByte"
-   "SimSiam", 800, 256, 0.852, "316.0 Min", "3.9 GByte"
-   "SwaV", 800, 256, 0.899, "554.7 Min", "6.6 GByte"
-   "TiCo", 800, 256, 0.672, "321.1 Min", "4.0 GByte"
-   "VICReg", 800, 256, 0.783, "316.7 Min", "5.7 GByte"
+   "SimSiam", 800, 256, 0.888, "192.1 Min", "4.1 GByte"
+   "SwaV", 800, 256, 0.902, "281.7 Min", "6.6 GByte"
+   "SMoG", 800, 256, 0.806, "711.1 Min", "2.6 GByte"
+   "TiCo", 800, 256, 0.816, "176.7 Min", "2.7 GByte"
+   "VICReg", 800, 256, 0.815, "197.4 Min", "4.1 GByte"
    "VICRegL", 800, 256, 0.817, "302.0 Min", "4.4 GByte"
 
 (*): Different runtime and memory requirements due to different hardware settings
 and pytorch version. Runtime and memory requirements are comparable to SimCLR
 with the default settings.
-
+:
 You can reproduce the benchmarks using the following script:
 :download:`imagenette_benchmark.py <benchmarks/imagenette_benchmark.py>` 
 
@@ -168,13 +169,14 @@ with the default ImageNet-1k training parameters from the respective papers.
   :header: "Model", "Epochs", "Batch Size", "Accuracy", "Runtime", "GPU Memory"
   :widths: 20, 20, 20, 20, 20, 20
 
-  "BarlowTwins", 200, 256, 0.333, "1201.4 Min", "13.8 GByte"
-  "BYOL", 200, 256, 0.362, "1238.2 Min", "13.2 GByte"
-  "DINO", 200, 256, 0.452, "1678.3 Min", "19.5 GByte"
-  "Moco", 200, 256, 0.506, "1235.8 Min", "13.4 GByte"
-  "SimCLR", 200, 256, 0.372, "1170.0 Min", "12.8 GByte"
-  "SimSiam", 200, 256, 0.453, "1161.0 Min", "11.5 GByte"
-  "SwaV", 200, 256, 0.098, "1569.2 Min", "18.9 GByte"
+  "BarlowTwins", 200, 256, 0.465, "1319.3 Min", "11.3 GByte"
+  "BYOL", 200, 256, 0.439, "1315.4 Min", "12.9 GByte"
+  "DINO", 200, 256, 0.518, "1868.5 Min", "17.4 GByte"
+  "Moco", 200, 256, 0.560, "1314.2 Min", "13.1 GByte"
+  "NNCLR", 200, 256, 0.453, "1198.6 Min", "11.8 GByte"
+  "SimCLR", 200, 256, 0.469, "1207.7 Min", "11.3 GByte"
+  "SimSiam", 200, 256, 0.542, "1179.1 Min", "11.4 GByte"
+  "SwaV", 200, 256, 0.678, "1569.2 Min", "16.9 GByte"
 
 You can reproduce the benchmarks using the following script:
 :download:`imagenet100_benchmark.py <benchmarks/imagenet100_benchmark.py>` 
