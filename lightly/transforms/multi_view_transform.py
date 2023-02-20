@@ -21,7 +21,8 @@ class MultiViewTransform:
         Every transform in self.transforms creates a new view.
 
         Args:
-            Image (Tensor): The input image to apply the transforms to.
+            image: 
+                Image to be transformed into multiple views.
 
         Returns:
             List[Tensor]: A list of transformed images.
