@@ -12,9 +12,9 @@ class MultiViewCollate:
 
         Args:
             batch:
-                The input batch. It is a list of Tuples containing image, label and filename for each file in the dataset.
-                In particular, image is the output of the augmentation, so it is a list of tensors comprehending n views.
-                Structure example:
+                The input batch. It is a list of (views, label, filename) tuples for each file in the dataset.
+                In particular, views is the output of the augmentation, so it is a list of tensors with n views.
+                For example:
                 [
                     ([image_0_view_0, image_0_view_1, ...], label_0, filename_0),
                     ([image_1_view_0, image_1_view_1, ...], label_1, filename_1),
