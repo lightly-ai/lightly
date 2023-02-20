@@ -7,7 +7,8 @@ class MultiViewTransform:
     """Applies multiple transforms to an image and returns a list of transformed images.
 
     Args:
-        transforms (Compose): A composition of PyTorch transforms.
+        transforms: 
+            A sequence of transforms. Every transform creates a new view.
 
     """
 
