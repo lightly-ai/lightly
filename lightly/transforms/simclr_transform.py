@@ -1,9 +1,10 @@
 from torch import Tensor
 from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
-from lightly.transforms.rotation import RandomRotationTransform
+from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.gaussian_blur import GaussianBlur
 from typing import Tuple, Union
+from PIL.Image import Image
 import torchvision.transforms as T
 
 
@@ -43,6 +44,10 @@ class SimCLRTransform(MultiViewTransform):
             [-rr_degrees, +rr_degrees]. All rotations are counter-clockwise.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
+        to_tensor:
+            Transform PIL Image to Tensor. Set to True by default, it can be set to 
+            False in order to pass a Tensor as an input to the transformation instead
+            of a PIL Image.
 
     Examples:
 
@@ -122,7 +127,7 @@ class SimCLRViewTransform:
 
         transform = [
             T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
-            RandomRotationTransform(rr_prob=rr_prob, rr_degrees=rr_degrees),
+            random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomVerticalFlip(p=vf_prob),
             T.RandomApply([color_jitter], p=cj_prob),
@@ -135,7 +140,7 @@ class SimCLRViewTransform:
             transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]
         self.transform = T.Compose(transform)
 
-    def __call__(self, image: Tensor) -> Tensor:
+    def __call__(self, image: Union[Tensor, Image]) -> Tensor:
         """
         Applies the transforms to the input image.
 
@@ -147,3 +152,4 @@ class SimCLRViewTransform:
 
         """
         return self.transform(image)
+        

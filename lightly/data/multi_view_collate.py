@@ -7,7 +7,7 @@ from warnings import warn
 class MultiViewCollate:
     def __call__(
         self, batch: List[Tuple[List[Tensor], int, str]]
-    ) -> Tuple[List[Tensor], List[int], List[str]]:
+    ) -> Tuple[List[Tensor], Tensor, List[str]]:
         """Turns a batch of tuples into single tuple.
 
         Args:
@@ -27,7 +27,7 @@ class MultiViewCollate:
             (
                 [
                     Tensor([image_0_view_0, image_1_view_0, ...]),    # view 0
-                    Tensor([image_0_view_1, image_1_view_1, ...]),      # view 1
+                    Tensor([image_0_view_1, image_1_view_1, ...]),    # view 1
                     ...
                 ],
                 [label_0, label_1, ...],
@@ -50,5 +50,7 @@ class MultiViewCollate:
             fnames.append(fname)
         for i, view in enumerate(views):
             views[i] = torch.cat(view)
+        
+        labels = torch.LongTensor(labels) # Conversion to tensor to ensure backwards compatibility
 
         return views, labels, fnames

@@ -1,13 +1,14 @@
 from torchvision.transforms import Compose
 from torch import Tensor
-from typing import List
+from PIL.Image import Image
+from typing import List, Union
 
 
 class MultiViewTransform:
     """Transforms an image into multiple views.
 
     Args:
-        transforms: 
+        transforms:
             A sequence of transforms. Every transform creates a new view.
 
     """
@@ -15,13 +16,13 @@ class MultiViewTransform:
     def __init__(self, transforms):
         self.transforms = transforms
 
-    def __call__(self, image: Tensor) -> List[Tensor]:
+    def __call__(self, image: Union[Tensor, Image]) -> Union[List[Tensor], List[Image]]:
         """Transforms an image into multiple views.
-        
+
         Every transform in self.transforms creates a new view.
 
         Args:
-            image: 
+            image:
                 Image to be transformed into multiple views.
 
         Returns:

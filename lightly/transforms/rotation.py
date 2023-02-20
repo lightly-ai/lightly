@@ -49,20 +49,20 @@ class RandomRotate(object):
             sample = TF.rotate(sample, self.angle)
         return sample
 
-class RandomRotationTransform(object):
-    def __init__(self,
-        rr_prob: float,
-        rr_degrees: Union[None, float, Tuple[float, float]],
-    ) -> Union[RandomRotate, T.RandomApply]:
-        self.rr_prob = rr_prob,
-        self.rr_degrees = rr_degrees
+class RandomRotateDegrees(object):
+    def __init__(self, prob: float, degrees: Union[float, Tuple[float, float]]):
+        self.transform = T.RandomApply([T.RandomRotation(degrees=degrees)], p=prob)
+    
+    def __call__(self, image):
+        return self.transform(image)
 
-    def __call__(self, sample):
-        if self.rr_degrees is None:
-            # Random rotation by 90 degrees.
-            rr = RandomRotate(prob=self.rr_prob[0], angle=90)
-            return rr(sample)
-        else:
-            # Random rotation with random angle defined by rr_degrees.
-            rr = T.RandomApply([T.RandomRotation(degrees=self.rr_degrees)], p=self.rr_prob)
-            return rr(sample)
+def random_rotation_transform(
+    rr_prob: float,
+    rr_degrees: Union[None, float, Tuple[float, float]],
+) -> Union[RandomRotate, T.RandomApply]:
+    if rr_degrees is None:
+        # Random rotation by 90 degrees.
+        return RandomRotate(prob=rr_prob, angle=90)
+    else:
+        # Random rotation with random angle defined by rr_degrees.
+        return RandomRotateDegrees(prob=rr_prob, degrees=rr_degrees)

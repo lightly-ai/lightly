@@ -14,9 +14,11 @@ import torchvision.transforms as T
 
 from lightly.transforms import GaussianBlur, Jigsaw, RandomRotate, RandomSolarization
 from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropAndFlip
+from lightly.transforms.utils import IMAGENET_NORMALIZE
+from lightly.transforms.rotation import random_rotation_transform
 
-imagenet_normalize = {"mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]}
-
+imagenet_normalize = IMAGENET_NORMALIZE
+# Kept for backwards compatibility
 
 class BaseCollateFunction(nn.Module):
     """Base class for other collate implementations.
@@ -167,7 +169,7 @@ class ImageCollateFunction(BaseCollateFunction):
 
         transform = [
             T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
-            _random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
+            random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomVerticalFlip(p=vf_prob),
             T.RandomApply([color_jitter], p=cj_prob),
@@ -543,7 +545,7 @@ class SwaVCollateFunction(MultiCropCollateFunction):
             [
                 T.RandomHorizontalFlip(p=hf_prob),
                 T.RandomVerticalFlip(p=vf_prob),
-                _random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
+                random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
                 T.ColorJitter(),
                 T.RandomApply([color_jitter], p=cj_prob),
                 T.RandomGrayscale(p=random_gray_scale),
@@ -657,7 +659,7 @@ class DINOCollateFunction(MultiViewCollateFunction):
             [
                 T.RandomHorizontalFlip(p=hf_prob),
                 T.RandomVerticalFlip(p=vf_prob),
-                _random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
+                random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
                 T.RandomApply(
                     [
                         T.ColorJitter(
@@ -1154,7 +1156,7 @@ class VICRegCollateFunction(BaseCollateFunction):
 
         transform = [
             T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
-            _random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
+            random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomVerticalFlip(p=vf_prob),
             T.RandomApply([color_jitter], p=cj_prob),
@@ -1339,15 +1341,3 @@ class VICRegLCollateFunction(nn.Module):
         grids_local = torch.stack(grids_local)
 
         return (views_global, views_local, grids_global, grids_local), labels, fnames
-
-
-def _random_rotation_transform(
-    rr_prob: float,
-    rr_degrees: Union[None, float, Tuple[float, float]],
-) -> Union[RandomRotate, T.RandomApply]:
-    if rr_degrees is None:
-        # Random rotation by 90 degrees.
-        return RandomRotate(prob=rr_prob, angle=90)
-    else:
-        # Random rotation with random angle defined by rr_degrees.
-        return T.RandomApply([T.RandomRotation(degrees=rr_degrees)], p=rr_prob)
