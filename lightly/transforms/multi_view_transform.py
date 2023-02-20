@@ -11,7 +11,7 @@ class MultiViewTransform:
 
     """
 
-    def __init__(self, transforms: Compose):
+    def __init__(self, transforms):
         self.transforms = transforms
 
     def __call__(self, image: Tensor) -> List[Tensor]:
