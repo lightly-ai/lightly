@@ -49,17 +49,6 @@ class SimCLRTransform(MultiViewTransform):
             False in order to pass a Tensor as an input to the transformation instead
             of a PIL Image.
 
-    Examples:
-
-        >>> # SimCLR for ImageNet
-        >>> collate_fn = SimCLRCollateFunction()
-        >>>
-        >>> # SimCLR for CIFAR-10
-        >>> collate_fn = SimCLRCollateFunction(
-        >>>     input_size=32,
-        >>>     gaussian_blur=0.,
-        >>> )
-
     """
 
     def __init__(
@@ -152,4 +141,3 @@ class SimCLRViewTransform:
 
         """
         return self.transform(image)
-        
