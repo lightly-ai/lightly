@@ -39,9 +39,11 @@ import torch
 import torch.nn as nn
 import torchvision
 import numpy as np
-import lightly
+
+from lightly.data import LightlyDataset, collate, ImageCollateFunction
 from lightly.models.modules.heads import SimSiamPredictionHead
 from lightly.models.modules.heads import SimSiamProjectionHead
+from lightly.loss import NegativeCosineSimilarity
 
 
 # %%
@@ -88,7 +90,7 @@ path_to_data = '/datasets/sentinel-2-italy-v1/'
 #
 
 # define the augmentations for self-supervised learning
-collate_fn = lightly.data.ImageCollateFunction(
+collate_fn = ImageCollateFunction(
     input_size=input_size,
     # require invariance to flips and rotations
     hf_prob=0.5,
@@ -107,7 +109,7 @@ collate_fn = lightly.data.ImageCollateFunction(
 
 # create a lightly dataset for training, since the augmentations are handled
 # by the collate function, there is no need to apply additional ones here
-dataset_train_simsiam = lightly.data.LightlyDataset(
+dataset_train_simsiam = LightlyDataset(
     input_dir=path_to_data
 )
 
@@ -128,13 +130,13 @@ test_transforms = torchvision.transforms.Compose([
     torchvision.transforms.Resize((input_size, input_size)),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(
-        mean=lightly.data.collate.imagenet_normalize['mean'],
-        std=lightly.data.collate.imagenet_normalize['std'],
+        mean=collate.imagenet_normalize['mean'],
+        std=collate.imagenet_normalize['std'],
     )
 ])
 
 # create a lightly dataset for embedding
-dataset_test = lightly.data.LightlyDataset(
+dataset_test = LightlyDataset(
     input_dir=path_to_data,
     transform=test_transforms
 )
@@ -190,7 +192,7 @@ model = SimSiam(backbone, num_ftrs, proj_hidden_dim, pred_hidden_dim, out_dim)
 # not require any negative samples. We build a criterion and an optimizer.
 
 # SimSiam uses a symmetric negative cosine similarity loss
-criterion = lightly.loss.NegativeCosineSimilarity()
+criterion = NegativeCosineSimilarity()
 
 # scale the learning rate 
 lr = 0.05 * batch_size / 256

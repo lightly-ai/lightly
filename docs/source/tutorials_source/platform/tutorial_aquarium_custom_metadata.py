@@ -94,7 +94,7 @@ lightly-friendly format. If you want to skip this step, you can use the provided
 .. code-block:: python
 
     import json
-    from lightly.utils import save_custom_metadata
+    from lightly.utils.io import save_custom_metadata
 
     PATH_TO_COCO_ANNOTATIONS = './aquarium/_annotations.coco.json'
     OUTPUT_FILE = '_annotations.coco.metadata.json'

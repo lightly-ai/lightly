@@ -4,7 +4,7 @@ import sys
 import torchvision
 
 from lightly.data import LightlyDataset
-from lightly.utils import format_custom_metadata
+from lightly.utils.io import format_custom_metadata
 from tests.UNMOCKED_end2end_tests.test_api import \
     create_new_dataset_with_embeddings
 

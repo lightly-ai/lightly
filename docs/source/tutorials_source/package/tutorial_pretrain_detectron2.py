@@ -60,9 +60,13 @@ In this tutorial we use a Faster RCNN with a feature pyramid network (FPN), so m
 #
 # Import the Python frameworks we need for this tutorial.
 import torch
-import lightly
 from detectron2 import config, modeling
 from detectron2.checkpoint import DetectionCheckpointer
+
+from lightly.data import LightlyDataset, SimCLRCollateFunction
+from lightly.loss import NTXentLoss
+from lightly.models.modules import SimCLRProjectionHead
+
 
 # %%
 # Configuration
@@ -154,7 +158,7 @@ simclr_backbone = torch.nn.Sequential(
 # %%
 # Finally, let's build SimCLR around the backbone as shown in the other
 # tutorials. For this, we only require an additional projection head.
-projection_head = lightly.models.modules.SimCLRProjectionHead(
+projection_head = SimCLRProjectionHead(
     input_dim=num_ftrs,
     hidden_dim=num_ftrs,
     output_dim=128,
@@ -171,9 +175,9 @@ projection_head = lightly.models.modules.SimCLRProjectionHead(
 # We don't go into detail here about using the optimal augmentations.
 # You can learn more about the different augmentations and learned invariances
 # here: :ref:`lightly-advanced`.
-collate_fn = lightly.data.SimCLRCollateFunction(input_size=input_size)
+collate_fn = SimCLRCollateFunction(input_size=input_size)
 
-dataset_train_simclr = lightly.data.LightlyDataset(input_dir=data_path)
+dataset_train_simclr = LightlyDataset(input_dir=data_path)
 
 dataloader_train_simclr = torch.utils.data.DataLoader(
     dataset_train_simclr,
@@ -189,7 +193,7 @@ dataloader_train_simclr = torch.utils.data.DataLoader(
 # -----------------------------
 # Now all we need to do is define a loss and optimizer and start training!
 
-criterion = lightly.loss.NTXentLoss()
+criterion = NTXentLoss()
 optimizer = torch.optim.Adam(
     list(simclr_backbone.parameters()) + list(projection_head.parameters()),
     lr=1e-4,

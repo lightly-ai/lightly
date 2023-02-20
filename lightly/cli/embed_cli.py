@@ -21,7 +21,7 @@ from lightly.data import LightlyDataset
 
 from lightly.cli._helpers import fix_hydra_arguments
 
-from lightly.utils import save_embeddings
+from lightly.utils.io import save_embeddings
 
 from lightly.cli._helpers import get_model_from_config
 from lightly.cli._helpers import fix_input_path

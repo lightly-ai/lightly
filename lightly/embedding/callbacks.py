@@ -3,7 +3,7 @@ import os
 from omegaconf import DictConfig
 from pytorch_lightning.callbacks import ModelCheckpoint, ModelSummary
 
-from lightly.cli import _helpers
+from lightly.utils.hipify import print_as_warning
 
 
 def create_checkpoint_callback(
@@ -66,7 +66,7 @@ def _create_summary_callback_deprecated(weights_summary: str) -> ModelSummary:
     of pytorch lightning 1.7 in 08/2022. Support for this will be removed
     in the future.
     """
-    _helpers.print_as_warning(
+    print_as_warning(
         "The configuration parameter 'trainer.weights_summary' is deprecated."
         " Please use 'trainer.weights_summary: True' and set"
         " 'checkpoint_callback.max_depth' to value 1 for the option 'top'"

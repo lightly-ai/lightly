@@ -11,17 +11,30 @@ import copy
 import os
 
 import time
-import lightly
 import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 from torch.optim.lr_scheduler import LambdaLR
 import torchvision
-from lightly.models import modules
+from lightly.data import (
+    LightlyDataset,
+    SimCLRCollateFunction,
+    SwaVCollateFunction,
+    DINOCollateFunction,
+    collate,
+)
+from lightly.loss import (
+    NTXentLoss,
+    NegativeCosineSimilarity,
+    DINOLoss,
+    BarlowTwinsLoss,
+    SwaVLoss,
+)
+from lightly.models import modules, utils
 from lightly.models.modules import heads
-from lightly.models import utils
 from lightly.utils import BenchmarkModule
+
 from pl_bolts.optimizers.lars import LARS
 from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -76,15 +89,15 @@ path_to_train = '/datasets/imagenet100/train/'
 path_to_test = '/datasets/imagenet100/val/'
 
 # Use SimCLR augmentations
-collate_fn = lightly.data.SimCLRCollateFunction(
+collate_fn = SimCLRCollateFunction(
     input_size=input_size,
 )
 
 # Multi crop augmentation for SwAV
-swav_collate_fn = lightly.data.SwaVCollateFunction()
+swav_collate_fn = SwaVCollateFunction()
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
-dino_collate_fn = lightly.data.DINOCollateFunction()
+dino_collate_fn = DINOCollateFunction()
 
 # No additional augmentations for the test set
 test_transforms = torchvision.transforms.Compose([
@@ -92,22 +105,22 @@ test_transforms = torchvision.transforms.Compose([
     torchvision.transforms.CenterCrop(224),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(
-        mean=lightly.data.collate.imagenet_normalize['mean'],
-        std=lightly.data.collate.imagenet_normalize['std'],
+        mean=collate.imagenet_normalize['mean'],
+        std=collate.imagenet_normalize['std'],
     )
 ])
 
-dataset_train_ssl = lightly.data.LightlyDataset(
+dataset_train_ssl = LightlyDataset(
     input_dir=path_to_train
 )
 
 # we use test transformations for getting the feature for kNN on train data
-dataset_train_kNN = lightly.data.LightlyDataset(
+dataset_train_kNN = LightlyDataset(
     input_dir=path_to_train,
     transform=test_transforms
 )
 
-dataset_test = lightly.data.LightlyDataset(
+dataset_test = LightlyDataset(
     input_dir=path_to_test,
     transform=test_transforms
 )
@@ -175,7 +188,7 @@ class MocoModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
         # create our loss with the optional memory bank
-        self.criterion = lightly.loss.NTXentLoss(
+        self.criterion = NTXentLoss(
             temperature=0.07,
             memory_bank_size=memory_bank_size)
 
@@ -232,7 +245,7 @@ class SimCLRModel(BenchmarkModule):
             nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
-        self.criterion = lightly.loss.NTXentLoss(temperature=0.1)
+        self.criterion = NTXentLoss(temperature=0.1)
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -280,7 +293,7 @@ class SimSiamModel(BenchmarkModule):
         )
         self.prediction_head = heads.SimSiamPredictionHead(2048, 512, 2048)
         self.projection_head = heads.SimSiamProjectionHead(feature_dim, 512, 2048)
-        self.criterion = lightly.loss.NegativeCosineSimilarity()
+        self.criterion = NegativeCosineSimilarity()
 
     def forward(self, x):
         f = self.backbone(x).flatten(start_dim=1)
@@ -320,7 +333,7 @@ class BarlowTwinsModel(BenchmarkModule):
         # use a 2-layer projection head for cifar10 as described in the paper
         self.projection_head = heads.BarlowTwinsProjectionHead(feature_dim, 2048, 2048)
 
-        self.criterion = lightly.loss.BarlowTwinsLoss(gather_distributed=gather_distributed)
+        self.criterion = BarlowTwinsLoss(gather_distributed=gather_distributed)
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -377,7 +390,7 @@ class BYOLModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.backbone_momentum)
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
-        self.criterion = lightly.loss.NegativeCosineSimilarity()
+        self.criterion = NegativeCosineSimilarity()
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)
@@ -441,7 +454,7 @@ class NNCLRModel(BenchmarkModule):
         self.prediction_head = heads.NNCLRPredictionHead(256, 4096, 256)
         self.projection_head = heads.NNCLRProjectionHead(feature_dim, 4096, 256)
 
-        self.criterion = lightly.loss.NTXentLoss()
+        self.criterion = NTXentLoss()
         self.memory_bank = modules.NNMemoryBankModule(size=memory_bank_size)
 
     def forward(self, x):
@@ -485,7 +498,7 @@ class SwaVModel(BenchmarkModule):
         self.projection_head = heads.SwaVProjectionHead(feature_dim, 2048, 128)
         self.prototypes = heads.SwaVPrototypes(128, 3000) # use 3000 prototypes
 
-        self.criterion = lightly.loss.SwaVLoss(sinkhorn_gather_distributed=gather_distributed)
+        self.criterion = SwaVLoss(sinkhorn_gather_distributed=gather_distributed)
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -556,7 +569,7 @@ class DINOModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.teacher_backbone)
         utils.deactivate_requires_grad(self.teacher_head)
 
-        self.criterion = lightly.loss.DINOLoss(output_dim=2048)
+        self.criterion = DINOLoss(output_dim=2048)
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)

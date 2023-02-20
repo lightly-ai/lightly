@@ -38,12 +38,13 @@ import torch
 import torch.nn as nn
 import torchvision
 import pytorch_lightning as pl
-import lightly
 import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import normalize
 from PIL import Image
 import numpy as np
+
+from lightly.data import LightlyDataset, SimCLRCollateFunction, collate
 
 # %%
 # Configuration
@@ -85,7 +86,7 @@ path_to_data = '/datasets/clothing-dataset/images'
 # 
 # You can learn more about the different augmentations and learned invariances
 # here: :ref:`lightly-advanced`.
-collate_fn = lightly.data.SimCLRCollateFunction(
+collate_fn = SimCLRCollateFunction(
     input_size=input_size,
     vf_prob=0.5,
     rr_prob=0.5
@@ -97,16 +98,16 @@ test_transforms = torchvision.transforms.Compose([
     torchvision.transforms.Resize((input_size, input_size)),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(
-        mean=lightly.data.collate.imagenet_normalize['mean'],
-        std=lightly.data.collate.imagenet_normalize['std'],
+        mean=collate.imagenet_normalize['mean'],
+        std=collate.imagenet_normalize['std'],
     )
 ])
 
-dataset_train_simclr = lightly.data.LightlyDataset(
+dataset_train_simclr = LightlyDataset(
     input_dir=path_to_data
 )
 
-dataset_test = lightly.data.LightlyDataset(
+dataset_test = LightlyDataset(
     input_dir=path_to_data,
     transform=test_transforms
 )
@@ -275,7 +276,7 @@ plot_knn_examples(embeddings, filenames)
 # respect the colors in the images.
 
 # Set color jitter and gray scale probability to 0
-new_collate_fn = lightly.data.SimCLRCollateFunction(
+new_collate_fn = SimCLRCollateFunction(
     input_size=input_size,
     vf_prob=0.5,
     rr_prob=0.5,

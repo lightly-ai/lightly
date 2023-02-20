@@ -233,7 +233,7 @@ of code.
 
 .. code-block:: python
 
-    from lightly import train_embedding_model, embed_images
+    from lightly.core import train_embedding_model, embed_images
 
     # first we train our model for 10 epochs
     checkpoint = train_embedding_model(input_dir='./my/cute/cats/dataset/', trainer={'max_epochs': 10})

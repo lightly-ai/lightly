@@ -2,18 +2,14 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-import copy
 import os
-import warnings
-from typing import Type
 
 import torch
 import hydra
 from hydra import utils
 from torch import nn as nn
-from torch.utils.hipify.hipify_python import bcolors
 
-from lightly.utils import version_compare
+from lightly.utils.version_compare import version_compare
 
 from lightly.cli._cli_simclr import _SimCLR
 from lightly.embedding import SelfSupervisedEmbedding
@@ -22,18 +18,8 @@ from lightly.models import ZOO as model_zoo, ResNetGenerator
 from lightly.models.batchnorm import get_norm_layer
 
 
-def _custom_formatwarning(msg, *args, **kwargs):
-    # ignore everything except the message
-    return f"{bcolors.WARNING}{msg}{bcolors.WARNING}\n"
 
 
-def print_as_warning(message: str, warning_class: Type[Warning] = UserWarning):
-    old_format = copy.copy(warnings.formatwarning)
-
-    warnings.formatwarning = _custom_formatwarning
-    warnings.warn(message, warning_class)
-
-    warnings.formatwarning = old_format
 
 
 def cpu_count():
