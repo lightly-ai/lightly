@@ -6,7 +6,7 @@ import tempfile
 import torchvision
 from hydra.experimental import compose, initialize
 
-import lightly
+from lightly import cli
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
 
 
@@ -39,7 +39,7 @@ class TestCLITrain(MockedApiWorkflowSetup):
             data[0].save(path)
 
     def test_checkpoint_created(self):
-        lightly.cli.train_cli(self.cfg)
+        cli.train_cli(self.cfg)
         checkpoint_path = os.getenv(
             self.cfg['environment_variable_names']['lightly_last_checkpoint_path']
         )

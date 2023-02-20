@@ -38,7 +38,6 @@ import torch
 import torch.nn as nn
 import torchvision
 import pytorch_lightning as pl
-import lightly
 import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import normalize
@@ -47,6 +46,8 @@ import numpy as np
 import pandas
 import copy
 
+from lightly.data import LightlyDataset, BaseCollateFunction
+from lightly.loss import NTXentLoss
 from lightly.models.modules.heads import MoCoProjectionHead
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
@@ -189,7 +190,7 @@ axs[2].set_axis_off()
 # learning, we need to create a lightly collate function like so:
 
 # create a collate function which performs the random augmentations
-collate_fn = lightly.data.BaseCollateFunction(transform)
+collate_fn = BaseCollateFunction(transform)
 
 # %%
 # Setup dataset and dataloader
@@ -213,7 +214,7 @@ def tiff_loader(f):
         return np.array(image)
 
 # create the dataset and overwrite the image loader
-dataset_train = lightly.data.LightlyDataset(input_dir=path_to_data)
+dataset_train = LightlyDataset(input_dir=path_to_data)
 dataset_train.dataset.loader = tiff_loader
 
 # setup the dataloader for training, make sure to pass the collate function
@@ -263,7 +264,7 @@ class MoCoModel(pl.LightningModule):
         deactivate_requires_grad(self.projection_head_momentum)
 
         # create our loss with the memory bank
-        self.criterion = lightly.loss.NTXentLoss(
+        self.criterion = NTXentLoss(
             temperature=0.1, memory_bank_size=4096
         )
 
@@ -344,7 +345,7 @@ test_transforms = torchvision.transforms.Compose([
 ])
 
 # create the dataset and overwrite the image loader as before
-dataset_test = lightly.data.LightlyDataset(
+dataset_test = LightlyDataset(
     input_dir=path_to_data,
     transform=test_transforms
 )
