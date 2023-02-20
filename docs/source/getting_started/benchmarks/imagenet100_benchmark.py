@@ -22,7 +22,7 @@ a system with multiple GPUs make sure that you kill all the processes when
 killing the application. Due to the way we setup this benchmark the distributed
 processes might continue the benchmark if one of the nodes is killed.
 If you know how to fix this don't hesitate to create an issue or PR :)
-Code has been tested on a V100 GPU with 16GBytes of video memory.
+Code has been tested on a A6000 GPU with 48GBytes of video memory.
 """
 import copy
 import os
