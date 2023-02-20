@@ -22,12 +22,12 @@ class MultiViewCollate:
                 ]
 
         Returns:
-            A tuple containing lists of images, labels and filenames.
-            Structure example:
+            A (views, labels, filenames) tuple. Views is a list of tensors with each tensor containing one
+            view for every image in the batch. For example:
             (
                 [
-                    Tensor([image_0_view_0, image_1_view_0]),
-                    Tensor([image_0_view_1, image_1_view_1]),
+                    Tensor([image_0_view_0, image_1_view_0, ...]),    # view 0
+                    Tensor([image_0_view_1, image_1_view_1, ...]),      # view 1
                     ...
                 ],
                 [label_0, label_1, ...],
