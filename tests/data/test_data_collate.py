@@ -236,10 +236,3 @@ class TestDataCollate(unittest.TestCase):
         collate_fn = VICRegLCollateFunction()
         views, labels, fnames = collate_fn(batch)
 
-    def test__random_rotation_transform(self):
-        transform = collate._random_rotation_transform(rr_prob=1.0, rr_degrees=None)
-        assert isinstance(transform, RandomRotate)
-        transform = collate._random_rotation_transform(rr_prob=1.0, rr_degrees=45)
-        assert isinstance(transform, transforms.RandomApply)
-        transform = collate._random_rotation_transform(rr_prob=1.0, rr_degrees=(30, 45))
-        assert isinstance(transform, transforms.RandomApply)

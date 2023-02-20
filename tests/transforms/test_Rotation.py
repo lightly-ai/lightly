@@ -20,3 +20,11 @@ class TestRotation(unittest.TestCase):
                     random_rotate = RandomRotateDegrees(prob=0.5, degrees=r)
                     sample = Image.new('RGB', (w, h))
                     random_rotate(sample)
+
+    def test_random_rotation_transform(self):
+        transform = random_rotation_transform(rr_prob=1.0, rr_degrees=None)
+        assert isinstance(transform, RandomRotate)
+        transform = random_rotation_transform(rr_prob=1.0, rr_degrees=45)
+        assert isinstance(transform, RandomRotateDegrees)
+        transform = random_rotation_transform(rr_prob=1.0, rr_degrees=(30, 45))
+        assert isinstance(transform, RandomRotateDegrees)
