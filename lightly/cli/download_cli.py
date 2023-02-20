@@ -9,12 +9,9 @@ command-line interface.
 # All Rights Reserved
 
 import os
-import shutil
-import warnings
 
 import hydra
 from torch.utils.hipify.hipify_python import bcolors
-from tqdm import tqdm
 
 import lightly.data as data
 from lightly.cli._helpers import fix_input_path
@@ -22,12 +19,8 @@ from lightly.cli._helpers import print_as_warning
 from lightly.cli._helpers import fix_hydra_arguments
 from lightly.cli._helpers import cpu_count
 
-from lightly.api.utils import getenv
 from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.api.bitmask import BitMask
-from lightly.openapi_generated.swagger_client import TagData, TagArithmeticsRequest, TagArithmeticsOperation, \
-    TagBitMaskResponse
-
+from lightly.openapi_generated.swagger_client import Creator
 
 
 def _download_cli(cfg, is_cli_call=True):
@@ -50,7 +43,7 @@ def _download_cli(cfg, is_cli_call=True):
         cfg['loader']['num_workers'] = num_workers
 
     api_workflow_client = ApiWorkflowClient(
-        token=token, dataset_id=dataset_id
+        token=token, dataset_id=dataset_id, creator=Creator.USER_PIP_LIGHTLY_MAGIC
     )
 
     # get tag id

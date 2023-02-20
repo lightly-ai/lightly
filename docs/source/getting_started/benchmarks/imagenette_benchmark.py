@@ -17,9 +17,9 @@ Results (17.2.2023):
 ---------------------------------------------------------------------------------------------
 | BarlowTwins      |        256 |    200 |              0.491 |   57.7 Min |      4.0 GByte |
 | BYOL             |        256 |    200 |              0.713 |   51.3 Min |      4.3 GByte |
-| DCL              |        256 |    200 |              0.814 |   47.5 Min |      3.7 GByte |
-| DCLW             |        256 |    200 |              0.802 |   48.0 Min |      3.7 GByte |
-| DINO             |        256 |    200 |              0.872 |   76.6 Min |      6.6 GByte |
+| DCL (*)          |        256 |    200 |              0.814 |   47.5 Min |      3.7 GByte |
+| DCLW (*)         |        256 |    200 |              0.802 |   48.0 Min |      3.7 GByte |
+| DINO (Res18)     |        256 |    200 |              0.872 |   76.6 Min |      6.6 GByte |
 | MSN (ViT-S)      |        256 |    200 |              0.721 |  123.3 Min |     16.3 GByte |
 | Moco             |        256 |    200 |              0.778 |   51.3 Min |      4.2 GByte |
 | NNCLR            |        256 |    200 |              0.801 |   47.3 Min |      3.8 GByte |
@@ -27,6 +27,7 @@ Results (17.2.2023):
 | SimMIM (ViT-B32) |        256 |    200 |              0.322 |   98.8 Min |     10.5 GByte |
 | SimSiam          |        256 |    200 |              0.729 |   46.9 Min |      3.8 GByte |
 | SwaV             |        256 |    200 |              0.864 |   69.1 Min |      6.4 GByte |
+| SwaVQueue        |        256 |    200 |              0.845 |   68.8 Min |      6.4 GByte |
 | SMoG             |        256 |    200 |              0.634 |  176.9 Min |     24.2 GByte |
 | TiCo             |        256 |    200 |              0.423 |   43.2 Min |      2.5 GByte |
 | VICReg           |        256 |    200 |              0.733 |   49.2 Min |      3.8 GByte |
@@ -44,6 +45,7 @@ Results (17.2.2023):
 | SimMIM (ViT-B32) |        256 |    800 |              0.355 |  397.8 Min |     10.5 GByte |
 | SimSiam          |        256 |    800 |              0.888 |  316.0 Min |      3.9 GByte |
 | SwaV             |        256 |    800 |              0.902 |  554.7 Min |      6.6 GByte |
+| SwaVQueue        |        256 |    800 |              0.894 |  273.7 Min |      6.4 GByte |
 | SMoG             |        128 |    200 |              0.806 |  220.9 Min |     14.3 GByte |
 | TiCo             |        256 |    800 |              0.816 |  321.1 Min |      4.0 GByte |
 | VICReg           |        256 |    800 |              0.815 |  316.0 Min |      5.7 GByte |
@@ -194,7 +196,7 @@ def get_data_loaders(batch_size: int, model):
         batch_size: Desired batch size for all dataloaders
     """
     col_fn = collate_fn
-    if model == SwaVModel:
+    if model == SwaVModel or model == SwaVQueueModel:
         col_fn = swav_collate_fn
     elif model == DINOModel:
         col_fn = dino_collate_fn
@@ -234,6 +236,7 @@ def get_data_loaders(batch_size: int, model):
     )
 
     return dataloader_train_ssl, dataloader_train_kNN, dataloader_test
+
 
 class MocoModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
@@ -769,7 +772,9 @@ class MAEModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.95),
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        cosine_scheduler = scheduler.CosineWarmupScheduler(
+            optim, self.warmup_epochs, max_epochs
+        )
         return [optim], [cosine_scheduler]
 
 
@@ -842,7 +847,9 @@ class MSNModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.95),
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        cosine_scheduler = scheduler.CosineWarmupScheduler(
+            optim, self.warmup_epochs, max_epochs
+        )
         return [optim], [cosine_scheduler]
 
 
@@ -1017,7 +1024,9 @@ class SimMIMModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.999),
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        cosine_scheduler = scheduler.CosineWarmupScheduler(
+            optim, self.warmup_epochs, max_epochs
+        )
         return [optim], [cosine_scheduler]
 
 
@@ -1051,7 +1060,9 @@ class VICRegModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        cosine_scheduler = scheduler.CosineWarmupScheduler(
+            optim, self.warmup_epochs, max_epochs
+        )
         return [optim], [cosine_scheduler]
 
 
@@ -1103,7 +1114,9 @@ class VICRegLModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        cosine_scheduler = scheduler.CosineWarmupScheduler(
+            optim, self.warmup_epochs, max_epochs
+        )
         return [optim], [cosine_scheduler]
 
 
@@ -1156,7 +1169,96 @@ class TiCoModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(optim, self.warmup_epochs, max_epochs)
+        cosine_scheduler = scheduler.CosineWarmupScheduler(
+            optim, self.warmup_epochs, max_epochs
+        )
+        return [optim], [cosine_scheduler]
+
+
+class SwaVQueueModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+        feature_dim = list(resnet.children())[-1].in_features
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
+        self.projection_head = heads.SwaVProjectionHead(feature_dim, 2048, 128)
+        self.prototypes = heads.SwaVPrototypes(128, 3000, 1)
+        self.start_queue_at_epoch = 15
+        self.queues = nn.ModuleList(
+            [lightly.loss.memory_bank.MemoryBankModule(size=384) for _ in range(2)]
+        )  # Queue size reduced in order to work with a smaller dataset
+        self.criterion = lightly.loss.SwaVLoss()
+
+    def forward(self, x):
+        x = self._subforward(x)
+        return self.prototypes(x)
+
+    def training_step(self, batch, batch_idx):
+        batch_swav, _, _ = batch
+        high_resolution, low_resolution = batch_swav[:2], batch_swav[2:]
+        self.prototypes.normalize()
+
+        high_resolution_features = [self._subforward(x) for x in high_resolution]
+        low_resolution_features = [self._subforward(x) for x in low_resolution]
+
+        high_resolution_prototypes = [
+            self.prototypes(x, self.current_epoch) for x in high_resolution_features
+        ]
+        low_resolution_prototypes = [
+            self.prototypes(x, self.current_epoch) for x in low_resolution_features
+        ]
+        queue_prototypes = self._get_queue_prototypes(high_resolution_features)
+        loss = self.criterion(
+            high_resolution_prototypes, low_resolution_prototypes, queue_prototypes
+        )
+        return loss
+
+    def _subforward(self, input):
+        features = self.backbone(input).flatten(start_dim=1)
+        features = self.projection_head(features)
+        features = nn.functional.normalize(features, dim=1, p=2)
+        return features
+
+    @torch.no_grad()
+    def _get_queue_prototypes(self, high_resolution_features):
+
+        if len(high_resolution_features) != len(self.queues):
+            raise ValueError(
+                f"The number of queues ({len(self.queues)}) should be equal to the number of high "
+                f"resolution inputs ({len(high_resolution_features)}). Set `n_queues` accordingly."
+            )
+
+        # Get the queue features
+        queue_features = []
+        for i in range(len(self.queues)):
+            _, features = self.queues[i](high_resolution_features[i], update=True)
+            # Queue features are in (num_ftrs X queue_length) shape, while the high res
+            # features are in (batch_size X num_ftrs). Swap the axes for interoperability.
+            features = torch.permute(features, (1, 0))
+            queue_features.append(features)
+
+        # If loss calculation with queue prototypes starts at a later epoch,
+        # just queue the features and return None instead of queue prototypes.
+        if (
+            self.start_queue_at_epoch > 0
+            and self.current_epoch < self.start_queue_at_epoch
+        ):
+            return None
+
+        # Assign prototypes
+        queue_prototypes = [
+            self.prototypes(x, self.current_epoch) for x in queue_features
+        ]
+        return queue_prototypes
+
+    def configure_optimizers(self):
+        optim = torch.optim.Adam(
+            self.parameters(),
+            lr=1e-3 * lr_factor,
+            weight_decay=1e-6,
+        )
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [cosine_scheduler]
 
 
@@ -1174,6 +1276,7 @@ models = [
     # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
     SimSiamModel,
     SwaVModel,
+    SwaVQueueModel,
     SMoGModel,
     TiCoModel,
     VICRegModel,

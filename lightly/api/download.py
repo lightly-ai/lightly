@@ -504,18 +504,10 @@ def download_prediction_file(
     url: str,
     session: requests.Session = None,
     request_kwargs: Optional[Dict] = None,
-) -> Union[Dict, None]:
+) -> Dict:
     """Same as download_json_file. Keep this for backwards compatability.
 
-    Args:
-        url:
-            Url of the file to download.
-        session:
-            Session object to persist certain parameters across requests.
-        request_kwargs:
-            Additional parameters passed to requests.get().
-
-    Returns the content of the json file as dictionary or None.
+    See download_json_file.
 
     """
     return download_json_file(url, session=session, request_kwargs=request_kwargs)
@@ -524,7 +516,7 @@ def download_json_file(
     url: str,
     session: requests.Session = None,
     request_kwargs: Optional[Dict] = None,
-) -> Union[Dict, None]:
+) -> Dict:
     """Downloads a json file from the provided read-url.
 
     Args:
@@ -535,16 +527,16 @@ def download_json_file(
         request_kwargs:
             Additional parameters passed to requests.get().
 
-    Returns the content of the json file as dictionary or None.
+    Returns the content of the json file as dictionary. Raises HTTPError in case
+    of an error.
 
     """
     request_kwargs = request_kwargs or {}
     request_kwargs.setdefault('stream', True)
     request_kwargs.setdefault('timeout', 10)
     req = requests if session is None else session
-    response = req.get(url, **request_kwargs)
 
-    if response.status_code < 200 or response.status_code >= 300:
-        return None # the file doesn't exist!
+    response = req.get(url, **request_kwargs)
+    response.raise_for_status()
 
     return response.json()
