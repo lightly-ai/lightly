@@ -39,9 +39,8 @@ try:
     from lightly.data import LightlyDataset
     _lightly_dataset_available = True
 except (
-    ImportError,
-    OSError,
-    ModuleNotFoundError
+    OSError,              # Different CUDA versions for torch and torchvision
+    ModuleNotFoundError,  # No installation of torch or torchvision
 ):
     _lightly_dataset_available = False
 
