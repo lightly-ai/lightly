@@ -247,7 +247,7 @@ class MocoModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1]
         )
 
         # create a moco model based on ResNet
@@ -313,7 +313,7 @@ class SimCLRModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1]
         )
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
         self.criterion = lightly.loss.NTXentLoss()
@@ -346,7 +346,7 @@ class SimSiamModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1]
         )
         self.projection_head = heads.SimSiamProjectionHead(feature_dim, 2048, 2048)
         self.prediction_head = heads.SimSiamPredictionHead(2048, 512, 2048)
@@ -385,7 +385,7 @@ class BarlowTwinsModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1]
         )
         # use a 2-layer projection head for cifar10 as described in the paper
         self.projection_head = heads.BarlowTwinsProjectionHead(feature_dim, 2048, 2048)
@@ -422,7 +422,7 @@ class BYOLModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1]
         )
 
         # create a byol model based on ResNet
@@ -486,7 +486,7 @@ class NNCLRModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1]
         )
         self.projection_head = heads.NNCLRProjectionHead(feature_dim, 2048, 256)
         self.prediction_head = heads.NNCLRPredictionHead(256, 4096, 256)
@@ -528,7 +528,7 @@ class SwaVModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1]
         )
 
         self.projection_head = heads.SwaVProjectionHead(feature_dim, 2048, 128)
@@ -582,7 +582,7 @@ class DINOModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1]
         )
         self.head = heads.DINOProjectionHead(
             feature_dim, 2048, 256, 2048, batch_norm=True
@@ -638,7 +638,7 @@ class DCL(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1]
         )
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
         self.criterion = lightly.loss.DCLLoss()
@@ -671,7 +671,7 @@ class DCLW(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1]
         )
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
         self.criterion = lightly.loss.DCLWLoss()
@@ -862,7 +862,7 @@ class SMoGModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = lightly.models.ResNetGenerator("resnet-18")
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1]
         )
 
         # create a model based on ResNet
