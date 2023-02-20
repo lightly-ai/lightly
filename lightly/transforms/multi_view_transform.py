@@ -25,7 +25,7 @@ class MultiViewTransform:
                 Image to be transformed into multiple views.
 
         Returns:
-            List[Tensor]: A list of transformed images.
+            List of views.
 
         """
         return [transform(image) for transform in self.transforms]
