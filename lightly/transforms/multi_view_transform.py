@@ -16,8 +16,9 @@ class MultiViewTransform:
         self.transforms = transforms
 
     def __call__(self, image: Tensor) -> List[Tensor]:
-        """
-        Applies the transforms to the input image.
+        """Transforms an image into multiple views.
+        
+        Every transform in self.transforms creates a new view.
 
         Args:
             Image (Tensor): The input image to apply the transforms to.
