@@ -10,7 +10,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 import tqdm
 from lightly_utils import image_processing
 
-from torch.utils.hipify.hipify_python import bcolors
+from lightly.utils.hipify import bcolors
 
 from lightly.api.utils import check_filename
 from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
@@ -39,7 +39,7 @@ try:
     from lightly.data import LightlyDataset
     _lightly_dataset_available = True
 except (
-    OSError,      # Different CUDA versions for torch and torchvision
+    RuntimeError,         # Different CUDA versions for torch and torchvision
     ImportError,  # No installation of torch or torchvision
 ):
     _lightly_dataset_available = False

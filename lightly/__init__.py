@@ -111,7 +111,7 @@ else:
         _torchvision_vit_available = True
     except (
         ImportError,          # No installation or old version of torchvision
-        OSError,              # Different CUDA versions for torch and torchvision
+        RuntimeError,         # Different CUDA versions for torch and torchvision
     ):
         _torchvision_vit_available = False
     
