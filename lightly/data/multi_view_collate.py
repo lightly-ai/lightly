@@ -8,7 +8,7 @@ class MultiViewCollate:
     def __call__(
         self, batch: List[Tuple[List[Tensor], int, str]]
     ) -> Tuple[List[Tensor], List[int], List[str]]:
-        """Turns a batch of tuples into a tuple of batches.
+        """Turns a batch of tuples into single tuple.
 
         Args:
             batch:
