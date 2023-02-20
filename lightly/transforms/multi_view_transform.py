@@ -4,7 +4,7 @@ from typing import List
 
 
 class MultiViewTransform:
-    """Applies multiple transforms to an image and returns a list of transformed images.
+    """Transforms an image into multiple views.
 
     Args:
         transforms: 
