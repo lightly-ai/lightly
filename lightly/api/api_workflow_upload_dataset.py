@@ -37,7 +37,6 @@ from lightly.openapi_generated.swagger_client.rest import ApiException
 
 try:
     from lightly.data import LightlyDataset
-    LightlyDatasetType = LightlyDataset
     _lightly_dataset_available = True
 except (
     ImportError,
@@ -45,7 +44,6 @@ except (
     ModuleNotFoundError
 ):
     _lightly_dataset_available = False
-    LightlyDatasetType: str = "LightlyDataset"
 
 
 class _UploadDatasetMixin:
@@ -54,9 +52,9 @@ class _UploadDatasetMixin:
     """
 
     def upload_dataset(self,
-                       input: Union[str, LightlyDatasetType],
+                       input: Union[str, "LightlyDataset"],
                        max_workers: int = 8,
-                       mode: str = 'thumbnails',
+                       mode: str = "thumbnails",
                        custom_metadata: Union[Dict, None] = None):
         """Uploads a dataset to to the Lightly cloud solution.
 
