@@ -33,6 +33,7 @@ The current benchmark contains the following models:
 - :ref:`SimMiM <simmim>`
 - :ref:`SimSiam <simsiam>`
 - :ref:`SwAV <swav>`
+- :ref:`SwAV Queue <swav_queue>`
 - :ref:`TiCo <tico>`
 - :ref:`VICReg <vicreg>`
 - :ref:`VICRegL <vicregl>`
@@ -54,6 +55,7 @@ The current benchmark contains the following models:
    "SimMiM", 800, 256, 0.355, "397.8 Min", "10.5 GByte"
    "SimSiam", 800, 256, 0.888, "192.1 Min", "4.1 GByte"
    "SwaV", 800, 256, 0.902, "281.7 Min", "6.6 GByte"
+   "SwaV Queue", 800, 256, 0.894, "273.7 Min", "6.4 GByte"   
    "SMoG", 800, 256, 0.806, "711.1 Min", "2.6 GByte"
    "TiCo", 800, 256, 0.816, "176.7 Min", "2.7 GByte"
    "VICReg", 800, 256, 0.815, "197.4 Min", "4.1 GByte"

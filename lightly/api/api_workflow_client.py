@@ -22,25 +22,27 @@ from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
 from lightly.api.utils import DatasourceType, get_signed_url_destination, get_api_client_configuration
 from lightly.api.version_checking import is_compatible_version, LightlyAPITimeoutException
-from lightly.openapi_generated.swagger_client.api.collaboration_api import CollaborationApi
-from lightly.openapi_generated.swagger_client import ScoresApi, QuotaApi, MetaDataConfigurationsApi, PredictionsApi
-from lightly.openapi_generated.swagger_client.api.datasets_api import \
-    DatasetsApi
-from lightly.openapi_generated.swagger_client.api.datasources_api import \
-    DatasourcesApi
-from lightly.openapi_generated.swagger_client.api.docker_api import DockerApi
-from lightly.openapi_generated.swagger_client.api.embeddings_api import \
-    EmbeddingsApi
-from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
-from lightly.openapi_generated.swagger_client.api.mappings_api import \
-    MappingsApi
-from lightly.openapi_generated.swagger_client.api.samples_api import SamplesApi
-from lightly.openapi_generated.swagger_client.api.samplings_api import \
-    SamplingsApi
-from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
-from lightly.openapi_generated.swagger_client.api_client import ApiClient
-from lightly.openapi_generated.swagger_client.models.dataset_data import \
-    DatasetData
+from lightly.openapi_generated.swagger_client import (
+    ApiClient,
+    CollaborationApi,
+    Creator,
+    DatasetCreator,
+    DatasetData,
+    DatasetsApi,
+    DatasourcesApi,
+    DockerApi,
+    EmbeddingsApi,
+    JobsApi,
+    MappingsApi,
+    MetaDataConfigurationsApi,
+    PredictionsApi,
+    QuotaApi,
+    SamplesApi,
+    SamplingsApi,
+    ScoresApi,
+    TagsApi,
+)
+
 from lightly.utils.reordering import sort_items_by_keys
 
 # Env variable for server side encryption on S3
@@ -58,30 +60,33 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                         _CollaborationMixin,
                         _PredictionsMixin,
                         ):
-    """Provides a uniform interface to communicate with the api 
-    
-    The APIWorkflowClient is used to communicaate with the Lightly API. The client
+    """Provides a uniform interface to communicate with the Lightly API.
+
+    The APIWorkflowClient is used to communicate with the Lightly API. The client
     can run also more complex workflows which include multiple API calls at once.
-    
-    The client can be used in combination with the active learning agent. 
+
+    The client can be used in combination with the active learning agent.
 
     Args:
         token:
-            the token of the user, provided in webapp
+            The token of the user. For further information on how to get a token,
+            see: https://docs.lightly.ai/docs/install-lightly#api-token
         dataset_id:
-            the id of the dataset, provided in webapp. \
-            If it is not set, but used by a workflow, \
-            the last modfied dataset is taken by default.
+            The id of the dataset. If it is not set, but used by a workflow, the last
+            modfied dataset is taken by default.
         embedding_id:
-            the id of the embedding to use. If it is not set, \
-            but used by a workflow, the newest embedding is taken by default
+            The id of the embedding to use. If it is not set, but used by a workflow,
+            the newest embedding is taken by default
+        creator:
+            Creator passed to API requests.
     """
 
     def __init__(
         self,
         token: Optional[str] = None,
         dataset_id: Optional[str] = None,
-        embedding_id: Optional[str] = None
+        embedding_id: Optional[str] = None,
+        creator: str = Creator.USER_PIP,
     ):
 
         try:
@@ -105,6 +110,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             self._dataset_id = dataset_id
         if embedding_id is not None:
             self.embedding_id = embedding_id
+        self._creator = creator
 
         self._collaboration_api = CollaborationApi(api_client=self.api_client)
         self._compute_worker_api = DockerApi(api_client=self.api_client)
