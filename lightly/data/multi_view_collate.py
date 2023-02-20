@@ -37,7 +37,7 @@ class MultiViewCollate:
 
         """
         if len(batch) == 0:
-            warn("The batch is empty. Collate returned empty lists.")
+            warn("MultiViewCollate received empty batch.")
             return [], [], []
 
         views = [[] for _ in range(len(batch[0][0]))]
