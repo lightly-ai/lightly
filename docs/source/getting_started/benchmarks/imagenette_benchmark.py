@@ -54,7 +54,7 @@ Results (5.3.2022):
 (*): Different runtime and memory requirements due to different hardware settings
 and pytorch version. Runtime and memory requirements are comparable to SimCLR
 with the default settings.
-(**): Test run with old lightly resnet18 implementation
+(**): Uses outdated ResNetGenerator architecture.
 
 """
 import copy
