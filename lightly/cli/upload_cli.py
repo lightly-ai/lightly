@@ -14,7 +14,7 @@ from typing import Union
 import hydra
 
 import torchvision
-from torch.utils.hipify.hipify_python import bcolors
+from lightly.utils.hipify import bcolors
 
 from lightly.api.api_workflow_upload_embeddings import \
     EmbeddingDoesNotExistError

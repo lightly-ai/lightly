@@ -11,7 +11,7 @@ command-line interface.
 import os
 
 import hydra
-from torch.utils.hipify.hipify_python import bcolors
+from lightly.utils.hipify import bcolors
 
 import lightly.data as data
 from lightly.cli._helpers import fix_input_path

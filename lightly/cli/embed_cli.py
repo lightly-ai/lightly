@@ -15,14 +15,11 @@ import hydra
 import numpy as np
 import torch
 import torchvision
-from torch.utils.hipify.hipify_python import bcolors
 
+from lightly.utils.hipify import bcolors
 from lightly.data import LightlyDataset
-
-from lightly.cli._helpers import fix_hydra_arguments
-
 from lightly.utils.io import save_embeddings
-
+from lightly.cli._helpers import fix_hydra_arguments
 from lightly.cli._helpers import get_model_from_config
 from lightly.cli._helpers import fix_input_path
 from lightly.cli._helpers import cpu_count
