@@ -36,9 +36,5 @@ def test_multiple_item_batch():
     views, labels, fnames = multi_view_collate(batch)
     assert len(views) == 5
     assert views[0].shape == (2, 3, 224, 224)
-    assert len(labels) == 2
-    assert len(fnames) == 2
-    assert labels[0] == label1
-    assert fnames[0] == fname1
-    assert labels[1] == label2
-    assert fnames[1] == fname2
+    assert labels == [1, 2]
+    assert fnames == ["image1.jpg", "image2.jpg"]
