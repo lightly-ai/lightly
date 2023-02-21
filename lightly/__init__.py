@@ -110,8 +110,9 @@ else:
         import torchvision.models.vision_transformer
         _torchvision_vit_available = True
     except (
-        ImportError,          # No installation or old version of torchvision
-        RuntimeError,         # Different CUDA versions for torch and torchvision
+        RuntimeError,  # Different CUDA versions for torch and torchvision
+        OSError,       # Different CUDA versions for torch and torchvision (old)
+        ImportError,   # No installation or old version of torchvision
     ):
         _torchvision_vit_available = False
     
