@@ -26,7 +26,7 @@ Results (5.3.2022):
 | SimCLR           |        256 |    200 |              0.771 |   82.2 Min |      3.9 GByte |
 | SimMIM (ViT-B32) |        256 |    200 |              0.342 |   98.8 Min |     10.5 GByte |
 | SimSiam          |        256 |    200 |              0.669 |   78.6 Min |      3.9 GByte |
-| SMoG             |        128 |    200 |              0.698 |  220.9 Min |     14.3 GByte |
+| SMoG (**)        |        128 |    200 |              0.698 |  220.9 Min |     14.3 GByte |
 | SwaV             |        256 |    200 |              0.748 |   77.6 Min |      4.0 GByte |
 | SwaVQueue        |        256 |    200 |              0.845 |   68.8 Min |      6.4 GByte |
 | TiCo             |        256 |    200 |              0.531 |   78.2 Min |      4.3 GByte |
@@ -54,6 +54,7 @@ Results (5.3.2022):
 (*): Different runtime and memory requirements due to different hardware settings
 and pytorch version. Runtime and memory requirements are comparable to SimCLR
 with the default settings.
+(**): Test run with old lightly resnet18 implementation
 
 """
 import copy
@@ -860,10 +861,9 @@ class SMoGModel(BenchmarkModule):
         super().__init__(dataloader_kNN, num_classes)
 
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator("resnet-18")
+        resnet = torchvision.models.resnet18()
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1]
         )
 
         # create a model based on ResNet
