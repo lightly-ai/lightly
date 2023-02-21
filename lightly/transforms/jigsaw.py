@@ -11,11 +11,11 @@ from PIL import Image
 
 class Jigsaw(object):
     """Implementation of Jigsaw image augmentation, inspired from PyContrast library.
-    
+
     Generates n_grid**2 random crops and returns a list.
-    
+
     This augmentation is instrumental to PIRL.
-    
+
     Attributes:
         n_grid:
             Side length of the meshgrid, sqrt of the number of crops.
@@ -25,7 +25,7 @@ class Jigsaw(object):
             Size of crops.
         transform:
             Transformation to apply on each crop.
-    
+
     Examples:
         >>> from lightly.transforms import Jigsaw
         >>>
@@ -34,7 +34,10 @@ class Jigsaw(object):
         >>> # img is a PIL image
         >>> crops = jigsaw_crops(img)
     """
-    def __init__(self, n_grid=3, img_size=255, crop_size=64, transform=transforms.ToTensor()):
+
+    def __init__(
+        self, n_grid=3, img_size=255, crop_size=64, transform=transforms.ToTensor()
+    ):
         self.n_grid = n_grid
         self.img_size = img_size
         self.crop_size = crop_size
@@ -60,9 +63,14 @@ class Jigsaw(object):
         img = np.asarray(img, np.uint8)
         crops = []
         for i in range(self.n_grid * self.n_grid):
-            crops.append(img[self.xx[i] + r_x[i]: self.xx[i] + r_x[i] + self.crop_size,
-                         self.yy[i] + r_y[i]: self.yy[i] + r_y[i] + self.crop_size, :])
+            crops.append(
+                img[
+                    self.xx[i] + r_x[i] : self.xx[i] + r_x[i] + self.crop_size,
+                    self.yy[i] + r_y[i] : self.yy[i] + r_y[i] + self.crop_size,
+                    :,
+                ]
+            )
         crops = [Image.fromarray(crop) for crop in crops]
         crops = torch.stack([self.transform(crop) for crop in crops])
-        crops = crops[np.random.permutation(self.n_grid ** 2)]
+        crops = crops[np.random.permutation(self.n_grid**2)]
         return crops
