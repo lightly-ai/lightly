@@ -22,7 +22,7 @@ def test_single_item_batch():
     assert len(views) == 5
     assert views[0].shape == (1, 3, 224, 224)
     assert labels == [1]
-    assert fnames == ["image1.jpg]
+    assert fnames == ["image1.jpg"]
 
 def test_multiple_item_batch():
     multi_view_collate = MultiViewCollate()
