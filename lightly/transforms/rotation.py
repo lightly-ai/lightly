@@ -35,7 +35,7 @@ class RandomRotate:
         self.prob = prob
         self.angle = angle
 
-    def __call__(self, image: Union[Image, Tensor]):
+    def __call__(self, image: Union[Image, Tensor]) -> Union[Image, Tensor]:
         """Rotates the image with a given probability.
 
         Args:
