@@ -64,7 +64,6 @@ class SimCLRTransform(MultiViewTransform):
         rr_prob: float = 0.0,
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
-        to_tensor: bool = True,
     ):
 
         view_transform = SimCLRViewTransform(
@@ -83,7 +82,6 @@ class SimCLRTransform(MultiViewTransform):
             rr_prob=rr_prob,
             rr_degrees=rr_degrees,
             normalize=normalize,
-            to_tensor=to_tensor,
         )
         super().__init__(transforms=[view_transform, view_transform])
 
