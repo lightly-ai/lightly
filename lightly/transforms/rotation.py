@@ -50,10 +50,30 @@ class RandomRotate(object):
         return sample
 
 class RandomRotateDegrees(object):
+    """Random rotate image between two rotation angles with a random probability.
+
+    Attributes:
+        prob:
+            Probability with which image is rotated.
+        degrees (sequence or number): Range of degrees to select from.
+            If degrees is a number instead of sequence like (min, max), the range of degrees
+            will be (-degrees, +degrees).
+
+    """
     def __init__(self, prob: float, degrees: Union[float, Tuple[float, float]]):
         self.transform = T.RandomApply([T.RandomRotation(degrees=degrees)], p=prob)
     
     def __call__(self, image):
+        """Rotates the images with a given probability.
+
+        Args:
+            sample:
+                PIL image which will be rotated.
+        
+        Returns:
+            Rotated image or original image.
+
+        """
         return self.transform(image)
 
 def random_rotation_transform(

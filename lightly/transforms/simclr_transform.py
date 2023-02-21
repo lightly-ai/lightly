@@ -44,10 +44,6 @@ class SimCLRTransform(MultiViewTransform):
             [-rr_degrees, +rr_degrees]. All rotations are counter-clockwise.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
-        to_tensor:
-            Transform PIL Image to Tensor. Set to True by default, it can be set to 
-            False in order to pass a Tensor as an input to the transformation instead
-            of a PIL Image.
 
     """
 
@@ -110,7 +106,6 @@ class SimCLRViewTransform:
         rr_prob: float = 0.0,
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
-        to_tensor: bool = True,
     ):
         color_jitter = T.ColorJitter(cj_bright, cj_contrast, cj_sat, cj_hue)
 
@@ -122,9 +117,8 @@ class SimCLRViewTransform:
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(sigmas=sigmas, prob=gaussian_blur),
+            T.ToTensor()
         ]
-        if to_tensor:
-            transform.append(T.ToTensor())
         if normalize:
             transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]
         self.transform = T.Compose(transform)
