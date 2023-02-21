@@ -862,7 +862,8 @@ class SMoGModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = lightly.models.ResNetGenerator("resnet-18")
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
         )
 
         # create a model based on ResNet

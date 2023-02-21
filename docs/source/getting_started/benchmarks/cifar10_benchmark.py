@@ -240,7 +240,8 @@ class MocoModel(BenchmarkModule):
         num_splits = 0 if sync_batchnorm else 8
         resnet = lightly.models.ResNetGenerator('resnet-18', num_splits=num_splits)
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
         )
 
         # create a moco model based on ResNet
@@ -305,6 +306,7 @@ class SimCLRModel(BenchmarkModule):
         resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.SimCLRProjectionHead(512, 512, 128)
         self.criterion = lightly.loss.NTXentLoss()
@@ -339,7 +341,8 @@ class SimSiamModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
         )
         self.prediction_head = heads.SimSiamPredictionHead(2048, 512, 2048)
         # use a 2-layer projection head for cifar10 as described in the paper
@@ -390,7 +393,8 @@ class BarlowTwinsModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
         )
         # use a 2-layer projection head for cifar10 as described in the paper
         self.projection_head = heads.ProjectionHead([
@@ -439,7 +443,8 @@ class BYOLModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
         )
 
         # create a byol model based on ResNet
@@ -497,7 +502,8 @@ class SwaVModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
         )
 
         self.projection_head = heads.SwaVProjectionHead(512, 512, 128)
@@ -550,7 +556,8 @@ class NNCLRModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
         )
         self.prediction_head = heads.NNCLRPredictionHead(256, 4096, 256)
         # use only a 2-layer projection head for cifar10
@@ -605,7 +612,8 @@ class DINOModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
         )
         self.head = self._build_projection_head()
         self.teacher_backbone = copy.deepcopy(self.backbone)
@@ -666,7 +674,8 @@ class DCL(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.SimCLRProjectionHead(512, 512, 128)
         self.criterion = lightly.loss.DCLLoss()
@@ -701,7 +710,8 @@ class DCLW(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.SimCLRProjectionHead(512, 512, 128)
         self.criterion = lightly.loss.DCLWLoss()
@@ -740,7 +750,8 @@ class SMoGModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = lightly.models.ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
+            *list(resnet.children())[:-1],
+            nn.AdaptiveAvgPool2d(1)
         )
 
         # create a model based on ResNet
