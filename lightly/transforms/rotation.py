@@ -70,7 +70,7 @@ class RandomRotateDegrees():
         """Rotates the images with a given probability.
 
         Args:
-            sample:
+            image:
                 PIL image or tensor which will be rotated.
         
         Returns:
