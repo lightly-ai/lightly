@@ -21,7 +21,7 @@ def test_single_item_batch():
     views, labels, fnames = multi_view_collate(batch)
     assert len(views) == 5
     assert views[0].shape == (1, 3, 224, 224)
-    assert labels == [1]
+    assert torch.equal(labels, torch.tensor([1]))
     assert fnames == ["image1.jpg"]
 
 def test_multiple_item_batch():
@@ -36,5 +36,5 @@ def test_multiple_item_batch():
     views, labels, fnames = multi_view_collate(batch)
     assert len(views) == 5
     assert views[0].shape == (2, 3, 224, 224)
-    assert labels == [1, 2]
+    assert torch.equal(labels, torch.tensor([1, 2], dtype=torch.long))
     assert fnames == ["image1.jpg", "image2.jpg"]
