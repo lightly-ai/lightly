@@ -67,7 +67,7 @@ class RandomRotateDegrees(object):
         """Rotates the images with a given probability.
 
         Args:
-            sample:
+            image:
                 PIL image which will be rotated.
         
         Returns:
