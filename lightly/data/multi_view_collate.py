@@ -51,6 +51,6 @@ class MultiViewCollate:
         for i, view in enumerate(views):
             views[i] = torch.cat(view)
         
-        labels = torch.LongTensor(labels) # Conversion to tensor to ensure backwards compatibility
+        labels = torch.Tensor(labels, dtype=torch.long) # Conversion to tensor to ensure backwards compatibility
 
         return views, labels, fnames
