@@ -21,10 +21,8 @@ def test_single_item_batch():
     views, labels, fnames = multi_view_collate(batch)
     assert len(views) == 5
     assert views[0].shape == (1, 3, 224, 224)
-    assert len(labels) == 1
-    assert len(fnames) == 1
-    assert labels[0] == label
-    assert fnames[0] == fname
+    assert labels == [1]
+    assert fnames == ["image1.jpg]
 
 def test_multiple_item_batch():
     multi_view_collate = MultiViewCollate()
