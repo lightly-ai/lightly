@@ -9,7 +9,7 @@ from typing import Tuple, Union
 from warnings import warn
 
 
-class GaussianBlur(object):
+class GaussianBlur():
     """Implementation of random Gaussian blur.
 
     Utilizes the built-in ImageFilter method from PIL to apply a Gaussian

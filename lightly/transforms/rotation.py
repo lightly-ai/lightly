@@ -7,9 +7,11 @@ import numpy as np
 from torchvision.transforms import functional as TF
 import torchvision.transforms as T
 from typing import Tuple, Union
+from torch import Tensor
+from PIL.Image import Image
 
 
-class RandomRotate(object):
+class RandomRotate():
     """Implementation of random rotation.
 
     Randomly rotates an input image by a fixed angle. By default, we rotate
@@ -33,12 +35,12 @@ class RandomRotate(object):
         self.prob = prob
         self.angle = angle
 
-    def __call__(self, sample):
-        """Rotates the images with a given probability.
+    def __call__(self, image: Union[Image, Tensor]):
+        """Rotates the image with a given probability.
 
         Args:
-            sample:
-                PIL image which will be rotated.
+            image:
+                PIL image or tensor which will be rotated.
         
         Returns:
             Rotated image or original image.
@@ -46,29 +48,30 @@ class RandomRotate(object):
         """
         prob = np.random.random_sample()
         if prob < self.prob:
-            sample = TF.rotate(sample, self.angle)
-        return sample
+            image = TF.rotate(image, self.angle)
+        return image
 
-class RandomRotateDegrees(object):
+class RandomRotateDegrees():
     """Random rotate image between two rotation angles with a random probability.
 
     Attributes:
         prob:
             Probability with which image is rotated.
-        degrees (sequence or number): Range of degrees to select from.
-            If degrees is a number instead of sequence like (min, max), the range of degrees
-            will be (-degrees, +degrees).
+        degrees: 
+            Range of degrees to select from. If degrees is a number instead of a sequence like (min, max),
+            the range of degrees will be (-degrees, +degrees). The image is rotated counter-clockwise with 
+            a random angle in the (min, max) range or in the (-degrees, +degrees) range.
 
     """
     def __init__(self, prob: float, degrees: Union[float, Tuple[float, float]]):
         self.transform = T.RandomApply([T.RandomRotation(degrees=degrees)], p=prob)
     
-    def __call__(self, image):
+    def __call__(self, image: Union[Image, Tensor]):
         """Rotates the images with a given probability.
 
         Args:
             sample:
-                PIL image which will be rotated.
+                PIL image or tensor which will be rotated.
         
         Returns:
             Rotated image or original image.
