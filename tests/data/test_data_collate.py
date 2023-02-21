@@ -13,16 +13,22 @@ from lightly.data import SimCLRCollateFunction
 from lightly.data import MultiCropCollateFunction
 from lightly.data import SwaVCollateFunction
 from lightly.data import PIRLCollateFunction
-from lightly.data.collate import DINOCollateFunction, MAECollateFunction, MSNCollateFunction, MultiViewCollateFunction, VICRegCollateFunction, VICRegLCollateFunction
+from lightly.data.collate import (
+    DINOCollateFunction,
+    MAECollateFunction,
+    MSNCollateFunction,
+    MultiViewCollateFunction,
+    VICRegCollateFunction,
+    VICRegLCollateFunction,
+)
 
 
 class TestDataCollate(unittest.TestCase):
-
     def create_batch(self, batch_size=16, seed=0):
         torch.manual_seed(0)
         rnd_images = torchvision.datasets.FakeData(size=batch_size)
 
-        fnames = [f'img_{i}.jpg' for i in range(batch_size)]
+        fnames = [f"img_{i}.jpg" for i in range(batch_size)]
         labels = [random.randint(0, 5) for i in range(batch_size)]
 
         batch = []
@@ -101,7 +107,7 @@ class TestDataCollate(unittest.TestCase):
         batch = self.create_batch()
         for high in range(2, 4):
             for low in range(6):
-                with self.subTest(msg='n_low_res={low}, n_high_res={high}'):
+                with self.subTest(msg="n_low_res={low}, n_high_res={high}"):
                     multi_crop_collate = MultiCropCollateFunction(
                         crop_sizes=[32, 16],
                         crop_counts=[high, low],
@@ -121,7 +127,6 @@ class TestDataCollate(unittest.TestCase):
                             self.assertEqual(crop.shape[-2], 16)
                         self.assertEqual(len(crop), len(labels), len(fnames))
 
-
     def test_swav_collate_init(self):
         swav_collate = SwaVCollateFunction()
 
@@ -131,17 +136,21 @@ class TestDataCollate(unittest.TestCase):
                 crop_sizes=[1],
                 crop_counts=[2, 3],
             )
-    
+
     def test_multi_view_collate(self):
         to_tensor = transforms.ToTensor()
-        hflip = transforms.Compose([
-            transforms.RandomHorizontalFlip(p=1),
-            to_tensor,
-        ])
-        vflip = transforms.Compose([
-            transforms.RandomVerticalFlip(p=1),
-            to_tensor,
-        ])
+        hflip = transforms.Compose(
+            [
+                transforms.RandomHorizontalFlip(p=1),
+                to_tensor,
+            ]
+        )
+        vflip = transforms.Compose(
+            [
+                transforms.RandomVerticalFlip(p=1),
+                to_tensor,
+            ]
+        )
         trans = [to_tensor, hflip, vflip]
 
         collate_fn = MultiViewCollateFunction(trans)
@@ -173,7 +182,7 @@ class TestDataCollate(unittest.TestCase):
 
     def test_pirl_collate_init(self):
         PIRLCollateFunction()
-    
+
     def test_pirl_collate_forward_tuple_input_size(self):
         batch = self.create_batch()
         img_collate = PIRLCollateFunction(
@@ -185,20 +194,17 @@ class TestDataCollate(unittest.TestCase):
         self.assertIsNotNone(img_collate)
         self.assertEqual(len(samples0), len(samples1))
         self.assertEqual(len(samples1), len(labels), len(fnames))
-    
+
     def test_pirl_collate_forward_n_grid(self):
         batch = self.create_batch()
-        img_collate = PIRLCollateFunction(
-            input_size=32,
-            n_grid=3
-        )
+        img_collate = PIRLCollateFunction(input_size=32, n_grid=3)
         samples, labels, fnames = img_collate(batch)
         samples0, samples1 = samples
 
         self.assertIsNotNone(img_collate)
         self.assertEqual(len(samples0), len(samples1))
         self.assertEqual(len(samples1), len(labels), len(fnames))
-        self.assertEqual(samples1.shape, (16,9,3,10,10))
+        self.assertEqual(samples1.shape, (16, 9, 3, 10, 10))
 
     def test_msn_collate_init(self):
         MSNCollateFunction()
@@ -206,10 +212,7 @@ class TestDataCollate(unittest.TestCase):
     def test_msn_collate_forward(self):
         batch = self.create_batch()
         img_collate = MSNCollateFunction(
-            random_size=24,
-            focal_size=12,
-            random_views=2, 
-            focal_views=10
+            random_size=24, focal_size=12, random_views=2, focal_views=10
         )
         views, labels, fnames = img_collate(batch)
         self.assertEqual(len(views), 2 + 10)
@@ -227,7 +230,7 @@ class TestDataCollate(unittest.TestCase):
         batch = self.create_batch()
         collate_fn = VICRegCollateFunction()
         views, labels, fnames = collate_fn(batch)
-    
+
     def test_vicregl_collate_init(self):
         VICRegLCollateFunction()
 
@@ -235,4 +238,3 @@ class TestDataCollate(unittest.TestCase):
         batch = self.create_batch()
         collate_fn = VICRegLCollateFunction()
         views, labels, fnames = collate_fn(batch)
-

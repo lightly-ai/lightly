@@ -115,7 +115,7 @@ class SimCLRViewTransform:
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(sigmas=sigmas, prob=gaussian_blur),
-            T.ToTensor()
+            T.ToTensor(),
         ]
         if normalize:
             transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]

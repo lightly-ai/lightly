@@ -11,7 +11,7 @@ from torch import Tensor
 from PIL.Image import Image
 
 
-class RandomRotate():
+class RandomRotate:
     """Implementation of random rotation.
 
     Randomly rotates an input image by a fixed angle. By default, we rotate
@@ -26,9 +26,9 @@ class RandomRotate():
         angle:
             Angle by which the image is rotated. We recommend multiples of 90
             to prevent rasterization artifacts. If you pick numbers like
-            90, 180, 270 the tensor will be rotated without introducing 
+            90, 180, 270 the tensor will be rotated without introducing
             any artifacts.
-    
+
     """
 
     def __init__(self, prob: float = 0.5, angle: int = 90):
@@ -41,7 +41,7 @@ class RandomRotate():
         Args:
             image:
                 PIL image or tensor which will be rotated.
-        
+
         Returns:
             Rotated image or original image.
 
@@ -51,33 +51,36 @@ class RandomRotate():
             image = TF.rotate(image, self.angle)
         return image
 
-class RandomRotateDegrees():
+
+class RandomRotateDegrees:
     """Random rotate image between two rotation angles with a random probability.
 
     Attributes:
         prob:
             Probability with which image is rotated.
-        degrees: 
+        degrees:
             Range of degrees to select from. If degrees is a number instead of a sequence like (min, max),
-            the range of degrees will be (-degrees, +degrees). The image is rotated counter-clockwise with 
+            the range of degrees will be (-degrees, +degrees). The image is rotated counter-clockwise with
             a random angle in the (min, max) range or in the (-degrees, +degrees) range.
 
     """
+
     def __init__(self, prob: float, degrees: Union[float, Tuple[float, float]]):
         self.transform = T.RandomApply([T.RandomRotation(degrees=degrees)], p=prob)
-    
+
     def __call__(self, image: Union[Image, Tensor]):
         """Rotates the images with a given probability.
 
         Args:
             image:
                 PIL image or tensor which will be rotated.
-        
+
         Returns:
             Rotated image or original image.
 
         """
         return self.transform(image)
+
 
 def random_rotation_transform(
     rr_prob: float,

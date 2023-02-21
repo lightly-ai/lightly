@@ -4,6 +4,7 @@ from typing import List, Tuple, Union
 from warnings import warn
 from lightly.data.multi_view_collate import MultiViewCollate
 
+
 def test_empty_batch():
     multi_view_collate = MultiViewCollate()
     batch = []
@@ -11,6 +12,7 @@ def test_empty_batch():
     assert len(views) == 0
     assert len(labels) == 0
     assert len(fnames) == 0
+
 
 def test_single_item_batch():
     multi_view_collate = MultiViewCollate()
@@ -23,6 +25,7 @@ def test_single_item_batch():
     assert views[0].shape == (1, 3, 224, 224)
     assert torch.equal(labels, torch.tensor([1]))
     assert fnames == ["image1.jpg"]
+
 
 def test_multiple_item_batch():
     multi_view_collate = MultiViewCollate()
