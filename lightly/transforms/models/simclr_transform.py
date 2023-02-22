@@ -3,7 +3,7 @@ from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.gaussian_blur import GaussianBlur
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 from PIL.Image import Image
 import torchvision.transforms as T
 
@@ -58,6 +58,7 @@ class SimCLRTransform(MultiViewTransform):
         min_scale: float = 0.15,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
+        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.2, 2),
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
@@ -76,6 +77,7 @@ class SimCLRTransform(MultiViewTransform):
             min_scale=min_scale,
             random_gray_scale=random_gray_scale,
             gaussian_blur=gaussian_blur,
+            kernel_size=kernel_size,
             sigmas=sigmas,
             vf_prob=vf_prob,
             hf_prob=hf_prob,
@@ -98,6 +100,7 @@ class SimCLRViewTransform:
         min_scale: float = 0.15,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
+        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.2, 2),
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
@@ -114,7 +117,7 @@ class SimCLRViewTransform:
             T.RandomVerticalFlip(p=vf_prob),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
-            GaussianBlur(sigmas=sigmas, prob=gaussian_blur),
+            GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
             T.ToTensor(),
         ]
         if normalize:
