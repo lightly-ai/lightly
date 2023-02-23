@@ -95,8 +95,8 @@ class MSNTransform(MultiViewTransform):
             vf_prob=vf_prob,
             normalize=normalize,
         )
-        transforms = [transform] * random_views
-        transforms += [focal_transform] * focal_views
+        transforms = [random_view_transform] * random_views
+        transforms += [focal_view_transform] * focal_views
         super().__init__(transforms=transforms)
 
 
@@ -139,10 +139,11 @@ class MSNViewTransform:
         Applies the transforms to the input image.
 
         Args:
-            Image (Tensor): The input image to apply the transforms to.
+            image: 
+                The input image to apply the transforms to.
 
         Returns:
-            Image (Tensor): The transformed image.
+            The transformed image.
 
         """
         return self.transform(image)

@@ -13,6 +13,12 @@ class ImageGridTransform:
             correspondent local grid. Used for VICRegL. This argument in particular is
             a list of tuples comprehending the cropping and the corrisponding grid
             transformation and the non geometrical composition of transforms.
+            
+            For VICRegL it comprehends:
+            [
+                (global_image_grid_transform, global_view_transform), 
+                (local_image_grid_transform, local_view_transform)
+            ]
 
     """
 
@@ -42,7 +48,7 @@ class ImageGridTransform:
         views, grids = [], []
         for image_grid_transform, view_transform in self.transforms:
             view, grid = image_grid_transform(image)
-            views.append(video_transform(view))
+            views.append(view_transform(view))
             grids.append(grid)
         views += grids
         return views

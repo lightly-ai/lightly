@@ -1,12 +1,10 @@
-from lightly.transforms.models.simclr_transform import SimCLRTransform
+from lightly.transforms.simclr_transform import SimCLRTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from typing import Optional, Tuple, Union
 
 
-class MoCoTransform(SimCLRTransform):
+class MoCoV1Transform(SimCLRTransform):
     """Implements the transformations for MoCo v1.
-
-    For MoCo v2, simply use the SimCLR settings.
 
     Attributes:
         input_size:
@@ -79,3 +77,5 @@ class MoCoTransform(SimCLRTransform):
             rr_degrees=rr_degrees,
             normalize=normalize,
         )
+        
+MoCoV2Transform = SimCLRTransform # MoCo v2 uses the same transform as SimCLR

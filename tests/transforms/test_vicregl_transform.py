@@ -1,5 +1,5 @@
 from PIL import Image
-from lightly.transforms.models.vicregl_transform import (
+from lightly.transforms.vicregl_transform import (
     VICRegLTransform,
     VICRegLViewTransform,
 )

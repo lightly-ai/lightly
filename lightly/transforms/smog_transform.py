@@ -44,13 +44,13 @@ class SMoGTransform(MultiViewTransform):
     def __init__(
         self,
         crop_sizes: Tuple[int, int] = (224, 96),
-        crop_counts: Tuple[int] = (4, 4),
-        crop_min_scales: Tuple[float] = (0.2, 0.05),
-        crop_max_scales: Tuple[float] = (1.0, 0.2),
-        gaussian_blur_probs: Tuple[float] = (0.5, 0.1),
+        crop_counts: Tuple[int, int] = (4, 4),
+        crop_min_scales: Tuple[float, float] = (0.2, 0.05),
+        crop_max_scales: Tuple[float, float] = (1.0, 0.2),
+        gaussian_blur_probs: Tuple[float, float] = (0.5, 0.1),
         gaussian_blur_kernel_sizes: Tuple[Optional[float], Optional[float]] = (None, None),
         gaussian_blur_sigmas: Tuple[float, float] = (0.2, 2),
-        solarize_probs: Tuple[float] = (0.0, 0.2),
+        solarize_probs: Tuple[float, float] = (0.0, 0.2),
         hf_prob: float = 0.5,
         cj_prob: float = 1.0,
         cj_strength: float = 0.5,
@@ -131,10 +131,11 @@ class SmoGViewTransform:
         Applies the transforms to the input image.
 
         Args:
-            Image (Tensor): The input image to apply the transforms to.
+            image: 
+                The input image to apply the transforms to.
 
         Returns:
-            Image (Tensor): The transformed image.
+            The transformed image.
 
         """
         return self.transform(image)

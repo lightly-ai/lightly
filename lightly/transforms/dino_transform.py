@@ -161,7 +161,7 @@ class DINOTransform(MultiViewTransform):
             kernel_size=kernel_size,
             kernel_scale=kernel_scale,
             sigmas=sigmas,
-            solarization_prob=solarization_prob,
+            solarization_prob=0,
             normalize=normalize,
         )
         local_transforms = [local_transform] * n_local_views
@@ -214,13 +214,13 @@ class DINOViewTransform:
                 p=cj_prob,
             ),
             T.RandomGrayscale(p=random_gray_scale),
-            RandomSolarization(prob=solarization_prob),
             GaussianBlur(
                 kernel_size=kernel_size,
                 scale=kernel_scale,
                 sigmas=sigmas,
                 prob=gaussian_blur,
             ),
+            RandomSolarization(prob=solarization_prob),
             T.ToTensor(),
         ]
 
@@ -233,10 +233,11 @@ class DINOViewTransform:
         Applies the transforms to the input image.
 
         Args:
-            Image (Tensor): The input image to apply the transforms to.
+            image: 
+                The input image to apply the transforms to.
 
         Returns:
-            Image (Tensor): The transformed image.
+            The transformed image.
 
         """
         return self.transform(image)

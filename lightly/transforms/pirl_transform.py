@@ -60,6 +60,15 @@ class PIRLTransform(MultiViewTransform):
         else:
             input_size_ = input_size
 
+        # Cropping and normalisation for non-transformed image
+        no_augment = T.Compose(
+            [
+                T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
+                T.ToTensor(),
+                T.Normalize(mean=normalize["mean"], std=normalize["std"]),
+            ]
+        )
+
         color_jitter = T.ColorJitter(cj_bright, cj_contrast, cj_sat, cj_hue)
 
         # Transform for transformed jigsaw image
@@ -73,18 +82,11 @@ class PIRLTransform(MultiViewTransform):
         if normalize:
             transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]
 
-        # Cropping and normalisation for non-transformed image
-        no_augment = T.Compose(
-            [
-                T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
-                T.ToTensor(),
-                T.Normalize(mean=normalize["mean"], std=normalize["std"]),
-            ]
-        )
         jigsaw = Jigsaw(
             n_grid=n_grid,
             img_size=input_size_,
             crop_size=int(input_size_ // n_grid),
             transform=T.Compose(transform),
         )
+        
         super().__init__([no_augment, jigsaw])

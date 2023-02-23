@@ -30,17 +30,23 @@ class VICRegLTransform(ImageGridTransform):
         local_gaussian_blur_prob:
             Probability of Gaussian blur for the local crop category.
         global_gaussian_blur_kernel_size:
-            Will be deprecated in favor of `global_gaussian_blur_sigmas` argument. If set, the old behavior applies and `global_gaussian_blur_sigmas` is ignored.
-            Used to calculate sigma of gaussian blur with global_gaussian_blur_kernel_size * input_size. Applied to global crop category.
+            Will be deprecated in favor of `global_gaussian_blur_sigmas` argument.
+            If set, the old behavior applies and `global_gaussian_blur_sigmas` 
+            is ignored. Used to calculate sigma of gaussian blur with 
+            global_gaussian_blur_kernel_size * input_size. Applied to global crop category.
         local_gaussian_blur_kernel_size:
-            Will be deprecated in favor of `local_gaussian_blur_sigmas` argument. If set, the old behavior applies and `local_gaussian_blur_sigmas` is ignored.
-            Used to calculate sigma of gaussian blur with local_gaussian_blur_kernel_size * input_size. Applied to local crop category.
+            Will be deprecated in favor of `local_gaussian_blur_sigmas` argument. 
+            If set, the old behavior applies and `local_gaussian_blur_sigmas` 
+            is ignored. Used to calculate sigma of gaussian blur with 
+            local_gaussian_blur_kernel_size * input_size. Applied to local crop category.
         global_gaussian_blur_sigmas:
-            Tuple of min and max value from which the std of the gaussian kernel is sampled.
-            Is ignored if `global_gaussian_blur_kernel_size` is set. Applied to global crop category.
+            Tuple of min and max value from which the std of the gaussian kernel
+            is sampled. It is ignored if `global_gaussian_blur_kernel_size` is set. 
+            Applied to global crop category.
         local_gaussian_blur_sigmas:
-            Tuple of min and max value from which the std of the gaussian kernel is sampled.
-            Is ignored if `local_gaussian_blur_kernel_size` is set. Applied to local crop category.
+            Tuple of min and max value from which the std of the gaussian kernel
+            is sampled. It is ignored if `local_gaussian_blur_kernel_size` is set. 
+            Applied to local crop category.
         global_solarize_prob:
             Probability of solarization for the global crop category.
         local_solarize_prob:
@@ -165,10 +171,11 @@ class VICRegLViewTransform:
         Applies the transforms to the input image.
 
         Args:
-            Image (Tensor): The input image to apply the transforms to.
+            image: 
+                The input image to apply the transforms to.
 
         Returns:
-            Image (Tensor): The transformed image.
+            The transformed image.
 
         """
         return self.transform(image)

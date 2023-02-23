@@ -1,5 +1,5 @@
 from PIL import Image
-from lightly.transforms.models.pirl_transform import PIRLTransform
+from lightly.transforms.pirl_transform import PIRLTransform
 
 
 def test_multi_view_on_pil_image():

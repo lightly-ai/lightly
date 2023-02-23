@@ -136,10 +136,11 @@ class SwaVViewTransform:
         Applies the transforms to the input image.
 
         Args:
-            Image (Tensor): The input image to apply the transforms to.
+            image: 
+                The input image to apply the transforms to.
 
         Returns:
-            Image (Tensor): The transformed image.
+            The transformed image.
 
         """
         return self.transform(image)

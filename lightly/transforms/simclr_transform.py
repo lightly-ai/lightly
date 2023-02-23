@@ -49,7 +49,7 @@ class SimCLRTransform(MultiViewTransform):
 
     def __init__(
         self,
-        input_size: int = 64,
+        input_size: int = 224,
         cj_prob: float = 0.8,
         cj_bright: float = 0.7,
         cj_contrast: float = 0.7,
@@ -91,7 +91,7 @@ class SimCLRTransform(MultiViewTransform):
 class SimCLRViewTransform:
     def __init__(
         self,
-        input_size: int = 64,
+        input_size: int = 224,
         cj_prob: float = 0.8,
         cj_bright: float = 0.7,
         cj_contrast: float = 0.7,
@@ -129,10 +129,11 @@ class SimCLRViewTransform:
         Applies the transforms to the input image.
 
         Args:
-            Image (Tensor): The input image to apply the transforms to.
+            image: 
+                The input image to apply the transforms to.
 
         Returns:
-            Image (Tensor): The transformed image.
+            The transformed image.
 
         """
         return self.transform(image)

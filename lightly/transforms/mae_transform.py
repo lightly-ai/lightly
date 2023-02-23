@@ -27,21 +27,6 @@ class MAETransform(MultiViewTransform):
         min_scale: float = 0.2,
         normalize: dict = IMAGENET_NORMALIZE,
     ):
-        transform = MAEViewTransform(
-            input_size=input_size,
-            min_scale=min_scale,
-            normalize=normalize,
-        )
-        super().__init__([transform])
-
-
-class MAEViewTransform:
-    def __init__(
-        self,
-        input_size: Union[int, Tuple[int, int]] = 224,
-        min_scale: float = 0.2,
-        normalize: dict = IMAGENET_NORMALIZE,
-    ):
         transforms = [
             T.RandomResizedCrop(
                 input_size, scale=(min_scale, 1.0), interpolation=3
@@ -59,10 +44,11 @@ class MAEViewTransform:
         Applies the transforms to the input image.
 
         Args:
-            Image (Tensor): The input image to apply the transforms to.
+            image: 
+                The input image to apply the transforms to.
 
         Returns:
-            Image (Tensor): The transformed image.
+            The transformed image.
 
         """
-        return self.transform(image)
+        return [self.transform(image)]

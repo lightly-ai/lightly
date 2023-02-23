@@ -1,6 +1,6 @@
 from PIL import Image
 
-from lightly.transforms.models.smog_transform import SMoGTransform, SmoGViewTransform
+from lightly.transforms.smog_transform import SMoGTransform, SmoGViewTransform
 
 
 def test_view_on_pil_image():
@@ -15,5 +15,5 @@ def test_multi_view_on_pil_image():
     sample = Image.new("RGB", (100, 100))
     output = multi_view_transform(sample)
     assert len(output) == 8
-    for output_img in output:
-        assert output_img.shape == (3, 32, 32) or output_img.shape == (3, 8, 8)
+    assert all(out.shape == (3, 32, 32) for out in output[:4])
+    assert all(out.shape == (3, 8, 8) for out in output[4:])
