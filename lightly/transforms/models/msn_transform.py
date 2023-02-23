@@ -82,7 +82,7 @@ class MSNTransform(MultiViewTransform):
             vf_prob=vf_prob,
             normalize=normalize,
         )
-        focal_transform = MSNViewTransform(
+        focal_view_transform = MSNViewTransform(
             crop_size=focal_size,
             crop_scale=focal_crop_scale,
             cj_prob=cj_prob,
