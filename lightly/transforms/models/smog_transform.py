@@ -43,7 +43,7 @@ class SMoGTransform(MultiViewTransform):
 
     def __init__(
         self,
-        crop_sizes: Tuple[int] = (224, 96),
+        crop_sizes: Tuple[int, int] = (224, 96),
         crop_counts: Tuple[int] = (4, 4),
         crop_min_scales: Tuple[float] = (0.2, 0.05),
         crop_max_scales: Tuple[float] = (1.0, 0.2),
