@@ -1,4 +1,3 @@
-from torchvision.transforms import Compose
 from torch import Tensor
 from PIL.Image import Image
 from typing import List, Union
