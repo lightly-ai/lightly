@@ -22,6 +22,7 @@ from lightly.models import modules
 from lightly.models.modules import heads
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
+from lightly.data.multi_view_collate import MultiViewCollate
 from pl_bolts.optimizers.lars import LARS
 from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -75,16 +76,19 @@ else:
 path_to_train = '/datasets/imagenet100/train/'
 path_to_test = '/datasets/imagenet100/val/'
 
+# Collate function init
+collate_fn = MultiViewCollate()
+
 # Use SimCLR augmentations
-collate_fn = lightly.data.SimCLRCollateFunction(
-    input_size=input_size,
+simclr_transform = lightly.transforms.simclr_transform.SimCLRTransform(
+    input_size=input_size
 )
 
 # Multi crop augmentation for SwAV
-swav_collate_fn = lightly.data.SwaVCollateFunction()
+swav_transform = lightly.transforms.swav_transform.SwaVTransform()
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
-dino_collate_fn = lightly.data.DINOCollateFunction()
+dino_transform = lightly.transforms.dino_transform.DINOTransform()
 
 # No additional augmentations for the test set
 test_transforms = torchvision.transforms.Compose([
@@ -97,9 +101,6 @@ test_transforms = torchvision.transforms.Compose([
     )
 ])
 
-dataset_train_ssl = lightly.data.LightlyDataset(
-    input_dir=path_to_train
-)
 
 # we use test transformations for getting the feature for kNN on train data
 dataset_train_kNN = lightly.data.LightlyDataset(
@@ -114,24 +115,33 @@ dataset_test = lightly.data.LightlyDataset(
 
 steps_per_epoch = len(dataset_train_ssl) // batch_size
 
+def create_dataset_train_ssl(model):
+    """Helper method to apply the correct transform for ssl.
 
-def get_data_loaders(batch_size: int, model):
-    """Helper method to create dataloaders for ssl, kNN train and kNN test
     Args:
-        batch_size: Desired batch size for all dataloaders
+        model: model name to select the right transform.
     """
-    col_fn = collate_fn
+    transform = simclr_transform
     if model == SwaVModel:
-        col_fn = swav_collate_fn
+        transform = swav_transform
     elif model == DINOModel:
-        col_fn = dino_collate_fn
+        transform = dino_transform
+    return lightly.data.LightlyDataset(input_dir=path_to_train, transform=transform)
+
+
+def get_data_loaders(batch_size: int, dataset_train_ssl):
+    """Helper method to create dataloaders for ssl, kNN train and kNN test.
+
+    Args:
+        batch_size: Desired batch size for all dataloaders.
+    """
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=col_fn,
+        collate_fn=collate_fn,
         drop_last=True,
-        num_workers=num_workers
+        num_workers=num_workers,
     )
 
     dataloader_train_kNN = torch.utils.data.DataLoader(
@@ -139,7 +149,7 @@ def get_data_loaders(batch_size: int, model):
         batch_size=batch_size,
         shuffle=False,
         drop_last=False,
-        num_workers=num_workers
+        num_workers=num_workers,
     )
 
     dataloader_test = torch.utils.data.DataLoader(
@@ -147,7 +157,7 @@ def get_data_loaders(batch_size: int, model):
         batch_size=batch_size,
         shuffle=False,
         drop_last=False,
-        num_workers=num_workers
+        num_workers=num_workers,
     )
 
     return dataloader_train_ssl, dataloader_train_kNN, dataloader_test
@@ -615,9 +625,10 @@ for BenchmarkModel in models:
     model_name = BenchmarkModel.__name__.replace('Model', '')
     for seed in range(n_runs):
         pl.seed_everything(seed)
+        dataset_train_ssl = create_dataset_train_ssl(BenchmarkModel)
         dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(
-            batch_size=batch_size, 
-            model=BenchmarkModel,
+            batch_size=batch_size,
+            dataset_train_ssl=dataset_train_ssl
         )
         benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
 

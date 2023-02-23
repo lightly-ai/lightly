@@ -70,12 +70,13 @@ from lightly.models import modules
 from lightly.models.modules import heads
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
+from lightly.data.multi_view_collate import MultiViewCollate
 from pytorch_lightning.loggers import TensorBoardLogger
 
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 200
+max_epochs = 2
 num_workers = 8
 knn_k = 200
 knn_t = 0.1
@@ -135,17 +136,19 @@ else:
 #  L horse/
 #  L ship/
 #  L truck/
-path_to_train = '/datasets/cifar10/train/'
-path_to_test = '/datasets/cifar10/test/'
+path_to_train = '/home/ubuntu/datasets/cifar10/train/'
+path_to_test = '/home/ubuntu/datasets/cifar10/test/'
 
-# Use SimCLR augmentations, additionally, disable blur for cifar10
-collate_fn = lightly.data.SimCLRCollateFunction(
-    input_size=32,
-    gaussian_blur=0.,
+# Collate function init
+collate_fn = MultiViewCollate()
+
+# Use SimCLR augmentations
+simclr_transform = lightly.transforms.simclr_transform.SimCLRTransform(
+    input_size=32
 )
 
 # Multi crop augmentation for SwAV, additionally, disable blur for cifar10
-swav_collate_fn = lightly.data.SwaVCollateFunction(
+swav_transform = lightly.transforms.swav_transform.SwaVTransform(
     crop_sizes=[32],
     crop_counts=[2], # 2 crops @ 32x32px
     crop_min_scales=[0.14],
@@ -153,14 +156,14 @@ swav_collate_fn = lightly.data.SwaVCollateFunction(
 )
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
-dino_collate_fn = lightly.data.DINOCollateFunction(
+dino_transform = lightly.transforms.dino_transform.DINOTransform(
     global_crop_size=32,
     n_local_views=0,
     gaussian_blur=(0, 0, 0),
 )
 
 # Two crops for SMoG
-smog_collate_function = lightly.data.collate.SMoGCollateFunction(
+smog_transform = lightly.transforms.smog_transform.SMoGTransform(
     crop_sizes=[32, 32],
     crop_counts=[1, 1],
     gaussian_blur_probs=[0., 0.],
@@ -177,10 +180,6 @@ test_transforms = torchvision.transforms.Compose([
     )
 ])
 
-dataset_train_ssl = lightly.data.LightlyDataset(
-    input_dir=path_to_train
-)
-
 # we use test transformations for getting the feature for kNN on train data
 dataset_train_kNN = lightly.data.LightlyDataset(
     input_dir=path_to_train,
@@ -192,26 +191,34 @@ dataset_test = lightly.data.LightlyDataset(
     transform=test_transforms
 )
 
-def get_data_loaders(batch_size: int, model):
-    """Helper method to create dataloaders for ssl, kNN train and kNN test
+def create_dataset_train_ssl(model):
+    """Helper method to apply the correct transform for ssl.
 
     Args:
-        batch_size: Desired batch size for all dataloaders
+        model: model name to select the right transform.
     """
-    col_fn = collate_fn
+    transform = simclr_transform
     if model == SwaVModel:
-        col_fn = swav_collate_fn
+        transform = swav_transform
     elif model == DINOModel:
-        col_fn = dino_collate_fn
+        transform = dino_transform
     elif model == SMoGModel:
-        col_fn = smog_collate_function
+        transform = smog_transform
+    return lightly.data.LightlyDataset(input_dir=path_to_train, transform=transform)
+
+def get_data_loaders(batch_size: int, dataset_train_ssl):
+    """Helper method to create dataloaders for ssl, kNN train and kNN test.
+
+    Args:
+        batch_size: Desired batch size for all dataloaders.
+    """
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=col_fn,
+        collate_fn=collate_fn,
         drop_last=True,
-        num_workers=num_workers
+        num_workers=num_workers,
     )
 
     dataloader_train_kNN = torch.utils.data.DataLoader(
@@ -219,7 +226,7 @@ def get_data_loaders(batch_size: int, model):
         batch_size=batch_size,
         shuffle=False,
         drop_last=False,
-        num_workers=num_workers
+        num_workers=num_workers,
     )
 
     dataloader_test = torch.utils.data.DataLoader(
@@ -227,7 +234,7 @@ def get_data_loaders(batch_size: int, model):
         batch_size=batch_size,
         shuffle=False,
         drop_last=False,
-        num_workers=num_workers
+        num_workers=num_workers,
     )
 
     return dataloader_train_ssl, dataloader_train_kNN, dataloader_test
@@ -865,9 +872,10 @@ for BenchmarkModel in models:
     model_name = BenchmarkModel.__name__.replace('Model', '')
     for seed in range(n_runs):
         pl.seed_everything(seed)
+        dataset_train_ssl = create_dataset_train_ssl(BenchmarkModel)
         dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(
-            batch_size=batch_size, 
-            model=BenchmarkModel,
+            batch_size=batch_size,
+            dataset_train_ssl=dataset_train_ssl
         )
         benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
 

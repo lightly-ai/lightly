@@ -74,6 +74,7 @@ from lightly.models.modules import masked_autoencoder
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from lightly.utils import scheduler
+from lightly.data.multi_view_collate import MultiViewCollate
 from pytorch_lightning.loggers import TensorBoardLogger
 from pl_bolts.optimizers.lars import LARS
 
@@ -126,25 +127,28 @@ else:
 path_to_train = "/datasets/imagenette2-160/train/"
 path_to_test = "/datasets/imagenette2-160/val/"
 
+# Collate function init
+collate_fn = MultiViewCollate()
+
 # Use SimCLR augmentations
-collate_fn = lightly.data.SimCLRCollateFunction(
-    input_size=input_size,
+simclr_transform = lightly.transforms.simclr_transform.SimCLRTransform(
+    input_size=input_size
 )
 
 # Multi crop augmentation for SwAV
-swav_collate_fn = lightly.data.SwaVCollateFunction(
+swav_transform = lightly.transforms.swav_transform.SwaVTransform(
     crop_sizes=[128, 64],
     crop_counts=[2, 6],  # 2 crops @ 128x128px and 6 crops @ 64x64px
 )
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
-dino_collate_fn = lightly.data.DINOCollateFunction(
+dino_transform = lightly.transforms.dino_transform.DINOTransform(
     global_crop_size=128,
     local_crop_size=64,
 )
 
 # Two crops for SMoG
-smog_collate_function = lightly.data.collate.SMoGCollateFunction(
+smog_transform = lightly.transforms.smog_transform.SMoGTransform(
     crop_sizes=[128, 128],
     crop_counts=[1, 1],
     crop_min_scales=[0.2, 0.2],
@@ -152,19 +156,19 @@ smog_collate_function = lightly.data.collate.SMoGCollateFunction(
 )
 
 # Single crop augmentation for MAE
-mae_collate_fn = lightly.data.MAECollateFunction()
+mae_transform = lightly.transforms.mae_transform.MAETransform()
 
 # Multi crop augmentation for MSN
-msn_collate_fn = lightly.data.MSNCollateFunction(random_size=128, focal_size=64)
+msn_transform = lightly.transforms.msn_transform.MSNTransform(random_size=128, focal_size=64)
 
-# Collate function passing geometrical transformation for VICRegL
-vicregl_collate_fn = lightly.data.VICRegLCollateFunction(
+# Transform  passing geometrical transformation for VICRegL
+vicregl_transform = lightly.transforms.vicregl_transform.VICRegLTransform(
     global_crop_size=128, local_crop_size=64, global_grid_size=4, local_grid_size=2
 )
 
 normalize_transform = torchvision.transforms.Normalize(
-    mean=lightly.data.collate.imagenet_normalize["mean"],
-    std=lightly.data.collate.imagenet_normalize["std"],
+    mean=lightly.transforms.utils.IMAGENET_NORMALIZE["mean"],
+    std=lightly.transforms.utils.IMAGENET_NORMALIZE["std"],
 )
 
 # No additional augmentations for the test set
@@ -177,8 +181,6 @@ test_transforms = torchvision.transforms.Compose(
     ]
 )
 
-dataset_train_ssl = lightly.data.LightlyDataset(input_dir=path_to_train)
-
 # we use test transformations for getting the feature for kNN on train data
 dataset_train_kNN = lightly.data.LightlyDataset(
     input_dir=path_to_train, transform=test_transforms
@@ -188,33 +190,41 @@ dataset_test = lightly.data.LightlyDataset(
     input_dir=path_to_test, transform=test_transforms
 )
 
-
-def get_data_loaders(batch_size: int, model):
-    """Helper method to create dataloaders for ssl, kNN train and kNN test
+def create_dataset_train_ssl(model):
+    """Helper method to apply the correct transform for ssl.
 
     Args:
-        batch_size: Desired batch size for all dataloaders
+        model: model name to select the right transform.
     """
-    col_fn = collate_fn
+    transform = simclr_transform
     if model == SwaVModel or model == SwaVQueueModel:
-        col_fn = swav_collate_fn
+        transform = swav_transform
     elif model == DINOModel:
-        col_fn = dino_collate_fn
+        transform = dino_transform
     elif model == MAEModel:
-        col_fn = mae_collate_fn
+        transform = mae_transform
     elif model == SimMIMModel:
-        col_fn = mae_collate_fn
+        transform = mae_transform
     elif model == MSNModel:
-        col_fn = msn_collate_fn
+        transform = msn_transform
     elif model == SMoGModel:
-        col_fn = smog_collate_function
+        transform = smog_transform
     elif model == VICRegLModel:
-        col_fn = vicregl_collate_fn
+        transform = vicregl_transform
+    return lightly.data.LightlyDataset(input_dir=path_to_train, transform=transform)
+    
+
+def get_data_loaders(batch_size: int, dataset_train_ssl):
+    """Helper method to create dataloaders for ssl, kNN train and kNN test.
+
+    Args:
+        batch_size: Desired batch size for all dataloaders.
+    """
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=col_fn,
+        collate_fn=collate_fn,
         drop_last=True,
         num_workers=num_workers,
     )
@@ -746,7 +756,7 @@ class MAEModel(BenchmarkModule):
 
     def training_step(self, batch, batch_idx):
         images, _, _ = batch
-
+        images = images[0]  # images is a list containing only one view
         batch_size = images.shape[0]
         idx_keep, idx_mask = utils.random_token_mask(
             size=(batch_size, self.sequence_length),
@@ -993,7 +1003,7 @@ class SimMIMModel(BenchmarkModule):
 
     def training_step(self, batch, batch_idx):
         images, _, _ = batch
-
+        images = images[0]  # images is a list containing only one view
         batch_size = images.shape[0]
         idx_keep, idx_mask = utils.random_token_mask(
             size=(batch_size, self.sequence_length),
@@ -1135,7 +1145,7 @@ class TiCoModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
         self.criterion = lightly.loss.TiCoLoss()
-        self.warmup_epochs = 40 if max_epochs >= 800 else 20
+        self.warmup_epochs = 40 if max_epochs >= 800 else 1
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)
@@ -1291,9 +1301,10 @@ for BenchmarkModel in models:
     model_name = BenchmarkModel.__name__.replace("Model", "")
     for seed in range(n_runs):
         pl.seed_everything(seed)
+        dataset_train_ssl = create_dataset_train_ssl(BenchmarkModel)
         dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(
             batch_size=batch_size,
-            model=BenchmarkModel,
+            dataset_train_ssl=dataset_train_ssl
         )
         benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
 
