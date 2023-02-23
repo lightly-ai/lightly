@@ -51,7 +51,7 @@ class NNCLR(pl.LightningModule):
 model = NNCLR()
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = LightlyDataset.from_torch_dataset(cifar10, transform=SimCLRTransform())
+dataset = LightlyDataset.from_torch_dataset(cifar10, transform=SimCLRTransform(input_size=32))
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 

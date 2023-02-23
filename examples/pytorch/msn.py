@@ -22,7 +22,7 @@ class MSN(nn.Module):
 
         self.mask_ratio = 0.15
         self.backbone = MAEBackbone.from_vit(vit)
-        self.projection_head = MSNProjectionHead(384)
+        self.projection_head = MSNProjectionHead(input_dim=384)
 
         self.anchor_backbone = copy.deepcopy(self.backbone)
         self.anchor_projection_head = copy.deepcopy(self.projection_head)
@@ -58,9 +58,9 @@ vit = torchvision.models.VisionTransformer(
     mlp_dim=384 * 4,
 )
 model = MSN(vit)
-# # or use a torchvision ViT backbone:
+# or use a torchvision ViT backbone:
 # vit = torchvision.models.vit_b_32(pretrained=False)
-# moel = MSN(vit)
+# model = MSN(vit)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)

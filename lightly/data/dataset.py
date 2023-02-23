@@ -234,6 +234,8 @@ class LightlyDataset:
         # populate it with the torch dataset
         if transform is not None:
             dataset.transform = transform
+            # If dataset is a VisionDataset dataset, we need to initialize the transform
+            # accordingly
             if isinstance(dataset, VisionDataset):
                 dataset.transforms = StandardTransform(transform, dataset.target_transform)
         dataset_obj.dataset = dataset
