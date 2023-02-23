@@ -5,21 +5,17 @@ import torchvision.transforms as T
 
 
 class ImageGridTransform:
-    """Transforms an image into multiple views.
+    """Transforms an image into multiple views and grids.
 
-    Args:
+    Used for VICRegL.
+
+    Attributes:
         transforms:
-            A sequence of transforms. Every transform creates a new view and its
-            correspondent local grid. Used for VICRegL. This argument in particular is
-            a list of tuples comprehending the cropping and the corrisponding grid
-            transformation and the non geometrical composition of transforms.
-            
-            For VICRegL it comprehends:
-            [
-                (global_image_grid_transform, global_view_transform), 
-                (local_image_grid_transform, local_view_transform)
-            ]
-
+            A sequence of (image_grid_transform, view_transform) tuples. 
+            The image_grid_transform creates a new view and grid from the image.
+            The view_transform further augments the view. Every transform tuple
+            is applied once to the image, creating len(transforms) views and
+            grids.
     """
 
     def __init__(self, transforms):

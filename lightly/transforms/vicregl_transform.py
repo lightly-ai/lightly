@@ -85,9 +85,9 @@ class VICRegLTransform(ImageGridTransform):
         random_gray_scale: float = 0.2,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-        self.transforms = []
+        transforms = []
 
-        self.transforms.append(
+        transforms.append(
             (
                 RandomResizedCropAndFlip(
                     crop_size=global_crop_size,
@@ -108,7 +108,7 @@ class VICRegLTransform(ImageGridTransform):
                 ),
             )
         )
-        self.transforms.append(
+        transforms.append(
             (
                 RandomResizedCropAndFlip(
                     crop_size=local_crop_size,
@@ -129,7 +129,7 @@ class VICRegLTransform(ImageGridTransform):
                 ),
             )
         )
-        super().__init__(transforms=self.transforms)
+        super().__init__(transforms=transforms)
 
 
 class VICRegLViewTransform:

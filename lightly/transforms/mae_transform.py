@@ -6,7 +6,7 @@ from PIL.Image import Image
 import torchvision.transforms as T
 
 
-class MAETransform(MultiViewTransform):
+class MAETransform():
     """Implements the view augmentation for MAE [0].
 
     - [0]: Masked Autoencoder, 2021, https://arxiv.org/abs/2111.06377
