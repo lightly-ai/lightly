@@ -1,7 +1,7 @@
 from torch import Tensor
 from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
-from typing import Tuple, Union
+from typing import List, Tuple, Union
 from PIL.Image import Image
 import torchvision.transforms as T
 
@@ -39,7 +39,7 @@ class MAETransform():
 
         self.transform = T.Compose(transforms)
 
-    def __call__(self, image: Union[Tensor, Image]) -> Tensor:
+    def __call__(self, image: Union[Tensor, Image]) -> List[Tensor]:
         """
         Applies the transforms to the input image.
 
