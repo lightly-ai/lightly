@@ -76,7 +76,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
-max_epochs = 2
+max_epochs = 200
 num_workers = 8
 knn_k = 200
 knn_t = 0.1
@@ -136,8 +136,8 @@ else:
 #  L horse/
 #  L ship/
 #  L truck/
-path_to_train = '/home/ubuntu/datasets/cifar10/train/'
-path_to_test = '/home/ubuntu/datasets/cifar10/test/'
+path_to_train = '/datasets/cifar10/train/'
+path_to_test = '/datasets/cifar10/test/'
 
 # Collate function init
 collate_fn = MultiViewCollate()
