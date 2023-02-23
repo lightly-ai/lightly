@@ -40,9 +40,9 @@ class ImageGridTransform:
 
         """
         views, grids = [], []
-        for transform in self.transforms:
-            view, grid = transform[0].forward(image)
-            views.append(transform[1](view))
+        for image_grid_transform, view_transform in self.transforms:
+            view, grid = image_grid_transform(image)
+            views.append(video_transform(view))
             grids.append(grid)
         views += grids
         return views
