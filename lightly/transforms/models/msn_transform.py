@@ -69,7 +69,7 @@ class MSNTransform(MultiViewTransform):
         vf_prob: float = 0.0,
         normalize: dict = IMAGENET_NORMALIZE,
     ):
-        transform = MSNViewTransform(
+        random_view_transform = MSNViewTransform(
             crop_size=random_size,
             crop_scale=random_crop_scale,
             cj_prob=cj_prob,
