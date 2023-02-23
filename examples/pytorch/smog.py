@@ -10,13 +10,13 @@ from sklearn.cluster import KMeans
 
 
 from lightly.data import LightlyDataset
-from lightly.data.collate import SMoGCollateFunction
+from lightly.data.multi_view_collate import MultiViewCollate
+from lightly.transforms.smog_transform import SMoGTransform
 from lightly.loss.memory_bank import MemoryBankModule
 from lightly.models.modules.heads import SMoGProjectionHead
 from lightly.models.modules.heads import SMoGPredictionHead
 from lightly.models.modules.heads import SMoGPrototypes
 from lightly.models import utils
-
 
 
 class SMoGModel(nn.Module):
@@ -86,17 +86,20 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = LightlyDataset.from_torch_dataset(cifar10)
+dataset = LightlyDataset.from_torch_dataset(
+    cifar10,
+    transform=SMoGTransform(
+        crop_sizes=[32, 32],
+        crop_counts=(1, 1),
+        gaussian_blur_probs=(0.0, 0.0),
+        crop_min_scales=(0.2, 0.2),
+        crop_max_scales=(1.0, 1.0),
+    ),
+)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = SMoGCollateFunction(
-    crop_sizes=[32, 32],
-    crop_counts=[1, 1],
-    gaussian_blur_probs=[0., 0.],
-    crop_min_scales=[0.2, 0.2],
-    crop_max_scales=[1.0, 1.0],
-)
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
@@ -109,10 +112,7 @@ dataloader = torch.utils.data.DataLoader(
 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(
-    model.parameters(),
-    lr=0.01,
-    momentum=0.9,
-    weight_decay=1e-6
+    model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-6
 )
 
 global_step = 0
@@ -138,7 +138,9 @@ for epoch in range(10):
         else:
             # update momentum
             utils.update_momentum(model.backbone, model.backbone_momentum, 0.99)
-            utils.update_momentum(model.projection_head, model.projection_head_momentum, 0.99)
+            utils.update_momentum(
+                model.projection_head, model.projection_head_momentum, 0.99
+            )
 
         x0_encoded, x0_predicted = model(x0)
         x1_encoded = model.forward_momentum(x1)

@@ -8,7 +8,8 @@ import torchvision
 import pytorch_lightning as pl
 
 from lightly.data import LightlyDataset
-from lightly.data import SwaVCollateFunction
+from lightly.data.multi_view_collate import MultiViewCollate
+from lightly.transforms.swav_transform import SwaVTransform
 from lightly.loss import SwaVLoss
 from lightly.loss.memory_bank import MemoryBankModule
 from lightly.models.modules import SwaVProjectionHead
@@ -83,7 +84,9 @@ class SwaV(pl.LightningModule):
             return None
 
         # Assign prototypes
-        queue_prototypes = [self.prototypes(x, self.current_epoch) for x in queue_features]
+        queue_prototypes = [
+            self.prototypes(x, self.current_epoch) for x in queue_features
+        ]
         return queue_prototypes
 
 
@@ -93,11 +96,11 @@ model = SwaV()
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-dataset = LightlyDataset.from_torch_dataset(pascal_voc)
+dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=SwaVTransform())
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = SwaVCollateFunction()
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,

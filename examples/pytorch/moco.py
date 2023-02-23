@@ -8,7 +8,8 @@ import torchvision
 import copy
 
 from lightly.data import LightlyDataset
-from lightly.data import MoCoCollateFunction
+from lightly.data.multi_view_collate import MultiViewCollate
+from lightly.transforms.moco_transform import MoCoV1Transform
 from lightly.loss import NTXentLoss
 from lightly.models.modules import MoCoProjectionHead
 from lightly.utils.scheduler import cosine_schedule
@@ -48,11 +49,13 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = LightlyDataset.from_torch_dataset(cifar10)
+dataset = LightlyDataset.from_torch_dataset(
+    cifar10, transform=MoCoV1Transform(input_size=32)
+)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = MoCoCollateFunction(input_size=32)
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,

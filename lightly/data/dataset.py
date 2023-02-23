@@ -19,6 +19,7 @@ from lightly.data._helpers import _load_dataset_from_folder
 from lightly.data._helpers import DatasetFolder
 from lightly.data._video import VideoDataset
 from lightly.utils.io import check_filenames
+from torchvision.datasets.vision import VisionDataset, StandardTransform
 
 
 def _get_filename_by_index(dataset, index):
@@ -231,8 +232,11 @@ class LightlyDataset:
         )
 
         # populate it with the torch dataset
+        if transform is not None:
+            dataset.transform = transform
+            if isinstance(dataset, VisionDataset):
+                dataset.transforms = StandardTransform(transform, dataset.target_transform)
         dataset_obj.dataset = dataset
-        dataset_obj.transform = transform
         return dataset_obj
 
     def __getitem__(self, index: int):

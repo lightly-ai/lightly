@@ -1,6 +1,6 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 import copy
 
 import torch
@@ -9,7 +9,8 @@ import torchvision
 import pytorch_lightning as pl
 
 from lightly.data import LightlyDataset
-from lightly.data.collate import MSNCollateFunction
+from lightly.data.multi_view_collate import MultiViewCollate
+from lightly.transforms.msn_transform import MSNTransform
 from lightly.loss import MSNLoss
 from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models import utils
@@ -20,7 +21,7 @@ class MSN(pl.LightningModule):
     def __init__(self):
         super().__init__()
 
-        # ViT small configuration (ViT-S/16)
+        # ViT small configuration (ViT-S/16)
         self.mask_ratio = 0.15
         self.backbone = MAEBackbone(
             image_size=224,
@@ -30,7 +31,7 @@ class MSN(pl.LightningModule):
             hidden_dim=384,
             mlp_dim=384 * 4,
         )
-        # or use a torchvision ViT backbone:
+        # or use a torchvision ViT backbone:
         # vit = torchvision.models.vit_b_32(pretrained=False)
         # self.backbone = MAEBackbone.from_vit(vit)
         self.projection_head = MSNProjectionHead(384)
@@ -90,11 +91,11 @@ model = MSN()
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-dataset = LightlyDataset.from_torch_dataset(pascal_voc)
+dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=MSNTransform())
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = MSNCollateFunction()
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,

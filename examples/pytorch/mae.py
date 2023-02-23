@@ -1,13 +1,14 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
 import torch
 from torch import nn
 import torchvision
 
 from lightly.data import LightlyDataset
-from lightly.data.collate import MAECollateFunction
+from lightly.data.multi_view_collate import MultiViewCollate
+from lightly.transforms.mae_transform import MAETransform
 from lightly.models import utils
 from lightly.models.modules import masked_autoencoder
 
@@ -15,7 +16,7 @@ from lightly.models.modules import masked_autoencoder
 class MAE(nn.Module):
     def __init__(self, vit):
         super().__init__()
-        
+
         decoder_dim = 512
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_size
@@ -29,7 +30,7 @@ class MAE(nn.Module):
             embed_input_dim=vit.hidden_dim,
             hidden_dim=decoder_dim,
             mlp_dim=decoder_dim * 4,
-            out_dim=vit.patch_size ** 2 * 3,
+            out_dim=vit.patch_size**2 * 3,
             dropout=0,
             attention_dropout=0,
         )
@@ -41,7 +42,9 @@ class MAE(nn.Module):
         # build decoder input
         batch_size = x_encoded.shape[0]
         x_decode = self.decoder.embed(x_encoded)
-        x_masked = utils.repeat_token(self.mask_token, (batch_size, self.sequence_length))
+        x_masked = utils.repeat_token(
+            self.mask_token, (batch_size, self.sequence_length)
+        )
         x_masked = utils.set_at_index(x_masked, idx_keep, x_decode)
 
         # decoder forward pass
@@ -79,11 +82,11 @@ model.to(device)
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-dataset = LightlyDataset.from_torch_dataset(pascal_voc)
+dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=MAETransform())
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = MAECollateFunction()
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
@@ -101,7 +104,7 @@ print("Starting Training")
 for epoch in range(10):
     total_loss = 0
     for images, _, _ in dataloader:
-        images = images.to(device)
+        images = images[0].to(device)  # images is a list containing only one view
         predictions, targets = model(images)
         loss = criterion(predictions, targets)
         total_loss += loss.detach()

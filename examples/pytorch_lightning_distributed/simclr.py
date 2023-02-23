@@ -4,9 +4,11 @@ import torchvision
 import pytorch_lightning as pl
 
 from lightly.data import LightlyDataset
-from lightly.data import SimCLRCollateFunction
+from lightly.data.multi_view_collate import MultiViewCollate
+from lightly.transforms.simclr_transform import SimCLRTransform
 from lightly.loss import NTXentLoss
 from lightly.models.modules import SimCLRProjectionHead
+
 
 class SimCLR(pl.LightningModule):
     def __init__(self):
@@ -15,7 +17,7 @@ class SimCLR(pl.LightningModule):
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = SimCLRProjectionHead(512, 2048, 2048)
 
-        # enable gather_distributed to gather features from all gpus
+        # enable gather_distributed to gather features from all gpus
         # before calculating the loss
         self.criterion = NTXentLoss(gather_distributed=True)
 
@@ -39,14 +41,13 @@ class SimCLR(pl.LightningModule):
 model = SimCLR()
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = LightlyDataset.from_torch_dataset(cifar10)
+dataset = LightlyDataset.from_torch_dataset(
+    cifar10, transform=SimCLRTransform(input_size=32, gaussian_blur=0.0)
+)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = SimCLRCollateFunction(
-    input_size=32,
-    gaussian_blur=0.,
-)
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
@@ -62,9 +63,9 @@ gpus = torch.cuda.device_count()
 # train with DDP and use Synchronized Batch Norm for a more accurate batch norm
 # calculation
 trainer = pl.Trainer(
-    max_epochs=10, 
+    max_epochs=10,
     gpus=gpus,
-    strategy='ddp',
+    strategy="ddp",
     sync_batchnorm=True,
 )
 trainer.fit(model=model, train_dataloaders=dataloader)

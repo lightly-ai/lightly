@@ -10,7 +10,8 @@ import torchvision
 import pytorch_lightning as pl
 
 from lightly.data import LightlyDataset
-from lightly.data import DINOCollateFunction
+from lightly.data.multi_view_collate import MultiViewCollate
+from lightly.transforms.dino_transform import DINOTransform
 from lightly.loss import DINOLoss
 from lightly.models.modules import DINOProjectionHead
 from lightly.utils.scheduler import cosine_schedule
@@ -76,11 +77,11 @@ model = DINO()
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-dataset = LightlyDataset.from_torch_dataset(pascal_voc)
+dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=DINOTransform())
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = DINOCollateFunction()
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,

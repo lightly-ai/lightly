@@ -1,6 +1,6 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
 import torch
 from torch import nn
@@ -8,7 +8,8 @@ import torchvision
 import pytorch_lightning as pl
 
 from lightly.data import LightlyDataset
-from lightly.data import SwaVCollateFunction
+from lightly.data.multi_view_collate import MultiViewCollate
+from lightly.transforms.swav_transform import SwaVTransform
 from lightly.loss import SwaVLoss
 from lightly.models.modules import SwaVProjectionHead
 from lightly.models.modules import SwaVPrototypes
@@ -53,11 +54,11 @@ model = SwaV()
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-dataset = LightlyDataset.from_torch_dataset(pascal_voc)
+dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=SwaVTransform())
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = SwaVCollateFunction()
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
@@ -73,9 +74,9 @@ gpus = torch.cuda.device_count()
 # train with DDP and use Synchronized Batch Norm for a more accurate batch norm
 # calculation
 trainer = pl.Trainer(
-    max_epochs=10, 
+    max_epochs=10,
     gpus=gpus,
-    strategy='ddp',
+    strategy="ddp",
     sync_batchnorm=True,
 )
 trainer.fit(model=model, train_dataloaders=dataloader)
