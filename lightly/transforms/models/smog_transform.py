@@ -91,7 +91,7 @@ class SmoGViewTransform:
         crop_min_scale: float = 0.2,
         crop_max_scale: float = 1.0,
         gaussian_blur_prob: float = 0.5,
-        kernel_size: Optional[Tuple[float]] = None,
+        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.2, 2),
         solarize_prob: float = 0.0,
         hf_prob: float = 0.5,
