@@ -6,7 +6,7 @@ import tempfile
 import torchvision
 from hydra.experimental import compose, initialize
 
-import lightly
+from lightly import cli
 from tests.api_workflow.mocked_api_workflow_client import \
     MockedApiWorkflowSetup, MockedApiWorkflowClient, N_FILES_ON_SERVER
 
@@ -76,26 +76,26 @@ class TestCLIMagic(MockedApiWorkflowSetup):
         MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
         cli_string = "lightly-magic new_dataset_name='dataset_name_xyz'"
         self.parse_cli_string(cli_string)
-        lightly.cli.lightly_cli(self.cfg)
+        cli.lightly_cli(self.cfg)
 
     def test_magic_new_dataset_id(self):
         MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
         cli_string = "lightly-magic dataset_id='dataset_id_xyz'"
         self.parse_cli_string(cli_string)
-        lightly.cli.lightly_cli(self.cfg)
+        cli.lightly_cli(self.cfg)
 
     def test_magic_without_upload_with_trainer(self):
         MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
         cli_string = "lightly-magic trainer.max_epochs=1"
         self.parse_cli_string(cli_string)
-        lightly.cli.lightly_cli(self.cfg)
+        cli.lightly_cli(self.cfg)
 
     def test_magic_with_trainer_and_append(self):
         MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
         cli_string = "lightly-magic trainer.max_epochs=1 append=True"
         self.parse_cli_string(cli_string)
         with self.assertWarns(UserWarning):
-            lightly.cli.lightly_cli(self.cfg)
+            cli.lightly_cli(self.cfg)
 
     def tearDown(self) -> None:
         for filename in ["embeddings.csv", "embeddings_sorted.csv"]:

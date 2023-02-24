@@ -92,7 +92,6 @@ from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog, DatasetCatalog
 
 # imports for lightly
-import lightly
 from lightly.active_learning.utils.bounding_box import BoundingBox
 from lightly.active_learning.utils.object_detection_output import ObjectDetectionOutput
 from lightly.active_learning.scorers import ScorerObjectDetection

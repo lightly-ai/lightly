@@ -60,15 +60,30 @@ import copy
 import os
 
 import time
-import lightly
 import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchvision
-from lightly.models import modules
+from lightly.data import (
+    LightlyDataset,
+    SimCLRCollateFunction,
+    SwaVCollateFunction,
+    DINOCollateFunction,
+    collate,
+)
+from lightly.loss import (
+    NTXentLoss,
+    NegativeCosineSimilarity,
+    memory_bank,
+    DCLLoss,
+    DCLWLoss,
+    DINOLoss,
+    BarlowTwinsLoss,
+    SwaVLoss,
+)
+from lightly.models import modules, ResNetGenerator, utils
 from lightly.models.modules import heads
-from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
 
@@ -139,13 +154,13 @@ path_to_train = '/datasets/cifar10/train/'
 path_to_test = '/datasets/cifar10/test/'
 
 # Use SimCLR augmentations, additionally, disable blur for cifar10
-collate_fn = lightly.data.SimCLRCollateFunction(
+collate_fn = SimCLRCollateFunction(
     input_size=32,
     gaussian_blur=0.,
 )
 
 # Multi crop augmentation for SwAV, additionally, disable blur for cifar10
-swav_collate_fn = lightly.data.SwaVCollateFunction(
+swav_collate_fn = SwaVCollateFunction(
     crop_sizes=[32],
     crop_counts=[2], # 2 crops @ 32x32px
     crop_min_scales=[0.14],
@@ -153,14 +168,14 @@ swav_collate_fn = lightly.data.SwaVCollateFunction(
 )
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
-dino_collate_fn = lightly.data.DINOCollateFunction(
+dino_collate_fn = DINOCollateFunction(
     global_crop_size=32,
     n_local_views=0,
     gaussian_blur=(0, 0, 0),
 )
 
 # Two crops for SMoG
-smog_collate_function = lightly.data.collate.SMoGCollateFunction(
+smog_collate_function = collate.SMoGCollateFunction(
     crop_sizes=[32, 32],
     crop_counts=[1, 1],
     gaussian_blur_probs=[0., 0.],
@@ -172,22 +187,22 @@ smog_collate_function = lightly.data.collate.SMoGCollateFunction(
 test_transforms = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(
-        mean=lightly.data.collate.imagenet_normalize['mean'],
-        std=lightly.data.collate.imagenet_normalize['std'],
+        mean=collate.imagenet_normalize['mean'],
+        std=collate.imagenet_normalize['std'],
     )
 ])
 
-dataset_train_ssl = lightly.data.LightlyDataset(
+dataset_train_ssl = LightlyDataset(
     input_dir=path_to_train
 )
 
 # we use test transformations for getting the feature for kNN on train data
-dataset_train_kNN = lightly.data.LightlyDataset(
+dataset_train_kNN = LightlyDataset(
     input_dir=path_to_train,
     transform=test_transforms
 )
 
-dataset_test = lightly.data.LightlyDataset(
+dataset_test = LightlyDataset(
     input_dir=path_to_test,
     transform=test_transforms
 )
@@ -238,7 +253,7 @@ class MocoModel(BenchmarkModule):
 
         # create a ResNet backbone and remove the classification head
         num_splits = 0 if sync_batchnorm else 8
-        resnet = lightly.models.ResNetGenerator('resnet-18', num_splits=num_splits)
+        resnet = ResNetGenerator('resnet-18', num_splits=num_splits)
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
@@ -252,7 +267,7 @@ class MocoModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
         # create our loss with the optional memory bank
-        self.criterion = lightly.loss.NTXentLoss(
+        self.criterion = NTXentLoss(
             temperature=0.1,
             memory_bank_size=4096,
         )
@@ -303,13 +318,13 @@ class SimCLRModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator('resnet-18')
+        resnet = ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.SimCLRProjectionHead(512, 512, 128)
-        self.criterion = lightly.loss.NTXentLoss()
+        self.criterion = NTXentLoss()
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -339,7 +354,7 @@ class SimSiamModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator('resnet-18')
+        resnet = ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
@@ -360,7 +375,7 @@ class SimSiamModel(BenchmarkModule):
                 None
             )
         ])
-        self.criterion = lightly.loss.NegativeCosineSimilarity()
+        self.criterion = NegativeCosineSimilarity()
             
     def forward(self, x):
         f = self.backbone(x).flatten(start_dim=1)
@@ -391,7 +406,7 @@ class BarlowTwinsModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator('resnet-18')
+        resnet = ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
@@ -412,7 +427,7 @@ class BarlowTwinsModel(BenchmarkModule):
             )
         ])
 
-        self.criterion = lightly.loss.BarlowTwinsLoss(gather_distributed=gather_distributed)
+        self.criterion = BarlowTwinsLoss(gather_distributed=gather_distributed)
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -441,7 +456,7 @@ class BYOLModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator('resnet-18')
+        resnet = ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
@@ -457,7 +472,7 @@ class BYOLModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.backbone_momentum)
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
-        self.criterion = lightly.loss.NegativeCosineSimilarity()
+        self.criterion = NegativeCosineSimilarity()
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)
@@ -500,7 +515,7 @@ class SwaVModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator('resnet-18')
+        resnet = ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
@@ -509,7 +524,7 @@ class SwaVModel(BenchmarkModule):
         self.projection_head = heads.SwaVProjectionHead(512, 512, 128)
         self.prototypes = heads.SwaVPrototypes(128, 512) # use 512 prototypes
 
-        self.criterion = lightly.loss.SwaVLoss(sinkhorn_gather_distributed=gather_distributed)
+        self.criterion = SwaVLoss(sinkhorn_gather_distributed=gather_distributed)
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -554,7 +569,7 @@ class NNCLRModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator('resnet-18')
+        resnet = ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
@@ -576,7 +591,7 @@ class NNCLRModel(BenchmarkModule):
             )
         ])
 
-        self.criterion = lightly.loss.NTXentLoss()
+        self.criterion = NTXentLoss()
         self.memory_bank = modules.NNMemoryBankModule(size=4096)
 
     def forward(self, x):
@@ -610,7 +625,7 @@ class DINOModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator('resnet-18')
+        resnet = ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
@@ -622,7 +637,7 @@ class DINOModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.teacher_backbone)
         utils.deactivate_requires_grad(self.teacher_head)
 
-        self.criterion = lightly.loss.DINOLoss(output_dim=2048)
+        self.criterion = DINOLoss(output_dim=2048)
 
     def _build_projection_head(self):
         head = heads.DINOProjectionHead(512, 2048, 256, 2048, batch_norm=True)
@@ -672,13 +687,13 @@ class DCL(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator('resnet-18')
+        resnet = ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.SimCLRProjectionHead(512, 512, 128)
-        self.criterion = lightly.loss.DCLLoss()
+        self.criterion = DCLLoss()
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -708,13 +723,13 @@ class DCLW(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator('resnet-18')
+        resnet = ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
         )
         self.projection_head = heads.SimCLRProjectionHead(512, 512, 128)
-        self.criterion = lightly.loss.DCLWLoss()
+        self.criterion = DCLWLoss()
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -748,7 +763,7 @@ class SMoGModel(BenchmarkModule):
         super().__init__(dataloader_kNN, num_classes)
 
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator('resnet-18')
+        resnet = ResNetGenerator('resnet-18')
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1)
@@ -765,7 +780,7 @@ class SMoGModel(BenchmarkModule):
         # smog
         self.n_groups = 300
         memory_bank_size = 10000
-        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(size=memory_bank_size)
+        self.memory_bank = memory_bank.MemoryBankModule(size=memory_bank_size)
         # create our loss
         group_features = torch.nn.functional.normalize(
             torch.rand(self.n_groups, 128), dim=1
