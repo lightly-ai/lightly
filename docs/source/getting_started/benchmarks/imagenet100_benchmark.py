@@ -113,7 +113,7 @@ dataset_test = lightly.data.LightlyDataset(
     transform=test_transforms
 )
 
-steps_per_epoch = len(dataset_train_ssl) // batch_size
+steps_per_epoch = len(lightly.data.LightlyDataset(input_dir=path_to_train)) // batch_size
 
 def create_dataset_train_ssl(model):
     """Helper method to apply the correct transform for ssl.
