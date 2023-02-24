@@ -122,7 +122,8 @@ def create_dataset_train_ssl(model):
     """Helper method to apply the correct transform for ssl.
 
     Args:
-        model: model name to select the right transform.
+        model:
+            Model class for which to select the transform.
     """
     transform = simclr_transform
     if model == SwaVModel:

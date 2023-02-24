@@ -148,7 +148,8 @@ collate_fn = MultiViewCollate()
 
 # Use SimCLR augmentations
 simclr_transform = SimCLRTransform(
-    input_size=32
+    input_size=32,
+    gaussian_blur=0.
 )
 
 # Multi crop augmentation for SwAV, additionally, disable blur for cifar10
@@ -199,7 +200,8 @@ def create_dataset_train_ssl(model):
     """Helper method to apply the correct transform for ssl.
 
     Args:
-        model: model name to select the right transform.
+        model:
+            Model class for which to select the transform.
     """
     transform = simclr_transform
     if model == SwaVModel:
