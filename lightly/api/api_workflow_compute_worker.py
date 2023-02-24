@@ -16,7 +16,7 @@ from lightly.openapi_generated.swagger_client import (
     DockerRunScheduledState,
     DockerRunState,
     DockerWorkerConfig,
-    DockerWorkerConfigCreateRequest,
+    DockerWorkerConfigV2CreateRequest,
     DockerWorkerType,
     SelectionConfig,
     SelectionConfigEntry,
@@ -145,8 +145,8 @@ class _ComputeWorkerMixin:
             lightly=lightly_config,
             selection=selection,
         )
-        request = DockerWorkerConfigCreateRequest(config)
-        response = self._compute_worker_api.create_docker_worker_config(request)
+        request = DockerWorkerConfigV2CreateRequest(config)
+        response = self._compute_worker_api.create_docker_worker_config_v2(request)
         return response.id
 
     def schedule_compute_worker_run(
