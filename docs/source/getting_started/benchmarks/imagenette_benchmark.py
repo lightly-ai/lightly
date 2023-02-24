@@ -1145,7 +1145,7 @@ class TiCoModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
         self.criterion = lightly.loss.TiCoLoss()
-        self.warmup_epochs = 40 if max_epochs >= 800 else 1
+        self.warmup_epochs = 40 if max_epochs >= 800 else 20
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)
