@@ -23,6 +23,9 @@ from lightly.models.modules import heads
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from lightly.data.multi_view_collate import MultiViewCollate
+from lightly.transforms import SimCLRTransform
+from lightly.transforms import SwaVTransform
+from lightly.transforms import DINOTransform
 from pl_bolts.optimizers.lars import LARS
 from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -80,15 +83,15 @@ path_to_test = '/datasets/imagenet100/val/'
 collate_fn = MultiViewCollate()
 
 # Use SimCLR augmentations
-simclr_transform = lightly.transforms.simclr_transform.SimCLRTransform(
+simclr_transform = SimCLRTransform(
     input_size=input_size
 )
 
 # Multi crop augmentation for SwAV
-swav_transform = lightly.transforms.swav_transform.SwaVTransform()
+swav_transform = SwaVTransform()
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
-dino_transform = lightly.transforms.dino_transform.DINOTransform()
+dino_transform = DINOTransform()
 
 # No additional augmentations for the test set
 test_transforms = torchvision.transforms.Compose([

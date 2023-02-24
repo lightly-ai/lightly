@@ -76,6 +76,13 @@ from lightly.utils import BenchmarkModule
 from lightly.utils import scheduler
 from lightly.data.multi_view_collate import MultiViewCollate
 from pytorch_lightning.loggers import TensorBoardLogger
+from lightly.transforms import SimCLRTransform
+from lightly.transforms import SwaVTransform
+from lightly.transforms import DINOTransform
+from lightly.transforms import SMoGTransform
+from lightly.transforms import MAETransform
+from lightly.transforms import MSNTransform
+from lightly.transforms import VICRegLTransform
 from pl_bolts.optimizers.lars import LARS
 
 logs_root_dir = os.path.join(os.getcwd(), "benchmark_logs")
@@ -131,24 +138,24 @@ path_to_test = "/datasets/imagenette2-160/val/"
 collate_fn = MultiViewCollate()
 
 # Use SimCLR augmentations
-simclr_transform = lightly.transforms.simclr_transform.SimCLRTransform(
+simclr_transform = SimCLRTransform(
     input_size=input_size
 )
 
 # Multi crop augmentation for SwAV
-swav_transform = lightly.transforms.swav_transform.SwaVTransform(
+swav_transform = SwaVTransform(
     crop_sizes=[128, 64],
     crop_counts=[2, 6],  # 2 crops @ 128x128px and 6 crops @ 64x64px
 )
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
-dino_transform = lightly.transforms.dino_transform.DINOTransform(
+dino_transform = DINOTransform(
     global_crop_size=128,
     local_crop_size=64,
 )
 
 # Two crops for SMoG
-smog_transform = lightly.transforms.smog_transform.SMoGTransform(
+smog_transform = SMoGTransform(
     crop_sizes=[128, 128],
     crop_counts=[1, 1],
     crop_min_scales=[0.2, 0.2],
@@ -156,13 +163,13 @@ smog_transform = lightly.transforms.smog_transform.SMoGTransform(
 )
 
 # Single crop augmentation for MAE
-mae_transform = lightly.transforms.mae_transform.MAETransform()
+mae_transform = MAETransform()
 
 # Multi crop augmentation for MSN
-msn_transform = lightly.transforms.msn_transform.MSNTransform(random_size=128, focal_size=64)
+msn_transform = MSNTransform(random_size=128, focal_size=64)
 
 # Transform  passing geometrical transformation for VICRegL
-vicregl_transform = lightly.transforms.vicregl_transform.VICRegLTransform(
+vicregl_transform = VICRegLTransform(
     global_crop_size=128, local_crop_size=64, global_grid_size=4, local_grid_size=2
 )
 

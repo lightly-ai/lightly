@@ -71,6 +71,10 @@ from lightly.models.modules import heads
 from lightly.models import utils
 from lightly.utils import BenchmarkModule
 from lightly.data.multi_view_collate import MultiViewCollate
+from lightly.transforms import SimCLRTransform
+from lightly.transforms import SwaVTransform
+from lightly.transforms import DINOTransform
+from lightly.transforms import SMoGTransform
 from pytorch_lightning.loggers import TensorBoardLogger
 
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
@@ -143,12 +147,12 @@ path_to_test = '/datasets/cifar10/test/'
 collate_fn = MultiViewCollate()
 
 # Use SimCLR augmentations
-simclr_transform = lightly.transforms.simclr_transform.SimCLRTransform(
+simclr_transform = SimCLRTransform(
     input_size=32
 )
 
 # Multi crop augmentation for SwAV, additionally, disable blur for cifar10
-swav_transform = lightly.transforms.swav_transform.SwaVTransform(
+swav_transform = SwaVTransform(
     crop_sizes=[32],
     crop_counts=[2], # 2 crops @ 32x32px
     crop_min_scales=[0.14],
@@ -156,14 +160,14 @@ swav_transform = lightly.transforms.swav_transform.SwaVTransform(
 )
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
-dino_transform = lightly.transforms.dino_transform.DINOTransform(
+dino_transform = DINOTransform(
     global_crop_size=32,
     n_local_views=0,
     gaussian_blur=(0, 0, 0),
 )
 
 # Two crops for SMoG
-smog_transform = lightly.transforms.smog_transform.SMoGTransform(
+smog_transform = SMoGTransform(
     crop_sizes=[32, 32],
     crop_counts=[1, 1],
     gaussian_blur_probs=[0., 0.],
