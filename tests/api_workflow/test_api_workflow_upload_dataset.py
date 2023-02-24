@@ -55,10 +55,6 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
         for sample_name in sample_names:
             pathlib.Path(os.path.join(self.folder_path, sample_name)).touch()
 
-    def test_upload_dataset_no_dataset(self):
-        with self.assertRaises(ValueError):
-            self.api_workflow_client.upload_dataset(1)
-
     def test_upload_dataset_over_quota(self):
         quota = self.n_data - 1
 

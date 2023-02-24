@@ -6,7 +6,7 @@ from lightly.openapi_generated.swagger_client import VersioningApi
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 
 from lightly.api import utils
-from lightly.utils import version_compare
+from lightly.utils.version_compare import version_compare
 
 
 class LightlyAPITimeoutException(Exception):

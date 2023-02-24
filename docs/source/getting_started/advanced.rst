@@ -207,7 +207,8 @@ with a 7x7 convolution the one from lightly has a 3x3 convolution.
 .. code-block:: python
 
         # create a lightly ResNet
-        resnet = lightly.models.ResNetGenerator('resnet-18')
+        from lightly.models import ResNetGenerator
+        resnet = ResNetGenerator('resnet-18')
 
         # alternatively create a torchvision ResNet backbone
         resnet_torchvision = torchvision.models.resnet18()
@@ -285,7 +286,8 @@ For more information check the documentation:
 
   # to create a NTXentLoss with a memory bank (like for MoCo) set the 
   # memory_bank_size parameter to a value > 0
-  criterion = lightly.loss.NTXentLoss(memory_bank_size=4096)
+  from lightly.loss import NTXentLoss
+  criterion = NTXentLoss(memory_bank_size=4096)
   # the memory bank is used automatically for every forward pass
   y0, y1 = resnet_moco(x0, x1)
   loss = criterion(y0, y1)
@@ -390,7 +392,7 @@ Let's have a look at how this works:
 .. code-block:: python
 
     import os
-    import lightly
+    from lightly.data import LightlyDataset
 
     # read the list of filenames (e.g. from the Lightly Docker output)
     with open('selected_filenames.txt', 'r') as f:
@@ -405,7 +407,7 @@ Let's have a look at how this works:
     # >>> '264863-mp4.png'
 
     path_to_video_data = 'video/'
-    dataset = lightly.data.LightlyDataset(from_folder=path_to_video_data)
+    dataset = LightlyDataset(from_folder=path_to_video_data)
 
     # let's get the total number of frames
     print(len(dataset))
