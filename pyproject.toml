@@ -1,0 +1,7 @@
+[project]
+license = {file = "LICENSE.txt"}
+
+[tool.coverage.run]
+omit = [
+    "lightly/openapi_generated/*",
+]
