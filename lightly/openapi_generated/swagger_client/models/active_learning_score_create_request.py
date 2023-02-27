@@ -34,15 +34,17 @@ class ActiveLearningScoreCreateRequest(object):
     """
     swagger_types = {
         'score_type': 'ActiveLearningScoreType',
-        'scores': 'ActiveLearningScores'
+        'scores': 'ActiveLearningScores',
+        'cat_or_dog': 'OneOfActiveLearningScoreCreateRequestCatOrDog'
     }
 
     attribute_map = {
         'score_type': 'scoreType',
-        'scores': 'scores'
+        'scores': 'scores',
+        'cat_or_dog': 'catOrDog'
     }
 
-    def __init__(self, score_type=None, scores=None, _configuration=None):  # noqa: E501
+    def __init__(self, score_type=None, scores=None, cat_or_dog=None, _configuration=None):  # noqa: E501
         """ActiveLearningScoreCreateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -50,10 +52,13 @@ class ActiveLearningScoreCreateRequest(object):
 
         self._score_type = None
         self._scores = None
+        self._cat_or_dog = None
         self.discriminator = None
 
         self.score_type = score_type
         self.scores = scores
+        if cat_or_dog is not None:
+            self.cat_or_dog = cat_or_dog
 
     @property
     def score_type(self):
@@ -100,6 +105,27 @@ class ActiveLearningScoreCreateRequest(object):
             raise ValueError("Invalid value for `scores`, must not be `None`")  # noqa: E501
 
         self._scores = scores
+
+    @property
+    def cat_or_dog(self):
+        """Gets the cat_or_dog of this ActiveLearningScoreCreateRequest.  # noqa: E501
+
+
+        :return: The cat_or_dog of this ActiveLearningScoreCreateRequest.  # noqa: E501
+        :rtype: OneOfActiveLearningScoreCreateRequestCatOrDog
+        """
+        return self._cat_or_dog
+
+    @cat_or_dog.setter
+    def cat_or_dog(self, cat_or_dog):
+        """Sets the cat_or_dog of this ActiveLearningScoreCreateRequest.
+
+
+        :param cat_or_dog: The cat_or_dog of this ActiveLearningScoreCreateRequest.  # noqa: E501
+        :type: OneOfActiveLearningScoreCreateRequestCatOrDog
+        """
+
+        self._cat_or_dog = cat_or_dog
 
     def to_dict(self):
         """Returns the model properties as a dict"""

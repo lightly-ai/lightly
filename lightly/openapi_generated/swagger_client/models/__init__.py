@@ -23,6 +23,7 @@ from lightly.openapi_generated.swagger_client.models.active_learning_scores impo
 from lightly.openapi_generated.swagger_client.models.api_error_code import ApiErrorCode
 from lightly.openapi_generated.swagger_client.models.api_error_response import ApiErrorResponse
 from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData
+from lightly.openapi_generated.swagger_client.models.cat import Cat
 from lightly.openapi_generated.swagger_client.models.category_id import CategoryId
 from lightly.openapi_generated.swagger_client.models.category_name import CategoryName
 from lightly.openapi_generated.swagger_client.models.configuration_data import ConfigurationData
@@ -105,6 +106,7 @@ from lightly.openapi_generated.swagger_client.models.docker_worker_name import D
 from lightly.openapi_generated.swagger_client.models.docker_worker_registry_entry_data import DockerWorkerRegistryEntryData
 from lightly.openapi_generated.swagger_client.models.docker_worker_state import DockerWorkerState
 from lightly.openapi_generated.swagger_client.models.docker_worker_type import DockerWorkerType
+from lightly.openapi_generated.swagger_client.models.dog import Dog
 from lightly.openapi_generated.swagger_client.models.embedding2d_coordinates import Embedding2dCoordinates
 from lightly.openapi_generated.swagger_client.models.embedding2d_create_request import Embedding2dCreateRequest
 from lightly.openapi_generated.swagger_client.models.embedding2d_data import Embedding2dData
@@ -132,7 +134,9 @@ from lightly.openapi_generated.swagger_client.models.lightly_model_v2 import Lig
 from lightly.openapi_generated.swagger_client.models.lightly_trainer_precision_v2 import LightlyTrainerPrecisionV2
 from lightly.openapi_generated.swagger_client.models.mongo_object_id import MongoObjectID
 from lightly.openapi_generated.swagger_client.models.object_id import ObjectId
+from lightly.openapi_generated.swagger_client.models.one_of_active_learning_score_create_request_cat_or_dog import OneOfActiveLearningScoreCreateRequestCatOrDog
 from lightly.openapi_generated.swagger_client.models.path_safe_name import PathSafeName
+from lightly.openapi_generated.swagger_client.models.pet import Pet
 from lightly.openapi_generated.swagger_client.models.prediction_singleton import PredictionSingleton
 from lightly.openapi_generated.swagger_client.models.prediction_singleton_base import PredictionSingletonBase
 from lightly.openapi_generated.swagger_client.models.prediction_singleton_classification import PredictionSingletonClassification
