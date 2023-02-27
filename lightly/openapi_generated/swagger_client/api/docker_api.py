@@ -1996,7 +1996,7 @@ class DockerApi(object):
     def get_docker_runs_scheduled_by_state_and_labels(self, **kwargs):  # noqa: E501
         """get_docker_runs_scheduled_by_state_and_labels  # noqa: E501
 
-        Get all scheduled docker runs of the user. Additionally, you can filter by state.  Furthermore, you can filter by only providing labels an only return scheduled runs whose runsOn labels are included in the provided labels.   # noqa: E501
+        Get all scheduled docker runs of the user. Additionally, you can filter by state.  Furthermore, you can filter by only providing labels and only return scheduled runs whose runsOn labels are included in the provided labels. Runs are filtered by the provided version parameter.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_docker_runs_scheduled_by_state_and_labels(async_req=True)
@@ -2005,6 +2005,7 @@ class DockerApi(object):
         :param async_req bool
         :param DockerRunScheduledState state:
         :param DockerWorkerLabels labels:
+        :param str version:
         :return: list[DockerRunScheduledData]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -2019,7 +2020,7 @@ class DockerApi(object):
     def get_docker_runs_scheduled_by_state_and_labels_with_http_info(self, **kwargs):  # noqa: E501
         """get_docker_runs_scheduled_by_state_and_labels  # noqa: E501
 
-        Get all scheduled docker runs of the user. Additionally, you can filter by state.  Furthermore, you can filter by only providing labels an only return scheduled runs whose runsOn labels are included in the provided labels.   # noqa: E501
+        Get all scheduled docker runs of the user. Additionally, you can filter by state.  Furthermore, you can filter by only providing labels and only return scheduled runs whose runsOn labels are included in the provided labels. Runs are filtered by the provided version parameter.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_docker_runs_scheduled_by_state_and_labels_with_http_info(async_req=True)
@@ -2028,12 +2029,13 @@ class DockerApi(object):
         :param async_req bool
         :param DockerRunScheduledState state:
         :param DockerWorkerLabels labels:
+        :param str version:
         :return: list[DockerRunScheduledData]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['state', 'labels']  # noqa: E501
+        all_params = ['state', 'labels', 'version']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -2058,6 +2060,8 @@ class DockerApi(object):
             query_params.append(('state', params['state']))  # noqa: E501
         if 'labels' in params:
             query_params.append(('labels', params['labels']))  # noqa: E501
+        if 'version' in params:
+            query_params.append(('version', params['version']))  # noqa: E501
 
         header_params = {}
 
