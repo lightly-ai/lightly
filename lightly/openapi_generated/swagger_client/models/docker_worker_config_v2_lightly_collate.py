@@ -43,6 +43,7 @@ class DockerWorkerConfigV2LightlyCollate(object):
         'random_gray_scale': 'float',
         'gaussian_blur': 'float',
         'kernel_size': 'float',
+        'sigmas': 'list[float]',
         'vf_prob': 'float',
         'hf_prob': 'float',
         'rr_prob': 'float'
@@ -59,12 +60,13 @@ class DockerWorkerConfigV2LightlyCollate(object):
         'random_gray_scale': 'randomGrayScale',
         'gaussian_blur': 'gaussianBlur',
         'kernel_size': 'kernelSize',
+        'sigmas': 'sigmas',
         'vf_prob': 'vfProb',
         'hf_prob': 'hfProb',
         'rr_prob': 'rrProb'
     }
 
-    def __init__(self, input_size=None, cj_prob=None, cj_bright=None, cj_contrast=None, cj_sat=None, cj_hue=None, min_scale=None, random_gray_scale=None, gaussian_blur=None, kernel_size=None, vf_prob=None, hf_prob=None, rr_prob=None, _configuration=None):  # noqa: E501
+    def __init__(self, input_size=None, cj_prob=None, cj_bright=None, cj_contrast=None, cj_sat=None, cj_hue=None, min_scale=None, random_gray_scale=None, gaussian_blur=None, kernel_size=None, sigmas=None, vf_prob=None, hf_prob=None, rr_prob=None, _configuration=None):  # noqa: E501
         """DockerWorkerConfigV2LightlyCollate - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -80,6 +82,7 @@ class DockerWorkerConfigV2LightlyCollate(object):
         self._random_gray_scale = None
         self._gaussian_blur = None
         self._kernel_size = None
+        self._sigmas = None
         self._vf_prob = None
         self._hf_prob = None
         self._rr_prob = None
@@ -105,6 +108,8 @@ class DockerWorkerConfigV2LightlyCollate(object):
             self.gaussian_blur = gaussian_blur
         if kernel_size is not None:
             self.kernel_size = kernel_size
+        if sigmas is not None:
+            self.sigmas = sigmas
         if vf_prob is not None:
             self.vf_prob = vf_prob
         if hf_prob is not None:
@@ -321,6 +326,27 @@ class DockerWorkerConfigV2LightlyCollate(object):
         """
 
         self._kernel_size = kernel_size
+
+    @property
+    def sigmas(self):
+        """Gets the sigmas of this DockerWorkerConfigV2LightlyCollate.  # noqa: E501
+
+
+        :return: The sigmas of this DockerWorkerConfigV2LightlyCollate.  # noqa: E501
+        :rtype: list[float]
+        """
+        return self._sigmas
+
+    @sigmas.setter
+    def sigmas(self, sigmas):
+        """Sets the sigmas of this DockerWorkerConfigV2LightlyCollate.
+
+
+        :param sigmas: The sigmas of this DockerWorkerConfigV2LightlyCollate.  # noqa: E501
+        :type: list[float]
+        """
+
+        self._sigmas = sigmas
 
     @property
     def vf_prob(self):
