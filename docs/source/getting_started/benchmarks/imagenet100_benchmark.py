@@ -50,7 +50,7 @@ from lightly.loss import (
 )
 from lightly.models import modules, utils
 from lightly.models.modules import heads
-from lightly.utils import BenchmarkModule
+from lightly.utils.benchmarking import BenchmarkModule
 
 from pl_bolts.optimizers.lars import LARS
 from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay

@@ -93,7 +93,8 @@ from lightly.loss import (
 )
 from lightly.models import modules, utils
 from lightly.models.modules import heads, masked_autoencoder
-from lightly.utils import BenchmarkModule, scheduler
+from lightly.utils.benchmarking import BenchmarkModule
+from lightly.utils import scheduler
 from pytorch_lightning.loggers import TensorBoardLogger
 from pl_bolts.optimizers.lars import LARS
 

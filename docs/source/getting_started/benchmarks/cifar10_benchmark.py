@@ -84,7 +84,7 @@ from lightly.loss import (
 )
 from lightly.models import modules, ResNetGenerator, utils
 from lightly.models.modules import heads
-from lightly.utils import BenchmarkModule
+from lightly.utils.benchmarking import BenchmarkModule
 from pytorch_lightning.loggers import TensorBoardLogger
 
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
