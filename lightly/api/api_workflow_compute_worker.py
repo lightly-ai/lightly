@@ -143,6 +143,8 @@ class _ComputeWorkerMixin:
         deserialize = getattr(self.api_client, "_ApiClient__deserialize")
         worker_config = deserialize(worker_config, "DockerWorkerConfigV2Docker") if worker_config is not None else None
         lightly_config = deserialize(lightly_config, "DockerWorkerConfigV2Lightly") if lightly_config is not None else None
+        print(worker_config)
+        print(lightly_config)
 
         config = DockerWorkerConfigV2(
             worker_type=DockerWorkerType.FULL,
