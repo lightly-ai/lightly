@@ -1,4 +1,5 @@
 [project]
+name = "lightly"
 license = {file = "LICENSE.txt"}
 
 [tool.coverage.run]
