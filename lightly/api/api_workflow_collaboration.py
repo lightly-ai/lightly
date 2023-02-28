@@ -35,7 +35,11 @@ class _CollaborationMixin:
           >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
           >>> client.share_dataset_only_with(dataset_id="MY_DATASET_ID", user_emails=[])
         """
-        body = SharedAccessConfigCreateRequest(access_type=SharedAccessType.WRITE, users=user_emails)
+        body = SharedAccessConfigCreateRequest(
+          access_type=SharedAccessType.WRITE, 
+          users=user_emails, 
+          creator=self._creator
+        )
         self._collaboration_api.create_or_update_shared_access_config_by_dataset_id(body=body, dataset_id=dataset_id)
 
 

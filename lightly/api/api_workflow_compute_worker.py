@@ -92,7 +92,10 @@ class _ComputeWorkerMixin:
         if labels is None:
             labels = []
         request = CreateDockerWorkerRegistryEntryRequest(
-            name=name, worker_type=DockerWorkerType.FULL, labels=labels
+            name=name, 
+            worker_type=DockerWorkerType.FULL, 
+            labels=labels, 
+            creator=self._creator,
         )
         response = self._compute_worker_api.register_docker_worker(request)
         return response.id
@@ -145,7 +148,7 @@ class _ComputeWorkerMixin:
             lightly=lightly_config,
             selection=selection,
         )
-        request = DockerWorkerConfigV2CreateRequest(config)
+        request = DockerWorkerConfigV2CreateRequest(config=config, creator=self._creator)
         response = self._compute_worker_api.create_docker_worker_config_v2(request)
         return response.id
 
@@ -186,7 +189,7 @@ class _ComputeWorkerMixin:
             selection_config=selection_config,
         )
         request = DockerRunScheduledCreateRequest(
-            config_id=config_id, priority=priority, runs_on=runs_on
+            config_id=config_id, priority=priority, runs_on=runs_on, creator=self._creator,
         )
         response = self._compute_worker_api.create_docker_run_scheduled_by_dataset_id(
             body=request,
