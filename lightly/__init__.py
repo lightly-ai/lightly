@@ -75,7 +75,7 @@ The framework is structured into the following modules:
 # All Rights Reserved
 
 __name__ = 'lightly'
-__version__ = '1.2.46'
+__version__ = '1.2.47'
 
 import os
 
@@ -109,19 +109,12 @@ else:
     try:
         import torchvision.models.vision_transformer
         _torchvision_vit_available = True
-    except ImportError:
+    except (
+        RuntimeError,  # Different CUDA versions for torch and torchvision
+        OSError,       # Different CUDA versions for torch and torchvision (old)
+        ImportError,   # No installation or old version of torchvision
+    ):
         _torchvision_vit_available = False
-
-    from lightly.core import *
-    from lightly import active_learning
-    from lightly import api
-    from lightly import data
-    from lightly import embedding
-    from lightly import loss
-    from lightly import models
-    from lightly import openapi_generated
-    from lightly import transforms
-    from lightly import utils
     
     if os.getenv('LIGHTLY_DID_VERSION_CHECK', 'False') == 'False':
         os.environ['LIGHTLY_DID_VERSION_CHECK'] = 'True'

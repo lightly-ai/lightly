@@ -7,7 +7,7 @@ from urllib.request import Request, urlopen
 from PIL import Image
 
 from lightly.api.utils import paginate_endpoint, retry
-from torch.utils.hipify.hipify_python import bcolors
+from lightly.utils.hipify import bcolors
 
 from concurrent.futures.thread import ThreadPoolExecutor
 

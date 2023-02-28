@@ -2,8 +2,7 @@ import unittest
 import torch
 from torch import nn
 
-from lightly.utils import cosine_schedule
-from lightly.utils import CosineWarmupScheduler
+from lightly.utils.scheduler import CosineWarmupScheduler, cosine_schedule
 
 
 class TestScheduler(unittest.TestCase):
@@ -20,6 +19,7 @@ class TestScheduler(unittest.TestCase):
             cosine_schedule(1, 0, 0.0, 1.0)
         with self.assertRaises(ValueError):
             cosine_schedule(11, 10, 0.0, 1.0)
+
 
     def test_CosineWarmupScheduler(self):
         model = nn.Linear(10, 1)

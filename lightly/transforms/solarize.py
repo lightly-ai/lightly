@@ -20,8 +20,7 @@ class RandomSolarization(object):
             Threshold for solarization.
     """
 
-    def __init__(self, prob: float = 0.5,
-                 threshold: int = 128):
+    def __init__(self, prob: float = 0.5, threshold: int = 128):
         self.prob = prob
         self.threshold = threshold
 

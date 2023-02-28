@@ -1,13 +1,15 @@
 import copy
 import dataclasses
+from functools import partial
 import os
 import time
-from typing import Any, Dict, List, Optional, Union, Iterator
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, Iterator
 
 from lightly.api.utils import retry
 from lightly.api import download
 from lightly.api import utils
 from lightly.openapi_generated.swagger_client import (
+    ApiClient,
     CreateDockerWorkerRegistryEntryRequest,
     DockerRunData,
     DockerRunScheduledCreateRequest,
@@ -15,8 +17,10 @@ from lightly.openapi_generated.swagger_client import (
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
-    DockerWorkerConfig,
-    DockerWorkerConfigCreateRequest,
+    DockerWorkerConfigV2,
+    DockerWorkerConfigV2Docker,
+    DockerWorkerConfigV2Lightly,
+    DockerWorkerConfigV2CreateRequest,
     DockerWorkerType,
     SelectionConfig,
     SelectionConfigEntry,
@@ -139,14 +143,31 @@ class _ComputeWorkerMixin:
             selection = selection_config_from_dict(cfg=selection_config)
         else:
             selection = selection_config
-        config = DockerWorkerConfig(
+
+        if worker_config is not None:
+            worker_config = _config_to_camel_case(cfg=worker_config)
+            deserialize_worker_config = _get_deserialize(
+                api_client=self.api_client,
+                klass=DockerWorkerConfigV2Docker,
+            )
+            worker_config = deserialize_worker_config(worker_config)
+
+        if lightly_config is not None:
+            lightly_config = _config_to_camel_case(cfg=lightly_config)
+            deserialize_lightly_config = _get_deserialize(
+                api_client=self.api_client,
+                klass=DockerWorkerConfigV2Lightly,
+            )
+            lightly_config = deserialize_lightly_config(lightly_config)
+
+        config = DockerWorkerConfigV2(
             worker_type=DockerWorkerType.FULL,
             docker=worker_config,
             lightly=lightly_config,
             selection=selection,
         )
-        request = DockerWorkerConfigCreateRequest(config)
-        response = self._compute_worker_api.create_docker_worker_config(request)
+        request = DockerWorkerConfigV2CreateRequest(config)
+        response = self._compute_worker_api.create_docker_worker_config_v2(request)
         return response.id
 
     def schedule_compute_worker_run(
@@ -805,3 +826,41 @@ def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
         strategies.append(SelectionConfigEntry(**entry))
     new_cfg["strategies"] = strategies
     return SelectionConfig(**new_cfg)
+
+
+_T = TypeVar("_T")
+
+def _get_deserialize(
+    api_client: ApiClient,
+    klass: Type[_T],
+) -> Callable[[Dict[str, Any]], _T]:
+    """Returns the deserializer of the ApiClient class for class klass. 
+
+    TODO(Philipp, 02/23): We should replace this by our own deserializer which
+    accepts snake case strings as input.
+
+    The deserializer takes a dictionary and and returns an instance of klass.
+
+    """
+    deserialize = getattr(api_client, "_ApiClient__deserialize")
+    return partial(deserialize, klass=klass)
+
+
+def _config_to_camel_case(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    """Converts all keys in the cfg dictionary to camelCase. """
+    cfg_camel_case = {}
+    for key, value in cfg.items():
+        key_camel_case = _snake_to_camel_case(key)
+        if isinstance(value, dict):
+            cfg_camel_case[key_camel_case] = _config_to_camel_case(value)
+        else:
+            cfg_camel_case[key_camel_case] = value
+    return cfg_camel_case
+
+
+def _snake_to_camel_case(snake: str) -> str:
+    """Converts the snake_case input to camelCase. """
+    components = snake.split("_")
+    return components[0] + "".join(
+        component.title() for component in components[1:]
+    )
