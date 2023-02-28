@@ -143,7 +143,7 @@ class _ComputeWorkerMixin:
             selection = selection_config
 
         worker_config = DockerWorkerConfigV2Docker(**worker_config) if worker_config is not None else None
-        lightly_config = DockerWorkerConfigV2Lightly(**lightly_config) if worker_config is not None else None
+        lightly_config = DockerWorkerConfigV2Lightly(**lightly_config) if lightly_config is not None else None
 
         config = DockerWorkerConfigV2(
             worker_type=DockerWorkerType.FULL,
