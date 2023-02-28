@@ -2,17 +2,17 @@ import unittest
 import torch
 from torch import nn
 
-from lightly.utils import cosine_schedule
-from lightly.utils import CosineWarmupScheduler
+from lightly.utils import scheduler
+from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class TestScheduler(unittest.TestCase):
     def test_cosine_schedule(self):
-        momentum_0 = cosine_schedule(1, 10, 0.99, 1)
+        momentum_0 = scheduler.cosine_schedule(1, 10, 0.99, 1)
         momentum_hand_computed_0 = 0.99030154
-        momentum_1 = cosine_schedule(95, 100, 0.7, 2)
+        momentum_1 = scheduler.cosine_schedule(95, 100, 0.7, 2)
         momentum_hand_computed_1 = 1.99477063
-        momentum_2 = cosine_schedule(0, 1, 0.996, 1)
+        momentum_2 = scheduler.cosine_schedule(0, 1, 0.996, 1)
         momentum_hand_computed_2 = 1
 
         self.assertAlmostEqual(momentum_0, momentum_hand_computed_0, 6)

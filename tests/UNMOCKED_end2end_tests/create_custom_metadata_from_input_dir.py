@@ -1,7 +1,7 @@
 import sys
 
 from lightly.data import LightlyDataset
-from lightly.utils import save_custom_metadata
+from lightly.utils.io import save_custom_metadata
 
 if __name__ == "__main__":
     if len(sys.argv) == 1 + 2:

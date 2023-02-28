@@ -6,8 +6,14 @@ import unittest
 
 import numpy as np
 
-from lightly.utils import save_custom_metadata
-from lightly.utils.io import check_filenames, save_embeddings, check_embeddings, save_tasks, save_schema
+from lightly.utils.io import (
+    check_filenames,
+    save_embeddings,
+    check_embeddings,
+    save_tasks,
+    save_schema,
+    save_custom_metadata
+)
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
 
 
