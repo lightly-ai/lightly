@@ -8,6 +8,7 @@ from lightly.api.utils import retry
 from lightly.api import download
 from lightly.api import utils
 from lightly.openapi_generated.swagger_client import (
+    ApiClient,
     CreateDockerWorkerRegistryEntryRequest,
     DockerRunData,
     DockerRunScheduledCreateRequest,
