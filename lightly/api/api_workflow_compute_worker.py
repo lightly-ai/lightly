@@ -827,7 +827,18 @@ def worker_config_from_dict(
     deserialize: Callable,
     worker_config_dict: Optional[Dict[str, Any]]
 ) -> Optional[DockerWorkerConfigV2Docker]:
+    """Converts worker config to DockerWorkerConfigV2Docker instance.
 
+    Args:
+        deserialize:
+            Function to deserialize the worker_config_dict.
+        worker_config_dict:
+            Configuration dict with snake case keys or None.
+
+    Returns:
+        An instance of DockerWorkerConfigV2Docker or None if the input is None.
+        
+    """
     if worker_config_dict is None:
         return worker_config_dict
 
@@ -839,7 +850,18 @@ def lightly_config_from_dict(
     deserialize: Callable,
     lightly_config_dict: Optional[Dict[str, Any]]
 ) -> Optional[DockerWorkerConfigV2Lightly]:
+    """Converts worker config to DockerWorkerConfigV2Lightly instance.
 
+    Args:
+        deserialize:
+            Function to deserialize the worker_config_dict.
+        lightly_config_dict:
+            Configuration dict with snake case keys or None.
+
+    Returns:
+        An instance of DockerWorkerConfigV2Lightly or None if the input is None.
+        
+    """
     if lightly_config_dict is None:
         return lightly_config_dict
 
@@ -848,10 +870,17 @@ def lightly_config_from_dict(
 
 
 def _get_deserializer(api_client: ApiClient) -> Callable:
+    """Returns the deserializer of the ApiClient class. 
+
+    TODO(Philipp, 02/23): We should replace this by our own deserializer which
+    accepts snake case strings as input.
+
+    """
     return getattr(api_client, "_ApiClient__deserialize")
 
 
 def _config_to_camel_case(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    """Converts all keys in the cfg dictionary to camelCase. """
     cfg_camel_case = {}
     for key, value in cfg.items():
         key_camel_case = _snake_to_camel_case(key)
@@ -863,5 +892,8 @@ def _config_to_camel_case(cfg: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _snake_to_camel_case(snake: str) -> str:
+    """Converts the snake_case input to camelCase. """
     components = snake.split("_")
-    return components[0] + "".join(component.title() for component in components[1:])
+    return components[0] + "".join(
+        component.title() for component in components[1:]
+    )
