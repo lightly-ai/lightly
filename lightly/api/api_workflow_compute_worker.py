@@ -16,8 +16,6 @@ from lightly.openapi_generated.swagger_client import (
     DockerRunScheduledState,
     DockerRunState,
     DockerWorkerConfigV2,
-    DockerWorkerConfigV2Docker,
-    DockerWorkerConfigV2Lightly,
     DockerWorkerConfigV2CreateRequest,
     DockerWorkerType,
     SelectionConfig,
@@ -142,8 +140,9 @@ class _ComputeWorkerMixin:
         else:
             selection = selection_config
 
-        worker_config = self.api_client.__deserialize(worker_config, "DockerWorkerConfigV2Docker") if worker_config is not None else None
-        lightly_config = self.api_client.__deserialize(lightly_config, "DockerWorkerConfigV2Lightly") if lightly_config is not None else None
+        deserialize = self.api_client.__dict__["_ApiClient__deserialize"]
+        worker_config = deserialize(worker_config, "DockerWorkerConfigV2Docker") if worker_config is not None else None
+        lightly_config = deserialize(lightly_config, "DockerWorkerConfigV2Lightly") if lightly_config is not None else None
 
         config = DockerWorkerConfigV2(
             worker_type=DockerWorkerType.FULL,
