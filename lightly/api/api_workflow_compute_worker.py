@@ -1,8 +1,9 @@
 import copy
 import dataclasses
+from functools import partial
 import os
 import time
-from typing import Any, Callable, Dict, List, Optional, Union, Iterator
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, Iterator
 
 from lightly.api.utils import retry
 from lightly.api import download
@@ -143,20 +144,22 @@ class _ComputeWorkerMixin:
         else:
             selection = selection_config
 
-        deserialize = _get_deserializer(api_client=self.api_client)
-        worker_config = worker_config_from_dict(
-            deserialize=deserialize,
-            worker_config_dict=worker_config
+        worker_config = _config_to_camel_case(cfg=worker_config)
+        deserialize_worker_config = _get_deserialize(
+            api_client=self.api_client,
+            klass=DockerWorkerConfigV2Docker,
         )
-        lightly_config = lightly_config_from_dict(
-            deserialize=deserialize,
-            lightly_config_dict=lightly_config
+
+        lightly_config = _config_to_camel_case(cfg=lightly_config)
+        deserialize_lightly_config = _get_deserialize(
+            api_client=self.api_client,
+            klass=DockerWorkerConfigV2Lightly,
         )
 
         config = DockerWorkerConfigV2(
             worker_type=DockerWorkerType.FULL,
-            docker=worker_config,
-            lightly=lightly_config,
+            docker=deserialize_worker_config(worker_config),
+            lightly=deserialize_lightly_config(lightly_config),
             selection=selection,
         )
         request = DockerWorkerConfigV2CreateRequest(config)
@@ -821,63 +824,22 @@ def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
     return SelectionConfig(**new_cfg)
 
 
-def worker_config_from_dict(
-    deserialize: Callable,
-    worker_config_dict: Optional[Dict[str, Any]]
-) -> Optional[DockerWorkerConfigV2Docker]:
-    """Converts worker config to DockerWorkerConfigV2Docker instance.
+_T = TypeVar("_T")
 
-    Args:
-        deserialize:
-            Function to deserialize the worker_config_dict.
-        worker_config_dict:
-            Configuration dict with snake case keys or None.
-
-    Returns:
-        An instance of DockerWorkerConfigV2Docker or None if the input is None.
-        
-    """
-    if worker_config_dict is None:
-        return worker_config_dict
-
-    worker_config_camel_case = _config_to_camel_case(cfg=worker_config_dict)
-    return deserialize(worker_config_camel_case, DockerWorkerConfigV2Docker)
-
-
-def lightly_config_from_dict(
-    deserialize: Callable[[Dict[str, Any], str], Any],
-    lightly_config_dict: Optional[Dict[str, Any]]
-) -> Optional[DockerWorkerConfigV2Lightly]:
-    """Converts worker config to DockerWorkerConfigV2Lightly instance.
-
-    Args:
-        deserialize:
-            Function to deserialize the worker_config_dict.
-        lightly_config_dict:
-            Configuration dict with snake case keys or None.
-
-    Returns:
-        An instance of DockerWorkerConfigV2Lightly or None if the input is None.
-        
-    """
-    if lightly_config_dict is None:
-        return lightly_config_dict
-
-    lightly_config_camel_case = _config_to_camel_case(cfg=lightly_config_dict)
-    return deserialize(lightly_config_camel_case, DockerWorkerConfigV2Lightly)
-
-
-def _get_deserializer(api_client: ApiClient) -> Callable[[Dict[str, Any], str], Any]:
-    """Returns the deserializer of the ApiClient class. 
+def _get_deserialize(
+    api_client: ApiClient,
+    klass: Type[_T],
+) -> Callable[[Dict[str, Any]], _T]:
+    """Returns the deserializer of the ApiClient class for class klass. 
 
     TODO(Philipp, 02/23): We should replace this by our own deserializer which
     accepts snake case strings as input.
 
-    The deserializer takes a dictionary and a class-string and returns an instance
-    of the class.
+    The deserializer takes a dictionary and and returns an instance of klass.
 
     """
-    return getattr(api_client, "_ApiClient__deserialize")
+    deserialize = getattr(api_client, "_ApiClient__deserialize")
+    return partial(deserialize, klass=klass)
 
 
 def _config_to_camel_case(cfg: Dict[str, Any]) -> Dict[str, Any]:
