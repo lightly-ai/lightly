@@ -15,7 +15,7 @@ from lightly.openapi_generated.swagger_client import (
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
-    DockerWorkerConfig,
+    DockerWorkerConfigV2,
     DockerWorkerConfigV2CreateRequest,
     DockerWorkerType,
     SelectionConfig,
@@ -139,7 +139,7 @@ class _ComputeWorkerMixin:
             selection = selection_config_from_dict(cfg=selection_config)
         else:
             selection = selection_config
-        config = DockerWorkerConfig(
+        config = DockerWorkerConfigV2(
             worker_type=DockerWorkerType.FULL,
             docker=worker_config,
             lightly=lightly_config,
