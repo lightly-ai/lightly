@@ -27,12 +27,21 @@ def cosine_schedule(
         raise ValueError("Current step number can't be negative")
     if max_steps < 1:
         raise ValueError("Total step number must be >= 1")
-    if step >= max_steps:
+    if step > max_steps:
+        # Note: we allow step == max_steps even though step starts at 0 and should end
+        # at max_steps - 1. This is because Pytorch Lightning updates the LR scheduler
+        # always for the next epoch, even after the last training epoch. This results in 
+        # Pytorch Lightning calling the scheduler with step == max_steps.
         raise ValueError(
-            f"The current step must be smaller than max_steps but found step equal to {step} and max_steps equal to {max_steps}."
+            f"The current step cannot be larger than max_steps but found step {step} and max_steps {max_steps}."
         )
 
     if max_steps == 1:
+        # Avoid division by zero
+        decay = end_value
+    elif step == max_steps:
+        # Special case for Pytorch Lightning which updates LR scheduler also for epoch
+        # after last training epoch.
         decay = end_value
     else:
         decay = (
@@ -91,8 +100,8 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
 
         """
         if epoch < self.warmup_epochs:
-            return epoch / self.warmup_epochs
+            return (epoch + 1) / self.warmup_epochs
         else:
             return cosine_schedule(
-                epoch - self.warmup_epochs, self.max_epochs - self.warmup_epochs, 0, 1
+                epoch - self.warmup_epochs, self.max_epochs - self.warmup_epochs, 1.0, 0.0
             )
