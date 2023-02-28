@@ -152,8 +152,6 @@ class _ComputeWorkerMixin:
             deserialize=deserialize,
             lightly_config_dict=lightly_config
         )
-        print(worker_config)
-        print(lightly_config)
 
         config = DockerWorkerConfigV2(
             worker_type=DockerWorkerType.FULL,
@@ -847,7 +845,7 @@ def worker_config_from_dict(
 
 
 def lightly_config_from_dict(
-    deserialize: Callable,
+    deserialize: Callable[[Dict[str, Any], str], Any],
     lightly_config_dict: Optional[Dict[str, Any]]
 ) -> Optional[DockerWorkerConfigV2Lightly]:
     """Converts worker config to DockerWorkerConfigV2Lightly instance.
@@ -869,11 +867,14 @@ def lightly_config_from_dict(
     return deserialize(lightly_config_camel_case, DockerWorkerConfigV2Lightly)
 
 
-def _get_deserializer(api_client: ApiClient) -> Callable:
+def _get_deserializer(api_client: ApiClient) -> Callable[[Dict[str, Any], str], Any]:
     """Returns the deserializer of the ApiClient class. 
 
     TODO(Philipp, 02/23): We should replace this by our own deserializer which
     accepts snake case strings as input.
+
+    The deserializer takes a dictionary and a class-string and returns an instance
+    of the class.
 
     """
     return getattr(api_client, "_ApiClient__deserialize")
