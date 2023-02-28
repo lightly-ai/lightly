@@ -23,7 +23,7 @@ from lightly.openapi_generated.swagger_client import (
     SelectionStrategyThresholdOperation,
     SelectionInputPredictionsName,
     SelectionConfigEntryStrategy,
-    DockerWorkerConfig,
+    DockerWorkerConfigV2,
     DockerWorkerType,
     DockerRunArtifactData,
     DockerRunArtifactType,
@@ -193,7 +193,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
                 ),
             ],
         )
-        config = DockerWorkerConfig(
+        config = DockerWorkerConfigV2(
             worker_type=DockerWorkerType.FULL, selection=selection_config
         )
 

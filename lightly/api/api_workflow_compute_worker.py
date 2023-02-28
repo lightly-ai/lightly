@@ -15,7 +15,9 @@ from lightly.openapi_generated.swagger_client import (
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
-    DockerWorkerConfig,
+    DockerWorkerConfigV2Docker,
+    DockerWorkerConfigV2Lightly,
+    DockerWorkerConfigV2,
     DockerWorkerConfigV2CreateRequest,
     DockerWorkerType,
     SelectionConfig,
@@ -114,9 +116,9 @@ class _ComputeWorkerMixin:
 
     def create_compute_worker_config(
         self,
-        worker_config: Optional[Dict[str, Any]] = None,
-        lightly_config: Optional[Dict[str, Any]] = None,
-        selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
+        worker_config: Optional[DockerWorkerConfigV2Docker] = None,
+        lightly_config: Optional[DockerWorkerConfigV2Lightly] = None,
+        selection_config: Optional[SelectionConfig] = None,
     ) -> str:
         """Creates a new configuration for a compute worker run.
 
@@ -139,7 +141,7 @@ class _ComputeWorkerMixin:
             selection = selection_config_from_dict(cfg=selection_config)
         else:
             selection = selection_config
-        config = DockerWorkerConfig(
+        config = DockerWorkerConfigV2(
             worker_type=DockerWorkerType.FULL,
             docker=worker_config,
             lightly=lightly_config,
@@ -151,9 +153,9 @@ class _ComputeWorkerMixin:
 
     def schedule_compute_worker_run(
         self,
-        worker_config: Optional[Dict[str, Any]] = None,
-        lightly_config: Optional[Dict[str, Any]] = None,
-        selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
+        worker_config: Optional[DockerWorkerConfigV2Docker] = None,
+        lightly_config: Optional[DockerWorkerConfigV2Lightly] = None,
+        selection_config: Optional[SelectionConfig] = None,
         priority: str = DockerRunScheduledPriority.MID,
         runs_on: Optional[List[str]] = None
     ) -> str:
