@@ -140,7 +140,7 @@ class _ComputeWorkerMixin:
         else:
             selection = selection_config
 
-        deserialize = self.api_client.__dict__["_ApiClient__deserialize"]
+        deserialize = getattr(self.api_client, "_ApiClient__deserialize")
         worker_config = deserialize(worker_config, "DockerWorkerConfigV2Docker") if worker_config is not None else None
         lightly_config = deserialize(lightly_config, "DockerWorkerConfigV2Lightly") if lightly_config is not None else None
 
