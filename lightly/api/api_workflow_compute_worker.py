@@ -144,22 +144,26 @@ class _ComputeWorkerMixin:
         else:
             selection = selection_config
 
-        worker_config = _config_to_camel_case(cfg=worker_config)
-        deserialize_worker_config = _get_deserialize(
-            api_client=self.api_client,
-            klass=DockerWorkerConfigV2Docker,
-        )
+        if worker_config is not None:
+            worker_config = _config_to_camel_case(cfg=worker_config)
+            deserialize_worker_config = _get_deserialize(
+                api_client=self.api_client,
+                klass=DockerWorkerConfigV2Docker,
+            )
+            worker_config = deserialize_worker_config(worker_config)
 
-        lightly_config = _config_to_camel_case(cfg=lightly_config)
-        deserialize_lightly_config = _get_deserialize(
-            api_client=self.api_client,
-            klass=DockerWorkerConfigV2Lightly,
-        )
+        if lightly_config is not None:
+            lightly_config = _config_to_camel_case(cfg=lightly_config)
+            deserialize_lightly_config = _get_deserialize(
+                api_client=self.api_client,
+                klass=DockerWorkerConfigV2Lightly,
+            )
+            lightly_config = deserialize_lightly_config(lightly_config)
 
         config = DockerWorkerConfigV2(
             worker_type=DockerWorkerType.FULL,
-            docker=deserialize_worker_config(worker_config),
-            lightly=deserialize_lightly_config(lightly_config),
+            docker=worker_config,
+            lightly=lightly_config,
             selection=selection,
         )
         request = DockerWorkerConfigV2CreateRequest(config)
