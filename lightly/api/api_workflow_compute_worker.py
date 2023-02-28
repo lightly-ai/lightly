@@ -852,11 +852,14 @@ def _get_deserializer(api_client: ApiClient) -> Callable:
 
 
 def _config_to_camel_case(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    cfg_camel_case = {}
     for key, value in cfg.items():
-        del cfg[key]
+        key_camel_case = _snake_to_camel_case(key)
         if isinstance(value, dict):
-            _config_to_camel_case(value)
-        cfg[_snake_to_camel_case(snake=key)] = value
+            cfg_camel_case[key_camel_case] = _config_to_camel_case(value)
+        else:
+            cfg_camel_case[key_camel_case] = value
+    return cfg_camel_case
 
 
 def _snake_to_camel_case(snake: str) -> str:
