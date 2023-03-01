@@ -38,14 +38,15 @@ Results (17.2.2023):
 | DCL (*)          |        256 |    800 |              0.862 |  213.1 Min |      4.3 GByte |
 | DCLW (*)         |        256 |    800 |              0.866 |  213.1 Min |      4.3 GByte |
 | DINO (Res18)     |        256 |    800 |              0.866 |  613.9 Min |      6.7 GByte |
-| MSN (ViT-S)      |        256 |    800 |              0.834 |  376.1 Min |     16.3 GByte |
+| MAE (ViT-S)      |        256 |    800 |              0.620 |  205.1 Min |      4.7 GByte |
+| MSN (ViT-S)      |        256 |    800 |              0.834 |  446.8 Min |     16.3 GByte |
 | Moco             |        256 |    800 |              0.876 |  322.8 Min |      4.2 GByte |
 | NNCLR            |        256 |    800 |              0.888 |  341.4 Min |      4.2 GByte |
 | SimCLR           |        256 |    800 |              0.892 |  324.8 Min |      3.9 GByte |
-| SimMIM (ViT-B32) |        256 |    800 |              0.355 |  397.8 Min |     10.5 GByte |
+| SimMIM (ViT-B32) |        256 |    800 |              0.351 |  305.2 Min |     10.5 GByte |
 | SimSiam          |        256 |    800 |              0.888 |  316.0 Min |      3.9 GByte |
 | SwaV             |        256 |    800 |              0.902 |  554.7 Min |      6.6 GByte |
-| SwaVQueue        |        256 |    800 |              0.894 |  273.7 Min |      6.4 GByte |
+| SwaVQueue        |        256 |    800 |              0.894 |  325.5 Min |      8.2 GByte |
 | SMoG             |        128 |    200 |              0.806 |  220.9 Min |     14.3 GByte |
 | TiCo             |        256 |    800 |              0.816 |  321.1 Min |      4.0 GByte |
 | VICReg           |        256 |    800 |              0.815 |  316.0 Min |      5.7 GByte |
