@@ -217,18 +217,26 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 
 #### ImageNette
 
-| Model        | Epochs | Batch Size | Test Accuracy |
-|--------------|--------|------------|---------------|
-| BarlowTwins  |    800 |        256 |         0.789 |
-| BYOL         |    800 |        256 |         0.851 |
-| DCL          |    800 |        256 |         0.816 |
-| DCLW         |    800 |        256 |         0.827 |
-| DINO (Res18) |    800 |        256 |         0.881 |
-| Moco         |    800 |        256 |         0.832 |
-| NNCLR        |    800 |        256 |         0.848 |
-| SimCLR       |    800 |        256 |         0.858 |
-| SimSiam      |    800 |        256 |         0.852 |
-| SwaV         |    800 |        256 |         0.899 |
+| Model            | Epochs | Batch Size | Test Accuracy |
+|------------------|--------|------------|---------------|
+| BarlowTwins      |    800 |        256 |         0.834 |
+| BYOL             |    800 |        256 |         0.887 |
+| DCL              |    800 |        256 |         0.862 |
+| DCLW             |    800 |        256 |         0.866 |
+| DINO (Res18)     |    800 |        256 |         0.866 |
+| MAE (ViT-S)      |    800 |        256 |         0.620 |
+| MSN (ViT-S)      |    800 |        256 |         0.834 |
+| Moco             |    800 |        256 |         0.876 |
+| NNCLR            |    800 |        256 |         0.888 |
+| SimCLR           |    800 |        256 |         0.892 |
+| SimMIM (ViT-B32) |    800 |        256 |         0.351 |
+| SimSiam          |    800 |        256 |         0.888 |
+| SwaV             |    800 |        256 |         0.902 |
+| SwaVQueue        |    800 |        256 |         0.894 |
+| SMoG             |    800 |        256 |         0.806 |
+| TiCo             |    800 |        256 |         0.816 |
+| VICReg           |    800 |        256 |         0.815 |
+| VICRegL          |    800 |        256 |         0.800 |
 
 
 #### Cifar10
