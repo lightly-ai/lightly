@@ -37,8 +37,8 @@ class VICRegL(pl.LightningModule):
 
     def training_step(self, batch, batch_index):
         (view_global, view_local, grid_global, grid_local), _, _ = batch
-        z_global, z_global_local_features = model(view_global)
-        z_local, z_local_local_features = model(view_local)
+        z_global, z_global_local_features = self(view_global)
+        z_local, z_local_local_features = self(view_local)
         loss = self.criterion(
             z_global=z_global, 
             z_local=z_local, 
@@ -76,4 +76,3 @@ gpus = 1 if torch.cuda.is_available() else 0
 
 trainer = pl.Trainer(max_epochs=10, gpus=gpus)
 trainer.fit(model=model, train_dataloaders=dataloader)
-
