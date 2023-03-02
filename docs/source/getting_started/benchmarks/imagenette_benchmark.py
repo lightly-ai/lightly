@@ -11,7 +11,7 @@ Code has been tested on a A6000 GPU with 48GBytes of memory.
 
 Code to reproduce the benchmark results:
 
-Results (17.2.2023):
+Results (2.3.2023):
 ---------------------------------------------------------------------------------------------
 | Model            | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
 ---------------------------------------------------------------------------------------------
@@ -47,10 +47,10 @@ Results (17.2.2023):
 | SimSiam          |        256 |    800 |              0.888 |  316.0 Min |      3.9 GByte |
 | SwaV             |        256 |    800 |              0.902 |  554.7 Min |      6.6 GByte |
 | SwaVQueue        |        256 |    800 |              0.894 |  325.5 Min |      8.2 GByte |
-| SMoG             |        128 |    200 |              0.806 |  220.9 Min |     14.3 GByte |
+| SMoG             |        256 |    800 |              0.806 |  220.9 Min |     14.3 GByte |
 | TiCo             |        256 |    800 |              0.816 |  321.1 Min |      4.0 GByte |
 | VICReg           |        256 |    800 |              0.815 |  316.0 Min |      5.7 GByte |
-| VICRegL          |        256 |    800 |              0.817 |  302.0 Min |      4.4 GByte |
+| VICRegL          |        256 |    800 |              0.800 |  210.9 Min |      4.4 GByte |
 ---------------------------------------------------------------------------------------------
 
 (*): Different runtime and memory requirements due to different hardware settings
