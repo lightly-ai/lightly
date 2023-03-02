@@ -50,6 +50,12 @@ Reference:
 
         .. literalinclude:: ../../../examples/pytorch_lightning_distributed/swav.py
 
+
+.. _swav_queue:
+
+SwaV Queue
+==========
+
 If you are planning to work with small batch sizes (less than 256), please use the SwaV implementation with queue:
 
 .. tabs::

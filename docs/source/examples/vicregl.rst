@@ -1,4 +1,4 @@
-.. _vicreg:
+.. _vicregl:
 
 VICRegL
 =======
