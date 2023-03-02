@@ -1,11 +1,28 @@
 # -*- coding: utf-8 -*-
 """
+Benchmark Results
+
+Updated: 13.02.2023
+
+------------------------------------------------------------------------------------------
+| Model         | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
+------------------------------------------------------------------------------------------
+| BarlowTwins   |        256 |    200 |              0.465 | 1319.3 Min |     11.3 GByte |
+| BYOL          |        256 |    200 |              0.439 | 1315.4 Min |     12.9 GByte |
+| DINO          |        256 |    200 |              0.518 | 1868.5 Min |     17.4 GByte |
+| Moco          |        256 |    200 |              0.560 | 1314.2 Min |     13.1 GByte |
+| NNCLR         |        256 |    200 |              0.453 | 1198.6 Min |     11.8 GByte |
+| SimCLR        |        256 |    200 |              0.469 | 1207.7 Min |     11.3 GByte |
+| SimSiam       |        256 |    200 |              0.542 | 1179.1 Min |     11.4 GByte |
+| SwaV          |        256 |    200 |              0.678 | 1642.8 Min |     16.9 GByte |
+------------------------------------------------------------------------------------------
+
 Note that this benchmark also supports a multi-GPU setup. If you run it on
 a system with multiple GPUs make sure that you kill all the processes when
 killing the application. Due to the way we setup this benchmark the distributed
 processes might continue the benchmark if one of the nodes is killed.
 If you know how to fix this don't hesitate to create an issue or PR :)
-Code has been tested on a V100 GPU with 16GBytes of video memory.
+Code has been tested on a A6000 GPU with 48GBytes of memory.
 """
 import copy
 import os
@@ -33,7 +50,7 @@ from lightly.loss import (
 )
 from lightly.models import modules, utils
 from lightly.models.modules import heads
-from lightly.utils import BenchmarkModule
+from lightly.utils.benchmarking import BenchmarkModule
 
 from pl_bolts.optimizers.lars import LARS
 from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
