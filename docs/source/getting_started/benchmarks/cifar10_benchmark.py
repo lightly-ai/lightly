@@ -220,7 +220,7 @@ def create_dataset_train_ssl(model):
         transform = dino_transform
     elif model == SMoGModel:
         transform = smog_transform
-    return lightly.data.LightlyDataset(input_dir=path_to_train, transform=transform)
+    return LightlyDataset(input_dir=path_to_train, transform=transform)
 
 def get_data_loaders(batch_size: int, dataset_train_ssl):
     """Helper method to create dataloaders for ssl, kNN train and kNN test.

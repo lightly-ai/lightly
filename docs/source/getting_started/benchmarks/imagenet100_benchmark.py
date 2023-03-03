@@ -156,7 +156,7 @@ def create_dataset_train_ssl(model):
         transform = swav_transform
     elif model == DINOModel:
         transform = dino_transform
-    return lightly.data.LightlyDataset(input_dir=path_to_train, transform=transform)
+    return LightlyDataset(input_dir=path_to_train, transform=transform)
 
 
 def get_data_loaders(batch_size: int, dataset_train_ssl):
