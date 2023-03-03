@@ -53,10 +53,10 @@ class SwaVTransform(MultiCropTranform):
 
     def __init__(
         self,
-        crop_sizes: Tuple[int] = (224, 96),
-        crop_counts: Tuple[int] = (2, 6),
-        crop_min_scales: Tuple[float] = (0.14, 0.05),
-        crop_max_scales: Tuple[float] = (1.0, 0.14),
+        crop_sizes: Tuple[int, int] = (224, 96),
+        crop_counts: Tuple[int, int] = (2, 6),
+        crop_min_scales: Tuple[float, float] = (0.14, 0.05),
+        crop_max_scales: Tuple[float, float] = (1.0, 0.14),
         hf_prob: float = 0.5,
         vf_prob: float = 0.0,
         rr_prob: float = 0.0,
