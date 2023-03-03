@@ -12,8 +12,8 @@ from typing import List
 
 import hydra
 import yaml
-from torch.utils.hipify.hipify_python import bcolors
 
+from lightly.utils.hipify import bcolors
 from lightly.active_learning.utils import BoundingBox
 from lightly.cli._helpers import fix_input_path
 from lightly.cli._helpers import fix_hydra_arguments

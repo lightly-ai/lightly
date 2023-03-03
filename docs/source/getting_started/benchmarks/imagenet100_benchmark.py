@@ -1,31 +1,57 @@
 # -*- coding: utf-8 -*-
 """
+Benchmark Results
+
+Updated: 13.02.2023
+
+------------------------------------------------------------------------------------------
+| Model         | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
+------------------------------------------------------------------------------------------
+| BarlowTwins   |        256 |    200 |              0.465 | 1319.3 Min |     11.3 GByte |
+| BYOL          |        256 |    200 |              0.439 | 1315.4 Min |     12.9 GByte |
+| DINO          |        256 |    200 |              0.518 | 1868.5 Min |     17.4 GByte |
+| Moco          |        256 |    200 |              0.560 | 1314.2 Min |     13.1 GByte |
+| NNCLR         |        256 |    200 |              0.453 | 1198.6 Min |     11.8 GByte |
+| SimCLR        |        256 |    200 |              0.469 | 1207.7 Min |     11.3 GByte |
+| SimSiam       |        256 |    200 |              0.542 | 1179.1 Min |     11.4 GByte |
+| SwaV          |        256 |    200 |              0.678 | 1642.8 Min |     16.9 GByte |
+------------------------------------------------------------------------------------------
+
 Note that this benchmark also supports a multi-GPU setup. If you run it on
 a system with multiple GPUs make sure that you kill all the processes when
 killing the application. Due to the way we setup this benchmark the distributed
 processes might continue the benchmark if one of the nodes is killed.
 If you know how to fix this don't hesitate to create an issue or PR :)
-Code has been tested on a V100 GPU with 16GBytes of video memory.
+Code has been tested on a A6000 GPU with 48GBytes of memory.
 """
 import copy
 import os
 
 import time
-import lightly
 import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 from torch.optim.lr_scheduler import LambdaLR
 import torchvision
-from lightly.models import modules
+from lightly.data import LightlyDataset
+from lightly.loss import (
+    NTXentLoss,
+    NegativeCosineSimilarity,
+    DINOLoss,
+    BarlowTwinsLoss,
+    SwaVLoss,
+)
+from lightly.models import modules, utils
 from lightly.models.modules import heads
 from lightly.models import utils
-from lightly.utils import BenchmarkModule
 from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.transforms import SimCLRTransform
 from lightly.transforms import SwaVTransform
 from lightly.transforms import DINOTransform
+from lightly.transforms.utils import IMAGENET_NORMALIZE
+from lightly.utils.benchmarking import BenchmarkModule
+
 from pl_bolts.optimizers.lars import LARS
 from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -99,24 +125,24 @@ test_transforms = torchvision.transforms.Compose([
     torchvision.transforms.CenterCrop(224),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(
-        mean=lightly.data.collate.imagenet_normalize['mean'],
-        std=lightly.data.collate.imagenet_normalize['std'],
+        mean=IMAGENET_NORMALIZE['mean'],
+        std=IMAGENET_NORMALIZE['std'],
     )
 ])
 
 
 # we use test transformations for getting the feature for kNN on train data
-dataset_train_kNN = lightly.data.LightlyDataset(
+dataset_train_kNN = LightlyDataset(
     input_dir=path_to_train,
     transform=test_transforms
 )
 
-dataset_test = lightly.data.LightlyDataset(
+dataset_test = LightlyDataset(
     input_dir=path_to_test,
     transform=test_transforms
 )
 
-steps_per_epoch = len(lightly.data.LightlyDataset(input_dir=path_to_train)) // batch_size
+steps_per_epoch = len(LightlyDataset(input_dir=path_to_train)) // batch_size
 
 def create_dataset_train_ssl(model):
     """Helper method to apply the correct transform for ssl.
@@ -188,7 +214,7 @@ class MocoModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
         # create our loss with the optional memory bank
-        self.criterion = lightly.loss.NTXentLoss(
+        self.criterion = NTXentLoss(
             temperature=0.07,
             memory_bank_size=memory_bank_size)
 
@@ -244,7 +270,7 @@ class SimCLRModel(BenchmarkModule):
             *list(resnet.children())[:-1]
         )
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
-        self.criterion = lightly.loss.NTXentLoss(temperature=0.1)
+        self.criterion = NTXentLoss(temperature=0.1)
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -291,7 +317,7 @@ class SimSiamModel(BenchmarkModule):
         )
         self.prediction_head = heads.SimSiamPredictionHead(2048, 512, 2048)
         self.projection_head = heads.SimSiamProjectionHead(feature_dim, 512, 2048)
-        self.criterion = lightly.loss.NegativeCosineSimilarity()
+        self.criterion = NegativeCosineSimilarity()
 
     def forward(self, x):
         f = self.backbone(x).flatten(start_dim=1)
@@ -330,7 +356,7 @@ class BarlowTwinsModel(BenchmarkModule):
         # use a 2-layer projection head for cifar10 as described in the paper
         self.projection_head = heads.BarlowTwinsProjectionHead(feature_dim, 2048, 2048)
 
-        self.criterion = lightly.loss.BarlowTwinsLoss(gather_distributed=gather_distributed)
+        self.criterion = BarlowTwinsLoss(gather_distributed=gather_distributed)
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -386,7 +412,7 @@ class BYOLModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.backbone_momentum)
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
-        self.criterion = lightly.loss.NegativeCosineSimilarity()
+        self.criterion = NegativeCosineSimilarity()
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)
@@ -449,7 +475,7 @@ class NNCLRModel(BenchmarkModule):
         self.prediction_head = heads.NNCLRPredictionHead(256, 4096, 256)
         self.projection_head = heads.NNCLRProjectionHead(feature_dim, 4096, 256)
 
-        self.criterion = lightly.loss.NTXentLoss()
+        self.criterion = NTXentLoss()
         self.memory_bank = modules.NNMemoryBankModule(size=memory_bank_size)
 
     def forward(self, x):
@@ -492,7 +518,7 @@ class SwaVModel(BenchmarkModule):
         self.projection_head = heads.SwaVProjectionHead(feature_dim, 2048, 128)
         self.prototypes = heads.SwaVPrototypes(128, 3000) # use 3000 prototypes
 
-        self.criterion = lightly.loss.SwaVLoss(sinkhorn_gather_distributed=gather_distributed)
+        self.criterion = SwaVLoss(sinkhorn_gather_distributed=gather_distributed)
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -562,7 +588,7 @@ class DINOModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.teacher_backbone)
         utils.deactivate_requires_grad(self.teacher_head)
 
-        self.criterion = lightly.loss.DINOLoss(output_dim=2048)
+        self.criterion = DINOLoss(output_dim=2048)
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)

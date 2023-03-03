@@ -37,6 +37,9 @@ from lightly.openapi_generated.swagger_client.models.docker_run_state import (
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import (
     DockerWorkerConfigCreateRequest,
 )
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_create_request import (
+    DockerWorkerConfigV2CreateRequest,
+)
 from lightly.openapi_generated.swagger_client.models.docker_worker_registry_entry_data import (
     DockerWorkerRegistryEntryData,
 )
@@ -903,6 +906,10 @@ class MockedComputeWorkerApi(DockerApi):
     def create_docker_worker_config(self, body, **kwargs):
         assert isinstance(body, DockerWorkerConfigCreateRequest)
         return CreateEntityResponse(id="worker-config-id-123")
+    
+    def create_docker_worker_config_v2(self, body, **kwargs):
+        assert isinstance(body, DockerWorkerConfigV2CreateRequest)
+        return CreateEntityResponse(id="worker-configv2-id-123")
 
     def create_docker_run_scheduled_by_dataset_id(self, body, dataset_id, **kwargs):
         assert isinstance(body, DockerRunScheduledCreateRequest)

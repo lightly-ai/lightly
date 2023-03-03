@@ -11,6 +11,8 @@ from lightly.api.api_workflow_compute_worker import (
     STATE_SCHEDULED_ID_NOT_FOUND,
     ArtifactNotExist,
     ComputeWorkerRunInfo,
+    _config_to_camel_case,
+    _snake_to_camel_case,
 )
 from lightly.openapi_generated.swagger_client import (
     SelectionConfig,
@@ -727,3 +729,24 @@ def test__download_compute_worker_run_artifact_by_type__no_artifact_with_type(
             output_path="output_dir/checkpoint.ckpt",
             timeout=0,
         )
+
+
+def test__config_to_camel_case() -> None:
+    assert _config_to_camel_case({
+        "lorem_ipsum": "dolor",
+        "lorem": {
+            "ipsum_dolor": "sit_amet",
+        }
+    }) == {
+        "loremIpsum": "dolor",
+        "lorem": {
+            "ipsumDolor": "sit_amet",
+        }
+    }
+
+def test__snake_to_camel_case() -> None:
+    
+    assert _snake_to_camel_case("lorem") == "lorem"
+    assert _snake_to_camel_case("lorem_ipsum") == "loremIpsum"
+    assert _snake_to_camel_case("lorem_ipsum_dolor") == "loremIpsumDolor"
+    assert _snake_to_camel_case("loremIpsum") == "loremIpsum" # do nothing

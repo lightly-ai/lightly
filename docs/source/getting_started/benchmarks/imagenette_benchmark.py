@@ -7,48 +7,50 @@ processes might continue the benchmark if one of the nodes is killed.
 If you know how to fix this don't hesitate to create an issue or PR :)
 You can download the ImageNette dataset from here: https://github.com/fastai/imagenette
 
-Code has been tested on a V100 GPU with 16GBytes of video memory.
+Code has been tested on a A6000 GPU with 48GBytes of memory.
 
 Code to reproduce the benchmark results:
 
-Results (5.3.2022):
+Results (2.3.2023):
 ---------------------------------------------------------------------------------------------
 | Model            | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
 ---------------------------------------------------------------------------------------------
-| BarlowTwins      |        256 |    200 |              0.587 |   86.2 Min |      4.0 GByte |
-| BYOL             |        256 |    200 |              0.619 |   88.6 Min |      4.3 GByte |
-| DCL (*)          |        256 |    200 |              0.762 |   53.3 Min |      4.3 GByte |
-| DCLW (*)         |        256 |    200 |              0.755 |   53.7 Min |      4.3 GByte |
-| DINO (Res18)     |        256 |    200 |              0.736 |   86.5 Min |      4.1 GByte |
-| MSN (ViT-S)      |        256 |    200 |              0.741 |   92.7 Min |     16.3 GByte |
-| Moco             |        256 |    200 |              0.727 |   87.3 Min |      4.3 GByte |
-| NNCLR            |        256 |    200 |              0.726 |   86.8 Min |      4.2 GByte |
-| SimCLR           |        256 |    200 |              0.771 |   82.2 Min |      3.9 GByte |
-| SimMIM (ViT-B32) |        256 |    200 |              0.342 |   98.8 Min |     10.5 GByte |
-| SimSiam          |        256 |    200 |              0.669 |   78.6 Min |      3.9 GByte |
-| SMoG (**)        |        128 |    200 |              0.698 |  220.9 Min |     14.3 GByte |
-| SwaV             |        256 |    200 |              0.748 |   77.6 Min |      4.0 GByte |
+| BarlowTwins      |        256 |    200 |              0.491 |   57.7 Min |      4.0 GByte |
+| BYOL             |        256 |    200 |              0.713 |   51.3 Min |      4.3 GByte |
+| DCL (*)          |        256 |    200 |              0.814 |   47.5 Min |      3.7 GByte |
+| DCLW (*)         |        256 |    200 |              0.802 |   48.0 Min |      3.7 GByte |
+| DINO (Res18)     |        256 |    200 |              0.872 |   76.6 Min |      6.6 GByte |
+| MSN (ViT-S)      |        256 |    200 |              0.721 |  123.3 Min |     16.3 GByte |
+| Moco             |        256 |    200 |              0.778 |   51.3 Min |      4.2 GByte |
+| NNCLR            |        256 |    200 |              0.801 |   47.3 Min |      3.8 GByte |
+| SimCLR           |        256 |    200 |              0.834 |   46.5 Min |      3.7 GByte |
+| SimMIM (ViT-B32) |        256 |    200 |              0.322 |   98.8 Min |     10.5 GByte |
+| SimSiam          |        256 |    200 |              0.729 |   46.9 Min |      3.8 GByte |
+| SwaV             |        256 |    200 |              0.864 |   69.1 Min |      6.4 GByte |
 | SwaVQueue        |        256 |    200 |              0.845 |   68.8 Min |      6.4 GByte |
-| TiCo             |        256 |    200 |              0.531 |   78.2 Min |      4.3 GByte |
-| VICReg           |        256 |    200 |              0.679 |   79.1 Min |      5.7 GByte |
-| VICRegL          |        256 |    200 |              0.703 |   79.5 Min |      4.4 GByte |
+| SMoG             |        256 |    200 |              0.634 |  176.9 Min |     24.2 GByte |
+| TiCo             |        256 |    200 |              0.423 |   43.2 Min |      2.5 GByte |
+| VICReg           |        256 |    200 |              0.733 |   49.2 Min |      3.8 GByte |
+| VICRegL          |        256 |    200 |              0.643 |   48.0 Min |      2.6 GByte |
 ---------------------------------------------------------------------------------------------
-| BarlowTwins      |        256 |    800 |              0.789 |  330.9 Min |      4.0 GByte |
-| BYOL             |        256 |    800 |              0.851 |  332.7 Min |      4.3 GByte |
-| DCL (*)          |        256 |    800 |              0.816 |  213.1 Min |      4.3 GByte |
-| DCLW (*)         |        256 |    800 |              0.827 |  213.1 Min |      4.3 GByte |
-| DINO (Res18)     |        256 |    800 |              0.881 |  613.9 Min |      6.7 GByte |
-| MSN (ViT-S)      |        256 |    800 |              0.834 |  376.1 Min |     16.3 GByte |
-| Moco             |        256 |    800 |              0.832 |  322.8 Min |      4.2 GByte |
-| NNCLR            |        256 |    800 |              0.848 |  341.4 Min |      4.2 GByte |
-| SimCLR           |        256 |    800 |              0.858 |  324.8 Min |      3.9 GByte |
-| SimMIM (ViT-B32) |        256 |    800 |              0.355 |  397.8 Min |     10.5 GByte |
-| SimSiam          |        256 |    800 |              0.852 |  316.0 Min |      3.9 GByte |
-| SwaV             |        256 |    800 |              0.899 |  554.7 Min |      6.6 GByte |
-| SwaVQueue        |        256 |    800 |              0.894 |  273.7 Min |      6.4 GByte |
-| TiCo             |        256 |    800 |              0.672 |  321.1 Min |      4.0 GByte |
-| VICReg           |        256 |    800 |              0.783 |  316.0 Min |      5.7 GByte |
-| VICRegL          |        256 |    800 |              0.817 |  302.0 Min |      4.4 GByte |
+| BarlowTwins      |        256 |    800 |              0.834 |  330.9 Min |      4.0 GByte |
+| BYOL             |        256 |    800 |              0.887 |  332.7 Min |      4.3 GByte |
+| DCL (*)          |        256 |    800 |              0.862 |  213.1 Min |      4.3 GByte |
+| DCLW (*)         |        256 |    800 |              0.866 |  213.1 Min |      4.3 GByte |
+| DINO (Res18)     |        256 |    800 |              0.866 |  613.9 Min |      6.7 GByte |
+| MAE (ViT-S)      |        256 |    800 |              0.620 |  205.1 Min |      4.7 GByte |
+| MSN (ViT-S)      |        256 |    800 |              0.834 |  446.8 Min |     16.3 GByte |
+| Moco             |        256 |    800 |              0.876 |  322.8 Min |      4.2 GByte |
+| NNCLR            |        256 |    800 |              0.888 |  341.4 Min |      4.2 GByte |
+| SimCLR           |        256 |    800 |              0.892 |  324.8 Min |      3.9 GByte |
+| SimMIM (ViT-B32) |        256 |    800 |              0.351 |  305.2 Min |     10.5 GByte |
+| SimSiam          |        256 |    800 |              0.888 |  316.0 Min |      3.9 GByte |
+| SwaV             |        256 |    800 |              0.902 |  554.7 Min |      6.6 GByte |
+| SwaVQueue        |        256 |    800 |              0.894 |  325.5 Min |      8.2 GByte |
+| SMoG             |        256 |    800 |              0.806 |  220.9 Min |     14.3 GByte |
+| TiCo             |        256 |    800 |              0.816 |  321.1 Min |      4.0 GByte |
+| VICReg           |        256 |    800 |              0.815 |  316.0 Min |      5.7 GByte |
+| VICRegL          |        256 |    800 |              0.800 |  210.9 Min |      4.4 GByte |
 ---------------------------------------------------------------------------------------------
 
 (*): Different runtime and memory requirements due to different hardware settings
@@ -58,21 +60,32 @@ with the default settings.
 
 """
 import copy
-import math
 import os
 
 import time
-import lightly
 import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchvision
-from lightly.models import modules
-from lightly.models.modules import heads
-from lightly.models.modules import masked_autoencoder
-from lightly.models import utils
-from lightly.utils import BenchmarkModule
+from lightly.data import LightlyDataset
+from lightly.loss import (
+    NTXentLoss,
+    NegativeCosineSimilarity,
+    DINOLoss,
+    BarlowTwinsLoss,
+    SwaVLoss,
+    MSNLoss,
+    DCLLoss,
+    DCLWLoss,
+    VICRegLLoss,
+    VICRegLoss,
+    TiCoLoss,
+    memory_bank,
+)
+from lightly.models import modules, utils
+from lightly.models.modules import heads, masked_autoencoder
+from lightly.utils.benchmarking import BenchmarkModule
 from lightly.utils import scheduler
 from lightly.data.multi_view_collate import MultiViewCollate
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -83,6 +96,7 @@ from lightly.transforms import SMoGTransform
 from lightly.transforms import MAETransform
 from lightly.transforms import MSNTransform
 from lightly.transforms import VICRegLTransform
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 from pl_bolts.optimizers.lars import LARS
 
 logs_root_dir = os.path.join(os.getcwd(), "benchmark_logs")
@@ -144,8 +158,8 @@ simclr_transform = SimCLRTransform(
 
 # Multi crop augmentation for SwAV
 swav_transform = SwaVTransform(
-    crop_sizes=[128, 64],
-    crop_counts=[2, 6],  # 2 crops @ 128x128px and 6 crops @ 64x64px
+    crop_sizes=(128, 64),
+    crop_counts=(2, 6),  # 2 crops @ 128x128px and 6 crops @ 64x64px
 )
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
@@ -156,10 +170,10 @@ dino_transform = DINOTransform(
 
 # Two crops for SMoG
 smog_transform = SMoGTransform(
-    crop_sizes=[128, 128],
-    crop_counts=[1, 1],
-    crop_min_scales=[0.2, 0.2],
-    crop_max_scales=[1.0, 1.0],
+    crop_sizes=(128, 128),
+    crop_counts=(1, 1),
+    crop_min_scales=(0.2, 0.2),
+    crop_max_scales=(1.0, 1.0),
 )
 
 # Single crop augmentation for MAE
@@ -174,8 +188,8 @@ vicregl_transform = VICRegLTransform(
 )
 
 normalize_transform = torchvision.transforms.Normalize(
-    mean=lightly.transforms.utils.IMAGENET_NORMALIZE["mean"],
-    std=lightly.transforms.utils.IMAGENET_NORMALIZE["std"],
+    mean=IMAGENET_NORMALIZE["mean"],
+    std=IMAGENET_NORMALIZE["std"],
 )
 
 # No additional augmentations for the test set
@@ -189,11 +203,11 @@ test_transforms = torchvision.transforms.Compose(
 )
 
 # we use test transformations for getting the feature for kNN on train data
-dataset_train_kNN = lightly.data.LightlyDataset(
+dataset_train_kNN = LightlyDataset(
     input_dir=path_to_train, transform=test_transforms
 )
 
-dataset_test = lightly.data.LightlyDataset(
+dataset_test = LightlyDataset(
     input_dir=path_to_test, transform=test_transforms
 )
 
@@ -277,7 +291,7 @@ class MocoModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
         # create our loss with the optional memory bank
-        self.criterion = lightly.loss.NTXentLoss(
+        self.criterion = NTXentLoss(
             temperature=0.1, memory_bank_size=memory_bank_size
         )
 
@@ -335,7 +349,7 @@ class SimCLRModel(BenchmarkModule):
             *list(resnet.children())[:-1]
         )
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
-        self.criterion = lightly.loss.NTXentLoss()
+        self.criterion = NTXentLoss()
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -369,7 +383,7 @@ class SimSiamModel(BenchmarkModule):
         )
         self.projection_head = heads.SimSiamProjectionHead(feature_dim, 2048, 2048)
         self.prediction_head = heads.SimSiamPredictionHead(2048, 512, 2048)
-        self.criterion = lightly.loss.NegativeCosineSimilarity()
+        self.criterion = NegativeCosineSimilarity()
 
     def forward(self, x):
         f = self.backbone(x).flatten(start_dim=1)
@@ -409,7 +423,7 @@ class BarlowTwinsModel(BenchmarkModule):
         # use a 2-layer projection head for cifar10 as described in the paper
         self.projection_head = heads.BarlowTwinsProjectionHead(feature_dim, 2048, 2048)
 
-        self.criterion = lightly.loss.BarlowTwinsLoss(
+        self.criterion = BarlowTwinsLoss(
             gather_distributed=gather_distributed
         )
 
@@ -454,7 +468,7 @@ class BYOLModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.backbone_momentum)
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
-        self.criterion = lightly.loss.NegativeCosineSimilarity()
+        self.criterion = NegativeCosineSimilarity()
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)
@@ -510,7 +524,7 @@ class NNCLRModel(BenchmarkModule):
         self.projection_head = heads.NNCLRProjectionHead(feature_dim, 2048, 256)
         self.prediction_head = heads.NNCLRPredictionHead(256, 4096, 256)
 
-        self.criterion = lightly.loss.NTXentLoss()
+        self.criterion = NTXentLoss()
         self.memory_bank = modules.NNMemoryBankModule(size=4096)
 
     def forward(self, x):
@@ -553,7 +567,7 @@ class SwaVModel(BenchmarkModule):
         self.projection_head = heads.SwaVProjectionHead(feature_dim, 2048, 128)
         self.prototypes = heads.SwaVPrototypes(128, 3000)  # use 3000 prototypes
 
-        self.criterion = lightly.loss.SwaVLoss(
+        self.criterion = SwaVLoss(
             sinkhorn_gather_distributed=gather_distributed
         )
 
@@ -614,7 +628,7 @@ class DINOModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.teacher_backbone)
         utils.deactivate_requires_grad(self.teacher_head)
 
-        self.criterion = lightly.loss.DINOLoss(output_dim=2048)
+        self.criterion = DINOLoss(output_dim=2048)
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)
@@ -660,7 +674,7 @@ class DCL(BenchmarkModule):
             *list(resnet.children())[:-1]
         )
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
-        self.criterion = lightly.loss.DCLLoss()
+        self.criterion = DCLLoss()
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -693,7 +707,7 @@ class DCLW(BenchmarkModule):
             *list(resnet.children())[:-1]
         )
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
-        self.criterion = lightly.loss.DCLWLoss()
+        self.criterion = DCLWLoss()
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -820,7 +834,7 @@ class MSNModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head)
 
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
-        self.criterion = lightly.loss.MSNLoss()
+        self.criterion = MSNLoss()
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
@@ -895,7 +909,7 @@ class SMoGModel(BenchmarkModule):
         # smog
         self.n_groups = 300
         memory_bank_size = 10000
-        self.memory_bank = lightly.loss.memory_bank.MemoryBankModule(
+        self.memory_bank = memory_bank.MemoryBankModule(
             size=memory_bank_size
         )
         # create our loss
@@ -1055,7 +1069,7 @@ class VICRegModel(BenchmarkModule):
         resnet = torchvision.models.resnet18()
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
-        self.criterion = lightly.loss.VICRegLoss()
+        self.criterion = VICRegLoss()
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
 
     def forward(self, x):
@@ -1098,7 +1112,7 @@ class VICRegLModel(BenchmarkModule):
         self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
         self.local_projection_head = heads.VicRegLLocalProjectionHead(512, 128, 128)
         self.average_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
-        self.criterion = lightly.loss.VICRegLLoss(alpha=0.75, num_matches=(16, 4))
+        self.criterion = VICRegLLoss(alpha=0.75, num_matches=(16, 4))
         self.backbone = nn.Sequential(self.train_backbone, self.average_pool)
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
 
@@ -1152,7 +1166,7 @@ class TiCoModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.backbone_momentum)
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
-        self.criterion = lightly.loss.TiCoLoss()
+        self.criterion = TiCoLoss()
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
 
     def forward(self, x):
@@ -1204,9 +1218,9 @@ class SwaVQueueModel(BenchmarkModule):
         self.prototypes = heads.SwaVPrototypes(128, 3000, 1)
         self.start_queue_at_epoch = 15
         self.queues = nn.ModuleList(
-            [lightly.loss.memory_bank.MemoryBankModule(size=384) for _ in range(2)]
+            [memory_bank.MemoryBankModule(size=384) for _ in range(2)]
         )  # Queue size reduced in order to work with a smaller dataset
-        self.criterion = lightly.loss.SwaVLoss()
+        self.criterion = SwaVLoss()
 
     def forward(self, x):
         x = self._subforward(x)

@@ -47,8 +47,10 @@ import torch.nn as nn
 import torchvision
 import pytorch_lightning as pl
 import copy
-import lightly
 
+from lightly.data import LightlyDataset, SimCLRCollateFunction, collate
+from lightly.loss import NTXentLoss
+from lightly.models import ResNetGenerator
 from lightly.models.modules.heads import MoCoProjectionHead
 from lightly.models.utils import deactivate_requires_grad
 from lightly.models.utils import update_momentum
@@ -119,7 +121,7 @@ pl.seed_everything(seed)
 #   consumption and to compensate for that we would need to reduce the batch size.
 
 # MoCo v2 uses SimCLR augmentations, additionally, disable blur
-collate_fn = lightly.data.SimCLRCollateFunction(
+collate_fn = SimCLRCollateFunction(
     input_size=32,
     gaussian_blur=0.,
 )
@@ -136,8 +138,8 @@ train_classifier_transforms = torchvision.transforms.Compose([
     torchvision.transforms.RandomHorizontalFlip(),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(
-        mean=lightly.data.collate.imagenet_normalize['mean'],
-        std=lightly.data.collate.imagenet_normalize['std'],
+        mean=collate.imagenet_normalize['mean'],
+        std=collate.imagenet_normalize['std'],
     )
 ])
 
@@ -146,13 +148,13 @@ test_transforms = torchvision.transforms.Compose([
     torchvision.transforms.Resize((32, 32)),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(
-        mean=lightly.data.collate.imagenet_normalize['mean'],
-        std=lightly.data.collate.imagenet_normalize['std'],
+        mean=collate.imagenet_normalize['mean'],
+        std=collate.imagenet_normalize['std'],
     )
 ])
 
 # We use the moco augmentations for training moco
-dataset_train_moco = lightly.data.LightlyDataset(
+dataset_train_moco = LightlyDataset(
     input_dir=path_to_train
 )
 
@@ -161,12 +163,12 @@ dataset_train_moco = lightly.data.LightlyDataset(
 # usually reduce accuracy of models which are not used for contrastive learning.
 # Our linear layer will be trained using cross entropy loss and labels provided
 # by the dataset. Therefore we chose light augmentations.)
-dataset_train_classifier = lightly.data.LightlyDataset(
+dataset_train_classifier = LightlyDataset(
     input_dir=path_to_train,
     transform=train_classifier_transforms
 )
 
-dataset_test = lightly.data.LightlyDataset(
+dataset_test = LightlyDataset(
     input_dir=path_to_test,
     transform=test_transforms
 )
@@ -220,7 +222,7 @@ class MocoModel(pl.LightningModule):
         super().__init__()
         
         # create a ResNet backbone and remove the classification head
-        resnet = lightly.models.ResNetGenerator('resnet-18', 1, num_splits=8)
+        resnet = ResNetGenerator('resnet-18', 1, num_splits=8)
         self.backbone = nn.Sequential(
             *list(resnet.children())[:-1],
             nn.AdaptiveAvgPool2d(1),
@@ -234,7 +236,7 @@ class MocoModel(pl.LightningModule):
         deactivate_requires_grad(self.projection_head_momentum)
 
         # create our loss with the optional memory bank
-        self.criterion = lightly.loss.NTXentLoss(
+        self.criterion = NTXentLoss(
             temperature=0.1,
             memory_bank_size=memory_bank_size)
 
