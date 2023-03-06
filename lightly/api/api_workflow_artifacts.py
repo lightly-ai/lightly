@@ -1,6 +1,9 @@
 import os
 from lightly.api import download
-from lightly.openapi_generated.swagger_client import DockerRunData
+from lightly.openapi_generated.swagger_client import (
+    DockerRunData,
+    DockerRunArtifactData,
+)
 from lightly.openapi_generated.swagger_client.models.docker_run_artifact_type import (
     DockerRunArtifactType,
 )
@@ -353,6 +356,17 @@ class _ArtifactsMixin:
         output_path: str,
         timeout: int,
     ) -> None:
+        artifact = self._get_artifact_by_type(artifact_type, run)
+        self._download_compute_worker_run_artifact(
+            run_id=run.id,
+            artifact_id=artifact.id,
+            output_path=output_path,
+            timeout=timeout,
+        )
+
+    def _get_artifact_by_type(
+        self, artifact_type: str, run: DockerRunData
+    ) -> DockerRunArtifactData:
         if run.artifacts is None:
             raise ArtifactNotExist(f"Run has no artifacts.")
         try:
@@ -361,12 +375,7 @@ class _ArtifactsMixin:
             raise ArtifactNotExist(
                 f"No artifact with type '{artifact_type}' in artifacts."
             )
-        self._download_compute_worker_run_artifact(
-            run_id=run.id,
-            artifact_id=artifact.id,
-            output_path=output_path,
-            timeout=timeout,
-        )
+        return artifact
 
     def _download_compute_worker_run_artifact(
         self,
@@ -384,3 +393,45 @@ class _ArtifactsMixin:
             output_path=output_path,
             request_kwargs=dict(timeout=timeout),
         )
+
+    def get_compute_worker_run_checkpoint_url(
+        self,
+        run: DockerRunData,
+    ) -> str:
+        """Gets the download url of the last training checkpoint from a run.
+
+        See our docs for more information regarding checkpoints:
+        https://docs.lightly.ai/docs/train-a-self-supervised-model#checkpoints
+
+        Args:
+            run:
+                Run from which to download the checkpoint.
+
+        Returns:
+            The url from which the checkpoint can be downloaded.
+
+        Raises:
+            ArtifactNotExist:
+                If the run has no checkpoint artifact or the checkpoint has not yet been
+                uploaded.
+
+        Examples:
+            >>> # schedule run
+            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
+            >>>
+            >>> # wait until run completed
+            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
+            >>>     pass
+            >>>
+            >>> # get checkpoint read_url
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
+            >>> checkpoint_read_url = client.get_compute_worker_run_checkpoint_url(run=run)
+
+        """
+        artifact = self._get_artifact_by_type(
+            artifact_type=DockerRunArtifactType.CHECKPOINT, run=run
+        )
+        read_url = self._compute_worker_api.get_docker_run_artifact_read_url_by_id(
+            run_id=run.id, artifact_id=artifact.id
+        )
+        return read_url
