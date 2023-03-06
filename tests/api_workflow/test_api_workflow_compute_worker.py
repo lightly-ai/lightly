@@ -12,6 +12,8 @@ from lightly.api.api_workflow_compute_worker import (
     ComputeWorkerRunInfo,
     _config_to_camel_case,
     _snake_to_camel_case,
+    _validate_config,
+    InvalidConfigurationError,
 )
 from lightly.openapi_generated.swagger_client import (
     SelectionConfig,
@@ -55,13 +57,11 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
     def test_create_compute_worker_config(self):
         config_id = self.api_workflow_client.create_compute_worker_config(
             worker_config={
-                "enable_corruptness_check": True,
                 "stopping_condition": {
                     "n_samples": 10,
                 },
             },
             lightly_config={
-                "resize": 224,
                 "loader": {
                     "batch_size": 64,
                 },
@@ -85,13 +85,11 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
     def test_schedule_compute_worker_run(self):
         scheduled_run_id = self.api_workflow_client.schedule_compute_worker_run(
             worker_config={
-                "enable_corruptness_check": True,
                 "stopping_condition": {
                     "n_samples": 10,
                 },
             },
             lightly_config={
-                "resize": 224,
                 "loader": {
                     "batch_size": 64,
                 },
@@ -669,3 +667,45 @@ def test__snake_to_camel_case() -> None:
     assert _snake_to_camel_case("lorem_ipsum") == "loremIpsum"
     assert _snake_to_camel_case("lorem_ipsum_dolor") == "loremIpsumDolor"
     assert _snake_to_camel_case("loremIpsum") == "loremIpsum"  # do nothing
+
+
+def test__validate_config(mocker: MockerFixture) -> None:
+
+    mock_obj = mocker.MagicMock()
+    mock_obj.swagger_types = {
+        "config": "str",
+        "nested_config": mocker.MagicMock(),
+    }
+
+    _validate_config(
+        cfg={
+            "config": "hello world",
+            "nested_config": {
+                "config": "xyz"
+            }
+        },
+        obj=mock_obj
+    )
+
+
+def test__validate_config__typo(mocker: MockerFixture) -> None:
+
+    mock_obj = mocker.MagicMock()
+    mock_obj.swagger_types = {
+        "config": "str",
+        "nested_config": mocker.MagicMock(),
+    }
+    # We need to explicitly delete it from the mocked object otherwise hasattr
+    # behaves strangely.
+    del mock_obj.configx
+
+    with pytest.raises(
+        InvalidConfigurationError,
+        match="Option `configx` does not exist!"
+    ):
+        _validate_config(
+            cfg={
+                "configx": "hello world",
+            },
+            obj=mock_obj
+        )
