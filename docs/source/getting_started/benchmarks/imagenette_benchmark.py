@@ -1182,7 +1182,7 @@ class TiCoModel(BenchmarkModule):
 
     def training_step(self, batch, batch_index):
         (x0, x1), _, _ = batch
-        momentum = scheduler.cosine_schedule(self.current_epoch, 10, 0.996, 1)
+        momentum = scheduler.cosine_schedule(self.current_epoch, max_epochs, 0.996, 1)
         utils.update_momentum(self.backbone, self.backbone_momentum, m=momentum)
         utils.update_momentum(
             self.projection_head, self.projection_head_momentum, m=momentum
