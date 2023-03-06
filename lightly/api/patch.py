@@ -25,9 +25,17 @@ def rest_client_flatten_array_query_parameters(rest_client: Type):
     """
     request = rest_client.request
 
-    def request_patched(self, method, url, query_params=None, headers=None,
-                    body=None, post_params=None, _preload_content=True,
-                    _request_timeout=None):
+    def request_patched(
+        self,
+        method,
+        url,
+        query_params=None,
+        headers=None,
+        body=None,
+        post_params=None,
+        _preload_content=True,
+        _request_timeout=None,
+    ):
         if query_params is not None:
             new_query_params = []
             for name, value in query_params:
@@ -36,8 +44,19 @@ def rest_client_flatten_array_query_parameters(rest_client: Type):
                 else:
                     new_query_params.append((name, value))
             query_params = new_query_params
-        return request(method=method, url=url, query_params=query_params, headers=headers, body=body, post_params=post_params, _preload_content=_preload_content, _request_timeout=_request_timeout)
+        return request(
+            method=method,
+            url=url,
+            query_params=query_params,
+            headers=headers,
+            body=body,
+            post_params=post_params,
+            _preload_content=_preload_content,
+            _request_timeout=_request_timeout,
+        )
+
     return request_patched
+
 
 def make_swagger_generated_classes_picklable(
     api_client_cls: Type,
@@ -55,17 +74,20 @@ def make_swagger_generated_classes_picklable(
 
 def _Configuration__getstate__(self) -> dict[str, Any]:
     state = self.__dict__.copy()
-    # Remove unpickable entries.
+    # Remove unpicklable entries.
     state["logger"] = {}
     state["logger_formatter"] = None
     state["logger_stream_handler"] = None
     state["logger_file_handler"] = None
     return state
 
+
 def _Configuration__setstate__(self, state: dict[str, Any]) -> None:
     self.__dict__.update(state)
     # Recreate logger objects.
-    self.logger["package_logger"] = logging.getLogger("lightly.openapi_generated.swagger_client")
+    self.logger["package_logger"] = logging.getLogger(
+        "lightly.openapi_generated.swagger_client"
+    )
     self.logger["urllib3_logger"] = logging.getLogger("urllib3")
     # Set logger_format and logger_file explicitly because they recreate
     # logger_formatter, logger_file_handler, and logger_stream_handler which are removed
@@ -74,6 +96,7 @@ def _Configuration__setstate__(self, state: dict[str, Any]) -> None:
     self.logger_file = state["_Configuration__logger_file"]
     # Set debug explicitly because it has side effects.
     self.debug = state["_Configuration__debug"]
+
 
 def _RESTClientObject__getstate__(self) -> dict[str, Any]:
     state = self.__dict__.copy()
@@ -85,17 +108,21 @@ def _RESTClientObject__getstate__(self) -> dict[str, Any]:
     del state["pool_manager"]
     return state
 
+
 def _ApiClient__getstate__(self) -> dict[str, Any]:
     state = self.__dict__.copy()
-    # ThreadPool is not picklable. We set it to None here as it will be automatically
+    # ThreadPool is not picklable. We set it to None as it will be automatically
     # recreated once the pool is accessed after unpickling.
     state["_pool"] = None
-    # Urllib3 response is not picklable.
+    # Urllib3 response is not picklable. We can safely remove this as it only serves as
+    # a cache.
     del state["last_response"]
     return state
+
 
 def _ApiClient__setstate__(self, state: dict[str, Any]) -> None:
     self.__dict__.update(state)
     # We have to call init on rest_client to fully instantiate the rest client again
     # and recreate the pool manager which is removed before pickling.
+    # See _RESTClientObject__getstate__ for details.
     self.rest_client.__init__(state["configuration"])
