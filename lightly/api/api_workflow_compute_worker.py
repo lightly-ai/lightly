@@ -2,6 +2,7 @@ import copy
 import dataclasses
 from functools import partial
 import time
+import difflib
 from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, Iterator
 
 from lightly.api.utils import retry
@@ -31,6 +32,9 @@ from lightly.openapi_generated.swagger_client.rest import ApiException
 
 STATE_SCHEDULED_ID_NOT_FOUND = "CANCELED_OR_NOT_EXISTING"
 
+
+class InvalidConfigurationError(RuntimeError):
+    pass
 
 
 @dataclasses.dataclass
@@ -142,27 +146,30 @@ class _ComputeWorkerMixin:
             selection = selection_config_from_dict(cfg=selection_config)
         else:
             selection = selection_config
+        _validate_config(cfg=selection_config, obj=selection)
 
         if worker_config is not None:
-            worker_config = _config_to_camel_case(cfg=worker_config)
+            worker_config_cc = _config_to_camel_case(cfg=worker_config)
             deserialize_worker_config = _get_deserialize(
                 api_client=self.api_client,
                 klass=DockerWorkerConfigV2Docker,
             )
-            worker_config = deserialize_worker_config(worker_config)
+            docker = deserialize_worker_config(worker_config_cc)
+            _validate_config(cfg=worker_config, obj=docker)
 
         if lightly_config is not None:
-            lightly_config = _config_to_camel_case(cfg=lightly_config)
+            lightly_config_cc = _config_to_camel_case(cfg=lightly_config)
             deserialize_lightly_config = _get_deserialize(
                 api_client=self.api_client,
                 klass=DockerWorkerConfigV2Lightly,
             )
-            lightly_config = deserialize_lightly_config(lightly_config)
+            lightly = deserialize_lightly_config(lightly_config_cc)
+            _validate_config(cfg=lightly_config, obj=lightly)
 
         config = DockerWorkerConfigV2(
             worker_type=DockerWorkerType.FULL,
-            docker=worker_config,
-            lightly=lightly_config,
+            docker=docker,
+            lightly=lightly,
             selection=selection,
         )
         request = DockerWorkerConfigV2CreateRequest(config=config, creator=self._creator)
@@ -489,3 +496,22 @@ def _snake_to_camel_case(snake: str) -> str:
     return components[0] + "".join(
         component.title() for component in components[1:]
     )
+
+
+def _validate_config(cfg: Dict[str, Any], obj: Any) -> None:
+    """Validates that all keys in cfg are legit configuration options. """
+    for key, item in cfg.items():
+        if not hasattr(obj, key):
+            error_msg = f"Option `{key}` does not exist!"
+            if hasattr(type(obj), "swagger_types"):
+                possible_options = list(type(obj).swagger_types.keys())
+                closest_match = difflib.get_close_matches(
+                    word=key,
+                    possibilities=possible_options,
+                    n=1,
+                    cutoff=0.
+                )[0]
+                error_msg = f"{error_msg} Did you mean `{closest_match}`?"
+            raise InvalidConfigurationError(error_msg)
+        if isinstance(item, dict):
+            _validate_config(item, getattr(obj, key))
