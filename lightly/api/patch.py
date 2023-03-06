@@ -72,7 +72,7 @@ def make_swagger_generated_classes_picklable(
     rest_client_cls.__getstate__ = _RESTClientObject__getstate__
 
 
-def _Configuration__getstate__(self) -> Dict[str, Any]:
+def _Configuration__getstate__(self: Type) -> Dict[str, Any]:
     state = self.__dict__.copy()
     # Remove unpicklable entries.
     state["logger"] = {}
@@ -82,7 +82,7 @@ def _Configuration__getstate__(self) -> Dict[str, Any]:
     return state
 
 
-def _Configuration__setstate__(self, state: Dict[str, Any]) -> None:
+def _Configuration__setstate__(self: Type, state: Dict[str, Any]) -> None:
     self.__dict__.update(state)
     # Recreate logger objects.
     self.logger["package_logger"] = logging.getLogger(
@@ -98,7 +98,7 @@ def _Configuration__setstate__(self, state: Dict[str, Any]) -> None:
     self.debug = state["_Configuration__debug"]
 
 
-def _RESTClientObject__getstate__(self) -> Dict[str, Any]:
+def _RESTClientObject__getstate__(self: Type) -> Dict[str, Any]:
     state = self.__dict__.copy()
     # Delete pool_manager as it cannot be pickled.
     # Note that it is not possible to unpickle and use a RESTClientObject without
@@ -109,7 +109,7 @@ def _RESTClientObject__getstate__(self) -> Dict[str, Any]:
     return state
 
 
-def _ApiClient__getstate__(self) -> Dict[str, Any]:
+def _ApiClient__getstate__(self: Type) -> Dict[str, Any]:
     state = self.__dict__.copy()
     # ThreadPool is not picklable. We set it to None as it will be automatically
     # recreated once the pool is accessed after unpickling.
@@ -120,7 +120,7 @@ def _ApiClient__getstate__(self) -> Dict[str, Any]:
     return state
 
 
-def _ApiClient__setstate__(self, state: Dict[str, Any]) -> None:
+def _ApiClient__setstate__(self: Type, state: Dict[str, Any]) -> None:
     self.__dict__.update(state)
     # We have to call init on rest_client to fully instantiate the rest client again
     # and recreate the pool manager which is removed before pickling.
