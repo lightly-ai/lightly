@@ -10,7 +10,7 @@ class ArtifactNotExist(Exception):
     pass
 
 
-class _AritfactsMixin:
+class _ArtifactsMixin:
     def download_compute_worker_run_artifacts(
         self,
         run: DockerRunData,

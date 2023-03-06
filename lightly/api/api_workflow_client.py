@@ -6,7 +6,7 @@ import os
 
 import requests
 
-from lightly.api.api_workflow_artifacts import _AritfactsMixin
+from lightly.api.api_workflow_artifacts import _ArtifactsMixin
 from lightly.api.api_workflow_predictions import _PredictionsMixin
 from lightly.api.api_workflow_tags import _TagsMixin
 from requests import Response
@@ -60,7 +60,7 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                         _ComputeWorkerMixin,
                         _CollaborationMixin,
                         _PredictionsMixin,
-                        _AritfactsMixin,
+                        _ArtifactsMixin,
                         ):
     """Provides a uniform interface to communicate with the Lightly API.
 
