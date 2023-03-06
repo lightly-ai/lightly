@@ -289,11 +289,17 @@ def set_api_client_request_timeout(
 
     """
     request_fn = client.rest_client.request
+    client.rest_client.request = _request_with_timeout(timeout=timeout, request_fn=request_fn)
 
-    def new_request_fn(*args, **kwargs):
+
+class _request_with_timeout:
+    def __init__(self, timeout: Union[int, Tuple[int, int]], request_fn) -> None:
+        self.timeout = timeout
+        self.request_fn = request_fn
+
+    def __call__(self, *args, **kwargs):
+        print(args, kwargs)
         request_timeout = kwargs['_request_timeout']
         if request_timeout is None:
-            kwargs['_request_timeout'] = timeout
-        return request_fn(*args, **kwargs)
-
-    client.rest_client.request = new_request_fn
+            kwargs['_request_timeout'] = self.timeout
+        return self.request_fn(*args, **kwargs)
