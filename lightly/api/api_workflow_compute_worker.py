@@ -498,8 +498,12 @@ def _snake_to_camel_case(snake: str) -> str:
     )
 
 
-def _validate_config(cfg: Dict[str, Any], obj: Any) -> None:
+def _validate_config(cfg: Optional[Dict[str, Any]], obj: Any) -> None:
     """Validates that all keys in cfg are legit configuration options. """
+
+    if cfg is None:
+        return
+
     for key, item in cfg.items():
         if not hasattr(obj, key):
             error_msg = f"Option `{key}` does not exist!"
