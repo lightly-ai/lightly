@@ -39,6 +39,12 @@ format:
 	isort .
 	black .
 
+# check if code is formatted with isort and black
+format-check:
+	@echo "⚫ Checking code format..."
+	isort --check-only --diff .
+	black --check .
+
 # check style with flake8
 lint: lint-lightly lint-tests
 
