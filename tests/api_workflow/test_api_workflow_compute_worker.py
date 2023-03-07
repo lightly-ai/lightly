@@ -33,6 +33,10 @@ from lightly.openapi_generated.swagger_client import (
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
+    DockerWorkerConfigV2Docker,
+    DockerWorkerConfigV2DockerCorruptnessCheck,
+    DockerWorkerConfigV2Lightly,
+    DockerWorkerConfigV2LightlyLoader,
     TagData,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
@@ -669,43 +673,149 @@ def test__snake_to_camel_case() -> None:
     assert _snake_to_camel_case("loremIpsum") == "loremIpsum"  # do nothing
 
 
-def test__validate_config(mocker: MockerFixture) -> None:
+def test__validate_config__docker(mocker: MockerFixture) -> None:
 
-    mock_obj = mocker.MagicMock()
-    mock_obj.swagger_types = {
-        "config": "str",
-        "nested_config": mocker.MagicMock(),
-    }
-
+    obj = DockerWorkerConfigV2Docker(
+        enable_training=False,
+        corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
+            corruption_threshold=0.1,
+        )
+    )
     _validate_config(
         cfg={
-            "config": "hello world",
-            "nested_config": {
-                "config": "xyz"
-            }
+            "enable_training": False,
+            "corruptness_check": {
+                "corruption_threshold": 0.1,
+            },
         },
-        obj=mock_obj
+        obj=obj
     )
 
 
-def test__validate_config__typo(mocker: MockerFixture) -> None:
+def test__validate_config__docker_typo(mocker: MockerFixture) -> None:
 
-    mock_obj = mocker.MagicMock()
-    mock_obj.swagger_types = {
-        "config": "str",
-        "nested_config": mocker.MagicMock(),
-    }
-    # We need to explicitly delete it from the mocked object otherwise hasattr
-    # behaves strangely.
-    del mock_obj.configx
+    obj = DockerWorkerConfigV2Docker(
+        enable_training=False,
+        corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
+            corruption_threshold=0.1,
+        )
+    )
 
     with pytest.raises(
         InvalidConfigurationError,
-        match="Option `configx` does not exist!"
+        match="Option 'enable_trainingx' does not exist! Did you mean 'enable_training'?"
     ):
         _validate_config(
             cfg={
-                "configx": "hello world",
+                "enable_trainingx": False,
+                "corruptness_check": {
+                    "corruption_threshold": 0.1,
+                },
             },
-            obj=mock_obj
+            obj=obj
+        )
+
+def test__validate_config__docker_typo_nested(mocker: MockerFixture) -> None:
+
+    obj = DockerWorkerConfigV2Docker(
+        enable_training=False,
+        corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
+            corruption_threshold=0.1,
+        )
+    )
+
+    with pytest.raises(
+        InvalidConfigurationError,
+        match="Option 'corruption_thresholdx' does not exist! Did you mean 'corruption_threshold'?"
+    ):
+        _validate_config(
+            cfg={
+                "enable_training": False,
+                "corruptness_check": {
+                    "corruption_thresholdx": 0.1,
+                },
+            },
+            obj=obj
+        )
+
+
+def test__validate_config__lightly(mocker: MockerFixture) -> None:
+
+    obj = DockerWorkerConfigV2Lightly(
+        loader=DockerWorkerConfigV2LightlyLoader(
+            num_workers=-1,
+            batch_size=16,
+            shuffle=True,
+        )
+    )
+    _validate_config(
+        cfg={
+            "loader": {
+                "num_workers": -1,
+                "batch_size": 16,
+                "shuffle": True,
+            },
+        },
+        obj=obj
+    )
+
+
+def test__validate_config__lightly_typo(mocker: MockerFixture) -> None:
+
+    obj = DockerWorkerConfigV2Lightly(
+        loader=DockerWorkerConfigV2LightlyLoader(
+            num_workers=-1,
+            batch_size=16,
+            shuffle=True,
+        )
+    )
+    with pytest.raises(
+        InvalidConfigurationError,
+        match="Option 'loaderx' does not exist! Did you mean 'loader'?"
+    ):
+        _validate_config(
+            cfg={
+                "loaderx": {
+                    "num_workers": -1,
+                    "batch_size": 16,
+                    "shuffle": True,
+                },
+            },
+            obj=obj
+        )
+
+
+def test__validate_config__lightly_typo_nested(mocker: MockerFixture) -> None:
+
+    obj = DockerWorkerConfigV2Lightly(
+        loader=DockerWorkerConfigV2LightlyLoader(
+            num_workers=-1,
+            batch_size=16,
+            shuffle=True,
+        )
+    )
+    with pytest.raises(
+        InvalidConfigurationError,
+        match="Option 'num_workersx' does not exist! Did you mean 'num_workers'?"
+    ):
+        _validate_config(
+            cfg={
+                "loader": {
+                    "num_workersx": -1,
+                    "batch_size": 16,
+                    "shuffle": True,
+                },
+            },
+            obj=obj
+        )
+
+
+def test__validate_config__raises_type_error(mocker: MockerFixture) -> None:
+    with pytest.raises(
+        TypeError,
+        match="of argument 'obj' has not attribute 'swagger_types'"
+    ):
+        _validate_config(
+            cfg={},
+            obj=mocker.MagicMock()
         )
