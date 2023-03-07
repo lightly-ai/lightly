@@ -19,3 +19,5 @@ scikit-learn
 pandas
 torchmetrics
 lightning-bolts # for LARS optimizer
+black
+isort

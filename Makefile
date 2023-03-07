@@ -34,6 +34,10 @@ clean-out:
 clean-tox:
 	rm -fr .tox
 
+format:
+	isort .
+	black .
+
 # check style with flake8
 lint: lint-lightly lint-tests
 
