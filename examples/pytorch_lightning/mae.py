@@ -45,7 +45,7 @@ class MAE(pl.LightningModule):
         batch_size = x_encoded.shape[0]
         x_decode = self.decoder.embed(x_encoded)
         x_masked = utils.repeat_token(self.mask_token, (batch_size, self.sequence_length))
-        x_masked = utils.set_at_index(x_masked, idx_keep, x_decode)
+        x_masked = utils.set_at_index(x_masked, idx_keep, x_decode.type_as(x_masked))
 
         # decoder forward pass
         x_decoded = self.decoder.decode(x_masked)
@@ -56,6 +56,7 @@ class MAE(pl.LightningModule):
         return x_pred
 
     def training_step(self, batch, batch_idx):
+        print('mask_token', self.mask_token.dtype)
         images, _, _ = batch
         
         batch_size = images.shape[0]
@@ -103,5 +104,5 @@ dataloader = torch.utils.data.DataLoader(
 
 gpus = 1 if torch.cuda.is_available() else 0
 
-trainer = pl.Trainer(max_epochs=10, gpus=gpus)
+trainer = pl.Trainer(max_epochs=10, gpus=gpus, precision=16)
 trainer.fit(model=model, train_dataloaders=dataloader)

@@ -756,7 +756,7 @@ class MAEModel(BenchmarkModule):
         x_masked = utils.repeat_token(
             self.mask_token, (batch_size, self.sequence_length)
         )
-        x_masked = utils.set_at_index(x_masked, idx_keep, x_decode)
+        x_masked = utils.set_at_index(x_masked, idx_keep, x_decode.type_as(x_masked))
 
         # decoder forward pass
         x_decoded = self.decoder.decode(x_masked)
