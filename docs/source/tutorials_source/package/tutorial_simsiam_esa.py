@@ -214,9 +214,7 @@ model.to(device)
 avg_loss = 0.0
 avg_output_std = 0.0
 for e in range(epochs):
-
     for (x0, x1), _, _ in dataloader_train_simsiam:
-
         # move images to the gpu
         x0 = x0.to(device)
         x1 = x1.to(device)

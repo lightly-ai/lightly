@@ -8,7 +8,6 @@ from lightly.loss import SwaVLoss
 
 class TestSwaVLoss(unittest.TestCase):
     def test_forward_pass(self):
-
         n = 32
         n_high_res = 2
         high_res = [torch.eye(32, 32) for i in range(n_high_res)]
@@ -26,7 +25,6 @@ class TestSwaVLoss(unittest.TestCase):
                     self.assertGreater(0.5, loss.cpu().numpy())
 
     def test_forward_pass_queue(self):
-
         n = 32
         n_high_res = 2
         high_res = [torch.eye(32, 32) for i in range(n_high_res)]
@@ -46,7 +44,6 @@ class TestSwaVLoss(unittest.TestCase):
                     self.assertGreater(0.5, loss.cpu().numpy())
 
     def test_forward_pass_bsz_1(self):
-
         n = 32
         n_high_res = 2
         high_res = [torch.eye(1, n) for i in range(n_high_res)]

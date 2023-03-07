@@ -36,7 +36,6 @@ class BaseCollateFunction(nn.Module):
     """
 
     def __init__(self, transform: torchvision.transforms.Compose):
-
         super(BaseCollateFunction, self).__init__()
         self.transform = transform
 
@@ -159,7 +158,6 @@ class ImageCollateFunction(BaseCollateFunction):
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         normalize: dict = imagenet_normalize,
     ):
-
         if isinstance(input_size, tuple):
             input_size_ = max(input_size)
         else:
@@ -289,7 +287,6 @@ class SimCLRCollateFunction(ImageCollateFunction):
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         normalize: dict = imagenet_normalize,
     ):
-
         super(SimCLRCollateFunction, self).__init__(
             input_size=input_size,
             cj_prob=cj_prob,
@@ -377,7 +374,6 @@ class MoCoCollateFunction(ImageCollateFunction):
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         normalize: dict = imagenet_normalize,
     ):
-
         super(MoCoCollateFunction, self).__init__(
             input_size=input_size,
             cj_prob=cj_prob,
@@ -423,7 +419,6 @@ class MultiCropCollateFunction(MultiViewCollateFunction):
         crop_max_scales: List[float],
         transforms: T.Compose,
     ):
-
         if len(crop_sizes) != len(crop_counts):
             raise ValueError(
                 "Length of crop_sizes and crop_counts must be equal but are"
@@ -442,7 +437,6 @@ class MultiCropCollateFunction(MultiViewCollateFunction):
 
         crop_transforms = []
         for i in range(len(crop_sizes)):
-
             random_resized_crop = T.RandomResizedCrop(
                 crop_sizes[i], scale=(crop_min_scales[i], crop_max_scales[i])
             )
@@ -533,7 +527,6 @@ class SwaVCollateFunction(MultiCropCollateFunction):
         sigmas: Tuple[float, float] = (0.2, 2),
         normalize: dict = imagenet_normalize,
     ):
-
         color_jitter = T.ColorJitter(
             cj_strength,
             cj_strength,
@@ -654,7 +647,6 @@ class DINOCollateFunction(MultiViewCollateFunction):
         solarization_prob=0.2,
         normalize=imagenet_normalize,
     ):
-
         flip_and_color_jitter = T.Compose(
             [
                 T.RandomHorizontalFlip(p=hf_prob),
@@ -1042,10 +1034,8 @@ class SMoGCollateFunction(MultiViewCollateFunction):
         random_gray_scale: float = 0.2,
         normalize: dict = imagenet_normalize,
     ):
-
         transforms = []
         for i in range(len(crop_sizes)):
-
             random_resized_crop = T.RandomResizedCrop(
                 crop_sizes[i], scale=(crop_min_scales[i], crop_max_scales[i])
             )
@@ -1155,7 +1145,6 @@ class VICRegCollateFunction(BaseCollateFunction):
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         normalize: dict = imagenet_normalize,
     ):
-
         if isinstance(input_size, tuple):
             input_size_ = max(input_size)
         else:
@@ -1312,7 +1301,6 @@ class VICRegLCollateFunction(nn.Module):
         torch.Tensor,
         torch.Tensor,
     ]:
-
         """
         Applies transforms to images in the input batch.
 

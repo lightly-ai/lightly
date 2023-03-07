@@ -49,7 +49,6 @@ def _make_dataset(
 
     instances = []
     for f in os.scandir(directory):
-
         if not _is_valid_file(f.path):
             continue
 
@@ -95,7 +94,6 @@ class DatasetFolder(datasets.VisionDataset):
         target_transform=None,
         is_valid_file=None,
     ):
-
         super(DatasetFolder, self).__init__(
             root, transform=transform, target_transform=target_transform
         )

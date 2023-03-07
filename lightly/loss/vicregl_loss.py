@@ -128,7 +128,8 @@ class VICRegLLoss(torch.nn.Module):
                 A tensor of grids for the local maps. It has size: [batch_size, grid_size, grid_size, 2]
 
         Returns:
-            A tensor of the local loss between the two sets of maps. It has size: [batch_size]"""
+            A tensor of the local loss between the two sets of maps. It has size: [batch_size]
+        """
 
         inv_loss = 0.0
 

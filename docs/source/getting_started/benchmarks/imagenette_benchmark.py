@@ -545,7 +545,6 @@ class SwaVModel(BenchmarkModule):
         return self.prototypes(x)
 
     def training_step(self, batch, batch_idx):
-
         # normalize the prototypes so they are on the unit sphere
         self.prototypes.normalize()
 
@@ -897,7 +896,6 @@ class SMoGModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
     def training_step(self, batch, batch_idx):
-
         if self.global_step > 0 and self.global_step % 300 == 0:
             # reset group features and weights every 300 iterations
             self._reset_group_features()
@@ -1211,7 +1209,6 @@ class SwaVQueueModel(BenchmarkModule):
 
     @torch.no_grad()
     def _get_queue_prototypes(self, high_resolution_features):
-
         if len(high_resolution_features) != len(self.queues):
             raise ValueError(
                 f"The number of queues ({len(self.queues)}) should be equal to the number of high "

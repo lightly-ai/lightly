@@ -120,7 +120,6 @@ class ScorerSemanticSegmentation(Scorer):
         # iterate over list or generator of model outputs
         # careful! we can only iterate once if it's a generator
         for prediction in self.model_output:
-
             # get all active learning scores for this prediction
             # scores_ is a dictionary where each key is a score name and each
             # item is a floating point number indicating the score

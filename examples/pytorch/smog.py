@@ -119,7 +119,6 @@ print("Starting Training")
 for epoch in range(10):
     total_loss = 0
     for batch_idx, batch in enumerate(dataloader):
-
         (x0, x1), _, _ = batch
 
         if batch_idx % 2:

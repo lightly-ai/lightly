@@ -74,7 +74,6 @@ class MockedResponse:
 
 
 class MockedResponsePartialStream(MockedResponse):
-
     return_partial_stream = True
 
     @property
@@ -327,7 +326,6 @@ class TestDownload(unittest.TestCase):
             with self.subTest(msg=f"fps={fps}"), tempfile.NamedTemporaryFile(
                 suffix=".avi"
             ) as file:
-
                 original = _generate_video(file.name, fps=fps)
                 all_frames = lightly.api.download.download_all_video_frames(
                     file.name,
@@ -347,7 +345,6 @@ class TestDownload(unittest.TestCase):
             with self.subTest(msg=f"fps={fps}"), tempfile.NamedTemporaryFile(
                 suffix=".avi"
             ) as file:
-
                 original = _generate_video(file.name, fps=fps)
 
                 # this should be the last frame and exist
@@ -368,7 +365,6 @@ class TestDownload(unittest.TestCase):
             with self.subTest(msg=f"fps={fps}"), tempfile.NamedTemporaryFile(
                 suffix=".avi"
             ) as file:
-
                 _generate_video(file.name, fps=fps)
                 with self.assertRaises(ValueError):
                     lightly.api.download.download_video_frame(file.name, -1)
@@ -378,7 +374,6 @@ class TestDownload(unittest.TestCase):
         with tempfile.NamedTemporaryFile(
             suffix=".png"
         ) as file1, tempfile.NamedTemporaryFile(suffix=".png") as file2:
-
             original.save(file1.name)
             lightly.api.download.download_and_write_file(file1.name, file2.name)
             image = Image.open(file2.name)
@@ -390,7 +385,6 @@ class TestDownload(unittest.TestCase):
         with tempfile.NamedTemporaryFile(
             suffix=".png"
         ) as file1, tempfile.NamedTemporaryFile(suffix=".png") as file2:
-
             original.save(file1.name)
             lightly.api.download.download_and_write_file(
                 file1.name, file2.name, session=session
@@ -404,10 +398,8 @@ class TestDownload(unittest.TestCase):
         originals = [_pil_image(seed=i) for i in range(n_files)]
         filenames = [f"filename_{i}.png" for i in range(n_files)]
         with tempfile.TemporaryDirectory() as tempdir1, tempfile.TemporaryDirectory() as tempdir2:
-
             for request_kwargs in [None, {"stream": False}]:
                 with self.subTest(request_kwargs=request_kwargs):
-
                     # save images at "remote" location
                     urls = [
                         os.path.join(tempdir1, f"url_{i}.png") for i in range(n_files)
@@ -436,7 +428,6 @@ class TestDownload(unittest.TestCase):
                 with tempfile.NamedTemporaryFile(suffix=suffix) as file, self.subTest(
                     msg=f"n_frames={true_n_frames}, extension={suffix}"
                 ):
-
                     _generate_video(file.name, n_frames=true_n_frames, fps=fps)
                     n_frames = lightly.api.download.video_frame_count(file.name)
                     assert n_frames == true_n_frames
@@ -459,7 +450,6 @@ class TestDownload(unittest.TestCase):
                 with tempfile.NamedTemporaryFile(suffix=suffix) as file, self.subTest(
                     msg=f"n_frames={true_n_frames}, extension={suffix}"
                 ):
-
                     _generate_video(file.name, n_frames=true_n_frames, fps=fps)
                     n_frames = lightly.api.download.video_frame_count(
                         file.name, ignore_metadata=True
@@ -478,7 +468,6 @@ class TestDownload(unittest.TestCase):
             ) as file2, self.subTest(
                 msg=f"extension={suffix}"
             ):
-
                 _generate_video(file1.name, n_frames=true_n_frames[0], fps=fps)
                 _generate_video(file2.name, n_frames=true_n_frames[1], fps=fps)
                 frame_counts = lightly.api.download.all_video_frame_counts(
@@ -494,7 +483,6 @@ class TestDownload(unittest.TestCase):
         with tempfile.NamedTemporaryFile(
             suffix=".mpeg"
         ) as file1, tempfile.NamedTemporaryFile(suffix=".mpeg") as file2:
-
             _generate_video(file1.name, fps=fps, n_frames=n_frames)
             _generate_video(file2.name, fps=fps, broken=True)
 
@@ -509,7 +497,6 @@ class TestDownload(unittest.TestCase):
         with tempfile.NamedTemporaryFile(
             suffix=".mpeg"
         ) as file1, tempfile.NamedTemporaryFile(suffix=".mpeg") as file2:
-
             _generate_video(file1.name, fps=fps, n_frames=n_frames)
             _generate_video(file2.name, fps=fps, broken=True)
 
@@ -528,7 +515,6 @@ class TestDownload(unittest.TestCase):
         with tempfile.NamedTemporaryFile(
             suffix=".avi"
         ) as file1, tempfile.NamedTemporaryFile(suffix=".avi") as file2:
-
             _generate_video(file1.name, n_frames=true_n_frames[0], fps=fps)
             _generate_video(file2.name, n_frames=true_n_frames[1], fps=fps)
             frame_counts = lightly.api.download.all_video_frame_counts(

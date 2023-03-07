@@ -42,7 +42,6 @@ def load_requirements(path_dir=PATH_ROOT, filename="base.txt", comment_char="#")
 
 
 if __name__ == "__main__":
-
     name = "lightly"
     version = lightly.__version__
     description = lightly.__doc__

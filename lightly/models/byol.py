@@ -52,7 +52,6 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
         out_dim: int = 256,
         m: float = 0.9,
     ):
-
         super(BYOL, self).__init__()
 
         self.backbone = backbone
@@ -113,7 +112,6 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
 
         # forward pass of second input x1
         with torch.no_grad():
-
             f1 = self.momentum_backbone(x1).flatten(start_dim=1)
             out1 = self.momentum_projection_head(f1)
 

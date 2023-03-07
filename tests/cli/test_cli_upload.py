@@ -173,7 +173,6 @@ class TestCLIUpload(MockedApiWorkflowSetup):
                         n_dims_embeddings=n_dims_embeddings,
                         n_dims_embeddings_server=n_dims_embeddings_server,
                     ):
-
                         self.create_fake_dataset(
                             n_data=N_FILES_ON_SERVER,
                             n_rows_embeddings=N_FILES_ON_SERVER,
@@ -260,7 +259,6 @@ class TestCLIUpload(MockedApiWorkflowSetup):
                 self.assertEqual(result, SUCCESS_RETURN_VALUE)
 
     def test_upload_dataset_and_embedding(self):
-
         for input_dir in [True, False]:
             for existing_dataset in [True, False]:
                 for embeddings_path in [True, False]:

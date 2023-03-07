@@ -33,7 +33,6 @@ class TestScorerKeypointDetection(unittest.TestCase):
         self.expected_scores_mean_uncertainty = np.asarray([0.75, 0.45, 0])
 
     def test_scorer_calculate_scores(self):
-
         scorer = ScorerKeypointDetection(self.model_output)
         scores = scorer.calculate_scores()
 

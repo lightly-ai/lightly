@@ -61,7 +61,6 @@ class TestObjectDetectionOutput(unittest.TestCase):
                 data["boxes"][i] = BoundingBox(x0, y0, x1, y1)
 
     def test_object_detection_output(self):
-
         outputs_1 = []
         outputs_2 = []
         for i, data in enumerate(self.dummy_data):
@@ -105,7 +104,6 @@ class TestObjectDetectionOutput(unittest.TestCase):
                 self.assertEqual(np.sum(class_probs), 1.0)
 
     def test_object_detection_output_illegal_args(self):
-
         with self.assertRaises(ValueError):
             # score > 1
             ObjectDetectionOutput.from_scores([BoundingBox(0, 0, 1, 1)], [1.1], [0])

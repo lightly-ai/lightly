@@ -79,7 +79,6 @@ class VICRegTransform(MultiViewTransform):
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-
         view_transform = VICRegViewTransform(
             input_size=input_size,
             cj_prob=cj_prob,

@@ -43,7 +43,6 @@ class SelectionConfig:
         min_distance: float = -1,
         name: str = None,
     ):
-
         self.method = method
         self.n_samples = n_samples
         self.min_distance = min_distance

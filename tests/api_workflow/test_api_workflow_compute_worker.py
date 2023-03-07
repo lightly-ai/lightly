@@ -310,7 +310,6 @@ def test_selection_config_from_dict__typo() -> None:
 
 
 def test_get_scheduled_run_by_id() -> None:
-
     scheduled_runs = [
         DockerRunScheduledData(
             id=f"id_{i}",
@@ -339,7 +338,6 @@ def test_get_scheduled_run_by_id() -> None:
 
 
 def test_get_scheduled_run_by_id_not_found() -> None:
-
     scheduled_runs = [
         DockerRunScheduledData(
             id=f"id_{i}",
@@ -371,7 +369,6 @@ def test_get_scheduled_run_by_id_not_found() -> None:
 
 
 def test_get_compute_worker_state_and_message_OPEN() -> None:
-
     scheduled_run = DockerRunScheduledData(
         id=f"id_2",
         dataset_id="dataset_id",
@@ -447,7 +444,6 @@ def test_get_compute_worker_state_and_message_docker_state() -> None:
 
 
 def test_compute_worker_run_info_generator(mocker) -> None:
-
     states = [f"state_{i}" for i in range(7)]
     states[-1] = DockerRunState.COMPLETED
 
@@ -664,7 +660,6 @@ def test__config_to_camel_case() -> None:
 
 
 def test__snake_to_camel_case() -> None:
-
     assert _snake_to_camel_case("lorem") == "lorem"
     assert _snake_to_camel_case("lorem_ipsum") == "loremIpsum"
     assert _snake_to_camel_case("lorem_ipsum_dolor") == "loremIpsumDolor"

@@ -62,10 +62,8 @@ class SMoGTransform(MultiViewTransform):
         random_gray_scale: float = 0.2,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-
         transforms = []
         for i in range(len(crop_sizes)):
-
             transforms.extend(
                 [
                     SmoGViewTransform(

@@ -68,7 +68,6 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         dataloader: torch.utils.data.DataLoader,
         scheduler=None,
     ):
-
         super(SelfSupervisedEmbedding, self).__init__(
             model, criterion, optimizer, dataloader, scheduler
         )
@@ -115,10 +114,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         embeddings = []
         labels = []
         with torch.no_grad():
-
             start_timepoint = time.time()
-            for (image_batch, label_batch, filename_batch) in dataloader:
-
+            for image_batch, label_batch, filename_batch in dataloader:
                 batch_size = image_batch.shape[0]
 
                 # the following 2 lines are needed to prevent a file handler leak,

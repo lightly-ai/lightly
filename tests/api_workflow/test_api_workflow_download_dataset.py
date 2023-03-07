@@ -68,7 +68,6 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
             "get_embeddings_by_dataset_id",
             return_value=[embedding_0, embedding_1],
         ) as mock_get_embeddings_by_dataset_id:
-
             embedding = self.api_workflow_client.get_embedding_data_by_name(
                 name="embedding_0"
             )
@@ -92,7 +91,6 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
             ValueError,
             "There are no embeddings with name 'other_embedding' for dataset with id 'dataset_0_id'.",
         ):
-
             self.api_workflow_client.get_embedding_data_by_name(name="other_embedding")
             mock_get_embeddings_by_dataset_id.assert_called_once_with(
                 dataset_id="dataset_0_id",
@@ -106,7 +104,6 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
         ) as mock_get_embeddings_csv_read_url_by_id, mock.patch.object(
             download, "download_and_write_file"
         ) as mock_download:
-
             self.api_workflow_client.download_embeddings_csv_by_id(
                 embedding_id="embedding_id",
                 output_path="embeddings.csv",
@@ -136,7 +133,6 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
             self.api_workflow_client,
             "download_embeddings_csv_by_id",
         ) as mock_download_embeddings_csv_by_id:
-
             self.api_workflow_client.download_embeddings_csv(
                 output_path="embeddings.csv"
             )
@@ -155,7 +151,6 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
             RuntimeError,
             "Could not find embeddings for dataset with id 'dataset_0_id'.",
         ):
-
             self.api_workflow_client.download_embeddings_csv(
                 output_path="embeddings.csv"
             )

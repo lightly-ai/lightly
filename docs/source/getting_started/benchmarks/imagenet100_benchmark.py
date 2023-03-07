@@ -506,7 +506,6 @@ class SwaVModel(BenchmarkModule):
         return self.prototypes(x)
 
     def training_step(self, batch, batch_idx):
-
         # normalize the prototypes so they are on the unit sphere
         self.prototypes.normalize()
 

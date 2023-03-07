@@ -72,10 +72,8 @@ class TestScorerClassification(unittest.TestCase):
         self.assertEqual(set(scores.keys()), set(ScorerClassification.score_names()))
 
     def test_scorer_classification_variable_model_output_dimension(self):
-
         for num_samples in range(5):
             for num_classes in range(5):
-
                 with self.subTest(
                     msg=f"model_output.shape = ({num_samples},{num_classes})"
                 ):
@@ -99,7 +97,6 @@ class TestScorerClassification(unittest.TestCase):
                             self.assertEqual(type(score_values), np.ndarray)
 
     def test_scorer_classification_variable_model_output_tensor_order(self):
-
         for tensor_order in range(1, 5):
             model_output = np.ndarray((3,) * tensor_order)
             with self.subTest(msg=f"model_output.shape = {model_output.shape}"):

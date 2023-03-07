@@ -46,7 +46,6 @@ class TestDebug(unittest.TestCase):
 
     @unittest.skipUnless(MATPLOTLIB_AVAILABLE, "Matplotlib not installed")
     def test_plot_augmented_images_image_collate_function(self):
-
         # simclr collate function is a subclass of the image collate function
         collate_function = collate.SimCLRCollateFunction()
 
@@ -60,7 +59,6 @@ class TestDebug(unittest.TestCase):
 
     @unittest.skipUnless(MATPLOTLIB_AVAILABLE, "Matplotlib not installed")
     def test_plot_augmented_images_multi_view_collate_function(self):
-
         # dion collate function is a subclass of the multi view collate function
         collate_function = collate.DINOCollateFunction()
 

@@ -123,7 +123,6 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
             agent.upload_scores(al_scorer)
 
     def test_agent_added_set_before_query(self):
-
         self.api_workflow_client.embedding_id = "embedding_id_xyz"
         agent = ActiveLearningAgent(
             self.api_workflow_client, preselected_tag_name="preselected_tag_name_xyz"
@@ -136,7 +135,6 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
             agent.added_set
 
     def test_agent_query_too_few(self):
-
         self.api_workflow_client.embedding_id = "embedding_id_xyz"
         agent = ActiveLearningAgent(
             self.api_workflow_client,

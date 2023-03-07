@@ -20,7 +20,6 @@ from lightly.utils.hipify import bcolors, print_as_warning
 
 
 def _download_cli(cfg, is_cli_call=True):
-
     tag_name = str(cfg["tag_name"])
     dataset_id = str(cfg["dataset_id"])
     token = str(cfg["token"])

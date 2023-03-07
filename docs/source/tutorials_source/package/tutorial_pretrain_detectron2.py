@@ -99,6 +99,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 data_path = "/datasets/freiburg_groceries_dataset/images"
 cfg_path = "./Base-RCNN-FPN.yaml"
 
+
 # %%
 # Initialize the Detectron2 Model
 # --------------------------------
@@ -201,10 +202,8 @@ optimizer = torch.optim.Adam(
 
 
 for e in range(max_epochs):
-
     mean_loss = 0.0
     for (x0, x1), _, _ in dataloader_train_simclr:
-
         x0 = x0.to(device)
         x1 = x1.to(device)
 

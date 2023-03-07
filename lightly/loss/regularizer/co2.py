@@ -44,7 +44,6 @@ class CO2Regularizer(MemoryBankModule):
     def __init__(
         self, alpha: float = 1, t_consistency: float = 0.05, memory_bank_size: int = 0
     ):
-
         super(CO2Regularizer, self).__init__(size=memory_bank_size)
         # try-catch the KLDivLoss construction for backwards compatability
         self.log_target = True

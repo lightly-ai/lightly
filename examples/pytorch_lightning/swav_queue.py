@@ -56,7 +56,6 @@ class SwaV(pl.LightningModule):
 
     @torch.no_grad()
     def _get_queue_prototypes(self, high_resolution_features):
-
         if len(high_resolution_features) != len(self.queues):
             raise ValueError(
                 f"The number of queues ({len(self.queues)}) should be equal to the number of high "

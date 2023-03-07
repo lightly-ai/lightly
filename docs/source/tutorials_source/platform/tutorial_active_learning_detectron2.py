@@ -140,6 +140,7 @@ YOUR_TOKEN = "yourToken"  # your token of the web platform
 YOUR_DATASET_ID = "yourDatasetId"  # the id of your dataset on the web platform
 DATASET_ROOT = "/datasets/comma10k/imgs/"
 
+
 # allow setting of token and dataset_id from environment variables
 def try_get_token_and_id_from_env():
     token = os.getenv("LIGHTLY_TOKEN", YOUR_TOKEN)
@@ -217,6 +218,7 @@ cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
 )
 predictor = DefaultPredictor(cfg)
 
+
 # %%
 # We use this little helper method to overlay the model predictions on a
 # given image.
@@ -244,7 +246,7 @@ def convert_bbox_detectron2lightly(outputs):
     height, width = outputs["instances"].image_size
     boxes = []
 
-    for (bbox_raw, score, class_idx) in zip(
+    for bbox_raw, score, class_idx in zip(
         outputs["instances"].pred_boxes.tensor,
         outputs["instances"].scores,
         outputs["instances"].pred_classes,

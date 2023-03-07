@@ -49,7 +49,6 @@ class TestUtils(unittest.TestCase):
         PIL_to_bytes(image, ext="JPEG", quality=90)
 
     def test_get_signed_url_destination(self):
-
         # S3
         self.assertEqual(
             get_signed_url_destination(

@@ -57,7 +57,6 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         special_char_in_first_filename: str = None,
         name: str = "embedding_xyz",
     ):
-
         self.create_fake_embeddings(
             n_data,
             n_dims=n_dims,
@@ -108,7 +107,6 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
             self.api_workflow_client.set_embedding_id_to_latest()
 
     def test_upload_existing_embedding(self):
-
         # first upload embeddings
         n_data = len(self.api_workflow_client._mappings_api.sample_names)
         self.t_ester_upload_embedding(n_data=n_data)
@@ -125,7 +123,6 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         )
 
     def test_append_embeddings_with_overlap(self):
-
         # mock the embeddings on the server
         n_data_server = len(self.api_workflow_client._mappings_api.sample_names)
         self.api_workflow_client.n_dims_embeddings_on_server = 32
@@ -177,7 +174,6 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         self.assertListEqual(labels_appended, labels_expected)
 
     def test_append_embeddings_different_shape(self):
-
         # first upload embeddings
         n_data = len(self.api_workflow_client._mappings_api.sample_names)
         self.t_ester_upload_embedding(n_data=n_data)

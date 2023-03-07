@@ -160,7 +160,6 @@ class _UploadEmbeddingsMixin:
             DimensionalityReductionMethod.TSNE,
             DimensionalityReductionMethod.UMAP,
         ]:
-
             body = Trigger2dEmbeddingJobRequest(
                 dimensionality_reduction_method=dimensionality_reduction_method
             )

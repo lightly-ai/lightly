@@ -5,7 +5,6 @@ import torch
 def cosine_schedule(
     step: int, max_steps: int, start_value: float, end_value: float
 ) -> float:
-
     """
     Use cosine decay to gradually modify start_value to reach target end_value during iterations.
 

@@ -37,7 +37,6 @@ class BasicBlock(nn.Module):
     def __init__(
         self, in_planes: int, planes: int, stride: int = 1, num_splits: int = 0
     ):
-
         super(BasicBlock, self).__init__()
 
         self.conv1 = nn.Conv2d(
@@ -105,7 +104,6 @@ class Bottleneck(nn.Module):
     def __init__(
         self, in_planes: int, planes: int, stride: int = 1, num_splits: int = 0
     ):
-
         super(Bottleneck, self).__init__()
 
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
@@ -187,7 +185,6 @@ class ResNet(nn.Module):
         width: float = 1.0,
         num_splits: int = 0,
     ):
-
         super(ResNet, self).__init__()
         self.in_planes = int(64 * width)
 

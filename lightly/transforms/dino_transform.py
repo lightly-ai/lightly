@@ -100,7 +100,6 @@ class DINOTransform(MultiViewTransform):
         solarization_prob: float = 0.2,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-
         # first global crop
         global_transform_0 = DINOViewTransform(
             crop_size=global_crop_size,
@@ -194,7 +193,6 @@ class DINOViewTransform:
         solarization_prob: float = 0.2,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-
         transform = [
             T.RandomResizedCrop(
                 size=crop_size,
