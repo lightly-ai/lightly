@@ -33,7 +33,16 @@ class SMoGTransform(MultiViewTransform):
         cj_prob:
             Probability that color jitter is applied.
         cj_strength:
-            Strength of the color jitter.
+            Strength of the color jitter. `cj_bright`, `cj_contrast`, `cj_sat`, and
+            `cj_hue` are multiplied by this value.
+        cj_bright:
+            How much to jitter brightness.
+        cj_contrast:
+            How much to jitter constrast.
+        cj_sat:
+            How much to jitter saturation.
+        cj_hue:
+            How much to jitter hue.
         random_gray_scale:
             Probability of conversion to grayscale.
         normalize:
@@ -54,6 +63,10 @@ class SMoGTransform(MultiViewTransform):
         hf_prob: float = 0.5,
         cj_prob: float = 1.0,
         cj_strength: float = 0.5,
+        cj_bright: float = 0.8,
+        cj_contrast: float = 0.8,
+        cj_sat: float = 0.4,
+        cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
@@ -74,6 +87,10 @@ class SMoGTransform(MultiViewTransform):
                         hf_prob=hf_prob,
                         cj_prob=cj_prob,
                         cj_strength=cj_strength,
+                        cj_bright=cj_bright,
+                        cj_contrast=cj_contrast,
+                        cj_sat=cj_sat,
+                        cj_hue=cj_hue,
                         random_gray_scale=random_gray_scale,
                         normalize=normalize,
                     )
@@ -97,14 +114,18 @@ class SmoGViewTransform:
         hf_prob: float = 0.5,
         cj_prob: float = 1.0,
         cj_strength: float = 0.5,
+        cj_bright: float = 0.8,
+        cj_contrast: float = 0.8,
+        cj_sat: float = 0.4,
+        cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
-            0.8 * cj_strength,
-            0.8 * cj_strength,
-            0.4 * cj_strength,
-            0.2 * cj_strength,
+            brightness=cj_strength * cj_bright, 
+            contrast=cj_strength * cj_contrast, 
+            saturation=cj_strength * cj_sat, 
+            hue=cj_strength * cj_hue,
         )
 
         transform = [
@@ -116,12 +137,10 @@ class SmoGViewTransform:
                 kernel_size=kernel_size,
                 prob=gaussian_blur_prob,
                 sigmas=sigmas,
-            ),  # TODO
+            ),
             RandomSolarization(prob=solarize_prob),
             T.ToTensor(),
-            T.Normalize(mean=normalize["mean"], std=normalize["std"]),
         ]
-
         if normalize:
             transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]
         self.transform = T.Compose(transform)

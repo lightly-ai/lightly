@@ -56,7 +56,16 @@ class VICRegLTransform(ImageGridTransform):
         cj_prob:
             Probability that color jitter is applied.
         cj_strength:
-            Strength of the color jitter.
+            Strength of the color jitter. `cj_bright`, `cj_contrast`, `cj_sat`, and
+            `cj_hue` are multiplied by this value.
+        cj_bright:
+            How much to jitter brightness.
+        cj_contrast:
+            How much to jitter constrast.
+        cj_sat:
+            How much to jitter saturation.
+        cj_hue:
+            How much to jitter hue.
         random_gray_scale:
             Probability of conversion to grayscale.
         normalize:
@@ -82,6 +91,10 @@ class VICRegLTransform(ImageGridTransform):
         hf_prob: float = 0.5,
         cj_prob: float = 1.0,
         cj_strength: float = 0.5,
+        cj_bright: float = 0.8,
+        cj_contrast: float = 0.8,
+        cj_sat: float = 0.4,
+        cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
@@ -103,6 +116,10 @@ class VICRegLTransform(ImageGridTransform):
                     solarize_prob=global_solarize_prob,
                     cj_prob=cj_prob,
                     cj_strength=cj_strength,
+                    cj_bright=cj_bright,
+                    cj_contrast=cj_contrast,
+                    cj_sat=cj_sat,
+                    cj_hue=cj_hue,
                     random_gray_scale=random_gray_scale,
                     normalize=normalize,
                 ),
@@ -141,30 +158,34 @@ class VICRegLViewTransform:
         solarize_prob: float = 0.0,
         cj_prob: float = 1.0,
         cj_strength: float = 0.5,
+        cj_bright: float = 0.8,
+        cj_contrast: float = 0.8,
+        cj_sat: float = 0.4,
+        cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
-            0.8 * cj_strength,
-            0.8 * cj_strength,
-            0.4 * cj_strength,
-            0.2 * cj_strength,
+            brightness=cj_strength * cj_bright, 
+            contrast=cj_strength * cj_contrast, 
+            saturation=cj_strength * cj_sat, 
+            hue=cj_strength * cj_hue,
         )
 
-        self.transform = T.Compose(
-            [
-                T.RandomApply([color_jitter], p=cj_prob),
-                T.RandomGrayscale(p=random_gray_scale),
-                GaussianBlur(
-                    kernel_size=gaussian_blur_kernel_size,
-                    prob=gaussian_blur_prob,
-                    sigmas=gaussian_blur_sigmas,
-                ),
-                RandomSolarization(prob=solarize_prob),
-                T.ToTensor(),
-                T.Normalize(mean=normalize["mean"], std=normalize["std"]),
-            ]
-        )
+        transforms = [
+            T.RandomApply([color_jitter], p=cj_prob),
+            T.RandomGrayscale(p=random_gray_scale),
+            GaussianBlur(
+                kernel_size=gaussian_blur_kernel_size,
+                prob=gaussian_blur_prob,
+                sigmas=gaussian_blur_sigmas,
+            ),
+            RandomSolarization(prob=solarize_prob),
+            T.ToTensor(),
+        ]
+        if normalize:
+            transforms += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]
+        self.transform = T.Compose(transforms=transforms)
 
     def __call__(self, image: Union[Tensor, Image]) -> Tensor:
         """

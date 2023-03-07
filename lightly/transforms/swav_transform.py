@@ -35,7 +35,16 @@ class SwaVTransform(MultiCropTranform):
         cj_prob:
             Probability that color jitter is applied.
         cj_strength:
-            Strength of the color jitter.
+            Strength of the color jitter. `cj_bright`, `cj_contrast`, `cj_sat`, and
+            `cj_hue` are multiplied by this value.
+        cj_bright:
+            How much to jitter brightness.
+        cj_contrast:
+            How much to jitter constrast.
+        cj_sat:
+            How much to jitter saturation.
+        cj_hue:
+            How much to jitter hue.
         random_gray_scale:
             Probability of conversion to grayscale.
         gaussian_blur:
@@ -62,7 +71,11 @@ class SwaVTransform(MultiCropTranform):
         rr_prob: float = 0.0,
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         cj_prob: float = 0.8,
-        cj_strength: float = 0.8,
+        cj_strength: float = 1.0,
+        cj_bright: float = 0.8,
+        cj_contrast: float = 0.8,
+        cj_sat: float = 0.8,
+        cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
         kernel_size: Optional[float] = None,
@@ -77,6 +90,10 @@ class SwaVTransform(MultiCropTranform):
             rr_degrees=rr_degrees,
             cj_prob=cj_prob,
             cj_strength=cj_strength,
+            cj_bright=cj_bright,
+            cj_contrast=cj_contrast,
+            cj_sat=cj_sat,
+            cj_hue=cj_hue,
             random_gray_scale=random_gray_scale,
             gaussian_blur=gaussian_blur,
             kernel_size=kernel_size,
@@ -101,7 +118,11 @@ class SwaVViewTransform:
         rr_prob: float = 0.0,
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         cj_prob: float = 0.8,
-        cj_strength: float = 0.8,
+        cj_strength: float = 1.0,
+        cj_bright: float = 0.8,
+        cj_contrast: float = 0.8,
+        cj_sat: float = 0.8,
+        cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
         kernel_size: Optional[float] = None,
@@ -109,10 +130,10 @@ class SwaVViewTransform:
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
-            cj_strength,
-            cj_strength,
-            cj_strength,
-            cj_strength / 4.0,
+            brightness=cj_strength * cj_bright, 
+            contrast=cj_strength * cj_contrast, 
+            saturation=cj_strength * cj_sat, 
+            hue=cj_strength * cj_hue,
         )
 
         transforms = [
@@ -124,7 +145,6 @@ class SwaVViewTransform:
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
             T.ToTensor(),
-            T.Normalize(mean=normalize["mean"], std=normalize["std"]),
         ]
         if normalize:
             transforms += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]

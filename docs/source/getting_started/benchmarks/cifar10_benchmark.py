@@ -159,6 +159,7 @@ collate_fn = MultiViewCollate()
 # Use SimCLR augmentations
 simclr_transform = SimCLRTransform(
     input_size=32,
+    cj_strength=0.5,
     gaussian_blur=0.
 )
 
@@ -167,6 +168,7 @@ swav_transform = SwaVTransform(
     crop_sizes=[32],
     crop_counts=[2], # 2 crops @ 32x32px
     crop_min_scales=[0.14],
+    cj_strength=0.5,
     gaussian_blur=0,
 )
 
@@ -174,6 +176,7 @@ swav_transform = SwaVTransform(
 dino_transform = DINOTransform(
     global_crop_size=32,
     n_local_views=0,
+    cj_strength=0.5,
     gaussian_blur=(0, 0, 0),
 )
 
@@ -181,6 +184,7 @@ dino_transform = DINOTransform(
 smog_transform = SMoGTransform(
     crop_sizes=(32, 32),
     crop_counts=(1, 1),
+    cj_strength=0.5,
     gaussian_blur_probs=(0., 0.),
     crop_min_scales=(0.2, 0.2),
     crop_max_scales=(1.0, 1.0),

@@ -18,6 +18,9 @@ class VICRegTransform(MultiViewTransform):
             Size of the input image in pixels.
         cj_prob:
             Probability that color jitter is applied.
+        cj_strength:
+            Strength of the color jitter. `cj_bright`, `cj_contrast`, `cj_sat`, and
+            `cj_hue` are multiplied by this value.
         cj_bright:
             How much to jitter brightness.
         cj_contrast:
@@ -61,10 +64,11 @@ class VICRegTransform(MultiViewTransform):
         self,
         input_size: int = 224,
         cj_prob: float = 0.8,
-        cj_bright: float = 0.4,
-        cj_contrast: float = 0.4,
-        cj_sat: float = 0.2,
-        cj_hue: float = 0.1,
+        cj_strength: float = 0.5,
+        cj_bright: float = 0.8,
+        cj_contrast: float = 0.8,
+        cj_sat: float = 0.4,
+        cj_hue: float = 0.2,
         min_scale: float = 0.08,
         random_gray_scale: float = 0.2,
         solarize_prob: float = 0.1,
@@ -81,6 +85,7 @@ class VICRegTransform(MultiViewTransform):
         view_transform = VICRegViewTransform(
             input_size=input_size,
             cj_prob=cj_prob,
+            cj_strength=cj_strength,
             cj_bright=cj_bright,
             cj_contrast=cj_contrast,
             cj_sat=cj_sat,
@@ -105,10 +110,11 @@ class VICRegViewTransform:
         self,
         input_size: int = 224,
         cj_prob: float = 0.8,
-        cj_bright: float = 0.4,
-        cj_contrast: float = 0.4,
-        cj_sat: float = 0.2,
-        cj_hue: float = 0.1,
+        cj_strength: float = 0.5,
+        cj_bright: float = 0.8,
+        cj_contrast: float = 0.8,
+        cj_sat: float = 0.4,
+        cj_hue: float = 0.2,
         min_scale: float = 0.08,
         random_gray_scale: float = 0.2,
         solarize_prob: float = 0.1,
@@ -121,7 +127,12 @@ class VICRegViewTransform:
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-        color_jitter = T.ColorJitter(cj_bright, cj_contrast, cj_sat, cj_hue)
+        color_jitter = T.ColorJitter(
+            brightness=cj_strength * cj_bright, 
+            contrast=cj_strength * cj_contrast, 
+            saturation=cj_strength * cj_sat, 
+            hue=cj_strength * cj_hue,
+        )
 
         transform = [
             T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),

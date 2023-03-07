@@ -148,19 +148,22 @@ collate_fn = MultiViewCollate()
 
 # Use SimCLR augmentations
 simclr_transform = SimCLRTransform(
-    input_size=input_size
+    input_size=input_size,
+    cj_strength=0.5,
 )
 
 # Multi crop augmentation for SwAV
 swav_transform = SwaVTransform(
     crop_sizes=(128, 64),
     crop_counts=(2, 6),  # 2 crops @ 128x128px and 6 crops @ 64x64px
+    cj_strength=0.5,
 )
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
 dino_transform = DINOTransform(
     global_crop_size=128,
     local_crop_size=64,
+    cj_strength=0.5,
 )
 
 # Two crops for SMoG
@@ -169,17 +172,26 @@ smog_transform = SMoGTransform(
     crop_counts=(1, 1),
     crop_min_scales=(0.2, 0.2),
     crop_max_scales=(1.0, 1.0),
+    cj_strength=0.5,
 )
 
 # Single crop augmentation for MAE
 mae_transform = MAETransform()
 
 # Multi crop augmentation for MSN
-msn_transform = MSNTransform(random_size=128, focal_size=64)
+msn_transform = MSNTransform(
+    random_size=128, 
+    focal_size=64,
+    cj_strength=0.5,
+)
 
 # Transform  passing geometrical transformation for VICRegL
 vicregl_transform = VICRegLTransform(
-    global_crop_size=128, local_crop_size=64, global_grid_size=4, local_grid_size=2
+    global_crop_size=128, 
+    local_crop_size=64, 
+    global_grid_size=4, 
+    local_grid_size=2,
+    cj_strength=0.5,
 )
 
 normalize_transform = torchvision.transforms.Normalize(

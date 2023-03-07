@@ -19,6 +19,9 @@ class PIRLTransform(MultiViewTransform):
             Size of the input image in pixels.
         cj_prob:
             Probability that color jitter is applied.
+        cj_strength:
+            Strength of the color jitter. `cj_bright`, `cj_contrast`, `cj_sat`, and
+            `cj_hue` are multiplied by this value.
         cj_bright:
             How much to jitter brightness.
         cj_contrast:
@@ -44,6 +47,7 @@ class PIRLTransform(MultiViewTransform):
         self,
         input_size: Union[int, Tuple[int, int]] = 64,
         cj_prob: float = 0.8,
+        cj_strength: float = 1.0,
         cj_bright: float = 0.4,
         cj_contrast: float = 0.4,
         cj_sat: float = 0.4,
@@ -69,7 +73,12 @@ class PIRLTransform(MultiViewTransform):
             ]
         )
 
-        color_jitter = T.ColorJitter(cj_bright, cj_contrast, cj_sat, cj_hue)
+        color_jitter = T.ColorJitter(
+            brightness=cj_strength*cj_bright, 
+            contrast=cj_strength*cj_contrast, 
+            saturation=cj_strength*cj_sat, 
+            hue=cj_strength*cj_hue
+        )
 
         # Transform for transformed jigsaw image
         transform = [
