@@ -16,7 +16,7 @@ def test_make_swagger_generated_classes_picklable__api_workflow_client(
 
     assert set(client.__dict__.keys()) == set(new_client.__dict__.keys())
     assert all(
-        type(client.__dict__[key] == new_client.__dict__[key])
+        type(client.__dict__[key]) == type(new_client.__dict__[key])
         for key in client.__dict__.keys()
     )
 
@@ -34,7 +34,7 @@ def test_make_swagger_generated_classes_picklable__api_client() -> None:
 
     assert set(client.__dict__.keys()) == set(new_client.__dict__.keys())
     assert all(
-        type(client.__dict__[key] == new_client.__dict__[key])
+        type(client.__dict__[key]) == type(new_client.__dict__[key])
         for key in client.__dict__.keys()
     )
 
@@ -52,7 +52,7 @@ def test_make_swagger_generated_classes_picklable__configuration() -> None:
 
     assert set(config.__dict__.keys()) == set(new_config.__dict__.keys())
     assert all(
-        type(config.__dict__[key] == new_config.__dict__[key])
+        type(config.__dict__[key]) == type(new_config.__dict__[key])
         for key in config.__dict__.keys()
     )
 
