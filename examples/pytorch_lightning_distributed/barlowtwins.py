@@ -1,6 +1,6 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
 import pytorch_lightning as pl
 import torch
@@ -19,7 +19,7 @@ class BarlowTwins(pl.LightningModule):
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = BarlowTwinsProjectionHead(512, 2048, 2048)
 
-        # enable gather_distributed to gather features from all gpus
+        # enable gather_distributed to gather features from all gpus
         # before calculating the loss
         self.criterion = BarlowTwinsLoss(gather_distributed=True)
 
@@ -63,9 +63,9 @@ gpus = torch.cuda.device_count()
 # train with DDP and use Synchronized Batch Norm for a more accurate batch norm
 # calculation
 trainer = pl.Trainer(
-    max_epochs=10, 
+    max_epochs=10,
     gpus=gpus,
-    strategy='ddp',
+    strategy="ddp",
     sync_batchnorm=True,
 )
 trainer.fit(model=model, train_dataloaders=dataloader)

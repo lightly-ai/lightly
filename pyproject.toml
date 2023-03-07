@@ -1,0 +1,6 @@
+[tool.black]
+extend-exclude = "lightly/openapi_generated/.*"
+
+[tool.isort]
+profile = "black"
+extend_skip = "lightly/openapi_generated"

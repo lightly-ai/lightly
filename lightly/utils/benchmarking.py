@@ -14,12 +14,14 @@ from torch.utils.data import DataLoader
 # https://colab.research.google.com/github/facebookresearch/moco/blob/colab-notebook/colab/moco_cifar10_demo.ipynb
 
 
-def knn_predict(feature: torch.Tensor,
-                feature_bank: torch.Tensor,
-                feature_labels: torch.Tensor, 
-                num_classes: int,
-                knn_k: int=200,
-                knn_t: float=0.1) -> torch.Tensor:
+def knn_predict(
+    feature: torch.Tensor,
+    feature_bank: torch.Tensor,
+    feature_labels: torch.Tensor,
+    num_classes: int,
+    knn_k: int = 200,
+    knn_t: float = 0.1,
+) -> torch.Tensor:
     """Run kNN predictions on features based on a feature bank
 
     This method is commonly used to monitor performance of self-supervised
@@ -29,17 +31,17 @@ def knn_predict(feature: torch.Tensor,
     used in https://arxiv.org/pdf/1805.01978v1.pdf.
 
     Args:
-        feature: 
+        feature:
             Tensor of shape [N, D] for which you want predictions
-        feature_bank: 
+        feature_bank:
             Tensor of a database of features used for kNN
-        feature_labels: 
+        feature_labels:
             Labels for the features in our feature_bank
-        num_classes: 
+        num_classes:
             Number of classes (e.g. `10` for CIFAR-10)
-        knn_k: 
+        knn_k:
             Number of k neighbors used for kNN
-        knn_t: 
+        knn_t:
             Temperature parameter to reweights similarities for kNN
 
     Returns:
@@ -63,19 +65,25 @@ def knn_predict(feature: torch.Tensor,
     # [B, K]
     sim_weight, sim_indices = sim_matrix.topk(k=knn_k, dim=-1)
     # [B, K]
-    sim_labels = torch.gather(feature_labels.expand(
-        feature.size(0), -1), dim=-1, index=sim_indices)
+    sim_labels = torch.gather(
+        feature_labels.expand(feature.size(0), -1), dim=-1, index=sim_indices
+    )
     # we do a reweighting of the similarities
     sim_weight = (sim_weight / knn_t).exp()
     # counts for each class
-    one_hot_label = torch.zeros(feature.size(
-        0) * knn_k, num_classes, device=sim_labels.device)
+    one_hot_label = torch.zeros(
+        feature.size(0) * knn_k, num_classes, device=sim_labels.device
+    )
     # [B*K, C]
     one_hot_label = one_hot_label.scatter(
-        dim=-1, index=sim_labels.view(-1, 1), value=1.0)
+        dim=-1, index=sim_labels.view(-1, 1), value=1.0
+    )
     # weighted score ---> [B, C]
-    pred_scores = torch.sum(one_hot_label.view(feature.size(
-        0), -1, num_classes) * sim_weight.unsqueeze(dim=-1), dim=1)
+    pred_scores = torch.sum(
+        one_hot_label.view(feature.size(0), -1, num_classes)
+        * sim_weight.unsqueeze(dim=-1),
+        dim=1,
+    )
     pred_labels = pred_scores.argsort(dim=-1, descending=True)
     return pred_labels
 
@@ -90,7 +98,7 @@ class BenchmarkModule(LightningModule):
     the predictions on a kNN classifier on the validation data using the
     feature_bank features from the train data.
 
-    We can access the highest test accuracy during a kNN prediction 
+    We can access the highest test accuracy during a kNN prediction
     using the `max_accuracy` attribute.
 
     Attributes:
@@ -118,7 +126,7 @@ class BenchmarkModule(LightningModule):
         >>>             *list(resnet.children())[:-1],
         >>>             nn.AdaptiveAvgPool2d(1),
         >>>         )
-        >>>         self.resnet_simsiam = 
+        >>>         self.resnet_simsiam =
         >>>             lightly.models.SimSiam(self.backbone, num_ftrs=512)
         >>>         self.criterion = lightly.loss.SymNegCosineSimilarityLoss()
         >>>
@@ -148,11 +156,13 @@ class BenchmarkModule(LightningModule):
 
     """
 
-    def __init__(self,
-                 dataloader_kNN: DataLoader,
-                 num_classes: int,
-                 knn_k: int=200,
-                 knn_t: float=0.1):
+    def __init__(
+        self,
+        dataloader_kNN: DataLoader,
+        num_classes: int,
+        knn_k: int = 200,
+        knn_t: float = 0.1,
+    ):
         super().__init__()
         self.backbone = nn.Module()
         self.max_accuracy = 0.0
@@ -178,15 +188,13 @@ class BenchmarkModule(LightningModule):
                 feature = F.normalize(feature, dim=1)
                 self.feature_bank.append(feature)
                 self.targets_bank.append(target)
-        self.feature_bank = torch.cat(
-            self.feature_bank, dim=0).t().contiguous()
-        self.targets_bank = torch.cat(
-            self.targets_bank, dim=0).t().contiguous()
+        self.feature_bank = torch.cat(self.feature_bank, dim=0).t().contiguous()
+        self.targets_bank = torch.cat(self.targets_bank, dim=0).t().contiguous()
         self.backbone.train()
 
     def validation_step(self, batch, batch_idx):
         # we can only do kNN predictions once we have a feature bank
-        if hasattr(self, 'feature_bank') and hasattr(self, 'targets_bank'):
+        if hasattr(self, "feature_bank") and hasattr(self, "targets_bank"):
             images, targets, _ = batch
             feature = self.backbone(images).squeeze()
             feature = F.normalize(feature, dim=1)
@@ -196,7 +204,7 @@ class BenchmarkModule(LightningModule):
                 self.targets_bank,
                 self.num_classes,
                 self.knn_k,
-                self.knn_t
+                self.knn_t,
             )
             num = images.size()
             top1 = (pred_labels[:, 0] == targets).float().sum()
@@ -206,11 +214,11 @@ class BenchmarkModule(LightningModule):
         device = self.dummy_param.device
         if outputs:
             total_num = torch.Tensor([0]).to(device)
-            total_top1 = torch.Tensor([0.]).to(device)
+            total_top1 = torch.Tensor([0.0]).to(device)
             for (num, top1) in outputs:
                 total_num += num[0]
                 total_top1 += top1
-             
+
             if dist.is_initialized() and dist.get_world_size() > 1:
                 dist.all_reduce(total_num)
                 dist.all_reduce(total_top1)
@@ -218,4 +226,4 @@ class BenchmarkModule(LightningModule):
             acc = float(total_top1.item() / total_num.item())
             if acc > self.max_accuracy:
                 self.max_accuracy = acc
-            self.log('kNN_accuracy', acc * 100.0, prog_bar=True)
+            self.log("kNN_accuracy", acc * 100.0, prog_bar=True)

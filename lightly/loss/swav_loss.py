@@ -8,17 +8,17 @@ import torch.nn.functional as F
 
 @torch.no_grad()
 def sinkhorn(
-    out: torch.Tensor, 
-    iterations: int = 3, 
+    out: torch.Tensor,
+    iterations: int = 3,
     epsilon: float = 0.05,
     gather_distributed: bool = False,
 ) -> torch.Tensor:
     """Distributed sinkhorn algorithm.
 
     As outlined in [0] and implemented in [1].
-    
+
     [0]: SwaV, 2020, https://arxiv.org/abs/2006.09882
-    [1]: https://github.com/facebookresearch/swav/ 
+    [1]: https://github.com/facebookresearch/swav/
 
     Args:
         out:
@@ -29,11 +29,11 @@ def sinkhorn(
             Temperature parameter.
         gather_distributed:
             If True then features from all gpus are gathered to calculate the
-            soft codes Q. 
+            soft codes Q.
 
     Returns:
         Soft codes Q assigning each feature to a prototype.
-    
+
     """
     world_size = 1
     if gather_distributed and dist.is_initialized():
@@ -74,21 +74,22 @@ class SwaVLoss(nn.Module):
             Temperature parameter used in the sinkhorn algorithm.
         sinkhorn_gather_distributed:
             If True then features from all gpus are gathered to calculate the
-            soft codes in the sinkhorn algorithm. 
-    
+            soft codes in the sinkhorn algorithm.
+
     """
 
-    def __init__(self,
-                 temperature: float = 0.1,
-                 sinkhorn_iterations: int = 3,
-                 sinkhorn_epsilon: float = 0.05,
-                 sinkhorn_gather_distributed: bool = False):
+    def __init__(
+        self,
+        temperature: float = 0.1,
+        sinkhorn_iterations: int = 3,
+        sinkhorn_epsilon: float = 0.05,
+        sinkhorn_gather_distributed: bool = False,
+    ):
         super(SwaVLoss, self).__init__()
         self.temperature = temperature
         self.sinkhorn_iterations = sinkhorn_iterations
         self.sinkhorn_epsilon = sinkhorn_epsilon
         self.sinkhorn_gather_distributed = sinkhorn_gather_distributed
-
 
     def subloss(self, z: torch.Tensor, q: torch.Tensor):
         """Calculates the cross entropy for the SwaV prediction problem.
@@ -103,15 +104,16 @@ class SwaVLoss(nn.Module):
             Cross entropy between predictions z and codes q.
 
         """
-        return - torch.mean(
+        return -torch.mean(
             torch.sum(q * F.log_softmax(z / self.temperature, dim=1), dim=1)
         )
 
-
-    def forward(self,
-                high_resolution_outputs: List[torch.Tensor],
-                low_resolution_outputs: List[torch.Tensor],
-                queue_outputs: List[torch.Tensor]=None):
+    def forward(
+        self,
+        high_resolution_outputs: List[torch.Tensor],
+        low_resolution_outputs: List[torch.Tensor],
+        queue_outputs: List[torch.Tensor] = None,
+    ):
         """Computes the SwaV loss for a set of high and low resolution outputs.
 
         Args:
@@ -134,7 +136,7 @@ class SwaVLoss(nn.Module):
         n_crops = len(high_resolution_outputs) + len(low_resolution_outputs)
 
         # multi-crop iterations
-        loss = 0.
+        loss = 0.0
         for i in range(len(high_resolution_outputs)):
             # compute codes of i-th high resolution crop
             with torch.no_grad():
@@ -154,10 +156,10 @@ class SwaVLoss(nn.Module):
 
                 # Drop queue similarities
                 if queue_outputs is not None:
-                    q = q[:len(high_resolution_outputs[i])]
+                    q = q[: len(high_resolution_outputs[i])]
 
             # compute subloss for each pair of crops
-            subloss = 0.
+            subloss = 0.0
             for v in range(len(high_resolution_outputs)):
                 if v != i:
                     subloss += self.subloss(high_resolution_outputs[v], q)

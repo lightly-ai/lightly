@@ -22,14 +22,16 @@ except ModuleNotFoundError:
         "installation instructions."
     )
 
-DEFAULT_VIDEO_TIMEOUT = 60 * 5 # seconds
+DEFAULT_VIDEO_TIMEOUT = 60 * 5  # seconds
+
 
 def _check_av_available() -> None:
     if isinstance(av, Exception):
         raise av
 
+
 def download_image(
-    url: str, 
+    url: str,
     session: requests.Session = None,
     retry_fn: Callable = utils.retry,
     request_kwargs: Optional[Dict] = None,
@@ -37,9 +39,9 @@ def download_image(
     """Downloads an image from a url.
 
     Args:
-        url: 
+        url:
             The url where the image is downloaded from.
-        session: 
+        session:
             Session object to persist certain parameters across requests.
         retry_fn:
             Retry function that handles failed downloads.
@@ -51,9 +53,9 @@ def download_image(
 
     """
     request_kwargs = request_kwargs or {}
-    request_kwargs.setdefault('stream', True)
-    request_kwargs.setdefault('timeout', 10)
-    
+    request_kwargs.setdefault("stream", True)
+    request_kwargs.setdefault("timeout", 10)
+
     def load_image(url, req, request_kwargs):
         with req.get(url=url, **request_kwargs) as response:
             response.raise_for_status()
@@ -64,6 +66,7 @@ def download_image(
     req = requests if session is None else session
     image = retry_fn(load_image, url, req, request_kwargs)
     return image
+
 
 if not isinstance(av, ModuleNotFoundError):
 
@@ -131,9 +134,9 @@ if not isinstance(av, ModuleNotFoundError):
                 else:
                     yield frame
 
-
-    def download_video_frame(url: str, timestamp: int, *args, **kwargs
-                             ) -> Union[PIL.Image.Image, av.VideoFrame, None]:
+    def download_video_frame(
+        url: str, timestamp: int, *args, **kwargs
+    ) -> Union[PIL.Image.Image, av.VideoFrame, None]:
         """
         Wrapper around download_video_frames_at_timestamps
         for downloading only a single frame.
@@ -143,7 +146,6 @@ if not isinstance(av, ModuleNotFoundError):
         )
         frames = list(frames)
         return frames[0]
-
 
     def video_frame_count(
         url: str,
@@ -187,7 +189,7 @@ if not isinstance(av, ModuleNotFoundError):
         with retry_fn(av.open, url, timeout=timeout) as container:
             stream = container.streams.video[video_channel]
             num_frames = 0 if ignore_metadata else stream.frames
-            # If number of frames not stored in the video file we have to decode all
+            # If number of frames not stored in the video file we have to decode all
             # frames and count them.
             if num_frames == 0:
                 stream.thread_type = thread_type
@@ -202,7 +204,9 @@ if not isinstance(av, ModuleNotFoundError):
         thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
         ignore_metadata: bool = False,
         retry_fn: Callable = utils.retry,
-        exceptions_indicating_empty_video: Tuple[Type[BaseException], ...] = (RuntimeError,),
+        exceptions_indicating_empty_video: Tuple[Type[BaseException], ...] = (
+            RuntimeError,
+        ),
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Optional[int]]:
         """Finds the number of frames in the videos at the given urls.
@@ -260,138 +264,134 @@ if not isinstance(av, ModuleNotFoundError):
                     if count is not None:
                         total_count += count
                     progress_bar.update(1)
-                    progress_bar.set_description(f'Total frames found: {total_count}')
+                    progress_bar.set_description(f"Total frames found: {total_count}")
             return frame_counts
 
     def download_video_frames_at_timestamps(
-            url: str,
-            timestamps: List[int],
-            as_pil_image: int = True,
-            thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
-            video_channel: int = 0,
-            seek_to_first_frame: bool = True,
-            retry_fn: Callable = utils.retry,
-            timeout: Optional[Union[float, Tuple[float, float]]] = DEFAULT_VIDEO_TIMEOUT,
-        ) -> Iterable[Union[PIL.Image.Image, av.VideoFrame]]:
-            """Lazily retrieves frames from a video at a specific timestamp stored at the given url.
+        url: str,
+        timestamps: List[int],
+        as_pil_image: int = True,
+        thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
+        video_channel: int = 0,
+        seek_to_first_frame: bool = True,
+        retry_fn: Callable = utils.retry,
+        timeout: Optional[Union[float, Tuple[float, float]]] = DEFAULT_VIDEO_TIMEOUT,
+    ) -> Iterable[Union[PIL.Image.Image, av.VideoFrame]]:
+        """Lazily retrieves frames from a video at a specific timestamp stored at the given url.
 
-            Args:
-                url:
-                    The url where video is downloaded from.
-                timestamps:
-                    Timestamps in pts from the start of the video. The images
-                    at these timestamps are returned.
-                    The timestamps must be strictly monotonically ascending.
-                    See https://pyav.org/docs/develop/api/time.html#time
-                    for details on pts.
-                as_pil_image:
-                    Whether to return the frame as PIL.Image.
-                thread_type:
-                    Which multithreading method to use for decoding the video.
-                    See https://pyav.org/docs/stable/api/codec.html#av.codec.context.ThreadType
-                    for details.
-                video_channel:
-                    The video channel from which frames are loaded.
-                seek_to_first_frame:
-                    Boolean indicating whether to seek to the first frame.
-                retry_fn:
-                    Retry function that handles errors when opening the video container.
-                timeout:
-                    Time in seconds to wait for new video data before giving up.
-                    Timeout must either be an (open_timeout, read_timeout) tuple
-                    or a single value which will be used as open and read timeout.
-                    Timeouts only apply to individual steps during the download,
-                    the complete video download can take much longer.
-                    See https://pyav.org/docs/stable/api/_globals.html?highlight=av%20open#av.open
-                    for details.
+        Args:
+            url:
+                The url where video is downloaded from.
+            timestamps:
+                Timestamps in pts from the start of the video. The images
+                at these timestamps are returned.
+                The timestamps must be strictly monotonically ascending.
+                See https://pyav.org/docs/develop/api/time.html#time
+                for details on pts.
+            as_pil_image:
+                Whether to return the frame as PIL.Image.
+            thread_type:
+                Which multithreading method to use for decoding the video.
+                See https://pyav.org/docs/stable/api/codec.html#av.codec.context.ThreadType
+                for details.
+            video_channel:
+                The video channel from which frames are loaded.
+            seek_to_first_frame:
+                Boolean indicating whether to seek to the first frame.
+            retry_fn:
+                Retry function that handles errors when opening the video container.
+            timeout:
+                Time in seconds to wait for new video data before giving up.
+                Timeout must either be an (open_timeout, read_timeout) tuple
+                or a single value which will be used as open and read timeout.
+                Timeouts only apply to individual steps during the download,
+                the complete video download can take much longer.
+                See https://pyav.org/docs/stable/api/_globals.html?highlight=av%20open#av.open
+                for details.
 
-            Returns:
-                A generator that loads and returns a single frame per step.
+        Returns:
+            A generator that loads and returns a single frame per step.
 
-            """
-            _check_av_available()
+        """
+        _check_av_available()
 
-            if len(timestamps) == 0:
-                return []
+        if len(timestamps) == 0:
+            return []
 
-            if any(
-                    timestamps[i+1] <= timestamps[i]
-                    for i
-                    in range(len(timestamps) - 1)
-            ):
-                raise ValueError("The timestamps must be sorted "
-                                 "strictly monotonically ascending, but are not.")
-            min_timestamp = timestamps[0]
-
-            if min_timestamp < 0:
-                raise ValueError(f"Negative timestamp is not allowed: {min_timestamp}")
-
-            with retry_fn(av.open, url, timeout=timeout) as container:
-                stream = container.streams.video[video_channel]
-                stream.thread_type = thread_type
-
-                if seek_to_first_frame:
-                    # seek to last keyframe before the min_timestamp
-                    container.seek(
-                        min_timestamp,
-                        any_frame=False,
-                        backward=True,
-                        stream=stream
-                    )
-
-                index_timestamp = 0
-                for frame in container.decode(stream):
-
-                    # advance from keyframe until correct timestamp is reached
-                    if frame.pts > timestamps[index_timestamp]:
-
-                        # dropped frames!
-                        break
-
-                    # it's ok to check by equality because timestamps are ints
-                    if frame.pts == timestamps[index_timestamp]:
-
-                        # yield next frame
-                        if as_pil_image:
-                            yield frame.to_image()
-                        else:
-                            yield frame
-
-                        # update the timestamp
-                        index_timestamp += 1
-
-                    if index_timestamp >= len(timestamps):
-                        return
-
-            leftovers = timestamps[index_timestamp:]
-
-            # sometimes frames are skipped when we seek to the first frame
-            # let's retry downloading these frames without seeking
-            retry_skipped_timestamps = seek_to_first_frame
-            if retry_skipped_timestamps:
-                warnings.warn(
-                    f'Timestamps {leftovers} could not be decoded! Retrying from the start...'
-                )
-                frames = download_video_frames_at_timestamps(
-                    url,
-                    leftovers,
-                    as_pil_image=as_pil_image,
-                    thread_type=thread_type,
-                    video_channel=video_channel,
-                    seek_to_first_frame=False,
-                    retry_fn=retry_fn,
-                )
-                for frame in frames:
-                    yield frame
-                return
-
-            raise RuntimeError(
-                f'Timestamps {leftovers} in video {url} could not be decoded!'
+        if any(timestamps[i + 1] <= timestamps[i] for i in range(len(timestamps) - 1)):
+            raise ValueError(
+                "The timestamps must be sorted "
+                "strictly monotonically ascending, but are not."
             )
+        min_timestamp = timestamps[0]
+
+        if min_timestamp < 0:
+            raise ValueError(f"Negative timestamp is not allowed: {min_timestamp}")
+
+        with retry_fn(av.open, url, timeout=timeout) as container:
+            stream = container.streams.video[video_channel]
+            stream.thread_type = thread_type
+
+            if seek_to_first_frame:
+                # seek to last keyframe before the min_timestamp
+                container.seek(
+                    min_timestamp, any_frame=False, backward=True, stream=stream
+                )
+
+            index_timestamp = 0
+            for frame in container.decode(stream):
+
+                # advance from keyframe until correct timestamp is reached
+                if frame.pts > timestamps[index_timestamp]:
+
+                    # dropped frames!
+                    break
+
+                # it's ok to check by equality because timestamps are ints
+                if frame.pts == timestamps[index_timestamp]:
+
+                    # yield next frame
+                    if as_pil_image:
+                        yield frame.to_image()
+                    else:
+                        yield frame
+
+                    # update the timestamp
+                    index_timestamp += 1
+
+                if index_timestamp >= len(timestamps):
+                    return
+
+        leftovers = timestamps[index_timestamp:]
+
+        # sometimes frames are skipped when we seek to the first frame
+        # let's retry downloading these frames without seeking
+        retry_skipped_timestamps = seek_to_first_frame
+        if retry_skipped_timestamps:
+            warnings.warn(
+                f"Timestamps {leftovers} could not be decoded! Retrying from the start..."
+            )
+            frames = download_video_frames_at_timestamps(
+                url,
+                leftovers,
+                as_pil_image=as_pil_image,
+                thread_type=thread_type,
+                video_channel=video_channel,
+                seek_to_first_frame=False,
+                retry_fn=retry_fn,
+            )
+            for frame in frames:
+                yield frame
+            return
+
+        raise RuntimeError(
+            f"Timestamps {leftovers} in video {url} could not be decoded!"
+        )
 
 
 def download_and_write_file(
-    url: str, output_path: str, 
+    url: str,
+    output_path: str,
     session: requests.Session = None,
     retry_fn: Callable = utils.retry,
     request_kwargs: Optional[Dict] = None,
@@ -411,8 +411,8 @@ def download_and_write_file(
             Additional parameters passed to requests.get().
     """
     request_kwargs = request_kwargs or {}
-    request_kwargs.setdefault('stream', True)
-    request_kwargs.setdefault('timeout', 10)
+    request_kwargs.setdefault("stream", True)
+    request_kwargs.setdefault("timeout", 10)
     req = requests if session is None else session
     out_path = pathlib.Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -481,12 +481,12 @@ def download_and_write_all_files(
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures_to_file_info = {
             executor.submit(
-                job, 
-                file_info=file_info, 
-                output_dir=output_dir, 
-                lock=lock, 
-                sessions=sessions, 
-                retry_fn=retry_fn, 
+                job,
+                file_info=file_info,
+                output_dir=output_dir,
+                lock=lock,
+                sessions=sessions,
+                retry_fn=retry_fn,
                 request_kwargs=request_kwargs,
             ): file_info
             for file_info in file_infos
@@ -501,6 +501,7 @@ def download_and_write_all_files(
             except Exception as ex:
                 warnings.warn(f"Could not download {filename} from {url}")
 
+
 def download_prediction_file(
     url: str,
     session: requests.Session = None,
@@ -513,6 +514,7 @@ def download_prediction_file(
     """
     return download_json_file(url, session=session, request_kwargs=request_kwargs)
 
+
 def download_json_file(
     url: str,
     session: requests.Session = None,
@@ -523,7 +525,7 @@ def download_json_file(
     Args:
         url:
             Url of the file to download.
-        session: 
+        session:
             Session object to persist certain parameters across requests.
         request_kwargs:
             Additional parameters passed to requests.get().
@@ -533,8 +535,8 @@ def download_json_file(
 
     """
     request_kwargs = request_kwargs or {}
-    request_kwargs.setdefault('stream', True)
-    request_kwargs.setdefault('timeout', 10)
+    request_kwargs.setdefault("stream", True)
+    request_kwargs.setdefault("timeout", 10)
     req = requests if session is None else session
 
     response = req.get(url, **request_kwargs)

@@ -7,7 +7,6 @@ from lightly.loss import SwaVLoss
 
 
 class TestSwaVLoss(unittest.TestCase):
-
     def test_forward_pass(self):
 
         n = 32
@@ -18,13 +17,14 @@ class TestSwaVLoss(unittest.TestCase):
             for sinkhorn_iterations in range(3):
                 criterion = SwaVLoss(sinkhorn_iterations=sinkhorn_iterations)
                 low_res = [torch.eye(n, n) for i in range(n_low_res)]
-                
-                with self.subTest(msg=f'n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}'):
+
+                with self.subTest(
+                    msg=f"n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}"
+                ):
                     loss = criterion(high_res, low_res)
                     # loss should be almost zero for unit matrix
                     self.assertGreater(0.5, loss.cpu().numpy())
 
-    
     def test_forward_pass_queue(self):
 
         n = 32
@@ -37,8 +37,10 @@ class TestSwaVLoss(unittest.TestCase):
             for sinkhorn_iterations in range(3):
                 criterion = SwaVLoss(sinkhorn_iterations=sinkhorn_iterations)
                 low_res = [torch.eye(n, n) for i in range(n_low_res)]
-                
-                with self.subTest(msg=f'n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}'):
+
+                with self.subTest(
+                    msg=f"n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}"
+                ):
                     loss = criterion(high_res, low_res, queue)
                     # loss should be almost zero for unit matrix
                     self.assertGreater(0.5, loss.cpu().numpy())
@@ -53,8 +55,10 @@ class TestSwaVLoss(unittest.TestCase):
             for sinkhorn_iterations in range(3):
                 criterion = SwaVLoss(sinkhorn_iterations=sinkhorn_iterations)
                 low_res = [torch.eye(1, n) for i in range(n_low_res)]
-                
-                with self.subTest(msg=f'n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}'):
+
+                with self.subTest(
+                    msg=f"n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}"
+                ):
                     loss = criterion(high_res, low_res)
 
     def test_forward_pass_1d(self):
@@ -66,8 +70,10 @@ class TestSwaVLoss(unittest.TestCase):
             for sinkhorn_iterations in range(3):
                 criterion = SwaVLoss(sinkhorn_iterations=sinkhorn_iterations)
                 low_res = [torch.eye(n, 1) for i in range(n_low_res)]
-                
-                with self.subTest(msg=f'n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}'):
+
+                with self.subTest(
+                    msg=f"n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}"
+                ):
                     loss = criterion(high_res, low_res)
                     # loss should be almost zero for unit matrix
                     self.assertGreater(0.5, loss.cpu().numpy())
@@ -82,8 +88,10 @@ class TestSwaVLoss(unittest.TestCase):
             for sinkhorn_iterations in range(3):
                 criterion = SwaVLoss(sinkhorn_iterations=sinkhorn_iterations)
                 low_res = [torch.eye(n, n).cuda() for i in range(n_low_res)]
-                
-                with self.subTest(msg=f'n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}'):
+
+                with self.subTest(
+                    msg=f"n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}"
+                ):
                     loss = criterion(high_res, low_res)
                     # loss should be almost zero for unit matrix
                     self.assertGreater(0.5, loss.cpu().numpy())

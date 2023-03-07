@@ -138,7 +138,7 @@ class SwaVViewTransform:
         Applies the transforms to the input image.
 
         Args:
-            image: 
+            image:
                 The input image to apply the transforms to.
 
         Returns:

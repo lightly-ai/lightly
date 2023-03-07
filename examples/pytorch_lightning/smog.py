@@ -16,14 +16,12 @@ from lightly.models.modules import heads
 
 
 class SMoGModel(pl.LightningModule):
-
     def __init__(self):
         super().__init__()
         # create a ResNet backbone and remove the classification head
-        resnet = models.ResNetGenerator('resnet-18')
+        resnet = models.ResNetGenerator("resnet-18")
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1)
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
         )
 
         # create a model based on ResNet
@@ -74,7 +72,9 @@ class SMoGModel(pl.LightningModule):
         else:
             # update momentum
             utils.update_momentum(self.backbone, self.backbone_momentum, 0.99)
-            utils.update_momentum(self.projection_head, self.projection_head_momentum, 0.99)
+            utils.update_momentum(
+                self.projection_head, self.projection_head_momentum, 0.99
+            )
 
         (x0, x1), _, _ = batch
 
@@ -101,11 +101,14 @@ class SMoGModel(pl.LightningModule):
 
         return loss
 
-
     def configure_optimizers(self):
-        params = list(self.backbone.parameters()) + list(self.projection_head.parameters()) + list(self.prediction_head.parameters())        
+        params = (
+            list(self.backbone.parameters())
+            + list(self.projection_head.parameters())
+            + list(self.prediction_head.parameters())
+        )
         optim = torch.optim.SGD(
-            params, 
+            params,
             lr=0.01,
             momentum=0.9,
             weight_decay=1e-6,
@@ -123,7 +126,7 @@ dataset = data.LightlyDataset.from_torch_dataset(cifar10)
 collate_fn = data.collate.SMoGCollateFunction(
     crop_sizes=[32, 32],
     crop_counts=[1, 1],
-    gaussian_blur_probs=[0., 0.],
+    gaussian_blur_probs=[0.0, 0.0],
     crop_min_scales=[0.2, 0.2],
     crop_max_scales=[1.0, 1.0],
 )
@@ -143,4 +146,3 @@ trainer = pl.Trainer(max_epochs=10, gpus=gpus)
 
 
 trainer.fit(model=model, train_dataloaders=dataloader)
-

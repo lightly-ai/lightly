@@ -1,6 +1,6 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
 import pytorch_lightning as pl
 import torch
@@ -65,9 +65,9 @@ gpus = torch.cuda.device_count()
 # train with DDP and use Synchronized Batch Norm for a more accurate batch norm
 # calculation
 trainer = pl.Trainer(
-    max_epochs=10, 
+    max_epochs=10,
     gpus=gpus,
-    strategy='ddp',
+    strategy="ddp",
     sync_batchnorm=True,
 )
 trainer.fit(model=model, train_dataloaders=dataloader)

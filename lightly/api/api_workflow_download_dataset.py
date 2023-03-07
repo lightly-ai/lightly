@@ -20,9 +20,7 @@ from lightly.utils.hipify import bcolors
 
 
 def _make_dir_and_save_image(output_dir: str, filename: str, img: Image):
-    """Saves the images and creates necessary subdirectories.
-
-    """
+    """Saves the images and creates necessary subdirectories."""
     path = os.path.join(output_dir, filename)
 
     head = os.path.split(path)[0]
@@ -34,10 +32,8 @@ def _make_dir_and_save_image(output_dir: str, filename: str, img: Image):
 
 
 def _get_image_from_read_url(read_url: str):
-    """Makes a get request to the signed read url and returns the image.
-
-    """
-    request = Request(read_url, method='GET')
+    """Makes a get request to the signed read url and returns the image."""
+    request = Request(read_url, method="GET")
     with urlopen(request) as response:
         blob = response.read()
         img = Image.open(io.BytesIO(blob))
@@ -45,12 +41,13 @@ def _get_image_from_read_url(read_url: str):
 
 
 class _DownloadDatasetMixin:
-
-    def download_dataset(self,
-                         output_dir: str,
-                         tag_name: str = 'initial-tag',
-                         max_workers: int = 8,
-                         verbose: bool = True):
+    def download_dataset(
+        self,
+        output_dir: str,
+        tag_name: str = "initial-tag",
+        max_workers: int = 8,
+        verbose: bool = True,
+    ):
         """Downloads images from the web-app and stores them in output_dir.
 
         Args:
@@ -90,8 +87,7 @@ class _DownloadDatasetMixin:
 
         # get sample ids
         sample_ids = self._mappings_api.get_sample_mappings_by_dataset_id(
-            self.dataset_id,
-            field='_id'
+            self.dataset_id, field="_id"
         )
 
         indices = BitMask.from_hex(tag.bit_mask_data).to_indices()
@@ -107,11 +103,11 @@ class _DownloadDatasetMixin:
         max_workers = max(max_workers, 1)
 
         if verbose:
-            print(f'Downloading {bcolors.OKGREEN}{len(sample_ids)}{bcolors.ENDC} images (with {bcolors.OKGREEN}{max_workers}{bcolors.ENDC} workers):', flush=True)
-            pbar = tqdm.tqdm(
-                unit='imgs',
-                total=len(sample_ids)
+            print(
+                f"Downloading {bcolors.OKGREEN}{len(sample_ids)}{bcolors.ENDC} images (with {bcolors.OKGREEN}{max_workers}{bcolors.ENDC} workers):",
+                flush=True,
             )
+            pbar = tqdm.tqdm(unit="imgs", total=len(sample_ids))
             tqdm_lock = tqdm.tqdm.get_lock()
 
         # define lambda function for concurrent download
@@ -127,10 +123,8 @@ class _DownloadDatasetMixin:
                 img = _get_image_from_read_url(read_url)
                 _make_dir_and_save_image(output_dir, filename, img)
                 success = True
-            except Exception as e: # pylint: disable=broad-except
-                warnings.warn(
-                    f'Downloading of image {filename} failed with error {e}'
-                )
+            except Exception as e:  # pylint: disable=broad-except
+                warnings.warn(f"Downloading of image {filename} failed with error {e}")
                 success = False
 
             # update the progress bar
@@ -142,12 +136,11 @@ class _DownloadDatasetMixin:
             return success
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            results = list(executor.map(
-                lambda_, downloadables, chunksize=1))
+            results = list(executor.map(lambda_, downloadables, chunksize=1))
 
         if not all(results):
-            msg = 'Warning: Unsuccessful download! '
-            msg += 'Failed at image: {}'.format(results.index(False))
+            msg = "Warning: Unsuccessful download! "
+            msg += "Failed at image: {}".format(results.index(False))
             warnings.warn(msg)
 
     def get_all_embedding_data(self) -> List[DatasetEmbeddingData]:
@@ -173,16 +166,15 @@ class _DownloadDatasetMixin:
         )
 
     def download_embeddings_csv_by_id(
-        self, 
-        embedding_id: str, 
+        self,
+        embedding_id: str,
         output_path: str,
     ) -> None:
         """Downloads embeddings with the given embedding id from the dataset and saves
         them to the output path.
         """
         read_url = self._embeddings_api.get_embeddings_csv_read_url_by_id(
-            dataset_id=self.dataset_id,
-            embedding_id=embedding_id
+            dataset_id=self.dataset_id, embedding_id=embedding_id
         )
         download.download_and_write_file(url=read_url, output_path=output_path)
 
@@ -203,10 +195,9 @@ class _DownloadDatasetMixin:
                 f"Could not find embeddings for dataset with id '{self.dataset_id}'."
             )
         self.download_embeddings_csv_by_id(
-            embedding_id=last_embedding.id, 
+            embedding_id=last_embedding.id,
             output_path=output_path,
         )
-
 
     def export_label_studio_tasks_by_tag_id(
         self,
@@ -229,7 +220,7 @@ class _DownloadDatasetMixin:
             self._tags_api.export_tag_to_label_studio_tasks,
             page_size=20000,
             dataset_id=self.dataset_id,
-            tag_id=tag_id
+            tag_id=tag_id,
         )
         return label_studio_tasks
 
@@ -283,7 +274,7 @@ class _DownloadDatasetMixin:
             self._tags_api.export_tag_to_label_box_data_rows,
             page_size=20000,
             dataset_id=self.dataset_id,
-            tag_id=tag_id
+            tag_id=tag_id,
         )
         return label_box_data_rows
 
@@ -315,7 +306,6 @@ class _DownloadDatasetMixin:
         """
         tag = self.get_tag_by_name(tag_name)
         return self.export_label_box_data_rows_by_tag_id(tag.id)
-
 
     def export_filenames_by_tag_id(
         self,
@@ -363,7 +353,6 @@ class _DownloadDatasetMixin:
         """
         tag = self.get_tag_by_name(tag_name)
         return self.export_filenames_by_tag_id(tag.id)
-
 
     def export_filenames_and_read_urls_by_tag_id(
         self,
@@ -435,7 +424,7 @@ class _DownloadDatasetMixin:
 
 
 def _get_latest_default_embedding_data(
-    embeddings: List[DatasetEmbeddingData]
+    embeddings: List[DatasetEmbeddingData],
 ) -> Optional[DatasetEmbeddingData]:
     """Returns the latest embedding data with a default name or None if no such
     default embedding exists.

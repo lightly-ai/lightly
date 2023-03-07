@@ -33,13 +33,16 @@ class BoundingBox:
 
     """
 
-    def __init__(self, x0: float, y0: float, x1: float, y1: float, clip_values: bool = True):
+    def __init__(
+        self, x0: float, y0: float, x1: float, y1: float, clip_values: bool = True
+    ):
         """
-            clip_values:
-                Set to true to clip the values into [0, 1] instead of raising an error if they lie outside.
+        clip_values:
+            Set to true to clip the values into [0, 1] instead of raising an error if they lie outside.
         """
 
         if clip_values:
+
             def clip_to_0_1(value):
                 return min(1, max(0, value))
 
@@ -48,23 +51,22 @@ class BoundingBox:
             x1 = clip_to_0_1(x1)
             y1 = clip_to_0_1(y1)
 
-        if x0 > 1 or x1 > 1 or y0 > 1 or y1 > 1 or \
-                x0 < 0 or x1 < 0 or y0 < 0 or y1 < 0:
+        if x0 > 1 or x1 > 1 or y0 > 1 or y1 > 1 or x0 < 0 or x1 < 0 or y0 < 0 or y1 < 0:
             raise ValueError(
-                f'Bounding Box Coordinates must be relative to '
-                f'image width and height but are ({x0}, {y0}, {x1}, {y1}).'
+                f"Bounding Box Coordinates must be relative to "
+                f"image width and height but are ({x0}, {y0}, {x1}, {y1})."
             )
 
         if x0 >= x1:
             raise ValueError(
-                f'x0 must be smaller than x1 for bounding box '
-                f'[{x0}, {y0}, {x1}, {y1}]'
+                f"x0 must be smaller than x1 for bounding box "
+                f"[{x0}, {y0}, {x1}, {y1}]"
             )
 
         if y0 >= y1:
             raise ValueError(
-                'y0 must be smaller than y1 for bounding box '
-                f'[{x0}, {y0}, {x1}, {y1}]'
+                "y0 must be smaller than y1 for bounding box "
+                f"[{x0}, {y0}, {x1}, {y1}]"
             )
 
         self.x0 = x0
@@ -91,25 +93,25 @@ class BoundingBox:
             >>> bbox = BoundingBox.from_yolo(0.5, 0.4, 0.2, 0.3)
 
         """
-        return cls(x_center - w / 2, y_center - h / 2, x_center + w / 2, y_center + h / 2, clip_values=True)
+        return cls(
+            x_center - w / 2,
+            y_center - h / 2,
+            x_center + w / 2,
+            y_center + h / 2,
+            clip_values=True,
+        )
 
     @property
     def width(self):
-        """Returns the width of the bounding box relative to the image size.
-
-        """
+        """Returns the width of the bounding box relative to the image size."""
         return self.x1 - self.x0
 
     @property
     def height(self):
-        """Returns the height of the bounding box relative to the image size.
-
-        """
+        """Returns the height of the bounding box relative to the image size."""
         return self.y1 - self.y0
 
     @property
     def area(self):
-        """Returns the area of the bounding box relative to the area of the image.
-
-        """
+        """Returns the area of the bounding box relative to the area of the image."""
         return self.width * self.height

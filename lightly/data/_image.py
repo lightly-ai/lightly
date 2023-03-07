@@ -12,7 +12,9 @@ from torchvision import transforms
 from lightly.data._image_loaders import default_loader
 
 
-def _make_dataset(directory, extensions=None, is_valid_file=None) -> List[Tuple[str, int]]:
+def _make_dataset(
+    directory, extensions=None, is_valid_file=None
+) -> List[Tuple[str, int]]:
     """Returns a list of all image files with targets in the directory.
 
     Args:
@@ -30,15 +32,18 @@ def _make_dataset(directory, extensions=None, is_valid_file=None) -> List[Tuple[
 
     if extensions is None:
         if is_valid_file is None:
-            ValueError('Both extensions and is_valid_file cannot be None')
+            ValueError("Both extensions and is_valid_file cannot be None")
         else:
             _is_valid_file = is_valid_file
     else:
+
         def is_valid_file_extension(filepath):
             return filepath.lower().endswith(extensions)
+
         if is_valid_file is None:
             _is_valid_file = is_valid_file_extension
         else:
+
             def _is_valid_file(filepath):
                 return is_valid_file_extension(filepath) and is_valid_file(filepath)
 
@@ -53,12 +58,12 @@ def _make_dataset(directory, extensions=None, is_valid_file=None) -> List[Tuple[
         item = (f.path, 0)
         instances.append(item)
 
-    return sorted(instances, key=lambda x: x[0]) # sort by path
+    return sorted(instances, key=lambda x: x[0])  # sort by path
 
 
 class DatasetFolder(datasets.VisionDataset):
     """Implements a dataset folder.
-    
+
     DatasetFolder based on torchvisions implementation.
     (https://pytorch.org/docs/stable/torchvision/datasets.html#datasetfolder)
 
@@ -81,25 +86,25 @@ class DatasetFolder(datasets.VisionDataset):
 
     """
 
-    def __init__(self,
-                 root: str,
-                 loader=default_loader,
-                 extensions=None,
-                 transform=None,
-                 target_transform=None,
-                 is_valid_file=None,
-                 ):
+    def __init__(
+        self,
+        root: str,
+        loader=default_loader,
+        extensions=None,
+        transform=None,
+        target_transform=None,
+        is_valid_file=None,
+    ):
 
-        super(DatasetFolder, self).__init__(root,
-                                            transform=transform,
-                                            target_transform=target_transform)
+        super(DatasetFolder, self).__init__(
+            root, transform=transform, target_transform=target_transform
+        )
 
         samples = _make_dataset(self.root, extensions, is_valid_file)
         if len(samples) == 0:
-            msg = 'Found 0 files in folder: {}\n'.format(self.root)
+            msg = "Found 0 files in folder: {}\n".format(self.root)
             if extensions is not None:
-                msg += 'Supported extensions are: {}'.format(
-                    ','.join(extensions))
+                msg += "Supported extensions are: {}".format(",".join(extensions))
             raise RuntimeError(msg)
 
         self.loader = loader
@@ -130,7 +135,5 @@ class DatasetFolder(datasets.VisionDataset):
         return sample, target
 
     def __len__(self):
-        """Returns the number of samples in the dataset.
-
-        """
+        """Returns the number of samples in the dataset."""
         return len(self.samples)

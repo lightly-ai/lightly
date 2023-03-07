@@ -16,8 +16,6 @@ from lightly.utils.scheduler import cosine_schedule
 # run on a small dataset with a single GPU.
 
 
-
-
 class DINO(pl.LightningModule):
     def __init__(self):
         super().__init__()

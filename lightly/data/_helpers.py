@@ -12,17 +12,26 @@ from lightly.data._image import DatasetFolder
 
 try:
     from lightly.data._video import VideoDataset
+
     VIDEO_DATASET_AVAILABLE = True
 except Exception as e:
     VIDEO_DATASET_AVAILABLE = False
     VIDEO_DATASET_ERRORMSG = e
 
 
-IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp',
-                  '.pgm', '.tif', '.tiff', '.webp')
+IMG_EXTENSIONS = (
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".ppm",
+    ".bmp",
+    ".pgm",
+    ".tif",
+    ".tiff",
+    ".webp",
+)
 
-VIDEO_EXTENSIONS = ('.mp4', '.mov', '.avi', '.mpg',
-                    '.hevc', '.m4v', '.webm', '.mpeg')
+VIDEO_EXTENSIONS = (".mp4", ".mov", ".avi", ".mpg", ".hevc", ".m4v", ".webm", ".mpeg")
 
 
 def _dir_contains_videos(root: str, extensions: tuple):
@@ -68,7 +77,7 @@ def _is_lightly_output_dir(dirname: str):
         True if dirname is "lightly_outputs" else false.
 
     """
-    return 'lightly_outputs' in dirname
+    return "lightly_outputs" in dirname
 
 
 def _contains_subdirs(root: str):
@@ -82,15 +91,15 @@ def _contains_subdirs(root: str):
 
     """
     with os.scandir(root) as scan_dir:
-        return any(not _is_lightly_output_dir(f.name) for f in scan_dir \
-            if f.is_dir())
+        return any(not _is_lightly_output_dir(f.name) for f in scan_dir if f.is_dir())
 
 
 def _load_dataset_from_folder(
-        root: str, transform,
-        is_valid_file: Optional[Callable[[str], bool]] = None,
-        tqdm_args: Dict[str, Any] = None,
-        num_workers_video_frame_counting: int = 0
+    root: str,
+    transform,
+    is_valid_file: Optional[Callable[[str], bool]] = None,
+    tqdm_args: Dict[str, Any] = None,
+    num_workers_video_frame_counting: int = 0,
 ):
     """Initializes dataset from folder.
 
@@ -106,17 +115,19 @@ def _load_dataset_from_folder(
 
     """
     if not os.path.exists(root):
-        raise ValueError(f'The input directory {root} does not exist!')
+        raise ValueError(f"The input directory {root} does not exist!")
 
     # if there is a video in the input directory but we do not have
     # the right dependencies, raise a ValueError
     contains_videos = _contains_videos(root, VIDEO_EXTENSIONS)
     if contains_videos and not VIDEO_DATASET_AVAILABLE:
-        raise ValueError(f'The input directory {root} contains videos '
-                         'but the VideoDataset is not available. \n'
-                         'Make sure you have installed the right '
-                         'dependencies. The error from the imported '
-                         f'module was: {VIDEO_DATASET_ERRORMSG}')
+        raise ValueError(
+            f"The input directory {root} contains videos "
+            "but the VideoDataset is not available. \n"
+            "Make sure you have installed the right "
+            "dependencies. The error from the imported "
+            f"module was: {VIDEO_DATASET_ERRORMSG}"
+        )
 
     if contains_videos:
         # root contains videos -> create a video dataset
@@ -126,20 +137,20 @@ def _load_dataset_from_folder(
             transform=transform,
             is_valid_file=is_valid_file,
             tqdm_args=tqdm_args,
-            num_workers=num_workers_video_frame_counting
+            num_workers=num_workers_video_frame_counting,
         )
     elif _contains_subdirs(root):
         # root contains subdirectories -> create an image folder dataset
-        dataset = datasets.ImageFolder(root,
-                                       transform=transform,
-                                       is_valid_file=is_valid_file
-                                       )
+        dataset = datasets.ImageFolder(
+            root, transform=transform, is_valid_file=is_valid_file
+        )
     else:
         # root contains plain images -> create a folder dataset
-        dataset = DatasetFolder(root,
-                                extensions=IMG_EXTENSIONS,
-                                transform=transform,
-                                is_valid_file=is_valid_file
-                                )
+        dataset = DatasetFolder(
+            root,
+            extensions=IMG_EXTENSIONS,
+            transform=transform,
+            is_valid_file=is_valid_file,
+        )
 
     return dataset

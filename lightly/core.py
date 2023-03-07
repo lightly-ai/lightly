@@ -29,7 +29,7 @@ def _get_config_path(config_path):
     """
     if config_path is None:
         dirname = os.path.dirname(cli.__file__)
-        config_path = os.path.join(dirname, 'config/config.yaml')
+        config_path = os.path.join(dirname, "config/config.yaml")
     if not os.path.exists(config_path):
         raise ValueError("Config path {} does not exist!".format(config_path))
 
@@ -47,7 +47,7 @@ def _load_config_file(config_path):
 
     """
     Loader = yaml.FullLoader
-    with open(config_path, 'r') as config_file:
+    with open(config_path, "r") as config_file:
         cfg = yaml.load(config_file, Loader=Loader)
 
     return cfg
@@ -75,9 +75,9 @@ def _add_kwargs(cfg, kwargs):
     return cfg
 
 
-def train_model_and_embed_images(config_path: str = None, **kwargs) -> Tuple[
-    np.ndarray, List[int], List[str]
-]:
+def train_model_and_embed_images(
+    config_path: str = None, **kwargs
+) -> Tuple[np.ndarray, List[int], List[str]]:
     """Train a self-supervised model and use it to embed images.
 
     First trains a modle using the _train_cli(),
@@ -119,7 +119,7 @@ def train_model_and_embed_images(config_path: str = None, **kwargs) -> Tuple[
     config_args = _add_kwargs(config_args, kwargs)
 
     checkpoint = _train_cli(config_args, is_cli_call=False)
-    config_args['checkpoint'] = checkpoint
+    config_args["checkpoint"] = checkpoint
     embeddings, labels, filenames = _embed_cli(config_args, is_cli_call=False)
     return embeddings, labels, filenames
 
@@ -153,7 +153,7 @@ def train_embedding_model(config_path: str = None, **kwargs):
         >>>     input_dir='path/to/data', config_path=my_config_path)
         >>>
         >>> # train a model with default settings and overwrites: large batch
-        >>> # sizes are benefitial for self-supervised training and more 
+        >>> # sizes are benefitial for self-supervised training and more
         >>> # workers speed up the dataloading process.
         >>> my_loader = {
         >>>     batch_size: 100,
@@ -215,6 +215,6 @@ def embed_images(checkpoint: str, config_path: str = None, **kwargs):
     config_args = _load_config_file(config_path)
     config_args = _add_kwargs(config_args, kwargs)
 
-    config_args['checkpoint'] = checkpoint
+    config_args["checkpoint"] = checkpoint
 
     return _embed_cli(config_args, is_cli_call=False)

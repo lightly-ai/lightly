@@ -1,6 +1,6 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 import copy
 
 import pytorch_lightning as pl
@@ -20,7 +20,7 @@ class MSN(pl.LightningModule):
     def __init__(self):
         super().__init__()
 
-        # ViT small configuration (ViT-S/16)
+        # ViT small configuration (ViT-S/16)
         self.mask_ratio = 0.15
         self.backbone = MAEBackbone(
             image_size=224,
@@ -30,7 +30,7 @@ class MSN(pl.LightningModule):
             hidden_dim=384,
             mlp_dim=384 * 4,
         )
-        # or use a torchvision ViT backbone:
+        # or use a torchvision ViT backbone:
         # vit = torchvision.models.vit_b_32(pretrained=False)
         # self.backbone = MAEBackbone.from_vit(vit)
         self.projection_head = MSNProjectionHead(384)

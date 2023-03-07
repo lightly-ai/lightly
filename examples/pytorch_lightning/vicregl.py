@@ -1,6 +1,6 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
 import pytorch_lightning as pl
 import torch
@@ -30,22 +30,21 @@ class VICRegL(pl.LightningModule):
         x = self.backbone(x)
         y = self.average_pool(x).flatten(start_dim=1)
         z = self.projection_head(y)
-        y_local = x.permute(0, 2, 3, 1) # (B, D, W, H) to (B, W, H, D)
-        z_local = self.local_projection_head(y_local)         
+        y_local = x.permute(0, 2, 3, 1)  # (B, D, W, H) to (B, W, H, D)
+        z_local = self.local_projection_head(y_local)
         return z, z_local
-    
 
     def training_step(self, batch, batch_index):
         (view_global, view_local, grid_global, grid_local), _, _ = batch
         z_global, z_global_local_features = self.forward(view_global)
         z_local, z_local_local_features = self.forward(view_local)
         loss = self.criterion(
-            z_global=z_global, 
-            z_local=z_local, 
-            z_global_local_features=z_global_local_features, 
-            z_local_local_features=z_local_local_features, 
-            grid_global=grid_global, 
-            grid_local=grid_local
+            z_global=z_global,
+            z_local=z_local,
+            z_global_local_features=z_global_local_features,
+            z_local_local_features=z_local_local_features,
+            grid_global=grid_global,
+            grid_local=grid_local,
         )
         return loss
 

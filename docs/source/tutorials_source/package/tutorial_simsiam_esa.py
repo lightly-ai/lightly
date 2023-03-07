@@ -48,8 +48,8 @@ from lightly.models.modules.heads import SimSiamPredictionHead, SimSiamProjectio
 # %%
 # Configuration
 # -------------
-# 
-# We set some configuration parameters for our experiment. 
+#
+# We set some configuration parameters for our experiment.
 #
 # The default configuration with a batch size and input resolution of 256
 # requires 16GB of GPU memory.
@@ -76,14 +76,14 @@ torch.manual_seed(0)
 np.random.seed(0)
 
 # set the path to the dataset
-path_to_data = '/datasets/sentinel-2-italy-v1/'
+path_to_data = "/datasets/sentinel-2-italy-v1/"
 
 
 # %%
 # Setup data augmentations and loaders
 # ------------------------------------
 # Since we're working on satellite images, it makes sense to use horizontal and
-# vertical flips as well as random rotation transformations. We apply weak color 
+# vertical flips as well as random rotation transformations. We apply weak color
 # jitter to learn an invariance of the model with respect to slight changes in
 # the color of the water.
 #
@@ -108,9 +108,7 @@ collate_fn = ImageCollateFunction(
 
 # create a lightly dataset for training, since the augmentations are handled
 # by the collate function, there is no need to apply additional ones here
-dataset_train_simsiam = LightlyDataset(
-    input_dir=path_to_data
-)
+dataset_train_simsiam = LightlyDataset(input_dir=path_to_data)
 
 # create a dataloader for training
 dataloader_train_simsiam = torch.utils.data.DataLoader(
@@ -119,26 +117,25 @@ dataloader_train_simsiam = torch.utils.data.DataLoader(
     shuffle=True,
     collate_fn=collate_fn,
     drop_last=True,
-    num_workers=num_workers
+    num_workers=num_workers,
 )
 
 # create a torchvision transformation for embedding the dataset after training
 # here, we resize the images to match the input size during training and apply
 # a normalization of the color channel based on statistics from imagenet
-test_transforms = torchvision.transforms.Compose([
-    torchvision.transforms.Resize((input_size, input_size)),
-    torchvision.transforms.ToTensor(),
-    torchvision.transforms.Normalize(
-        mean=collate.imagenet_normalize['mean'],
-        std=collate.imagenet_normalize['std'],
-    )
-])
+test_transforms = torchvision.transforms.Compose(
+    [
+        torchvision.transforms.Resize((input_size, input_size)),
+        torchvision.transforms.ToTensor(),
+        torchvision.transforms.Normalize(
+            mean=collate.imagenet_normalize["mean"],
+            std=collate.imagenet_normalize["std"],
+        ),
+    ]
+)
 
 # create a lightly dataset for embedding
-dataset_test = LightlyDataset(
-    input_dir=path_to_data,
-    transform=test_transforms
-)
+dataset_test = LightlyDataset(input_dir=path_to_data, transform=test_transforms)
 
 # create a dataloader for embedding
 dataloader_test = torch.utils.data.DataLoader(
@@ -146,7 +143,7 @@ dataloader_test = torch.utils.data.DataLoader(
     batch_size=batch_size,
     shuffle=False,
     drop_last=False,
-    num_workers=num_workers
+    num_workers=num_workers,
 )
 
 # %%
@@ -155,18 +152,13 @@ dataloader_test = torch.utils.data.DataLoader(
 #
 # Create a ResNet backbone and remove the classification head
 
+
 class SimSiam(nn.Module):
-    def __init__(
-        self, backbone, num_ftrs, proj_hidden_dim, pred_hidden_dim, out_dim
-    ):
+    def __init__(self, backbone, num_ftrs, proj_hidden_dim, pred_hidden_dim, out_dim):
         super().__init__()
         self.backbone = backbone
-        self.projection_head = SimSiamProjectionHead(
-            num_ftrs, proj_hidden_dim, out_dim
-        )
-        self.prediction_head = SimSiamPredictionHead(
-            out_dim, pred_hidden_dim, out_dim
-        )
+        self.projection_head = SimSiamProjectionHead(num_ftrs, proj_hidden_dim, out_dim)
+        self.prediction_head = SimSiamPredictionHead(out_dim, pred_hidden_dim, out_dim)
 
     def forward(self, x):
         # get representations
@@ -193,39 +185,34 @@ model = SimSiam(backbone, num_ftrs, proj_hidden_dim, pred_hidden_dim, out_dim)
 # SimSiam uses a symmetric negative cosine similarity loss
 criterion = NegativeCosineSimilarity()
 
-# scale the learning rate 
+# scale the learning rate
 lr = 0.05 * batch_size / 256
 # use SGD with momentum and weight decay
-optimizer = torch.optim.SGD(
-    model.parameters(),
-    lr=lr,
-    momentum=0.9,
-    weight_decay=5e-4
-)
+optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4)
 
 
 # %%
 # Train SimSiam
 # --------------------
-# 
+#
 # To train the SimSiam model, you can use a classic PyTorch training loop:
 # For every epoch, iterate over all batches in the training data, extract
 # the two transforms of every image, pass them through the model, and calculate
 # the loss. Then, simply update the weights with the optimizer. Don't forget to
 # reset the gradients!
 #
-# Since SimSiam doesn't require negative samples, it is a good idea to check 
+# Since SimSiam doesn't require negative samples, it is a good idea to check
 # whether the outputs of the model have collapsed into a single direction. For
 # this we can simply check the standard deviation of the L2 normalized output
-# vectors. If it is close to one divided by the square root of the output 
+# vectors. If it is close to one divided by the square root of the output
 # dimension, everything is fine (you can read
 # up on this idea `here <https://arxiv.org/abs/2011.10566>`_).
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-avg_loss = 0.
-avg_output_std = 0.
+avg_loss = 0.0
+avg_output_std = 0.0
 for e in range(epochs):
 
     for (x0, x1), _, _ in dataloader_train_simsiam:
@@ -252,7 +239,7 @@ for e in range(epochs):
         # we can use this later to check whether the embeddings are collapsing
         output = p0.detach()
         output = torch.nn.functional.normalize(output, dim=1)
-        
+
         output_std = torch.std(output, 0)
         output_std = output_std.mean()
 
@@ -263,11 +250,13 @@ for e in range(epochs):
 
     # the level of collapse is large if the standard deviation of the l2
     # normalized output is much smaller than 1 / sqrt(dim)
-    collapse_level = max(0., 1 - math.sqrt(out_dim) * avg_output_std)
+    collapse_level = max(0.0, 1 - math.sqrt(out_dim) * avg_output_std)
     # print intermediate results
-    print(f'[Epoch {e:3d}] '
-        f'Loss = {avg_loss:.2f} | '
-        f'Collapse Level: {collapse_level:.2f} / 1.00')
+    print(
+        f"[Epoch {e:3d}] "
+        f"Loss = {avg_loss:.2f} | "
+        f"Collapse Level: {collapse_level:.2f} / 1.00"
+    )
 
 
 # %%
@@ -301,7 +290,7 @@ embeddings = embeddings.cpu().numpy()
 # Now that we have the embeddings, we can visualize the data with a scatter plot.
 # Further down, we also check out the nearest neighbors of a few example images.
 #
-# As a first step, we make a few additional imports. 
+# As a first step, we make a few additional imports.
 
 # for plotting
 import os
@@ -318,7 +307,7 @@ from PIL import Image
 from sklearn import random_projection
 
 # %%
-# Then, we transform the embeddings using UMAP and rescale them to fit in the 
+# Then, we transform the embeddings using UMAP and rescale them to fit in the
 # [0, 1] square.
 #
 
@@ -337,16 +326,16 @@ embeddings_2d = (embeddings_2d - m) / (M - m)
 # Let's start with a nice scatter plot of our dataset! The helper function
 # below will create one.
 
+
 def get_scatter_plot_with_thumbnails():
-    """Creates a scatter plot with image overlays.
-    """
+    """Creates a scatter plot with image overlays."""
     # initialize empty figure and add subplot
     fig = plt.figure()
-    fig.suptitle('Scatter Plot of the Sentinel-2 Dataset')
+    fig.suptitle("Scatter Plot of the Sentinel-2 Dataset")
     ax = fig.add_subplot(1, 1, 1)
     # shuffle images and find out which images to show
     shown_images_idx = []
-    shown_images = np.array([[1., 1.]])
+    shown_images = np.array([[1.0, 1.0]])
     iterator = [i for i in range(embeddings_2d.shape[0])]
     np.random.shuffle(iterator)
     for i in iterator:
@@ -359,7 +348,7 @@ def get_scatter_plot_with_thumbnails():
 
     # plot image overlays
     for idx in shown_images_idx:
-        thumbnail_size = int(rcp['figure.figsize'][0] * 2.)
+        thumbnail_size = int(rcp["figure.figsize"][0] * 2.0)
         path = os.path.join(path_to_data, filenames[idx])
         img = Image.open(path)
         img = functional.resize(img, thumbnail_size)
@@ -372,8 +361,8 @@ def get_scatter_plot_with_thumbnails():
         ax.add_artist(img_box)
 
     # set aspect ratio
-    ratio = 1. / ax.get_data_ratio()
-    ax.set_aspect(ratio, adjustable='box')
+    ratio = 1.0 / ax.get_data_ratio()
+    ax.set_aspect(ratio, adjustable="box")
 
 
 # get a scatter plot with thumbnail overlays
@@ -385,32 +374,28 @@ get_scatter_plot_with_thumbnails()
 # embeddings generated above). This is a very simple approach to find more images
 # of a certain type where a few examples are already available. For example,
 # when a subset of the data is already labelled and one class of images is clearly
-# underrepresented, one can easily query more images of this class from the 
+# underrepresented, one can easily query more images of this class from the
 # unlabelled dataset.
 #
 # Let's get to work! The plots are shown below.
 
 example_images = [
-    'S2B_MSIL1C_20200526T101559_N0209_R065_T31TGE/tile_00154.png', # water 1
-    'S2B_MSIL1C_20200526T101559_N0209_R065_T32SLJ/tile_00527.png', # water 2
-    'S2B_MSIL1C_20200526T101559_N0209_R065_T32TNL/tile_00556.png', # land
-    'S2B_MSIL1C_20200526T101559_N0209_R065_T31SGD/tile_01731.png', # clouds 1
-    'S2B_MSIL1C_20200526T101559_N0209_R065_T32SMG/tile_00238.png', # clouds 2
+    "S2B_MSIL1C_20200526T101559_N0209_R065_T31TGE/tile_00154.png",  # water 1
+    "S2B_MSIL1C_20200526T101559_N0209_R065_T32SLJ/tile_00527.png",  # water 2
+    "S2B_MSIL1C_20200526T101559_N0209_R065_T32TNL/tile_00556.png",  # land
+    "S2B_MSIL1C_20200526T101559_N0209_R065_T31SGD/tile_01731.png",  # clouds 1
+    "S2B_MSIL1C_20200526T101559_N0209_R065_T32SMG/tile_00238.png",  # clouds 2
 ]
 
 
 def get_image_as_np_array(filename: str):
-    """Loads the image with filename and returns it as a numpy array.
-
-    """
+    """Loads the image with filename and returns it as a numpy array."""
     img = Image.open(filename)
     return np.asarray(img)
 
 
 def get_image_as_np_array_with_frame(filename: str, w: int = 5):
-    """Returns an image as a numpy array with a black frame of width w.
-
-    """
+    """Returns an image as a numpy array with a black frame of width w."""
     img = get_image_as_np_array(filename)
     ny, nx, _ = img.shape
     # create an empty image with padding for the frame
@@ -422,9 +407,7 @@ def get_image_as_np_array_with_frame(filename: str, w: int = 5):
 
 
 def plot_nearest_neighbors_3x3(example_image: str, i: int):
-    """Plots the example image and its eight nearest neighbors.
-
-    """
+    """Plots the example image and its eight nearest neighbors."""
     n_subplots = 9
     # initialize empty figure
     fig = plt.figure()

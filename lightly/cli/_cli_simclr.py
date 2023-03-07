@@ -14,28 +14,22 @@ from lightly.models.modules import SimCLRProjectionHead
 class _SimCLR(nn.Module):
     """Implementation of SimCLR used by the command-line interface.
 
-        Provides backwards compatability with old checkpoints.
+    Provides backwards compatability with old checkpoints.
     """
 
-    def __init__(self, backbone: nn.Module, num_ftrs: int = 32,
-                 out_dim: int = 128):
+    def __init__(self, backbone: nn.Module, num_ftrs: int = 32, out_dim: int = 128):
 
         super(_SimCLR, self).__init__()
 
         self.backbone = backbone
-        self.projection_head = SimCLRProjectionHead(num_ftrs, num_ftrs,
-                                                    out_dim)
-
+        self.projection_head = SimCLRProjectionHead(num_ftrs, num_ftrs, out_dim)
 
     def forward(self, x0: torch.Tensor, x1: torch.Tensor = None):
-        """Embeds and projects the input images.
-
-        """
+        """Embeds and projects the input images."""
 
         # forward pass of first input x0
         f0 = self.backbone(x0).flatten(start_dim=1)
         out0 = self.projection_head(f0)
-
 
         # return out0 if x1 is None
         if x1 is None:

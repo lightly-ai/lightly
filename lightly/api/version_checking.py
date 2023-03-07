@@ -11,6 +11,7 @@ from lightly.utils.version_compare import version_compare
 class LightlyAPITimeoutException(Exception):
     pass
 
+
 class TimeoutDecorator:
     def __init__(self, seconds):
         self.seconds = seconds
@@ -54,7 +55,9 @@ def get_versioning_api() -> VersioningApi:
 def get_latest_version(current_version: str) -> Tuple[None, str]:
     try:
         versioning_api = get_versioning_api()
-        version_number: str = versioning_api.get_latest_pip_version(current_version=current_version)
+        version_number: str = versioning_api.get_latest_pip_version(
+            current_version=current_version
+        )
         return version_number
     except Exception as e:
         return None
@@ -67,8 +70,10 @@ def get_minimum_compatible_version():
 
 
 def pretty_print_latest_version(current_version, latest_version, width=70):
-    warning = f"You are using lightly version {current_version}. " \
-              f"There is a newer version of the package available. " \
-              f"For compatability reasons, please upgrade your current version: " \
-              f"pip install lightly=={latest_version}"
+    warning = (
+        f"You are using lightly version {current_version}. "
+        f"There is a newer version of the package available. "
+        f"For compatability reasons, please upgrade your current version: "
+        f"pip install lightly=={latest_version}"
+    )
     warnings.warn(Warning(warning))

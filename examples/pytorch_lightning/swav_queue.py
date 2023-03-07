@@ -81,7 +81,9 @@ class SwaV(pl.LightningModule):
             return None
 
         # Assign prototypes
-        queue_prototypes = [self.prototypes(x, self.current_epoch) for x in queue_features]
+        queue_prototypes = [
+            self.prototypes(x, self.current_epoch) for x in queue_features
+        ]
         return queue_prototypes
 
 

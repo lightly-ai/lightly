@@ -73,9 +73,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
             model, criterion, optimizer, dataloader, scheduler
         )
 
-    def embed(self,
-              dataloader: torch.utils.data.DataLoader,
-              device: torch.device = None
+    def embed(
+        self, dataloader: torch.utils.data.DataLoader, device: torch.device = None
     ) -> Tuple[np.ndarray, List[int], List[str]]:
         """Embeds images in a vector space.
 
@@ -109,11 +108,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         dataset = dataloader.dataset
         if lightly._is_prefetch_generator_available():
             dataloader = BackgroundGenerator(dataloader, max_prefetch=3)
-        
-        pbar = tqdm(
-            total=len(dataset),
-            unit='imgs'
-        )
+
+        pbar = tqdm(total=len(dataset), unit="imgs")
 
         efficiency = 0.0
         embeddings = []
@@ -159,12 +155,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
             labels = labels.cpu().numpy()
 
         sorted_filenames = dataset.get_filenames()
-        sorted_embeddings = sort_items_by_keys(
-            filenames, embeddings, sorted_filenames
-        )
-        sorted_labels = sort_items_by_keys(
-            filenames, labels, sorted_filenames
-        )
+        sorted_embeddings = sort_items_by_keys(filenames, embeddings, sorted_filenames)
+        sorted_labels = sort_items_by_keys(filenames, labels, sorted_filenames)
         embeddings = np.stack(sorted_embeddings)
         labels = np.stack(sorted_labels).tolist()
 

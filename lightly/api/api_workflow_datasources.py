@@ -531,7 +531,7 @@ class _DatasourcesMixin:
             },
             dataset_id=self.dataset_id,
         )
-    
+
     def set_obs_config(
         self,
         resource_path: str,

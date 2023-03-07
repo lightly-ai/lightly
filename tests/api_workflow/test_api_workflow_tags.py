@@ -18,7 +18,6 @@ from tests.api_workflow.mocked_api_workflow_client import (
 
 
 class TestApiWorkflowTags(MockedApiWorkflowSetup):
-
     def setUp(self) -> None:
         lightly.api.api_workflow_client.__version__ = lightly.__version__
         warnings.filterwarnings("ignore", category=UserWarning)
@@ -34,10 +33,10 @@ class TestApiWorkflowTags(MockedApiWorkflowSetup):
 
     def test_get_all_tags(self):
         self.api_workflow_client.get_all_tags()
-    
+
     def test_get_tag_name(self):
         self.api_workflow_client.get_tag_by_name(tag_name=self.valid_tag_name)
-        
+
     def test_get_tag_name_nonexisting(self):
         with self.assertRaises(ValueError):
             self.api_workflow_client.get_tag_by_name(tag_name=self.invalid_tag_name)
@@ -46,35 +45,48 @@ class TestApiWorkflowTags(MockedApiWorkflowSetup):
         self.api_workflow_client.get_tag_by_id(tag_id=self.valid_tag_id)
 
     def test_get_filenames_in_tag(self):
-        tag_data = self.api_workflow_client.get_tag_by_name(tag_name=self.valid_tag_name)
+        tag_data = self.api_workflow_client.get_tag_by_name(
+            tag_name=self.valid_tag_name
+        )
         self.api_workflow_client.get_filenames_in_tag(tag_data)
 
     def test_get_filenames_in_tag_with_filenames(self):
-        tag_data = self.api_workflow_client.get_tag_by_name(tag_name=self.valid_tag_name)
+        tag_data = self.api_workflow_client.get_tag_by_name(
+            tag_name=self.valid_tag_name
+        )
         filenames = self.api_workflow_client.get_filenames()
         self.api_workflow_client.get_filenames_in_tag(tag_data, filenames)
 
     def test_get_filenames_in_tag_exclude_parent(self):
-        tag_data = self.api_workflow_client.get_tag_by_name(tag_name=self.valid_tag_name)
+        tag_data = self.api_workflow_client.get_tag_by_name(
+            tag_name=self.valid_tag_name
+        )
         self.api_workflow_client.get_filenames_in_tag(tag_data, exclude_parent_tag=True)
 
     def test_get_filenames_in_tag_with_filenames_exclude_parent(self):
-        tag_data = self.api_workflow_client.get_tag_by_name(tag_name=self.valid_tag_name)
+        tag_data = self.api_workflow_client.get_tag_by_name(
+            tag_name=self.valid_tag_name
+        )
         filenames = self.api_workflow_client.get_filenames()
-        self.api_workflow_client.get_filenames_in_tag(tag_data, filenames, exclude_parent_tag=True)
+        self.api_workflow_client.get_filenames_in_tag(
+            tag_data, filenames, exclude_parent_tag=True
+        )
 
     def test_create_tag_from_filenames(self):
         filenames_server = self.api_workflow_client.get_filenames()
         filenames_new_tag = filenames_server[:10][::3]
-        self.api_workflow_client.create_tag_from_filenames(filenames_new_tag, new_tag_name="funny_new_tag")
+        self.api_workflow_client.create_tag_from_filenames(
+            filenames_new_tag, new_tag_name="funny_new_tag"
+        )
 
     def test_create_tag_from_filenames(self):
         filenames_server = self.api_workflow_client.get_filenames()
         filenames_new_tag = filenames_server[:10][::3]
-        filenames_new_tag[0] = 'some-random-non-existing-filename.jpg'
+        filenames_new_tag[0] = "some-random-non-existing-filename.jpg"
         with self.assertRaises(RuntimeError):
-            self.api_workflow_client.create_tag_from_filenames(filenames_new_tag, new_tag_name="funny_new_tag")
+            self.api_workflow_client.create_tag_from_filenames(
+                filenames_new_tag, new_tag_name="funny_new_tag"
+            )
 
     def test_delete_tag_by_id(self):
         self.api_workflow_client.delete_tag_by_id(self.valid_tag_id)
-

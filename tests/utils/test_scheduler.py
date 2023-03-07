@@ -21,13 +21,14 @@ class TestScheduler(unittest.TestCase):
         with self.assertRaises(ValueError):
             cosine_schedule(11, 10, 0.0, 1.0)
 
-
     def test_CosineWarmupScheduler(self):
         model = nn.Linear(10, 1)
         optimizer = torch.optim.SGD(
             model.parameters(), lr=1.0, momentum=0.0, weight_decay=0.0
         )
-        scheduler = CosineWarmupScheduler(optimizer, warmup_epochs=3, max_epochs=6, verbose=True)
+        scheduler = CosineWarmupScheduler(
+            optimizer, warmup_epochs=3, max_epochs=6, verbose=True
+        )
 
         # warmup
         self.assertAlmostEqual(scheduler.get_last_lr()[0], 0.333333333)

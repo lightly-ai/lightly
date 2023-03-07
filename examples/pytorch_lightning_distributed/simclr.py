@@ -15,7 +15,7 @@ class SimCLR(pl.LightningModule):
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = SimCLRProjectionHead(512, 2048, 2048)
 
-        # enable gather_distributed to gather features from all gpus
+        # enable gather_distributed to gather features from all gpus
         # before calculating the loss
         self.criterion = NTXentLoss(gather_distributed=True)
 
@@ -45,7 +45,7 @@ dataset = LightlyDataset.from_torch_dataset(cifar10)
 
 collate_fn = SimCLRCollateFunction(
     input_size=32,
-    gaussian_blur=0.,
+    gaussian_blur=0.0,
 )
 
 dataloader = torch.utils.data.DataLoader(
@@ -62,9 +62,9 @@ gpus = torch.cuda.device_count()
 # train with DDP and use Synchronized Batch Norm for a more accurate batch norm
 # calculation
 trainer = pl.Trainer(
-    max_epochs=10, 
+    max_epochs=10,
     gpus=gpus,
-    strategy='ddp',
+    strategy="ddp",
     sync_batchnorm=True,
 )
 trainer.fit(model=model, train_dataloaders=dataloader)

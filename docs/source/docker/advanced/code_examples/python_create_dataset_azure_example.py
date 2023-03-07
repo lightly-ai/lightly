@@ -10,22 +10,20 @@ from lightly.openapi_generated.swagger_client.models.datasource_purpose import (
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
 
 # Create a new dataset on the Lightly Platform.
-client.create_dataset('pedestrian-videos-datapool',
-                      dataset_type=DatasetType.VIDEOS)
+client.create_dataset("pedestrian-videos-datapool", dataset_type=DatasetType.VIDEOS)
 
 # Azure Blob Storage
 # Input bucket
 client.set_azure_config(
-    container_name='my-container/input/',
-    account_name='ACCOUNT-NAME',
-    sas_token='SAS-TOKEN',
-    purpose=DatasourcePurpose.INPUT
+    container_name="my-container/input/",
+    account_name="ACCOUNT-NAME",
+    sas_token="SAS-TOKEN",
+    purpose=DatasourcePurpose.INPUT,
 )
 # Output bucket
 client.set_azure_config(
-    container_name='my-container/output/',
-    account_name='ACCOUNT-NAME',
-    sas_token='SAS-TOKEN',
-    purpose=DatasourcePurpose.LIGHTLY
+    container_name="my-container/output/",
+    account_name="ACCOUNT-NAME",
+    sas_token="SAS-TOKEN",
+    purpose=DatasourcePurpose.LIGHTLY,
 )
-

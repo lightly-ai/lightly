@@ -22,19 +22,20 @@ from tests.api_workflow.mocked_api_workflow_client import (
 
 
 class TestCLIUpload(MockedApiWorkflowSetup):
-
     @classmethod
     def setUpClass(cls) -> None:
-        sys.modules["lightly.cli.upload_cli"].ApiWorkflowClient = MockedApiWorkflowClient
+        sys.modules[
+            "lightly.cli.upload_cli"
+        ].ApiWorkflowClient = MockedApiWorkflowClient
 
-
-    def set_tags(self, zero_tags: bool=True):
+    def set_tags(self, zero_tags: bool = True):
         # make the dataset appear empty
         def mocked_get_all_tags_zero(*args, **kwargs):
             if zero_tags:
                 return []
             else:
                 return ["Any tag"]
+
         MockedApiWorkflowClient.get_all_tags = mocked_get_all_tags_zero
 
     def set_embedding(self, has_embedding: bool):
@@ -45,15 +46,11 @@ class TestCLIUpload(MockedApiWorkflowSetup):
                     name="name",
                     is_processed=True,
                     created_at=0,
-
                 )
             else:
                 raise EmbeddingDoesNotExistError
 
-        MockedApiWorkflowClient.get_embedding_by_name = \
-            mocked_get_embedding_by_name
-
-
+        MockedApiWorkflowClient.get_embedding_by_name = mocked_get_embedding_by_name
 
     def setUp(self):
         # make the API dataset appear empty
@@ -64,53 +61,54 @@ class TestCLIUpload(MockedApiWorkflowSetup):
         self.create_fake_dataset()
 
     def create_fake_dataset(
-            self, n_data: int = N_FILES_ON_SERVER,
-            n_rows_embeddings: int = N_FILES_ON_SERVER,
-            n_dims_embeddings: int = 4
+        self,
+        n_data: int = N_FILES_ON_SERVER,
+        n_rows_embeddings: int = N_FILES_ON_SERVER,
+        n_dims_embeddings: int = 4,
     ):
-        self.dataset = torchvision.datasets.FakeData(size=n_data,
-                                                     image_size=(3, 32, 32))
+        self.dataset = torchvision.datasets.FakeData(
+            size=n_data, image_size=(3, 32, 32)
+        )
 
         self.folder_path = tempfile.mkdtemp()
-        sample_names = [f'img_{i}.jpg' for i in range(n_data)]
+        sample_names = [f"img_{i}.jpg" for i in range(n_data)]
         self.sample_names = sample_names
         for sample_idx in range(n_data):
             data = self.dataset[sample_idx]
             path = os.path.join(self.folder_path, sample_names[sample_idx])
             data[0].save(path)
-        
+
         coco_json = {}
-        coco_json['images'] = [
-            {'id': i, 'file_name': fname} for i, fname in enumerate(self.sample_names)
+        coco_json["images"] = [
+            {"id": i, "file_name": fname} for i, fname in enumerate(self.sample_names)
         ]
-        coco_json['metadata'] = [
-            {'id': i, 'image_id': i, 'custom_metadata': 0 } for i, _ in enumerate(self.sample_names)
+        coco_json["metadata"] = [
+            {"id": i, "image_id": i, "custom_metadata": 0}
+            for i, _ in enumerate(self.sample_names)
         ]
-        
+
         self.tfile = tempfile.NamedTemporaryFile(mode="w+")
         json.dump(coco_json, self.tfile)
         self.tfile.flush()
 
         # create fake embeddings
-        self.path_to_embeddings = os.path.join(self.folder_path, 'embeddings.csv')
-        sample_names_embeddings = [f'img_{i}.jpg' for i in range(n_rows_embeddings)]
+        self.path_to_embeddings = os.path.join(self.folder_path, "embeddings.csv")
+        sample_names_embeddings = [f"img_{i}.jpg" for i in range(n_rows_embeddings)]
         labels = [0] * len(sample_names_embeddings)
         save_embeddings(
             self.path_to_embeddings,
             np.random.randn(n_rows_embeddings, n_dims_embeddings),
             labels,
-            sample_names_embeddings
+            sample_names_embeddings,
         )
         MockedApiWorkflowClient.n_dims_embeddings_on_server = n_dims_embeddings
         MockedApiWorkflowClient.n_embedding_rows_on_server = n_rows_embeddings
 
-
     def parse_cli_string(
-            self,
-            cli_words: str,
+        self,
+        cli_words: str,
     ):
-        with initialize(config_path="../../lightly/cli/config",
-                        job_name="test_app"):
+        with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
             overrides = [
                 "token='123'",
                 f"input_dir={self.folder_path}",
@@ -122,16 +120,18 @@ class TestCLIUpload(MockedApiWorkflowSetup):
         self.cfg.merge_with_cli()
 
     def test_parse_cli_string(self):
-        cli_string = f"lightly-upload dataset_id='XYZ' upload='thumbnails' append={True}"
+        cli_string = (
+            f"lightly-upload dataset_id='XYZ' upload='thumbnails' append={True}"
+        )
         self.parse_cli_string(cli_string)
-        self.assertEqual(self.cfg["dataset_id"], 'XYZ')
-        self.assertEqual(self.cfg["upload"], 'thumbnails')
-        self.assertTrue(self.cfg['append'])
+        self.assertEqual(self.cfg["dataset_id"], "XYZ")
+        self.assertEqual(self.cfg["upload"], "thumbnails")
+        self.assertTrue(self.cfg["append"])
 
     def test_upload_no_token(self):
         cli_string = f"lightly-upload"
         self.parse_cli_string(cli_string)
-        self.cfg['token'] = ''
+        self.cfg["token"] = ""
         with self.assertWarns(UserWarning):
             lightly.cli.upload_cli(self.cfg)
 
@@ -140,10 +140,14 @@ class TestCLIUpload(MockedApiWorkflowSetup):
         self.parse_cli_string(cli_string)
         result = lightly.cli.upload_cli(self.cfg)
         self.assertEqual(result, SUCCESS_RETURN_VALUE)
-        self.assertGreater(len(os.getenv(
-            self.cfg['environment_variable_names'][
-            'lightly_last_dataset_id']
-        )), 0)
+        self.assertGreater(
+            len(
+                os.getenv(
+                    self.cfg["environment_variable_names"]["lightly_last_dataset_id"]
+                )
+            ),
+            0,
+        )
 
     def test_upload_new_dataset_name_and_embeddings(self):
         """
@@ -167,16 +171,20 @@ class TestCLIUpload(MockedApiWorkflowSetup):
                     with self.subTest(
                         append=append,
                         n_dims_embeddings=n_dims_embeddings,
-                        n_dims_embeddings_server=n_dims_embeddings_server
+                        n_dims_embeddings_server=n_dims_embeddings_server,
                     ):
 
                         self.create_fake_dataset(
                             n_data=N_FILES_ON_SERVER,
                             n_rows_embeddings=N_FILES_ON_SERVER,
-                            n_dims_embeddings=n_dims_embeddings
+                            n_dims_embeddings=n_dims_embeddings,
                         )
-                        MockedApiWorkflowClient.n_embedding_rows_on_server = n_embedding_rows_on_server
-                        MockedApiWorkflowClient.n_dims_embeddings_on_server = n_dims_embeddings_server
+                        MockedApiWorkflowClient.n_embedding_rows_on_server = (
+                            n_embedding_rows_on_server
+                        )
+                        MockedApiWorkflowClient.n_dims_embeddings_on_server = (
+                            n_dims_embeddings_server
+                        )
                         self.set_embedding(has_embedding=True)
                         cli_string = f"lightly-upload new_dataset_name='new_dataset_name_xyz' embeddings={self.path_to_embeddings} append={append}"
                         self.parse_cli_string(cli_string)
@@ -203,7 +211,9 @@ class TestCLIUpload(MockedApiWorkflowSetup):
             lightly.cli.upload_cli(self.cfg)
 
     def test_upload_both_dataset(self):
-        cli_string = "lightly-upload new_dataset_name='new_dataset_name_xyz' dataset_id='xyz'"
+        cli_string = (
+            "lightly-upload new_dataset_name='new_dataset_name_xyz' dataset_id='xyz'"
+        )
         self.parse_cli_string(cli_string)
         with self.assertWarns(UserWarning):
             lightly.cli.upload_cli(self.cfg)

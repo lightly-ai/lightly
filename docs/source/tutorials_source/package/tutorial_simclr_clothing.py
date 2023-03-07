@@ -50,7 +50,7 @@ from lightly.data import LightlyDataset, SimCLRCollateFunction, collate
 # %%
 # Configuration
 # -------------
-# 
+#
 # We set some configuration parameters for our experiment.
 # Feel free to change them and analyze the effect.
 #
@@ -69,49 +69,42 @@ pl.seed_everything(seed)
 
 # %%
 # Make sure `path_to_data` points to the downloaded clothing dataset.
-# You can download it using 
+# You can download it using
 # `git clone https://github.com/alexeygrigorev/clothing-dataset.git`
-path_to_data = '/datasets/clothing-dataset/images'
+path_to_data = "/datasets/clothing-dataset/images"
 
 
 # %%
 # Setup data augmentations and loaders
 # ------------------------------------
 #
-# The images from the dataset have been taken from above when the clothing was 
+# The images from the dataset have been taken from above when the clothing was
 # on a table, bed or floor. Therefore, we can make use of additional augmentations
-# such as vertical flip or random rotation (90 degrees). 
-# By adding these augmentations we learn our model invariance regarding the 
+# such as vertical flip or random rotation (90 degrees).
+# By adding these augmentations we learn our model invariance regarding the
 # orientation of the clothing piece. E.g. we don't care if a shirt is upside down
 # but more about the strcture which make it a shirt.
-# 
+#
 # You can learn more about the different augmentations and learned invariances
 # here: :ref:`lightly-advanced`.
-collate_fn = SimCLRCollateFunction(
-    input_size=input_size,
-    vf_prob=0.5,
-    rr_prob=0.5
-)
+collate_fn = SimCLRCollateFunction(input_size=input_size, vf_prob=0.5, rr_prob=0.5)
 
-# We create a torchvision transformation for embedding the dataset after 
+# We create a torchvision transformation for embedding the dataset after
 # training
-test_transforms = torchvision.transforms.Compose([
-    torchvision.transforms.Resize((input_size, input_size)),
-    torchvision.transforms.ToTensor(),
-    torchvision.transforms.Normalize(
-        mean=collate.imagenet_normalize['mean'],
-        std=collate.imagenet_normalize['std'],
-    )
-])
-
-dataset_train_simclr = LightlyDataset(
-    input_dir=path_to_data
+test_transforms = torchvision.transforms.Compose(
+    [
+        torchvision.transforms.Resize((input_size, input_size)),
+        torchvision.transforms.ToTensor(),
+        torchvision.transforms.Normalize(
+            mean=collate.imagenet_normalize["mean"],
+            std=collate.imagenet_normalize["std"],
+        ),
+    ]
 )
 
-dataset_test = LightlyDataset(
-    input_dir=path_to_data,
-    transform=test_transforms
-)
+dataset_train_simclr = LightlyDataset(input_dir=path_to_data)
+
+dataset_test = LightlyDataset(input_dir=path_to_data, transform=test_transforms)
 
 dataloader_train_simclr = torch.utils.data.DataLoader(
     dataset_train_simclr,
@@ -119,7 +112,7 @@ dataloader_train_simclr = torch.utils.data.DataLoader(
     shuffle=True,
     collate_fn=collate_fn,
     drop_last=True,
-    num_workers=num_workers
+    num_workers=num_workers,
 )
 
 dataloader_test = torch.utils.data.DataLoader(
@@ -127,7 +120,7 @@ dataloader_test = torch.utils.data.DataLoader(
     batch_size=batch_size,
     shuffle=False,
     drop_last=False,
-    num_workers=num_workers
+    num_workers=num_workers,
 )
 
 # %%
@@ -173,9 +166,7 @@ class SimCLRModel(pl.LightningModule):
         optim = torch.optim.SGD(
             self.parameters(), lr=6e-2, momentum=0.9, weight_decay=5e-4
         )
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-            optim, max_epochs
-        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
 
 
@@ -186,9 +177,7 @@ class SimCLRModel(pl.LightningModule):
 gpus = 1 if torch.cuda.is_available() else 0
 
 model = SimCLRModel()
-trainer = pl.Trainer(
-    max_epochs=max_epochs, gpus=gpus, progress_bar_refresh_rate=100
-)
+trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus, progress_bar_refresh_rate=100)
 trainer.fit(model, dataloader_train_simclr)
 
 # %%
@@ -223,22 +212,21 @@ embeddings, filenames = generate_embeddings(model, dataloader_test)
 
 # %%
 # Visualize Nearest Neighbors
-#----------------------------
-# Let's look at the trained embedding and visualize the nearest neighbors for 
+# ----------------------------
+# Let's look at the trained embedding and visualize the nearest neighbors for
 # a few random samples.
 #
 # We create some helper functions to simplify the work
 
+
 def get_image_as_np_array(filename: str):
-    """Returns an image as an numpy array
-    """
+    """Returns an image as an numpy array"""
     img = Image.open(filename)
     return np.asarray(img)
 
 
 def plot_knn_examples(embeddings, filenames, n_neighbors=3, num_examples=6):
-    """Plots multiple rows of random images with their nearest neighbors
-    """
+    """Plots multiple rows of random images with their nearest neighbors"""
     # lets look at the nearest neighbors for some samples
     # we use the sklearn library
     nbrs = NearestNeighbors(n_neighbors=n_neighbors).fit(embeddings)
@@ -259,9 +247,9 @@ def plot_knn_examples(embeddings, filenames, n_neighbors=3, num_examples=6):
             # plot the image
             plt.imshow(get_image_as_np_array(fname))
             # set the title to the distance of the neighbor
-            ax.set_title(f'd={distances[idx][plot_x_offset]:.3f}')
+            ax.set_title(f"d={distances[idx][plot_x_offset]:.3f}")
             # let's disable the axis
-            plt.axis('off')
+            plt.axis("off")
 
 
 # %%
@@ -273,16 +261,12 @@ plot_knn_examples(embeddings, filenames)
 # %%
 # Color Invariance
 # ---------------------
-# Let's train again without color augmentation. This will force our model to 
+# Let's train again without color augmentation. This will force our model to
 # respect the colors in the images.
 
 # Set color jitter and gray scale probability to 0
 new_collate_fn = SimCLRCollateFunction(
-    input_size=input_size,
-    vf_prob=0.5,
-    rr_prob=0.5,
-    cj_prob=0.0,
-    random_gray_scale=0.0
+    input_size=input_size, vf_prob=0.5, rr_prob=0.5, cj_prob=0.0, random_gray_scale=0.0
 )
 
 # let's update our collate method and reuse our dataloader
@@ -290,9 +274,7 @@ dataloader_train_simclr.collate_fn = new_collate_fn
 
 # then train a new model
 model = SimCLRModel()
-trainer = pl.Trainer(
-    max_epochs=max_epochs, gpus=gpus, progress_bar_refresh_rate=100
-)
+trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus, progress_bar_refresh_rate=100)
 trainer.fit(model, dataloader_train_simclr)
 
 # and generate again embeddings from the test set
@@ -310,10 +292,8 @@ plot_knn_examples(embeddings, filenames)
 pretrained_resnet_backbone = model.backbone
 
 # you can also store the backbone and use it in another code
-state_dict = {
-    'resnet18_parameters': pretrained_resnet_backbone.state_dict()
-}
-torch.save(state_dict, 'model.pth')
+state_dict = {"resnet18_parameters": pretrained_resnet_backbone.state_dict()}
+torch.save(state_dict, "model.pth")
 
 # %%
 # THIS COULD BE IN A NEW FILE (e.g. inference.py)
@@ -326,8 +306,8 @@ resnet18_new = torchvision.models.resnet18()
 # note that we need to create exactly the same backbone in order to load the weights
 backbone_new = nn.Sequential(*list(resnet18_new.children())[:-1])
 
-ckpt = torch.load('model.pth')
-backbone_new.load_state_dict(ckpt['resnet18_parameters'])
+ckpt = torch.load("model.pth")
+backbone_new.load_state_dict(ckpt["resnet18_parameters"])
 
 # %%
 # Next Steps

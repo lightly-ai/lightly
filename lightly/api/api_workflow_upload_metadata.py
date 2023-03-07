@@ -1,4 +1,3 @@
-
 from bisect import bisect_left
 from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List, Union
@@ -27,20 +26,16 @@ class InvalidCustomMetadataWarning(Warning):
 
 
 def _assert_key_exists_in_custom_metadata(key: str, dictionary: Dict):
-    """Raises a formatted KeyError if key is not a key of the dictionary.
-    
-    """
+    """Raises a formatted KeyError if key is not a key of the dictionary."""
     if key not in dictionary.keys():
         raise KeyError(
-            f'Key {key} not found in custom metadata.\n'
-            f'Found keys: {dictionary.keys()}'
+            f"Key {key} not found in custom metadata.\n"
+            f"Found keys: {dictionary.keys()}"
         )
 
 
 class _UploadCustomMetadataMixin:
-    """Mixin of helpers to allow upload of custom metadata.
-
-    """
+    """Mixin of helpers to allow upload of custom metadata."""
 
     def verify_custom_metadata_format(self, custom_metadata: Dict):
         """Verifies that the custom metadata is in the correct format.
@@ -62,8 +57,9 @@ class _UploadCustomMetadataMixin:
             COCO_ANNOTATION_KEYS.custom_metadata, custom_metadata
         )
 
-    def index_custom_metadata_by_filename(self, custom_metadata: Dict)\
-            -> Dict[str, Union[Dict, None]]:
+    def index_custom_metadata_by_filename(
+        self, custom_metadata: Dict
+    ) -> Dict[str, Union[Dict, None]]:
         """Creates an index to lookup custom metadata by filename.
 
         Args:
@@ -81,30 +77,24 @@ class _UploadCustomMetadataMixin:
         # The mapping is filename -> image_id -> custom_metadata
         # This mapping is created in linear time.
         filename_to_image_id = {
-            image_info[COCO_ANNOTATION_KEYS.images_filename]:
-                image_info[COCO_ANNOTATION_KEYS.images_id]
-            for image_info
-            in custom_metadata[COCO_ANNOTATION_KEYS.images]
+            image_info[COCO_ANNOTATION_KEYS.images_filename]: image_info[
+                COCO_ANNOTATION_KEYS.images_id
+            ]
+            for image_info in custom_metadata[COCO_ANNOTATION_KEYS.images]
         }
         image_id_to_custom_metadata = {
-            metadata[COCO_ANNOTATION_KEYS.custom_metadata_image_id]:
-                metadata
-            for metadata
-            in custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata]
+            metadata[COCO_ANNOTATION_KEYS.custom_metadata_image_id]: metadata
+            for metadata in custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata]
         }
         filename_to_metadata = {
             filename: image_id_to_custom_metadata.get(image_id, None)
-            for (filename, image_id)
-            in filename_to_image_id.items()
+            for (filename, image_id) in filename_to_image_id.items()
         }
         return filename_to_metadata
 
-
-
-    def upload_custom_metadata(self,
-                               custom_metadata: Dict,
-                               verbose: bool = False,
-                               max_workers: int = 8):
+    def upload_custom_metadata(
+        self, custom_metadata: Dict, verbose: bool = False, max_workers: int = 8
+    ):
         """Uploads custom metadata to the Lightly platform.
 
         The custom metadata is expected in a format similar to the COCO annotations:
@@ -156,28 +146,24 @@ class _UploadCustomMetadataMixin:
 
         self.verify_custom_metadata_format(custom_metadata)
 
-
-
         # For each metadata, we need the corresponding sample_id
         # on the server. The mapping is:
         # metadata -> image_id -> filename -> sample_id
 
         image_id_to_filename = {
-            image_info[COCO_ANNOTATION_KEYS.images_id]:
-                image_info[COCO_ANNOTATION_KEYS.images_filename]
+            image_info[COCO_ANNOTATION_KEYS.images_id]: image_info[
+                COCO_ANNOTATION_KEYS.images_filename
+            ]
             for image_info in custom_metadata[COCO_ANNOTATION_KEYS.images]
         }
 
         samples = retry(
             self._samples_api.get_samples_partial_by_dataset_id,
             dataset_id=self.dataset_id,
-            mode=SamplePartialMode.FILENAMES
+            mode=SamplePartialMode.FILENAMES,
         )
 
-        filename_to_sample_id = {
-            sample.file_name: sample.id
-            for sample in samples
-        }
+        filename_to_sample_id = {sample.file_name: sample.id for sample in samples}
 
         upload_requests = []
         for metadata in custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata]:
@@ -185,21 +171,21 @@ class _UploadCustomMetadataMixin:
             filename = image_id_to_filename.get(image_id, None)
             if filename is None:
                 print_as_warning(
-                    f'No image found for custom metadata annotation '
-                    f'with image_id {image_id}. '
-                    f'This custom metadata annotation is skipped. ',
-                    InvalidCustomMetadataWarning
+                    f"No image found for custom metadata annotation "
+                    f"with image_id {image_id}. "
+                    f"This custom metadata annotation is skipped. ",
+                    InvalidCustomMetadataWarning,
                 )
                 continue
             sample_id = filename_to_sample_id.get(filename, None)
             if sample_id is None:
                 print_as_warning(
-                    f'You tried to upload custom metadata for a sample with '
-                    f'filename {{{filename}}}, '
-                    f'but a sample with this filename '
-                    f'does not exist on the server. '
-                    f'This custom metadata annotation is skipped. ',
-                    InvalidCustomMetadataWarning
+                    f"You tried to upload custom metadata for a sample with "
+                    f"filename {{{filename}}}, "
+                    f"but a sample with this filename "
+                    f"does not exist on the server. "
+                    f"This custom metadata annotation is skipped. ",
+                    InvalidCustomMetadataWarning,
                 )
                 continue
             upload_request = (metadata, sample_id)
@@ -221,18 +207,12 @@ class _UploadCustomMetadataMixin:
             # get iterator over results
             results = executor.map(upload_sample_metadata, upload_requests)
             if verbose:
-                results = tqdm(
-                    results, 
-                    unit='metadata',
-                    total=len(upload_requests)
-                )
+                results = tqdm(results, unit="metadata", total=len(upload_requests))
             # iterate over results to make sure they are completed
             list(results)
 
     def create_custom_metadata_config(
-        self,
-        name: str,
-        configs: List[ConfigurationEntry]
+        self, name: str, configs: List[ConfigurationEntry]
     ):
         """Creates custom metadata config from a list of configurations.
 
@@ -253,13 +233,13 @@ class _UploadCustomMetadataMixin:
             >>>     default_value='unknown',
             >>>     value_data_type='CATEGORICAL_STRING',
             >>> )
-            >>>  
+            >>>
             >>> client.create_custom_metadata_config(
             >>>     'My Custom Metadata',
             >>>     [entry],
             >>> )
-        
-        
+
+
         """
         config_set_request = ConfigurationSetRequest(name=name, configs=configs)
         resp = self._metadata_configurations_api.create_meta_data_configuration(
@@ -267,4 +247,3 @@ class _UploadCustomMetadataMixin:
             dataset_id=self.dataset_id,
         )
         return resp
-

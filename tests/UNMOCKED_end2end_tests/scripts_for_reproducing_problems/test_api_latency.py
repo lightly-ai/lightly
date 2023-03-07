@@ -18,13 +18,15 @@ if __name__ == "__main__":
     for i in tqdm(range(n_iters)):
         start = time.time()
         quota_api.get_quota_maximum_dataset_size()
-        duration = time.time()-start
+        duration = time.time() - start
         latencies[i] = duration
 
     def format_latency(latency: float):
         return f"{latency*1000:.1f}ms"
 
-    values = [('min')]
-    print(f"Latencies: min: {format_latency(np.min(latencies))}, mean: {format_latency(np.mean(latencies))}, max: {format_latency(np.max(latencies))}")
+    values = [("min")]
+    print(
+        f"Latencies: min: {format_latency(np.min(latencies))}, mean: {format_latency(np.mean(latencies))}, max: {format_latency(np.max(latencies))}"
+    )
     print(f"\nPINGING TO GOOGLE")
     response = os.system("ping -c 1 " + "google.com")

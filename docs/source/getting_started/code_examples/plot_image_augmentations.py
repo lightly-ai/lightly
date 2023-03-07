@@ -5,7 +5,7 @@ from PIL import Image
 import lightly
 
 # let's get all jpg filenames from a folder
-glob_to_data = '/datasets/clothing-dataset/images/*.jpg'
+glob_to_data = "/datasets/clothing-dataset/images/*.jpg"
 fnames = glob.glob(glob_to_data)
 
 # load the first two images using pillow

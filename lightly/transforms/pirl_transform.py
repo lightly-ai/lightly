@@ -90,5 +90,5 @@ class PIRLTransform(MultiViewTransform):
             crop_size=int(input_size_ // n_grid),
             transform=T.Compose(transform),
         )
-        
+
         super().__init__([no_augment, jigsaw])

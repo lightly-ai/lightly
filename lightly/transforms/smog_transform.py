@@ -50,7 +50,10 @@ class SMoGTransform(MultiViewTransform):
         crop_min_scales: Tuple[float, float] = (0.2, 0.05),
         crop_max_scales: Tuple[float, float] = (1.0, 0.2),
         gaussian_blur_probs: Tuple[float, float] = (0.5, 0.1),
-        gaussian_blur_kernel_sizes: Tuple[Optional[float], Optional[float]] = (None, None),
+        gaussian_blur_kernel_sizes: Tuple[Optional[float], Optional[float]] = (
+            None,
+            None,
+        ),
         gaussian_blur_sigmas: Tuple[float, float] = (0.2, 2),
         solarize_probs: Tuple[float, float] = (0.0, 0.2),
         hf_prob: float = 0.5,
@@ -133,7 +136,7 @@ class SmoGViewTransform:
         Applies the transforms to the input image.
 
         Args:
-            image: 
+            image:
                 The input image to apply the transforms to.
 
         Returns:

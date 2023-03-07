@@ -8,7 +8,7 @@ from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
-class MAETransform():
+class MAETransform:
     """Implements the view augmentation for MAE [0].
 
     - [0]: Masked Autoencoder, 2021, https://arxiv.org/abs/2111.06377
@@ -46,7 +46,7 @@ class MAETransform():
         Applies the transforms to the input image.
 
         Args:
-            image: 
+            image:
                 The input image to apply the transforms to.
 
         Returns:

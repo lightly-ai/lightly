@@ -94,7 +94,7 @@ dataset = LightlyDataset.from_torch_dataset(cifar10)
 collate_fn = SMoGCollateFunction(
     crop_sizes=[32, 32],
     crop_counts=[1, 1],
-    gaussian_blur_probs=[0., 0.],
+    gaussian_blur_probs=[0.0, 0.0],
     crop_min_scales=[0.2, 0.2],
     crop_max_scales=[1.0, 1.0],
 )
@@ -110,10 +110,7 @@ dataloader = torch.utils.data.DataLoader(
 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(
-    model.parameters(),
-    lr=0.01,
-    momentum=0.9,
-    weight_decay=1e-6
+    model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-6
 )
 
 global_step = 0
@@ -139,7 +136,9 @@ for epoch in range(10):
         else:
             # update momentum
             utils.update_momentum(model.backbone, model.backbone_momentum, 0.99)
-            utils.update_momentum(model.projection_head, model.projection_head_momentum, 0.99)
+            utils.update_momentum(
+                model.projection_head, model.projection_head_momentum, 0.99
+            )
 
         x0_encoded, x0_predicted = model(x0)
         x1_encoded = model.forward_momentum(x1)

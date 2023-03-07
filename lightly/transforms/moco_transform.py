@@ -78,5 +78,6 @@ class MoCoV1Transform(SimCLRTransform):
             rr_degrees=rr_degrees,
             normalize=normalize,
         )
-        
-MoCoV2Transform = SimCLRTransform # MoCo v2 uses the same transform as SimCLR
+
+
+MoCoV2Transform = SimCLRTransform  # MoCo v2 uses the same transform as SimCLR

@@ -96,7 +96,7 @@ from torchvision.datasets import ImageFolder
 from torchvision.models import resnet18
 
 # %%
-# We use a small batch size to make sure we can run the training on all kinds 
+# We use a small batch size to make sure we can run the training on all kinds
 # of machines. Feel free to adjust the value to one that works on your machine.
 batch_size = 8
 seed = 42
@@ -107,19 +107,23 @@ pl.seed_everything(seed)
 
 #%%
 # Let's set up the augmentations for the train and the test data.
-train_transform = transforms.Compose([
-    transforms.RandomResizedCrop((224, 224), scale=(0.7, 1.0)),
-    transforms.RandomHorizontalFlip(),
-    transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-])
+train_transform = transforms.Compose(
+    [
+        transforms.RandomResizedCrop((224, 224), scale=(0.7, 1.0)),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+    ]
+)
 
 # we don't do any resizing or mirroring for the test data
-test_transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-])
+test_transform = transforms.Compose(
+    [
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+    ]
+)
 
 
 # %%
@@ -130,7 +134,7 @@ test_transform = transforms.Compose([
 # pizzas
 #  L salami
 #  L margherita
-dset = ImageFolder('pizzas', transform=train_transform)
+dset = ImageFolder("pizzas", transform=train_transform)
 
 # to use the random_split method we need to obtain the length
 # of the train and test set
@@ -140,8 +144,8 @@ test_len = int(full_len - train_len)
 dataset_train, dataset_test = random_split(dset, [train_len, test_len])
 dataset_test.transforms = test_transform
 
-print('Training set consists of {} images'.format(len(dataset_train)))
-print('Test set consists of {} images'.format(len(dataset_test)))
+print("Training set consists of {} images".format(len(dataset_train)))
+print("Test set consists of {} images".format(len(dataset_test)))
 
 # %%
 # We can create our data loaders to fetch the data from the training and test
@@ -150,7 +154,7 @@ dataloader_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True
 dataloader_test = DataLoader(dataset_test, batch_size=batch_size)
 
 # %%
-# PyTorch Lightning allows us to pack the loss as well as the 
+# PyTorch Lightning allows us to pack the loss as well as the
 # optimizer into a single module.
 class MyModel(pl.LightningModule):
     def __init__(self, num_classes=2):
@@ -173,7 +177,7 @@ class MyModel(pl.LightningModule):
         x, y = batch
         y_hat = self(x)
         loss = torch.nn.functional.cross_entropy(y_hat, y)
-        self.log('train_loss', loss, prog_bar=True)
+        self.log("train_loss", loss, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -182,8 +186,8 @@ class MyModel(pl.LightningModule):
         loss = torch.nn.functional.cross_entropy(y_hat, y)
         y_hat = torch.nn.functional.softmax(y_hat, dim=1)
         self.accuracy(y_hat, y)
-        self.log('val_loss', loss, on_epoch=True, prog_bar=True)
-        self.log('val_acc', self.accuracy.compute(), on_epoch=True, prog_bar=True)
+        self.log("val_loss", loss, on_epoch=True, prog_bar=True)
+        self.log("val_acc", self.accuracy.compute(), on_epoch=True, prog_bar=True)
 
     def configure_optimizers(self):
         return torch.optim.SGD(self.model.fc.parameters(), lr=0.001, momentum=0.9)

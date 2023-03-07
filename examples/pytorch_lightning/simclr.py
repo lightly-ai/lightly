@@ -1,6 +1,6 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
 import pytorch_lightning as pl
 import torch
@@ -46,7 +46,7 @@ dataset = LightlyDataset.from_torch_dataset(cifar10)
 
 collate_fn = SimCLRCollateFunction(
     input_size=32,
-    gaussian_blur=0.,
+    gaussian_blur=0.0,
 )
 
 dataloader = torch.utils.data.DataLoader(

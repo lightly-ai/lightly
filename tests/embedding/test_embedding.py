@@ -17,13 +17,13 @@ from lightly.data import LightlyDataset
 class TestLightlyDataset(unittest.TestCase):
     def setUp(self):
         self.folder_path, self.sample_names = self.create_dataset_no_subdir(10)
-        with initialize(config_path='../../lightly/cli/config', job_name='test_app'):
+        with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
             self.cfg = compose(
-                config_name='config',
+                config_name="config",
                 overrides=[
                     'token="123"',
-                    f'input_dir={self.folder_path}',
-                    'trainer.max_epochs=0',
+                    f"input_dir={self.folder_path}",
+                    "trainer.max_epochs=0",
                 ],
             )
 
@@ -31,7 +31,7 @@ class TestLightlyDataset(unittest.TestCase):
         dataset = torchvision.datasets.FakeData(size=n_samples, image_size=(3, 32, 32))
 
         tmp_dir = tempfile.mkdtemp()
-        sample_names = [f'img_{i}.jpg' for i in range(n_samples)]
+        sample_names = [f"img_{i}.jpg" for i in range(n_samples)]
         for sample_idx in range(n_samples):
             data = dataset[sample_idx]
             path = os.path.join(tmp_dir, sample_names[sample_idx])
@@ -44,9 +44,9 @@ class TestLightlyDataset(unittest.TestCase):
         dataset = LightlyDataset(self.folder_path, transform=transform)
         encoder = get_model_from_config(self.cfg)
         if torch.cuda.is_available():
-            device = torch.device('cuda')
+            device = torch.device("cuda")
         else:
-            device = torch.device('cpu')
+            device = torch.device("cpu")
 
         manual_seed(42)
         dataloader_1_worker = DataLoader(
@@ -62,7 +62,7 @@ class TestLightlyDataset(unittest.TestCase):
             dataset, shuffle=True, num_workers=4, batch_size=4
         )
         embeddings_4_worker, labels_4_worker, filenames_4_worker = encoder.embed(
-            dataloader_4_worker, 
+            dataloader_4_worker,
             device=device,
         )
 

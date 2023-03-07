@@ -15,27 +15,33 @@ from tests.api_workflow.mocked_api_workflow_client import (
 
 
 class TestCLIMagic(MockedApiWorkflowSetup):
-
     @classmethod
     def setUpClass(cls) -> None:
-        sys.modules["lightly.cli.upload_cli"].ApiWorkflowClient = MockedApiWorkflowClient
+        sys.modules[
+            "lightly.cli.upload_cli"
+        ].ApiWorkflowClient = MockedApiWorkflowClient
 
     def setUp(self):
         MockedApiWorkflowSetup.setUp(self)
         self.create_fake_dataset()
         with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
-            self.cfg = compose(config_name="config", overrides=[
-                "token='123'",
-                f"input_dir={self.folder_path}",
-                "trainer.max_epochs=0"
-            ])
+            self.cfg = compose(
+                config_name="config",
+                overrides=[
+                    "token='123'",
+                    f"input_dir={self.folder_path}",
+                    "trainer.max_epochs=0",
+                ],
+            )
 
-    def create_fake_dataset(self, filename_appendix: str = ''):
+    def create_fake_dataset(self, filename_appendix: str = ""):
         n_data = len(self.api_workflow_client.get_filenames())
-        self.dataset = torchvision.datasets.FakeData(size=n_data, image_size=(3, 32, 32))
+        self.dataset = torchvision.datasets.FakeData(
+            size=n_data, image_size=(3, 32, 32)
+        )
 
         self.folder_path = tempfile.mkdtemp()
-        sample_names = [f'img_{i}{filename_appendix}.jpg' for i in range(n_data)]
+        sample_names = [f"img_{i}{filename_appendix}.jpg" for i in range(n_data)]
         self.sample_names = sample_names
         for sample_idx in range(n_data):
             data = self.dataset[sample_idx]
@@ -49,31 +55,32 @@ class TestCLIMagic(MockedApiWorkflowSetup):
         dict_keys = cli_words[0::2]
         dict_values = cli_words[1::2]
         for key, value in zip(dict_keys, dict_values):
-            value = value.strip('\"')
-            value = value.strip('\'')
+            value = value.strip('"')
+            value = value.strip("'")
             try:
                 value = int(value)
             except ValueError:
                 pass
 
-            key_subparts = key.split('.')
+            key_subparts = key.split(".")
             if len(key_subparts) == 1:
                 self.cfg[key] = value
             elif len(key_subparts) == 2:
                 self.cfg[key_subparts[0]][key_subparts[1]] = value
             else:
                 raise ValueError(
-                    f'Keys with more than 2 subparts are not supported,'
-                    f'but you entered {key}.'
+                    f"Keys with more than 2 subparts are not supported,"
+                    f"but you entered {key}."
                 )
 
-
     def test_parse_cli_string(self):
-        cli_string = "lightly-magic dataset_id='XYZ' upload='thumbnails' trainer.max_epochs=3"
+        cli_string = (
+            "lightly-magic dataset_id='XYZ' upload='thumbnails' trainer.max_epochs=3"
+        )
         self.parse_cli_string(cli_string)
-        self.assertEqual(self.cfg["dataset_id"], 'XYZ')
-        self.assertEqual(self.cfg["upload"], 'thumbnails')
-        self.assertEqual(self.cfg['trainer']['max_epochs'], 3)
+        self.assertEqual(self.cfg["dataset_id"], "XYZ")
+        self.assertEqual(self.cfg["upload"], "thumbnails")
+        self.assertEqual(self.cfg["trainer"]["max_epochs"], 3)
 
     def test_magic_new_dataset_name(self):
         MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
@@ -106,6 +113,3 @@ class TestCLIMagic(MockedApiWorkflowSetup):
                 os.remove(filename)
             except FileNotFoundError:
                 pass
-
-
-

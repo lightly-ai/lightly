@@ -84,7 +84,7 @@ class PredictionSingletonSemanticSegmentationRepr(PredictionSingletonRepr):
         self.probabilities = probabilities
 
 
-# Not used
+# Not used
 class PredictionSingletonInstanceSegmentationRepr(PredictionSingletonRepr):
     def __init__(
         self,

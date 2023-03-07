@@ -31,7 +31,6 @@ from lightly.openapi_generated.swagger_client.rest import ApiException
 STATE_SCHEDULED_ID_NOT_FOUND = "CANCELED_OR_NOT_EXISTING"
 
 
-
 @dataclasses.dataclass
 class ComputeWorkerRunInfo:
     """
@@ -70,8 +69,10 @@ class ComputeWorkerRunInfo:
 
 
 class _ComputeWorkerMixin:
-    def register_compute_worker(self, name: str = "Default", labels: Optional[List[str]] = None) -> str:
-        """Registers a new compute worker. 
+    def register_compute_worker(
+        self, name: str = "Default", labels: Optional[List[str]] = None
+    ) -> str:
+        """Registers a new compute worker.
 
         If a worker with the same name already exists, the worker id of the existing
         worker is returned instead of registering a new worker.
@@ -91,9 +92,9 @@ class _ComputeWorkerMixin:
         if labels is None:
             labels = []
         request = CreateDockerWorkerRegistryEntryRequest(
-            name=name, 
-            worker_type=DockerWorkerType.FULL, 
-            labels=labels, 
+            name=name,
+            worker_type=DockerWorkerType.FULL,
+            labels=labels,
             creator=self._creator,
         )
         response = self._compute_worker_api.register_docker_worker(request)
@@ -164,7 +165,9 @@ class _ComputeWorkerMixin:
             lightly=lightly_config,
             selection=selection,
         )
-        request = DockerWorkerConfigV2CreateRequest(config=config, creator=self._creator)
+        request = DockerWorkerConfigV2CreateRequest(
+            config=config, creator=self._creator
+        )
         response = self._compute_worker_api.create_docker_worker_config_v2(request)
         return response.id
 
@@ -174,7 +177,7 @@ class _ComputeWorkerMixin:
         lightly_config: Optional[Dict[str, Any]] = None,
         selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
         priority: str = DockerRunScheduledPriority.MID,
-        runs_on: Optional[List[str]] = None
+        runs_on: Optional[List[str]] = None,
     ) -> str:
         """Schedules a run with the given configurations.
 
@@ -205,7 +208,10 @@ class _ComputeWorkerMixin:
             selection_config=selection_config,
         )
         request = DockerRunScheduledCreateRequest(
-            config_id=config_id, priority=priority, runs_on=runs_on, creator=self._creator,
+            config_id=config_id,
+            priority=priority,
+            runs_on=runs_on,
+            creator=self._creator,
         )
         response = self._compute_worker_api.create_docker_run_scheduled_by_dataset_id(
             body=request,
@@ -230,7 +236,7 @@ class _ComputeWorkerMixin:
         if dataset_id is not None:
             runs: List[DockerRunData] = utils.paginate_endpoint(
                 self._compute_worker_api.get_docker_runs_query_by_dataset_id,
-                dataset_id=dataset_id
+                dataset_id=dataset_id,
             )
         else:
             runs: List[DockerRunData] = utils.paginate_endpoint(
@@ -246,19 +252,17 @@ class _ComputeWorkerMixin:
             ApiException:
                 If no run with the given id exists.
         """
-        return self._compute_worker_api.get_docker_run_by_id(
-            run_id=run_id
-        )
+        return self._compute_worker_api.get_docker_run_by_id(run_id=run_id)
 
     def get_compute_worker_run_from_scheduled_run(
-        self, 
+        self,
         scheduled_run_id: str,
     ) -> DockerRunData:
         """Returns a run given its scheduled run id.
 
         Raises:
             ApiException:
-                If no run with the given scheduled run id exists or if the scheduled 
+                If no run with the given scheduled run id exists or if the scheduled
                 run has not yet started being processed by a worker.
         """
         return self._compute_worker_api.get_docker_run_by_scheduled_id(
@@ -275,13 +279,14 @@ class _ComputeWorkerMixin:
         Args:
             state:
                 DockerRunScheduledState value. If specified, then only runs in the given
-                state are returned. If omitted, then runs which have not yet finished 
+                state are returned. If omitted, then runs which have not yet finished
                 (neither 'DONE' nor 'CANCELED') are returned. Valid states are 'OPEN',
                 'LOCKED', 'DONE', and 'CANCELED'.
         """
         if state is not None:
             return self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
-                dataset_id=self.dataset_id, state=state,
+                dataset_id=self.dataset_id,
+                state=state,
             )
         return self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
             dataset_id=self.dataset_id,
@@ -440,6 +445,7 @@ class _ComputeWorkerMixin:
         tags_in_dataset = [tag for tag in tags if tag.dataset_id == self.dataset_id]
         return tags_in_dataset
 
+
 def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
     """Recursively converts selection config from dict to a SelectionConfig instance."""
     new_cfg = copy.deepcopy(cfg)
@@ -454,11 +460,12 @@ def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
 
 _T = TypeVar("_T")
 
+
 def _get_deserialize(
     api_client: ApiClient,
     klass: Type[_T],
 ) -> Callable[[Dict[str, Any]], _T]:
-    """Returns the deserializer of the ApiClient class for class klass. 
+    """Returns the deserializer of the ApiClient class for class klass.
 
     TODO(Philipp, 02/23): We should replace this by our own deserializer which
     accepts snake case strings as input.
@@ -471,7 +478,7 @@ def _get_deserialize(
 
 
 def _config_to_camel_case(cfg: Dict[str, Any]) -> Dict[str, Any]:
-    """Converts all keys in the cfg dictionary to camelCase. """
+    """Converts all keys in the cfg dictionary to camelCase."""
     cfg_camel_case = {}
     for key, value in cfg.items():
         key_camel_case = _snake_to_camel_case(key)
@@ -483,8 +490,6 @@ def _config_to_camel_case(cfg: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _snake_to_camel_case(snake: str) -> str:
-    """Converts the snake_case input to camelCase. """
+    """Converts the snake_case input to camelCase."""
     components = snake.split("_")
-    return components[0] + "".join(
-        component.title() for component in components[1:]
-    )
+    return components[0] + "".join(component.title() for component in components[1:])

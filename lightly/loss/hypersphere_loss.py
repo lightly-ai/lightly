@@ -11,7 +11,7 @@ class HypersphereLoss(torch.nn.Module):
     """
     Implementation of the loss described in 'Understanding Contrastive Representation Learning through
     Alignment and Uniformity on the Hypersphere.' [0]
-    
+
     [0] Tongzhou Wang. et.al, 2020, ... https://arxiv.org/abs/2005.10242
 
     Note:
@@ -46,7 +46,7 @@ class HypersphereLoss(torch.nn.Module):
 
     """
 
-    def __init__(self, t=1., lam=1., alpha=2.):
+    def __init__(self, t=1.0, lam=1.0, alpha=2.0):
         """Parameters as described in [0]
 
         Args:
@@ -81,7 +81,9 @@ class HypersphereLoss(torch.nn.Module):
 
         def lalign(x, y):
             return (x - y).norm(dim=1).pow(self.alpha).mean()
+
         def lunif(x):
             sq_pdist = torch.pdist(x, p=2).pow(2)
             return sq_pdist.mul(-self.t).exp().mean().log()
+
         return lalign(x, y) + self.lam * (lunif(x) + lunif(y)) / 2

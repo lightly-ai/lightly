@@ -17,14 +17,12 @@ from lightly.cli._helpers import fix_hydra_arguments
 
 def _version_cli():
     version = lightly.__version__
-    print(f'lightly version {version}', flush=True)
+    print(f"lightly version {version}", flush=True)
 
 
-@hydra.main(**fix_hydra_arguments(config_path = 'config', config_name = 'config'))
+@hydra.main(**fix_hydra_arguments(config_path="config", config_name="config"))
 def version_cli(cfg):
-    """Prints the version of the used lightly package to the terminal.
-
-    """
+    """Prints the version of the used lightly package to the terminal."""
     _version_cli()
 
 

@@ -24,9 +24,9 @@ class ActiveLearningAgent:
             Set of filenames corresponding to samples which are in the query set
             but not in the labeled set.
         added_set:
-            Set of filenames corresponding to samples which were added to the 
+            Set of filenames corresponding to samples which were added to the
             labeled set in the last query.
-            
+
             Raises:
                 RuntimeError: If executed before a query.
 
@@ -60,10 +60,12 @@ class ActiveLearningAgent:
 
     """
 
-    def __init__(self,
-                 api_workflow_client: ApiWorkflowClient,
-                 query_tag_name: str = 'initial-tag',
-                 preselected_tag_name: str = None):
+    def __init__(
+        self,
+        api_workflow_client: ApiWorkflowClient,
+        query_tag_name: str = "initial-tag",
+        preselected_tag_name: str = None,
+    ):
 
         self.api_workflow_client = api_workflow_client
 
@@ -86,60 +88,49 @@ class ActiveLearningAgent:
         # keep track of the last preselected tag to compute added samples
         self._old_preselected_tag_bitmask = None
 
-
     def _get_query_tag_bitmask(self):
-        """Initializes the query tag bitmask.
-
-        """
+        """Initializes the query tag bitmask."""
         # get query tag from api and set bitmask accordingly
         query_tag_data = self.api_workflow_client._tags_api.get_tag_by_tag_id(
-            self.api_workflow_client.dataset_id,
-            tag_id=self._query_tag_id
+            self.api_workflow_client.dataset_id, tag_id=self._query_tag_id
         )
         query_tag_bitmask = BitMask.from_hex(query_tag_data.bit_mask_data)
 
         return query_tag_bitmask
 
     def _get_preselected_tag_bitmask(self):
-        """Initializes the preselected tag bitmask.
-
-        """
+        """Initializes the preselected tag bitmask."""
         if self._preselected_tag_id is None:
             # if not specified, no samples belong to the preselected tag
-            preselected_tag_bitmask = BitMask.from_hex('0x0')
+            preselected_tag_bitmask = BitMask.from_hex("0x0")
         else:
             # get preselected tag from api and set bitmask accordingly
             preselected_tag_data = self.api_workflow_client._tags_api.get_tag_by_tag_id(
-                self.api_workflow_client.dataset_id,
-                tag_id=self._preselected_tag_id
+                self.api_workflow_client.dataset_id, tag_id=self._preselected_tag_id
             )
-            preselected_tag_bitmask = BitMask.from_hex(preselected_tag_data.bit_mask_data)
+            preselected_tag_bitmask = BitMask.from_hex(
+                preselected_tag_data.bit_mask_data
+            )
 
         return preselected_tag_bitmask
 
     @property
     def query_set(self):
-        """List of filenames for which to calculate active learning scores.
-
-        """
+        """List of filenames for which to calculate active learning scores."""
         return self._query_tag_bitmask.masked_select_from_list(
             self.api_workflow_client.get_filenames()
         )
 
     @property
     def labeled_set(self):
-        """List of filenames indicating selected samples.
-
-        """
+        """List of filenames indicating selected samples."""
         return self._preselected_tag_bitmask.masked_select_from_list(
             self.api_workflow_client.get_filenames()
         )
 
     @property
     def unlabeled_set(self):
-        """List of filenames which belong to the query set but are not selected.
-
-        """
+        """List of filenames which belong to the query set but are not selected."""
         # unlabeled set is the query set minus the preselected set
         unlabeled_tag_bitmask = self._query_tag_bitmask - self._preselected_tag_bitmask
         return unlabeled_tag_bitmask.masked_select_from_list(
@@ -156,13 +147,14 @@ class ActiveLearningAgent:
         """
         # the added set only exists after a query
         if self._old_preselected_tag_bitmask is None:
-            raise RuntimeError('Cannot compute \"added set\" before querying.')
+            raise RuntimeError('Cannot compute "added set" before querying.')
         # added set is new preselected set minus the old one
-        added_tag_bitmask = self._preselected_tag_bitmask - self._old_preselected_tag_bitmask
+        added_tag_bitmask = (
+            self._preselected_tag_bitmask - self._old_preselected_tag_bitmask
+        )
         return added_tag_bitmask.masked_select_from_list(
             self.api_workflow_client.get_filenames()
         )
-
 
     def upload_scores(self, al_scorer: Scorer):
         """Computes and uploads active learning scores to the Lightly webapp.
@@ -177,10 +169,10 @@ class ActiveLearningAgent:
 
         if al_scores_dict == {}:
             raise ValueError(
-                'No scores found when calling `.calculate_scores()` of the '
-                'Scorer! If you use a generator, please make sure it is freshly '
-                ' initialized.'
-                )
+                "No scores found when calling `.calculate_scores()` of the "
+                "Scorer! If you use a generator, please make sure it is freshly "
+                " initialized."
+            )
 
         # Check if the length of the query_set and each of the scores are the same
         no_query_samples = len(self.query_set)
@@ -188,15 +180,12 @@ class ActiveLearningAgent:
             no_query_samples_with_scores = len(score)
             if no_query_samples != no_query_samples_with_scores:
                 raise ValueError(
-                    f'Number of query samples ({no_query_samples}) must match '
-                    f'the number of predictions ({no_query_samples_with_scores})!'
+                    f"Number of query samples ({no_query_samples}) must match "
+                    f"the number of predictions ({no_query_samples_with_scores})!"
                 )
         self.api_workflow_client.upload_scores(al_scores_dict, self._query_tag_id)
 
-
-    def query(self,
-              selection_config: SelectionConfig,
-              al_scorer: Scorer = None):
+    def query(self, selection_config: SelectionConfig, al_scorer: Scorer = None):
         """Performs an active learning query.
 
         First the active learning scores are computed and uploaded,
@@ -216,9 +205,9 @@ class ActiveLearningAgent:
         # handle illogical stopping condition
         if selection_config.n_samples < len(self.labeled_set):
             warnings.warn(
-                f'ActiveLearningAgent.query: The number of samples ({selection_config.n_samples}) is '
-                f'smaller than the number of preselected samples ({len(self.labeled_set)}).'
-                'Skipping the active learning query.'
+                f"ActiveLearningAgent.query: The number of samples ({selection_config.n_samples}) is "
+                f"smaller than the number of preselected samples ({len(self.labeled_set)})."
+                "Skipping the active learning query."
             )
             return
 
@@ -229,7 +218,7 @@ class ActiveLearningAgent:
         new_tag_data = self.api_workflow_client.selection(
             selection_config=selection_config,
             preselected_tag_id=self._preselected_tag_id,
-            query_tag_id=self._query_tag_id
+            query_tag_id=self._query_tag_id,
         )
 
         # update the old preselected_tag
