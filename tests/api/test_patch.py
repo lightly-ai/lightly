@@ -9,11 +9,8 @@ from lightly.openapi_generated.swagger_client.rest import RESTClientObject
 def test_make_swagger_generated_classes_picklable__api_workflow_client(
     mocker: MockerFixture,
 ) -> None:
-    mock_is_compatible_version = mocker.patch.object(
-        api_workflow_client, "is_compatible_version"
-    )
-    mock_is_compatible_version.return_value = True
-    client = ApiWorkflowClient()
+    mocker.patch.object(api_workflow_client, "is_compatible_version", return_value=True)
+    client = ApiWorkflowClient(token="123")
     client._dataset_id = "my-dataset-id"
     new_client = pickle.loads(pickle.dumps(client))
 

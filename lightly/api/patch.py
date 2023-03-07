@@ -118,7 +118,8 @@ def _ApiClient__getstate__(self: Type) -> Dict[str, Any]:
     state["_pool"] = None
     # Urllib3 response is not picklable. We can safely remove this as it only serves as
     # a cache.
-    del state["last_response"]
+    if "last_response" in state:
+        del state["last_response"]
     return state
 
 
