@@ -42,7 +42,6 @@ class BarlowTwins(nn.Module):
         proj_hidden_dim: int = 8192,
         out_dim: int = 8192,
     ):
-
         super(BarlowTwins, self).__init__()
 
         self.backbone = backbone
@@ -66,7 +65,6 @@ class BarlowTwins(nn.Module):
     def forward(
         self, x0: torch.Tensor, x1: torch.Tensor = None, return_features: bool = False
     ):
-
         """Forward pass through BarlowTwins.
 
         Extracts features with the backbone and applies the projection

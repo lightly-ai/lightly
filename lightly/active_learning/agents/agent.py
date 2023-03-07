@@ -66,7 +66,6 @@ class ActiveLearningAgent:
         query_tag_name: str = "initial-tag",
         preselected_tag_name: str = None,
     ):
-
         self.api_workflow_client = api_workflow_client
 
         # set the query_tag_id and preselected_tag_id

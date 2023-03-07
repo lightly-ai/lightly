@@ -56,7 +56,6 @@ class PIRLTransform(MultiViewTransform):
         n_grid: int = 3,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-
         if isinstance(input_size, tuple):
             input_size_ = max(input_size)
         else:

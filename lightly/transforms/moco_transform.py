@@ -59,7 +59,6 @@ class MoCoV1Transform(SimCLRTransform):
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         normalize: dict = IMAGENET_NORMALIZE,
     ):
-
         super().__init__(
             input_size=input_size,
             cj_prob=cj_prob,

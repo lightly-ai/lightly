@@ -66,7 +66,6 @@ class TestLightlyDataset(unittest.TestCase):
         return tmp_dir, folder_names, sample_names
 
     def create_video_dataset(self, n_videos=5, n_frames_per_video=10, w=32, h=32, c=3):
-
         self.n_videos = n_videos
         self.n_frames_per_video = n_frames_per_video
 
@@ -122,7 +121,6 @@ class TestLightlyDataset(unittest.TestCase):
         shutil.rmtree(out_dir)
 
     def test_create_lightly_dataset_from_folder_nosubdir(self):
-
         # create a dataset
         n_tot = 100
         tmp_dir, sample_names = self.create_dataset_no_subdir(n_tot)
@@ -140,7 +138,6 @@ class TestLightlyDataset(unittest.TestCase):
             sample, target, fname = dataset[i]
 
     def test_create_lightly_dataset_with_invalid_char_in_filename(self):
-
         # create a dataset
         n_tot = 100
         dataset = torchvision.datasets.FakeData(size=n_tot, image_size=(3, 32, 32))
@@ -159,7 +156,6 @@ class TestLightlyDataset(unittest.TestCase):
                         dataset = LightlyDataset(input_dir=tmp_dir)
 
     def test_check_images(self):
-
         # create a dataset
         tmp_dir = tempfile.mkdtemp()
         n_healthy = 100
@@ -320,7 +316,6 @@ class TestLightlyDataset(unittest.TestCase):
             self.assertIn(filename, filenames_dataset)
 
     def test_transform_setter(self, dataset: LightlyDataset = None):
-
         if dataset is None:
             tmp_dir, _, _ = self.create_dataset()
             dataset = LightlyDataset(input_dir=tmp_dir)

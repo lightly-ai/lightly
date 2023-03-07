@@ -373,7 +373,6 @@ def _make_dataset(
         raise error
 
     for root, _, files in os.walk(directory, onerror=on_error):
-
         for fname in files:
             # skip invalid files
             if not _is_valid_file(os.path.join(root, fname)):
@@ -471,7 +470,6 @@ class VideoDataset(datasets.VisionDataset):
         tqdm_args: Dict[str, Any] = None,
         num_workers: int = 0,
     ):
-
         super(VideoDataset, self).__init__(
             root, transform=transform, target_transform=target_transform
         )

@@ -148,7 +148,6 @@ class LightlyDataset:
         tqdm_args: Dict[str, Any] = None,
         num_workers_video_frame_counting: int = 0,
     ):
-
         # can pass input_dir=None to create an "empty" dataset
         self.input_dir = input_dir
         if filenames is not None:

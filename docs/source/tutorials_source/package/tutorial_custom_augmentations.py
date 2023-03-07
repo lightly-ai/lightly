@@ -108,7 +108,6 @@ class HistogramNormalize:
         self.number_bins = number_bins
 
     def __call__(self, image: np.array) -> Image:
-
         # get image histogram
         image_histogram, bins = np.histogram(
             image.flatten(), self.number_bins, density=True
@@ -359,6 +358,7 @@ dataset_test.dataset.loader = tiff_loader
 dataloader_test = torch.utils.data.DataLoader(
     dataset_test, batch_size=1, shuffle=False, drop_last=False, num_workers=num_workers
 )
+
 
 # next we add a small helper function to generate embeddings of our images
 def generate_embeddings(model, dataloader):

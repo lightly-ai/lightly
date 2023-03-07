@@ -215,7 +215,7 @@ class BenchmarkModule(LightningModule):
         if outputs:
             total_num = torch.Tensor([0]).to(device)
             total_top1 = torch.Tensor([0.0]).to(device)
-            for (num, top1) in outputs:
+            for num, top1 in outputs:
                 total_num += num[0]
                 total_top1 += top1
 

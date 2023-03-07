@@ -96,7 +96,6 @@ class TestModelsBYOL(unittest.TestCase):
         self.assertEqual(p1.shape, (self.batch_size, 128))
 
     def test_raises(self):
-
         resnet = ResNetGenerator("resnet-18")
         model = BYOL(get_backbone(resnet))
         x0 = torch.rand((self.batch_size, 3, 64, 64))

@@ -340,16 +340,13 @@ if not isinstance(av, ModuleNotFoundError):
 
             index_timestamp = 0
             for frame in container.decode(stream):
-
                 # advance from keyframe until correct timestamp is reached
                 if frame.pts > timestamps[index_timestamp]:
-
                     # dropped frames!
                     break
 
                 # it's ok to check by equality because timestamps are ints
                 if frame.pts == timestamps[index_timestamp]:
-
                     # yield next frame
                     if as_pil_image:
                         yield frame.to_image()

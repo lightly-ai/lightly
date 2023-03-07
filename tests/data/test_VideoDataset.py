@@ -61,7 +61,6 @@ class TestVideoDataset(unittest.TestCase):
             out.release()
 
     def create_dataset(self, n_videos=5, n_frames_per_video=10, w=32, h=32, c=3):
-
         self.n_videos = n_videos
         self.n_frames_per_video = n_frames_per_video
 
@@ -118,7 +117,6 @@ class TestVideoDataset(unittest.TestCase):
         shutil.rmtree(self.input_dir)
 
     def test_video_dataset_tqdm_args(self):
-
         self.create_dataset()
         desc = "test_video_dataset_tqdm_args description asdf"
         f = io.StringIO()
@@ -158,7 +156,6 @@ class TestVideoDataset(unittest.TestCase):
         )
 
     def test_video_dataset_from_folder(self):
-
         self.create_dataset()
 
         # iterate through different backends

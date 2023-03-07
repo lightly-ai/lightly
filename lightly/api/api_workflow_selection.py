@@ -34,7 +34,6 @@ def _parse_active_learning_scores(scores: Union[np.ndarray, List]):
 
 class _SelectionMixin:
     def upload_scores(self, al_scores: Dict[str, np.ndarray], query_tag_id: str = None):
-
         tags = self.get_all_tags()
 
         # upload the active learning scores to the api

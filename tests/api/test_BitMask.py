@@ -12,7 +12,6 @@ class TestBitMask(unittest.TestCase):
         pass
 
     def test_get_and_set(self):
-
         mask = BitMask.from_bin("0b11110000")
 
         self.assertFalse(mask.get_kth_bit(2))
@@ -35,7 +34,6 @@ class TestBitMask(unittest.TestCase):
         self.assertEqual(mask.to_bin(), "0b1111")
 
     def test_get_and_set_outside_of_range(self):
-
         mask = BitMask.from_bin("0b11110000")
 
         self.assertFalse(mask.get_kth_bit(100))
@@ -59,7 +57,6 @@ class TestBitMask(unittest.TestCase):
         self.assertEqual(mask.x, y)
 
     def test_store_and_retrieve(self):
-
         x = int("0b01010100100100100100100010010100100100101001001010101010", 2)
         mask = BitMask(x)
         mask.set_kth_bit(11)
@@ -184,7 +181,6 @@ class TestBitMask(unittest.TestCase):
                 self.assertEqual(inverted[-i - 1], "0")
 
     def test_nonzero_bits(self):
-
         mask = BitMask.from_bin("0b0")
         indices = [100, 1000, 10_000, 100_000]
 

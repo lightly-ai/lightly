@@ -24,7 +24,6 @@ from lightly.models.modules.heads import (
 
 class TestProjectionHeads(unittest.TestCase):
     def setUp(self):
-
         self.n_features = [
             (8, 16, 32),
             (8, 32, 16),

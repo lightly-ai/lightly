@@ -41,7 +41,6 @@ class BarlowTwinsLoss(torch.nn.Module):
         self.gather_distributed = gather_distributed
 
     def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
-
         device = z_a.device
 
         # normalize repr. along the batch dimension

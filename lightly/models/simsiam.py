@@ -42,7 +42,6 @@ class SimSiam(nn.Module):
         pred_hidden_dim: int = 512,
         out_dim: int = 2048,
     ):
-
         super(SimSiam, self).__init__()
 
         self.backbone = backbone

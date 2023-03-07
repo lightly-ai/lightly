@@ -196,7 +196,6 @@ def get_api_client_configuration(
     token: Optional[str] = None,
     raise_if_no_token_specified: bool = True,
 ) -> Configuration:
-
     host = getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai")
     ssl_ca_cert = getenv("LIGHTLY_CA_CERTS", None)
 

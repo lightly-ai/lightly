@@ -183,7 +183,7 @@ class TestModelUtils(unittest.TestCase):
         )
 
         # make sure that patches are correctly formed
-        for (image, img_patches) in zip(images, batch_patches):
+        for image, img_patches in zip(images, batch_patches):
             for i in range(height_patches):
                 for j in range(width_patches):
                     # extract patch from original image

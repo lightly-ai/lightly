@@ -18,7 +18,6 @@ class TestNTXentLoss(unittest.TestCase):
 
         ptr = 0
         for i in range(0, n, bsz):
-
             output = torch.randn(2 * bsz, dim)
             output.requires_grad = True
             out0, out1 = output[:bsz], output[bsz:]
@@ -43,7 +42,6 @@ class TestNTXentLoss(unittest.TestCase):
         memory_bank = MemoryBankModule(size=size)
 
         for i in range(0, n, bsz):
-
             # see if there are any problems when the bank size
             # is no multiple of the batch size
             output = torch.randn(bsz, dim)
@@ -59,7 +57,6 @@ class TestNTXentLoss(unittest.TestCase):
         memory_bank.to(device=device)
 
         for i in range(0, n, bsz):
-
             # see if there are any problems when the bank size
             # is no multiple of the batch size
             output = torch.randn(bsz, dim, device=device)

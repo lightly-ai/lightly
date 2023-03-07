@@ -9,7 +9,6 @@ class TestSymNegCosineSimilarityLoss(unittest.TestCase):
     def test_forward_pass(self):
         loss = SymNegCosineSimilarityLoss()
         for bsz in range(1, 20):
-
             z0 = torch.randn((bsz, 32))
             p0 = torch.randn((bsz, 32))
             z1 = torch.randn((bsz, 32))
@@ -26,7 +25,6 @@ class TestSymNegCosineSimilarityLoss(unittest.TestCase):
 
         loss = SymNegCosineSimilarityLoss()
         for bsz in range(1, 20):
-
             z0 = torch.randn((bsz, 32)).cuda()
             p0 = torch.randn((bsz, 32)).cuda()
             z1 = torch.randn((bsz, 32)).cuda()
@@ -40,7 +38,6 @@ class TestSymNegCosineSimilarityLoss(unittest.TestCase):
     def test_neg_cosine_simililarity(self):
         loss = SymNegCosineSimilarityLoss()
         for bsz in range(1, 20):
-
             x = torch.randn((bsz, 32))
             y = torch.randn((bsz, 32))
 
@@ -55,7 +52,6 @@ class TestSymNegCosineSimilarityLoss(unittest.TestCase):
 
         loss = SymNegCosineSimilarityLoss()
         for bsz in range(1, 20):
-
             x = torch.randn((bsz, 32)).cuda()
             y = torch.randn((bsz, 32)).cuda()
 

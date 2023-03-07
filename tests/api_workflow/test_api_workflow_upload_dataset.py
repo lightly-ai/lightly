@@ -118,7 +118,6 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
     def create_fake_video_dataset(
         self, n_videos=5, n_frames_per_video=10, w=32, h=32, c=3, extension="avi"
     ):
-
         self.video_input_dir = tempfile.mkdtemp()
         self.frames = (np.random.randn(n_frames_per_video, w, h, c) * 255).astype(
             np.uint8
@@ -167,7 +166,6 @@ class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):
         self.assertEqual(self.n_data, len(samples))
 
     def test_upload_dataset_twice_with_overlap(self):
-
         all_sample_names = [f"img_upload_twice_{i}.jpg" for i in range(10)]
 
         # upload first part of the dataset (sample_0 - sample_6)

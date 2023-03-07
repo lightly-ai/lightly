@@ -97,7 +97,6 @@ class ApiWorkflowClient(
         embedding_id: Optional[str] = None,
         creator: str = Creator.USER_PIP,
     ):
-
         try:
             if not is_compatible_version(__version__):
                 warnings.warn(

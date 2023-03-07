@@ -34,7 +34,6 @@ from lightly.utils.hipify import bcolors
 
 
 def _train_cli(cfg, is_cli_call=True):
-
     input_dir = cfg["input_dir"]
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)

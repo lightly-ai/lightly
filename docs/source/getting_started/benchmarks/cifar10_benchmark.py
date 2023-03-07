@@ -766,7 +766,6 @@ class SMoGModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
     def training_step(self, batch, batch_idx):
-
         if self.global_step > 0 and self.global_step % 300 == 0:
             # reset group features and weights every 300 iterations
             self._reset_group_features()

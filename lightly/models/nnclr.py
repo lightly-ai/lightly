@@ -129,7 +129,6 @@ class NNCLR(nn.Module):
         pred_hidden_dim: int = 4096,
         out_dim: int = 256,
     ):
-
         super(NNCLR, self).__init__()
 
         self.backbone = backbone

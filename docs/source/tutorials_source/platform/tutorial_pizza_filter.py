@@ -105,7 +105,7 @@ seed = 42
 # Set the seed to make the experiment reproducible
 pl.seed_everything(seed)
 
-#%%
+# %%
 # Let's set up the augmentations for the train and the test data.
 train_transform = transforms.Compose(
     [
@@ -152,6 +152,7 @@ print("Test set consists of {} images".format(len(dataset_test)))
 # set and pack them into batches.
 dataloader_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
 dataloader_test = DataLoader(dataset_test, batch_size=batch_size)
+
 
 # %%
 # PyTorch Lightning allows us to pack the loss as well as the

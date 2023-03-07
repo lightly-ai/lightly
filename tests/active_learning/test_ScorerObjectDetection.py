@@ -41,7 +41,6 @@ class TestScorerObjectDetection(unittest.TestCase):
         ]
 
     def test_object_detection_scorer(self):
-
         # convert bounding boxes
         W, H = 128, 128
         for data in self.dummy_data:
@@ -105,7 +104,6 @@ class TestScorerObjectDetection(unittest.TestCase):
                     self.assertAlmostEqual(val1, val2, places=8)
 
     def test_object_detection_scorer_config(self):
-
         # convert bounding boxes
         W, H = 128, 128
         for data in self.dummy_data:

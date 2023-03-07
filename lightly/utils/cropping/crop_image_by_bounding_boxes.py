@@ -54,7 +54,6 @@ def crop_dataset_by_bounding_boxes_and_save(
     for filename_image, class_indices, bounding_boxes in tqdm(
         zip(filenames_images, class_indices_list_list, bounding_boxes_list_list)
     ):
-
         if not len(class_indices) == len(bounding_boxes):
             warnings.warn(
                 UserWarning(
@@ -81,7 +80,6 @@ def crop_dataset_by_bounding_boxes_and_save(
         for index, (class_index, bbox) in enumerate(
             (zip(class_indices, bounding_boxes))
         ):
-
             # determine the filename and filepath of the cropped image
             if class_names:
                 class_name = class_names[class_index]

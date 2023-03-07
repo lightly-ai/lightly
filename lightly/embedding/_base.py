@@ -39,7 +39,6 @@ class BaseEmbedding(LightningModule):
         return self.model(x0, x1)
 
     def training_step(self, batch, batch_idx):
-
         # get the two image transformations
         (x0, x1), _, _ = batch
         # forward pass of the transformations

@@ -691,7 +691,6 @@ class MockedDatasourcesApi(DatasourcesApi):
         self.reset()
 
     def reset(self):
-
         local_datasource = DatasourceConfigBase(
             type="LOCAL", full_path="", purpose="INPUT_OUTPUT"
         ).to_dict()
@@ -1057,7 +1056,6 @@ class MockedAPICollaboration(CollaborationApi):
 
 
 class MockedApiWorkflowClient(ApiWorkflowClient):
-
     embeddings_filename_base = "img"
     n_embedding_rows_on_server = N_FILES_ON_SERVER
 

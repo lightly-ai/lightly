@@ -11,7 +11,6 @@ from lightly.active_learning.scorers import (
 
 class TestScorerSemanticSegmentation(unittest.TestCase):
     def setUp(self):
-
         self.N = 100
         self.W, self.H, self.C = 32, 32, 10
 
@@ -55,7 +54,6 @@ class TestScorerSemanticSegmentation(unittest.TestCase):
             yield prediction
 
     def test_scorer_default_case(self):
-
         scorer = ScorerSemanticSegmentation(self.dummy_data)
         scores = scorer.calculate_scores()
 
@@ -64,7 +62,6 @@ class TestScorerSemanticSegmentation(unittest.TestCase):
             self.assertEqual(score_array.shape, (self.N,))
 
     def test_scorer_width_1_case(self):
-
         scorer = ScorerSemanticSegmentation(self.dummy_data_width_1)
         scores = scorer.calculate_scores()
 
@@ -73,7 +70,6 @@ class TestScorerSemanticSegmentation(unittest.TestCase):
             self.assertEqual(score_array.shape, (self.N,))
 
     def test_scorer_height_1_case(self):
-
         scorer = ScorerSemanticSegmentation(self.dummy_data_height_1)
         scores = scorer.calculate_scores()
 
@@ -82,7 +78,6 @@ class TestScorerSemanticSegmentation(unittest.TestCase):
             self.assertEqual(score_array.shape, (self.N,))
 
     def test_scorer_width_height_1_case(self):
-
         scorer = ScorerSemanticSegmentation(self.dummy_data_width_height_1)
         scores = scorer.calculate_scores()
 
@@ -91,7 +86,6 @@ class TestScorerSemanticSegmentation(unittest.TestCase):
             self.assertEqual(score_array.shape, (self.N,))
 
     def test_scorer_classes_1_case(self):
-
         scorer = ScorerSemanticSegmentation(self.dummy_data_classes_1)
         scores = scorer.calculate_scores()
 
@@ -100,7 +94,6 @@ class TestScorerSemanticSegmentation(unittest.TestCase):
             self.assertEqual(score_array.shape, (self.N,))
 
     def test_scorer_generator_case(self):
-
         scorer = ScorerSemanticSegmentation(self.dummy_data_generator())
         scores = scorer.calculate_scores()
 
@@ -109,14 +102,12 @@ class TestScorerSemanticSegmentation(unittest.TestCase):
             self.assertEqual(score_array.shape, (self.N,))
 
     def test_wrong_input_shape(self):
-
         scorer = ScorerSemanticSegmentation(self.dummy_data_valerr)
 
         with self.assertRaises(ValueError):
             scorer.calculate_scores()
 
     def test_scorer_semseg__score_names(self):
-
         model_output = [np.empty(shape=(1, 1, 1))]
         scorer = ScorerSemanticSegmentation(model_output=model_output)
         scores = scorer.calculate_scores()

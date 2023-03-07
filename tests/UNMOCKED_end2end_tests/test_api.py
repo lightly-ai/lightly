@@ -183,7 +183,6 @@ def t_est_active_learning(
 def t_est_api_with_matrix(
     path_to_dataset: str, token: str, dataset_name: str = "test_api_from_pip"
 ):
-
     no_samples = len(LightlyDataset(input_dir=path_to_dataset).dataset.samples)
     assert no_samples >= 100, "Test needs at least 100 samples in the dataset!"
 

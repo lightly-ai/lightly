@@ -9,7 +9,6 @@ class TestCO2Regularizer(unittest.TestCase):
     def test_forward_pass_no_memory_bank(self):
         reg = CO2Regularizer(memory_bank_size=0)
         for bsz in range(1, 20):
-
             batch_1 = torch.randn((bsz, 32))
             batch_2 = torch.randn((bsz, 32))
 
@@ -21,7 +20,6 @@ class TestCO2Regularizer(unittest.TestCase):
     def test_forward_pass_memory_bank(self):
         reg = CO2Regularizer(memory_bank_size=4096)
         for bsz in range(1, 20):
-
             batch_1 = torch.randn((bsz, 32))
             batch_2 = torch.randn((bsz, 32))
 
@@ -34,7 +32,6 @@ class TestCO2Regularizer(unittest.TestCase):
 
         reg = CO2Regularizer(memory_bank_size=0)
         for bsz in range(1, 20):
-
             batch_1 = torch.randn((bsz, 32)).cuda()
             batch_2 = torch.randn((bsz, 32)).cuda()
 
@@ -49,7 +46,6 @@ class TestCO2Regularizer(unittest.TestCase):
 
         reg = CO2Regularizer(memory_bank_size=4096)
         for bsz in range(1, 20):
-
             batch_1 = torch.randn((bsz, 32)).cuda()
             batch_2 = torch.randn((bsz, 32)).cuda()
 

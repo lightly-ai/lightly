@@ -71,7 +71,6 @@ class SwaVTransform(MultiCropTranform):
         sigmas: Tuple[float, float] = (0.2, 2),
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-
         transforms = SwaVViewTransform(
             hf_prob=hf_prob,
             vf_prob=vf_prob,
