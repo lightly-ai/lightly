@@ -1,11 +1,13 @@
 import unittest
+
 import torch
 import torchvision
+
 from lightly import _torchvision_vit_available
 from lightly.models import utils
 
 if _torchvision_vit_available:
-    from lightly.models.modules import MAEEncoder, MAEDecoder, MAEBackbone
+    from lightly.models.modules import MAEBackbone, MAEDecoder, MAEEncoder
 
 @unittest.skipUnless(_torchvision_vit_available, "Torchvision ViT not available")
 class TestMAEEncoder(unittest.TestCase):

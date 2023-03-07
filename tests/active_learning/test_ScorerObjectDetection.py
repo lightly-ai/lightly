@@ -3,10 +3,9 @@ import unittest
 import numpy as np
 
 from lightly.active_learning.scorers.classification import _entropy
+from lightly.active_learning.scorers.detection import ScorerObjectDetection
 from lightly.active_learning.utils.bounding_box import BoundingBox
 from lightly.active_learning.utils.object_detection_output import ObjectDetectionOutput
-from lightly.active_learning.scorers.detection import ScorerObjectDetection
-
 
 
 class TestScorerObjectDetection(unittest.TestCase):

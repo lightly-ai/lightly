@@ -4,6 +4,7 @@ import torch.nn.functional as F
 
 from lightly.utils.dist import gather
 
+
 class VICRegLoss(torch.nn.Module):
     """Implementation of the VICReg Loss from VICReg[0] paper.
     This implementation follows the code published by the authors. [1]

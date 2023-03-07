@@ -11,11 +11,11 @@ command-line interface.
 import hydra
 from omegaconf import DictConfig
 
-from lightly.utils.hipify import print_as_warning
 from lightly.cli._helpers import fix_hydra_arguments
-from lightly.cli.train_cli import _train_cli
 from lightly.cli.embed_cli import _embed_cli
+from lightly.cli.train_cli import _train_cli
 from lightly.cli.upload_cli import _upload_cli
+from lightly.utils.hipify import print_as_warning
 
 
 def validate_cfg(cfg: DictConfig) -> bool:

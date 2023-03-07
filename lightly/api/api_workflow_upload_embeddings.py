@@ -1,19 +1,23 @@
-import io
 import csv
-import tempfile
 import hashlib
+import io
+import tempfile
 from datetime import datetime
 from typing import List
 from urllib.request import Request, urlopen
-from lightly.api.utils import retry
 
-from lightly.openapi_generated.swagger_client import \
-    DimensionalityReductionMethod, Trigger2dEmbeddingJobRequest
-from lightly.openapi_generated.swagger_client.models.dataset_embedding_data \
-    import DatasetEmbeddingData
-from lightly.openapi_generated.swagger_client.models.write_csv_url_data \
-    import WriteCSVUrlData
-from lightly.utils.io import check_filenames, check_embeddings
+from lightly.api.utils import retry
+from lightly.openapi_generated.swagger_client import (
+    DimensionalityReductionMethod,
+    Trigger2dEmbeddingJobRequest,
+)
+from lightly.openapi_generated.swagger_client.models.dataset_embedding_data import (
+    DatasetEmbeddingData,
+)
+from lightly.openapi_generated.swagger_client.models.write_csv_url_data import (
+    WriteCSVUrlData,
+)
+from lightly.utils.io import check_embeddings, check_filenames
 
 
 class EmbeddingDoesNotExistError(ValueError):

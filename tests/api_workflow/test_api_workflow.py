@@ -1,13 +1,17 @@
 import os
 from unittest import mock
-from urllib3 import Timeout
 
 import numpy as np
+from urllib3 import Timeout
 
 import lightly
 from lightly.api.api_workflow_client import set_api_client_request_timeout
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
-from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowClient, MockedApiWorkflowSetup
+from tests.api_workflow.mocked_api_workflow_client import (
+    MockedApiWorkflowClient,
+    MockedApiWorkflowSetup,
+)
+
 
 class TestApiWorkflow(MockedApiWorkflowSetup):
 

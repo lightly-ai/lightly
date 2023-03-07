@@ -1,28 +1,34 @@
+import os
+import platform
 import warnings
 from io import IOBase
 from typing import *
-import platform
-import os
 
 import requests
-
-from lightly.api.api_workflow_artifacts import _ArtifactsMixin
-from lightly.api.api_workflow_predictions import _PredictionsMixin
-from lightly.api.api_workflow_tags import _TagsMixin
 from requests import Response
 
 from lightly.__init__ import __version__
+from lightly.api.api_workflow_artifacts import _ArtifactsMixin
 from lightly.api.api_workflow_collaboration import _CollaborationMixin
 from lightly.api.api_workflow_compute_worker import _ComputeWorkerMixin
 from lightly.api.api_workflow_datasets import _DatasetsMixin
 from lightly.api.api_workflow_datasources import _DatasourcesMixin
 from lightly.api.api_workflow_download_dataset import _DownloadDatasetMixin
+from lightly.api.api_workflow_predictions import _PredictionsMixin
 from lightly.api.api_workflow_selection import _SelectionMixin
+from lightly.api.api_workflow_tags import _TagsMixin
 from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
-from lightly.api.utils import DatasourceType, get_signed_url_destination, get_api_client_configuration
-from lightly.api.version_checking import is_compatible_version, LightlyAPITimeoutException
+from lightly.api.utils import (
+    DatasourceType,
+    get_api_client_configuration,
+    get_signed_url_destination,
+)
+from lightly.api.version_checking import (
+    LightlyAPITimeoutException,
+    is_compatible_version,
+)
 from lightly.openapi_generated.swagger_client import (
     ApiClient,
     CollaborationApi,
@@ -43,7 +49,6 @@ from lightly.openapi_generated.swagger_client import (
     ScoresApi,
     TagsApi,
 )
-
 from lightly.utils.reordering import sort_items_by_keys
 
 # Env variable for server side encryption on S3

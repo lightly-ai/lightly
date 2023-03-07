@@ -1,7 +1,9 @@
 import unittest
+
 import torch
 
 from lightly.loss.regularizer import CO2Regularizer
+
 
 class TestCO2Regularizer(unittest.TestCase):
 

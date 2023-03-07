@@ -120,7 +120,10 @@ else:
         os.environ['LIGHTLY_DID_VERSION_CHECK'] = 'True'
         from multiprocessing import current_process
         if current_process().name == 'MainProcess':
-            from lightly.api.version_checking import is_latest_version, LightlyAPITimeoutException
+            from lightly.api.version_checking import (
+                LightlyAPITimeoutException,
+                is_latest_version,
+            )
             from lightly.openapi_generated.swagger_client.rest import ApiException
             try:
                 is_latest_version(current_version=__version__)

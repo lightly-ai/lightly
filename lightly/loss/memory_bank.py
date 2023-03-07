@@ -3,8 +3,10 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-import torch
 import functools
+
+import torch
+
 
 class MemoryBankModule(torch.nn.Module):
     """Memory bank implementation

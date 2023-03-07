@@ -1,7 +1,8 @@
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 import torch
 import torch.distributed as dist
+
 
 class GatherLayer(torch.autograd.Function):
     """Gather tensors from all processes, supporting backward propagation.

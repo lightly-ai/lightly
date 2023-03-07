@@ -67,7 +67,6 @@ from lightly.data import LightlyDataset, SimCLRCollateFunction
 from lightly.loss import NTXentLoss
 from lightly.models.modules import SimCLRProjectionHead
 
-
 # %%
 # Configuration
 # -------------

@@ -19,6 +19,7 @@ client.set_s3_config(
 
 # Google Cloud Storage
 import json
+
 client.set_gcs_config(
     resource_path="gs://bucket/dataset/",
     project_id="PROJECT-ID",

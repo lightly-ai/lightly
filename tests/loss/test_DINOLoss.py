@@ -4,8 +4,8 @@ import unittest
 
 import numpy as np
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 
 from lightly.loss import DINOLoss
 from lightly.models.utils import deactivate_requires_grad

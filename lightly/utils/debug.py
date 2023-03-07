@@ -1,8 +1,8 @@
 from typing import List, Union
-from PIL import Image
 
 import torch
 import torchvision
+from PIL import Image
 
 from lightly.data.collate import BaseCollateFunction, MultiViewCollateFunction
 

@@ -1,6 +1,5 @@
 import lightly
 
-
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
 

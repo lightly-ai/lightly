@@ -1,16 +1,24 @@
 
+from bisect import bisect_left
 from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List, Union
-from bisect import bisect_left
 
 from tqdm import tqdm
 
 from lightly.api.utils import retry
+from lightly.openapi_generated.swagger_client.models.configuration_entry import (
+    ConfigurationEntry,
+)
+from lightly.openapi_generated.swagger_client.models.configuration_set_request import (
+    ConfigurationSetRequest,
+)
+from lightly.openapi_generated.swagger_client.models.sample_partial_mode import (
+    SamplePartialMode,
+)
+from lightly.openapi_generated.swagger_client.models.sample_update_request import (
+    SampleUpdateRequest,
+)
 from lightly.utils.hipify import print_as_warning
-from lightly.openapi_generated.swagger_client.models.sample_update_request import SampleUpdateRequest
-from lightly.openapi_generated.swagger_client.models.configuration_entry import ConfigurationEntry
-from lightly.openapi_generated.swagger_client.models.configuration_set_request import ConfigurationSetRequest
-from lightly.openapi_generated.swagger_client.models.sample_partial_mode import SamplePartialMode
 from lightly.utils.io import COCO_ANNOTATION_KEYS
 
 

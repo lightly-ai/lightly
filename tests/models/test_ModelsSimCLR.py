@@ -5,8 +5,7 @@ import torch.nn as nn
 import torchvision
 
 import lightly
-from lightly.models import ResNetGenerator
-from lightly.models import SimCLR
+from lightly.models import ResNetGenerator, SimCLR
 
 
 def get_backbone(resnet, num_ftrs=64):

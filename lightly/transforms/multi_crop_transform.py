@@ -1,7 +1,8 @@
-from lightly.transforms.multi_view_transform import MultiViewTransform
 from typing import Tuple
 
 import torchvision.transforms as T
+
+from lightly.transforms.multi_view_transform import MultiViewTransform
 
 
 class MultiCropTranform(MultiViewTransform):

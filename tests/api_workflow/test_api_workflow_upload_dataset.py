@@ -1,20 +1,20 @@
 import copy
 import os
+import pathlib
 import random
 import tempfile
-import pathlib
+import warnings
 
+import cv2
 import numpy as np
-from lightly.openapi_generated.swagger_client.models.sample_partial_mode import SamplePartialMode
 import torchvision
 
 from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
 from lightly.data.dataset import LightlyDataset
-
+from lightly.openapi_generated.swagger_client.models.sample_partial_mode import (
+    SamplePartialMode,
+)
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
-
-import cv2
-import warnings
 
 
 class TestApiWorkflowUploadDataset(MockedApiWorkflowSetup):

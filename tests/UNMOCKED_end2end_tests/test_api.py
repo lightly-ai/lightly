@@ -4,23 +4,21 @@ import sys
 from typing import List, Tuple
 
 import numpy as np
-from hydra.experimental import initialize, compose
-
-from lightly.cli import upload_cli
-from lightly.data.dataset import LightlyDataset
-
-from lightly.active_learning.scorers.classification import ScorerClassification
-
-from lightly.active_learning.config.selection_config import SelectionConfig
-
-from lightly.api.bitmask import BitMask
-
-from lightly.openapi_generated.swagger_client.models.tag_create_request import TagCreateRequest
+from hydra.experimental import compose, initialize
 
 from lightly.active_learning.agents.agent import ActiveLearningAgent
-from lightly.openapi_generated.swagger_client.models.sampling_method import SamplingMethod
-
+from lightly.active_learning.config.selection_config import SelectionConfig
+from lightly.active_learning.scorers.classification import ScorerClassification
 from lightly.api.api_workflow_client import ApiWorkflowClient
+from lightly.api.bitmask import BitMask
+from lightly.cli import upload_cli
+from lightly.data.dataset import LightlyDataset
+from lightly.openapi_generated.swagger_client.models.sampling_method import (
+    SamplingMethod,
+)
+from lightly.openapi_generated.swagger_client.models.tag_create_request import (
+    TagCreateRequest,
+)
 from lightly.utils.io import save_embeddings
 
 

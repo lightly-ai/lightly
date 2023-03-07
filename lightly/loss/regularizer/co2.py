@@ -4,6 +4,7 @@
 # All Rights Reserved
 
 import torch
+
 from lightly.loss.memory_bank import MemoryBankModule
 
 

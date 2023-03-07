@@ -4,14 +4,14 @@
 # All Rights Reserved
 
 import time
-from typing import List, Union, Tuple
+from typing import List, Tuple, Union
 
 import numpy as np
 import torch
-import lightly
-from lightly.embedding._base import BaseEmbedding
 from tqdm import tqdm
 
+import lightly
+from lightly.embedding._base import BaseEmbedding
 from lightly.utils.reordering import sort_items_by_keys
 
 if lightly._is_prefetch_generator_available():

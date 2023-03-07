@@ -1,26 +1,24 @@
 import copy
 import json
 import os
+import pathlib
 import random
 import tempfile
-import pathlib
 from typing import List
 
+import cv2
 import numpy as np
-from lightly.openapi_generated.swagger_client.models.sample_data_modes import SampleDataModes
 import torchvision
 
-from lightly.api.api_workflow_upload_metadata import \
-    InvalidCustomMetadataWarning
+from lightly.api.api_workflow_upload_metadata import InvalidCustomMetadataWarning
 from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
 from lightly.data.dataset import LightlyDataset
 from lightly.openapi_generated.swagger_client import SampleData
+from lightly.openapi_generated.swagger_client.models.sample_data_modes import (
+    SampleDataModes,
+)
 from lightly.utils.io import COCO_ANNOTATION_KEYS
-
-from tests.api_workflow.mocked_api_workflow_client import \
-    MockedApiWorkflowSetup
-
-import cv2
+from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
 class TestApiWorkflowUploadCustomMetadata(MockedApiWorkflowSetup):

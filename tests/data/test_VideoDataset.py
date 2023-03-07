@@ -1,15 +1,16 @@
 import contextlib
 import io
-import warnings
-from fractions import Fraction
-import unittest
 import os
 import shutil
+import tempfile
+import unittest
+import warnings
+from fractions import Fraction
 from typing import List
 from unittest import mock
 
+import cv2
 import numpy as np
-import tempfile
 import PIL
 import torch
 import torchvision
@@ -17,11 +18,9 @@ import torchvision
 from lightly.data import LightlyDataset, NonIncreasingTimestampError
 from lightly.data._video import (
     VideoDataset,
-    _make_dataset,
     _find_non_increasing_timestamps,
+    _make_dataset,
 )
-
-import cv2
 
 try:
     import av

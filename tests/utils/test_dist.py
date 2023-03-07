@@ -6,7 +6,6 @@ import torch
 from lightly.utils import dist
 
 
-
 class TestDist(unittest.TestCase):
 
     def test_eye_rank_undist(self):

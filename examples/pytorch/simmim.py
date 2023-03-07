@@ -1,9 +1,9 @@
 import torch
-from torch import nn
 import torchvision
+from torch import nn
 
 from lightly.data import LightlyDataset
-from lightly.data.collate import MAECollateFunction # Same collate as MAE
+from lightly.data.collate import MAECollateFunction  # Same collate as MAE
 from lightly.models import utils
 from lightly.models.modules import masked_autoencoder
 

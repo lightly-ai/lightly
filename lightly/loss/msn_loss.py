@@ -1,9 +1,9 @@
 import math
 
 import torch
+import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.distributed as dist
 
 
 def prototype_probabilities(

@@ -1,11 +1,11 @@
-from typing import Callable, Optional
 from functools import partial
+from typing import Callable, Optional
 
 import torch
-from torch import nn
-from torch import Tensor
+from torch import Tensor, nn
 
 from lightly.utils import dist
+
 
 def negative_mises_fisher_weights(
     out0: Tensor, 

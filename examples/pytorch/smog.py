@@ -3,20 +3,21 @@
 # run on a small dataset with a single GPU.
 
 import copy
+
 import torch
-from torch import nn
 import torchvision
 from sklearn.cluster import KMeans
-
+from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.collate import SMoGCollateFunction
 from lightly.loss.memory_bank import MemoryBankModule
-from lightly.models.modules.heads import SMoGProjectionHead
-from lightly.models.modules.heads import SMoGPredictionHead
-from lightly.models.modules.heads import SMoGPrototypes
 from lightly.models import utils
-
+from lightly.models.modules.heads import (
+    SMoGPredictionHead,
+    SMoGProjectionHead,
+    SMoGPrototypes,
+)
 
 
 class SMoGModel(nn.Module):

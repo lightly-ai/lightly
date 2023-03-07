@@ -7,8 +7,11 @@ import torchvision
 from hydra.experimental import compose, initialize
 
 from lightly import cli
-from tests.api_workflow.mocked_api_workflow_client import \
-    MockedApiWorkflowSetup, MockedApiWorkflowClient, N_FILES_ON_SERVER
+from tests.api_workflow.mocked_api_workflow_client import (
+    N_FILES_ON_SERVER,
+    MockedApiWorkflowClient,
+    MockedApiWorkflowSetup,
+)
 
 
 class TestCLIMagic(MockedApiWorkflowSetup):

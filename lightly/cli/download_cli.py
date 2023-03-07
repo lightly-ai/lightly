@@ -11,16 +11,12 @@ command-line interface.
 import os
 
 import hydra
-from lightly.utils.hipify import bcolors
 
 import lightly.data as data
-from lightly.cli._helpers import fix_input_path
-from lightly.cli._helpers import fix_hydra_arguments
-from lightly.cli._helpers import cpu_count
-from lightly.utils.hipify import print_as_warning
-
 from lightly.api.api_workflow_client import ApiWorkflowClient
+from lightly.cli._helpers import cpu_count, fix_hydra_arguments, fix_input_path
 from lightly.openapi_generated.swagger_client import Creator
+from lightly.utils.hipify import bcolors, print_as_warning
 
 
 def _download_cli(cfg, is_cli_call=True):

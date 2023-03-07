@@ -1,4 +1,7 @@
-from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
+from tests.api_workflow.mocked_api_workflow_client import (
+    MockedApiWorkflowClient,
+    MockedApiWorkflowSetup,
+)
 
 
 class TestApiWorkflowDatasets(MockedApiWorkflowSetup):

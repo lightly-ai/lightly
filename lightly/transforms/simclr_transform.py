@@ -1,11 +1,13 @@
-from torch import Tensor
-from lightly.transforms.multi_view_transform import MultiViewTransform
-from lightly.transforms.utils import IMAGENET_NORMALIZE
-from lightly.transforms.rotation import random_rotation_transform
-from lightly.transforms.gaussian_blur import GaussianBlur
 from typing import Optional, Tuple, Union
-from PIL.Image import Image
+
 import torchvision.transforms as T
+from PIL.Image import Image
+from torch import Tensor
+
+from lightly.transforms.gaussian_blur import GaussianBlur
+from lightly.transforms.multi_view_transform import MultiViewTransform
+from lightly.transforms.rotation import random_rotation_transform
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class SimCLRTransform(MultiViewTransform):

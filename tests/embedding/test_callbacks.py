@@ -1,5 +1,5 @@
-from omegaconf import OmegaConf
 import pytest
+from omegaconf import OmegaConf
 
 from lightly.embedding import callbacks
 

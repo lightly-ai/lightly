@@ -1,7 +1,7 @@
+import json
 import os
 import re
 import sys
-import json
 import tempfile
 import warnings
 
@@ -10,13 +10,15 @@ import torchvision
 from hydra.experimental import compose, initialize
 
 import lightly
-from lightly.api.api_workflow_upload_embeddings import \
-    EmbeddingDoesNotExistError
+from lightly.api.api_workflow_upload_embeddings import EmbeddingDoesNotExistError
 from lightly.cli.upload_cli import SUCCESS_RETURN_VALUE
 from lightly.openapi_generated.swagger_client import DatasetEmbeddingData
 from lightly.utils.io import save_embeddings
-from tests.api_workflow.mocked_api_workflow_client import \
-    MockedApiWorkflowSetup, MockedApiWorkflowClient, N_FILES_ON_SERVER
+from tests.api_workflow.mocked_api_workflow_client import (
+    N_FILES_ON_SERVER,
+    MockedApiWorkflowClient,
+    MockedApiWorkflowSetup,
+)
 
 
 class TestCLIUpload(MockedApiWorkflowSetup):

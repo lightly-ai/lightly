@@ -2,10 +2,9 @@ import signal
 import warnings
 from typing import Tuple
 
+from lightly.api import utils
 from lightly.openapi_generated.swagger_client import VersioningApi
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
-
-from lightly.api import utils
 from lightly.utils.version_compare import version_compare
 
 

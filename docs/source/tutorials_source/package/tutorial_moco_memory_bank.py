@@ -42,20 +42,23 @@ In this tutorial you will learn:
 #
 #   pip install lightly
 
+import copy
+
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchvision
-import pytorch_lightning as pl
-import copy
 
 from lightly.data import LightlyDataset, SimCLRCollateFunction, collate
 from lightly.loss import NTXentLoss
 from lightly.models import ResNetGenerator
 from lightly.models.modules.heads import MoCoProjectionHead
-from lightly.models.utils import deactivate_requires_grad
-from lightly.models.utils import update_momentum
-from lightly.models.utils import batch_shuffle
-from lightly.models.utils import batch_unshuffle
+from lightly.models.utils import (
+    batch_shuffle,
+    batch_unshuffle,
+    deactivate_requires_grad,
+    update_momentum,
+)
 
 # %%
 # Configuration

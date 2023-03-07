@@ -1,4 +1,5 @@
 import unittest
+
 import torch
 
 from lightly.loss.dcl_loss import DCLLoss, DCLWLoss, negative_mises_fisher_weights

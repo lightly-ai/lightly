@@ -1,13 +1,13 @@
+from collections import defaultdict
 from unittest import mock
 
-import tqdm
 import pytest
+import tqdm
 
-from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import (
     DatasourceRawSamplesDataRow,
 )
-from collections import defaultdict
+from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
 class TestApiWorkflowDatasources(MockedApiWorkflowSetup):

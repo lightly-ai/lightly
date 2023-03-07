@@ -5,8 +5,12 @@ import av
 import numpy as np
 from tqdm import tqdm
 
-from lightly.api.download import download_video_frames_at_timestamps, \
-    download_all_video_frames, download_video_frame
+from lightly.api.download import (
+    download_all_video_frames,
+    download_video_frame,
+    download_video_frames_at_timestamps,
+)
+
 
 @unittest.skip("Only used for benchmarks")
 class BenchmarkDownloadVideoFrames(unittest.TestCase):

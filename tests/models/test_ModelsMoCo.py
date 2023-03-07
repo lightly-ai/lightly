@@ -5,8 +5,7 @@ import torch.nn as nn
 import torchvision
 
 import lightly
-from lightly.models import ResNetGenerator
-from lightly.models import MoCo
+from lightly.models import MoCo, ResNetGenerator
 
 
 def get_backbone(resnet, num_ftrs=64):

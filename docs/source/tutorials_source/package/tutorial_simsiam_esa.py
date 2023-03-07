@@ -35,16 +35,15 @@ In this tutorial you will learn:
 
 
 import math
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torchvision
-import numpy as np
 
-from lightly.data import LightlyDataset, collate, ImageCollateFunction
-from lightly.models.modules.heads import SimSiamPredictionHead
-from lightly.models.modules.heads import SimSiamProjectionHead
+from lightly.data import ImageCollateFunction, LightlyDataset, collate
 from lightly.loss import NegativeCosineSimilarity
-
+from lightly.models.modules.heads import SimSiamPredictionHead, SimSiamProjectionHead
 
 # %%
 # Configuration
@@ -306,14 +305,14 @@ embeddings = embeddings.cpu().numpy()
 
 # for plotting
 import os
-from PIL import Image
 
-import matplotlib.pyplot as plt
 import matplotlib.offsetbox as osb
-from matplotlib import rcParams as rcp
+import matplotlib.pyplot as plt
 
 # for resizing images to thumbnails
 import torchvision.transforms.functional as functional
+from matplotlib import rcParams as rcp
+from PIL import Image
 
 # for clustering and 2d representations
 from sklearn import random_projection

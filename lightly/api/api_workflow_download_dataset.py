@@ -1,23 +1,22 @@
-from typing import Dict, List, Optional
 import io
-import warnings
 import os
-import tqdm
-from urllib.request import Request, urlopen
-from PIL import Image
-
-from lightly.api.utils import paginate_endpoint, retry
-from lightly.utils.hipify import bcolors
-
+import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
+from typing import Dict, List, Optional
+from urllib.request import Request, urlopen
+
+import tqdm
+from PIL import Image
 
 from lightly.api import download
 from lightly.api.bitmask import BitMask
+from lightly.api.utils import paginate_endpoint, retry
 from lightly.openapi_generated.swagger_client import (
     DatasetEmbeddingData,
-    ImageType,
     FileNameFormat,
+    ImageType,
 )
+from lightly.utils.hipify import bcolors
 
 
 def _make_dir_and_save_image(output_dir: str, filename: str, img: Image):

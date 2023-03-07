@@ -3,37 +3,43 @@
 
 import os
 import warnings
-from typing import Union, Dict
-from datetime import datetime
 from concurrent.futures.thread import ThreadPoolExecutor
+from datetime import datetime
+from typing import Dict, Union
 
 import tqdm
 from lightly_utils import image_processing
 
-from lightly.utils.hipify import bcolors
-
-from lightly.api.utils import check_filename
-from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
-from lightly.api.utils import retry
-from lightly.api.utils import build_azure_signed_url_write_headers
+from lightly.api.utils import (
+    MAXIMUM_FILENAME_LENGTH,
+    build_azure_signed_url_write_headers,
+    check_filename,
+    retry,
+)
 from lightly.openapi_generated.swagger_client import SampleWriteUrls
-from lightly.openapi_generated.swagger_client.models.sample_create_request \
-    import SampleCreateRequest
-from lightly.openapi_generated.swagger_client.models.sample_partial_mode \
-    import SamplePartialMode
-    
-from lightly.openapi_generated.swagger_client.models.tag_upsize_request \
-    import TagUpsizeRequest
-from lightly.openapi_generated.swagger_client.models.initial_tag_create_request\
-    import InitialTagCreateRequest
-from lightly.openapi_generated.swagger_client.models.job_status_meta \
-    import JobStatusMeta
-from lightly.openapi_generated.swagger_client.models.job_status_upload_method \
-    import JobStatusUploadMethod
-
-from lightly.openapi_generated.swagger_client.models.datasource_config_base import DatasourceConfigBase
+from lightly.openapi_generated.swagger_client.models.datasource_config_base import (
+    DatasourceConfigBase,
+)
+from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import (
+    InitialTagCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.job_status_meta import (
+    JobStatusMeta,
+)
+from lightly.openapi_generated.swagger_client.models.job_status_upload_method import (
+    JobStatusUploadMethod,
+)
+from lightly.openapi_generated.swagger_client.models.sample_create_request import (
+    SampleCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.sample_partial_mode import (
+    SamplePartialMode,
+)
+from lightly.openapi_generated.swagger_client.models.tag_upsize_request import (
+    TagUpsizeRequest,
+)
 from lightly.openapi_generated.swagger_client.rest import ApiException
-
+from lightly.utils.hipify import bcolors
 
 try:
     from lightly.data import LightlyDataset

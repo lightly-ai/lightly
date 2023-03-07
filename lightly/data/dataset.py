@@ -3,20 +3,18 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-import os
 import bisect
+import os
 import shutil
 import tempfile
-
-from PIL import Image
-from typing import List, Union, Callable, Dict, Any
-from torch._C import Value
+from typing import Any, Callable, Dict, List, Union
 
 import torchvision.datasets as datasets
+from PIL import Image
+from torch._C import Value
 from torchvision import transforms
 
-from lightly.data._helpers import _load_dataset_from_folder
-from lightly.data._helpers import DatasetFolder
+from lightly.data._helpers import DatasetFolder, _load_dataset_from_folder
 from lightly.data._video import VideoDataset
 from lightly.utils.io import check_filenames
 

@@ -1,8 +1,8 @@
 import os
+import random
 import re
 import sys
 import tempfile
-import random
 
 import torchvision
 import yaml
@@ -11,9 +11,14 @@ from hydra.experimental import compose, initialize
 import lightly
 from lightly.active_learning.utils import BoundingBox
 from lightly.data import LightlyDataset
-from lightly.utils.cropping.crop_image_by_bounding_boxes import crop_dataset_by_bounding_boxes_and_save
+from lightly.utils.cropping.crop_image_by_bounding_boxes import (
+    crop_dataset_by_bounding_boxes_and_save,
+)
 from lightly.utils.cropping.read_yolo_label_file import read_yolo_label_file
-from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
+from tests.api_workflow.mocked_api_workflow_client import (
+    MockedApiWorkflowClient,
+    MockedApiWorkflowSetup,
+)
 
 
 class TestCLICrop(MockedApiWorkflowSetup):

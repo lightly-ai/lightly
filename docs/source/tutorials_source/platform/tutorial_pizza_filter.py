@@ -86,14 +86,14 @@ Training a model using the curated data
 # Now we can start training our model using PyTorch Lightning
 # We start by importing the necessary dependencies
 import os
-import torch
+
 import pytorch_lightning as pl
-from torchvision.datasets import ImageFolder
+import torch
+import torchmetrics
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
+from torchvision.datasets import ImageFolder
 from torchvision.models import resnet18
-import torchmetrics
-
 
 # %%
 # We use a small batch size to make sure we can run the training on all kinds 

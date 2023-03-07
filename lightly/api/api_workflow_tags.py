@@ -2,9 +2,9 @@ from typing import *
 
 from lightly.api.bitmask import BitMask
 from lightly.openapi_generated.swagger_client import (
-    TagArithmeticsRequest, 
-    TagArithmeticsOperation, 
-    TagBitMaskResponse, 
+    TagArithmeticsOperation,
+    TagArithmeticsRequest,
+    TagBitMaskResponse,
     TagData,
 )
 

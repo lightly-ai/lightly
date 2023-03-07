@@ -1,26 +1,26 @@
-import re
-import unittest
 import os
 import random
+import re
 import shutil
-from typing import Tuple, List
+import tempfile
+import unittest
+import warnings
+from typing import List, Tuple
 
+import numpy as np
 import torch
 import torchvision
-import tempfile
-import warnings
-import numpy as np
 from PIL.Image import Image
 
 from lightly.data import LightlyDataset
-
 from lightly.data._utils import check_images
 from lightly.utils.io import INVALID_FILENAME_CHARACTERS
 
 try:
-    from lightly.data._video import VideoDataset
     import av
     import cv2
+
+    from lightly.data._video import VideoDataset
 
     VIDEO_DATASET_AVAILABLE = True
 except ModuleNotFoundError:

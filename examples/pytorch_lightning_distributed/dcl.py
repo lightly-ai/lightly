@@ -2,15 +2,15 @@
 # from the paper. The settings are chosen such that the example can easily be
 # run on a small dataset with a single GPU.
 
-import torch
-from torch import nn
-import torchvision
 import pytorch_lightning as pl
+import torch
+import torchvision
+from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data import SimCLRCollateFunction
+from lightly.data import LightlyDataset, SimCLRCollateFunction
 from lightly.loss import DCLLoss, DCLWLoss
 from lightly.models.modules import SimCLRProjectionHead
+
 
 class DCL(pl.LightningModule):
     def __init__(self):

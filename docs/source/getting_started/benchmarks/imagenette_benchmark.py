@@ -61,43 +61,44 @@ with the default settings.
 """
 import copy
 import os
-
 import time
+
 import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchvision
+from pl_bolts.optimizers.lars import LARS
+from pytorch_lightning.loggers import TensorBoardLogger
+
 from lightly.data import (
+    DINOCollateFunction,
     LightlyDataset,
+    MAECollateFunction,
+    MSNCollateFunction,
     SimCLRCollateFunction,
     SwaVCollateFunction,
-    DINOCollateFunction,
-    MSNCollateFunction,
-    MAECollateFunction,
     VICRegLCollateFunction,
     collate,
 )
 from lightly.loss import (
-    NTXentLoss,
-    NegativeCosineSimilarity,
-    DINOLoss,
     BarlowTwinsLoss,
-    SwaVLoss,
-    MSNLoss,
     DCLLoss,
     DCLWLoss,
+    DINOLoss,
+    MSNLoss,
+    NegativeCosineSimilarity,
+    NTXentLoss,
+    SwaVLoss,
+    TiCoLoss,
     VICRegLLoss,
     VICRegLoss,
-    TiCoLoss,
     memory_bank,
 )
 from lightly.models import modules, utils
 from lightly.models.modules import heads, masked_autoencoder
-from lightly.utils.benchmarking import BenchmarkModule
 from lightly.utils import scheduler
-from pytorch_lightning.loggers import TensorBoardLogger
-from pl_bolts.optimizers.lars import LARS
+from lightly.utils.benchmarking import BenchmarkModule
 
 logs_root_dir = os.path.join(os.getcwd(), "benchmark_logs")
 

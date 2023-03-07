@@ -1,14 +1,12 @@
 import time
+import warnings
 from typing import Dict, List, Optional, Tuple, Union
 
 import tqdm
-import warnings
 
+from lightly.openapi_generated.swagger_client import DatasourceConfigVerifyDataErrors
 from lightly.openapi_generated.swagger_client.models.datasource_config import (
     DatasourceConfig,
-)
-from lightly.openapi_generated.swagger_client.models.datasource_purpose import (
-    DatasourcePurpose,
 )
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import (
     DatasourceProcessedUntilTimestampRequest,
@@ -16,10 +14,12 @@ from lightly.openapi_generated.swagger_client.models.datasource_processed_until_
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import (
     DatasourceProcessedUntilTimestampResponse,
 )
+from lightly.openapi_generated.swagger_client.models.datasource_purpose import (
+    DatasourcePurpose,
+)
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import (
     DatasourceRawSamplesData,
 )
-from lightly.openapi_generated.swagger_client import DatasourceConfigVerifyDataErrors
 
 
 class _DatasourcesMixin:

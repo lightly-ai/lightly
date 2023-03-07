@@ -2,17 +2,16 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-from typing import Tuple, List
+import os
+from typing import List, Tuple
 
 import numpy as np
+import yaml
 
-from lightly.cli.train_cli import _train_cli
+import lightly.cli as cli
 from lightly.cli.embed_cli import _embed_cli
 from lightly.cli.lightly_cli import _lightly_cli
-import lightly.cli as cli
-
-import yaml
-import os
+from lightly.cli.train_cli import _train_cli
 
 
 def _get_config_path(config_path):

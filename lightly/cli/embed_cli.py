@@ -9,20 +9,22 @@ command-line interface.
 # All Rights Reserved
 
 import os
-from typing import Union, Tuple, List
+from typing import List, Tuple, Union
 
 import hydra
 import numpy as np
 import torch
 import torchvision
 
-from lightly.utils.hipify import bcolors
+from lightly.cli._helpers import (
+    cpu_count,
+    fix_hydra_arguments,
+    fix_input_path,
+    get_model_from_config,
+)
 from lightly.data import LightlyDataset
+from lightly.utils.hipify import bcolors
 from lightly.utils.io import save_embeddings
-from lightly.cli._helpers import fix_hydra_arguments
-from lightly.cli._helpers import get_model_from_config
-from lightly.cli._helpers import fix_input_path
-from lightly.cli._helpers import cpu_count
 
 
 def _embed_cli(cfg, is_cli_call=True) -> \

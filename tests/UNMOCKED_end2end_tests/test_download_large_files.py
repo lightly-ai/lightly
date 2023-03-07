@@ -1,6 +1,7 @@
 import time
 
 import lightly
+
 lightly.api.utils.RETRY_MAX_RETRIES = 1
 
 from lightly.api.download import download_image

@@ -1,13 +1,15 @@
 import unittest
 from unittest import TestCase
+
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 from torch.optim import SGD
 
-from lightly.models.modules.heads import MSNProjectionHead
 from lightly.loss import msn_loss
 from lightly.loss.msn_loss import MSNLoss
+from lightly.models.modules.heads import MSNProjectionHead
+
 
 class TestMSNLoss(TestCase):
 

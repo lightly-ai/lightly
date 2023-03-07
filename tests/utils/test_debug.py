@@ -1,11 +1,12 @@
-import unittest
-import torch
 import math
+import unittest
+
 import numpy as np
+import torch
 from PIL import Image
 
-from lightly.utils import debug
 from lightly.data import collate
+from lightly.utils import debug
 
 try:
     import matplotlib.pyplot as plt

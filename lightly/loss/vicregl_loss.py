@@ -1,12 +1,13 @@
+import copy
+from typing import List, Tuple
+
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
 
-from lightly.utils.dist import gather
 from lightly.loss.vicreg_loss import VICRegLoss
 from lightly.models.utils import nearest_neighbors
-from typing import List, Tuple
-import copy
+from lightly.utils.dist import gather
 
 
 class VICRegLLoss(torch.nn.Module):

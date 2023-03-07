@@ -1,7 +1,8 @@
-from torch import Tensor
-from PIL.Image import Image
 from typing import List, Tuple, Union
+
 import torchvision.transforms as T
+from PIL.Image import Image
+from torch import Tensor
 
 
 class ImageGridTransform:

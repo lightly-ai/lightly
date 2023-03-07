@@ -1,6 +1,7 @@
+from typing import Optional, Tuple, Union
+
 from lightly.transforms.simclr_transform import SimCLRTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
-from typing import Optional, Tuple, Union
 
 
 class MoCoV1Transform(SimCLRTransform):

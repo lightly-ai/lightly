@@ -4,7 +4,7 @@
 # All Rights Reserved
 
 import os
-from typing import List, Set, Optional, Callable, Dict, Any
+from typing import Any, Callable, Dict, List, Optional, Set
 
 from torchvision import datasets
 

@@ -1,9 +1,11 @@
+from typing import List, Tuple, Union
+
+import torchvision.transforms as T
+from PIL.Image import Image
 from torch import Tensor
+
 from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
-from typing import List, Tuple, Union
-from PIL.Image import Image
-import torchvision.transforms as T
 
 
 class MAETransform():

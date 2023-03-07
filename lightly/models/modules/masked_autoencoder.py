@@ -1,15 +1,17 @@
 from __future__ import annotations
-from functools import partial
+
 import math
+from functools import partial
 from typing import Callable, List, Optional
 
 import torch
 import torch.nn as nn
-from lightly.models import utils
 
 # vision_transformer requires torchvision >= 0.12
 from torchvision.models import vision_transformer
 from torchvision.models.vision_transformer import ConvStemConfig
+
+from lightly.models import utils
 
 
 class MAEEncoder(vision_transformer.Encoder):

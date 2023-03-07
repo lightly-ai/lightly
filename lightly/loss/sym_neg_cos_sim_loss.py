@@ -3,8 +3,10 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-import torch
 import warnings
+
+import torch
+
 
 class SymNegCosineSimilarityLoss(torch.nn.Module):
     """Implementation of the Symmetrized Loss used in the SimSiam[0] paper.

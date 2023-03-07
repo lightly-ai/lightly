@@ -2,8 +2,12 @@ import unittest
 
 import numpy as np
 
-from lightly.openapi_generated.swagger_client import ApiClient, ScoresApi, ActiveLearningScoreCreateRequest, \
-    SamplingMethod
+from lightly.openapi_generated.swagger_client import (
+    ActiveLearningScoreCreateRequest,
+    ApiClient,
+    SamplingMethod,
+    ScoresApi,
+)
 from lightly.openapi_generated.swagger_client.rest import ApiException
 
 

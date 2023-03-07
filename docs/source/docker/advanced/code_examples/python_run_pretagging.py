@@ -1,8 +1,10 @@
 import json
+
 import lightly
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
-from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
-
+from lightly.openapi_generated.swagger_client.models.datasource_purpose import (
+    DatasourcePurpose,
+)
 
 # Create the Lightly client to connect to the API.
 client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")

@@ -1,6 +1,9 @@
 from collections import OrderedDict
+
 import torch
+
 import lightly
+
 
 def load_ckpt(ckpt_path, model_name='resnet-18', model_width=1, map_location='cpu'):
     ckpt = torch.load(ckpt_path, map_location=map_location)

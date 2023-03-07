@@ -1,16 +1,22 @@
-from json import load
-import os
-import io
 import csv
+import io
+import os
 import random
 import tempfile
+from json import load
 
 import numpy as np
-from lightly.utils.io import save_embeddings, load_embeddings, INVALID_FILENAME_CHARACTERS
 
 import lightly
-from tests.api_workflow.mocked_api_workflow_client import \
-    MockedApiWorkflowSetup, N_FILES_ON_SERVER
+from lightly.utils.io import (
+    INVALID_FILENAME_CHARACTERS,
+    load_embeddings,
+    save_embeddings,
+)
+from tests.api_workflow.mocked_api_workflow_client import (
+    N_FILES_ON_SERVER,
+    MockedApiWorkflowSetup,
+)
 
 
 class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):

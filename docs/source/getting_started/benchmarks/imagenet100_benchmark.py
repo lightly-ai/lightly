@@ -26,35 +26,35 @@ Code has been tested on a A6000 GPU with 48GBytes of memory.
 """
 import copy
 import os
-
 import time
+
 import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-from torch.optim.lr_scheduler import LambdaLR
 import torchvision
+from pl_bolts.optimizers.lars import LARS
+from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
+from pytorch_lightning.loggers import TensorBoardLogger
+from torch.optim.lr_scheduler import LambdaLR
+
 from lightly.data import (
+    DINOCollateFunction,
     LightlyDataset,
     SimCLRCollateFunction,
     SwaVCollateFunction,
-    DINOCollateFunction,
     collate,
 )
 from lightly.loss import (
-    NTXentLoss,
-    NegativeCosineSimilarity,
-    DINOLoss,
     BarlowTwinsLoss,
+    DINOLoss,
+    NegativeCosineSimilarity,
+    NTXentLoss,
     SwaVLoss,
 )
 from lightly.models import modules, utils
 from lightly.models.modules import heads
 from lightly.utils.benchmarking import BenchmarkModule
-
-from pl_bolts.optimizers.lars import LARS
-from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
-from pytorch_lightning.loggers import TensorBoardLogger
 
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 

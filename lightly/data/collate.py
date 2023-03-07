@@ -3,19 +3,18 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from typing import List, Optional, Tuple, Union
+
 import torch
 import torch.nn as nn
-
-from typing import List, Tuple, Union, Optional
-
-from PIL import Image
 import torchvision
 import torchvision.transforms as T
+from PIL import Image
 
 from lightly.transforms import GaussianBlur, Jigsaw, RandomRotate, RandomSolarization
 from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropAndFlip
-from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.transforms.rotation import random_rotation_transform
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 imagenet_normalize = IMAGENET_NORMALIZE
 # Kept for backwards compatibility

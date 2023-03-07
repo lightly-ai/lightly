@@ -1,12 +1,12 @@
-import unittest
 import os
 import re
 import shutil
+import tempfile
+import unittest
 
 import numpy as np
-import torchvision
-import tempfile
 import pytest
+import torchvision
 
 from lightly.core import train_model_and_embed_images
 

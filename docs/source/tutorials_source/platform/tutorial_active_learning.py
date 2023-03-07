@@ -126,9 +126,10 @@ on the `Lightly Platform <https://app.lightly.ai>`_.
 #
 # Import the Python frameworks we need for this tutorial.
 
-import os
 import csv
-from typing import List, Dict, Tuple
+import os
+from typing import Dict, List, Tuple
+
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 

@@ -1,5 +1,5 @@
-from typing import *
 import warnings
+from typing import *
 
 from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.active_learning.scorers.scorer import Scorer

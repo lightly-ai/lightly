@@ -2,17 +2,17 @@
 # from the paper. The settings are chosen such that the example can easily be
 # run on a small dataset with a single GPU.
 
-import torch
-from torch import nn
-import torchvision
 import pytorch_lightning as pl
+import torch
+import torchvision
+from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data import VICRegCollateFunction
+from lightly.data import LightlyDataset, VICRegCollateFunction
 from lightly.loss import VICRegLoss
 
 ## The projection head is the same as the Barlow Twins one
 from lightly.models.modules import BarlowTwinsProjectionHead
+
 
 class VICReg(pl.LightningModule):
     def __init__(self):

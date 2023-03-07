@@ -1,8 +1,14 @@
 from typing import List
 
-from lightly.openapi_generated.swagger_client.models.shared_access_config_create_request import SharedAccessConfigCreateRequest
-from lightly.openapi_generated.swagger_client.models.shared_access_config_data import SharedAccessConfigData
-from lightly.openapi_generated.swagger_client.models.shared_access_type import SharedAccessType
+from lightly.openapi_generated.swagger_client.models.shared_access_config_create_request import (
+    SharedAccessConfigCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.shared_access_config_data import (
+    SharedAccessConfigData,
+)
+from lightly.openapi_generated.swagger_client.models.shared_access_type import (
+    SharedAccessType,
+)
 
 
 class _CollaborationMixin:

@@ -1,11 +1,11 @@
 import copy
 import dataclasses
-from functools import partial
 import time
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, Iterator
+from functools import partial
+from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 
-from lightly.api.utils import retry
 from lightly.api import utils
+from lightly.api.utils import retry
 from lightly.openapi_generated.swagger_client import (
     ApiClient,
     CreateDockerWorkerRegistryEntryRequest,
@@ -16,9 +16,9 @@ from lightly.openapi_generated.swagger_client import (
     DockerRunScheduledState,
     DockerRunState,
     DockerWorkerConfigV2,
+    DockerWorkerConfigV2CreateRequest,
     DockerWorkerConfigV2Docker,
     DockerWorkerConfigV2Lightly,
-    DockerWorkerConfigV2CreateRequest,
     DockerWorkerType,
     SelectionConfig,
     SelectionConfigEntry,
@@ -26,7 +26,6 @@ from lightly.openapi_generated.swagger_client import (
     SelectionConfigEntryStrategy,
     TagData,
 )
-
 from lightly.openapi_generated.swagger_client.rest import ApiException
 
 STATE_SCHEDULED_ID_NOT_FOUND = "CANCELED_OR_NOT_EXISTING"

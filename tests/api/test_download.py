@@ -1,6 +1,6 @@
+import json
 import os
 import sys
-import json
 import tempfile
 import unittest
 import warnings
@@ -8,8 +8,8 @@ from io import BytesIO
 from unittest import mock
 
 import numpy as np
-from PIL import Image
 import tqdm
+from PIL import Image
 
 try:
     import av

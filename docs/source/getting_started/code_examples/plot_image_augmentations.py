@@ -1,5 +1,7 @@
 import glob
+
 from PIL import Image
+
 import lightly
 
 # let's get all jpg filenames from a folder

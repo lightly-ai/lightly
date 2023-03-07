@@ -1,6 +1,7 @@
-import setuptools
-import sys
 import os
+import sys
+
+import setuptools
 
 try:
     import builtins
@@ -11,6 +12,7 @@ PATH_ROOT = PATH_ROOT = os.path.dirname(__file__)
 builtins.__LIGHTLY_SETUP__ = True
 
 import lightly
+
 
 def load_description(path_dir=PATH_ROOT, filename='DOCS.md'):
     """Load long description from readme in the path_dir/ directory

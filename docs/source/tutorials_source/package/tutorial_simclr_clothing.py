@@ -34,15 +34,16 @@ In this tutorial you will learn:
 #
 # Import the Python frameworks we need for this tutorial.
 import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchvision
-import pytorch_lightning as pl
-import matplotlib.pyplot as plt
+from PIL import Image
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import normalize
-from PIL import Image
-import numpy as np
 
 from lightly.data import LightlyDataset, SimCLRCollateFunction, collate
 
@@ -138,8 +139,8 @@ dataloader_test = torch.utils.data.DataLoader(
 # and `NTXentLoss` classes. We can simply import them and combine the building
 # blocks in the module.
 
-from lightly.models.modules.heads import SimCLRProjectionHead
 from lightly.loss import NTXentLoss
+from lightly.models.modules.heads import SimCLRProjectionHead
 
 
 class SimCLRModel(pl.LightningModule):

@@ -4,20 +4,18 @@
 # All Rights Reserved
 
 import os
-from typing import List, Tuple, Dict, Any
-from fractions import Fraction
 import threading
-import weakref
 import warnings
+import weakref
+from fractions import Fraction
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
-from PIL import Image
-
 import torch
 import torchvision
+from PIL import Image
 from torch.utils.data import DataLoader, Dataset
-from torchvision import datasets
-from torchvision import io
+from torchvision import datasets, io
 from tqdm import tqdm
 
 try:

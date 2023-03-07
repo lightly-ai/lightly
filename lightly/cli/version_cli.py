@@ -10,8 +10,8 @@ Example:
 # All Rights Reserved
 
 import hydra
-import lightly
 
+import lightly
 from lightly.cli._helpers import fix_hydra_arguments
 
 

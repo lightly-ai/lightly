@@ -5,6 +5,7 @@ from torch.autograd import Variable
 
 from lightly.utils.dist import gather
 
+
 class TiCoLoss(torch.nn.Module):
     """Implementation of the Tico Loss from Tico[0] paper.
     This implementation takes inspiration from the code published 

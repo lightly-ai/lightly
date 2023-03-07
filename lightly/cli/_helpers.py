@@ -4,22 +4,17 @@
 # All Rights Reserved
 import os
 
-import torch
 import hydra
+import torch
 from hydra import utils
 from torch import nn as nn
 
-from lightly.utils.version_compare import version_compare
-
 from lightly.cli._cli_simclr import _SimCLR
 from lightly.embedding import SelfSupervisedEmbedding
-
-from lightly.models import ZOO as model_zoo, ResNetGenerator
+from lightly.models import ZOO as model_zoo
+from lightly.models import ResNetGenerator
 from lightly.models.batchnorm import get_norm_layer
-
-
-
-
+from lightly.utils.version_compare import version_compare
 
 
 def cpu_count():

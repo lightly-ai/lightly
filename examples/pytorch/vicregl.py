@@ -1,13 +1,15 @@
 import torch
-from torch import nn
 import torchvision
+from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.collate import VICRegLCollateFunction
+from lightly.loss import VICRegLLoss
+
 ## The global projection head is the same as the Barlow Twins one
 from lightly.models.modules import BarlowTwinsProjectionHead
 from lightly.models.modules.heads import VicRegLLocalProjectionHead
-from lightly.loss import VICRegLLoss
+
 
 class VICRegL(nn.Module):
     def __init__(self, backbone):

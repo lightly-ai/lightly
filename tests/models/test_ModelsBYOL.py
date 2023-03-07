@@ -6,8 +6,7 @@ import torch.nn as nn
 import torchvision
 
 import lightly
-from lightly.models import ResNetGenerator
-from lightly.models import BYOL
+from lightly.models import BYOL, ResNetGenerator
 
 
 def get_backbone(resnet, num_ftrs=64):

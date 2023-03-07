@@ -76,28 +76,37 @@ Requirements
 # Setup detectron2 logger
 import detectron2
 from detectron2.utils.logger import setup_logger
+
 setup_logger()
+
+import gc
+import glob
+import json
+import os
+import random
+
+import cv2
+import matplotlib.pyplot as plt
 
 # import some common libraries
 import numpy as np
-import os, json, cv2, random, glob
-import tqdm, gc
-import matplotlib.pyplot as plt
+import tqdm
 
 # import some common detectron2 utilities
 from detectron2 import model_zoo
-from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
+from detectron2.data import DatasetCatalog, MetadataCatalog
+from detectron2.engine import DefaultPredictor
 from detectron2.utils.visualizer import Visualizer
-from detectron2.data import MetadataCatalog, DatasetCatalog
+
+from lightly.active_learning.agents import ActiveLearningAgent
+from lightly.active_learning.config import SelectionConfig
+from lightly.active_learning.scorers import ScorerObjectDetection
 
 # imports for lightly
 from lightly.active_learning.utils.bounding_box import BoundingBox
 from lightly.active_learning.utils.object_detection_output import ObjectDetectionOutput
-from lightly.active_learning.scorers import ScorerObjectDetection
 from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.active_learning.agents import ActiveLearningAgent
-from lightly.active_learning.config import SelectionConfig
 from lightly.openapi_generated.swagger_client import SamplingMethod
 
 # %%

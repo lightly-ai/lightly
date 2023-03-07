@@ -1,7 +1,11 @@
 import unittest
+
 import numpy as np
 
-from lightly.active_learning.scorers.classification import ScorerClassification, _entropy
+from lightly.active_learning.scorers.classification import (
+    ScorerClassification,
+    _entropy,
+)
 
 
 class TestScorerClassification(unittest.TestCase):

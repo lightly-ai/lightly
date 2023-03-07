@@ -1,14 +1,14 @@
+import os
 import platform
 import unittest
 from unittest import mock
 
-import lightly
 import requests
-import os
-
 from pytest_mock import MockerFixture
 
-from lightly.api.api_workflow_client import ApiWorkflowClient, LIGHTLY_S3_SSE_KMS_KEY
+import lightly
+from lightly.api.api_workflow_client import LIGHTLY_S3_SSE_KMS_KEY, ApiWorkflowClient
+
 
 class TestApiWorkflowClient(unittest.TestCase):
 

@@ -1,6 +1,7 @@
 import torch
 import torch.distributed as dist
 
+
 class BarlowTwinsLoss(torch.nn.Module):
     """Implementation of the Barlow Twins Loss from Barlow Twins[0] paper.
     This code specifically implements the Figure Algorithm 1 from [0].

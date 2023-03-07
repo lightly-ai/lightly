@@ -1,14 +1,16 @@
-import unittest
-
 import os
-from PIL import Image
+import unittest
 
 from PIL import Image
 
 import lightly
-from lightly.api.utils import DatasourceType, get_signed_url_destination, retry
-from lightly.api.utils import getenv
-from lightly.api.utils import PIL_to_bytes
+from lightly.api.utils import (
+    DatasourceType,
+    PIL_to_bytes,
+    get_signed_url_destination,
+    getenv,
+    retry,
+)
 
 
 class TestUtils(unittest.TestCase):

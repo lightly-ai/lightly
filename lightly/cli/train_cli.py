@@ -8,31 +8,29 @@ command-line interface.
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 import os
+import warnings
 
 import hydra
 import torch
 import torch.nn as nn
-import warnings
-
 from omegaconf import OmegaConf
 
-from lightly.utils.hipify import bcolors
 from lightly.cli._cli_simclr import _SimCLR
-from lightly.data import ImageCollateFunction
-from lightly.data import LightlyDataset
+from lightly.cli._helpers import (
+    cpu_count,
+    fix_hydra_arguments,
+    fix_input_path,
+    get_ptmodel_from_config,
+    is_url,
+    load_from_state_dict,
+    load_state_dict_from_url,
+)
+from lightly.data import ImageCollateFunction, LightlyDataset
 from lightly.embedding import SelfSupervisedEmbedding
 from lightly.loss import NTXentLoss
-
 from lightly.models import ResNetGenerator
 from lightly.models.batchnorm import get_norm_layer
-
-from lightly.cli._helpers import is_url
-from lightly.cli._helpers import get_ptmodel_from_config
-from lightly.cli._helpers import fix_input_path
-from lightly.cli._helpers import load_state_dict_from_url
-from lightly.cli._helpers import load_from_state_dict
-from lightly.cli._helpers import cpu_count
-from lightly.cli._helpers import fix_hydra_arguments
+from lightly.utils.hipify import bcolors
 
 
 def _train_cli(cfg, is_cli_call=True):

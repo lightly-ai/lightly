@@ -5,11 +5,9 @@ import numpy as np
 import PIL
 
 import lightly
-from lightly.api import api_workflow_download_dataset
-from lightly.api import download
+from lightly.api import api_workflow_download_dataset, download
 from lightly.openapi_generated.swagger_client import DatasetData, DatasetEmbeddingData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
-
 
 
 class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):

@@ -1,7 +1,9 @@
-import torch
-from torch import Tensor
 from typing import List, Tuple, Union
 from warnings import warn
+
+import torch
+from torch import Tensor
+
 from lightly.data.multi_view_collate import MultiViewCollate
 
 

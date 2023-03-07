@@ -2,19 +2,17 @@
 # from the paper. The settings are chosen such that the example can easily be
 # run on a small dataset with a single GPU.
 
-import torch
-from torch import nn
-import torchvision
 import copy
+
 import pytorch_lightning as pl
-
-from lightly import data
-from lightly.models.modules import heads
-from lightly.models import utils
-from lightly import loss
-from lightly import models
-
+import torch
+import torchvision
 from sklearn.cluster import KMeans
+from torch import nn
+
+from lightly import data, loss, models
+from lightly.models import utils
+from lightly.models.modules import heads
 
 
 class SMoGModel(pl.LightningModule):

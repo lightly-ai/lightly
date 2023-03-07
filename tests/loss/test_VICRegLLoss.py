@@ -1,7 +1,9 @@
 import unittest
+
 import torch
 
 from lightly.loss import VICRegLLoss
+
 
 class TestVICRegLLoss(unittest.TestCase):
 

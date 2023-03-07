@@ -3,9 +3,9 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import List, Tuple, Set
-
 import os
+from typing import List, Set, Tuple
+
 import torchvision.datasets as datasets
 from torchvision import transforms
 

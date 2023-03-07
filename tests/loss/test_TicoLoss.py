@@ -1,7 +1,9 @@
 import unittest
+
 import torch
 
 from lightly.loss.tico_loss import TiCoLoss
+
 
 class TestTiCoLoss(unittest.TestCase):
     def test_forward_pass(self):

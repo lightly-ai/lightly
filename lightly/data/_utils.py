@@ -5,9 +5,10 @@
 
 import os
 from typing import *
-from PIL import Image
-from PIL import UnidentifiedImageError
+
 import tqdm.contrib.concurrent as concurrent
+from PIL import Image, UnidentifiedImageError
+
 from lightly.data import LightlyDataset
 
 

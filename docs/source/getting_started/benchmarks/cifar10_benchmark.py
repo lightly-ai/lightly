@@ -58,34 +58,35 @@ If you know how to fix this don't hesitate to create an issue or PR :)
 """
 import copy
 import os
-
 import time
+
 import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchvision
+from pytorch_lightning.loggers import TensorBoardLogger
+
 from lightly.data import (
+    DINOCollateFunction,
     LightlyDataset,
     SimCLRCollateFunction,
     SwaVCollateFunction,
-    DINOCollateFunction,
     collate,
 )
 from lightly.loss import (
-    NTXentLoss,
-    NegativeCosineSimilarity,
-    memory_bank,
+    BarlowTwinsLoss,
     DCLLoss,
     DCLWLoss,
     DINOLoss,
-    BarlowTwinsLoss,
+    NegativeCosineSimilarity,
+    NTXentLoss,
     SwaVLoss,
+    memory_bank,
 )
-from lightly.models import modules, ResNetGenerator, utils
+from lightly.models import ResNetGenerator, modules, utils
 from lightly.models.modules import heads
 from lightly.utils.benchmarking import BenchmarkModule
-from pytorch_lightning.loggers import TensorBoardLogger
 
 logs_root_dir = os.path.join(os.getcwd(), 'benchmark_logs')
 
@@ -756,6 +757,7 @@ class DCLW(BenchmarkModule):
 
 
 from sklearn.cluster import KMeans
+
 
 class SMoGModel(BenchmarkModule):
 

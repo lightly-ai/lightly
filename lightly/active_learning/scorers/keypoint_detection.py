@@ -1,10 +1,9 @@
-from typing import List, Dict
+from typing import Dict, List
 
 import numpy as np
 
 from lightly.active_learning.scorers import Scorer
-from lightly.active_learning.utils.keypoint_predictions import \
-    KeypointPrediction
+from lightly.active_learning.utils.keypoint_predictions import KeypointPrediction
 
 
 def _mean_uncertainty(

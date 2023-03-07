@@ -1,12 +1,12 @@
 import os
 import tempfile
 import unittest
-from typing import Tuple, List
+from typing import List, Tuple
 
 import numpy as np
-import torchvision
-from hydra.experimental import initialize, compose
 import torch
+import torchvision
+from hydra.experimental import compose, initialize
 from torch import manual_seed
 from torch.utils.data import DataLoader
 

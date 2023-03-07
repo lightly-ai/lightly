@@ -1,6 +1,9 @@
 import time
 
-from lightly.openapi_generated.swagger_client import DockerRunScheduledState, DockerRunState
+from lightly.openapi_generated.swagger_client import (
+    DockerRunScheduledState,
+    DockerRunState,
+)
 
 # You can reuse the client from previous scripts. If you want to create a new
 # one you can uncomment the following line:

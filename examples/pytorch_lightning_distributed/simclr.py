@@ -1,12 +1,12 @@
-import torch
-from torch import nn
-import torchvision
 import pytorch_lightning as pl
+import torch
+import torchvision
+from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data import SimCLRCollateFunction
+from lightly.data import LightlyDataset, SimCLRCollateFunction
 from lightly.loss import NTXentLoss
 from lightly.models.modules import SimCLRProjectionHead
+
 
 class SimCLR(pl.LightningModule):
     def __init__(self):

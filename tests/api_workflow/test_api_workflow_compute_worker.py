@@ -1,12 +1,13 @@
 import json
 import random
+from typing import Any, List
+from unittest import mock
 from unittest.mock import MagicMock
 
 import pytest
 from pytest_mock import MockerFixture
-from typing import Any, List
-from unittest import mock
 
+from lightly.api import ApiWorkflowClient, api_workflow_compute_worker
 from lightly.api.api_workflow_compute_worker import (
     STATE_SCHEDULED_ID_NOT_FOUND,
     ComputeWorkerRunInfo,
@@ -14,28 +15,27 @@ from lightly.api.api_workflow_compute_worker import (
     _snake_to_camel_case,
 )
 from lightly.openapi_generated.swagger_client import (
-    SelectionConfig,
-    SelectionConfigEntry,
-    SelectionInputType,
-    SelectionStrategyType,
     ApiClient,
     DockerApi,
-    SelectionConfigEntryInput,
-    SelectionStrategyThresholdOperation,
-    SelectionInputPredictionsName,
-    SelectionConfigEntryStrategy,
-    DockerWorkerConfig,
-    DockerWorkerType,
     DockerRunData,
     DockerRunScheduledData,
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
+    DockerWorkerConfig,
+    DockerWorkerType,
+    SelectionConfig,
+    SelectionConfigEntry,
+    SelectionConfigEntryInput,
+    SelectionConfigEntryStrategy,
+    SelectionInputPredictionsName,
+    SelectionInputType,
+    SelectionStrategyThresholdOperation,
+    SelectionStrategyType,
     TagData,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
-from lightly.api import api_workflow_compute_worker, ApiWorkflowClient
 
 
 class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):

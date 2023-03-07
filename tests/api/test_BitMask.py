@@ -1,6 +1,6 @@
 import unittest
 from copy import deepcopy
-from random import random, seed, randint
+from random import randint, random, seed
 
 from lightly.api.bitmask import BitMask
 

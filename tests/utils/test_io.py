@@ -1,20 +1,23 @@
 import csv
-import sys
 import json
+import sys
 import tempfile
 import unittest
 
 import numpy as np
 
 from lightly.utils.io import (
-    check_filenames,
-    save_embeddings,
     check_embeddings,
-    save_tasks,
+    check_filenames,
+    save_custom_metadata,
+    save_embeddings,
     save_schema,
-    save_custom_metadata
+    save_tasks,
 )
-from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup, MockedApiWorkflowClient
+from tests.api_workflow.mocked_api_workflow_client import (
+    MockedApiWorkflowClient,
+    MockedApiWorkflowSetup,
+)
 
 
 class TestCLICrop(MockedApiWorkflowSetup):

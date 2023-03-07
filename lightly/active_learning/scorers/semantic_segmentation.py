@@ -4,12 +4,12 @@
 # All Rights Reserved
 
 
-from typing import Callable, Union, Generator, List, Dict
+from typing import Callable, Dict, Generator, List, Union
 
 import numpy as np
 
-from lightly.active_learning.scorers.scorer import Scorer
 from lightly.active_learning.scorers import ScorerClassification
+from lightly.active_learning.scorers.scorer import Scorer
 
 
 def _reduce_classification_scores_over_pixels(scores: np.ndarray,

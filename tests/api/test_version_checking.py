@@ -3,10 +3,14 @@ import time
 import unittest
 
 import lightly
-from lightly.api.version_checking import get_latest_version, \
-    get_minimum_compatible_version, pretty_print_latest_version, \
-    LightlyAPITimeoutException, is_latest_version, is_compatible_version
-
+from lightly.api.version_checking import (
+    LightlyAPITimeoutException,
+    get_latest_version,
+    get_minimum_compatible_version,
+    is_compatible_version,
+    is_latest_version,
+    pretty_print_latest_version,
+)
 from tests.api_workflow.mocked_api_workflow_client import MockedVersioningApi
 
 

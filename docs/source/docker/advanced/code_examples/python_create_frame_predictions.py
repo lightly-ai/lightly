@@ -1,7 +1,8 @@
-import av
 import json
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
+
+import av
 
 dataset_dir = Path('/datasets/my_dataset')
 predictions_dir = dataset_dir / '.lightly' / 'predictions' / 'my_prediction_task'

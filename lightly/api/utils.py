@@ -5,14 +5,15 @@
 
 import io
 import os
-import time
 import random
+import time
 from enum import Enum
 from typing import List, Optional
 
 # the following two lines are needed because
 # PIL misidentifies certain jpeg images as MPOs
 from PIL import JpegImagePlugin
+
 JpegImagePlugin._getmp = lambda: None
 
 from lightly.openapi_generated.swagger_client.configuration import Configuration
