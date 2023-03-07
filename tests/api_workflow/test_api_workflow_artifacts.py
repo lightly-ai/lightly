@@ -5,6 +5,7 @@ from lightly.openapi_generated.swagger_client import (
     DockerRunArtifactData,
     DockerRunArtifactType,
     DockerRunData,
+    DockerApi,
 )
 from lightly.api import ApiWorkflowClient, ArtifactNotExist
 
@@ -160,3 +161,28 @@ def test__download_compute_worker_run_artifact_by_type__no_artifact_with_type(
             output_path="output_dir/checkpoint.ckpt",
             timeout=0,
         )
+
+
+def test__get_compute_worker_run_checkpoint_url(
+    mocker: MockerFixture,
+) -> None:
+    mocked_client = mocker.MagicMock(spec=ApiWorkflowClient)
+    mocked_artifact = mocker.MagicMock(spec_set=DockerRunArtifactData)
+    mocked_client._get_artifact_by_type.return_value = mocked_artifact
+    mocked_client._compute_worker_api = mocker.MagicMock(spec_set=DockerApi)
+    mocked_client._compute_worker_api.get_docker_run_artifact_read_url_by_id.return_value = (
+        "some_read_url"
+    )
+
+    mocked_run = mocker.MagicMock(spec_set=DockerRunData)
+    read_url = ApiWorkflowClient.get_compute_worker_run_checkpoint_url(
+        self=mocked_client, run=mocked_run
+    )
+
+    assert read_url == "some_read_url"
+    mocked_client._get_artifact_by_type.assert_called_with(
+        artifact_type=DockerRunArtifactType.CHECKPOINT, run=mocked_run
+    )
+    mocked_client._compute_worker_api.get_docker_run_artifact_read_url_by_id.assert_called_with(
+        run_id=mocked_run.id, artifact_id=mocked_artifact.id
+    )
