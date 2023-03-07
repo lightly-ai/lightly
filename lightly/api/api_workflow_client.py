@@ -300,7 +300,6 @@ class _request_with_timeout:
         self.request_fn = request_fn
 
     def __call__(self, *args, **kwargs):
-        print(args, kwargs)
         request_timeout = kwargs['_request_timeout']
         if request_timeout is None:
             kwargs['_request_timeout'] = self.timeout
