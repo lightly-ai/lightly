@@ -2,7 +2,7 @@ import logging
 from typing import Any, Dict, Type
 
 
-def rest_client_flatten_array_query_parameters(rest_client: Type):
+def rest_client_flatten_array_query_parameters(rest_client_cls: Type):
     """
 
     Patches the rest client to flatten out array query parameters.
@@ -16,14 +16,14 @@ def rest_client_flatten_array_query_parameters(rest_client: Type):
         "labels=['AAA', 'BBB']" in the url itself, which fails.
 
     Args:
-        rest_client:
+        rest_client_cls:
             Must be the class swagger_client.rest.RESTClientObject to patch.
             Note: it must be the class itself, not an instance of it.
 
     Returns:
 
     """
-    request = rest_client.request
+    request = rest_client_cls.request
 
     def request_patched(
         self,

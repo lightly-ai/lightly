@@ -10,7 +10,7 @@ from lightly.openapi_generated.swagger_client import ApiClient as _ApiClient, Co
 from lightly.openapi_generated.swagger_client.rest import RESTClientObject as _RESTClientObject
 
 # Handle requests with list of query parameters correctly.
-_patch.rest_client_flatten_array_query_parameters(_RESTClientObject)
+_patch.rest_client_flatten_array_query_parameters(rest_client_cls=_RESTClientObject)
 
 # Make ApiWorkflowClient and swagger classes picklable.
 _patch.make_swagger_generated_classes_picklable(
