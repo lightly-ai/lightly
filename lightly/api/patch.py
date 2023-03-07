@@ -69,6 +69,8 @@ def make_swagger_generated_classes_picklable(
     api_client_cls.__getstate__ = _ApiClient__getstate__
     configuration_cls.__getstate__ = _Configuration__getstate__
     configuration_cls.__setstate__ = _Configuration__setstate__
+    # For the rest client we only need __getstate__ as __setstate__ is handled by the
+    # api client.
     rest_client_cls.__getstate__ = _RESTClientObject__getstate__
 
 
