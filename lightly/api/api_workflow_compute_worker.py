@@ -498,24 +498,39 @@ def _snake_to_camel_case(snake: str) -> str:
     )
 
 
-def _validate_config(cfg: Optional[Dict[str, Any]], obj: Any) -> None:
-    """Validates that all keys in cfg are legit configuration options. """
+def _validate_config(
+    cfg: Optional[Dict[str, Any]],
+    obj: Any,
+) -> None:
+    """Validates that all keys in cfg are legit configuration options.
+
+    Recursively checks if the keys in the cfg dictionary match the attributes of
+    the DockerWorkerConfigV2Docker/DockerWorkerConfigV2Lightly instances. If not,
+    suggests a best match based on the keys in 'swagger_types'.
+
+    Raises:
+        TypeError: If obj is not of swagger type.
+    
+    """
 
     if cfg is None:
         return
 
+    if not hasattr(type(obj), "swagger_types"):
+        raise TypeError(
+            f"Type {type(obj)} of argument 'obj' has not attribute 'swagger_types'"
+        )
+
     for key, item in cfg.items():
         if not hasattr(obj, key):
-            error_msg = f"Option `{key}` does not exist!"
-            if hasattr(type(obj), "swagger_types"):
-                possible_options = list(type(obj).swagger_types.keys())
-                closest_match = difflib.get_close_matches(
-                    word=key,
-                    possibilities=possible_options,
-                    n=1,
-                    cutoff=0.
-                )[0]
-                error_msg = f"{error_msg} Did you mean `{closest_match}`?"
+            possible_options = list(type(obj).swagger_types.keys())
+            closest_match = difflib.get_close_matches(
+                word=key,
+                possibilities=possible_options,
+                n=1,
+                cutoff=0.
+            )[0]
+            error_msg = f"Option '{key}' does not exist! Did you mean '{closest_match}'?"
             raise InvalidConfigurationError(error_msg)
         if isinstance(item, dict):
             _validate_config(item, getattr(obj, key))
