@@ -60,6 +60,9 @@ lint-tests:
 test:
 	pytest tests --runslow
 
+# run format checks and tests
+all-checks: format-check test
+
 ## build source and wheel package
 dist: clean 
 	python setup.py sdist bdist_wheel
