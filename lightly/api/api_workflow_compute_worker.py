@@ -502,7 +502,7 @@ def _validate_config(
     cfg: Optional[Dict[str, Any]],
     obj: Any,
 ) -> None:
-    """Validates that all keys in cfg are legit configuration options.
+    """Validates that all keys in cfg are legitimate configuration options.
 
     Recursively checks if the keys in the cfg dictionary match the attributes of
     the DockerWorkerConfigV2Docker/DockerWorkerConfigV2Lightly instances. If not,
