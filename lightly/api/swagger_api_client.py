@@ -6,9 +6,27 @@ from lightly.openapi_generated.swagger_client import ApiClient
 DEFAULT_API_TIMEOUT = 60 * 3  # seconds
 
 
-class LightlySwaggerApiClient(ApiClient):
-    """Same as ApiClient but uses LightlySwaggerRESTClientObject instead of the default
-    swagger RESTClientObject.
+class PatchApiClientMixin:
+    """Mixin that makes an ApiClient object picklable."""
+
+    def __getstate__(self) -> Dict[str, Any]:
+        state = self.__dict__.copy()
+        # Set _pool to None as ThreadPool is not picklable. It will be automatically
+        # recreated once the pool is accessed after unpickling.
+        state["_pool"] = None
+        # Urllib3 response is not picklable. We can safely remove this as it only
+        # serves as a cache.
+        if "last_response" in state:
+            del state["last_response"]
+        return state
+
+
+class LightlySwaggerApiClient(PatchApiClientMixin, ApiClient):
+    """Subclass of ApiClient with patches to make the client picklable.
+
+    Uses a LightlySwaggerRESTClientObject instead of RESTClientObject for additional
+    patches. See LightlySwaggerRESTClientObject for details.
+
 
     Attributes:
         configuration:
@@ -34,18 +52,12 @@ class LightlySwaggerApiClient(ApiClient):
         header_value=None,
         cookie=None,
     ):
-        super().__init__(configuration, header_name, header_value, cookie)
+        super().__init__(
+            configuration=configuration,
+            header_name=header_name,
+            header_value=header_value,
+            cookie=cookie,
+        )
         self.rest_client = LightlySwaggerRESTClientObject(
             configuration=configuration, timeout=timeout
         )
-
-    def __getstate__(self) -> Dict[str, Any]:
-        state = self.__dict__.copy()
-        # Set _pool to None as ThreadPool is not picklable. It will be automatically
-        # recreated once the pool is accessed after unpickling.
-        state["_pool"] = None
-        # Urllib3 response is not picklable. We can safely remove this as it only
-        # serves as a cache.
-        if "last_response" in state:
-            del state["last_response"]
-        return state

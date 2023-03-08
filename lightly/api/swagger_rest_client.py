@@ -4,23 +4,24 @@ from lightly.openapi_generated.swagger_client import Configuration
 from lightly.openapi_generated.swagger_client.rest import RESTClientObject
 
 
-class LightlySwaggerRESTClientObject(RESTClientObject):
-    """
+class PatchRESTClientObjectMixin:
+    """Mixin that adds patches to a RESTClientObject.
 
-    Attributes:
-        configuration:
-            Configuration.
-        timeout:
-            Timeout in seconds. Is either a single total_timeout value or a
-            (connect_timeout, read_timeout) tuple. No timeout is applied if the
-            value is None.
-            See https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html?highlight=timeout#urllib3.util.Timeout
-            for details on the different values.
-        pools_size:
-            Number of connection pools. Defaults to 4.
-        maxsize:
-            Maxsize is the number of requests to host that are allowed in parallel.
-            Defaults to None.
+    * Adds default timeout to all requests
+    * Encodes list query parameters properly
+    * Makes the client picklable
+
+    Should only used in combination with RESTClientObject and must come before the
+    RESTClientObject in the inheritance order. So this is ok:
+
+        >>> class MyRESTClientObject(PatchRESTClientObjectMixin, RESTClientObject): pass
+
+    while this doesn't work:
+
+        >>> class MyRESTClientObject(RESTClientObject, PatchRESTClientObjectMixin): pass
+
+    A wrong inheritance order will result in the super() calls no calling the correct
+    parent classes.
     """
 
     def __init__(
@@ -30,10 +31,13 @@ class LightlySwaggerRESTClientObject(RESTClientObject):
         pools_size: int = 4,
         maxsize: Union[None, int] = None,
     ):
+        # Save args as attributes to make the class picklable.
         self.configuration = configuration
         self.timeout = timeout
         self.pools_size = pools_size
         self.maxsize = maxsize
+
+        # Initialize RESTClientObject class
         super().__init__(
             configuration=configuration, pools_size=pools_size, maxsize=maxsize
         )
@@ -57,6 +61,8 @@ class LightlySwaggerRESTClientObject(RESTClientObject):
             _request_timeout = self.timeout
 
         flat_query_params = _flatten_list_query_parameters(query_params=query_params)
+
+        # Call RESTClientObject.request
         return super().request(
             method=method,
             url=url,
@@ -87,6 +93,31 @@ class LightlySwaggerRESTClientObject(RESTClientObject):
             pools_size=state["pools_size"],
             maxsize=state["maxsize"],
         )
+
+
+class LightlySwaggerRESTClientObject(PatchRESTClientObjectMixin, RESTClientObject):
+    """Subclass of RESTClientObject which contains additional patches for the request
+    method and making the client picklable.
+
+    See PatchRESTClientObjectMixin for details.
+
+    Attributes:
+        configuration:
+            Configuration.
+        timeout:
+            Timeout in seconds. Is either a single total_timeout value or a
+            (connect_timeout, read_timeout) tuple. No timeout is applied if the
+            value is None.
+            See https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html?highlight=timeout#urllib3.util.Timeout
+            for details on the different values.
+        pools_size:
+            Number of connection pools. Defaults to 4.
+        maxsize:
+            Maxsize is the number of requests to host that are allowed in parallel.
+            Defaults to None.
+    """
+
+    pass
 
 
 def _flatten_list_query_parameters(
