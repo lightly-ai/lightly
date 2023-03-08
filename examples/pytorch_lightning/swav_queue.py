@@ -2,17 +2,15 @@
 # from the paper. The settings are chosen such that the example can easily be
 # run on a small dataset with a single GPU.
 
-import torch
-from torch import nn
-import torchvision
 import pytorch_lightning as pl
+import torch
+import torchvision
+from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data import SwaVCollateFunction
+from lightly.data import LightlyDataset, SwaVCollateFunction
 from lightly.loss import SwaVLoss
 from lightly.loss.memory_bank import MemoryBankModule
-from lightly.models.modules import SwaVProjectionHead
-from lightly.models.modules import SwaVPrototypes
+from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
 
 
 class SwaV(pl.LightningModule):
@@ -58,7 +56,6 @@ class SwaV(pl.LightningModule):
 
     @torch.no_grad()
     def _get_queue_prototypes(self, high_resolution_features):
-
         if len(high_resolution_features) != len(self.queues):
             raise ValueError(
                 f"The number of queues ({len(self.queues)}) should be equal to the number of high "
@@ -83,7 +80,9 @@ class SwaV(pl.LightningModule):
             return None
 
         # Assign prototypes
-        queue_prototypes = [self.prototypes(x, self.current_epoch) for x in queue_features]
+        queue_prototypes = [
+            self.prototypes(x, self.current_epoch) for x in queue_features
+        ]
         return queue_prototypes
 
 

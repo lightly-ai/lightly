@@ -1,13 +1,15 @@
-from torch import Tensor
-from lightly.transforms.multi_view_transform import MultiViewTransform
-from lightly.transforms.utils import IMAGENET_NORMALIZE
-from lightly.transforms.rotation import random_rotation_transform
-from lightly.transforms.gaussian_blur import GaussianBlur
-from lightly.transforms.solarize import RandomSolarization
 from typing import Optional, Tuple, Union
-from PIL.Image import Image
+
 import PIL
 import torchvision.transforms as T
+from PIL.Image import Image
+from torch import Tensor
+
+from lightly.transforms.gaussian_blur import GaussianBlur
+from lightly.transforms.multi_view_transform import MultiViewTransform
+from lightly.transforms.rotation import random_rotation_transform
+from lightly.transforms.solarize import RandomSolarization
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class DINOTransform(MultiViewTransform):
@@ -98,7 +100,6 @@ class DINOTransform(MultiViewTransform):
         solarization_prob: float = 0.2,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-
         # first global crop
         global_transform_0 = DINOViewTransform(
             crop_size=global_crop_size,
@@ -192,7 +193,6 @@ class DINOViewTransform:
         solarization_prob: float = 0.2,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-
         transform = [
             T.RandomResizedCrop(
                 size=crop_size,
@@ -233,7 +233,7 @@ class DINOViewTransform:
         Applies the transforms to the input image.
 
         Args:
-            image: 
+            image:
                 The input image to apply the transforms to.
 
         Returns:

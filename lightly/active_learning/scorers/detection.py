@@ -1,7 +1,4 @@
-from typing import Callable
-from typing import Dict
-from typing import List
-
+from typing import Callable, Dict, List
 
 import numpy as np
 
@@ -10,9 +7,11 @@ from lightly.active_learning.scorers.scorer import Scorer
 from lightly.active_learning.utils.object_detection_output import ObjectDetectionOutput
 
 
-def _object_frequency(model_output: List[ObjectDetectionOutput],
-                      frequency_penalty: float,
-                      min_score: float) -> np.ndarray:
+def _object_frequency(
+    model_output: List[ObjectDetectionOutput],
+    frequency_penalty: float,
+    min_score: float,
+) -> np.ndarray:
     """Score which prefers samples with many and diverse objects.
 
     Args:
@@ -48,7 +47,9 @@ def _object_frequency(model_output: List[ObjectDetectionOutput],
     return np.asarray(scores)
 
 
-def _objectness_least_confidence(model_output: List[ObjectDetectionOutput]) -> np.ndarray:
+def _objectness_least_confidence(
+    model_output: List[ObjectDetectionOutput],
+) -> np.ndarray:
     """Score which prefers samples with low max(class prob) * objectness.
 
     Args:
@@ -64,19 +65,19 @@ def _objectness_least_confidence(model_output: List[ObjectDetectionOutput]) -> n
         if len(output.scores) > 0:
             # prediction margin is 1 - max(class probs), therefore the mean margin
             # is mean(1 - max(class probs)) which is 1 - mean(max(class probs))
-            score = 1. - np.mean(output.scores)
+            score = 1.0 - np.mean(output.scores)
         else:
             # set the score to 0 if there was no bounding box detected
-            score = 0.
+            score = 0.0
         scores.append(score)
 
     return np.asarray(scores)
 
 
 def _reduce_classification_scores_over_boxes(
-        model_output: List[ObjectDetectionOutput],
-        reduce_fn_over_bounding_boxes: Callable[[np.ndarray], float] = np.max,
-        default_value_no_bounding_box: float = 0
+    model_output: List[ObjectDetectionOutput],
+    reduce_fn_over_bounding_boxes: Callable[[np.ndarray], float] = np.max,
+    default_value_no_bounding_box: float = 0,
 ) -> Dict[str, List[float]]:
     """Calculates classification scores over the mean of all found objects
 
@@ -97,7 +98,9 @@ def _reduce_classification_scores_over_boxes(
     scores_dict_list: List[Dict[str, np.ndarray]] = []
     for index_sample, output in enumerate(model_output):
         probs = np.array(output.class_probabilities)
-        scores_dict_this_sample = ScorerClassification(model_output=probs).calculate_scores()
+        scores_dict_this_sample = ScorerClassification(
+            model_output=probs
+        ).calculate_scores()
         scores_dict_list.append(scores_dict_this_sample)
 
     score_names = ScorerClassification.score_names()
@@ -194,18 +197,13 @@ class ScorerObjectDetection(Scorer):
 
     """
 
-    def __init__(self,
-                 model_output: List[ObjectDetectionOutput],
-                 config: Dict = None):
+    def __init__(self, model_output: List[ObjectDetectionOutput], config: Dict = None):
         self.model_output = model_output
         self.config = config
         self._check_config()
 
     def _check_config(self):
-        default_conf = {
-            'frequency_penalty': 0.25,
-            'min_score': 0.9
-        }
+        default_conf = {"frequency_penalty": 0.25, "min_score": 0.9}
 
         # Check if we have a config dictionary passed in constructor
         if self.config is not None and isinstance(self.config, dict):
@@ -213,22 +211,22 @@ class ScorerObjectDetection(Scorer):
             for k in self.config.keys():
                 if k not in default_conf.keys():
                     raise KeyError(
-                        f'Scorer config parameter {k} is not a valid key. '
-                        f'Use one of: {default_conf.keys()}'
+                        f"Scorer config parameter {k} is not a valid key. "
+                        f"Use one of: {default_conf.keys()}"
                     )
 
             # for now all values in config should be between 0.0 and 1.0 and numbers
             for k, v in self.config.items():
                 if not (isinstance(v, float) or isinstance(v, int)):
                     raise ValueError(
-                        f'Scorer config values must be numbers. However, '
-                        f'{k} has a value of type {type(v)}.'
+                        f"Scorer config values must be numbers. However, "
+                        f"{k} has a value of type {type(v)}."
                     )
 
                 if v < 0.0 or v > 1.0:
                     raise ValueError(
-                        f'Scorer config parameter {k} value ({v}) out of range. '
-                        f'Should be between 0.0 and 1.0.'
+                        f"Scorer config parameter {k} value ({v}) out of range. "
+                        f"Should be between 0.0 and 1.0."
                     )
 
                 # use default config if not specified in config
@@ -239,8 +237,7 @@ class ScorerObjectDetection(Scorer):
 
     @classmethod
     def score_names(cls) -> List[str]:
-        """Returns the names of the calculated active learning scores
-        """
+        """Returns the names of the calculated active learning scores"""
         scorer = cls(model_output=[ObjectDetectionOutput([], [], [])])
         score_names = list(scorer.calculate_scores().keys())
         return score_names
@@ -255,25 +252,33 @@ class ScorerObjectDetection(Scorer):
         scores = dict()
         scores_with_names = [
             self._get_object_frequency(),
-            self._get_objectness_least_confidence()
+            self._get_objectness_least_confidence(),
         ]
         for score, score_name in scores_with_names:
             score = np.nan_to_num(score)
             scores[score_name] = score
 
         # add classification scores
-        scores_dict_classification = \
-            _reduce_classification_scores_over_boxes(model_output=self.model_output)
+        scores_dict_classification = _reduce_classification_scores_over_boxes(
+            model_output=self.model_output
+        )
         for score_name, score in scores_dict_classification.items():
             scores[score_name] = np.array(score)
 
         return scores
 
     def _get_object_frequency(self):
-        return _object_frequency(
-            self.model_output,
-            self.config['frequency_penalty'],
-            self.config['min_score']), "object_frequency"
+        return (
+            _object_frequency(
+                self.model_output,
+                self.config["frequency_penalty"],
+                self.config["min_score"],
+            ),
+            "object_frequency",
+        )
 
     def _get_objectness_least_confidence(self):
-        return _objectness_least_confidence(self.model_output), "objectness_least_confidence"
+        return (
+            _objectness_least_confidence(self.model_output),
+            "objectness_least_confidence",
+        )

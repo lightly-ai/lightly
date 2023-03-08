@@ -1,13 +1,13 @@
 import pytest
 from pytest_mock import MockerFixture
 
+from lightly.api import ApiWorkflowClient, ArtifactNotExist
 from lightly.openapi_generated.swagger_client import (
+    DockerApi,
     DockerRunArtifactData,
     DockerRunArtifactType,
     DockerRunData,
-    DockerApi,
 )
-from lightly.api import ApiWorkflowClient, ArtifactNotExist
 
 
 def test_download_compute_worker_run_artifacts(mocker: MockerFixture) -> None:

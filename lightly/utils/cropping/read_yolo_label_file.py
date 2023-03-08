@@ -3,7 +3,9 @@ from typing import List, Tuple
 from lightly.active_learning.utils import BoundingBox
 
 
-def read_yolo_label_file(filepath: str, padding: float, separator: str = ' ') -> Tuple[List[int], List[BoundingBox]]:
+def read_yolo_label_file(
+    filepath: str, padding: float, separator: str = " "
+) -> Tuple[List[int], List[BoundingBox]]:
     """Reads a file in the yolo file format
 
     Args:
@@ -20,7 +22,7 @@ def read_yolo_label_file(filepath: str, padding: float, separator: str = ' ') ->
             The bounding boxes.
 
     """
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         lines = f.readlines()
 
     class_indices = []
@@ -31,8 +33,8 @@ def read_yolo_label_file(filepath: str, padding: float, separator: str = ' ') ->
         class_id = int(class_id)
         class_indices.append(class_id)
 
-        w_norm *= 1+padding
-        h_norm *= 1+padding
+        w_norm *= 1 + padding
+        h_norm *= 1 + padding
         bbox = BoundingBox.from_yolo_label(x_norm, y_norm, w_norm, h_norm)
         bounding_boxes.append(bbox)
     return class_indices, bounding_boxes

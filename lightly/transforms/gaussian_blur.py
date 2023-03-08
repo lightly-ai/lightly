@@ -3,10 +3,11 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-import numpy as np
-from PIL import ImageFilter
 from typing import Tuple, Union
 from warnings import warn
+
+import numpy as np
+from PIL import ImageFilter
 
 
 class GaussianBlur:

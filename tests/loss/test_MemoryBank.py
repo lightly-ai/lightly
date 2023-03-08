@@ -1,11 +1,11 @@
 import unittest
+
 import torch
 
 from lightly.loss.memory_bank import MemoryBankModule
 
 
 class TestNTXentLoss(unittest.TestCase):
-
     def test_init__negative_size(self):
         with self.assertRaises(ValueError):
             MemoryBankModule(size=-1)
@@ -18,7 +18,6 @@ class TestNTXentLoss(unittest.TestCase):
 
         ptr = 0
         for i in range(0, n, bsz):
-
             output = torch.randn(2 * bsz, dim)
             output.requires_grad = True
             out0, out1 = output[:bsz], output[bsz:]
@@ -26,8 +25,8 @@ class TestNTXentLoss(unittest.TestCase):
             _, curr_memory_bank = memory_bank(out1, update=True)
             next_memory_bank = memory_bank.bank
 
-            curr_diff = out0.T - curr_memory_bank[:, ptr:ptr + bsz]
-            next_diff = out1.T - next_memory_bank[:, ptr:ptr + bsz]
+            curr_diff = out0.T - curr_memory_bank[:, ptr : ptr + bsz]
+            next_diff = out1.T - next_memory_bank[:, ptr : ptr + bsz]
 
             # the current memory bank should not hold the batch yet
             self.assertGreater(curr_diff.norm(), 1e-5)
@@ -43,7 +42,6 @@ class TestNTXentLoss(unittest.TestCase):
         memory_bank = MemoryBankModule(size=size)
 
         for i in range(0, n, bsz):
-
             # see if there are any problems when the bank size
             # is no multiple of the batch size
             output = torch.randn(bsz, dim)
@@ -55,11 +53,10 @@ class TestNTXentLoss(unittest.TestCase):
         dim, size = 2, 10
         n = 33 * bsz
         memory_bank = MemoryBankModule(size=size)
-        device = torch.device('cuda')
+        device = torch.device("cuda")
         memory_bank.to(device=device)
 
         for i in range(0, n, bsz):
-
             # see if there are any problems when the bank size
             # is no multiple of the batch size
             output = torch.randn(bsz, dim, device=device)

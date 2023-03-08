@@ -1,9 +1,9 @@
 import math
 
 import torch
+import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.distributed as dist
 
 
 def prototype_probabilities(
@@ -28,6 +28,7 @@ def prototype_probabilities(
     """
     return F.softmax(torch.matmul(queries, prototypes.T) / temperature, dim=1)
 
+
 def sharpen(probabilities: torch.Tensor, temperature: float) -> torch.Tensor:
     """Sharpens the probabilities with the given temperature.
 
@@ -44,6 +45,7 @@ def sharpen(probabilities: torch.Tensor, temperature: float) -> torch.Tensor:
     probabilities = probabilities ** (1.0 / temperature)
     probabilities /= torch.sum(probabilities, dim=1, keepdim=True)
     return probabilities
+
 
 @torch.no_grad()
 def sinkhorn(
@@ -134,6 +136,7 @@ class MSNLoss(nn.Module):
         >>> loss = loss_fn(anchors_out, targets_out, prototypes=model.prototypes)
 
     """
+
     def __init__(
         self,
         temperature: float = 0.1,
@@ -176,27 +179,33 @@ class MSNLoss(nn.Module):
         prototypes = F.normalize(prototypes, dim=1)
 
         # anchor predictions
-        anchor_probs = prototype_probabilities(anchors, prototypes, temperature=self.temperature)
+        anchor_probs = prototype_probabilities(
+            anchors, prototypes, temperature=self.temperature
+        )
 
         # target predictions
         with torch.no_grad():
-            target_probs = prototype_probabilities(targets, prototypes, temperature=self.temperature)
+            target_probs = prototype_probabilities(
+                targets, prototypes, temperature=self.temperature
+            )
             target_probs = sharpen(target_probs, temperature=target_sharpen_temperature)
             if self.sinkhorn_iterations > 0:
                 target_probs = sinkhorn(
                     probabilities=target_probs,
                     iterations=self.sinkhorn_iterations,
-                    gather_distributed=self.gather_distributed
+                    gather_distributed=self.gather_distributed,
                 )
             target_probs = target_probs.repeat((num_views, 1))
 
         # cross entropy loss
-        loss = torch.mean(torch.sum(torch.log(anchor_probs**(-target_probs)), dim=1))
+        loss = torch.mean(torch.sum(torch.log(anchor_probs ** (-target_probs)), dim=1))
 
-        # mean entropy maximization regularization
+        # mean entropy maximization regularization
         if self.me_max_weight > 0:
             mean_anchor_probs = torch.mean(anchor_probs, dim=0)
-            me_max_loss = torch.sum(torch.log(mean_anchor_probs**(-mean_anchor_probs)))
+            me_max_loss = torch.sum(
+                torch.log(mean_anchor_probs ** (-mean_anchor_probs))
+            )
             me_max_loss += math.log(float(len(mean_anchor_probs)))
             loss -= self.me_max_weight * me_max_loss
 

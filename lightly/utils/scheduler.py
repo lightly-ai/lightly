@@ -1,11 +1,10 @@
-import torch
 import numpy as np
+import torch
 
 
 def cosine_schedule(
     step: int, max_steps: int, start_value: float, end_value: float
 ) -> float:
-
     """
     Use cosine decay to gradually modify start_value to reach target end_value during iterations.
 
@@ -30,7 +29,7 @@ def cosine_schedule(
     if step > max_steps:
         # Note: we allow step == max_steps even though step starts at 0 and should end
         # at max_steps - 1. This is because Pytorch Lightning updates the LR scheduler
-        # always for the next epoch, even after the last training epoch. This results in 
+        # always for the next epoch, even after the last training epoch. This results in
         # Pytorch Lightning calling the scheduler with step == max_steps.
         raise ValueError(
             f"The current step cannot be larger than max_steps but found step {step} and max_steps {max_steps}."

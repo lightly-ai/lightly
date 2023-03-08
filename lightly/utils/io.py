@@ -3,11 +3,11 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-import json
 import csv
-from typing import List, Tuple, Dict
+import json
 import re
 from itertools import compress
+from typing import Dict, List, Tuple
 
 import numpy as np
 

@@ -40,7 +40,6 @@ class MoCo(nn.Module, _MomentumEncoderMixin):
         m: float = 0.999,
         batch_shuffle: bool = False,
     ):
-
         super(MoCo, self).__init__()
 
         self.backbone = backbone
@@ -117,7 +116,6 @@ class MoCo(nn.Module, _MomentumEncoderMixin):
 
         # forward pass of second input x1
         with torch.no_grad():
-
             # shuffle for batchnorm
             if self.batch_shuffle:
                 x1, shuffle = self._batch_shuffle(x1)

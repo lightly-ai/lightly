@@ -34,6 +34,17 @@ clean-out:
 clean-tox:
 	rm -fr .tox
 
+# format code with isort and black
+format:
+	isort .
+	black .
+
+# check if code is formatted with isort and black
+format-check:
+	@echo "⚫ Checking code format..."
+	isort --check-only --diff .
+	black --check .
+
 # check style with flake8
 lint: lint-lightly lint-tests
 
@@ -48,6 +59,9 @@ lint-tests:
 ## run tests
 test:
 	pytest tests --runslow
+
+# run format checks and tests
+all-checks: format-check test
 
 ## build source and wheel package
 dist: clean 

@@ -1,11 +1,13 @@
-from torch import Tensor
-from lightly.transforms.multi_view_transform import MultiViewTransform
-from lightly.transforms.utils import IMAGENET_NORMALIZE
-from lightly.transforms.rotation import random_rotation_transform
-from lightly.transforms.jigsaw import Jigsaw
 from typing import Tuple, Union
-from PIL.Image import Image
+
 import torchvision.transforms as T
+from PIL.Image import Image
+from torch import Tensor
+
+from lightly.transforms.jigsaw import Jigsaw
+from lightly.transforms.multi_view_transform import MultiViewTransform
+from lightly.transforms.rotation import random_rotation_transform
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class PIRLTransform(MultiViewTransform):
@@ -54,7 +56,6 @@ class PIRLTransform(MultiViewTransform):
         n_grid: int = 3,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-
         if isinstance(input_size, tuple):
             input_size_ = max(input_size)
         else:
@@ -88,5 +89,5 @@ class PIRLTransform(MultiViewTransform):
             crop_size=int(input_size_ // n_grid),
             transform=T.Compose(transform),
         )
-        
+
         super().__init__([no_augment, jigsaw])

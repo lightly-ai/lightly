@@ -1,11 +1,11 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
-import torch
-from torch import nn
-import torchvision
 import pytorch_lightning as pl
+import torch
+import torchvision
+from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.collate import MAECollateFunction
@@ -16,7 +16,7 @@ from lightly.models.modules import masked_autoencoder
 class MAE(pl.LightningModule):
     def __init__(self):
         super().__init__()
-        
+
         decoder_dim = 512
         vit = torchvision.models.vit_b_32(pretrained=False)
         self.mask_ratio = 0.75
@@ -31,7 +31,7 @@ class MAE(pl.LightningModule):
             embed_input_dim=vit.hidden_dim,
             hidden_dim=decoder_dim,
             mlp_dim=decoder_dim * 4,
-            out_dim=vit.patch_size ** 2 * 3,
+            out_dim=vit.patch_size**2 * 3,
             dropout=0,
             attention_dropout=0,
         )
@@ -44,7 +44,9 @@ class MAE(pl.LightningModule):
         # build decoder input
         batch_size = x_encoded.shape[0]
         x_decode = self.decoder.embed(x_encoded)
-        x_masked = utils.repeat_token(self.mask_token, (batch_size, self.sequence_length))
+        x_masked = utils.repeat_token(
+            self.mask_token, (batch_size, self.sequence_length)
+        )
         x_masked = utils.set_at_index(x_masked, idx_keep, x_decode.type_as(x_masked))
 
         # decoder forward pass
@@ -57,7 +59,7 @@ class MAE(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         images, _, _ = batch
-        
+
         batch_size = images.shape[0]
         idx_keep, idx_mask = utils.random_token_mask(
             size=(batch_size, self.sequence_length),
@@ -71,7 +73,7 @@ class MAE(pl.LightningModule):
         patches = utils.patchify(images, self.patch_size)
         # must adjust idx_mask for missing class token
         target = utils.get_at_index(patches, idx_mask - 1)
-        
+
         loss = self.criterion(x_pred, target)
         return loss
 
