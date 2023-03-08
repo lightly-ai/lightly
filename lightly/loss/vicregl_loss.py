@@ -1,12 +1,13 @@
+import copy
+from typing import List, Tuple
+
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
 
-from lightly.utils.dist import gather
 from lightly.loss.vicreg_loss import VICRegLoss
 from lightly.models.utils import nearest_neighbors
-from typing import List, Tuple
-import copy
+from lightly.utils.dist import gather
 
 
 class VICRegLLoss(torch.nn.Module):
@@ -127,7 +128,8 @@ class VICRegLLoss(torch.nn.Module):
                 A tensor of grids for the local maps. It has size: [batch_size, grid_size, grid_size, 2]
 
         Returns:
-            A tensor of the local loss between the two sets of maps. It has size: [batch_size]"""
+            A tensor of the local loss between the two sets of maps. It has size: [batch_size]
+        """
 
         inv_loss = 0.0
 

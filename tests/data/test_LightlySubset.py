@@ -1,17 +1,17 @@
-import tempfile
 import random
-from typing import Tuple, List
+import tempfile
 import unittest
+from typing import List, Tuple
 
 from lightly.data.dataset import LightlyDataset
 from lightly.data.lightly_subset import LightlySubset
-
 from tests.data.test_LightlyDataset import TestLightlyDataset
 
 try:
-    from lightly.data._video import VideoDataset
     import av
     import cv2
+
+    from lightly.data._video import VideoDataset
 
     VIDEO_DATASET_AVAILABLE = True
 except ModuleNotFoundError:

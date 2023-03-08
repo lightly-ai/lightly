@@ -1,6 +1,6 @@
 """ Keypoint """
 import json
-from typing import Union, Tuple, List, Dict
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 
@@ -26,8 +26,9 @@ class KeypointInstancePrediction:
 
     """
 
-    def __init__(self, keypoints: List[float], category_id: int = -1,
-                 score: float = -1.):
+    def __init__(
+        self, keypoints: List[float], category_id: int = -1, score: float = -1.0
+    ):
         self.keypoints = keypoints
         self.category_id = category_id
         self.score = score
@@ -45,24 +46,24 @@ class KeypointInstancePrediction:
         Returns:
 
         """
-        category_id = dict_['category_id']
-        keypoints = dict_['keypoints']
-        score = dict_['score']
+        category_id = dict_["category_id"]
+        keypoints = dict_["keypoints"]
+        score = dict_["score"]
         return cls(keypoints=keypoints, category_id=category_id, score=score)
 
     def _format_check(self):
-        """Raises a ValueError if the format is not as required.
-        """
+        """Raises a ValueError if the format is not as required."""
         if not isinstance(self.category_id, int):
             raise ValueError(
-                f"Category_id must be an int, but is a {type(self.category_id)}")
+                f"Category_id must be an int, but is a {type(self.category_id)}"
+            )
         if not isinstance(self.score, float):
-            raise ValueError(
-                f"Score must be a float, but is a {type(self.score)}")
+            raise ValueError(f"Score must be a float, but is a {type(self.score)}")
 
         if len(self.keypoints) % 3 != 0:
-            raise ValueError("Keypoints must be in the format of "
-                             "[x0, y0, c0, ... xk, yk, ck].")
+            raise ValueError(
+                "Keypoints must be in the format of " "[x0, y0, c0, ... xk, yk, ck]."
+            )
         confidences = self.get_confidences()
         if any(c < 0 for c in confidences):
             raise ValueError("Confidences contain values < 0.")
@@ -70,9 +71,7 @@ class KeypointInstancePrediction:
             raise ValueError("Confidences contain values > 1.")
 
     def get_confidences(self) -> List[float]:
-        """Returns the confidence of each keypoint
-
-        """
+        """Returns the confidence of each keypoint"""
         confidences = self.keypoints[2::3]
         return confidences
 
@@ -80,25 +79,19 @@ class KeypointInstancePrediction:
 class KeypointPrediction:
     """Class which represents all keypoint instance detections in one image.
 
-        Attributes:
-            keypoint_instance_predictions:
-                One KeypointInstancePrediction for each instance having keypoints
-                detected in the image.
+    Attributes:
+        keypoint_instance_predictions:
+            One KeypointInstancePrediction for each instance having keypoints
+            detected in the image.
 
     """
 
-    def __init__(
-            self,
-            keypoint_instance_predictions: List[KeypointInstancePrediction]
-    ):
+    def __init__(self, keypoint_instance_predictions: List[KeypointInstancePrediction]):
         self.keypoint_instance_predictions = keypoint_instance_predictions
 
     @classmethod
-    def from_dicts(
-            cls,
-            dicts: List[Dict[str, Union[int, List[float], float]]]
-    ):
-        """ Creates a KeypointPrediction from predictions for each instance.
+    def from_dicts(cls, dicts: List[Dict[str, Union[int, List[float], float]]]):
+        """Creates a KeypointPrediction from predictions for each instance.
 
         Args:
             dicts:
@@ -114,7 +107,7 @@ class KeypointPrediction:
 
     @classmethod
     def from_json_string(cls, json_string: str):
-        """ Creates a KeypointPrediction from predictions for each instance.
+        """Creates a KeypointPrediction from predictions for each instance.
 
         Args:
             json_string:

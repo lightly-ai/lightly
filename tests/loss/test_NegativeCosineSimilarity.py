@@ -1,4 +1,5 @@
 import unittest
+
 import torch
 
 from lightly.loss import NegativeCosineSimilarity

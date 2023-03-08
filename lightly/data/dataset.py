@@ -3,28 +3,24 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-import os
 import bisect
+import os
 import shutil
 import tempfile
-
-from PIL import Image
-from typing import List, Union, Callable, Dict, Any
-from torch._C import Value
+from typing import Any, Callable, Dict, List, Union
 
 import torchvision.datasets as datasets
+from PIL import Image
+from torch._C import Value
 from torchvision import transforms
 
-from lightly.data._helpers import _load_dataset_from_folder
-from lightly.data._helpers import DatasetFolder
+from lightly.data._helpers import DatasetFolder, _load_dataset_from_folder
 from lightly.data._video import VideoDataset
 from lightly.utils.io import check_filenames
 
 
 def _get_filename_by_index(dataset, index):
-    """Default function which maps the index of an image to a filename.
-
-    """
+    """Default function which maps the index of an image to a filename."""
     if isinstance(dataset, datasets.ImageFolder):
         # filename is the path of the image relative to the dataset root
         full_path = dataset.imgs[index][0]
@@ -42,17 +38,13 @@ def _get_filename_by_index(dataset, index):
 
 
 def _ensure_dir(path):
-    """Makes sure that the directory at path exists.
-
-    """
+    """Makes sure that the directory at path exists."""
     dirname = os.path.dirname(path)
     os.makedirs(dirname, exist_ok=True)
 
 
 def _copy_image(input_dir, output_dir, filename):
-    """Copies an image from the input directory to the output directory.
-
-    """
+    """Copies an image from the input directory to the output directory."""
     source = os.path.join(input_dir, filename)
     target = os.path.join(output_dir, filename)
     _ensure_dir(target)
@@ -60,9 +52,7 @@ def _copy_image(input_dir, output_dir, filename):
 
 
 def _save_image(image, output_dir, filename, fmt):
-    """Saves an image in the output directory.
-
-    """
+    """Saves an image in the output directory."""
     target = os.path.join(output_dir, filename)
     _ensure_dir(target)
     try:
@@ -71,7 +61,7 @@ def _save_image(image, output_dir, filename, fmt):
         image.save(target, format=fmt)
     except ValueError:
         # could not determine format from filename
-        image.save(target, format='png')
+        image.save(target, format="png")
 
 
 def _dump_image(dataset, output_dir, filename, index, fmt):
@@ -149,27 +139,24 @@ class LightlyDataset:
         >>> # `- ...
     """
 
-    def __init__(self,
-                 input_dir: Union[str, None],
-                 transform: transforms.Compose = None,
-                 index_to_filename:
-                 Callable[[datasets.VisionDataset, int], str] = None,
-                 filenames: List[str] = None,
-                 tqdm_args: Dict[str, Any] = None,
-                 num_workers_video_frame_counting: int = 0
-                 ):
-
+    def __init__(
+        self,
+        input_dir: Union[str, None],
+        transform: transforms.Compose = None,
+        index_to_filename: Callable[[datasets.VisionDataset, int], str] = None,
+        filenames: List[str] = None,
+        tqdm_args: Dict[str, Any] = None,
+        num_workers_video_frame_counting: int = 0,
+    ):
         # can pass input_dir=None to create an "empty" dataset
         self.input_dir = input_dir
         if filenames is not None:
-            filepaths = [
-                os.path.join(input_dir, filename)
-                for filename in filenames
-            ]
+            filepaths = [os.path.join(input_dir, filename) for filename in filenames]
             filepaths = set(filepaths)
 
             def is_valid_file(filepath: str):
                 return filepath in filepaths
+
         else:
             is_valid_file = None
 
@@ -179,12 +166,11 @@ class LightlyDataset:
                 transform,
                 is_valid_file=is_valid_file,
                 tqdm_args=tqdm_args,
-                num_workers_video_frame_counting=num_workers_video_frame_counting
+                num_workers_video_frame_counting=num_workers_video_frame_counting,
             )
         elif transform is not None:
             raise ValueError(
-                'transform must be None when input_dir is None but is '
-                f'{transform}',
+                "transform must be None when input_dir is None but is " f"{transform}",
             )
 
         # initialize function to get filename of image
@@ -198,10 +184,7 @@ class LightlyDataset:
             check_filenames(self.get_filenames())
 
     @classmethod
-    def from_torch_dataset(cls,
-                           dataset,
-                           transform=None,
-                           index_to_filename=None):
+    def from_torch_dataset(cls, dataset, transform=None, index_to_filename=None):
         """Builds a LightlyDataset from a PyTorch (or torchvision) dataset.
 
         Args:
@@ -252,22 +235,16 @@ class LightlyDataset:
         return sample, target, fname
 
     def __len__(self):
-        """Returns the length of the dataset.
-
-        """
+        """Returns the length of the dataset."""
         return len(self.dataset)
 
     def __add__(self, other):
-        """Adds another item to the dataset.
-
-        """
+        """Adds another item to the dataset."""
         raise NotImplementedError()
 
     def get_filenames(self) -> List[str]:
-        """Returns all filenames in the dataset.
-
-        """
-        if hasattr(self.dataset, 'get_filenames'):
+        """Returns all filenames in the dataset."""
+        if hasattr(self.dataset, "get_filenames"):
             return self.dataset.get_filenames()
 
         list_of_filenames = []
@@ -276,10 +253,12 @@ class LightlyDataset:
             list_of_filenames.append(fname)
         return list_of_filenames
 
-    def dump(self,
-             output_dir: str,
-             filenames: Union[List[str], None] = None,
-             format: Union[str, None] = None):
+    def dump(
+        self,
+        output_dir: str,
+        filenames: Union[List[str], None] = None,
+        format: Union[str, None] = None,
+    ):
         """Saves images in the dataset to the output directory.
 
         Will copy the images from the input directory to the output directory
@@ -294,13 +273,13 @@ class LightlyDataset:
             format:
                 Image format. Can be any pillow image format (png, jpg, ...).
                 By default we try to use the same format as the input data. If
-                not possible (e.g. for videos) we dump the image 
+                not possible (e.g. for videos) we dump the image
                 as a png image to prevent compression artifacts.
 
         """
 
         if self.dataset.transform is not None:
-            raise RuntimeError('Cannot dump dataset which applies transforms!')
+            raise RuntimeError("Cannot dump dataset which applies transforms!")
 
         # create directory if it doesn't exist yet
         os.makedirs(output_dir, exist_ok=True)
@@ -317,8 +296,10 @@ class LightlyDataset:
             for index, filename in enumerate(all_filenames):
                 filename_index = bisect.bisect_left(filenames, filename)
                 # make sure the filename exists in filenames
-                if filename_index < len(filenames) and \
-                        filenames[filename_index] == filename:
+                if (
+                    filename_index < len(filenames)
+                    and filenames[filename_index] == filename
+                ):
                     indices.append(index)
 
         # dump images
@@ -347,8 +328,7 @@ class LightlyDataset:
 
         """
 
-        has_input_dir = hasattr(self, 'input_dir') and \
-            isinstance(self.input_dir, str)
+        has_input_dir = hasattr(self, "input_dir") and isinstance(self.input_dir, str)
         if has_input_dir:
             path_to_image = os.path.join(self.input_dir, filename)
             if os.path.isfile(path_to_image):
@@ -357,14 +337,14 @@ class LightlyDataset:
 
         if image is None:
             raise ValueError(
-                'The parameter image must not be None for'
-                'VideoDatasets and TorchDatasets'
+                "The parameter image must not be None for"
+                "VideoDatasets and TorchDatasets"
             )
 
         # the file doesn't exist, save it as a jpg and return filepath
         folder_path = tempfile.mkdtemp()
-        filepath = os.path.join(folder_path, filename) + '.jpg'
-        
+        filepath = os.path.join(folder_path, filename) + ".jpg"
+
         if os.path.dirname(filepath):
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
@@ -373,14 +353,10 @@ class LightlyDataset:
 
     @property
     def transform(self):
-        """Getter for the transform of the dataset.
-
-        """
+        """Getter for the transform of the dataset."""
         return self.dataset.transform
 
     @transform.setter
     def transform(self, t):
-        """Setter for the transform of the dataset.
-
-        """
+        """Setter for the transform of the dataset."""
         self.dataset.transform = t

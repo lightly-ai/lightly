@@ -1,4 +1,5 @@
 import unittest
+
 from PIL import Image
 
 from lightly.transforms.solarize import RandomSolarization

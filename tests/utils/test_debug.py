@@ -1,14 +1,16 @@
-import unittest
-import torch
 import math
+import unittest
+
 import numpy as np
+import torch
 from PIL import Image
 
-from lightly.utils import debug
 from lightly.data import collate
+from lightly.utils import debug
 
 try:
     import matplotlib.pyplot as plt
+
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
@@ -18,14 +20,13 @@ DIMENSION = 10
 
 
 class TestDebug(unittest.TestCase):
-
     def _generate_random_image(self, w: int, h: int, c: int):
         array = np.random.rand(h, w, c) * 255
-        image = Image.fromarray(array.astype('uint8')).convert('RGB')
+        image = Image.fromarray(array.astype("uint8")).convert("RGB")
         return image
 
     def test_std_of_l2_normalized_collapsed(self):
-        z = torch.ones(BATCH_SIZE, DIMENSION) # collapsed output
+        z = torch.ones(BATCH_SIZE, DIMENSION)  # collapsed output
         self.assertEqual(debug.std_of_l2_normalized(z), 0.0)
 
     def test_std_of_l2_normalized_uniform(self, eps: float = 1e-5):
@@ -45,30 +46,26 @@ class TestDebug(unittest.TestCase):
 
     @unittest.skipUnless(MATPLOTLIB_AVAILABLE, "Matplotlib not installed")
     def test_plot_augmented_images_image_collate_function(self):
-
         # simclr collate function is a subclass of the image collate function
         collate_function = collate.SimCLRCollateFunction()
 
         for n_images in range(2, 10):
             with self.subTest():
                 images = [
-                    self._generate_random_image(100, 100, 3)
-                    for _ in range(n_images)
+                    self._generate_random_image(100, 100, 3) for _ in range(n_images)
                 ]
                 fig = debug.plot_augmented_images(images, collate_function)
                 self.assertIsNotNone(fig)
 
     @unittest.skipUnless(MATPLOTLIB_AVAILABLE, "Matplotlib not installed")
     def test_plot_augmented_images_multi_view_collate_function(self):
-
         # dion collate function is a subclass of the multi view collate function
         collate_function = collate.DINOCollateFunction()
 
         for n_images in range(1, 10):
             with self.subTest():
                 images = [
-                    self._generate_random_image(100, 100, 3)
-                    for _ in range(n_images)
+                    self._generate_random_image(100, 100, 3) for _ in range(n_images)
                 ]
                 fig = debug.plot_augmented_images(images, collate_function)
                 self.assertIsNotNone(fig)
@@ -84,5 +81,3 @@ class TestDebug(unittest.TestCase):
         images = [self._generate_random_image(100, 100, 3)]
         with self.assertRaises(ValueError):
             debug.plot_augmented_images(images, None)
-
-
