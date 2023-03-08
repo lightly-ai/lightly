@@ -333,6 +333,7 @@ pylint lightly/core.py
 
 ## Lightly in Research
 
+- [Learning Visual Representations via Language-Guided Sampling](https://arxiv.org/pdf/2302.12248.pdf)
 - [Decoupled Contrastive Learning](https://arxiv.org/abs/2110.06848)
 - [DPCL: Constrative Representation Learning with Differential Privacy](https://assets.researchsquare.com/files/rs-1516950/v1_covered.pdf?c=1654486158)
 - [Self-Supervised Learning Methods for Label-Efficient Dental Caries Classification](https://www.mdpi.com/2075-4418/12/5/1237)
