@@ -20,36 +20,29 @@ class SplitBatchNorm(nn.BatchNorm2d):
             Number of splits.
 
     """
+
     def __init__(self, num_features, num_splits, **kw):
         super().__init__(num_features, **kw)
         self.num_splits = num_splits
         self.register_buffer(
-            'running_mean', torch.zeros(num_features*self.num_splits)
+            "running_mean", torch.zeros(num_features * self.num_splits)
         )
-        self.register_buffer(
-            'running_var', torch.ones(num_features*self.num_splits)
-        )
+        self.register_buffer("running_var", torch.ones(num_features * self.num_splits))
 
     def train(self, mode=True):
         # lazily collate stats when we are going to use them
         if (self.training is True) and (mode is False):
-            self.running_mean = \
-                torch.mean(
-                    self.running_mean.view(self.num_splits, self.num_features),
-                    dim=0
-                ).repeat(self.num_splits)
-            self.running_var = \
-                torch.mean(
-                    self.running_var.view(self.num_splits, self.num_features),
-                    dim=0
-                ).repeat(self.num_splits)
+            self.running_mean = torch.mean(
+                self.running_mean.view(self.num_splits, self.num_features), dim=0
+            ).repeat(self.num_splits)
+            self.running_var = torch.mean(
+                self.running_var.view(self.num_splits, self.num_features), dim=0
+            ).repeat(self.num_splits)
 
         return super().train(mode)
 
     def forward(self, input):
-        """Computes the SplitBatchNorm on the input.
-
-        """
+        """Computes the SplitBatchNorm on the input."""
         # get input shape
         N, C, H, W = input.shape
 
@@ -57,33 +50,32 @@ class SplitBatchNorm(nn.BatchNorm2d):
         # use the stats from the first split
         if self.training or not self.track_running_stats:
             result = nn.functional.batch_norm(
-                input.view(-1, C*self.num_splits, H, W),
-                self.running_mean, self.running_var, 
+                input.view(-1, C * self.num_splits, H, W),
+                self.running_mean,
+                self.running_var,
                 self.weight.repeat(self.num_splits),
                 self.bias.repeat(self.num_splits),
                 True,
                 self.momentum,
-                self.eps
+                self.eps,
             ).view(N, C, H, W)
         else:
             result = nn.functional.batch_norm(
                 input,
-                self.running_mean[:self.num_features],
-                self.running_var[:self.num_features], 
+                self.running_mean[: self.num_features],
+                self.running_var[: self.num_features],
                 self.weight,
                 self.bias,
                 False,
-                self.momentum, 
-                self.eps
+                self.momentum,
+                self.eps,
             )
-        
+
         return result
 
 
 def get_norm_layer(num_features: int, num_splits: int, **kw):
-    """Utility to switch between BatchNorm2d and SplitBatchNorm.
-
-    """
+    """Utility to switch between BatchNorm2d and SplitBatchNorm."""
     if num_splits > 0:
         return SplitBatchNorm(num_features, num_splits)
     else:

@@ -56,7 +56,7 @@ class PCA(object):
         """
         X = X.astype(np.float32)
         X = X - self.mean + self.eps
-        return X.dot(self.w)[:, :self.n_components]
+        return X.dot(self.w)[:, : self.n_components]
 
 
 def fit_pca(embeddings: np.ndarray, n_components: int = 2, fraction: float = None):
@@ -83,8 +83,8 @@ def fit_pca(embeddings: np.ndarray, n_components: int = 2, fraction: float = Non
 
     """
     if fraction is not None:
-        if fraction < 0. or fraction > 1.:
-            msg = f'fraction must be in [0, 1] but was {fraction}.'
+        if fraction < 0.0 or fraction > 1.0:
+            msg = f"fraction must be in [0, 1] but was {fraction}."
             raise ValueError(msg)
 
     N = embeddings.shape[0]

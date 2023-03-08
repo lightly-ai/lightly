@@ -1,47 +1,47 @@
 import json
 import random
+from typing import Any, List
+from unittest import mock
 from unittest.mock import MagicMock
 
 import pytest
 from pytest_mock import MockerFixture
-from typing import Any, List
-from unittest import mock
 
+from lightly.api import ApiWorkflowClient, api_workflow_compute_worker
 from lightly.api.api_workflow_compute_worker import (
     STATE_SCHEDULED_ID_NOT_FOUND,
     ComputeWorkerRunInfo,
+    InvalidConfigurationError,
     _config_to_camel_case,
     _snake_to_camel_case,
     _validate_config,
-    InvalidConfigurationError,
 )
 from lightly.openapi_generated.swagger_client import (
-    SelectionConfig,
-    SelectionConfigEntry,
-    SelectionInputType,
-    SelectionStrategyType,
     ApiClient,
     DockerApi,
-    SelectionConfigEntryInput,
-    SelectionStrategyThresholdOperation,
-    SelectionInputPredictionsName,
-    SelectionConfigEntryStrategy,
-    DockerWorkerConfig,
-    DockerWorkerType,
     DockerRunData,
     DockerRunScheduledData,
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
+    DockerWorkerConfig,
     DockerWorkerConfigV2Docker,
     DockerWorkerConfigV2DockerCorruptnessCheck,
     DockerWorkerConfigV2Lightly,
     DockerWorkerConfigV2LightlyLoader,
+    DockerWorkerType,
+    SelectionConfig,
+    SelectionConfigEntry,
+    SelectionConfigEntryInput,
+    SelectionConfigEntryStrategy,
+    SelectionInputPredictionsName,
+    SelectionInputType,
+    SelectionStrategyThresholdOperation,
+    SelectionStrategyType,
     TagData,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
-from lightly.api import api_workflow_compute_worker, ApiWorkflowClient
 
 
 class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
@@ -312,7 +312,6 @@ def test_selection_config_from_dict__typo() -> None:
 
 
 def test_get_scheduled_run_by_id() -> None:
-
     scheduled_runs = [
         DockerRunScheduledData(
             id=f"id_{i}",
@@ -341,7 +340,6 @@ def test_get_scheduled_run_by_id() -> None:
 
 
 def test_get_scheduled_run_by_id_not_found() -> None:
-
     scheduled_runs = [
         DockerRunScheduledData(
             id=f"id_{i}",
@@ -373,7 +371,6 @@ def test_get_scheduled_run_by_id_not_found() -> None:
 
 
 def test_get_compute_worker_state_and_message_OPEN() -> None:
-
     scheduled_run = DockerRunScheduledData(
         id=f"id_2",
         dataset_id="dataset_id",
@@ -449,7 +446,6 @@ def test_get_compute_worker_state_and_message_docker_state() -> None:
 
 
 def test_compute_worker_run_info_generator(mocker) -> None:
-
     states = [f"state_{i}" for i in range(7)]
     states[-1] = DockerRunState.COMPLETED
 
@@ -666,7 +662,6 @@ def test__config_to_camel_case() -> None:
 
 
 def test__snake_to_camel_case() -> None:
-
     assert _snake_to_camel_case("lorem") == "lorem"
     assert _snake_to_camel_case("lorem_ipsum") == "loremIpsum"
     assert _snake_to_camel_case("lorem_ipsum_dolor") == "loremIpsumDolor"
@@ -674,12 +669,11 @@ def test__snake_to_camel_case() -> None:
 
 
 def test__validate_config__docker(mocker: MockerFixture) -> None:
-
     obj = DockerWorkerConfigV2Docker(
         enable_training=False,
         corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
             corruption_threshold=0.1,
-        )
+        ),
     )
     _validate_config(
         cfg={
@@ -688,22 +682,21 @@ def test__validate_config__docker(mocker: MockerFixture) -> None:
                 "corruption_threshold": 0.1,
             },
         },
-        obj=obj
+        obj=obj,
     )
 
 
 def test__validate_config__docker_typo(mocker: MockerFixture) -> None:
-
     obj = DockerWorkerConfigV2Docker(
         enable_training=False,
         corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
             corruption_threshold=0.1,
-        )
+        ),
     )
 
     with pytest.raises(
         InvalidConfigurationError,
-        match="Option 'enable_trainingx' does not exist! Did you mean 'enable_training'?"
+        match="Option 'enable_trainingx' does not exist! Did you mean 'enable_training'?",
     ):
         _validate_config(
             cfg={
@@ -712,21 +705,21 @@ def test__validate_config__docker_typo(mocker: MockerFixture) -> None:
                     "corruption_threshold": 0.1,
                 },
             },
-            obj=obj
+            obj=obj,
         )
 
-def test__validate_config__docker_typo_nested(mocker: MockerFixture) -> None:
 
+def test__validate_config__docker_typo_nested(mocker: MockerFixture) -> None:
     obj = DockerWorkerConfigV2Docker(
         enable_training=False,
         corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
             corruption_threshold=0.1,
-        )
+        ),
     )
 
     with pytest.raises(
         InvalidConfigurationError,
-        match="Option 'corruption_thresholdx' does not exist! Did you mean 'corruption_threshold'?"
+        match="Option 'corruption_thresholdx' does not exist! Did you mean 'corruption_threshold'?",
     ):
         _validate_config(
             cfg={
@@ -735,12 +728,11 @@ def test__validate_config__docker_typo_nested(mocker: MockerFixture) -> None:
                     "corruption_thresholdx": 0.1,
                 },
             },
-            obj=obj
+            obj=obj,
         )
 
 
 def test__validate_config__lightly(mocker: MockerFixture) -> None:
-
     obj = DockerWorkerConfigV2Lightly(
         loader=DockerWorkerConfigV2LightlyLoader(
             num_workers=-1,
@@ -756,12 +748,11 @@ def test__validate_config__lightly(mocker: MockerFixture) -> None:
                 "shuffle": True,
             },
         },
-        obj=obj
+        obj=obj,
     )
 
 
 def test__validate_config__lightly_typo(mocker: MockerFixture) -> None:
-
     obj = DockerWorkerConfigV2Lightly(
         loader=DockerWorkerConfigV2LightlyLoader(
             num_workers=-1,
@@ -771,7 +762,7 @@ def test__validate_config__lightly_typo(mocker: MockerFixture) -> None:
     )
     with pytest.raises(
         InvalidConfigurationError,
-        match="Option 'loaderx' does not exist! Did you mean 'loader'?"
+        match="Option 'loaderx' does not exist! Did you mean 'loader'?",
     ):
         _validate_config(
             cfg={
@@ -781,12 +772,11 @@ def test__validate_config__lightly_typo(mocker: MockerFixture) -> None:
                     "shuffle": True,
                 },
             },
-            obj=obj
+            obj=obj,
         )
 
 
 def test__validate_config__lightly_typo_nested(mocker: MockerFixture) -> None:
-
     obj = DockerWorkerConfigV2Lightly(
         loader=DockerWorkerConfigV2LightlyLoader(
             num_workers=-1,
@@ -796,7 +786,7 @@ def test__validate_config__lightly_typo_nested(mocker: MockerFixture) -> None:
     )
     with pytest.raises(
         InvalidConfigurationError,
-        match="Option 'num_workersx' does not exist! Did you mean 'num_workers'?"
+        match="Option 'num_workersx' does not exist! Did you mean 'num_workers'?",
     ):
         _validate_config(
             cfg={
@@ -806,16 +796,12 @@ def test__validate_config__lightly_typo_nested(mocker: MockerFixture) -> None:
                     "shuffle": True,
                 },
             },
-            obj=obj
+            obj=obj,
         )
 
 
 def test__validate_config__raises_type_error(mocker: MockerFixture) -> None:
     with pytest.raises(
-        TypeError,
-        match="of argument 'obj' has not attribute 'swagger_types'"
+        TypeError, match="of argument 'obj' has not attribute 'swagger_types'"
     ):
-        _validate_config(
-            cfg={},
-            obj=mocker.MagicMock()
-        )
+        _validate_config(cfg={}, obj=mocker.MagicMock())

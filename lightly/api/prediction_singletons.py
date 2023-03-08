@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Optional, List
+from typing import List, Optional
 
 from lightly.openapi_generated.swagger_client import TaskType
 
@@ -84,7 +84,7 @@ class PredictionSingletonSemanticSegmentationRepr(PredictionSingletonRepr):
         self.probabilities = probabilities
 
 
-# Not used
+# Not used
 class PredictionSingletonInstanceSegmentationRepr(PredictionSingletonRepr):
     def __init__(
         self,

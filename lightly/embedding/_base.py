@@ -13,17 +13,10 @@ from lightly.embedding import callbacks
 
 
 class BaseEmbedding(LightningModule):
-    """All trainable embeddings must inherit from BaseEmbedding.
+    """All trainable embeddings must inherit from BaseEmbedding."""
 
-    """
-
-    def __init__(self,
-                 model,
-                 criterion,
-                 optimizer,
-                 dataloader,
-                 scheduler=None):
-        """ Constructor
+    def __init__(self, model, criterion, optimizer, dataloader, scheduler=None):
+        """Constructor
 
         Args:
             model: (torch.nn.Module)
@@ -46,7 +39,6 @@ class BaseEmbedding(LightningModule):
         return self.model(x0, x1)
 
     def training_step(self, batch, batch_idx):
-
         # get the two image transformations
         (x0, x1), _, _ = batch
         # forward pass of the transformations
@@ -54,7 +46,7 @@ class BaseEmbedding(LightningModule):
         # calculate loss
         loss = self.criterion(y0, y1)
         # log loss and return
-        self.log('loss', loss)
+        self.log("loss", loss)
         return loss
 
     def configure_optimizers(self):
@@ -72,7 +64,7 @@ class BaseEmbedding(LightningModule):
         checkpoint_callback_config: DictConfig,
         summary_callback_config: DictConfig,
     ):
-        """ Train the model on the provided dataset.
+        """Train the model on the provided dataset.
 
         Args:
             trainer_config: pylightning_trainer arguments, examples include:
@@ -90,7 +82,9 @@ class BaseEmbedding(LightningModule):
         """
         trainer_callbacks = []
 
-        checkpoint_cb = callbacks.create_checkpoint_callback(**checkpoint_callback_config)
+        checkpoint_cb = callbacks.create_checkpoint_callback(
+            **checkpoint_callback_config
+        )
         trainer_callbacks.append(checkpoint_cb)
 
         summary_cb = callbacks.create_summary_callback(
@@ -115,7 +109,5 @@ class BaseEmbedding(LightningModule):
             self.checkpoint = os.path.join(self.cwd, checkpoint_cb.best_model_path)
 
     def embed(self, *args, **kwargs):
-        """Must be implemented by classes which inherit from BaseEmbedding.
-
-        """
+        """Must be implemented by classes which inherit from BaseEmbedding."""
         raise NotImplementedError()

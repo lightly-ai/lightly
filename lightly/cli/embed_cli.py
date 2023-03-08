@@ -9,38 +9,38 @@ command-line interface.
 # All Rights Reserved
 
 import os
-from typing import Union, Tuple, List
+from typing import List, Tuple, Union
 
 import hydra
 import numpy as np
 import torch
 import torchvision
 
-from lightly.utils.hipify import bcolors
+from lightly.cli._helpers import (
+    cpu_count,
+    fix_hydra_arguments,
+    fix_input_path,
+    get_model_from_config,
+)
 from lightly.data import LightlyDataset
+from lightly.utils.hipify import bcolors
 from lightly.utils.io import save_embeddings
-from lightly.cli._helpers import fix_hydra_arguments
-from lightly.cli._helpers import get_model_from_config
-from lightly.cli._helpers import fix_input_path
-from lightly.cli._helpers import cpu_count
 
 
-def _embed_cli(cfg, is_cli_call=True) -> \
-    Union[
-        Tuple[np.ndarray, List[int], List[str]],
-        str
-    ]:
-    """ See embed_cli() for usage documentation
+def _embed_cli(
+    cfg, is_cli_call=True
+) -> Union[Tuple[np.ndarray, List[int], List[str]], str]:
+    """See embed_cli() for usage documentation
 
-        is_cli_call:
-            If True:
-                Saves the embeddings as file and returns the filepath.
-            If False:
-                Returns the embeddings, labels, filenames as tuple.
-                Embeddings are of shape (n_samples, embedding_size)
-                len(labels) = len(filenames) = n_samples
+    is_cli_call:
+        If True:
+            Saves the embeddings as file and returns the filepath.
+        If False:
+            Returns the embeddings, labels, filenames as tuple.
+            Embeddings are of shape (n_samples, embedding_size)
+            len(labels) = len(filenames) = n_samples
     """
-    input_dir = cfg['input_dir']
+    input_dir = cfg["input_dir"]
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)
 
@@ -48,14 +48,14 @@ def _embed_cli(cfg, is_cli_call=True) -> \
     torch.backends.cudnn.benchmark = False
 
     if torch.cuda.is_available():
-        device = torch.device('cuda')
+        device = torch.device("cuda")
     else:
-        device = torch.device('cpu')
+        device = torch.device("cpu")
 
     transform = torchvision.transforms.Compose(
         [
             torchvision.transforms.Resize(
-                (cfg['collate']['input_size'], cfg['collate']['input_size'])
+                (cfg["collate"]["input_size"], cfg["collate"]["input_size"])
             ),
             torchvision.transforms.ToTensor(),
             torchvision.transforms.Normalize(
@@ -67,33 +67,33 @@ def _embed_cli(cfg, is_cli_call=True) -> \
     dataset = LightlyDataset(input_dir, transform=transform)
 
     # disable drop_last and shuffle
-    cfg['loader']['drop_last'] = False
-    cfg['loader']['shuffle'] = False
-    cfg['loader']['batch_size'] = min(cfg['loader']['batch_size'], len(dataset))
+    cfg["loader"]["drop_last"] = False
+    cfg["loader"]["shuffle"] = False
+    cfg["loader"]["batch_size"] = min(cfg["loader"]["batch_size"], len(dataset))
 
     # determine the number of available cores
-    if cfg['loader']['num_workers'] < 0:
-        cfg['loader']['num_workers'] = cpu_count()
+    if cfg["loader"]["num_workers"] < 0:
+        cfg["loader"]["num_workers"] = cpu_count()
 
-    dataloader = torch.utils.data.DataLoader(dataset, **cfg['loader'])
+    dataloader = torch.utils.data.DataLoader(dataset, **cfg["loader"])
 
     encoder = get_model_from_config(cfg, is_cli_call)
 
     embeddings, labels, filenames = encoder.embed(dataloader, device=device)
 
     if is_cli_call:
-        path = os.path.join(os.getcwd(), 'embeddings.csv')
+        path = os.path.join(os.getcwd(), "embeddings.csv")
         save_embeddings(path, embeddings, labels, filenames)
-        print(f'Embeddings are stored at {bcolors.OKBLUE}{path}{bcolors.ENDC}')
+        print(f"Embeddings are stored at {bcolors.OKBLUE}{path}{bcolors.ENDC}")
         os.environ[
-            cfg['environment_variable_names']['lightly_last_embedding_path']
+            cfg["environment_variable_names"]["lightly_last_embedding_path"]
         ] = path
         return path
 
     return embeddings, labels, filenames
 
 
-@hydra.main(**fix_hydra_arguments(config_path = 'config', config_name = 'config'))
+@hydra.main(**fix_hydra_arguments(config_path="config", config_name="config"))
 def embed_cli(cfg) -> str:
     """Embed images from the command-line.
 

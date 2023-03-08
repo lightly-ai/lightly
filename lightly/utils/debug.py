@@ -1,8 +1,8 @@
 from typing import List, Union
-from PIL import Image
 
 import torch
 import torchvision
+from PIL import Image
 
 from lightly.data.collate import BaseCollateFunction, MultiViewCollateFunction
 
@@ -13,6 +13,7 @@ except ModuleNotFoundError:
         "Matplotlib is not installed on your system. Please install it to use the plotting"
         "functionalities. See https://matplotlib.org/ for installation instructions."
     )
+
 
 def _check_matplotlib_available() -> None:
     if isinstance(plt, Exception):
@@ -38,12 +39,12 @@ def std_of_l2_normalized(z: torch.Tensor) -> torch.Tensor:
     Returns:
         The mean of the standard deviation of the l2 normalized tensor z along
         each dimension.
-    
+
     """
 
     if len(z.shape) != 2:
         raise ValueError(
-            f'Input tensor must have two dimensions but has {len(z.shape)}!'
+            f"Input tensor must have two dimensions but has {len(z.shape)}!"
         )
 
     z_norm = torch.nn.functional.normalize(z, dim=1)
@@ -54,9 +55,7 @@ def apply_transform_without_normalize(
     image: Image.Image,
     transform,
 ):
-    """Applies the transform to the image but skips ToTensor and Normalize.
-
-    """
+    """Applies the transform to the image but skips ToTensor and Normalize."""
     skippable_transforms = (
         torchvision.transforms.ToTensor,
         torchvision.transforms.Normalize,
@@ -91,21 +90,25 @@ def generate_grid_of_augmented_images(
     grid = []
     if isinstance(collate_function, BaseCollateFunction):
         for _ in range(2):
-            grid.append([
-                apply_transform_without_normalize(image, collate_function.transform)
-                for image in input_images
-            ])
+            grid.append(
+                [
+                    apply_transform_without_normalize(image, collate_function.transform)
+                    for image in input_images
+                ]
+            )
     elif isinstance(collate_function, MultiViewCollateFunction):
         for transform in collate_function.transforms:
-            grid.append([
-                apply_transform_without_normalize(image, transform)
-                for image in input_images
-            ])
+            grid.append(
+                [
+                    apply_transform_without_normalize(image, transform)
+                    for image in input_images
+                ]
+            )
     else:
         raise ValueError(
-            'Collate function must be one of '
-            '(BaseCollateFunction, MultiViewCollateFunction) '
-            f'but is {type(collate_function)}.'
+            "Collate function must be one of "
+            "(BaseCollateFunction, MultiViewCollateFunction) "
+            f"but is {type(collate_function)}."
         )
     return grid
 
@@ -136,7 +139,7 @@ def plot_augmented_images(
     _check_matplotlib_available()
 
     if len(input_images) == 0:
-        raise ValueError('There must be at least one input image.')
+        raise ValueError("There must be at least one input image.")
 
     grid = generate_grid_of_augmented_images(input_images, collate_function)
     grid.insert(0, input_images)
@@ -153,10 +156,10 @@ def plot_augmented_images(
             ax.set_axis_off()
 
     ax_top_left = axs[0, 0] if len(input_images) > 1 else axs[0]
-    ax_top_left.set(title='Original images')
+    ax_top_left.set(title="Original images")
     ax_top_left.title.set_size(8)
     ax_top_next = axs[0, 1] if len(input_images) > 1 else axs[1]
-    ax_top_next.set(title='Augmented images')
+    ax_top_next.set(title="Augmented images")
     ax_top_next.title.set_size(8)
     fig.tight_layout()
 

@@ -3,14 +3,16 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-import torch
 import functools
+
+import torch
+
 
 class MemoryBankModule(torch.nn.Module):
     """Memory bank implementation
 
     This is a parent class to all loss functions implemented by the lightly
-    Python package. This way, any loss can be used with a memory bank if 
+    Python package. This way, any loss can be used with a memory bank if
     desired.
 
     Attributes:
@@ -37,17 +39,20 @@ class MemoryBankModule(torch.nn.Module):
 
     """
 
-    def __init__(self, size: int = 2 ** 16):
-
+    def __init__(self, size: int = 2**16):
         super(MemoryBankModule, self).__init__()
 
         if size < 0:
-            msg = f'Illegal memory bank size {size}, must be non-negative.'
+            msg = f"Illegal memory bank size {size}, must be non-negative."
             raise ValueError(msg)
 
         self.size = size
-        self.register_buffer("bank", tensor=torch.empty(0, dtype=torch.float), persistent=False)
-        self.register_buffer("bank_ptr", tensor=torch.empty(0, dtype=torch.long), persistent=False)
+        self.register_buffer(
+            "bank", tensor=torch.empty(0, dtype=torch.float), persistent=False
+        )
+        self.register_buffer(
+            "bank_ptr", tensor=torch.empty(0, dtype=torch.long), persistent=False
+        )
 
     @torch.no_grad()
     def _init_memory_bank(self, dim: int):
@@ -79,16 +84,15 @@ class MemoryBankModule(torch.nn.Module):
         ptr = int(self.bank_ptr)
 
         if ptr + batch_size >= self.size:
-            self.bank[:, ptr:] = batch[:self.size - ptr].T.detach()
+            self.bank[:, ptr:] = batch[: self.size - ptr].T.detach()
             self.bank_ptr[0] = 0
         else:
-            self.bank[:, ptr:ptr + batch_size] = batch.T.detach()
+            self.bank[:, ptr : ptr + batch_size] = batch.T.detach()
             self.bank_ptr[0] = ptr + batch_size
 
-    def forward(self,
-                output: torch.Tensor,
-                labels: torch.Tensor = None,
-                update: bool = False):
+    def forward(
+        self, output: torch.Tensor, labels: torch.Tensor = None, update: bool = False
+    ):
         """Query memory bank for additional negative samples
 
         Args:

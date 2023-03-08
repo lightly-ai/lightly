@@ -1,6 +1,7 @@
-from torch import Tensor
-from PIL.Image import Image
 from typing import List, Union
+
+from PIL.Image import Image
+from torch import Tensor
 
 
 class MultiViewTransform:

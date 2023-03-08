@@ -1,0 +1,34 @@
+name: Code Format Check
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+    - name: Hack to get setup-python to work on nektos/act
+      run: |
+        if [ ! -f "/etc/lsb-release" ] ; then
+          echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
+        fi
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    - uses: actions/cache@v2
+      with:
+        path: ${{ env.pythonLocation }}
+        key: cache_v2_${{ env.pythonLocation }}-${{ hashFiles('requirements/**') }}
+    - name: Install Dependencies and lightly
+      run: pip install -e '.[all]'
+    - name: Run Format Check
+      run: |
+        export LIGHTLY_SERVER_LOCATION="localhost:-1"
+        make format-check
