@@ -1,53 +1,39 @@
+import os
+import platform
 import warnings
 from io import IOBase
 from typing import *
-import platform
-import os
 
 import requests
-
-from lightly.api.api_workflow_artifacts import _ArtifactsMixin
-from lightly.api.api_workflow_predictions import _PredictionsMixin
-from lightly.api.api_workflow_tags import _TagsMixin
 from requests import Response
 
 from lightly.__init__ import __version__
+from lightly.api.api_workflow_artifacts import _ArtifactsMixin
 from lightly.api.api_workflow_collaboration import _CollaborationMixin
 from lightly.api.api_workflow_compute_worker import _ComputeWorkerMixin
 from lightly.api.api_workflow_datasets import _DatasetsMixin
 from lightly.api.api_workflow_datasources import _DatasourcesMixin
 from lightly.api.api_workflow_download_dataset import _DownloadDatasetMixin
+from lightly.api.api_workflow_predictions import _PredictionsMixin
 from lightly.api.api_workflow_selection import _SelectionMixin
+from lightly.api.api_workflow_tags import _TagsMixin
 from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
-from lightly.api.utils import DatasourceType, get_signed_url_destination, get_api_client_configuration
-from lightly.api.version_checking import is_compatible_version, LightlyAPITimeoutException
+from lightly.api.swagger_api_client import LightlySwaggerApiClient
+from lightly.api.utils import (DatasourceType, get_api_client_configuration,
+                               get_signed_url_destination)
+from lightly.api.version_checking import (LightlyAPITimeoutException,
+                                          is_compatible_version)
 from lightly.openapi_generated.swagger_client import (
-    ApiClient,
-    CollaborationApi,
-    Creator,
-    DatasetCreator,
-    DatasetData,
-    DatasetsApi,
-    DatasourcesApi,
-    DockerApi,
-    EmbeddingsApi,
-    JobsApi,
-    MappingsApi,
-    MetaDataConfigurationsApi,
-    PredictionsApi,
-    QuotaApi,
-    SamplesApi,
-    SamplingsApi,
-    ScoresApi,
-    TagsApi,
-)
-
+    CollaborationApi, Creator, DatasetData, DatasetsApi, DatasourcesApi,
+    DockerApi, EmbeddingsApi, JobsApi, MappingsApi, MetaDataConfigurationsApi,
+    PredictionsApi, QuotaApi, SamplesApi, SamplingsApi, ScoresApi, TagsApi)
 from lightly.utils.reordering import sort_items_by_keys
 
 # Env variable for server side encryption on S3
 LIGHTLY_S3_SSE_KMS_KEY = 'LIGHTLY_S3_SSE_KMS_KEY' 
+
 
 class ApiWorkflowClient(_UploadEmbeddingsMixin,
                         _SelectionMixin,
@@ -103,9 +89,8 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             pass
 
         configuration = get_api_client_configuration(token=token)
-        self.api_client = ApiClient(configuration=configuration)
+        self.api_client = LightlySwaggerApiClient(configuration=configuration)
         self.api_client.user_agent = f"Lightly/{__version__} ({platform.system()}/{platform.release()}; {platform.platform()}; {platform.processor()};) python/{platform.python_version()}"
-        self.set_request_timeout(DEFAULT_API_TIMEOUT)
 
         self.token = configuration.api_key["token"]
         if dataset_id is not None:
@@ -253,54 +238,3 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
             response = sess.put(signed_write_url, data=file)
         response.raise_for_status()
         return response
-
-    def set_request_timeout(self, timeout: Union[int, Tuple[int, int]]):
-        """Sets a default timeout for all api requests.
-
-        Args:
-            timeout:
-                Timeout in seconds. Is either a single total_timeout value or a
-                (connect_timeout, read_timeout) tuple. 
-                See https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html?highlight=timeout#urllib3.util.Timeout
-                for details on the different values.
-        """
-        set_api_client_request_timeout(client=self.api_client, timeout=timeout)
-
-
-DEFAULT_API_TIMEOUT = 60 * 3 # seconds
-
-def set_api_client_request_timeout(
-    client: ApiClient, 
-    timeout: Union[int, Tuple[int, int]] = DEFAULT_API_TIMEOUT,
-):
-    """Sets a default timeout for all requests with the client.
-
-    This function patches the request method of the api client. This is 
-    necessary because the swagger api client does not respect any timeouts 
-    configured by urllib3. Instead it expects a timeout to be passed with every
-    request. Code here: https://github.com/lightly-ai/lightly/blob/ffbd32fe82f76b37c8ac497640355314474bfc3b/lightly/openapi_generated/swagger_client/rest.py#L141-L148
-
-    Args:
-        client:
-            Api client on which the timeout is applied.
-        timeout:
-            Timeout in seconds. Is either a single total_timeout value or a
-            (connect_timeout, read_timeout) tuple. 
-            See https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html?highlight=timeout#urllib3.util.Timeout
-            for details on the different values.
-
-    """
-    request_fn = client.rest_client.request
-    client.rest_client.request = _request_with_timeout(timeout=timeout, request_fn=request_fn)
-
-
-class _request_with_timeout:
-    def __init__(self, timeout: Union[int, Tuple[int, int]], request_fn) -> None:
-        self.timeout = timeout
-        self.request_fn = request_fn
-
-    def __call__(self, *args, **kwargs):
-        request_timeout = kwargs['_request_timeout']
-        if request_timeout is None:
-            kwargs['_request_timeout'] = self.timeout
-        return self.request_fn(*args, **kwargs)

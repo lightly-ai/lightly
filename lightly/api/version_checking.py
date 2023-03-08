@@ -1,9 +1,9 @@
 import signal
 import warnings
 from typing import Tuple
+from lightly.api.swagger_api_client import LightlySwaggerApiClient
 
 from lightly.openapi_generated.swagger_client import VersioningApi
-from lightly.openapi_generated.swagger_client.api_client import ApiClient
 
 from lightly.api import utils
 from lightly.utils.version_compare import version_compare
@@ -47,8 +47,8 @@ def get_versioning_api() -> VersioningApi:
     configuration = utils.get_api_client_configuration(
         raise_if_no_token_specified=False,
     )
-    api_client = ApiClient(configuration=configuration)
-    versioning_api = VersioningApi(api_client)
+    api_client = LightlySwaggerApiClient(configuration=configuration)
+    versioning_api = VersioningApi(api_client=api_client)
     return versioning_api
 
 
