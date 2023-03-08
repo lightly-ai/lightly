@@ -56,7 +56,6 @@ class MAE(pl.LightningModule):
         return x_pred
 
     def training_step(self, batch, batch_idx):
-        print('mask_token', self.mask_token.dtype)
         images, _, _ = batch
         
         batch_size = images.shape[0]
@@ -104,5 +103,5 @@ dataloader = torch.utils.data.DataLoader(
 
 gpus = 1 if torch.cuda.is_available() else 0
 
-trainer = pl.Trainer(max_epochs=10, gpus=gpus, precision=16)
+trainer = pl.Trainer(max_epochs=10, gpus=gpus)
 trainer.fit(model=model, train_dataloaders=dataloader)
