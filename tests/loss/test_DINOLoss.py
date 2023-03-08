@@ -4,8 +4,8 @@ import unittest
 
 import numpy as np
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 
 from lightly.loss import DINOLoss
 from lightly.models.utils import deactivate_requires_grad
@@ -19,11 +19,20 @@ class OriginalDINOLoss(nn.Module):
     longer assumed.
 
     Source: https://github.com/facebookresearch/dino/blob/cb711401860da580817918b9167ed73e3eef3dcf/main_dino.py#L363
-    
+
     """
-    def __init__(self, out_dim, ncrops, warmup_teacher_temp, teacher_temp,
-                 warmup_teacher_temp_epochs, nepochs, student_temp=0.1,
-                 center_momentum=0.9):
+
+    def __init__(
+        self,
+        out_dim,
+        ncrops,
+        warmup_teacher_temp,
+        teacher_temp,
+        warmup_teacher_temp_epochs,
+        nepochs,
+        student_temp=0.1,
+        center_momentum=0.9,
+    ):
         super().__init__()
         self.student_temp = student_temp
         self.center_momentum = center_momentum
@@ -31,11 +40,14 @@ class OriginalDINOLoss(nn.Module):
         self.register_buffer("center", torch.zeros(1, out_dim))
         # we apply a warm up for the teacher temperature because
         # a too high temperature makes the training instable at the beginning
-        self.teacher_temp_schedule = np.concatenate((
-            np.linspace(warmup_teacher_temp,
-                        teacher_temp, warmup_teacher_temp_epochs),
-            np.ones(nepochs - warmup_teacher_temp_epochs) * teacher_temp
-        ))
+        self.teacher_temp_schedule = np.concatenate(
+            (
+                np.linspace(
+                    warmup_teacher_temp, teacher_temp, warmup_teacher_temp_epochs
+                ),
+                np.ones(nepochs - warmup_teacher_temp_epochs) * teacher_temp,
+            )
+        )
 
     def forward(self, student_output, teacher_output, epoch):
         """
@@ -72,10 +84,12 @@ class OriginalDINOLoss(nn.Module):
         batch_center = torch.sum(teacher_output, dim=0, keepdim=True)
         batch_center = batch_center / len(teacher_output)
         # ema update
-        self.center = self.center * self.center_momentum + batch_center * (1 - self.center_momentum)
+        self.center = self.center * self.center_momentum + batch_center * (
+            1 - self.center_momentum
+        )
+
 
 class TestDINOLoss(unittest.TestCase):
-
     def generate_output(self, batch_size=2, n_views=3, output_dim=4, seed=0):
         """Returns a list of view representations.
 
@@ -84,7 +98,7 @@ class TestDINOLoss(unittest.TestCase):
                 torch.Tensor([img0_view0, img1_view0]),
                 torch.Tensor([img0_view1, img1_view1])
             ]
-        
+
         """
         torch.manual_seed(seed)
         out = []
@@ -93,13 +107,11 @@ class TestDINOLoss(unittest.TestCase):
             out.append(torch.stack(views))
         return out
 
-
     def test_dino_loss_equal_to_original(self):
-
         def test(
             batch_size=3,
-            n_global=2, # number of global views
-            n_local=6,  # number of local views
+            n_global=2,  # number of global views
+            n_local=6,  # number of local views
             output_dim=4,
             warmup_teacher_temp=0.04,
             teacher_temp=0.04,
@@ -108,17 +120,17 @@ class TestDINOLoss(unittest.TestCase):
             center_momentum=0.9,
             epoch=0,
             n_epochs=100,
-        ): 
+        ):
             """Runs test with the given input parameters."""
             with self.subTest(
-                f'batch_size={batch_size}, n_global={n_global}, '
-                f'n_local={n_local}, output_dim={output_dim}, '
-                f'warmup_teacher_temp={warmup_teacher_temp}, '
-                f'teacher_temp={teacher_temp}, '
-                f'warmup_teacher_temp_epochs={warmup_teacher_temp_epochs}, '
-                f'student_temp={student_temp}, '
-                f'center_momentum={center_momentum}, epoch={epoch}, '
-                f'n_epochs={n_epochs}'
+                f"batch_size={batch_size}, n_global={n_global}, "
+                f"n_local={n_local}, output_dim={output_dim}, "
+                f"warmup_teacher_temp={warmup_teacher_temp}, "
+                f"teacher_temp={teacher_temp}, "
+                f"warmup_teacher_temp_epochs={warmup_teacher_temp_epochs}, "
+                f"student_temp={student_temp}, "
+                f"center_momentum={center_momentum}, epoch={epoch}, "
+                f"n_epochs={n_epochs}"
             ):
                 loss_fn = DINOLoss(
                     output_dim=output_dim,
@@ -128,7 +140,7 @@ class TestDINOLoss(unittest.TestCase):
                     student_temp=student_temp,
                     center_momentum=center_momentum,
                 )
-                
+
                 orig_loss_fn = OriginalDINOLoss(
                     out_dim=output_dim,
                     ncrops=n_global + n_local,
@@ -139,9 +151,9 @@ class TestDINOLoss(unittest.TestCase):
                     student_temp=student_temp,
                     center_momentum=center_momentum,
                 )
-                
+
                 # Create dummy single layer network. We use this to verify
-                # that the gradient backprop works properly.
+                # that the gradient backprop works properly.
                 teacher = torch.nn.Linear(output_dim, output_dim)
                 deactivate_requires_grad(teacher)
                 student = torch.nn.Linear(output_dim, output_dim)
@@ -151,7 +163,7 @@ class TestDINOLoss(unittest.TestCase):
                 optimizer = torch.optim.SGD(student.parameters(), lr=1)
                 orig_optimizer = torch.optim.SGD(orig_student.parameters(), lr=1)
 
-                # Create fake output
+                # Create fake output
                 teacher_out = self.generate_output(
                     batch_size=batch_size,
                     n_views=n_global,
@@ -161,31 +173,31 @@ class TestDINOLoss(unittest.TestCase):
                 student_out = self.generate_output(
                     batch_size=batch_size,
                     n_views=n_global + n_local,
-                    output_dim=output_dim, 
+                    output_dim=output_dim,
                     seed=1,
                 )
 
-                # Clone input tensors
+                # Clone input tensors
                 orig_teacher_out = torch.cat(teacher_out)
                 orig_teacher_out = orig_teacher_out.detach().clone()
                 orig_student_out = torch.cat(student_out)
                 orig_student_out = orig_student_out.detach().clone()
 
-                # Forward pass
+                # Forward pass
                 teacher_out = [teacher(view) for view in teacher_out]
                 student_out = [student(view) for view in student_out]
                 orig_teacher_out = orig_teacher(orig_teacher_out)
                 orig_student_out = orig_student(orig_student_out)
-                
+
                 # Calculate loss
                 loss = loss_fn(
-                    teacher_out=teacher_out, 
-                    student_out=student_out, 
+                    teacher_out=teacher_out,
+                    student_out=student_out,
                     epoch=epoch,
                 )
                 orig_loss = orig_loss_fn(
-                    student_output=orig_student_out, 
-                    teacher_output=orig_teacher_out, 
+                    student_output=orig_student_out,
+                    teacher_output=orig_teacher_out,
                     epoch=epoch,
                 )
 
@@ -203,19 +215,22 @@ class TestDINOLoss(unittest.TestCase):
                 self.assertTrue(torch.allclose(center, orig_center))
                 self.assertTrue(torch.allclose(loss, orig_loss))
 
-                # Parameters of network should be equal after backward pass
-                for param, orig_param in zip(student.parameters(), orig_student.parameters()):
+                # Parameters of network should be equal after backward pass
+                for param, orig_param in zip(
+                    student.parameters(), orig_student.parameters()
+                ):
                     self.assertTrue(torch.allclose(param, orig_param))
-                for param, orig_param in zip(teacher.parameters(), orig_teacher.parameters()):
+                for param, orig_param in zip(
+                    teacher.parameters(), orig_teacher.parameters()
+                ):
                     self.assertTrue(torch.allclose(param, orig_param))
-
 
         def test_all(**kwargs):
             """Tests all combinations of the input parameters"""
             parameters = []
             for name, values in kwargs.items():
                 parameters.append([(name, value) for value in values])
-            # parameters = [
+            # parameters = [
             #   [(param1, val11), (param1, val12), ..],
             #   [(param2, val21), (param2, val22), ..],
             #   ...
@@ -224,14 +239,14 @@ class TestDINOLoss(unittest.TestCase):
             for params in itertools.product(*parameters):
                 # params = [(param1, value1), (param2, value2), ...]
                 test(**dict(params))
-        
-        # test input sizes
+
+        # test input sizes
         test_all(
-            batch_size=np.arange(1,4),
+            batch_size=np.arange(1, 4),
             n_local=np.arange(0, 4),
             output_dim=np.arange(1, 4),
         )
-        # test teacher temp warmup
+        # test teacher temp warmup
         test_all(
             warmup_teacher_temp=[0.01, 0.04, 0.07],
             teacher_temp=[0.01, 0.04, 0.07],

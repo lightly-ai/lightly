@@ -1,7 +1,8 @@
-from torch import Tensor
-from PIL.Image import Image
 from typing import List, Tuple, Union
+
 import torchvision.transforms as T
+from PIL.Image import Image
+from torch import Tensor
 
 
 class ImageGridTransform:
@@ -11,7 +12,7 @@ class ImageGridTransform:
 
     Attributes:
         transforms:
-            A sequence of (image_grid_transform, view_transform) tuples. 
+            A sequence of (image_grid_transform, view_transform) tuples.
             The image_grid_transform creates a new view and grid from the image.
             The view_transform further augments the view. Every transform tuple
             is applied once to the image, creating len(transforms) views and

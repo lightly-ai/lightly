@@ -4,16 +4,17 @@
 # All Rights Reserved
 
 
-from typing import Callable, Union, Generator, List, Dict
+from typing import Callable, Dict, Generator, List, Union
 
 import numpy as np
 
-from lightly.active_learning.scorers.scorer import Scorer
 from lightly.active_learning.scorers import ScorerClassification
+from lightly.active_learning.scorers.scorer import Scorer
 
 
-def _reduce_classification_scores_over_pixels(scores: np.ndarray,
-                                              reduce_fn_over_pixels: Callable[[np.ndarray], float] = np.mean):
+def _reduce_classification_scores_over_pixels(
+    scores: np.ndarray, reduce_fn_over_pixels: Callable[[np.ndarray], float] = np.mean
+):
     """Reduces classification scores to a single floating point number.
 
     Args:
@@ -43,8 +44,8 @@ def _calculate_scores_for_single_prediction(prediction: np.ndarray):
     """
     if len(prediction.shape) != 3:
         raise ValueError(
-            'Invalid shape for semantic segmentation prediction! Expected '
-            f'input of shape W x H x C but got {prediction.shape}.'
+            "Invalid shape for semantic segmentation prediction! Expected "
+            f"input of shape W x H x C but got {prediction.shape}."
         )
 
     # reshape the W x H x C prediction into (W x H) x C
@@ -59,8 +60,7 @@ def _calculate_scores_for_single_prediction(prediction: np.ndarray):
 
     # reduce over pixels
     for score_name, scores in classification_scorer.calculate_scores().items():
-        scores_dict[score_name] = \
-            _reduce_classification_scores_over_pixels(scores)
+        scores_dict[score_name] = _reduce_classification_scores_over_pixels(scores)
 
     return scores_dict
 
@@ -73,14 +73,14 @@ class ScorerSemanticSegmentation(Scorer):
 
     Currently supports the following scores:
         `uncertainty scores`:
-            These scores are calculated by treating each pixel as its own 
+            These scores are calculated by treating each pixel as its own
             classification task and taking the average of the classification
             uncertainty scores.
 
     Attributes:
         model_output:
             List or generator of semantic segmentation predictions. Each
-            prediction should be of shape W x H x C, where C is the number 
+            prediction should be of shape W x H x C, where C is the number
             of classes (e.g. C=2 for two classes foreground and background).
 
     Examples:
@@ -88,7 +88,7 @@ class ScorerSemanticSegmentation(Scorer):
         >>> def generator(filenames: List[string]):
         >>>     for filename in filenames:
         >>>         path = os.path.join(ROOT_PATH, filename)
-        >>>         img_tensor = prepare_img(path).to('cuda') 
+        >>>         img_tensor = prepare_img(path).to('cuda')
         >>>         with torch.no_grad():
         >>>             out = model(img_tensor)
         >>>             out = torch.softmax(out, axis=1)
@@ -103,8 +103,9 @@ class ScorerSemanticSegmentation(Scorer):
 
     """
 
-    def __init__(self,
-                 model_output: Union[List[np.ndarray], Generator[np.ndarray, None, None]]):
+    def __init__(
+        self, model_output: Union[List[np.ndarray], Generator[np.ndarray, None, None]]
+    ):
         self.model_output = model_output
 
     def calculate_scores(self) -> Dict[str, np.ndarray]:
@@ -119,9 +120,8 @@ class ScorerSemanticSegmentation(Scorer):
         # iterate over list or generator of model outputs
         # careful! we can only iterate once if it's a generator
         for prediction in self.model_output:
-
             # get all active learning scores for this prediction
-            # scores_ is a dictionary where each key is a score name and each 
+            # scores_ is a dictionary where each key is a score name and each
             # item is a floating point number indicating the score
             scores_ = _calculate_scores_for_single_prediction(prediction)
 

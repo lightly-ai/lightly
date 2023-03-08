@@ -1,14 +1,13 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
-import torch
-from torch import nn
-import torchvision
 import pytorch_lightning as pl
+import torch
+import torchvision
+from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data import SimCLRCollateFunction
+from lightly.data import LightlyDataset, SimCLRCollateFunction
 from lightly.loss import DCLLoss, DCLWLoss
 from lightly.models.modules import SimCLRProjectionHead
 
@@ -21,7 +20,7 @@ class DCL(pl.LightningModule):
         self.projection_head = SimCLRProjectionHead(512, 2048, 2048)
         self.criterion = DCLLoss()
         # or use the weighted DCLW loss:
-        # self.criterion = DCLWLoss()
+        # self.criterion = DCLWLoss()
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -49,7 +48,7 @@ dataset = LightlyDataset.from_torch_dataset(cifar10)
 
 collate_fn = SimCLRCollateFunction(
     input_size=32,
-    gaussian_blur=0.,
+    gaussian_blur=0.0,
 )
 
 dataloader = torch.utils.data.DataLoader(

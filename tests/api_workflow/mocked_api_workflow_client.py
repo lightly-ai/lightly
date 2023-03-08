@@ -1,20 +1,81 @@
 import csv
 import io
+import json
 import tempfile
 import unittest
-from io import IOBase
 from collections import defaultdict
-import json
+from io import IOBase
+from typing import *
 
 import numpy as np
 import requests
 from requests import Response
+
+import lightly
+from lightly.api.api_workflow_client import ApiWorkflowClient
+from lightly.openapi_generated.swagger_client import (
+    ApiClient,
+    CreateEntityResponse,
+    DatasourceRawSamplesMetadataData,
+    InitialTagCreateRequest,
+    QuotaApi,
+    SampleCreateRequest,
+    SampleData,
+    SampleDataModes,
+    SampleMetaData,
+    SamplesApi,
+    SampleUpdateRequest,
+    SampleWriteUrls,
+    ScoresApi,
+    TagArithmeticsRequest,
+    TagBitMaskResponse,
+    Trigger2dEmbeddingJobRequest,
+    VersioningApi,
+)
+from lightly.openapi_generated.swagger_client.api.collaboration_api import (
+    CollaborationApi,
+)
+from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
+from lightly.openapi_generated.swagger_client.api.datasources_api import DatasourcesApi
 from lightly.openapi_generated.swagger_client.api.docker_api import DockerApi
+from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
+from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
+from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
+from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
+from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
+from lightly.openapi_generated.swagger_client.models.async_task_data import (
+    AsyncTaskData,
+)
 from lightly.openapi_generated.swagger_client.models.create_docker_worker_registry_entry_request import (
     CreateDockerWorkerRegistryEntryRequest,
 )
+from lightly.openapi_generated.swagger_client.models.dataset_create_request import (
+    DatasetCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
+from lightly.openapi_generated.swagger_client.models.dataset_embedding_data import (
+    DatasetEmbeddingData,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_config import (
+    DatasourceConfig,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_config_base import (
+    DatasourceConfigBase,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import (
+    DatasourceProcessedUntilTimestampRequest,
+)
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import (
     DatasourceProcessedUntilTimestampResponse,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import (
+    DatasourceRawSamplesData,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import (
+    DatasourceRawSamplesDataRow,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_predictions_data import (
+    DatasourceRawSamplesPredictionsData,
 )
 from lightly.openapi_generated.swagger_client.models.docker_run_data import (
     DockerRunData,
@@ -52,69 +113,6 @@ from lightly.openapi_generated.swagger_client.models.docker_worker_type import (
 from lightly.openapi_generated.swagger_client.models.filename_and_read_url import (
     FilenameAndReadUrl,
 )
-from lightly.openapi_generated.swagger_client.models.label_box_data_row import (
-    LabelBoxDataRow,
-)
-from lightly.openapi_generated.swagger_client.models.label_studio_task import (
-    LabelStudioTask,
-)
-from lightly.openapi_generated.swagger_client.models.label_studio_task_data import (
-    LabelStudioTaskData,
-)
-
-
-from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
-from lightly.openapi_generated.swagger_client.models.dataset_create_request import (
-    DatasetCreateRequest,
-)
-from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
-from lightly.openapi_generated.swagger_client.models.sample_partial_mode import (
-    SamplePartialMode,
-)
-from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
-from lightly.openapi_generated.swagger_client.api.datasources_api import DatasourcesApi
-from lightly.openapi_generated.swagger_client.models.timestamp import Timestamp
-from lightly.openapi_generated.swagger_client.rest import ApiException
-
-import lightly
-
-from lightly.api.api_workflow_client import ApiWorkflowClient
-
-from typing import *
-
-from lightly.openapi_generated.swagger_client import (
-    ScoresApi,
-    CreateEntityResponse,
-    SamplesApi,
-    SampleCreateRequest,
-    InitialTagCreateRequest,
-    ApiClient,
-    VersioningApi,
-    QuotaApi,
-    TagArithmeticsRequest,
-    TagBitMaskResponse,
-    SampleWriteUrls,
-    SampleData,
-    SampleMetaData,
-    SampleDataModes,
-    DatasourceRawSamplesMetadataData,
-    Trigger2dEmbeddingJobRequest,
-    SampleUpdateRequest,
-)
-from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
-from lightly.openapi_generated.swagger_client.api.collaboration_api import (
-    CollaborationApi,
-)
-from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
-from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
-from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
-from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
-from lightly.openapi_generated.swagger_client.models.async_task_data import (
-    AsyncTaskData,
-)
-from lightly.openapi_generated.swagger_client.models.dataset_embedding_data import (
-    DatasetEmbeddingData,
-)
 from lightly.openapi_generated.swagger_client.models.job_result_type import (
     JobResultType,
 )
@@ -125,30 +123,20 @@ from lightly.openapi_generated.swagger_client.models.job_status_data import (
 from lightly.openapi_generated.swagger_client.models.job_status_data_result import (
     JobStatusDataResult,
 )
+from lightly.openapi_generated.swagger_client.models.label_box_data_row import (
+    LabelBoxDataRow,
+)
+from lightly.openapi_generated.swagger_client.models.label_studio_task import (
+    LabelStudioTask,
+)
+from lightly.openapi_generated.swagger_client.models.label_studio_task_data import (
+    LabelStudioTaskData,
+)
+from lightly.openapi_generated.swagger_client.models.sample_partial_mode import (
+    SamplePartialMode,
+)
 from lightly.openapi_generated.swagger_client.models.sampling_create_request import (
     SamplingCreateRequest,
-)
-from lightly.openapi_generated.swagger_client.models.tag_data import TagData
-from lightly.openapi_generated.swagger_client.models.write_csv_url_data import (
-    WriteCSVUrlData,
-)
-from lightly.openapi_generated.swagger_client.models.datasource_config import (
-    DatasourceConfig,
-)
-from lightly.openapi_generated.swagger_client.models.datasource_config_base import (
-    DatasourceConfigBase,
-)
-from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import (
-    DatasourceProcessedUntilTimestampRequest,
-)
-from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import (
-    DatasourceRawSamplesData,
-)
-from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import (
-    DatasourceRawSamplesDataRow,
-)
-from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_predictions_data import (
-    DatasourceRawSamplesPredictionsData,
 )
 from lightly.openapi_generated.swagger_client.models.shared_access_config_create_request import (
     SharedAccessConfigCreateRequest,
@@ -159,6 +147,13 @@ from lightly.openapi_generated.swagger_client.models.shared_access_config_data i
 from lightly.openapi_generated.swagger_client.models.shared_access_type import (
     SharedAccessType,
 )
+from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
+from lightly.openapi_generated.swagger_client.models.tag_data import TagData
+from lightly.openapi_generated.swagger_client.models.timestamp import Timestamp
+from lightly.openapi_generated.swagger_client.models.write_csv_url_data import (
+    WriteCSVUrlData,
+)
+from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 def _check_dataset_id(dataset_id: str):
@@ -356,7 +351,7 @@ class MockedTagsApi(TagsApi):
     def upsize_tags_by_dataset_id(self, body, dataset_id, **kwargs):
         _check_dataset_id(dataset_id)
         assert body.upsize_tag_creator in (
-            TagCreator.USER_PIP, 
+            TagCreator.USER_PIP,
             TagCreator.USER_PIP_LIGHTLY_MAGIC,
         )
 
@@ -389,48 +384,48 @@ class MockedTagsApi(TagsApi):
             return []
         return [
             LabelStudioTask(
-                id = 0,
-                data = LabelStudioTaskData(
-                    image = "https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e213/readurlRedirect?type=full&CENSORED",
-                    lightly_file_name = "2008_006249_jpg.rf.fdd64460945ca901aa3c7e48ffceea83.jpg",
-                    lightly_meta_info = SampleData(
-                        id = "sample_id_0",
-                        type = "IMAGE",
-                        dataset_id = dataset_id,
-                        file_name =  "2008_006249_jpg.rf.fdd64460945ca901aa3c7e48ffceea83.jpg",
-                        exif = {},
-                        index = 0,
-                        created_at =  1647852727873,
-                        last_modified_at = 1647852727873,
-                        meta_data = SampleMetaData(
-                            sharpness = 27.31265790443818,
-                            size_in_bytes = 48224,
-                            snr = 2.1969673926211217,
-                            mean = [
+                id=0,
+                data=LabelStudioTaskData(
+                    image="https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e213/readurlRedirect?type=full&CENSORED",
+                    lightly_file_name="2008_006249_jpg.rf.fdd64460945ca901aa3c7e48ffceea83.jpg",
+                    lightly_meta_info=SampleData(
+                        id="sample_id_0",
+                        type="IMAGE",
+                        dataset_id=dataset_id,
+                        file_name="2008_006249_jpg.rf.fdd64460945ca901aa3c7e48ffceea83.jpg",
+                        exif={},
+                        index=0,
+                        created_at=1647852727873,
+                        last_modified_at=1647852727873,
+                        meta_data=SampleMetaData(
+                            sharpness=27.31265790443818,
+                            size_in_bytes=48224,
+                            snr=2.1969673926211217,
+                            mean=[
                                 0.24441662557257224,
                                 0.4460417517905863,
                                 0.6960984853824035,
                             ],
-                            shape = [167, 500, 3],
-                            std = [
+                            shape=[167, 500, 3],
+                            std=[
                                 0.12448681278605961,
                                 0.09509570033043004,
                                 0.0763725998175394,
                             ],
-                            sum_of_squares = [
+                            sum_of_squares=[
                                 6282.243860049413,
                                 17367.702452895475,
                                 40947.22059208768,
                             ],
-                            sum_of_values = [
+                            sum_of_values=[
                                 20408.78823530978,
                                 37244.486274513954,
                                 58124.22352943069,
                             ],
                         ),
                     ),
-                )
-            ).to_dict() # temporary until we have a proper openapi generator
+                ),
+            ).to_dict()  # temporary until we have a proper openapi generator
         ]
 
     def export_tag_to_label_box_data_rows(
@@ -440,9 +435,9 @@ class MockedTagsApi(TagsApi):
             return []
         return [
             LabelBoxDataRow(
-                external_id = "2008_007291_jpg.rf.2fca436925b52ea33cf897125a34a2fb.jpg",
-                image_url = "https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e233/readurlRedirect?type=CENSORED",
-            ).to_dict() # temporary until we have a proper openapi generator
+                external_id="2008_007291_jpg.rf.2fca436925b52ea33cf897125a34a2fb.jpg",
+                image_url="https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e233/readurlRedirect?type=CENSORED",
+            ).to_dict()  # temporary until we have a proper openapi generator
         ]
 
     def export_tag_to_basic_filenames_and_read_urls(
@@ -452,12 +447,14 @@ class MockedTagsApi(TagsApi):
             return []
         return [
             FilenameAndReadUrl(
-                file_name = "export-basic-test-sample-0.png",
-                read_url = "https://storage.googleapis.com/somwhere/export-basic-test-sample-0.png?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=CENSORED",
-            ).to_dict() # temporary until we have a proper openapi generator
+                file_name="export-basic-test-sample-0.png",
+                read_url="https://storage.googleapis.com/somwhere/export-basic-test-sample-0.png?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=CENSORED",
+            ).to_dict()  # temporary until we have a proper openapi generator
         ]
 
-    def export_tag_to_basic_filenames(self, dataset_id: str, tag_id: str, **kwargs) -> str:
+    def export_tag_to_basic_filenames(
+        self, dataset_id: str, tag_id: str, **kwargs
+    ) -> str:
         return """
 IMG_2276_jpeg_jpg.rf.7411b1902c81bad8cdefd2cc4eb3a97b.jpg
 IMG_2285_jpeg_jpg.rf.4a93d99b9f0b6cccfb27bf2f4a13b99e.jpg
@@ -604,15 +601,14 @@ class MockedDatasetsApi(DatasetsApi):
     def _all_datasets(self) -> List[DatasetData]:
         return [*self.datasets, *self.shared_datasets]
 
-
     def reset(self):
         self.datasets = self._default_datasets
         self.shared_datasets = self._shared_datasets
 
     def get_datasets(
-        self, 
-        shared: bool, 
-        page_size: Optional[int] = None, 
+        self,
+        shared: bool,
+        page_size: Optional[int] = None,
         page_offset: Optional[int] = None,
     ):
         start, end = _start_and_end_offset(page_size=page_size, page_offset=page_offset)
@@ -668,12 +664,18 @@ class MockedDatasetsApi(DatasetsApi):
     def get_datasets_enriched(self, **kwargs):
         raise NotImplementedError()
 
-    def get_datasets_query_by_name(self, dataset_name: str, shared: bool, exact: bool) -> List[DatasetData]:
+    def get_datasets_query_by_name(
+        self, dataset_name: str, shared: bool, exact: bool
+    ) -> List[DatasetData]:
         datasets = self.get_datasets(shared=shared)
         if exact:
             return [dataset for dataset in datasets if dataset.name == dataset_name]
         else:
-            return [dataset for dataset in datasets if dataset.name is not None and dataset.name.startswith(dataset_name)]
+            return [
+                dataset
+                for dataset in datasets
+                if dataset.name is not None and dataset.name.startswith(dataset_name)
+            ]
 
     def update_dataset_by_id(self, body, dataset_id, **kwargs):
         raise NotImplementedError()
@@ -689,7 +691,6 @@ class MockedDatasourcesApi(DatasourcesApi):
         self.reset()
 
     def reset(self):
-
         local_datasource = DatasourceConfigBase(
             type="LOCAL", full_path="", purpose="INPUT_OUTPUT"
         ).to_dict()
@@ -878,7 +879,7 @@ class MockedComputeWorkerApi(DockerApi):
                 created_at=Timestamp(0),
                 last_modified_at=Timestamp(100),
                 owner="user-id-1",
-                runs_on=[]
+                runs_on=[],
             )
         ]
         self._registered_workers = [
@@ -906,7 +907,7 @@ class MockedComputeWorkerApi(DockerApi):
     def create_docker_worker_config(self, body, **kwargs):
         assert isinstance(body, DockerWorkerConfigCreateRequest)
         return CreateEntityResponse(id="worker-config-id-123")
-    
+
     def create_docker_worker_config_v2(self, body, **kwargs):
         assert isinstance(body, DockerWorkerConfigV2CreateRequest)
         return CreateEntityResponse(id="worker-configv2-id-123")
@@ -916,22 +917,33 @@ class MockedComputeWorkerApi(DockerApi):
         _check_dataset_id(dataset_id)
         return CreateEntityResponse(id=f"scheduled-run-id-123-dataset-{dataset_id}")
 
-    def get_docker_runs(self, page_size: Optional[int] = None, page_offset: Optional[int] = None, **kwargs):
+    def get_docker_runs(
+        self,
+        page_size: Optional[int] = None,
+        page_offset: Optional[int] = None,
+        **kwargs,
+    ):
         start, end = _start_and_end_offset(page_size=page_size, page_offset=page_offset)
         return self._compute_worker_runs[start:end]
 
     def get_docker_runs_count(self, **kwargs):
         return len(self._compute_worker_runs)
 
-    def get_docker_runs_scheduled_by_dataset_id(self, dataset_id, state: Optional[str] = None, **kwargs):
+    def get_docker_runs_scheduled_by_dataset_id(
+        self, dataset_id, state: Optional[str] = None, **kwargs
+    ):
         runs = self._scheduled_compute_worker_runs
         runs = [run for run in runs if run.dataset_id == dataset_id]
         return runs
 
-    def cancel_scheduled_docker_run_state_by_id(self, dataset_id: str, scheduled_id: str, **kwargs):
+    def cancel_scheduled_docker_run_state_by_id(
+        self, dataset_id: str, scheduled_id: str, **kwargs
+    ):
         raise NotImplementedError()
 
-    def confirm_docker_run_artifact_creation(self, run_id: str, artifact_id: str, **kwargs):
+    def confirm_docker_run_artifact_creation(
+        self, run_id: str, artifact_id: str, **kwargs
+    ):
         raise NotImplementedError()
 
     def create_docker_run(self, body, **kwargs):
@@ -969,10 +981,10 @@ class MockedComputeWorkerApi(DockerApi):
 
     def get_docker_worker_config_by_id(self, config_id, **kwargs):
         raise NotImplementedError()
-    
+
     def get_docker_worker_configs(self, **kwargs):
         raise NotImplementedError()
-    
+
     def get_docker_worker_registry_entry_by_id(self, worker_id, **kwargs):
         raise NotImplementedError()
 
@@ -994,8 +1006,11 @@ class MockedComputeWorkerApi(DockerApi):
     def update_docker_worker_registry_entry_by_id(self, body, worker_id, **kwargs):
         raise NotImplementedError()
 
-    def update_scheduled_docker_run_state_by_id(self, body, dataset_id, worker_id, scheduled_id, **kwargs):
+    def update_scheduled_docker_run_state_by_id(
+        self, body, dataset_id, worker_id, scheduled_id, **kwargs
+    ):
         raise NotImplementedError()
+
 
 class MockedVersioningApi(VersioningApi):
     def get_latest_pip_version(self, **kwargs):
@@ -1041,7 +1056,6 @@ class MockedAPICollaboration(CollaborationApi):
 
 
 class MockedApiWorkflowClient(ApiWorkflowClient):
-
     embeddings_filename_base = "img"
     n_embedding_rows_on_server = N_FILES_ON_SERVER
 
@@ -1114,8 +1128,9 @@ class MockedApiWorkflowSetup(unittest.TestCase):
             token=token, dataset_id=dataset_id
         )
 
+
 def _start_and_end_offset(
-    page_size: Optional[int], 
+    page_size: Optional[int],
     page_offset: Optional[int],
 ) -> Union[Tuple[int, int], Tuple[None, None]]:
     if page_size is None and page_offset is None:

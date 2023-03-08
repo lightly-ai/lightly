@@ -1,8 +1,9 @@
 import warnings
 from datetime import datetime
 
-from lightly.openapi_generated.swagger_client.models.sampling_method import SamplingMethod
-
+from lightly.openapi_generated.swagger_client.models.sampling_method import (
+    SamplingMethod,
+)
 
 
 class SelectionConfig:
@@ -34,9 +35,14 @@ class SelectionConfig:
         >>> config = SelectionConfig(method=SamplingMethod.CORESET, n_samples=-1, min_distance=0.1)
 
     """
-    def __init__(self, method: SamplingMethod = SamplingMethod.CORESET, n_samples: int = 32, min_distance: float = -1,
-                 name: str = None):
 
+    def __init__(
+        self,
+        method: SamplingMethod = SamplingMethod.CORESET,
+        n_samples: int = 32,
+        min_distance: float = -1,
+        name: str = None,
+    ):
         self.method = method
         self.n_samples = n_samples
         self.min_distance = min_distance
@@ -47,12 +53,12 @@ class SelectionConfig:
 
 
 class SamplingConfig(SelectionConfig):
-
     def __init__(self, *args, **kwargs):
-        warnings.warn(PendingDeprecationWarning(
-            "SamplingConfig() is deprecated "
-            "in favour of SelectionConfig() "
-            "and will be removed in the future."
-        ), )
+        warnings.warn(
+            PendingDeprecationWarning(
+                "SamplingConfig() is deprecated "
+                "in favour of SelectionConfig() "
+                "and will be removed in the future."
+            ),
+        )
         SelectionConfig.__init__(self, *args, **kwargs)
-

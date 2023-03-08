@@ -3,59 +3,66 @@
 
 import os
 import warnings
-from typing import Union, Dict
-from datetime import datetime
 from concurrent.futures.thread import ThreadPoolExecutor
+from datetime import datetime
+from typing import Dict, Union
 
 import tqdm
 from lightly_utils import image_processing
 
-from lightly.utils.hipify import bcolors
-
-from lightly.api.utils import check_filename
-from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
-from lightly.api.utils import retry
-from lightly.api.utils import build_azure_signed_url_write_headers
+from lightly.api.utils import (
+    MAXIMUM_FILENAME_LENGTH,
+    build_azure_signed_url_write_headers,
+    check_filename,
+    retry,
+)
 from lightly.openapi_generated.swagger_client import SampleWriteUrls
-from lightly.openapi_generated.swagger_client.models.sample_create_request \
-    import SampleCreateRequest
-from lightly.openapi_generated.swagger_client.models.sample_partial_mode \
-    import SamplePartialMode
-    
-from lightly.openapi_generated.swagger_client.models.tag_upsize_request \
-    import TagUpsizeRequest
-from lightly.openapi_generated.swagger_client.models.initial_tag_create_request\
-    import InitialTagCreateRequest
-from lightly.openapi_generated.swagger_client.models.job_status_meta \
-    import JobStatusMeta
-from lightly.openapi_generated.swagger_client.models.job_status_upload_method \
-    import JobStatusUploadMethod
-
-from lightly.openapi_generated.swagger_client.models.datasource_config_base import DatasourceConfigBase
+from lightly.openapi_generated.swagger_client.models.datasource_config_base import (
+    DatasourceConfigBase,
+)
+from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import (
+    InitialTagCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.job_status_meta import (
+    JobStatusMeta,
+)
+from lightly.openapi_generated.swagger_client.models.job_status_upload_method import (
+    JobStatusUploadMethod,
+)
+from lightly.openapi_generated.swagger_client.models.sample_create_request import (
+    SampleCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.sample_partial_mode import (
+    SamplePartialMode,
+)
+from lightly.openapi_generated.swagger_client.models.tag_upsize_request import (
+    TagUpsizeRequest,
+)
 from lightly.openapi_generated.swagger_client.rest import ApiException
-
+from lightly.utils.hipify import bcolors
 
 try:
     from lightly.data import LightlyDataset
+
     _lightly_dataset_available = True
 except (
-    RuntimeError, # Different CUDA versions for torch and torchvision
-    OSError,      # Different CUDA versions for torch and torchvision (old)
+    RuntimeError,  # Different CUDA versions for torch and torchvision
+    OSError,  # Different CUDA versions for torch and torchvision (old)
     ImportError,  # No installation of torch or torchvision
 ):
     _lightly_dataset_available = False
 
 
 class _UploadDatasetMixin:
-    """Mixin to upload datasets to the Lightly Api.
+    """Mixin to upload datasets to the Lightly Api."""
 
-    """
-
-    def upload_dataset(self,
-                       input: Union[str, "LightlyDataset"],
-                       max_workers: int = 8,
-                       mode: str = "thumbnails",
-                       custom_metadata: Union[Dict, None] = None):
+    def upload_dataset(
+        self,
+        input: Union[str, "LightlyDataset"],
+        max_workers: int = 8,
+        mode: str = "thumbnails",
+        custom_metadata: Union[Dict, None] = None,
+    ):
         """Uploads a dataset to to the Lightly cloud solution.
 
         Args:
@@ -82,8 +89,8 @@ class _UploadDatasetMixin:
         tags = self.get_all_tags()
         if len(tags) > 0:
             print(
-                f'Dataset with id {self.dataset_id} has {bcolors.OKGREEN}{len(tags)}{bcolors.ENDC} tags.',
-                flush=True
+                f"Dataset with id {self.dataset_id} has {bcolors.OKGREEN}{len(tags)}{bcolors.ENDC} tags.",
+                flush=True,
             )
 
         # parse "input" variable
@@ -103,37 +110,35 @@ class _UploadDatasetMixin:
 
         # upload the samples
         print(
-            f'Uploading {bcolors.OKGREEN}{len(dataset)}{bcolors.ENDC} images (with {bcolors.OKGREEN}{max_workers}{bcolors.ENDC} workers).',
-            flush=True
+            f"Uploading {bcolors.OKGREEN}{len(dataset)}{bcolors.ENDC} images (with {bcolors.OKGREEN}{max_workers}{bcolors.ENDC} workers).",
+            flush=True,
         )
 
         # TODO: remove _size_in_bytes from image_processing
-        image_processing.metadata._size_in_bytes = \
-            lambda img: 0 # pylint: disable=protected-access
+        image_processing.metadata._size_in_bytes = (
+            lambda img: 0
+        )  # pylint: disable=protected-access
 
         # get the filenames of the samples already on the server
         samples = retry(
             self._samples_api.get_samples_partial_by_dataset_id,
             dataset_id=self.dataset_id,
-            mode=SamplePartialMode.FILENAMES
+            mode=SamplePartialMode.FILENAMES,
         )
         filenames_on_server = [sample.file_name for sample in samples]
         filenames_on_server_set = set(filenames_on_server)
         if len(filenames_on_server) > 0:
             print(
-                f'Found {bcolors.OKGREEN}{len(filenames_on_server)}{bcolors.ENDC} images already on the server'
-                ', they are skipped during the upload.'
+                f"Found {bcolors.OKGREEN}{len(filenames_on_server)}{bcolors.ENDC} images already on the server"
+                ", they are skipped during the upload."
             )
 
         # check the maximum allowed dataset size
-        total_filenames = set(dataset.get_filenames()).union(
-            filenames_on_server_set
-        )
-        max_dataset_size = \
-            int(self._quota_api.get_quota_maximum_dataset_size())
+        total_filenames = set(dataset.get_filenames()).union(filenames_on_server_set)
+        max_dataset_size = int(self._quota_api.get_quota_maximum_dataset_size())
         if len(total_filenames) > max_dataset_size:
-            msg = f'Your dataset has {bcolors.OKGREEN}{len(dataset)}{bcolors.ENDC} samples which'
-            msg += f' is more than the allowed maximum of {bcolors.OKGREEN}{max_dataset_size}{bcolors.ENDC}'
+            msg = f"Your dataset has {bcolors.OKGREEN}{len(dataset)}{bcolors.ENDC} samples which"
+            msg += f" is more than the allowed maximum of {bcolors.OKGREEN}{max_dataset_size}{bcolors.ENDC}"
             raise ValueError(msg)
 
         # index custom metadata by filename (only if it exists)
@@ -147,9 +152,9 @@ class _UploadDatasetMixin:
         # get the datasource
         try:
             datasource_config: DatasourceConfigBase = self.get_datasource()
-            datasource_type = datasource_config['type']
+            datasource_type = datasource_config["type"]
         except ApiException:
-            datasource_type = 'LIGHTLY' # default to lightly datasource
+            datasource_type = "LIGHTLY"  # default to lightly datasource
 
         # register dataset upload
         job_status_meta = JobStatusMeta(
@@ -159,12 +164,11 @@ class _UploadDatasetMixin:
             upload_method=JobStatusUploadMethod.USER_PIP,
         )
         self._datasets_api.register_dataset_upload_by_id(
-            job_status_meta,
-            self.dataset_id
+            job_status_meta, self.dataset_id
         )
 
         pbar = tqdm.tqdm(
-            unit='imgs',
+            unit="imgs",
             total=len(total_filenames) - len(filenames_on_server),
         )
         tqdm_lock = tqdm.tqdm.get_lock()
@@ -193,10 +197,8 @@ class _UploadDatasetMixin:
                     datasource_type=datasource_type,
                 )
                 success = True
-            except Exception as e: # pylint: disable=broad-except
-                warnings.warn(
-                    f'Upload of image {filename} failed with error {e}'
-                )
+            except Exception as e:  # pylint: disable=broad-except
+                warnings.warn(f"Upload of image {filename} failed with error {e}")
                 success = False
 
             # update the progress bar
@@ -207,22 +209,23 @@ class _UploadDatasetMixin:
             return success
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            results = list(executor.map(
-                lambda_, [i for i in range(len(dataset))], chunksize=1))
+            results = list(
+                executor.map(lambda_, [i for i in range(len(dataset))], chunksize=1)
+            )
 
         if not all(results):
-            msg = 'Warning: Unsuccessful upload(s)! '
-            msg += 'This could cause problems when uploading embeddings.'
-            msg += 'Failed at image: {}'.format(results.index(False))
+            msg = "Warning: Unsuccessful upload(s)! "
+            msg += "This could cause problems when uploading embeddings."
+            msg += "Failed at image: {}".format(results.index(False))
             warnings.warn(msg)
 
         # set image type of data and create initial tag
-        if mode == 'full':
-            img_type = 'full'
-        elif mode == 'thumbnails':
-            img_type = 'thumbnail'
+        if mode == "full":
+            img_type = "full"
+        elif mode == "thumbnails":
+            img_type = "thumbnail"
         else:
-            img_type = 'meta'
+            img_type = "meta"
 
         if len(tags) == 0:
             # create initial tag
@@ -237,7 +240,7 @@ class _UploadDatasetMixin:
         else:
             # upsize existing tags
             upsize_tags_request = TagUpsizeRequest(
-                upsize_tag_name=datetime.now().strftime('%Y%m%d_%Hh%Mm%Ss'),
+                upsize_tag_name=datetime.now().strftime("%Y%m%d_%Hh%Mm%Ss"),
                 upsize_tag_creator=self._creator,
             )
             self._tags_api.upsize_tags_by_dataset_id(
@@ -245,36 +248,38 @@ class _UploadDatasetMixin:
                 dataset_id=self.dataset_id,
             )
 
-    def _upload_single_image(self,
-                             image,
-                             filename: str,
-                             filepath: str,
-                             mode: str,
-                             custom_metadata: Union[Dict, None] = None,
-                             datasource_type: str = 'LIGHTLY'):
-        """Uploads a single image to the Lightly platform.
-
-        """
+    def _upload_single_image(
+        self,
+        image,
+        filename: str,
+        filepath: str,
+        mode: str,
+        custom_metadata: Union[Dict, None] = None,
+        datasource_type: str = "LIGHTLY",
+    ):
+        """Uploads a single image to the Lightly platform."""
         # check whether the filepath is too long
         if not check_filename(filepath):
-            msg = ('Filepath {filepath} is longer than the allowed maximum of '
-                   f'{MAXIMUM_FILENAME_LENGTH} characters and will be skipped.')
+            msg = (
+                "Filepath {filepath} is longer than the allowed maximum of "
+                f"{MAXIMUM_FILENAME_LENGTH} characters and will be skipped."
+            )
             raise ValueError(msg)
 
         # calculate metadata, and check if corrupted
         metadata = image_processing.Metadata(image).to_dict()
-        metadata['sizeInBytes'] = os.path.getsize(filepath)
+        metadata["sizeInBytes"] = os.path.getsize(filepath)
 
         # try to get exif data
         try:
             exifdata = image_processing.Exifdata(image)
-        except Exception: # pylint disable=broad-except
+        except Exception:  # pylint disable=broad-except
             exifdata = None
 
         # generate thumbnail if necessary
         thumbname = None
-        if not metadata['is_corrupted'] and mode in ['thumbnails', 'full']:
-            thumbname = '.'.join(filename.split('.')[:-1]) + '_thumb.webp'
+        if not metadata["is_corrupted"] and mode in ["thumbnails", "full"]:
+            thumbname = ".".join(filename.split(".")[:-1]) + "_thumb.webp"
 
         body = SampleCreateRequest(
             file_name=filename,
@@ -286,21 +291,19 @@ class _UploadDatasetMixin:
         sample_id = retry(
             self._samples_api.create_sample_by_dataset_id,
             body=body,
-            dataset_id=self.dataset_id
+            dataset_id=self.dataset_id,
         ).id
 
-        if not metadata['is_corrupted'] and mode in ['thumbnails', 'full']:
+        if not metadata["is_corrupted"] and mode in ["thumbnails", "full"]:
 
             def upload_thumbnail(image, signed_url):
                 thumbnail = image_processing.Thumbnail(image)
                 image_to_upload = thumbnail.to_bytes()
                 headers = None
-                if datasource_type == 'AZURE':
+                if datasource_type == "AZURE":
                     # build headers for Azure blob storage
                     size_in_bytes = str(image_to_upload.getbuffer().nbytes)
-                    headers = build_azure_signed_url_write_headers(
-                        size_in_bytes
-                    )
+                    headers = build_azure_signed_url_write_headers(size_in_bytes)
                 retry(
                     self.upload_file_with_signed_url,
                     image_to_upload,
@@ -310,36 +313,34 @@ class _UploadDatasetMixin:
                 thumbnail.thumbnail.close()
 
             def upload_full_image(filepath, signed_url):
-                with open(filepath, 'rb') as image_to_upload:
+                with open(filepath, "rb") as image_to_upload:
                     headers = None
-                    if datasource_type == 'AZURE':
+                    if datasource_type == "AZURE":
                         # build headers for Azure blob storage
                         image_to_upload.seek(0, 2)
                         size_in_bytes = str(image_to_upload.tell())
                         image_to_upload.seek(0, 0)
-                        headers = build_azure_signed_url_write_headers(
-                            size_in_bytes
-                        )
+                        headers = build_azure_signed_url_write_headers(size_in_bytes)
                     retry(
                         self.upload_file_with_signed_url,
                         image_to_upload,
                         signed_url,
-                        headers=headers
+                        headers=headers,
                     )
 
-            if mode == 'thumbnails':
+            if mode == "thumbnails":
                 thumbnail_url = retry(
                     self._samples_api.get_sample_image_write_url_by_id,
                     dataset_id=self.dataset_id,
                     sample_id=sample_id,
-                    is_thumbnail=True
+                    is_thumbnail=True,
                 )
                 upload_thumbnail(image, thumbnail_url)
-            elif mode == 'full':
+            elif mode == "full":
                 sample_write_urls: SampleWriteUrls = retry(
                     self._samples_api.get_sample_image_write_urls_by_id,
                     dataset_id=self.dataset_id,
-                    sample_id=sample_id
+                    sample_id=sample_id,
                 )
                 upload_thumbnail(image, sample_write_urls.thumb)
                 upload_full_image(filepath, sample_write_urls.full)

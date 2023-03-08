@@ -1,13 +1,15 @@
 import torch
-from torch import nn
 import torchvision
+from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.collate import VICRegLCollateFunction
+from lightly.loss import VICRegLLoss
+
 ## The global projection head is the same as the Barlow Twins one
 from lightly.models.modules import BarlowTwinsProjectionHead
 from lightly.models.modules.heads import VicRegLLocalProjectionHead
-from lightly.loss import VICRegLLoss
+
 
 class VICRegL(nn.Module):
     def __init__(self, backbone):
@@ -21,9 +23,10 @@ class VICRegL(nn.Module):
         x = self.backbone(x)
         y = self.average_pool(x).flatten(start_dim=1)
         z = self.projection_head(y)
-        y_local = x.permute(0, 2, 3, 1) # (B, D, W, H) to (B, W, H, D)
-        z_local = self.local_projection_head(y_local)         
+        y_local = x.permute(0, 2, 3, 1)  # (B, D, W, H) to (B, W, H, D)
+        z_local = self.local_projection_head(y_local)
         return z, z_local
+
 
 resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(*list(resnet.children())[:-2])
@@ -41,7 +44,7 @@ collate_fn = VICRegLCollateFunction()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
-    batch_size=128, #2048 from the paper if enough memory
+    batch_size=128,  # 2048 from the paper if enough memory
     collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
@@ -62,12 +65,12 @@ for epoch in range(10):
         z_global, z_global_local_features = model(view_global)
         z_local, z_local_local_features = model(view_local)
         loss = criterion(
-            z_global=z_global, 
-            z_local=z_local, 
-            z_global_local_features=z_global_local_features, 
-            z_local_local_features=z_local_local_features, 
-            grid_global=grid_global, 
-            grid_local=grid_local
+            z_global=z_global,
+            z_local=z_local,
+            z_global_local_features=z_global_local_features,
+            z_local_local_features=z_local_local_features,
+            grid_global=grid_global,
+            grid_local=grid_local,
         )
         total_loss += loss.detach()
         loss.backward()

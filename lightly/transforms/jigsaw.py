@@ -3,10 +3,10 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
-import torch
-from torchvision import transforms
 import numpy as np
+import torch
 from PIL import Image
+from torchvision import transforms
 
 
 class Jigsaw(object):

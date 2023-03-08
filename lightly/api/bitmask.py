@@ -7,32 +7,27 @@ from typing import List
 
 
 def _hex_to_int(hexstring: str) -> int:
-    """Converts a hex string representation of an integer to an integer.
-    """
+    """Converts a hex string representation of an integer to an integer."""
     return int(hexstring, 16)
 
 
 def _bin_to_int(binstring: str) -> int:
-    """Converts a binary string representation of an integer to an integer.
-    """
+    """Converts a binary string representation of an integer to an integer."""
     return int(binstring, 2)
 
 
 def _int_to_hex(x: int) -> str:
-    """Converts an integer to a hex string representation.
-    """
+    """Converts an integer to a hex string representation."""
     return hex(x)
 
 
 def _int_to_bin(x: int) -> str:
-    """Converts an integer to a binary string representation.
-    """
+    """Converts an integer to a binary string representation."""
     return bin(x)
 
 
 def _get_nonzero_bits(x: int) -> List[int]:
-    """Returns a list of indices of nonzero bits in x.
-    """
+    """Returns a list of indices of nonzero bits in x."""
     offset = 0
     nonzero_bit_indices = []
     while x > 0:
@@ -46,41 +41,35 @@ def _get_nonzero_bits(x: int) -> List[int]:
 
 
 def _invert(x: int, total_size: int) -> int:
-    """Flips every bit of x as if x was an unsigned integer.
-    """
+    """Flips every bit of x as if x was an unsigned integer."""
     # use XOR of x and 0xFFFFFF to get the inverse
-    return x ^ (2 ** total_size - 1)
+    return x ^ (2**total_size - 1)
 
 
 def _union(x: int, y: int) -> int:
-    """Uses bitwise OR to get the union of the two masks.
-    """
+    """Uses bitwise OR to get the union of the two masks."""
     return x | y
 
 
 def _intersection(x: int, y: int) -> int:
-    """Uses bitwise AND to get the intersection of the two masks.
-    """
+    """Uses bitwise AND to get the intersection of the two masks."""
     return x & y
 
 
 def _get_kth_bit(x: int, k: int) -> int:
-    """Returns the kth bit in the mask from the right.
-    """
+    """Returns the kth bit in the mask from the right."""
     mask = 1 << k
     return x & mask
 
 
 def _set_kth_bit(x: int, k: int) -> int:
-    """Sets the kth bit in the mask from the right.
-    """
+    """Sets the kth bit in the mask from the right."""
     mask = 1 << k
     return x | mask
 
 
 def _unset_kth_bit(x: int, k: int) -> int:
-    """Clears the kth bit in the mask from the right.
-    """
+    """Clears the kth bit in the mask from the right."""
     mask = ~(1 << k)
     return x & mask
 
@@ -109,31 +98,26 @@ class BitMask:
 
     @classmethod
     def from_hex(cls, hexstring: str):
-        """Creates a bit mask object from a hexstring.
-        """
+        """Creates a bit mask object from a hexstring."""
         return cls(_hex_to_int(hexstring))
 
     @classmethod
     def from_bin(cls, binstring: str):
-        """Creates a BitMask from a binary string.
-        """
+        """Creates a BitMask from a binary string."""
         return cls(_bin_to_int(binstring))
 
     @classmethod
     def from_length(cls, length: int):
-        """Creates a all-true bitmask of a predefined length
-        """
-        binstring = '0b' + '1' * length
+        """Creates a all-true bitmask of a predefined length"""
+        binstring = "0b" + "1" * length
         return cls.from_bin(binstring)
 
     def to_hex(self):
-        """Creates a BitMask from a hex string.
-        """
+        """Creates a BitMask from a hex string."""
         return _int_to_hex(self.x)
 
     def to_bin(self):
-        """Returns a binary string representing the bit mask.
-        """
+        """Returns a binary string representing the bit mask."""
         return _int_to_bin(self.x)
 
     def to_indices(self) -> List[int]:
@@ -156,8 +140,7 @@ class BitMask:
         self.x = _invert(self.x, total_size)
 
     def complement(self):
-        """Same as invert but with the appropriate name.
-        """
+        """Same as invert but with the appropriate name."""
         self.invert()
 
     def union(self, other):
@@ -216,8 +199,7 @@ class BitMask:
         return [list_[index] for index in indices]
 
     def get_kth_bit(self, k: int) -> bool:
-        """Returns the boolean value of the kth bit from the right.
-        """
+        """Returns the boolean value of the kth bit from the right."""
         return _get_kth_bit(self.x, k) > 0
 
     def set_kth_bit(self, k: int):

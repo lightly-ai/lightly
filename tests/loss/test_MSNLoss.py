@@ -1,16 +1,17 @@
 import unittest
 from unittest import TestCase
+
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 from torch.optim import SGD
 
-from lightly.models.modules.heads import MSNProjectionHead
 from lightly.loss import msn_loss
 from lightly.loss.msn_loss import MSNLoss
+from lightly.models.modules.heads import MSNProjectionHead
+
 
 class TestMSNLoss(TestCase):
-
     def test_prototype_probabilitiy(self, seed=0):
         torch.manual_seed(seed)
         queries = F.normalize(torch.rand((8, 10)), dim=1)
@@ -20,7 +21,7 @@ class TestMSNLoss(TestCase):
         self.assertLessEqual(prob.max(), 1.0)
         self.assertGreater(prob.min(), 0.0)
 
-        # verify sharpening
+        # verify sharpening
         prob1 = msn_loss.prototype_probabilities(queries, prototypes, temperature=0.1)
         # same prototypes should be assigned regardless of temperature
         self.assertTrue(torch.all(prob.argmax(dim=1) == prob1.argmax(dim=1)))
@@ -34,7 +35,7 @@ class TestMSNLoss(TestCase):
         p1 = msn_loss.sharpen(prob, temperature=0.1)
         # indices of max probabilities should be the same regardless of temperature
         self.assertTrue(torch.all(p0.argmax(dim=1) == p1.argmax(dim=1)))
-        # max probabilities should be higher for lower temperature
+        # max probabilities should be higher for lower temperature
         self.assertTrue(torch.all(p0.max(dim=1)[0] < p1.max(dim=1)[0]))
 
     def test_sinkhorn(self, seed=0):
@@ -76,7 +77,7 @@ class TestMSNLoss(TestCase):
         optimizer = SGD(head.parameters(), lr=0.1)
         anchors = torch.rand((8 * 4, 5))
         targets = torch.rand((8, 5))
-        prototypes = nn.Linear(6, 4).weight # 4 prototypes with dim 6
+        prototypes = nn.Linear(6, 4).weight  # 4 prototypes with dim 6
         optimizer.zero_grad()
         anchors = head(anchors)
         with torch.no_grad():
@@ -93,12 +94,12 @@ class TestMSNLoss(TestCase):
     def test_backward_cuda(self, seed=0):
         torch.manual_seed(seed)
         head = MSNProjectionHead(5, 16, 6)
-        head.to('cuda')
+        head.to("cuda")
         criterion = MSNLoss()
         optimizer = SGD(head.parameters(), lr=0.1)
         anchors = torch.rand((8 * 4, 5)).cuda()
         targets = torch.rand((8, 5)).cuda()
-        prototypes = nn.Linear(6, 4).weight.cuda() # 4 prototypes with dim 6
+        prototypes = nn.Linear(6, 4).weight.cuda()  # 4 prototypes with dim 6
         optimizer.zero_grad()
         anchors = head(anchors)
         with torch.no_grad():
