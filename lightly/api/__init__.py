@@ -5,8 +5,7 @@
 from lightly.api import patch as _patch
 from lightly.api.api_workflow_artifacts import ArtifactNotExist
 from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.openapi_generated.swagger_client import \
-    Configuration as _Configuration
+from lightly.openapi_generated.swagger_client import Configuration as _Configuration
 
 # Make ApiWorkflowClient and swagger classes picklable.
 _patch.make_swagger_configuration_picklable(

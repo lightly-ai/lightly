@@ -1,5 +1,6 @@
-from PIL import Image
 import unittest
+
+from PIL import Image
 
 from lightly.transforms import Jigsaw
 

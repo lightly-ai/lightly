@@ -1,10 +1,11 @@
-import torch
-from torch import nn
-from typing import List, Tuple, Dict
 from dataclasses import dataclass
+from typing import Dict, List, Tuple
+
+import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as F
 from PIL import Image
+from torch import nn
 
 
 @dataclass

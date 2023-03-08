@@ -21,33 +21,54 @@ from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
 from lightly.api.swagger_api_client import LightlySwaggerApiClient
-from lightly.api.utils import (DatasourceType, get_api_client_configuration,
-                               get_signed_url_destination)
-from lightly.api.version_checking import (LightlyAPITimeoutException,
-                                          is_compatible_version)
+from lightly.api.utils import (
+    DatasourceType,
+    get_api_client_configuration,
+    get_signed_url_destination,
+)
+from lightly.api.version_checking import (
+    LightlyAPITimeoutException,
+    is_compatible_version,
+)
 from lightly.openapi_generated.swagger_client import (
-    CollaborationApi, Creator, DatasetData, DatasetsApi, DatasourcesApi,
-    DockerApi, EmbeddingsApi, JobsApi, MappingsApi, MetaDataConfigurationsApi,
-    PredictionsApi, QuotaApi, SamplesApi, SamplingsApi, ScoresApi, TagsApi)
+    ApiClient,
+    CollaborationApi,
+    Creator,
+    DatasetData,
+    DatasetsApi,
+    DatasourcesApi,
+    DockerApi,
+    EmbeddingsApi,
+    JobsApi,
+    MappingsApi,
+    MetaDataConfigurationsApi,
+    PredictionsApi,
+    QuotaApi,
+    SamplesApi,
+    SamplingsApi,
+    ScoresApi,
+    TagsApi,
+)
 from lightly.utils.reordering import sort_items_by_keys
 
 # Env variable for server side encryption on S3
-LIGHTLY_S3_SSE_KMS_KEY = 'LIGHTLY_S3_SSE_KMS_KEY' 
+LIGHTLY_S3_SSE_KMS_KEY = "LIGHTLY_S3_SSE_KMS_KEY"
 
 
-class ApiWorkflowClient(_UploadEmbeddingsMixin,
-                        _SelectionMixin,
-                        _UploadDatasetMixin,
-                        _DownloadDatasetMixin,
-                        _DatasetsMixin,
-                        _UploadCustomMetadataMixin,
-                        _TagsMixin,
-                        _DatasourcesMixin,
-                        _ComputeWorkerMixin,
-                        _CollaborationMixin,
-                        _PredictionsMixin,
-                        _ArtifactsMixin,
-                        ):
+class ApiWorkflowClient(
+    _UploadEmbeddingsMixin,
+    _SelectionMixin,
+    _UploadDatasetMixin,
+    _DownloadDatasetMixin,
+    _DatasetsMixin,
+    _UploadCustomMetadataMixin,
+    _TagsMixin,
+    _DatasourcesMixin,
+    _ComputeWorkerMixin,
+    _CollaborationMixin,
+    _PredictionsMixin,
+    _ArtifactsMixin,
+):
     """Provides a uniform interface to communicate with the Lightly API.
 
     The APIWorkflowClient is used to communicate with the Lightly API. The client
@@ -76,13 +97,15 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         embedding_id: Optional[str] = None,
         creator: str = Creator.USER_PIP,
     ):
-
         try:
             if not is_compatible_version(__version__):
                 warnings.warn(
-                    UserWarning((f"Incompatible version of lightly pip package. "
-                                f"Please upgrade to the latest version "
-                                f"to be able to access the api.")
+                    UserWarning(
+                        (
+                            f"Incompatible version of lightly pip package. "
+                            f"Please upgrade to the latest version "
+                            f"to be able to access the api."
+                        )
                     )
                 )
         except LightlyAPITimeoutException:
@@ -111,32 +134,39 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         self._scores_api = ScoresApi(api_client=self.api_client)
         self._samples_api = SamplesApi(api_client=self.api_client)
         self._quota_api = QuotaApi(api_client=self.api_client)
-        self._metadata_configurations_api = \
-            MetaDataConfigurationsApi(api_client=self.api_client)
+        self._metadata_configurations_api = MetaDataConfigurationsApi(
+            api_client=self.api_client
+        )
         self._predictions_api = PredictionsApi(api_client=self.api_client)
 
     @property
     def dataset_id(self) -> str:
-        '''The current dataset_id.
+        """The current dataset_id.
 
         If the dataset_id is set, it is returned.
         If it is not set, then the dataset_id of the last modified dataset is selected.
-        ''' 
+        """
         try:
             return self._dataset_id
         except AttributeError:
             all_datasets: List[DatasetData] = self.get_datasets()
-            datasets_sorted = sorted(all_datasets, key=lambda dataset: dataset.last_modified_at)
+            datasets_sorted = sorted(
+                all_datasets, key=lambda dataset: dataset.last_modified_at
+            )
             last_modified_dataset = datasets_sorted[-1]
             self._dataset_id = last_modified_dataset.id
-            warnings.warn(UserWarning(f"Dataset has not been specified, "
-                                      f"taking the last modified dataset {last_modified_dataset.name} as default dataset."))
+            warnings.warn(
+                UserWarning(
+                    f"Dataset has not been specified, "
+                    f"taking the last modified dataset {last_modified_dataset.name} as default dataset."
+                )
+            )
             return self._dataset_id
 
     @dataset_id.setter
     def dataset_id(self, dataset_id: str):
         """Sets the current dataset id for the client.
-        
+
         Args:
             dataset_id:
                 The new dataset id.
@@ -150,11 +180,9 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
                 f"platform."
             )
         self._dataset_id = dataset_id
-        
 
     def _order_list_by_filenames(
-            self, filenames_for_list: List[str],
-            list_to_order: List[object]
+        self, filenames_for_list: List[str], list_to_order: List[object]
     ) -> List[object]:
         """Orders a list such that it is in the order of the filenames specified on the server.
 
@@ -183,8 +211,9 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
 
         This is an expensive operation, especially for large datasets.
         """
-        filenames_on_server = self._mappings_api. \
-            get_sample_mappings_by_dataset_id(dataset_id=self.dataset_id, field="fileName")
+        filenames_on_server = self._mappings_api.get_sample_mappings_by_dataset_id(
+            dataset_id=self.dataset_id, field="fileName"
+        )
         return filenames_on_server
 
     def upload_file_with_signed_url(
@@ -215,20 +244,25 @@ class ApiWorkflowClient(_UploadEmbeddingsMixin,
         # check to see if server side encryption for S3 is desired
         # see https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingServerSideEncryption.html
         # see https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html
-        lightly_s3_sse_kms_key = os.environ.get(LIGHTLY_S3_SSE_KMS_KEY, '').strip()
+        lightly_s3_sse_kms_key = os.environ.get(LIGHTLY_S3_SSE_KMS_KEY, "").strip()
         # Only set s3 related headers when we are talking with s3
-        if get_signed_url_destination(signed_write_url)==DatasourceType.S3 and lightly_s3_sse_kms_key:
+        if (
+            get_signed_url_destination(signed_write_url) == DatasourceType.S3
+            and lightly_s3_sse_kms_key
+        ):
             if headers is None:
                 headers = {}
             # don't override previously set SSE
-            if 'x-amz-server-side-encryption' not in headers:
-                if lightly_s3_sse_kms_key.lower() == 'true':
+            if "x-amz-server-side-encryption" not in headers:
+                if lightly_s3_sse_kms_key.lower() == "true":
                     # enable SSE with the key of amazon
-                    headers['x-amz-server-side-encryption'] = 'AES256'
+                    headers["x-amz-server-side-encryption"] = "AES256"
                 else:
                     # enable SSE with specific customer KMS key
-                    headers['x-amz-server-side-encryption'] = 'aws:kms'
-                    headers['x-amz-server-side-encryption-aws-kms-key-id'] = lightly_s3_sse_kms_key
+                    headers["x-amz-server-side-encryption"] = "aws:kms"
+                    headers[
+                        "x-amz-server-side-encryption-aws-kms-key-id"
+                    ] = lightly_s3_sse_kms_key
 
         # start requests session and make put request
         sess = session or requests

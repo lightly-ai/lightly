@@ -1,16 +1,15 @@
-import torch
-from torch import nn
-import torchvision
 import copy
-import pytorch_lightning as pl
 
-from lightly.data import LightlyDataset
-from lightly.data import SimCLRCollateFunction
+import pytorch_lightning as pl
+import torch
+import torchvision
+from torch import nn
+
+from lightly.data import LightlyDataset, SimCLRCollateFunction
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.models.modules.heads import TiCoProjectionHead
+from lightly.models.utils import deactivate_requires_grad, update_momentum
 from lightly.utils.scheduler import cosine_schedule
-from lightly.models.utils import deactivate_requires_grad
-from lightly.models.utils import update_momentum
 
 
 class TiCo(pl.LightningModule):

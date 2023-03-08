@@ -1,7 +1,9 @@
 import unittest
+
 import torch
 
 from lightly.loss import VICRegLoss
+
 
 class TestVICRegLoss(unittest.TestCase):
     def test_forward_pass(self):

@@ -13,38 +13,37 @@ from typing import List
 import hydra
 import yaml
 
-from lightly.utils.hipify import bcolors
 from lightly.active_learning.utils import BoundingBox
-from lightly.cli._helpers import fix_input_path
-from lightly.cli._helpers import fix_hydra_arguments
+from lightly.cli._helpers import fix_hydra_arguments, fix_input_path
 from lightly.data import LightlyDataset
-from lightly.utils.cropping.crop_image_by_bounding_boxes import crop_dataset_by_bounding_boxes_and_save
+from lightly.utils.cropping.crop_image_by_bounding_boxes import (
+    crop_dataset_by_bounding_boxes_and_save,
+)
 from lightly.utils.cropping.read_yolo_label_file import read_yolo_label_file
+from lightly.utils.hipify import bcolors
 
 
 def _crop_cli(cfg, is_cli_call=True):
-    input_dir = cfg['input_dir']
+    input_dir = cfg["input_dir"]
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)
-    output_dir = cfg['output_dir']
+    output_dir = cfg["output_dir"]
     if output_dir and is_cli_call:
         output_dir = fix_input_path(output_dir)
-    label_dir = cfg['label_dir']
+    label_dir = cfg["label_dir"]
     if label_dir and is_cli_call:
         label_dir = fix_input_path(label_dir)
-    label_names_file = cfg['label_names_file']
+    label_names_file = cfg["label_names_file"]
     if label_names_file and len(label_names_file) > 0:
         if is_cli_call:
             label_names_file = fix_input_path(label_names_file)
-        with open(label_names_file, 'r') as file:
+        with open(label_names_file, "r") as file:
             label_names_file_dict = yaml.full_load(file)
-        class_names = label_names_file_dict['names']
+        class_names = label_names_file_dict["names"]
     else:
         class_names = None
 
-
     dataset = LightlyDataset(input_dir)
-
 
     class_indices_list_list: List[List[int]] = []
     bounding_boxes_list_list: List[List[BoundingBox]] = []
@@ -52,19 +51,28 @@ def _crop_cli(cfg, is_cli_call=True):
     # YOLO-Specific
     for filename_image in dataset.get_filenames():
         filepath_image_base, image_extension = os.path.splitext(filename_image)
-        filepath_label = os.path.join(label_dir, filename_image).replace(image_extension, '.txt')
-        class_indices, bounding_boxes = read_yolo_label_file(filepath_label, float(cfg['crop_padding']))
+        filepath_label = os.path.join(label_dir, filename_image).replace(
+            image_extension, ".txt"
+        )
+        class_indices, bounding_boxes = read_yolo_label_file(
+            filepath_label, float(cfg["crop_padding"])
+        )
         class_indices_list_list.append(class_indices)
         bounding_boxes_list_list.append(bounding_boxes)
 
-    cropped_images_list_list = \
-        crop_dataset_by_bounding_boxes_and_save(dataset, output_dir, bounding_boxes_list_list, class_indices_list_list, class_names)
+    cropped_images_list_list = crop_dataset_by_bounding_boxes_and_save(
+        dataset,
+        output_dir,
+        bounding_boxes_list_list,
+        class_indices_list_list,
+        class_names,
+    )
 
-    print(f'Cropped images are stored at: {bcolors.OKBLUE}{output_dir}{bcolors.ENDC}')
+    print(f"Cropped images are stored at: {bcolors.OKBLUE}{output_dir}{bcolors.ENDC}")
     return cropped_images_list_list
 
 
-@hydra.main(**fix_hydra_arguments(config_path = 'config', config_name = 'config'))
+@hydra.main(**fix_hydra_arguments(config_path="config", config_name="config"))
 def crop_cli(cfg):
     """Crops images into one sub-image for each object.
 

@@ -1,17 +1,17 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 import copy
 
 import torch
-from torch import nn
 import torchvision
+from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.collate import MSNCollateFunction
 from lightly.loss import MSNLoss
-from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models import utils
+from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models.modules.masked_autoencoder import MAEBackbone
 
 
@@ -46,7 +46,8 @@ class MSN(nn.Module):
         out = self.anchor_backbone(images, idx_keep)
         return self.anchor_projection_head(out)
 
-# ViT small configuration (ViT-S/16)
+
+# ViT small configuration (ViT-S/16)
 vit = torchvision.models.VisionTransformer(
     image_size=224,
     patch_size=16,
@@ -56,9 +57,9 @@ vit = torchvision.models.VisionTransformer(
     mlp_dim=384 * 4,
 )
 model = MSN(vit)
-# # or use a torchvision ViT backbone:
+# # or use a torchvision ViT backbone:
 # vit = torchvision.models.vit_b_32(pretrained=False)
-# moel = MSN(vit)
+# moel = MSN(vit)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
@@ -95,7 +96,9 @@ for epoch in range(10):
     total_loss = 0
     for views, _, _ in dataloader:
         utils.update_momentum(model.anchor_backbone, model.backbone, 0.996)
-        utils.update_momentum(model.anchor_projection_head, model.projection_head, 0.996)
+        utils.update_momentum(
+            model.anchor_projection_head, model.projection_head, 0.996
+        )
 
         views = [view.to(device, non_blocking=True) for view in views]
         targets = views[0]

@@ -1,4 +1,5 @@
 import unittest
+
 import torch
 
 from lightly.loss.dcl_loss import DCLLoss, DCLWLoss, negative_mises_fisher_weights
@@ -30,7 +31,7 @@ class TestDCL(unittest.TestCase):
                                 weight_fn=weight_fn,
                             ):
                                 criterion = DCLLoss(
-                                    temperature=temperature, 
+                                    temperature=temperature,
                                     gather_distributed=gather_distributed,
                                     weight_fn=weight_fn,
                                 )
@@ -38,7 +39,7 @@ class TestDCL(unittest.TestCase):
                                 loss1 = criterion(out1, out0)
                                 self.assertGreater(loss0, 0)
                                 self.assertAlmostEqual(loss0, loss1)
-    
+
     def test_dclloss_backprop(self, seed=0):
         torch.manual_seed(seed=seed)
         out0 = torch.rand(3, 5)

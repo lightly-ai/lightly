@@ -9,7 +9,7 @@ def make_swagger_configuration_picklable(
     picklable.
 
     This doesn't make all swagger classes picklable. Notably, the ApiClient and
-    and RESTClientObject classes are not picklable. Use the picklable 
+    and RESTClientObject classes are not picklable. Use the picklable
     LightlySwaggerApiClient and LightlySwaggerRESTClientObject classes instead.
     """
     configuration_cls.__getstate__ = _Configuration__getstate__
@@ -49,8 +49,10 @@ def _Configuration__setstate__(self: Type, state: Dict[str, Any]) -> None:
     # at the beginning of the function.
     #
     # The attributes are set to the class mangled values stored in the state dict.
-    self.logger_format = state["_Configuration__logger_format"] # set to self.__logger_format
-    self.logger_file = state["_Configuration__logger_file"] # set to self.__logger_file
+    self.logger_format = state[
+        "_Configuration__logger_format"
+    ]  # set to self.__logger_format
+    self.logger_file = state["_Configuration__logger_file"]  # set to self.__logger_file
 
     # Set debug explicitly because it has a setter decorator with side effects.
     self.debug = state["_Configuration__debug"]

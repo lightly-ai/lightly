@@ -8,37 +8,65 @@ class LightlySwaggerRESTClientObject(RESTClientObject):
     """
 
     Attributes:
-        configuration: 
+        configuration:
             Configuration.
-        timeout: 
+        timeout:
             Timeout in seconds. Is either a single total_timeout value or a
             (connect_timeout, read_timeout) tuple. No timeout is applied if the
             value is None.
             See https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html?highlight=timeout#urllib3.util.Timeout
             for details on the different values.
-        pools_size: 
+        pools_size:
             Number of connection pools. Defaults to 4.
-        maxsize: 
+        maxsize:
             Maxsize is the number of requests to host that are allowed in parallel.
             Defaults to None.
-        """
-    def __init__(self, configuration: Configuration, timeout: Union[None, int, Tuple[int, int]], pools_size: int = 4, maxsize: Union[None, int] =None):
+    """
+
+    def __init__(
+        self,
+        configuration: Configuration,
+        timeout: Union[None, int, Tuple[int, int]],
+        pools_size: int = 4,
+        maxsize: Union[None, int] = None,
+    ):
         self.configuration = configuration
         self.timeout = timeout
         self.pools_size = pools_size
         self.maxsize = maxsize
-        super().__init__(configuration=configuration, pools_size=pools_size, maxsize=maxsize)
+        super().__init__(
+            configuration=configuration, pools_size=pools_size, maxsize=maxsize
+        )
 
-    def request(self, method, url, query_params=None, headers=None, body=None, post_params=None, _preload_content=True, _request_timeout=None):
+    def request(
+        self,
+        method,
+        url,
+        query_params=None,
+        headers=None,
+        body=None,
+        post_params=None,
+        _preload_content=True,
+        _request_timeout=None,
+    ):
         # Set default timeout. This is necessary because the swagger api client does not
-        # respect timeouts configured by urllib3. Instead it expects a timeout to be 
-        # passed with every request. See code here: 
+        # respect timeouts configured by urllib3. Instead it expects a timeout to be
+        # passed with every request. See code here:
         # https://github.com/lightly-ai/lightly/blob/ffbd32fe82f76b37c8ac497640355314474bfc3b/lightly/openapi_generated/swagger_client/rest.py#L141-L148
         if _request_timeout is None:
             _request_timeout = self.timeout
 
         flat_query_params = _flatten_list_query_parameters(query_params=query_params)
-        return super().request(method=method, url=url, query_params=flat_query_params, headers=headers, body=body, post_params=post_params, _preload_content=_preload_content, _request_timeout=_request_timeout)
+        return super().request(
+            method=method,
+            url=url,
+            query_params=flat_query_params,
+            headers=headers,
+            body=body,
+            post_params=post_params,
+            _preload_content=_preload_content,
+            _request_timeout=_request_timeout,
+        )
 
     def __getstate__(self) -> Dict[str, Any]:
         """__getstate__ method for pickling."""
@@ -53,10 +81,17 @@ class LightlySwaggerRESTClientObject(RESTClientObject):
         """__setstate__ method for pickling."""
         self.__dict__.update(state)
         # Calling init to recreate the pool_manager attribute.
-        self.__init__(configuration=state["configuration"], timeout=state["timeout"], pools_size=state["pools_size"], maxsize=state["maxsize"])
+        self.__init__(
+            configuration=state["configuration"],
+            timeout=state["timeout"],
+            pools_size=state["pools_size"],
+            maxsize=state["maxsize"],
+        )
 
 
-def _flatten_list_query_parameters(query_params: Union[None, List[Tuple[str, Any]]]) -> Union[None, List[Tuple[str, Any]]]:
+def _flatten_list_query_parameters(
+    query_params: Union[None, List[Tuple[str, Any]]]
+) -> Union[None, List[Tuple[str, Any]]]:
     if query_params is not None:
         new_query_params = []
         for name, value in query_params:

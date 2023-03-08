@@ -3,12 +3,13 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-import numpy as np
-from torchvision.transforms import functional as TF
-import torchvision.transforms as T
 from typing import Tuple, Union
-from torch import Tensor
+
+import numpy as np
+import torchvision.transforms as T
 from PIL.Image import Image
+from torch import Tensor
+from torchvision.transforms import functional as TF
 
 
 class RandomRotate:

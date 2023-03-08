@@ -1,18 +1,20 @@
-import unittest
 import copy
+import unittest
 
 import torch
 import torch.nn as nn
 
 from lightly.models import utils
-from lightly.models.utils import batch_shuffle
-from lightly.models.utils import batch_unshuffle
-from lightly.models.utils import activate_requires_grad
-from lightly.models.utils import deactivate_requires_grad
-from lightly.models.utils import update_momentum
-from lightly.models.utils import normalize_weight
-from lightly.models.utils import _no_grad_trunc_normal
-from lightly.models.utils import nearest_neighbors
+from lightly.models.utils import (
+    _no_grad_trunc_normal,
+    activate_requires_grad,
+    batch_shuffle,
+    batch_unshuffle,
+    deactivate_requires_grad,
+    nearest_neighbors,
+    normalize_weight,
+    update_momentum,
+)
 
 
 def has_grad(model: nn.Module):
@@ -181,7 +183,7 @@ class TestModelUtils(unittest.TestCase):
         )
 
         # make sure that patches are correctly formed
-        for (image, img_patches) in zip(images, batch_patches):
+        for image, img_patches in zip(images, batch_patches):
             for i in range(height_patches):
                 for j in range(width_patches):
                     # extract patch from original image

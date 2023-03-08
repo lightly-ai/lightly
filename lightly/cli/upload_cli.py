@@ -12,21 +12,14 @@ import os
 from typing import Union
 
 import hydra
-
 import torchvision
-from lightly.utils.hipify import bcolors
-
-from lightly.api.api_workflow_upload_embeddings import \
-    EmbeddingDoesNotExistError
-    
-from lightly.cli._helpers import fix_input_path
-from lightly.cli._helpers import cpu_count
-from lightly.cli._helpers import fix_hydra_arguments
-from lightly.utils.hipify import print_as_warning
 
 from lightly.api.api_workflow_client import ApiWorkflowClient
+from lightly.api.api_workflow_upload_embeddings import EmbeddingDoesNotExistError
+from lightly.cli._helpers import cpu_count, fix_hydra_arguments, fix_input_path
 from lightly.data import LightlyDataset
 from lightly.openapi_generated.swagger_client import Creator
+from lightly.utils.hipify import bcolors, print_as_warning
 
 SUCCESS_RETURN_VALUE = "Success"
 
@@ -47,70 +40,76 @@ def _upload_cli(cfg, is_cli_call=True) -> Union[str, None]:
         "Please use the Lightly Worker instead: https://docs.lightly.ai/docs/install-lightly\n",
     )
 
-    input_dir = cfg['input_dir']
+    input_dir = cfg["input_dir"]
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)
 
-    path_to_embeddings = cfg['embeddings']
+    path_to_embeddings = cfg["embeddings"]
     if path_to_embeddings and is_cli_call:
         path_to_embeddings = fix_input_path(path_to_embeddings)
 
-    dataset_id = cfg['dataset_id']
-    token = cfg['token']
-    new_dataset_name = cfg['new_dataset_name']
+    dataset_id = cfg["dataset_id"]
+    token = cfg["token"]
+    new_dataset_name = cfg["new_dataset_name"]
 
     cli_api_args_wrong = False
     if not token:
-        print_as_warning('Please specify your access token.')
+        print_as_warning("Please specify your access token.")
         cli_api_args_wrong = True
 
     if dataset_id:
         if new_dataset_name:
             print_as_warning(
-                'Please specify either the dataset_id of an existing dataset '
-                'or a new_dataset_name, but not both.'
+                "Please specify either the dataset_id of an existing dataset "
+                "or a new_dataset_name, but not both."
             )
             cli_api_args_wrong = True
         else:
-            api_workflow_client = \
-                ApiWorkflowClient(token=token, dataset_id=dataset_id, creator=Creator.USER_PIP_LIGHTLY_MAGIC)
+            api_workflow_client = ApiWorkflowClient(
+                token=token,
+                dataset_id=dataset_id,
+                creator=Creator.USER_PIP_LIGHTLY_MAGIC,
+            )
     else:
         if new_dataset_name:
-            api_workflow_client = ApiWorkflowClient(token=token, creator=Creator.USER_PIP_LIGHTLY_MAGIC)
+            api_workflow_client = ApiWorkflowClient(
+                token=token, creator=Creator.USER_PIP_LIGHTLY_MAGIC
+            )
             api_workflow_client.create_dataset(dataset_name=new_dataset_name)
         else:
             print_as_warning(
-                'Please specify either the dataset_id of an existing dataset '
-                'or a new_dataset_name.')
+                "Please specify either the dataset_id of an existing dataset "
+                "or a new_dataset_name."
+            )
             cli_api_args_wrong = True
     # delete the dataset_id as it might be an empty string
     # Use api_workflow_client.dataset_id instead
     del dataset_id
 
     if cli_api_args_wrong:
-        print_as_warning('For help, try: lightly-upload --help')
+        print_as_warning("For help, try: lightly-upload --help")
         return
 
     # potentially load custom metadata
     custom_metadata = None
-    if cfg['custom_metadata']:
-        path_to_custom_metadata = fix_input_path(cfg['custom_metadata'])
+    if cfg["custom_metadata"]:
+        path_to_custom_metadata = fix_input_path(cfg["custom_metadata"])
         print(
-            'Loading custom metadata from '
-            f'{bcolors.OKBLUE}{path_to_custom_metadata}{bcolors.ENDC}'
+            "Loading custom metadata from "
+            f"{bcolors.OKBLUE}{path_to_custom_metadata}{bcolors.ENDC}"
         )
-        with open(path_to_custom_metadata, 'r') as f:
+        with open(path_to_custom_metadata, "r") as f:
             custom_metadata = json.load(f)
 
     # set the number of workers if unset
-    if cfg['loader']['num_workers'] < 0:
+    if cfg["loader"]["num_workers"] < 0:
         # set the number of workers to the number of CPUs available,
         # but minimum of 8
         num_workers = max(8, cpu_count())
         num_workers = min(32, num_workers)
-        cfg['loader']['num_workers'] = num_workers
+        cfg["loader"]["num_workers"] = num_workers
 
-    size = cfg['resize']
+    size = cfg["resize"]
     if not isinstance(size, int):
         size = tuple(size)
     transform = None
@@ -120,31 +119,33 @@ def _upload_cli(cfg, is_cli_call=True) -> Union[str, None]:
     if input_dir:
         if not cfg.append and len(api_workflow_client.get_all_tags()) > 0:
             print_as_warning(
-                'The dataset you specified already has samples. '
-                'If you want to add additional samples, you need to specify '
-                'append=True as CLI argument.'
+                "The dataset you specified already has samples. "
+                "If you want to add additional samples, you need to specify "
+                "append=True as CLI argument."
             )
             return
 
-        mode = cfg['upload']
+        mode = cfg["upload"]
         dataset = LightlyDataset(input_dir=input_dir, transform=transform)
         api_workflow_client.upload_dataset(
             input=dataset,
             mode=mode,
-            max_workers=cfg['loader']['num_workers'],
+            max_workers=cfg["loader"]["num_workers"],
             custom_metadata=custom_metadata,
         )
-        print('Finished the upload of the dataset.')
+        print("Finished the upload of the dataset.")
 
     if path_to_embeddings:
-        name = cfg['embedding_name']
+        name = cfg["embedding_name"]
         if not cfg.append:
             try:
-                embedding = api_workflow_client.get_embedding_by_name(name=name, ignore_suffix=True)
+                embedding = api_workflow_client.get_embedding_by_name(
+                    name=name, ignore_suffix=True
+                )
                 print_as_warning(
-                    'The dataset you specified already has an embedding. '
-                    'If you want to add additional samples, you need to specify '
-                    'append=True as CLI argument.'
+                    "The dataset you specified already has an embedding. "
+                    "If you want to add additional samples, you need to specify "
+                    "append=True as CLI argument."
                 )
                 return
             except EmbeddingDoesNotExistError:
@@ -152,28 +153,30 @@ def _upload_cli(cfg, is_cli_call=True) -> Union[str, None]:
         api_workflow_client.upload_embeddings(
             path_to_embeddings_csv=path_to_embeddings, name=name
         )
-        print('Finished upload of embeddings.')
+        print("Finished upload of embeddings.")
 
     if custom_metadata is not None and not input_dir:
         # upload custom metadata separately
         api_workflow_client.upload_custom_metadata(
             custom_metadata,
             verbose=True,
-            max_workers=cfg['loader']['num_workers'],
+            max_workers=cfg["loader"]["num_workers"],
         )
 
     if new_dataset_name:
-        print(f'The dataset_id of the newly created dataset is '
-              f'{bcolors.OKBLUE}{api_workflow_client.dataset_id}{bcolors.ENDC}')
+        print(
+            f"The dataset_id of the newly created dataset is "
+            f"{bcolors.OKBLUE}{api_workflow_client.dataset_id}{bcolors.ENDC}"
+        )
 
     os.environ[
-        cfg['environment_variable_names']['lightly_last_dataset_id']
+        cfg["environment_variable_names"]["lightly_last_dataset_id"]
     ] = api_workflow_client.dataset_id
 
     return SUCCESS_RETURN_VALUE
 
 
-@hydra.main(**fix_hydra_arguments(config_path = 'config', config_name = 'config'))
+@hydra.main(**fix_hydra_arguments(config_path="config", config_name="config"))
 def upload_cli(cfg):
     """Upload images/embeddings from the command-line to the Lightly platform.
 
