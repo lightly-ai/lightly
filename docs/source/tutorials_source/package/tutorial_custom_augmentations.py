@@ -322,7 +322,6 @@ gpus = 1 if torch.cuda.is_available() else 0
 trainer = pl.Trainer(
     max_epochs=max_epochs,
     gpus=gpus,
-    progress_bar_refresh_rate=100,
     precision=16,
 )
 trainer.fit(model, dataloader_train)

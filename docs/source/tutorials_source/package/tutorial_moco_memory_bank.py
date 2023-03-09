@@ -362,14 +362,14 @@ class Classifier(pl.LightningModule):
 gpus = 1 if torch.cuda.is_available() else 0
 
 model = MocoModel()
-trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus, progress_bar_refresh_rate=100)
+trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus)
 trainer.fit(model, dataloader_train_moco)
 
 # %%
 # Train the Classifier
 model.eval()
 classifier = Classifier(model.backbone)
-trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus, progress_bar_refresh_rate=100)
+trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus)
 trainer.fit(classifier, dataloader_train_classifier, dataloader_test)
 
 # %%
