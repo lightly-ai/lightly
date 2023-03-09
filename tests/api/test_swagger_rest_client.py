@@ -1,7 +1,7 @@
 import pickle
 
 from pytest_mock import MockerFixture
-from urllib3 import Timeout
+from urllib3 import PoolManager, Timeout
 
 from lightly.api import swagger_rest_client
 from lightly.api.swagger_rest_client import LightlySwaggerRESTClientObject
@@ -14,22 +14,25 @@ class TestLightlySwaggerRESTClientObject:
             configuration=Configuration(), timeout=5
         )
         new_client = pickle.loads(pickle.dumps(client))
+        expected = {
+            # "configuration", ignore because some parts of configuration are recreated on unpickling
+            "maxsize": None,
+            # "pool_manager", ignore because pool_manager is recreated on unpickling
+            "pools_size": 4,
+            "timeout": 5,
+        }
 
-        assert set(client.__dict__.keys()) == set(new_client.__dict__.keys())
-        assert all(
-            type(client.__dict__[key]) == type(new_client.__dict__[key])
-            for key in client.__dict__.keys()
-        )
+        # Check that all expected values are set except the ignored ones.
+        assert set(expected.keys()) == set(client.__dict__.keys()) - {
+            "configuration",
+            "pool_manager",
+        }
+        # Check that new client values are equal to expected values.
+        assert all(new_client.__dict__[key] == value for key, value in expected.items())
 
-        original_dict = client.__dict__.copy()
-        del original_dict["pool_manager"]  # different because pool_manager is recreated
-        del original_dict[
-            "configuration"
-        ]  # different because loggers inside configuration are recreated
-        assert all(
-            original_dict[key] == new_client.__dict__[key]
-            for key in original_dict.keys()
-        )
+        # Extra assertions for attributes ignored in the tests above.
+        assert isinstance(new_client.__dict__["configuration"], Configuration)
+        assert isinstance(new_client.__dict__["pool_manager"], PoolManager)
 
     def test_request__timeout(self, mocker: MockerFixture) -> None:
         client = LightlySwaggerRESTClientObject(
