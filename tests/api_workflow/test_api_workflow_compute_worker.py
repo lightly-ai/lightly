@@ -86,6 +86,44 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
         )
         assert config_id
 
+    def test_create_compute_worker_config__selection_config_is_class(self) -> None:
+        config_id = self.api_workflow_client.create_compute_worker_config(
+            worker_config={
+                "stopping_condition": {
+                    "n_samples": 10,
+                },
+            },
+            lightly_config={
+                "loader": {
+                    "batch_size": 64,
+                },
+            },
+            selection_config=SelectionConfig(
+                n_samples=20,
+                strategies=[
+                    SelectionConfigEntry(
+                        input=SelectionConfigEntryInput(
+                            type=SelectionInputType.EMBEDDINGS,
+                            dataset_id="some-dataset-id",
+                            tag_name="some-tag-name",
+                        ),
+                        strategy=SelectionConfigEntryStrategy(
+                            type=SelectionStrategyType.SIMILARITY,
+                        ),
+                    )
+                ],
+            ),
+        )
+        assert config_id
+
+    def test_create_compute_worker_config__all_none(self) -> None:
+        config_id = self.api_workflow_client.create_compute_worker_config(
+            worker_config=None,
+            lightly_config=None,
+            selection_config=None,
+        )
+        assert config_id
+
     def test_schedule_compute_worker_run(self):
         scheduled_run_id = self.api_workflow_client.schedule_compute_worker_run(
             worker_config={
@@ -668,7 +706,7 @@ def test__snake_to_camel_case() -> None:
     assert _snake_to_camel_case("loremIpsum") == "loremIpsum"  # do nothing
 
 
-def test__validate_config__docker(mocker: MockerFixture) -> None:
+def test__validate_config__docker() -> None:
     obj = DockerWorkerConfigV2Docker(
         enable_training=False,
         corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
@@ -686,7 +724,7 @@ def test__validate_config__docker(mocker: MockerFixture) -> None:
     )
 
 
-def test__validate_config__docker_typo(mocker: MockerFixture) -> None:
+def test__validate_config__docker_typo() -> None:
     obj = DockerWorkerConfigV2Docker(
         enable_training=False,
         corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
@@ -709,7 +747,7 @@ def test__validate_config__docker_typo(mocker: MockerFixture) -> None:
         )
 
 
-def test__validate_config__docker_typo_nested(mocker: MockerFixture) -> None:
+def test__validate_config__docker_typo_nested() -> None:
     obj = DockerWorkerConfigV2Docker(
         enable_training=False,
         corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
@@ -732,7 +770,7 @@ def test__validate_config__docker_typo_nested(mocker: MockerFixture) -> None:
         )
 
 
-def test__validate_config__lightly(mocker: MockerFixture) -> None:
+def test__validate_config__lightly() -> None:
     obj = DockerWorkerConfigV2Lightly(
         loader=DockerWorkerConfigV2LightlyLoader(
             num_workers=-1,
@@ -752,7 +790,7 @@ def test__validate_config__lightly(mocker: MockerFixture) -> None:
     )
 
 
-def test__validate_config__lightly_typo(mocker: MockerFixture) -> None:
+def test__validate_config__lightly_typo() -> None:
     obj = DockerWorkerConfigV2Lightly(
         loader=DockerWorkerConfigV2LightlyLoader(
             num_workers=-1,
@@ -776,7 +814,7 @@ def test__validate_config__lightly_typo(mocker: MockerFixture) -> None:
         )
 
 
-def test__validate_config__lightly_typo_nested(mocker: MockerFixture) -> None:
+def test__validate_config__lightly_typo_nested() -> None:
     obj = DockerWorkerConfigV2Lightly(
         loader=DockerWorkerConfigV2LightlyLoader(
             num_workers=-1,
