@@ -147,7 +147,6 @@ class _ComputeWorkerMixin:
             selection = selection_config_from_dict(cfg=selection_config)
         else:
             selection = selection_config
-        _validate_config(cfg=selection_config, obj=selection)
 
         if worker_config is not None:
             worker_config_cc = _config_to_camel_case(cfg=worker_config)
@@ -157,6 +156,8 @@ class _ComputeWorkerMixin:
             )
             docker = deserialize_worker_config(worker_config_cc)
             _validate_config(cfg=worker_config, obj=docker)
+        else:
+            docker = None
 
         if lightly_config is not None:
             lightly_config_cc = _config_to_camel_case(cfg=lightly_config)
@@ -166,6 +167,8 @@ class _ComputeWorkerMixin:
             )
             lightly = deserialize_lightly_config(lightly_config_cc)
             _validate_config(cfg=lightly_config, obj=lightly)
+        else:
+            lightly = None
 
         config = DockerWorkerConfigV2(
             worker_type=DockerWorkerType.FULL,
