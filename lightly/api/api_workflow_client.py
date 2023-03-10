@@ -49,6 +49,7 @@ from lightly.openapi_generated.swagger_client import (
     ScoresApi,
     TagsApi,
 )
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from lightly.utils.reordering import sort_items_by_keys
 
 # Env variable for server side encryption on S3
@@ -108,7 +109,12 @@ class ApiWorkflowClient(
                         )
                     )
                 )
-        except LightlyAPITimeoutException:
+        except (
+            ValueError,
+            ApiException,
+            LightlyAPITimeoutException,
+            AttributeError,
+        ):
             pass
 
         configuration = get_api_client_configuration(token=token)
