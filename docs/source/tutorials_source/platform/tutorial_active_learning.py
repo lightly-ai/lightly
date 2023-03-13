@@ -193,8 +193,8 @@ path_to_embeddings_csv = os.getenv(
 
 # We define the client to the Lightly Platform API
 api_workflow_client = ApiWorkflowClient(token=token)
-api_workflow_client.create_new_dataset_with_unique_name(
-    dataset_basename="active_learning_clothing_dataset"
+api_workflow_client.set_dataset_id_by_name(
+    dataset_name="active_learning_clothing_dataset"
 )
 
 # %%
