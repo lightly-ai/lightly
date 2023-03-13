@@ -192,11 +192,17 @@ def get_signed_url_destination(signed_url: str = "") -> DatasourceType:
     return DatasourceType.LOCAL
 
 
+def get_lightly_server_location_from_env() -> string:
+    return (
+        getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai").strip().rstrip("/")
+    )
+
+
 def get_api_client_configuration(
     token: Optional[str] = None,
     raise_if_no_token_specified: bool = True,
 ) -> Configuration:
-    host = getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai").strip().rstrip("/")
+    host = get_lightly_server_location_from_env()
     ssl_ca_cert = getenv("LIGHTLY_CA_CERTS", None)
 
     if token is None:

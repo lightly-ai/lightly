@@ -84,3 +84,8 @@ class TestUtils(unittest.TestCase):
             get_signed_url_destination("http://someething.with.windows.in.it"),
             DatasourceType.AZURE,
         )
+
+    def test_get_lightly_server_location_from_env(self):
+        os.enfiron["LIGHTLY_SERVER_LOCATION"] = "https://api.dev.lightly.ai/ ")
+        host = get_lightly_server_location_from_env()
+        self.assertEqual(host, "https://api.dev.lightly.ai"
