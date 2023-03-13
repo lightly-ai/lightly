@@ -771,7 +771,7 @@ class MAEModel(BenchmarkModule):
 
 
 class MSNModel(BenchmarkModule):
-    def __init__(self, dataloader_kNN, num_classes):
+    def __init__(self, dataloader_kNN, num_classes, target_distribution="uniform"):
         super().__init__(dataloader_kNN, num_classes)
 
         self.warmup_epochs = 15
@@ -794,7 +794,7 @@ class MSNModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head)
 
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
-        self.criterion = MSNLoss()
+        self.criterion = MSNLoss(target_distribution=target_distribution)
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
@@ -843,6 +843,11 @@ class MSNModel(BenchmarkModule):
             optim, self.warmup_epochs, max_epochs
         )
         return [optim], [cosine_scheduler]
+
+
+class PMSNModel(MSNModel):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes, target_distribution="power_law")
 
 
 from sklearn.cluster import KMeans
@@ -1249,24 +1254,25 @@ class SwaVQueueModel(BenchmarkModule):
 
 
 models = [
-    BarlowTwinsModel,
-    BYOLModel,
-    DCL,
-    DCLW,
-    DINOModel,
+    # BarlowTwinsModel,
+    # BYOLModel,
+    # DCL,
+    # DCLW,
+    # DINOModel,
     # MAEModel, # disabled by default because MAE uses larger images with size 224
     # MSNModel, # disabled by default because MSN uses larger images with size 224
-    MocoModel,
-    NNCLRModel,
-    SimCLRModel,
+    # MocoModel,
+    # NNCLRModel,
+    # PMSNModel, # disabled by default because PMSN uses larger images with size 224
+    # SimCLRModel,
     # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
-    SimSiamModel,
-    SwaVModel,
-    SwaVQueueModel,
-    SMoGModel,
-    TiCoModel,
-    VICRegModel,
-    VICRegLModel,
+    # SimSiamModel,
+    # SwaVModel,
+    # SwaVQueueModel,
+    # SMoGModel,
+    # TiCoModel,
+    # VICRegModel,
+    # VICRegLModel,
 ]
 bench_results = dict()
 

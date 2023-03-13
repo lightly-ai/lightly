@@ -45,6 +45,8 @@ class MSN(pl.LightningModule):
 
         # set gather_distributed to True for distributed training
         self.criterion = MSNLoss(gather_distributed=True)
+        # Or for PMSN:
+        # MSNLoss(target_distribution="power_law", power_law_exponent=0.25, gather_distributed=True)
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)

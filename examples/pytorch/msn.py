@@ -21,7 +21,7 @@ class MSN(nn.Module):
 
         self.mask_ratio = 0.15
         self.backbone = MAEBackbone.from_vit(vit)
-        self.projection_head = MSNProjectionHead()
+        self.projection_head = MSNProjectionHead(384)
 
         self.anchor_backbone = copy.deepcopy(self.backbone)
         self.anchor_projection_head = copy.deepcopy(self.projection_head)
@@ -84,6 +84,9 @@ dataloader = torch.utils.data.DataLoader(
 )
 
 criterion = MSNLoss()
+# Or for PMSN:
+# MSNLoss(target_distribution="power_law", power_law_exponent=0.25)
+
 params = [
     *list(model.anchor_backbone.parameters()),
     *list(model.anchor_projection_head.parameters()),
