@@ -37,20 +37,21 @@ class LightlySwaggerApiClient(PatchApiClientMixin, ApiClient):
             value is None.
             See https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html?highlight=timeout#urllib3.util.Timeout
             for details on the different values.
-        pools_size:
-            Number of connection pools. Defaults to 4.
-        maxsize:
-            Maxsize is the number of requests to host that are allowed in parallel.
-            Defaults to None.
+        header_name:
+            A header to pass when making calls to the API.
+        header_value:
+            A header value to pass when making calls to the API.
+        cookie:
+            A cookie to include in the header when making calls to the API.
     """
 
     def __init__(
         self,
         configuration,
         timeout: Union[None, int, Tuple[int, int]] = DEFAULT_API_TIMEOUT,
-        header_name=None,
-        header_value=None,
-        cookie=None,
+        header_name: Union[str, None] = None,
+        header_value: Union[str, None] = None,
+        cookie: Union[str, None] = None,
     ):
         super().__init__(
             configuration=configuration,
