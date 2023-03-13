@@ -16,7 +16,7 @@ Documentation
           If you are looking for Lightly Worker Solution to easily process millions
           of samples and run powerful active learning algorithms on your data
           please follow
-          `Lightly Worker documentation <https://lightly-docs.readme.io/>`_.
+          `Lightly Worker documentation <https://docs.lightly.ai/>`_.
 
 Lightly is a computer vision framework for self-supervised learning.
 

@@ -177,7 +177,7 @@ class SimCLRModel(pl.LightningModule):
 gpus = 1 if torch.cuda.is_available() else 0
 
 model = SimCLRModel()
-trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus, progress_bar_refresh_rate=100)
+trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus)
 trainer.fit(model, dataloader_train_simclr)
 
 # %%
@@ -274,7 +274,7 @@ dataloader_train_simclr.collate_fn = new_collate_fn
 
 # then train a new model
 model = SimCLRModel()
-trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus, progress_bar_refresh_rate=100)
+trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus)
 trainer.fit(model, dataloader_train_simclr)
 
 # and generate again embeddings from the test set
