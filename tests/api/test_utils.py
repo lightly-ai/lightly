@@ -7,6 +7,7 @@ import lightly
 from lightly.api.utils import (
     DatasourceType,
     PIL_to_bytes,
+    get_lightly_server_location_from_env,
     get_signed_url_destination,
     getenv,
     retry,
@@ -86,6 +87,6 @@ class TestUtils(unittest.TestCase):
         )
 
     def test_get_lightly_server_location_from_env(self):
-        os.enfiron["LIGHTLY_SERVER_LOCATION"] = "https://api.dev.lightly.ai/ "
+        os.environ["LIGHTLY_SERVER_LOCATION"] = "https://api.dev.lightly.ai/ "
         host = get_lightly_server_location_from_env()
         self.assertEqual(host, "https://api.dev.lightly.ai")
