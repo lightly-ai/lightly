@@ -1,6 +1,6 @@
 import math
 import warnings
-from typing import Callable, Literal, Union
+from typing import Callable, Union
 
 import torch
 import torch.distributed as dist
@@ -168,8 +168,7 @@ class MSNLoss(nn.Module):
         sinkhorn_iterations: int = 3,
         regularization_weight: float = 1.0,
         target_distribution: Union[
-            Literal["uniform"],
-            Literal["power_law"],
+            str,
             Callable[
                 [
                     Tensor,
