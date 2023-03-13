@@ -1,7 +1,7 @@
 from typing import Any, Dict, Tuple, Union
 
 from lightly.api.swagger_rest_client import LightlySwaggerRESTClientObject
-from lightly.openapi_generated.swagger_client import ApiClient
+from lightly.openapi_generated.swagger_client import ApiClient, Configuration
 
 DEFAULT_API_TIMEOUT = 60 * 3  # seconds
 
@@ -47,7 +47,7 @@ class LightlySwaggerApiClient(PatchApiClientMixin, ApiClient):
 
     def __init__(
         self,
-        configuration,
+        configuration: Configuration,
         timeout: Union[None, int, Tuple[int, int]] = DEFAULT_API_TIMEOUT,
         header_name: Union[str, None] = None,
         header_value: Union[str, None] = None,
