@@ -192,7 +192,7 @@ def get_signed_url_destination(signed_url: str = "") -> DatasourceType:
     return DatasourceType.LOCAL
 
 
-def get_lightly_server_location_from_env() -> string:
+def get_lightly_server_location_from_env() -> str:
     return (
         getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai").strip().rstrip("/")
     )

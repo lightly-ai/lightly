@@ -86,6 +86,6 @@ class TestUtils(unittest.TestCase):
         )
 
     def test_get_lightly_server_location_from_env(self):
-        os.enfiron["LIGHTLY_SERVER_LOCATION"] = "https://api.dev.lightly.ai/ ")
+        os.enfiron["LIGHTLY_SERVER_LOCATION"] = "https://api.dev.lightly.ai/ "
         host = get_lightly_server_location_from_env()
-        self.assertEqual(host, "https://api.dev.lightly.ai"
+        self.assertEqual(host, "https://api.dev.lightly.ai")
