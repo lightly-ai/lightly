@@ -1254,25 +1254,25 @@ class SwaVQueueModel(BenchmarkModule):
 
 
 models = [
-    # BarlowTwinsModel,
-    # BYOLModel,
-    # DCL,
-    # DCLW,
-    # DINOModel,
+    BarlowTwinsModel,
+    BYOLModel,
+    DCL,
+    DCLW,
+    DINOModel,
     # MAEModel, # disabled by default because MAE uses larger images with size 224
     # MSNModel, # disabled by default because MSN uses larger images with size 224
-    # MocoModel,
-    # NNCLRModel,
+    MocoModel,
+    NNCLRModel,
     # PMSNModel, # disabled by default because PMSN uses larger images with size 224
-    # SimCLRModel,
+    SimCLRModel,
     # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
-    # SimSiamModel,
-    # SwaVModel,
-    # SwaVQueueModel,
-    # SMoGModel,
-    # TiCoModel,
-    # VICRegModel,
-    # VICRegLModel,
+    SimSiamModel,
+    SwaVModel,
+    SwaVQueueModel,
+    SMoGModel,
+    TiCoModel,
+    VICRegModel,
+    VICRegLModel,
 ]
 bench_results = dict()
 
