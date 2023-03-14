@@ -2,6 +2,7 @@ import unittest
 from unittest import TestCase
 
 import torch
+import torch.nn.functional as F
 from torch import Tensor, nn
 from torch.optim import SGD
 
@@ -43,6 +44,44 @@ class TestMSNLoss(TestCase):
 
         with self.assertRaises(ValueError):
             MSNLoss(target_distribution="power_law", me_max_weight=0.5)
+
+    def test_prototype_probabilitiy(self, seed=0) -> None:
+        torch.manual_seed(seed)
+        queries = F.normalize(torch.rand((8, 10)), dim=1)
+        prototypes = F.normalize(torch.rand((4, 10)), dim=1)
+        prob = msn_loss.prototype_probabilities(queries, prototypes, temperature=0.5)
+        self.assertEqual(prob.shape, (8, 4))
+        self.assertLessEqual(prob.max(), 1.0)
+        self.assertGreater(prob.min(), 0.0)
+
+        # verify sharpening
+        prob1 = msn_loss.prototype_probabilities(queries, prototypes, temperature=0.1)
+        # same prototypes should be assigned regardless of temperature
+        self.assertTrue(torch.all(prob.argmax(dim=1) == prob1.argmax(dim=1)))
+        # probabilities of selected prototypes should be higher for lower temperature
+        self.assertTrue(torch.all(prob.max(dim=1)[0] < prob1.max(dim=1)[0]))
+
+    def test_sharpen(self, seed=0) -> None:
+        torch.manual_seed(seed)
+        prob = torch.rand((8, 10))
+        p0 = msn_loss.sharpen(prob, temperature=0.5)
+        p1 = msn_loss.sharpen(prob, temperature=0.1)
+        # indices of max probabilities should be the same regardless of temperature
+        self.assertTrue(torch.all(p0.argmax(dim=1) == p1.argmax(dim=1)))
+        # max probabilities should be higher for lower temperature
+        self.assertTrue(torch.all(p0.max(dim=1)[0] < p1.max(dim=1)[0]))
+
+    def test_sinkhorn(self, seed=0) -> None:
+        torch.manual_seed(seed)
+        prob = torch.rand((8, 10))
+        out = msn_loss.sinkhorn(prob)
+        self.assertTrue(torch.all(prob != out))
+
+    def test_sinkhorn_no_iter(self, seed=0) -> None:
+        torch.manual_seed(seed)
+        prob = torch.rand((8, 10))
+        out = msn_loss.sinkhorn(prob, iterations=0)
+        self.assertTrue(torch.all(prob == out))
 
     def test_forward(self, seed=0) -> None:
         torch.manual_seed(seed)
