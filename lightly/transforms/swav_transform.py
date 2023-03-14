@@ -79,7 +79,7 @@ class SwaVTransform(MultiCropTranform):
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
         kernel_size: Optional[float] = None,
-        sigmas: Tuple[float, float] = (0.2, 2),
+        sigmas: Tuple[float, float] = (0.1, 2),
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
 
@@ -126,7 +126,7 @@ class SwaVViewTransform:
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
         kernel_size: Optional[float] = None,
-        sigmas: Tuple[float, float] = (0.2, 2),
+        sigmas: Tuple[float, float] = (0.1, 2),
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
