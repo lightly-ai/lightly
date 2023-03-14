@@ -105,7 +105,7 @@ def sinkhorn(
 
 
 class MSNLoss(nn.Module):
-    """Implementation of the loss function from MSN [0] and PMSN [1].
+    """Implementation of the loss function from MSN [0] and PMSN [2].
 
     Code inspired by [1].
 
