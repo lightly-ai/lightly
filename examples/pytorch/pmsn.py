@@ -15,7 +15,7 @@ from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models.modules.masked_autoencoder import MAEBackbone
 
 
-class MSN(nn.Module):
+class PMSN(nn.Module):
     def __init__(self, vit):
         super().__init__()
 
@@ -56,10 +56,10 @@ vit = torchvision.models.VisionTransformer(
     hidden_dim=384,
     mlp_dim=384 * 4,
 )
-model = MSN(vit)
+model = PMSN(vit)
 # # or use a torchvision ViT backbone:
 # vit = torchvision.models.vit_b_32(pretrained=False)
-# model = MSN(vit)
+# model = PMSN(vit)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
@@ -83,7 +83,7 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-criterion = MSNLoss()
+criterion = MSNLoss(target_distribution="power_law", power_law_exponent=0.25)
 
 params = [
     *list(model.anchor_backbone.parameters()),

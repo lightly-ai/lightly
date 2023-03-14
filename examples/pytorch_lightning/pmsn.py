@@ -16,7 +16,7 @@ from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models.modules.masked_autoencoder import MAEBackbone
 
 
-class MSN(pl.LightningModule):
+class PMSN(pl.LightningModule):
     def __init__(self):
         super().__init__()
 
@@ -42,9 +42,9 @@ class MSN(pl.LightningModule):
         utils.deactivate_requires_grad(self.projection_head)
 
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
-
-        # set gather_distributed to True for distributed training
-        self.criterion = MSNLoss(gather_distributed=True)
+        self.criterion = MSNLoss(
+            target_distribution="power_law", power_law_exponent=0.25
+        )
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
@@ -86,7 +86,7 @@ class MSN(pl.LightningModule):
         return optim
 
 
-model = MSN()
+model = PMSN()
 
 # we ignore object detection annotations by setting target_transform to return 0
 pascal_voc = torchvision.datasets.VOCDetection(
@@ -107,14 +107,7 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-gpus = torch.cuda.device_count()
+gpus = 1 if torch.cuda.is_available() else 0
 
-# Train with DDP on multiple gpus. Distributed sampling is also enabled with
-# replace_sampler_ddp=True.
-trainer = pl.Trainer(
-    max_epochs=10,
-    gpus=gpus,
-    strategy="ddp",
-    replace_sampler_ddp=True,
-)
+trainer = pl.Trainer(max_epochs=10, gpus=gpus)
 trainer.fit(model=model, train_dataloaders=dataloader)

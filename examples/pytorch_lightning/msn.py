@@ -43,8 +43,6 @@ class MSN(pl.LightningModule):
 
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
         self.criterion = MSNLoss()
-        # Or for PMSN:
-        # MSNLoss(target_distribution="power_law", power_law_exponent=0.25)
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)

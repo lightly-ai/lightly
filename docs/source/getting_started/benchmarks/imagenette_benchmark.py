@@ -771,7 +771,7 @@ class MAEModel(BenchmarkModule):
 
 
 class MSNModel(BenchmarkModule):
-    def __init__(self, dataloader_kNN, num_classes, target_distribution="uniform"):
+    def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
 
         self.warmup_epochs = 15
@@ -794,7 +794,7 @@ class MSNModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head)
 
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
-        self.criterion = MSNLoss(target_distribution=target_distribution)
+        self.criterion = MSNLoss()
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
@@ -845,9 +845,81 @@ class MSNModel(BenchmarkModule):
         return [optim], [cosine_scheduler]
 
 
-class PMSNModel(MSNModel):
+class PMSNModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
-        super().__init__(dataloader_kNN, num_classes, target_distribution="power_law")
+        super().__init__(dataloader_kNN, num_classes)
+
+        self.warmup_epochs = 15
+        # ViT small configuration (ViT-S/16)
+        self.mask_ratio = 0.15
+        self.backbone = masked_autoencoder.MAEBackbone(
+            image_size=224,
+            patch_size=16,
+            num_layers=12,
+            num_heads=6,
+            hidden_dim=384,
+            mlp_dim=384 * 4,
+        )
+        self.projection_head = heads.MSNProjectionHead(384)
+
+        self.anchor_backbone = copy.deepcopy(self.backbone)
+        self.anchor_projection_head = copy.deepcopy(self.projection_head)
+
+        utils.deactivate_requires_grad(self.backbone)
+        utils.deactivate_requires_grad(self.projection_head)
+
+        self.prototypes = nn.Linear(256, 1024, bias=False).weight
+        self.criterion = MSNLoss(
+            target_distribution="power_law", power_law_exponent=0.25
+        )
+
+    def training_step(self, batch, batch_idx):
+        utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
+        utils.update_momentum(self.anchor_projection_head, self.projection_head, 0.996)
+
+        views, _, _ = batch
+        views = [view.to(self.device, non_blocking=True) for view in views]
+        targets = views[0]
+        anchors = views[1]
+        anchors_focal = torch.concat(views[2:], dim=0)
+
+        targets_out = self.backbone(targets)
+        targets_out = self.projection_head(targets_out)
+        anchors_out = self.encode_masked(anchors)
+        anchors_focal_out = self.encode_masked(anchors_focal)
+        anchors_out = torch.cat([anchors_out, anchors_focal_out], dim=0)
+
+        loss = self.criterion(anchors_out, targets_out, self.prototypes.data)
+        self.log("train_loss_ssl", loss)
+        return loss
+
+    def encode_masked(self, anchors):
+        batch_size, _, _, width = anchors.shape
+        seq_length = (width // self.anchor_backbone.patch_size) ** 2
+        idx_keep, _ = utils.random_token_mask(
+            size=(batch_size, seq_length),
+            mask_ratio=self.mask_ratio,
+            device=self.device,
+        )
+        out = self.anchor_backbone(anchors, idx_keep)
+        return self.anchor_projection_head(out)
+
+    def configure_optimizers(self):
+        params = [
+            *list(self.anchor_backbone.parameters()),
+            *list(self.anchor_projection_head.parameters()),
+            self.prototypes,
+        ]
+        optim = torch.optim.AdamW(
+            params=params,
+            lr=1.5e-4 * lr_factor,
+            weight_decay=0.05,
+            betas=(0.9, 0.95),
+        )
+        cosine_scheduler = scheduler.CosineWarmupScheduler(
+            optim, self.warmup_epochs, max_epochs
+        )
+        return [optim], [cosine_scheduler]
 
 
 from sklearn.cluster import KMeans
