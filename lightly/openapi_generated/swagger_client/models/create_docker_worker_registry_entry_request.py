@@ -36,17 +36,19 @@ class CreateDockerWorkerRegistryEntryRequest(object):
         'name': 'DockerWorkerName',
         'worker_type': 'DockerWorkerType',
         'labels': 'DockerWorkerLabels',
-        'creator': 'Creator'
+        'creator': 'Creator',
+        'docker_version': 'str'
     }
 
     attribute_map = {
         'name': 'name',
         'worker_type': 'workerType',
         'labels': 'labels',
-        'creator': 'creator'
+        'creator': 'creator',
+        'docker_version': 'dockerVersion'
     }
 
-    def __init__(self, name=None, worker_type=None, labels=None, creator=None, _configuration=None):  # noqa: E501
+    def __init__(self, name=None, worker_type=None, labels=None, creator=None, docker_version=None, _configuration=None):  # noqa: E501
         """CreateDockerWorkerRegistryEntryRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -56,6 +58,7 @@ class CreateDockerWorkerRegistryEntryRequest(object):
         self._worker_type = None
         self._labels = None
         self._creator = None
+        self._docker_version = None
         self.discriminator = None
 
         self.name = name
@@ -64,6 +67,8 @@ class CreateDockerWorkerRegistryEntryRequest(object):
             self.labels = labels
         if creator is not None:
             self.creator = creator
+        if docker_version is not None:
+            self.docker_version = docker_version
 
     @property
     def name(self):
@@ -152,6 +157,27 @@ class CreateDockerWorkerRegistryEntryRequest(object):
         """
 
         self._creator = creator
+
+    @property
+    def docker_version(self):
+        """Gets the docker_version of this CreateDockerWorkerRegistryEntryRequest.  # noqa: E501
+
+
+        :return: The docker_version of this CreateDockerWorkerRegistryEntryRequest.  # noqa: E501
+        :rtype: str
+        """
+        return self._docker_version
+
+    @docker_version.setter
+    def docker_version(self, docker_version):
+        """Sets the docker_version of this CreateDockerWorkerRegistryEntryRequest.
+
+
+        :param docker_version: The docker_version of this CreateDockerWorkerRegistryEntryRequest.  # noqa: E501
+        :type: str
+        """
+
+        self._docker_version = docker_version
 
     def to_dict(self):
         """Returns the model properties as a dict"""

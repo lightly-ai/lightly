@@ -34,26 +34,36 @@ class ApiErrorResponse(object):
     """
     swagger_types = {
         'code': 'ApiErrorCode',
-        'message': 'str'
+        'error': 'str',
+        'request_id': 'str',
+        'error_labels': 'list[str]'
     }
 
     attribute_map = {
         'code': 'code',
-        'message': 'message'
+        'error': 'error',
+        'request_id': 'requestId',
+        'error_labels': 'errorLabels'
     }
 
-    def __init__(self, code=None, message=None, _configuration=None):  # noqa: E501
+    def __init__(self, code=None, error=None, request_id=None, error_labels=None, _configuration=None):  # noqa: E501
         """ApiErrorResponse - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._code = None
-        self._message = None
+        self._error = None
+        self._request_id = None
+        self._error_labels = None
         self.discriminator = None
 
         self.code = code
-        self.message = message
+        self.error = error
+        if request_id is not None:
+            self.request_id = request_id
+        if error_labels is not None:
+            self.error_labels = error_labels
 
     @property
     def code(self):
@@ -79,27 +89,75 @@ class ApiErrorResponse(object):
         self._code = code
 
     @property
-    def message(self):
-        """Gets the message of this ApiErrorResponse.  # noqa: E501
+    def error(self):
+        """Gets the error of this ApiErrorResponse.  # noqa: E501
 
+        The detailed error message or code of the error  # noqa: E501
 
-        :return: The message of this ApiErrorResponse.  # noqa: E501
+        :return: The error of this ApiErrorResponse.  # noqa: E501
         :rtype: str
         """
-        return self._message
+        return self._error
 
-    @message.setter
-    def message(self, message):
-        """Sets the message of this ApiErrorResponse.
+    @error.setter
+    def error(self, error):
+        """Sets the error of this ApiErrorResponse.
 
+        The detailed error message or code of the error  # noqa: E501
 
-        :param message: The message of this ApiErrorResponse.  # noqa: E501
+        :param error: The error of this ApiErrorResponse.  # noqa: E501
         :type: str
         """
-        if self._configuration.client_side_validation and message is None:
-            raise ValueError("Invalid value for `message`, must not be `None`")  # noqa: E501
+        if self._configuration.client_side_validation and error is None:
+            raise ValueError("Invalid value for `error`, must not be `None`")  # noqa: E501
 
-        self._message = message
+        self._error = error
+
+    @property
+    def request_id(self):
+        """Gets the request_id of this ApiErrorResponse.  # noqa: E501
+
+        The identifier of a request. Helpful for debugging  # noqa: E501
+
+        :return: The request_id of this ApiErrorResponse.  # noqa: E501
+        :rtype: str
+        """
+        return self._request_id
+
+    @request_id.setter
+    def request_id(self, request_id):
+        """Sets the request_id of this ApiErrorResponse.
+
+        The identifier of a request. Helpful for debugging  # noqa: E501
+
+        :param request_id: The request_id of this ApiErrorResponse.  # noqa: E501
+        :type: str
+        """
+
+        self._request_id = request_id
+
+    @property
+    def error_labels(self):
+        """Gets the error_labels of this ApiErrorResponse.  # noqa: E501
+
+        Can occur on database errors  # noqa: E501
+
+        :return: The error_labels of this ApiErrorResponse.  # noqa: E501
+        :rtype: list[str]
+        """
+        return self._error_labels
+
+    @error_labels.setter
+    def error_labels(self, error_labels):
+        """Sets the error_labels of this ApiErrorResponse.
+
+        Can occur on database errors  # noqa: E501
+
+        :param error_labels: The error_labels of this ApiErrorResponse.  # noqa: E501
+        :type: list[str]
+        """
+
+        self._error_labels = error_labels
 
     def to_dict(self):
         """Returns the model properties as a dict"""

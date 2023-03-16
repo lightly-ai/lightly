@@ -457,6 +457,7 @@ class DockerApi(object):
         :param async_req bool
         :param DockerRunScheduledCreateRequest body: (required)
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param bool disable_config_validation: if set, disables the sanity check and validation where we check if the provided configuration can run on your datasource e.g     if predictions are used, we check that the bucket structure + tasks.json, schema.json are correct     if metadata is used, we check that the bucket structure + schema.json are correct     if relevantFilenamesFile is set, we check that the file exists 
         :return: CreateEntityResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -480,12 +481,13 @@ class DockerApi(object):
         :param async_req bool
         :param DockerRunScheduledCreateRequest body: (required)
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param bool disable_config_validation: if set, disables the sanity check and validation where we check if the provided configuration can run on your datasource e.g     if predictions are used, we check that the bucket structure + tasks.json, schema.json are correct     if metadata is used, we check that the bucket structure + schema.json are correct     if relevantFilenamesFile is set, we check that the file exists 
         :return: CreateEntityResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['body', 'dataset_id']  # noqa: E501
+        all_params = ['body', 'dataset_id', 'disable_config_validation']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -516,6 +518,8 @@ class DockerApi(object):
             path_params['datasetId'] = params['dataset_id']  # noqa: E501
 
         query_params = []
+        if 'disable_config_validation' in params:
+            query_params.append(('disableConfigValidation', params['disable_config_validation']))  # noqa: E501
 
         header_params = {}
 
