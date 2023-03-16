@@ -156,9 +156,44 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
             )
             mock_get_all_embedding_data.assert_called_once()
 
+    def test_export_label_box_data_rows_by_tag_id(self):
+        rows = self.api_workflow_client.export_label_box_data_rows_by_tag_id(
+            tag_id="some-tag-id"
+        )
+        assert rows == [
+            {
+                "external_id": "2008_007291_jpg.rf.2fca436925b52ea33cf897125a34a2fb.jpg",
+                "image_url": "https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e233/readurlRedirect?type=CENSORED",
+            }
+        ]
+
     def test_export_label_box_data_rows_by_tag_name(self):
-        rows = self.api_workflow_client.export_label_box_data_rows_by_tag_name(
-            "initial-tag"
+        rows = self.api_workflow_client.export_label_box_v4_data_rows_by_tag_name(
+            tag_name="initial-tag"
+        )
+        assert rows == [
+            {
+                "row_data": "http://localhost:5000/v1/datasets/6401d4534d2ed9112da782f5/samples/6401e455a6045a7faa79b20a/readurlRedirect?type=full&publicToken=token",
+                "global_key": "image.png",
+                "media_type": "IMAGE",
+            }
+        ]
+
+    def test_export_label_box_v4_data_rows_by_tag_id(self):
+        rows = self.api_workflow_client.export_label_box_v4_data_rows_by_tag_id(
+            tag_id="some-tag-id"
+        )
+        assert rows == [
+            {
+                "row_data": "http://localhost:5000/v1/datasets/6401d4534d2ed9112da782f5/samples/6401e455a6045a7faa79b20a/readurlRedirect?type=full&publicToken=token",
+                "global_key": "image.png",
+                "media_type": "IMAGE",
+            }
+        ]
+
+    def test_export_label_box_v4_data_rows_by_tag_name(self):
+        rows = self.api_workflow_client.export_label_box_v4_data_rows_by_tag_name(
+            tag_name="initial-tag"
         )
         self.assertIsNotNone(rows)
         self.assertTrue(all(isinstance(row, dict) for row in rows))
