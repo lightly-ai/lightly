@@ -182,6 +182,8 @@ mae_transform = MAETransform()
 msn_transform = MSNTransform(
     random_size=128, 
     focal_size=64,
+    cj_strength=1.0, # Higher cj_strength works better for MSN on imagenette
+)
     cj_strength=0.5,
 )
 
