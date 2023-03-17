@@ -10,8 +10,9 @@ import torchvision.transforms as T
 
 
 class VICRegTransform(MultiViewTransform):
-    """Implements the transformations for VICReg. It adds a
-    random solarization in top of SimCLR transformations.
+    """Implements the transformations for VICReg.
+
+    Similar to SimCLR transform but with extra solarization.
 
     Attributes:
         input_size:

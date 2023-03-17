@@ -90,6 +90,7 @@ from lightly.transforms import DINOTransform
 from lightly.transforms import SMoGTransform
 from lightly.transforms import MAETransform
 from lightly.transforms import MSNTransform
+from lightly.transforms import VICRegTransform
 from lightly.transforms import VICRegLTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from pl_bolts.optimizers.lars import LARS
@@ -184,6 +185,9 @@ msn_transform = MSNTransform(
     focal_size=64,
     cj_strength=1.0, # Higher cj_strength works better for MSN on imagenette
 )
+
+vicreg_transform = VICRegTransform(
+    input_size=input_size,
     cj_strength=0.5,
 )
 
@@ -227,23 +231,29 @@ def create_dataset_train_ssl(model):
         model:
             Model class for which to select the transform.
     """
-    transform = simclr_transform
-    if model == SwaVModel or model == SwaVQueueModel:
-        transform = swav_transform
-    elif model == DINOModel:
-        transform = dino_transform
-    elif model == MAEModel:
-        transform = mae_transform
-    elif model == SimMIMModel:
-        transform = mae_transform
-    elif model == MSNModel:
-        transform = msn_transform
-    elif model == SMoGModel:
-        transform = smog_transform
-    elif model == VICRegLModel:
-        transform = vicregl_transform
+    model_to_transform = {
+        BarlowTwinsModel: simclr_transform,
+        BYOLModel: simclr_transform,
+        DCL: simclr_transform,
+        DCLW: simclr_transform,
+        DINOModel: dino_transform,
+        MAEModel: mae_transform,
+        MSNModel: msn_transform,
+        MocoModel: simclr_transform,
+        NNCLRModel: simclr_transform,
+        SimCLRModel: simclr_transform,
+        SimMIMModel: simclr_transform,
+        SimSiamModel: simclr_transform,
+        SwaVModel: swav_transform,
+        SwaVQueueModel: swav_transform,
+        SMoGModel: smog_transform,
+        TiCoModel: simclr_transform,
+        VICRegModel: vicreg_transform,
+        VICRegLModel: vicregl_transform,
+    }
+    transform = model_to_transform[model]
     return LightlyDataset(input_dir=path_to_train, transform=transform)
-    
+
 
 def get_data_loaders(batch_size: int, dataset_train_ssl):
     """Helper method to create dataloaders for ssl, kNN train and kNN test.
