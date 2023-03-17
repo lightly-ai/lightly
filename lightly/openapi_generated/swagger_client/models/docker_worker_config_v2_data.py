@@ -34,6 +34,7 @@ class DockerWorkerConfigV2Data(object):
     """
     swagger_types = {
         'id': 'MongoObjectID',
+        'version': 'str',
         'config': 'DockerWorkerConfigV2',
         'config_orig': 'DockerWorkerConfigV2',
         'created_at': 'Timestamp'
@@ -41,24 +42,28 @@ class DockerWorkerConfigV2Data(object):
 
     attribute_map = {
         'id': 'id',
+        'version': 'version',
         'config': 'config',
         'config_orig': 'configOrig',
         'created_at': 'createdAt'
     }
 
-    def __init__(self, id=None, config=None, config_orig=None, created_at=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, version=None, config=None, config_orig=None, created_at=None, _configuration=None):  # noqa: E501
         """DockerWorkerConfigV2Data - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._id = None
+        self._version = None
         self._config = None
         self._config_orig = None
         self._created_at = None
         self.discriminator = None
 
         self.id = id
+        if version is not None:
+            self.version = version
         self.config = config
         if config_orig is not None:
             self.config_orig = config_orig
@@ -87,6 +92,27 @@ class DockerWorkerConfigV2Data(object):
             raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
         self._id = id
+
+    @property
+    def version(self):
+        """Gets the version of this DockerWorkerConfigV2Data.  # noqa: E501
+
+
+        :return: The version of this DockerWorkerConfigV2Data.  # noqa: E501
+        :rtype: str
+        """
+        return self._version
+
+    @version.setter
+    def version(self, version):
+        """Sets the version of this DockerWorkerConfigV2Data.
+
+
+        :param version: The version of this DockerWorkerConfigV2Data.  # noqa: E501
+        :type: str
+        """
+
+        self._version = version
 
     @property
     def config(self):
