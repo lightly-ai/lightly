@@ -168,6 +168,17 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
         ]
 
     def test_export_label_box_data_rows_by_tag_name(self):
+        rows = self.api_workflow_client.export_label_box_data_rows_by_tag_name(
+            tag_name="initial-tag"
+        )
+        assert rows == [
+            {
+                "external_id": "2008_007291_jpg.rf.2fca436925b52ea33cf897125a34a2fb.jpg",
+                "image_url": "https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e233/readurlRedirect?type=CENSORED",
+            }
+        ]
+
+    def test_export_label_box_v4_data_rows_by_tag_name(self):
         rows = self.api_workflow_client.export_label_box_v4_data_rows_by_tag_name(
             tag_name="initial-tag"
         )
@@ -190,13 +201,6 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
                 "media_type": "IMAGE",
             }
         ]
-
-    def test_export_label_box_v4_data_rows_by_tag_name(self):
-        rows = self.api_workflow_client.export_label_box_v4_data_rows_by_tag_name(
-            tag_name="initial-tag"
-        )
-        self.assertIsNotNone(rows)
-        self.assertTrue(all(isinstance(row, dict) for row in rows))
 
     def test_export_label_studio_tasks_by_tag_name(self):
         tasks = self.api_workflow_client.export_label_studio_tasks_by_tag_name(
