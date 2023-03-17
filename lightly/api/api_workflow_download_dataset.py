@@ -257,19 +257,25 @@ class _DownloadDatasetMixin:
         self,
         tag_id: str,
     ) -> List[Dict]:
-        """Exports samples in a format compatible with Labelbox.
+        """Exports samples in a format compatible with Labelbox v3.
 
-        The format is documented here:
-        https://docs.labelbox.com/docs/images-json
+        The format is documented here: https://docs.labelbox.com/docs/images-json
 
         Args:
             tag_id:
                 Id of the tag which should exported.
 
         Returns:
-            A list of dictionaries in a format compatible with Labelbox.
+            A list of dictionaries in a format compatible with Labelbox v3.
 
         """
+        warnings.warn(
+            PendingDeprecationWarning(
+                "This method exports data in the deprecated Labelbox v3 format and "
+                "will be removed in the future. Use export_label_box_v4_data_rows_by_tag_id "
+                "to export data in the Labelbox v4 format instead."
+            )
+        )
         label_box_data_rows = paginate_endpoint(
             self._tags_api.export_tag_to_label_box_data_rows,
             page_size=20000,
@@ -282,17 +288,16 @@ class _DownloadDatasetMixin:
         self,
         tag_name: str,
     ) -> List[Dict]:
-        """Exports samples in a format compatible with Labelbox.
+        """Exports samples in a format compatible with Labelbox v3.
 
-        The format is documented here:
-        https://docs.labelbox.com/docs/images-json
+        The format is documented here: https://docs.labelbox.com/docs/images-json
 
         Args:
             tag_name:
                 Name of the tag which should exported.
 
         Returns:
-            A list of dictionaries in a format compatible with Labelbox.
+            A list of dictionaries in a format compatible with Labelbox v3.
 
         Examples:
             >>> # write json file which can be imported in Label Studio
@@ -304,8 +309,62 @@ class _DownloadDatasetMixin:
             >>>     json.dump(tasks, f)
 
         """
+        warnings.warn(
+            PendingDeprecationWarning(
+                "This method exports data in the deprecated Labelbox v3 format and "
+                "will be removed in the future. Use export_label_box_v4_data_rows_by_tag_name "
+                "to export data in the Labelbox v4 format instead."
+            )
+        )
         tag = self.get_tag_by_name(tag_name)
         return self.export_label_box_data_rows_by_tag_id(tag.id)
+
+    def export_label_box_v4_data_rows_by_tag_id(
+        self,
+        tag_id: str,
+    ) -> List[Dict]:
+        """Exports samples in a format compatible with Labelbox v4.
+
+        The format is documented here: https://docs.labelbox.com/docs/images-json
+
+        Args:
+            tag_id:
+                Id of the tag which should exported.
+        Returns:
+            A list of dictionaries in a format compatible with Labelbox v4.
+        """
+        label_box_data_rows = paginate_endpoint(
+            self._tags_api.export_tag_to_label_box_v4_data_rows,
+            page_size=20000,
+            dataset_id=self.dataset_id,
+            tag_id=tag_id,
+        )
+        return label_box_data_rows
+
+    def export_label_box_v4_data_rows_by_tag_name(
+        self,
+        tag_name: str,
+    ) -> List[Dict]:
+        """Exports samples in a format compatible with Labelbox.
+
+        The format is documented here: https://docs.labelbox.com/docs/images-json
+
+        Args:
+            tag_name:
+                Name of the tag which should exported.
+        Returns:
+            A list of dictionaries in a format compatible with Labelbox.
+        Examples:
+            >>> # write json file which can be imported in Label Studio
+            >>> tasks = client.export_label_box_v4_data_rows_by_tag_name(
+            >>>     'initial-tag'
+            >>> )
+            >>>
+            >>> with open('my-labelbox-rows.json', 'w') as f:
+            >>>     json.dump(tasks, f)
+        """
+        tag = self.get_tag_by_name(tag_name)
+        return self.export_label_box_v4_data_rows_by_tag_id(tag.id)
 
     def export_filenames_by_tag_id(
         self,

@@ -18,6 +18,7 @@ from lightly.openapi_generated.swagger_client import (
     CreateEntityResponse,
     DatasourceRawSamplesMetadataData,
     InitialTagCreateRequest,
+    LabelBoxV4DataRow,
     QuotaApi,
     SampleCreateRequest,
     SampleData,
@@ -437,6 +438,19 @@ class MockedTagsApi(TagsApi):
             LabelBoxDataRow(
                 external_id="2008_007291_jpg.rf.2fca436925b52ea33cf897125a34a2fb.jpg",
                 image_url="https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e233/readurlRedirect?type=CENSORED",
+            ).to_dict()  # temporary until we have a proper openapi generator
+        ]
+
+    def export_tag_to_label_box_v4_data_rows(
+        self, dataset_id: str, tag_id: str, **kwargs
+    ) -> List[Dict]:
+        if kwargs["page_offset"] and kwargs["page_offset"] > 0:
+            return []
+        return [
+            LabelBoxV4DataRow(
+                row_data="http://localhost:5000/v1/datasets/6401d4534d2ed9112da782f5/samples/6401e455a6045a7faa79b20a/readurlRedirect?type=full&publicToken=token",
+                global_key="image.png",
+                media_type="IMAGE",
             ).to_dict()  # temporary until we have a proper openapi generator
         ]
 
