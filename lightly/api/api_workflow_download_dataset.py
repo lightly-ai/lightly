@@ -269,6 +269,13 @@ class _DownloadDatasetMixin:
             A list of dictionaries in a format compatible with Labelbox v3.
 
         """
+        warnings.warn(
+            PendingDeprecationWarning(
+                "This method exports data in the deprecated Labelbox v3 format and "
+                "will be removed in the future. Use export_label_box_v4_data_rows_by_tag_id "
+                "to export data in the Labelbox v4 format instead."
+            )
+        )
         label_box_data_rows = paginate_endpoint(
             self._tags_api.export_tag_to_label_box_data_rows,
             page_size=20000,
@@ -302,6 +309,13 @@ class _DownloadDatasetMixin:
             >>>     json.dump(tasks, f)
 
         """
+        warnings.warn(
+            PendingDeprecationWarning(
+                "This method exports data in the deprecated Labelbox v3 format and "
+                "will be removed in the future. Use export_label_box_v4_data_rows_by_tag_name "
+                "to export data in the Labelbox v4 format instead."
+            )
+        )
         tag = self.get_tag_by_name(tag_name)
         return self.export_label_box_data_rows_by_tag_id(tag.id)
 
