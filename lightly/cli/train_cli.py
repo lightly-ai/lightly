@@ -7,6 +7,7 @@ command-line interface.
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+import copy
 import os
 import warnings
 
@@ -119,7 +120,10 @@ def _train_cli(cfg, is_cli_call=True):
     encoder = SelfSupervisedEmbedding(model, criterion, optimizer, dataloader)
 
     # Create trainer config
-    trainer_kwargs = OmegaConf.to_container(cfg["trainer"])
+    if isinstance(cfg, dict):
+        trainer_kwargs = copy.deepcopy(cfg["trainer"])
+    else:
+        trainer_kwargs = OmegaConf.to_container(cfg["trainer"])
     if "gpus" in trainer_kwargs:
         # PyTorch Lightning >= 2.0 doesn't support the gpus trainer flag anymore.
         # We have to use accelerator and devices instead.
