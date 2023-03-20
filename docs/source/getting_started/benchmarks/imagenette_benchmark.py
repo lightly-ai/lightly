@@ -223,7 +223,7 @@ def get_data_loaders(batch_size: int, model):
         col_fn = mae_collate_fn
     elif model == SimMIMModel:
         col_fn = mae_collate_fn
-    elif model == MSNModel:
+    elif model == MSNModel or model == PMSNModel:
         col_fn = msn_collate_fn
     elif model == SMoGModel:
         col_fn = smog_collate_function
