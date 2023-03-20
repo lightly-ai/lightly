@@ -41,7 +41,7 @@ class SelectionConfigEntryInput(object):
         'dataset_id': 'MongoObjectID',
         'tag_name': 'TagName',
         'random_seed': 'int',
-        'categories': 'list[str]'
+        'categories': 'list[CategoryName]'
     }
 
     attribute_map = {
@@ -267,7 +267,7 @@ class SelectionConfigEntryInput(object):
 
 
         :return: The categories of this SelectionConfigEntryInput.  # noqa: E501
-        :rtype: list[str]
+        :rtype: list[CategoryName]
         """
         return self._categories
 
@@ -277,7 +277,7 @@ class SelectionConfigEntryInput(object):
 
 
         :param categories: The categories of this SelectionConfigEntryInput.  # noqa: E501
-        :type: list[str]
+        :type: list[CategoryName]
         """
 
         self._categories = categories
