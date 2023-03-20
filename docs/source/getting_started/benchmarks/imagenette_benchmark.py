@@ -11,14 +11,14 @@ Code has been tested on a A6000 GPU with 48GBytes of memory.
 
 Code to reproduce the benchmark results:
 
-Results (2.3.2023):
+Results (20.3.2023):
 ---------------------------------------------------------------------------------------------
 | Model            | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
 ---------------------------------------------------------------------------------------------
 | BarlowTwins      |        256 |    200 |              0.491 |   57.7 Min |      4.0 GByte |
 | BYOL             |        256 |    200 |              0.713 |   51.3 Min |      4.3 GByte |
-| DCL (*)          |        256 |    200 |              0.814 |   47.5 Min |      3.7 GByte |
-| DCLW (*)         |        256 |    200 |              0.802 |   48.0 Min |      3.7 GByte |
+| DCL              |        256 |    200 |              0.814 |   47.5 Min |      3.7 GByte |
+| DCLW             |        256 |    200 |              0.802 |   48.0 Min |      3.7 GByte |
 | DINO (Res18)     |        256 |    200 |              0.872 |   76.6 Min |      6.6 GByte |
 | MSN (ViT-S)      |        256 |    200 |              0.721 |  123.3 Min |     16.3 GByte |
 | Moco             |        256 |    200 |              0.778 |   51.3 Min |      4.2 GByte |
@@ -33,30 +33,25 @@ Results (2.3.2023):
 | VICReg           |        256 |    200 |              0.733 |   49.2 Min |      3.8 GByte |
 | VICRegL          |        256 |    200 |              0.643 |   48.0 Min |      2.6 GByte |
 ---------------------------------------------------------------------------------------------
-| BarlowTwins      |        256 |    800 |              0.834 |  330.9 Min |      4.0 GByte |
-| BYOL             |        256 |    800 |              0.887 |  332.7 Min |      4.3 GByte |
-| DCL (*)          |        256 |    800 |              0.862 |  213.1 Min |      4.3 GByte |
-| DCLW (*)         |        256 |    800 |              0.866 |  213.1 Min |      4.3 GByte |
-| DINO (Res18)     |        256 |    800 |              0.866 |  613.9 Min |      6.7 GByte |
-| MAE (ViT-S)      |        256 |    800 |              0.620 |  205.1 Min |      4.7 GByte |
-| MSN (ViT-S)      |        256 |    800 |              0.834 |  446.8 Min |     16.3 GByte |
-| Moco             |        256 |    800 |              0.876 |  322.8 Min |      4.2 GByte |
-| NNCLR            |        256 |    800 |              0.888 |  341.4 Min |      4.2 GByte |
-| SimCLR           |        256 |    800 |              0.892 |  324.8 Min |      3.9 GByte |
-| SimMIM (ViT-B32) |        256 |    800 |              0.351 |  305.2 Min |     10.5 GByte |
-| SimSiam          |        256 |    800 |              0.888 |  316.0 Min |      3.9 GByte |
-| SwaV             |        256 |    800 |              0.902 |  554.7 Min |      6.6 GByte |
-| SwaVQueue        |        256 |    800 |              0.894 |  325.5 Min |      8.2 GByte |
-| SMoG             |        256 |    800 |              0.806 |  220.9 Min |     14.3 GByte |
-| TiCo             |        256 |    800 |              0.816 |  321.1 Min |      4.0 GByte |
-| VICReg           |        256 |    800 |              0.815 |  316.0 Min |      5.7 GByte |
-| VICRegL          |        256 |    800 |              0.800 |  210.9 Min |      4.4 GByte |
+| BarlowTwins      |        256 |    800 |              0.850 |  279.5 Min |      5.7 GByte |
+| BYOL             |        256 |    800 |              0.887 |  202.7 Min |      4.3 GByte |
+| DCL              |        256 |    800 |              0.864 |  183.7 Min |      3.7 GByte |
+| DCLW             |        256 |    800 |              0.861 |  188.5 Min |      3.7 GByte |
+| DINO (Res18)     |        256 |    800 |              0.887 |  291.6 Min |      8.5 GByte |
+| MAE (ViT-S)      |        256 |    800 |              0.620 |  208.2 Min |      4.6 GByte |
+| MSN (ViT-S)      |        256 |    800 |              0.833 |  394.0 Min |     16.3 GByte |
+| Moco             |        256 |    800 |              0.874 |  220.7 Min |      4.2 GByte |
+| NNCLR            |        256 |    800 |              0.885 |  207.1 Min |      3.8 GByte |
+| SimCLR           |        256 |    800 |              0.889 |  206.4 Min |      3.7 GByte |
+| SimMIM (ViT-B32) |        256 |    800 |              0.351 |  302.8 Min |     10.5 GByte |
+| SimSiam          |        256 |    800 |              0.885 |  206.1 Min |      3.9 GByte |
+| SwaV             |        256 |    800 |              0.899 |  309.0 Min |      6.4 GByte |
+| SwaVQueue        |        256 |    800 |              0.898 |  300.3 Min |      6.4 GByte |
+| SMoG             |        256 |    800 |              0.782 |  250.2 Min |      2.5 GByte |
+| TiCo             |        256 |    800 |              0.857 |  184.7 Min |      2.5 GByte |
+| VICReg           |        256 |    800 |              0.843 |  192.9 Min |      5.7 GByte |
+| VICRegL          |        256 |    800 |              0.799 |  180.0 Min |      2.6 GByte |
 ---------------------------------------------------------------------------------------------
-
-(*): Different runtime and memory requirements due to different hardware settings
-and pytorch version. Runtime and memory requirements are comparable to SimCLR
-with the default settings.
-(**): Uses outdated ResNetGenerator architecture.
 
 """
 import copy
@@ -71,16 +66,8 @@ import torchvision
 from pl_bolts.optimizers.lars import LARS
 from pytorch_lightning.loggers import TensorBoardLogger
 
-from lightly.data import (
-    DINOCollateFunction,
-    LightlyDataset,
-    MAECollateFunction,
-    MSNCollateFunction,
-    SimCLRCollateFunction,
-    SwaVCollateFunction,
-    VICRegLCollateFunction,
-    collate,
-)
+from lightly.data import LightlyDataset
+from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import (
     BarlowTwinsLoss,
     DCLLoss,
@@ -97,6 +84,17 @@ from lightly.loss import (
 )
 from lightly.models import modules, utils
 from lightly.models.modules import heads, masked_autoencoder
+from lightly.transforms import (
+    DINOTransform,
+    MAETransform,
+    MSNTransform,
+    SimCLRTransform,
+    SMoGTransform,
+    SwaVTransform,
+    VICRegLTransform,
+    VICRegTransform,
+)
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils import scheduler
 from lightly.utils.benchmarking import BenchmarkModule
 
@@ -149,45 +147,65 @@ else:
 path_to_train = "/datasets/imagenette2-160/train/"
 path_to_test = "/datasets/imagenette2-160/val/"
 
+# Collate function init
+collate_fn = MultiViewCollate()
+
 # Use SimCLR augmentations
-collate_fn = SimCLRCollateFunction(
+simclr_transform = SimCLRTransform(
     input_size=input_size,
+    cj_strength=0.5,
 )
 
 # Multi crop augmentation for SwAV
-swav_collate_fn = SwaVCollateFunction(
-    crop_sizes=[128, 64],
-    crop_counts=[2, 6],  # 2 crops @ 128x128px and 6 crops @ 64x64px
+swav_transform = SwaVTransform(
+    crop_sizes=(128, 64),
+    crop_counts=(2, 6),  # 2 crops @ 128x128px and 6 crops @ 64x64px
+    cj_strength=0.5,
 )
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
-dino_collate_fn = DINOCollateFunction(
+dino_transform = DINOTransform(
     global_crop_size=128,
     local_crop_size=64,
+    cj_strength=0.5,
 )
 
 # Two crops for SMoG
-smog_collate_function = collate.SMoGCollateFunction(
-    crop_sizes=[128, 128],
-    crop_counts=[1, 1],
-    crop_min_scales=[0.2, 0.2],
-    crop_max_scales=[1.0, 1.0],
+smog_transform = SMoGTransform(
+    crop_sizes=(128, 128),
+    crop_counts=(1, 1),
+    crop_min_scales=(0.2, 0.2),
+    crop_max_scales=(1.0, 1.0),
+    cj_strength=0.5,
 )
 
 # Single crop augmentation for MAE
-mae_collate_fn = MAECollateFunction()
+mae_transform = MAETransform()
 
 # Multi crop augmentation for MSN
-msn_collate_fn = MSNCollateFunction(random_size=128, focal_size=64)
+msn_transform = MSNTransform(
+    random_size=128,
+    focal_size=64,
+    cj_strength=1.0,  # Higher cj_strength works better for MSN on imagenette
+)
 
-# Collate function passing geometrical transformation for VICRegL
-vicregl_collate_fn = VICRegLCollateFunction(
-    global_crop_size=128, local_crop_size=64, global_grid_size=4, local_grid_size=2
+vicreg_transform = VICRegTransform(
+    input_size=input_size,
+    cj_strength=0.5,
+)
+
+# Transform  passing geometrical transformation for VICRegL
+vicregl_transform = VICRegLTransform(
+    global_crop_size=128,
+    local_crop_size=64,
+    global_grid_size=4,
+    local_grid_size=2,
+    cj_strength=0.5,
 )
 
 normalize_transform = torchvision.transforms.Normalize(
-    mean=collate.imagenet_normalize["mean"],
-    std=collate.imagenet_normalize["std"],
+    mean=IMAGENET_NORMALIZE["mean"],
+    std=IMAGENET_NORMALIZE["std"],
 )
 
 # No additional augmentations for the test set
@@ -200,40 +218,54 @@ test_transforms = torchvision.transforms.Compose(
     ]
 )
 
-dataset_train_ssl = LightlyDataset(input_dir=path_to_train)
-
 # we use test transformations for getting the feature for kNN on train data
 dataset_train_kNN = LightlyDataset(input_dir=path_to_train, transform=test_transforms)
 
 dataset_test = LightlyDataset(input_dir=path_to_test, transform=test_transforms)
 
 
-def get_data_loaders(batch_size: int, model):
-    """Helper method to create dataloaders for ssl, kNN train and kNN test
+def create_dataset_train_ssl(model):
+    """Helper method to apply the correct transform for ssl.
 
     Args:
-        batch_size: Desired batch size for all dataloaders
+        model:
+            Model class for which to select the transform.
     """
-    col_fn = collate_fn
-    if model == SwaVModel or model == SwaVQueueModel:
-        col_fn = swav_collate_fn
-    elif model == DINOModel:
-        col_fn = dino_collate_fn
-    elif model == MAEModel:
-        col_fn = mae_collate_fn
-    elif model == SimMIMModel:
-        col_fn = mae_collate_fn
-    elif model == MSNModel:
-        col_fn = msn_collate_fn
-    elif model == SMoGModel:
-        col_fn = smog_collate_function
-    elif model == VICRegLModel:
-        col_fn = vicregl_collate_fn
+    model_to_transform = {
+        BarlowTwinsModel: simclr_transform,
+        BYOLModel: simclr_transform,
+        DCL: simclr_transform,
+        DCLW: simclr_transform,
+        DINOModel: dino_transform,
+        MAEModel: mae_transform,
+        MSNModel: msn_transform,
+        MocoModel: simclr_transform,
+        NNCLRModel: simclr_transform,
+        SimCLRModel: simclr_transform,
+        SimMIMModel: simclr_transform,
+        SimSiamModel: simclr_transform,
+        SwaVModel: swav_transform,
+        SwaVQueueModel: swav_transform,
+        SMoGModel: smog_transform,
+        TiCoModel: simclr_transform,
+        VICRegModel: vicreg_transform,
+        VICRegLModel: vicregl_transform,
+    }
+    transform = model_to_transform[model]
+    return LightlyDataset(input_dir=path_to_train, transform=transform)
+
+
+def get_data_loaders(batch_size: int, dataset_train_ssl):
+    """Helper method to create dataloaders for ssl, kNN train and kNN test.
+
+    Args:
+        batch_size: Desired batch size for all dataloaders.
+    """
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=col_fn,
+        collate_fn=collate_fn,
         drop_last=True,
         num_workers=num_workers,
     )
@@ -738,7 +770,7 @@ class MAEModel(BenchmarkModule):
 
     def training_step(self, batch, batch_idx):
         images, _, _ = batch
-
+        images = images[0]  # images is a list containing only one view
         batch_size = images.shape[0]
         idx_keep, idx_mask = utils.random_token_mask(
             size=(batch_size, self.sequence_length),
@@ -980,7 +1012,7 @@ class SimMIMModel(BenchmarkModule):
 
     def training_step(self, batch, batch_idx):
         images, _, _ = batch
-
+        images = images[0]  # images is a list containing only one view
         batch_size = images.shape[0]
         idx_keep, idx_mask = utils.random_token_mask(
             size=(batch_size, self.sequence_length),
@@ -1137,7 +1169,7 @@ class TiCoModel(BenchmarkModule):
 
     def training_step(self, batch, batch_index):
         (x0, x1), _, _ = batch
-        momentum = scheduler.cosine_schedule(self.current_epoch, 10, 0.996, 1)
+        momentum = scheduler.cosine_schedule(self.current_epoch, max_epochs, 0.996, 1)
         utils.update_momentum(self.backbone, self.backbone_momentum, m=momentum)
         utils.update_momentum(
             self.projection_head, self.projection_head_momentum, m=momentum
@@ -1255,7 +1287,7 @@ models = [
     DCLW,
     DINOModel,
     # MAEModel, # disabled by default because MAE uses larger images with size 224
-    # MSNModel, # disabled by default because MSN uses larger images with size 224
+    MSNModel,
     MocoModel,
     NNCLRModel,
     SimCLRModel,
@@ -1277,9 +1309,9 @@ for BenchmarkModel in models:
     model_name = BenchmarkModel.__name__.replace("Model", "")
     for seed in range(n_runs):
         pl.seed_everything(seed)
+        dataset_train_ssl = create_dataset_train_ssl(BenchmarkModel)
         dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(
-            batch_size=batch_size,
-            model=BenchmarkModel,
+            batch_size=batch_size, dataset_train_ssl=dataset_train_ssl
         )
         benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
 

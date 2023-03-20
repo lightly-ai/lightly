@@ -46,6 +46,9 @@ class DINOTransform(MultiViewTransform):
             [-rr_degrees, +rr_degrees]. All rotations are counter-clockwise.
         cj_prob:
             Probability that color jitter is applied.
+        cj_strength:
+            Strength of the color jitter. `cj_bright`, `cj_contrast`, `cj_sat`, and
+            `cj_hue` are multiplied by this value.
         cj_bright:
             How much to jitter brightness.
         cj_contrast:
@@ -88,10 +91,11 @@ class DINOTransform(MultiViewTransform):
         rr_prob: float = 0,
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         cj_prob: float = 0.8,
-        cj_bright: float = 0.4,
-        cj_contrast: float = 0.4,
-        cj_sat: float = 0.2,
-        cj_hue: float = 0.1,
+        cj_strength: float = 0.5,
+        cj_bright: float = 0.8,
+        cj_contrast: float = 0.8,
+        cj_sat: float = 0.4,
+        cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
         gaussian_blur: Tuple[float, float, float] = (1.0, 0.1, 0.5),
         kernel_size: Optional[float] = None,
@@ -109,6 +113,7 @@ class DINOTransform(MultiViewTransform):
             rr_prob=rr_prob,
             rr_degrees=rr_degrees,
             cj_prob=cj_prob,
+            cj_strength=cj_strength,
             cj_bright=cj_bright,
             cj_contrast=cj_contrast,
             cj_hue=cj_hue,
@@ -153,6 +158,7 @@ class DINOTransform(MultiViewTransform):
             rr_prob=rr_prob,
             rr_degrees=rr_degrees,
             cj_prob=cj_prob,
+            cj_strength=cj_strength,
             cj_bright=cj_bright,
             cj_contrast=cj_contrast,
             cj_hue=cj_hue,
@@ -181,10 +187,11 @@ class DINOViewTransform:
         rr_prob: float = 0,
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         cj_prob: float = 0.8,
-        cj_bright: float = 0.4,
-        cj_contrast: float = 0.4,
-        cj_sat: float = 0.2,
-        cj_hue: float = 0.1,
+        cj_strength: float = 0.5,
+        cj_bright: float = 0.8,
+        cj_contrast: float = 0.8,
+        cj_sat: float = 0.4,
+        cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 1.0,
         kernel_size: Optional[float] = None,
@@ -205,10 +212,10 @@ class DINOViewTransform:
             T.RandomApply(
                 [
                     T.ColorJitter(
-                        brightness=cj_bright,
-                        contrast=cj_contrast,
-                        saturation=cj_sat,
-                        hue=cj_hue,
+                        brightness=cj_strength * cj_bright,
+                        contrast=cj_strength * cj_contrast,
+                        saturation=cj_strength * cj_sat,
+                        hue=cj_strength * cj_hue,
                     )
                 ],
                 p=cj_prob,

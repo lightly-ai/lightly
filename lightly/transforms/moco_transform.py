@@ -13,7 +13,16 @@ class MoCoV1Transform(SimCLRTransform):
         cj_prob:
             Probability that color jitter is applied.
         cj_strength:
-            Strength of the color jitter.
+            Strength of the color jitter. `cj_bright`, `cj_contrast`, `cj_sat`, and
+            `cj_hue` are multiplied by this value.
+        cj_bright:
+            How much to jitter brightness.
+        cj_contrast:
+            How much to jitter constrast.
+        cj_sat:
+            How much to jitter saturation.
+        cj_hue:
+            How much to jitter hue.
         min_scale:
             Minimum size of the randomized crop relative to the input_size.
         random_gray_scale:
@@ -47,12 +56,16 @@ class MoCoV1Transform(SimCLRTransform):
         self,
         input_size: int = 224,
         cj_prob: float = 0.8,
-        cj_strength: float = 0.4,
+        cj_strength: float = 1.0,
+        cj_bright: float = 0.4,
+        cj_contrast: float = 0.4,
+        cj_sat: float = 0.4,
+        cj_hue: float = 0.4,
         min_scale: float = 0.2,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.0,
         kernel_size: Optional[float] = None,
-        sigmas: Tuple[float, float] = (0.2, 2),
+        sigmas: Tuple[float, float] = (0.1, 2),
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
@@ -62,10 +75,11 @@ class MoCoV1Transform(SimCLRTransform):
         super().__init__(
             input_size=input_size,
             cj_prob=cj_prob,
-            cj_bright=cj_strength,
-            cj_contrast=cj_strength,
-            cj_sat=cj_strength,
-            cj_hue=cj_strength,
+            cj_strength=cj_strength,
+            cj_bright=cj_bright,
+            cj_contrast=cj_contrast,
+            cj_sat=cj_sat,
+            cj_hue=cj_hue,
             min_scale=min_scale,
             random_gray_scale=random_gray_scale,
             gaussian_blur=gaussian_blur,
