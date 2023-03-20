@@ -11,36 +11,33 @@ command-line interface.
 import os
 
 import hydra
-from torch.utils.hipify.hipify_python import bcolors
 
 import lightly.data as data
-from lightly.cli._helpers import fix_input_path
-from lightly.cli._helpers import print_as_warning
-from lightly.cli._helpers import fix_hydra_arguments
-from lightly.cli._helpers import cpu_count
-
 from lightly.api.api_workflow_client import ApiWorkflowClient
+from lightly.cli._helpers import cpu_count, fix_hydra_arguments, fix_input_path
 from lightly.openapi_generated.swagger_client import Creator
+from lightly.utils.hipify import bcolors, print_as_warning
 
 
 def _download_cli(cfg, is_cli_call=True):
-
-    tag_name = str(cfg['tag_name'])
-    dataset_id = str(cfg['dataset_id'])
-    token = str(cfg['token'])
+    tag_name = str(cfg["tag_name"])
+    dataset_id = str(cfg["dataset_id"])
+    token = str(cfg["token"])
 
     if not tag_name or not token or not dataset_id:
-        print_as_warning('Please specify all of the parameters tag_name, token and dataset_id')
-        print_as_warning('For help, try: lightly-download --help')
+        print_as_warning(
+            "Please specify all of the parameters tag_name, token and dataset_id"
+        )
+        print_as_warning("For help, try: lightly-download --help")
         return
 
     # set the number of workers if unset
-    if cfg['loader']['num_workers'] < 0:
+    if cfg["loader"]["num_workers"] < 0:
         # set the number of workers to the number of CPUs available,
         # but minimum of 8
         num_workers = max(8, cpu_count())
         num_workers = min(32, num_workers)
-        cfg['loader']['num_workers'] = num_workers
+        cfg["loader"]["num_workers"] = num_workers
 
     api_workflow_client = ApiWorkflowClient(
         token=token, dataset_id=dataset_id, creator=Creator.USER_PIP_LIGHTLY_MAGIC
@@ -50,12 +47,12 @@ def _download_cli(cfg, is_cli_call=True):
     tag_data = api_workflow_client.get_tag_by_name(tag_name)
     filenames_tag = api_workflow_client.get_filenames_in_tag(
         tag_data,
-        exclude_parent_tag=cfg['exclude_parent_tag'],
+        exclude_parent_tag=cfg["exclude_parent_tag"],
     )
 
     # store sample names in a .txt file
-    filename = tag_name + '.txt'
-    with open(filename, 'w') as f:
+    filename = tag_name + ".txt"
+    with open(filename, "w") as f:
         for item in filenames_tag:
             f.write("%s\n" % item)
 
@@ -63,19 +60,19 @@ def _download_cli(cfg, is_cli_call=True):
     msg = f'The list of samples in tag {cfg["tag_name"]} is stored at: {bcolors.OKBLUE}{filepath}{bcolors.ENDC}'
     print(msg, flush=True)
 
-    if not cfg['input_dir'] and cfg['output_dir']:
+    if not cfg["input_dir"] and cfg["output_dir"]:
         # download full images from api
-        output_dir = fix_input_path(cfg['output_dir'])
+        output_dir = fix_input_path(cfg["output_dir"])
         api_workflow_client.download_dataset(
-            output_dir,
-            tag_name=tag_name,
-            max_workers=cfg['loader']['num_workers']
+            output_dir, tag_name=tag_name, max_workers=cfg["loader"]["num_workers"]
         )
 
-    elif cfg['input_dir'] and cfg['output_dir']:
-        input_dir = fix_input_path(cfg['input_dir'])
-        output_dir = fix_input_path(cfg['output_dir'])
-        print(f'Copying files from {input_dir} to {bcolors.OKBLUE}{output_dir}{bcolors.ENDC}.')
+    elif cfg["input_dir"] and cfg["output_dir"]:
+        input_dir = fix_input_path(cfg["input_dir"])
+        output_dir = fix_input_path(cfg["output_dir"])
+        print(
+            f"Copying files from {input_dir} to {bcolors.OKBLUE}{output_dir}{bcolors.ENDC}."
+        )
 
         # create a dataset from the input directory
         dataset = data.LightlyDataset(input_dir=input_dir)
@@ -84,41 +81,41 @@ def _download_cli(cfg, is_cli_call=True):
         dataset.dump(output_dir, filenames_tag)
 
 
-@hydra.main(**fix_hydra_arguments(config_path = 'config', config_name = 'config'))
+@hydra.main(**fix_hydra_arguments(config_path="config", config_name="config"))
 def download_cli(cfg):
     """Download images from the Lightly platform.
 
     Args:
         cfg:
             The default configs are loaded from the config file.
-            To overwrite them please see the section on the config file 
+            To overwrite them please see the section on the config file
             (.config.config.yaml).
-    
+
     Command-Line Args:
         tag_name:
             Download all images from the requested tag. Use initial-tag
             to get all images from the dataset.
         token:
             User access token to the Lightly platform. If dataset_id
-            and token are specified, the images and embeddings are 
+            and token are specified, the images and embeddings are
             uploaded to the platform.
         dataset_id:
-            Identifier of the dataset on the Lightly platform. If 
-            dataset_id and token are specified, the images and 
+            Identifier of the dataset on the Lightly platform. If
+            dataset_id and token are specified, the images and
             embeddings are uploaded to the platform.
         input_dir:
             If input_dir and output_dir are specified, lightly will copy
-            all images belonging to the tag from the input_dir to the 
+            all images belonging to the tag from the input_dir to the
             output_dir.
         output_dir:
             If input_dir and output_dir are specified, lightly will copy
-            all images belonging to the tag from the input_dir to the 
+            all images belonging to the tag from the input_dir to the
             output_dir.
 
     Examples:
         >>> # download list of all files in the dataset from the Lightly platform
         >>> lightly-download token='123' dataset_id='XYZ'
-        >>> 
+        >>>
         >>> # download list of all files in tag 'my-tag' from the Lightly platform
         >>> lightly-download token='123' dataset_id='XYZ' tag_name='my-tag'
         >>>

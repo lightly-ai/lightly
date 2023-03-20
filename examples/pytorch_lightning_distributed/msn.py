@@ -1,18 +1,18 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 import copy
 
-import torch
-from torch import nn
-import torchvision
 import pytorch_lightning as pl
+import torch
+import torchvision
+from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.collate import MSNCollateFunction
 from lightly.loss import MSNLoss
-from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models import utils
+from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models.modules.masked_autoencoder import MAEBackbone
 
 
@@ -20,7 +20,7 @@ class MSN(pl.LightningModule):
     def __init__(self):
         super().__init__()
 
-        # ViT small configuration (ViT-S/16)
+        # ViT small configuration (ViT-S/16)
         self.mask_ratio = 0.15
         self.backbone = MAEBackbone(
             image_size=224,
@@ -30,7 +30,7 @@ class MSN(pl.LightningModule):
             hidden_dim=384,
             mlp_dim=384 * 4,
         )
-        # or use a torchvision ViT backbone:
+        # or use a torchvision ViT backbone:
         # vit = torchvision.models.vit_b_32(pretrained=False)
         # self.backbone = MAEBackbone.from_vit(vit)
         self.projection_head = MSNProjectionHead(384)
@@ -43,7 +43,7 @@ class MSN(pl.LightningModule):
 
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
 
-        # set gather_distributed to True for distributed training
+        # set gather_distributed to True for distributed training
         self.criterion = MSNLoss(gather_distributed=True)
 
     def training_step(self, batch, batch_idx):
@@ -109,12 +109,12 @@ dataloader = torch.utils.data.DataLoader(
 
 gpus = torch.cuda.device_count()
 
-# Train with DDP on multiple gpus. Distributed sampling is also enabled with 
+# Train with DDP on multiple gpus. Distributed sampling is also enabled with
 # replace_sampler_ddp=True.
 trainer = pl.Trainer(
-    max_epochs=10, 
+    max_epochs=10,
     gpus=gpus,
-    strategy='ddp',
+    strategy="ddp",
     replace_sampler_ddp=True,
 )
 trainer.fit(model=model, train_dataloaders=dataloader)

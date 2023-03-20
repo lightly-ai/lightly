@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from omegaconf import OmegaConf, DictConfig
+from omegaconf import DictConfig, OmegaConf
 
 
 def get_lightly_config() -> DictConfig:

@@ -5,29 +5,28 @@
 
 import os
 from typing import *
-from PIL import Image
-from PIL import UnidentifiedImageError
+
 import tqdm.contrib.concurrent as concurrent
+from PIL import Image, UnidentifiedImageError
+
 from lightly.data import LightlyDataset
 
 
 def check_images(data_dir: str) -> Tuple[List[str], List[str]]:
-    '''Iterate through a directory of images and find corrupt images
+    """Iterate through a directory of images and find corrupt images
 
     Args:
         data_dir: Path to the directory containing the images
 
     Returns:
         (healthy_images, corrupt_images)
-    '''
+    """
     dataset = LightlyDataset(input_dir=data_dir)
     filenames = dataset.get_filenames()
 
     def _is_corrupt(filename):
         try:
-            image = Image.open(
-                os.path.join(data_dir, filename)
-            )
+            image = Image.open(os.path.join(data_dir, filename))
             image.load()
         except (IOError, UnidentifiedImageError):
             return True
@@ -35,12 +34,8 @@ def check_images(data_dir: str) -> Tuple[List[str], List[str]]:
             return False
 
     mapped = concurrent.thread_map(
-        _is_corrupt,
-        filenames,
-        chunksize=min(32, len(filenames))
+        _is_corrupt, filenames, chunksize=min(32, len(filenames))
     )
-    healthy_images = [f for f, is_corrupt
-                      in zip(filenames, mapped) if not is_corrupt]
-    corrupt_images = [f for f, is_corrupt
-                      in zip(filenames, mapped) if is_corrupt]
+    healthy_images = [f for f, is_corrupt in zip(filenames, mapped) if not is_corrupt]
+    corrupt_images = [f for f, is_corrupt in zip(filenames, mapped) if is_corrupt]
     return healthy_images, corrupt_images

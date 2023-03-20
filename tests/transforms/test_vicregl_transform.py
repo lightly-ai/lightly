@@ -1,8 +1,6 @@
 from PIL import Image
-from lightly.transforms.vicregl_transform import (
-    VICRegLTransform,
-    VICRegLViewTransform,
-)
+
+from lightly.transforms.vicregl_transform import VICRegLTransform, VICRegLViewTransform
 
 
 def test_view_on_pil_image():

@@ -8,8 +8,7 @@ import warnings
 import torch
 import torch.nn as nn
 
-from lightly.models.modules import NNCLRProjectionHead
-from lightly.models.modules import NNCLRPredictionHead
+from lightly.models.modules import NNCLRPredictionHead, NNCLRProjectionHead
 
 
 def _prediction_mlp(in_dims: int, h_dims: int, out_dims: int) -> nn.Sequential:
@@ -130,7 +129,6 @@ class NNCLR(nn.Module):
         pred_hidden_dim: int = 4096,
         out_dim: int = 256,
     ):
-
         super(NNCLR, self).__init__()
 
         self.backbone = backbone

@@ -1,16 +1,14 @@
-from typing import List, Dict
+from typing import Dict, List
 
 import numpy as np
 
 from lightly.active_learning.scorers import Scorer
-from lightly.active_learning.utils.keypoint_predictions import \
-    KeypointPrediction
+from lightly.active_learning.utils.keypoint_predictions import KeypointPrediction
 
 
-def _mean_uncertainty(
-        model_output: List[KeypointPrediction]) -> np.ndarray:
+def _mean_uncertainty(model_output: List[KeypointPrediction]) -> np.ndarray:
     """Score which prefers samples with low confidence score.
-    
+
     The uncertainty score per image is 1 minus the mean confidence
     score of all its keypoints.
 
@@ -25,13 +23,15 @@ def _mean_uncertainty(
     scores = []
     for keypoint_prediction in model_output:
         confidences_image = []
-        for keypoint_instance_prediction in keypoint_prediction.keypoint_instance_predictions:
+        for (
+            keypoint_instance_prediction
+        ) in keypoint_prediction.keypoint_instance_predictions:
             confidences_instance = keypoint_instance_prediction.get_confidences()
             if len(confidences_instance) > 0:
                 conf = np.mean(confidences_instance)
                 confidences_image.append(conf)
         if len(confidences_image) > 0:
-            score = 1. - np.mean(confidences_image)
+            score = 1.0 - np.mean(confidences_image)
             scores.append(score)
         else:
             scores.append(0)
@@ -81,17 +81,15 @@ class ScorerKeypointDetection(Scorer):
         self.model_output = model_output
 
     def calculate_scores(self) -> Dict[str, np.ndarray]:
-        """Calculates and returns active learning scores in a dictionary.
-        """
+        """Calculates and returns active learning scores in a dictionary."""
         # add classification scores
         scores = dict()
-        scores['mean_uncertainty'] = _mean_uncertainty(self.model_output)
+        scores["mean_uncertainty"] = _mean_uncertainty(self.model_output)
         return scores
 
     @classmethod
     def score_names(cls) -> List[str]:
-        """Returns the names of the calculated active learning scores
-        """
+        """Returns the names of the calculated active learning scores"""
         scorer = cls(model_output=[])
         score_names = list(scorer.calculate_scores().keys())
         return score_names

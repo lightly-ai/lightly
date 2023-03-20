@@ -43,7 +43,7 @@ class TagData(object):
         'tot_size': 'int',
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp',
-        'changes': 'TagChangeData',
+        'changes': 'list[TagChangeEntry]',
         'run_id': 'MongoObjectID'
     }
 
@@ -330,7 +330,7 @@ class TagData(object):
 
 
         :return: The changes of this TagData.  # noqa: E501
-        :rtype: TagChangeData
+        :rtype: list[TagChangeEntry]
         """
         return self._changes
 
@@ -340,7 +340,7 @@ class TagData(object):
 
 
         :param changes: The changes of this TagData.  # noqa: E501
-        :type: TagChangeData
+        :type: list[TagChangeEntry]
         """
 
         self._changes = changes

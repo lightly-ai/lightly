@@ -1,12 +1,14 @@
+from typing import Optional, Tuple, Union
+
+import torchvision.transforms as T
+from PIL.Image import Image
 from torch import Tensor
+
+from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.image_grid_transform import ImageGridTransform
-from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropAndFlip
 from lightly.transforms.solarize import RandomSolarization
-from lightly.transforms.gaussian_blur import GaussianBlur
-from typing import Optional, Tuple, Union
-from PIL.Image import Image
-import torchvision.transforms as T
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class VICRegLTransform(ImageGridTransform):
@@ -31,21 +33,21 @@ class VICRegLTransform(ImageGridTransform):
             Probability of Gaussian blur for the local crop category.
         global_gaussian_blur_kernel_size:
             Will be deprecated in favor of `global_gaussian_blur_sigmas` argument.
-            If set, the old behavior applies and `global_gaussian_blur_sigmas` 
-            is ignored. Used to calculate sigma of gaussian blur with 
+            If set, the old behavior applies and `global_gaussian_blur_sigmas`
+            is ignored. Used to calculate sigma of gaussian blur with
             global_gaussian_blur_kernel_size * input_size. Applied to global crop category.
         local_gaussian_blur_kernel_size:
-            Will be deprecated in favor of `local_gaussian_blur_sigmas` argument. 
-            If set, the old behavior applies and `local_gaussian_blur_sigmas` 
-            is ignored. Used to calculate sigma of gaussian blur with 
+            Will be deprecated in favor of `local_gaussian_blur_sigmas` argument.
+            If set, the old behavior applies and `local_gaussian_blur_sigmas`
+            is ignored. Used to calculate sigma of gaussian blur with
             local_gaussian_blur_kernel_size * input_size. Applied to local crop category.
         global_gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel
-            is sampled. It is ignored if `global_gaussian_blur_kernel_size` is set. 
+            is sampled. It is ignored if `global_gaussian_blur_kernel_size` is set.
             Applied to global crop category.
         local_gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel
-            is sampled. It is ignored if `local_gaussian_blur_kernel_size` is set. 
+            is sampled. It is ignored if `local_gaussian_blur_kernel_size` is set.
             Applied to local crop category.
         global_solarize_prob:
             Probability of solarization for the global crop category.
@@ -56,7 +58,16 @@ class VICRegLTransform(ImageGridTransform):
         cj_prob:
             Probability that color jitter is applied.
         cj_strength:
-            Strength of the color jitter.
+            Strength of the color jitter. `cj_bright`, `cj_contrast`, `cj_sat`, and
+            `cj_hue` are multiplied by this value.
+        cj_bright:
+            How much to jitter brightness.
+        cj_contrast:
+            How much to jitter constrast.
+        cj_sat:
+            How much to jitter saturation.
+        cj_hue:
+            How much to jitter hue.
         random_gray_scale:
             Probability of conversion to grayscale.
         normalize:
@@ -75,13 +86,17 @@ class VICRegLTransform(ImageGridTransform):
         local_gaussian_blur_prob: float = 0.1,
         global_gaussian_blur_kernel_size: Optional[float] = None,
         local_gaussian_blur_kernel_size: Optional[float] = None,
-        global_gaussian_blur_sigmas: Tuple[float, float] = (0.2, 2),
-        local_gaussian_blur_sigmas: Tuple[float, float] = (0.2, 2),
+        global_gaussian_blur_sigmas: Tuple[float, float] = (0.1, 2),
+        local_gaussian_blur_sigmas: Tuple[float, float] = (0.1, 2),
         global_solarize_prob: float = 0.0,
         local_solarize_prob: float = 0.2,
         hf_prob: float = 0.5,
         cj_prob: float = 1.0,
         cj_strength: float = 0.5,
+        cj_bright: float = 0.8,
+        cj_contrast: float = 0.8,
+        cj_sat: float = 0.4,
+        cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
@@ -103,6 +118,10 @@ class VICRegLTransform(ImageGridTransform):
                     solarize_prob=global_solarize_prob,
                     cj_prob=cj_prob,
                     cj_strength=cj_strength,
+                    cj_bright=cj_bright,
+                    cj_contrast=cj_contrast,
+                    cj_sat=cj_sat,
+                    cj_hue=cj_hue,
                     random_gray_scale=random_gray_scale,
                     normalize=normalize,
                 ),
@@ -137,41 +156,45 @@ class VICRegLViewTransform:
         self,
         gaussian_blur_prob: float = 0.5,
         gaussian_blur_kernel_size: Optional[float] = None,
-        gaussian_blur_sigmas: Tuple[float, float] = (0.2, 2),
+        gaussian_blur_sigmas: Tuple[float, float] = (0.1, 2),
         solarize_prob: float = 0.0,
         cj_prob: float = 1.0,
         cj_strength: float = 0.5,
+        cj_bright: float = 0.8,
+        cj_contrast: float = 0.8,
+        cj_sat: float = 0.4,
+        cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
-            0.8 * cj_strength,
-            0.8 * cj_strength,
-            0.4 * cj_strength,
-            0.2 * cj_strength,
+            brightness=cj_strength * cj_bright,
+            contrast=cj_strength * cj_contrast,
+            saturation=cj_strength * cj_sat,
+            hue=cj_strength * cj_hue,
         )
 
-        self.transform = T.Compose(
-            [
-                T.RandomApply([color_jitter], p=cj_prob),
-                T.RandomGrayscale(p=random_gray_scale),
-                GaussianBlur(
-                    kernel_size=gaussian_blur_kernel_size,
-                    prob=gaussian_blur_prob,
-                    sigmas=gaussian_blur_sigmas,
-                ),
-                RandomSolarization(prob=solarize_prob),
-                T.ToTensor(),
-                T.Normalize(mean=normalize["mean"], std=normalize["std"]),
-            ]
-        )
+        transforms = [
+            T.RandomApply([color_jitter], p=cj_prob),
+            T.RandomGrayscale(p=random_gray_scale),
+            GaussianBlur(
+                kernel_size=gaussian_blur_kernel_size,
+                prob=gaussian_blur_prob,
+                sigmas=gaussian_blur_sigmas,
+            ),
+            RandomSolarization(prob=solarize_prob),
+            T.ToTensor(),
+        ]
+        if normalize:
+            transforms += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]
+        self.transform = T.Compose(transforms=transforms)
 
     def __call__(self, image: Union[Tensor, Image]) -> Tensor:
         """
         Applies the transforms to the input image.
 
         Args:
-            image: 
+            image:
                 The input image to apply the transforms to.
 
         Returns:

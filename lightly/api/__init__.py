@@ -2,12 +2,12 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-
+from lightly.api import patch as _patch
+from lightly.api.api_workflow_artifacts import ArtifactNotExist
 from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.api.api_workflow_compute_worker import ArtifactNotExist
-from lightly.api.patch_rest_client import patch_rest_client
+from lightly.openapi_generated.swagger_client import Configuration as _Configuration
 
-from lightly.openapi_generated.swagger_client.rest import RESTClientObject
-
-# Needed to handle list of arguments correctly
-patch_rest_client(RESTClientObject)
+# Make ApiWorkflowClient and swagger classes picklable.
+_patch.make_swagger_configuration_picklable(
+    configuration_cls=_Configuration,
+)

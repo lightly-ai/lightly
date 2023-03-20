@@ -23,7 +23,7 @@ class ObjectDetectionOutput:
             are not passed on initialisation. Scores are by default set to
             `max(class prob) * objectness` for each bounding box.
         labels:
-            List of labels (i.e. argmax(class prob)). Are automatically inferred from 
+            List of labels (i.e. argmax(class prob)). Are automatically inferred from
             the class probabilities.
 
     Examples:
@@ -55,18 +55,19 @@ class ObjectDetectionOutput:
         class_probabilities: List[List[float]],
         scores: Optional[List[float]] = None,
     ):
-        if len(boxes) != len(object_probabilities) or \
-            len(object_probabilities) != len(class_probabilities):
+        if len(boxes) != len(object_probabilities) or len(object_probabilities) != len(
+            class_probabilities
+        ):
             raise ValueError(
-                'Boxes, object and class probabilities must be of same length but are '
-                f'{len(boxes)}, {len(object_probabilities)}, and '
-                f'{len(class_probabilities)}'
+                "Boxes, object and class probabilities must be of same length but are "
+                f"{len(boxes)}, {len(object_probabilities)}, and "
+                f"{len(class_probabilities)}"
             )
 
         if scores is not None and len(scores) != len(boxes):
             raise ValueError(
-                f'Boxes and scores must be of same length but are {len(boxes)} and '
-                f'{len(scores)}'
+                f"Boxes and scores must be of same length but are {len(boxes)} and "
+                f"{len(scores)}"
             )
 
         self.boxes = boxes
@@ -76,16 +77,16 @@ class ObjectDetectionOutput:
         if scores is None:
             # calculate the score as the object probability times the maximum
             # of the class probabilities
-            self.scores = [o * max(c) for o, c in zip(object_probabilities, class_probabilities)]
+            self.scores = [
+                o * max(c) for o, c in zip(object_probabilities, class_probabilities)
+            ]
         else:
             self.scores = scores
 
-
     @classmethod
-    def from_scores(cls,
-                    boxes: List[BoundingBox],
-                    scores: List[float],
-                    labels: List[int]):
+    def from_scores(
+        cls, boxes: List[BoundingBox], scores: List[float], labels: List[int]
+    ):
         """Helper to convert from output format with scores.
 
         We advise not using this method if you want to use the uncertainty
@@ -124,13 +125,13 @@ class ObjectDetectionOutput:
         """
 
         if any([score > 1 for score in scores]):
-            raise ValueError('Scores must be smaller than or equal to one!')
+            raise ValueError("Scores must be smaller than or equal to one!")
 
         if any([score < 0 for score in scores]):
-            raise ValueError('Scores must be larger than or equal to zero!')
+            raise ValueError("Scores must be larger than or equal to zero!")
 
         if not all([isinstance(label, int) for label in labels]):
-            raise ValueError('Labels must be list of integers.')
+            raise ValueError("Labels must be list of integers.")
 
         # create fake object probabilities
         object_probabilities = [s for s in scores]

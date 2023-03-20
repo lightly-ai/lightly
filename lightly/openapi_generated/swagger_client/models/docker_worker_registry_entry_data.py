@@ -39,7 +39,8 @@ class DockerWorkerRegistryEntryData(object):
         'state': 'DockerWorkerState',
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp',
-        'labels': 'DockerWorkerLabels'
+        'labels': 'DockerWorkerLabels',
+        'docker_version': 'str'
     }
 
     attribute_map = {
@@ -49,10 +50,11 @@ class DockerWorkerRegistryEntryData(object):
         'state': 'state',
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt',
-        'labels': 'labels'
+        'labels': 'labels',
+        'docker_version': 'dockerVersion'
     }
 
-    def __init__(self, id=None, name=None, worker_type=None, state=None, created_at=None, last_modified_at=None, labels=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, name=None, worker_type=None, state=None, created_at=None, last_modified_at=None, labels=None, docker_version=None, _configuration=None):  # noqa: E501
         """DockerWorkerRegistryEntryData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -65,6 +67,7 @@ class DockerWorkerRegistryEntryData(object):
         self._created_at = None
         self._last_modified_at = None
         self._labels = None
+        self._docker_version = None
         self.discriminator = None
 
         self.id = id
@@ -74,6 +77,8 @@ class DockerWorkerRegistryEntryData(object):
         self.created_at = created_at
         self.last_modified_at = last_modified_at
         self.labels = labels
+        if docker_version is not None:
+            self.docker_version = docker_version
 
     @property
     def id(self):
@@ -235,6 +240,27 @@ class DockerWorkerRegistryEntryData(object):
             raise ValueError("Invalid value for `labels`, must not be `None`")  # noqa: E501
 
         self._labels = labels
+
+    @property
+    def docker_version(self):
+        """Gets the docker_version of this DockerWorkerRegistryEntryData.  # noqa: E501
+
+
+        :return: The docker_version of this DockerWorkerRegistryEntryData.  # noqa: E501
+        :rtype: str
+        """
+        return self._docker_version
+
+    @docker_version.setter
+    def docker_version(self, docker_version):
+        """Sets the docker_version of this DockerWorkerRegistryEntryData.
+
+
+        :param docker_version: The docker_version of this DockerWorkerRegistryEntryData.  # noqa: E501
+        :type: str
+        """
+
+        self._docker_version = docker_version
 
     def to_dict(self):
         """Returns the model properties as a dict"""

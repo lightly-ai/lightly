@@ -4,14 +4,14 @@
 # All Rights Reserved
 
 import time
-from typing import List, Union, Tuple
+from typing import List, Tuple, Union
 
 import numpy as np
 import torch
-import lightly
-from lightly.embedding._base import BaseEmbedding
 from tqdm import tqdm
 
+import lightly
+from lightly.embedding._base import BaseEmbedding
 from lightly.utils.reordering import sort_items_by_keys
 
 if lightly._is_prefetch_generator_available():
@@ -68,14 +68,12 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         dataloader: torch.utils.data.DataLoader,
         scheduler=None,
     ):
-
         super(SelfSupervisedEmbedding, self).__init__(
             model, criterion, optimizer, dataloader, scheduler
         )
 
-    def embed(self,
-              dataloader: torch.utils.data.DataLoader,
-              device: torch.device = None
+    def embed(
+        self, dataloader: torch.utils.data.DataLoader, device: torch.device = None
     ) -> Tuple[np.ndarray, List[int], List[str]]:
         """Embeds images in a vector space.
 
@@ -109,20 +107,15 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         dataset = dataloader.dataset
         if lightly._is_prefetch_generator_available():
             dataloader = BackgroundGenerator(dataloader, max_prefetch=3)
-        
-        pbar = tqdm(
-            total=len(dataset),
-            unit='imgs'
-        )
+
+        pbar = tqdm(total=len(dataset), unit="imgs")
 
         efficiency = 0.0
         embeddings = []
         labels = []
         with torch.no_grad():
-
             start_timepoint = time.time()
-            for (image_batch, label_batch, filename_batch) in dataloader:
-
+            for image_batch, label_batch, filename_batch in dataloader:
                 batch_size = image_batch.shape[0]
 
                 # the following 2 lines are needed to prevent a file handler leak,
@@ -159,12 +152,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
             labels = labels.cpu().numpy()
 
         sorted_filenames = dataset.get_filenames()
-        sorted_embeddings = sort_items_by_keys(
-            filenames, embeddings, sorted_filenames
-        )
-        sorted_labels = sort_items_by_keys(
-            filenames, labels, sorted_filenames
-        )
+        sorted_embeddings = sort_items_by_keys(filenames, embeddings, sorted_filenames)
+        sorted_labels = sort_items_by_keys(filenames, labels, sorted_filenames)
         embeddings = np.stack(sorted_embeddings)
         labels = np.stack(sorted_labels).tolist()
 

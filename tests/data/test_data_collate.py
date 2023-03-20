@@ -5,14 +5,15 @@ import torch
 import torchvision
 import torchvision.transforms as transforms
 
-from lightly.transforms import RandomRotate
-from lightly.data import collate
-from lightly.data import BaseCollateFunction
-from lightly.data import ImageCollateFunction
-from lightly.data import SimCLRCollateFunction
-from lightly.data import MultiCropCollateFunction
-from lightly.data import SwaVCollateFunction
-from lightly.data import PIRLCollateFunction
+from lightly.data import (
+    BaseCollateFunction,
+    ImageCollateFunction,
+    MultiCropCollateFunction,
+    PIRLCollateFunction,
+    SimCLRCollateFunction,
+    SwaVCollateFunction,
+    collate,
+)
 from lightly.data.collate import (
     DINOCollateFunction,
     MAECollateFunction,
@@ -21,6 +22,7 @@ from lightly.data.collate import (
     VICRegCollateFunction,
     VICRegLCollateFunction,
 )
+from lightly.transforms import RandomRotate
 
 
 class TestDataCollate(unittest.TestCase):

@@ -19,3 +19,5 @@ scikit-learn
 pandas
 torchmetrics
 lightning-bolts # for LARS optimizer
+black==23.1.0 # frozen version to avoid differences between CI and local dev machines
+isort==5.11.5 # frozen version to avoid differences between CI and local dev machines

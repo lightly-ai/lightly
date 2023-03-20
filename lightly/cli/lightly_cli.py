@@ -11,15 +11,15 @@ command-line interface.
 import hydra
 from omegaconf import DictConfig
 
-from lightly.cli._helpers import print_as_warning
 from lightly.cli._helpers import fix_hydra_arguments
-from lightly.cli.train_cli import _train_cli
 from lightly.cli.embed_cli import _embed_cli
+from lightly.cli.train_cli import _train_cli
 from lightly.cli.upload_cli import _upload_cli
+from lightly.utils.hipify import print_as_warning
 
 
 def validate_cfg(cfg: DictConfig) -> bool:
-    """ Validates a config
+    """Validates a config
 
     Prints warnings if it is not.
     Args:
@@ -31,64 +31,66 @@ def validate_cfg(cfg: DictConfig) -> bool:
 
     """
     valid = True
-    if cfg['trainer']['max_epochs'] > 0 and cfg['append']:
-        print_as_warning('When appending to an existing dataset you must '
-                         'use the same embedding model. Thus specify '
-                         'trainer.max_epochs=0. If you had trained your own model, '
-                         'you can use it with checkpoint="path/to/model.ckp".')
+    if cfg["trainer"]["max_epochs"] > 0 and cfg["append"]:
+        print_as_warning(
+            "When appending to an existing dataset you must "
+            "use the same embedding model. Thus specify "
+            "trainer.max_epochs=0. If you had trained your own model, "
+            'you can use it with checkpoint="path/to/model.ckp".'
+        )
         valid = False
     return valid
 
 
 def _lightly_cli(cfg, is_cli_call=True):
-    cfg['loader']['shuffle'] = True
-    cfg['loader']['drop_last'] = True
+    cfg["loader"]["shuffle"] = True
+    cfg["loader"]["drop_last"] = True
 
     if not validate_cfg(cfg):
         return
 
-    if cfg['trainer']['max_epochs'] > 0:
-        print('#' * 10 + ' Starting to train an embedding model.')
+    if cfg["trainer"]["max_epochs"] > 0:
+        print("#" * 10 + " Starting to train an embedding model.")
         checkpoint = _train_cli(cfg, is_cli_call)
     else:
-        checkpoint = ''
+        checkpoint = ""
 
-    cfg['loader']['shuffle'] = False
-    cfg['loader']['drop_last'] = False
-    cfg['checkpoint'] = checkpoint
+    cfg["loader"]["shuffle"] = False
+    cfg["loader"]["drop_last"] = False
+    cfg["checkpoint"] = checkpoint
 
-    print('#' * 10 + ' Starting to embed your dataset.')
+    print("#" * 10 + " Starting to embed your dataset.")
     embeddings = _embed_cli(cfg, is_cli_call)
-    cfg['embeddings'] = embeddings
+    cfg["embeddings"] = embeddings
 
-    if cfg['token'] and (cfg['dataset_id'] or cfg['new_dataset_name']):
-        print('#' * 10 + ' Starting to upload your dataset to the Lightly platform.')
+    if cfg["token"] and (cfg["dataset_id"] or cfg["new_dataset_name"]):
+        print("#" * 10 + " Starting to upload your dataset to the Lightly platform.")
         _upload_cli(cfg)
 
-    print('#' * 10 + ' Finished')
+    print("#" * 10 + " Finished")
 
 
-@hydra.main(**fix_hydra_arguments(config_path = 'config', config_name = 'config'))
+@hydra.main(**fix_hydra_arguments(config_path="config", config_name="config"))
 def lightly_cli(cfg):
     """Train a self-supervised model and use it to embed your dataset.
 
     Args:
         cfg:
             The default configs are loaded from the config file.
-            To overwrite them please see the section on the config file 
+            To overwrite them please see the section on the config file
             (.config.config.yaml).
-    
+
     Command-Line Args:
         input_dir:
             Path to the input directory where images are stored.
         token:
             User access token to the Lightly platform. If dataset_id
-            and token are specified, the images and embeddings are 
+            and token are specified, the images and embeddings are
             uploaded to the platform.
             (Required for upload)
         dataset_id:
-            Identifier of the dataset on the Lightly platform. If 
-            dataset_id and token are specified, the images and 
+            Identifier of the dataset on the Lightly platform. If
+            dataset_id and token are specified, the images and
             embeddings are uploaded to the platform.
             (Required for upload)
         custom_metadata:

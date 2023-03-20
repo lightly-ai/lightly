@@ -1,19 +1,19 @@
-# Note: The model and training settings do not follow the reference settings
+# Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
+# run on a small dataset with a single GPU.
 
-import torch
-from torch import nn
-import torchvision
 import pytorch_lightning as pl
+import torch
+import torchvision
+from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.collate import VICRegLCollateFunction
+from lightly.loss import VICRegLLoss
+
 ## The global projection head is the same as the Barlow Twins one
 from lightly.models.modules import BarlowTwinsProjectionHead
 from lightly.models.modules.heads import VicRegLLocalProjectionHead
-from lightly.loss import VICRegLLoss
-
 
 
 class VICRegL(pl.LightningModule):
@@ -30,22 +30,21 @@ class VICRegL(pl.LightningModule):
         x = self.backbone(x)
         y = self.average_pool(x).flatten(start_dim=1)
         z = self.projection_head(y)
-        y_local = x.permute(0, 2, 3, 1) # (B, D, W, H) to (B, W, H, D)
-        z_local = self.local_projection_head(y_local)         
+        y_local = x.permute(0, 2, 3, 1)  # (B, D, W, H) to (B, W, H, D)
+        z_local = self.local_projection_head(y_local)
         return z, z_local
-    
 
     def training_step(self, batch, batch_index):
         (view_global, view_local, grid_global, grid_local), _, _ = batch
-        z_global, z_global_local_features = model(view_global)
-        z_local, z_local_local_features = model(view_local)
+        z_global, z_global_local_features = self.forward(view_global)
+        z_local, z_local_local_features = self.forward(view_local)
         loss = self.criterion(
-            z_global=z_global, 
-            z_local=z_local, 
-            z_global_local_features=z_global_local_features, 
-            z_local_local_features=z_local_local_features, 
-            grid_global=grid_global, 
-            grid_local=grid_local
+            z_global=z_global,
+            z_local=z_local,
+            z_global_local_features=z_global_local_features,
+            z_local_local_features=z_local_local_features,
+            grid_global=grid_global,
+            grid_local=grid_local,
         )
         return loss
 
@@ -76,4 +75,3 @@ gpus = 1 if torch.cuda.is_available() else 0
 
 trainer = pl.Trainer(max_epochs=10, gpus=gpus)
 trainer.fit(model=model, train_dataloaders=dataloader)
-

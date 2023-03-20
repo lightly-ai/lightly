@@ -3,10 +3,10 @@ from unittest.mock import MagicMock, call
 from lightly.api import ApiWorkflowClient
 from lightly.api.prediction_singletons import PredictionSingletonClassificationRepr
 from lightly.openapi_generated.swagger_client import (
-    PredictionTaskSchema,
-    TaskType,
-    PredictionTaskSchemaCategory,
     PredictionsApi,
+    PredictionTaskSchema,
+    PredictionTaskSchemaCategory,
+    TaskType,
 )
 
 

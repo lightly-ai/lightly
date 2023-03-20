@@ -60,9 +60,12 @@ In this tutorial we use a Faster RCNN with a feature pyramid network (FPN), so m
 #
 # Import the Python frameworks we need for this tutorial.
 import torch
-import lightly
 from detectron2 import config, modeling
 from detectron2.checkpoint import DetectionCheckpointer
+
+from lightly.data import LightlyDataset, SimCLRCollateFunction
+from lightly.loss import NTXentLoss
+from lightly.models.modules import SimCLRProjectionHead
 
 # %%
 # Configuration
@@ -85,7 +88,7 @@ seed = 1
 max_epochs = 5
 
 # use cuda if possible
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 # %%
@@ -93,13 +96,14 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # Set the path to the dataset accordingly. Additionally, make sure to set the
 # path to the config file of the Detectron2 model you want to use.
 # We will be using an RCNN with a feature pyramid network (FPN).
-data_path = '/datasets/freiburg_groceries_dataset/images'
-cfg_path = './Base-RCNN-FPN.yaml'
+data_path = "/datasets/freiburg_groceries_dataset/images"
+cfg_path = "./Base-RCNN-FPN.yaml"
+
 
 # %%
 # Initialize the Detectron2 Model
 # --------------------------------
-# 
+#
 # The output of the Detectron2 ResNet50 backbone is a dictionary with the keys
 # `res1` through `res5` (see the `documentation <https://detectron2.readthedocs.io/en/latest/modules/modeling.html#detectron2.modeling.ResNet>`_).
 # The keys correspond to the different stages of the ResNet. In this tutorial, we are only
@@ -108,12 +112,13 @@ cfg_path = './Base-RCNN-FPN.yaml'
 class SelectStage(torch.nn.Module):
     """Selects features from a given stage."""
 
-    def __init__(self, stage: str = 'res5'):
+    def __init__(self, stage: str = "res5"):
         super().__init__()
         self.stage = stage
 
     def forward(self, x):
         return x[self.stage]
+
 
 # %%
 # Let's load the config file and make some adjustments to ensure smooth training.
@@ -137,7 +142,7 @@ detmodel = modeling.build_model(cfg)
 
 simclr_backbone = torch.nn.Sequential(
     detmodel.backbone.bottom_up,
-    SelectStage('res5'),
+    SelectStage("res5"),
     # res5 has shape bsz x 2048 x 4 x 4
     torch.nn.AdaptiveAvgPool2d(1),
 ).to(device)
@@ -145,7 +150,7 @@ simclr_backbone = torch.nn.Sequential(
 # %%
 #
 #
-#.. note::
+# .. note::
 #
 #   The Detectron2 ResNet is missing the average pooling layer used to get a tensor of shape bsz x 2048.
 #   Therefore, we add an average pooling as in the `PyTorch ResNet <https://github.com/pytorch/pytorch/blob/1022443168b5fad55bbd03d087abf574c9d2e9df/benchmarks/functional_autograd_benchmark/torchvision_models.py#L147>`_.
@@ -154,7 +159,7 @@ simclr_backbone = torch.nn.Sequential(
 # %%
 # Finally, let's build SimCLR around the backbone as shown in the other
 # tutorials. For this, we only require an additional projection head.
-projection_head = lightly.models.modules.SimCLRProjectionHead(
+projection_head = SimCLRProjectionHead(
     input_dim=num_ftrs,
     hidden_dim=num_ftrs,
     output_dim=128,
@@ -166,14 +171,14 @@ projection_head = lightly.models.modules.SimCLRProjectionHead(
 #
 # We start by defining the augmentations which should be used for training.
 # We use the same ones as in the SimCLR paper but change the input size and
-# minimum scale of the random crop to adjust to our dataset. 
+# minimum scale of the random crop to adjust to our dataset.
 #
 # We don't go into detail here about using the optimal augmentations.
 # You can learn more about the different augmentations and learned invariances
 # here: :ref:`lightly-advanced`.
-collate_fn = lightly.data.SimCLRCollateFunction(input_size=input_size)
+collate_fn = SimCLRCollateFunction(input_size=input_size)
 
-dataset_train_simclr = lightly.data.LightlyDataset(input_dir=data_path)
+dataset_train_simclr = LightlyDataset(input_dir=data_path)
 
 dataloader_train_simclr = torch.utils.data.DataLoader(
     dataset_train_simclr,
@@ -181,7 +186,7 @@ dataloader_train_simclr = torch.utils.data.DataLoader(
     shuffle=True,
     collate_fn=collate_fn,
     drop_last=True,
-    num_workers=num_workers
+    num_workers=num_workers,
 )
 
 # %%
@@ -189,7 +194,7 @@ dataloader_train_simclr = torch.utils.data.DataLoader(
 # -----------------------------
 # Now all we need to do is define a loss and optimizer and start training!
 
-criterion = lightly.loss.NTXentLoss()
+criterion = NTXentLoss()
 optimizer = torch.optim.Adam(
     list(simclr_backbone.parameters()) + list(projection_head.parameters()),
     lr=1e-4,
@@ -197,10 +202,8 @@ optimizer = torch.optim.Adam(
 
 
 for e in range(max_epochs):
-
-    mean_loss = 0.
+    mean_loss = 0.0
     for (x0, x1), _, _ in dataloader_train_simclr:
-
         x0 = x0.to(device)
         x1 = x1.to(device)
 
@@ -217,7 +220,7 @@ for e in range(max_epochs):
         # update average loss
         mean_loss += loss.detach().cpu().item() / len(dataloader_train_simclr)
 
-    print(f'[Epoch {e:2d}] Mean Loss = {mean_loss:.2f}')
+    print(f"[Epoch {e:2d}] Mean Loss = {mean_loss:.2f}")
 
 
 # %%
@@ -233,8 +236,8 @@ for e in range(max_epochs):
 #     L AdaptiveAvgPool2d
 detmodel.backbone.bottom_up = simclr_backbone[0]
 
-checkpointer = DetectionCheckpointer(detmodel, save_dir='./')
-checkpointer.save('my_model')
+checkpointer = DetectionCheckpointer(detmodel, save_dir="./")
+checkpointer.save("my_model")
 
 
 # %%
@@ -247,7 +250,7 @@ checkpointer.save('my_model')
 #
 
 # %%
-#.. code-block:: none
+# .. code-block:: none
 #
 #   python train_net.py --config-file ../configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_1x.yaml \
 #       MODEL.WEIGHTS path/to/my_model.pth \
@@ -257,16 +260,16 @@ checkpointer.save('my_model')
 #
 
 # %%
-# 
+#
 # The :py:class:`lightly.data.collate.SimCLRCollateFunction` applies an ImageNet
 # normalization of the input images by default. Therefore, we have to normalize
 # the input images at training time, too. Since Detectron2 uses an input space
 # in the range 0 - 255, we use the numbers above.
-# 
+#
 
 # %%
 #
-#.. note::
+# .. note::
 #
 #   Since the model was pre-trained with images in the RGB input format, it's
 #   necessary to set the permute the order of the pixel mean, and pixel std as shown above.

@@ -3,13 +3,13 @@ import os
 from omegaconf import DictConfig
 from pytorch_lightning.callbacks import ModelCheckpoint, ModelSummary
 
-from lightly.cli import _helpers
+from lightly.utils.hipify import print_as_warning
 
 
 def create_checkpoint_callback(
     save_last=False,
     save_top_k=0,
-    monitor='loss',
+    monitor="loss",
     dirpath=None,
 ) -> ModelCheckpoint:
     """Initializes the checkpoint callback.
@@ -27,18 +27,18 @@ def create_checkpoint_callback(
     """
     return ModelCheckpoint(
         dirpath=os.getcwd() if dirpath is None else dirpath,
-        filename='lightly_epoch_{epoch:d}',
+        filename="lightly_epoch_{epoch:d}",
         save_last=save_last,
         save_top_k=save_top_k,
         monitor=monitor,
-        auto_insert_metric_name=False)
+        auto_insert_metric_name=False,
+    )
 
 
 def create_summary_callback(
     summary_callback_config: DictConfig, trainer_config: DictConfig
 ) -> ModelSummary:
-    """Creates a summary callback.
-    """
+    """Creates a summary callback."""
     # TODO: Drop support for the "weights_summary" argument.
     weights_summary = trainer_config.get("weights_summary", None)
     if weights_summary not in [None, "None"]:
@@ -66,7 +66,7 @@ def _create_summary_callback_deprecated(weights_summary: str) -> ModelSummary:
     of pytorch lightning 1.7 in 08/2022. Support for this will be removed
     in the future.
     """
-    _helpers.print_as_warning(
+    print_as_warning(
         "The configuration parameter 'trainer.weights_summary' is deprecated."
         " Please use 'trainer.weights_summary: True' and set"
         " 'checkpoint_callback.max_depth' to value 1 for the option 'top'"

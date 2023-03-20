@@ -74,8 +74,8 @@ The framework is structured into the following modules:
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-__name__ = 'lightly'
-__version__ = '1.2.47'
+__name__ = "lightly"
+__version__ = "1.3.1"
 
 import os
 
@@ -91,7 +91,7 @@ except NameError:
 
 if __LIGHTLY_SETUP__:
     # setting up lightly
-    msg = f'Partial import of {__name__}=={__version__} during build process.' 
+    msg = f"Partial import of {__name__}=={__version__} during build process."
     print(msg)
 else:
     # see if prefetch_generator is available
@@ -108,28 +108,32 @@ else:
     # see if torchvision vision transformer is available
     try:
         import torchvision.models.vision_transformer
+
         _torchvision_vit_available = True
-    except ImportError:
+    except (
+        RuntimeError,  # Different CUDA versions for torch and torchvision
+        OSError,  # Different CUDA versions for torch and torchvision (old)
+        ImportError,  # No installation or old version of torchvision
+    ):
         _torchvision_vit_available = False
 
-    from lightly.core import *
-    from lightly import active_learning
-    from lightly import api
-    from lightly import data
-    from lightly import embedding
-    from lightly import loss
-    from lightly import models
-    from lightly import openapi_generated
-    from lightly import transforms
-    from lightly import utils
-    
-    if os.getenv('LIGHTLY_DID_VERSION_CHECK', 'False') == 'False':
-        os.environ['LIGHTLY_DID_VERSION_CHECK'] = 'True'
+    if os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "False":
+        os.environ["LIGHTLY_DID_VERSION_CHECK"] = "True"
         from multiprocessing import current_process
-        if current_process().name == 'MainProcess':
-            from lightly.api.version_checking import is_latest_version, LightlyAPITimeoutException
+
+        if current_process().name == "MainProcess":
+            from lightly.api.version_checking import (
+                LightlyAPITimeoutException,
+                is_latest_version,
+            )
             from lightly.openapi_generated.swagger_client.rest import ApiException
+
             try:
                 is_latest_version(current_version=__version__)
-            except (ValueError, ApiException, LightlyAPITimeoutException, AttributeError):
+            except (
+                ValueError,
+                ApiException,
+                LightlyAPITimeoutException,
+                AttributeError,
+            ):
                 pass
