@@ -11,7 +11,7 @@ Code has been tested on a A6000 GPU with 48GBytes of memory.
 
 Code to reproduce the benchmark results:
 
-Results (2.3.2023):
+Results (20.3.2023):
 ---------------------------------------------------------------------------------------------
 | Model            | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
 ---------------------------------------------------------------------------------------------
@@ -33,24 +33,24 @@ Results (2.3.2023):
 | VICReg           |        256 |    200 |              0.733 |   49.2 Min |      3.8 GByte |
 | VICRegL          |        256 |    200 |              0.643 |   48.0 Min |      2.6 GByte |
 ---------------------------------------------------------------------------------------------
-| BarlowTwins      |        256 |    800 |              0.834 |  278.3 Min |      5.7 GByte |
-| BYOL             |        256 |    800 |              0.864 |  206.7 Min |      4.3 GByte |
-| DCL              |        256 |    800 |              0.842 |  187.2 Min |      3.7 GByte |
-| DCLW             |        256 |    800 |              0.845 |  193.0 Min |      3.7 GByte |
-| DINO (Res18)     |        256 |    800 |              0.886 |  305.0 Min |      8.5 GByte |
-| MAE (ViT-S)      |        256 |    800 |              0.620 |  221.4 Min |      4.6 GByte |
-| MSN (ViT-S)      |        256 |    800 |              0.831 |  433.7 Min |     16.3 GByte |
-| Moco             |        256 |    800 |              0.857 |  224.3 Min |      4.2 GByte |
-| NNCLR            |        256 |    800 |              0.874 |  205.2 Min |      3.8 GByte |
-| SimCLR           |        256 |    800 |              0.875 |  199.6 Min |      3.7 GByte |
-| SimMIM (ViT-B32) |        256 |    800 |              0.351 |  300.9 Min |     10.5 GByte |
-| SimSiam          |        256 |    800 |              0.881 |  207.5 Min |      3.9 GByte |
-| SwaV             |        256 |    800 |              0.888 |  301.3 Min |      6.4 GByte |
-| SwaVQueue        |        256 |    800 |              0.877 |  297.4 Min |      6.4 GByte |
-| SMoG             |        256 |    800 |              0.726 |  239.7 Min |      2.5 GByte |
-| TiCo             |        256 |    800 |              0.838 |  190.1 Min |      4.0 GByte |
-| VICReg           |        256 |    800 |              0.818 |  211.9 Min |      3.9 GByte |
-| VICRegL          |        256 |    800 |              0.801 |  189.0 Min |      4.4 GByte |
+| BarlowTwins      |        256 |    800 |              0.850 |  279.5 Min |      5.7 GByte |
+| BYOL             |        256 |    800 |              0.887 |  202.7 Min |      4.3 GByte |
+| DCL              |        256 |    800 |              0.864 |  183.7 Min |      3.7 GByte |
+| DCLW             |        256 |    800 |              0.861 |  188.5 Min |      3.7 GByte |
+| DINO (Res18)     |        256 |    800 |              0.887 |  291.6 Min |      8.5 GByte |
+| MAE (ViT-S)      |        256 |    800 |              0.620 |  208.2 Min |      4.6 GByte |
+| MSN (ViT-S)      |        256 |    800 |              0.833 |  394.0 Min |     16.3 GByte |
+| Moco             |        256 |    800 |              0.874 |  220.7 Min |      4.2 GByte |
+| NNCLR            |        256 |    800 |              0.885 |  207.1 Min |      3.8 GByte |
+| SimCLR           |        256 |    800 |              0.889 |  206.4 Min |      3.7 GByte |
+| SimMIM (ViT-B32) |        256 |    800 |              0.351 |  302.8 Min |     10.5 GByte |
+| SimSiam          |        256 |    800 |              0.885 |  206.1 Min |      3.9 GByte |
+| SwaV             |        256 |    800 |              0.899 |  309.0 Min |      6.4 GByte |
+| SwaVQueue        |        256 |    800 |              0.898 |  300.3 Min |      6.4 GByte |
+| SMoG             |        256 |    800 |              0.782 |  250.2 Min |      2.5 GByte |
+| TiCo             |        256 |    800 |              0.857 |  184.7 Min |      2.5 GByte |
+| VICReg           |        256 |    800 |              0.843 |  192.9 Min |      5.7 GByte |
+| VICRegL          |        256 |    800 |              0.799 |  180.0 Min |      2.6 GByte |
 ---------------------------------------------------------------------------------------------
 
 """
@@ -1287,7 +1287,7 @@ models = [
     DCLW,
     DINOModel,
     # MAEModel, # disabled by default because MAE uses larger images with size 224
-    # MSNModel, # disabled by default because MSN uses larger images with size 224
+    MSNModel,
     MocoModel,
     NNCLRModel,
     SimCLRModel,
