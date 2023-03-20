@@ -40,7 +40,8 @@ class SelectionConfigEntryInput(object):
         'name': 'SelectionInputPredictionsName',
         'dataset_id': 'MongoObjectID',
         'tag_name': 'TagName',
-        'random_seed': 'int'
+        'random_seed': 'int',
+        'categories': 'list[CategoryName]'
     }
 
     attribute_map = {
@@ -51,10 +52,11 @@ class SelectionConfigEntryInput(object):
         'name': 'name',
         'dataset_id': 'datasetId',
         'tag_name': 'tagName',
-        'random_seed': 'randomSeed'
+        'random_seed': 'randomSeed',
+        'categories': 'categories'
     }
 
-    def __init__(self, type=None, task=None, score=None, key=None, name=None, dataset_id=None, tag_name=None, random_seed=None, _configuration=None):  # noqa: E501
+    def __init__(self, type=None, task=None, score=None, key=None, name=None, dataset_id=None, tag_name=None, random_seed=None, categories=None, _configuration=None):  # noqa: E501
         """SelectionConfigEntryInput - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -68,6 +70,7 @@ class SelectionConfigEntryInput(object):
         self._dataset_id = None
         self._tag_name = None
         self._random_seed = None
+        self._categories = None
         self.discriminator = None
 
         self.type = type
@@ -85,6 +88,8 @@ class SelectionConfigEntryInput(object):
             self.tag_name = tag_name
         if random_seed is not None:
             self.random_seed = random_seed
+        if categories is not None:
+            self.categories = categories
 
     @property
     def type(self):
@@ -255,6 +260,27 @@ class SelectionConfigEntryInput(object):
         """
 
         self._random_seed = random_seed
+
+    @property
+    def categories(self):
+        """Gets the categories of this SelectionConfigEntryInput.  # noqa: E501
+
+
+        :return: The categories of this SelectionConfigEntryInput.  # noqa: E501
+        :rtype: list[CategoryName]
+        """
+        return self._categories
+
+    @categories.setter
+    def categories(self, categories):
+        """Sets the categories of this SelectionConfigEntryInput.
+
+
+        :param categories: The categories of this SelectionConfigEntryInput.  # noqa: E501
+        :type: list[CategoryName]
+        """
+
+        self._categories = categories
 
     def to_dict(self):
         """Returns the model properties as a dict"""
