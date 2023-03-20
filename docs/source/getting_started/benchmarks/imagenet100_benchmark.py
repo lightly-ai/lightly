@@ -38,7 +38,7 @@ from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.optim.lr_scheduler import LambdaLR
 
-from lightly.data import LightlyDataset, collate
+from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import (
     BarlowTwinsLoss,
@@ -145,11 +145,17 @@ def create_dataset_train_ssl(model):
         model:
             Model class for which to select the transform.
     """
-    transform = simclr_transform
-    if model == SwaVModel:
-        transform = swav_transform
-    elif model == DINOModel:
-        transform = dino_transform
+    model_to_transform = {
+        BarlowTwinsModel: simclr_transform,
+        BYOLModel: simclr_transform,
+        DINOModel: dino_transform,
+        MocoModel: simclr_transform,
+        NNCLRModel: simclr_transform,
+        SimCLRModel: simclr_transform,
+        SimSiamModel: simclr_transform,
+        SwaVModel: swav_transform,
+    }
+    transform = model_to_transform[model]
     return LightlyDataset(input_dir=path_to_train, transform=transform)
 
 
