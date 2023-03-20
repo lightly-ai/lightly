@@ -78,6 +78,6 @@ trainer = pl.Trainer(
     devices="auto",
     accelerator="gpu",
     sync_batchnorm=True,
-    replace_sampler_ddp=True,  # or use_distributed_sampler=True for PyTorch Lightning >=2.0
+    use_distributed_sampler=True,  # or replace_sampler_ddp=True for PyTorch Lightning <2.0
 )
 trainer.fit(model=model, train_dataloaders=dataloader)
