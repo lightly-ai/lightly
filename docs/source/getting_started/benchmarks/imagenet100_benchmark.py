@@ -96,7 +96,7 @@ if distributed:
     # reduce batch size for distributed training
     batch_size = batch_size // devices
 else:
-    strategy = None  # Set to "auto" if using PyTorch Lightning >= 2.0
+    strategy = "auto"  # Set to None if using PyTorch Lightning < 2.0
     # limit to single device if not using distributed training
     devices = min(devices, 1)
 
