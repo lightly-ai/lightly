@@ -1,11 +1,13 @@
-from torch import Tensor
-from lightly.transforms.multi_crop_transform import MultiCropTranform
-from lightly.transforms.utils import IMAGENET_NORMALIZE
-from lightly.transforms.rotation import random_rotation_transform
-from lightly.transforms.gaussian_blur import GaussianBlur
 from typing import Optional, Tuple, Union
-from PIL.Image import Image
+
 import torchvision.transforms as T
+from PIL.Image import Image
+from torch import Tensor
+
+from lightly.transforms.gaussian_blur import GaussianBlur
+from lightly.transforms.multi_crop_transform import MultiCropTranform
+from lightly.transforms.rotation import random_rotation_transform
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class SwaVTransform(MultiCropTranform):
@@ -82,7 +84,6 @@ class SwaVTransform(MultiCropTranform):
         sigmas: Tuple[float, float] = (0.1, 2),
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-
         transforms = SwaVViewTransform(
             hf_prob=hf_prob,
             vf_prob=vf_prob,
@@ -130,9 +131,9 @@ class SwaVViewTransform:
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
-            brightness=cj_strength * cj_bright, 
-            contrast=cj_strength * cj_contrast, 
-            saturation=cj_strength * cj_sat, 
+            brightness=cj_strength * cj_bright,
+            contrast=cj_strength * cj_contrast,
+            saturation=cj_strength * cj_sat,
             hue=cj_strength * cj_hue,
         )
 
@@ -156,7 +157,7 @@ class SwaVViewTransform:
         Applies the transforms to the input image.
 
         Args:
-            image: 
+            image:
                 The input image to apply the transforms to.
 
         Returns:

@@ -33,23 +33,59 @@ class TagUpdateRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'name': 'TagName'
+        'update_creator': 'TagCreator',
+        'name': 'TagName',
+        'bit_mask_data': 'TagBitMaskData',
+        'changes': 'TagChangeData'
     }
 
     attribute_map = {
-        'name': 'name'
+        'update_creator': 'updateCreator',
+        'name': 'name',
+        'bit_mask_data': 'bitMaskData',
+        'changes': 'changes'
     }
 
-    def __init__(self, name=None, _configuration=None):  # noqa: E501
+    def __init__(self, update_creator=None, name=None, bit_mask_data=None, changes=None, _configuration=None):  # noqa: E501
         """TagUpdateRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
+        self._update_creator = None
         self._name = None
+        self._bit_mask_data = None
+        self._changes = None
         self.discriminator = None
 
+        if update_creator is not None:
+            self.update_creator = update_creator
         self.name = name
+        if bit_mask_data is not None:
+            self.bit_mask_data = bit_mask_data
+        if changes is not None:
+            self.changes = changes
+
+    @property
+    def update_creator(self):
+        """Gets the update_creator of this TagUpdateRequest.  # noqa: E501
+
+
+        :return: The update_creator of this TagUpdateRequest.  # noqa: E501
+        :rtype: TagCreator
+        """
+        return self._update_creator
+
+    @update_creator.setter
+    def update_creator(self, update_creator):
+        """Sets the update_creator of this TagUpdateRequest.
+
+
+        :param update_creator: The update_creator of this TagUpdateRequest.  # noqa: E501
+        :type: TagCreator
+        """
+
+        self._update_creator = update_creator
 
     @property
     def name(self):
@@ -73,6 +109,48 @@ class TagUpdateRequest(object):
             raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
 
         self._name = name
+
+    @property
+    def bit_mask_data(self):
+        """Gets the bit_mask_data of this TagUpdateRequest.  # noqa: E501
+
+
+        :return: The bit_mask_data of this TagUpdateRequest.  # noqa: E501
+        :rtype: TagBitMaskData
+        """
+        return self._bit_mask_data
+
+    @bit_mask_data.setter
+    def bit_mask_data(self, bit_mask_data):
+        """Sets the bit_mask_data of this TagUpdateRequest.
+
+
+        :param bit_mask_data: The bit_mask_data of this TagUpdateRequest.  # noqa: E501
+        :type: TagBitMaskData
+        """
+
+        self._bit_mask_data = bit_mask_data
+
+    @property
+    def changes(self):
+        """Gets the changes of this TagUpdateRequest.  # noqa: E501
+
+
+        :return: The changes of this TagUpdateRequest.  # noqa: E501
+        :rtype: TagChangeData
+        """
+        return self._changes
+
+    @changes.setter
+    def changes(self, changes):
+        """Sets the changes of this TagUpdateRequest.
+
+
+        :param changes: The changes of this TagUpdateRequest.  # noqa: E501
+        :type: TagChangeData
+        """
+
+        self._changes = changes
 
     def to_dict(self):
         """Returns the model properties as a dict"""

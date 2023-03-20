@@ -1,11 +1,13 @@
-from torch import Tensor
-from lightly.transforms.multi_view_transform import MultiViewTransform
-from lightly.transforms.utils import IMAGENET_NORMALIZE
-from lightly.transforms.solarize import RandomSolarization
-from lightly.transforms.gaussian_blur import GaussianBlur
 from typing import Optional, Tuple, Union
-from PIL.Image import Image
+
 import torchvision.transforms as T
+from PIL.Image import Image
+from torch import Tensor
+
+from lightly.transforms.gaussian_blur import GaussianBlur
+from lightly.transforms.multi_view_transform import MultiViewTransform
+from lightly.transforms.solarize import RandomSolarization
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class SMoGTransform(MultiViewTransform):
@@ -57,7 +59,10 @@ class SMoGTransform(MultiViewTransform):
         crop_min_scales: Tuple[float, float] = (0.2, 0.05),
         crop_max_scales: Tuple[float, float] = (1.0, 0.2),
         gaussian_blur_probs: Tuple[float, float] = (0.5, 0.1),
-        gaussian_blur_kernel_sizes: Tuple[Optional[float], Optional[float]] = (None, None),
+        gaussian_blur_kernel_sizes: Tuple[Optional[float], Optional[float]] = (
+            None,
+            None,
+        ),
         gaussian_blur_sigmas: Tuple[float, float] = (0.1, 2),
         solarize_probs: Tuple[float, float] = (0.0, 0.2),
         hf_prob: float = 0.5,
@@ -70,10 +75,8 @@ class SMoGTransform(MultiViewTransform):
         random_gray_scale: float = 0.2,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-
         transforms = []
         for i in range(len(crop_sizes)):
-
             transforms.extend(
                 [
                     SmoGViewTransform(
@@ -122,9 +125,9 @@ class SmoGViewTransform:
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
-            brightness=cj_strength * cj_bright, 
-            contrast=cj_strength * cj_contrast, 
-            saturation=cj_strength * cj_sat, 
+            brightness=cj_strength * cj_bright,
+            contrast=cj_strength * cj_contrast,
+            saturation=cj_strength * cj_sat,
             hue=cj_strength * cj_hue,
         )
 
@@ -150,7 +153,7 @@ class SmoGViewTransform:
         Applies the transforms to the input image.
 
         Args:
-            image: 
+            image:
                 The input image to apply the transforms to.
 
         Returns:

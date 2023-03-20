@@ -1,6 +1,7 @@
+from typing import Optional, Tuple, Union
+
 from lightly.transforms.simclr_transform import SimCLRTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
-from typing import Optional, Tuple, Union
 
 
 class MoCoV1Transform(SimCLRTransform):
@@ -71,7 +72,6 @@ class MoCoV1Transform(SimCLRTransform):
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         normalize: dict = IMAGENET_NORMALIZE,
     ):
-
         super().__init__(
             input_size=input_size,
             cj_prob=cj_prob,
@@ -92,4 +92,5 @@ class MoCoV1Transform(SimCLRTransform):
             normalize=normalize,
         )
 
-MoCoV2Transform = SimCLRTransform # MoCo v2 uses the same transform as SimCLR
+
+MoCoV2Transform = SimCLRTransform  # MoCo v2 uses the same transform as SimCLR

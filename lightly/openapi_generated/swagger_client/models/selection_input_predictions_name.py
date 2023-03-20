@@ -29,6 +29,7 @@ class SelectionInputPredictionsName(object):
     allowed enum values
     """
     CLASS_DISTRIBUTION = "CLASS_DISTRIBUTION"
+    CATEGORY_COUNT = "CATEGORY_COUNT"
 
     """
     Attributes:

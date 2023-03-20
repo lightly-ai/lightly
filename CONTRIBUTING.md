@@ -89,12 +89,16 @@ Follow these steps to start contributing:
 
 5. Develop the features on your branch.
 
-   As you work on the features, you should make sure that the test suite
-   passes:
+   As you work on the features, you should make sure that the code is formatted and the
+   test suite passes:
 
    ```bash
-   $ make test
+   $ make format
+   $ make all-checks
    ```
+
+   If you get an error from isort or black, please run `make format` again before
+   running `make all-checks`.
 
    If you're modifying documents under `docs/source`, make sure to validate that
    they can still be built. This check also runs in CI. 

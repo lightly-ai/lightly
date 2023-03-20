@@ -76,28 +76,37 @@ Requirements
 # Setup detectron2 logger
 import detectron2
 from detectron2.utils.logger import setup_logger
+
 setup_logger()
+
+import gc
+import glob
+import json
+import os
+import random
+
+import cv2
+import matplotlib.pyplot as plt
 
 # import some common libraries
 import numpy as np
-import os, json, cv2, random, glob
-import tqdm, gc
-import matplotlib.pyplot as plt
+import tqdm
 
 # import some common detectron2 utilities
 from detectron2 import model_zoo
-from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
+from detectron2.data import DatasetCatalog, MetadataCatalog
+from detectron2.engine import DefaultPredictor
 from detectron2.utils.visualizer import Visualizer
-from detectron2.data import MetadataCatalog, DatasetCatalog
+
+from lightly.active_learning.agents import ActiveLearningAgent
+from lightly.active_learning.config import SelectionConfig
+from lightly.active_learning.scorers import ScorerObjectDetection
 
 # imports for lightly
 from lightly.active_learning.utils.bounding_box import BoundingBox
 from lightly.active_learning.utils.object_detection_output import ObjectDetectionOutput
-from lightly.active_learning.scorers import ScorerObjectDetection
 from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.active_learning.agents import ActiveLearningAgent
-from lightly.active_learning.config import SelectionConfig
 from lightly.openapi_generated.swagger_client import SamplingMethod
 
 # %%
@@ -105,17 +114,17 @@ from lightly.openapi_generated.swagger_client import SamplingMethod
 # -------------------------
 #
 # To work with the Lightly Platform and use the active learning feature we
-# need to upload the dataset. 
-# 
-# First, head over to `the Lightly Platform <https://app.lightly.ai/>`_ and 
+# need to upload the dataset.
+#
+# First, head over to `the Lightly Platform <https://app.lightly.ai/>`_ and
 # create a new dataset.
 #
-# We can now upload the data using the command line interface. Replace 
+# We can now upload the data using the command line interface. Replace
 # **yourToken** and **yourDatasetId** with the two provided values from the web app.
 # Don't forget to adjust the **input_dir** to the location of your dataset.
 #
-# .. code:: 
-# 
+# .. code::
+#
 #     lightly-magic token="yourToken" dataset_id="yourDatasetId" \
 #         input_dir='/datasets/comma10k/imgs/' trainer.max_epochs=20 \
 #         loader.batch_size=64 loader.num_workers=8
@@ -129,32 +138,33 @@ from lightly.openapi_generated.swagger_client import SamplingMethod
 
 YOUR_TOKEN = "yourToken"  # your token of the web platform
 YOUR_DATASET_ID = "yourDatasetId"  # the id of your dataset on the web platform
-DATASET_ROOT = '/datasets/comma10k/imgs/'
+DATASET_ROOT = "/datasets/comma10k/imgs/"
+
 
 # allow setting of token and dataset_id from environment variables
 def try_get_token_and_id_from_env():
-    token = os.getenv('LIGHTLY_TOKEN', YOUR_TOKEN)
-    dataset_id = os.getenv('AL_TUTORIAL_DATASET_ID', YOUR_DATASET_ID)
+    token = os.getenv("LIGHTLY_TOKEN", YOUR_TOKEN)
+    dataset_id = os.getenv("AL_TUTORIAL_DATASET_ID", YOUR_DATASET_ID)
     return token, dataset_id
 
-YOUR_TOKEN, YOUR_DATASET_ID = try_get_token_and_id_from_env()
 
+YOUR_TOKEN, YOUR_DATASET_ID = try_get_token_and_id_from_env()
 
 
 # %%
 # Inference on unlabeled data
 # ----------------------------
 #
-# In active learning, we want to pick the new data for which our model struggles 
-# the most. If we have an image with a single car in it and our model has 
-# high confidence that there is a car we don't gain a lot by including 
-# this example in our training data. However, if we focus on images where the 
-# model is not sure whether the object is a car or a building we want 
+# In active learning, we want to pick the new data for which our model struggles
+# the most. If we have an image with a single car in it and our model has
+# high confidence that there is a car we don't gain a lot by including
+# this example in our training data. However, if we focus on images where the
+# model is not sure whether the object is a car or a building we want
 # to include these images to refine the decision boundary.
 #
-# First, we need to create an active learning agent in order to 
-# provide lightly with the model predictions. 
-# We can use the ApiWorkflowClient for this. Make sure that we use the 
+# First, we need to create an active learning agent in order to
+# provide lightly with the model predictions.
+# We can use the ApiWorkflowClient for this. Make sure that we use the
 # right dataset_id and token.
 
 # create Lightly API client
@@ -173,9 +183,9 @@ print(al_agent.query_set[:3])
 # Note, that our active learning agent already synchronized with the Lightly
 # Platform and knows the filenames present in our dataset.
 #
-# Let's verify the length of the `query_set`. The `query_set` is the set of 
+# Let's verify the length of the `query_set`. The `query_set` is the set of
 # images from which we want to query. By default this is our full
-# dataset uploaded to Lightly. You can learn more about the different sets we 
+# dataset uploaded to Lightly. You can learn more about the different sets we
 # can access through the active learning agent here
 # :py:class:`lightly.api.api_workflow_client.ApiWorkflowClient`
 
@@ -188,21 +198,26 @@ print(len(al_agent.query_set))
 # Create our Detectron2 model
 # ----------------------------
 #
-# Next, we create a detectron2 config and a detectron2 `DefaultPredictor` to 
+# Next, we create a detectron2 config and a detectron2 `DefaultPredictor` to
 # run predictions on the new images.
-# 
+#
 # - We use a pre-trained Faster R-CNN with a ResNet-50 backbone
 # - We use an MS COCO pre-trained model from detectron2
 
 cfg = get_cfg()
 # add project-specific config (e.g., TensorMask) here if you're not running a model in detectron2's core library
 ###cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
-cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
+cfg.merge_from_file(
+    model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")
+)
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # set threshold for this model
 # Find a model from detectron2's model zoo. You can use the https://dl.fbaipublicfiles... url as well
 ###cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
-cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")
+cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
+    "COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"
+)
 predictor = DefaultPredictor(cfg)
+
 
 # %%
 # We use this little helper method to overlay the model predictions on a
@@ -212,36 +227,44 @@ def predict_and_overlay(model, filename):
     im = cv2.imread(filename)
     out = model(im)
     # We can use `Visualizer` to draw the predictions on the image.
-    v = Visualizer(im[:, :, ::-1], MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
+    v = Visualizer(
+        im[:, :, ::-1], MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2
+    )
     out = v.draw_instance_predictions(out["instances"].to("cpu"))
-    plt.figure(figsize=(16,12))
+    plt.figure(figsize=(16, 12))
     plt.imshow(out.get_image()[:, :, ::-1])
-    plt.axis('off')
+    plt.axis("off")
     plt.tight_layout()
 
+
 # %%
-# The lightly framework expects a certain bounding box and prediction format. 
-# We create another helper method to convert the detectron2 output into 
+# The lightly framework expects a certain bounding box and prediction format.
+# We create another helper method to convert the detectron2 output into
 # the desired format.
 def convert_bbox_detectron2lightly(outputs):
     # convert detectron2 predictions into lightly format
-    height, width = outputs['instances'].image_size
+    height, width = outputs["instances"].image_size
     boxes = []
 
-    for (bbox_raw, score, class_idx) in zip(outputs['instances'].pred_boxes.tensor, 
-                                            outputs['instances'].scores,
-                                            outputs['instances'].pred_classes):
+    for bbox_raw, score, class_idx in zip(
+        outputs["instances"].pred_boxes.tensor,
+        outputs["instances"].scores,
+        outputs["instances"].pred_classes,
+    ):
         x0, y0, x1, y1 = bbox_raw.cpu().numpy()
         x0 /= width
         y0 /= height
         x1 /= width
         y1 /= height
-      
+
         boxes.append(BoundingBox(x0, y0, x1, y1))
     output = ObjectDetectionOutput.from_scores(
-      boxes, outputs['instances'].scores.cpu().numpy(),
-      outputs['instances'].pred_classes.cpu().numpy().tolist())
+        boxes,
+        outputs["instances"].scores.cpu().numpy(),
+        outputs["instances"].pred_classes.cpu().numpy().tolist(),
+    )
     return output
+
 
 # %%
 # Get Model Predictions
@@ -254,34 +277,34 @@ def convert_bbox_detectron2lightly(outputs):
 obj_detection_outputs = []
 pbar = tqdm.tqdm(al_agent.query_set, miniters=500, mininterval=60, maxinterval=120)
 for fname in pbar:
-  fname_full = os.path.join(DATASET_ROOT, fname)
-  im = cv2.imread(fname_full)
-  out = predictor(im)
-  obj_detection_output = convert_bbox_detectron2lightly(out)
-  obj_detection_outputs.append(obj_detection_output)
+    fname_full = os.path.join(DATASET_ROOT, fname)
+    im = cv2.imread(fname_full)
+    out = predictor(im)
+    obj_detection_output = convert_bbox_detectron2lightly(out)
+    obj_detection_outputs.append(obj_detection_output)
 
 # %%
 # Now, we need to turn the predictions into scores.
-# The scorer assigns scores between 0.0 and 1.0 to 
+# The scorer assigns scores between 0.0 and 1.0 to
 # each sample and for each scoring method.
 scorer = ScorerObjectDetection(obj_detection_outputs)
 scores = scorer.calculate_scores()
-# %% 
+# %%
 # Let's have a look at the sample with the highest
 # uncertainty_margin score.
 #
 # .. note::
-#    A high uncertainty margin means that the image contains at least one 
-#    bounding box for which the model is unsure about the class of the object 
-#    in the bounding box. Read more about how our active learning scores are 
+#    A high uncertainty margin means that the image contains at least one
+#    bounding box for which the model is unsure about the class of the object
+#    in the bounding box. Read more about how our active learning scores are
 #    calculated here:
 #    :py:class:`lightly.active_learning.scorers.detection.ScorerObjectDetection`
-max_score = scores['uncertainty_margin'].max()
-idx = scores['uncertainty_margin'].argmax()
-print(f'Highest uncertainty_margin score found for idx {idx}: {max_score}')
+max_score = scores["uncertainty_margin"].max()
+idx = scores["uncertainty_margin"].argmax()
+print(f"Highest uncertainty_margin score found for idx {idx}: {max_score}")
 
 # %%
-# Let's have a look at this particular image and show the model 
+# Let's have a look at this particular image and show the model
 # prediction for it.
 fname = os.path.join(DATASET_ROOT, al_agent.query_set[idx])
 predict_and_overlay(predictor, fname)
@@ -296,9 +319,7 @@ predict_and_overlay(predictor, fname)
 # the image diversity based on the embeddings, active learning aims at selecting
 # images where our model struggles the most.
 config = SelectionConfig(
-  n_samples=100, 
-  method=SamplingMethod.CORAL, 
-  name='active-learning-loop-1'
+    n_samples=100, method=SamplingMethod.CORAL, name="active-learning-loop-1"
 )
 al_agent.query(config, scorer)
 
@@ -314,41 +335,41 @@ print(al_agent.added_set[:5])
 # Let's show model predictions for the first 5 images.
 to_label = [os.path.join(DATASET_ROOT, x) for x in al_agent.added_set]
 for i in range(5):
-  predict_and_overlay(predictor, to_label[i])
+    predict_and_overlay(predictor, to_label[i])
 
 # %%
 # Samples selected in the step above were placed in the 'active-learning-loop-1' tag.
 # This can be viewed on the `Lightly Platform <https://app.lightly.ai/datasets>`_.
 
 # %%
-# To re-use a dataset without tags from past experiments, we can (optionally!) remove 
+# To re-use a dataset without tags from past experiments, we can (optionally!) remove
 # tags other than the initial-tag:
 
 for tag in api_client.get_all_tags():
-  if tag.prev_tag_id is not None:
-    api_client.delete_tag_by_id(tag.id)
+    if tag.prev_tag_id is not None:
+        api_client.delete_tag_by_id(tag.id)
 
 # %%
 # Next Steps
 # -------------
-# 
-# We showed in this tutorial how you can use Lightly Active Learning to discover 
-# the images you should label next. You can close the loop by annotating 
-# the 100 images and re-training your model. Then start the next iteration 
+#
+# We showed in this tutorial how you can use Lightly Active Learning to discover
+# the images you should label next. You can close the loop by annotating
+# the 100 images and re-training your model. Then start the next iteration
 # by making new model predictions on the `query_set`.
 #
 # Using Lightly Active Learning has two advantages:
 #
-# - By letting the model chose the next batch of images to label we achieve 
+# - By letting the model chose the next batch of images to label we achieve
 #   a higher accuracy faster. We're only labeling the images having a great impact.
-# 
-# - By combining the model predictions with the image embeddings we make sure we 
-#   don't select many similar images. Imagine the model being very bad at small 
-#   red cars and the 100 images therefore would only contain this set of images. 
-#   We might overfit the model because it suddenly has too many training examples 
+#
+# - By combining the model predictions with the image embeddings we make sure we
+#   don't select many similar images. Imagine the model being very bad at small
+#   red cars and the 100 images therefore would only contain this set of images.
+#   We might overfit the model because it suddenly has too many training examples
 #   of small red cars.
 
 # %%
-# After re-training our model on the newly labeled 100 images 
+# After re-training our model on the newly labeled 100 images
 # we can do another active learning iteration by running predictions on the
 # the `query_set`.

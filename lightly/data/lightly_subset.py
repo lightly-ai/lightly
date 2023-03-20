@@ -1,4 +1,4 @@
-from typing import List, Dict, Tuple
+from typing import Dict, List, Tuple
 
 from lightly.data.dataset import LightlyDataset
 
@@ -21,8 +21,9 @@ class LightlySubset(LightlyDataset):
             fname = base_dataset.index_to_filename(self.dataset, index)
             dict_base_dataset_filename_index[fname] = index
 
-        self.mapping_subset_index_to_baseset_index = \
-            [dict_base_dataset_filename_index[filename] for filename in filenames_subset]
+        self.mapping_subset_index_to_baseset_index = [
+            dict_base_dataset_filename_index[filename] for filename in filenames_subset
+        ]
 
     def __getitem__(self, index_subset: int) -> Tuple[object, object, str]:
         """An overwrite for indexing.
@@ -50,9 +51,7 @@ class LightlySubset(LightlyDataset):
         return len(self.filenames_subset)
 
     def get_filenames(self) -> List[str]:
-        """Returns all filenames in the subset.
-
-        """
+        """Returns all filenames in the subset."""
         return self.filenames_subset
 
     def index_to_filename(self, dataset, index_subset: int):

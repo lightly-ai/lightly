@@ -1,12 +1,14 @@
-from torch import Tensor
-from lightly.transforms.multi_view_transform import MultiViewTransform
-from lightly.transforms.utils import IMAGENET_NORMALIZE
-from lightly.transforms.rotation import random_rotation_transform
-from lightly.transforms.gaussian_blur import GaussianBlur
-from lightly.transforms.solarize import RandomSolarization
 from typing import Optional, Tuple, Union
-from PIL.Image import Image
+
 import torchvision.transforms as T
+from PIL.Image import Image
+from torch import Tensor
+
+from lightly.transforms.gaussian_blur import GaussianBlur
+from lightly.transforms.multi_view_transform import MultiViewTransform
+from lightly.transforms.rotation import random_rotation_transform
+from lightly.transforms.solarize import RandomSolarization
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class VICRegTransform(MultiViewTransform):
@@ -82,7 +84,6 @@ class VICRegTransform(MultiViewTransform):
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-
         view_transform = VICRegViewTransform(
             input_size=input_size,
             cj_prob=cj_prob,
@@ -129,9 +130,9 @@ class VICRegViewTransform:
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
-            brightness=cj_strength * cj_bright, 
-            contrast=cj_strength * cj_contrast, 
-            saturation=cj_strength * cj_sat, 
+            brightness=cj_strength * cj_bright,
+            contrast=cj_strength * cj_contrast,
+            saturation=cj_strength * cj_sat,
             hue=cj_strength * cj_hue,
         )
 
@@ -155,7 +156,7 @@ class VICRegViewTransform:
         Applies the transforms to the input image.
 
         Args:
-            image: 
+            image:
                 The input image to apply the transforms to.
 
         Returns:

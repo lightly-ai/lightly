@@ -56,44 +56,47 @@ Results (2.3.2023):
 """
 import copy
 import os
-
 import time
+
 import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchvision
+from pl_bolts.optimizers.lars import LARS
+from pytorch_lightning.loggers import TensorBoardLogger
+
 from lightly.data import LightlyDataset
+from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import (
-    NTXentLoss,
-    NegativeCosineSimilarity,
-    DINOLoss,
     BarlowTwinsLoss,
-    SwaVLoss,
-    MSNLoss,
     DCLLoss,
     DCLWLoss,
+    DINOLoss,
+    MSNLoss,
+    NegativeCosineSimilarity,
+    NTXentLoss,
+    SwaVLoss,
+    TiCoLoss,
     VICRegLLoss,
     VICRegLoss,
-    TiCoLoss,
     memory_bank,
 )
 from lightly.models import modules, utils
 from lightly.models.modules import heads, masked_autoencoder
-from lightly.utils.benchmarking import BenchmarkModule
-from lightly.utils import scheduler
-from lightly.data.multi_view_collate import MultiViewCollate
-from pytorch_lightning.loggers import TensorBoardLogger
-from lightly.transforms import SimCLRTransform
-from lightly.transforms import SwaVTransform
-from lightly.transforms import DINOTransform
-from lightly.transforms import SMoGTransform
-from lightly.transforms import MAETransform
-from lightly.transforms import MSNTransform
-from lightly.transforms import VICRegTransform
-from lightly.transforms import VICRegLTransform
+from lightly.transforms import (
+    DINOTransform,
+    MAETransform,
+    MSNTransform,
+    SimCLRTransform,
+    SMoGTransform,
+    SwaVTransform,
+    VICRegLTransform,
+    VICRegTransform,
+)
 from lightly.transforms.utils import IMAGENET_NORMALIZE
-from pl_bolts.optimizers.lars import LARS
+from lightly.utils import scheduler
+from lightly.utils.benchmarking import BenchmarkModule
 
 logs_root_dir = os.path.join(os.getcwd(), "benchmark_logs")
 
@@ -181,9 +184,9 @@ mae_transform = MAETransform()
 
 # Multi crop augmentation for MSN
 msn_transform = MSNTransform(
-    random_size=128, 
+    random_size=128,
     focal_size=64,
-    cj_strength=1.0, # Higher cj_strength works better for MSN on imagenette
+    cj_strength=1.0,  # Higher cj_strength works better for MSN on imagenette
 )
 
 vicreg_transform = VICRegTransform(
@@ -193,9 +196,9 @@ vicreg_transform = VICRegTransform(
 
 # Transform  passing geometrical transformation for VICRegL
 vicregl_transform = VICRegLTransform(
-    global_crop_size=128, 
-    local_crop_size=64, 
-    global_grid_size=4, 
+    global_crop_size=128,
+    local_crop_size=64,
+    global_grid_size=4,
     local_grid_size=2,
     cj_strength=0.5,
 )
@@ -216,13 +219,10 @@ test_transforms = torchvision.transforms.Compose(
 )
 
 # we use test transformations for getting the feature for kNN on train data
-dataset_train_kNN = LightlyDataset(
-    input_dir=path_to_train, transform=test_transforms
-)
+dataset_train_kNN = LightlyDataset(input_dir=path_to_train, transform=test_transforms)
 
-dataset_test = LightlyDataset(
-    input_dir=path_to_test, transform=test_transforms
-)
+dataset_test = LightlyDataset(input_dir=path_to_test, transform=test_transforms)
+
 
 def create_dataset_train_ssl(model):
     """Helper method to apply the correct transform for ssl.
@@ -298,9 +298,7 @@ class MocoModel(BenchmarkModule):
         # TODO: Add split batch norm to the resnet model
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
-        self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
-        )
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
 
         # create a moco model based on ResNet
         self.projection_head = heads.MoCoProjectionHead(feature_dim, 2048, 128)
@@ -310,9 +308,7 @@ class MocoModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
         # create our loss with the optional memory bank
-        self.criterion = NTXentLoss(
-            temperature=0.1, memory_bank_size=memory_bank_size
-        )
+        self.criterion = NTXentLoss(temperature=0.1, memory_bank_size=memory_bank_size)
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -364,9 +360,7 @@ class SimCLRModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
-        self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
-        )
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
         self.criterion = NTXentLoss()
 
@@ -397,9 +391,7 @@ class SimSiamModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
-        self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
-        )
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = heads.SimSiamProjectionHead(feature_dim, 2048, 2048)
         self.prediction_head = heads.SimSiamPredictionHead(2048, 512, 2048)
         self.criterion = NegativeCosineSimilarity()
@@ -436,15 +428,11 @@ class BarlowTwinsModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
-        self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
-        )
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         # use a 2-layer projection head for cifar10 as described in the paper
         self.projection_head = heads.BarlowTwinsProjectionHead(feature_dim, 2048, 2048)
 
-        self.criterion = BarlowTwinsLoss(
-            gather_distributed=gather_distributed
-        )
+        self.criterion = BarlowTwinsLoss(gather_distributed=gather_distributed)
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -473,9 +461,7 @@ class BYOLModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
-        self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
-        )
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
 
         # create a byol model based on ResNet
         self.projection_head = heads.BYOLProjectionHead(feature_dim, 4096, 256)
@@ -537,9 +523,7 @@ class NNCLRModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
-        self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
-        )
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = heads.NNCLRProjectionHead(feature_dim, 2048, 256)
         self.prediction_head = heads.NNCLRPredictionHead(256, 4096, 256)
 
@@ -579,16 +563,12 @@ class SwaVModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
-        self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
-        )
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
 
         self.projection_head = heads.SwaVProjectionHead(feature_dim, 2048, 128)
         self.prototypes = heads.SwaVPrototypes(128, 3000)  # use 3000 prototypes
 
-        self.criterion = SwaVLoss(
-            sinkhorn_gather_distributed=gather_distributed
-        )
+        self.criterion = SwaVLoss(sinkhorn_gather_distributed=gather_distributed)
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -597,7 +577,6 @@ class SwaVModel(BenchmarkModule):
         return self.prototypes(x)
 
     def training_step(self, batch, batch_idx):
-
         # normalize the prototypes so they are on the unit sphere
         self.prototypes.normalize()
 
@@ -633,9 +612,7 @@ class DINOModel(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
-        self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
-        )
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.head = heads.DINOProjectionHead(
             feature_dim, 2048, 256, 2048, batch_norm=True
         )
@@ -689,9 +666,7 @@ class DCL(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
-        self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
-        )
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
         self.criterion = DCLLoss()
 
@@ -722,9 +697,7 @@ class DCLW(BenchmarkModule):
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
         feature_dim = list(resnet.children())[-1].in_features
-        self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
-        )
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = heads.SimCLRProjectionHead(feature_dim, feature_dim, 128)
         self.criterion = DCLWLoss()
 
@@ -785,7 +758,7 @@ class MAEModel(BenchmarkModule):
         x_masked = utils.repeat_token(
             self.mask_token, (batch_size, self.sequence_length)
         )
-        x_masked = utils.set_at_index(x_masked, idx_keep, x_decode)
+        x_masked = utils.set_at_index(x_masked, idx_keep, x_decode.type_as(x_masked))
 
         # decoder forward pass
         x_decoded = self.decoder.decode(x_masked)
@@ -913,9 +886,7 @@ class SMoGModel(BenchmarkModule):
 
         # create a ResNet backbone and remove the classification head
         resnet = torchvision.models.resnet18()
-        self.backbone = nn.Sequential(
-            *list(resnet.children())[:-1]
-        )
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
 
         # create a model based on ResNet
         self.projection_head = heads.SMoGProjectionHead(512, 2048, 128)
@@ -928,9 +899,7 @@ class SMoGModel(BenchmarkModule):
         # smog
         self.n_groups = 300
         memory_bank_size = 10000
-        self.memory_bank = memory_bank.MemoryBankModule(
-            size=memory_bank_size
-        )
+        self.memory_bank = memory_bank.MemoryBankModule(size=memory_bank_size)
         # create our loss
         group_features = torch.nn.functional.normalize(
             torch.rand(self.n_groups, 128), dim=1
@@ -959,7 +928,6 @@ class SMoGModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
     def training_step(self, batch, batch_idx):
-
         if self.global_step > 0 and self.global_step % 300 == 0:
             # reset group features and weights every 300 iterations
             self._reset_group_features()
@@ -1273,7 +1241,6 @@ class SwaVQueueModel(BenchmarkModule):
 
     @torch.no_grad()
     def _get_queue_prototypes(self, high_resolution_features):
-
         if len(high_resolution_features) != len(self.queues):
             raise ValueError(
                 f"The number of queues ({len(self.queues)}) should be equal to the number of high "
@@ -1344,8 +1311,7 @@ for BenchmarkModel in models:
         pl.seed_everything(seed)
         dataset_train_ssl = create_dataset_train_ssl(BenchmarkModel)
         dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(
-            batch_size=batch_size,
-            dataset_train_ssl=dataset_train_ssl
+            batch_size=batch_size, dataset_train_ssl=dataset_train_ssl
         )
         benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
 

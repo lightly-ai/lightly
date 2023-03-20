@@ -1,15 +1,16 @@
 import contextlib
 import io
-import warnings
-from fractions import Fraction
-import unittest
 import os
 import shutil
+import tempfile
+import unittest
+import warnings
+from fractions import Fraction
 from typing import List
 from unittest import mock
 
+import cv2
 import numpy as np
-import tempfile
 import PIL
 import torch
 import torchvision
@@ -17,11 +18,9 @@ import torchvision
 from lightly.data import LightlyDataset, NonIncreasingTimestampError
 from lightly.data._video import (
     VideoDataset,
-    _make_dataset,
     _find_non_increasing_timestamps,
+    _make_dataset,
 )
-
-import cv2
 
 try:
     import av
@@ -62,7 +61,6 @@ class TestVideoDataset(unittest.TestCase):
             out.release()
 
     def create_dataset(self, n_videos=5, n_frames_per_video=10, w=32, h=32, c=3):
-
         self.n_videos = n_videos
         self.n_frames_per_video = n_frames_per_video
 
@@ -119,7 +117,6 @@ class TestVideoDataset(unittest.TestCase):
         shutil.rmtree(self.input_dir)
 
     def test_video_dataset_tqdm_args(self):
-
         self.create_dataset()
         desc = "test_video_dataset_tqdm_args description asdf"
         f = io.StringIO()
@@ -159,7 +156,6 @@ class TestVideoDataset(unittest.TestCase):
         )
 
     def test_video_dataset_from_folder(self):
-
         self.create_dataset()
 
         # iterate through different backends

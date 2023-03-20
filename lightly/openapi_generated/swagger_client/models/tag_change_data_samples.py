@@ -33,16 +33,20 @@ class TagChangeDataSamples(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'method': 'str',
-        'count': 'float'
+        'method': 'TagChangeDataOperationMethod',
+        'count': 'float',
+        'added': 'float',
+        'removed': 'float'
     }
 
     attribute_map = {
         'method': 'method',
-        'count': 'count'
+        'count': 'count',
+        'added': 'added',
+        'removed': 'removed'
     }
 
-    def __init__(self, method=None, count=None, _configuration=None):  # noqa: E501
+    def __init__(self, method=None, count=None, added=None, removed=None, _configuration=None):  # noqa: E501
         """TagChangeDataSamples - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -50,10 +54,14 @@ class TagChangeDataSamples(object):
 
         self._method = None
         self._count = None
+        self._added = None
+        self._removed = None
         self.discriminator = None
 
         self.method = method
         self.count = count
+        self.added = added
+        self.removed = removed
 
     @property
     def method(self):
@@ -61,7 +69,7 @@ class TagChangeDataSamples(object):
 
 
         :return: The method of this TagChangeDataSamples.  # noqa: E501
-        :rtype: str
+        :rtype: TagChangeDataOperationMethod
         """
         return self._method
 
@@ -71,17 +79,10 @@ class TagChangeDataSamples(object):
 
 
         :param method: The method of this TagChangeDataSamples.  # noqa: E501
-        :type: str
+        :type: TagChangeDataOperationMethod
         """
         if self._configuration.client_side_validation and method is None:
             raise ValueError("Invalid value for `method`, must not be `None`")  # noqa: E501
-        allowed_values = ["selected", "added", "removed"]  # noqa: E501
-        if (self._configuration.client_side_validation and
-                method not in allowed_values):
-            raise ValueError(
-                "Invalid value for `method` ({0}), must be one of {1}"  # noqa: E501
-                .format(method, allowed_values)
-            )
 
         self._method = method
 
@@ -107,6 +108,52 @@ class TagChangeDataSamples(object):
             raise ValueError("Invalid value for `count`, must not be `None`")  # noqa: E501
 
         self._count = count
+
+    @property
+    def added(self):
+        """Gets the added of this TagChangeDataSamples.  # noqa: E501
+
+
+        :return: The added of this TagChangeDataSamples.  # noqa: E501
+        :rtype: float
+        """
+        return self._added
+
+    @added.setter
+    def added(self, added):
+        """Sets the added of this TagChangeDataSamples.
+
+
+        :param added: The added of this TagChangeDataSamples.  # noqa: E501
+        :type: float
+        """
+        if self._configuration.client_side_validation and added is None:
+            raise ValueError("Invalid value for `added`, must not be `None`")  # noqa: E501
+
+        self._added = added
+
+    @property
+    def removed(self):
+        """Gets the removed of this TagChangeDataSamples.  # noqa: E501
+
+
+        :return: The removed of this TagChangeDataSamples.  # noqa: E501
+        :rtype: float
+        """
+        return self._removed
+
+    @removed.setter
+    def removed(self, removed):
+        """Sets the removed of this TagChangeDataSamples.
+
+
+        :param removed: The removed of this TagChangeDataSamples.  # noqa: E501
+        :type: float
+        """
+        if self._configuration.client_side_validation and removed is None:
+            raise ValueError("Invalid value for `removed`, must not be `None`")  # noqa: E501
+
+        self._removed = removed
 
     def to_dict(self):
         """Returns the model properties as a dict"""

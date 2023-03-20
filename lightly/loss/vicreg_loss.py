@@ -4,15 +4,16 @@ import torch.nn.functional as F
 
 from lightly.utils.dist import gather
 
+
 class VICRegLoss(torch.nn.Module):
     """Implementation of the VICReg Loss from VICReg[0] paper.
     This implementation follows the code published by the authors. [1]
 
     [0] Bardes, A. et. al, 2022, VICReg... https://arxiv.org/abs/2105.04906
     [1] https://github.com/facebookresearch/vicreg/
-        
+
     Examples:
-    
+
         >>> # initialize loss function
         >>> loss_fn = VICRegLoss()
         >>>
@@ -32,8 +33,8 @@ class VICRegLoss(torch.nn.Module):
         lambda_param: float = 25.0,
         mu_param: float = 25.0,
         nu_param: float = 1.0,
-        gather_distributed : bool = False,
-        eps = 0.0001
+        gather_distributed: bool = False,
+        eps=0.0001,
     ):
         """Lambda, mu and nu params configuration with default value like in [0]
         Args:
@@ -62,8 +63,12 @@ class VICRegLoss(torch.nn.Module):
         self.eps = eps
 
     def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
-        assert z_a.shape[0] > 1 and z_b.shape[0] > 1, f"z_a and z_b must have batch size > 1 but found {z_a.shape[0]} and  {z_b.shape[0]}"
-        assert z_a.shape == z_b.shape, f"z_a and z_b must have same shape but found {z_a.shape} and {z_b.shape}."
+        assert (
+            z_a.shape[0] > 1 and z_b.shape[0] > 1
+        ), f"z_a and z_b must have batch size > 1 but found {z_a.shape[0]} and  {z_b.shape[0]}"
+        assert (
+            z_a.shape == z_b.shape
+        ), f"z_a and z_b must have same shape but found {z_a.shape} and {z_b.shape}."
 
         # invariance term of the loss
         repr_loss = F.mse_loss(z_a, z_b)
@@ -76,8 +81,8 @@ class VICRegLoss(torch.nn.Module):
                 z_b = torch.cat(gather(z_b), dim=0)
 
         # normalize repr. along the batch dimension
-        z_a = z_a - z_a.mean(0) # NxD
-        z_b = z_b - z_b.mean(0) # NxD
+        z_a = z_a - z_a.mean(0)  # NxD
+        z_b = z_b - z_b.mean(0)  # NxD
 
         N = z_a.size(0)
         D = z_a.size(1)
@@ -96,9 +101,15 @@ class VICRegLoss(torch.nn.Module):
         off_diag_cov_x = cov_x.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten()
         off_diag_cov_y = cov_y.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten()
 
-        cov_loss = off_diag_cov_x.pow_(2).sum().div(D) + off_diag_cov_y.pow_(2).sum().div(D)
+        cov_loss = off_diag_cov_x.pow_(2).sum().div(D) + off_diag_cov_y.pow_(
+            2
+        ).sum().div(D)
 
         # loss
-        loss = self.lambda_param * repr_loss + self.mu_param * std_loss + self.nu_param * cov_loss
+        loss = (
+            self.lambda_param * repr_loss
+            + self.mu_param * std_loss
+            + self.nu_param * cov_loss
+        )
 
         return loss

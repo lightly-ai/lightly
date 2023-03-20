@@ -1,12 +1,14 @@
+from typing import Optional, Tuple, Union
+
+import torchvision.transforms as T
+from PIL.Image import Image
 from torch import Tensor
+
+from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.image_grid_transform import ImageGridTransform
-from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropAndFlip
 from lightly.transforms.solarize import RandomSolarization
-from lightly.transforms.gaussian_blur import GaussianBlur
-from typing import Optional, Tuple, Union
-from PIL.Image import Image
-import torchvision.transforms as T
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class VICRegLTransform(ImageGridTransform):
@@ -31,21 +33,21 @@ class VICRegLTransform(ImageGridTransform):
             Probability of Gaussian blur for the local crop category.
         global_gaussian_blur_kernel_size:
             Will be deprecated in favor of `global_gaussian_blur_sigmas` argument.
-            If set, the old behavior applies and `global_gaussian_blur_sigmas` 
-            is ignored. Used to calculate sigma of gaussian blur with 
+            If set, the old behavior applies and `global_gaussian_blur_sigmas`
+            is ignored. Used to calculate sigma of gaussian blur with
             global_gaussian_blur_kernel_size * input_size. Applied to global crop category.
         local_gaussian_blur_kernel_size:
-            Will be deprecated in favor of `local_gaussian_blur_sigmas` argument. 
-            If set, the old behavior applies and `local_gaussian_blur_sigmas` 
-            is ignored. Used to calculate sigma of gaussian blur with 
+            Will be deprecated in favor of `local_gaussian_blur_sigmas` argument.
+            If set, the old behavior applies and `local_gaussian_blur_sigmas`
+            is ignored. Used to calculate sigma of gaussian blur with
             local_gaussian_blur_kernel_size * input_size. Applied to local crop category.
         global_gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel
-            is sampled. It is ignored if `global_gaussian_blur_kernel_size` is set. 
+            is sampled. It is ignored if `global_gaussian_blur_kernel_size` is set.
             Applied to global crop category.
         local_gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel
-            is sampled. It is ignored if `local_gaussian_blur_kernel_size` is set. 
+            is sampled. It is ignored if `local_gaussian_blur_kernel_size` is set.
             Applied to local crop category.
         global_solarize_prob:
             Probability of solarization for the global crop category.
@@ -166,9 +168,9 @@ class VICRegLViewTransform:
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
-            brightness=cj_strength * cj_bright, 
-            contrast=cj_strength * cj_contrast, 
-            saturation=cj_strength * cj_sat, 
+            brightness=cj_strength * cj_bright,
+            contrast=cj_strength * cj_contrast,
+            saturation=cj_strength * cj_sat,
             hue=cj_strength * cj_hue,
         )
 
@@ -192,7 +194,7 @@ class VICRegLViewTransform:
         Applies the transforms to the input image.
 
         Args:
-            image: 
+            image:
                 The input image to apply the transforms to.
 
         Returns:

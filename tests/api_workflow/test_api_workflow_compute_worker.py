@@ -1,44 +1,47 @@
 import json
 import random
+from typing import Any, List
+from unittest import mock
 from unittest.mock import MagicMock
 
 import pytest
 from pytest_mock import MockerFixture
-from typing import Any, List
-from unittest import mock
 
+from lightly.api import ApiWorkflowClient, api_workflow_compute_worker
 from lightly.api.api_workflow_compute_worker import (
     STATE_SCHEDULED_ID_NOT_FOUND,
-    ArtifactNotExist,
     ComputeWorkerRunInfo,
+    InvalidConfigurationError,
     _config_to_camel_case,
     _snake_to_camel_case,
+    _validate_config,
 )
 from lightly.openapi_generated.swagger_client import (
-    SelectionConfig,
-    SelectionConfigEntry,
-    SelectionInputType,
-    SelectionStrategyType,
     ApiClient,
     DockerApi,
-    SelectionConfigEntryInput,
-    SelectionStrategyThresholdOperation,
-    SelectionInputPredictionsName,
-    SelectionConfigEntryStrategy,
-    DockerWorkerConfig,
-    DockerWorkerType,
-    DockerRunArtifactData,
-    DockerRunArtifactType,
     DockerRunData,
     DockerRunScheduledData,
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
+    DockerWorkerConfig,
+    DockerWorkerConfigV2Docker,
+    DockerWorkerConfigV2DockerCorruptnessCheck,
+    DockerWorkerConfigV2Lightly,
+    DockerWorkerConfigV2LightlyLoader,
+    DockerWorkerType,
+    SelectionConfig,
+    SelectionConfigEntry,
+    SelectionConfigEntryInput,
+    SelectionConfigEntryStrategy,
+    SelectionInputPredictionsName,
+    SelectionInputType,
+    SelectionStrategyThresholdOperation,
+    SelectionStrategyType,
     TagData,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
-from lightly.api import api_workflow_compute_worker, ApiWorkflowClient
 
 
 class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
@@ -58,13 +61,11 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
     def test_create_compute_worker_config(self):
         config_id = self.api_workflow_client.create_compute_worker_config(
             worker_config={
-                "enable_corruptness_check": True,
                 "stopping_condition": {
                     "n_samples": 10,
                 },
             },
             lightly_config={
-                "resize": 224,
                 "loader": {
                     "batch_size": 64,
                 },
@@ -85,16 +86,52 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
         )
         assert config_id
 
-    def test_schedule_compute_worker_run(self):
-        scheduled_run_id = self.api_workflow_client.schedule_compute_worker_run(
+    def test_create_compute_worker_config__selection_config_is_class(self) -> None:
+        config_id = self.api_workflow_client.create_compute_worker_config(
             worker_config={
-                "enable_corruptness_check": True,
                 "stopping_condition": {
                     "n_samples": 10,
                 },
             },
             lightly_config={
-                "resize": 224,
+                "loader": {
+                    "batch_size": 64,
+                },
+            },
+            selection_config=SelectionConfig(
+                n_samples=20,
+                strategies=[
+                    SelectionConfigEntry(
+                        input=SelectionConfigEntryInput(
+                            type=SelectionInputType.EMBEDDINGS,
+                            dataset_id="some-dataset-id",
+                            tag_name="some-tag-name",
+                        ),
+                        strategy=SelectionConfigEntryStrategy(
+                            type=SelectionStrategyType.SIMILARITY,
+                        ),
+                    )
+                ],
+            ),
+        )
+        assert config_id
+
+    def test_create_compute_worker_config__all_none(self) -> None:
+        config_id = self.api_workflow_client.create_compute_worker_config(
+            worker_config=None,
+            lightly_config=None,
+            selection_config=None,
+        )
+        assert config_id
+
+    def test_schedule_compute_worker_run(self):
+        scheduled_run_id = self.api_workflow_client.schedule_compute_worker_run(
+            worker_config={
+                "stopping_condition": {
+                    "n_samples": 10,
+                },
+            },
+            lightly_config={
                 "loader": {
                     "batch_size": 64,
                 },
@@ -104,21 +141,15 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
 
     def test_schedule_compute_worker_run__priority(self):
         scheduled_run_id = self.api_workflow_client.schedule_compute_worker_run(
-            worker_config={
-            },
-            lightly_config={
-            },
-            priority=DockerRunScheduledPriority.HIGH
+            worker_config={},
+            lightly_config={},
+            priority=DockerRunScheduledPriority.HIGH,
         )
         assert scheduled_run_id
 
     def test_schedule_compute_worker_run__runs_on(self):
         scheduled_run_id = self.api_workflow_client.schedule_compute_worker_run(
-            worker_config={
-            },
-            lightly_config={
-            },
-            runs_on=["AAA", "BBB"]
+            worker_config={}, lightly_config={}, runs_on=["AAA", "BBB"]
         )
         assert scheduled_run_id
 
@@ -319,7 +350,6 @@ def test_selection_config_from_dict__typo() -> None:
 
 
 def test_get_scheduled_run_by_id() -> None:
-
     scheduled_runs = [
         DockerRunScheduledData(
             id=f"id_{i}",
@@ -329,7 +359,7 @@ def test_get_scheduled_run_by_id() -> None:
             state=DockerRunScheduledState.OPEN,
             created_at=0,
             last_modified_at=1,
-            runs_on=[]
+            runs_on=[],
         )
         for i in range(3)
     ]
@@ -348,7 +378,6 @@ def test_get_scheduled_run_by_id() -> None:
 
 
 def test_get_scheduled_run_by_id_not_found() -> None:
-
     scheduled_runs = [
         DockerRunScheduledData(
             id=f"id_{i}",
@@ -358,7 +387,7 @@ def test_get_scheduled_run_by_id_not_found() -> None:
             state=DockerRunScheduledState.OPEN,
             created_at=0,
             last_modified_at=1,
-            runs_on=[]
+            runs_on=[],
         )
         for i in range(3)
     ]
@@ -380,7 +409,6 @@ def test_get_scheduled_run_by_id_not_found() -> None:
 
 
 def test_get_compute_worker_state_and_message_OPEN() -> None:
-
     scheduled_run = DockerRunScheduledData(
         id=f"id_2",
         dataset_id="dataset_id",
@@ -389,7 +417,7 @@ def test_get_compute_worker_state_and_message_OPEN() -> None:
         state=DockerRunScheduledState.OPEN,
         created_at=0,
         last_modified_at=1,
-        runs_on=["asdf"]
+        runs_on=["asdf"],
     )
 
     def mocked_raise_exception(*args, **kwargs):
@@ -456,7 +484,6 @@ def test_get_compute_worker_state_and_message_docker_state() -> None:
 
 
 def test_compute_worker_run_info_generator(mocker) -> None:
-
     states = [f"state_{i}" for i in range(7)]
     states[-1] = DockerRunState.COMPLETED
 
@@ -487,30 +514,71 @@ def test_compute_worker_run_info_generator(mocker) -> None:
 
     assert run_infos == expected_run_infos
 
+
 def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient(token="123")
-    mock_compute_worker_api = mocker.create_autospec(DockerApi, spec_set=True).return_value
+    mock_compute_worker_api = mocker.create_autospec(
+        DockerApi, spec_set=True
+    ).return_value
     mock_compute_worker_api.get_docker_runs.side_effect = [
         [
-            DockerRunData(id="run-1", created_at=20,  dataset_id="", docker_version="", state="", last_modified_at=0),
-            DockerRunData(id="run-2", created_at=10,  dataset_id="", docker_version="", state="", last_modified_at=0),
-        ], 
+            DockerRunData(
+                id="run-1",
+                created_at=20,
+                dataset_id="",
+                docker_version="",
+                state="",
+                last_modified_at=0,
+            ),
+            DockerRunData(
+                id="run-2",
+                created_at=10,
+                dataset_id="",
+                docker_version="",
+                state="",
+                last_modified_at=0,
+            ),
+        ],
         [],
     ]
     client._compute_worker_api = mock_compute_worker_api
     runs = client.get_compute_worker_runs()
     assert runs == [
-        DockerRunData(id="run-2", created_at=10,  dataset_id="", docker_version="", state="", last_modified_at=0),
-        DockerRunData(id="run-1", created_at=20,  dataset_id="", docker_version="", state="", last_modified_at=0),
+        DockerRunData(
+            id="run-2",
+            created_at=10,
+            dataset_id="",
+            docker_version="",
+            state="",
+            last_modified_at=0,
+        ),
+        DockerRunData(
+            id="run-1",
+            created_at=20,
+            dataset_id="",
+            docker_version="",
+            state="",
+            last_modified_at=0,
+        ),
     ]
     assert mock_compute_worker_api.get_docker_runs.call_count == 2
 
+
 def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient(token="123")
-    mock_compute_worker_api = mocker.create_autospec(DockerApi, spec_set=True).return_value
+    mock_compute_worker_api = mocker.create_autospec(
+        DockerApi, spec_set=True
+    ).return_value
     mock_compute_worker_api.get_docker_runs_query_by_dataset_id.side_effect = [
         [
-            DockerRunData(id="run-2", dataset_id="dataset-2", docker_version="", state="", created_at=0, last_modified_at=0),
+            DockerRunData(
+                id="run-2",
+                dataset_id="dataset-2",
+                docker_version="",
+                state="",
+                created_at=0,
+                last_modified_at=0,
+            ),
         ],
         [],
     ]
@@ -518,56 +586,35 @@ def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
     client._compute_worker_api = mock_compute_worker_api
     runs = client.get_compute_worker_runs(dataset_id="dataset-2")
     assert runs == [
-        DockerRunData(id="run-2", dataset_id="dataset-2", docker_version="", state="", created_at=0, last_modified_at=0),
+        DockerRunData(
+            id="run-2",
+            dataset_id="dataset-2",
+            docker_version="",
+            state="",
+            created_at=0,
+            last_modified_at=0,
+        ),
     ]
     assert mock_compute_worker_api.get_docker_runs_query_by_dataset_id.call_count == 2
 
-def test_download_compute_worker_run_artifacts(mocker: MockerFixture) -> None:
-    client = ApiWorkflowClient(token="123")
-    mock_download_compute_worker_run_artifact = mocker.MagicMock(
-        spec_set=client._download_compute_worker_run_artifact
-    )
-    client._download_compute_worker_run_artifact = mock_download_compute_worker_run_artifact
-    run = DockerRunData(
-        id="run-1", 
-        dataset_id="dataset-1", 
-        docker_version="", 
-        state="", 
-        created_at=0, 
-        last_modified_at=0, 
-        artifacts=[
-            DockerRunArtifactData(
-                id="artifact-1",
-                file_name="report.pdf",
-                type=DockerRunArtifactType.REPORT_PDF,
-            ),
-            DockerRunArtifactData(
-                id="artifact-2",
-                file_name="checkpoint.ckpt",
-                type=DockerRunArtifactType.CHECKPOINT,
-            ),
-        ],
-    )
-    client.download_compute_worker_run_artifacts(run=run, output_dir="output_dir")
-    calls = [
-        mocker.call(run_id="run-1", artifact_id="artifact-1", output_path="output_dir/report.pdf", timeout=60),
-        mocker.call(run_id="run-1", artifact_id="artifact-2", output_path="output_dir/checkpoint.ckpt", timeout=60),
-    ]
-    mock_download_compute_worker_run_artifact.assert_has_calls(calls=calls)
-    assert mock_download_compute_worker_run_artifact.call_count == len(calls)
 
 def test_get_compute_worker_run_tags__no_tags(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient(token="123", dataset_id="dataset-0")
-    mock_compute_worker_api = mocker.create_autospec(DockerApi, spec_set=True).return_value
+    mock_compute_worker_api = mocker.create_autospec(
+        DockerApi, spec_set=True
+    ).return_value
     mock_compute_worker_api.get_docker_run_tags.return_value = []
     client._compute_worker_api = mock_compute_worker_api
     tags = client.get_compute_worker_run_tags(run_id="run-0")
     assert len(tags) == 0
     mock_compute_worker_api.get_docker_run_tags.assert_called_once_with(run_id="run-0")
 
+
 def test_get_compute_worker_run_tags__single_tag(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient(token="123", dataset_id="dataset-0")
-    mock_compute_worker_api = mocker.create_autospec(DockerApi, spec_set=True).return_value
+    mock_compute_worker_api = mocker.create_autospec(
+        DockerApi, spec_set=True
+    ).return_value
     mock_compute_worker_api.get_docker_run_tags.return_value = [
         TagData(
             id="tag-0",
@@ -586,9 +633,12 @@ def test_get_compute_worker_run_tags__single_tag(mocker: MockerFixture) -> None:
     assert len(tags) == 1
     mock_compute_worker_api.get_docker_run_tags.assert_called_once_with(run_id="run-0")
 
+
 def test_get_compute_worker_run_tags__multiple_tags(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient(token="123", dataset_id="dataset-0")
-    mock_compute_worker_api = mocker.create_autospec(DockerApi, spec_set=True).return_value
+    mock_compute_worker_api = mocker.create_autospec(
+        DockerApi, spec_set=True
+    ).return_value
     tag_0 = TagData(
         id="tag-0",
         dataset_id="dataset-0",
@@ -632,121 +682,164 @@ def test_get_compute_worker_run_tags__multiple_tags(mocker: MockerFixture) -> No
     assert tags[1] == tag_0
     mock_compute_worker_api.get_docker_run_tags.assert_called_once_with(run_id="run-0")
 
-def test__download_compute_worker_run_artifact_by_type(
-    mocker: MockerFixture,
-) -> None:
-    client = ApiWorkflowClient(token="123")
-    mock_download_compute_worker_run_artifact = mocker.MagicMock(
-        spec_set=client._download_compute_worker_run_artifact
-    )
-    client._download_compute_worker_run_artifact = mock_download_compute_worker_run_artifact
-    run = DockerRunData(
-        id="run-1", 
-        dataset_id="dataset-1", 
-        docker_version="", 
-        state="", 
-        created_at=0, 
-        last_modified_at=0, 
-        artifacts=[
-            DockerRunArtifactData(
-                id="artifact-1",
-                file_name="report.pdf",
-                type=DockerRunArtifactType.REPORT_PDF,
-            ),
-            DockerRunArtifactData(
-                id="artifact-2",
-                file_name="checkpoint.ckpt",
-                type=DockerRunArtifactType.CHECKPOINT,
-            ),
-        ],
-    )
-    client._download_compute_worker_run_artifact_by_type(
-        run=run,
-        artifact_type=DockerRunArtifactType.CHECKPOINT,
-        output_path="output_dir/checkpoint.ckpt",
-        timeout=0,
-    )
-    mock_download_compute_worker_run_artifact.assert_called_once_with(
-        run_id="run-1",
-        artifact_id="artifact-2",
-        output_path="output_dir/checkpoint.ckpt",
-        timeout=0,
-    )
-
-def test__download_compute_worker_run_artifact_by_type__no_artifacts(
-    mocker: MockerFixture,
-) -> None:
-    client = ApiWorkflowClient(token="123")
-    mock_download_compute_worker_run_artifact = mocker.MagicMock(
-        spec_set=client._download_compute_worker_run_artifact
-    )
-    client._download_compute_worker_run_artifact = mock_download_compute_worker_run_artifact
-    run = DockerRunData(
-        id="run-1", 
-        dataset_id="dataset-1", 
-        docker_version="", 
-        state="", 
-        created_at=0, 
-        last_modified_at=0, 
-        artifacts=None,
-    )
-    with pytest.raises(ArtifactNotExist, match="Run has no artifacts."):
-        client._download_compute_worker_run_artifact_by_type(
-            run=run,
-            artifact_type=DockerRunArtifactType.CHECKPOINT,
-            output_path="output_dir/checkpoint.ckpt",
-            timeout=0,
-        )
-
-
-def test__download_compute_worker_run_artifact_by_type__no_artifact_with_type(
-    mocker: MockerFixture,
-) -> None:
-    client = ApiWorkflowClient(token="123")
-    mock_download_compute_worker_run_artifact = mocker.MagicMock(
-        spec_set=client._download_compute_worker_run_artifact
-    )
-    client._download_compute_worker_run_artifact = mock_download_compute_worker_run_artifact
-    run = DockerRunData(
-        id="run-1", 
-        dataset_id="dataset-1", 
-        docker_version="", 
-        state="", 
-        created_at=0, 
-        last_modified_at=0, 
-        artifacts=[
-            DockerRunArtifactData(
-                id="artifact-1",
-                file_name="report.pdf",
-                type=DockerRunArtifactType.REPORT_PDF,
-            ),
-        ],
-    )
-    with pytest.raises(ArtifactNotExist, match="No artifact with type"):
-        client._download_compute_worker_run_artifact_by_type(
-            run=run,
-            artifact_type=DockerRunArtifactType.CHECKPOINT,
-            output_path="output_dir/checkpoint.ckpt",
-            timeout=0,
-        )
-
 
 def test__config_to_camel_case() -> None:
-    assert _config_to_camel_case({
-        "lorem_ipsum": "dolor",
-        "lorem": {
-            "ipsum_dolor": "sit_amet",
+    assert _config_to_camel_case(
+        {
+            "lorem_ipsum": "dolor",
+            "lorem": {
+                "ipsum_dolor": "sit_amet",
+            },
         }
-    }) == {
+    ) == {
         "loremIpsum": "dolor",
         "lorem": {
             "ipsumDolor": "sit_amet",
-        }
+        },
     }
 
+
 def test__snake_to_camel_case() -> None:
-    
     assert _snake_to_camel_case("lorem") == "lorem"
     assert _snake_to_camel_case("lorem_ipsum") == "loremIpsum"
     assert _snake_to_camel_case("lorem_ipsum_dolor") == "loremIpsumDolor"
-    assert _snake_to_camel_case("loremIpsum") == "loremIpsum" # do nothing
+    assert _snake_to_camel_case("loremIpsum") == "loremIpsum"  # do nothing
+
+
+def test__validate_config__docker() -> None:
+    obj = DockerWorkerConfigV2Docker(
+        enable_training=False,
+        corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
+            corruption_threshold=0.1,
+        ),
+    )
+    _validate_config(
+        cfg={
+            "enable_training": False,
+            "corruptness_check": {
+                "corruption_threshold": 0.1,
+            },
+        },
+        obj=obj,
+    )
+
+
+def test__validate_config__docker_typo() -> None:
+    obj = DockerWorkerConfigV2Docker(
+        enable_training=False,
+        corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
+            corruption_threshold=0.1,
+        ),
+    )
+
+    with pytest.raises(
+        InvalidConfigurationError,
+        match="Option 'enable_trainingx' does not exist! Did you mean 'enable_training'?",
+    ):
+        _validate_config(
+            cfg={
+                "enable_trainingx": False,
+                "corruptness_check": {
+                    "corruption_threshold": 0.1,
+                },
+            },
+            obj=obj,
+        )
+
+
+def test__validate_config__docker_typo_nested() -> None:
+    obj = DockerWorkerConfigV2Docker(
+        enable_training=False,
+        corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
+            corruption_threshold=0.1,
+        ),
+    )
+
+    with pytest.raises(
+        InvalidConfigurationError,
+        match="Option 'corruption_thresholdx' does not exist! Did you mean 'corruption_threshold'?",
+    ):
+        _validate_config(
+            cfg={
+                "enable_training": False,
+                "corruptness_check": {
+                    "corruption_thresholdx": 0.1,
+                },
+            },
+            obj=obj,
+        )
+
+
+def test__validate_config__lightly() -> None:
+    obj = DockerWorkerConfigV2Lightly(
+        loader=DockerWorkerConfigV2LightlyLoader(
+            num_workers=-1,
+            batch_size=16,
+            shuffle=True,
+        )
+    )
+    _validate_config(
+        cfg={
+            "loader": {
+                "num_workers": -1,
+                "batch_size": 16,
+                "shuffle": True,
+            },
+        },
+        obj=obj,
+    )
+
+
+def test__validate_config__lightly_typo() -> None:
+    obj = DockerWorkerConfigV2Lightly(
+        loader=DockerWorkerConfigV2LightlyLoader(
+            num_workers=-1,
+            batch_size=16,
+            shuffle=True,
+        )
+    )
+    with pytest.raises(
+        InvalidConfigurationError,
+        match="Option 'loaderx' does not exist! Did you mean 'loader'?",
+    ):
+        _validate_config(
+            cfg={
+                "loaderx": {
+                    "num_workers": -1,
+                    "batch_size": 16,
+                    "shuffle": True,
+                },
+            },
+            obj=obj,
+        )
+
+
+def test__validate_config__lightly_typo_nested() -> None:
+    obj = DockerWorkerConfigV2Lightly(
+        loader=DockerWorkerConfigV2LightlyLoader(
+            num_workers=-1,
+            batch_size=16,
+            shuffle=True,
+        )
+    )
+    with pytest.raises(
+        InvalidConfigurationError,
+        match="Option 'num_workersx' does not exist! Did you mean 'num_workers'?",
+    ):
+        _validate_config(
+            cfg={
+                "loader": {
+                    "num_workersx": -1,
+                    "batch_size": 16,
+                    "shuffle": True,
+                },
+            },
+            obj=obj,
+        )
+
+
+def test__validate_config__raises_type_error(mocker: MockerFixture) -> None:
+    with pytest.raises(
+        TypeError, match="of argument 'obj' has not attribute 'swagger_types'"
+    ):
+        _validate_config(cfg={}, obj=mocker.MagicMock())
