@@ -78,7 +78,7 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-gpus = 1 if torch.cuda.is_available() else 0
+accelerator = "gpu" if torch.cuda.is_available() else "cpu"
 
-trainer = pl.Trainer(max_epochs=10, gpus=gpus)
+trainer = pl.Trainer(max_epochs=10, devices=1, accelerator=accelerator)
 trainer.fit(model=model, train_dataloaders=dataloader)
