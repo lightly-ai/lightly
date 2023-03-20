@@ -1332,10 +1332,10 @@ models = [
     DCLW,
     DINOModel,
     # MAEModel, # disabled by default because MAE uses larger images with size 224
-    # MSNModel, # disabled by default because MSN uses larger images with size 224
+    MSNModel,
     MocoModel,
     NNCLRModel,
-    # PMSNModel, # disabled by default because PMSN uses larger images with size 224
+    PMSNModel,
     SimCLRModel,
     # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
     SimSiamModel,
