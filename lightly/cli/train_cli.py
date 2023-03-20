@@ -45,17 +45,13 @@ def _train_cli(cfg, is_cli_call=True):
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
 
-    if torch.cuda.is_available():
-        device = "cuda"
-    elif cfg["trainer"] and cfg["trainer"]["gpus"]:
-        device = "cpu"
-        cfg["trainer"]["gpus"] = 0
+    accelerator = "gpu" if torch.cuda.is_available() else "cpu"
+    if accelerator == "gpu" and cfg["trainer"]["gpus"] > 1:
+        devices = cfg["trainer"]["gpus"]
+        strategy = "ddp"
     else:
-        device = "cpu"
-
-    distributed_strategy = None
-    if cfg["trainer"]["gpus"] > 1:
-        distributed_strategy = "ddp"
+        devices = 1
+        strategy = None
 
     if cfg["loader"]["batch_size"] < 64:
         msg = "Training a self-supervised model with a small batch size: {}! "
@@ -84,13 +80,13 @@ def _train_cli(cfg, is_cli_call=True):
         checkpoint = fix_input_path(checkpoint) if is_cli_call else checkpoint
 
     if checkpoint:
-        # load the PyTorch state dictionary and map it to the current device
+        # load the PyTorch state dictionary
         if is_url(checkpoint):
-            state_dict = load_state_dict_from_url(checkpoint, map_location=device)[
+            state_dict = load_state_dict_from_url(checkpoint, map_location="cpu")[
                 "state_dict"
             ]
         else:
-            state_dict = torch.load(checkpoint, map_location=device)["state_dict"]
+            state_dict = torch.load(checkpoint, map_location="cpu")["state_dict"]
 
     # load model
     resnet = ResNetGenerator(cfg["model"]["name"], cfg["model"]["width"])
@@ -121,10 +117,22 @@ def _train_cli(cfg, is_cli_call=True):
     )
 
     encoder = SelfSupervisedEmbedding(model, criterion, optimizer, dataloader)
-    # Add strategy field to trainer config
-    trainer_config = OmegaConf.create(
-        dict(strategy=distributed_strategy, **cfg["trainer"])
-    )
+
+    # Create trainer config
+    trainer_kwargs = OmegaConf.to_container(cfg["trainer"])
+    if "gpus" in trainer_kwargs:
+        # PyTorch Lightning >= 2.0 doesn't support the gpus trainer flag anymore.
+        # We have to use accelerator and devices instead.
+        del trainer_kwargs["gpus"]
+    trainer_kwargs["accelerator"] = accelerator
+    trainer_kwargs["devices"] = devices
+    if strategy is not None:
+        # Only add strategy if it is set because PyTorch Lightning used by default
+        # strategy = None for version < 2.0 and strategy = "auto" for >= 2.0. None is
+        # not supported for >= 2.0 and "auto" not supported for some versions < 2.0.
+        trainer_kwargs["strategy"] = strategy
+    trainer_config = OmegaConf.create(trainer_kwargs)
+
     encoder.train_embedding(
         trainer_config=trainer_config,
         checkpoint_callback_config=cfg["checkpoint_callback"],
