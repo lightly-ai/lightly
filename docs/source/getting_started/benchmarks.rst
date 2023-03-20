@@ -43,28 +43,24 @@ The current benchmark contains the following models:
    :header: "Model", "Epochs", "Batch Size", "Accuracy", "Runtime", "GPU Memory"
    :widths: 20, 20, 20, 20, 20, 20
 
-    "BarlowTwins", "800", "256", "0.834", "330.9 Min", "4.0 GByte"
-    "BYOL", "800", "256", "0.887", "332.7 Min", "4.3 GByte"
-    "DCL (*)", "800", "256", "0.862", "213.1 Min", "4.3 GByte"
-    "DCLW (*)", "800", "256", "0.866", "213.1 Min", "4.3 GByte"
-    "DINO (Res18)", "800", "256", "0.866", "613.9 Min", "6.7 GByte"
-    "MAE (ViT-S)", "800", "256", "0.620", "205.1 Min", "4.7 GByte"
-    "MSN (ViT-S)", "800", "256", "0.834", "446.8 Min", "16.3 GByte"
-    "Moco", "800", "256", "0.876", "322.8 Min", "4.2 GByte"
-    "NNCLR", "800", "256", "0.888", "341.4 Min", "4.2 GByte"
-    "SimCLR", "800", "256", "0.892", "324.8 Min", "3.9 GByte"
-    "SimMIM (ViT-B32)", "800", "256", "0.351", "305.2 Min", "10.5 GByte"
-    "SimSiam", "800", "256", "0.888", "316.0 Min", "3.9 GByte"
-    "SwaV", "800", "256", "0.902", "554.7 Min", "6.6 GByte"
-    "SwaVQueue", "800", "256", "0.894", "325.5 Min", "8.2 GByte"
-    "SMoG", "800", "256", "0.806", "220.9 Min", "14.3 GByte"
-    "TiCo", "800", "256", "0.816", "321.1 Min", "4.0 GByte"
-    "VICReg", "800", "256", "0.815", "316.0 Min", "5.7 GByte"
-    "VICRegL", "800", "256", "0.800", "210.9 Min", "4.4 GByte"
-
-(*): Different runtime and memory requirements due to different hardware settings
-and pytorch version. Runtime and memory requirements are comparable to SimCLR
-with the default settings.
+  "BarlowTwins", "800", "256", "0.850", "279.5 Min", "5.7 GByte"
+  "BYOL", "800", "256", "0.887", "202.7 Min", "4.3 GByte"
+  "DCL", "800", "256", "0.864", "183.7 Min", "3.7 GByte"
+  "DCLW", "800", "256", "0.861", "188.5 Min", "3.7 GByte"
+  "DINO (Res18)", "800", "256", "0.887", "291.6 Min", "8.5 GByte"
+  "MAE (ViT-S)", "800", "256", "0.620", "208.2 Min", "4.6 GByte"
+  "MSN (ViT-S)", "800", "256", "0.833", "394.0 Min", "16.3 GByte"
+  "Moco", "800", "256", "0.874", "220.7 Min", "4.2 GByte"
+  "NNCLR", "800", "256", "0.885", "207.1 Min", "3.8 GByte"
+  "SimCLR", "800", "256", "0.889", "206.4 Min", "3.7 GByte"
+  "SimMIM (ViT-B32)", "800", "256", "0.351", "302.8 Min", "10.5 GByte"
+  "SimSiam", "800", "256", "0.885", "206.1 Min", "3.9 GByte"
+  "SwaV", "800", "256", "0.899", "309.0 Min", "6.4 GByte"
+  "SwaVQueue", "800", "256", "0.898", "300.3 Min", "6.4 GByte"
+  "SMoG", "800", "256", "0.782", "250.2 Min", "2.5 GByte"
+  "TiCo", "800", "256", "0.857", "184.7 Min", "2.5 GByte"
+  "VICReg", "800", "256", "0.843", "192.9 Min", "5.7 GByte"
+  "VICRegL", "800", "256", "0.799", "180.0 Min", "2.6 GByte"
 
 You can reproduce the benchmarks using the following script:
 :download:`imagenette_benchmark.py <benchmarks/imagenette_benchmark.py>` 
