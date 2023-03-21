@@ -3,14 +3,14 @@
 # run on a small dataset with a single GPU.
 
 import torch
-from torch import nn
 import torchvision
+from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
-from lightly.transforms.mae_transform import MAETransform
 from lightly.models import utils
 from lightly.models.modules import masked_autoencoder
+from lightly.transforms.mae_transform import MAETransform
 
 
 class MAE(nn.Module):
@@ -45,7 +45,7 @@ class MAE(nn.Module):
         x_masked = utils.repeat_token(
             self.mask_token, (batch_size, self.sequence_length)
         )
-        x_masked = utils.set_at_index(x_masked, idx_keep, x_decode)
+        x_masked = utils.set_at_index(x_masked, idx_keep, x_decode.type_as(x_masked))
 
         # decoder forward pass
         x_decoded = self.decoder.decode(x_masked)
@@ -82,7 +82,8 @@ model.to(device)
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=MAETransform())
+transform = MAETransform()
+dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 

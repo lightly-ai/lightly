@@ -5,16 +5,17 @@ from torch.autograd import Variable
 
 from lightly.utils.dist import gather
 
+
 class TiCoLoss(torch.nn.Module):
     """Implementation of the Tico Loss from Tico[0] paper.
-    This implementation takes inspiration from the code published 
+    This implementation takes inspiration from the code published
     by sayannag using Lightly. [1]
 
     [0] Jiachen Zhu et. al, 2022, Tico... https://arxiv.org/abs/2206.10698
     [1] https://github.com/sayannag/TiCo-pytorch
-        
+
     Attributes:
-        
+
         Args:
             beta:
                 Coefficient for the EMA update of the covariance
@@ -25,9 +26,9 @@ class TiCoLoss(torch.nn.Module):
             gather_distributed:
                 If True then the cross-correlation matrices from all gpus are
                 gathered and summed before the loss calculation.
-        
+
     Examples:
-    
+
         >>> # initialize loss function
         >>> loss_fn = TiCoLoss()
         >>>
@@ -54,7 +55,12 @@ class TiCoLoss(torch.nn.Module):
         self.C = None
         self.gather_distributed = gather_distributed
 
-    def forward(self, z_a: torch.Tensor, z_b: torch.Tensor, update_covariance_matrix: bool = True) -> torch.Tensor:
+    def forward(
+        self,
+        z_a: torch.Tensor,
+        z_b: torch.Tensor,
+        update_covariance_matrix: bool = True,
+    ) -> torch.Tensor:
         """Tico Loss computation. It maximize the agreement among embeddings of different distorted versions of the same image
         while avoiding collapse using Covariance matrix.
 
@@ -71,8 +77,12 @@ class TiCoLoss(torch.nn.Module):
 
         """
 
-        assert z_a.shape[0] > 1 and z_b.shape[0] > 1, f"z_a and z_b must have batch size > 1 but found {z_a.shape[0]} and {z_b.shape[0]}"
-        assert z_a.shape == z_b.shape, f"z_a and z_b must have same shape but found {z_a.shape} and {z_b.shape}."
+        assert (
+            z_a.shape[0] > 1 and z_b.shape[0] > 1
+        ), f"z_a and z_b must have batch size > 1 but found {z_a.shape[0]} and {z_b.shape[0]}"
+        assert (
+            z_a.shape == z_b.shape
+        ), f"z_a and z_b must have same shape but found {z_a.shape} and {z_b.shape}."
 
         # gather all batches
         if self.gather_distributed and dist.is_initialized():
@@ -82,22 +92,26 @@ class TiCoLoss(torch.nn.Module):
                 z_b = torch.cat(gather(z_b), dim=0)
 
         # normalize image
-        z_a = torch.nn.functional.normalize(z_a, dim = 1)
-        z_b = torch.nn.functional.normalize(z_b, dim = 1)
-        
+        z_a = torch.nn.functional.normalize(z_a, dim=1)
+        z_b = torch.nn.functional.normalize(z_b, dim=1)
+
         # compute auxiliary matrix B
-        B = torch.mm(z_a.T, z_a)/z_a.shape[0]
+        B = torch.mm(z_a.T, z_a) / z_a.shape[0]
 
         # init covariance matrix
         if self.C is None:
-            self.C = B.new_zeros(B.shape).detach()   
+            self.C = B.new_zeros(B.shape).detach()
 
         # compute loss
         C = self.beta * self.C + (1 - self.beta) * B
-        loss = 1 - (z_a * z_b).sum(dim=1).mean() + self.rho * (torch.mm(z_a, C) * z_a).sum(dim=1).mean()
+        loss = (
+            1
+            - (z_a * z_b).sum(dim=1).mean()
+            + self.rho * (torch.mm(z_a, C) * z_a).sum(dim=1).mean()
+        )
 
         # update covariance matrix
         if update_covariance_matrix:
             self.C = C.detach()
-        
+
         return loss

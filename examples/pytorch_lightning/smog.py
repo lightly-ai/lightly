@@ -2,21 +2,20 @@
 # from the paper. The settings are chosen such that the example can easily be
 # run on a small dataset with a single GPU.
 
-import torch
-from torch import nn
-import torchvision
 import copy
-import pytorch_lightning as pl
 
+import pytorch_lightning as pl
+import torch
+import torchvision
+from sklearn.cluster import KMeans
+from torch import nn
+
+from lightly import loss, models
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
-from lightly.transforms.smog_transform import SMoGTransform
-from lightly.models.modules import heads
 from lightly.models import utils
-from lightly import loss
-from lightly import models
-
-from sklearn.cluster import KMeans
+from lightly.models.modules import heads
+from lightly.transforms.smog_transform import SMoGTransform
 
 
 class SMoGModel(pl.LightningModule):
@@ -68,7 +67,6 @@ class SMoGModel(pl.LightningModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
     def training_step(self, batch, batch_idx):
-
         if self.global_step > 0 and self.global_step % 300 == 0:
             # reset group features and weights every 300 iterations
             self._reset_group_features()
@@ -123,15 +121,16 @@ class SMoGModel(pl.LightningModule):
 model = SMoGModel()
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
+transform = SMoGTransform(
+    crop_sizes=(32, 32),
+    crop_counts=(1, 1),
+    gaussian_blur_probs=(0.0, 0.0),
+    crop_min_scales=(0.2, 0.2),
+    crop_max_scales=(1.0, 1.0),
+)
 dataset = LightlyDataset.from_torch_dataset(
     cifar10,
-    transform=SMoGTransform(
-        crop_sizes=[32, 32],
-        crop_counts=(1, 1),
-        gaussian_blur_probs=(0.0, 0.0),
-        crop_min_scales=(0.2, 0.2),
-        crop_max_scales=(1.0, 1.0),
-    ),
+    transform=transform,
 )
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")

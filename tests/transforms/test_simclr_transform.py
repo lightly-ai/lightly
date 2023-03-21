@@ -1,8 +1,6 @@
 from PIL import Image
-from lightly.transforms.simclr_transform import (
-    SimCLRTransform,
-    SimCLRViewTransform,
-)
+
+from lightly.transforms.simclr_transform import SimCLRTransform, SimCLRViewTransform
 
 
 def test_view_on_pil_image():

@@ -33,23 +33,28 @@ class UpdateDockerWorkerRegistryEntryRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'state': 'DockerWorkerState'
+        'state': 'DockerWorkerState',
+        'docker_version': 'str'
     }
 
     attribute_map = {
-        'state': 'state'
+        'state': 'state',
+        'docker_version': 'dockerVersion'
     }
 
-    def __init__(self, state=None, _configuration=None):  # noqa: E501
+    def __init__(self, state=None, docker_version=None, _configuration=None):  # noqa: E501
         """UpdateDockerWorkerRegistryEntryRequest - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._state = None
+        self._docker_version = None
         self.discriminator = None
 
         self.state = state
+        if docker_version is not None:
+            self.docker_version = docker_version
 
     @property
     def state(self):
@@ -73,6 +78,27 @@ class UpdateDockerWorkerRegistryEntryRequest(object):
             raise ValueError("Invalid value for `state`, must not be `None`")  # noqa: E501
 
         self._state = state
+
+    @property
+    def docker_version(self):
+        """Gets the docker_version of this UpdateDockerWorkerRegistryEntryRequest.  # noqa: E501
+
+
+        :return: The docker_version of this UpdateDockerWorkerRegistryEntryRequest.  # noqa: E501
+        :rtype: str
+        """
+        return self._docker_version
+
+    @docker_version.setter
+    def docker_version(self, docker_version):
+        """Sets the docker_version of this UpdateDockerWorkerRegistryEntryRequest.
+
+
+        :param docker_version: The docker_version of this UpdateDockerWorkerRegistryEntryRequest.  # noqa: E501
+        :type: str
+        """
+
+        self._docker_version = docker_version
 
     def to_dict(self):
         """Returns the model properties as a dict"""

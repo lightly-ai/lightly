@@ -1,13 +1,14 @@
 import copy
 import dataclasses
-import os
+import difflib
 import time
-from typing import Any, Dict, List, Optional, Union, Iterator
+from functools import partial
+from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 
-from lightly.api.utils import retry
-from lightly.api import download
 from lightly.api import utils
+from lightly.api.utils import retry
 from lightly.openapi_generated.swagger_client import (
+    ApiClient,
     CreateDockerWorkerRegistryEntryRequest,
     DockerRunData,
     DockerRunScheduledCreateRequest,
@@ -15,8 +16,10 @@ from lightly.openapi_generated.swagger_client import (
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
-    DockerWorkerConfig,
-    DockerWorkerConfigCreateRequest,
+    DockerWorkerConfigV2,
+    DockerWorkerConfigV2CreateRequest,
+    DockerWorkerConfigV2Docker,
+    DockerWorkerConfigV2Lightly,
     DockerWorkerType,
     SelectionConfig,
     SelectionConfigEntry,
@@ -24,12 +27,12 @@ from lightly.openapi_generated.swagger_client import (
     SelectionConfigEntryStrategy,
     TagData,
 )
-from lightly.openapi_generated.swagger_client.models.docker_run_artifact_type import DockerRunArtifactType
 from lightly.openapi_generated.swagger_client.rest import ApiException
 
 STATE_SCHEDULED_ID_NOT_FOUND = "CANCELED_OR_NOT_EXISTING"
 
-class ArtifactNotExist(Exception):
+
+class InvalidConfigurationError(RuntimeError):
     pass
 
 
@@ -71,8 +74,10 @@ class ComputeWorkerRunInfo:
 
 
 class _ComputeWorkerMixin:
-    def register_compute_worker(self, name: str = "Default", labels: Optional[List[str]] = None) -> str:
-        """Registers a new compute worker. 
+    def register_compute_worker(
+        self, name: str = "Default", labels: Optional[List[str]] = None
+    ) -> str:
+        """Registers a new compute worker.
 
         If a worker with the same name already exists, the worker id of the existing
         worker is returned instead of registering a new worker.
@@ -92,7 +97,10 @@ class _ComputeWorkerMixin:
         if labels is None:
             labels = []
         request = CreateDockerWorkerRegistryEntryRequest(
-            name=name, worker_type=DockerWorkerType.FULL, labels=labels
+            name=name,
+            worker_type=DockerWorkerType.FULL,
+            labels=labels,
+            creator=self._creator,
         )
         response = self._compute_worker_api.register_docker_worker(request)
         return response.id
@@ -139,14 +147,39 @@ class _ComputeWorkerMixin:
             selection = selection_config_from_dict(cfg=selection_config)
         else:
             selection = selection_config
-        config = DockerWorkerConfig(
+
+        if worker_config is not None:
+            worker_config_cc = _config_to_camel_case(cfg=worker_config)
+            deserialize_worker_config = _get_deserialize(
+                api_client=self.api_client,
+                klass=DockerWorkerConfigV2Docker,
+            )
+            docker = deserialize_worker_config(worker_config_cc)
+            _validate_config(cfg=worker_config, obj=docker)
+        else:
+            docker = None
+
+        if lightly_config is not None:
+            lightly_config_cc = _config_to_camel_case(cfg=lightly_config)
+            deserialize_lightly_config = _get_deserialize(
+                api_client=self.api_client,
+                klass=DockerWorkerConfigV2Lightly,
+            )
+            lightly = deserialize_lightly_config(lightly_config_cc)
+            _validate_config(cfg=lightly_config, obj=lightly)
+        else:
+            lightly = None
+
+        config = DockerWorkerConfigV2(
             worker_type=DockerWorkerType.FULL,
-            docker=worker_config,
-            lightly=lightly_config,
+            docker=docker,
+            lightly=lightly,
             selection=selection,
         )
-        request = DockerWorkerConfigCreateRequest(config)
-        response = self._compute_worker_api.create_docker_worker_config(request)
+        request = DockerWorkerConfigV2CreateRequest(
+            config=config, creator=self._creator
+        )
+        response = self._compute_worker_api.create_docker_worker_config_v2(request)
         return response.id
 
     def schedule_compute_worker_run(
@@ -155,7 +188,7 @@ class _ComputeWorkerMixin:
         lightly_config: Optional[Dict[str, Any]] = None,
         selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
         priority: str = DockerRunScheduledPriority.MID,
-        runs_on: Optional[List[str]] = None
+        runs_on: Optional[List[str]] = None,
     ) -> str:
         """Schedules a run with the given configurations.
 
@@ -186,7 +219,10 @@ class _ComputeWorkerMixin:
             selection_config=selection_config,
         )
         request = DockerRunScheduledCreateRequest(
-            config_id=config_id, priority=priority, runs_on=runs_on
+            config_id=config_id,
+            priority=priority,
+            runs_on=runs_on,
+            creator=self._creator,
         )
         response = self._compute_worker_api.create_docker_run_scheduled_by_dataset_id(
             body=request,
@@ -211,7 +247,7 @@ class _ComputeWorkerMixin:
         if dataset_id is not None:
             runs: List[DockerRunData] = utils.paginate_endpoint(
                 self._compute_worker_api.get_docker_runs_query_by_dataset_id,
-                dataset_id=dataset_id
+                dataset_id=dataset_id,
             )
         else:
             runs: List[DockerRunData] = utils.paginate_endpoint(
@@ -227,19 +263,17 @@ class _ComputeWorkerMixin:
             ApiException:
                 If no run with the given id exists.
         """
-        return self._compute_worker_api.get_docker_run_by_id(
-            run_id=run_id
-        )
+        return self._compute_worker_api.get_docker_run_by_id(run_id=run_id)
 
     def get_compute_worker_run_from_scheduled_run(
-        self, 
+        self,
         scheduled_run_id: str,
     ) -> DockerRunData:
         """Returns a run given its scheduled run id.
 
         Raises:
             ApiException:
-                If no run with the given scheduled run id exists or if the scheduled 
+                If no run with the given scheduled run id exists or if the scheduled
                 run has not yet started being processed by a worker.
         """
         return self._compute_worker_api.get_docker_run_by_scheduled_id(
@@ -256,13 +290,14 @@ class _ComputeWorkerMixin:
         Args:
             state:
                 DockerRunScheduledState value. If specified, then only runs in the given
-                state are returned. If omitted, then runs which have not yet finished 
+                state are returned. If omitted, then runs which have not yet finished
                 (neither 'DONE' nor 'CANCELED') are returned. Valid states are 'OPEN',
                 'LOCKED', 'DONE', and 'CANCELED'.
         """
         if state is not None:
             return self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
-                dataset_id=self.dataset_id, state=state,
+                dataset_id=self.dataset_id,
+                state=state,
             )
         return self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
             dataset_id=self.dataset_id,
@@ -393,342 +428,6 @@ class _ComputeWorkerMixin:
 
             last_run_info = run_info
 
-    def download_compute_worker_run_artifacts(
-        self,
-        run: DockerRunData,
-        output_dir: str,
-        timeout: int = 60,
-    ) -> None:
-        """Downloads all artifacts from a run.
-        
-        Args:
-            run:
-                Run from which to download artifacts.
-            output_dir:
-                Output directory where artifacts will be saved.
-            timeout:
-                Timeout in seconds after which an artifact download is interrupted.
-
-        Examples:
-            >>> # schedule run
-            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
-            >>>
-            >>> # wait until run completed
-            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
-            >>>     pass
-            >>>
-            >>> # download artifacts
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_artifacts(run=run, output_dir="my_run/artifacts")
-
-        """
-        if run.artifacts is None:
-            return
-        for artifact in run.artifacts:
-            self._download_compute_worker_run_artifact(
-                run_id=run.id,
-                artifact_id=artifact.id,
-                output_path=os.path.join(output_dir, artifact.file_name),
-                timeout=timeout,
-            )
-
-    def download_compute_worker_run_checkpoint(
-        self,
-        run: DockerRunData,
-        output_path: str,
-        timeout: int = 60,
-    ) -> None:
-        """Downloads the last training checkpoint from a run.
-
-        See our docs for more information regarding checkpoints:
-        https://docs.lightly.ai/docs/train-a-self-supervised-model#checkpoints
-
-        Args:
-            run:
-                Run from which to download the checkpoint.
-            output_path:
-                Path where checkpoint will be saved.
-            timeout:
-                Timeout in seconds after which download is interrupted.
-
-        Raises:
-            ArtifactNotExist:
-                If the run has no checkpoint artifact or the checkpoint has not yet been
-                uploaded.
-
-        Examples:
-            >>> # schedule run
-            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
-            >>>
-            >>> # wait until run completed
-            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
-            >>>     pass
-            >>>
-            >>> # download checkpoint
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_checkpoint(run=run, output_path="my_checkpoint.ckpt")
-
-        """
-        self._download_compute_worker_run_artifact_by_type(
-            run=run,
-            artifact_type=DockerRunArtifactType.CHECKPOINT,
-            output_path=output_path,
-            timeout=timeout,
-        )
-
-    def download_compute_worker_run_report_pdf(
-        self, 
-        run: DockerRunData, 
-        output_path: str, 
-        timeout: int = 60,
-    ) -> None:
-        """Download the report in pdf format from a run.
-
-        Args:
-            run:
-                Run from which to download the report.
-            output_path:
-                Path where report will be saved.
-            timeout:
-                Timeout in seconds after which download is interrupted.
-
-        Raises:
-            ArtifactNotExist:
-                If the run has no report artifact or the report has not yet been
-                uploaded.
-
-        Examples:
-            >>> # schedule run
-            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
-            >>>
-            >>> # wait until run completed
-            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
-            >>>     pass
-            >>>
-            >>> # download report
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_report_pdf(run=run, output_path="report.pdf")
-
-        """
-        self._download_compute_worker_run_artifact_by_type(
-            run=run,
-            artifact_type=DockerRunArtifactType.REPORT_PDF,
-            output_path=output_path,
-            timeout=timeout,
-        )
-
-    def download_compute_worker_run_report_json(
-        self,
-        run: DockerRunData,
-        output_path: str,
-        timeout: int = 60,
-    ) -> None:
-        """Download the report in json format from a run.
-
-        Args:
-            run:
-                Run from which to download the report.
-            output_path:
-                Path where report will be saved.
-            timeout:
-                Timeout in seconds after which download is interrupted.
-
-        Raises:
-            ArtifactNotExist:
-                If the run has no report artifact or the report has not yet been
-                uploaded.
-
-        Examples:
-            >>> # schedule run
-            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
-            >>>
-            >>> # wait until run completed
-            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
-            >>>     pass
-            >>>
-            >>> # download checkpoint
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_report_json(run=run, output_path="report.json")
-
-        """
-        self._download_compute_worker_run_artifact_by_type(
-            run=run,
-            artifact_type=DockerRunArtifactType.REPORT_JSON,
-            output_path=output_path,
-            timeout=timeout,
-        )
-
-    def download_compute_worker_run_log(
-        self,
-        run: DockerRunData,
-        output_path: str,
-        timeout: int = 60,
-    ) -> None:
-        """Download the log file from a run.
-
-        Args:
-            run:
-                Run from which to download the log file.
-            output_path:
-                Path where log file will be saved.
-            timeout:
-                Timeout in seconds after which download is interrupted.
-
-        Raises:
-            ArtifactNotExist:
-                If the run has no log artifact or the log file has not yet been 
-                uploaded.
-
-        Examples:
-            >>> # schedule run
-            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
-            >>>
-            >>> # wait until run completed
-            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
-            >>>     pass
-            >>>
-            >>> # download log file
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_log(run=run, output_path="log.txt")
-
-        """
-        self._download_compute_worker_run_artifact_by_type(
-            run=run,
-            artifact_type=DockerRunArtifactType.LOG,
-            output_path=output_path,
-            timeout=timeout,
-        )
-
-    def download_compute_worker_run_memory_log(
-        self,
-        run: DockerRunData,
-        output_path: str,
-        timeout: int = 60,
-    ) -> None:
-        """Download the memory consumption log file from a run.
-
-        Args:
-            run:
-                Run from which to download the memory log file.
-            output_path:
-                Path where memory log file will be saved.
-            timeout:
-                Timeout in seconds after which download is interrupted.
-
-        Raises:
-            ArtifactNotExist:
-                If the run has no memory log artifact or the memory log file has not yet
-                been uploaded.
-
-        Examples:
-            >>> # schedule run
-            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
-            >>>
-            >>> # wait until run completed
-            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
-            >>>     pass
-            >>>
-            >>> # download memory log file
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_memory_log(run=run, output_path="memlog.txt")
-
-        """
-        self._download_compute_worker_run_artifact_by_type(
-            run=run,
-            artifact_type=DockerRunArtifactType.MEMLOG,
-            output_path=output_path,
-            timeout=timeout,
-        )
-
-    def download_compute_worker_run_corruptness_check_information(
-        self,
-        run: DockerRunData,
-        output_path: str,
-        timeout: int = 60,
-    ) -> None:
-        """Download the corruptness check information file from a run.
-
-        Args:
-            run:
-                Run from which to download the file.
-            output_path:
-                Path where the file will be saved.
-            timeout:
-                Timeout in seconds after which download is interrupted.
-
-        Raises:
-            ArtifactNotExist:
-                If the run has no corruptness check information artifact or the file
-                has not yet been uploaded.
-
-        Examples:
-            >>> # schedule run
-            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
-            >>>
-            >>> # wait until run completed
-            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
-            >>>     pass
-            >>>
-            >>> # download corruptness check information file
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_corruptness_check_information(run=run, output_path="corruptness_check_information.json")
-            >>>
-            >>> # print all corrupt samples and corruptions
-            >>> with open("corruptness_check_information.json", 'r') as f:
-            >>>     corruptness_check_information = json.load(f)
-            >>> for sample_name, error in corruptness_check_information["corrupt_samples"].items():
-            >>>     print(f"Sample '{sample_name}' is corrupt because of the error '{error}'.")
-
-        """
-        self._download_compute_worker_run_artifact_by_type(
-            run=run,
-            artifact_type=DockerRunArtifactType.CORRUPTNESS_CHECK_INFORMATION,
-            output_path=output_path,
-            timeout=timeout,
-        )
-
-
-    def download_compute_worker_run_sequence_information(
-        self,
-        run: DockerRunData,
-        output_path: str,
-        timeout: int = 60,
-    ) -> None:
-        """Download the sequence information from a run.
-
-        Args:
-            run:
-                Run from which to download the the file.
-            output_path:
-                Path where the file will be saved.
-            timeout:
-                Timeout in seconds after which download is interrupted.
-
-        Raises:
-            ArtifactNotExist:
-                If the run has no sequence information artifact or the file has not yet
-                been uploaded.
-
-        Examples:
-            >>> # schedule run
-            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
-            >>>
-            >>> # wait until run completed
-            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
-            >>>     pass
-            >>>
-            >>> # download sequence information file
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_sequence_information(run=run, output_path="sequence_information.json")
-
-        """
-        self._download_compute_worker_run_artifact_by_type(
-            run=run,
-            artifact_type=DockerRunArtifactType.SEQUENCE_INFORMATION,
-            output_path=output_path,
-            timeout=timeout,
-        )
-
     def get_compute_worker_run_tags(self, run_id: str) -> List[TagData]:
         """Returns all tags from a run for the current dataset.
 
@@ -758,43 +457,6 @@ class _ComputeWorkerMixin:
         return tags_in_dataset
 
 
-    def _download_compute_worker_run_artifact_by_type(
-        self,
-        run: DockerRunData,
-        artifact_type: str,
-        output_path: str,
-        timeout: int,
-    ) -> None:
-        if run.artifacts is None:
-            raise ArtifactNotExist(f"Run has no artifacts.")
-        try:
-            artifact = next(art for art in run.artifacts if art.type == artifact_type)
-        except StopIteration:
-            raise ArtifactNotExist(f"No artifact with type '{artifact_type}' in artifacts.")
-        self._download_compute_worker_run_artifact(
-            run_id=run.id,
-            artifact_id=artifact.id,
-            output_path=output_path,
-            timeout=timeout,
-        )
-
-    def _download_compute_worker_run_artifact(
-        self,
-        run_id: str,
-        artifact_id: str,
-        output_path: str,
-        timeout: int,
-    ) -> None:
-        read_url = self._compute_worker_api.get_docker_run_artifact_read_url_by_id(
-            run_id=run_id,
-            artifact_id=artifact_id,
-        )
-        download.download_and_write_file(
-            url=read_url,
-            output_path=output_path,
-            request_kwargs=dict(timeout=timeout),
-        )
-
 def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
     """Recursively converts selection config from dict to a SelectionConfig instance."""
     new_cfg = copy.deepcopy(cfg)
@@ -805,3 +467,77 @@ def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
         strategies.append(SelectionConfigEntry(**entry))
     new_cfg["strategies"] = strategies
     return SelectionConfig(**new_cfg)
+
+
+_T = TypeVar("_T")
+
+
+def _get_deserialize(
+    api_client: ApiClient,
+    klass: Type[_T],
+) -> Callable[[Dict[str, Any]], _T]:
+    """Returns the deserializer of the ApiClient class for class klass.
+
+    TODO(Philipp, 02/23): We should replace this by our own deserializer which
+    accepts snake case strings as input.
+
+    The deserializer takes a dictionary and and returns an instance of klass.
+
+    """
+    deserialize = getattr(api_client, "_ApiClient__deserialize")
+    return partial(deserialize, klass=klass)
+
+
+def _config_to_camel_case(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    """Converts all keys in the cfg dictionary to camelCase."""
+    cfg_camel_case = {}
+    for key, value in cfg.items():
+        key_camel_case = _snake_to_camel_case(key)
+        if isinstance(value, dict):
+            cfg_camel_case[key_camel_case] = _config_to_camel_case(value)
+        else:
+            cfg_camel_case[key_camel_case] = value
+    return cfg_camel_case
+
+
+def _snake_to_camel_case(snake: str) -> str:
+    """Converts the snake_case input to camelCase."""
+    components = snake.split("_")
+    return components[0] + "".join(component.title() for component in components[1:])
+
+
+def _validate_config(
+    cfg: Optional[Dict[str, Any]],
+    obj: Any,
+) -> None:
+    """Validates that all keys in cfg are legitimate configuration options.
+
+    Recursively checks if the keys in the cfg dictionary match the attributes of
+    the DockerWorkerConfigV2Docker/DockerWorkerConfigV2Lightly instances. If not,
+    suggests a best match based on the keys in 'swagger_types'.
+
+    Raises:
+        TypeError: If obj is not of swagger type.
+
+    """
+
+    if cfg is None:
+        return
+
+    if not hasattr(type(obj), "swagger_types"):
+        raise TypeError(
+            f"Type {type(obj)} of argument 'obj' has not attribute 'swagger_types'"
+        )
+
+    for key, item in cfg.items():
+        if not hasattr(obj, key):
+            possible_options = list(type(obj).swagger_types.keys())
+            closest_match = difflib.get_close_matches(
+                word=key, possibilities=possible_options, n=1, cutoff=0.0
+            )[0]
+            error_msg = (
+                f"Option '{key}' does not exist! Did you mean '{closest_match}'?"
+            )
+            raise InvalidConfigurationError(error_msg)
+        if isinstance(item, dict):
+            _validate_config(item, getattr(obj, key))

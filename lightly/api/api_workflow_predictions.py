@@ -55,7 +55,9 @@ class _PredictionsMixin:
 
     def create_or_update_predictions(
         self,
-        sample_id_to_prediction_singletons: Mapping[str, Sequence[PredictionSingletonRepr]],
+        sample_id_to_prediction_singletons: Mapping[
+            str, Sequence[PredictionSingletonRepr]
+        ],
         prediction_version_id: int = -1,
         progress_bar: Optional[tqdm.tqdm] = None,
         max_workers: int = 8,

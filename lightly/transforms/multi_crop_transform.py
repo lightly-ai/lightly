@@ -1,7 +1,8 @@
-from lightly.transforms.multi_view_transform import MultiViewTransform
 from typing import Tuple
 
 import torchvision.transforms as T
+
+from lightly.transforms.multi_view_transform import MultiViewTransform
 
 
 class MultiCropTranform(MultiViewTransform):
@@ -29,7 +30,6 @@ class MultiCropTranform(MultiViewTransform):
         crop_max_scales: Tuple[float],
         transforms,
     ):
-
         if len(crop_sizes) != len(crop_counts):
             raise ValueError(
                 "Length of crop_sizes and crop_counts must be equal but are"
@@ -48,7 +48,6 @@ class MultiCropTranform(MultiViewTransform):
 
         crop_transforms = []
         for i in range(len(crop_sizes)):
-
             random_resized_crop = T.RandomResizedCrop(
                 crop_sizes[i], scale=(crop_min_scales[i], crop_max_scales[i])
             )

@@ -1,15 +1,15 @@
 import torch
-from torch import nn
 import torchvision
+from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
-from lightly.transforms.vicregl_transform import VICRegLTransform
+from lightly.loss import VICRegLLoss
 
 ## The global projection head is the same as the Barlow Twins one
 from lightly.models.modules import BarlowTwinsProjectionHead
 from lightly.models.modules.heads import VicRegLLocalProjectionHead
-from lightly.loss import VICRegLLoss
+from lightly.transforms.vicregl_transform import VICRegLTransform
 
 
 class VICRegL(nn.Module):
@@ -36,8 +36,11 @@ model = VICRegL(backbone)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = LightlyDataset.from_torch_dataset(cifar10, transform=VICRegLTransform())
+pascal_voc = torchvision.datasets.VOCDetection(
+    "datasets/pascal_voc", download=True, target_transform=lambda t: 0
+)
+transform = VICRegLTransform()
+dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 

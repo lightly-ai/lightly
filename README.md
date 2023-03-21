@@ -217,18 +217,26 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 
 #### ImageNette
 
-| Model        | Epochs | Batch Size | Test Accuracy |
-|--------------|--------|------------|---------------|
-| BarlowTwins  |    800 |        256 |         0.789 |
-| BYOL         |    800 |        256 |         0.851 |
-| DCL          |    800 |        256 |         0.816 |
-| DCLW         |    800 |        256 |         0.827 |
-| DINO (Res18) |    800 |        256 |         0.881 |
-| Moco         |    800 |        256 |         0.832 |
-| NNCLR        |    800 |        256 |         0.848 |
-| SimCLR       |    800 |        256 |         0.858 |
-| SimSiam      |    800 |        256 |         0.852 |
-| SwaV         |    800 |        256 |         0.899 |
+| Model            | Epochs | Batch Size | Test Accuracy |
+|------------------|--------|------------|---------------|
+| BarlowTwins      |    800 |        256 |         0.850 |
+| BYOL             |    800 |        256 |         0.887 |
+| DCL              |    800 |        256 |         0.864 |
+| DCLW             |    800 |        256 |         0.861 |
+| DINO (Res18)     |    800 |        256 |         0.887 |
+| MAE (ViT-S)      |    800 |        256 |         0.620 |
+| MSN (ViT-S)      |    800 |        256 |         0.833 |
+| Moco             |    800 |        256 |         0.874 |
+| NNCLR            |    800 |        256 |         0.885 |
+| SimCLR           |    800 |        256 |         0.889 |
+| SimMIM (ViT-B32) |    800 |        256 |         0.351 |
+| SimSiam          |    800 |        256 |         0.885 |
+| SwaV             |    800 |        256 |         0.899 |
+| SwaVQueue        |    800 |        256 |         0.898 |
+| SMoG             |    800 |        256 |         0.782 |
+| TiCo             |    800 |        256 |         0.857 |
+| VICReg           |    800 |        256 |         0.843 |
+| VICRegL          |    800 |        256 |         0.799 |
 
 
 #### Cifar10
@@ -325,6 +333,7 @@ pylint lightly/core.py
 
 ## Lightly in Research
 
+- [Learning Visual Representations via Language-Guided Sampling](https://arxiv.org/pdf/2302.12248.pdf)
 - [Decoupled Contrastive Learning](https://arxiv.org/abs/2110.06848)
 - [DPCL: Constrative Representation Learning with Differential Privacy](https://assets.researchsquare.com/files/rs-1516950/v1_covered.pdf?c=1654486158)
 - [Self-Supervised Learning Methods for Label-Efficient Dental Caries Classification](https://www.mdpi.com/2075-4418/12/5/1237)

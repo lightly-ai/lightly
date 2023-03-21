@@ -8,10 +8,10 @@ from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
-from lightly.transforms.swav_transform import SwaVTransform
 from lightly.loss import SwaVLoss
 from lightly.loss.memory_bank import MemoryBankModule
 from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
+from lightly.transforms.swav_transform import SwaVTransform
 
 
 class SwaV(nn.Module):

@@ -5,14 +5,15 @@
 
 import io
 import os
-import time
 import random
+import time
 from enum import Enum
 from typing import List, Optional
 
 # the following two lines are needed because
 # PIL misidentifies certain jpeg images as MPOs
 from PIL import JpegImagePlugin
+
 JpegImagePlugin._getmp = lambda: None
 
 from lightly.openapi_generated.swagger_client.configuration import Configuration
@@ -42,7 +43,7 @@ def retry(func, *args, **kwargs):
     """
 
     # config
-    backoff = 1. + random.random() * 0.1
+    backoff = 1.0 + random.random() * 0.1
     max_backoff = RETRY_MAX_BACKOFF
     max_retries = RETRY_MAX_RETRIES
 
@@ -61,8 +62,8 @@ def retry(func, *args, **kwargs):
             # max retries exceeded
             if current_retries >= max_retries:
                 raise RuntimeError(
-                    f'Maximum retries exceeded! Original exception: {type(e)}: {str(e)}') from e
-
+                    f"Maximum retries exceeded! Original exception: {type(e)}: {str(e)}"
+                ) from e
 
 
 def paginate_endpoint(fn, page_size=5000, *args, **kwargs) -> List:
@@ -91,11 +92,9 @@ def paginate_endpoint(fn, page_size=5000, *args, **kwargs) -> List:
     return entries
 
 
-
-
 def getenv(key: str, default: str):
     """Return the value of the environment variable key if it exists,
-       or default if it doesn’t.
+    or default if it doesn’t.
 
     """
     try:
@@ -109,15 +108,13 @@ def getenv(key: str, default: str):
     return default
 
 
-def PIL_to_bytes(img, ext: str = 'png', quality: int = None):
-    """Return the PIL image as byte stream. Useful to send image via requests.
-
-    """
+def PIL_to_bytes(img, ext: str = "png", quality: int = None):
+    """Return the PIL image as byte stream. Useful to send image via requests."""
     bytes_io = io.BytesIO()
     if quality is not None:
         img.save(bytes_io, format=ext, quality=quality)
     else:
-        subsampling = -1 if ext.lower() in ['jpg', 'jpeg'] else 0
+        subsampling = -1 if ext.lower() in ["jpg", "jpeg"] else 0
         img.save(bytes_io, format=ext, quality=100, subsampling=subsampling)
     bytes_io.seek(0)
     return bytes_io
@@ -134,10 +131,12 @@ def check_filename(basename):
     return len(basename) <= MAXIMUM_FILENAME_LENGTH
 
 
-def build_azure_signed_url_write_headers(content_length: str,
-                                         x_ms_blob_type: str = 'BlockBlob',
-                                         accept: str = '*/*',
-                                         accept_encoding: str = '*'):
+def build_azure_signed_url_write_headers(
+    content_length: str,
+    x_ms_blob_type: str = "BlockBlob",
+    accept: str = "*/*",
+    accept_encoding: str = "*",
+):
     """Builds the headers required for a SAS PUT to Azure blob storage.
 
     Args:
@@ -155,11 +154,11 @@ def build_azure_signed_url_write_headers(content_length: str,
 
     """
     headers = {
-        'x-ms-blob-type': x_ms_blob_type,
-        'Accept': accept,
-        'Content-Length': content_length,
-        'x-ms-original-content-length': content_length,
-        'Accept-Encoding': accept_encoding,
+        "x-ms-blob-type": x_ms_blob_type,
+        "Accept": accept,
+        "Content-Length": content_length,
+        "x-ms-original-content-length": content_length,
+        "Accept-Encoding": accept_encoding,
     }
     return headers
 
@@ -171,7 +170,7 @@ class DatasourceType(Enum):
     LOCAL = "LOCAL"
 
 
-def get_signed_url_destination(signed_url: str = '') -> DatasourceType:
+def get_signed_url_destination(signed_url: str = "") -> DatasourceType:
     """
     Tries to figure out the of which cloud provider/datasource type a signed url comes from (S3, GCS, Azure)
     Args:
@@ -183,22 +182,27 @@ def get_signed_url_destination(signed_url: str = '') -> DatasourceType:
 
     assert isinstance(signed_url, str)
 
-    if 'storage.googleapis.com/' in signed_url:
+    if "storage.googleapis.com/" in signed_url:
         return DatasourceType.GCS
-    if '.amazonaws.com/' in signed_url and '.s3.' in signed_url:
+    if ".amazonaws.com/" in signed_url and ".s3." in signed_url:
         return DatasourceType.S3
-    if '.windows.net/' in signed_url:
+    if ".windows.net/" in signed_url:
         return DatasourceType.AZURE
     # default to local as it must be some special setup
     return DatasourceType.LOCAL
+
+
+def get_lightly_server_location_from_env() -> str:
+    return (
+        getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai").strip().rstrip("/")
+    )
 
 
 def get_api_client_configuration(
     token: Optional[str] = None,
     raise_if_no_token_specified: bool = True,
 ) -> Configuration:
-
-    host = getenv("LIGHTLY_SERVER_LOCATION", "https://api.lightly.ai")
+    host = get_lightly_server_location_from_env()
     ssl_ca_cert = getenv("LIGHTLY_CA_CERTS", None)
 
     if token is None:

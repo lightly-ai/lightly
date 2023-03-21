@@ -457,6 +457,7 @@ class DockerApi(object):
         :param async_req bool
         :param DockerRunScheduledCreateRequest body: (required)
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param bool disable_config_validation: if set, disables the sanity check and validation where we check if the provided configuration can run on your datasource e.g     if predictions are used, we check that the bucket structure + tasks.json, schema.json are correct     if metadata is used, we check that the bucket structure + schema.json are correct     if relevantFilenamesFile is set, we check that the file exists 
         :return: CreateEntityResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -480,12 +481,13 @@ class DockerApi(object):
         :param async_req bool
         :param DockerRunScheduledCreateRequest body: (required)
         :param MongoObjectID dataset_id: ObjectId of the dataset (required)
+        :param bool disable_config_validation: if set, disables the sanity check and validation where we check if the provided configuration can run on your datasource e.g     if predictions are used, we check that the bucket structure + tasks.json, schema.json are correct     if metadata is used, we check that the bucket structure + schema.json are correct     if relevantFilenamesFile is set, we check that the file exists 
         :return: CreateEntityResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['body', 'dataset_id']  # noqa: E501
+        all_params = ['body', 'dataset_id', 'disable_config_validation']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -516,6 +518,8 @@ class DockerApi(object):
             path_params['datasetId'] = params['dataset_id']  # noqa: E501
 
         query_params = []
+        if 'disable_config_validation' in params:
+            query_params.append(('disableConfigValidation', params['disable_config_validation']))  # noqa: E501
 
         header_params = {}
 
@@ -1996,7 +2000,7 @@ class DockerApi(object):
     def get_docker_runs_scheduled_by_state_and_labels(self, **kwargs):  # noqa: E501
         """get_docker_runs_scheduled_by_state_and_labels  # noqa: E501
 
-        Get all scheduled docker runs of the user. Additionally, you can filter by state.  Furthermore, you can filter by only providing labels an only return scheduled runs whose runsOn labels are included in the provided labels.   # noqa: E501
+        Get all scheduled docker runs of the user. Additionally, you can filter by state.  Furthermore, you can filter by only providing labels and only return scheduled runs whose runsOn labels are included in the provided labels. Runs are filtered by the provided version parameter. Version parameter set to * returns all configs   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_docker_runs_scheduled_by_state_and_labels(async_req=True)
@@ -2005,6 +2009,7 @@ class DockerApi(object):
         :param async_req bool
         :param DockerRunScheduledState state:
         :param DockerWorkerLabels labels:
+        :param str version:
         :return: list[DockerRunScheduledData]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -2019,7 +2024,7 @@ class DockerApi(object):
     def get_docker_runs_scheduled_by_state_and_labels_with_http_info(self, **kwargs):  # noqa: E501
         """get_docker_runs_scheduled_by_state_and_labels  # noqa: E501
 
-        Get all scheduled docker runs of the user. Additionally, you can filter by state.  Furthermore, you can filter by only providing labels an only return scheduled runs whose runsOn labels are included in the provided labels.   # noqa: E501
+        Get all scheduled docker runs of the user. Additionally, you can filter by state.  Furthermore, you can filter by only providing labels and only return scheduled runs whose runsOn labels are included in the provided labels. Runs are filtered by the provided version parameter. Version parameter set to * returns all configs   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_docker_runs_scheduled_by_state_and_labels_with_http_info(async_req=True)
@@ -2028,12 +2033,13 @@ class DockerApi(object):
         :param async_req bool
         :param DockerRunScheduledState state:
         :param DockerWorkerLabels labels:
+        :param str version:
         :return: list[DockerRunScheduledData]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['state', 'labels']  # noqa: E501
+        all_params = ['state', 'labels', 'version']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -2058,6 +2064,8 @@ class DockerApi(object):
             query_params.append(('state', params['state']))  # noqa: E501
         if 'labels' in params:
             query_params.append(('labels', params['labels']))  # noqa: E501
+        if 'version' in params:
+            query_params.append(('version', params['version']))  # noqa: E501
 
         header_params = {}
 
@@ -2190,7 +2198,7 @@ class DockerApi(object):
     def get_docker_worker_config_by_id(self, config_id, **kwargs):  # noqa: E501
         """get_docker_worker_config_by_id  # noqa: E501
 
-        Gets a docker worker configuration by id.  # noqa: E501
+        Gets a docker worker configuration by id. It will try to return the config version but expects (and will fail if not) the config to be of v0   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_docker_worker_config_by_id(config_id, async_req=True)
@@ -2212,7 +2220,7 @@ class DockerApi(object):
     def get_docker_worker_config_by_id_with_http_info(self, config_id, **kwargs):  # noqa: E501
         """get_docker_worker_config_by_id  # noqa: E501
 
-        Gets a docker worker configuration by id.  # noqa: E501
+        Gets a docker worker configuration by id. It will try to return the config version but expects (and will fail if not) the config to be of v0   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_docker_worker_config_by_id_with_http_info(config_id, async_req=True)
@@ -2275,6 +2283,101 @@ class DockerApi(object):
             post_params=form_params,
             files=local_var_files,
             response_type='DockerWorkerConfigData',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def get_docker_worker_config_v2_by_id(self, config_id, **kwargs):  # noqa: E501
+        """get_docker_worker_config_v2_by_id  # noqa: E501
+
+        Gets a docker worker configuration by id. It will try to return the config version but expects (and will fail if not) the config to be of v2   # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_docker_worker_config_v2_by_id(config_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID config_id: ObjectId of the docker worker config (required)
+        :return: DockerWorkerConfigV2Data
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.get_docker_worker_config_v2_by_id_with_http_info(config_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.get_docker_worker_config_v2_by_id_with_http_info(config_id, **kwargs)  # noqa: E501
+            return data
+
+    def get_docker_worker_config_v2_by_id_with_http_info(self, config_id, **kwargs):  # noqa: E501
+        """get_docker_worker_config_v2_by_id  # noqa: E501
+
+        Gets a docker worker configuration by id. It will try to return the config version but expects (and will fail if not) the config to be of v2   # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_docker_worker_config_v2_by_id_with_http_info(config_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param MongoObjectID config_id: ObjectId of the docker worker config (required)
+        :return: DockerWorkerConfigV2Data
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['config_id']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_docker_worker_config_v2_by_id" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'config_id' is set
+        if self.api_client.client_side_validation and ('config_id' not in params or
+                                                       params['config_id'] is None):  # noqa: E501
+            raise ValueError("Missing the required parameter `config_id` when calling `get_docker_worker_config_v2_by_id`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'config_id' in params:
+            path_params['configId'] = params['config_id']  # noqa: E501
+
+        query_params = []
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['ApiKeyAuth', 'auth0Bearer']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/v1/docker/worker/config/v2/{configId}', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='DockerWorkerConfigV2Data',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),

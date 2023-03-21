@@ -2,18 +2,20 @@
 # from the paper. The settings are chosen such that the example can easily be
 # run on a small dataset with a single GPU.
 
-import torch
-from torch import nn
-import torchvision
 import pytorch_lightning as pl
+import torch
+import torchvision
+from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
-from lightly.transforms.simclr_transform import SimCLRTransform
 from lightly.loss import NTXentLoss
-from lightly.models.modules import NNCLRProjectionHead
-from lightly.models.modules import NNCLRPredictionHead
-from lightly.models.modules import NNMemoryBankModule
+from lightly.models.modules import (
+    NNCLRPredictionHead,
+    NNCLRProjectionHead,
+    NNMemoryBankModule,
+)
+from lightly.transforms.simclr_transform import SimCLRTransform
 
 
 class NNCLR(pl.LightningModule):
@@ -51,7 +53,8 @@ class NNCLR(pl.LightningModule):
 model = NNCLR()
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = LightlyDataset.from_torch_dataset(cifar10, transform=SimCLRTransform(input_size=32))
+transform = SimCLRTransform(input_size=32)
+dataset = LightlyDataset.from_torch_dataset(cifar10, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 

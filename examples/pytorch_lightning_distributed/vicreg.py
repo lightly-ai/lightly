@@ -2,18 +2,18 @@
 # from the paper. The settings are chosen such that the example can easily be
 # run on a small dataset with a single GPU.
 
-import torch
-from torch import nn
-import torchvision
 import pytorch_lightning as pl
+import torch
+import torchvision
+from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
-from lightly.transforms.vicreg_transform import VICRegTransform
 from lightly.loss import VICRegLoss
 
 ## The projection head is the same as the Barlow Twins one
 from lightly.models.modules import BarlowTwinsProjectionHead
+from lightly.transforms.vicreg_transform import VICRegTransform
 
 
 class VICReg(pl.LightningModule):
@@ -47,7 +47,8 @@ class VICReg(pl.LightningModule):
 model = VICReg()
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = LightlyDataset.from_torch_dataset(cifar10, VICRegTransform(input_size=32))
+transform = VICRegTransform(input_size=32)
+dataset = LightlyDataset.from_torch_dataset(cifar10, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 

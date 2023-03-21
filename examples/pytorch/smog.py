@@ -3,20 +3,22 @@
 # run on a small dataset with a single GPU.
 
 import copy
+
 import torch
-from torch import nn
 import torchvision
 from sklearn.cluster import KMeans
-
+from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
-from lightly.transforms.smog_transform import SMoGTransform
 from lightly.loss.memory_bank import MemoryBankModule
-from lightly.models.modules.heads import SMoGProjectionHead
-from lightly.models.modules.heads import SMoGPredictionHead
-from lightly.models.modules.heads import SMoGPrototypes
 from lightly.models import utils
+from lightly.models.modules.heads import (
+    SMoGPredictionHead,
+    SMoGProjectionHead,
+    SMoGPrototypes,
+)
+from lightly.transforms.smog_transform import SMoGTransform
 
 
 class SMoGModel(nn.Module):
@@ -86,15 +88,16 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
+transform = SMoGTransform(
+    crop_sizes=(32, 32),
+    crop_counts=(1, 1),
+    gaussian_blur_probs=(0.0, 0.0),
+    crop_min_scales=(0.2, 0.2),
+    crop_max_scales=(1.0, 1.0),
+)
 dataset = LightlyDataset.from_torch_dataset(
     cifar10,
-    transform=SMoGTransform(
-        crop_sizes=[32, 32],
-        crop_counts=(1, 1),
-        gaussian_blur_probs=(0.0, 0.0),
-        crop_min_scales=(0.2, 0.2),
-        crop_max_scales=(1.0, 1.0),
-    ),
+    transform=transform,
 )
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
@@ -121,7 +124,6 @@ print("Starting Training")
 for epoch in range(10):
     total_loss = 0
     for batch_idx, batch in enumerate(dataloader):
-
         (x0, x1), _, _ = batch
 
         if batch_idx % 2:

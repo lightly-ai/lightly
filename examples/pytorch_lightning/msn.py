@@ -3,18 +3,18 @@
 # run on a small dataset with a single GPU.
 import copy
 
-import torch
-from torch import nn
-import torchvision
 import pytorch_lightning as pl
+import torch
+import torchvision
+from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
-from lightly.transforms.msn_transform import MSNTransform
 from lightly.loss import MSNLoss
-from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models import utils
+from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models.modules.masked_autoencoder import MAEBackbone
+from lightly.transforms.msn_transform import MSNTransform
 
 
 class MSN(pl.LightningModule):

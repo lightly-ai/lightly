@@ -2,17 +2,16 @@
 # from the paper. The settings are chosen such that the example can easily be
 # run on a small dataset with a single GPU.
 
-import torch
-from torch import nn
-import torchvision
 import pytorch_lightning as pl
+import torch
+import torchvision
+from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
-from lightly.transforms.swav_transform import SwaVTransform
 from lightly.loss import SwaVLoss
-from lightly.models.modules import SwaVProjectionHead
-from lightly.models.modules import SwaVPrototypes
+from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
+from lightly.transforms.swav_transform import SwaVTransform
 
 
 class SwaV(pl.LightningModule):
@@ -51,7 +50,8 @@ model = SwaV()
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=SwaVTransform())
+transform = SwaVTransform()
+dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
