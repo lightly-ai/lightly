@@ -67,13 +67,8 @@ import torch.nn as nn
 import torchvision
 from pytorch_lightning.loggers import TensorBoardLogger
 
-from lightly.data import (
-    DINOCollateFunction,
-    LightlyDataset,
-    SimCLRCollateFunction,
-    SwaVCollateFunction,
-    collate,
-)
+from lightly.data import LightlyDataset
+from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import (
     BarlowTwinsLoss,
     DCLLoss,
@@ -86,6 +81,13 @@ from lightly.loss import (
 )
 from lightly.models import ResNetGenerator, modules, utils
 from lightly.models.modules import heads
+from lightly.transforms import (
+    DINOTransform,
+    SimCLRTransform,
+    SMoGTransform,
+    SwaVTransform,
+)
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import BenchmarkModule
 
 logs_root_dir = os.path.join(os.getcwd(), "benchmark_logs")
@@ -116,17 +118,18 @@ n_runs = 1  # optional, increase to create multiple runs and report mean + std
 batch_size = 128
 lr_factor = batch_size / 128  # scales the learning rate linearly with batch size
 
-# use a GPU if available
-gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
+# Number of devices and hardware to use for training.
+devices = torch.cuda.device_count() if torch.cuda.is_available() else 1
+accelerator = "gpu" if torch.cuda.is_available() else "cpu"
 
 if distributed:
-    distributed_backend = "ddp"
+    strategy = "ddp"
     # reduce batch size for distributed training
-    batch_size = batch_size // gpus
+    batch_size = batch_size // devices
 else:
-    distributed_backend = None
-    # limit to single gpu if not using distributed training
-    gpus = min(gpus, 1)
+    strategy = "auto"  # Set to None if using PyTorch Lightning < 2.0
+    # limit to single device if not using distributed training
+    devices = min(devices, 1)
 
 # Adapted from our MoCo Tutorial on CIFAR-10
 #
@@ -154,34 +157,41 @@ else:
 path_to_train = "/datasets/cifar10/train/"
 path_to_test = "/datasets/cifar10/test/"
 
-# Use SimCLR augmentations, additionally, disable blur for cifar10
-collate_fn = SimCLRCollateFunction(
+# Collate function init
+collate_fn = MultiViewCollate()
+
+# Use SimCLR augmentations
+simclr_transform = SimCLRTransform(
     input_size=32,
+    cj_strength=0.5,
     gaussian_blur=0.0,
 )
 
 # Multi crop augmentation for SwAV, additionally, disable blur for cifar10
-swav_collate_fn = SwaVCollateFunction(
+swav_transform = SwaVTransform(
     crop_sizes=[32],
     crop_counts=[2],  # 2 crops @ 32x32px
     crop_min_scales=[0.14],
+    cj_strength=0.5,
     gaussian_blur=0,
 )
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
-dino_collate_fn = DINOCollateFunction(
+dino_transform = DINOTransform(
     global_crop_size=32,
     n_local_views=0,
+    cj_strength=0.5,
     gaussian_blur=(0, 0, 0),
 )
 
 # Two crops for SMoG
-smog_collate_function = collate.SMoGCollateFunction(
-    crop_sizes=[32, 32],
-    crop_counts=[1, 1],
-    gaussian_blur_probs=[0.0, 0.0],
-    crop_min_scales=[0.2, 0.2],
-    crop_max_scales=[1.0, 1.0],
+smog_transform = SMoGTransform(
+    crop_sizes=(32, 32),
+    crop_counts=(1, 1),
+    cj_strength=0.5,
+    gaussian_blur_probs=(0.0, 0.0),
+    crop_min_scales=(0.2, 0.2),
+    crop_max_scales=(1.0, 1.0),
 )
 
 # No additional augmentations for the test set
@@ -189,13 +199,11 @@ test_transforms = torchvision.transforms.Compose(
     [
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
-            mean=collate.imagenet_normalize["mean"],
-            std=collate.imagenet_normalize["std"],
+            mean=IMAGENET_NORMALIZE["mean"],
+            std=IMAGENET_NORMALIZE["std"],
         ),
     ]
 )
-
-dataset_train_ssl = LightlyDataset(input_dir=path_to_train)
 
 # we use test transformations for getting the feature for kNN on train data
 dataset_train_kNN = LightlyDataset(input_dir=path_to_train, transform=test_transforms)
@@ -203,24 +211,41 @@ dataset_train_kNN = LightlyDataset(input_dir=path_to_train, transform=test_trans
 dataset_test = LightlyDataset(input_dir=path_to_test, transform=test_transforms)
 
 
-def get_data_loaders(batch_size: int, model):
-    """Helper method to create dataloaders for ssl, kNN train and kNN test
+def create_dataset_train_ssl(model):
+    """Helper method to apply the correct transform for ssl.
 
     Args:
-        batch_size: Desired batch size for all dataloaders
+        model:
+            Model class for which to select the transform.
     """
-    col_fn = collate_fn
-    if model == SwaVModel:
-        col_fn = swav_collate_fn
-    elif model == DINOModel:
-        col_fn = dino_collate_fn
-    elif model == SMoGModel:
-        col_fn = smog_collate_function
+    model_to_transform = {
+        BarlowTwinsModel: simclr_transform,
+        BYOLModel: simclr_transform,
+        DCL: simclr_transform,
+        DCLW: simclr_transform,
+        DINOModel: dino_transform,
+        MocoModel: simclr_transform,
+        NNCLRModel: simclr_transform,
+        SimCLRModel: simclr_transform,
+        SimSiamModel: simclr_transform,
+        SwaVModel: swav_transform,
+        SMoGModel: smog_transform,
+    }
+    transform = model_to_transform[model]
+    return LightlyDataset(input_dir=path_to_train, transform=transform)
+
+
+def get_data_loaders(batch_size: int, dataset_train_ssl):
+    """Helper method to create dataloaders for ssl, kNN train and kNN test.
+
+    Args:
+        batch_size: Desired batch size for all dataloaders.
+    """
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=col_fn,
+        collate_fn=collate_fn,
         drop_last=True,
         num_workers=num_workers,
     )
@@ -840,9 +865,9 @@ for BenchmarkModel in models:
     model_name = BenchmarkModel.__name__.replace("Model", "")
     for seed in range(n_runs):
         pl.seed_everything(seed)
+        dataset_train_ssl = create_dataset_train_ssl(BenchmarkModel)
         dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(
-            batch_size=batch_size,
-            model=BenchmarkModel,
+            batch_size=batch_size, dataset_train_ssl=dataset_train_ssl
         )
         benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
 
@@ -863,9 +888,10 @@ for BenchmarkModel in models:
         )
         trainer = pl.Trainer(
             max_epochs=max_epochs,
-            gpus=gpus,
+            devices=devices,
+            accelerator=accelerator,
             default_root_dir=logs_root_dir,
-            strategy=distributed_backend,
+            strategy=strategy,
             sync_batchnorm=sync_batchnorm,
             logger=logger,
             callbacks=[checkpoint_callback],

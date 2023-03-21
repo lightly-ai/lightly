@@ -181,7 +181,7 @@ You can [find a more complete example for SimSiam here.](https://docs.lightly.ai
 Use PyTorch Lightning to train the model:
 
 ```python
-trainer = pl.Trainer(max_epochs=max_epochs, gpus=1)
+trainer = pl.Trainer(max_epochs=max_epochs, devices=1, accelerator="gpu")
 trainer.fit(
     model,
     dataloader
@@ -196,8 +196,9 @@ criterion = NTXentLoss(gather_distributed=True)
 
 trainer = pl.Trainer(
     max_epochs=max_epochs, 
-    gpus=4, 
-    distributed_backend='ddp'
+    devices=4,
+    accelerator="gpu",
+    strategy="ddp",
 )
 trainer.fit(
     model,
@@ -220,24 +221,24 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 
 | Model            | Epochs | Batch Size | Test Accuracy |
 |------------------|--------|------------|---------------|
-| BarlowTwins      |    800 |        256 |         0.834 |
+| BarlowTwins      |    800 |        256 |         0.850 |
 | BYOL             |    800 |        256 |         0.887 |
-| DCL              |    800 |        256 |         0.862 |
-| DCLW             |    800 |        256 |         0.866 |
-| DINO (Res18)     |    800 |        256 |         0.866 |
+| DCL              |    800 |        256 |         0.864 |
+| DCLW             |    800 |        256 |         0.861 |
+| DINO (Res18)     |    800 |        256 |         0.887 |
 | MAE (ViT-S)      |    800 |        256 |         0.620 |
-| MSN (ViT-S)      |    800 |        256 |         0.834 |
-| Moco             |    800 |        256 |         0.876 |
-| NNCLR            |    800 |        256 |         0.888 |
-| SimCLR           |    800 |        256 |         0.892 |
+| MSN (ViT-S)      |    800 |        256 |         0.833 |
+| Moco             |    800 |        256 |         0.874 |
+| NNCLR            |    800 |        256 |         0.885 |
+| SimCLR           |    800 |        256 |         0.889 |
 | SimMIM (ViT-B32) |    800 |        256 |         0.351 |
-| SimSiam          |    800 |        256 |         0.888 |
-| SwaV             |    800 |        256 |         0.902 |
-| SwaVQueue        |    800 |        256 |         0.894 |
-| SMoG             |    800 |        256 |         0.806 |
-| TiCo             |    800 |        256 |         0.816 |
-| VICReg           |    800 |        256 |         0.815 |
-| VICRegL          |    800 |        256 |         0.800 |
+| SimSiam          |    800 |        256 |         0.885 |
+| SwaV             |    800 |        256 |         0.899 |
+| SwaVQueue        |    800 |        256 |         0.898 |
+| SMoG             |    800 |        256 |         0.782 |
+| TiCo             |    800 |        256 |         0.857 |
+| VICReg           |    800 |        256 |         0.843 |
+| VICRegL          |    800 |        256 |         0.799 |
 
 
 #### Cifar10

@@ -317,11 +317,10 @@ class MoCoModel(pl.LightningModule):
 
 model = MoCoModel()
 
-gpus = 1 if torch.cuda.is_available() else 0
-
 trainer = pl.Trainer(
     max_epochs=max_epochs,
-    gpus=gpus,
+    devices=1,
+    accelerator="gpu",
     precision=16,
 )
 trainer.fit(model, dataloader_train)

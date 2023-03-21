@@ -38,13 +38,8 @@ from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.optim.lr_scheduler import LambdaLR
 
-from lightly.data import (
-    DINOCollateFunction,
-    LightlyDataset,
-    SimCLRCollateFunction,
-    SwaVCollateFunction,
-    collate,
-)
+from lightly.data import LightlyDataset
+from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import (
     BarlowTwinsLoss,
     DINOLoss,
@@ -54,6 +49,8 @@ from lightly.loss import (
 )
 from lightly.models import modules, utils
 from lightly.models.modules import heads
+from lightly.transforms import DINOTransform, SimCLRTransform, SwaVTransform
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import BenchmarkModule
 
 logs_root_dir = os.path.join(os.getcwd(), "benchmark_logs")
@@ -87,34 +84,35 @@ n_runs = 1  # optional, increase to create multiple runs and report mean + std
 batch_size = 256
 lr_factor = batch_size / 256  # scales the learning rate linearly with batch size
 
-
-# use a GPU if available
-gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
+# Number of devices and hardware to use for training.
+devices = torch.cuda.device_count() if torch.cuda.is_available() else 1
+accelerator = "gpu" if torch.cuda.is_available() else "cpu"
 
 if distributed:
-    distributed_backend = "ddp"
+    strategy = "ddp"
     # reduce batch size for distributed training
-    batch_size = batch_size // gpus
+    batch_size = batch_size // devices
 else:
-    distributed_backend = None
-    # limit to single gpu if not using distributed training
-    gpus = min(gpus, 1)
+    strategy = "auto"  # Set to None if using PyTorch Lightning < 2.0
+    # limit to single device if not using distributed training
+    devices = min(devices, 1)
 
 # The dataset structure should be like this:
 
 path_to_train = "/datasets/imagenet100/train/"
 path_to_test = "/datasets/imagenet100/val/"
 
+# Collate function init
+collate_fn = MultiViewCollate()
+
 # Use SimCLR augmentations
-collate_fn = SimCLRCollateFunction(
-    input_size=input_size,
-)
+simclr_transform = SimCLRTransform(input_size=input_size)
 
 # Multi crop augmentation for SwAV
-swav_collate_fn = SwaVCollateFunction()
+swav_transform = SwaVTransform()
 
 # Multi crop augmentation for DINO, additionally, disable blur for cifar10
-dino_collate_fn = DINOCollateFunction()
+dino_transform = DINOTransform()
 
 # No additional augmentations for the test set
 test_transforms = torchvision.transforms.Compose(
@@ -123,11 +121,12 @@ test_transforms = torchvision.transforms.Compose(
         torchvision.transforms.CenterCrop(224),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
-            mean=collate.imagenet_normalize["mean"],
-            std=collate.imagenet_normalize["std"],
+            mean=IMAGENET_NORMALIZE["mean"],
+            std=IMAGENET_NORMALIZE["std"],
         ),
     ]
 )
+
 
 dataset_train_ssl = LightlyDataset(input_dir=path_to_train)
 
@@ -136,24 +135,41 @@ dataset_train_kNN = LightlyDataset(input_dir=path_to_train, transform=test_trans
 
 dataset_test = LightlyDataset(input_dir=path_to_test, transform=test_transforms)
 
-steps_per_epoch = len(dataset_train_ssl) // batch_size
+steps_per_epoch = len(LightlyDataset(input_dir=path_to_train)) // batch_size
 
 
-def get_data_loaders(batch_size: int, model):
-    """Helper method to create dataloaders for ssl, kNN train and kNN test
+def create_dataset_train_ssl(model):
+    """Helper method to apply the correct transform for ssl.
+
     Args:
-        batch_size: Desired batch size for all dataloaders
+        model:
+            Model class for which to select the transform.
     """
-    col_fn = collate_fn
-    if model == SwaVModel:
-        col_fn = swav_collate_fn
-    elif model == DINOModel:
-        col_fn = dino_collate_fn
+    model_to_transform = {
+        BarlowTwinsModel: simclr_transform,
+        BYOLModel: simclr_transform,
+        DINOModel: dino_transform,
+        MocoModel: simclr_transform,
+        NNCLRModel: simclr_transform,
+        SimCLRModel: simclr_transform,
+        SimSiamModel: simclr_transform,
+        SwaVModel: swav_transform,
+    }
+    transform = model_to_transform[model]
+    return LightlyDataset(input_dir=path_to_train, transform=transform)
+
+
+def get_data_loaders(batch_size: int, dataset_train_ssl):
+    """Helper method to create dataloaders for ssl, kNN train and kNN test.
+
+    Args:
+        batch_size: Desired batch size for all dataloaders.
+    """
     dataloader_train_ssl = torch.utils.data.DataLoader(
         dataset_train_ssl,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=col_fn,
+        collate_fn=collate_fn,
         drop_last=True,
         num_workers=num_workers,
     )
@@ -631,9 +647,9 @@ for BenchmarkModel in models:
     model_name = BenchmarkModel.__name__.replace("Model", "")
     for seed in range(n_runs):
         pl.seed_everything(seed)
+        dataset_train_ssl = create_dataset_train_ssl(BenchmarkModel)
         dataloader_train_ssl, dataloader_train_kNN, dataloader_test = get_data_loaders(
-            batch_size=batch_size,
-            model=BenchmarkModel,
+            batch_size=batch_size, dataset_train_ssl=dataset_train_ssl
         )
         benchmark_model = BenchmarkModel(dataloader_train_kNN, classes)
 
@@ -654,9 +670,10 @@ for BenchmarkModel in models:
         )
         trainer = pl.Trainer(
             max_epochs=max_epochs,
-            gpus=gpus,
+            devices=devices,
+            accelerator=accelerator,
             default_root_dir=logs_root_dir,
-            strategy=distributed_backend,
+            strategy=strategy,
             sync_batchnorm=sync_batchnorm,
             logger=logger,
             callbacks=[checkpoint_callback],
