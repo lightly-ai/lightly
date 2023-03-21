@@ -198,5 +198,5 @@ class MyModel(pl.LightningModule):
 # Finally, we can create the model and use the Trainer
 # to train our model.
 model = MyModel()
-trainer = pl.Trainer(max_epochs=4)
+trainer = pl.Trainer(max_epochs=4, devices=1)
 trainer.fit(model, dataloader_train, dataloader_test)

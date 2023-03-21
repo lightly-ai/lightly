@@ -171,13 +171,10 @@ class SimCLRModel(pl.LightningModule):
 
 
 # %%
-# We first check if a GPU is available and then train the module
-# using the PyTorch Lightning Trainer.
-
-gpus = 1 if torch.cuda.is_available() else 0
+# Train the module using the PyTorch Lightning Trainer on a single GPU.
 
 model = SimCLRModel()
-trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus)
+trainer = pl.Trainer(max_epochs=max_epochs, devices=1, accelerator="gpu")
 trainer.fit(model, dataloader_train_simclr)
 
 # %%
@@ -274,7 +271,7 @@ dataloader_train_simclr.collate_fn = new_collate_fn
 
 # then train a new model
 model = SimCLRModel()
-trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus)
+trainer = pl.Trainer(max_epochs=max_epochs, devices=1, accelerator="gpu")
 trainer.fit(model, dataloader_train_simclr)
 
 # and generate again embeddings from the test set

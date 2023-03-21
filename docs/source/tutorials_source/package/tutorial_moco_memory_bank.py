@@ -358,18 +358,15 @@ class Classifier(pl.LightningModule):
 # We can instantiate the model and train it using the
 # lightning trainer.
 
-# use a GPU if available
-gpus = 1 if torch.cuda.is_available() else 0
-
 model = MocoModel()
-trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus)
+trainer = pl.Trainer(max_epochs=max_epochs, devices=1, accelerator="gpu")
 trainer.fit(model, dataloader_train_moco)
 
 # %%
 # Train the Classifier
 model.eval()
 classifier = Classifier(model.backbone)
-trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus)
+trainer = pl.Trainer(max_epochs=max_epochs, devices=1, accelerator="gpu")
 trainer.fit(classifier, dataloader_train_classifier, dataloader_test)
 
 # %%
