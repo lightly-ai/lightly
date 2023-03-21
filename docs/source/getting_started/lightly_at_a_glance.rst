@@ -159,23 +159,23 @@ You can of course also use `PyTorch Lightning <https://www.pytorchlightning.ai/>
             return optimizer
 
     model = SimCLR(resnet, hidden_dim=512, out_dim=128)
-    gpus = 1 if torch.cuda.is_available() else None
-    trainer = pl.Trainer(max_epochs=max_epochs, gpus=gpus)
+    trainer = pl.Trainer(max_epochs=max_epochs, devices=1, accelerator="gpu")
     trainer.fit(
         model,
         dataloader
     )
 
 To train on a machine with multiple GPUs we recommend using the 
-`distributed data parallel` backend.
+`distributed data parallel` strategy.
 
 .. code-block:: python
 
-    # if we have a machine with 4 GPUs we set gpus=4
+    # If we have a machine with 4 GPUs we set devices=4 and accelerator="gpu".
     trainer = pl.Trainer(
         max_epochs=max_epochs, 
-        gpus=4, 
-        distributed_backend='ddp'
+        devices=4,
+        accelerator="gpu",
+        strategy='ddp'
     )
     trainer.fit(
         model,

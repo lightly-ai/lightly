@@ -118,17 +118,18 @@ n_runs = 1  # optional, increase to create multiple runs and report mean + std
 batch_size = 128
 lr_factor = batch_size / 128  # scales the learning rate linearly with batch size
 
-# use a GPU if available
-gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
+# Number of devices and hardware to use for training.
+devices = torch.cuda.device_count() if torch.cuda.is_available() else 1
+accelerator = "gpu" if torch.cuda.is_available() else "cpu"
 
 if distributed:
-    distributed_backend = "ddp"
+    strategy = "ddp"
     # reduce batch size for distributed training
-    batch_size = batch_size // gpus
+    batch_size = batch_size // devices
 else:
-    distributed_backend = None
-    # limit to single gpu if not using distributed training
-    gpus = min(gpus, 1)
+    strategy = "auto"  # Set to None if using PyTorch Lightning < 2.0
+    # limit to single device if not using distributed training
+    devices = min(devices, 1)
 
 # Adapted from our MoCo Tutorial on CIFAR-10
 #
@@ -887,9 +888,10 @@ for BenchmarkModel in models:
         )
         trainer = pl.Trainer(
             max_epochs=max_epochs,
-            gpus=gpus,
+            devices=devices,
+            accelerator=accelerator,
             default_root_dir=logs_root_dir,
-            strategy=distributed_backend,
+            strategy=strategy,
             sync_batchnorm=sync_batchnorm,
             logger=logger,
             callbacks=[checkpoint_callback],
