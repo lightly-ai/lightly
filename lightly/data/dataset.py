@@ -13,6 +13,7 @@ import torchvision.datasets as datasets
 from PIL import Image
 from torch._C import Value
 from torchvision import transforms
+from torchvision.datasets.vision import StandardTransform, VisionDataset
 
 from lightly.data._helpers import DatasetFolder, _load_dataset_from_folder
 from lightly.data._video import VideoDataset
@@ -214,8 +215,14 @@ class LightlyDataset:
         )
 
         # populate it with the torch dataset
+        if transform is not None:
+            dataset.transform = transform
+            # If dataset is a VisionDataset, we need to initialize transforms, too.
+            if isinstance(dataset, VisionDataset):
+                dataset.transforms = StandardTransform(
+                    transform, dataset.target_transform
+                )
         dataset_obj.dataset = dataset
-        dataset_obj.transform = transform
         return dataset_obj
 
     def __getitem__(self, index: int):

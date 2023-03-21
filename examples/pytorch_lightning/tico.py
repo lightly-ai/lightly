@@ -5,10 +5,12 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset, SimCLRCollateFunction
+from lightly.data import LightlyDataset
+from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.models.modules.heads import TiCoProjectionHead
 from lightly.models.utils import deactivate_requires_grad, update_momentum
+from lightly.transforms.simclr_transform import SimCLRTransform
 from lightly.utils.scheduler import cosine_schedule
 
 
@@ -57,11 +59,12 @@ class TiCo(pl.LightningModule):
 model = TiCo()
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = LightlyDataset.from_torch_dataset(cifar10)
+transform = SimCLRTransform(input_size=32)
+dataset = LightlyDataset.from_torch_dataset(cifar10, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = SimCLRCollateFunction(input_size=32)
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,

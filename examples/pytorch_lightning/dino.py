@@ -1,3 +1,7 @@
+# Note: The model and training settings do not follow the reference settings
+# from the paper. The settings are chosen such that the example can easily be
+# run on a small dataset with a single GPU.
+
 import copy
 
 import pytorch_lightning as pl
@@ -5,15 +9,13 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import DINOCollateFunction, LightlyDataset
+from lightly.data import LightlyDataset
+from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import DINOLoss
 from lightly.models.modules import DINOProjectionHead
 from lightly.models.utils import deactivate_requires_grad, update_momentum
+from lightly.transforms.dino_transform import DINOTransform
 from lightly.utils.scheduler import cosine_schedule
-
-# Note: The model and training settings do not follow the reference settings
-# from the paper. The settings are chosen such that the example can easily be
-# run on a small dataset with a single GPU.
 
 
 class DINO(pl.LightningModule):
@@ -74,11 +76,12 @@ model = DINO()
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-dataset = LightlyDataset.from_torch_dataset(pascal_voc)
+transform = DINOTransform()
+dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = DINOCollateFunction()
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
