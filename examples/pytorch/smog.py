@@ -10,7 +10,7 @@ from sklearn.cluster import KMeans
 from torch import nn
 
 from lightly.data import LightlyDataset
-from lightly.data.collate import SMoGCollateFunction
+from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss.memory_bank import MemoryBankModule
 from lightly.models import utils
 from lightly.models.modules.heads import (
@@ -18,6 +18,7 @@ from lightly.models.modules.heads import (
     SMoGProjectionHead,
     SMoGPrototypes,
 )
+from lightly.transforms.smog_transform import SMoGTransform
 
 
 class SMoGModel(nn.Module):
@@ -87,17 +88,21 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = LightlyDataset.from_torch_dataset(cifar10)
+transform = SMoGTransform(
+    crop_sizes=(32, 32),
+    crop_counts=(1, 1),
+    gaussian_blur_probs=(0.0, 0.0),
+    crop_min_scales=(0.2, 0.2),
+    crop_max_scales=(1.0, 1.0),
+)
+dataset = LightlyDataset.from_torch_dataset(
+    cifar10,
+    transform=transform,
+)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = SMoGCollateFunction(
-    crop_sizes=[32, 32],
-    crop_counts=[1, 1],
-    gaussian_blur_probs=[0.0, 0.0],
-    crop_min_scales=[0.2, 0.2],
-    crop_max_scales=[1.0, 1.0],
-)
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,

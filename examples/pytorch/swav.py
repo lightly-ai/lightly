@@ -6,9 +6,11 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset, SwaVCollateFunction
+from lightly.data import LightlyDataset
+from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import SwaVLoss
 from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
+from lightly.transforms.swav_transform import SwaVTransform
 
 
 class SwaV(nn.Module):
@@ -37,11 +39,12 @@ model.to(device)
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-dataset = LightlyDataset.from_torch_dataset(pascal_voc)
+transform = SwaVTransform()
+dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = SwaVCollateFunction()
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,

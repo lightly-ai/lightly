@@ -7,9 +7,10 @@ import torchvision
 from torch import nn
 
 from lightly.data import LightlyDataset
-from lightly.data.collate import MAECollateFunction
+from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.models import utils
 from lightly.models.modules import masked_autoencoder
+from lightly.transforms.mae_transform import MAETransform
 
 
 class MAE(nn.Module):
@@ -81,11 +82,12 @@ model.to(device)
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-dataset = LightlyDataset.from_torch_dataset(pascal_voc)
+transform = MAETransform()
+dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = MAECollateFunction()
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
@@ -103,7 +105,7 @@ print("Starting Training")
 for epoch in range(10):
     total_loss = 0
     for images, _, _ in dataloader:
-        images = images.to(device)
+        images = images[0].to(device)  # images is a list containing only one view
         predictions, targets = model(images)
         loss = criterion(predictions, targets)
         total_loss += loss.detach()

@@ -8,11 +8,12 @@ import torchvision
 from torch import nn
 
 from lightly.data import LightlyDataset
-from lightly.data.collate import VICRegCollateFunction
-from lightly.loss import VICRegLoss
+from lightly.data.multi_view_collate import MultiViewCollate
+from lightly.loss.vicreg_loss import VICRegLoss
 
 ## The projection head is the same as the Barlow Twins one
 from lightly.models.modules import BarlowTwinsProjectionHead
+from lightly.transforms.vicreg_transform import VICRegTransform
 
 
 class VICReg(pl.LightningModule):
@@ -43,11 +44,11 @@ class VICReg(pl.LightningModule):
 model = VICReg()
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = LightlyDataset.from_torch_dataset(cifar10)
+dataset = LightlyDataset.from_torch_dataset(cifar10, VICRegTransform(input_size=32))
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = VICRegCollateFunction(input_size=32)
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,

@@ -8,11 +8,12 @@ import torchvision
 from torch import nn
 
 from lightly.data import LightlyDataset
-from lightly.data.collate import MSNCollateFunction
+from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import MSNLoss
 from lightly.models import utils
 from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models.modules.masked_autoencoder import MAEBackbone
+from lightly.transforms.msn_transform import MSNTransform
 
 
 class MSN(nn.Module):
@@ -21,7 +22,7 @@ class MSN(nn.Module):
 
         self.mask_ratio = 0.15
         self.backbone = MAEBackbone.from_vit(vit)
-        self.projection_head = MSNProjectionHead(384)
+        self.projection_head = MSNProjectionHead(input_dim=384)
 
         self.anchor_backbone = copy.deepcopy(self.backbone)
         self.anchor_projection_head = copy.deepcopy(self.projection_head)
@@ -57,7 +58,7 @@ vit = torchvision.models.VisionTransformer(
     mlp_dim=384 * 4,
 )
 model = MSN(vit)
-# # or use a torchvision ViT backbone:
+# or use a torchvision ViT backbone:
 # vit = torchvision.models.vit_b_32(pretrained=False)
 # model = MSN(vit)
 
@@ -68,11 +69,12 @@ model.to(device)
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-dataset = LightlyDataset.from_torch_dataset(pascal_voc)
+transform = MSNTransform()
+dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = MSNCollateFunction()
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,

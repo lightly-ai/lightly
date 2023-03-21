@@ -4,9 +4,10 @@ import torchvision
 from torch import nn
 
 from lightly.data import LightlyDataset
-from lightly.data.collate import MAECollateFunction  # Same collate as MAE
+from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.models import utils
 from lightly.models.modules import masked_autoencoder
+from lightly.transforms.mae_transform import MAETransform  # Same transform as MAE
 
 
 class SimMIM(pl.LightningModule):
@@ -40,7 +41,7 @@ class SimMIM(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         images, _, _ = batch
-
+        images = images[0]  # images is a list containing only one view
         batch_size = images.shape[0]
         idx_keep, idx_mask = utils.random_token_mask(
             size=(batch_size, self.sequence_length),
@@ -78,11 +79,12 @@ model.to(device)
 pascal_voc = torchvision.datasets.VOCDetection(
     "/home/ubuntu/datasets/pascal_voc", download=False, target_transform=lambda t: 0
 )
-dataset = LightlyDataset.from_torch_dataset(pascal_voc)
+transform = MAETransform()
+dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = MAECollateFunction()
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
