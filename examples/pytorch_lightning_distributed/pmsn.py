@@ -9,11 +9,12 @@ import torchvision
 from torch import nn
 
 from lightly.data import LightlyDataset
-from lightly.data.collate import MSNCollateFunction
+from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import MSNLoss
 from lightly.models import utils
 from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models.modules.masked_autoencoder import MAEBackbone
+from lightly.transforms import MSNTransform
 
 
 class PMSN(pl.LightningModule):
@@ -96,11 +97,12 @@ model = PMSN()
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-dataset = LightlyDataset.from_torch_dataset(pascal_voc)
+transform = MSNTransform()
+dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = MSNCollateFunction()
+collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
@@ -117,8 +119,9 @@ gpus = torch.cuda.device_count()
 # replace_sampler_ddp=True.
 trainer = pl.Trainer(
     max_epochs=10,
-    gpus=gpus,
+    devices="auto",
+    accelerator="gpu",
     strategy="ddp",
-    replace_sampler_ddp=True,
+    use_distributed_sampler=True,  # or replace_sampler_ddp=True for PyTorch Lightning <2.0
 )
 trainer.fit(model=model, train_dataloaders=dataloader)
