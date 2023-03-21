@@ -180,7 +180,7 @@ You can [find a more complete example for SimSiam here.](https://docs.lightly.ai
 Use PyTorch Lightning to train the model:
 
 ```python
-trainer = pl.Trainer(max_epochs=max_epochs, gpus=1)
+trainer = pl.Trainer(max_epochs=max_epochs, devices=1, accelerator="gpu")
 trainer.fit(
     model,
     dataloader
@@ -195,8 +195,9 @@ criterion = NTXentLoss(gather_distributed=True)
 
 trainer = pl.Trainer(
     max_epochs=max_epochs, 
-    gpus=4, 
-    distributed_backend='ddp'
+    devices=4,
+    accelerator="gpu",
+    strategy="ddp",
 )
 trainer.fit(
     model,
