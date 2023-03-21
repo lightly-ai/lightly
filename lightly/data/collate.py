@@ -4,6 +4,7 @@
 # All Rights Reserved
 
 from typing import List, Optional, Tuple, Union
+from warnings import warn
 
 import torch
 import torch.nn as nn
@@ -11,7 +12,7 @@ import torchvision
 import torchvision.transforms as T
 from PIL import Image
 
-from lightly.transforms import GaussianBlur, Jigsaw, RandomRotate, RandomSolarization
+from lightly.transforms import GaussianBlur, Jigsaw, RandomSolarization
 from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropAndFlip
 from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
@@ -36,6 +37,7 @@ class BaseCollateFunction(nn.Module):
     """
 
     def __init__(self, transform: torchvision.transforms.Compose):
+        _deprecation_warning_collate_functions()
         super(BaseCollateFunction, self).__init__()
         self.transform = transform
 
@@ -195,6 +197,7 @@ class MultiViewCollateFunction(nn.Module):
     """
 
     def __init__(self, transforms: List[torchvision.transforms.Compose]):
+        _deprecation_warning_collate_functions()
         super().__init__()
         self.transforms = transforms
 
@@ -827,6 +830,7 @@ class PIRLCollateFunction(nn.Module):
         n_grid: int = 3,
         normalize: dict = imagenet_normalize,
     ):
+        _deprecation_warning_collate_functions()
         super(PIRLCollateFunction, self).__init__()
 
         if isinstance(input_size, tuple):
@@ -1242,6 +1246,7 @@ class VICRegLCollateFunction(nn.Module):
         random_gray_scale: float = 0.2,
         normalize: dict = imagenet_normalize,
     ):
+        _deprecation_warning_collate_functions()
         super().__init__()
         self.global_crop_and_flip = RandomResizedCropAndFlip(
             crop_size=global_crop_size,
@@ -1338,3 +1343,12 @@ class VICRegLCollateFunction(nn.Module):
         grids_local = torch.stack(grids_local)
 
         return (views_global, views_local, grids_global, grids_local), labels, fnames
+
+
+def _deprecation_warning_collate_functions() -> None:
+    warn(
+        "Collate functions are deprecated and will be removed in favor of transforms in v1.4.0.\n"
+        "Please use MultiViewCollate in `lightly.data.multi_view_collate` together with the correct transform for your model instead.\n"
+        "See https://docs.lightly.ai/self-supervised-learning/examples/models.html for examples.",
+        category=DeprecationWarning,
+    )
