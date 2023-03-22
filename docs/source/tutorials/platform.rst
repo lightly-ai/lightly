@@ -6,7 +6,7 @@ Platform
 .. warning::
     **Tutorials are outdated**
 
-    These tutorials use a deprecated workflow of the Lightly Solution and will break.
+    These tutorials use a deprecated workflow of the Lightly Solution and will be removed in the future.
     Please refer to the `new documentation and tutorials <https://docs.lightly.ai>`_ instead.
 
 Lightly is more than just a framework for self-supervised learning. We built a complete data curation platform on top.

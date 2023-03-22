@@ -8,7 +8,7 @@ Tutorial 6: Find false negatives of object detection
 .. warning::
     **Tutorial is outdated**
 
-    This tutorial uses a deprecated workflow of the Lightly Solution and will break.
+    This tutorial uses a deprecated workflow of the Lightly Solution and will be removed in the future.
     Please use the tutorial to do `Active Learning Using YOLOv7 for Waste Sorting <https://docs.lightly.ai/docs/active-learning-for-waste-sorting>`_ instead.
 
 In object detection applications, it can happen that the detector does not detect an object

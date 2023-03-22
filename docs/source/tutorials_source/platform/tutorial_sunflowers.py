@@ -8,7 +8,7 @@ Tutorial 2: Diversify the Sunflowers Dataset
 .. warning::
     **Tutorial is outdated**
 
-    This tutorial uses a deprecated workflow of the Lightly Solution and will break.
+    This tutorial uses a deprecated workflow of the Lightly Solution and will be removed in the future.
     Please refer to the `new documentation and tutorials <https://docs.lightly.ai>`_ instead.
 
 This tutorial highlights the basic functionality of selecting a subset in the web-app.

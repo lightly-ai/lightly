@@ -14,7 +14,7 @@ Tutorial 5: Custom Metadata and Rebalancing
 .. warning::
     **Tutorial is outdated**
 
-    This tutorial uses a deprecated workflow of the Lightly Solution and will break.
+    This tutorial uses a deprecated workflow of the Lightly Solution and will be removed in the future.
     Please use the tutorial to do `Assertion-based Active Learning with YOLOv8 <https://docs.lightly.ai/docs/assertion-based-active-learning-tutorial>`_ instead.
 
 The addition of custom metadata to your dataset can lead to valuable insights which

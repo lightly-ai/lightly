@@ -8,7 +8,7 @@ Tutorial 3: Active learning for classification
 .. warning::
     **Tutorial is outdated**
 
-    This tutorial uses a deprecated workflow of the Lightly Solution and will break.
+    This tutorial uses a deprecated workflow of the Lightly Solution and will be removed in the future.
     Please use the tutorial to do `Active Learning Using YOLOv7 and Comma10k <https://docs.lightly.ai/docs/active-learning-yolov7>`_ instead.
 
 We provide the tutorial in a ready to use 

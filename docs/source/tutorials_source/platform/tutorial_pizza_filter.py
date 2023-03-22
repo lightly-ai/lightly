@@ -13,7 +13,7 @@ Tutorial 1: Curate Pizza Images
 .. warning::
     **Tutorial is outdated**
 
-    This tutorial uses a deprecated workflow of the Lightly Solution and will break.
+    This tutorial uses a deprecated workflow of the Lightly Solution and will be removed in the future.
     Please refer to the `new documentation and tutorials <https://docs.lightly.ai>`_ instead.
 
 In this tutorial, you will learn how to upload a dataset to the Lightly platform,
