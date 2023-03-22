@@ -5,6 +5,7 @@
 Tutorial 10: Export to LabelStudio
 =============================================
 
+
 This tutorial shows how you can easily label all images of a tag from Lightly
 using the open-source data labeling tool `LabelStudio <https://labelstud.io>`_.
 
@@ -21,9 +22,7 @@ and optionally already chosen a subset of it and created a tag for it.
 Now you want to label all images of this tag using LabelStudio.
 
 If you have not created your own dataset yet, you can use any dataset
-(e.g. the playground dataset) or follow one of the other tutorials to create one.
-The :ref:`lightly-tutorial-sunflowers`
-is particularly well-suited.
+(e.g. the playground dataset) or follow the `docs <https://docs.lightly.ai>`_ to create one.
 
 Launch LabelStudio
 ------------------
