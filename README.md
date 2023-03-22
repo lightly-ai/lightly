@@ -230,7 +230,7 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 | MSN (ViT-S)      |    800 |        256 |         0.833 |
 | Moco             |    800 |        256 |         0.874 |
 | NNCLR            |    800 |        256 |         0.885 |
-| PMSN             |    800 |        256 |         0.830 |
+| PMSN (ViT-S)     |    800 |        256 |         0.830 |
 | SimCLR           |    800 |        256 |         0.889 |
 | SimMIM (ViT-B32) |    800 |        256 |         0.351 |
 | SimSiam          |    800 |        256 |         0.885 |
