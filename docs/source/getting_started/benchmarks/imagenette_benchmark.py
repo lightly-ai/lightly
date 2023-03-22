@@ -42,6 +42,7 @@ Results (20.3.2023):
 | MSN (ViT-S)      |        256 |    800 |              0.833 |  394.0 Min |     16.3 GByte |
 | Moco             |        256 |    800 |              0.874 |  220.7 Min |      4.2 GByte |
 | NNCLR            |        256 |    800 |              0.885 |  207.1 Min |      3.8 GByte |
+| PMSN (ViT-S)     |        256 |    800 |              0.830 |  401.1 Min |     16.3 GByte |
 | SimCLR           |        256 |    800 |              0.889 |  206.4 Min |      3.7 GByte |
 | SimMIM (ViT-B32) |        256 |    800 |              0.351 |  302.8 Min |     10.5 GByte |
 | SimSiam          |        256 |    800 |              0.885 |  206.1 Min |      3.9 GByte |
