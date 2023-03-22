@@ -9,7 +9,7 @@ from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
-from lightly.loss import MSNLoss
+from lightly.loss import PMSNLoss
 from lightly.models import utils
 from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models.modules.masked_autoencoder import MAEBackbone
@@ -85,7 +85,7 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-criterion = MSNLoss(target_distribution="power_law", power_law_exponent=0.25)
+criterion = PMSNLoss()
 
 params = [
     *list(model.anchor_backbone.parameters()),

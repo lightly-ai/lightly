@@ -77,6 +77,7 @@ from lightly.loss import (
     MSNLoss,
     NegativeCosineSimilarity,
     NTXentLoss,
+    PMSNLoss,
     SwaVLoss,
     TiCoLoss,
     VICRegLLoss,
@@ -828,7 +829,7 @@ class MSNModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head)
 
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
-        self.criterion = MSNLoss()
+        self.criterion = MSNLoss(gather_distributed=gather_distributed)
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
@@ -903,9 +904,7 @@ class PMSNModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head)
 
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
-        self.criterion = MSNLoss(
-            target_distribution="power_law", power_law_exponent=0.25
-        )
+        self.criterion = PMSNLoss(gather_distributed=gather_distributed)
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)

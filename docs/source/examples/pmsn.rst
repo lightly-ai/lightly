@@ -12,8 +12,8 @@ Reference:
     `The Hidden Uniform Cluster Prior in Self-Supervised Learning, 2022 <https://arxiv.org/abs/2210.07277>`_
 
 
-For PMSN, you can use the exact same code as for :ref:`msn` but change the 
-target distribution in :py:class:`lightly.loss.msn_loss.MSNLoss` to :code:`"power_law"`:
+For PMSN, you can use the exact same code as for :ref:`msn` but change
+:py:class:`lightly.loss.msn_loss.MSNLoss` to :py:class:`lightly.loss.pmsn_loss.PMSNLoss`:
 
 .. code::
 
@@ -22,14 +22,16 @@ target distribution in :py:class:`lightly.loss.msn_loss.MSNLoss` to :code:`"powe
     criterion = MSNLoss()
 
     # use this
-    criterion = MSNLoss(target_distribution="power_law", power_law_exponent=0.25)
+    from lightly.loss import PMSNLoss
+    criterion = PMSNLoss(power_law_exponent=0.25)
 
     # or define your custom target distribution
+    from lightly.loss import PMSNCustomLoss
     def my_uniform_target_distribution(mean_anchor_probabilities: Tensor) -> Tensor:
         dim = mean_anchor_probabilities.shape[0]
         return mean_anchor_probabilities.new_ones(dim) / dim
 
-    criterion = MSNLoss(target_distribution=my_uniform_target_distribution)
+    criterion = PMSNCustomLoss(target_distribution=my_uniform_target_distribution)
 
 
 .. tabs::

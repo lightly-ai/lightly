@@ -10,7 +10,7 @@ from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
-from lightly.loss import MSNLoss
+from lightly.loss import PMSNLoss
 from lightly.models import utils
 from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models.modules.masked_autoencoder import MAEBackbone
@@ -43,9 +43,7 @@ class PMSN(pl.LightningModule):
         utils.deactivate_requires_grad(self.projection_head)
 
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
-        self.criterion = MSNLoss(
-            target_distribution="power_law", power_law_exponent=0.25
-        )
+        self.criterion = PMSNLoss()
 
     def training_step(self, batch, batch_idx):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
