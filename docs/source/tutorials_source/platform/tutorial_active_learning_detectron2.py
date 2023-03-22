@@ -5,6 +5,12 @@
 Tutorial 4: Active Learning using Detectron2 on Comma10k
 =========================================================
 
+.. warning::
+    **Tutorial is outdated**
+
+    This tutorial uses a deprecated workflow of the Lightly Solution and will break.
+    Please use the tutorial to do `Active Learning Using YOLOv7 and Comma10k <https://docs.lightly.ai/docs/active-learning-yolov7>`_ instead.
+
 Active learning is a process of using model predictions to find a new set of
 images to annotate. The images are chosen to have a maximal impact on the model
 performance. In this tutorial, we will use a pre-trained object detection model

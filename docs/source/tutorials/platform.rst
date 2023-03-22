@@ -3,6 +3,12 @@
 Platform
 ===================================
 
+.. warning::
+    **Tutorials are outdated**
+
+    These tutorials use a deprecated workflow of the Lightly Solution and will break.
+    Please refer to the `new documentation and tutorials <https://docs.lightly.ai>`_ instead.
+
 Lightly is more than just a framework for self-supervised learning. We built a complete data curation platform on top.
 Use the embeddings generated using the lightly framework and use them to curate your dataset. Collaborate with your friends
 and share the curated data with your favorite data labeling partner.

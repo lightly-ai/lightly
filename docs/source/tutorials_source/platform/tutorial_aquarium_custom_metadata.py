@@ -11,6 +11,12 @@
 Tutorial 5: Custom Metadata and Rebalancing
 =============================================
 
+.. warning::
+    **Tutorial is outdated**
+
+    This tutorial uses a deprecated workflow of the Lightly Solution and will break.
+    Please use the tutorial to do `Active Learning Using YOLOv7 for Waste Sorting <https://docs.lightly.ai/docs/active-learning-yolov7>`_ instead.
+
 The addition of custom metadata to your dataset can lead to valuable insights which
 in turn can drastically improve your machine learning models. Lightly supports the upload
 of categorical (e.g. weather scenario, road type, or copyright license) and numerical metadata (e.g.

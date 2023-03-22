@@ -5,6 +5,12 @@
 Tutorial 10: Export to LabelStudio
 =============================================
 
+.. warning::
+    **Tutorial is outdated**
+
+    This tutorial uses a deprecated workflow of the Lightly Solution and will break.
+    Please refer to the `Labelbox export documentation <https://docs.lightly.ai/docs/labelbox>`_ instead.
+
 This tutorial shows how you can easily label all images of a tag from Lightly
 using the open-source data labeling tool `LabelStudio <https://labelstud.io>`_.
 

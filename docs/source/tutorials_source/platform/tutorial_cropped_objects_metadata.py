@@ -5,20 +5,25 @@
 Tutorial 6: Find false negatives of object detection
 ====================================================
 
-    In object detection applications, it can happen that the detector does not detect an object
-    because it did not see any examples of this or similar objects yet.
-    This is especially a problem in warehouse and retail applications,
-    as new products get added to the shelves every day. These new products with new appearence
-    often have a low so-called objectness score. Currently, finding such negative samples
-    requires a lot of manual labour, especially when having 1000s of new images coming
-    in every day. Lightly can make this work easier in a two-step approach:
+.. warning::
+    **Tutorial is outdated**
 
-    1. A human finds one false negative and adds it to the missing examples.
-    2. Lightly finds all similar images which are also false negatives.
-        Thus it can propose to directly also add them as missing examples.
+    This tutorial uses a deprecated workflow of the Lightly Solution and will break.
+    Please use the tutorial to do `Active Learning Using YOLOv7 for Waste Sorting <https://docs.lightly.ai/docs/active-learning-for-waste-sorting>`_ instead.
 
-    If there are e.g. 9 similar images for each missing example found by a human,
-    Lightly can speed up the process by a factor of 10.
+In object detection applications, it can happen that the detector does not detect an object
+because it did not see any examples of this or similar objects yet.
+This is especially a problem in warehouse and retail applications,
+as new products get added to the shelves every day. These new products with new appearence
+often have a low so-called objectness score. Currently, finding such negative samples
+requires a lot of manual labour, especially when having 1000s of new images coming
+in every day. Lightly can make this work easier in a two-step approach:
+
+1. A human finds one false negative and adds it to the missing examples.
+2. Lightly finds all similar images which are also false negatives. Thus it can propose to directly also add them as missing examples.
+
+If there are e.g. 9 similar images for each missing example found by a human,
+Lightly can speed up the process by a factor of 10.
 
 What you will learn
 --------------------
