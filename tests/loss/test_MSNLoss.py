@@ -179,12 +179,13 @@ def test__power_law_distribution() -> None:
         power_dist,
         torch.Tensor(
             [
-                1 / 2.784457050376173,
-                1 / (2**0.5) / 2.784457050376173,
-                1 / (3**0.5) / 2.784457050376173,
-                1 / (4**0.5) / 2.784457050376173,
+                1 / (1**0.5),
+                1 / (2**0.5),
+                1 / (3**0.5),
+                1 / (4**0.5),
             ]
-        ),
+        )
+        / 2.784457050376173,
     )
     assert power_dist.device == torch.device("cpu")
     assert torch.allclose(power_dist.sum(), torch.Tensor([1.0]))
