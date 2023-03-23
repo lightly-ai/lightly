@@ -142,7 +142,6 @@ The input can be one of the following:
         Alternatively, set the task to **lightly_pretagging** to use object detections created by the Lightly Worker itself.
         See :ref:`docker-pretagging` for reference.
 
-        The supported score types are explained in :ref:`lightly-active-learning-scorers`.
 
     .. tab:: PREDICTIONS
 

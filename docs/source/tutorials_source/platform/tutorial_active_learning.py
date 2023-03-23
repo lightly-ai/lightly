@@ -20,8 +20,6 @@ In this tutorial, we will run an active learning loop using both the lightly pac
 An active learning loop is a sequence of multiple selections each choosing only a subset
 of all samples in the dataset.
 
-To learn more about how active learning with lightly works have a look at :ref:`lightly-active-learning`.
-
 This workflow has the following structure:
 
 1. Choose an initial subset of your dataset, e.g. using one of our selection strategies like the CORESET selection strategy.
