@@ -18,6 +18,7 @@ for PyTorch and PyTorch Lightning to give you a headstart when implementing your
     msn.rst
     moco.rst
     nnclr.rst
+    pmsn.rst
     simclr.rst
     simmim.rst
     simsiam.rst

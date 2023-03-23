@@ -1,16 +1,19 @@
 import math
+import warnings
+from typing import Callable, Union
 
 import torch
 import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
+from torch import Tensor
 
 
 def prototype_probabilities(
-    queries: torch.Tensor,
-    prototypes: torch.Tensor,
+    queries: Tensor,
+    prototypes: Tensor,
     temperature: float,
-) -> torch.Tensor:
+) -> Tensor:
     """Returns probability for each query to belong to each prototype.
 
     Args:
@@ -29,7 +32,7 @@ def prototype_probabilities(
     return F.softmax(torch.matmul(queries, prototypes.T) / temperature, dim=1)
 
 
-def sharpen(probabilities: torch.Tensor, temperature: float) -> torch.Tensor:
+def sharpen(probabilities: Tensor, temperature: float) -> Tensor:
     """Sharpens the probabilities with the given temperature.
 
     Args:
@@ -49,10 +52,10 @@ def sharpen(probabilities: torch.Tensor, temperature: float) -> torch.Tensor:
 
 @torch.no_grad()
 def sinkhorn(
-    probabilities: torch.Tensor,
+    probabilities: Tensor,
     iterations: int = 3,
     gather_distributed: bool = False,
-) -> torch.Tensor:
+) -> Tensor:
     """Runs sinkhorn normalization on the probabilities as described in [0].
 
     Code inspired by [1].
@@ -112,12 +115,19 @@ class MSNLoss(nn.Module):
     Attributes:
         temperature:
             Similarities between anchors and targets are scaled by the inverse of
-            the temperature. Must be in (0, 1].
+            the temperature. Must be in (0, inf).
         sinkhorn_iterations:
             Number of sinkhorn normalization iterations on the targets.
+        regularization_weight:
+            Weight factor lambda by which the regularization loss is scaled. Set to 0
+            to disable regularization.
         me_max_weight:
-            Weight factor lambda by which the mean entropy maximization regularization
-            loss is scaled. Set to 0 to disable the reguliarization.
+            Deprecated, use `regularization_weight` instead. Takes precendence over
+            `regularization_weight` if not None. Weight factor lambda by which the mean
+            entropy maximization regularization loss is scaled. Set to 0 to disable
+            mean entropy maximization reguliarization.
+        gather_distributed:
+            If True, then target probabilities are gathered from all GPUs.
 
      Examples:
 
@@ -141,22 +151,38 @@ class MSNLoss(nn.Module):
         self,
         temperature: float = 0.1,
         sinkhorn_iterations: int = 3,
-        me_max_weight: float = 1.0,
+        regularization_weight: float = 1.0,
+        me_max_weight: Union[float, None] = None,
         gather_distributed: bool = False,
     ):
         super().__init__()
+        if temperature <= 0:
+            raise ValueError(f"temperature must be in (0, inf) but is {temperature}.")
+        if sinkhorn_iterations < 0:
+            raise ValueError(
+                f"sinkhorn_iterations must be >= 0 but is {sinkhorn_iterations}."
+            )
         self.temperature = temperature
         self.sinkhorn_iterations = sinkhorn_iterations
-        self.me_max_weight = me_max_weight
+        self.regularization_weight = regularization_weight
+        # set regularization_weight to me_max_weight for backwards compatibility
+        if me_max_weight is not None:
+            warnings.warn(
+                PendingDeprecationWarning(
+                    "me_max_weight is deprecated in favor of regularization_weight and "
+                    "will be removed in the future."
+                )
+            )
+            self.regularization_weight = me_max_weight
         self.gather_distributed = gather_distributed
 
     def forward(
         self,
-        anchors: torch.Tensor,
-        targets: torch.Tensor,
-        prototypes: torch.Tensor,
+        anchors: Tensor,
+        targets: Tensor,
+        prototypes: Tensor,
         target_sharpen_temperature: float = 0.25,
-    ) -> torch.Tensor:
+    ) -> Tensor:
         """Computes the MSN loss for a set of anchors, targets and prototypes.
 
         Args:
@@ -200,13 +226,16 @@ class MSNLoss(nn.Module):
         # cross entropy loss
         loss = torch.mean(torch.sum(torch.log(anchor_probs ** (-target_probs)), dim=1))
 
-        # mean entropy maximization regularization
-        if self.me_max_weight > 0:
+        # regularization loss
+        if self.regularization_weight > 0:
             mean_anchor_probs = torch.mean(anchor_probs, dim=0)
-            me_max_loss = torch.sum(
-                torch.log(mean_anchor_probs ** (-mean_anchor_probs))
-            )
-            me_max_loss += math.log(float(len(mean_anchor_probs)))
-            loss -= self.me_max_weight * me_max_loss
+            reg_loss = self.regularization_loss(mean_anchor_probs=mean_anchor_probs)
+            loss += self.regularization_weight * reg_loss
 
+        return loss
+
+    def regularization_loss(self, mean_anchor_probs: Tensor) -> Tensor:
+        """Calculates mean entropy regularization loss."""
+        loss = -torch.sum(torch.log(mean_anchor_probs ** (-mean_anchor_probs)))
+        loss += math.log(float(len(mean_anchor_probs)))
         return loss
