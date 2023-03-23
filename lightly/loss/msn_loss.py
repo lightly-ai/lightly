@@ -105,13 +105,12 @@ def sinkhorn(
 
 
 class MSNLoss(nn.Module):
-    """Implementation of the loss function from MSN [0] and PMSN [2].
+    """Implementation of the loss function from MSN [0].
 
     Code inspired by [1].
 
     - [0]: Masked Siamese Networks, 2022, https://arxiv.org/abs/2204.07141
     - [1]: https://github.com/facebookresearch/msn
-    - [2]: Prior Matching for Siamese Networks, 2022, https://arxiv.org/abs/2210.07277
 
     Attributes:
         temperature:
@@ -122,20 +121,6 @@ class MSNLoss(nn.Module):
         regularization_weight:
             Weight factor lambda by which the regularization loss is scaled. Set to 0
             to disable regularization.
-        target_distribution:
-            Target regularization distribution. Must be one of ('uniform', 'power_law')
-            or a function. Following the MSN [0] paper, a 'uniform' distribution is used
-            by default. For PMSN [2], set the distribution to 'power_law'. A custom
-            target distribution can be set by passing a function that takes the mean
-            anchor probabilities tensor with shape (dim,) as input and returns a target
-            probability distribution tensor with the same shape. The returned
-            distribution should sum up to one. The final regularization loss is
-            calculated as KL(mean_anchor_probs, target_dist) where KL is the
-            Kullback-Leibler divergence.
-        power_law_exponent:
-            Exponent for power law distribution. Only used if `target_distribution` is
-            set to 'power_law'. Entry k of the distribution is proportional to
-            (1 / k) ^ power_law_exponent, with k ranging from 1 to dim + 1.
         me_max_weight:
             Deprecated, use `regularization_weight` instead. Takes precendence over
             `regularization_weight` if not None. Weight factor lambda by which the mean
@@ -167,16 +152,6 @@ class MSNLoss(nn.Module):
         temperature: float = 0.1,
         sinkhorn_iterations: int = 3,
         regularization_weight: float = 1.0,
-        target_distribution: Union[
-            str,
-            Callable[
-                [
-                    Tensor,
-                ],
-                Tensor,
-            ],
-        ] = "uniform",
-        power_law_exponent: float = 0.25,
         me_max_weight: Union[float, None] = None,
         gather_distributed: bool = False,
     ):
@@ -187,26 +162,6 @@ class MSNLoss(nn.Module):
             raise ValueError(
                 f"sinkhorn_iterations must be >= 0 but is {sinkhorn_iterations}."
             )
-        if target_distribution not in ("uniform", "power_law") and not isinstance(
-            target_distribution, Callable
-        ):
-            raise ValueError(
-                f"target_distribution must be one of ('uniform', 'power_law') or a "
-                f"function but found a {type(target_distribution)} with value "
-                f"{target_distribution}."
-            )
-        if power_law_exponent <= 0 and target_distribution == "power_law":
-            raise ValueError(
-                f"power_law_exponent must be >= 0 but is {power_law_exponent}."
-            )
-        if me_max_weight is not None and target_distribution != "uniform":
-            raise ValueError(
-                f"me_max_weight can only be set in combination with uniform "
-                f"target_distribution but target_distribution is {target_distribution}. "
-                f"Please use regularization_weight instead of me_max_weight as "
-                f"me_max_weight is deprecated and will be removed in the future."
-            )
-
         self.temperature = temperature
         self.sinkhorn_iterations = sinkhorn_iterations
         self.regularization_weight = regularization_weight
@@ -219,8 +174,6 @@ class MSNLoss(nn.Module):
                 )
             )
             self.regularization_weight = me_max_weight
-        self.target_distribution = target_distribution
-        self.power_law_exponent = power_law_exponent
         self.gather_distributed = gather_distributed
 
     def forward(
@@ -273,39 +226,16 @@ class MSNLoss(nn.Module):
         # cross entropy loss
         loss = torch.mean(torch.sum(torch.log(anchor_probs ** (-target_probs)), dim=1))
 
+        # regularization loss
         if self.regularization_weight > 0:
             mean_anchor_probs = torch.mean(anchor_probs, dim=0)
-            if self.target_distribution == "uniform":
-                # mean entropy regularization, from MSN paper
-                reg_loss = -torch.sum(
-                    torch.log(mean_anchor_probs ** (-mean_anchor_probs))
-                )
-                reg_loss += math.log(float(len(mean_anchor_probs)))
-            elif self.target_distribution == "power_law":
-                # power law regularization, from PMSN paper
-                power_dist = _power_law_distribution(
-                    size=mean_anchor_probs.shape[0],
-                    exponent=self.power_law_exponent,
-                    device=mean_anchor_probs.device,
-                )
-                reg_loss = F.kl_div(
-                    input=mean_anchor_probs, target=power_dist, reduction="sum"
-                )
-            else:
-                assert isinstance(self.target_distribution, Callable)
-                target_dist = self.target_distribution(mean_anchor_probs)
-                reg_loss = F.kl_div(
-                    input=mean_anchor_probs, target=target_dist, reduction="sum"
-                )
-
+            reg_loss = self.regularization_loss(mean_anchor_probs=mean_anchor_probs)
             loss += self.regularization_weight * reg_loss
 
         return loss
 
-
-def _power_law_distribution(size: int, exponent: float, device: torch.device) -> Tensor:
-    """Returns a power law distribution summing up to 1."""
-    k = torch.arange(1, size + 1, device=device)
-    power_dist = k ** (-exponent)
-    power_dist = power_dist / power_dist.sum()
-    return power_dist
+    def regularization_loss(self, mean_anchor_probs: Tensor) -> Tensor:
+        """Calculates mean entropy regularization loss."""
+        loss = -torch.sum(torch.log(mean_anchor_probs ** (-mean_anchor_probs)))
+        loss += math.log(float(len(mean_anchor_probs)))
+        return loss

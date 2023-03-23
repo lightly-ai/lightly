@@ -1,5 +1,7 @@
 from typing import Callable
 
+import torch
+import torch.nn.functional as F
 from torch import Tensor
 
 from lightly.loss.msn_loss import MSNLoss
@@ -55,10 +57,19 @@ class PMSNLoss(MSNLoss):
             temperature=temperature,
             sinkhorn_iterations=sinkhorn_iterations,
             regularization_weight=regularization_weight,
-            target_distribution="power_law",
-            power_law_exponent=power_law_exponent,
             gather_distributed=gather_distributed,
         )
+        self.power_law_exponent = power_law_exponent
+
+    def regularization_loss(self, mean_anchor_probs: Tensor) -> Tensor:
+        """Calculates regularization loss with a power law target distribution."""
+        power_dist = _power_law_distribution(
+            size=mean_anchor_probs.shape[0],
+            exponent=self.power_law_exponent,
+            device=mean_anchor_probs.device,
+        )
+        loss = F.kl_div(input=mean_anchor_probs, target=power_dist, reduction="sum")
+        return loss
 
 
 class PMSNCustomLoss(MSNLoss):
@@ -119,6 +130,22 @@ class PMSNCustomLoss(MSNLoss):
             temperature=temperature,
             sinkhorn_iterations=sinkhorn_iterations,
             regularization_weight=regularization_weight,
-            target_distribution=target_distribution,
             gather_distributed=gather_distributed,
         )
+        self.target_distribution = target_distribution
+
+    def regularization_loss(self, mean_anchor_probs: Tensor) -> Tensor:
+        """Calculates regularization loss with a custom target distribution."""
+        target_dist = self.target_distribution(mean_anchor_probs).to(
+            mean_anchor_probs.device
+        )
+        loss = F.kl_div(input=mean_anchor_probs, target=target_dist, reduction="sum")
+        return loss
+
+
+def _power_law_distribution(size: int, exponent: float, device: torch.device) -> Tensor:
+    """Returns a power law distribution summing up to 1."""
+    k = torch.arange(1, size + 1, device=device)
+    power_dist = k ** (-exponent)
+    power_dist = power_dist / power_dist.sum()
+    return power_dist
