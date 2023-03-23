@@ -61,9 +61,9 @@ Want to jump to the tutorials and see lightly in action?
 - [Use lightly with custom augmentations](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_custom_augmentations.html)
 - [Pre-train a Detectron2 Backbone with Lightly](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_pretrain_detectron2.html)
 
-Documentation and tutorials of using the Lightly solution:
+Documentation and tutorials of using the Lightly Solution:
 
-- [General Docs of Lightly solution](https://docs.lightly.ai)
+- [General Docs of Lightly Solution](https://docs.lightly.ai)
 - [Active Learning Using YOLOv7 and Comma10k](https://docs.lightly.ai/docs/active-learning-yolov7)
 - many more tutorials
 
@@ -325,7 +325,7 @@ pylint lightly/core.py
 
 - Is this framework for free?
   - Yes, this framework completely free to use and we provide the code. We believe that
-  we need to make training deep learning models more data efficient to achieve widespread adoption. One step to achieve this goal is by leveraging self-supervised learning. The company behind lightly commited to keep this framework open-source.
+  we need to make training deep learning models more data efficient to achieve widespread adoption. One step to achieve this goal is by leveraging self-supervised learning. The company behind Lightly commited to keep this framework open-source.
 
 - If this framework is free, how is the company behind lightly making money?
   - Training self-supervised models is only one part of our solution. 
