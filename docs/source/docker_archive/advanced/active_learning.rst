@@ -8,10 +8,7 @@ the biggest improvements of your machine learning model. The scores are calculat
 on-the-fly based on model predictions and provide the selection algorithm with feedback
 about the uncertainty of the model for the given sample. 
 
-Learn more about the concept of active learning scores:
-:ref:`lightly-active-learning-scorers`.
-
-.. note:: Note that the active learning features require a minimum 
+.. note:: Note that the active learning features require a minimum
     Lightly Worker of version 2.2. You can check your installed version of the 
     Lightly Worker by running the :ref:`ref-docker-setup-sanity-check`.
 
@@ -92,9 +89,6 @@ For running an active learning step with the Lightly docker, we need to perform
 1. Create an `embeddings.csv` file. You can use your own models or the Lightly docker for this.
 2. Add your active learning scores as an additional column to the embeddings file.
 3. Use the Lightly docker to perform an active learning iteration on the scores.
-
-Learn more about the concept of active learning 
-:ref:`lightly-active-learning-scorers`.
 
 
 Create Embeddings
@@ -192,8 +186,7 @@ It should look similar to this:
 Add Active Learning Scores
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you want to use the predictions from your model as active learning scores,
-you can use the :ref:`lightly-active-learning-scorers` from the lightly pip package.
+You can use the predictions from your model as active learning scores.
 
 .. note:: You can also use your own scorers. Just make sure that you get a value
           between `0.0` and `1.0` for each sample. A number close to `1.0` should

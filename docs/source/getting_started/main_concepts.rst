@@ -74,15 +74,4 @@ below.
 
    * :ref:`lightly-detectron-tutorial-6`
 
-Active Learning
--------------------
-The image representations learned through self-supervised learning cannot only be used
-for downstream task or nearest neighbor search. The similarity between representations
-also serves as an excellent proxy for mutual information between images. This fact can
-be exploited when doing active learning to get the most informative subset of images
-during training. Check out our section on :ref:`lightly-active-learning` for more information.
-
-.. note:: To use active learning you need a lightly version of **1.1.0** or newer!
-          You can check the version of the installed package using `pip list`
-          and check for the installed version of `lightly`.
 
