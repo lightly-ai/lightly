@@ -105,4 +105,3 @@ html_context = {
     "copyright_year": copyright_year,
     "website_url": website_url,
 }
-
