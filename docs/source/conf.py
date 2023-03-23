@@ -105,7 +105,3 @@ html_context = {
     "copyright_year": copyright_year,
     "website_url": website_url,
 }
-
-redirects = {
-    "docker/advanced/active_learning": "../../docker/getting_started/selection.html"
-}
