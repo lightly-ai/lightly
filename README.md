@@ -324,8 +324,8 @@ pylint lightly/core.py
   - Create an issue if you encounter bugs or have ideas for features we should implement. You can also add your own code by forking this repository and creating a PR. More details about how to contribute with code is in our [contribution guide](CONTRIBUTING.md).
 
 - Is this framework for free?
-  - Yes, this framework completely free to use and we provide the code. We believe that
-  we need to make training deep learning models more data efficient to achieve widespread adoption. One step to achieve this goal is by leveraging self-supervised learning. The company behind Lightly commited to keep this framework open-source.
+  - Yes, this framework is completely free to use and we provide the source code. We believe that
+  we need to make training deep learning models more data efficient to achieve widespread adoption. One step to achieve this goal is by leveraging self-supervised learning. The company behind Lightly is committed to keep this framework open-source.
 
 - If this framework is free, how is the company behind lightly making money?
   - Training self-supervised models is only one part of our solution. 
