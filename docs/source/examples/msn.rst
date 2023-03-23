@@ -15,6 +15,7 @@ momentum from the anchor network.
 Reference:
     `Masked Siamese Networks for Label-Efficient Learning, 2022 <https://arxiv.org/abs/2204.07141>`_
 
+See :ref:`PMSN` for a version of MSN for datasets with non-uniform class distributions.
 
 .. tabs::
     .. tab:: PyTorch

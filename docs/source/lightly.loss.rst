@@ -51,6 +51,14 @@ lightly.loss
 .. autoclass:: lightly.loss.regularizer.co2.CO2Regularizer
    :members:
 
+.pmsn_loss
+---------
+.. autoclass:: lightly.loss.pmsn_loss.PMSNLoss
+   :members:
+
+.. autoclass:: lightly.loss.pmsn_loss.PMSNCustomLoss
+   :members:
+
 .sym_neg_cos_sim_loss
 ----------------------
 .. autoclass:: lightly.loss.sym_neg_cos_sim_loss.SymNegCosineSimilarityLoss

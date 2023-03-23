@@ -9,20 +9,20 @@ from torch import nn
 
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
-from lightly.loss import MSNLoss
+from lightly.loss import PMSNLoss
 from lightly.models import utils
 from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models.modules.masked_autoencoder import MAEBackbone
-from lightly.transforms.msn_transform import MSNTransform
+from lightly.transforms import MSNTransform
 
 
-class MSN(nn.Module):
+class PMSN(nn.Module):
     def __init__(self, vit):
         super().__init__()
 
         self.mask_ratio = 0.15
         self.backbone = MAEBackbone.from_vit(vit)
-        self.projection_head = MSNProjectionHead(input_dim=384)
+        self.projection_head = MSNProjectionHead(384)
 
         self.anchor_backbone = copy.deepcopy(self.backbone)
         self.anchor_projection_head = copy.deepcopy(self.projection_head)
@@ -57,10 +57,10 @@ vit = torchvision.models.VisionTransformer(
     hidden_dim=384,
     mlp_dim=384 * 4,
 )
-model = MSN(vit)
-# or use a torchvision ViT backbone:
+model = PMSN(vit)
+# # or use a torchvision ViT backbone:
 # vit = torchvision.models.vit_b_32(pretrained=False)
-# model = MSN(vit)
+# model = PMSN(vit)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
@@ -85,7 +85,7 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-criterion = MSNLoss()
+criterion = PMSNLoss()
 
 params = [
     *list(model.anchor_backbone.parameters()),

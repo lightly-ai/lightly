@@ -12,8 +12,24 @@ from lightly.models.modules.heads import MSNProjectionHead
 
 
 class TestMSNLoss(TestCase):
-    def test_prototype_probabilitiy(self, seed=0):
-        torch.manual_seed(seed)
+    def test__init__temperature(self) -> None:
+        MSNLoss(temperature=1.0)
+        with self.assertRaises(ValueError):
+            MSNLoss(temperature=0.0)
+        with self.assertRaises(ValueError):
+            MSNLoss(temperature=-1.0)
+
+    def test__init__sinkhorn_iterations(self) -> None:
+        MSNLoss(sinkhorn_iterations=0)
+        with self.assertRaises(ValueError):
+            MSNLoss(sinkhorn_iterations=-1)
+
+    def test__init__me_max_weight(self) -> None:
+        criterion = MSNLoss(regularization_weight=0.0, me_max_weight=0.5)
+        assert criterion.regularization_weight == 0.5
+
+    def test_prototype_probabilitiy(self) -> None:
+        torch.manual_seed(0)
         queries = F.normalize(torch.rand((8, 10)), dim=1)
         prototypes = F.normalize(torch.rand((4, 10)), dim=1)
         prob = msn_loss.prototype_probabilities(queries, prototypes, temperature=0.5)
@@ -28,8 +44,8 @@ class TestMSNLoss(TestCase):
         # probabilities of selected prototypes should be higher for lower temperature
         self.assertTrue(torch.all(prob.max(dim=1)[0] < prob1.max(dim=1)[0]))
 
-    def test_sharpen(self, seed=0):
-        torch.manual_seed(seed)
+    def test_sharpen(self) -> None:
+        torch.manual_seed(0)
         prob = torch.rand((8, 10))
         p0 = msn_loss.sharpen(prob, temperature=0.5)
         p1 = msn_loss.sharpen(prob, temperature=0.1)
@@ -38,40 +54,39 @@ class TestMSNLoss(TestCase):
         # max probabilities should be higher for lower temperature
         self.assertTrue(torch.all(p0.max(dim=1)[0] < p1.max(dim=1)[0]))
 
-    def test_sinkhorn(self, seed=0):
-        torch.manual_seed(seed)
+    def test_sinkhorn(self) -> None:
+        torch.manual_seed(0)
         prob = torch.rand((8, 10))
         out = msn_loss.sinkhorn(prob)
         self.assertTrue(torch.all(prob != out))
 
-    def test_sinkhorn_no_iter(self, seed=0):
-        torch.manual_seed(seed)
+    def test_sinkhorn_no_iter(self) -> None:
+        torch.manual_seed(0)
         prob = torch.rand((8, 10))
         out = msn_loss.sinkhorn(prob, iterations=0)
         self.assertTrue(torch.all(prob == out))
 
-    def test_forward(self, seed=0):
-        torch.manual_seed(seed)
-        criterion = MSNLoss()
-
+    def test_forward(self) -> None:
+        torch.manual_seed(0)
         for num_target_views in range(1, 4):
             with self.subTest(num_views=num_target_views):
+                criterion = MSNLoss()
                 anchors = torch.rand((8 * num_target_views, 10))
                 targets = torch.rand((8, 10))
                 prototypes = torch.rand((4, 10), requires_grad=True)
                 criterion(anchors, targets, prototypes)
 
     @unittest.skipUnless(torch.cuda.is_available(), "cuda not available")
-    def test_forward_cuda(self, seed=0):
-        torch.manual_seed(seed)
+    def test_forward_cuda(self) -> None:
+        torch.manual_seed(0)
         criterion = MSNLoss()
         anchors = torch.rand((8 * 2, 10)).cuda()
         targets = torch.rand((8, 10)).cuda()
         prototypes = torch.rand((4, 10), requires_grad=True).cuda()
         criterion(anchors, targets, prototypes)
 
-    def test_backward(self, seed=0):
-        torch.manual_seed(seed)
+    def test_backward(self) -> None:
+        torch.manual_seed(0)
         head = MSNProjectionHead(5, 16, 6)
         criterion = MSNLoss()
         optimizer = SGD(head.parameters(), lr=0.1)
@@ -91,8 +106,8 @@ class TestMSNLoss(TestCase):
         self.assertTrue(torch.any(weights_before != weights_after))
 
     @unittest.skipUnless(torch.cuda.is_available(), "cuda not available")
-    def test_backward_cuda(self, seed=0):
-        torch.manual_seed(seed)
+    def test_backward_cuda(self) -> None:
+        torch.manual_seed(0)
         head = MSNProjectionHead(5, 16, 6)
         head.to("cuda")
         criterion = MSNLoss()
