@@ -35,7 +35,6 @@ other frameworks such as Fast.ai.
    getting_started/install.rst
    getting_started/command_line_tool.rst
    getting_started/lightly_at_a_glance.rst
-   getting_started/active_learning.rst
 
 .. toctree::
    :maxdepth: 1
@@ -63,7 +62,6 @@ other frameworks such as Fast.ai.
    :caption: Python API
 
    lightly
-   lightly.active_learning
    lightly.api
    lightly.cli
    lightly.core

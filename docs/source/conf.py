@@ -106,6 +106,3 @@ html_context = {
     "website_url": website_url,
 }
 
-redirects = {
-    "docker/advanced/active_learning": "../../docker/getting_started/selection.html"
-}
