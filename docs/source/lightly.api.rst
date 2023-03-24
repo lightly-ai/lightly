@@ -18,14 +18,5 @@ lightly.api
 .. automodule:: lightly.api.api_workflow_selection
    :members:
 
-.. automodule:: lightly.api.api_workflow_upload_dataset
-   :members:
-
-.. automodule:: lightly.api.api_workflow_upload_embeddings
-   :members:
-
-.. automodule:: lightly.api.api_workflow_upload_metadata
-   :members:
-
 .. automodule:: lightly.api.api_workflow_compute_worker
    :members:
