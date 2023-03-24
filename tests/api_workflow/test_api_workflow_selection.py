@@ -10,10 +10,10 @@ class TestApiWorkflowSelection(MockedApiWorkflowSetup):
     def test_sampling_deprecated(self):
         self.api_workflow_client.embedding_id = "embedding_id_xyz"
 
-        with self.assertWarns(PendingDeprecationWarning):
+        with self.assertWarns(DeprecationWarning):
             sampling_config = SamplingConfig(SamplingMethod.CORESET, n_samples=32)
 
-        with self.assertWarns(PendingDeprecationWarning):
+        with self.assertWarns(DeprecationWarning):
             new_tag_data = self.api_workflow_client.sampling(
                 selection_config=sampling_config
             )

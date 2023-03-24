@@ -15,8 +15,8 @@ class TestGaussianBlur(unittest.TestCase):
 
     def test_raise_kernel_size_deprecation(self):
         gaussian_blur = GaussianBlur(kernel_size=2)
-        self.assertWarns(PendingDeprecationWarning)
+        self.assertWarns(DeprecationWarning)
 
     def test_raise_scale_deprecation(self):
         gaussian_blur = GaussianBlur(scale=0.1)
-        self.assertWarns(PendingDeprecationWarning)
+        self.assertWarns(DeprecationWarning)
