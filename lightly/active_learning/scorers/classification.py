@@ -3,6 +3,7 @@ from typing import *
 
 import numpy as np
 
+from lightly.active_learning import raise_active_learning_deprecation_warning
 from lightly.active_learning.scorers.scorer import Scorer
 
 
@@ -97,7 +98,7 @@ class ScorerClassification(Scorer):
     """
 
     def __init__(self, model_output: Union[np.ndarray, List[List[float]]]):
-        super().__init__()
+        raise_active_learning_deprecation_warning()
         if not isinstance(model_output, np.ndarray):
             model_output = np.array(model_output)
 

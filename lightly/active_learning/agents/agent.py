@@ -7,6 +7,7 @@ from lightly.active_learning.scorers.scorer import Scorer
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.api.bitmask import BitMask
 
+
 class ActiveLearningAgent:
     """Interface for active learning queries.
 

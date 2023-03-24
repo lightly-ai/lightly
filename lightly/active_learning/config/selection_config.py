@@ -6,6 +6,7 @@ from lightly.openapi_generated.swagger_client.models.sampling_method import (
     SamplingMethod,
 )
 
+
 class SelectionConfig:
     """Configuration class for a selection.
 

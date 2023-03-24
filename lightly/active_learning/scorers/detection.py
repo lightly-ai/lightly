@@ -2,6 +2,7 @@ from typing import Callable, Dict, List
 
 import numpy as np
 
+from lightly.active_learning import raise_active_learning_deprecation_warning
 from lightly.active_learning.scorers import ScorerClassification
 from lightly.active_learning.scorers.scorer import Scorer
 from lightly.active_learning.utils.object_detection_output import ObjectDetectionOutput
@@ -198,7 +199,7 @@ class ScorerObjectDetection(Scorer):
     """
 
     def __init__(self, model_output: List[ObjectDetectionOutput], config: Dict = None):
-        super().__init__()
+        raise_active_learning_deprecation_warning()
         self.model_output = model_output
         self.config = config
         self._check_config()
