@@ -2,6 +2,7 @@ from typing import Dict, List
 
 import numpy as np
 
+from lightly.active_learning import raise_active_learning_deprecation_warning
 from lightly.active_learning.scorers import Scorer
 from lightly.active_learning.utils.keypoint_predictions import KeypointPrediction
 
@@ -78,6 +79,7 @@ class ScorerKeypointDetection(Scorer):
     """
 
     def __init__(self, model_output: List[KeypointPrediction]):
+        raise_active_learning_deprecation_warning()
         self.model_output = model_output
 
     def calculate_scores(self) -> Dict[str, np.ndarray]:

@@ -168,7 +168,7 @@ class MSNLoss(nn.Module):
         # set regularization_weight to me_max_weight for backwards compatibility
         if me_max_weight is not None:
             warnings.warn(
-                PendingDeprecationWarning(
+                DeprecationWarning(
                     "me_max_weight is deprecated in favor of regularization_weight and "
                     "will be removed in the future."
                 )

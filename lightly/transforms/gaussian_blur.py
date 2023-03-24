@@ -44,7 +44,7 @@ class GaussianBlur:
             warn(
                 "The 'kernel_size' and 'scale' arguments of the GaussianBlur augmentation will be deprecated.  "
                 "Please use the 'sigmas' parameter instead.",
-                PendingDeprecationWarning,
+                DeprecationWarning,
             )
         self.prob = prob
         self.sigmas = sigmas
