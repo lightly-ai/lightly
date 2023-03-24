@@ -8,6 +8,7 @@ from typing import Callable, Dict, Generator, List, Union
 
 import numpy as np
 
+from lightly.active_learning import raise_active_learning_deprecation_warning
 from lightly.active_learning.scorers import ScorerClassification
 from lightly.active_learning.scorers.scorer import Scorer
 
@@ -106,6 +107,7 @@ class ScorerSemanticSegmentation(Scorer):
     def __init__(
         self, model_output: Union[List[np.ndarray], Generator[np.ndarray, None, None]]
     ):
+        raise_active_learning_deprecation_warning()
         self.model_output = model_output
 
     def calculate_scores(self) -> Dict[str, np.ndarray]:

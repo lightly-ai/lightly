@@ -155,7 +155,7 @@ class NNCLR(nn.Module):
                 + "Use low-level building blocks instead. "
                 + "See https://docs.lightly.ai/self-supervised-learning/lightly.models.html for more information"
             ),
-            PendingDeprecationWarning,
+            DeprecationWarning,
         )
 
     def forward(

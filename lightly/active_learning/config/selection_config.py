@@ -1,6 +1,7 @@
 import warnings
 from datetime import datetime
 
+from lightly.active_learning import raise_active_learning_deprecation_warning
 from lightly.openapi_generated.swagger_client.models.sampling_method import (
     SamplingMethod,
 )
@@ -43,6 +44,7 @@ class SelectionConfig:
         min_distance: float = -1,
         name: str = None,
     ):
+        raise_active_learning_deprecation_warning()
         self.method = method
         self.n_samples = n_samples
         self.min_distance = min_distance
@@ -55,7 +57,7 @@ class SelectionConfig:
 class SamplingConfig(SelectionConfig):
     def __init__(self, *args, **kwargs):
         warnings.warn(
-            PendingDeprecationWarning(
+            DeprecationWarning(
                 "SamplingConfig() is deprecated "
                 "in favour of SelectionConfig() "
                 "and will be removed in the future."

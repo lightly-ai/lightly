@@ -1,11 +1,11 @@
 import warnings
 from typing import *
 
+from lightly.active_learning import raise_active_learning_deprecation_warning
 from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.active_learning.scorers.scorer import Scorer
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.api.bitmask import BitMask
-from lightly.openapi_generated.swagger_client.models import TagData
 
 
 class ActiveLearningAgent:
@@ -66,6 +66,7 @@ class ActiveLearningAgent:
         query_tag_name: str = "initial-tag",
         preselected_tag_name: str = None,
     ):
+        raise_active_learning_deprecation_warning()
         self.api_workflow_client = api_workflow_client
 
         # set the query_tag_id and preselected_tag_id
