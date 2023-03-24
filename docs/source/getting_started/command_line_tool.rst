@@ -85,8 +85,8 @@ Training and Embedding in a go - Magic
 ---------------------------------------------------
 Lightly-magic is a singular command for training a self-supervised model and use it to compute embeddings
 
-* To start with, we need to input the directory of the dataset, pass it to input_dir
-* It requires information on the number of epochs to perform, set trainer.max_epochs,
+* To start with, we need to input the directory of the dataset, pass it to input_dir.
+* It requires information on the number of epochs to perform, set trainer.max_epochs.
 * To use a pre-trained model, simply set trainer.max_epochs=0.
 * The embedding model is used to embed all images in the input directory and saves the embeddings in a CSV file.
 * To set a custom batch size just set the value to loader.batch_size for the same.
