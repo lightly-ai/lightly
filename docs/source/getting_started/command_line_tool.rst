@@ -81,7 +81,7 @@ An example for the label names .yaml file:
 You can use the output of the lightly-crop command as the *input_dir* for your
 lightly-train command.
 
-Training and Embedding in a go - Magic
+Training and Embedding in a Go – Magic
 ---------------------------------------------------
 Lightly-magic is a singular command for training a self-supervised model and use it to compute embeddings
 
