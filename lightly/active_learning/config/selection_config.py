@@ -1,10 +1,10 @@
 import warnings
 from datetime import datetime
 
+from lightly.active_learning import raise_active_learning_deprecation_warning
 from lightly.openapi_generated.swagger_client.models.sampling_method import (
     SamplingMethod,
 )
-
 
 class SelectionConfig:
     """Configuration class for a selection.
@@ -43,6 +43,7 @@ class SelectionConfig:
         min_distance: float = -1,
         name: str = None,
     ):
+        raise_active_learning_deprecation_warning()
         self.method = method
         self.n_samples = n_samples
         self.min_distance = min_distance

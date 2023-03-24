@@ -78,6 +78,7 @@ class ScorerKeypointDetection(Scorer):
     """
 
     def __init__(self, model_output: List[KeypointPrediction]):
+        super().__init__()
         self.model_output = model_output
 
     def calculate_scores(self) -> Dict[str, np.ndarray]:

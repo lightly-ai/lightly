@@ -97,6 +97,7 @@ class ScorerClassification(Scorer):
     """
 
     def __init__(self, model_output: Union[np.ndarray, List[List[float]]]):
+        super().__init__()
         if not isinstance(model_output, np.ndarray):
             model_output = np.array(model_output)
 
