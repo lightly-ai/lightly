@@ -70,7 +70,7 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
                 + "Use low-level building blocks instead. "
                 + "See https://docs.lightly.ai/self-supervised-learning/lightly.models.html for more information"
             ),
-            PendingDeprecationWarning,
+            DeprecationWarning,
         )
 
     def _forward(self, x0: torch.Tensor, x1: torch.Tensor = None):

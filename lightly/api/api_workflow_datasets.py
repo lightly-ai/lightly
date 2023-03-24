@@ -125,7 +125,7 @@ class _DatasetsMixin:
         warnings.warn(
             "get_all_datasets() is deprecated in favour of get_datasets(shared=None) "
             "and will be removed in the future.",
-            PendingDeprecationWarning,
+            DeprecationWarning,
         )
         owned_datasets = self.get_datasets(shared=None)
         return owned_datasets

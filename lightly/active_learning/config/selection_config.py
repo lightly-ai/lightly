@@ -56,7 +56,7 @@ class SelectionConfig:
 class SamplingConfig(SelectionConfig):
     def __init__(self, *args, **kwargs):
         warnings.warn(
-            PendingDeprecationWarning(
+            DeprecationWarning(
                 "SamplingConfig() is deprecated "
                 "in favour of SelectionConfig() "
                 "and will be removed in the future."

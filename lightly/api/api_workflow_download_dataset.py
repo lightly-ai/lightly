@@ -270,7 +270,7 @@ class _DownloadDatasetMixin:
 
         """
         warnings.warn(
-            PendingDeprecationWarning(
+            DeprecationWarning(
                 "This method exports data in the deprecated Labelbox v3 format and "
                 "will be removed in the future. Use export_label_box_v4_data_rows_by_tag_id "
                 "to export data in the Labelbox v4 format instead."
@@ -310,7 +310,7 @@ class _DownloadDatasetMixin:
 
         """
         warnings.warn(
-            PendingDeprecationWarning(
+            DeprecationWarning(
                 "This method exports data in the deprecated Labelbox v3 format and "
                 "will be removed in the future. Use export_label_box_v4_data_rows_by_tag_name "
                 "to export data in the Labelbox v4 format instead."
