@@ -2,7 +2,6 @@ import warnings
 
 
 def raise_active_learning_deprecation_warning():
-    print("asdf")
     warnings.warn(
         "Using active learning via the lightly package is deprecated and will be removed soon. "
         "Please use the Lightly Solution instead. "
