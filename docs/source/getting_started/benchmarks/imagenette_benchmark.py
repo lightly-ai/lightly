@@ -199,9 +199,8 @@ vicreg_transform = VICRegTransform(
 # Transform  passing geometrical transformation for VICRegL
 vicregl_transform = VICRegLTransform(
     global_crop_size=128,
-    local_crop_size=64,
+    n_local_views=0,
     global_grid_size=4,
-    local_grid_size=2,
     cj_strength=0.5,
 )
 

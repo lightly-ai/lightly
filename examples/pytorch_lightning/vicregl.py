@@ -36,17 +36,22 @@ class VICRegL(pl.LightningModule):
         return z, z_local
 
     def training_step(self, batch, batch_index):
-        (view_global, view_local, grid_global, grid_local), _, _ = batch
-        z_global, z_global_local_features = self.forward(view_global)
-        z_local, z_local_local_features = self.forward(view_local)
-        loss = self.criterion(
-            z_global=z_global,
-            z_local=z_local,
-            z_global_local_features=z_global_local_features,
-            z_local_local_features=z_local_local_features,
-            grid_global=grid_global,
-            grid_local=grid_local,
-        )
+        views_and_grids = batch[0]
+        views = views_and_grids[: len(views_and_grids) // 2]
+        grids = views_and_grids[len(views_and_grids) // 2 :]
+        features = [model(view) for view in views]
+        z_a, z_a_local_features = features[0]
+        grid_a = grids[0]
+        loss = 0
+        for (z_b, z_b_local_features), grid_b in zip(features[1:], grids[1:]):
+            loss += self.criterion(
+                z_a=z_a,
+                z_b=z_b,
+                z_a_local_features=z_a_local_features,
+                z_b_local_features=z_b_local_features,
+                grid_a=grid_a,
+                grid_b=grid_b,
+            )
         return loss
 
     def configure_optimizers(self):
@@ -59,7 +64,7 @@ model = VICRegL()
 pascal_voc = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc", download=True, target_transform=lambda t: 0
 )
-transform = VICRegLTransform()
+transform = VICRegLTransform(n_local_views=0)
 dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
