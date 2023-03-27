@@ -1192,7 +1192,7 @@ class VICRegLModel(BenchmarkModule):
         views_and_grids = batch[0]
         views = views_and_grids[: len(views_and_grids) // 2]
         grids = views_and_grids[len(views_and_grids) // 2 :]
-        features = [model(view) for view in views]
+        features = [self.forward(view) for view in views]
         z_a, z_a_local_features = features[0]
         grid_a = grids[0]
         loss = 0
