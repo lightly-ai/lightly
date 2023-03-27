@@ -1,7 +1,8 @@
-from typing import Tuple
+from typing import Optional, Sequence, Tuple
 
 import torch
 import torch.nn.functional as F
+from torch import Tensor
 
 from lightly.loss.vicreg_loss import VICRegLoss
 from lightly.models.utils import nearest_neighbors
@@ -31,7 +32,7 @@ class VICRegLLoss(torch.nn.Module):
         eps:
             Numerical epsilon.
         num_matches:
-            Number of local matches between patches in the KNN search.
+            Number of local features to match using KNN.
 
     Examples:
 
@@ -67,42 +68,62 @@ class VICRegLLoss(torch.nn.Module):
         self.alpha = alpha
         self.eps = eps
         self.num_matches = num_matches
-        self.vicregloss = VICRegLoss()
+        self.vicregloss = VICRegLoss(
+            lambda_param=lambda_param,
+            mu_param=mu_param,
+            nu_param=nu_param,
+            eps=eps,
+            gather_distributed=gather_distributed,
+        )
 
     def _nearest_neighbors_on_l2(
-        self, input_maps: torch.Tensor, candidate_maps: torch.Tensor, num_matches: int
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        self, input_maps: Tensor, candidate_maps: Tensor, num_matches: int
+    ) -> Tuple[Tensor, Tensor]:
         """
         input_maps: (B, H * W, C)
         candidate_maps: (B, H * W, C)
+
+        Returns:
+            (nn_input, nn_candidate) tuple containing two tensors with shape
+            (B * num_matches, C).
         """
         distances = torch.cdist(input_maps, candidate_maps)
-        return nearest_neighbors(input_maps, candidate_maps, distances, num_matches)
+        nn_input, nn_candidate = nearest_neighbors(
+            input_maps, candidate_maps, distances, num_matches
+        )
+        return nn_input.flatten(end_dim=1), nn_candidate.flatten(end_dim=1)
 
     def _nearest_neighbors_on_grid(
         self,
-        input_grid: torch.Tensor,
-        candidate_grid: torch.Tensor,
-        input_maps: torch.Tensor,
-        candidate_maps: torch.Tensor,
+        input_grid: Tensor,
+        candidate_grid: Tensor,
+        input_maps: Tensor,
+        candidate_maps: Tensor,
         num_matches: int,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[Tensor, Tensor]:
         """
         input_grid: (B, H * W, 2)
         candidate_grid: (B, H * W, 2)
         input_maps: (B, H * W, C)
         candidate_maps: (B, H * W, C)
+
+        Returns:
+            (nn_input, nn_candidate) tuple containing two tensors with shape
+            (B * num_matches, C).
         """
         distances = torch.cdist(input_grid, candidate_grid)
-        return nearest_neighbors(input_maps, candidate_maps, distances, num_matches)
+        nn_input, nn_candidate = nearest_neighbors(
+            input_maps, candidate_maps, distances, num_matches
+        )
+        return nn_input.flatten(end_dim=1), nn_candidate.flatten(end_dim=1)
 
     def local_loss(
         self,
-        z_a: torch.Tensor,
-        z_b: torch.Tensor,
-        grid_a: torch.Tensor,
-        grid_b: torch.Tensor,
-    ) -> torch.Tensor:
+        z_a: Tensor,
+        z_b: Tensor,
+        grid_a: Tensor,
+        grid_b: Tensor,
+    ) -> Tensor:
         """Computes the local loss between two sets of local features using nearest
         neighbors.
 
@@ -124,31 +145,23 @@ class VICRegLLoss(torch.nn.Module):
         Returns:
             The local loss.
         """
-        inv_loss = 0.0
-
         z_a = z_a.flatten(1, 2)
         z_b = z_b.flatten(1, 2)
 
-        # L2 loss
-        # Check if one of the feature tensors comes from a local view. In this case we
-        # reduce the number of matches.
-        has_local_view = z_a.shape[1] != z_b.shape[1]
-        num_matches = self.num_matches[1] if has_local_view else self.num_matches[0]
+        # L2 based loss
         z_a_filtered, z_a_nn = self._nearest_neighbors_on_l2(
-            input_maps=z_a, candidate_maps=z_b, num_matches=num_matches
+            input_maps=z_a, candidate_maps=z_b, num_matches=self.num_matches[0]
         )
         z_b_filtered, z_b_nn = self._nearest_neighbors_on_l2(
-            input_maps=z_b, candidate_maps=z_a, num_matches=num_matches
+            input_maps=z_b, candidate_maps=z_a, num_matches=self.num_matches[1]
         )
+        l2_loss_a = self.vicregloss.forward(z_a_filtered, z_a_nn)
+        l2_loss_b = self.vicregloss.forward(z_b_filtered, z_b_nn)
+        l2_loss = (l2_loss_a + l2_loss_b) / 2
 
-        inv_loss_a = F.mse_loss(z_a_filtered, z_a_nn)
-        inv_loss_b = F.mse_loss(z_b_filtered, z_b_nn)
-        inv_loss = inv_loss + (inv_loss_a / 2 + inv_loss_b / 2)
-
+        # Grid based loss
         grid_a = grid_a.flatten(1, 2)
         grid_b = grid_b.flatten(1, 2)
-
-        # distance loss
         z_a_filtered, z_a_nn = self._nearest_neighbors_on_grid(
             input_grid=grid_a,
             candidate_grid=grid_b,
@@ -156,7 +169,6 @@ class VICRegLLoss(torch.nn.Module):
             candidate_maps=z_b,
             num_matches=self.num_matches[0],
         )
-
         z_b_filtered, z_b_nn = self._nearest_neighbors_on_grid(
             input_grid=grid_b,
             candidate_grid=grid_a,
@@ -165,23 +177,18 @@ class VICRegLLoss(torch.nn.Module):
             num_matches=self.num_matches[1],
         )
 
-        inv_loss_a = F.mse_loss(z_a_filtered, z_a_nn)
-        inv_loss_b = F.mse_loss(z_b_filtered, z_b_nn)
-        inv_loss = inv_loss + (inv_loss_a / 2 + inv_loss_b / 2)
-
-        local_loss = self.lambda_param * inv_loss
-
-        return local_loss
+        grid_loss_a = self.vicregloss.forward(z_a_filtered, z_a_nn)
+        grid_loss_b = self.vicregloss.forward(z_b_filtered, z_b_nn)
+        grid_loss = (grid_loss_a + grid_loss_b) / 2
+        return l2_loss + grid_loss
 
     def forward(
         self,
-        z_a: torch.Tensor,
-        z_b: torch.Tensor,
-        z_a_local_features: torch.Tensor,
-        z_b_local_features: torch.Tensor,
-        grid_a: torch.Tensor,
-        grid_b: torch.Tensor,
-    ) -> torch.Tensor:
+        global_view_features: Sequence[Tuple[Tensor, Tensor]],
+        global_view_grids: Sequence[Tensor],
+        local_view_features: Optional[Sequence[Tuple[Tensor, Tensor]]] = None,
+        local_view_grids: Optional[Sequence[Tensor]] = None,
+    ) -> Tensor:
         """Computes the overall loss between two sets of feature maps, using global and
         local loss.
 
@@ -214,21 +221,77 @@ class VICRegLLoss(torch.nn.Module):
         Returns:
             The loss.
         """
-
-        if z_a_local_features.shape[0] < 1 or z_b_local_features.shape[0] < 1:
+        if len(global_view_features) != len(global_view_grids):
             raise ValueError(
-                f"z_a_local and z_b_local must have batch size > 1 but found "
-                f"{z_a_local_features.shape[0]} and {z_b_local_features.shape[0]}."
+                f"global_view_features and global_view_grids must have same length "
+                f"but found {len(global_view_features)} and {len(global_view_grids)}."
+            )
+        if local_view_features is not None and local_view_grids is not None:
+            if len(local_view_features) != len(local_view_grids):
+                raise ValueError(
+                    f"local_view_features and local_view_grids must have same length "
+                    f"but found {len(local_view_features)} and {len(local_view_grids)}."
+                )
+        elif local_view_features is not None or local_view_grids is not None:
+            raise ValueError(
+                f"local_view_features and local_view_grids must either both be set or "
+                f"None but found {type(local_view_features)} and {type(local_view_grids)}."
             )
 
-        global_loss = self.vicregloss.forward(z_a=z_a, z_b=z_b)
+        # calculate global features loss
+        global_features_loss = 0
+        global_loss_count = 0
+        for z_a_global_features, _ in global_view_features:
+            # global views
+            for z_b_global_features, _ in global_view_features:
+                if z_a_global_features is not z_b_global_features:
+                    global_features_loss += self.vicregloss.forward(
+                        z_a=z_a_global_features, z_b=z_b_global_features
+                    )
+                    global_loss_count += 1
 
-        local_loss = self.local_loss(
-            z_a=z_a_local_features,
-            z_b=z_b_local_features,
-            grid_a=grid_a,
-            grid_b=grid_b,
+            # local views
+            if local_view_features is not None:
+                for z_b_global_features, _ in local_view_features:
+                    global_features_loss += self.vicregloss.forward(
+                        z_a=z_a_global_features, z_b=z_b_global_features
+                    )
+                    global_loss_count += 1
+        global_features_loss /= global_loss_count
+
+        # calculate local features loss
+        local_features_loss = 0
+        local_loss_count = 0
+        for (_, z_a_local_features), grid_a in zip(
+            global_view_features, global_view_grids
+        ):
+            # global views
+            for (_, z_b_local_features), grid_b in zip(
+                global_view_features, global_view_grids
+            ):
+                if z_a_local_features is not z_b_local_features:
+                    local_features_loss += self.local_loss(
+                        z_a=z_a_local_features,
+                        z_b=z_b_local_features,
+                        grid_a=grid_a,
+                        grid_b=grid_b,
+                    )
+                    local_loss_count += 1
+            # local views
+            if local_view_features is not None and local_view_grids is not None:
+                for (_, z_b_local_features), grid_b in zip(
+                    local_view_features, local_view_grids
+                ):
+                    local_features_loss += self.local_loss(
+                        z_a=z_a_local_features,
+                        z_b=z_b_local_features,
+                        grid_a=grid_a,
+                        grid_b=grid_b,
+                    )
+                    local_loss_count += 1
+        local_features_loss /= local_loss_count
+
+        loss = (
+            self.alpha * global_features_loss + (1 - self.alpha) * local_features_loss
         )
-
-        loss = self.alpha * global_loss + (1 - self.alpha) * local_loss
         return loss

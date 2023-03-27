@@ -56,7 +56,7 @@ dataloader = torch.utils.data.DataLoader(
 )
 
 criterion = VICRegLLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=0.06, momentum=0.9)
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 
 print("Starting Training")
 for epoch in range(10):
@@ -66,18 +66,12 @@ for epoch in range(10):
         views = views_and_grids[: len(views_and_grids) // 2]
         grids = views_and_grids[len(views_and_grids) // 2 :]
         features = [model(view) for view in views]
-        z_a, z_a_local_features = features[0]
-        grid_a = grids[0]
-        loss = 0
-        for (z_b, z_b_local_features), grid_b in zip(features[1:], grids[1:]):
-            loss += criterion(
-                z_a=z_a,
-                z_b=z_b,
-                z_a_local_features=z_a_local_features,
-                z_b_local_features=z_b_local_features,
-                grid_a=grid_a,
-                grid_b=grid_b,
-            )
+        loss = criterion(
+            global_view_features=features[:2],
+            global_view_grids=grids[:2],
+            local_view_features=features[2:],
+            local_view_grids=grids[2:],
+        )
         total_loss += loss.detach()
         loss.backward()
         optimizer.step()

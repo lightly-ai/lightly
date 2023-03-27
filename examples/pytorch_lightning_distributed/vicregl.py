@@ -40,18 +40,12 @@ class VICRegL(pl.LightningModule):
         views = views_and_grids[: len(views_and_grids) // 2]
         grids = views_and_grids[len(views_and_grids) // 2 :]
         features = [self.forward(view) for view in views]
-        z_a, z_a_local_features = features[0]
-        grid_a = grids[0]
-        loss = 0
-        for (z_b, z_b_local_features), grid_b in zip(features[1:], grids[1:]):
-            loss += self.criterion(
-                z_a=z_a,
-                z_b=z_b,
-                z_a_local_features=z_a_local_features,
-                z_b_local_features=z_b_local_features,
-                grid_a=grid_a,
-                grid_b=grid_b,
-            )
+        loss = self.criterion(
+            global_view_features=features[:2],
+            global_view_grids=grids[:2],
+            local_view_features=features[2:],
+            local_view_grids=grids[2:],
+        )
         return loss
 
     def configure_optimizers(self):
