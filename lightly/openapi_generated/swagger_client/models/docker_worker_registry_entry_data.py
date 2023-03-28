@@ -34,6 +34,7 @@ class DockerWorkerRegistryEntryData(object):
     """
     swagger_types = {
         'id': 'MongoObjectID',
+        'user_id': 'str',
         'name': 'DockerWorkerName',
         'worker_type': 'DockerWorkerType',
         'state': 'DockerWorkerState',
@@ -45,6 +46,7 @@ class DockerWorkerRegistryEntryData(object):
 
     attribute_map = {
         'id': 'id',
+        'user_id': 'userId',
         'name': 'name',
         'worker_type': 'workerType',
         'state': 'state',
@@ -54,13 +56,14 @@ class DockerWorkerRegistryEntryData(object):
         'docker_version': 'dockerVersion'
     }
 
-    def __init__(self, id=None, name=None, worker_type=None, state=None, created_at=None, last_modified_at=None, labels=None, docker_version=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, user_id=None, name=None, worker_type=None, state=None, created_at=None, last_modified_at=None, labels=None, docker_version=None, _configuration=None):  # noqa: E501
         """DockerWorkerRegistryEntryData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._id = None
+        self._user_id = None
         self._name = None
         self._worker_type = None
         self._state = None
@@ -71,6 +74,7 @@ class DockerWorkerRegistryEntryData(object):
         self.discriminator = None
 
         self.id = id
+        self.user_id = user_id
         self.name = name
         self.worker_type = worker_type
         self.state = state
@@ -102,6 +106,29 @@ class DockerWorkerRegistryEntryData(object):
             raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
         self._id = id
+
+    @property
+    def user_id(self):
+        """Gets the user_id of this DockerWorkerRegistryEntryData.  # noqa: E501
+
+
+        :return: The user_id of this DockerWorkerRegistryEntryData.  # noqa: E501
+        :rtype: str
+        """
+        return self._user_id
+
+    @user_id.setter
+    def user_id(self, user_id):
+        """Sets the user_id of this DockerWorkerRegistryEntryData.
+
+
+        :param user_id: The user_id of this DockerWorkerRegistryEntryData.  # noqa: E501
+        :type: str
+        """
+        if self._configuration.client_side_validation and user_id is None:
+            raise ValueError("Invalid value for `user_id`, must not be `None`")  # noqa: E501
+
+        self._user_id = user_id
 
     @property
     def name(self):

@@ -34,6 +34,7 @@ class DockerRunData(object):
     """
     swagger_types = {
         'id': 'MongoObjectID',
+        'user_id': 'str',
         'docker_version': 'str',
         'state': 'DockerRunState',
         'dataset_id': 'MongoObjectID',
@@ -47,6 +48,7 @@ class DockerRunData(object):
 
     attribute_map = {
         'id': 'id',
+        'user_id': 'userId',
         'docker_version': 'dockerVersion',
         'state': 'state',
         'dataset_id': 'datasetId',
@@ -58,13 +60,14 @@ class DockerRunData(object):
         'artifacts': 'artifacts'
     }
 
-    def __init__(self, id=None, docker_version=None, state=None, dataset_id=None, config_id=None, scheduled_id=None, created_at=None, last_modified_at=None, message=None, artifacts=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, user_id=None, docker_version=None, state=None, dataset_id=None, config_id=None, scheduled_id=None, created_at=None, last_modified_at=None, message=None, artifacts=None, _configuration=None):  # noqa: E501
         """DockerRunData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._id = None
+        self._user_id = None
         self._docker_version = None
         self._state = None
         self._dataset_id = None
@@ -77,6 +80,7 @@ class DockerRunData(object):
         self.discriminator = None
 
         self.id = id
+        self.user_id = user_id
         self.docker_version = docker_version
         self.state = state
         if dataset_id is not None:
@@ -114,6 +118,29 @@ class DockerRunData(object):
             raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
         self._id = id
+
+    @property
+    def user_id(self):
+        """Gets the user_id of this DockerRunData.  # noqa: E501
+
+
+        :return: The user_id of this DockerRunData.  # noqa: E501
+        :rtype: str
+        """
+        return self._user_id
+
+    @user_id.setter
+    def user_id(self, user_id):
+        """Sets the user_id of this DockerRunData.
+
+
+        :param user_id: The user_id of this DockerRunData.  # noqa: E501
+        :type: str
+        """
+        if self._configuration.client_side_validation and user_id is None:
+            raise ValueError("Invalid value for `user_id`, must not be `None`")  # noqa: E501
+
+        self._user_id = user_id
 
     @property
     def docker_version(self):
