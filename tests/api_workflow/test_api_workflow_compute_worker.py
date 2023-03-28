@@ -25,10 +25,10 @@ from lightly.openapi_generated.swagger_client import (
     DockerRunScheduledState,
     DockerRunState,
     DockerWorkerConfig,
-    DockerWorkerConfigV2Docker,
-    DockerWorkerConfigV2DockerCorruptnessCheck,
-    DockerWorkerConfigV2Lightly,
-    DockerWorkerConfigV2LightlyLoader,
+    DockerWorkerConfigV3Docker,
+    DockerWorkerConfigV3DockerCorruptnessCheck,
+    DockerWorkerConfigV3Lightly,
+    DockerWorkerConfigV3LightlyLoader,
     DockerWorkerType,
     SelectionConfig,
     SelectionConfigEntry,
@@ -61,9 +61,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
     def test_create_compute_worker_config(self):
         config_id = self.api_workflow_client.create_compute_worker_config(
             worker_config={
-                "stopping_condition": {
-                    "n_samples": 10,
-                },
+                "pretagging": True,
             },
             lightly_config={
                 "loader": {
@@ -89,9 +87,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
     def test_create_compute_worker_config__selection_config_is_class(self) -> None:
         config_id = self.api_workflow_client.create_compute_worker_config(
             worker_config={
-                "stopping_condition": {
-                    "n_samples": 10,
-                },
+                "pretagging": True,
             },
             lightly_config={
                 "loader": {
@@ -127,9 +123,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
     def test_schedule_compute_worker_run(self):
         scheduled_run_id = self.api_workflow_client.schedule_compute_worker_run(
             worker_config={
-                "stopping_condition": {
-                    "n_samples": 10,
-                },
+                "pretagging": True,
             },
             lightly_config={
                 "loader": {
@@ -462,6 +456,7 @@ def test_get_compute_worker_state_and_message_docker_state() -> None:
     message = "SOME_MESSAGE"
     docker_run = DockerRunData(
         id="id",
+        user_id="user-id",
         state=DockerRunState.GENERATING_REPORT,
         docker_version="",
         created_at=0,
@@ -524,6 +519,7 @@ def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
         [
             DockerRunData(
                 id="run-1",
+                user_id="user-id",
                 created_at=20,
                 dataset_id="",
                 docker_version="",
@@ -532,6 +528,7 @@ def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
             ),
             DockerRunData(
                 id="run-2",
+                user_id="user-id",
                 created_at=10,
                 dataset_id="",
                 docker_version="",
@@ -546,6 +543,7 @@ def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
     assert runs == [
         DockerRunData(
             id="run-2",
+            user_id="user-id",
             created_at=10,
             dataset_id="",
             docker_version="",
@@ -554,6 +552,7 @@ def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
         ),
         DockerRunData(
             id="run-1",
+            user_id="user-id",
             created_at=20,
             dataset_id="",
             docker_version="",
@@ -573,6 +572,7 @@ def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
         [
             DockerRunData(
                 id="run-2",
+                user_id="user-id",
                 dataset_id="dataset-2",
                 docker_version="",
                 state="",
@@ -588,6 +588,7 @@ def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
     assert runs == [
         DockerRunData(
             id="run-2",
+            user_id="user-id",
             dataset_id="dataset-2",
             docker_version="",
             state="",
@@ -707,9 +708,9 @@ def test__snake_to_camel_case() -> None:
 
 
 def test__validate_config__docker() -> None:
-    obj = DockerWorkerConfigV2Docker(
+    obj = DockerWorkerConfigV3Docker(
         enable_training=False,
-        corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
+        corruptness_check=DockerWorkerConfigV3DockerCorruptnessCheck(
             corruption_threshold=0.1,
         ),
     )
@@ -725,9 +726,9 @@ def test__validate_config__docker() -> None:
 
 
 def test__validate_config__docker_typo() -> None:
-    obj = DockerWorkerConfigV2Docker(
+    obj = DockerWorkerConfigV3Docker(
         enable_training=False,
-        corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
+        corruptness_check=DockerWorkerConfigV3DockerCorruptnessCheck(
             corruption_threshold=0.1,
         ),
     )
@@ -748,9 +749,9 @@ def test__validate_config__docker_typo() -> None:
 
 
 def test__validate_config__docker_typo_nested() -> None:
-    obj = DockerWorkerConfigV2Docker(
+    obj = DockerWorkerConfigV3Docker(
         enable_training=False,
-        corruptness_check=DockerWorkerConfigV2DockerCorruptnessCheck(
+        corruptness_check=DockerWorkerConfigV3DockerCorruptnessCheck(
             corruption_threshold=0.1,
         ),
     )
@@ -771,8 +772,8 @@ def test__validate_config__docker_typo_nested() -> None:
 
 
 def test__validate_config__lightly() -> None:
-    obj = DockerWorkerConfigV2Lightly(
-        loader=DockerWorkerConfigV2LightlyLoader(
+    obj = DockerWorkerConfigV3Lightly(
+        loader=DockerWorkerConfigV3LightlyLoader(
             num_workers=-1,
             batch_size=16,
             shuffle=True,
@@ -791,8 +792,8 @@ def test__validate_config__lightly() -> None:
 
 
 def test__validate_config__lightly_typo() -> None:
-    obj = DockerWorkerConfigV2Lightly(
-        loader=DockerWorkerConfigV2LightlyLoader(
+    obj = DockerWorkerConfigV3Lightly(
+        loader=DockerWorkerConfigV3LightlyLoader(
             num_workers=-1,
             batch_size=16,
             shuffle=True,
@@ -815,8 +816,8 @@ def test__validate_config__lightly_typo() -> None:
 
 
 def test__validate_config__lightly_typo_nested() -> None:
-    obj = DockerWorkerConfigV2Lightly(
-        loader=DockerWorkerConfigV2LightlyLoader(
+    obj = DockerWorkerConfigV3Lightly(
+        loader=DockerWorkerConfigV3LightlyLoader(
             num_workers=-1,
             batch_size=16,
             shuffle=True,
