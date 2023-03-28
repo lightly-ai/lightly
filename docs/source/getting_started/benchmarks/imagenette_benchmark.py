@@ -1176,15 +1176,15 @@ class VICRegLModel(BenchmarkModule):
         self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
         self.local_projection_head = heads.VicRegLLocalProjectionHead(512, 128, 128)
         self.average_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
-        self.criterion = VICRegLLoss(alpha=0.75, num_matches=(16, 4))
+        self.criterion = VICRegLLoss(num_matches=(8, 4))
         self.backbone = nn.Sequential(self.train_backbone, self.average_pool)
-        self.warmup_epochs = 40 if max_epochs >= 800 else 20
+        self.warmup_epochs = 20 if max_epochs >= 800 else 10
 
     def forward(self, x):
         x = self.train_backbone(x)
         y = self.average_pool(x).flatten(start_dim=1)
         z = self.projection_head(y)
-        y_local = x.permute(0, 2, 3, 1)  # (B, D, W, H) to (B, W, H, D)
+        y_local = x.permute(0, 2, 3, 1)  # (B, D, H, W) to (B, H, W, D)
         z_local = self.local_projection_head(y_local)
         return z, z_local
 
@@ -1205,8 +1205,8 @@ class VICRegLModel(BenchmarkModule):
         # Training diverges without LARS
         optim = LARS(
             self.parameters(),
-            lr=0.3 * lr_factor,
-            weight_decay=1e-4,
+            lr=0.1 * lr_factor,
+            weight_decay=1e-6,
             momentum=0.9,
         )
         cosine_scheduler = scheduler.CosineWarmupScheduler(

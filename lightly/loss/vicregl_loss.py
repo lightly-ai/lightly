@@ -32,7 +32,7 @@ class VICRegLLoss(torch.nn.Module):
         eps:
             Numerical epsilon.
         num_matches:
-            Number of local features to match using KNN.
+            Number of local features to match using nearest neighbors.
 
     Examples:
 
@@ -55,18 +55,13 @@ class VICRegLLoss(torch.nn.Module):
         lambda_param: float = 25.0,
         mu_param: float = 25.0,
         nu_param: float = 1.0,
-        alpha: float = 0.25,
+        alpha: float = 0.75,
         gather_distributed: bool = False,
         eps: float = 0.0001,
         num_matches: Tuple[int, int] = (20, 4),
     ):
         super(VICRegLLoss, self).__init__()
-        self.lambda_param = lambda_param
-        self.mu_param = mu_param
-        self.nu_param = nu_param
-        self.gather_distributed = gather_distributed
         self.alpha = alpha
-        self.eps = eps
         self.num_matches = num_matches
         self.vicregloss = VICRegLoss(
             lambda_param=lambda_param,
@@ -123,6 +118,7 @@ class VICRegLLoss(torch.nn.Module):
         z_b: Tensor,
         grid_a: Tensor,
         grid_b: Tensor,
+        num_matches: int,
     ) -> Tensor:
         """Computes the local loss between two sets of local features using nearest
         neighbors.
@@ -141,44 +137,46 @@ class VICRegLLoss(torch.nn.Module):
             grid_b:
                 A tensor of grids from a global or local  view. Musth have size:
                 (batch_size, grid_size, grid_size, 2).
+            num_matches:
+                Number of features to match using nearest neighbors.
 
         Returns:
             The local loss.
         """
-        z_a = z_a.flatten(1, 2)
-        z_b = z_b.flatten(1, 2)
+        z_a = z_a.flatten(start_dim=1, end_dim=2)
+        z_b = z_b.flatten(start_dim=1, end_dim=2)
 
         # L2 based loss
         z_a_filtered, z_a_nn = self._nearest_neighbors_on_l2(
-            input_maps=z_a, candidate_maps=z_b, num_matches=self.num_matches[0]
+            input_maps=z_a, candidate_maps=z_b, num_matches=num_matches
         )
         z_b_filtered, z_b_nn = self._nearest_neighbors_on_l2(
-            input_maps=z_b, candidate_maps=z_a, num_matches=self.num_matches[1]
+            input_maps=z_b, candidate_maps=z_a, num_matches=num_matches
         )
-        l2_loss_a = self.vicregloss.forward(z_a_filtered, z_a_nn)
-        l2_loss_b = self.vicregloss.forward(z_b_filtered, z_b_nn)
+        l2_loss_a = self.vicregloss.forward(z_a=z_a_filtered, z_b=z_a_nn)
+        l2_loss_b = self.vicregloss.forward(z_a=z_b_filtered, z_b=z_b_nn)
         l2_loss = (l2_loss_a + l2_loss_b) / 2
 
         # Grid based loss
-        grid_a = grid_a.flatten(1, 2)
-        grid_b = grid_b.flatten(1, 2)
+        grid_a = grid_a.flatten(start_dim=1, end_dim=2)
+        grid_b = grid_b.flatten(start_dim=1, end_dim=2)
         z_a_filtered, z_a_nn = self._nearest_neighbors_on_grid(
             input_grid=grid_a,
             candidate_grid=grid_b,
             input_maps=z_a,
             candidate_maps=z_b,
-            num_matches=self.num_matches[0],
+            num_matches=num_matches,
         )
         z_b_filtered, z_b_nn = self._nearest_neighbors_on_grid(
             input_grid=grid_b,
             candidate_grid=grid_a,
             input_maps=z_b,
             candidate_maps=z_a,
-            num_matches=self.num_matches[1],
+            num_matches=num_matches,
         )
 
-        grid_loss_a = self.vicregloss.forward(z_a_filtered, z_a_nn)
-        grid_loss_b = self.vicregloss.forward(z_b_filtered, z_b_nn)
+        grid_loss_a = self.vicregloss.forward(z_a=z_a_filtered, z_b=z_a_nn)
+        grid_loss_b = self.vicregloss.forward(z_a=z_b_filtered, z_b=z_b_nn)
         grid_loss = (grid_loss_a + grid_loss_b) / 2
         return l2_loss + grid_loss
 
@@ -275,6 +273,7 @@ class VICRegLLoss(torch.nn.Module):
                         z_b=z_b_local_features,
                         grid_a=grid_a,
                         grid_b=grid_b,
+                        num_matches=self.num_matches[0],
                     )
                     local_loss_count += 1
             # local views
@@ -287,6 +286,7 @@ class VICRegLLoss(torch.nn.Module):
                         z_b=z_b_local_features,
                         grid_a=grid_a,
                         grid_b=grid_b,
+                        num_matches=self.num_matches[1],
                     )
                     local_loss_count += 1
         local_features_loss /= local_loss_count
