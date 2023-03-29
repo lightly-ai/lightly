@@ -61,7 +61,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
     def test_create_compute_worker_config(self):
         config_id = self.api_workflow_client.create_compute_worker_config(
             worker_config={
-                "pretagging": True,
+                "training": {"task_name": "lightly_pretagging"},
             },
             lightly_config={
                 "loader": {
