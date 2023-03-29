@@ -1,6 +1,7 @@
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
+from torch import Tensor
 
 from lightly.utils.dist import gather
 
@@ -66,7 +67,7 @@ class VICRegLoss(torch.nn.Module):
         ), f"z_a and z_b must have same shape but found {z_a.shape} and {z_b.shape}."
 
         # invariance term of the loss
-        repr_loss = F.mse_loss(z_a, z_b)
+        inv_loss = invariance_loss(x=z_a, y=z_b)
 
         # gather all batches
         if self.gather_distributed and dist.is_initialized():
@@ -75,36 +76,42 @@ class VICRegLoss(torch.nn.Module):
                 z_a = torch.cat(gather(z_a), dim=0)
                 z_b = torch.cat(gather(z_b), dim=0)
 
-        # normalize repr. along the batch dimension
-        z_a = z_a - z_a.mean(0)  # NxD
-        z_b = z_b - z_b.mean(0)  # NxD
+        var_loss = 0.5 * (
+            variance_loss(x=z_a, eps=self.eps) + variance_loss(x=z_b, eps=self.eps)
+        )
+        cov_loss = covariance_loss(x=z_a) + covariance_loss(x=z_b)
 
-        N = z_a.size(0)
-        D = z_a.size(1)
-
-        # variance term of the loss
-        std_x = torch.sqrt(z_a.var(dim=0) + self.eps)
-        std_y = torch.sqrt(z_b.var(dim=0) + self.eps)
-        std_loss = 0.5 * (torch.mean(F.relu(1 - std_x)) + torch.mean(F.relu(1 - std_y)))
-
-        # covariance term of the loss
-        cov_x = (z_a.T @ z_a) / (N - 1)
-        cov_y = (z_b.T @ z_b) / (N - 1)
-
-        # compute off-diagonal elements
-        n, _ = cov_x.shape
-        off_diag_cov_x = cov_x.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten()
-        off_diag_cov_y = cov_y.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten()
-
-        cov_loss = off_diag_cov_x.pow_(2).sum().div(D) + off_diag_cov_y.pow_(
-            2
-        ).sum().div(D)
-
-        # loss
         loss = (
-            self.lambda_param * repr_loss
-            + self.mu_param * std_loss
+            self.lambda_param * inv_loss
+            + self.mu_param * var_loss
             + self.nu_param * cov_loss
         )
-
+        print(
+            "vic",
+            self.lambda_param * inv_loss,
+            self.mu_param * var_loss,
+            self.nu_param * cov_loss,
+        )
         return loss
+
+
+def invariance_loss(x: Tensor, y: Tensor) -> Tensor:
+    return F.mse_loss(x, y)
+
+
+def variance_loss(x: Tensor, eps: float = 0.0001) -> Tensor:
+    print("x", x, x.sum())
+    x = x - x.mean(dim=0)
+    std = torch.sqrt(x.var(dim=0) + eps)
+    loss = torch.mean(F.relu(1.0 - std))
+    return loss
+
+
+def covariance_loss(x: Tensor) -> Tensor:
+    x = x - x.mean(dim=0)
+    batch_size = x.size(0)
+    dim = x.size(-1)
+    nondiag_mask = ~torch.eye(dim, device=x.device, dtype=torch.bool)
+    cov = torch.einsum("b...c,b...d->...cd", x, x) / (batch_size - 1)
+    loss = cov[..., nondiag_mask].pow(2).sum(-1) / dim
+    return loss.mean()
