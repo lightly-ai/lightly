@@ -33,17 +33,71 @@ class QuestionnaireData(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'company': 'str',
+        'sector': 'Sector'
     }
 
     attribute_map = {
+        'company': 'company',
+        'sector': 'sector'
     }
 
-    def __init__(self, _configuration=None):  # noqa: E501
+    def __init__(self, company=None, sector=None, _configuration=None):  # noqa: E501
         """QuestionnaireData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
+
+        self._company = None
+        self._sector = None
         self.discriminator = None
+
+        if company is not None:
+            self.company = company
+        if sector is not None:
+            self.sector = sector
+
+    @property
+    def company(self):
+        """Gets the company of this QuestionnaireData.  # noqa: E501
+
+
+        :return: The company of this QuestionnaireData.  # noqa: E501
+        :rtype: str
+        """
+        return self._company
+
+    @company.setter
+    def company(self, company):
+        """Sets the company of this QuestionnaireData.
+
+
+        :param company: The company of this QuestionnaireData.  # noqa: E501
+        :type: str
+        """
+
+        self._company = company
+
+    @property
+    def sector(self):
+        """Gets the sector of this QuestionnaireData.  # noqa: E501
+
+
+        :return: The sector of this QuestionnaireData.  # noqa: E501
+        :rtype: Sector
+        """
+        return self._sector
+
+    @sector.setter
+    def sector(self, sector):
+        """Sets the sector of this QuestionnaireData.
+
+
+        :param sector: The sector of this QuestionnaireData.  # noqa: E501
+        :type: Sector
+        """
+
+        self._sector = sector
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -16,10 +16,10 @@ from lightly.openapi_generated.swagger_client import (
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
-    DockerWorkerConfigV2,
-    DockerWorkerConfigV2CreateRequest,
-    DockerWorkerConfigV2Docker,
-    DockerWorkerConfigV2Lightly,
+    DockerWorkerConfigV3,
+    DockerWorkerConfigV3CreateRequest,
+    DockerWorkerConfigV3Docker,
+    DockerWorkerConfigV3Lightly,
     DockerWorkerType,
     SelectionConfig,
     SelectionConfigEntry,
@@ -152,7 +152,7 @@ class _ComputeWorkerMixin:
             worker_config_cc = _config_to_camel_case(cfg=worker_config)
             deserialize_worker_config = _get_deserialize(
                 api_client=self.api_client,
-                klass=DockerWorkerConfigV2Docker,
+                klass=DockerWorkerConfigV3Docker,
             )
             docker = deserialize_worker_config(worker_config_cc)
             _validate_config(cfg=worker_config, obj=docker)
@@ -163,23 +163,23 @@ class _ComputeWorkerMixin:
             lightly_config_cc = _config_to_camel_case(cfg=lightly_config)
             deserialize_lightly_config = _get_deserialize(
                 api_client=self.api_client,
-                klass=DockerWorkerConfigV2Lightly,
+                klass=DockerWorkerConfigV3Lightly,
             )
             lightly = deserialize_lightly_config(lightly_config_cc)
             _validate_config(cfg=lightly_config, obj=lightly)
         else:
             lightly = None
 
-        config = DockerWorkerConfigV2(
+        config = DockerWorkerConfigV3(
             worker_type=DockerWorkerType.FULL,
             docker=docker,
             lightly=lightly,
             selection=selection,
         )
-        request = DockerWorkerConfigV2CreateRequest(
+        request = DockerWorkerConfigV3CreateRequest(
             config=config, creator=self._creator
         )
-        response = self._compute_worker_api.create_docker_worker_config_v2(request)
+        response = self._compute_worker_api.create_docker_worker_config_v3(request)
         return response.id
 
     def schedule_compute_worker_run(
