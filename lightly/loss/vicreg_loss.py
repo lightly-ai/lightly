@@ -25,7 +25,7 @@ class VICRegLoss(torch.nn.Module):
             If True then the cross-correlation matrices from all gpus are gathered and
             summed before the loss calculation.
         eps:
-            Numerical epsilon.
+            Epsilon for numerical stability.
 
     Examples:
 
@@ -59,6 +59,14 @@ class VICRegLoss(torch.nn.Module):
         self.eps = eps
 
     def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
+        """Returns VICReg loss.
+
+        Args:
+            z_a:
+                Tensor with shape (batch_size, ..., dim).
+            z_b:
+                Tensor with shape (batch_size, ..., dim).
+        """
         assert (
             z_a.shape[0] > 1 and z_b.shape[0] > 1
         ), f"z_a and z_b must have batch size > 1 but found {z_a.shape[0]} and {z_b.shape[0]}"
@@ -90,10 +98,26 @@ class VICRegLoss(torch.nn.Module):
 
 
 def invariance_loss(x: Tensor, y: Tensor) -> Tensor:
+    """Returns VICReg invariance loss.
+
+    Args:
+        x:
+            Tensor with shape (batch_size, ..., dim).
+        y:
+            Tensor with shape (batch_size, ..., dim).
+    """
     return F.mse_loss(x, y)
 
 
 def variance_loss(x: Tensor, eps: float = 0.0001) -> Tensor:
+    """Returns VICReg variance loss.
+
+    Args:
+        x:
+            Tensor with shape (batch_size, ..., dim).
+        eps:
+            Epsilon for numerical stability.
+    """
     x = x - x.mean(dim=0)
     std = torch.sqrt(x.var(dim=0) + eps)
     loss = torch.mean(F.relu(1.0 - std))
@@ -101,10 +125,22 @@ def variance_loss(x: Tensor, eps: float = 0.0001) -> Tensor:
 
 
 def covariance_loss(x: Tensor) -> Tensor:
+    """Returns VICReg covariance loss.
+
+    Generalized version of the covariance loss with support for tensors with more than
+    two dimensions. Adapted from VICRegL:
+    https://github.com/facebookresearch/VICRegL/blob/803ae4c8cd1649a820f03afb4793763e95317620/main_vicregl.py#L299
+
+    Args:
+        x:
+            Tensor with shape (batch_size, ..., dim).
+    """
     x = x - x.mean(dim=0)
     batch_size = x.size(0)
     dim = x.size(-1)
+    # nondiag_mask has shape (dim, dim) with 1s on all non-diagonal entries.
     nondiag_mask = ~torch.eye(dim, device=x.device, dtype=torch.bool)
+    # cov has shape (..., dim, dim)
     cov = torch.einsum("b...c,b...d->...cd", x, x) / (batch_size - 1)
     loss = cov[..., nondiag_mask].pow(2).sum(-1) / dim
     return loss.mean()

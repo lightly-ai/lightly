@@ -21,6 +21,8 @@ class VICRegLTransform(ImageGridTransform):
             Size of the input image in pixels for the global crop views.
         local_crop_size:
             Size of the input image in pixels for the local crop views.
+        n_global_views:
+            Number of global crop views to generate.
         n_local_views:
             Number of local crop views to generate. For ResNet backbones it is
             recommended to set this to 0, see [0].
@@ -83,6 +85,7 @@ class VICRegLTransform(ImageGridTransform):
         self,
         global_crop_size: int = 224,
         local_crop_size: int = 96,
+        n_global_views: int = 2,
         n_local_views: int = 6,
         global_crop_scale: Tuple[float, float] = (0.2, 1.0),
         local_crop_scale: Tuple[float, float] = (0.05, 0.2),
@@ -149,7 +152,7 @@ class VICRegLTransform(ImageGridTransform):
             ),
         )
 
-        transforms = [global_transform] * 2 + [local_transform] * n_local_views
+        transforms = [global_transform] * n_global_views + [local_transform] * n_local_views
         super().__init__(transforms=transforms)
 
 
