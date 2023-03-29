@@ -86,12 +86,6 @@ class VICRegLoss(torch.nn.Module):
             + self.mu_param * var_loss
             + self.nu_param * cov_loss
         )
-        print(
-            "vic",
-            self.lambda_param * inv_loss,
-            self.mu_param * var_loss,
-            self.nu_param * cov_loss,
-        )
         return loss
 
 
@@ -100,7 +94,6 @@ def invariance_loss(x: Tensor, y: Tensor) -> Tensor:
 
 
 def variance_loss(x: Tensor, eps: float = 0.0001) -> Tensor:
-    print("x", x, x.sum())
     x = x - x.mean(dim=0)
     std = torch.sqrt(x.var(dim=0) + eps)
     loss = torch.mean(F.relu(1.0 - std))

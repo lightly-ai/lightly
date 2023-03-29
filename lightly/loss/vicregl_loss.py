@@ -278,10 +278,8 @@ class VICRegLLoss(torch.nn.Module):
         z_b_filtered, z_b_nn = self._nearest_neighbors_on_l2(
             input_maps=z_b, candidate_maps=z_a, num_matches=self.num_matches[1]
         )
-        # print('l2 sum', (z_a_filtered - z_a_nn).sum())
         loss_a = self.vicreg_loss.forward(z_a=z_a_filtered, z_b=z_a_nn)
         loss_b = self.vicreg_loss.forward(z_a=z_b_filtered, z_b=z_b_nn)
-        # print('l2', 0.5 * (loss_a + loss_b))
         return 0.5 * (loss_a + loss_b)
 
     def _local_location_loss(
