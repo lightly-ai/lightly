@@ -44,6 +44,7 @@ class DatasetDataEnriched(object):
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp',
         'meta_data_configuration_id': 'MongoObjectID',
+        'access_role': 'AccessRole',
         'datasources': 'list[MongoObjectID]',
         'samples': 'list[MongoObjectID]',
         'n_tags': 'int',
@@ -62,13 +63,14 @@ class DatasetDataEnriched(object):
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt',
         'meta_data_configuration_id': 'metaDataConfigurationId',
+        'access_role': 'accessRole',
         'datasources': 'datasources',
         'samples': 'samples',
         'n_tags': 'nTags',
         'n_embeddings': 'nEmbeddings'
     }
 
-    def __init__(self, id=None, name=None, user_id=None, access_type=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, created_at=None, last_modified_at=None, meta_data_configuration_id=None, datasources=None, samples=None, n_tags=None, n_embeddings=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, name=None, user_id=None, access_type=None, type=None, img_type=None, n_samples=None, size_in_bytes=None, created_at=None, last_modified_at=None, meta_data_configuration_id=None, access_role=None, datasources=None, samples=None, n_tags=None, n_embeddings=None, _configuration=None):  # noqa: E501
         """DatasetDataEnriched - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -85,6 +87,7 @@ class DatasetDataEnriched(object):
         self._created_at = None
         self._last_modified_at = None
         self._meta_data_configuration_id = None
+        self._access_role = None
         self._datasources = None
         self._samples = None
         self._n_tags = None
@@ -105,6 +108,8 @@ class DatasetDataEnriched(object):
         self.last_modified_at = last_modified_at
         if meta_data_configuration_id is not None:
             self.meta_data_configuration_id = meta_data_configuration_id
+        if access_role is not None:
+            self.access_role = access_role
         if datasources is not None:
             self.datasources = datasources
         self.samples = samples
@@ -359,6 +364,27 @@ class DatasetDataEnriched(object):
         """
 
         self._meta_data_configuration_id = meta_data_configuration_id
+
+    @property
+    def access_role(self):
+        """Gets the access_role of this DatasetDataEnriched.  # noqa: E501
+
+
+        :return: The access_role of this DatasetDataEnriched.  # noqa: E501
+        :rtype: AccessRole
+        """
+        return self._access_role
+
+    @access_role.setter
+    def access_role(self, access_role):
+        """Sets the access_role of this DatasetDataEnriched.
+
+
+        :param access_role: The access_role of this DatasetDataEnriched.  # noqa: E501
+        :type: AccessRole
+        """
+
+        self._access_role = access_role
 
     @property
     def datasources(self):

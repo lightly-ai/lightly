@@ -432,6 +432,8 @@ class DatasetsApi(object):
 
         :param async_req bool
         :param bool shared: if set, only returns the datasets which have been shared with the user
+        :param bool get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
+        :param bool get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
         :param int page_size: pagination size/limit of the number of samples to return
         :param int page_offset: pagination offset
         :return: list[DatasetData]
@@ -456,6 +458,8 @@ class DatasetsApi(object):
 
         :param async_req bool
         :param bool shared: if set, only returns the datasets which have been shared with the user
+        :param bool get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
+        :param bool get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
         :param int page_size: pagination size/limit of the number of samples to return
         :param int page_offset: pagination offset
         :return: list[DatasetData]
@@ -463,7 +467,7 @@ class DatasetsApi(object):
                  returns the request thread.
         """
 
-        all_params = ['shared', 'page_size', 'page_offset']  # noqa: E501
+        all_params = ['shared', 'get_assets_of_team', 'get_assets_of_team_inclusive_self', 'page_size', 'page_offset']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -486,6 +490,10 @@ class DatasetsApi(object):
         query_params = []
         if 'shared' in params:
             query_params.append(('shared', params['shared']))  # noqa: E501
+        if 'get_assets_of_team' in params:
+            query_params.append(('getAssetsOfTeam', params['get_assets_of_team']))  # noqa: E501
+        if 'get_assets_of_team_inclusive_self' in params:
+            query_params.append(('getAssetsOfTeamInclusiveSelf', params['get_assets_of_team_inclusive_self']))  # noqa: E501
         if 'page_size' in params:
             query_params.append(('pageSize', params['page_size']))  # noqa: E501
         if 'page_offset' in params:
@@ -532,6 +540,8 @@ class DatasetsApi(object):
         :param async_req bool
         :param bool shared: if set, only returns the datasets which have been shared with the user
         :param int limit: DEPRECATED, use pageSize instead. if set, only returns the newest up until limit
+        :param bool get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
+        :param bool get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
         :param int page_size: pagination size/limit of the number of samples to return
         :param int page_offset: pagination offset
         :return: list[DatasetDataEnriched]
@@ -557,6 +567,8 @@ class DatasetsApi(object):
         :param async_req bool
         :param bool shared: if set, only returns the datasets which have been shared with the user
         :param int limit: DEPRECATED, use pageSize instead. if set, only returns the newest up until limit
+        :param bool get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
+        :param bool get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
         :param int page_size: pagination size/limit of the number of samples to return
         :param int page_offset: pagination offset
         :return: list[DatasetDataEnriched]
@@ -564,7 +576,7 @@ class DatasetsApi(object):
                  returns the request thread.
         """
 
-        all_params = ['shared', 'limit', 'page_size', 'page_offset']  # noqa: E501
+        all_params = ['shared', 'limit', 'get_assets_of_team', 'get_assets_of_team_inclusive_self', 'page_size', 'page_offset']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -589,6 +601,10 @@ class DatasetsApi(object):
             query_params.append(('shared', params['shared']))  # noqa: E501
         if 'limit' in params:
             query_params.append(('limit', params['limit']))  # noqa: E501
+        if 'get_assets_of_team' in params:
+            query_params.append(('getAssetsOfTeam', params['get_assets_of_team']))  # noqa: E501
+        if 'get_assets_of_team_inclusive_self' in params:
+            query_params.append(('getAssetsOfTeamInclusiveSelf', params['get_assets_of_team_inclusive_self']))  # noqa: E501
         if 'page_size' in params:
             query_params.append(('pageSize', params['page_size']))  # noqa: E501
         if 'page_offset' in params:
@@ -636,6 +652,8 @@ class DatasetsApi(object):
         :param DatasetNameQuery dataset_name: (required)
         :param bool shared: if set, only returns the datasets which have been shared with the user
         :param bool exact: if set, only returns the datasets which match the name exactly (not just by prefix)
+        :param bool get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
+        :param bool get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
         :return: list[DatasetDataEnriched]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -660,12 +678,14 @@ class DatasetsApi(object):
         :param DatasetNameQuery dataset_name: (required)
         :param bool shared: if set, only returns the datasets which have been shared with the user
         :param bool exact: if set, only returns the datasets which match the name exactly (not just by prefix)
+        :param bool get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
+        :param bool get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
         :return: list[DatasetDataEnriched]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_name', 'shared', 'exact']  # noqa: E501
+        all_params = ['dataset_name', 'shared', 'exact', 'get_assets_of_team', 'get_assets_of_team_inclusive_self']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -696,6 +716,10 @@ class DatasetsApi(object):
             query_params.append(('shared', params['shared']))  # noqa: E501
         if 'exact' in params:
             query_params.append(('exact', params['exact']))  # noqa: E501
+        if 'get_assets_of_team' in params:
+            query_params.append(('getAssetsOfTeam', params['get_assets_of_team']))  # noqa: E501
+        if 'get_assets_of_team_inclusive_self' in params:
+            query_params.append(('getAssetsOfTeamInclusiveSelf', params['get_assets_of_team_inclusive_self']))  # noqa: E501
 
         header_params = {}
 
@@ -739,6 +763,8 @@ class DatasetsApi(object):
         :param DatasetNameQuery dataset_name: (required)
         :param bool shared: if set, only returns the datasets which have been shared with the user
         :param bool exact: if set, only returns the datasets which match the name exactly (not just by prefix)
+        :param bool get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
+        :param bool get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
         :return: list[DatasetData]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -763,12 +789,14 @@ class DatasetsApi(object):
         :param DatasetNameQuery dataset_name: (required)
         :param bool shared: if set, only returns the datasets which have been shared with the user
         :param bool exact: if set, only returns the datasets which match the name exactly (not just by prefix)
+        :param bool get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
+        :param bool get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
         :return: list[DatasetData]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_name', 'shared', 'exact']  # noqa: E501
+        all_params = ['dataset_name', 'shared', 'exact', 'get_assets_of_team', 'get_assets_of_team_inclusive_self']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -799,6 +827,10 @@ class DatasetsApi(object):
             query_params.append(('shared', params['shared']))  # noqa: E501
         if 'exact' in params:
             query_params.append(('exact', params['exact']))  # noqa: E501
+        if 'get_assets_of_team' in params:
+            query_params.append(('getAssetsOfTeam', params['get_assets_of_team']))  # noqa: E501
+        if 'get_assets_of_team_inclusive_self' in params:
+            query_params.append(('getAssetsOfTeamInclusiveSelf', params['get_assets_of_team_inclusive_self']))  # noqa: E501
 
         header_params = {}
 

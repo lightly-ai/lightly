@@ -20,6 +20,7 @@ def test_download_compute_worker_run_artifacts(mocker: MockerFixture) -> None:
     )
     run = DockerRunData(
         id="run-1",
+        user_id="user-id",
         dataset_id="dataset-1",
         docker_version="",
         state="",
@@ -69,6 +70,7 @@ def test__download_compute_worker_run_artifact_by_type(
     )
     run = DockerRunData(
         id="run-1",
+        user_id="user-id",
         dataset_id="dataset-1",
         docker_version="",
         state="",
@@ -113,6 +115,7 @@ def test__download_compute_worker_run_artifact_by_type__no_artifacts(
     )
     run = DockerRunData(
         id="run-1",
+        user_id="user-id",
         dataset_id="dataset-1",
         docker_version="",
         state="",
@@ -141,6 +144,7 @@ def test__download_compute_worker_run_artifact_by_type__no_artifact_with_type(
     )
     run = DockerRunData(
         id="run-1",
+        user_id="user-id",
         dataset_id="dataset-1",
         docker_version="",
         state="",

@@ -99,8 +99,8 @@ from lightly.openapi_generated.swagger_client.models.docker_run_state import (
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import (
     DockerWorkerConfigCreateRequest,
 )
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_create_request import (
-    DockerWorkerConfigV2CreateRequest,
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_create_request import (
+    DockerWorkerConfigV3CreateRequest,
 )
 from lightly.openapi_generated.swagger_client.models.docker_worker_registry_entry_data import (
     DockerWorkerRegistryEntryData,
@@ -874,6 +874,7 @@ class MockedComputeWorkerApi(DockerApi):
         self._compute_worker_runs = [
             DockerRunData(
                 id="compute-worker-run-1",
+                user_id="user-id",
                 docker_version="v1",
                 dataset_id="dataset_id_xyz",
                 state=DockerRunState.TRAINING,
@@ -899,6 +900,7 @@ class MockedComputeWorkerApi(DockerApi):
         self._registered_workers = [
             DockerWorkerRegistryEntryData(
                 id="worker-registry-id-1",
+                user_id="user-id",
                 name="worker-name-1",
                 worker_type=DockerWorkerType.FULL,
                 state=DockerWorkerState.OFFLINE,
@@ -922,8 +924,8 @@ class MockedComputeWorkerApi(DockerApi):
         assert isinstance(body, DockerWorkerConfigCreateRequest)
         return CreateEntityResponse(id="worker-config-id-123")
 
-    def create_docker_worker_config_v2(self, body, **kwargs):
-        assert isinstance(body, DockerWorkerConfigV2CreateRequest)
+    def create_docker_worker_config_v3(self, body, **kwargs):
+        assert isinstance(body, DockerWorkerConfigV3CreateRequest)
         return CreateEntityResponse(id="worker-configv2-id-123")
 
     def create_docker_run_scheduled_by_dataset_id(self, body, dataset_id, **kwargs):
