@@ -1205,8 +1205,8 @@ class VICRegLModel(BenchmarkModule):
         # Training diverges without LARS
         optim = LARS(
             self.parameters(),
-            lr=0.1 * lr_factor,
-            weight_decay=1e-6,
+            lr=0.3 * lr_factor,
+            weight_decay=1e-4,
             momentum=0.9,
         )
         cosine_scheduler = scheduler.CosineWarmupScheduler(
