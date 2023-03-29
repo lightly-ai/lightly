@@ -38,6 +38,7 @@ class DockerWorkerConfigV3Docker(object):
         'datasource': 'DockerWorkerConfigV3DockerDatasource',
         'embeddings': 'str',
         'enable_training': 'bool',
+        'training': 'DockerWorkerConfigV3DockerTraining',
         'normalize_embeddings': 'bool',
         'output_image_format': 'str',
         'pretagging': 'bool',
@@ -53,6 +54,7 @@ class DockerWorkerConfigV3Docker(object):
         'datasource': 'datasource',
         'embeddings': 'embeddings',
         'enable_training': 'enableTraining',
+        'training': 'training',
         'normalize_embeddings': 'normalizeEmbeddings',
         'output_image_format': 'outputImageFormat',
         'pretagging': 'pretagging',
@@ -62,7 +64,7 @@ class DockerWorkerConfigV3Docker(object):
         'upload_report': 'uploadReport'
     }
 
-    def __init__(self, checkpoint=None, corruptness_check=None, datasource=None, embeddings=None, enable_training=None, normalize_embeddings=None, output_image_format=None, pretagging=None, pretagging_upload=None, relevant_filenames_file=None, selected_sequence_length=None, upload_report=None, _configuration=None):  # noqa: E501
+    def __init__(self, checkpoint=None, corruptness_check=None, datasource=None, embeddings=None, enable_training=None, training=None, normalize_embeddings=None, output_image_format=None, pretagging=None, pretagging_upload=None, relevant_filenames_file=None, selected_sequence_length=None, upload_report=None, _configuration=None):  # noqa: E501
         """DockerWorkerConfigV3Docker - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -73,6 +75,7 @@ class DockerWorkerConfigV3Docker(object):
         self._datasource = None
         self._embeddings = None
         self._enable_training = None
+        self._training = None
         self._normalize_embeddings = None
         self._output_image_format = None
         self._pretagging = None
@@ -92,6 +95,8 @@ class DockerWorkerConfigV3Docker(object):
             self.embeddings = embeddings
         if enable_training is not None:
             self.enable_training = enable_training
+        if training is not None:
+            self.training = training
         if normalize_embeddings is not None:
             self.normalize_embeddings = normalize_embeddings
         if output_image_format is not None:
@@ -211,6 +216,27 @@ class DockerWorkerConfigV3Docker(object):
         """
 
         self._enable_training = enable_training
+
+    @property
+    def training(self):
+        """Gets the training of this DockerWorkerConfigV3Docker.  # noqa: E501
+
+
+        :return: The training of this DockerWorkerConfigV3Docker.  # noqa: E501
+        :rtype: DockerWorkerConfigV3DockerTraining
+        """
+        return self._training
+
+    @training.setter
+    def training(self, training):
+        """Sets the training of this DockerWorkerConfigV3Docker.
+
+
+        :param training: The training of this DockerWorkerConfigV3Docker.  # noqa: E501
+        :type: DockerWorkerConfigV3DockerTraining
+        """
+
+        self._training = training
 
     @property
     def normalize_embeddings(self):
