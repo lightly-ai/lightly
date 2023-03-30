@@ -49,7 +49,7 @@ class VICRegL(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.SGD(model.parameters(), momentum=0.9, lr=0.06)
+        optim = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
         return optim
 
 
