@@ -16,7 +16,7 @@ from lightly.utils.dist import gather
 class VICRegLLoss(torch.nn.Module):
     """Implementation of the VICRegL loss from VICRegL paper [0].
 
-    This implementation follows the code published by the authors. [1]
+    This implementation follows the code published by the authors [1].
 
     - [0]: VICRegL, 2022, https://arxiv.org/abs/2210.01571
     - [1]: https://github.com/facebookresearch/VICRegL
@@ -236,7 +236,22 @@ class VICRegLLoss(torch.nn.Module):
         local_view_features: Optional[Sequence[Tuple[Tensor, Tensor]]] = None,
         local_view_grids: Optional[Sequence[Tensor]] = None,
     ) -> Tensor:
-        """Returns loss from local features based on nearest neighbor matching."""
+        """Returns loss from local features based on nearest neighbor matching.
+
+        Note: Our nearest neighbor implementation returns the selected features sorted
+        by increasing matching distance, whereas the implementation by the VICRegL
+        authors returns features in a different order [1]. This results in slight
+        differences of the final local loss. The difference results from feature
+        centering which depends on the order.
+
+        Note: Nearest neighbor matching slightly differs between the paper [0] and the
+        original implementation of the authors [1]. The paper mentions that
+        num_matches is set to 20 for global views and 4 for local views. The code
+        uses 20 matches for the first NN search and 4 matches for the second search,
+        regardless of global or local views:
+        https://github.com/facebookresearch/VICRegL/blob/803ae4c8cd1649a820f03afb4793763e95317620/main_vicregl.py#L329-L334
+        Our implementation follows the original code and ignores view type.
+        """
         loss = 0
         loss_count = 0
         for (_, z_a_local_features), grid_a in zip(
@@ -295,12 +310,6 @@ class VICRegLLoss(torch.nn.Module):
         z_a = z_a.flatten(start_dim=1, end_dim=2)
         z_b = z_b.flatten(start_dim=1, end_dim=2)
 
-        # Note: Nearest neighbor matching slightly differs between the paper [0] and the
-        # original implementation of the authors [1]. The paper mentions that
-        # `num_matches` is set to 20 for global views and 4 for local views. The code
-        # uses 20 matches for the first NN search and 4 matches for the second search:
-        # https://github.com/facebookresearch/VICRegL/blob/803ae4c8cd1649a820f03afb4793763e95317620/main_vicregl.py#L329-L334
-        # Our implementation follows the original code.
         z_a_filtered, z_a_nn = self._nearest_neighbors_on_l2(
             input_features=z_a, candidate_features=z_b, num_matches=self.num_matches[0]
         )
