@@ -51,7 +51,7 @@ Results (20.3.2023):
 | SMoG             |        256 |    800 |              0.782 |  250.2 Min |      2.5 GByte |
 | TiCo             |        256 |    800 |              0.857 |  184.7 Min |      2.5 GByte |
 | VICReg           |        256 |    800 |              0.843 |  192.9 Min |      5.7 GByte |
-| VICRegL          |        256 |    800 |              0.799 |  180.0 Min |      2.6 GByte |
+| VICRegL          |        256 |    800 |              0.781 |  207.4 Min |      5.7 GByte |
 ---------------------------------------------------------------------------------------------
 
 """
@@ -1176,7 +1176,7 @@ class VICRegLModel(BenchmarkModule):
         self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
         self.local_projection_head = heads.VicRegLLocalProjectionHead(512, 128, 128)
         self.average_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
-        self.criterion = VICRegLLoss(num_matches=(8, 4))
+        self.criterion = VICRegLLoss(num_matches=(16, 4))
         self.backbone = nn.Sequential(self.train_backbone, self.average_pool)
         self.warmup_epochs = 20 if max_epochs >= 800 else 10
 

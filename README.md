@@ -245,7 +245,7 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 | SMoG             |    800 |        256 |         0.782 |
 | TiCo             |    800 |        256 |         0.857 |
 | VICReg           |    800 |        256 |         0.843 |
-| VICRegL          |    800 |        256 |         0.799 |
+| VICRegL          |    800 |        256 |         0.781 |
 
 
 #### Cifar10
