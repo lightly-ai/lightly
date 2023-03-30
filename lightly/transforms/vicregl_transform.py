@@ -152,7 +152,9 @@ class VICRegLTransform(ImageGridTransform):
             ),
         )
 
-        transforms = [global_transform] * n_global_views + [local_transform] * n_local_views
+        transforms = [global_transform] * n_global_views + [
+            local_transform
+        ] * n_local_views
         super().__init__(transforms=transforms)
 
 
