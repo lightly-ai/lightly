@@ -31,6 +31,16 @@ jobs:
         make dist
         pip3 install twine
         twine -h
+    - name: Convert success/failure strings to emojis
+      id: emoji-status
+      run: |
+        function set-emoji-output {
+          if [ "$2" == "success" ];
+          then echo "$1=:github-check-mark:" >> $GITHUB_OUTPUT;
+          else echo "$1=:github-changes-requested:" >> $GITHUB_OUTPUT;
+          fi
+        }
+        set-emoji-output status ${{ steps.build_and_release.outcome }}
     - name: Slack notification
       if: always()
       uses: rtCamp/action-slack-notify@v2
@@ -40,3 +50,5 @@ jobs:
         SLACK_USERNAME: Release of Lightly PIP Package ${{steps.checkout_latest_release_tag.outputs.tag_name}}
         SLACK_COLOR: ${{ steps.build_and_release.outcome }}
         SLACK_FOOTER: ""
+        SLACK_MESSAGE: |
+          Release status:  | URL: https://pypi.org/project/lightly/${{steps.checkout_latest_release_tag.outputs.tag_name}}
