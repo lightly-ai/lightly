@@ -20,7 +20,6 @@ from lightly.utils.hipify import bcolors
 
 
 class _ExportDatasetMixin:
-
     def export_label_studio_tasks_by_tag_id(
         self,
         tag_id: str,

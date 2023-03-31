@@ -156,6 +156,7 @@ class TestApiWorkflowDownloadDataset(MockedApiWorkflowSetup):
             )
             mock_get_all_embedding_data.assert_called_once()
 
+
 def test__get_latest_default_embedding_data__no_default_embedding() -> None:
     custom_embedding = DatasetEmbeddingData(
         id="0",

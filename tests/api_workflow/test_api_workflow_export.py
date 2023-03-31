@@ -1,4 +1,3 @@
-
 from lightly.api import api_workflow_download_dataset
 from lightly.openapi_generated.swagger_client import DatasetEmbeddingData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
