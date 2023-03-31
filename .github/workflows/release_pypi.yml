@@ -24,4 +24,7 @@ jobs:
         python-version: "3.10"
     - name: Build and release
       id: build_and_release
-      run: git log -2
+      run: |
+        make dist
+        pip3 install twine
+        twine -h
