@@ -15,7 +15,8 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
     - name: Checkout code
       uses: actions/checkout@v3
-      ref: ${ steps.get_release.outputs.tag_name }
+      with:
+        ref: ${ steps.get_release.outputs.tag_name }
     - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
