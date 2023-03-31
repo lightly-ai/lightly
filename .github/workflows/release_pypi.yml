@@ -52,4 +52,4 @@ jobs:
         SLACK_FOOTER: ""
         SLACK_MESSAGE: |
           Release status: {{steps.emoji_status.outputs.status}}
-          Url: https://pypi.org/project/lightly/${{steps.checkout_latest_release_tag.outputs.tag_name}}
+          https://pypi.org/project/lightly/${{steps.checkout_latest_release_tag.outputs.tag_name}}
