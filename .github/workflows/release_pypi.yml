@@ -12,14 +12,16 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v4
       with:
-        python-version: "3.10"
+        fetch-depth: 0
     - name: Checkout latest release tag
       run: |
         LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
         git checkout $LATEST_TAG
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
     - name: Build and release
       id: build_and_release
       run: git log -p -2
