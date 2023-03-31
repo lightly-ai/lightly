@@ -1,23 +1,25 @@
 name: Build and release lightly
 
 on:
+  push:
   release:
-    types: [edited] # change me to created
+    types: [created]
 
 jobs:
   build:
     name: Build and release
     runs-on: ubuntu-latest
     steps:
-    - name: Get release
-      id: get_release
-      uses: bruceadams/get-release@v1.3.2
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+    - name: Get latest release
+      id: latest_release
+      uses: kaliber5/action-get-release@v1
+      with:
+        token: ${{ github.token }}
+        latest: true
     - name: Checkout code
       uses: actions/checkout@v3
       with:
-        ref: ${ steps.get_release.outputs.tag_name }
+        ref: ${ steps.get_release.outputs.name }
     - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
