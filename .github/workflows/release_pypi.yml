@@ -29,9 +29,9 @@ jobs:
       id: build_and_release
       run: |
         pip3 install wheel
-        make dist
         pip3 install twine
-        twine -h
+        make dist
+        twine upload -u ${{ secrets.PYPI_USER_NAME }} -p ${{ secrets.PYPI_PASSWORD }} dist/*
     - name: Convert success/failure strings to emojis
       id: emoji_status
       run: |
