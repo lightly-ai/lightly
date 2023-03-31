@@ -3,7 +3,7 @@ from lightly.openapi_generated.swagger_client import DatasetEmbeddingData
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
-class TestApiWorkflowExportDataset(MockedApiWorkflowSetup):
+class TestApiWorkflowExport(MockedApiWorkflowSetup):
     def setUp(self) -> None:
         MockedApiWorkflowSetup.setUp(self, dataset_id="dataset_0_id")
         self.api_workflow_client._tags_api.no_tags = 3
