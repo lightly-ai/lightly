@@ -15,9 +15,11 @@ jobs:
       with:
         fetch-depth: 0
     - name: Checkout latest release tag
+      id: checkout_latest_release_tag
       run: |
         LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
         git checkout $LATEST_TAG
+        echo "tag_name=$LATEST_TAG" >> $GITHUB_OUTPUT;
     - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
@@ -29,3 +31,12 @@ jobs:
         make dist
         pip3 install twine
         twine -h
+    - name: Slack notification
+      if: always()
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_TEST_CHANNEL }}
+        SLACK_ICON_EMOJI: ":github:"
+        SLACK_USERNAME: Release of Lightly PIP Package ${{checkout_latest_release_tag.outputs.tag_name}}
+        SLACK_COLOR: ${{ steps.build_and_release.outcome }}
+        SLACK_FOOTER: ""
