@@ -3,6 +3,12 @@
 Add Predictions to a Datasource
 ===============================
 
+.. warning::
+    **The Docker Archive documentation is deprecated**
+
+    The old workflow described in these docs will not be supported with new Lightly Worker versions above 2.6.
+    Please switch to our `new documentation page <https://docs.lightly.ai>`_ instead.
+
 Lightly can not only use images you provided in a datasource, but also predictions of a ML model on your images.
 They are used for active learning for selecting images based on the objects in them.
 Furthermore, object detection predictions can be used running Lightly on object level.

@@ -1,6 +1,12 @@
 Sequence Selection
 ==================
 
+.. warning::
+    **The Docker Archive documentation is deprecated**
+
+    The old workflow described in these docs will not be supported with new Lightly Worker versions above 2.6.
+    Please switch to our `new documentation page <https://docs.lightly.ai>`_ instead.
+
 Sequence selection allows users to select sequences of a video instead of single frames.
 The key concept is the parameter `selected_sequence_length`. If its value is one (default),
 the docker selects single frames. If it is larger than one, each video is split into 

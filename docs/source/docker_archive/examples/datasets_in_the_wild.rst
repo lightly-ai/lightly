@@ -1,6 +1,12 @@
 Extract Diverse Video Frames
 =============================
 
+.. warning::
+    **The Docker Archive documentation is deprecated**
+
+    The old workflow described in these docs will not be supported with new Lightly Worker versions above 2.6.
+    Please switch to our `new documentation page <https://docs.lightly.ai>`_ instead.
+
 The following example is a showcase how the lightly docker solution can be used 
 to extract frames from a video based on their uniqueness 
 rather than based on timestamps.

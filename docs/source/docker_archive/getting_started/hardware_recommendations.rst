@@ -3,6 +3,12 @@
 Hardware recommendations
 ========================
 
+.. warning::
+    **The Docker Archive documentation is deprecated**
+
+    The old workflow described in these docs will not be supported with new Lightly Worker versions above 2.6.
+    Please switch to our `new documentation page <https://docs.lightly.ai>`_ instead.
+
 Lightly worker is usually run on dedicated hardware
 or in the cloud on a compute instance
 which is specifically spun up to run Lightly Worker standalone.

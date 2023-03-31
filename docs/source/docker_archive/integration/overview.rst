@@ -2,6 +2,12 @@ Integration
 ===================================
 Here you learn how to integrate the Lightly Docker into data pre-processing pipelines.
 
+.. warning::
+    **The Docker Archive documentation is deprecated**
+
+    The old workflow described in these docs will not be supported with new Lightly Worker versions above 2.6.
+    Please switch to our `new documentation page <https://docs.lightly.ai>`_ instead.
+
 
 .. toctree::
    :maxdepth: 1
