@@ -7,7 +7,7 @@ Add Metadata to a Datasource
     **The Docker Archive documentation is deprecated**
 
     The old workflow described in these docs will not be supported with new Lightly Worker versions above 2.6.
-    Please switch to our `new documentation page <https://docs.lightly.ai>`_ instead.
+    Please switch to our `new documentation page <https://docs.lightly.ai/docs>`_ instead.
 
 Lightly can make use of metadata collected alongside your images or videos. Provided,
 metadata can be used to steer the selection process and to analyze the selected dataset

@@ -8,7 +8,7 @@ Using the Docker with a Cloud Bucket as Remote Datasource
     **The Docker Archive documentation is deprecated**
 
     The old workflow described in these docs will not be supported with new Lightly Worker versions above 2.6.
-    Please switch to our `new documentation page <https://docs.lightly.ai>`_ instead.
+    Please switch to our `new documentation page <https://docs.lightly.ai/docs>`_ instead.
 
 Introduction
 ------------
