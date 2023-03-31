@@ -1,9 +1,10 @@
 name: Build and release lightly
 
 on:
-  push:
-  release:
-    types: [created]
+  workflow_dispatch:
+# TODO(Philipp, 03/23): Enable me after proper testing.
+#  release:
+#    types: [created]
 
 jobs:
   build:
