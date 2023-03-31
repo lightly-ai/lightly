@@ -46,7 +46,7 @@ jobs:
       if: always()
       uses: rtCamp/action-slack-notify@v2
       env:
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_TEST_CHANNEL }}
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_RELEASES }}
         SLACK_ICON_EMOJI: ":python:"
         SLACK_USERNAME: Release of Lightly PIP Package ${{steps.checkout_latest_release_tag.outputs.tag_name}}
         SLACK_COLOR: ${{ steps.build_and_release.outcome }}
