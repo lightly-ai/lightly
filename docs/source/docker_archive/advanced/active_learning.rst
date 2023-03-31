@@ -3,6 +3,12 @@
 Active Learning
 ===============
 
+.. warning::
+    **The Docker Archive documentation is deprecated**
+
+    The old workflow described in these docs will not be supported with new Lightly Worker versions above 2.6.
+    Please switch to our `new documentation page <https://docs.lightly.ai/docs>`_ instead.
+
 Lightly makes use of active learning scores to select the samples which will yield
 the biggest improvements of your machine learning model. The scores are calculated
 on-the-fly based on model predictions and provide the selection algorithm with feedback
