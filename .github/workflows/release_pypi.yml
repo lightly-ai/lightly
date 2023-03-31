@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 # TODO(Philipp, 03/23): Enable me after proper testing.
 #  release:
-#    types: [created]
+#    types: [published]
 
 jobs:
   build:
