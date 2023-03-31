@@ -32,7 +32,7 @@ jobs:
         pip3 install twine
         twine -h
     - name: Convert success/failure strings to emojis
-      id: emoji-status
+      id: emoji_status
       run: |
         function set-emoji-output {
           if [ "$2" == "success" ];
@@ -51,4 +51,5 @@ jobs:
         SLACK_COLOR: ${{ steps.build_and_release.outcome }}
         SLACK_FOOTER: ""
         SLACK_MESSAGE: |
-          Release status:  | URL: https://pypi.org/project/lightly/${{steps.checkout_latest_release_tag.outputs.tag_name}}
+          Release status: ${{steps.emoji_status.outputs.status}}
+          Url: https://pypi.org/project/lightly/${{steps.checkout_latest_release_tag.outputs.tag_name}}
