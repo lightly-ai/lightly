@@ -25,6 +25,7 @@ jobs:
     - name: Build and release
       id: build_and_release
       run: |
+        pip3 install wheel
         make dist
         pip3 install twine
         twine -h
