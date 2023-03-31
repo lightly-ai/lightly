@@ -1,6 +1,12 @@
 Datapool
 =================
 
+.. warning::
+    **The Docker Archive documentation is deprecated**
+
+    The old workflow described in these docs will not be supported with new Lightly Worker versions above 2.6.
+    Please switch to our `new documentation page <https://docs.lightly.ai/docs>`_ instead.
+
 The Lightly Datapool is a tool which allows users to incrementally build up a 
 dataset for their project. It keeps track of the representations of previously
 selected samples and uses this information to pick new samples in order to
