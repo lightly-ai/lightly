@@ -1,0 +1,56 @@
+name: Build and release lightly
+
+on:
+  workflow_dispatch:
+# TODO(Philipp, 03/23): Enable me after proper testing.
+#  release:
+#    types: [published]
+
+jobs:
+  build:
+    name: Build and release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Checkout latest release tag
+      id: checkout_latest_release_tag
+      run: |
+        LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+        git checkout $LATEST_TAG
+        echo "tag_name=$LATEST_TAG" >> $GITHUB_OUTPUT;
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    - name: Build and release
+      id: build_and_release
+      run: |
+        pip3 install wheel
+        pip3 install twine
+        make dist
+        twine upload -u ${{ secrets.PYPI_USER_NAME }} -p ${{ secrets.PYPI_PASSWORD }} dist/*
+    - name: Convert success/failure strings to emojis
+      id: emoji_status
+      run: |
+        function set-emoji-output {
+          if [ "$2" == "success" ];
+          then echo "$1=:github-check-mark:" >> $GITHUB_OUTPUT;
+          else echo "$1=:github-changes-requested:" >> $GITHUB_OUTPUT;
+          fi
+        }
+        set-emoji-output status ${{ steps.build_and_release.outcome }}
+    - name: Slack notification
+      if: always()
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_RELEASES }}
+        SLACK_ICON_EMOJI: ":python:"
+        SLACK_USERNAME: Release of Lightly PIP Package ${{steps.checkout_latest_release_tag.outputs.tag_name}}
+        SLACK_COLOR: ${{ steps.build_and_release.outcome }}
+        SLACK_FOOTER: ""
+        SLACK_MESSAGE: |
+          Release status: ${{steps.emoji_status.outputs.status}}
+          https://pypi.org/project/lightly/${{steps.checkout_latest_release_tag.outputs.tag_name}}
