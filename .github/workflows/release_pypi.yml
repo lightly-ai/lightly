@@ -1,7 +1,8 @@
+name: Build and release lightly
+
 on:
-  push: # TODO: Remove me
   release:
-    types: [created]
+    types: [edited] # change me to created
 
 jobs:
   build:
