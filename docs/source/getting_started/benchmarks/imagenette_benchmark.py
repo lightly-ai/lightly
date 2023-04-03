@@ -51,7 +51,7 @@ Results (20.3.2023):
 | SMoG             |        256 |    800 |              0.782 |  250.2 Min |      2.5 GByte |
 | TiCo             |        256 |    800 |              0.857 |  184.7 Min |      2.5 GByte |
 | VICReg           |        256 |    800 |              0.843 |  192.9 Min |      5.7 GByte |
-| VICRegL          |        256 |    800 |              0.799 |  180.0 Min |      2.6 GByte |
+| VICRegL          |        256 |    800 |              0.781 |  207.4 Min |      5.7 GByte |
 ---------------------------------------------------------------------------------------------
 
 """
@@ -199,9 +199,8 @@ vicreg_transform = VICRegTransform(
 # Transform  passing geometrical transformation for VICRegL
 vicregl_transform = VICRegLTransform(
     global_crop_size=128,
-    local_crop_size=64,
+    n_local_views=0,
     global_grid_size=4,
-    local_grid_size=2,
     cj_strength=0.5,
 )
 
@@ -1177,29 +1176,28 @@ class VICRegLModel(BenchmarkModule):
         self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
         self.local_projection_head = heads.VicRegLLocalProjectionHead(512, 128, 128)
         self.average_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
-        self.criterion = VICRegLLoss(alpha=0.75, num_matches=(16, 4))
+        self.criterion = VICRegLLoss(num_matches=(16, 4))
         self.backbone = nn.Sequential(self.train_backbone, self.average_pool)
-        self.warmup_epochs = 40 if max_epochs >= 800 else 20
+        self.warmup_epochs = 20 if max_epochs >= 800 else 10
 
     def forward(self, x):
         x = self.train_backbone(x)
         y = self.average_pool(x).flatten(start_dim=1)
         z = self.projection_head(y)
-        y_local = x.permute(0, 2, 3, 1)  # (B, D, W, H) to (B, W, H, D)
+        y_local = x.permute(0, 2, 3, 1)  # (B, D, H, W) to (B, H, W, D)
         z_local = self.local_projection_head(y_local)
         return z, z_local
 
     def training_step(self, batch, batch_index):
-        (view_global, view_local, grid_global, grid_local), _, _ = batch
-        z_global, z_global_local_features = self.forward(view_global)
-        z_local, z_local_local_features = self.forward(view_local)
+        views_and_grids = batch[0]
+        views = views_and_grids[: len(views_and_grids) // 2]
+        grids = views_and_grids[len(views_and_grids) // 2 :]
+        features = [self.forward(view) for view in views]
         loss = self.criterion(
-            z_global=z_global,
-            z_local=z_local,
-            z_global_local_features=z_global_local_features,
-            z_local_local_features=z_local_local_features,
-            grid_global=grid_global,
-            grid_local=grid_local,
+            global_view_features=features[:2],
+            global_view_grids=grids[:2],
+            local_view_features=features[2:],
+            local_view_grids=grids[2:],
         )
         return loss
 

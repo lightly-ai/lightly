@@ -14,45 +14,52 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 class VICRegLTransform(ImageGridTransform):
     """Transforms images for VICRegL.
 
+    - [0]: VICRegL, 2022, https://arxiv.org/abs/2210.01571
+
     Attributes:
         global_crop_size:
-            Size of the input image in pixels for the global crop category.
+            Size of the input image in pixels for the global crop views.
         local_crop_size:
-            Size of the input image in pixels for the local crop category.
+            Size of the input image in pixels for the local crop views.
+        n_global_views:
+            Number of global crop views to generate.
+        n_local_views:
+            Number of local crop views to generate. For ResNet backbones it is
+            recommended to set this to 0, see [0].
         global_crop_scale:
-            Min and max scales for the global crop category.
+            Min and max scales for the global crop views.
         local_crop_scale:
-            Min and max scales for the local crop category.
+            Min and max scales for the local crop views.
         global_grid_size:
-            Grid size for the global crop category.
+            Grid size for the global crop views.
         local_grid_size:
-            Grid size for the local crop category.
+            Grid size for the local crop views.
         global_gaussian_blur_prob:
-            Probability of Gaussian blur for the global crop category.
+            Probability of Gaussian blur for the global crop views.
         local_gaussian_blur_prob:
-            Probability of Gaussian blur for the local crop category.
+            Probability of Gaussian blur for the local crop views.
         global_gaussian_blur_kernel_size:
             Will be deprecated in favor of `global_gaussian_blur_sigmas` argument.
             If set, the old behavior applies and `global_gaussian_blur_sigmas`
             is ignored. Used to calculate sigma of gaussian blur with
-            global_gaussian_blur_kernel_size * input_size. Applied to global crop category.
+            global_gaussian_blur_kernel_size * input_size. Applied to global crop views.
         local_gaussian_blur_kernel_size:
             Will be deprecated in favor of `local_gaussian_blur_sigmas` argument.
             If set, the old behavior applies and `local_gaussian_blur_sigmas`
             is ignored. Used to calculate sigma of gaussian blur with
-            local_gaussian_blur_kernel_size * input_size. Applied to local crop category.
+            local_gaussian_blur_kernel_size * input_size. Applied to local crop views.
         global_gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel
             is sampled. It is ignored if `global_gaussian_blur_kernel_size` is set.
-            Applied to global crop category.
+            Applied to global crop views.
         local_gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel
             is sampled. It is ignored if `local_gaussian_blur_kernel_size` is set.
-            Applied to local crop category.
+            Applied to local crop views.
         global_solarize_prob:
-            Probability of solarization for the global crop category.
+            Probability of solarization for the global crop views.
         local_solarize_prob:
-            Probability of solarization for the local crop category.
+            Probability of solarization for the local crop views.
         hf_prob:
             Probability that horizontal flip is applied.
         cj_prob:
@@ -78,6 +85,8 @@ class VICRegLTransform(ImageGridTransform):
         self,
         global_crop_size: int = 224,
         local_crop_size: int = 96,
+        n_global_views: int = 2,
+        n_local_views: int = 6,
         global_crop_scale: Tuple[float, float] = (0.2, 1.0),
         local_crop_scale: Tuple[float, float] = (0.05, 0.2),
         global_grid_size: int = 7,
@@ -100,54 +109,52 @@ class VICRegLTransform(ImageGridTransform):
         random_gray_scale: float = 0.2,
         normalize: Union[None, dict] = IMAGENET_NORMALIZE,
     ):
-        transforms = []
+        global_transform = (
+            RandomResizedCropAndFlip(
+                crop_size=global_crop_size,
+                crop_min_scale=global_crop_scale[0],
+                crop_max_scale=global_crop_scale[1],
+                hf_prob=hf_prob,
+                grid_size=global_grid_size,
+            ),
+            VICRegLViewTransform(
+                gaussian_blur_prob=global_gaussian_blur_prob,
+                gaussian_blur_kernel_size=global_gaussian_blur_kernel_size,
+                gaussian_blur_sigmas=global_gaussian_blur_sigmas,
+                solarize_prob=global_solarize_prob,
+                cj_prob=cj_prob,
+                cj_strength=cj_strength,
+                cj_bright=cj_bright,
+                cj_contrast=cj_contrast,
+                cj_sat=cj_sat,
+                cj_hue=cj_hue,
+                random_gray_scale=random_gray_scale,
+                normalize=normalize,
+            ),
+        )
+        local_transform = (
+            RandomResizedCropAndFlip(
+                crop_size=local_crop_size,
+                crop_min_scale=local_crop_scale[0],
+                crop_max_scale=local_crop_scale[1],
+                hf_prob=hf_prob,
+                grid_size=local_grid_size,
+            ),
+            VICRegLViewTransform(
+                gaussian_blur_prob=local_gaussian_blur_prob,
+                gaussian_blur_kernel_size=local_gaussian_blur_kernel_size,
+                gaussian_blur_sigmas=local_gaussian_blur_sigmas,
+                solarize_prob=local_solarize_prob,
+                cj_prob=cj_prob,
+                cj_strength=cj_strength,
+                random_gray_scale=random_gray_scale,
+                normalize=normalize,
+            ),
+        )
 
-        transforms.append(
-            (
-                RandomResizedCropAndFlip(
-                    crop_size=global_crop_size,
-                    crop_min_scale=global_crop_scale[0],
-                    crop_max_scale=global_crop_scale[1],
-                    hf_prob=hf_prob,
-                    grid_size=global_grid_size,
-                ),
-                VICRegLViewTransform(
-                    gaussian_blur_prob=global_gaussian_blur_prob,
-                    gaussian_blur_kernel_size=global_gaussian_blur_kernel_size,
-                    gaussian_blur_sigmas=global_gaussian_blur_sigmas,
-                    solarize_prob=global_solarize_prob,
-                    cj_prob=cj_prob,
-                    cj_strength=cj_strength,
-                    cj_bright=cj_bright,
-                    cj_contrast=cj_contrast,
-                    cj_sat=cj_sat,
-                    cj_hue=cj_hue,
-                    random_gray_scale=random_gray_scale,
-                    normalize=normalize,
-                ),
-            )
-        )
-        transforms.append(
-            (
-                RandomResizedCropAndFlip(
-                    crop_size=local_crop_size,
-                    crop_min_scale=local_crop_scale[0],
-                    crop_max_scale=local_crop_scale[1],
-                    hf_prob=hf_prob,
-                    grid_size=local_grid_size,
-                ),
-                VICRegLViewTransform(
-                    gaussian_blur_prob=local_gaussian_blur_prob,
-                    gaussian_blur_kernel_size=local_gaussian_blur_kernel_size,
-                    gaussian_blur_sigmas=local_gaussian_blur_sigmas,
-                    solarize_prob=local_solarize_prob,
-                    cj_prob=cj_prob,
-                    cj_strength=cj_strength,
-                    random_gray_scale=random_gray_scale,
-                    normalize=normalize,
-                ),
-            )
-        )
+        transforms = [global_transform] * n_global_views + [
+            local_transform
+        ] * n_local_views
         super().__init__(transforms=transforms)
 
 
@@ -190,8 +197,7 @@ class VICRegLViewTransform:
         self.transform = T.Compose(transforms=transforms)
 
     def __call__(self, image: Union[Tensor, Image]) -> Tensor:
-        """
-        Applies the transforms to the input image.
+        """Applies the transforms to the input image.
 
         Args:
             image:
@@ -199,6 +205,5 @@ class VICRegLViewTransform:
 
         Returns:
             The transformed image.
-
         """
         return self.transform(image)

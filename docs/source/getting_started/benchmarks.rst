@@ -62,7 +62,7 @@ The current benchmark contains the following models:
   "SMoG", "800", "256", "0.782", "250.2 Min", "2.5 GByte"
   "TiCo", "800", "256", "0.857", "184.7 Min", "2.5 GByte"
   "VICReg", "800", "256", "0.843", "192.9 Min", "5.7 GByte"
-  "VICRegL", "800", "256", "0.799", "180.0 Min", "2.6 GByte"
+  "VICRegL", "800", "256", "0.781", "207.4 Min", "5.7 GByte"
 
 You can reproduce the benchmarks using the following script:
 :download:`imagenette_benchmark.py <benchmarks/imagenette_benchmark.py>` 
