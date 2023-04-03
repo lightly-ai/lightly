@@ -90,7 +90,8 @@ class PredictionSingletonInstanceSegmentationRepr(PredictionSingletonRepr):
         taskName: str,
         categoryId: int,
         score: float,
-        segmentation: str,
+        bbox: List[int],
+        segmentation: List[int],
         cropDatasetId: Optional[str] = None,
         cropSampleId: Optional[str] = None,
         probabilities: Optional[List[float]] = None,
@@ -103,6 +104,7 @@ class PredictionSingletonInstanceSegmentationRepr(PredictionSingletonRepr):
             cropDatasetId=cropDatasetId,
             cropSampleId=cropSampleId,
         )
+        self.bbox = bbox
         self.segmentation = segmentation
         self.probabilities = probabilities
 
