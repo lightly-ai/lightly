@@ -84,16 +84,16 @@ class PredictionSingletonSemanticSegmentationRepr(PredictionSingletonRepr):
         self.probabilities = probabilities
 
 
-# Not used
 class PredictionSingletonInstanceSegmentationRepr(PredictionSingletonRepr):
     def __init__(
         self,
         taskName: str,
         categoryId: int,
         score: float,
-        cropDatasetId: str,
-        cropSampleId: str,
-        segmentation: str,
+        bbox: List[int],
+        segmentation: List[int],
+        cropDatasetId: Optional[str] = None,
+        cropSampleId: Optional[str] = None,
         probabilities: Optional[List[float]] = None,
     ):
         super().__init__(
@@ -104,6 +104,7 @@ class PredictionSingletonInstanceSegmentationRepr(PredictionSingletonRepr):
             cropDatasetId=cropDatasetId,
             cropSampleId=cropSampleId,
         )
+        self.bbox = bbox
         self.segmentation = segmentation
         self.probabilities = probabilities
 
