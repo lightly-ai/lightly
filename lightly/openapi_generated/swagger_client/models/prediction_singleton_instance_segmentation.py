@@ -34,25 +34,29 @@ class PredictionSingletonInstanceSegmentation(object):
     """
     swagger_types = {
         'segmentation': 'list[int]',
+        'bbox': 'BoundingBox',
         'probabilities': 'Probabilities'
     }
 
     attribute_map = {
         'segmentation': 'segmentation',
+        'bbox': 'bbox',
         'probabilities': 'probabilities'
     }
 
-    def __init__(self, segmentation=None, probabilities=None, _configuration=None):  # noqa: E501
+    def __init__(self, segmentation=None, bbox=None, probabilities=None, _configuration=None):  # noqa: E501
         """PredictionSingletonInstanceSegmentation - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
         self._segmentation = None
+        self._bbox = None
         self._probabilities = None
         self.discriminator = None
 
         self.segmentation = segmentation
+        self.bbox = bbox
         if probabilities is not None:
             self.probabilities = probabilities
 
@@ -80,6 +84,29 @@ class PredictionSingletonInstanceSegmentation(object):
             raise ValueError("Invalid value for `segmentation`, must not be `None`")  # noqa: E501
 
         self._segmentation = segmentation
+
+    @property
+    def bbox(self):
+        """Gets the bbox of this PredictionSingletonInstanceSegmentation.  # noqa: E501
+
+
+        :return: The bbox of this PredictionSingletonInstanceSegmentation.  # noqa: E501
+        :rtype: BoundingBox
+        """
+        return self._bbox
+
+    @bbox.setter
+    def bbox(self, bbox):
+        """Sets the bbox of this PredictionSingletonInstanceSegmentation.
+
+
+        :param bbox: The bbox of this PredictionSingletonInstanceSegmentation.  # noqa: E501
+        :type: BoundingBox
+        """
+        if self._configuration.client_side_validation and bbox is None:
+            raise ValueError("Invalid value for `bbox`, must not be `None`")  # noqa: E501
+
+        self._bbox = bbox
 
     @property
     def probabilities(self):

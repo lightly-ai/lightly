@@ -46,6 +46,7 @@ from lightly.openapi_generated.swagger_client.models.active_learning_scores impo
 from lightly.openapi_generated.swagger_client.models.api_error_code import ApiErrorCode
 from lightly.openapi_generated.swagger_client.models.api_error_response import ApiErrorResponse
 from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData
+from lightly.openapi_generated.swagger_client.models.bounding_box import BoundingBox
 from lightly.openapi_generated.swagger_client.models.category_id import CategoryId
 from lightly.openapi_generated.swagger_client.models.category_name import CategoryName
 from lightly.openapi_generated.swagger_client.models.configuration_data import ConfigurationData
