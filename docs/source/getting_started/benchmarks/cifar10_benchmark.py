@@ -87,6 +87,8 @@ from lightly.transforms import (
     SMoGTransform,
     SwaVTransform,
 )
+from lightly.transforms.multi_view_transform import MultiViewTransform
+from lightly.transforms.simclr_transform import SimCLRViewTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import BenchmarkModule
 
@@ -167,6 +169,11 @@ simclr_transform = SimCLRTransform(
     gaussian_blur=0.0,
 )
 
+# Multi crop augmentation for FastSiam
+fast_siam_transform = MultiViewTransform(
+    [SimCLRViewTransform(input_size=32, cj_strength=0.5, gaussian_blur=0.0)] * 4
+)
+
 # Multi crop augmentation for SwAV, additionally, disable blur for cifar10
 swav_transform = SwaVTransform(
     crop_sizes=[32],
@@ -224,6 +231,7 @@ def create_dataset_train_ssl(model):
         DCL: simclr_transform,
         DCLW: simclr_transform,
         DINOModel: dino_transform,
+        FastSiamModel: fast_siam_transform,
         MocoModel: simclr_transform,
         NNCLRModel: simclr_transform,
         SimCLRModel: simclr_transform,
@@ -411,6 +419,25 @@ class SimSiamModel(BenchmarkModule):
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
+
+
+class FastSiamModel(SimSiamModel):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+
+    def training_step(self, batch, batch_idx):
+        xs, _, _ = batch
+        zs, ps = zip(*list(self.forward(x) for x in xs))
+        zs = torch.cat([z.unsqueeze(0) for z in zs], dim=0)
+        ps = torch.cat([p.unsqueeze(0) for p in ps], dim=0)
+
+        loss = 0.0
+        for i in range(len(xs)):
+            mask = torch.arange(len(xs)) != i
+            loss += self.criterion(ps[i], torch.mean(zs[mask], dim=0))
+
+        self.log("train_loss_ssl", loss)
+        return loss
 
 
 class BarlowTwinsModel(BenchmarkModule):
