@@ -1,4 +1,4 @@
-## -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Note that this benchmark also supports a multi-GPU setup. If you run it on
 a system with multiple GPUs make sure that you kill all the processes when
@@ -204,13 +204,12 @@ vicreg_transform = VICRegTransform(
 )
 
 # Transform  passing geometrical transformation for VICRegL
-vicregl_transform = None
-# VICRegLTransform(
-#    global_crop_size=128,
-#    n_local_views=0,
-#    global_grid_size=4,
-#    cj_strength=0.5,
-# )
+vicregl_transform = VICRegLTransform(
+    global_crop_size=128,
+    n_local_views=0,
+    global_grid_size=4,
+    cj_strength=0.5,
+)
 
 normalize_transform = torchvision.transforms.Normalize(
     mean=IMAGENET_NORMALIZE["mean"],
@@ -1385,26 +1384,26 @@ class SwaVQueueModel(BenchmarkModule):
 
 
 models = [
-    # BarlowTwinsModel,
-    # BYOLModel,
-    # DCL,
-    # DCLW,
-    # DINOModel,
-    # # MAEModel, # disabled by default because MAE uses larger images with size 224
-    # MSNModel,
-    # MocoModel,
-    # NNCLRModel,
-    # PMSNModel,
-    # SimCLRModel,
-    # # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
-    # SimSiamModel,
+    BarlowTwinsModel,
+    BYOLModel,
+    DCL,
+    DCLW,
+    DINOModel,
+    # MAEModel, # disabled by default because MAE uses larger images with size 224
+    MSNModel,
+    MocoModel,
+    NNCLRModel,
+    PMSNModel,
+    SimCLRModel,
+    # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
+    SimSiamModel,
     FastSiamModel,
-    # SwaVModel,
-    # SwaVQueueModel,
-    # SMoGModel,
-    # TiCoModel,
-    # VICRegModel,
-    # VICRegLModel,
+    SwaVModel,
+    SwaVQueueModel,
+    SMoGModel,
+    TiCoModel,
+    VICRegModel,
+    VICRegLModel,
 ]
 bench_results = dict()
 
