@@ -58,7 +58,6 @@ Results (20.3.2023):
 import copy
 import os
 import time
-from lightly.transforms.multi_view_transform import MultiViewTransform
 
 import numpy as np
 import pytorch_lightning as pl
@@ -98,6 +97,7 @@ from lightly.transforms import (
     VICRegLTransform,
     VICRegTransform,
 )
+from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils import scheduler
 from lightly.utils.benchmarking import BenchmarkModule
@@ -161,7 +161,9 @@ simclr_transform = SimCLRTransform(
 )
 
 # Multi crop augmentation for FastSiam
-fast_siam_transform = MultiViewTransform([SimCLRViewTransform(input_size=input_size, cj_strength=0.5)] * 4)
+fast_siam_transform = MultiViewTransform(
+    [SimCLRViewTransform(input_size=input_size, cj_strength=0.5)] * 4
+)
 
 # Multi crop augmentation for SwAV
 swav_transform = SwaVTransform(
@@ -203,12 +205,12 @@ vicreg_transform = VICRegTransform(
 
 # Transform  passing geometrical transformation for VICRegL
 vicregl_transform = None
-#VICRegLTransform(
+# VICRegLTransform(
 #    global_crop_size=128,
 #    n_local_views=0,
 #    global_grid_size=4,
 #    cj_strength=0.5,
-#)
+# )
 
 normalize_transform = torchvision.transforms.Normalize(
     mean=IMAGENET_NORMALIZE["mean"],
@@ -441,7 +443,7 @@ class FastSiamModel(SimSiamModel):
         zs = torch.cat([z.unsqueeze(0) for z in zs], dim=0)
         ps = torch.cat([p.unsqueeze(0) for p in ps], dim=0)
 
-        loss = 0.
+        loss = 0.0
         for i in range(len(xs)):
             mask = torch.arange(len(xs)) != i
             loss += self.criterion(ps[i], torch.mean(zs[mask], dim=0))
