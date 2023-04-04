@@ -20,6 +20,7 @@ Results (20.3.2023):
 | DCL              |        256 |    200 |              0.814 |   47.5 Min |      3.7 GByte |
 | DCLW             |        256 |    200 |              0.802 |   48.0 Min |      3.7 GByte |
 | DINO (Res18)     |        256 |    200 |              0.872 |   76.6 Min |      6.6 GByte |
+| FastSiam         |        256 |    200 |              0.836 |   69.0 Min |      7.3 GByte |
 | MSN (ViT-S)      |        256 |    200 |              0.721 |  123.3 Min |     16.3 GByte |
 | Moco             |        256 |    200 |              0.778 |   51.3 Min |      4.2 GByte |
 | NNCLR            |        256 |    200 |              0.801 |   47.3 Min |      3.8 GByte |
