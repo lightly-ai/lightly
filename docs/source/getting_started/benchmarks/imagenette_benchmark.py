@@ -58,6 +58,7 @@ Results (20.3.2023):
 import copy
 import os
 import time
+from lightly.transforms.multi_view_transform import MultiViewTransform
 
 import numpy as np
 import pytorch_lightning as pl
@@ -158,6 +159,9 @@ simclr_transform = SimCLRTransform(
     cj_strength=0.5,
 )
 
+# Multi crop augmentation for FastSiam
+fast_siam_transform = MultiViewTransform([simclr_transform] * 4)
+
 # Multi crop augmentation for SwAV
 swav_transform = SwaVTransform(
     crop_sizes=(128, 64),
@@ -238,6 +242,7 @@ def create_dataset_train_ssl(model):
         DCL: simclr_transform,
         DCLW: simclr_transform,
         DINOModel: dino_transform,
+        FastSiamModel: fast_siam_transform,
         MAEModel: mae_transform,
         MSNModel: msn_transform,
         MocoModel: simclr_transform,
@@ -430,14 +435,13 @@ class FastSiamModel(SimSiamModel):
 
     def training_step(self, batch, batch_idx):
         xs, _, _ = batch
-        k = len(xs)
         zs, ps = zip(*list(self.forward(x) for x in xs))
         zs = torch.cat([z.unsqueeze(0) for z in zs], dim=0)
         ps = torch.cat([p.unsqueeze(0) for p in ps], dim=0)
 
         loss = 0.
-        for i in range(k):
-            mask = torch.arange(k) != i
+        for i in range(len(xs)):
+            mask = torch.arange(len(xs)) != i
             loss += self.criterion(ps[i], torch.mean(zs[mask], dim=0))
 
         self.log("train_loss_ssl", loss)
@@ -1377,25 +1381,26 @@ class SwaVQueueModel(BenchmarkModule):
 
 
 models = [
-    BarlowTwinsModel,
-    BYOLModel,
-    DCL,
-    DCLW,
-    DINOModel,
-    # MAEModel, # disabled by default because MAE uses larger images with size 224
-    MSNModel,
-    MocoModel,
-    NNCLRModel,
-    PMSNModel,
-    SimCLRModel,
-    # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
-    SimSiamModel,
-    SwaVModel,
-    SwaVQueueModel,
-    SMoGModel,
-    TiCoModel,
-    VICRegModel,
-    VICRegLModel,
+    # BarlowTwinsModel,
+    # BYOLModel,
+    # DCL,
+    # DCLW,
+    # DINOModel,
+    # # MAEModel, # disabled by default because MAE uses larger images with size 224
+    # MSNModel,
+    # MocoModel,
+    # NNCLRModel,
+    # PMSNModel,
+    # SimCLRModel,
+    # # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
+    # SimSiamModel,
+    FastSiamModel,
+    # SwaVModel,
+    # SwaVQueueModel,
+    # SMoGModel,
+    # TiCoModel,
+    # VICRegModel,
+    # VICRegLModel,
 ]
 bench_results = dict()
 
