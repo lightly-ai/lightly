@@ -46,8 +46,7 @@ class DockerWorkerConfigV3LightlyCollate(object):
         'sigmas': 'list[float]',
         'vf_prob': 'float',
         'hf_prob': 'float',
-        'rr_prob': 'float',
-        'rr_degrees': 'OneOfDockerWorkerConfigV3LightlyCollateRrDegrees'
+        'rr_prob': 'float'
     }
 
     attribute_map = {
@@ -64,11 +63,10 @@ class DockerWorkerConfigV3LightlyCollate(object):
         'sigmas': 'sigmas',
         'vf_prob': 'vfProb',
         'hf_prob': 'hfProb',
-        'rr_prob': 'rrProb',
-        'rr_degrees': 'rrDegrees'
+        'rr_prob': 'rrProb'
     }
 
-    def __init__(self, input_size=None, cj_prob=None, cj_bright=None, cj_contrast=None, cj_sat=None, cj_hue=None, min_scale=None, random_gray_scale=None, gaussian_blur=None, kernel_size=None, sigmas=None, vf_prob=None, hf_prob=None, rr_prob=None, rr_degrees=None, _configuration=None):  # noqa: E501
+    def __init__(self, input_size=None, cj_prob=None, cj_bright=None, cj_contrast=None, cj_sat=None, cj_hue=None, min_scale=None, random_gray_scale=None, gaussian_blur=None, kernel_size=None, sigmas=None, vf_prob=None, hf_prob=None, rr_prob=None, _configuration=None):  # noqa: E501
         """DockerWorkerConfigV3LightlyCollate - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -88,7 +86,6 @@ class DockerWorkerConfigV3LightlyCollate(object):
         self._vf_prob = None
         self._hf_prob = None
         self._rr_prob = None
-        self._rr_degrees = None
         self.discriminator = None
 
         if input_size is not None:
@@ -119,8 +116,6 @@ class DockerWorkerConfigV3LightlyCollate(object):
             self.hf_prob = hf_prob
         if rr_prob is not None:
             self.rr_prob = rr_prob
-        if rr_degrees is not None:
-            self.rr_degrees = rr_degrees
 
     @property
     def input_size(self):
@@ -415,27 +410,6 @@ class DockerWorkerConfigV3LightlyCollate(object):
         """
 
         self._rr_prob = rr_prob
-
-    @property
-    def rr_degrees(self):
-        """Gets the rr_degrees of this DockerWorkerConfigV3LightlyCollate.  # noqa: E501
-
-
-        :return: The rr_degrees of this DockerWorkerConfigV3LightlyCollate.  # noqa: E501
-        :rtype: OneOfDockerWorkerConfigV3LightlyCollateRrDegrees
-        """
-        return self._rr_degrees
-
-    @rr_degrees.setter
-    def rr_degrees(self, rr_degrees):
-        """Sets the rr_degrees of this DockerWorkerConfigV3LightlyCollate.
-
-
-        :param rr_degrees: The rr_degrees of this DockerWorkerConfigV3LightlyCollate.  # noqa: E501
-        :type: OneOfDockerWorkerConfigV3LightlyCollateRrDegrees
-        """
-
-        self._rr_degrees = rr_degrees
 
     def to_dict(self):
         """Returns the model properties as a dict"""

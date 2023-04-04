@@ -38,7 +38,7 @@ class DockerWorkerConfigV2Lightly(object):
         'trainer': 'DockerWorkerConfigV2LightlyTrainer',
         'criterion': 'DockerWorkerConfigV3LightlyCriterion',
         'optimizer': 'DockerWorkerConfigV3LightlyOptimizer',
-        'collate': 'DockerWorkerConfigV2LightlyCollate'
+        'collate': 'DockerWorkerConfigV3LightlyCollate'
     }
 
     attribute_map = {
@@ -188,7 +188,7 @@ class DockerWorkerConfigV2Lightly(object):
 
 
         :return: The collate of this DockerWorkerConfigV2Lightly.  # noqa: E501
-        :rtype: DockerWorkerConfigV2LightlyCollate
+        :rtype: DockerWorkerConfigV3LightlyCollate
         """
         return self._collate
 
@@ -198,7 +198,7 @@ class DockerWorkerConfigV2Lightly(object):
 
 
         :param collate: The collate of this DockerWorkerConfigV2Lightly.  # noqa: E501
-        :type: DockerWorkerConfigV2LightlyCollate
+        :type: DockerWorkerConfigV3LightlyCollate
         """
 
         self._collate = collate
