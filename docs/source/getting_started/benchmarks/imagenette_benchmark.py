@@ -424,6 +424,26 @@ class SimSiamModel(BenchmarkModule):
         return [optim], [cosine_scheduler]
 
 
+class FastSiamModel(SimSiamModel):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+
+    def training_step(self, batch, batch_idx):
+        xs, _, _ = batch
+        k = len(xs)
+        zs, ps = zip(*list(self.forward(x) for x in xs))
+        zs = torch.cat([z.unsqueeze(0) for z in zs], dim=0)
+        ps = torch.cat([p.unsqueeze(0) for p in ps], dim=0)
+
+        loss = 0.
+        for i in range(k):
+            mask = torch.arange(k) != i
+            loss += self.criterion(ps[i], torch.mean(zs[mask], dim=0))
+
+        self.log("train_loss_ssl", loss)
+        return loss
+
+
 class BarlowTwinsModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
