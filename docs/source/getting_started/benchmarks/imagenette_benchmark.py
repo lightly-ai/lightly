@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+## -*- coding: utf-8 -*-
 """
 Note that this benchmark also supports a multi-GPU setup. If you run it on
 a system with multiple GPUs make sure that you kill all the processes when
@@ -92,6 +92,7 @@ from lightly.transforms import (
     MAETransform,
     MSNTransform,
     SimCLRTransform,
+    SimCLRViewTransform,
     SMoGTransform,
     SwaVTransform,
     VICRegLTransform,
@@ -160,7 +161,7 @@ simclr_transform = SimCLRTransform(
 )
 
 # Multi crop augmentation for FastSiam
-fast_siam_transform = MultiViewTransform([simclr_transform] * 4)
+fast_siam_transform = MultiViewTransform([SimCLRViewTransform(input_size=input_size, cj_strength=0.5)] * 4)
 
 # Multi crop augmentation for SwAV
 swav_transform = SwaVTransform(
@@ -201,12 +202,13 @@ vicreg_transform = VICRegTransform(
 )
 
 # Transform  passing geometrical transformation for VICRegL
-vicregl_transform = VICRegLTransform(
-    global_crop_size=128,
-    n_local_views=0,
-    global_grid_size=4,
-    cj_strength=0.5,
-)
+vicregl_transform = None
+#VICRegLTransform(
+#    global_crop_size=128,
+#    n_local_views=0,
+#    global_grid_size=4,
+#    cj_strength=0.5,
+#)
 
 normalize_transform = torchvision.transforms.Normalize(
     mean=IMAGENET_NORMALIZE["mean"],
