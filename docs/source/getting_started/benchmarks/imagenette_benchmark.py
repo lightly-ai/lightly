@@ -39,6 +39,7 @@ Results (20.3.2023):
 | DCL              |        256 |    800 |              0.864 |  183.7 Min |      3.7 GByte |
 | DCLW             |        256 |    800 |              0.861 |  188.5 Min |      3.7 GByte |
 | DINO (Res18)     |        256 |    800 |              0.887 |  291.6 Min |      8.5 GByte |
+| FastSiam         |        256 |    800 |              0.865 |  280.9 Min |      7.3 GByte |
 | MAE (ViT-S)      |        256 |    800 |              0.620 |  208.2 Min |      4.6 GByte |
 | MSN (ViT-S)      |        256 |    800 |              0.833 |  394.0 Min |     16.3 GByte |
 | Moco             |        256 |    800 |              0.874 |  220.7 Min |      4.2 GByte |
@@ -46,7 +47,7 @@ Results (20.3.2023):
 | PMSN (ViT-S)     |        256 |    800 |              0.830 |  401.1 Min |     16.3 GByte |
 | SimCLR           |        256 |    800 |              0.889 |  206.4 Min |      3.7 GByte |
 | SimMIM (ViT-B32) |        256 |    800 |              0.351 |  302.8 Min |     10.5 GByte |
-| SimSiam          |        256 |    800 |              0.885 |  206.1 Min |      3.9 GByte |
+| SimSiam          |        256 |    800 |              0.871 |  178.2 Min |      3.9 GByte |
 | SwaV             |        256 |    800 |              0.899 |  309.0 Min |      6.4 GByte |
 | SwaVQueue        |        256 |    800 |              0.898 |  300.3 Min |      6.4 GByte |
 | SMoG             |        256 |    800 |              0.782 |  250.2 Min |      2.5 GByte |
