@@ -10,7 +10,7 @@ from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import NegativeCosineSimilarity
 from lightly.models.modules import SimSiamPredictionHead, SimSiamProjectionHead
-from lightly.transforms.simsiam_transform import SimSiamTransform
+from lightly.transforms import SimSiamTransform
 
 
 class SimSiam(nn.Module):

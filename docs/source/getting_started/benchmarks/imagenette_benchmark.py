@@ -89,16 +89,16 @@ from lightly.models import modules, utils
 from lightly.models.modules import heads, masked_autoencoder
 from lightly.transforms import (
     DINOTransform,
+    FastSiamTransform,
     MAETransform,
     MSNTransform,
     SimCLRTransform,
+    SimSiamTransform,
     SMoGTransform,
     SwaVTransform,
     VICRegLTransform,
     VICRegTransform,
 )
-from lightly.transforms.fast_siam_transform import FastSiamTransform
-from lightly.transforms.simsiam_transform import SimSiamTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils import scheduler
 from lightly.utils.benchmarking import BenchmarkModule

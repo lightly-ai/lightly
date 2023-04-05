@@ -49,9 +49,13 @@ from lightly.loss import (
 )
 from lightly.models import modules, utils
 from lightly.models.modules import heads
-from lightly.transforms import DINOTransform, SimCLRTransform, SwaVTransform
-from lightly.transforms.fast_siam_transform import FastSiamTransform
-from lightly.transforms.simsiam_transform import SimSiamTransform
+from lightly.transforms import (
+    DINOTransform,
+    FastSiamTransform,
+    SimCLRTransform,
+    SimSiamTransform,
+    SwaVTransform,
+)
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import BenchmarkModule
 
