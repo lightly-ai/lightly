@@ -99,6 +99,7 @@ from lightly.transforms import (
     VICRegTransform,
 )
 from lightly.transforms.multi_view_transform import MultiViewTransform
+from lightly.transforms.simsiam_transform import SimSiamTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils import scheduler
 from lightly.utils.benchmarking import BenchmarkModule
@@ -161,10 +162,11 @@ simclr_transform = SimCLRTransform(
     cj_strength=0.5,
 )
 
+# Use SimSiam augmentations
+simsiam_transform = SimSiamTransform(input_size=input_size)
+
 # Multi crop augmentation for FastSiam
-fast_siam_transform = MultiViewTransform(
-    [SimCLRViewTransform(input_size=input_size, cj_strength=0.5)] * 4
-)
+fast_siam_transform = MultiViewTransform([simclr_transform] * 4)
 
 # Multi crop augmentation for SwAV
 swav_transform = SwaVTransform(
@@ -254,7 +256,7 @@ def create_dataset_train_ssl(model):
         PMSNModel: msn_transform,
         SimCLRModel: simclr_transform,
         SimMIMModel: simclr_transform,
-        SimSiamModel: simclr_transform,
+        SimSiamModel: simsiam_transform,
         SwaVModel: swav_transform,
         SwaVQueueModel: swav_transform,
         SMoGModel: smog_transform,

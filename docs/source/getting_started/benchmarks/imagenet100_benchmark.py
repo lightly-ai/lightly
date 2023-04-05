@@ -52,6 +52,7 @@ from lightly.models.modules import heads
 from lightly.transforms import DINOTransform, SimCLRTransform, SwaVTransform
 from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.simclr_transform import SimCLRViewTransform
+from lightly.transforms.simsiam_transform import SimSiamTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import BenchmarkModule
 
@@ -110,12 +111,11 @@ collate_fn = MultiViewCollate()
 # Use SimCLR augmentations
 simclr_transform = SimCLRTransform(input_size=input_size)
 
+# Use SimSiam augmentations
+simsiam_transform = SimSiamTransform(input_size=input_size)
 
 # Multi crop augmentation for FastSiam
-fast_siam_transform = MultiViewTransform(
-    [SimCLRViewTransform(input_size=32, cj_strength=0.5, gaussian_blur=0.0)] * 4
-)
-
+fast_siam_transform = MultiViewTransform([simclr_transform] * 4)
 
 # Multi crop augmentation for SwAV
 swav_transform = SwaVTransform()
@@ -162,7 +162,7 @@ def create_dataset_train_ssl(model):
         MocoModel: simclr_transform,
         NNCLRModel: simclr_transform,
         SimCLRModel: simclr_transform,
-        SimSiamModel: simclr_transform,
+        SimSiamModel: simsiam_transform,
         SwaVModel: swav_transform,
     }
     transform = model_to_transform[model]
