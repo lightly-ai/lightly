@@ -92,14 +92,12 @@ from lightly.transforms import (
     MAETransform,
     MSNTransform,
     SimCLRTransform,
-    SimCLRViewTransform,
     SMoGTransform,
     SwaVTransform,
     VICRegLTransform,
     VICRegTransform,
 )
 from lightly.transforms.fast_siam_transform import FastSiamTransform
-from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.simsiam_transform import SimSiamTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils import scheduler
