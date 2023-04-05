@@ -6,7 +6,7 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class FastSiamTransform(MultiViewTransform):
-    """Implements the transformations for SimSiam.
+    """Implements the transformations for FastSiam.
 
     Attributes:
         K:
