@@ -98,6 +98,7 @@ from lightly.transforms import (
     VICRegLTransform,
     VICRegTransform,
 )
+from lightly.transforms.fast_siam_transform import FastSiamTransform
 from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.simsiam_transform import SimSiamTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
@@ -166,7 +167,7 @@ simclr_transform = SimCLRTransform(
 simsiam_transform = SimSiamTransform(input_size=input_size)
 
 # Multi crop augmentation for FastSiam
-fast_siam_transform = MultiViewTransform([simclr_transform] * 4)
+fast_siam_transform = FastSiamTransform(input_size=input_size)
 
 # Multi crop augmentation for SwAV
 swav_transform = SwaVTransform(

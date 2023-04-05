@@ -87,6 +87,7 @@ from lightly.transforms import (
     SMoGTransform,
     SwaVTransform,
 )
+from lightly.transforms.fast_siam_transform import FastSiamTransform
 from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.simclr_transform import SimCLRViewTransform
 from lightly.transforms.simsiam_transform import SimSiamTransform
@@ -177,7 +178,7 @@ simsiam_transform = SimSiamTransform(
 )
 
 # Multi crop augmentation for FastSiam
-fast_siam_transform = MultiViewTransform([simclr_transform] * 4)
+fast_siam_transform = FastSiamTransform(input_size=32, gaussian_blur=0.0)
 
 # Multi crop augmentation for SwAV, additionally, disable blur for cifar10
 swav_transform = SwaVTransform(
