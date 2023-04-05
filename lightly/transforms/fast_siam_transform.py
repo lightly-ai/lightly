@@ -9,8 +9,8 @@ class FastSiamTransform(MultiViewTransform):
     """Implements the transformations for FastSiam.
 
     Attributes:
-        K:
-            Number of target views. Overall, K+1 views are generated.
+        num_views:
+            Number of views (num_views = K+1 where K is the number of target views).
         input_size:
             Size of the input image in pixels.
         cj_prob:
@@ -58,7 +58,7 @@ class FastSiamTransform(MultiViewTransform):
 
     def __init__(
         self,
-        K: int = 3,
+        num_views: int = 4,
         input_size: int = 224,
         cj_prob: float = 0.8,
         cj_strength: float = 1.0,
@@ -97,6 +97,6 @@ class FastSiamTransform(MultiViewTransform):
                 rr_degrees=rr_degrees,
                 normalize=normalize,
             )
-            for _ in range(K + 1)
+            for _ in range(num_views)
         ]
         super().__init__(transforms=transforms)
