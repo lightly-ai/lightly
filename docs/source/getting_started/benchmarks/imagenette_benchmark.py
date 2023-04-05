@@ -439,15 +439,15 @@ class FastSiamModel(SimSiamModel):
         super().__init__(dataloader_kNN, num_classes)
 
     def training_step(self, batch, batch_idx):
-        xs, _, _ = batch
-        zs, ps = zip(*list(self.forward(x) for x in xs))
-        zs = torch.cat([z.unsqueeze(0) for z in zs], dim=0)
-        ps = torch.cat([p.unsqueeze(0) for p in ps], dim=0)
+        views, _, _ = batch
+        features = [self.forward(view) for view in views]
+        zs = torch.stack([z for z, _ in features])
+        ps = torch.stack([p for _, p in features])
 
         loss = 0.0
-        for i in range(len(xs)):
-            mask = torch.arange(len(xs)) != i
-            loss += self.criterion(ps[i], torch.mean(zs[mask], dim=0))
+        for i in range(len(views)):
+            mask = torch.arange(len(views), device=self.device) != i
+            loss += self.criterion(ps[i], torch.mean(zs[mask], dim=0)) / len(views)
 
         self.log("train_loss_ssl", loss)
         return loss
