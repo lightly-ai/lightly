@@ -31,8 +31,6 @@ from lightly.openapi_generated.swagger_client import (
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
 
-STATE_SCHEDULED_ID_NOT_FOUND = "CANCELED_OR_NOT_EXISTING"
-
 
 class InvalidConfigurationError(RuntimeError):
     pass
