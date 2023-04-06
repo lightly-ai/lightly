@@ -2,6 +2,7 @@ import copy
 import dataclasses
 import difflib
 import time
+from enum import Enum
 from functools import partial
 from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 
@@ -37,6 +38,13 @@ class InvalidConfigurationError(RuntimeError):
     pass
 
 
+class ComputeWorkerRunState(DockerRunState):
+    # ComputeWorkerRunState is essentially a union of
+    # DockerRunState, PENDING, and NOT_FOUND.
+    PENDING = "PENDING"
+    NOT_FOUND = "NOT_FOUND"
+
+
 @dataclasses.dataclass
 class ComputeWorkerRunInfo:
     """
@@ -49,19 +57,23 @@ class ComputeWorkerRunInfo:
             The last message of the compute worker run.
     """
 
-    state: Union[
-        DockerRunState, DockerRunScheduledState.OPEN, STATE_SCHEDULED_ID_NOT_FOUND
-    ]
+    state: ComputeWorkerRunState
     message: str
+
+    def __post_init__(self):
+        if not hasattr(ComputeWorkerRunState, self.state):
+            raise ValueError(
+                f"Input state '{self.state}' not a valid ComputeWorkerRunState"
+            )
 
     def in_end_state(self) -> bool:
         """Returns wether the compute worker has ended"""
         return self.state in [
-            DockerRunState.COMPLETED,
-            DockerRunState.ABORTED,
-            DockerRunState.FAILED,
-            DockerRunState.CRASHED,
-            STATE_SCHEDULED_ID_NOT_FOUND,
+            ComputeWorkerRunState.COMPLETED,
+            ComputeWorkerRunState.ABORTED,
+            ComputeWorkerRunState.FAILED,
+            ComputeWorkerRunState.CRASHED,
+            ComputeWorkerRunState.NOT_FOUND,
         ]
 
     def ended_successfully(self) -> bool:
@@ -71,7 +83,7 @@ class ComputeWorkerRunInfo:
         """
         if not self.in_end_state():
             raise ValueError("Compute worker is still running")
-        return self.state == DockerRunState.COMPLETED
+        return self.state == ComputeWorkerRunState.COMPLETED
 
 
 class _ComputeWorkerMixin:
@@ -377,7 +389,7 @@ class _ComputeWorkerMixin:
                 # Case 2: DockerRun does NOT exist, but ScheduledRun exists.
                 _ = self._get_scheduled_run_by_id(scheduled_run_id)
                 info = ComputeWorkerRunInfo(
-                    state=DockerRunScheduledState.OPEN,
+                    state=ComputeWorkerRunState.PENDING,
                     message="Waiting for pickup by Lightly Worker. "
                     "Make sure to start a Lightly Worker connected to your "
                     "user token to process the job.",
@@ -385,7 +397,7 @@ class _ComputeWorkerMixin:
             except ApiException:
                 # Case 3: NEITHER the DockerRun NOR the ScheduledRun exist.
                 info = ComputeWorkerRunInfo(
-                    state=STATE_SCHEDULED_ID_NOT_FOUND,
+                    state=ComputeWorkerRunState.NOT_FOUND,
                     message=f"Could not find a job for the given run_id: '{scheduled_run_id}'. "
                     "The scheduled run does not exist or was canceled before "
                     "being picked up by a Lightly Worker.",
