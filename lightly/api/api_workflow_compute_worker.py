@@ -20,6 +20,7 @@ from lightly.openapi_generated.swagger_client import (
     DockerWorkerConfigV3CreateRequest,
     DockerWorkerConfigV3Docker,
     DockerWorkerConfigV3Lightly,
+    DockerWorkerRegistryEntryData,
     DockerWorkerType,
     SelectionConfig,
     SelectionConfigEntry,
@@ -109,6 +110,13 @@ class _ComputeWorkerMixin:
         """Returns the ids of all registered compute workers."""
         entries = self._compute_worker_api.get_docker_worker_registry_entries()
         return [entry.id for entry in entries]
+
+    def get_compute_workers(self) -> List[DockerWorkerRegistryEntryData]:
+        """Returns the ids of all registered compute workers."""
+        entries: list[
+            DockerWorkerRegistryEntryData
+        ] = self._compute_worker_api.get_docker_worker_registry_entries()
+        return entries
 
     def delete_compute_worker(self, worker_id: str):
         """Removes a compute worker.
