@@ -2,7 +2,6 @@ import copy
 import dataclasses
 import difflib
 import time
-from enum import Enum
 from functools import partial
 from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 
@@ -15,7 +14,6 @@ from lightly.openapi_generated.swagger_client import (
     DockerRunScheduledCreateRequest,
     DockerRunScheduledData,
     DockerRunScheduledPriority,
-    DockerRunScheduledState,
     DockerRunState,
     DockerWorkerConfigV3,
     DockerWorkerConfigV3CreateRequest,
