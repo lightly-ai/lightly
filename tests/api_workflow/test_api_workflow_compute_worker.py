@@ -29,6 +29,7 @@ from lightly.openapi_generated.swagger_client import (
     DockerWorkerConfigV3DockerCorruptnessCheck,
     DockerWorkerConfigV3Lightly,
     DockerWorkerConfigV3LightlyLoader,
+    DockerWorkerState,
     DockerWorkerType,
     SelectionConfig,
     SelectionConfigEntry,
@@ -150,6 +151,13 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
     def test_get_compute_worker_ids(self):
         ids = self.api_workflow_client.get_compute_worker_ids()
         assert all(isinstance(id_, str) for id_ in ids)
+
+    def test_get_compute_workers(self):
+        workers = self.api_workflow_client.get_compute_workers()
+        assert len(workers) == 1
+        assert workers[0].name == "worker-name-1"
+        assert workers[0].state == DockerWorkerState.OFFLINE
+        assert workers[0].labels == ["label-1"]
 
     def test_get_compute_worker_runs(self):
         runs = self.api_workflow_client.get_compute_worker_runs()
