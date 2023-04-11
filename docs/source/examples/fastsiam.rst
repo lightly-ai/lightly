@@ -3,7 +3,9 @@
 FastSiam
 ========
 
-Example implementation of the FastSiam architecture.
+Example implementation of the FastSiam architecture. FastSiam is an extension of the
+well-known SimSiam architecture. It is a self-supervised learning method that averages
+multiple target predictions to improve training with small batch sizes.
 
 Reference:
     `FastSiam: Resource-Efficient Self-supervised Learning on a Single GPU, 2022 <https://link.springer.com/chapter/10.1007/978-3-031-16788-1_4>`_
