@@ -108,7 +108,7 @@ class _ComputeWorkerMixin:
 
     def get_compute_worker_ids(self) -> List[str]:
         """Fetches the ids of all registered compute workers.
-        
+
         Returns:
             A list of worker IDs.
         """
@@ -117,7 +117,7 @@ class _ComputeWorkerMixin:
 
     def get_compute_workers(self) -> List[DockerWorkerRegistryEntryData]:
         """Fetches details of all registered compute workers.
-        
+
         Returns:
             A list of compute workers.
         """
