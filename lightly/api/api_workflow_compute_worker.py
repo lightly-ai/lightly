@@ -107,7 +107,7 @@ class _ComputeWorkerMixin:
         return response.id
 
     def get_compute_worker_ids(self) -> List[str]:
-        """Fetches the ids of all registered compute workers.
+        """Fetches the IDs of all registered compute workers.
 
         Returns:
             A list of worker IDs.
