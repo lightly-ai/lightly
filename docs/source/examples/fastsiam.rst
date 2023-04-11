@@ -1,7 +1,7 @@
 .. _fastsiam:
 
 FastSiam
-=======
+========
 
 Example implementation of the FastSiam architecture.
 
