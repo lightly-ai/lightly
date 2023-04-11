@@ -12,10 +12,11 @@ Updated: 18.02.2022 (6618fa3c36b0c9f3a9d7a21bcdb00bf4fd258ee8))
 | DCL (*)       |        128 |    200 |              0.842 |  126.9 Min |      1.7 GByte |
 | DCLW (*)      |        128 |    200 |              0.833 |  127.5 Min |      1.8 GByte |
 | DINO          |        128 |    200 |              0.868 |  220.7 Min |      2.3 GByte |
+| FastSiam      |        128 |    200 |              0.906 |  164.0 Min |      2.7 GByte |
 | Moco          |        128 |    200 |              0.838 |  229.5 Min |      2.3 GByte |
 | NNCLR         |        128 |    200 |              0.838 |  198.7 Min |      2.2 GByte |
 | SimCLR        |        128 |    200 |              0.822 |  182.7 Min |      2.2 GByte |
-| SimSiam       |        128 |    200 |              0.779 |  182.6 Min |      2.3 GByte |
+| SimSiam       |        128 |    200 |              0.837 |   92.5 Min |      1.5 GByte |
 | SwaV          |        128 |    200 |              0.806 |  182.4 Min |      2.2 GByte |
 ------------------------------------------------------------------------------------------
 | BarlowTwins   |        512 |    200 |              0.827 |  160.7 Min |      7.5 GByte |
@@ -23,10 +24,11 @@ Updated: 18.02.2022 (6618fa3c36b0c9f3a9d7a21bcdb00bf4fd258ee8))
 | DCL (*)       |        512 |    200 |              0.834 |  113.6 Min |      6.1 GByte |
 | DCLW (*)      |        512 |    200 |              0.830 |  113.8 Min |      6.2 GByte | 
 | DINO          |        512 |    200 |              0.862 |  191.1 Min |      7.5 GByte |
+| FastSiam      |        512 |    200 |              0.788 |  146.9 Min |      9.5 GByte |
 | Moco (**)     |        512 |    200 |              0.850 |  196.8 Min |      7.8 GByte |
 | NNCLR (**)    |        512 |    200 |              0.836 |  164.7 Min |      7.6 GByte |
 | SimCLR        |        512 |    200 |              0.828 |  158.2 Min |      7.5 GByte |
-| SimSiam       |        512 |    200 |              0.814 |  159.0 Min |      7.6 GByte |
+| SimSiam       |        512 |    200 |              0.817 |   83.6 Min |      4.9 GByte |
 | SwaV          |        512 |    200 |              0.833 |  158.4 Min |      7.5 GByte |
 ------------------------------------------------------------------------------------------
 | BarlowTwins   |        512 |    800 |              0.857 |  641.5 Min |      7.5 GByte |
@@ -34,10 +36,11 @@ Updated: 18.02.2022 (6618fa3c36b0c9f3a9d7a21bcdb00bf4fd258ee8))
 | DCL (*)       |        512 |    800 |              0.873 |  459.6 Min |      6.1 GByte |
 | DCLW (*)      |        512 |    800 |              0.873 |  455.8 Min |      6.1 GByte | 
 | DINO          |        512 |    800 |              0.884 |  765.5 Min |      7.6 GByte |
+| FastSiam      |        512 |    800 |              0.902 |  582.0 Min |      9.5 GByte |
 | Moco (**)     |        512 |    800 |              0.900 |  787.7 Min |      7.8 GByte |
 | NNCLR (**)    |        512 |    800 |              0.896 |  659.2 Min |      7.6 GByte |
 | SimCLR        |        512 |    800 |              0.875 |  632.5 Min |      7.5 GByte |
-| SimSiam       |        512 |    800 |              0.906 |  636.5 Min |      7.6 GByte |
+| SimSiam       |        512 |    800 |              0.902 |  329.8 Min |      4.9 GByte |
 | SwaV          |        512 |    800 |              0.881 |  634.9 Min |      7.5 GByte |
 ------------------------------------------------------------------------------------------
 
@@ -83,7 +86,9 @@ from lightly.models import ResNetGenerator, modules, utils
 from lightly.models.modules import heads
 from lightly.transforms import (
     DINOTransform,
+    FastSiamTransform,
     SimCLRTransform,
+    SimSiamTransform,
     SMoGTransform,
     SwaVTransform,
 )
@@ -167,6 +172,15 @@ simclr_transform = SimCLRTransform(
     gaussian_blur=0.0,
 )
 
+# Use SimSiam augmentations
+simsiam_transform = SimSiamTransform(
+    input_size=32,
+    gaussian_blur=0.0,
+)
+
+# Multi crop augmentation for FastSiam
+fast_siam_transform = FastSiamTransform(input_size=32, gaussian_blur=0.0)
+
 # Multi crop augmentation for SwAV, additionally, disable blur for cifar10
 swav_transform = SwaVTransform(
     crop_sizes=[32],
@@ -224,10 +238,11 @@ def create_dataset_train_ssl(model):
         DCL: simclr_transform,
         DCLW: simclr_transform,
         DINOModel: dino_transform,
+        FastSiamModel: fast_siam_transform,
         MocoModel: simclr_transform,
         NNCLRModel: simclr_transform,
         SimCLRModel: simclr_transform,
-        SimSiamModel: simclr_transform,
+        SimSiamModel: simsiam_transform,
         SwaVModel: swav_transform,
         SMoGModel: smog_transform,
     }
@@ -411,6 +426,25 @@ class SimSiamModel(BenchmarkModule):
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
+
+
+class FastSiamModel(SimSiamModel):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+
+    def training_step(self, batch, batch_idx):
+        views, _, _ = batch
+        features = [self.forward(view) for view in views]
+        zs = torch.stack([z for z, _ in features])
+        ps = torch.stack([p for _, p in features])
+
+        loss = 0.0
+        for i in range(len(views)):
+            mask = torch.arange(len(views), device=self.device) != i
+            loss += self.criterion(ps[i], torch.mean(zs[mask], dim=0)) / len(views)
+
+        self.log("train_loss_ssl", loss)
+        return loss
 
 
 class BarlowTwinsModel(BenchmarkModule):

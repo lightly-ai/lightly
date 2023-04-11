@@ -9,6 +9,7 @@
 # All Rights Reserved
 
 from lightly.transforms.dino_transform import DINOTransform, DINOViewTransform
+from lightly.transforms.fast_siam_transform import FastSiamTransform
 from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.jigsaw import Jigsaw
 from lightly.transforms.mae_transform import MAETransform
@@ -21,6 +22,7 @@ from lightly.transforms.rotation import (
     random_rotation_transform,
 )
 from lightly.transforms.simclr_transform import SimCLRTransform, SimCLRViewTransform
+from lightly.transforms.simsiam_transform import SimSiamTransform, SimSiamViewTransform
 from lightly.transforms.smog_transform import SMoGTransform, SmoGViewTransform
 from lightly.transforms.solarize import RandomSolarization
 from lightly.transforms.swav_transform import SwaVTransform, SwaVViewTransform
