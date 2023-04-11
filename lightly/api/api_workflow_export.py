@@ -290,9 +290,11 @@ class _ExportDatasetMixin:
             {
                 "fileName": filename,
                 "readUrl": read_url,
-                "datasourceUrl": datasource_url
+                "datasourceUrl": datasource_url,
             }
-            for filename, read_url, datasource_url in zip(filenames, read_urls, datasource_urls)
+            for filename, read_url, datasource_url in zip(
+                filenames, read_urls, datasource_urls
+            )
         ]
 
     def export_filenames_and_read_urls_by_tag_name(
