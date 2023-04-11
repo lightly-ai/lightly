@@ -107,12 +107,20 @@ class _ComputeWorkerMixin:
         return response.id
 
     def get_compute_worker_ids(self) -> List[str]:
-        """Returns the ids of all registered compute workers."""
+        """Fetches the ids of all registered compute workers.
+        
+        Returns:
+            A list of worker IDs.
+        """
         entries = self._compute_worker_api.get_docker_worker_registry_entries()
         return [entry.id for entry in entries]
 
     def get_compute_workers(self) -> List[DockerWorkerRegistryEntryData]:
-        """Returns the ids of all registered compute workers."""
+        """Fetches details of all registered compute workers.
+        
+        Returns:
+            A list of compute workers.
+        """
         entries: list[
             DockerWorkerRegistryEntryData
         ] = self._compute_worker_api.get_docker_worker_registry_entries()
