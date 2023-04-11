@@ -13,7 +13,7 @@ from lightly.models.modules import SimSiamPredictionHead, SimSiamProjectionHead
 from lightly.transforms import FastSiamTransform
 
 
-class SimSiam(nn.Module):
+class FastSiam(nn.Module):
     def __init__(self, backbone):
         super().__init__()
         self.backbone = backbone
@@ -30,7 +30,7 @@ class SimSiam(nn.Module):
 
 resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(*list(resnet.children())[:-1])
-model = SimSiam(backbone)
+model = FastSiam(backbone)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
