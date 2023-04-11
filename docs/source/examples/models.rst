@@ -14,6 +14,7 @@ for PyTorch and PyTorch Lightning to give you a headstart when implementing your
     byol.rst
     dcl.rst
     dino.rst
+    fastsiam.rst
     mae.rst
     msn.rst
     moco.rst
