@@ -250,7 +250,7 @@ class _ExportDatasetMixin:
             [
                 {
                     "fileName": "sample1.jpg",
-                    "readURL": "s3://my_datasource/sample1.jpg?read_url_key=EAIFUIENDLFN",
+                    "readUrl": "s3://my_datasource/sample1.jpg?read_url_key=EAIFUIENDLFN",
                     "datasourceUrl": "s3://my_datasource/sample1.jpg",
                 },
                 {
