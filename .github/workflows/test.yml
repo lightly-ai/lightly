@@ -32,14 +32,12 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python }}
-    - uses: actions/cache@v3
+    - uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
         key: cache_v2_${{ env.pythonLocation }}-${{ hashFiles('requirements/**') }}
     - name: Install Dependencies and lightly
       run: pip install -e '.[all]'
-    - name: Debug requrements
-      run: pip freeze
     - name: Run Pytest
       run: |
         export LIGHTLY_SERVER_LOCATION="localhost:-1"
