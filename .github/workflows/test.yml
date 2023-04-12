@@ -38,6 +38,8 @@ jobs:
         key: cache_v2_${{ env.pythonLocation }}-${{ hashFiles('requirements/**') }}
     - name: Install Dependencies and lightly
       run: pip install -e '.[all]'
+    - name: Debug requrements
+      run: pip freeze
     - name: Run Pytest
       run: |
         export LIGHTLY_SERVER_LOCATION="localhost:-1"
