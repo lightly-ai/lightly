@@ -238,7 +238,7 @@ class _ExportDatasetMixin:
         self,
         tag_id: str,
     ) -> List[Dict[str, str]]:
-        """Export the samples filenames to map with their readURL and datasource URL.
+        """Export filenames, read URLs, and datasource URLs from the given tag.
 
         Args:
             tag_id:
