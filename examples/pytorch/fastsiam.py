@@ -2,7 +2,6 @@
 # from the paper. The settings are chosen such that the example can easily be
 # run on a small dataset with a single GPU.
 
-import pytorch_lightning as pl
 import torch
 import torchvision
 from torch import nn
@@ -11,17 +10,15 @@ from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import NegativeCosineSimilarity
 from lightly.models.modules import SimSiamPredictionHead, SimSiamProjectionHead
-from lightly.transforms import SimSiamTransform
+from lightly.transforms import FastSiamTransform
 
 
-class SimSiam(pl.LightningModule):
-    def __init__(self):
+class FastSiam(nn.Module):
+    def __init__(self, backbone):
         super().__init__()
-        resnet = torchvision.models.resnet18()
-        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
+        self.backbone = backbone
         self.projection_head = SimSiamProjectionHead(512, 512, 128)
         self.prediction_head = SimSiamPredictionHead(128, 64, 128)
-        self.criterion = NegativeCosineSimilarity()
 
     def forward(self, x):
         f = self.backbone(x).flatten(start_dim=1)
@@ -30,22 +27,16 @@ class SimSiam(pl.LightningModule):
         z = z.detach()
         return z, p
 
-    def training_step(self, batch, batch_idx):
-        (x0, x1), _, _ = batch
-        z0, p0 = self.forward(x0)
-        z1, p1 = self.forward(x1)
-        loss = 0.5 * (self.criterion(z0, p1) + self.criterion(z1, p0))
-        return loss
 
-    def configure_optimizers(self):
-        optim = torch.optim.SGD(self.parameters(), lr=0.06)
-        return optim
+resnet = torchvision.models.resnet18()
+backbone = nn.Sequential(*list(resnet.children())[:-1])
+model = FastSiam(backbone)
 
-
-model = SimSiam()
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model.to(device)
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-transform = SimSiamTransform(input_size=32)
+transform = FastSiamTransform(input_size=32)
 dataset = LightlyDataset.from_torch_dataset(cifar10, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
@@ -61,7 +52,25 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-accelerator = "gpu" if torch.cuda.is_available() else "cpu"
+criterion = NegativeCosineSimilarity()
+optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
 
-trainer = pl.Trainer(max_epochs=10, devices=1, accelerator=accelerator)
-trainer.fit(model=model, train_dataloaders=dataloader)
+print("Starting Training")
+for epoch in range(10):
+    total_loss = 0
+    for views, _, _ in dataloader:
+        features = [model(view.to(device)) for view in views]
+        zs = torch.stack([z for z, _ in features])
+        ps = torch.stack([p for _, p in features])
+
+        loss = 0.0
+        for i in range(len(views)):
+            mask = torch.arange(len(views), device=device) != i
+            loss += criterion(ps[i], torch.mean(zs[mask], dim=0)) / len(views)
+
+        total_loss += loss.detach()
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+    avg_loss = total_loss / len(dataloader)
+    print(f"epoch: {epoch:>02}, loss: {avg_loss:.5f}")

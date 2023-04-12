@@ -20,12 +20,13 @@ Results (20.3.2023):
 | DCL              |        256 |    200 |              0.814 |   47.5 Min |      3.7 GByte |
 | DCLW             |        256 |    200 |              0.802 |   48.0 Min |      3.7 GByte |
 | DINO (Res18)     |        256 |    200 |              0.872 |   76.6 Min |      6.6 GByte |
+| FastSiam         |        256 |    200 |              0.765 |   68.5 Min |      7.3 GByte |
 | MSN (ViT-S)      |        256 |    200 |              0.721 |  123.3 Min |     16.3 GByte |
 | Moco             |        256 |    200 |              0.778 |   51.3 Min |      4.2 GByte |
 | NNCLR            |        256 |    200 |              0.801 |   47.3 Min |      3.8 GByte |
 | SimCLR           |        256 |    200 |              0.834 |   46.5 Min |      3.7 GByte |
 | SimMIM (ViT-B32) |        256 |    200 |              0.322 |   98.8 Min |     10.5 GByte |
-| SimSiam          |        256 |    200 |              0.729 |   46.9 Min |      3.8 GByte |
+| SimSiam          |        256 |    200 |              0.742 |   44.1 Min |      3.8 GByte |
 | SwaV             |        256 |    200 |              0.864 |   69.1 Min |      6.4 GByte |
 | SwaVQueue        |        256 |    200 |              0.845 |   68.8 Min |      6.4 GByte |
 | SMoG             |        256 |    200 |              0.634 |  176.9 Min |     24.2 GByte |
@@ -38,6 +39,7 @@ Results (20.3.2023):
 | DCL              |        256 |    800 |              0.864 |  183.7 Min |      3.7 GByte |
 | DCLW             |        256 |    800 |              0.861 |  188.5 Min |      3.7 GByte |
 | DINO (Res18)     |        256 |    800 |              0.887 |  291.6 Min |      8.5 GByte |
+| FastSiam         |        256 |    800 |              0.865 |  280.9 Min |      7.3 GByte |
 | MAE (ViT-S)      |        256 |    800 |              0.620 |  208.2 Min |      4.6 GByte |
 | MSN (ViT-S)      |        256 |    800 |              0.833 |  394.0 Min |     16.3 GByte |
 | Moco             |        256 |    800 |              0.874 |  220.7 Min |      4.2 GByte |
@@ -45,7 +47,7 @@ Results (20.3.2023):
 | PMSN (ViT-S)     |        256 |    800 |              0.830 |  401.1 Min |     16.3 GByte |
 | SimCLR           |        256 |    800 |              0.889 |  206.4 Min |      3.7 GByte |
 | SimMIM (ViT-B32) |        256 |    800 |              0.351 |  302.8 Min |     10.5 GByte |
-| SimSiam          |        256 |    800 |              0.885 |  206.1 Min |      3.9 GByte |
+| SimSiam          |        256 |    800 |              0.871 |  178.2 Min |      3.9 GByte |
 | SwaV             |        256 |    800 |              0.899 |  309.0 Min |      6.4 GByte |
 | SwaVQueue        |        256 |    800 |              0.898 |  300.3 Min |      6.4 GByte |
 | SMoG             |        256 |    800 |              0.782 |  250.2 Min |      2.5 GByte |
@@ -88,9 +90,11 @@ from lightly.models import modules, utils
 from lightly.models.modules import heads, masked_autoencoder
 from lightly.transforms import (
     DINOTransform,
+    FastSiamTransform,
     MAETransform,
     MSNTransform,
     SimCLRTransform,
+    SimSiamTransform,
     SMoGTransform,
     SwaVTransform,
     VICRegLTransform,
@@ -157,6 +161,12 @@ simclr_transform = SimCLRTransform(
     input_size=input_size,
     cj_strength=0.5,
 )
+
+# Use SimSiam augmentations
+simsiam_transform = SimSiamTransform(input_size=input_size)
+
+# Multi crop augmentation for FastSiam
+fast_siam_transform = FastSiamTransform(input_size=input_size)
 
 # Multi crop augmentation for SwAV
 swav_transform = SwaVTransform(
@@ -238,6 +248,7 @@ def create_dataset_train_ssl(model):
         DCL: simclr_transform,
         DCLW: simclr_transform,
         DINOModel: dino_transform,
+        FastSiamModel: fast_siam_transform,
         MAEModel: mae_transform,
         MSNModel: msn_transform,
         MocoModel: simclr_transform,
@@ -245,7 +256,7 @@ def create_dataset_train_ssl(model):
         PMSNModel: msn_transform,
         SimCLRModel: simclr_transform,
         SimMIMModel: simclr_transform,
-        SimSiamModel: simclr_transform,
+        SimSiamModel: simsiam_transform,
         SwaVModel: swav_transform,
         SwaVQueueModel: swav_transform,
         SMoGModel: smog_transform,
@@ -422,6 +433,25 @@ class SimSiamModel(BenchmarkModule):
         )
         cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [cosine_scheduler]
+
+
+class FastSiamModel(SimSiamModel):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+
+    def training_step(self, batch, batch_idx):
+        views, _, _ = batch
+        features = [self.forward(view) for view in views]
+        zs = torch.stack([z for z, _ in features])
+        ps = torch.stack([p for _, p in features])
+
+        loss = 0.0
+        for i in range(len(views)):
+            mask = torch.arange(len(views), device=self.device) != i
+            loss += self.criterion(ps[i], torch.mean(zs[mask], dim=0)) / len(views)
+
+        self.log("train_loss_ssl", loss)
+        return loss
 
 
 class BarlowTwinsModel(BenchmarkModule):
@@ -1370,6 +1400,7 @@ models = [
     SimCLRModel,
     # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
     SimSiamModel,
+    FastSiamModel,
     SwaVModel,
     SwaVQueueModel,
     SMoGModel,

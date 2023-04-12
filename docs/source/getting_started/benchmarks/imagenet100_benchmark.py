@@ -10,10 +10,11 @@ Updated: 13.02.2023
 | BarlowTwins   |        256 |    200 |              0.465 | 1319.3 Min |     11.3 GByte |
 | BYOL          |        256 |    200 |              0.439 | 1315.4 Min |     12.9 GByte |
 | DINO          |        256 |    200 |              0.518 | 1868.5 Min |     17.4 GByte |
+| FastSiam      |        256 |    200 |              0.559 | 1856.2 Min |     22.0 GByte |
 | Moco          |        256 |    200 |              0.560 | 1314.2 Min |     13.1 GByte |
 | NNCLR         |        256 |    200 |              0.453 | 1198.6 Min |     11.8 GByte |
 | SimCLR        |        256 |    200 |              0.469 | 1207.7 Min |     11.3 GByte |
-| SimSiam       |        256 |    200 |              0.542 | 1179.1 Min |     11.4 GByte |
+| SimSiam       |        256 |    200 |              0.534 | 1175.0 Min |     11.1 GByte |
 | SwaV          |        256 |    200 |              0.678 | 1642.8 Min |     16.9 GByte |
 ------------------------------------------------------------------------------------------
 
@@ -49,7 +50,13 @@ from lightly.loss import (
 )
 from lightly.models import modules, utils
 from lightly.models.modules import heads
-from lightly.transforms import DINOTransform, SimCLRTransform, SwaVTransform
+from lightly.transforms import (
+    DINOTransform,
+    FastSiamTransform,
+    SimCLRTransform,
+    SimSiamTransform,
+    SwaVTransform,
+)
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import BenchmarkModule
 
@@ -108,6 +115,12 @@ collate_fn = MultiViewCollate()
 # Use SimCLR augmentations
 simclr_transform = SimCLRTransform(input_size=input_size)
 
+# Use SimSiam augmentations
+simsiam_transform = SimSiamTransform(input_size=input_size)
+
+# Multi crop augmentation for FastSiam
+fast_siam_transform = FastSiamTransform(input_size=input_size)
+
 # Multi crop augmentation for SwAV
 swav_transform = SwaVTransform()
 
@@ -149,10 +162,11 @@ def create_dataset_train_ssl(model):
         BarlowTwinsModel: simclr_transform,
         BYOLModel: simclr_transform,
         DINOModel: dino_transform,
+        FastSiamModel: fast_siam_transform,
         MocoModel: simclr_transform,
         NNCLRModel: simclr_transform,
         SimCLRModel: simclr_transform,
-        SimSiamModel: simclr_transform,
+        SimSiamModel: simsiam_transform,
         SwaVModel: swav_transform,
     }
     transform = model_to_transform[model]
@@ -340,6 +354,25 @@ class SimSiamModel(BenchmarkModule):
         )
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
         return [optim], [scheduler]
+
+
+class FastSiamModel(SimSiamModel):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+
+    def training_step(self, batch, batch_idx):
+        views, _, _ = batch
+        features = [self.forward(view) for view in views]
+        zs = torch.stack([z for z, _ in features])
+        ps = torch.stack([p for _, p in features])
+
+        loss = 0.0
+        for i in range(len(views)):
+            mask = torch.arange(len(views), device=self.device) != i
+            loss += self.criterion(ps[i], torch.mean(zs[mask], dim=0)) / len(views)
+
+        self.log("train_loss_ssl", loss)
+        return loss
 
 
 class BarlowTwinsModel(BenchmarkModule):

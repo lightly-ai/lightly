@@ -11,10 +11,10 @@ from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import NegativeCosineSimilarity
 from lightly.models.modules import SimSiamPredictionHead, SimSiamProjectionHead
-from lightly.transforms import SimSiamTransform
+from lightly.transforms import FastSiamTransform
 
 
-class SimSiam(pl.LightningModule):
+class FastSiam(pl.LightningModule):
     def __init__(self):
         super().__init__()
         resnet = torchvision.models.resnet18()
@@ -31,10 +31,17 @@ class SimSiam(pl.LightningModule):
         return z, p
 
     def training_step(self, batch, batch_idx):
-        (x0, x1), _, _ = batch
-        z0, p0 = self.forward(x0)
-        z1, p1 = self.forward(x1)
-        loss = 0.5 * (self.criterion(z0, p1) + self.criterion(z1, p0))
+        views, _, _ = batch
+        features = [self.forward(view) for view in views]
+        zs = torch.stack([z for z, _ in features])
+        ps = torch.stack([p for _, p in features])
+
+        loss = 0.0
+        for i in range(len(views)):
+            mask = torch.arange(len(views), device=self.device) != i
+            loss += self.criterion(ps[i], torch.mean(zs[mask], dim=0)) / len(views)
+
+        self.log("train_loss_ssl", loss)
         return loss
 
     def configure_optimizers(self):
@@ -42,10 +49,10 @@ class SimSiam(pl.LightningModule):
         return optim
 
 
-model = SimSiam()
+model = FastSiam()
 
 cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-transform = SimSiamTransform(input_size=32)
+transform = FastSiamTransform(input_size=32)
 dataset = LightlyDataset.from_torch_dataset(cifar10, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")

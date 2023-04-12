@@ -232,6 +232,7 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 | DCL              |    800 |        256 |         0.864 |
 | DCLW             |    800 |        256 |         0.861 |
 | DINO (Res18)     |    800 |        256 |         0.887 |
+| FastSiam         |    800 |        256 |         0.865 |
 | MAE (ViT-S)      |    800 |        256 |         0.620 |
 | MSN (ViT-S)      |    800 |        256 |         0.833 |
 | Moco             |    800 |        256 |         0.874 |
@@ -239,7 +240,7 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 | PMSN (ViT-S)     |    800 |        256 |         0.830 |
 | SimCLR           |    800 |        256 |         0.889 |
 | SimMIM (ViT-B32) |    800 |        256 |         0.351 |
-| SimSiam          |    800 |        256 |         0.885 |
+| SimSiam          |    800 |        256 |         0.871 |
 | SwaV             |    800 |        256 |         0.899 |
 | SwaVQueue        |    800 |        256 |         0.898 |
 | SMoG             |    800 |        256 |         0.782 |
@@ -257,10 +258,11 @@ One epoch on cifar10 takes ~35 seconds on a V100 GPU. [Learn more about the cifa
 | DCL           |    800 |        512 |         0.873 |
 | DCLW          |    800 |        512 |         0.873 | 
 | DINO          |    800 |        512 |         0.884 |
+| FastSiam      |    800 |        512 |         0.902 |
 | Moco          |    800 |        512 |         0.900 |
 | NNCLR         |    800 |        512 |         0.896 |
 | SimCLR        |    800 |        512 |         0.875 |
-| SimSiam       |    800 |        512 |         0.906 |
+| SimSiam       |    800 |        512 |         0.902 |
 | SwaV          |    800 |        512 |         0.881 |
 
 ## Terminology

@@ -237,19 +237,30 @@ class _ExportDatasetMixin:
     def export_filenames_and_read_urls_by_tag_id(
         self,
         tag_id: str,
-    ) -> List[Dict]:
-        """Export the samples filenames to map with their readURL.
+    ) -> List[Dict[str, str]]:
+        """Export filenames, read URLs, and datasource URLs from the given tag.
 
         Args:
             tag_id:
                 Id of the tag which should exported.
 
         Returns:
-            A list of mappings of the samples filenames and readURLs within a certain tag.
+            A list of dictionaries with the keys "filename", "readUrl" and "datasourceUrl".
+            An example:
+            [
+                {
+                    "fileName": "sample1.jpg",
+                    "readUrl": "s3://my_datasource/sample1.jpg?read_url_key=EAIFUIENDLFN",
+                    "datasourceUrl": "s3://my_datasource/sample1.jpg",
+                },
+                {
+                    "fileName": "sample2.jpg",
+                    "readUrl": "s3://my_datasource/sample2.jpg?read_url_key=JSBFIEUHVSJ",
+                    "datasourceUrl": "s3://my_datasource/sample2.jpg",
+                },
+            ]
 
         """
-        # TODO (Philipp, 10.01.2023): Switch to the exportTagToBasicFilenamesAndReadUrls
-        # when the read-urls are fixed.
         filenames_string = retry(
             self._tags_api.export_tag_to_basic_filenames,
             dataset_id=self.dataset_id,
@@ -262,32 +273,42 @@ class _ExportDatasetMixin:
             tag_id=tag_id,
             file_name_format=FileNameFormat.REDIRECTED_READ_URL,
         )
+        datasource_urls_string = retry(
+            self._tags_api.export_tag_to_basic_filenames,
+            dataset_id=self.dataset_id,
+            tag_id=tag_id,
+            file_name_format=FileNameFormat.DATASOURCE_FULL,
+        )
         # The endpoint exportTagToBasicFilenames returns a plain string so we
         # have to split it by newlines in order to get the individual entries.
+        # The order of the fileNames and readUrls and datasourceUrls is guaranteed to be the same
+        # by the API so we can simply zip them.
         filenames = filenames_string.split("\n")
         read_urls = read_urls_string.split("\n")
-        # The order of the fileNames and readUrls is guaranteed to be the same
-        # by the API so we can simply zip them.
+        datasource_urls = datasource_urls_string.split("\n")
         return [
             {
                 "fileName": filename,
                 "readUrl": read_url,
+                "datasourceUrl": datasource_url,
             }
-            for filename, read_url in zip(filenames, read_urls)
+            for filename, read_url, datasource_url in zip(
+                filenames, read_urls, datasource_urls
+            )
         ]
 
     def export_filenames_and_read_urls_by_tag_name(
         self,
         tag_name: str,
-    ) -> List[Dict]:
-        """Export the samples filenames to map with their readURL.
+    ) -> List[Dict[str, str]]:
+        """Export filenames, read URLs, and datasource URLs from the given tag name.
 
         Args:
             tag_name:
                 Name of the tag which should exported.
 
         Returns:
-            A list of mappings of the samples filenames and readURLs within a certain tag.
+            A list of dictionaries with the keys "filename", "readUrl" and "datasourceUrl".
 
         Examples:
             >>> # write json file which can be used to access the actual file contents.
@@ -295,7 +316,7 @@ class _ExportDatasetMixin:
             >>>     'initial-tag'
             >>> )
             >>>
-            >>> with open('my-readURL-mappings.json', 'w') as f:
+            >>> with open('my-samples.json', 'w') as f:
             >>>     json.dump(mappings, f)
 
         """
