@@ -65,14 +65,16 @@ if __name__ == "__main__":
     long_description = load_description()
 
     python_requires = ">=3.6"
-    install_requires = load_requirements()
+    base_requires = load_requirements(filename="base.txt")
+    torch_requires = load_requirements(filename="torch.txt")
     video_requires = load_requirements(filename="video.txt")
     dev_requires = load_requirements(filename="dev.txt")
-    all_requires = dev_requires + video_requires
+
+    install_requires = base_requires + torch_requires
     extras_require = {
         "video": video_requires,
         "dev": dev_requires,
-        "all": all_requires,
+        "all": dev_requires + video_requires,
     }
 
     packages = [
