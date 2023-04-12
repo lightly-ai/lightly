@@ -245,7 +245,7 @@ class _ExportDatasetMixin:
                 Id of the tag which should exported.
 
         Returns:
-            A list of dictionaries with the keys "filename", "readURL" and "datasourceURL".
+            A list of dictionaries with the keys "filename", "readUrl" and "datasourceUrl".
             An example:
             [
                 {
