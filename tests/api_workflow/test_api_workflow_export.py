@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-from lightly.api import api_workflow_download_dataset, ApiWorkflowClient
+from lightly.api import ApiWorkflowClient, api_workflow_download_dataset
 from lightly.openapi_generated.swagger_client import (
     DatasetEmbeddingData,
     FileNameFormat,
