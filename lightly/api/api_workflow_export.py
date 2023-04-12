@@ -308,7 +308,7 @@ class _ExportDatasetMixin:
                 Name of the tag which should exported.
 
         Returns:
-            A list of dictionaries with the keys "filename", "readURL" and "datasourceURL".
+            A list of dictionaries with the keys "filename", "readUrl" and "datasourceUrl".
 
         Examples:
             >>> # write json file which can be used to access the actual file contents.
