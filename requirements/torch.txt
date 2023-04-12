@@ -1,0 +1,4 @@
+torchvision
+# Note: pytorch_lightning>=1.5 is required for CLI
+# https://github.com/lightly-ai/lightly/issues/912
+pytorch_lightning>=1.0.4

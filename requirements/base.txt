@@ -9,9 +9,5 @@ requests>=2.23.0
 # is resolved.
 setuptools>=21.0.0,<=65.5.1
 six>=1.10
-torchvision
 tqdm>=4.44
 urllib3>=1.15.1
-# Note: pytorch_lightning>=1.5 is required for CLI
-# https://github.com/lightly-ai/lightly/issues/912
-pytorch_lightning>=1.0.4
