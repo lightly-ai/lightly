@@ -28,6 +28,7 @@ from lightly.openapi_generated.swagger_client import (
     DockerWorkerConfigV3Docker,
     DockerWorkerConfigV3DockerCorruptnessCheck,
     DockerWorkerConfigV3Lightly,
+    DockerWorkerConfigV3LightlyCollate,
     DockerWorkerConfigV3LightlyLoader,
     DockerWorkerState,
     DockerWorkerType,
@@ -785,7 +786,10 @@ def test__validate_config__lightly() -> None:
             num_workers=-1,
             batch_size=16,
             shuffle=True,
-        )
+        ),
+        collate=DockerWorkerConfigV3LightlyCollate(
+            rr_degrees=[-90, 90],
+        ),
     )
     _validate_config(
         cfg={
@@ -793,6 +797,9 @@ def test__validate_config__lightly() -> None:
                 "num_workers": -1,
                 "batch_size": 16,
                 "shuffle": True,
+            },
+            "collate": {
+                "rr_degrees": [-90, 90],
             },
         },
         obj=obj,
