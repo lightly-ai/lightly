@@ -221,7 +221,6 @@ from lightly.openapi_generated.swagger_client.models.tag_upsize_request import T
 from lightly.openapi_generated.swagger_client.models.task_name import TaskName
 from lightly.openapi_generated.swagger_client.models.task_type import TaskType
 from lightly.openapi_generated.swagger_client.models.team_basic_data import TeamBasicData
-from lightly.openapi_generated.swagger_client.models.team_data import TeamData
 from lightly.openapi_generated.swagger_client.models.team_role import TeamRole
 from lightly.openapi_generated.swagger_client.models.timestamp import Timestamp
 from lightly.openapi_generated.swagger_client.models.timestamp_seconds import TimestampSeconds
