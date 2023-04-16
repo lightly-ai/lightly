@@ -219,14 +219,14 @@ class SimCLRProjectionHead(ProjectionHead):
             output_dim: Number of output dimensions.
             num_layers: Number of hidden layers.
         """
-        super().__init__(
-            [
-                (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
-                (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())
-                * (num_layers - 2),
-                (hidden_dim, output_dim, nn.BatchNorm1d(output_dim), None),
-            ]
-        )
+        layers = [(input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())]
+        if num_layers > 2:
+            layers.extend(
+                [(hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())]
+                * (num_layers - 2)
+            )
+        layers.append((hidden_dim, output_dim, nn.BatchNorm1d(output_dim), None))
+        super().__init__(layers)
 
 
 class SimSiamProjectionHead(ProjectionHead):
