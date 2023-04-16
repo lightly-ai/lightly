@@ -198,17 +198,33 @@ class SimCLRProjectionHead(ProjectionHead):
     "We use a MLP with one hidden layer to obtain zi = g(h) = W_2 * σ(W_1 * h)
     where σ is a ReLU non-linearity." [0]
 
-    [0] SimCLR, 2020, https://arxiv.org/abs/2002.05709
+    "We use a 3-layer MLP projection head on top of a ResNet encoder." [1]
 
+    [0] SimCLR, 2020, https://arxiv.org/abs/2002.05709
+    [1] SimCLR, 2020, https://arxiv.org/abs/2006.10029
     """
 
     def __init__(
-        self, input_dim: int = 2048, hidden_dim: int = 2048, output_dim: int = 128
+        self,
+        input_dim: int = 2048,
+        hidden_dim: int = 2048,
+        output_dim: int = 2048,
+        num_layers: int = 3,
     ):
-        super(SimCLRProjectionHead, self).__init__(
+        """Initialize a new SimCLRProjectionHead instance.
+
+        Args:
+            input_dim: Number of input dimensions.
+            hidden_dim: Number of hidden dimensions.
+            output_dim: Number of output dimensions.
+            num_layers: Number of hidden layers.
+        """
+        super().__init__(
             [
-                (input_dim, hidden_dim, None, nn.ReLU()),
-                (hidden_dim, output_dim, None, None),
+                (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+                (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())
+                * (num_layers - 2),
+                (hidden_dim, output_dim, nn.BatchNorm1d(output_dim), None),
             ]
         )
 
