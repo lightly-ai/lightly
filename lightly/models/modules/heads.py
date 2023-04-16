@@ -219,7 +219,8 @@ class SimCLRProjectionHead(ProjectionHead):
             output_dim: Number of output dimensions.
             num_layers: Number of hidden layers.
         """
-        layers = [(input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())]
+        layers: list[tuple[int, int, Optional[nn.Module], Optional[nn.Module]]] = []
+        layers.append((input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()))
         if num_layers > 2:
             layers.extend(
                 [(hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())]
