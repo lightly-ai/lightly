@@ -158,8 +158,8 @@ from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 def _check_dataset_id(dataset_id: str):
-    assert isinstance(dataset_id, str)
-    assert len(dataset_id) > 0
+    if not isinstance(dataset_id, str) or len(dataset_id) == 0:
+        raise ApiException(status=400, reason="Invalid dataset id.")
 
 
 N_FILES_ON_SERVER = 100
@@ -657,7 +657,7 @@ class MockedDatasetsApi(DatasetsApi):
             None,
         )
         if dataset is None:
-            raise ApiException()
+            raise ApiException(status=404, reason="Not found")
         return dataset
 
     def register_dataset_upload_by_id(self, body, dataset_id):
