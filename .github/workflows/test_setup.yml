@@ -32,7 +32,9 @@ jobs:
         path: ${{ env.pythonLocation }}
         key: cache_v2_${{ env.pythonLocation }}-${{ hashFiles('requirements/**') }}
     - name: Install Dependencies and lightly
-      run: pip install .
+      run: |
+        pip install .
+        pip list
     - name: basic tests of CLI
       run: |
         LIGHTLY_SERVER_LOCATION="localhost:-1"
