@@ -7,6 +7,7 @@ from lightly.openapi_generated.swagger_client import (
     DatasetsApi,
     DatasetType,
 )
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
@@ -28,6 +29,16 @@ class TestApiWorkflowDatasets(MockedApiWorkflowSetup):
         assert not self.api_workflow_client.dataset_name_exists(
             dataset_name="not_existing_dataset"
         )
+
+    def test_dataset_exists(self):
+        assert self.api_workflow_client.dataset_exists(dataset_id="dataset_1_id")
+        assert not self.api_workflow_client.dataset_exists(
+            dataset_id="non_existing_dataset_id"
+        )
+
+    def test_dataset_exists__raises_error(self):
+        with self.assertRaises(ApiException):
+            self.api_workflow_client.dataset_exists(dataset_id=None)
 
     def test_dataset_name_exists__own_existing(self):
         assert self.api_workflow_client.dataset_name_exists(dataset_name="dataset_1")
