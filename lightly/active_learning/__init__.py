@@ -9,6 +9,3 @@ def raise_active_learning_deprecation_warning():
         DeprecationWarning,
         stacklevel=2,
     )
-
-
-raise_active_learning_deprecation_warning()
