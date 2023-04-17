@@ -104,10 +104,11 @@ class ScorerSemanticSegmentation(Scorer):
 
     """
 
+    raise_active_learning_deprecation_warning()
+
     def __init__(
         self, model_output: Union[List[np.ndarray], Generator[np.ndarray, None, None]]
     ):
-        raise_active_learning_deprecation_warning()
         self.model_output = model_output
 
     def calculate_scores(self) -> Dict[str, np.ndarray]:

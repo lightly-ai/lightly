@@ -97,8 +97,9 @@ class ScorerClassification(Scorer):
 
     """
 
+    raise_active_learning_deprecation_warning()
+
     def __init__(self, model_output: Union[np.ndarray, List[List[float]]]):
-        raise_active_learning_deprecation_warning()
         if not isinstance(model_output, np.ndarray):
             model_output = np.array(model_output)
 

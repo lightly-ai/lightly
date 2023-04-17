@@ -60,13 +60,14 @@ class ActiveLearningAgent:
 
     """
 
+    raise_active_learning_deprecation_warning()
+
     def __init__(
         self,
         api_workflow_client: ApiWorkflowClient,
         query_tag_name: str = "initial-tag",
         preselected_tag_name: str = None,
     ):
-        raise_active_learning_deprecation_warning()
         self.api_workflow_client = api_workflow_client
 
         # set the query_tag_id and preselected_tag_id

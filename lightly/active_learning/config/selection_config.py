@@ -37,6 +37,8 @@ class SelectionConfig:
 
     """
 
+    raise_active_learning_deprecation_warning()
+
     def __init__(
         self,
         method: SamplingMethod = SamplingMethod.CORESET,
@@ -44,7 +46,6 @@ class SelectionConfig:
         min_distance: float = -1,
         name: str = None,
     ):
-        raise_active_learning_deprecation_warning()
         self.method = method
         self.n_samples = n_samples
         self.min_distance = min_distance
