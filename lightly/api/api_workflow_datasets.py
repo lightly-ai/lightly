@@ -27,8 +27,10 @@ class _DatasetsMixin:
         try:
             self.get_dataset_by_id(dataset_id)
             return True
-        except ApiException:
-            return False
+        except ApiException as exception:
+            if exception.status == 404:  # Not Found
+                return False
+            raise exception
 
     def dataset_name_exists(
         self, dataset_name: str, shared: Optional[bool] = False
