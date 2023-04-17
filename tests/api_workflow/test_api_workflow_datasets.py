@@ -37,8 +37,9 @@ class TestApiWorkflowDatasets(MockedApiWorkflowSetup):
         )
 
     def test_dataset_exists__raises_error(self):
-        with self.assertRaises(ApiException):
+        with self.assertRaises(ApiException) as e:
             self.api_workflow_client.dataset_exists(dataset_id=None)
+            assert e.status != 404
 
     def test_dataset_name_exists__own_existing(self):
         assert self.api_workflow_client.dataset_name_exists(dataset_name="dataset_1")
