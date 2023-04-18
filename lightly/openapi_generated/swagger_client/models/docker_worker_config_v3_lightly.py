@@ -33,6 +33,9 @@ class DockerWorkerConfigV3Lightly(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'seed': 'int',
+        'checkpoint_callback': 'DockerWorkerConfigV3LightlyCheckpointCallback',
+        'resize': 'list[int]',
         'loader': 'DockerWorkerConfigV3LightlyLoader',
         'model': 'DockerWorkerConfigV3LightlyModel',
         'trainer': 'DockerWorkerConfigV3LightlyTrainer',
@@ -42,6 +45,9 @@ class DockerWorkerConfigV3Lightly(object):
     }
 
     attribute_map = {
+        'seed': 'seed',
+        'checkpoint_callback': 'checkpointCallback',
+        'resize': 'resize',
         'loader': 'loader',
         'model': 'model',
         'trainer': 'trainer',
@@ -50,12 +56,15 @@ class DockerWorkerConfigV3Lightly(object):
         'collate': 'collate'
     }
 
-    def __init__(self, loader=None, model=None, trainer=None, criterion=None, optimizer=None, collate=None, _configuration=None):  # noqa: E501
+    def __init__(self, seed=None, checkpoint_callback=None, resize=None, loader=None, model=None, trainer=None, criterion=None, optimizer=None, collate=None, _configuration=None):  # noqa: E501
         """DockerWorkerConfigV3Lightly - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
         self._configuration = _configuration
 
+        self._seed = None
+        self._checkpoint_callback = None
+        self._resize = None
         self._loader = None
         self._model = None
         self._trainer = None
@@ -64,6 +73,12 @@ class DockerWorkerConfigV3Lightly(object):
         self._collate = None
         self.discriminator = None
 
+        if seed is not None:
+            self.seed = seed
+        if checkpoint_callback is not None:
+            self.checkpoint_callback = checkpoint_callback
+        if resize is not None:
+            self.resize = resize
         if loader is not None:
             self.loader = loader
         if model is not None:
@@ -76,6 +91,73 @@ class DockerWorkerConfigV3Lightly(object):
             self.optimizer = optimizer
         if collate is not None:
             self.collate = collate
+
+    @property
+    def seed(self):
+        """Gets the seed of this DockerWorkerConfigV3Lightly.  # noqa: E501
+
+        Random seed.  # noqa: E501
+
+        :return: The seed of this DockerWorkerConfigV3Lightly.  # noqa: E501
+        :rtype: int
+        """
+        return self._seed
+
+    @seed.setter
+    def seed(self, seed):
+        """Sets the seed of this DockerWorkerConfigV3Lightly.
+
+        Random seed.  # noqa: E501
+
+        :param seed: The seed of this DockerWorkerConfigV3Lightly.  # noqa: E501
+        :type: int
+        """
+
+        self._seed = seed
+
+    @property
+    def checkpoint_callback(self):
+        """Gets the checkpoint_callback of this DockerWorkerConfigV3Lightly.  # noqa: E501
+
+
+        :return: The checkpoint_callback of this DockerWorkerConfigV3Lightly.  # noqa: E501
+        :rtype: DockerWorkerConfigV3LightlyCheckpointCallback
+        """
+        return self._checkpoint_callback
+
+    @checkpoint_callback.setter
+    def checkpoint_callback(self, checkpoint_callback):
+        """Sets the checkpoint_callback of this DockerWorkerConfigV3Lightly.
+
+
+        :param checkpoint_callback: The checkpoint_callback of this DockerWorkerConfigV3Lightly.  # noqa: E501
+        :type: DockerWorkerConfigV3LightlyCheckpointCallback
+        """
+
+        self._checkpoint_callback = checkpoint_callback
+
+    @property
+    def resize(self):
+        """Gets the resize of this DockerWorkerConfigV3Lightly.  # noqa: E501
+
+        Size of uploaded object crops and video frames. Must be a sequence like [h, w].  # noqa: E501
+
+        :return: The resize of this DockerWorkerConfigV3Lightly.  # noqa: E501
+        :rtype: list[int]
+        """
+        return self._resize
+
+    @resize.setter
+    def resize(self, resize):
+        """Sets the resize of this DockerWorkerConfigV3Lightly.
+
+        Size of uploaded object crops and video frames. Must be a sequence like [h, w].  # noqa: E501
+
+        :param resize: The resize of this DockerWorkerConfigV3Lightly.  # noqa: E501
+        :type: list[int]
+        """
+
+        self._resize = resize
 
     @property
     def loader(self):
