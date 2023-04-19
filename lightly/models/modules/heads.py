@@ -200,8 +200,8 @@ class SimCLRProjectionHead(ProjectionHead):
 
     "We use a 3-layer MLP projection head on top of a ResNet encoder." [1]
 
-    [0] SimCLR, 2020, https://arxiv.org/abs/2002.05709
-    [1] SimCLR, 2020, https://arxiv.org/abs/2006.10029
+    [0] SimCLR v1, 2020, https://arxiv.org/abs/2002.05709
+    [1] SimCLR v2, 2020, https://arxiv.org/abs/2006.10029
     """
 
     def __init__(
@@ -209,7 +209,8 @@ class SimCLRProjectionHead(ProjectionHead):
         input_dim: int = 2048,
         hidden_dim: int = 2048,
         output_dim: int = 2048,
-        num_layers: int = 3,
+        num_layers: int = 2,
+        batch_norm: bool = True,
     ):
         """Initialize a new SimCLRProjectionHead instance.
 
@@ -217,16 +218,38 @@ class SimCLRProjectionHead(ProjectionHead):
             input_dim: Number of input dimensions.
             hidden_dim: Number of hidden dimensions.
             output_dim: Number of output dimensions.
-            num_layers: Number of hidden layers.
+            num_layers: Number of hidden layers (2 for v1, 3+ for v2).
+            batch_norm: Whether or not to use batch norms.
         """
         layers: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]] = []
-        layers.append((input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()))
+        layers.append(
+            (
+                input_dim,
+                hidden_dim,
+                nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                nn.ReLU(),
+            )
+        )
         if num_layers > 2:
             layers.extend(
-                [(hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())]
+                [
+                    (
+                        hidden_dim,
+                        hidden_dim,
+                        nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                        nn.ReLU(),
+                    )
+                ]
                 * (num_layers - 2)
             )
-        layers.append((hidden_dim, output_dim, nn.BatchNorm1d(output_dim), None))
+        layers.append(
+            (
+                hidden_dim,
+                output_dim,
+                nn.BatchNorm1d(output_dim) if batch_norm else None,
+                None,
+            )
+        )
         super().__init__(layers)
 
 
