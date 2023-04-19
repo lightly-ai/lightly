@@ -231,8 +231,8 @@ class _ComputeWorkerMixin:
                 If the API call returns a status code other than 200.
                     400: Missing or invalid parameters
                     402: Insufficient plan
-                    403: Invalid token
-                    404: Dataset not found
+                    403: Not authorized for this resource or invalid token
+                    404: Resource (dataset or config) not found
                     422: Missing or invalid file in datasource
             InvalidConfigError:
                 If one of the configurations is invalid.
