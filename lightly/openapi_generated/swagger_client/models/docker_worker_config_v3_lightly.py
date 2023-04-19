@@ -140,7 +140,7 @@ class DockerWorkerConfigV3Lightly(object):
     def resize(self):
         """Gets the resize of this DockerWorkerConfigV3Lightly.  # noqa: E501
 
-        Size of uploaded object crops and video frames. Must be a sequence like [h, w]. If not given, default size is used.   # noqa: E501
+        Size of uploaded object crops and video frames. Must be a sequence like [h, w]. If null, no resizing will be applied.   # noqa: E501
 
         :return: The resize of this DockerWorkerConfigV3Lightly.  # noqa: E501
         :rtype: list[int]
@@ -151,7 +151,7 @@ class DockerWorkerConfigV3Lightly(object):
     def resize(self, resize):
         """Sets the resize of this DockerWorkerConfigV3Lightly.
 
-        Size of uploaded object crops and video frames. Must be a sequence like [h, w]. If not given, default size is used.   # noqa: E501
+        Size of uploaded object crops and video frames. Must be a sequence like [h, w]. If null, no resizing will be applied.   # noqa: E501
 
         :param resize: The resize of this DockerWorkerConfigV3Lightly.  # noqa: E501
         :type: list[int]

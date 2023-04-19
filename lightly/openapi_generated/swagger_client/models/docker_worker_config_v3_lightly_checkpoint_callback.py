@@ -56,7 +56,7 @@ class DockerWorkerConfigV3LightlyCheckpointCallback(object):
     def save_last(self):
         """Gets the save_last of this DockerWorkerConfigV3LightlyCheckpointCallback.  # noqa: E501
 
-        If True, then the checkpoint from the last epoch is saved.  # noqa: E501
+        If True, the checkpoint from the last epoch is saved.  # noqa: E501
 
         :return: The save_last of this DockerWorkerConfigV3LightlyCheckpointCallback.  # noqa: E501
         :rtype: bool
@@ -67,7 +67,7 @@ class DockerWorkerConfigV3LightlyCheckpointCallback(object):
     def save_last(self, save_last):
         """Sets the save_last of this DockerWorkerConfigV3LightlyCheckpointCallback.
 
-        If True, then the checkpoint from the last epoch is saved.  # noqa: E501
+        If True, the checkpoint from the last epoch is saved.  # noqa: E501
 
         :param save_last: The save_last of this DockerWorkerConfigV3LightlyCheckpointCallback.  # noqa: E501
         :type: bool
