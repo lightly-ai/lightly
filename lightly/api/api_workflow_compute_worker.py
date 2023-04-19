@@ -226,6 +226,17 @@ class _ComputeWorkerMixin:
         Returns:
             The id of the scheduled run.
 
+        Raises:
+            ApiException:
+                If the API call returns a status code other than 200.
+                    400: Missing or invalid parameters
+                    402: Insufficient plan
+                    403: Invalid token
+                    404: Dataset not found
+                    422: Missing or invalid file in datasource
+            InvalidConfigError:
+                If one of the configurations is invalid.
+
         """
         if runs_on is None:
             runs_on = []
