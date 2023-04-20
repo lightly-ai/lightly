@@ -230,7 +230,7 @@ class SimCLRProjectionHead(ProjectionHead):
                 nn.ReLU(),
             )
         )
-        for layers in range(2, num_layers):
+        for _ in range(2, num_layers):
             layers.append(
                 (
                     hidden_dim,
