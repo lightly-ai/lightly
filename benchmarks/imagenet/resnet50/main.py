@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
+from typing import Sequence, Union
 
 import knn_eval
 import linear_eval
@@ -16,20 +17,10 @@ from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
-parser = ArgumentParser("ImageNet ResNet50")
+parser = ArgumentParser("ImageNet ResNet50 Benchmarks")
 parser.add_argument("--train-dir", type=Path, required=True)
 parser.add_argument("--val-dir", type=Path, required=True)
-parser.add_argument(
-    "--log-dir",
-    type=Path,
-    default=Path(__file__).parent
-    / ".."
-    / ".."
-    / ".."
-    / "benchmark_logs"
-    / "imagenet"
-    / "resnet50",
-)
+parser.add_argument("--log-dir", type=Path, default="benchmark_logs")
 parser.add_argument("--batch-size", type=int, default=512)
 parser.add_argument("--epochs", type=int, default=100)
 parser.add_argument("--num-workers", type=int, default=8)
@@ -44,23 +35,34 @@ METHODS = {
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
 }
 
-
-if __name__ == "__main__":
-    args = parser.parse_args()
-    method_names = args.methods or METHODS.keys()
+def main(
+    train_dir: Path,
+    val_dir: Path,
+    log_dir: Path,
+    batch_size: int,
+    epochs: int,
+    num_workers: int,
+    accelerator: str,
+    devices: int,
+    methods: Union[Sequence[str], None],
+    no_knn_eval: bool,
+    no_linear_eval: bool,
+    no_finetune_eval: bool,
+) -> None:
+    method_names = methods or METHODS.keys()
 
     for method in method_names:
         print(f"Running pretraining for {method}...")
         # Setup training data.
         train_transform = METHODS[method]["transform"]
         train_dataset = LightlyDataset(
-            input_dir=str(args.train_dir), transform=train_transform
+            input_dir=str(train_dir), transform=train_transform
         )
         train_dataloader = DataLoader(
             train_dataset,
-            batch_size=args.batch_size,
+            batch_size=batch_size,
             shuffle=True,
-            num_workers=args.num_workers,
+            num_workers=num_workers,
             collate_fn=MultiViewCollate(),
             drop_last=True,
         )
@@ -77,41 +79,41 @@ if __name__ == "__main__":
             ]
         )
         val_dataset = LightlyDataset(
-            input_dir=str(args.val_dir), transform=val_transform
+            input_dir=str(val_dir), transform=val_transform
         )
         val_dataloader = DataLoader(
             val_dataset,
-            batch_size=args.batch_size,
+            batch_size=batch_size,
             shuffle=False,
-            num_workers=args.num_workers,
+            num_workers=num_workers,
         )
 
         # Train model.
         log_dir = (
-            args.log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         ).resolve()
         callbacks = [LearningRateMonitor(logging_interval="step")]
-        if not args.no_knn_eval:
+        if not no_knn_eval:
             print("Adding KNN eval callback...")
             callbacks.append(
                 knn_eval.get_knn_eval_callback(
-                    train_dir=args.train_dir,
-                    val_dir=args.val_dir,
-                    batch_size=args.batch_size,
-                    num_workers=args.num_workers,
-                    devices=args.devices,
+                    train_dir=train_dir,
+                    val_dir=val_dir,
+                    batch_size=batch_size,
+                    num_workers=num_workers,
+                    devices=devices,
                 )
             )
 
         trainer = Trainer(
-            max_epochs=args.epochs,
-            accelerator=args.accelerator,
-            devices=args.devices,
+            max_epochs=epochs,
+            accelerator=accelerator,
+            devices=devices,
             callbacks=callbacks,
             logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
             log_every_n_steps=1,  # TODO: remove
         )
-        model = METHODS[method]["model"](batch_size=args.batch_size, epochs=args.epochs)
+        model = METHODS[method]["model"](batch_size=batch_size, epochs=epochs)
 
         if hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
@@ -124,19 +126,24 @@ if __name__ == "__main__":
             val_dataloaders=val_dataloader,
         )
 
-        if not args.no_linear_eval:
+        if not no_linear_eval:
             linear_eval.linear_eval(
                 model=model,
-                train_dir=args.train_dir,
-                val_dir=args.val_dir,
+                train_dir=train_dir,
+                val_dir=val_dir,
                 log_dir=log_dir,
-                batch_size=args.batch_size,
-                num_workers=args.num_workers,
-                accelerator=args.accelerator,
-                devices=args.devices,
+                batch_size=batch_size,
+                num_workers=num_workers,
+                accelerator=accelerator,
+                devices=devices,
             )
 
-        if not args.no_finetune_eval:
+        if not no_finetune_eval:
             # TODO: Implement finetune eval.
             print("Finetune eval is not yet implemented.")
             pass
+
+
+if __name__ == "__main__":
+    args = parser.parse_args()
+    main(**vars(args))
