@@ -30,7 +30,11 @@ class LinearEvalClassifier(LinearClassifier):
     def configure_optimizers(self):
         optimizer = SGD(
             self.classification_head.parameters(),
-            lr=0.1 * self.batch_size * self.trainer.num_devices / 256,
+            lr=0.1
+            * self.batch_size
+            * self.trainer.num_devices
+            * self.trainer.num_nodes
+            / 256,
             momentum=0.9,
             weight_decay=1e-6,
         )

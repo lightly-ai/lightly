@@ -37,6 +37,7 @@ METHODS = {
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
 }
 
+
 def main(
     train_dir: Path,
     val_dir: Path,
@@ -82,9 +83,7 @@ def main(
                 ),
             ]
         )
-        val_dataset = LightlyDataset(
-            input_dir=str(val_dir), transform=val_transform
-        )
+        val_dataset = LightlyDataset(input_dir=str(val_dir), transform=val_transform)
         val_dataloader = DataLoader(
             val_dataset,
             batch_size=batch_size,
