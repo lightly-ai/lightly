@@ -46,6 +46,7 @@ def linear_eval(
     num_workers: int,
     accelerator: str,
     devices: int,
+    precision: str,
 ) -> None:
     print("Running linear evaluation...")
 
@@ -91,6 +92,7 @@ def linear_eval(
         accelerator=accelerator,
         devices=devices,
         logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
+        precision=precision,
     )
     trainer.fit(
         model=classifier,

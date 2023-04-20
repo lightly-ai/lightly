@@ -26,6 +26,8 @@ parser.add_argument("--epochs", type=int, default=100)
 parser.add_argument("--num-workers", type=int, default=8)
 parser.add_argument("--accelerator", type=str, default="gpu")
 parser.add_argument("--devices", type=int, default=1)
+parser.add_argument("--precision", type=str, default="16")
+parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
 parser.add_argument("--no-knn-eval", action="store_true")
 parser.add_argument("--no-linear-eval", action="store_true")
@@ -44,6 +46,8 @@ def main(
     num_workers: int,
     accelerator: str,
     devices: int,
+    precision: str,
+    compile_model: bool,
     methods: Union[Sequence[str], None],
     no_knn_eval: bool,
     no_linear_eval: bool,
@@ -111,10 +115,11 @@ def main(
             devices=devices,
             callbacks=callbacks,
             logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
+            precision=precision,
         )
         model = METHODS[method]["model"](batch_size=batch_size, epochs=epochs)
 
-        if hasattr(torch, "compile"):
+        if compile_model and hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
             print("Compiling model...")
             model = torch.compile(model)
@@ -135,6 +140,7 @@ def main(
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
+                precision=precision,
             )
 
         if not no_finetune_eval:
