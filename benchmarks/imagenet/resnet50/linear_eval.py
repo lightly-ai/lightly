@@ -91,7 +91,6 @@ def linear_eval(
         accelerator=accelerator,
         devices=devices,
         logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
-        log_every_n_steps=50,  # TODO: remove
     )
     trainer.fit(
         model=classifier,

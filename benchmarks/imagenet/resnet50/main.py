@@ -111,7 +111,6 @@ def main(
             devices=devices,
             callbacks=callbacks,
             logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
-            log_every_n_steps=1,  # TODO: remove
         )
         model = METHODS[method]["model"](batch_size=batch_size, epochs=epochs)
 
