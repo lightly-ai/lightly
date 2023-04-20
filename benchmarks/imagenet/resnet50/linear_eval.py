@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.nn import Module
@@ -95,6 +96,7 @@ def linear_eval(
         max_epochs=90,
         accelerator=accelerator,
         devices=devices,
+        callbacks=[LearningRateMonitor(logging_interval="step")],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
         precision=precision,
     )
