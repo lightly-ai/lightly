@@ -58,7 +58,7 @@ def main(
     method_names = methods or METHODS.keys()
 
     for method in method_names:
-        model = METHODS[method]["model"]()
+        model = METHODS[method]["model"](batch_size=batch_size, epochs=epochs)
 
         if compile_model and hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
