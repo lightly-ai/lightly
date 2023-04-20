@@ -230,17 +230,14 @@ class SimCLRProjectionHead(ProjectionHead):
                 nn.ReLU(),
             )
         )
-        if num_layers > 2:
-            layers.extend(
-                [
-                    (
-                        hidden_dim,
-                        hidden_dim,
-                        nn.BatchNorm1d(hidden_dim) if batch_norm else None,
-                        nn.ReLU(),
-                    )
-                ]
-                * (num_layers - 2)
+        for layers in range(2, num_layers):
+            layers.append(
+                (
+                    hidden_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.ReLU(),
+                )
             )
         layers.append(
             (
