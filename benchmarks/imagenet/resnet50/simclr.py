@@ -21,7 +21,6 @@ class SimCLR(LightningModule):
 
         # Resnet50 backbone without classification head.
         self.backbone = Sequential(*list(resnet50().children())[:-1])
-        # TODO: Use batch norm in projection head.
         self.projection_head = SimCLRProjectionHead()
         self.criterion = NTXentLoss(temperature=0.1, gather_distributed=True)
 
