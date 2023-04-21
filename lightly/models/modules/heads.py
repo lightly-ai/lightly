@@ -198,19 +198,56 @@ class SimCLRProjectionHead(ProjectionHead):
     "We use a MLP with one hidden layer to obtain zi = g(h) = W_2 * σ(W_1 * h)
     where σ is a ReLU non-linearity." [0]
 
-    [0] SimCLR, 2020, https://arxiv.org/abs/2002.05709
+    "We use a 3-layer MLP projection head on top of a ResNet encoder." [1]
 
+    [0] SimCLR v1, 2020, https://arxiv.org/abs/2002.05709
+    [1] SimCLR v2, 2020, https://arxiv.org/abs/2006.10029
     """
 
     def __init__(
-        self, input_dim: int = 2048, hidden_dim: int = 2048, output_dim: int = 128
+        self,
+        input_dim: int = 2048,
+        hidden_dim: int = 2048,
+        output_dim: int = 2048,
+        num_layers: int = 2,
+        batch_norm: bool = True,
     ):
-        super(SimCLRProjectionHead, self).__init__(
-            [
-                (input_dim, hidden_dim, None, nn.ReLU()),
-                (hidden_dim, output_dim, None, None),
-            ]
+        """Initialize a new SimCLRProjectionHead instance.
+
+        Args:
+            input_dim: Number of input dimensions.
+            hidden_dim: Number of hidden dimensions.
+            output_dim: Number of output dimensions.
+            num_layers: Number of hidden layers (2 for v1, 3+ for v2).
+            batch_norm: Whether or not to use batch norms.
+        """
+        layers: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]] = []
+        layers.append(
+            (
+                input_dim,
+                hidden_dim,
+                nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                nn.ReLU(),
+            )
         )
+        for _ in range(2, num_layers):
+            layers.append(
+                (
+                    hidden_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.ReLU(),
+                )
+            )
+        layers.append(
+            (
+                hidden_dim,
+                output_dim,
+                nn.BatchNorm1d(output_dim) if batch_norm else None,
+                None,
+            )
+        )
+        super().__init__(layers)
 
 
 class SimSiamProjectionHead(ProjectionHead):
