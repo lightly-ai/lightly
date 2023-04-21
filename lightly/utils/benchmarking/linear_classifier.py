@@ -2,7 +2,7 @@ import torch
 from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import CrossEntropyLoss, Linear, Module
-from typing import Tuple
+from typing import Dict, Tuple
 from torch.optim import SGD
 from lightly.models.utils import activate_requires_grad, deactivate_requires_grad
 
@@ -32,52 +32,50 @@ class LinearClassifier(LightningModule):
         self.classification_head = Linear(feature_dim, num_classes)
         self.criterion = CrossEntropyLoss()
 
-        self._accuracy = {
-            "train": {k: [] for k in self.topk},
-            "val": {k: [] for k in self.topk},
+        self._outputs = {
+            "train": {"loss": [], "topk": {k: [] for k in self.topk}},
+            "val": {"loss": [], "topk": {k: [] for k in self.topk}},
         }
-        self._loss = {"train": [], "val": []}
 
     def forward(self, x: Tensor) -> Tensor:
         features = self.model.forward(x).flatten(start_dim=1)
         return self.classification_head(features)
 
-    def shared_step(self, batch, batch_idx, name: str) -> Tensor:
-        images, targets, _ = batch
+    def shared_step(
+        self, batch, batch_idx, name: str
+    ) -> Tuple[Tensor, Dict[int, Tensor]]:
+        images, targets = batch[0], batch[1]
         predictions = self.forward(images)
         loss = self.criterion(predictions, targets)
         topk = topk_accuracy(predictions.detach(), targets.detach(), k=self.topk)
-
-        log_dict = {
-            f"{name}_lin_cls_top{k}_step": acc.mean() for k, acc in topk.items()
-        }
-        log_dict[f"{name}_lin_cls_loss_step"] = loss
-        self.log_dict(log_dict, batch_size=self.batch_size)
+        self._outputs[name]["loss"].append(loss.detach().repeat(len(images)).cpu())
         for k, acc in topk.items():
-            self._accuracy[name][k].append(acc.cpu())
-        self._loss[name].extend([loss.detach().cpu()] * len(images))
-        return loss
+            self._outputs[name]["topk"][k].append(acc.cpu())
+        return loss, topk
 
     def shared_on_epoch_end(self, name: str) -> None:
+        loss = self.all_gather(torch.cat(self._outputs[name]["loss"]))
         topk = {
             k: self.all_gather(torch.cat(acc))
-            for k, acc in self._accuracy[name].items()
+            for k, acc in self._outputs[name]["topk"].items()
         }
-        loss = self.all_gather(torch.cat(self._loss[name]))
-        log_dict = {
-            f"{name}_lin_cls_top{k}_epoch": acc.mean() for k, acc in topk.items()
-        }
-        log_dict[f"{name}_lin_cls_loss_epoch"] = loss.mean()
+        log_dict = {f"{name}_loss": loss.mean()}
+        log_dict.update({f"{name}_top{k}": acc.mean() for k, acc in topk.items()})
         self.log_dict(log_dict, prog_bar=True)
-        for val in self._accuracy[name].values():
-            val.clear()
-        self._loss[name].clear()
+        self._outputs[name]["loss"].clear()
+        for acc in self._outputs[name]["topk"].values():
+            acc.clear()
 
     def training_step(self, batch, batch_idx) -> Tensor:
-        return self.shared_step(batch=batch, batch_idx=batch_idx, name="train")
+        loss, topk = self.shared_step(batch=batch, batch_idx=batch_idx, name="train")
+        log_dict = {"train_loss_step": loss}
+        log_dict.update({f"train_top{k}_step": acc.mean() for k, acc in topk.items()})
+        self.log_dict(log_dict, sync_dist=True)
+        return loss
 
     def validation_step(self, batch, batch_idx) -> Tensor:
-        return self.shared_step(batch=batch, batch_idx=batch_idx, name="val")
+        loss, _ = self.shared_step(batch=batch, batch_idx=batch_idx, name="val")
+        return loss
 
     def on_train_epoch_end(self) -> None:
         return self.shared_on_epoch_end(name="train")
