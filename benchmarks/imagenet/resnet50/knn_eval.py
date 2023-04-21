@@ -66,6 +66,7 @@ def knn_eval(
         accelerator=accelerator,
         devices=devices,
         logger=TensorBoardLogger(save_dir=str(log_dir), name="knn_eval"),
+        strategy="ddp_find_unused_parameters_true",
     )
     trainer.fit(
         model=classifier,
