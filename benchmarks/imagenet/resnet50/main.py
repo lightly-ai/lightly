@@ -16,6 +16,7 @@ from torchvision import transforms as T
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.transforms.utils import IMAGENET_NORMALIZE
+from lightly.utils.benchmarking import MetricCallback
 
 parser = ArgumentParser("ImageNet ResNet50 Benchmarks")
 parser.add_argument("--train-dir", type=Path, required=True)
@@ -57,6 +58,9 @@ def main(
     method_names = methods or METHODS.keys()
 
     for method in method_names:
+        method_dir = (
+            log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        ).resolve()
         model = METHODS[method]["model"](batch_size=batch_size, epochs=epochs)
 
         if compile_model and hasattr(torch, "compile"):
@@ -69,7 +73,7 @@ def main(
             method=method,
             train_dir=train_dir,
             val_dir=val_dir,
-            log_dir=log_dir,
+            log_dir=method_dir,
             batch_size=batch_size,
             epochs=epochs,
             num_workers=num_workers,
@@ -85,7 +89,7 @@ def main(
                 model=model,
                 train_dir=train_dir,
                 val_dir=val_dir,
-                log_dir=log_dir,
+                log_dir=method_dir,
                 batch_size=batch_size,
                 num_workers=num_workers,
                 accelerator=accelerator,
@@ -99,7 +103,7 @@ def main(
                 model=model,
                 train_dir=train_dir,
                 val_dir=val_dir,
-                log_dir=log_dir,
+                log_dir=method_dir,
                 batch_size=batch_size,
                 num_workers=num_workers,
                 accelerator=accelerator,
@@ -160,25 +164,28 @@ def pretrain(
     )
 
     # Train model.
-    log_dir = (
-        log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    ).resolve()
+    metric_callback = MetricCallback()
     trainer = Trainer(
         max_epochs=epochs,
         accelerator=accelerator,
         devices=devices,
-        callbacks=[LearningRateMonitor(logging_interval="step"), DeviceStatsMonitor()],
+        callbacks=[
+            LearningRateMonitor(logging_interval="step"),
+            DeviceStatsMonitor(),
+            metric_callback,
+        ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
         sync_batchnorm=True,
     )
-    model = METHODS[method]["model"](batch_size=batch_size, epochs=epochs)
 
     trainer.fit(
         model=model,
         train_dataloaders=train_dataloader,
         val_dataloaders=val_dataloader,
     )
+    for metric in ["val_online_cls_top1", "val_online_cls_top5"]:
+        print(f"max {metric}: {max(metric_callback.get(metric))}")
 
 
 if __name__ == "__main__":

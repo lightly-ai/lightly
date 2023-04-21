@@ -9,7 +9,7 @@ from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
 from lightly.transforms.utils import IMAGENET_NORMALIZE
-from lightly.utils.benchmarking import LinearClassifier
+from lightly.utils.benchmarking import LinearClassifier, MetricCallback
 
 
 def linear_eval(
@@ -68,11 +68,16 @@ def linear_eval(
         batch_size=batch_size,
         freeze_model=True,
     )
+    metric_callback = MetricCallback()
     trainer = Trainer(
         max_epochs=90,
         accelerator=accelerator,
         devices=devices,
-        callbacks=[LearningRateMonitor(logging_interval="step"), DeviceStatsMonitor()],
+        callbacks=[
+            LearningRateMonitor(logging_interval="step"),
+            DeviceStatsMonitor(),
+            metric_callback,
+        ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
         precision=precision,
         strategy="ddp_find_unused_parameters_true",
@@ -82,3 +87,5 @@ def linear_eval(
         train_dataloaders=train_dataloader,
         val_dataloaders=val_dataloader,
     )
+    for metric in ["val_top1", "val_top5"]:
+        print(f"max linear {metric}: {max(metric_callback.get(metric))}")
