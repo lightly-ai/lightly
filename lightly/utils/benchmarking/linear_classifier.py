@@ -49,17 +49,15 @@ class LinearClassifier(LightningModule):
         return loss
 
     def shared_on_epoch_end(self, name: str) -> None:
-        if self.trainer.global_rank == 0:
-            top1 = self.all_gather(torch.cat(self._accuracy[name]["top1"]))
-            top5 = self.all_gather(torch.cat(self._accuracy[name]["top5"]))
-            self.log_dict(
-                {
-                    f"{name}_top1_epoch": top1.mean(),
-                    f"{name}_top5_epoch": top5.mean(),
-                },
-                rank_zero_only=True,
-                prog_bar=True,
-            )
+        top1 = self.all_gather(torch.cat(self._accuracy[name]["top1"]))
+        top5 = self.all_gather(torch.cat(self._accuracy[name]["top5"]))
+        self.log_dict(
+            {
+                f"{name}_top1_epoch": top1.mean(),
+                f"{name}_top5_epoch": top5.mean(),
+            },
+            prog_bar=True,
+        )
         for val in self._accuracy[name].values():
             val.clear()
 
