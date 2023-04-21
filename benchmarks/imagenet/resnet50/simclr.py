@@ -21,7 +21,7 @@ class SimCLR(LightningModule):
         self.epochs = epochs
 
         resnet = resnet50()
-        resnet.fc = Identity() # Ignore classification head
+        resnet.fc = Identity()  # Ignore classification head
         self.backbone = resnet
         self.projection_head = SimCLRProjectionHead()
         self.criterion = NTXentLoss(temperature=0.1, gather_distributed=True)
