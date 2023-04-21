@@ -75,7 +75,7 @@ def linear_eval(
         callbacks=[LearningRateMonitor(logging_interval="step")],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
         precision=precision,
-        strategy="ddp_find_unused_parameters_true",
+        # strategy="ddp_find_unused_parameters_true",
     )
     trainer.fit(
         model=classifier,

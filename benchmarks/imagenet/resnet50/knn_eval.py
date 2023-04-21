@@ -1,21 +1,27 @@
 from pathlib import Path
 
+from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
-from torch.utils.data.distributed import DistributedSampler
 from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
 from lightly.transforms.utils import IMAGENET_NORMALIZE
-from lightly.utils.benchmarking import KNNCallback
+from lightly.utils.benchmarking import KNNClassifier
 
 
-def get_knn_eval_callback(
+def knn_eval(
+    model: LightningModule,
     train_dir: Path,
     val_dir: Path,
+    log_dir: Path,
     batch_size: int,
     num_workers: int,
+    accelerator: str,
     devices: int,
-) -> KNNCallback:
+) -> None:
+    print("Running KNN evaluation...")
+
     # Setup training data.
     train_transform = T.Compose(
         [
@@ -29,10 +35,9 @@ def get_knn_eval_callback(
     train_dataloader = DataLoader(
         train_dataset,
         batch_size=batch_size,
-        shuffle=True,
+        shuffle=False,
         num_workers=num_workers,
-        drop_last=True,
-        sampler=DistributedSampler(dataset=train_dataset) if devices > 1 else None,
+        drop_last=False,
     )
 
     # Setup validation data.
@@ -50,11 +55,20 @@ def get_knn_eval_callback(
         batch_size=batch_size,
         shuffle=False,
         num_workers=num_workers,
-        sampler=DistributedSampler(dataset=val_dataset) if devices > 1 else None,
     )
 
-    return KNNCallback(
-        train_dataloader=train_dataloader,
-        val_dataloader=val_dataloader,
+    classifier = KNNClassifier(
+        model=model,
         num_classes=1000,
+    )
+    trainer = Trainer(
+        max_epochs=1,
+        accelerator=accelerator,
+        devices=devices,
+        logger=TensorBoardLogger(save_dir=str(log_dir), name="knn_eval"),
+    )
+    trainer.fit(
+        model=classifier,
+        train_dataloaders=train_dataloader,
+        val_dataloaders=val_dataloader,
     )

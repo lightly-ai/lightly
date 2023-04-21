@@ -26,7 +26,7 @@ parser.add_argument("--epochs", type=int, default=100)
 parser.add_argument("--num-workers", type=int, default=8)
 parser.add_argument("--accelerator", type=str, default="gpu")
 parser.add_argument("--devices", type=int, default=1)
-parser.add_argument("--precision", type=str, default="16")
+parser.add_argument("--precision", type=int, default=16)
 parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
 parser.add_argument("--no-knn-eval", action="store_true")
@@ -76,10 +76,25 @@ def main(
             accelerator=accelerator,
             devices=devices,
             precision=precision,
-            no_knn_eval=no_knn_eval,
         )
 
-        if not no_linear_eval:
+        if no_knn_eval:
+            print("Skipping KNN eval.")
+        else:
+            knn_eval.knn_eval(
+                model=model,
+                train_dir=train_dir,
+                val_dir=val_dir,
+                log_dir=log_dir,
+                batch_size=batch_size,
+                num_workers=num_workers,
+                accelerator=accelerator,
+                devices=devices,
+            )
+
+        if no_linear_eval:
+            print("Skipping linear eval.")
+        else:
             linear_eval.linear_eval(
                 model=model,
                 train_dir=train_dir,
@@ -92,7 +107,9 @@ def main(
                 precision=precision,
             )
 
-        if not no_finetune_eval:
+        if no_finetune_eval:
+            print("Skipping finetune eval.")
+        else:
             # TODO: Implement finetune eval.
             print("Finetune eval is not yet implemented.")
             pass
@@ -110,7 +127,6 @@ def pretrain(
     accelerator: str,
     devices: int,
     precision: str,
-    no_knn_eval: bool,
 ) -> None:
     print(f"Running pretraining for {method}...")
 
@@ -147,24 +163,11 @@ def pretrain(
     log_dir = (
         log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     ).resolve()
-    callbacks = [LearningRateMonitor(logging_interval="step")]
-    if not no_knn_eval:
-        print("Adding KNN eval callback...")
-        callbacks.append(
-            knn_eval.get_knn_eval_callback(
-                train_dir=train_dir,
-                val_dir=val_dir,
-                batch_size=batch_size,
-                num_workers=num_workers,
-                devices=devices,
-            )
-        )
-
     trainer = Trainer(
         max_epochs=epochs,
         accelerator=accelerator,
         devices=devices,
-        callbacks=callbacks,
+        callbacks=[LearningRateMonitor(logging_interval="step")],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
         sync_batchnorm=True,
