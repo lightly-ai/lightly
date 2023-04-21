@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from pytorch_lightning import LightningModule
 from torch import Tensor
-from torch.nn import Sequential
+from torch.nn import Identity
 from torchvision.models import resnet50
 
 from lightly.loss.ntx_ent_loss import NTXentLoss
@@ -20,8 +20,9 @@ class SimCLR(LightningModule):
         self.batch_size = batch_size
         self.epochs = epochs
 
-        # Resnet50 backbone without classification head.
-        self.backbone = Sequential(*list(resnet50().children())[:-1])
+        resnet = resnet50()
+        resnet.fc = Identity() # Ignore classification head
+        self.backbone = resnet
         self.projection_head = SimCLRProjectionHead()
         self.criterion = NTXentLoss(temperature=0.1, gather_distributed=True)
 
