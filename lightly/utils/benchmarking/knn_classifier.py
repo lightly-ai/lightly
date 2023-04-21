@@ -55,15 +55,21 @@ class KNNClassifier(LightningModule):
             knn_k=self.knn_k,
             knn_t=self.knn_t,
         )
-        predictions = self.all_gather(predictions)
         topk = mean_topk_accuracy(predictions=predictions, targets=targets, k=self.topk)
         log_dict = {f"val_top{k}": acc for k, acc in topk.items()}
         self.log_dict(log_dict, prog_bar=True, sync_dist=True, batch_size=len(targets))
 
     def on_validation_epoch_start(self) -> None:
         if self._train_features and self._train_targets:
-            self._train_features_tensor = torch.cat(self._train_features, dim=0).t()
-            self._train_targets_tensor = torch.cat(self._train_targets, dim=0).t()
+            # Features and targets have size (world_size, batch_size, dim) and
+            # (world_size, batch_size) after gather. For non-distributed training,
+            # features and targets have size (batch_size, dim) and (batch_size,).
+            features = self.all_gather(torch.cat(self._train_features, dim=0))
+            targets = self.all_gather(torch.cat(self._train_targets, dim=0))
+            # Reshape to (dim, world_size * batch_size)
+            self._train_features_tensor = features.flatten(end_dim=-2).t()
+            # Reshape to (world_size * batch_size,)
+            self._train_targets_tensor = targets.flatten().t()
             self._train_features = []
             self._train_targets = []
 
