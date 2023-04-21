@@ -47,7 +47,7 @@ class KNNClassifier(LightningModule):
         images, targets = batch[0], batch[1]
         features = self.model.forward(images).flatten(start_dim=1)
         features = F.normalize(features, dim=1)
-        predictions = knn_predict(
+        predicted_classes = knn_predict(
             feature=features,
             feature_bank=self._train_features_tensor,
             feature_labels=self._train_targets_tensor,
@@ -55,7 +55,9 @@ class KNNClassifier(LightningModule):
             knn_k=self.knn_k,
             knn_t=self.knn_t,
         )
-        topk = mean_topk_accuracy(predictions=predictions, targets=targets, k=self.topk)
+        topk = mean_topk_accuracy(
+            predicted_classes=predicted_classes, targets=targets, k=self.topk
+        )
         log_dict = {f"val_top{k}": acc for k, acc in topk.items()}
         self.log_dict(log_dict, prog_bar=True, sync_dist=True, batch_size=len(targets))
 

@@ -40,7 +40,8 @@ class LinearClassifier(LightningModule):
         features, targets = batch[0], batch[1]
         predictions = self.forward(features)
         loss = self.criterion(predictions, targets)
-        topk = mean_topk_accuracy(predictions.detach(), targets.detach(), k=self.topk)
+        _, predicted_labels = predictions.topk(max(self.topk))
+        topk = mean_topk_accuracy(predicted_labels, targets, k=self.topk)
         return loss, topk
 
     def training_step(self, batch, batch_idx) -> Tensor:
