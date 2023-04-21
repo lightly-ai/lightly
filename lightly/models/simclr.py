@@ -32,7 +32,9 @@ class SimCLR(nn.Module):
         super(SimCLR, self).__init__()
 
         self.backbone = backbone
-        self.projection_head = SimCLRProjectionHead(num_ftrs, num_ftrs, out_dim)
+        self.projection_head = SimCLRProjectionHead(
+            num_ftrs, num_ftrs, out_dim, batch_norm=False
+        )
 
         warnings.warn(
             Warning(
