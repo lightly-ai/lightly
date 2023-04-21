@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from pytorch_lightning import Trainer
-from pytorch_lightning.callbacks import LearningRateMonitor
+from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.nn import Module
 from torch.utils.data import DataLoader
@@ -72,7 +72,7 @@ def linear_eval(
         max_epochs=90,
         accelerator=accelerator,
         devices=devices,
-        callbacks=[LearningRateMonitor(logging_interval="step")],
+        callbacks=[LearningRateMonitor(logging_interval="step"), DeviceStatsMonitor()],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
         precision=precision,
         strategy="ddp_find_unused_parameters_true",

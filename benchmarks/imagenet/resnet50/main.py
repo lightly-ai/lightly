@@ -8,7 +8,7 @@ import linear_eval
 import simclr
 import torch
 from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.callbacks import LearningRateMonitor
+from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
@@ -167,7 +167,7 @@ def pretrain(
         max_epochs=epochs,
         accelerator=accelerator,
         devices=devices,
-        callbacks=[LearningRateMonitor(logging_interval="step")],
+        callbacks=[LearningRateMonitor(logging_interval="step"), DeviceStatsMonitor()],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
         sync_batchnorm=True,
