@@ -13,9 +13,9 @@ class LinearClassifier(LightningModule):
     def __init__(
         self,
         model: Module,
-        feature_dim: int,
-        num_classes: int,
         batch_size: int,
+        feature_dim: int = 2048,
+        num_classes: int = 1000,
         topk: Tuple[int, ...] = (1, 5),
         freeze_model: bool = False,
     ) -> None:
@@ -23,9 +23,9 @@ class LinearClassifier(LightningModule):
         self.save_hyperparameters(ignore="model")
 
         self.model = model
+        self.batch_size = batch_size
         self.feature_dim = feature_dim
         self.num_classes = num_classes
-        self.batch_size = batch_size
         self.topk = topk
         self.freeze_model = freeze_model
 
