@@ -1,11 +1,10 @@
-from typing import Sequence
+from typing import Dict, Sequence
 
 import torch
 from torch import Tensor
-from typing import Dict
 
 
-def topk_accuracy(
+def mean_topk_accuracy(
     predictions: Tensor, targets: Tensor, k: Sequence[int]
 ) -> Dict[int, Tensor]:
     """Computes the accuracy over the k top predictions for the specified values of k."""
@@ -16,5 +15,5 @@ def topk_accuracy(
         _, topk_labels = predictions.topk(maxk, -1, True, True)
         for num_k in k:
             correct = torch.eq(topk_labels[:, :num_k], targets)
-            accuracy[num_k] = correct.float().mean(dim=-1)
+            accuracy[num_k] = correct.float().mean()
     return accuracy

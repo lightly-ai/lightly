@@ -1,15 +1,13 @@
 from pathlib import Path
 
-from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning import Trainer
+from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.nn import Module
-from torch.optim import SGD
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
-from lightly.models.utils import activate_requires_grad, deactivate_requires_grad
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import LinearClassifier
 

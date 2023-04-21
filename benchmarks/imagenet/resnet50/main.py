@@ -7,12 +7,11 @@ import knn_eval
 import linear_eval
 import simclr
 import torch
-from pytorch_lightning import Trainer
+from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
-from pytorch_lightning import LightningModule
 
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
