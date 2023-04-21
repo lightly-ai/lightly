@@ -3,6 +3,8 @@ from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import CrossEntropyLoss, Linear, Module
 from typing import Tuple
+from torch.optim import SGD
+from lightly.models.utils import activate_requires_grad, deactivate_requires_grad
 
 from lightly.utils.benchmarking.topk import topk_accuracy
 
@@ -15,6 +17,7 @@ class LinearClassifier(LightningModule):
         num_classes: int,
         batch_size: int,
         topk: Tuple[int, ...] = (1, 5),
+        freeze_model: bool = False,
     ) -> None:
         super().__init__()
         self.save_hyperparameters(ignore="model")
@@ -24,6 +27,7 @@ class LinearClassifier(LightningModule):
         self.num_classes = num_classes
         self.batch_size = batch_size
         self.topk = topk
+        self.freeze_model = freeze_model
 
         self.classification_head = Linear(feature_dim, num_classes)
         self.criterion = CrossEntropyLoss()
@@ -80,3 +84,26 @@ class LinearClassifier(LightningModule):
 
     def on_validation_epoch_end(self) -> None:
         return self.shared_on_epoch_end(name="val")
+
+    def configure_optimizers(self):
+        optimizer = SGD(
+            self.classification_head.parameters(),
+            lr=0.1
+            * self.batch_size
+            * self.trainer.num_devices
+            * self.trainer.num_nodes
+            / 256,
+            momentum=0.9,
+            weight_decay=1e-6,
+        )
+        return optimizer
+
+    def on_fit_start(self) -> None:
+        # Freeze model weights.
+        if self.freeze_model:
+            deactivate_requires_grad(model=self.model)
+
+    def on_fit_end(self) -> None:
+        # Unfreeze model weights.
+        if self.freeze_model:
+            activate_requires_grad(model=self.model)

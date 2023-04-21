@@ -14,34 +14,6 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import LinearClassifier
 
 
-class LinearEvalClassifier(LinearClassifier):
-    def __init__(self, model: Module, batch_size: int) -> None:
-        super().__init__(
-            model=model, feature_dim=2048, num_classes=1000, batch_size=batch_size
-        )
-
-    def on_fit_start(self) -> None:
-        # Freeze model weights.
-        deactivate_requires_grad(model=self.model)
-
-    def on_fit_end(self) -> None:
-        # Unfreeze model weights.
-        activate_requires_grad(model=self.model)
-
-    def configure_optimizers(self):
-        optimizer = SGD(
-            self.classification_head.parameters(),
-            lr=0.1
-            * self.batch_size
-            * self.trainer.num_devices
-            * self.trainer.num_nodes
-            / 256,
-            momentum=0.9,
-            weight_decay=1e-6,
-        )
-        return optimizer
-
-
 def linear_eval(
     model: Module,
     train_dir: Path,
@@ -91,7 +63,13 @@ def linear_eval(
     )
 
     # Train linear classifier.
-    classifier = LinearEvalClassifier(model=model, batch_size=batch_size)
+    classifier = LinearClassifier(
+        model=model,
+        feature_dim=2048,
+        num_classes=1000,
+        batch_size=batch_size,
+        freeze_model=True,
+    )
     trainer = Trainer(
         max_epochs=90,
         accelerator=accelerator,
