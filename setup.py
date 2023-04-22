@@ -70,6 +70,7 @@ if __name__ == "__main__":
     video_requires = load_requirements(filename="video.txt")
     dev_requires = load_requirements(filename="dev.txt")
 
+    setup_requires = ["setuptools>=21"]
     install_requires = base_requires + torch_requires
     extras_require = {
         "video": video_requires,
@@ -139,6 +140,7 @@ if __name__ == "__main__":
         license="MIT",
         long_description=long_description,
         long_description_content_type="text/markdown",
+        setup_requires=setup_requires,
         install_requires=install_requires,
         extras_require=extras_require,
         python_requires=python_requires,

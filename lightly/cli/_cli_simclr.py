@@ -21,7 +21,9 @@ class _SimCLR(nn.Module):
         super(_SimCLR, self).__init__()
 
         self.backbone = backbone
-        self.projection_head = SimCLRProjectionHead(num_ftrs, num_ftrs, out_dim)
+        self.projection_head = SimCLRProjectionHead(
+            num_ftrs, num_ftrs, out_dim, batch_norm=False
+        )
 
     def forward(self, x0: torch.Tensor, x1: torch.Tensor = None):
         """Embeds and projects the input images."""
