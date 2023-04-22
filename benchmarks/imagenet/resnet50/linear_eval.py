@@ -64,9 +64,10 @@ def linear_eval(
     # Train linear classifier.
     classifier = LinearClassifier(
         model=model,
+        batch_size=batch_size,
+        epochs=90,
         feature_dim=2048,
         num_classes=num_classes,
-        batch_size=batch_size,
         freeze_model=True,
     )
     metric_callback = MetricCallback()

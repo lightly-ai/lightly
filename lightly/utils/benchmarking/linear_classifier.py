@@ -7,6 +7,7 @@ from torch.optim import SGD
 
 from lightly.models.utils import activate_requires_grad, deactivate_requires_grad
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
+from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class LinearClassifier(LightningModule):
@@ -14,6 +15,7 @@ class LinearClassifier(LightningModule):
         self,
         model: Module,
         batch_size: int,
+        epochs: int,
         feature_dim: int = 2048,
         num_classes: int = 1000,
         topk: Tuple[int, ...] = (1, 5),
@@ -24,6 +26,7 @@ class LinearClassifier(LightningModule):
 
         self.model = model
         self.batch_size = batch_size
+        self.epochs = epochs
         self.feature_dim = feature_dim
         self.num_classes = num_classes
         self.topk = topk
@@ -69,7 +72,12 @@ class LinearClassifier(LightningModule):
             momentum=0.9,
             weight_decay=0.0,
         )
-        return optimizer
+        scheduler = CosineWarmupScheduler(
+            optimizer=optimizer,
+            warmup_epochs=0,
+            max_epochs=self.epochs,
+        )
+        return [optimizer], [scheduler]
 
     def on_fit_start(self) -> None:
         # Freeze model weights.
