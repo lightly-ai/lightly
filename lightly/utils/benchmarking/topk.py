@@ -8,7 +8,6 @@ def mean_topk_accuracy(
     predicted_classes: Tensor, targets: Tensor, k: Sequence[int]
 ) -> Dict[int, Tensor]:
     """Computes the mean accuracy for the specified values of k."""
-    assert predicted_classes.shape[-1] >= max(k)
     accuracy = {}
     targets = targets.unsqueeze(1)
     with torch.no_grad():
