@@ -72,19 +72,22 @@ def main(
             print("Compiling model...")
             model = torch.compile(model)
 
-        pretrain(
-            model=model,
-            method=method,
-            train_dir=train_dir,
-            val_dir=val_dir,
-            log_dir=method_dir,
-            batch_size=batch_size,
-            epochs=epochs,
-            num_workers=num_workers,
-            accelerator=accelerator,
-            devices=devices,
-            precision=precision,
-        )
+        if epochs <= 0:
+            print("Epochs <= 0, skipping pretraining.")
+        else:
+            pretrain(
+                model=model,
+                method=method,
+                train_dir=train_dir,
+                val_dir=val_dir,
+                log_dir=method_dir,
+                batch_size=batch_size,
+                epochs=epochs,
+                num_workers=num_workers,
+                accelerator=accelerator,
+                devices=devices,
+                precision=precision,
+            )
 
         if no_knn_eval:
             print("Skipping KNN eval.")
