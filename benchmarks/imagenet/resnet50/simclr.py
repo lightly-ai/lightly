@@ -62,13 +62,18 @@ class SimCLR(LightningModule):
         return cls_loss
 
     def configure_optimizers(self):
+        parameters = list(self.backbone.parameters()) + list(
+            self.projection_head.parameters()
+        )
         optimizer = LARS(
-            self.parameters(),
-            lr=0.3
-            * self.batch_size
-            * self.trainer.num_devices
-            * self.trainer.num_nodes
-            / 256,
+            [
+                {"params": parameters},
+                {
+                    "params": self.online_classifier.parameters(),
+                    "weight_decay": 0.0,
+                },
+            ],
+            lr=0.3 * self.batch_size * self.trainer.world_size / 256,
             weight_decay=1e-6,
         )
         scheduler = CosineWarmupScheduler(

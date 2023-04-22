@@ -1,9 +1,9 @@
 from collections import defaultdict
+from typing import List
 
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import Callback
 from torch import Tensor
-from typing import List
 
 
 class MetricCallback(Callback):
