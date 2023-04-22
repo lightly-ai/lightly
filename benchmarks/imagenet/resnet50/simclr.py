@@ -67,8 +67,9 @@ class SimCLR(LightningModule):
         )
         optimizer = LARS(
             [
-                {"params": parameters},
+                {"name": "simclr", "params": parameters},
                 {
+                    "name": "online_classifier",
                     "params": self.online_classifier.parameters(),
                     "weight_decay": 0.0,
                 },
