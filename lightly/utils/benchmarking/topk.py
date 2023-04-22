@@ -14,5 +14,5 @@ def mean_topk_accuracy(
     with torch.no_grad():
         for num_k in k:
             correct = torch.eq(predicted_classes[:, :num_k], targets)
-            accuracy[num_k] = correct.float().mean()
+            accuracy[num_k] = correct.float().sum() / targets.shape[0]
     return accuracy
