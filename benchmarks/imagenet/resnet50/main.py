@@ -30,6 +30,7 @@ parser.add_argument("--devices", type=int, default=1)
 parser.add_argument("--precision", type=int, default=16)
 parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
+parser.add_argument("--num-classes", type=int, default=1000)
 parser.add_argument("--no-knn-eval", action="store_true")
 parser.add_argument("--no-linear-eval", action="store_true")
 parser.add_argument("--no-finetune-eval", action="store_true")
@@ -51,6 +52,7 @@ def main(
     precision: str,
     compile_model: bool,
     methods: Union[Sequence[str], None],
+    num_classes: int,
     no_knn_eval: bool,
     no_linear_eval: bool,
     no_finetune_eval: bool,
@@ -61,7 +63,9 @@ def main(
         method_dir = (
             log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         ).resolve()
-        model = METHODS[method]["model"](batch_size=batch_size, epochs=epochs)
+        model = METHODS[method]["model"](
+            batch_size=batch_size, epochs=epochs, num_classes=num_classes
+        )
 
         if compile_model and hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
@@ -87,6 +91,7 @@ def main(
         else:
             knn_eval.knn_eval(
                 model=model,
+                num_classes=num_classes,
                 train_dir=train_dir,
                 val_dir=val_dir,
                 log_dir=method_dir,
@@ -101,6 +106,7 @@ def main(
         else:
             linear_eval.linear_eval(
                 model=model,
+                num_classes=num_classes,
                 train_dir=train_dir,
                 val_dir=val_dir,
                 log_dir=method_dir,

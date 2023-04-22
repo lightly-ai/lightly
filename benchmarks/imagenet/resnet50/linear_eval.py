@@ -22,6 +22,7 @@ def linear_eval(
     accelerator: str,
     devices: int,
     precision: str,
+    num_classes: int,
 ) -> None:
     print("Running linear evaluation...")
 
@@ -64,7 +65,7 @@ def linear_eval(
     classifier = LinearClassifier(
         model=model,
         feature_dim=2048,
-        num_classes=1000,
+        num_classes=num_classes,
         batch_size=batch_size,
         freeze_model=True,
     )

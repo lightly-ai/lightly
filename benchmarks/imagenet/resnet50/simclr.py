@@ -14,7 +14,7 @@ from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class SimCLR(LightningModule):
-    def __init__(self, batch_size: int, epochs: int) -> None:
+    def __init__(self, batch_size: int, epochs: int, num_classes: int) -> None:
         super().__init__()
         self.save_hyperparameters()
         self.batch_size = batch_size
@@ -26,7 +26,7 @@ class SimCLR(LightningModule):
         self.projection_head = SimCLRProjectionHead()
         self.criterion = NTXentLoss(temperature=0.1, gather_distributed=True)
 
-        self.online_classifier = OnlineLinearClassifier()
+        self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
 
     def forward(self, x: Tensor) -> Tensor:
         return self.backbone(x)

@@ -19,6 +19,7 @@ def knn_eval(
     num_workers: int,
     accelerator: str,
     devices: int,
+    num_classes: int,
 ) -> None:
     print("Running KNN evaluation...")
 
@@ -59,7 +60,7 @@ def knn_eval(
 
     classifier = KNNClassifier(
         model=model,
-        num_classes=1000,
+        num_classes=num_classes,
     )
     trainer = Trainer(
         max_epochs=1,
