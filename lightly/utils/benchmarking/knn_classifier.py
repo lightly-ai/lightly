@@ -37,8 +37,8 @@ class KNNClassifier(LightningModule):
         images, targets = batch[0], batch[1]
         features = self.model.forward(images).flatten(start_dim=1)
         features = F.normalize(features, dim=1)
-        self._train_features.append(features)
-        self._train_targets.append(targets)
+        self._train_features.append(features.cpu())
+        self._train_targets.append(targets.cpu())
 
     def validation_step(self, batch, batch_idx) -> None:
         if self._train_features_tensor is None or self._train_targets_tensor is None:
@@ -69,9 +69,11 @@ class KNNClassifier(LightningModule):
             features = self.all_gather(torch.cat(self._train_features, dim=0))
             targets = self.all_gather(torch.cat(self._train_targets, dim=0))
             # Reshape to (dim, world_size * batch_size)
-            self._train_features_tensor = features.flatten(end_dim=-2).t()
+            features = features.flatten(end_dim=-2).t().contiguous()
+            self._train_features_tensor = features.to(self.device)
             # Reshape to (world_size * batch_size,)
-            self._train_targets_tensor = targets.flatten().t()
+            targets = targets.flatten().t().contiguous()
+            self._train_targets_tensor = targets.to(self.device)
             self._train_features = []
             self._train_targets = []
 
