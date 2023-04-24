@@ -2,6 +2,7 @@ from pathlib import Path
 
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.loggers import TensorBoardLogger
+import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
@@ -61,6 +62,7 @@ def knn_eval(
     classifier = KNNClassifier(
         model=model,
         num_classes=num_classes,
+        feature_dtype=torch.float16,
     )
     trainer = Trainer(
         max_epochs=1,

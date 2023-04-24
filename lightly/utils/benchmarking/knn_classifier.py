@@ -19,14 +19,24 @@ class KNNClassifier(LightningModule):
         knn_k: int = 200,
         knn_t: float = 0.1,
         topk: Tuple[int, ...] = (1, 5),
+        feature_dtype: torch.dtype = torch.float32,
     ):
         super().__init__()
-        self.save_hyperparameters(ignore="model")
+        self.save_hyperparameters(
+            {
+                "num_classes": num_classes,
+                "knn_k": knn_k,
+                "knn_t": knn_t,
+                "topk": topk,
+                "feature_dtype": str(feature_dtype),
+            }
+        )
         self.model = model
         self.num_classes = num_classes
         self.knn_k = knn_k
         self.knn_t = knn_t
         self.topk = topk
+        self.feature_dtype = feature_dtype
 
         self._train_features = []
         self._train_targets = []
@@ -36,7 +46,7 @@ class KNNClassifier(LightningModule):
     def training_step(self, batch, batch_idx) -> None:
         images, targets = batch[0], batch[1]
         features = self.model.forward(images).flatten(start_dim=1)
-        features = F.normalize(features, dim=1)
+        features = F.normalize(features, dim=1).to(self.feature_dtype)
         self._train_features.append(features.cpu())
         self._train_targets.append(targets.cpu())
 
@@ -46,7 +56,7 @@ class KNNClassifier(LightningModule):
 
         images, targets = batch[0], batch[1]
         features = self.model.forward(images).flatten(start_dim=1)
-        features = F.normalize(features, dim=1)
+        features = F.normalize(features, dim=1).to(self.feature_dtype)
         predicted_classes = knn_predict(
             feature=features,
             feature_bank=self._train_features_tensor,
@@ -67,15 +77,15 @@ class KNNClassifier(LightningModule):
             # (world_size, batch_size) after gather. For non-distributed training,
             # features and targets have size (batch_size, dim) and (batch_size,).
             features = self.all_gather(torch.cat(self._train_features, dim=0))
+            self._train_features = []
             targets = self.all_gather(torch.cat(self._train_targets, dim=0))
+            self._train_targets = []
             # Reshape to (dim, world_size * batch_size)
             features = features.flatten(end_dim=-2).t().contiguous()
             self._train_features_tensor = features.to(self.device)
             # Reshape to (world_size * batch_size,)
             targets = targets.flatten().t().contiguous()
             self._train_targets_tensor = targets.to(self.device)
-            self._train_features = []
-            self._train_targets = []
 
     def on_fit_start(self) -> None:
         # Freeze model weights.
