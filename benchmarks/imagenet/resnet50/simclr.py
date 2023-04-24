@@ -15,11 +15,10 @@ from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class SimCLR(LightningModule):
-    def __init__(self, batch_size: int, epochs: int, num_classes: int) -> None:
+    def __init__(self, batch_size: int, num_classes: int) -> None:
         super().__init__()
         self.save_hyperparameters()
         self.batch_size = batch_size
-        self.epochs = epochs
 
         resnet = resnet50()
         resnet.fc = Identity()  # Ignore classification head
@@ -83,11 +82,18 @@ class SimCLR(LightningModule):
             lr=0.3 * self.batch_size * self.trainer.world_size / 256,
             weight_decay=1e-6,
         )
-        scheduler = CosineWarmupScheduler(
-            optimizer=optimizer,
-            warmup_epochs=10,
-            max_epochs=self.epochs,
-        )
+        scheduler = {
+            "scheduler": CosineWarmupScheduler(
+                optimizer=optimizer,
+                warmup_epochs=(
+                    self.trainer.estimated_stepping_batches
+                    / self.trainer.max_epochs
+                    * 10
+                ),
+                max_epochs=self.trainer.estimated_stepping_batches,
+            ),
+            "interval": "step",
+        }
         return [optimizer], [scheduler]
 
 

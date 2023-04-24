@@ -63,9 +63,7 @@ def main(
         method_dir = (
             log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         ).resolve()
-        model = METHODS[method]["model"](
-            batch_size=batch_size, epochs=epochs, num_classes=num_classes
-        )
+        model = METHODS[method]["model"](batch_size=batch_size, num_classes=num_classes)
 
         if compile_model and hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
