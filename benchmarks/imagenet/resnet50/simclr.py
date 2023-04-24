@@ -7,6 +7,7 @@ from torchvision.models import resnet50
 
 from lightly.loss.ntx_ent_loss import NTXentLoss
 from lightly.models.modules import SimCLRProjectionHead
+from lightly.models.utils import get_weight_decay_parameters
 from lightly.transforms import SimCLRTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.lars import LARS
@@ -62,12 +63,17 @@ class SimCLR(LightningModule):
         return cls_loss
 
     def configure_optimizers(self):
-        parameters = list(self.backbone.parameters()) + list(
-            self.projection_head.parameters()
+        params, params_no_weight_decay = get_weight_decay_parameters(
+            [self.backbone, self.projection_head]
         )
         optimizer = LARS(
             [
-                {"name": "simclr", "params": parameters},
+                {"name": "simclr", "params": params},
+                {
+                    "name": "simclr_no_weight_decay",
+                    "params": params_no_weight_decay,
+                    "weight_decay": 0.0,
+                },
                 {
                     "name": "online_classifier",
                     "params": self.online_classifier.parameters(),
