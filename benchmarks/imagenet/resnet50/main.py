@@ -57,7 +57,7 @@ def main(
     no_linear_eval: bool,
     no_finetune_eval: bool,
 ) -> None:
-    torch.set_float32_matmul_precision("medium")
+    torch.set_float32_matmul_precision("high")
 
     method_names = methods or METHODS.keys()
 
