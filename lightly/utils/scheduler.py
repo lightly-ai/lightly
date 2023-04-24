@@ -30,7 +30,8 @@ def cosine_schedule(
         raise ValueError("Total step number must be >= 1")
     if step > max_steps:
         warnings.warn(
-            f"Current step {step} number exceeds total step number {max_steps}."
+            f"Current step number {step} exceeds max_steps {max_steps}.",
+            category=RuntimeWarning,
         )
 
     if max_steps == 1:

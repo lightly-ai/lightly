@@ -18,7 +18,7 @@ class TestScheduler(unittest.TestCase):
             cosine_schedule(0, 0, 0.0, 1.0)
         with self.assertRaises(ValueError):
             cosine_schedule(1, 0, 0.0, 1.0)
-        with self.assertRaises(ValueError):
+        with self.assertWarns(RuntimeWarning, msg="Current step number 11 exceeds max_steps 10."):
             cosine_schedule(11, 10, 0.0, 1.0)
 
     def test_CosineWarmupScheduler(self):
@@ -27,7 +27,7 @@ class TestScheduler(unittest.TestCase):
             model.parameters(), lr=1.0, momentum=0.0, weight_decay=0.0
         )
         scheduler = CosineWarmupScheduler(
-            optimizer, warmup_epochs=3, max_epochs=6, verbose=True
+            optimizer, warmup_epochs=3, max_epochs=6, verbose=True, end_value=0.0
         )
 
         # warmup
@@ -56,5 +56,5 @@ class TestScheduler(unittest.TestCase):
         self.assertAlmostEqual(scheduler.get_last_lr()[0], 0.0)
 
         # step > max_epochs
-        with self.assertRaises(ValueError):
+        with self.assertWarns(RuntimeWarning, msg="Current step number 7 exceeds max_steps 6."):
             scheduler.step()
