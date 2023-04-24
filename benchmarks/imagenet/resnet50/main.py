@@ -177,7 +177,7 @@ def pretrain(
         accelerator=accelerator,
         devices=devices,
         callbacks=[
-            LearningRateMonitor(logging_interval="step"),
+            LearningRateMonitor(),
             DeviceStatsMonitor(),
             metric_callback,
         ],

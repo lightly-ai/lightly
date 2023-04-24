@@ -65,7 +65,6 @@ def linear_eval(
     classifier = LinearClassifier(
         model=model,
         batch_size=batch_size,
-        epochs=90,
         feature_dim=2048,
         num_classes=num_classes,
         freeze_model=True,
@@ -76,7 +75,7 @@ def linear_eval(
         accelerator=accelerator,
         devices=devices,
         callbacks=[
-            LearningRateMonitor(logging_interval="step"),
+            LearningRateMonitor(),
             DeviceStatsMonitor(),
             metric_callback,
         ],
