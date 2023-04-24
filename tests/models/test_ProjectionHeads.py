@@ -59,7 +59,7 @@ class TestProjectionHeads(unittest.TestCase):
                     head = head_cls(
                         in_features, hidden_features, bottleneck_features, out_features
                     )
-                elif head_cls == SimCLRProjectionHead:
+                elif head_cls in [MoCoProjectionHead, SimCLRProjectionHead]:
                     head = head_cls(
                         in_features, hidden_features, out_features, batch_norm=False
                     )
@@ -222,7 +222,7 @@ class TestProjectionHeads(unittest.TestCase):
                                 else:
                                     self.assertTrue(are_same)
 
-    def test_simclr_project_head_multiple_layers(self, device: str = "cpu", seed=0):
+    def test_simclr_projection_head_multiple_layers(self, device: str = "cpu", seed=0):
         for in_features, hidden_features, out_features in self.n_features:
             for num_layers in range(2, 5):
                 for batch_norm in [True, False]:
@@ -239,6 +239,33 @@ class TestProjectionHeads(unittest.TestCase):
                     for batch_size in [1, 2]:
                         msg = (
                             f"head: SimCLRProjectionHead"
+                            + f"d_in, d_h, d_out = "
+                            + f"{in_features}x{hidden_features}x{out_features}"
+                        )
+                        with self.subTest(msg=msg):
+                            x = torch.torch.rand((batch_size, in_features)).to(device)
+                            with torch.no_grad():
+                                y = head(x)
+                            self.assertEqual(y.shape[0], batch_size)
+                            self.assertEqual(y.shape[1], out_features)
+
+    def test_moco_projection_head_multiple_layers(self, device: str = "cpu", seed=0):
+        for in_features, hidden_features, out_features in self.n_features:
+            for num_layers in range(2, 5):
+                for batch_norm in [True, False]:
+                    torch.manual_seed(seed)
+                    head = MoCoProjectionHead(
+                        in_features,
+                        hidden_features,
+                        out_features,
+                        num_layers,
+                        batch_norm,
+                    )
+                    head = head.eval()
+                    head = head.to(device)
+                    for batch_size in [1, 2]:
+                        msg = (
+                            f"head: MoCoProjectionHead"
                             + f"d_in, d_h, d_out = "
                             + f"{in_features}x{hidden_features}x{out_features}"
                         )

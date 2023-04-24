@@ -130,19 +130,60 @@ class MoCoProjectionHead(ProjectionHead):
     "(...) we replace the fc head in MoCo with a 2-layer MLP head (hidden layer
     2048-d, with ReLU)" [0]
 
-    [0]: MoCo, 2020, https://arxiv.org/abs/1911.05722
+    "The projection head is a 3-layer MLP. The prediction head is a 2-layer MLP. The
+    hidden layers of both MLPs are 4096-d and are with ReLU; the output layers of both
+    MLPs are 256-d, without ReLU. In MoCo v3, all layers in both MLPs have BN" [2]
 
+    [0]: MoCo v1, 2020, https://arxiv.org/abs/1911.05722
+    [1]: MoCo v2, 2020, https://arxiv.org/abs/2003.04297
+    [2]: MoCo v3, 2021, https://arxiv.org/abs/2104.02057
     """
 
     def __init__(
-        self, input_dim: int = 2048, hidden_dim: int = 2048, output_dim: int = 128
+        self,
+        input_dim: int = 2048,
+        hidden_dim: int = 4096,
+        output_dim: int = 256,
+        num_layers: int = 2,
+        batch_norm: bool = True,
     ):
-        super(MoCoProjectionHead, self).__init__(
-            [
-                (input_dim, hidden_dim, None, nn.ReLU()),
-                (hidden_dim, output_dim, None, None),
-            ]
+        """Initialize a new MoCoProjectionHead instance.
+
+        Args:
+            input_dim: Number of input dimensions.
+            hidden_dim: Number of hidden dimensions (2048 for v1 and v2, 4096 for v3).
+            output_dim: Number of output dimensions (128 for v1 and v2, 256 for v3).
+            num_layers: Number of hidden layers (2 for v1 and v2, 3 for v3).
+            batch_norm: Whether or not to use batch norms.
+                (False for v1 and v2, True for v3)
+        """
+        layers: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]] = []
+        layers.append(
+            (
+                input_dim,
+                hidden_dim,
+                nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                nn.ReLU(),
+            )
         )
+        for _ in range(2, num_layers):
+            layers.append(
+                (
+                    hidden_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.ReLU(),
+                )
+            )
+        layers.append(
+            (
+                hidden_dim,
+                output_dim,
+                nn.BatchNorm1d(output_dim) if batch_norm else None,
+                None,
+            )
+        )
+        super().__init__(layers)
 
 
 class NNCLRProjectionHead(ProjectionHead):

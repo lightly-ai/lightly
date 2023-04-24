@@ -43,7 +43,7 @@ class MoCo(nn.Module, _MomentumEncoderMixin):
         super(MoCo, self).__init__()
 
         self.backbone = backbone
-        self.projection_head = MoCoProjectionHead(num_ftrs, num_ftrs, out_dim)
+        self.projection_head = MoCoProjectionHead(num_ftrs, num_ftrs, out_dim, batch_norm=False)
         self.momentum_features = None
         self.momentum_projection_head = None
 
