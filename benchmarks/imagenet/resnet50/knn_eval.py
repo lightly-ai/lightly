@@ -25,15 +25,15 @@ def knn_eval(
     print("Running KNN evaluation...")
 
     # Setup training data.
-    train_transform = T.Compose(
+    transform = T.Compose(
         [
-            T.RandomResizedCrop(224),
-            T.RandomHorizontalFlip(),
+            T.Resize(256),
+            T.CenterCrop(224),
             T.ToTensor(),
             T.Normalize(mean=IMAGENET_NORMALIZE["mean"], std=IMAGENET_NORMALIZE["std"]),
         ]
     )
-    train_dataset = LightlyDataset(input_dir=str(train_dir), transform=train_transform)
+    train_dataset = LightlyDataset(input_dir=str(train_dir), transform=transform)
     train_dataloader = DataLoader(
         train_dataset,
         batch_size=batch_size,
@@ -43,15 +43,7 @@ def knn_eval(
     )
 
     # Setup validation data.
-    val_transform = T.Compose(
-        [
-            T.Resize(256),
-            T.CenterCrop(224),
-            T.ToTensor(),
-            T.Normalize(mean=IMAGENET_NORMALIZE["mean"], std=IMAGENET_NORMALIZE["std"]),
-        ]
-    )
-    val_dataset = LightlyDataset(input_dir=str(val_dir), transform=val_transform)
+    val_dataset = LightlyDataset(input_dir=str(val_dir), transform=transform)
     val_dataloader = DataLoader(
         val_dataset,
         batch_size=batch_size,
