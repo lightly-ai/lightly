@@ -23,17 +23,17 @@ def knn_predict(
 
     Args:
         feature:
-            Tensor of shape [N, D] for which you want predictions
+            Tensor with shape (B, D) for which you want predictions.
         feature_bank:
-            Tensor of a database of features used for kNN
+            Tensor of shape (D, N) of a database of features used for kNN.
         feature_labels:
-            Labels for the features in our feature_bank
+            Labels with shape (N,) for the features in the feature_bank.
         num_classes:
-            Number of classes (e.g. `10` for CIFAR-10)
+            Number of classes (e.g. `10` for CIFAR-10).
         knn_k:
-            Number of k neighbors used for kNN
+            Number of k neighbors used for kNN.
         knn_t:
-            Temperature parameter to reweights similarities for kNN
+            Temperature parameter to reweights similarities for kNN.
 
     Returns:
         A tensor containing the kNN predictions
@@ -50,12 +50,11 @@ def knn_predict(
         >>>     num_classes=10,
         >>> )
     """
-
-    # compute cos similarity between each feature vector and feature bank ---> [B, N]
+    # compute cos similarity between each feature vector and feature bank ---> (B, N)
     sim_matrix = torch.mm(feature, feature_bank)
-    # [B, K]
+    # (B, K)
     sim_weight, sim_indices = sim_matrix.topk(k=knn_k, dim=-1)
-    # [B, K]
+    # (B, K)
     sim_labels = torch.gather(
         feature_labels.expand(feature.size(0), -1), dim=-1, index=sim_indices
     )
@@ -65,11 +64,11 @@ def knn_predict(
     one_hot_label = torch.zeros(
         feature.size(0) * knn_k, num_classes, device=sim_labels.device
     )
-    # [B*K, C]
+    # (B*K, C)
     one_hot_label = one_hot_label.scatter(
         dim=-1, index=sim_labels.view(-1, 1), value=1.0
     )
-    # weighted score ---> [B, C]
+    # weighted score ---> (B, C)
     pred_scores = torch.sum(
         one_hot_label.view(feature.size(0), -1, num_classes)
         * sim_weight.unsqueeze(dim=-1),
