@@ -62,6 +62,8 @@ class SimCLR(LightningModule):
         return cls_loss
 
     def configure_optimizers(self):
+        # Don't use weight decay for batch norm, bias parameters, and classification
+        # head.
         params, params_no_weight_decay = get_weight_decay_parameters(
             [self.backbone, self.projection_head]
         )
