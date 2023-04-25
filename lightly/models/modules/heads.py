@@ -128,7 +128,7 @@ class MoCoProjectionHead(ProjectionHead):
     """Projection head used for MoCo.
 
     "(...) we replace the fc head in MoCo with a 2-layer MLP head (hidden layer
-    2048-d, with ReLU)" [0]
+    2048-d, with ReLU)" [1]
 
     "The projection head is a 3-layer MLP. The prediction head is a 2-layer MLP. The
     hidden layers of both MLPs are 4096-d and are with ReLU; the output layers of both
@@ -151,11 +151,11 @@ class MoCoProjectionHead(ProjectionHead):
 
         Args:
             input_dim: Number of input dimensions.
-            hidden_dim: Number of hidden dimensions (2048 for v1 and v2, 4096 for v3).
-            output_dim: Number of output dimensions (128 for v1 and v2, 256 for v3).
-            num_layers: Number of hidden layers (2 for v1 and v2, 3 for v3).
+            hidden_dim: Number of hidden dimensions (2048 for v2, 4096 for v3).
+            output_dim: Number of output dimensions (128 for v2, 256 for v3).
+            num_layers: Number of hidden layers (2 for v2, 3 for v3).
             batch_norm: Whether or not to use batch norms.
-                (False for v1 and v2, True for v3)
+                (False for v2, True for v3)
         """
         layers: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]] = []
         layers.append(
