@@ -7,7 +7,7 @@ from torch import Tensor
 from torch.nn import Module
 
 from lightly.models.utils import activate_requires_grad, deactivate_requires_grad
-from lightly.utils.benchmarking.knn import knn_predict
+from lightly.utils.benchmarking import knn_predict
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
 
 
@@ -21,6 +21,48 @@ class KNNClassifier(LightningModule):
         topk: Tuple[int, ...] = (1, 5),
         feature_dtype: torch.dtype = torch.float32,
     ):
+        """KNN classifier for benchmarking.
+
+        Settings based on "Unsupervised Feature Learning via Non-Parametric Instance
+        Discrimination" [0]. Code adapted from MoCo [1].
+
+        - [0]: https://arxiv.org/pdf/1805.01978v1.pdf
+        - [1]: https://github.com/facebookresearch/moco
+
+        Args:
+            model:
+                Model used for feature extraction. Must define a forward(images) method
+                that returns a feature tensor.
+            num_classes:
+                Number of classes in the dataset.
+            knn_k:
+                Number of neighbors used for KNN search.
+            knn_t:
+                Temperature parameter to reweights similarities.
+            topk:
+                Tuple of integers defining the top-k accuracy metrics to compute.
+            feature_dtype:
+                Torch data type of the features used for KNN search. Reduce to float16
+                for memory-efficient KNN search.
+
+        Examples:
+            >>> from pytorch_lightning import Trainer
+            >>> from torch import nn
+            >>> import torchvision
+            >>> from lightly.models import KNNClassifier
+            >>>
+            >>> # Initialize a model.
+            >>> resnet = torchvision.models.resnet18(pretrained=True)
+            >>> resnet.fc = nn.Identity() # Ignore classification layer
+            >>>
+            >>> # Wrap it with a KNNClassifier.
+            >>> knn_classifier = KNNClassifier(resnet, num_classes=10)
+            >>>
+            >>> # Extract features and evaluate.
+            >>> trainer = Trainer(max_epochs=1)
+            >>> trainer.fit(knn_classifier, train_dataloder, val_dataloader)
+
+        """
         super().__init__()
         self.save_hyperparameters(
             {
@@ -96,4 +138,6 @@ class KNNClassifier(LightningModule):
         activate_requires_grad(model=self.model)
 
     def configure_optimizers(self) -> None:
+        # configure_optimizers must be implemented for PyTorch Lightning. Returning None
+        # means that no optimization is performed.
         pass
