@@ -59,7 +59,8 @@ class LinearClassifier(LightningModule):
             >>>         self.projection_head = SimCLRProjectionHead(512, 512, 128)
             >>>
             >>>     def forward(self, x):
-            >>>         features = self.backbone(x).flatten(dim=1)
+            >>>         # Forward must return image features.
+            >>>         features = self.backbone(x).flatten(start_dim=1)
             >>>         return features
             >>>
             >>> # Initialize a model.
@@ -67,11 +68,11 @@ class LinearClassifier(LightningModule):
             >>>
             >>> # Wrap it with a LinearClassifier.
             >>> linear_classifier = LinearClassifier(
-            ...     model,
-            ...     batch_size=256,
-            ...     num_classes=10,
-            ...     freeze_model=True, # linear evaluation, set to False for finetune
-            ... )
+            >>>     model,
+            >>>     batch_size=256,
+            >>>     num_classes=10,
+            >>>     freeze_model=True, # linear evaluation, set to False for finetune
+            >>> )
             >>>
             >>> # Train the linear classifier.
             >>> trainer = Trainer(max_epochs=90)

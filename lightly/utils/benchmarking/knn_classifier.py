@@ -49,11 +49,24 @@ class KNNClassifier(LightningModule):
             >>> from pytorch_lightning import Trainer
             >>> from torch import nn
             >>> import torchvision
-            >>> from lightly.models import KNNClassifier
+            >>> from lightly.models import LinearClassifier
+            >>> from lightly.modles.modules import SimCLRProjectionHead
+            >>>
+            >>> class SimCLR(nn.Module):
+            >>>     def __init__(self):
+            >>>         super().__init__()
+            >>>         self.backbone = torchvision.models.resnet18()
+            >>>         self.backbone.fc = nn.Identity() # Ignore classification layer
+            >>>         self.projection_head = SimCLRProjectionHead(512, 512, 128)
+            >>>
+            >>>     def forward(self, x):
+            >>>         # Forward must return image features.
+            >>>         features = self.backbone(x).flatten(start_dim=1)
+            >>>         return features
             >>>
             >>> # Initialize a model.
-            >>> resnet = torchvision.models.resnet18(pretrained=True)
-            >>> resnet.fc = nn.Identity() # Ignore classification layer
+            >>> model = SimCLR()
+            >>>
             >>>
             >>> # Wrap it with a KNNClassifier.
             >>> knn_classifier = KNNClassifier(resnet, num_classes=10)
