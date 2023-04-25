@@ -330,7 +330,7 @@ def test_get_weight_decay_parameters__batch_norm() -> None:
     bn1d = nn.BatchNorm1d(10)
     bn2d = nn.BatchNorm2d(10)
     params, params_no_weight_decay = utils.get_weight_decay_parameters(
-        modules=[bn1d, bn2d], no_batch_norm=False
+        modules=[bn1d, bn2d], decay_batch_norm=True
     )
     assert len(params) == 4
     assert len(params_no_weight_decay) == 0
@@ -344,7 +344,7 @@ def test_get_weight_decay_parameters__no_batch_norm() -> None:
     bn1d = nn.BatchNorm1d(10)
     bn2d = nn.BatchNorm2d(10)
     params, params_no_weight_decay = utils.get_weight_decay_parameters(
-        modules=[bn1d, bn2d], no_batch_norm=True
+        modules=[bn1d, bn2d], decay_batch_norm=False
     )
     print(params, params_no_weight_decay)
     assert len(params) == 0
@@ -358,7 +358,7 @@ def test_get_weight_decay_parameters__no_batch_norm() -> None:
 def test_get_weight_decay_parameters__bias() -> None:
     linear = nn.Linear(10, 10)
     param, param_no_weight_decay = utils.get_weight_decay_parameters(
-        modules=[linear], no_bias=False
+        modules=[linear], decay_bias=True
     )
     assert len(param) == 2
     assert len(param_no_weight_decay) == 0
@@ -369,7 +369,7 @@ def test_get_weight_decay_parameters__bias() -> None:
 def test_get_weight_decay_parameters__no_bias() -> None:
     linear = nn.Linear(10, 10)
     param, param_no_weight_decay = utils.get_weight_decay_parameters(
-        modules=[linear], no_bias=True
+        modules=[linear], decay_bias=False
     )
     assert len(param) == 1
     assert len(param_no_weight_decay) == 1

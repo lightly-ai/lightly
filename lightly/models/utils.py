@@ -535,8 +535,8 @@ def nearest_neighbors(
 
 def get_weight_decay_parameters(
     modules: Iterable[Module],
-    no_batch_norm: bool = True,
-    no_bias: bool = True,
+    decay_batch_norm: bool = False,
+    decay_bias: bool = False,
 ) -> Tuple[List[Parameter], List[Parameter]]:
     """Returns all parameters of the modules that should be decayed and not decayed.
 
@@ -544,9 +544,9 @@ def get_weight_decay_parameters(
         modules:
             List of modules to get the parameters from.
         no_batch_norm:
-            If True, batch norm parameters are not decayed.
+            If True, batch norm parameters are decayed.
         no_bias:
-            If True, bias parameters are not decayed.
+            If True, bias parameters are decayed.
 
     Returns:
         (params, params_no_weight_decay) tuple.
@@ -556,13 +556,13 @@ def get_weight_decay_parameters(
     for module in modules:
         for mod in module.modules():
             if isinstance(mod, _BatchNorm):
-                if no_batch_norm:
+                if not decay_batch_norm:
                     params_no_weight_decay.extend(mod.parameters(recurse=False))
                 else:
                     params.extend(mod.parameters(recurse=False))
             else:
                 for name, param in mod.named_parameters(recurse=False):
-                    if no_bias and "bias" in name:
+                    if not decay_bias and name.endswith("bias"):
                         params_no_weight_decay.append(param)
                     else:
                         params.append(param)
