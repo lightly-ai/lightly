@@ -19,8 +19,8 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import MetricCallback
 
 parser = ArgumentParser("ImageNet ResNet50 Benchmarks")
-parser.add_argument("--train-dir", type=Path, required=True)
-parser.add_argument("--val-dir", type=Path, required=True)
+parser.add_argument("--train-dir", type=Path, default="/datasets/imagenet/train")
+parser.add_argument("--val-dir", type=Path, default="/datasets/imagenet/val")
 parser.add_argument("--log-dir", type=Path, default="benchmark_logs")
 parser.add_argument("--batch-size", type=int, default=512)
 parser.add_argument("--epochs", type=int, default=100)
