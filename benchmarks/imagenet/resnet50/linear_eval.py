@@ -24,6 +24,10 @@ def linear_eval(
     precision: str,
     num_classes: int,
 ) -> None:
+    """Runs a linear evaluation on the given model.
+
+    Parameters follow SimCLR settings.
+    """
     print("Running linear evaluation...")
 
     # Setup training data.
