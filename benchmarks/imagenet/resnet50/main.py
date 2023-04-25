@@ -31,9 +31,9 @@ parser.add_argument("--precision", type=int, default=16)
 parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
 parser.add_argument("--num-classes", type=int, default=1000)
-parser.add_argument("--no-knn-eval", action="store_true")
-parser.add_argument("--no-linear-eval", action="store_true")
-parser.add_argument("--no-finetune-eval", action="store_true")
+parser.add_argument("--skip-knn-eval", action="store_true")
+parser.add_argument("--skip-linear-eval", action="store_true")
+parser.add_argument("--skip-finetune-eval", action="store_true")
 
 METHODS = {
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
@@ -53,9 +53,9 @@ def main(
     compile_model: bool,
     methods: Union[Sequence[str], None],
     num_classes: int,
-    no_knn_eval: bool,
-    no_linear_eval: bool,
-    no_finetune_eval: bool,
+    skip_knn_eval: bool,
+    skip_linear_eval: bool,
+    skip_finetune_eval: bool,
 ) -> None:
     torch.set_float32_matmul_precision("high")
 
@@ -89,7 +89,7 @@ def main(
                 precision=precision,
             )
 
-        if no_knn_eval:
+        if skip_knn_eval:
             print("Skipping KNN eval.")
         else:
             knn_eval.knn_eval(
@@ -104,7 +104,7 @@ def main(
                 devices=devices,
             )
 
-        if no_linear_eval:
+        if skip_linear_eval:
             print("Skipping linear eval.")
         else:
             linear_eval.linear_eval(
@@ -120,7 +120,7 @@ def main(
                 precision=precision,
             )
 
-        if no_finetune_eval:
+        if skip_finetune_eval:
             print("Skipping finetune eval.")
         else:
             # TODO: Implement finetune eval.
