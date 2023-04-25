@@ -59,7 +59,7 @@ class TestProjectionHeads(unittest.TestCase):
                     head = head_cls(
                         in_features, hidden_features, bottleneck_features, out_features
                     )
-                elif head_cls in [MoCoProjectionHead, SimCLRProjectionHead]:
+                elif head_cls == SimCLRProjectionHead:
                     head = head_cls(
                         in_features, hidden_features, out_features, batch_norm=False
                     )

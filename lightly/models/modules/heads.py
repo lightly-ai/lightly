@@ -142,10 +142,10 @@ class MoCoProjectionHead(ProjectionHead):
     def __init__(
         self,
         input_dim: int = 2048,
-        hidden_dim: int = 4096,
-        output_dim: int = 256,
+        hidden_dim: int = 2048,
+        output_dim: int = 128,
         num_layers: int = 2,
-        batch_norm: bool = True,
+        batch_norm: bool = False,
     ):
         """Initialize a new MoCoProjectionHead instance.
 
