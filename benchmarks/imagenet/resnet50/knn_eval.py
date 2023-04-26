@@ -2,13 +2,14 @@ from pathlib import Path
 
 import torch
 from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.callbacks import DeviceStatsMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
 from lightly.transforms.utils import IMAGENET_NORMALIZE
-from lightly.utils.benchmarking import KNNClassifier
+from lightly.utils.benchmarking import KNNClassifier, MetricCallback
 
 
 def knn_eval(
@@ -56,11 +57,16 @@ def knn_eval(
         num_classes=num_classes,
         feature_dtype=torch.float16,
     )
+    metric_callback = MetricCallback()
     trainer = Trainer(
         max_epochs=1,
         accelerator=accelerator,
         devices=devices,
         logger=TensorBoardLogger(save_dir=str(log_dir), name="knn_eval"),
+        callbacks=[
+            DeviceStatsMonitor(),
+            metric_callback,
+        ],
         strategy="ddp_find_unused_parameters_true",
     )
     trainer.fit(
@@ -68,3 +74,5 @@ def knn_eval(
         train_dataloaders=train_dataloader,
         val_dataloaders=val_dataloader,
     )
+    for metric in ["val_top1", "val_top5"]:
+        print(f"{metric}: {metric_callback.val_metrics[metric]}")
