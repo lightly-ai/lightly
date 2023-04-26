@@ -1,3 +1,4 @@
+import torch
 from pytorch_lightning import LightningModule, Trainer
 from torch.utils.data import DataLoader
 from torchvision.datasets import FakeData
@@ -21,8 +22,10 @@ class TestMetricCallback:
             val_dataloaders=val_dataloader,
         )
         assert callback.train_metrics["train_epoch"] == [0, 1, 2]
+        assert callback.train_metrics["train_epoch_dict"] == [0, 1, 2]
         # test logs 2 * epoch in validation step
         assert callback.val_metrics["val_epoch"] == [0, 2, 4]
+        assert callback.val_metrics["val_epoch_dict"] == [0, 2, 4]
 
 
 class _DummyModule(LightningModule):
@@ -31,9 +34,11 @@ class _DummyModule(LightningModule):
 
     def training_step(self, batch, batch_idx) -> None:
         self.log("train_epoch", self.trainer.current_epoch)
+        self.log_dict({"train_epoch_dict": self.trainer.current_epoch})
 
     def validation_step(self, batch, batch_idx) -> None:
         self.log("val_epoch", self.trainer.current_epoch * 2)
+        self.log_dict({"val_epoch_dict": self.trainer.current_epoch * 2})
 
     def configure_optimizers(self) -> None:
         return None
