@@ -200,15 +200,15 @@ class SimCLRProjectionHead(ProjectionHead):
 
     "We use a 3-layer MLP projection head on top of a ResNet encoder." [1]
 
-    [0] SimCLR v1, 2020, https://arxiv.org/abs/2002.05709
-    [1] SimCLR v2, 2020, https://arxiv.org/abs/2006.10029
+    - [0] SimCLR v1, 2020, https://arxiv.org/abs/2002.05709
+    - [1] SimCLR v2, 2020, https://arxiv.org/abs/2006.10029
     """
 
     def __init__(
         self,
         input_dim: int = 2048,
         hidden_dim: int = 2048,
-        output_dim: int = 2048,
+        output_dim: int = 128,
         num_layers: int = 2,
         batch_norm: bool = True,
     ):
