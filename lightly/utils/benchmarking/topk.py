@@ -9,7 +9,8 @@ def mean_topk_accuracy(
 ) -> Dict[int, Tensor]:
     """Computes the mean accuracy for the specified values of k.
 
-    The mean is calculated over the batch dimension.
+    The mean accuracy is computed as the mean number of images for which the correct
+    target is among the top-k predicted classes.
 
     Args:
         predicted_classes:
