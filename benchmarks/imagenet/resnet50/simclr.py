@@ -12,6 +12,7 @@ from lightly.transforms import SimCLRTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.lars import LARS
 from lightly.utils.scheduler import CosineWarmupScheduler
+import torch
 
 
 class SimCLR(LightningModule):
@@ -34,18 +35,17 @@ class SimCLR(LightningModule):
     def training_step(
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
     ) -> Tensor:
-        (view0, view1), targets = batch[0], batch[1]
-        features0 = self.forward(view0).flatten(start_dim=1)
-        features1 = self.forward(view1).flatten(start_dim=1)
-        z0 = self.projection_head(features0)
-        z1 = self.projection_head(features1)
+        views, targets = batch[0], batch[1]
+        features = self.forward(torch.cat(views, dim=0)).flatten(start_dim=1)
+        z = self.projection_head(features)
+        z0, z1 = torch.chunk(z, 2, dim=0)
         loss = self.criterion(z0, z1)
         self.log(
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
         )
 
         cls_loss, cls_log = self.online_classifier.training_step(
-            (features0, targets), batch_idx
+            (features, targets), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss
