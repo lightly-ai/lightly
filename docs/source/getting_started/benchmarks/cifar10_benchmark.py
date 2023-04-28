@@ -2,52 +2,52 @@
 """
 Benchmark Results
 
-Updated: 18.02.2022 (6618fa3c36b0c9f3a9d7a21bcdb00bf4fd258ee8))
+Updated: 27.03.2023 (42a6a924b1b6d5b6cc89a6b2a0a0942cc4af93ab)
 
 ------------------------------------------------------------------------------------------
 | Model         | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
 ------------------------------------------------------------------------------------------
-| BarlowTwins   |        128 |    200 |              0.835 |  193.4 Min |      2.2 GByte |
-| BYOL          |        128 |    200 |              0.872 |  217.0 Min |      2.3 GByte |
-| DCL (*)       |        128 |    200 |              0.842 |  126.9 Min |      1.7 GByte |
-| DCLW (*)      |        128 |    200 |              0.833 |  127.5 Min |      1.8 GByte |
-| DINO          |        128 |    200 |              0.868 |  220.7 Min |      2.3 GByte |
+| BarlowTwins   |        128 |    200 |              0.842 |  375.9 Min |      1.7 GByte |
+| BYOL          |        128 |    200 |              0.869 |  121.9 Min |      1.6 GByte |
+| DCL           |        128 |    200 |              0.844 |  102.2 Min |      1.5 GByte |
+| DCLW          |        128 |    200 |              0.833 |  100.4 Min |      1.5 GByte |
+| DINO          |        128 |    200 |              0.840 |  120.3 Min |      1.6 GByte |
 | FastSiam      |        128 |    200 |              0.906 |  164.0 Min |      2.7 GByte |
-| Moco          |        128 |    200 |              0.838 |  229.5 Min |      2.3 GByte |
-| NNCLR         |        128 |    200 |              0.838 |  198.7 Min |      2.2 GByte |
-| SimCLR        |        128 |    200 |              0.822 |  182.7 Min |      2.2 GByte |
-| SimSiam       |        128 |    200 |              0.837 |   92.5 Min |      1.5 GByte |
-| SwaV          |        128 |    200 |              0.806 |  182.4 Min |      2.2 GByte |
+| Moco          |        128 |    200 |              0.838 |  128.8 Min |      1.7 GByte |
+| NNCLR         |        128 |    200 |              0.834 |  101.5 Min |      1.5 GByte |
+| SimCLR        |        128 |    200 |              0.847 |   97.7 Min |      1.5 GByte |
+| SimSiam       |        128 |    200 |              0.819 |   97.3 Min |      1.6 GByte |
+| SwaV          |        128 |    200 |              0.812 |   99.6 Min |      1.5 GByte |
+| SMoG          |        128 |    200 |              0.743 |  192.2 Min |      1.2 GByte |
 ------------------------------------------------------------------------------------------
-| BarlowTwins   |        512 |    200 |              0.827 |  160.7 Min |      7.5 GByte |
-| BYOL          |        512 |    200 |              0.872 |  188.5 Min |      7.7 GByte |
-| DCL (*)       |        512 |    200 |              0.834 |  113.6 Min |      6.1 GByte |
-| DCLW (*)      |        512 |    200 |              0.830 |  113.8 Min |      6.2 GByte | 
-| DINO          |        512 |    200 |              0.862 |  191.1 Min |      7.5 GByte |
+| BarlowTwins   |        512 |    200 |              0.819 |  153.3 Min |      5.1 GByte |
+| BYOL          |        512 |    200 |              0.868 |  108.3 Min |      5.6 GByte |
+| DCL           |        512 |    200 |              0.840 |   88.2 Min |      4.9 GByte |
+| DCLW          |        512 |    200 |              0.824 |   87.9 Min |      4.9 GByte |
+| DINO          |        512 |    200 |              0.813 |  108.6 Min |      5.0 GByte |
 | FastSiam      |        512 |    200 |              0.788 |  146.9 Min |      9.5 GByte |
-| Moco (**)     |        512 |    200 |              0.850 |  196.8 Min |      7.8 GByte |
-| NNCLR (**)    |        512 |    200 |              0.836 |  164.7 Min |      7.6 GByte |
-| SimCLR        |        512 |    200 |              0.828 |  158.2 Min |      7.5 GByte |
-| SimSiam       |        512 |    200 |              0.817 |   83.6 Min |      4.9 GByte |
-| SwaV          |        512 |    200 |              0.833 |  158.4 Min |      7.5 GByte |
+| Moco (*)      |        512 |    200 |              0.847 |  112.2 Min |      5.6 GByte |
+| NNCLR (*)     |        512 |    200 |              0.815 |   88.1 Min |      5.0 GByte |
+| SimCLR        |        512 |    200 |              0.848 |   87.1 Min |      4.9 GByte |
+| SimSiam       |        512 |    200 |              0.764 |   87.8 Min |      5.0 GByte |
+| SwaV          |        512 |    200 |              0.842 |   88.7 Min |      4.9 GByte |
+| SMoG          |        512 |    200 |              0.686 |  110.0 Min |      3.4 GByte |
 ------------------------------------------------------------------------------------------
-| BarlowTwins   |        512 |    800 |              0.857 |  641.5 Min |      7.5 GByte |
-| BYOL          |        512 |    800 |              0.911 |  754.2 Min |      7.8 GByte |
-| DCL (*)       |        512 |    800 |              0.873 |  459.6 Min |      6.1 GByte |
-| DCLW (*)      |        512 |    800 |              0.873 |  455.8 Min |      6.1 GByte | 
-| DINO          |        512 |    800 |              0.884 |  765.5 Min |      7.6 GByte |
+| BarlowTwins   |        512 |    800 |              0.859 |  517.5 Min |      7.9 GByte |
+| BYOL          |        512 |    800 |              0.910 |  400.9 Min |      5.4 GByte |
+| DCL           |        512 |    800 |              0.874 |  334.6 Min |      4.9 GByte |
+| DCLW          |        512 |    800 |              0.871 |  333.3 Min |      4.9 GByte |
+| DINO          |        512 |    800 |              0.848 |  405.2 Min |      5.0 GByte |
 | FastSiam      |        512 |    800 |              0.902 |  582.0 Min |      9.5 GByte |
-| Moco (**)     |        512 |    800 |              0.900 |  787.7 Min |      7.8 GByte |
-| NNCLR (**)    |        512 |    800 |              0.896 |  659.2 Min |      7.6 GByte |
-| SimCLR        |        512 |    800 |              0.875 |  632.5 Min |      7.5 GByte |
-| SimSiam       |        512 |    800 |              0.902 |  329.8 Min |      4.9 GByte |
-| SwaV          |        512 |    800 |              0.881 |  634.9 Min |      7.5 GByte |
+| Moco (*)      |        512 |    800 |              0.899 |  417.8 Min |      5.4 GByte |
+| NNCLR (*)     |        512 |    800 |              0.892 |  335.0 Min |      5.0 GByte |
+| SimCLR        |        512 |    800 |              0.879 |  331.1 Min |      4.9 GByte |
+| SimSiam       |        512 |    800 |              0.904 |  333.7 Min |      5.1 GByte |
+| SwaV          |        512 |    800 |              0.884 |  330.5 Min |      5.0 GByte |
+| SMoG          |        512 |    800 |              0.800 |  415.6 Min |      3.2 GByte |
 ------------------------------------------------------------------------------------------
 
-(*): Smaller runtime and memory requirements due to different hardware settings
-and pytorch version. Runtime and memory requirements are comparable to SimCLR
-with the default settings.
-(**): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
+(*): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
 changing memory bank due to larger batch size.
 
 The benchmarks were created on a single NVIDIA RTX A6000.

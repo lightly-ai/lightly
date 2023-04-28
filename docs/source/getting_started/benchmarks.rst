@@ -26,6 +26,8 @@ The current benchmark contains the following models:
 - :ref:`DCL <dcl>`
 - :ref:`DCLW <dcl>`
 - :ref:`DINO <dino>`
+- :ref:`FastSiam <fastsiam>`
+- :ref:`MAE <mae>`
 - :ref:`MSN <msn>`
 - :ref:`MoCo <moco>`
 - :ref:`NNCLR <nnclr>`
@@ -35,35 +37,36 @@ The current benchmark contains the following models:
 - :ref:`SimSiam <simsiam>`
 - :ref:`SwAV <swav>`
 - :ref:`SwAV Queue <swav_queue>`
+- :ref:`SMoG <smog>`
 - :ref:`TiCo <tico>`
 - :ref:`VICReg <vicreg>`
 - :ref:`VICRegL <vicregl>`
 
 
 .. csv-table:: ImageNette benchmark results using kNN evaluation on the test set using 128x128 input resolution.
-   :header: "Model", "Epochs", "Batch Size", "Accuracy", "Runtime", "GPU Memory"
-   :widths: 20, 20, 20, 20, 20, 20
+  :header: "Model", "Batch Size", "Epochs", "KNN Test Accuracy", "Runtime", "GPU Memory"
+  :widths: 20, 20, 20, 20, 20, 20
 
-  "BarlowTwins", "800", "256", "0.850", "279.5 Min", "5.7 GByte"
-  "BYOL", "800", "256", "0.887", "202.7 Min", "4.3 GByte"
-  "DCL", "800", "256", "0.864", "183.7 Min", "3.7 GByte"
-  "DCLW", "800", "256", "0.861", "188.5 Min", "3.7 GByte"
-  "DINO (Res18)", "800", "256", "0.887", "291.6 Min", "8.5 GByte"
-  "FastSiam", "800", "256", "0.865", "280.9 Min", "7.3 GByte"
-  "MAE (ViT-S)", "800", "256", "0.620", "208.2 Min", "4.6 GByte"
-  "MSN (ViT-S)", "800", "256", "0.833", "394.0 Min", "16.3 GByte"
-  "Moco", "800", "256", "0.874", "220.7 Min", "4.2 GByte"
-  "NNCLR", "800", "256", "0.885", "207.1 Min", "3.8 GByte"
+  "BarlowTwins", "256", "800", "0.850", "279.5 Min", "5.7 GByte"
+  "BYOL", "256", "800", "0.887", "202.7 Min", "4.3 GByte"
+  "DCL", "256", "800", "0.864", "183.7 Min", "3.7 GByte"
+  "DCLW", "256", "800", "0.861", "188.5 Min", "3.7 GByte"
+  "DINO (Res18)", "256", "800", "0.887", "291.6 Min", "8.5 GByte"
+  "FastSiam", "256", "800", "0.865", "280.9 Min", "7.3 GByte"
+  "MAE (ViT-S)", "256", "800", "0.620", "208.2 Min", "4.6 GByte"
+  "MSN (ViT-S)", "256", "800", "0.833", "394.0 Min", "16.3 GByte"
+  "Moco", "256", "800", "0.874", "220.7 Min", "4.2 GByte"
+  "NNCLR", "256", "800", "0.885", "207.1 Min", "3.8 GByte"
   "PMSN (ViT-S)", 200, 512, 0.830, "401.1 Min", "16.3 GByte"
-  "SimCLR", "800", "256", "0.889", "206.4 Min", "3.7 GByte"
-  "SimMIM (ViT-B32)", "800", "256", "0.351", "302.8 Min", "10.5 GByte"
-  "SimSiam", "800", "256", "0.871", "178.2 Min", "3.9 GByte"
-  "SwaV", "800", "256", "0.899", "309.0 Min", "6.4 GByte"
-  "SwaVQueue", "800", "256", "0.898", "300.3 Min", "6.4 GByte"
-  "SMoG", "800", "256", "0.782", "250.2 Min", "2.5 GByte"
-  "TiCo", "800", "256", "0.857", "184.7 Min", "2.5 GByte"
-  "VICReg", "800", "256", "0.843", "192.9 Min", "5.7 GByte"
-  "VICRegL", "800", "256", "0.781", "207.4 Min", "5.7 GByte"
+  "SimCLR", "256", "800", "0.889", "206.4 Min", "3.7 GByte"
+  "SimMIM (ViT-B32)", "256", "800", "0.351", "302.8 Min", "10.5 GByte"
+  "SimSiam", "256", "800", "0.871", "178.2 Min", "3.9 GByte"
+  "SwaV", "256", "800", "0.899", "309.0 Min", "6.4 GByte"
+  "SwaVQueue", "256", "800", "0.898", "300.3 Min", "6.4 GByte"
+  "SMoG", "256", "800", "0.782", "250.2 Min", "2.5 GByte"
+  "TiCo", "256", "800", "0.857", "184.7 Min", "2.5 GByte"
+  "VICReg", "256", "800", "0.843", "192.9 Min", "5.7 GByte"
+  "VICRegL", "256", "800", "0.781", "207.4 Min", "5.7 GByte"
 
 You can reproduce the benchmarks using the following script:
 :download:`imagenette_benchmark.py <benchmarks/imagenette_benchmark.py>` 
@@ -89,47 +92,47 @@ augmentation due to the small image sizes.
    :format: html
 
 .. csv-table:: Cifar10 benchmark results showing kNN test accuracy, runtime and peak GPU memory consumption for different training setups.
-  :header: "Model", "Epochs", "Batch Size", "Accuracy", "Runtime", "GPU Memory"
-  :widths: 20, 20, 20, 20, 20, 20
+  :header: "Model", "Batch Size", "Epochs", "KNN Test Accuracy", "Runtime", "GPU Memory"
+  :widths: 20, 20, 20, 30, 20, 20
 
-  "BarlowTwins", 200, 128, 0.835, "193.4 Min", "2.2 GByte"
-  "BYOL", 200, 128, 0.872, "217.0 Min", "2.3 GByte"
-  "DCL (*)", 200, 128, 0.842, "126.9 Min", "1.7 GByte"
-  "DCLW (*)", 200, 128, 0.833, "127.5 Min", "1.8 GByte"
-  "DINO", 200, 128, 0.868, "220.7 Min", "2.3 GByte"
-  "FastSiam (*)", 200, 128, 0.906, "164.0 Min", "2.7 GByte"
-  "Moco", 200, 128, 0.838, "229.5 Min", "2.3 GByte"
-  "NNCLR", 200, 128, 0.838, "198.7 Min", "2.2 GByte"
-  "SimCLR", 200, 128, 0.822, "182.7 Min", "2.2 GByte"
-  "SimSiam (*)", 200, 128, 0.837, "92.5 Min", "1.5 GByte"
-  "SwaV", 200, 128, 0.806, "182.4 Min", "2.2 GByte"
-  "BarlowTwins", 200, 512, 0.827, "160.7 Min", "7.5 GByte"
-  "BYOL", 200, 512, 0.872, "188.5 Min", "7.7 GByte"
-  "DCL (*)", 200, 512, 0.834, "113.6 Min", 6.1 GByte"
-  "DCLW (*)", 200, 512, 0.830, "113.8 Min", 6.2 GByte"
-  "DINO", 200, 512, 0.862, "191.1 Min", "7.5 GByte"
-  "FastSiam (*)", 200, 512, 0.788, 146.9 Min", "9.5 GByte"
-  "Moco (**)", 200, 512, 0.850, "196.8 Min", "7.8 GByte"
-  "NNCLR (**)", 200, 512, 0.836, "164.7 Min", "7.6 GByte"
-  "SimCLR", 200, 512, 0.828, "158.2 Min", "7.5 GByte"
-  "SimSiam (*)", 200, 512, 0.817, "83.6 Min", "4.9 GByte"
-  "SwaV", 200, 512, 0.833, "158.4 Min", "7.5 GByte"
-  "BarlowTwins", 800, 512, 0.857, "641.5 Min", "7.5 GByte"
-  "BYOL", 800, 512, 0.911, "754.2 Min", "7.8 GByte"
-  "DCL (*)", 800, 512, 0.873, "459.6 Min", "6.1 GByte"
-  "DCLW (*)", 800, 512, 0.873, "455.8 Min", "6.1 GByte"
-  "DINO", 800, 512, 0.884, "765.5 Min", "7.6 GByte"
-  "FastSiam (*)", 800, 512, 0.902, "582.0 Min", "9.5 GByte"
-  "Moco (**)", 800, 512, 0.900, "787.7 Min", "7.8 GByte"
-  "NNCLR (**)", 800, 512, 0.896, "659.2 Min", "7.6 GByte"
-  "SimCLR", 800, 512, 0.875, "632.5 Min", "7.5 GByte"
-  "SimSiam (*)", 800, 512, 0.902, "329.8 Min", "4.9 GByte"
-  "SwaV", 800, 512, 0.881, "634.9 Min", "7.5 GByte"
+  "BarlowTwins", "128", "200", "0.842", "375.9 Min", "1.7 GByte"
+  "BYOL", "128", "200", "0.869", "121.9 Min", "1.6 GByte"
+  "DCL", "128", "200", "0.844", "102.2 Min", "1.5 GByte"
+  "DCLW", "128", "200", "0.833", "100.4 Min", "1.5 GByte"
+  "DINO", "128", "200", "0.840", "120.3 Min", "1.6 GByte"
+  "FastSiam", "128", "200", "0.906", "164.0 Min", "2.7 GByte"
+  "Moco", "128", "200", "0.838", "128.8 Min", "1.7 GByte"
+  "NNCLR", "128", "200", "0.834", "101.5 Min", "1.5 GByte"
+  "SimCLR", "128", "200", "0.847", "97.7 Min", "1.5 GByte"
+  "SimSiam", "128", "200", "0.819", "97.3 Min", "1.6 GByte"
+  "SwaV", "128", "200", "0.812", "99.6 Min", "1.5 GByte"
+  "SMoG", "128", "200", "0.743", "192.2 Min", "1.2 GByte"
+  "BarlowTwins", "512", "200", "0.819", "153.3 Min", "5.1 GByte"
+  "BYOL", "512", "200", "0.868", "108.3 Min", "5.6 GByte"
+  "DCL", "512", "200", "0.840", "88.2 Min", "4.9 GByte"
+  "DCLW", "512", "200", "0.824", "87.9 Min", "4.9 GByte"
+  "DINO", "512", "200", "0.813", "108.6 Min", "5.0 GByte"
+  "FastSiam", "512", "200", "0.788", "146.9 Min", "9.5 GByte"
+  "Moco (*)", "512", "200", "0.847", "112.2 Min", "5.6 GByte"
+  "NNCLR (*)", "512", "200", "0.815", "88.1 Min", "5.0 GByte"
+  "SimCLR", "512", "200", "0.848", "87.1 Min", "4.9 GByte"
+  "SimSiam", "512", "200", "0.764", "87.8 Min", "5.0 GByte"
+  "SwaV", "512", "200", "0.842", "88.7 Min", "4.9 GByte"
+  "SMoG", "512", "200", "0.686", "110.0 Min", "3.4 GByte"
+  "BarlowTwins", "512", "800", "0.859", "517.5 Min", "7.9 GByte"
+  "BYOL", "512", "800", "0.910", "400.9 Min", "5.4 GByte"
+  "DCL", "512", "800", "0.874", "334.6 Min", "4.9 GByte"
+  "DCLW", "512", "800", "0.871", "333.3 Min", "4.9 GByte"
+  "DINO", "512", "800", "0.848", "405.2 Min", "5.0 GByte"
+  "FastSiam", "512", "800", "0.902", "582.0 Min", "9.5 GByte"
+  "Moco (*)", "512", "800", "0.899", "417.8 Min", "5.4 GByte"
+  "NNCLR (*)", "512", "800", "0.892", "335.0 Min", "5.0 GByte"
+  "SimCLR", "512", "800", "0.879", "331.1 Min", "4.9 GByte"
+  "SimSiam", "512", "800", "0.904", "333.7 Min", "5.1 GByte"
+  "SwaV", "512", "800", "0.884", "330.5 Min", "5.0 GByte"
+  "SMoG", "512", "800", "0.800", "415.6 Min", "3.2 GByte"
 
-(*): Smaller runtime and memory requirements due to different hardware settings
-and pytorch version. Runtime and memory requirements are comparable to SimCLR
-with the default settings.
-(**): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
+(*): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
 changing memory bank due to larger batch size.
 
 We make the following observations running the benchmark:
@@ -171,18 +174,18 @@ with the default ImageNet-1k training parameters from the respective papers.
 
 
 .. csv-table:: Imagenet100 benchmark results showing kNN test accuracy, runtime and peak GPU memory consumption for different training setups.
-  :header: "Model", "Epochs", "Batch Size", "Accuracy", "Runtime", "GPU Memory"
+  :header: "Model", "Batch Size", "Epochs", "KNN Test Accuracy", "Runtime", "GPU Memory"
   :widths: 20, 20, 20, 20, 20, 20
 
-  "BarlowTwins", 200, 256, 0.465, "1319.3 Min", "11.3 GByte"
-  "BYOL", 200, 256, 0.439, "1315.4 Min", "12.9 GByte"
-  "DINO", 200, 256, 0.518, "1868.5 Min", "17.4 GByte"
-  "FastSiam", 200, 256, 0.559, "1856.2 Min", "22.0 GByte"
-  "Moco", 200, 256, 0.560, "1314.2 Min", "13.1 GByte"
-  "NNCLR", 200, 256, 0.453, "1198.6 Min", "11.8 GByte"
-  "SimCLR", 200, 256, 0.469, "1207.7 Min", "11.3 GByte"
-  "SimSiam", 200, 256, 0.534, "1175.0 Min", "11.1 GByte"
-  "SwaV", 200, 256, 0.678, "1569.2 Min", "16.9 GByte"
+  "BarlowTwins", "256", "200", "0.465", "1319.3 Min", "11.3 GByte"
+  "BYOL", "256", "200", "0.439", "1315.4 Min", "12.9 GByte"
+  "DINO", "256", "200", "0.518", "1868.5 Min", "17.4 GByte"
+  "FastSiam", "256", "200", "0.559", "1856.2 Min", "22.0 GByte"
+  "Moco", "256", "200", "0.560", "1314.2 Min", "13.1 GByte"
+  "NNCLR", "256", "200", "0.453", "1198.6 Min", "11.8 GByte"
+  "SimCLR", "256", "200", "0.469", "1207.7 Min", "11.3 GByte"
+  "SimSiam", "256", "200", "0.534", "1175.0 Min", "11.1 GByte"
+  "SwaV", "256", "200", "0.678", "1569.2 Min", "16.9 GByte"
 
 You can reproduce the benchmarks using the following script:
 :download:`imagenet100_benchmark.py <benchmarks/imagenet100_benchmark.py>` 
