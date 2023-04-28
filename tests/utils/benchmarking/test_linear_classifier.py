@@ -10,6 +10,10 @@ from lightly.utils.benchmarking import LinearClassifier
 
 class TestLinearClassifier:
     def test__finetune(self) -> None:
+        """Test the classifier in a finetune evaluation setting.
+
+        The test verifies that the model and classification head are updated.
+        """
         torch.manual_seed(0)
         dataset = FakeData(
             size=10, image_size=(3, 8, 8), num_classes=5, transform=ToTensor()
@@ -24,7 +28,7 @@ class TestLinearClassifier:
             batch_size=2,
             feature_dim=4,
             num_classes=5,
-            freeze_model=False,
+            freeze_model=False,  # Don't freeze the model for finetuning.
         )
         initial_head_weights = linear_classifier.classification_head.weight.clone()
         trainer = Trainer(max_epochs=1, accelerator="cpu", devices=1)
@@ -52,6 +56,11 @@ class TestLinearClassifier:
         )
 
     def test__linear(self) -> None:
+        """Test the classifier in a linear evaluation setting.
+
+        The test verifies that only the classification head is updated and the model
+        remains unchanged.
+        """
         torch.manual_seed(0)
         dataset = FakeData(
             size=10, image_size=(3, 8, 8), num_classes=5, transform=ToTensor()
@@ -66,7 +75,7 @@ class TestLinearClassifier:
             batch_size=2,
             feature_dim=4,
             num_classes=5,
-            freeze_model=True,
+            freeze_model=True,  # Freeze the model for finetuning.
         )
         initial_head_weights = linear_classifier.classification_head.weight.clone()
         trainer = Trainer(max_epochs=1, accelerator="cpu", devices=1)
