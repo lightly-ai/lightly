@@ -44,7 +44,7 @@ class SimCLR(LightningModule):
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
         )
 
-        features0 = torch.chunk(features, 0, dim=0)[0]
+        features0 = torch.chunk(features, 2, dim=0)[0]
         cls_loss, cls_log = self.online_classifier.training_step(
             (features0, targets), batch_idx
         )
