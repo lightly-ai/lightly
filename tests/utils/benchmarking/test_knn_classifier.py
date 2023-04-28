@@ -2,7 +2,6 @@ from typing import Tuple
 
 import pytest
 import torch
-import torch.nn.functional as F
 from pytorch_lightning import Trainer
 from torch import Tensor, nn
 from torch.utils.data import DataLoader, Dataset
@@ -28,9 +27,9 @@ class TestKNNClassifier:
         # Their expected predicted labels are their closest training points in order.
         val_features = torch.tensor(
             [
-                [0.0, -0.4],   # predicted_labels = [0, 1, 2, 3]
-                [0.6, 0.7],    # predicted_labels = [3, 1, 2, 0]
-                [0.6, 0.3],    # predicted_labels = [2, 3, 1, 0]
+                [0.0, -0.4],  # predicted_labels = [0, 1, 2, 3]
+                [0.6, 0.7],  # predicted_labels = [3, 1, 2, 0]
+                [0.6, 0.3],  # predicted_labels = [2, 3, 1, 0]
             ]
         )
         val_targets = torch.tensor([0, 0, 1])
@@ -65,10 +64,10 @@ class TestKNNClassifier:
         model = nn.Linear(3, 2)
         classifier = KNNClassifier(model, num_classes=10, knn_k=20)
         trainer = Trainer(max_epochs=1, accelerator=accelerator, devices=1)
-        train_features = F.normalize(torch.randn(40, 3), dim=1)
+        train_features = torch.randn(40, 3)
         train_targets = torch.randint(0, 10, (40,))
         train_dataset = _FeaturesDataset(features=train_features, targets=train_targets)
-        val_features = F.normalize(torch.randn(10, 3), dim=1)
+        val_features = torch.randn(10, 3)
         val_targets = torch.randint(0, 10, (10,))
         val_dataset = _FeaturesDataset(features=val_features, targets=val_targets)
         train_dataloader = DataLoader(train_dataset, batch_size=3)
@@ -102,10 +101,10 @@ class TestKNNClassifier:
             model, num_classes=10, knn_k=3, feature_dtype=torch.int
         )
         trainer = Trainer(max_epochs=1, accelerator="cpu", devices=1)
-        train_features = F.normalize(torch.randn(4, 3), dim=1)
+        train_features = torch.randn(4, 3)
         train_targets = torch.randint(0, 10, (4,))
         train_dataset = _FeaturesDataset(features=train_features, targets=train_targets)
-        val_features = F.normalize(torch.randn(4, 3), dim=1)
+        val_features = torch.randn(4, 3)
         val_targets = torch.randint(0, 10, (4,))
         val_dataset = _FeaturesDataset(features=val_features, targets=val_targets)
         train_dataloader = DataLoader(train_dataset)
