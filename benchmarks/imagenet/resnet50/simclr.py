@@ -1,5 +1,6 @@
 from typing import List, Tuple
 
+import torch
 from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import Identity
@@ -12,7 +13,6 @@ from lightly.transforms import SimCLRTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.lars import LARS
 from lightly.utils.scheduler import CosineWarmupScheduler
-import torch
 
 
 class SimCLR(LightningModule):
@@ -44,8 +44,9 @@ class SimCLR(LightningModule):
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
         )
 
+        features0 = torch.chunk(features, 0, dim=0)[0]
         cls_loss, cls_log = self.online_classifier.training_step(
-            (features, targets), batch_idx
+            (features0, targets), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss
