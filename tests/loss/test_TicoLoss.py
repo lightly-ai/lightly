@@ -1,11 +1,32 @@
 import unittest
 
+import pytest
 import torch
+from pytest_mock import MockerFixture
+from torch import distributed as dist
 
 from lightly.loss.tico_loss import TiCoLoss
 
 
-class TestTiCoLoss(unittest.TestCase):
+class TestTiCoLoss:
+    def test__gather_distributed(self, mocker: MockerFixture) -> None:
+        mock_is_available = mocker.patch.object(dist, "is_available", return_value=True)
+        TiCoLoss(gather_distributed=True)
+        mock_is_available.assert_called_once()
+
+    def test__gather_distributed_dist_not_available(
+        self, mocker: MockerFixture
+    ) -> None:
+        mock_is_available = mocker.patch.object(
+            dist, "is_available", return_value=False
+        )
+        with pytest.raises(ValueError):
+            TiCoLoss(gather_distributed=True)
+        mock_is_available.assert_called_once()
+
+
+class TestTiCoLossUnitTest(unittest.TestCase):
+    # Old tests in unittest style, please add new tests to TestTiCoLoss using pytest.
     def test_forward_pass(self):
         torch.manual_seed(0)
         loss = TiCoLoss()

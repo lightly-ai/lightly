@@ -1,7 +1,5 @@
 import torch
 import torch.distributed as dist
-import torch.nn.functional as F
-from torch.autograd import Variable
 
 from lightly.utils.dist import gather
 
@@ -50,6 +48,13 @@ class TiCoLoss(torch.nn.Module):
         gather_distributed: bool = False,
     ):
         super(TiCoLoss, self).__init__()
+        if gather_distributed and not dist.is_available():
+            raise ValueError(
+                "gather_distributed is True but torch.distributed is not available. "
+                "Please set gather_distributed=False or install a torch version with "
+                "distributed support."
+            )
+
         self.beta = beta
         self.rho = rho
         self.C = None
