@@ -123,8 +123,11 @@ class LinearClassifier(LightningModule):
         return loss
 
     def configure_optimizers(self):
+        parameters = list(self.classification_head.parameters())
+        if not self.freeze_model:
+            parameters += self.model.parameters()
         optimizer = SGD(
-            self.classification_head.parameters(),
+            parameters,
             lr=0.1 * self.batch_size * self.trainer.world_size / 256,
             momentum=0.9,
             weight_decay=0.0,
