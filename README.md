@@ -4,7 +4,6 @@
 
 ![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)
 ![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)
-![codecov](https://codecov.io/gh/lightly-ai/lightly/branch/master/graph/badge.svg?token=1NEAVROK3W)
 
 Lightly is a computer vision framework for self-supervised learning.
 
