@@ -1,6 +1,6 @@
 import math
 import warnings
-from typing import Callable, Union
+from typing import Union
 
 import torch
 import torch.distributed as dist
@@ -162,6 +162,13 @@ class MSNLoss(nn.Module):
             raise ValueError(
                 f"sinkhorn_iterations must be >= 0 but is {sinkhorn_iterations}."
             )
+        if gather_distributed and not dist.is_available():
+            raise ValueError(
+                "gather_distributed is True but torch.distributed is not available. "
+                "Please set gather_distributed=False or install a torch version with "
+                "distributed support."
+            )
+
         self.temperature = temperature
         self.sinkhorn_iterations = sinkhorn_iterations
         self.regularization_weight = regularization_weight

@@ -52,6 +52,13 @@ class VICRegLoss(torch.nn.Module):
         eps=0.0001,
     ):
         super(VICRegLoss, self).__init__()
+        if gather_distributed and not dist.is_available():
+            raise ValueError(
+                "gather_distributed is True but torch.distributed is not available. "
+                "Please set gather_distributed=False or install a torch version with "
+                "distributed support."
+            )
+
         self.lambda_param = lambda_param
         self.mu_param = mu_param
         self.nu_param = nu_param

@@ -4,6 +4,7 @@
 # All Rights Reserved
 
 import torch
+from torch import distributed as torch_dist
 from torch import nn
 
 from lightly.loss.memory_bank import MemoryBankModule
@@ -66,6 +67,12 @@ class NTXentLoss(MemoryBankModule):
         if abs(self.temperature) < self.eps:
             raise ValueError(
                 "Illegal temperature: abs({}) < 1e-8".format(self.temperature)
+            )
+        if gather_distributed and not torch_dist.is_available():
+            raise ValueError(
+                "gather_distributed is True but torch.distributed is not available. "
+                "Please set gather_distributed=False or install a torch version with "
+                "distributed support."
             )
 
     def forward(self, out0: torch.Tensor, out1: torch.Tensor):

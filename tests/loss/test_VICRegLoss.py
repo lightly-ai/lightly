@@ -1,13 +1,34 @@
 import unittest
 
+import pytest
 import torch
 import torch.nn.functional as F
+from pytest_mock import MockerFixture
 from torch import Tensor
+from torch import distributed as dist
 
 from lightly.loss import VICRegLoss
 
 
-class TestVICRegLoss(unittest.TestCase):
+class TestVICRegLoss:
+    def test__gather_distributed(self, mocker: MockerFixture) -> None:
+        mock_is_available = mocker.patch.object(dist, "is_available", return_value=True)
+        VICRegLoss(gather_distributed=True)
+        mock_is_available.assert_called_once()
+
+    def test__gather_distributed_dist_not_available(
+        self, mocker: MockerFixture
+    ) -> None:
+        mock_is_available = mocker.patch.object(
+            dist, "is_available", return_value=False
+        )
+        with pytest.raises(ValueError):
+            VICRegLoss(gather_distributed=True)
+        mock_is_available.assert_called_once()
+
+
+class TestVICRegLossUnitTest(unittest.TestCase):
+    # Old tests in unittest style, please add new tests to TestVICRegLoss using pytest.
     def test_forward_pass(self):
         loss = VICRegLoss()
         for bsz in range(2, 4):

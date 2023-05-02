@@ -189,7 +189,11 @@ class BenchmarkModule(LightningModule):
                 target = target.to(self.device)
                 feature = self.backbone(img).squeeze()
                 feature = F.normalize(feature, dim=1)
-                if dist.is_initialized() and dist.get_world_size() > 0:
+                if (
+                    dist.is_available()
+                    and dist.is_initialized()
+                    and dist.get_world_size() > 0
+                ):
                     # gather features and targets from all processes
                     feature = torch.cat(dist.gather(feature), 0)
                     target = torch.cat(dist.gather(target), 0)

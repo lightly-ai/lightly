@@ -1,12 +1,32 @@
 import unittest
 
-import numpy as np
+import pytest
 import torch
+from pytest_mock import MockerFixture
+from torch import distributed as dist
 
 from lightly.loss import SwaVLoss
 
 
-class TestSwaVLoss(unittest.TestCase):
+class TestNTXentLoss:
+    def test__sinkhorn_gather_distributed(self, mocker: MockerFixture) -> None:
+        mock_is_available = mocker.patch.object(dist, "is_available", return_value=True)
+        SwaVLoss(sinkhorn_gather_distributed=True)
+        mock_is_available.assert_called_once()
+
+    def test__sinkhorn_gather_distributed_dist_not_available(
+        self, mocker: MockerFixture
+    ) -> None:
+        mock_is_available = mocker.patch.object(
+            dist, "is_available", return_value=False
+        )
+        with pytest.raises(ValueError):
+            SwaVLoss(sinkhorn_gather_distributed=True)
+        mock_is_available.assert_called_once()
+
+
+class TestSwaVLossUnitTest(unittest.TestCase):
+    # Old tests in unittest style, please add new tests to TestSwavLoss using pytest.
     def test_forward_pass(self):
         n = 32
         n_high_res = 2

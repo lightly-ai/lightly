@@ -1,11 +1,33 @@
 import unittest
+from unittest.mock import patch
 
+import pytest
 import torch
+from pytest_mock import MockerFixture
+from torch import distributed as dist
 
 from lightly.loss.dcl_loss import DCLLoss, DCLWLoss, negative_mises_fisher_weights
 
 
-class TestDCL(unittest.TestCase):
+class TestDCLLoss:
+    def test__gather_distributed(self, mocker: MockerFixture) -> None:
+        mock_is_available = mocker.patch.object(dist, "is_available", return_value=True)
+        DCLLoss(gather_distributed=True)
+        mock_is_available.assert_called_once()
+
+    def test__gather_distributed_dist_not_available(
+        self, mocker: MockerFixture
+    ) -> None:
+        mock_is_available = mocker.patch.object(
+            dist, "is_available", return_value=False
+        )
+        with pytest.raises(ValueError):
+            DCLLoss(gather_distributed=True)
+        mock_is_available.assert_called_once()
+
+
+class TestDCLUnitTest(unittest.TestCase):
+    # Old tests in unittest style, please add new tests to TestDCLLoss using pytest.
     def test_negative_mises_fisher_weights(self, seed=0):
         torch.manual_seed(seed)
         out0 = torch.rand((3, 5))

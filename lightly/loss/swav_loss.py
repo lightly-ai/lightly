@@ -86,6 +86,13 @@ class SwaVLoss(nn.Module):
         sinkhorn_gather_distributed: bool = False,
     ):
         super(SwaVLoss, self).__init__()
+        if sinkhorn_gather_distributed and not dist.is_available():
+            raise ValueError(
+                "sinkhorn_gather_distributed is True but torch.distributed is not "
+                "available. Please set gather_distributed=False or install a torch "
+                "version with distributed support."
+            )
+
         self.temperature = temperature
         self.sinkhorn_iterations = sinkhorn_iterations
         self.sinkhorn_epsilon = sinkhorn_epsilon

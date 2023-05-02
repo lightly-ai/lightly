@@ -40,6 +40,13 @@ class BarlowTwinsLoss(torch.nn.Module):
         self.lambda_param = lambda_param
         self.gather_distributed = gather_distributed
 
+        if gather_distributed and not dist.is_available():
+            raise ValueError(
+                "gather_distributed is True but torch.distributed is not available. "
+                "Please set gather_distributed=False or install a torch version with "
+                "distributed support."
+            )
+
     def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
         device = z_a.device
 
