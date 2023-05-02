@@ -23,7 +23,7 @@ def batch_shuffle(
         batch:
             The batch to shuffle.
         distributed:
-            If True then batches are shuffles across multiple gpus.
+            If True then batches are shuffled across multiple gpus.
 
     Returns:
         A (batch, shuffle) tuple where batch is the shuffled version of the

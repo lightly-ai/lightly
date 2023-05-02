@@ -1,8 +1,11 @@
 import unittest
 from unittest import TestCase
 
+import pytest
 import torch
 import torch.nn.functional as F
+from pytest_mock import MockerFixture
+from torch import distributed as dist
 from torch import nn
 from torch.optim import SGD
 
@@ -11,7 +14,25 @@ from lightly.loss.msn_loss import MSNLoss
 from lightly.models.modules.heads import MSNProjectionHead
 
 
-class TestMSNLoss(TestCase):
+class TestMSNLoss:
+    def test__gather_distributed(self, mocker: MockerFixture) -> None:
+        mock_is_available = mocker.patch.object(dist, "is_available", return_value=True)
+        MSNLoss(gather_distributed=True)
+        mock_is_available.assert_called_once()
+
+    def test__gather_distributed_dist_not_available(
+        self, mocker: MockerFixture
+    ) -> None:
+        mock_is_available = mocker.patch.object(
+            dist, "is_available", return_value=False
+        )
+        with pytest.raises(ValueError):
+            MSNLoss(gather_distributed=True)
+        mock_is_available.assert_called_once()
+
+
+class TestMSNLossUnitTest(TestCase):
+    # Old tests in unittest style, please add new tests to TestMSNLoss using pytest.
     def test__init__temperature(self) -> None:
         MSNLoss(temperature=1.0)
         with self.assertRaises(ValueError):
