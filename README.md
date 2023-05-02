@@ -22,9 +22,9 @@ Lightly offers features like
 
 - Modular framework which exposes low-level building blocks such as loss functions and
   model heads.
-- Support for distributed training using PyTorch Lightning.
 - Easy to use and written in a PyTorch like style.
 - Supports custom backbone models for self-supervised pre-training.
+- Support for distributed training using PyTorch Lightning.
 
 
 ### Supported Models
@@ -123,6 +123,7 @@ from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.models.modules import heads
 
+
 # Create a PyTorch module for the SimCLR model.
 class SimCLR(torch.nn.Module):
     def __init__(self, backbone):
@@ -139,6 +140,7 @@ class SimCLR(torch.nn.Module):
         z = self.projection_head(features)
         return z
 
+
 # Use a resnet backbone.
 backbone = torchvision.models.resnet18()
 # Ignore the classification head as we only want the features.
@@ -154,13 +156,13 @@ transform = transforms.SimCLRTransform(input_size=32, cj_prob=0.5)
 collate_fn = MultiViewCollate()
 
 # Create a dataset from your image folder.
-dataset = data.LightlyDataset(input_dir='./my/cute/cats/dataset/', transform=transform)
+dataset = data.LightlyDataset(input_dir="./my/cute/cats/dataset/", transform=transform)
 
 # Build a PyTorch dataloader.
 dataloader = torch.utils.data.DataLoader(
-    dataset,                # Pass the dataset to the dataloader.
-    batch_size=128,         # A large batch size helps with the learning.
-    shuffle=True,           # Shuffling is important!
+    dataset,  # Pass the dataset to the dataloader.
+    batch_size=128,  # A large batch size helps with the learning.
+    shuffle=True,  # Shuffling is important!
     collate_fn=collate_fn,
 )
 
@@ -179,7 +181,7 @@ for epoch in range(10):
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
-        print(f'loss: {loss.item():.5f}')
+        print(f"loss: {loss.item():.5f}")
 ```
 
 You can easily use another model like SimSiam by swapping the model and the
@@ -200,6 +202,7 @@ class SimSiam(torch.nn.Module):
         p = self.prediction_head(z)
         z = z.detach()
         return z, p
+
 
 model = SimSiam(backbone)
 

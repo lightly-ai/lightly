@@ -60,6 +60,9 @@ lint-tests:
 test:
 	pytest tests --runslow
 
+test-fast:
+	pytest tests
+
 # run format checks and tests
 all-checks: format-check test
 
