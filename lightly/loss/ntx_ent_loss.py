@@ -161,7 +161,8 @@ class NTXentLoss(MemoryBankModule):
 
             # create labels
             labels = torch.arange(batch_size, device=device, dtype=torch.long)
-            labels = labels + dist.rank() * batch_size
+            if self.gather_distributed:
+                labels = labels + dist.rank() * batch_size
             labels = labels.repeat(2)
 
         loss = self.cross_entropy(logits, labels)
