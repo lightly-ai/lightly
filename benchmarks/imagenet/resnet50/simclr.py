@@ -38,13 +38,13 @@ class SimCLR(LightningModule):
         views, targets = batch[0], batch[1]
         features = self.forward(torch.cat(views, dim=0)).flatten(start_dim=1)
         z = self.projection_head(features)
-        z0, z1 = torch.chunk(z, 2, dim=0)
+        z0, z1 = z.chunk(len(views))
         loss = self.criterion(z0, z1)
         self.log(
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
         )
 
-        features0 = torch.chunk(features, 2, dim=0)[0]
+        features0 = features.chunk(len(views))[0]
         cls_loss, cls_log = self.online_classifier.training_step(
             (features0, targets), batch_idx
         )
