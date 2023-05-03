@@ -82,6 +82,9 @@ class SimCLR(LightningModule):
                     "weight_decay": 0.0,
                 },
             ],
+            # Use square root scaling for small batch sizes (<=2048) and few training
+            # epochs (<=200): lr=0.075 * sqrt(self.batch_size * self.trainer.world_size)
+            # See Table B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
             lr=0.3 * self.batch_size * self.trainer.world_size / 256,
             momentum=0.9,
             weight_decay=1e-6,
