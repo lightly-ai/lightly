@@ -162,6 +162,9 @@ simclr_transform = SimCLRTransform(
     cj_strength=0.5,
 )
 
+# Use SimCLR augmentations with larger image size for SimMIM
+simmim_transform = SimCLRTransform(input_size=224)
+
 # Use SimSiam augmentations
 simsiam_transform = SimSiamTransform(input_size=input_size)
 
@@ -255,7 +258,7 @@ def create_dataset_train_ssl(model):
         NNCLRModel: simclr_transform,
         PMSNModel: msn_transform,
         SimCLRModel: simclr_transform,
-        SimMIMModel: simclr_transform,
+        SimMIMModel: simmim_transform,
         SimSiamModel: simsiam_transform,
         SwaVModel: swav_transform,
         SwaVQueueModel: swav_transform,
