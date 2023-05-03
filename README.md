@@ -401,9 +401,9 @@ make format
 - Is this framework for free?
   - Yes, this framework is completely free to use and we provide the source code. We believe that we need to make training deep learning models more data efficient to achieve widespread adoption. One step to achieve this goal is by leveraging self-supervised learning. The company behind Lightly is committed to keep this framework open-source.
 
-- If this framework is free, how is the company behind lightly making money?
+- If this framework is free, how is the company behind Lightly making money?
   - Training self-supervised models is only one part of our solution. 
-  [The company behind lightly](https://lightly.ai/) focuses on processing and analyzing embeddings created by self-supervised models. 
+  [The company behind Lightly](https://lightly.ai/) focuses on processing and analyzing embeddings created by self-supervised models. 
   By building, what we call a self-supervised active learning loop we help companies understand and work with their data more efficiently. 
   As the [Lightly Solution](https://docs.lightly.ai) is a freemium product, you can try it out for free. However, we will charge for some features.
   - In any case this framework will always be free to use, even for commercial purposes.
