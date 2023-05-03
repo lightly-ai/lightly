@@ -75,4 +75,4 @@ def knn_eval(
         val_dataloaders=val_dataloader,
     )
     for metric in ["val_top1", "val_top5"]:
-        print(f"{metric}: {metric_callback.val_metrics[metric]}")
+        print(f"knn {metric}: {max(metric_callback.val_metrics[metric])}")
