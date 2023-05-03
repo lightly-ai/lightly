@@ -1063,7 +1063,7 @@ class MockedAPICollaboration(CollaborationApi):
             id="some-id",
             owner="owner-id",
             users=["user1@gmail.com", "user2@something.com"],
-            organizations=["some-id"],
+            teams=["some-id"],
             created_at=Timestamp(0),
             last_modified_at=Timestamp(0),
             access_type=SharedAccessType.WRITE,

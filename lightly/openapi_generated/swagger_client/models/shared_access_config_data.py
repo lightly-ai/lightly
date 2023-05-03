@@ -37,7 +37,7 @@ class SharedAccessConfigData(object):
         'owner': 'str',
         'access_type': 'SharedAccessType',
         'users': 'list[str]',
-        'organizations': 'list[str]',
+        'teams': 'list[str]',
         'created_at': 'Timestamp',
         'last_modified_at': 'Timestamp'
     }
@@ -47,12 +47,12 @@ class SharedAccessConfigData(object):
         'owner': 'owner',
         'access_type': 'accessType',
         'users': 'users',
-        'organizations': 'organizations',
+        'teams': 'teams',
         'created_at': 'createdAt',
         'last_modified_at': 'lastModifiedAt'
     }
 
-    def __init__(self, id=None, owner=None, access_type=None, users=None, organizations=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
+    def __init__(self, id=None, owner=None, access_type=None, users=None, teams=None, created_at=None, last_modified_at=None, _configuration=None):  # noqa: E501
         """SharedAccessConfigData - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -62,7 +62,7 @@ class SharedAccessConfigData(object):
         self._owner = None
         self._access_type = None
         self._users = None
-        self._organizations = None
+        self._teams = None
         self._created_at = None
         self._last_modified_at = None
         self.discriminator = None
@@ -71,7 +71,7 @@ class SharedAccessConfigData(object):
         self.owner = owner
         self.access_type = access_type
         self.users = users
-        self.organizations = organizations
+        self.teams = teams
         self.created_at = created_at
         self.last_modified_at = last_modified_at
 
@@ -172,29 +172,29 @@ class SharedAccessConfigData(object):
         self._users = users
 
     @property
-    def organizations(self):
-        """Gets the organizations of this SharedAccessConfigData.  # noqa: E501
+    def teams(self):
+        """Gets the teams of this SharedAccessConfigData.  # noqa: E501
 
-        List of organizations with access to the dataset  # noqa: E501
+        List of teams with access to the dataset  # noqa: E501
 
-        :return: The organizations of this SharedAccessConfigData.  # noqa: E501
+        :return: The teams of this SharedAccessConfigData.  # noqa: E501
         :rtype: list[str]
         """
-        return self._organizations
+        return self._teams
 
-    @organizations.setter
-    def organizations(self, organizations):
-        """Sets the organizations of this SharedAccessConfigData.
+    @teams.setter
+    def teams(self, teams):
+        """Sets the teams of this SharedAccessConfigData.
 
-        List of organizations with access to the dataset  # noqa: E501
+        List of teams with access to the dataset  # noqa: E501
 
-        :param organizations: The organizations of this SharedAccessConfigData.  # noqa: E501
+        :param teams: The teams of this SharedAccessConfigData.  # noqa: E501
         :type: list[str]
         """
-        if self._configuration.client_side_validation and organizations is None:
-            raise ValueError("Invalid value for `organizations`, must not be `None`")  # noqa: E501
+        if self._configuration.client_side_validation and teams is None:
+            raise ValueError("Invalid value for `teams`, must not be `None`")  # noqa: E501
 
-        self._organizations = organizations
+        self._teams = teams
 
     @property
     def created_at(self):
