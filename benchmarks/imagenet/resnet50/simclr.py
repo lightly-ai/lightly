@@ -64,7 +64,7 @@ class SimCLR(LightningModule):
 
     def configure_optimizers(self):
         # Don't use weight decay for batch norm, bias parameters, and classification
-        # head.
+        # head to improve performance.
         params, params_no_weight_decay = get_weight_decay_parameters(
             [self.backbone, self.projection_head]
         )
@@ -87,6 +87,8 @@ class SimCLR(LightningModule):
             # See Table B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
             lr=0.3 * self.batch_size * self.trainer.world_size / 256,
             momentum=0.9,
+            # Note: Paper uses weight decay of 1e-6 but reference code 1e-4. See:
+            # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
             weight_decay=1e-6,
         )
         scheduler = {
