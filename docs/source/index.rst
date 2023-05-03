@@ -27,6 +27,16 @@ datasets. It is built on top of PyTorch and therefore fully compatible with
 other frameworks such as Fast.ai.
 
 
+Lightly
+-------
+
+- `Homepage <https://www.lightly.ai>`_
+- `Web-App <https://app.lightly.ai>`_
+- `Documentation <https://docs.lightly.ai/self-supervised-learning/>`_
+- `Lightly Solution Documentation (Lightly Worker & API) <https://docs.lightly.ai/>`_
+- `Github <https://github.com/lightly-ai/lightly>`_
+- `Discord <https://discord.gg/xvNJW94>`_ (We have weekly paper sessions!)
+
 .. toctree::
    :maxdepth: 1
    :caption: Getting Started
