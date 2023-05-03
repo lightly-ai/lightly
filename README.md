@@ -330,7 +330,7 @@ tuned for maximum accuracy. Learn more about the benchmarks [here](https://docs.
 Below you can see a schematic overview of the different concepts in the package.
 The terms in bold are explained in more detail in our [documentation](https://docs.lightly.ai/self-supervised-learning/).
 
-<img src="/docs/source/getting_started/images/lightly_overview.png" alt="Overview of the lightly pip package"/></a>
+<img src="/docs/source/getting_started/images/lightly_overview.png" alt="Overview of the Lightly pip package"/></a>
 
 
 ### Next Steps
