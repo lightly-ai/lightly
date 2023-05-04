@@ -11,50 +11,52 @@ Code has been tested on a A6000 GPU with 48GBytes of memory.
 
 Code to reproduce the benchmark results:
 
-Results (20.3.2023):
----------------------------------------------------------------------------------------------
-| Model            | Batch Size | Epochs |  KNN Test Accuracy |       Time | Peak GPU Usage |
----------------------------------------------------------------------------------------------
-| BarlowTwins      |        256 |    200 |              0.491 |   57.7 Min |      4.0 GByte |
-| BYOL             |        256 |    200 |              0.713 |   51.3 Min |      4.3 GByte |
-| DCL              |        256 |    200 |              0.814 |   47.5 Min |      3.7 GByte |
-| DCLW             |        256 |    200 |              0.802 |   48.0 Min |      3.7 GByte |
-| DINO (Res18)     |        256 |    200 |              0.872 |   76.6 Min |      6.6 GByte |
-| FastSiam         |        256 |    200 |              0.765 |   68.5 Min |      7.3 GByte |
-| MSN (ViT-S)      |        256 |    200 |              0.721 |  123.3 Min |     16.3 GByte |
-| Moco             |        256 |    200 |              0.778 |   51.3 Min |      4.2 GByte |
-| NNCLR            |        256 |    200 |              0.801 |   47.3 Min |      3.8 GByte |
-| SimCLR           |        256 |    200 |              0.834 |   46.5 Min |      3.7 GByte |
-| SimMIM (ViT-B32) |        256 |    200 |              0.322 |   98.8 Min |     10.5 GByte |
-| SimSiam          |        256 |    200 |              0.742 |   44.1 Min |      3.8 GByte |
-| SwaV             |        256 |    200 |              0.864 |   69.1 Min |      6.4 GByte |
-| SwaVQueue        |        256 |    200 |              0.845 |   68.8 Min |      6.4 GByte |
-| SMoG             |        256 |    200 |              0.634 |  176.9 Min |     24.2 GByte |
-| TiCo             |        256 |    200 |              0.423 |   43.2 Min |      2.5 GByte |
-| VICReg           |        256 |    200 |              0.733 |   49.2 Min |      3.8 GByte |
-| VICRegL          |        256 |    200 |              0.643 |   48.0 Min |      2.6 GByte |
----------------------------------------------------------------------------------------------
-| BarlowTwins      |        256 |    800 |              0.850 |  279.5 Min |      5.7 GByte |
-| BYOL             |        256 |    800 |              0.887 |  202.7 Min |      4.3 GByte |
-| DCL              |        256 |    800 |              0.864 |  183.7 Min |      3.7 GByte |
-| DCLW             |        256 |    800 |              0.861 |  188.5 Min |      3.7 GByte |
-| DINO (Res18)     |        256 |    800 |              0.887 |  291.6 Min |      8.5 GByte |
-| FastSiam         |        256 |    800 |              0.865 |  280.9 Min |      7.3 GByte |
-| MAE (ViT-S)      |        256 |    800 |              0.620 |  208.2 Min |      4.6 GByte |
-| MSN (ViT-S)      |        256 |    800 |              0.833 |  394.0 Min |     16.3 GByte |
-| Moco             |        256 |    800 |              0.874 |  220.7 Min |      4.2 GByte |
-| NNCLR            |        256 |    800 |              0.885 |  207.1 Min |      3.8 GByte |
-| PMSN (ViT-S)     |        256 |    800 |              0.830 |  401.1 Min |     16.3 GByte |
-| SimCLR           |        256 |    800 |              0.889 |  206.4 Min |      3.7 GByte |
-| SimMIM (ViT-B32) |        256 |    800 |              0.351 |  302.8 Min |     10.5 GByte |
-| SimSiam          |        256 |    800 |              0.871 |  178.2 Min |      3.9 GByte |
-| SwaV             |        256 |    800 |              0.899 |  309.0 Min |      6.4 GByte |
-| SwaVQueue        |        256 |    800 |              0.898 |  300.3 Min |      6.4 GByte |
-| SMoG             |        256 |    800 |              0.782 |  250.2 Min |      2.5 GByte |
-| TiCo             |        256 |    800 |              0.857 |  184.7 Min |      2.5 GByte |
-| VICReg           |        256 |    800 |              0.843 |  192.9 Min |      5.7 GByte |
-| VICRegL          |        256 |    800 |              0.781 |  207.4 Min |      5.7 GByte |
----------------------------------------------------------------------------------------------
+Results (4.5.2023):
+-------------------------------------------------------------------------------------------------
+| Model            | Batch Size | Epochs |  KNN Top1 Val Accuracy |       Time | Peak GPU Usage |
+-------------------------------------------------------------------------------------------------
+| BarlowTwins      |        256 |    200 |                  0.651 |   85.0 Min |      4.0 GByte |
+| BYOL             |        256 |    200 |                  0.705 |   54.4 Min |      4.3 GByte |
+| DCL              |        256 |    200 |                  0.809 |   48.7 Min |      3.7 GByte |
+| DCLW             |        256 |    200 |                  0.783 |   47.3 Min |      3.7 GByte |
+| DINO (Res18)     |        256 |    200 |                  0.873 |   75.4 Min |      6.6 GByte |
+| FastSiam         |        256 |    200 |                  0.779 |   88.2 Min |      7.3 GByte |
+| MAE (ViT-S)      |        256 |    200 |                  0.454 |   62.0 Min |      4.4 GByte |
+| MSN (ViT-S)      |        256 |    200 |                  0.713 |  127.0 Min |     14.7 GByte |
+| Moco             |        256 |    200 |                  0.786 |   57.5 Min |      4.3 GByte |
+| NNCLR            |        256 |    200 |                  0.809 |   51.5 Min |      3.8 GByte |
+| PMSN (ViT-S)     |        256 |    200 |                  0.705 |  126.9 Min |     14.7 GByte |
+| SimCLR           |        256 |    200 |                  0.835 |   49.7 Min |      3.7 GByte |
+| SimMIM (ViT-B32) |        256 |    200 |                  0.315 |  115.5 Min |      9.7 GByte |
+| SimSiam          |        256 |    200 |                  0.752 |   58.2 Min |      3.9 GByte |
+| SwaV             |        256 |    200 |                  0.861 |   73.3 Min |      6.4 GByte |
+| SwaVQueue        |        256 |    200 |                  0.827 |   72.6 Min |      6.4 GByte |
+| SMoG             |        256 |    200 |                  0.663 |   58.7 Min |      2.6 GByte |
+| TiCo             |        256 |    200 |                  0.742 |   45.6 Min |      2.5 GByte |
+| VICReg           |        256 |    200 |                  0.763 |   53.2 Min |      4.0 GByte |
+| VICRegL          |        256 |    200 |                  0.689 |   56.7 Min |      4.0 GByte |
+-------------------------------------------------------------------------------------------------
+| BarlowTwins      |        256 |    800 |                  0.850 |  279.5 Min |      5.7 GByte |
+| BYOL             |        256 |    800 |                  0.887 |  202.7 Min |      4.3 GByte |
+| DCL              |        256 |    800 |                  0.864 |  183.7 Min |      3.7 GByte |
+| DCLW             |        256 |    800 |                  0.861 |  188.5 Min |      3.7 GByte |
+| DINO (Res18)     |        256 |    800 |                  0.887 |  291.6 Min |      8.5 GByte |
+| FastSiam         |        256 |    800 |                  0.865 |  280.9 Min |      7.3 GByte |
+| MAE (ViT-S)      |        256 |    800 |                  0.620 |  208.2 Min |      4.6 GByte |
+| MSN (ViT-S)      |        256 |    800 |                  0.833 |  394.0 Min |     16.3 GByte |
+| Moco             |        256 |    800 |                  0.874 |  220.7 Min |      4.2 GByte |
+| NNCLR            |        256 |    800 |                  0.885 |  207.1 Min |      3.8 GByte |
+| PMSN (ViT-S)     |        256 |    800 |                  0.830 |  401.1 Min |     16.3 GByte |
+| SimCLR           |        256 |    800 |                  0.889 |  206.4 Min |      3.7 GByte |
+| SimMIM (ViT-B32) |        256 |    800 |                  0.351 |  302.8 Min |     10.5 GByte |
+| SimSiam          |        256 |    800 |                  0.871 |  178.2 Min |      3.9 GByte |
+| SwaV             |        256 |    800 |                  0.899 |  309.0 Min |      6.4 GByte |
+| SwaVQueue        |        256 |    800 |                  0.898 |  300.3 Min |      6.4 GByte |
+| SMoG             |        256 |    800 |                  0.782 |  250.2 Min |      2.5 GByte |
+| TiCo             |        256 |    800 |                  0.857 |  184.7 Min |      2.5 GByte |
+| VICReg           |        256 |    800 |                  0.843 |  192.9 Min |      5.7 GByte |
+| VICRegL          |        256 |    800 |                  0.781 |  207.4 Min |      5.7 GByte |
+-------------------------------------------------------------------------------------------------
 
 """
 import copy
@@ -1395,6 +1397,7 @@ models = [
     DCL,
     DCLW,
     DINOModel,
+    FastSiamModel,
     # MAEModel, # disabled by default because MAE uses larger images with size 224
     MSNModel,
     MocoModel,
@@ -1403,7 +1406,6 @@ models = [
     SimCLRModel,
     # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
     SimSiamModel,
-    FastSiamModel,
     SwaVModel,
     SwaVQueueModel,
     SMoGModel,
