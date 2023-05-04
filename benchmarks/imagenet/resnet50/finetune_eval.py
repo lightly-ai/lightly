@@ -88,7 +88,7 @@ def finetune_eval(
         num_workers=num_workers,
     )
 
-    # Train linear classifier.
+    # Fine-tune model with linear classifier.
     classifier = FinetuneLinearClassifier(
         model=model,
         batch_size=batch_size,
