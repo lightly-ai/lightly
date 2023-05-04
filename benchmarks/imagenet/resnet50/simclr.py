@@ -1,3 +1,4 @@
+import math
 from typing import List, Tuple
 
 import torch
@@ -36,7 +37,7 @@ class SimCLR(LightningModule):
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
     ) -> Tensor:
         views, targets = batch[0], batch[1]
-        features = self.forward(torch.cat(views, dim=0)).flatten(start_dim=1)
+        features = self.forward(torch.cat(views)).flatten(start_dim=1)
         z = self.projection_head(features)
         z0, z1 = z.chunk(len(views))
         loss = self.criterion(z0, z1)
@@ -44,9 +45,8 @@ class SimCLR(LightningModule):
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
         )
 
-        features0 = features.chunk(len(views))[0]
         cls_loss, cls_log = self.online_classifier.training_step(
-            (features0, targets), batch_idx
+            (features, targets.repeat(len(views))), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss
@@ -82,11 +82,12 @@ class SimCLR(LightningModule):
                     "weight_decay": 0.0,
                 },
             ],
-            # For better performance use square root scaling for small batch sizes (<=2048)
-            # and few training epochs (<=200):
-            #   lr=0.075 * sqrt(self.batch_size * self.trainer.world_size)
-            # See Table B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
-            lr=0.3 * self.batch_size * self.trainer.world_size / 256,
+            # Square root learning rate scaling improves performance for small
+            # batch sizes (<=2048) and few training epochs (<=200). Alternatively,
+            # linear scaling can be used for larger batches and longer training:
+            #   lr=0.3 * self.batch_size * self.trainer.world_size / 256
+            # See Appendix B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
+            lr=0.075 * math.sqrt(self.batch_size * self.trainer.world_size),
             momentum=0.9,
             # Note: Paper uses weight decay of 1e-6 but reference code 1e-4. See:
             # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
