@@ -556,6 +556,8 @@ class DatasourcesApi(object):
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
         :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
         :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
+        :param MongoObjectID relevant_filenames_run_id: The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) 
+        :param MongoObjectID relevant_filenames_artifact_id: The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. 
         :return: DatasourceRawSamplesMetadataData
                  If the method is called asynchronously,
                  returns the request thread.
@@ -583,12 +585,14 @@ class DatasourcesApi(object):
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
         :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
         :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
+        :param MongoObjectID relevant_filenames_run_id: The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) 
+        :param MongoObjectID relevant_filenames_artifact_id: The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. 
         :return: DatasourceRawSamplesMetadataData
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_id', '_from', 'to', 'cursor', 'use_redirected_read_url', 'relevant_filenames_file_name']  # noqa: E501
+        all_params = ['dataset_id', '_from', 'to', 'cursor', 'use_redirected_read_url', 'relevant_filenames_file_name', 'relevant_filenames_run_id', 'relevant_filenames_artifact_id']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -625,6 +629,10 @@ class DatasourcesApi(object):
             query_params.append(('useRedirectedReadUrl', params['use_redirected_read_url']))  # noqa: E501
         if 'relevant_filenames_file_name' in params:
             query_params.append(('relevantFilenamesFileName', params['relevant_filenames_file_name']))  # noqa: E501
+        if 'relevant_filenames_run_id' in params:
+            query_params.append(('relevantFilenamesRunId', params['relevant_filenames_run_id']))  # noqa: E501
+        if 'relevant_filenames_artifact_id' in params:
+            query_params.append(('relevantFilenamesArtifactId', params['relevant_filenames_artifact_id']))  # noqa: E501
 
         header_params = {}
 
@@ -672,6 +680,8 @@ class DatasourcesApi(object):
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
         :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
         :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
+        :param MongoObjectID relevant_filenames_run_id: The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) 
+        :param MongoObjectID relevant_filenames_artifact_id: The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. 
         :return: DatasourceRawSamplesPredictionsData
                  If the method is called asynchronously,
                  returns the request thread.
@@ -700,12 +710,14 @@ class DatasourcesApi(object):
         :param str cursor: Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. 
         :param bool use_redirected_read_url: By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file 
         :param str relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
+        :param MongoObjectID relevant_filenames_run_id: The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) 
+        :param MongoObjectID relevant_filenames_artifact_id: The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. 
         :return: DatasourceRawSamplesPredictionsData
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['dataset_id', 'task_name', '_from', 'to', 'cursor', 'use_redirected_read_url', 'relevant_filenames_file_name']  # noqa: E501
+        all_params = ['dataset_id', 'task_name', '_from', 'to', 'cursor', 'use_redirected_read_url', 'relevant_filenames_file_name', 'relevant_filenames_run_id', 'relevant_filenames_artifact_id']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -748,6 +760,10 @@ class DatasourcesApi(object):
             query_params.append(('useRedirectedReadUrl', params['use_redirected_read_url']))  # noqa: E501
         if 'relevant_filenames_file_name' in params:
             query_params.append(('relevantFilenamesFileName', params['relevant_filenames_file_name']))  # noqa: E501
+        if 'relevant_filenames_run_id' in params:
+            query_params.append(('relevantFilenamesRunId', params['relevant_filenames_run_id']))  # noqa: E501
+        if 'relevant_filenames_artifact_id' in params:
+            query_params.append(('relevantFilenamesArtifactId', params['relevant_filenames_artifact_id']))  # noqa: E501
 
         header_params = {}
 
