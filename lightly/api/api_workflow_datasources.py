@@ -138,13 +138,6 @@ class _DatasourcesMixin:
            A list of (filename, url) tuples, where each tuple represents a sample
 
         """
-        relevant_filenames_kwargs = {}
-        if run_id and relevant_filenames_artefact_id:
-            relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
-            relevant_filenames_kwargs[
-                "relevant_filenames_artefact_id"
-            ] = relevant_filenames_artefact_id
-
         samples = self._download_raw_files(
             download_function=self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id,
             from_=from_,
@@ -152,7 +145,8 @@ class _DatasourcesMixin:
             relevant_filenames_file_name=relevant_filenames_file_name,
             use_redirected_read_url=use_redirected_read_url,
             progress_bar=progress_bar,
-            **relevant_filenames_kwargs,
+            relevant_filenames_run_id=run_id,
+            relevant_filenames_artefact_id=relevant_filenames_artefact_id,
         )
         return samples
 
@@ -201,13 +195,6 @@ class _DatasourcesMixin:
            A list of (filename, url) tuples, where each tuple represents a sample
 
         """
-        relevant_filenames_kwargs = {}
-        if run_id and relevant_filenames_artefact_id:
-            relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
-            relevant_filenames_kwargs[
-                "relevant_filenames_artefact_id"
-            ] = relevant_filenames_artefact_id
-
         samples = self._download_raw_files(
             download_function=self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id,
             from_=from_,
@@ -216,7 +203,8 @@ class _DatasourcesMixin:
             use_redirected_read_url=use_redirected_read_url,
             task_name=task_name,
             progress_bar=progress_bar,
-            **relevant_filenames_kwargs,
+            relevant_filenames_run_id=run_id,
+            relevant_filenames_artefact_id=relevant_filenames_artefact_id,
         )
         return samples
 
@@ -262,13 +250,6 @@ class _DatasourcesMixin:
            A list of (filename, url) tuples, where each tuple represents a sample
 
         """
-        relevant_filenames_kwargs = {}
-        if run_id and relevant_filenames_artefact_id:
-            relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
-            relevant_filenames_kwargs[
-                "relevant_filenames_artefact_id"
-            ] = relevant_filenames_artefact_id
-
         samples = self._download_raw_files(
             self._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id,
             from_=from_,
@@ -276,7 +257,8 @@ class _DatasourcesMixin:
             relevant_filenames_file_name=relevant_filenames_file_name,
             use_redirected_read_url=use_redirected_read_url,
             progress_bar=progress_bar,
-            **relevant_filenames_kwargs,
+            relevant_filenames_run_id=run_id,
+            relevant_filenames_artefact_id=relevant_filenames_artefact_id,
         )
         return samples
 
