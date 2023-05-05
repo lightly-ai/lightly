@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Sequence, Union
 
+import finetune_eval
 import knn_eval
 import linear_eval
 import simclr
@@ -121,11 +122,20 @@ def main(
             )
 
         if skip_finetune_eval:
-            print("Skipping finetune eval.")
+            print("Skipping fine-tune eval.")
         else:
-            # TODO: Implement finetune eval.
-            print("Finetune eval is not yet implemented.")
-            pass
+            finetune_eval.finetune_eval(
+                model=model,
+                num_classes=num_classes,
+                train_dir=train_dir,
+                val_dir=val_dir,
+                log_dir=method_dir,
+                batch_size=batch_size,
+                num_workers=num_workers,
+                accelerator=accelerator,
+                devices=devices,
+                precision=precision,
+            )
 
 
 def pretrain(
