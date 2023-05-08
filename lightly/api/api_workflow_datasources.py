@@ -44,13 +44,6 @@ class _DatasourcesMixin:
             if relevant_filenames_file_name
             else dict()
         )
-        relevant_filenames_artifact_kwargs = (
-            {
-                "relevant_filenames_run_id": kwargs["relevant_filenames_run_id"],
-                "relevant_filenames_artifact_id": kwargs["relevant_filenames_artifact_id"]
-            }
-            if "relevant_filenames_artifact_id" in kwargs else dict()
-        )
 
         response: DatasourceRawSamplesData = download_function(
             dataset_id=self.dataset_id,
@@ -58,7 +51,6 @@ class _DatasourcesMixin:
             to=to,
             use_redirected_read_url=use_redirected_read_url,
             **relevant_filenames_kwargs,
-            **relevant_filenames_artifact_kwargs,
             **kwargs,
         )
         cursor = response.cursor
@@ -192,16 +184,22 @@ class _DatasourcesMixin:
            A list of (filename, url) tuples, where each tuple represents a sample
 
         """
+        relevant_filenames_kwargs = {}
         if run_id and not relevant_filenames_artifact_id:
             raise ValueError(
                 "'relevant_filenames_artifact_id' should not be `None` when 'run_id' "
                 "is specified."
             )
-        if not run_id and relevant_filenames_artifact_id:
+        elif not run_id and relevant_filenames_artifact_id:
             raise ValueError(
                 "'run_id' should not be `None` when 'relevant_filenames_artifact_id' "
                 "is specified."
             )
+        elif run_id and relevant_filenames_artifact_id:
+            relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
+            relevant_filenames_kwargs[
+                "relevant_filenames_artifact_id"
+            ] = relevant_filenames_artifact_id
 
         samples = self._download_raw_files(
             download_function=self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id,
@@ -212,7 +210,7 @@ class _DatasourcesMixin:
             task_name=task_name,
             progress_bar=progress_bar,
             relevant_filenames_run_id=run_id,
-            relevant_filenames_artifact_id=relevant_filenames_artifact_id,
+            **relevant_filenames_kwargs,
         )
         return samples
 
@@ -258,6 +256,7 @@ class _DatasourcesMixin:
            A list of (filename, url) tuples, where each tuple represents a sample
 
         """
+        relevant_filenames_kwargs = {}
         if run_id and not relevant_filenames_artifact_id:
             raise ValueError(
                 "'relevant_filenames_artifact_id' should not be `None` when 'run_id' "
@@ -268,6 +267,11 @@ class _DatasourcesMixin:
                 "'run_id' should not be `None` when 'relevant_filenames_artifact_id' "
                 "is specified."
             )
+        elif run_id and relevant_filenames_artifact_id:
+            relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
+            relevant_filenames_kwargs[
+                "relevant_filenames_artifact_id"
+            ] = relevant_filenames_artifact_id
 
         samples = self._download_raw_files(
             self._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id,
@@ -278,6 +282,7 @@ class _DatasourcesMixin:
             progress_bar=progress_bar,
             relevant_filenames_run_id=run_id,
             relevant_filenames_artifact_id=relevant_filenames_artifact_id,
+            **relevant_filenames_kwargs,
         )
         return samples
 
