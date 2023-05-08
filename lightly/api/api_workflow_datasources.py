@@ -44,6 +44,13 @@ class _DatasourcesMixin:
             if relevant_filenames_file_name
             else dict()
         )
+        relevant_filenames_artifact_kwargs = (
+            {
+                "relevant_filenames_run_id": kwargs["relevant_filenames_run_id"],
+                "relevant_filenames_artifact_id": kwargs["relevant_filenames_artifact_id"]
+            }
+            if "relevant_filenames_artifact_id" in kwargs else dict()
+        )
 
         response: DatasourceRawSamplesData = download_function(
             dataset_id=self.dataset_id,
@@ -51,6 +58,7 @@ class _DatasourcesMixin:
             to=to,
             use_redirected_read_url=use_redirected_read_url,
             **relevant_filenames_kwargs,
+            **relevant_filenames_artifact_kwargs,
             **kwargs,
         )
         cursor = response.cursor
