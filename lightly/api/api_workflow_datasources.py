@@ -184,18 +184,18 @@ class _DatasourcesMixin:
            A list of (filename, url) tuples, where each tuple represents a sample
 
         """
-        relevant_filenames_kwargs = {}
         if run_id and not relevant_filenames_artifact_id:
             raise ValueError(
                 "'relevant_filenames_artifact_id' should not be `None` when 'run_id' "
                 "is specified."
             )
-        elif not run_id and relevant_filenames_artifact_id:
+        if not run_id and relevant_filenames_artifact_id:
             raise ValueError(
                 "'run_id' should not be `None` when 'relevant_filenames_artifact_id' "
                 "is specified."
             )
-        elif run_id and relevant_filenames_artifact_id:
+        relevant_filenames_kwargs = {}
+        if run_id and relevant_filenames_artifact_id:
             relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
             relevant_filenames_kwargs[
                 "relevant_filenames_artifact_id"
@@ -255,7 +255,6 @@ class _DatasourcesMixin:
            A list of (filename, url) tuples, where each tuple represents a sample
 
         """
-        relevant_filenames_kwargs = {}
         if run_id and not relevant_filenames_artifact_id:
             raise ValueError(
                 "'relevant_filenames_artifact_id' should not be `None` when 'run_id' "
@@ -266,7 +265,8 @@ class _DatasourcesMixin:
                 "'run_id' should not be `None` when 'relevant_filenames_artifact_id' "
                 "is specified."
             )
-        elif run_id and relevant_filenames_artifact_id:
+        relevant_filenames_kwargs = {}
+        if run_id and relevant_filenames_artifact_id:
             relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
             relevant_filenames_kwargs[
                 "relevant_filenames_artifact_id"
