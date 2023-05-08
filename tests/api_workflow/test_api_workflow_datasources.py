@@ -76,13 +76,22 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
             return_value=mock_response,
         ) as func:
             self.api_workflow_client.download_raw_samples(
-                run_id="foo", relevant_filenames_artefact_id="bar"
+                run_id="foo", relevant_filenames_artifact_id="bar"
             )
             kwargs = func.call_args[1]
             assert kwargs.get("relevant_filenames_run_id") == "foo"
-            assert kwargs.get("relevant_filenames_artefact_id") == "bar"
+            assert kwargs.get("relevant_filenames_artifact_id") == "bar"
 
-    def test_download_raw_samples_predictions_relevant_filenames_artefact_id(self):
+        # should raise ValueError when only run_id is given
+        with pytest.raises(ValueError):
+            self.api_workflow_client.download_raw_samples(run_id="foo")
+        # should raise ValueError when only relevant_filenames_artifact_id is given
+        with pytest.raises(ValueError):
+            self.api_workflow_client.download_raw_samples(
+                relevant_filenames_artifact_id="bar"
+            )
+
+    def test_download_raw_samples_predictions_relevant_filenames_artifact_id(self):
         mock_response = mock.MagicMock()
         mock_response.has_more = False
         with mock.patch(
@@ -91,13 +100,22 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
             return_value=mock_response,
         ) as func:
             self.api_workflow_client.download_raw_predictions(
-                task_name="task", run_id="foo", relevant_filenames_artefact_id="bar"
+                task_name="task", run_id="foo", relevant_filenames_artifact_id="bar"
             )
             kwargs = func.call_args[1]
             assert kwargs.get("relevant_filenames_run_id") == "foo"
-            assert kwargs.get("relevant_filenames_artefact_id") == "bar"
+            assert kwargs.get("relevant_filenames_artifact_id") == "bar"
 
-    def test_download_raw_samples_metadata_relevant_filenames_artefact_id(self):
+        # should raise ValueError when only run_id is given
+        with pytest.raises(ValueError):
+            self.api_workflow_client.download_raw_samples(run_id="foo")
+        # should raise ValueError when only relevant_filenames_artifact_id is given
+        with pytest.raises(ValueError):
+            self.api_workflow_client.download_raw_samples(
+                relevant_filenames_artifact_id="bar"
+            )
+
+    def test_download_raw_samples_metadata_relevant_filenames_artifact_id(self):
         mock_response = mock.MagicMock()
         mock_response.has_more = False
         with mock.patch(
@@ -106,11 +124,20 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
             return_value=mock_response,
         ) as func:
             self.api_workflow_client.download_raw_metadata(
-                run_id="foo", relevant_filenames_artefact_id="bar"
+                run_id="foo", relevant_filenames_artifact_id="bar"
             )
             kwargs = func.call_args[1]
             assert kwargs.get("relevant_filenames_run_id") == "foo"
-            assert kwargs.get("relevant_filenames_artefact_id") == "bar"
+            assert kwargs.get("relevant_filenames_artifact_id") == "bar"
+
+        # should raise ValueError when only run_id is given
+        with pytest.raises(ValueError):
+            self.api_workflow_client.download_raw_samples(run_id="foo")
+        # should raise ValueError when only relevant_filenames_artifact_id is given
+        with pytest.raises(ValueError):
+            self.api_workflow_client.download_raw_samples(
+                relevant_filenames_artifact_id="bar"
+            )
 
     def test_download_raw_samples_or_metadata_relevant_filenames(self):
         self.api_workflow_client._datasources_api.reset()
