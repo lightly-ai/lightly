@@ -209,7 +209,6 @@ class _DatasourcesMixin:
             use_redirected_read_url=use_redirected_read_url,
             task_name=task_name,
             progress_bar=progress_bar,
-            relevant_filenames_run_id=run_id,
             **relevant_filenames_kwargs,
         )
         return samples
@@ -280,8 +279,6 @@ class _DatasourcesMixin:
             relevant_filenames_file_name=relevant_filenames_file_name,
             use_redirected_read_url=use_redirected_read_url,
             progress_bar=progress_bar,
-            relevant_filenames_run_id=run_id,
-            relevant_filenames_artifact_id=relevant_filenames_artifact_id,
             **relevant_filenames_kwargs,
         )
         return samples
