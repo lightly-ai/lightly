@@ -40,7 +40,7 @@ Results (4.5.2023):
 | BYOL             |        256 |    800 |                  0.887 |  214.8 Min |      4.3 GByte |
 | DCL              |        256 |    800 |                  0.861 |  189.1 Min |      3.7 GByte |
 | DCLW             |        256 |    800 |                  0.865 |  192.2 Min |      3.7 GByte |
-| DINO             |        256 |    800 |                  0.888 |  312.3 Min |      6.6 GByte |
+| DINO (Res18)     |        256 |    800 |                  0.888 |  312.3 Min |      6.6 GByte |
 | FastSiam         |        256 |    800 |                  0.873 |  299.6 Min |      7.3 GByte |
 | MAE (ViT-S)      |        256 |    800 |                  0.610 |  248.2 Min |      4.4 GByte |
 | MSN (ViT-S)      |        256 |    800 |                  0.828 |  515.5 Min |     14.7 GByte |

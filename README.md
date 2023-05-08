@@ -289,7 +289,7 @@ tuned for maximum accuracy. Learn more about the benchmarks [here](https://docs.
 | BYOL             |        256 |    800 |                 0.887 |
 | DCL              |        256 |    800 |                 0.861 |
 | DCLW             |        256 |    800 |                 0.865 |
-| DINO             |        256 |    800 |                 0.888 |
+| DINO (Res18)     |        256 |    800 |                 0.888 |
 | FastSiam         |        256 |    800 |                 0.873 |
 | MAE (ViT-S)      |        256 |    800 |                 0.610 |
 | MSN (ViT-S)      |        256 |    800 |                 0.828 |
