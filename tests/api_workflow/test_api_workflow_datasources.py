@@ -108,11 +108,13 @@ class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
 
         # should raise ValueError when only run_id is given
         with pytest.raises(ValueError):
-            self.api_workflow_client.download_raw_predictions(run_id="foo")
+            self.api_workflow_client.download_raw_predictions(
+                task_name="foobar", run_id="foo"
+            )
         # should raise ValueError when only relevant_filenames_artifact_id is given
         with pytest.raises(ValueError):
             self.api_workflow_client.download_raw_predictions(
-                relevant_filenames_artifact_id="bar"
+                task_name="foobar", relevant_filenames_artifact_id="bar"
             )
 
     def test_download_raw_samples_metadata_relevant_filenames_artifact_id(self):
