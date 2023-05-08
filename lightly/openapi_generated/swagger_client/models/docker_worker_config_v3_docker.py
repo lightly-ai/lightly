@@ -40,6 +40,8 @@ class DockerWorkerConfigV3Docker(object):
         'enable_training': 'bool',
         'training': 'DockerWorkerConfigV3DockerTraining',
         'normalize_embeddings': 'bool',
+        'num_processes': 'int',
+        'num_threads': 'int',
         'output_image_format': 'str',
         'pretagging': 'bool',
         'pretagging_upload': 'bool',
@@ -56,6 +58,8 @@ class DockerWorkerConfigV3Docker(object):
         'enable_training': 'enableTraining',
         'training': 'training',
         'normalize_embeddings': 'normalizeEmbeddings',
+        'num_processes': 'numProcesses',
+        'num_threads': 'numThreads',
         'output_image_format': 'outputImageFormat',
         'pretagging': 'pretagging',
         'pretagging_upload': 'pretaggingUpload',
@@ -64,7 +68,7 @@ class DockerWorkerConfigV3Docker(object):
         'upload_report': 'uploadReport'
     }
 
-    def __init__(self, checkpoint=None, corruptness_check=None, datasource=None, embeddings=None, enable_training=None, training=None, normalize_embeddings=None, output_image_format=None, pretagging=None, pretagging_upload=None, relevant_filenames_file=None, selected_sequence_length=None, upload_report=None, _configuration=None):  # noqa: E501
+    def __init__(self, checkpoint=None, corruptness_check=None, datasource=None, embeddings=None, enable_training=None, training=None, normalize_embeddings=None, num_processes=None, num_threads=None, output_image_format=None, pretagging=None, pretagging_upload=None, relevant_filenames_file=None, selected_sequence_length=None, upload_report=None, _configuration=None):  # noqa: E501
         """DockerWorkerConfigV3Docker - a model defined in Swagger"""  # noqa: E501
         if _configuration is None:
             _configuration = Configuration()
@@ -77,6 +81,8 @@ class DockerWorkerConfigV3Docker(object):
         self._enable_training = None
         self._training = None
         self._normalize_embeddings = None
+        self._num_processes = None
+        self._num_threads = None
         self._output_image_format = None
         self._pretagging = None
         self._pretagging_upload = None
@@ -99,6 +105,10 @@ class DockerWorkerConfigV3Docker(object):
             self.training = training
         if normalize_embeddings is not None:
             self.normalize_embeddings = normalize_embeddings
+        if num_processes is not None:
+            self.num_processes = num_processes
+        if num_threads is not None:
+            self.num_threads = num_threads
         if output_image_format is not None:
             self.output_image_format = output_image_format
         if pretagging is not None:
@@ -258,6 +268,48 @@ class DockerWorkerConfigV3Docker(object):
         """
 
         self._normalize_embeddings = normalize_embeddings
+
+    @property
+    def num_processes(self):
+        """Gets the num_processes of this DockerWorkerConfigV3Docker.  # noqa: E501
+
+
+        :return: The num_processes of this DockerWorkerConfigV3Docker.  # noqa: E501
+        :rtype: int
+        """
+        return self._num_processes
+
+    @num_processes.setter
+    def num_processes(self, num_processes):
+        """Sets the num_processes of this DockerWorkerConfigV3Docker.
+
+
+        :param num_processes: The num_processes of this DockerWorkerConfigV3Docker.  # noqa: E501
+        :type: int
+        """
+
+        self._num_processes = num_processes
+
+    @property
+    def num_threads(self):
+        """Gets the num_threads of this DockerWorkerConfigV3Docker.  # noqa: E501
+
+
+        :return: The num_threads of this DockerWorkerConfigV3Docker.  # noqa: E501
+        :rtype: int
+        """
+        return self._num_threads
+
+    @num_threads.setter
+    def num_threads(self, num_threads):
+        """Sets the num_threads of this DockerWorkerConfigV3Docker.
+
+
+        :param num_threads: The num_threads of this DockerWorkerConfigV3Docker.  # noqa: E501
+        :type: int
+        """
+
+        self._num_threads = num_threads
 
     @property
     def output_image_format(self):
