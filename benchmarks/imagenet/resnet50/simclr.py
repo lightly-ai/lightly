@@ -1,5 +1,7 @@
+import math
 from typing import List, Tuple
 
+import torch
 from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import Identity
@@ -34,18 +36,17 @@ class SimCLR(LightningModule):
     def training_step(
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
     ) -> Tensor:
-        (view0, view1), targets = batch[0], batch[1]
-        features0 = self.forward(view0).flatten(start_dim=1)
-        features1 = self.forward(view1).flatten(start_dim=1)
-        z0 = self.projection_head(features0)
-        z1 = self.projection_head(features1)
+        views, targets = batch[0], batch[1]
+        features = self.forward(torch.cat(views)).flatten(start_dim=1)
+        z = self.projection_head(features)
+        z0, z1 = z.chunk(len(views))
         loss = self.criterion(z0, z1)
         self.log(
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
         )
 
         cls_loss, cls_log = self.online_classifier.training_step(
-            (features0, targets), batch_idx
+            (features, targets.repeat(len(views))), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss
@@ -63,7 +64,7 @@ class SimCLR(LightningModule):
 
     def configure_optimizers(self):
         # Don't use weight decay for batch norm, bias parameters, and classification
-        # head.
+        # head to improve performance.
         params, params_no_weight_decay = get_weight_decay_parameters(
             [self.backbone, self.projection_head]
         )
@@ -81,7 +82,15 @@ class SimCLR(LightningModule):
                     "weight_decay": 0.0,
                 },
             ],
-            lr=0.3 * self.batch_size * self.trainer.world_size / 256,
+            # Square root learning rate scaling improves performance for small
+            # batch sizes (<=2048) and few training epochs (<=200). Alternatively,
+            # linear scaling can be used for larger batches and longer training:
+            #   lr=0.3 * self.batch_size * self.trainer.world_size / 256
+            # See Appendix B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
+            lr=0.075 * math.sqrt(self.batch_size * self.trainer.world_size),
+            momentum=0.9,
+            # Note: Paper uses weight decay of 1e-6 but reference code 1e-4. See:
+            # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
             weight_decay=1e-6,
         )
         scheduler = {
