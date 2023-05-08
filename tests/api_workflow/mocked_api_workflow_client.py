@@ -746,6 +746,7 @@ class MockedDatasourcesApi(DatasourcesApi):
         to: int = None,
         relevant_filenames_file_name: str = -1,
         use_redirected_read_url: bool = False,
+        **kwargs,
     ) -> DatasourceRawSamplesData:
         if relevant_filenames_file_name == -1:
             samples = self._samples[dataset_id]
