@@ -101,8 +101,6 @@ class _DatasourcesMixin:
         from_: int = 0,
         to: Optional[int] = None,
         relevant_filenames_file_name: Optional[str] = None,
-        run_id: Optional[str] = None,
-        relevant_filenames_artifact_id: Optional[str] = None,
         use_redirected_read_url: Optional[bool] = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
@@ -118,13 +116,6 @@ class _DatasourcesMixin:
             relevant_filenames_file_name:
                 The path to the relevant filenames text file in the cloud bucket.
                 The path is relative to the datasource root.
-            run_id:
-                Run ID. Should be given along with `relevant_filenames_artifact_id` to
-                download relevant files only.
-            relevant_filenames_artifact_id:
-                ID of the relevant filename artifact. Should be given along with
-                `run_id` to download relevant files only. Note that this is different
-                from `relevant_filenames_file_name`.
             use_redirected_read_url:
                 By default this is set to false unless a S3DelegatedAccess is configured in which
                 case its always true and this param has no effect.
@@ -138,17 +129,6 @@ class _DatasourcesMixin:
            A list of (filename, url) tuples, where each tuple represents a sample
 
         """
-        if run_id and not relevant_filenames_artifact_id:
-            raise ValueError(
-                "'relevant_filenames_artifact_id' should not be `None` when 'run_id' "
-                "is specified."
-            )
-        if not run_id and relevant_filenames_artifact_id:
-            raise ValueError(
-                "'run_id' should not be `None` when 'relevant_filenames_artifact_id' "
-                "is specified."
-            )
-
         samples = self._download_raw_files(
             download_function=self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id,
             from_=from_,
@@ -156,8 +136,6 @@ class _DatasourcesMixin:
             relevant_filenames_file_name=relevant_filenames_file_name,
             use_redirected_read_url=use_redirected_read_url,
             progress_bar=progress_bar,
-            relevant_filenames_run_id=run_id,
-            relevant_filenames_artifact_id=relevant_filenames_artifact_id,
         )
         return samples
 
