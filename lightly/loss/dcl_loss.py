@@ -2,7 +2,9 @@ from functools import partial
 from typing import Callable, Optional
 
 import torch
-from torch import Tensor, nn
+from torch import Tensor
+from torch import distributed as torch_dist
+from torch import nn
 
 from lightly.utils import dist
 
@@ -91,6 +93,13 @@ class DCLLoss(nn.Module):
         self.temperature = temperature
         self.weight_fn = weight_fn
         self.gather_distributed = gather_distributed
+
+        if gather_distributed and not torch_dist.is_available():
+            raise ValueError(
+                "gather_distributed is True but torch.distributed is not available. "
+                "Please set gather_distributed=False or install a torch version with "
+                "distributed support."
+            )
 
     def forward(
         self,

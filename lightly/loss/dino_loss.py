@@ -138,7 +138,7 @@ class DINOLoss(nn.Module):
 
         """
         batch_center = torch.mean(teacher_out, dim=(0, 1), keepdim=True)
-        if dist.is_initialized():
+        if dist.is_available() and dist.is_initialized():
             dist.all_reduce(batch_center)
             batch_center = batch_center / dist.get_world_size()
 

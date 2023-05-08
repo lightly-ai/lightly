@@ -1,5 +1,6 @@
 tox
 sphinx
+pylint
 pytest
 pytest-forked
 pytest-xdist

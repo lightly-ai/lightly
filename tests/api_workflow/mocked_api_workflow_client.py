@@ -746,6 +746,7 @@ class MockedDatasourcesApi(DatasourcesApi):
         to: int = None,
         relevant_filenames_file_name: str = -1,
         use_redirected_read_url: bool = False,
+        **kwargs,
     ) -> DatasourceRawSamplesData:
         if relevant_filenames_file_name == -1:
             samples = self._samples[dataset_id]
@@ -1063,7 +1064,7 @@ class MockedAPICollaboration(CollaborationApi):
             id="some-id",
             owner="owner-id",
             users=["user1@gmail.com", "user2@something.com"],
-            organizations=["some-id"],
+            teams=["some-id"],
             created_at=Timestamp(0),
             last_modified_at=Timestamp(0),
             access_type=SharedAccessType.WRITE,
