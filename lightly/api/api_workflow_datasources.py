@@ -184,18 +184,18 @@ class _DatasourcesMixin:
            A list of (filename, url) tuples, where each tuple represents a sample
 
         """
-        if run_id and not relevant_filenames_artifact_id:
+        if run_id is not None and relevant_filenames_artifact_id is None:
             raise ValueError(
                 "'relevant_filenames_artifact_id' should not be `None` when 'run_id' "
                 "is specified."
             )
-        if not run_id and relevant_filenames_artifact_id:
+        if run_id is None and relevant_filenames_artifact_id is not None:
             raise ValueError(
                 "'run_id' should not be `None` when 'relevant_filenames_artifact_id' "
                 "is specified."
             )
         relevant_filenames_kwargs = {}
-        if run_id and relevant_filenames_artifact_id:
+        if run_id is not None and relevant_filenames_artifact_id is not None:
             relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
             relevant_filenames_kwargs[
                 "relevant_filenames_artifact_id"
@@ -255,18 +255,18 @@ class _DatasourcesMixin:
            A list of (filename, url) tuples, where each tuple represents a sample
 
         """
-        if run_id and not relevant_filenames_artifact_id:
+        if run_id is not None and relevant_filenames_artifact_id is None:
             raise ValueError(
                 "'relevant_filenames_artifact_id' should not be `None` when 'run_id' "
                 "is specified."
             )
-        if not run_id and relevant_filenames_artifact_id:
+        if run_id is None and relevant_filenames_artifact_id is not None:
             raise ValueError(
                 "'run_id' should not be `None` when 'relevant_filenames_artifact_id' "
                 "is specified."
             )
         relevant_filenames_kwargs = {}
-        if run_id and relevant_filenames_artifact_id:
+        if run_id is not None and relevant_filenames_artifact_id is not None:
             relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
             relevant_filenames_kwargs[
                 "relevant_filenames_artifact_id"
