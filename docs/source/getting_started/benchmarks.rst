@@ -17,7 +17,7 @@ ImageNette
 We use the ImageNette dataset provided here: https://github.com/fastai/imagenette
 
 For our benchmarks we use the 160px version and resize the input images to 128 pixels. 
-Training a single model for 800 epochs on a V100 GPU takes around 5 hours.
+Training a single model for 800 epochs on a A6000 GPU takes about 3-5 hours.
 
 The current benchmark contains the following models:
 
