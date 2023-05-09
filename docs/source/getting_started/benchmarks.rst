@@ -14,11 +14,11 @@ We have benchmarks we regularly update for these datasets:
 ImageNet
 --------
 
-We use the ImageNet1k ILSVRC2012 split dataset provided here: https://image-net.org/download.php
-Self-supervised training of a SimCLR model for 100 epochs with total batch size 256
-takes about two days on two GeForce RTX 4090 GPUs.
+We use the ImageNet1k ILSVRC2012 split provided here: https://image-net.org/download.php.
 
-You can reproduce the results with the code at `benchmarks/imagenet/resnet50 <https://github.com/lightly-ai/lightly/tree/master/benchmarks/imagenet/resnet50>`_.
+Self-supervised training of a SimCLR model for 100 epochs with total batch size 256
+takes about two days on two GeForce RTX 4090 GPUs. You can reproduce the results with
+the code at `benchmarks/imagenet/resnet50 <https://github.com/lightly-ai/lightly/tree/master/benchmarks/imagenet/resnet50>`_.
 
 .. csv-table:: Imagenet benchmark results.
   :header: "Model", "Backbone", "Batch Size", "Epochs", "Linear Top1", "Linear Top5", "Linear Top1 Online", "Linear Top5 Online", "KNN Top1", "KNN Top5", "Tensorboard", "Checkpoint"
