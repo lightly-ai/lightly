@@ -46,7 +46,7 @@ class SimCLR(LightningModule):
         )
 
         cls_loss, cls_log = self.online_classifier.training_step(
-            (features, targets.repeat(len(views))), batch_idx
+            (features.detach(), targets.repeat(len(views))), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss
@@ -57,7 +57,7 @@ class SimCLR(LightningModule):
         images, targets = batch[0], batch[1]
         features = self.forward(images).flatten(start_dim=1)
         cls_loss, cls_log = self.online_classifier.validation_step(
-            (features, targets), batch_idx
+            (features.detach(), targets), batch_idx
         )
         self.log_dict(cls_log, prog_bar=True, sync_dist=True, batch_size=len(targets))
         return cls_loss
