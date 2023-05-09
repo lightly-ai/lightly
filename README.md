@@ -280,49 +280,55 @@ We provide multi-GPU training examples with distributed gather and synchronized 
 Implemented models and their performance on various datasets. Hyperparameters are not
 tuned for maximum accuracy. Learn more about the benchmarks [here](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html).
 
+### Imagenet
+
+| Model       | Backbone | Batch Size | Epochs | Linear Top1 | Linear Top1 Online | KNN Top1 | Tensorboard |
+|-------------|----------|------------|--------|-------------|--------------------|----------|-------------|
+| SimCLR      | Res50    |        256 |    100 |        63.2 |               63.1 |     44.9 |      [link](https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA) |
+
 
 ### ImageNette
 
-| Model            | Batch Size | Epochs | KNN Top1 Val Accuracy |
-|------------------|------------|--------|-----------------------|
-| BarlowTwins      |        256 |    800 |                 0.850 |
-| BYOL             |        256 |    800 |                 0.887 |
-| DCL              |        256 |    800 |                 0.864 |
-| DCLW             |        256 |    800 |                 0.861 |
-| DINO (Res18)     |        256 |    800 |                 0.887 |
-| FastSiam         |        256 |    800 |                 0.865 |
-| MAE (ViT-S)      |        256 |    800 |                 0.620 |
-| MSN (ViT-S)      |        256 |    800 |                 0.833 |
-| Moco             |        256 |    800 |                 0.874 |
-| NNCLR            |        256 |    800 |                 0.885 |
-| PMSN (ViT-S)     |        256 |    800 |                 0.830 |
-| SimCLR           |        256 |    800 |                 0.889 |
-| SimMIM (ViT-B32) |        256 |    800 |                 0.351 |
-| SimSiam          |        256 |    800 |                 0.871 |
-| SwaV             |        256 |    800 |                 0.899 |
-| SwaVQueue        |        256 |    800 |                 0.898 |
-| SMoG             |        256 |    800 |                 0.782 |
-| TiCo             |        256 |    800 |                 0.857 |
-| VICReg           |        256 |    800 |                 0.843 |
-| VICRegL          |        256 |    800 |                 0.781 |
+| Model       | Backbone | Batch Size | Epochs | KNN Top1 |
+|-------------|----------|------------|--------|----------|
+| BarlowTwins | Res18    |        256 |    800 |    0.850 |
+| BYOL        | Res18    |        256 |    800 |    0.887 |
+| DCL         | Res18    |        256 |    800 |    0.864 |
+| DCLW        | Res18    |        256 |    800 |    0.861 |
+| DINO        | Res18    |        256 |    800 |    0.887 |
+| FastSiam    | Res18    |        256 |    800 |    0.865 |
+| MAE         | ViT-S    |        256 |    800 |    0.620 |
+| MSN         | ViT-S    |        256 |    800 |    0.833 |
+| Moco        | Res18    |        256 |    800 |    0.874 |
+| NNCLR       | Res18    |        256 |    800 |    0.885 |
+| PMSN        | ViT-S    |        256 |    800 |    0.830 |
+| SimCLR      | Res18    |        256 |    800 |    0.889 |
+| SimMIM      | ViT-B32  |        256 |    800 |    0.351 |
+| SimSiam     | Res18    |        256 |    800 |    0.871 |
+| SwaV        | Res18    |        256 |    800 |    0.899 |
+| SwaVQueue   | Res18    |        256 |    800 |    0.898 |
+| SMoG        | Res18    |        256 |    800 |    0.782 |
+| TiCo        | Res18    |        256 |    800 |    0.857 |
+| VICReg      | Res18    |        256 |    800 |    0.843 |
+| VICRegL     | Res18    |        256 |    800 |    0.781 |
 
 
 ### Cifar10
 
-| Model         | Batch Size | Epochs | KNN Top1 Val Accuracy |
-|---------------|------------|--------|-----------------------|
-| BarlowTwins   |        512 |    800 |                 0.859 |
-| BYOL          |        512 |    800 |                 0.910 |
-| DCL           |        512 |    800 |                 0.874 |
-| DCLW          |        512 |    800 |                 0.871 |
-| DINO          |        512 |    800 |                 0.848 |
-| FastSiam      |        512 |    800 |                 0.902 |
-| Moco          |        512 |    800 |                 0.899 |
-| NNCLR         |        512 |    800 |                 0.892 |
-| SimCLR        |        512 |    800 |                 0.879 |
-| SimSiam       |        512 |    800 |                 0.904 |
-| SwaV          |        512 |    800 |                 0.884 |
-| SMoG          |        512 |    800 |                 0.800 |
+| Model       | Backbone | Batch Size | Epochs | KNN Top1 |
+|-------------|----------|------------|--------|----------|
+| BarlowTwins | Res18    |        512 |    800 |    0.859 |
+| BYOL        | Res18    |        512 |    800 |    0.910 |
+| DCL         | Res18    |        512 |    800 |    0.874 |
+| DCLW        | Res18    |        512 |    800 |    0.871 |
+| DINO        | Res18    |        512 |    800 |    0.848 |
+| FastSiam    | Res18    |        512 |    800 |    0.902 |
+| Moco        | Res18    |        512 |    800 |    0.899 |
+| NNCLR       | Res18    |        512 |    800 |    0.892 |
+| SimCLR      | Res18    |        512 |    800 |    0.879 |
+| SimSiam     | Res18    |        512 |    800 |    0.904 |
+| SwaV        | Res18    |        512 |    800 |    0.884 |
+| SMoG        | Res18    |        512 |    800 |    0.800 |
 
 
 ## Terminology

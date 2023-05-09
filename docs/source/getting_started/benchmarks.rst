@@ -6,9 +6,26 @@ and their performance on public datasets.
 
 We have benchmarks we regularly update for these datasets:
 
-- CIFAR10 `CIFAR10`_
-- ImageNette `ImageNette`_
-- Imagenet100 `Imagenet100`_
+- `Imagenet`_
+- `Imagenet100`_
+- `ImageNette`_
+- `CIFAR-10`_
+
+ImageNet
+--------
+
+We use the ImageNet1k ILSVRC2012 split dataset provided here: https://image-net.org/download.php
+Self-supervised training of a SimCLR model for 100 epochs with total batch size 256
+takes about two day on two GeForce RTX 4090 GPUs.
+
+You can reproduce the results with the code at `benchmarks/imagenet <https://github.com/lightly-ai/lightly/tree/master/benchmarks/imagenet>`_.
+
+.. csv-table:: Imagenet benchmark results.
+  :header: "Model", "Backbone", "Batch Size", "Epochs", "Linear Top1", "Linear Top5", "Linear Top1 Online", "Linear Top5 Online", "KNN Top1", "KNN Top5", "Tensorboard"
+  :widths: 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
+
+  "SimCLR", "Res50", "256", "100", "63.2", "85.3", "63.1", "85.2", "44.9", "74.2", "`link <https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA>`_"
+
 
 
 ImageNette
@@ -18,29 +35,6 @@ We use the ImageNette dataset provided here: https://github.com/fastai/imagenett
 
 For our benchmarks we use the 160px version and resize the input images to 128 pixels. 
 Training a single model for 800 epochs on a V100 GPU takes around 5 hours.
-
-The current benchmark contains the following models:
-
-- :ref:`BarlowTwins <barlowtwins>`
-- :ref:`BYOL <byol>`
-- :ref:`DCL <dcl>`
-- :ref:`DCLW <dcl>`
-- :ref:`DINO <dino>`
-- :ref:`FastSiam <fastsiam>`
-- :ref:`MAE <mae>`
-- :ref:`MSN <msn>`
-- :ref:`MoCo <moco>`
-- :ref:`NNCLR <nnclr>`
-- :ref:`PMSN <pmsn>`
-- :ref:`SimCLR <simclr>`
-- :ref:`SimMiM <simmim>`
-- :ref:`SimSiam <simsiam>`
-- :ref:`SwAV <swav>`
-- :ref:`SwAV Queue <swav_queue>`
-- :ref:`SMoG <smog>`
-- :ref:`TiCo <tico>`
-- :ref:`VICReg <vicreg>`
-- :ref:`VICRegL <vicregl>`
 
 
 .. csv-table:: ImageNette benchmark results using kNN evaluation on the test set using 128x128 input resolution.
@@ -72,7 +66,7 @@ You can reproduce the benchmarks using the following script:
 :download:`imagenette_benchmark.py <benchmarks/imagenette_benchmark.py>` 
 
 
-CIFAR10
+CIFAR-10
 -----------------------------------
 
 Cifar10 consists of 50k training images and 10k testing images. We train the

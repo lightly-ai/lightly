@@ -46,6 +46,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_reredirects",
+    "sphinx_markdown_tables",
 ]
 
 sphinx_gallery_conf = {
