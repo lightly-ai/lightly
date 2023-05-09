@@ -285,26 +285,26 @@ tuned for maximum accuracy. Learn more about the benchmarks [here](https://docs.
 
 | Model            | Batch Size | Epochs | KNN Top1 Val Accuracy |
 |------------------|------------|--------|-----------------------|
-| BarlowTwins      |        256 |    800 |                 0.850 |
+| BarlowTwins      |        256 |    800 |                 0.852 |
 | BYOL             |        256 |    800 |                 0.887 |
-| DCL              |        256 |    800 |                 0.864 |
-| DCLW             |        256 |    800 |                 0.861 |
-| DINO (Res18)     |        256 |    800 |                 0.887 |
-| FastSiam         |        256 |    800 |                 0.865 |
-| MAE (ViT-S)      |        256 |    800 |                 0.620 |
-| MSN (ViT-S)      |        256 |    800 |                 0.833 |
+| DCL              |        256 |    800 |                 0.861 |
+| DCLW             |        256 |    800 |                 0.865 |
+| DINO (Res18)     |        256 |    800 |                 0.888 |
+| FastSiam         |        256 |    800 |                 0.873 |
+| MAE (ViT-S)      |        256 |    800 |                 0.610 |
+| MSN (ViT-S)      |        256 |    800 |                 0.828 |
 | Moco             |        256 |    800 |                 0.874 |
-| NNCLR            |        256 |    800 |                 0.885 |
-| PMSN (ViT-S)     |        256 |    800 |                 0.830 |
+| NNCLR            |        256 |    800 |                 0.884 |
+| PMSN (ViT-S)     |        256 |    800 |                 0.822 |
 | SimCLR           |        256 |    800 |                 0.889 |
-| SimMIM (ViT-B32) |        256 |    800 |                 0.351 |
-| SimSiam          |        256 |    800 |                 0.871 |
-| SwaV             |        256 |    800 |                 0.899 |
-| SwaVQueue        |        256 |    800 |                 0.898 |
-| SMoG             |        256 |    800 |                 0.782 |
-| TiCo             |        256 |    800 |                 0.857 |
-| VICReg           |        256 |    800 |                 0.843 |
-| VICRegL          |        256 |    800 |                 0.781 |
+| SimMIM (ViT-B32) |        256 |    800 |                 0.343 |
+| SimSiam          |        256 |    800 |                 0.872 |
+| SwaV             |        256 |    800 |                 0.902 |
+| SwaVQueue        |        256 |    800 |                 0.890 |
+| SMoG             |        256 |    800 |                 0.788 |
+| TiCo             |        256 |    800 |                 0.856 |
+| VICReg           |        256 |    800 |                 0.845 |
+| VICRegL          |        256 |    800 |                 0.778 |
 
 
 ### Cifar10
