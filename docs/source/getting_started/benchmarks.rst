@@ -16,15 +16,15 @@ ImageNet
 
 We use the ImageNet1k ILSVRC2012 split dataset provided here: https://image-net.org/download.php
 Self-supervised training of a SimCLR model for 100 epochs with total batch size 256
-takes about two day on two GeForce RTX 4090 GPUs.
+takes about two days on two GeForce RTX 4090 GPUs.
 
-You can reproduce the results with the code at `benchmarks/imagenet <https://github.com/lightly-ai/lightly/tree/master/benchmarks/imagenet>`_.
+You can reproduce the results with the code at `benchmarks/imagenet/resnet50 <https://github.com/lightly-ai/lightly/tree/master/benchmarks/imagenet/resnet50>`_.
 
 .. csv-table:: Imagenet benchmark results.
-  :header: "Model", "Backbone", "Batch Size", "Epochs", "Linear Top1", "Linear Top5", "Linear Top1 Online", "Linear Top5 Online", "KNN Top1", "KNN Top5", "Tensorboard"
-  :widths: 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
+  :header: "Model", "Backbone", "Batch Size", "Epochs", "Linear Top1", "Linear Top5", "Linear Top1 Online", "Linear Top5 Online", "KNN Top1", "KNN Top5", "Tensorboard", "Checkpoint"
+  :widths: 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
 
-  "SimCLR", "Res50", "256", "100", "63.2", "85.3", "63.1", "85.2", "44.9", "74.2", "`link <https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA>`_"
+  "SimCLR", "Res50", "256", "100", "63.2", "85.3", "63.1", "85.2", "44.9", "74.2", "`link <https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-05-04_09-02-54/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
 
 
 
@@ -34,33 +34,33 @@ ImageNette
 We use the ImageNette dataset provided here: https://github.com/fastai/imagenette
 
 For our benchmarks we use the 160px version and resize the input images to 128 pixels. 
-Training a single model for 800 epochs on a V100 GPU takes around 5 hours.
+Training a single model for 800 epochs on a A6000 GPU takes about 3-5 hours.
 
 
 .. csv-table:: ImageNette benchmark results using kNN evaluation on the test set using 128x128 input resolution.
   :header: "Model", "Batch Size", "Epochs", "KNN Test Accuracy", "Runtime", "GPU Memory"
   :widths: 20, 20, 20, 20, 20, 20
 
-  "BarlowTwins", "256", "800", "0.850", "279.5 Min", "5.7 GByte"
-  "BYOL", "256", "800", "0.887", "202.7 Min", "4.3 GByte"
-  "DCL", "256", "800", "0.864", "183.7 Min", "3.7 GByte"
-  "DCLW", "256", "800", "0.861", "188.5 Min", "3.7 GByte"
-  "DINO (Res18)", "256", "800", "0.887", "291.6 Min", "8.5 GByte"
-  "FastSiam", "256", "800", "0.865", "280.9 Min", "7.3 GByte"
-  "MAE (ViT-S)", "256", "800", "0.620", "208.2 Min", "4.6 GByte"
-  "MSN (ViT-S)", "256", "800", "0.833", "394.0 Min", "16.3 GByte"
-  "Moco", "256", "800", "0.874", "220.7 Min", "4.2 GByte"
-  "NNCLR", "256", "800", "0.885", "207.1 Min", "3.8 GByte"
-  "PMSN (ViT-S)", 200, 512, 0.830, "401.1 Min", "16.3 GByte"
-  "SimCLR", "256", "800", "0.889", "206.4 Min", "3.7 GByte"
-  "SimMIM (ViT-B32)", "256", "800", "0.351", "302.8 Min", "10.5 GByte"
-  "SimSiam", "256", "800", "0.871", "178.2 Min", "3.9 GByte"
-  "SwaV", "256", "800", "0.899", "309.0 Min", "6.4 GByte"
-  "SwaVQueue", "256", "800", "0.898", "300.3 Min", "6.4 GByte"
-  "SMoG", "256", "800", "0.782", "250.2 Min", "2.5 GByte"
-  "TiCo", "256", "800", "0.857", "184.7 Min", "2.5 GByte"
-  "VICReg", "256", "800", "0.843", "192.9 Min", "5.7 GByte"
-  "VICRegL", "256", "800", "0.781", "207.4 Min", "5.7 GByte"
+  "BarlowTwins", "256", "800", "0.852", "298.5 Min", "4.0 GByte"
+  "BYOL", "256", "800", "0.887", "214.8 Min", "4.3 GByte"
+  "DCL", "256", "800", "0.861", "189.1 Min", "3.7 GByte"
+  "DCLW", "256", "800", "0.865", "192.2 Min", "3.7 GByte"
+  "DINO (Res18)", "256", "800", "0.888", "312.3 Min", "6.6 GByte"
+  "FastSiam", "256", "800", "0.873", "299.6 Min", "7.3 GByte"
+  "MAE (ViT-S)", "256", "800", "0.610", "248.2 Min", "4.4 GByte"
+  "MSN (ViT-S)", "256", "800", "0.828", "515.5 Min", "14.7 GByte"
+  "Moco", "256", "800", "0.874", "231.7 Min", "4.3 GByte"
+  "NNCLR", "256", "800", "0.884", "212.5 Min", "3.8 GByte"
+  "PMSN (ViT-S)", "256", "800", "0.822", "505.8 Min", "14.7 GByte"
+  "SimCLR", "256", "800", "0.889", "193.5 Min", "3.7 GByte"
+  "SimMIM (ViT-B32)", "256", "800", "0.343", "446.5 Min", "9.7 GByte"
+  "SimSiam", "256", "800", "0.872", "206.4 Min", "3.9 GByte"
+  "SwaV", "256", "800", "0.902", "283.2 Min", "6.4 GByte"
+  "SwaVQueue", "256", "800", "0.890", "282.7 Min", "6.4 GByte"
+  "SMoG", "256", "800", "0.788", "232.1 Min", "2.6 GByte"
+  "TiCo", "256", "800", "0.856", "177.8 Min", "2.5 GByte"
+  "VICReg", "256", "800", "0.845", "205.6 Min", "4.0 GByte"
+  "VICRegL", "256", "800", "0.778", "218.7 Min", "4.0 GByte"
 
 You can reproduce the benchmarks using the following script:
 :download:`imagenette_benchmark.py <benchmarks/imagenette_benchmark.py>` 

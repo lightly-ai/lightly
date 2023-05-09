@@ -278,39 +278,41 @@ We provide multi-GPU training examples with distributed gather and synchronized 
 ## Benchmarks
 
 Implemented models and their performance on various datasets. Hyperparameters are not
-tuned for maximum accuracy. Learn more about the benchmarks [here](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html).
+tuned for maximum accuracy. For detailed results and more info about the benchmarks click
+[here](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html).
+
 
 ### Imagenet
 
-| Model       | Backbone | Batch Size | Epochs | Linear Top1 | Linear Top1 Online | KNN Top1 | Tensorboard |
-|-------------|----------|------------|--------|-------------|--------------------|----------|-------------|
-| SimCLR      | Res50    |        256 |    100 |        63.2 |               63.1 |     44.9 |      [link](https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA) |
+| Model       | Backbone | Batch Size | Epochs | Linear Top1 | Linear Top1 Online | KNN Top1 | Tensorboard | Checkpoint |
+|-------------|----------|------------|--------|-------------|--------------------|----------|-------------|------------|
+| SimCLR      | Res50    |        256 |    100 |        63.2 |               63.1 |     44.9 |      [link](https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-05-04_09-02-54/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 
 
 ### ImageNette
 
 | Model       | Backbone | Batch Size | Epochs | KNN Top1 |
 |-------------|----------|------------|--------|----------|
-| BarlowTwins | Res18    |        256 |    800 |    0.850 |
+| BarlowTwins | Res18    |        256 |    800 |    0.852 |
 | BYOL        | Res18    |        256 |    800 |    0.887 |
-| DCL         | Res18    |        256 |    800 |    0.864 |
-| DCLW        | Res18    |        256 |    800 |    0.861 |
-| DINO        | Res18    |        256 |    800 |    0.887 |
-| FastSiam    | Res18    |        256 |    800 |    0.865 |
-| MAE         | ViT-S    |        256 |    800 |    0.620 |
-| MSN         | ViT-S    |        256 |    800 |    0.833 |
+| DCL         | Res18    |        256 |    800 |    0.861 |
+| DCLW        | Res18    |        256 |    800 |    0.865 |
+| DINO        | Res18    |        256 |    800 |    0.888 |
+| FastSiam    | Res18    |        256 |    800 |    0.873 |
+| MAE         | ViT-S    |        256 |    800 |    0.610 |
+| MSN         | ViT-S    |        256 |    800 |    0.828 |
 | Moco        | Res18    |        256 |    800 |    0.874 |
-| NNCLR       | Res18    |        256 |    800 |    0.885 |
-| PMSN        | ViT-S    |        256 |    800 |    0.830 |
+| NNCLR       | Res18    |        256 |    800 |    0.884 |
+| PMSN        | ViT-S    |        256 |    800 |    0.822 |
 | SimCLR      | Res18    |        256 |    800 |    0.889 |
-| SimMIM      | ViT-B32  |        256 |    800 |    0.351 |
-| SimSiam     | Res18    |        256 |    800 |    0.871 |
-| SwaV        | Res18    |        256 |    800 |    0.899 |
-| SwaVQueue   | Res18    |        256 |    800 |    0.898 |
-| SMoG        | Res18    |        256 |    800 |    0.782 |
-| TiCo        | Res18    |        256 |    800 |    0.857 |
-| VICReg      | Res18    |        256 |    800 |    0.843 |
-| VICRegL     | Res18    |        256 |    800 |    0.781 |
+| SimMIM      | ViT-B32  |        256 |    800 |    0.343 |
+| SimSiam     | Res18    |        256 |    800 |    0.872 |
+| SwaV        | Res18    |        256 |    800 |    0.902 |
+| SwaVQueue   | Res18    |        256 |    800 |    0.890 |
+| SMoG        | Res18    |        256 |    800 |    0.788 |
+| TiCo        | Res18    |        256 |    800 |    0.856 |
+| VICReg      | Res18    |        256 |    800 |    0.845 |
+| VICRegL     | Res18    |        256 |    800 |    0.778 |
 
 
 ### Cifar10
