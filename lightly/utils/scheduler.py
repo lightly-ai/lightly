@@ -1,9 +1,11 @@
+import warnings
+
 import numpy as np
 import torch
 
 
 def cosine_schedule(
-    step: int, max_steps: int, start_value: float, end_value: float
+    step: float, max_steps: float, start_value: float, end_value: float
 ) -> float:
     """
     Use cosine decay to gradually modify start_value to reach target end_value during iterations.
@@ -27,12 +29,9 @@ def cosine_schedule(
     if max_steps < 1:
         raise ValueError("Total step number must be >= 1")
     if step > max_steps:
-        # Note: we allow step == max_steps even though step starts at 0 and should end
-        # at max_steps - 1. This is because Pytorch Lightning updates the LR scheduler
-        # always for the next epoch, even after the last training epoch. This results in
-        # Pytorch Lightning calling the scheduler with step == max_steps.
-        raise ValueError(
-            f"The current step cannot be larger than max_steps but found step {step} and max_steps {max_steps}."
+        warnings.warn(
+            f"Current step number {step} exceeds max_steps {max_steps}.",
+            category=RuntimeWarning,
         )
 
     if max_steps == 1:
@@ -60,11 +59,15 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
         optimizer:
             Optimizer object to schedule the learning rate.
         warmup_epochs:
-            Number of warmup epochs.
+            Number of warmup epochs or steps.
         max_epochs:
-            Total number of training epochs.
+            Total number of training epochs or steps.
         last_epoch:
-            The index of last epoch. Default: -1
+            The index of last epoch or step. Default: -1
+        start_value:
+            Starting learning rate scale. Default: 1.0
+        end_value:
+            Target learning rate scale. Default: 0.001
         verbose:
             If True, prints a message to stdout for each update. Default: False.
     """
@@ -72,13 +75,17 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
     def __init__(
         self,
         optimizer: torch.optim.Optimizer,
-        warmup_epochs: int,
-        max_epochs: int,
-        last_epoch: int = -1,
+        warmup_epochs: float,
+        max_epochs: float,
+        last_epoch: float = -1,
+        start_value: float = 1.0,
+        end_value: float = 0.001,
         verbose: bool = False,
     ) -> None:
         self.warmup_epochs = warmup_epochs
         self.max_epochs = max_epochs
+        self.start_value = start_value
+        self.end_value = end_value
         super().__init__(
             optimizer=optimizer,
             lr_lambda=self.scale_lr,
@@ -104,6 +111,6 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
             return cosine_schedule(
                 step=epoch - self.warmup_epochs,
                 max_steps=self.max_epochs - self.warmup_epochs,
-                start_value=1.0,
-                end_value=0.0,
+                start_value=self.start_value,
+                end_value=self.end_value,
             )

@@ -286,3 +286,92 @@ class TestModelUtils(unittest.TestCase):
     @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
     def test_random_token_mask_cuda(self):
         self._test_random_token_mask_parameters(device="cuda")
+
+
+def test_get_weight_decay_parameters() -> None:
+    linear = nn.Linear(10, 10)
+    batch_norm1d = nn.BatchNorm1d(10)
+    conv = nn.Conv2d(3, 3, 3)
+    batch_norm2d = nn.BatchNorm2d(3)
+    sequential = nn.Sequential(linear, batch_norm1d, conv, batch_norm2d)
+    params, params_no_weight_decay = utils.get_weight_decay_parameters(
+        modules=[sequential]
+    )
+    assert len(params) == 2
+    assert len(params_no_weight_decay) == 6
+    assert params[0] is linear.weight
+    assert params[1] is conv.weight
+    assert params_no_weight_decay[0] is linear.bias
+    assert params_no_weight_decay[1] is batch_norm1d.weight
+    assert params_no_weight_decay[2] is batch_norm1d.bias
+    assert params_no_weight_decay[3] is conv.bias
+    assert params_no_weight_decay[4] is batch_norm2d.weight
+    assert params_no_weight_decay[5] is batch_norm2d.bias
+
+
+def test_get_weight_decay_parameters__nested() -> None:
+    linear = nn.Linear(10, 10)
+    batch_norm1d = nn.BatchNorm1d(10)
+    sequential = nn.Sequential(
+        nn.Sequential(linear, batch_norm1d),
+    )
+    params, params_no_weight_decay = utils.get_weight_decay_parameters(
+        modules=[sequential]
+    )
+    assert len(params) == 1
+    assert len(params_no_weight_decay) == 3
+    assert params[0] is linear.weight
+    assert params_no_weight_decay[0] is linear.bias
+    assert params_no_weight_decay[1] is batch_norm1d.weight
+    assert params_no_weight_decay[2] is batch_norm1d.bias
+
+
+def test_get_weight_decay_parameters__batch_norm() -> None:
+    bn1d = nn.BatchNorm1d(10)
+    bn2d = nn.BatchNorm2d(10)
+    params, params_no_weight_decay = utils.get_weight_decay_parameters(
+        modules=[bn1d, bn2d], decay_batch_norm=True
+    )
+    assert len(params) == 4
+    assert len(params_no_weight_decay) == 0
+    assert params[0] is bn1d.weight
+    assert params[1] is bn1d.bias
+    assert params[2] is bn2d.weight
+    assert params[3] is bn2d.bias
+
+
+def test_get_weight_decay_parameters__no_batch_norm() -> None:
+    bn1d = nn.BatchNorm1d(10)
+    bn2d = nn.BatchNorm2d(10)
+    params, params_no_weight_decay = utils.get_weight_decay_parameters(
+        modules=[bn1d, bn2d], decay_batch_norm=False
+    )
+    print(params, params_no_weight_decay)
+    assert len(params) == 0
+    assert len(params_no_weight_decay) == 4
+    assert params_no_weight_decay[0] is bn1d.weight
+    assert params_no_weight_decay[1] is bn1d.bias
+    assert params_no_weight_decay[2] is bn2d.weight
+    assert params_no_weight_decay[3] is bn2d.bias
+
+
+def test_get_weight_decay_parameters__bias() -> None:
+    linear = nn.Linear(10, 10)
+    param, param_no_weight_decay = utils.get_weight_decay_parameters(
+        modules=[linear], decay_bias=True
+    )
+    assert len(param) == 2
+    assert len(param_no_weight_decay) == 0
+    assert param[0] is linear.weight
+    assert param[1] is linear.bias
+
+
+def test_get_weight_decay_parameters__no_bias() -> None:
+    linear = nn.Linear(10, 10)
+    param, param_no_weight_decay = utils.get_weight_decay_parameters(
+        modules=[linear], decay_bias=False
+    )
+    assert len(param) == 1
+    assert len(param_no_weight_decay) == 1
+    assert param[0] is linear.weight
+    assert param_no_weight_decay[0] is linear.bias

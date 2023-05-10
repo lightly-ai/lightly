@@ -5,12 +5,14 @@
 
 import math
 import warnings
-from typing import Optional, Tuple, Union
+from typing import Iterable, List, Optional, Tuple, Union
 
-import numpy as np
 import torch
 import torch.distributed as dist
 import torch.nn as nn
+from torch.nn import Module
+from torch.nn.modules.batchnorm import _BatchNorm
+from torch.nn.parameter import Parameter
 
 
 @torch.no_grad()
@@ -529,3 +531,39 @@ def nearest_neighbors(
     )  # [bsz, num_matches, feature_dimension]
 
     return filtered_input_maps, filtered_candidate_maps
+
+
+def get_weight_decay_parameters(
+    modules: Iterable[Module],
+    decay_batch_norm: bool = False,
+    decay_bias: bool = False,
+) -> Tuple[List[Parameter], List[Parameter]]:
+    """Returns all parameters of the modules that should be decayed and not decayed.
+
+    Args:
+        modules:
+            List of modules to get the parameters from.
+        no_batch_norm:
+            If True, batch norm parameters are decayed.
+        no_bias:
+            If True, bias parameters are decayed.
+
+    Returns:
+        (params, params_no_weight_decay) tuple.
+    """
+    params = []
+    params_no_weight_decay = []
+    for module in modules:
+        for mod in module.modules():
+            if isinstance(mod, _BatchNorm):
+                if not decay_batch_norm:
+                    params_no_weight_decay.extend(mod.parameters(recurse=False))
+                else:
+                    params.extend(mod.parameters(recurse=False))
+            else:
+                for name, param in mod.named_parameters(recurse=False):
+                    if not decay_bias and name.endswith("bias"):
+                        params_no_weight_decay.append(param)
+                    else:
+                        params.append(param)
+    return params, params_no_weight_decay
