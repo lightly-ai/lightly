@@ -86,7 +86,7 @@ class SwAV(LightningModule):
                 high_resolution_projections=multi_crop_projections[: CROP_COUNTS[0]],
                 queues=self.queues,
             )
-            if self.current_epoch < self.start_queue_at_epoch:
+            if self.current_epoch >= self.start_queue_at_epoch:
                 with torch.no_grad():
                     queue_crop_logits = [
                         self.prototypes(projections, step=self.global_step)
