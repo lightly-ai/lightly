@@ -7,6 +7,7 @@ import finetune_eval
 import knn_eval
 import linear_eval
 import simclr
+import swav
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
@@ -38,6 +39,7 @@ parser.add_argument("--skip-finetune-eval", action="store_true")
 
 METHODS = {
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
+    "swav": {"model": swav.SwAV, "transform": swav.transform},
 }
 
 
