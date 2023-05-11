@@ -2,14 +2,13 @@ import math
 from typing import List, Tuple
 
 import torch
-from torch.nn import functional as F
-from torch.nn import ModuleList
 from pytorch_lightning import LightningModule
 from torch import Tensor
-from torch.nn import Identity
+from torch.nn import Identity, ModuleList
+from torch.nn import functional as F
 from torchvision.models import resnet50
-from lightly.loss.memory_bank import MemoryBankModule
 
+from lightly.loss.memory_bank import MemoryBankModule
 from lightly.loss.swav_loss import SwaVLoss
 from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
 from lightly.models.utils import get_weight_decay_parameters
@@ -17,7 +16,6 @@ from lightly.transforms import SwaVTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.lars import LARS
 from lightly.utils.scheduler import CosineWarmupScheduler
-
 
 CROP_COUNTS: Tuple[int, int] = (2, 6)
 
@@ -32,7 +30,11 @@ class SwAV(LightningModule):
         resnet.fc = Identity()  # Ignore classification head
         self.backbone = resnet
         self.projection_head = SwaVProjectionHead()
-        self.prototypes = SwaVPrototypes(n_steps_frozen_prototypes=1)  # TODO
+        self.prototypes = SwaVPrototypes(
+            n_steps_frozen_prototypes=(
+                self.trainer.estimated_stepping_batches / self.trainer.max_epochs
+            )
+        )
         self.criterion = SwaVLoss(sinkhorn_gather_distributed=True)
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
 
@@ -77,16 +79,14 @@ class SwAV(LightningModule):
             for projections in multi_crop_projections
         ]
 
-        # TODO: Make nice and add explanation
+        # Get the queue projections and logits for small batch sizes (<= 256).
         queue_crop_logits = None
-        if self.queues is not None:
-            queue_crop_projections = _get_queue_projections(
+        if self.queues is not None and self.start_queue_at_epoch is not None:
+            queue_crop_projections = _enqueue_and_get_queue_projections(
                 high_resolution_projections=multi_crop_projections[: CROP_COUNTS[0]],
                 queues=self.queues,
-                return_projections=self.start_queue_at_epoch > 0
-                and self.current_epoch < self.start_queue_at_epoch,
             )
-            if queue_crop_projections is not None:
+            if self.current_epoch < self.start_queue_at_epoch:
                 with torch.no_grad():
                     queue_crop_logits = [
                         self.prototypes(projections, step=self.global_step)
@@ -174,12 +174,11 @@ transform = SwaVTransform(crop_counts=CROP_COUNTS)
 
 
 @torch.no_grad()
-def _get_queue_projections(
+def _enqueue_and_get_queue_projections(
     high_resolution_projections: List[Tensor],
     queues: ModuleList[MemoryBankModule],
-    return_projections: bool,
 ):
-    """TODO"""
+    """Adds the high resolution projections to the queues and returns the queues."""
 
     if len(high_resolution_projections) != len(queues):
         raise ValueError(
@@ -187,18 +186,13 @@ def _get_queue_projections(
             f"resolution inputs ({len(high_resolution_projections)})."
         )
 
-    # Get the queue features
-    queue_features = []
+    # Get the queue projections
+    queue_projections = []
     for i in range(len(queues)):
-        _, features = queues[i](high_resolution_projections[i], update=True)
-        # Queue features are in (num_ftrs X queue_length) shape, while the high res
-        # features are in (batch_size X num_ftrs). Swap the axes for interoperability.
-        features = torch.permute(features, (1, 0))
-        queue_features.append(features)
+        _, projections = queues[i](high_resolution_projections[i], update=True)
+        # Queue projections are in (num_ftrs X queue_length) shape, while the high res
+        # projections are in (batch_size X num_ftrs). Swap the axes for interoperability.
+        projections = torch.permute(projections, (1, 0))
+        queue_projections.append(projections)
 
-    # If loss calculation with queue prototypes starts at a later epoch,
-    # just queue the features and return None instead of queue prototypes.
-    if not return_projections:
-        return None
-
-    return queue_features
+    return queue_projections
