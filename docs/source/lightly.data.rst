@@ -15,5 +15,6 @@ lightly.data
 
 .multi_view_collate
 -------------------
-.. automodule:: lightly.data.multi_view_collate
+.. autoclass:: lightly.data.multi_view_collate.MultiViewCollate
    :members:
+   :special-members: __call__
