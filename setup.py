@@ -101,6 +101,10 @@ if __name__ == "__main__":
         "lightly.openapi_client",
         "lightly.openapi_client.api",
         "lightly.openapi_client.models",
+        "lightly.openapi_generated",
+        "lightly.openapi_generated.swagger_client",
+        "lightly.openapi_generated.swagger_client.api",
+        "lightly.openapi_generated.swagger_client.models",
     ]
 
     project_urls = {
