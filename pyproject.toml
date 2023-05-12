@@ -8,4 +8,4 @@ extend-exclude = """
 
 [tool.isort]
 profile = "black"
-extend_skip_glob = ["lightly/openapi_generated/**/*", "lightly/openapi_client/**/*"]
+skip_glob = ["lightly/openapi_generated/*", "lightly/openapi_client/*"]
