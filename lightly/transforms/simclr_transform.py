@@ -11,7 +11,10 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class SimCLRTransform(MultiViewTransform):
-    """Implements the transformations for SimCLR.
+    """Implements the transformations for SimCLR [0, 1].
+
+    - [0]: SimCLR v1, 2020, https://arxiv.org/abs/2002.05709
+    - [1]: SimCLR v2, 2020, https://arxiv.org/abs/2006.10029
 
     Attributes:
         input_size:
