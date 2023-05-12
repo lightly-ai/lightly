@@ -29,29 +29,31 @@ class MultiViewCollate:
                 each image in the batch. In particular, views is a list of N view
                 tensors. Every view tensor is a transformed version of the original
                 image. Label and filename are the class label and filename of the
-                corresponding image. For example:
+                corresponding image.
 
-                [
-                    ([img_0_view_0, ..., img_0_view_N], label_0, filename_0),   # image 0
-                    ([img_1_view_0, ..., img_1_view_N], label_1, filename_1),   # image 1
-                    ...
-                    ([img_B_view_0, ..., img_B_view_N], label_B, filename_B]),  # image B
-                ]
+                Example:
+                    >>> batch = [
+                    >>>     ([img_0_view_0, ..., img_0_view_N], label_0, filename_0),   # image 0
+                    >>>     ([img_1_view_0, ..., img_1_view_N], label_1, filename_1),   # image 1
+                    >>>     ...
+                    >>>     ([img_B_view_0, ..., img_B_view_N], label_B, filename_B]),  # image B
+                    >>> ]
 
         Returns:
             A (views, labels, filenames) tuple. Views is a list of tensors with each
-            tensor containing one view for every image in the batch. For example:
+            tensor containing one view for every image in the batch.
 
-            (
-                [
-                    Tensor([img_0_view_0, ..., img_B_view_0]),    # view 0
-                    Tensor([img_0_view_1, ..., img_B_view_1]),    # view 1
-                    ...
-                    Tensor([img_0_view_N, ..., img_B_view_N]),    # view N
-                ],
-                [label_0, ..., label_B],
-                [filename_0, ..., filename_B],
-            )
+            Example:
+                >>> output = (
+                >>>     [
+                >>>         Tensor([img_0_view_0, ..., img_B_view_0]),    # view 0
+                >>>         Tensor([img_0_view_1, ..., img_B_view_1]),    # view 1
+                >>>         ...
+                >>>         Tensor([img_0_view_N, ..., img_B_view_N]),    # view N
+                >>>     ],
+                >>>     [label_0, ..., label_B],
+                >>>     [filename_0, ..., filename_B],
+                >>> )
         """
         if len(batch) == 0:
             warn("MultiViewCollate received empty batch.")
