@@ -1,6 +1,11 @@
 [tool.black]
-extend-exclude = ["lightly/openapi_generated/.*", "lightly/openapi_client/.*"]
+extend-exclude = """
+(
+    lightly/openapi_generated/.*
+    | lightly/openapi_client/.*
+)
+"""
 
 [tool.isort]
 profile = "black"
-extend_skip = ["lightly/openapi_generated", "lightly/openapi_client"]
+extend_skip_glob = ["lightly/openapi_generated", "lightly/openapi_client"]
