@@ -3,11 +3,6 @@ lightly.data
 
 .. automodule:: lightly.data
 
-.collate
----------------
-.. automodule:: lightly.data.collate
-   :members:
-
 .dataset
 ---------------
 .. automodule:: lightly.data.dataset
@@ -18,3 +13,8 @@ lightly.data
 .. autoclass:: lightly.data.multi_view_collate.MultiViewCollate
    :members:
    :special-members: __call__
+
+.collate:
+---------
+.. automodule:: lightly.data.collate
+   :members:
