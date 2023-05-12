@@ -66,12 +66,13 @@ if __name__ == "__main__":
 
     python_requires = ">=3.6"
     base_requires = load_requirements(filename="base.txt")
+    openapi_requires = load_requirements(filename="openapi.txt")
     torch_requires = load_requirements(filename="torch.txt")
     video_requires = load_requirements(filename="video.txt")
     dev_requires = load_requirements(filename="dev.txt")
 
     setup_requires = ["setuptools>=21"]
-    install_requires = base_requires + torch_requires
+    install_requires = base_requires + openapi_requires + torch_requires
     extras_require = {
         "video": video_requires,
         "dev": dev_requires,
@@ -97,10 +98,9 @@ if __name__ == "__main__":
         "lightly.active_learning.config",
         "lightly.active_learning.scorers",
         "lightly.active_learning.utils",
-        "lightly.openapi_generated",
-        "lightly.openapi_generated.swagger_client",
-        "lightly.openapi_generated.swagger_client.api",
-        "lightly.openapi_generated.swagger_client.models",
+        "lightly.openapi_client",
+        "lightly.openapi_client.api",
+        "lightly.openapi_client.models",
     ]
 
     project_urls = {
