@@ -13,149 +13,77 @@ from requests import Response
 
 import lightly
 from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.openapi_generated.swagger_client import (
-    ApiClient,
-    CreateEntityResponse,
-    DatasourceRawSamplesMetadataData,
-    InitialTagCreateRequest,
-    LabelBoxV4DataRow,
+from lightly.openapi_client.api import (
+    CollaborationApi,
+    DatasetsApi,
+    DatasourcesApi,
+    DockerApi,
+    EmbeddingsApi,
+    JobsApi,
+    MappingsApi,
     QuotaApi,
+    SamplesApi,
+    SamplingsApi,
+    ScoresApi,
+    TagsApi,
+    VersioningApi,
+)
+from lightly.openapi_client.models import (
+    AsyncTaskData,
+    CreateDockerWorkerRegistryEntryRequest,
+    CreateEntityResponse,
+    DatasetCreateRequest,
+    DatasetData,
+    DatasetEmbeddingData,
+    DatasourceConfig,
+    DatasourceConfigBase,
+    DatasourceProcessedUntilTimestampRequest,
+    DatasourceProcessedUntilTimestampResponse,
+    DatasourceRawSamplesData,
+    DatasourceRawSamplesDataRow,
+    DatasourceRawSamplesMetadataData,
+    DatasourceRawSamplesPredictionsData,
+    DockerRunData,
+    DockerRunScheduledCreateRequest,
+    DockerRunScheduledData,
+    DockerRunScheduledPriority,
+    DockerRunScheduledState,
+    DockerRunState,
+    DockerWorkerConfigCreateRequest,
+    DockerWorkerConfigV3CreateRequest,
+    DockerWorkerRegistryEntryData,
+    DockerWorkerState,
+    DockerWorkerType,
+    FilenameAndReadUrl,
+    InitialTagCreateRequest,
+    JobResultType,
+    JobState,
+    JobStatusData,
+    JobStatusDataResult,
+    LabelBoxDataRow,
+    LabelBoxV4DataRow,
+    LabelStudioTask,
+    LabelStudioTaskData,
     SampleCreateRequest,
     SampleData,
     SampleDataModes,
     SampleMetaData,
-    SamplesApi,
+    SamplePartialMode,
     SampleUpdateRequest,
     SampleWriteUrls,
-    ScoresApi,
+    SamplingCreateRequest,
+    SharedAccessConfigCreateRequest,
+    SharedAccessConfigData,
+    SharedAccessType,
     TagArithmeticsRequest,
     TagBitMaskResponse,
+    TagCreator,
+    TagData,
     Trigger2dEmbeddingJobRequest,
-    VersioningApi,
-)
-from lightly.openapi_generated.swagger_client.api.collaboration_api import (
-    CollaborationApi,
-)
-from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
-from lightly.openapi_generated.swagger_client.api.datasources_api import DatasourcesApi
-from lightly.openapi_generated.swagger_client.api.docker_api import DockerApi
-from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
-from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
-from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
-from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
-from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
-from lightly.openapi_generated.swagger_client.models.async_task_data import (
-    AsyncTaskData,
-)
-from lightly.openapi_generated.swagger_client.models.create_docker_worker_registry_entry_request import (
-    CreateDockerWorkerRegistryEntryRequest,
-)
-from lightly.openapi_generated.swagger_client.models.dataset_create_request import (
-    DatasetCreateRequest,
-)
-from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
-from lightly.openapi_generated.swagger_client.models.dataset_embedding_data import (
-    DatasetEmbeddingData,
-)
-from lightly.openapi_generated.swagger_client.models.datasource_config import (
-    DatasourceConfig,
-)
-from lightly.openapi_generated.swagger_client.models.datasource_config_base import (
-    DatasourceConfigBase,
-)
-from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import (
-    DatasourceProcessedUntilTimestampRequest,
-)
-from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import (
-    DatasourceProcessedUntilTimestampResponse,
-)
-from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import (
-    DatasourceRawSamplesData,
-)
-from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import (
-    DatasourceRawSamplesDataRow,
-)
-from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_predictions_data import (
-    DatasourceRawSamplesPredictionsData,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_data import (
-    DockerRunData,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_create_request import (
-    DockerRunScheduledCreateRequest,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import (
-    DockerRunScheduledData,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_priority import (
-    DockerRunScheduledPriority,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_state import (
-    DockerRunScheduledState,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_state import (
-    DockerRunState,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import (
-    DockerWorkerConfigCreateRequest,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_create_request import (
-    DockerWorkerConfigV3CreateRequest,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_registry_entry_data import (
-    DockerWorkerRegistryEntryData,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_state import (
-    DockerWorkerState,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_type import (
-    DockerWorkerType,
-)
-from lightly.openapi_generated.swagger_client.models.filename_and_read_url import (
-    FilenameAndReadUrl,
-)
-from lightly.openapi_generated.swagger_client.models.job_result_type import (
-    JobResultType,
-)
-from lightly.openapi_generated.swagger_client.models.job_state import JobState
-from lightly.openapi_generated.swagger_client.models.job_status_data import (
-    JobStatusData,
-)
-from lightly.openapi_generated.swagger_client.models.job_status_data_result import (
-    JobStatusDataResult,
-)
-from lightly.openapi_generated.swagger_client.models.label_box_data_row import (
-    LabelBoxDataRow,
-)
-from lightly.openapi_generated.swagger_client.models.label_studio_task import (
-    LabelStudioTask,
-)
-from lightly.openapi_generated.swagger_client.models.label_studio_task_data import (
-    LabelStudioTaskData,
-)
-from lightly.openapi_generated.swagger_client.models.sample_partial_mode import (
-    SamplePartialMode,
-)
-from lightly.openapi_generated.swagger_client.models.sampling_create_request import (
-    SamplingCreateRequest,
-)
-from lightly.openapi_generated.swagger_client.models.shared_access_config_create_request import (
-    SharedAccessConfigCreateRequest,
-)
-from lightly.openapi_generated.swagger_client.models.shared_access_config_data import (
-    SharedAccessConfigData,
-)
-from lightly.openapi_generated.swagger_client.models.shared_access_type import (
-    SharedAccessType,
-)
-from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
-from lightly.openapi_generated.swagger_client.models.tag_data import TagData
-from lightly.openapi_generated.swagger_client.models.timestamp import Timestamp
-from lightly.openapi_generated.swagger_client.models.write_csv_url_data import (
     WriteCSVUrlData,
 )
-from lightly.openapi_generated.swagger_client.rest import ApiException
-
+from lightly.openapi_client.rest import ApiException
+from tests.api_workflow.utils import generate_id
 
 def _check_dataset_id(dataset_id: str):
     if not isinstance(dataset_id, str) or len(dataset_id) == 0:
@@ -170,13 +98,13 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         EmbeddingsApi.__init__(self, api_client=api_client)
         self.embeddings = [
             DatasetEmbeddingData(
-                id="embedding_id_xyz",
+                id=generate_id(),
                 name="embedding_newest",
                 is_processed=True,
                 created_at=1111111,
             ),
             DatasetEmbeddingData(
-                id="embedding_id_xyz_2",
+                id=generate_id(),
                 name="default",
                 is_processed=True,
                 created_at=0,
@@ -187,7 +115,7 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         _check_dataset_id(dataset_id)
         assert isinstance(dataset_id, str)
         response_ = WriteCSVUrlData(
-            signed_write_url="signed_write_url_valid", embedding_id="embedding_id_xyz"
+            signed_write_url="signed_write_url_valid", embedding_id=generate_id()
         )
         return response_
 
@@ -584,13 +512,13 @@ class MockedDatasetsApi(DatasetsApi):
         self._default_datasets = [
             DatasetData(
                 name=f"dataset_{i}",
-                id=f"dataset_{i}_id",
+                id=generate_id(),
                 last_modified_at=i,
-                type="",
+                type="Images",
                 img_type="full",
                 size_in_bytes=-1,
                 n_samples=-1,
-                created_at=-1,
+                created_at=0,
                 user_id="user_0",
             )
             for i in range(no_datasets)
@@ -598,13 +526,13 @@ class MockedDatasetsApi(DatasetsApi):
         self._shared_datasets = [
             DatasetData(
                 name=f"shared_dataset_{i}",
-                id=f"shared_dataset_{i}_id",
-                last_modified_at=-1,
+                id=generate_id(),
+                last_modified_at=0,
                 type="Images",
                 img_type="full",
                 size_in_bytes=-1,
                 n_samples=-1,
-                created_at=-1,
+                created_at=0,
                 user_id="another_user",
             )
             for i in range(2)
@@ -874,39 +802,39 @@ class MockedComputeWorkerApi(DockerApi):
         super().__init__(api_client=api_client)
         self._compute_worker_runs = [
             DockerRunData(
-                id="compute-worker-run-1",
+                id=generate_id(),
                 user_id="user-id",
                 docker_version="v1",
-                dataset_id="dataset_id_xyz",
+                dataset_id=generate_id(),
                 state=DockerRunState.TRAINING,
-                created_at=Timestamp(0),
-                last_modified_at=Timestamp(100),
+                created_at=0,
+                last_modified_at=100,
                 message=None,
                 artifacts=[],
             )
         ]
         self._scheduled_compute_worker_runs = [
             DockerRunScheduledData(
-                id="compute-worker-scheduled-run-1",
-                dataset_id="dataset_id_xyz",
-                config_id="config-id-1",
+                id=generate_id(),
+                dataset_id=generate_id(),
+                config_id=generate_id(),
                 priority=DockerRunScheduledPriority.MID,
                 state=DockerRunScheduledState.OPEN,
-                created_at=Timestamp(0),
-                last_modified_at=Timestamp(100),
-                owner="user-id-1",
+                created_at=0,
+                last_modified_at=100,
+                owner=generate_id(),
                 runs_on=[],
             )
         ]
         self._registered_workers = [
             DockerWorkerRegistryEntryData(
-                id="worker-registry-id-1",
+                id=generate_id(),
                 user_id="user-id",
                 name="worker-name-1",
                 worker_type=DockerWorkerType.FULL,
                 state=DockerWorkerState.OFFLINE,
-                created_at=Timestamp(0),
-                last_modified_at=Timestamp(0),
+                created_at=0,
+                last_modified_at=0,
                 labels=["label-1"],
             )
         ]
@@ -1065,8 +993,8 @@ class MockedAPICollaboration(CollaborationApi):
             owner="owner-id",
             users=["user1@gmail.com", "user2@something.com"],
             teams=["some-id"],
-            created_at=Timestamp(0),
-            last_modified_at=Timestamp(0),
+            created_at=0,
+            last_modified_at=0,
             access_type=SharedAccessType.WRITE,
         )
         return [write_config]
