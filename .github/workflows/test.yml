@@ -42,7 +42,7 @@ jobs:
       run: |
         export LIGHTLY_SERVER_LOCATION="localhost:-1"
         pip install pytest-cov
-        python -m pytest -s -v --runslow --cov=./lightly --cov-report=xml --ignore=./lightly/openapi_generated/
+        python -m pytest -s -v --runslow --cov=./lightly --cov-report=xml --ignore=./lightly/openapi_generated/ --ignore=./lightly/openapi_client/
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
