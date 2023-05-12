@@ -18,8 +18,8 @@ below.
 
 * **Dataset**
    In Lightly, datasets are accessed through :py:class:`~lightly.data.dataset.LightlyDataset`.
-   You can create a :py:class:`~lightly.data.dataset.LightlyDataset` from a folder of
-   images, videos, or simply from a `torchvision dataset <https://pytorch.org/vision/stable/datasets.html>`_.
+   You can create a :py:class:`~lightly.data.dataset.LightlyDataset` from a directory of
+   images or videos, or directly from a `torchvision dataset <https://pytorch.org/vision/stable/datasets.html>`_.
    You can learn more about this in our tutorial: 
 
    * :ref:`input-structure-label`
