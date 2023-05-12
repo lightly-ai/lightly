@@ -1,7 +1,7 @@
 from typing import Any, Dict, Tuple, Union
 
 from lightly.api.swagger_rest_client import LightlySwaggerRESTClientObject
-from lightly.openapi_generated.swagger_client import ApiClient, Configuration
+from lightly.openapi_client.api_client import ApiClient, Configuration
 
 DEFAULT_API_TIMEOUT = 60 * 3  # seconds
 

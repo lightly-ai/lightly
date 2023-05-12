@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Tuple, Union
 
-from lightly.openapi_generated.swagger_client import Configuration
-from lightly.openapi_generated.swagger_client.rest import RESTClientObject
+from lightly.openapi_client.api_client import Configuration
+from lightly.openapi_client.rest import RESTClientObject
 
 
 class PatchRESTClientObjectMixin:
