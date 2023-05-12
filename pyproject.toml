@@ -1,6 +1,8 @@
 [tool.black]
 extend-exclude = "lightly/openapi_generated/.*"
+extend-exclude = "lightly/openapi_client/.*"
 
 [tool.isort]
 profile = "black"
 extend_skip = "lightly/openapi_generated"
+extend_skip = "lightly/openapi_client"
