@@ -5,7 +5,7 @@ from urllib3 import PoolManager, Timeout
 
 from lightly.api import swagger_rest_client
 from lightly.api.swagger_rest_client import LightlySwaggerRESTClientObject
-from lightly.openapi_generated.swagger_client import Configuration
+from lightly.openapi_client.configuration import Configuration
 
 
 class TestLightlySwaggerRESTClientObject:
