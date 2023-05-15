@@ -171,7 +171,10 @@ class PredictionsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('prediction_uuid_timestamp') is not None:  # noqa: E501
-            _query_params.append(('predictionUUIDTimestamp', _params['prediction_uuid_timestamp']))
+            _query_params.append((
+                'predictionUUIDTimestamp',
+                _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -337,7 +340,10 @@ class PredictionsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('prediction_uuid_timestamp') is not None:  # noqa: E501
-            _query_params.append(('predictionUUIDTimestamp', _params['prediction_uuid_timestamp']))
+            _query_params.append((
+                'predictionUUIDTimestamp',
+                _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -505,7 +511,10 @@ class PredictionsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('prediction_uuid_timestamp') is not None:  # noqa: E501
-            _query_params.append(('predictionUUIDTimestamp', _params['prediction_uuid_timestamp']))
+            _query_params.append((
+                'predictionUUIDTimestamp',
+                _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -664,7 +673,10 @@ class PredictionsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('prediction_uuid_timestamp') is not None:  # noqa: E501
-            _query_params.append(('predictionUUIDTimestamp', _params['prediction_uuid_timestamp']))
+            _query_params.append((
+                'predictionUUIDTimestamp',
+                _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -815,7 +827,10 @@ class PredictionsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('prediction_uuid_timestamp') is not None:  # noqa: E501
-            _query_params.append(('predictionUUIDTimestamp', _params['prediction_uuid_timestamp']))
+            _query_params.append((
+                'predictionUUIDTimestamp',
+                _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -971,10 +986,16 @@ class PredictionsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('prediction_uuid_timestamp') is not None:  # noqa: E501
-            _query_params.append(('predictionUUIDTimestamp', _params['prediction_uuid_timestamp']))
+            _query_params.append((
+                'predictionUUIDTimestamp',
+                _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
+            ))
 
         if _params.get('task_name') is not None:  # noqa: E501
-            _query_params.append(('taskName', _params['task_name']))
+            _query_params.append((
+                'taskName',
+                _params['task_name'].value if hasattr(_params['task_name'], 'value') else _params['task_name']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))

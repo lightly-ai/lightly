@@ -163,7 +163,10 @@ class DatasourcesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('file_name') is not None:  # noqa: E501
-            _query_params.append(('fileName', _params['file_name']))
+            _query_params.append((
+                'fileName',
+                _params['file_name'].value if hasattr(_params['file_name'], 'value') else _params['file_name']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -314,7 +317,10 @@ class DatasourcesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('purpose') is not None:  # noqa: E501
-            _query_params.append(('purpose', _params['purpose'].value))
+            _query_params.append((
+                'purpose',
+                _params['purpose'].value if hasattr(_params['purpose'], 'value') else _params['purpose']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -771,19 +777,34 @@ class DatasourcesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('var_from') is not None:  # noqa: E501
-            _query_params.append(('from', _params['var_from']))
+            _query_params.append((
+                'from',
+                _params['var_from'].value if hasattr(_params['var_from'], 'value') else _params['var_from']
+            ))
 
         if _params.get('to') is not None:  # noqa: E501
-            _query_params.append(('to', _params['to']))
+            _query_params.append((
+                'to',
+                _params['to'].value if hasattr(_params['to'], 'value') else _params['to']
+            ))
 
         if _params.get('cursor') is not None:  # noqa: E501
-            _query_params.append(('cursor', _params['cursor']))
+            _query_params.append((
+                'cursor',
+                _params['cursor'].value if hasattr(_params['cursor'], 'value') else _params['cursor']
+            ))
 
         if _params.get('use_redirected_read_url') is not None:  # noqa: E501
-            _query_params.append(('useRedirectedReadUrl', _params['use_redirected_read_url']))
+            _query_params.append((
+                'useRedirectedReadUrl',
+                _params['use_redirected_read_url'].value if hasattr(_params['use_redirected_read_url'], 'value') else _params['use_redirected_read_url']
+            ))
 
         if _params.get('relevant_filenames_file_name') is not None:  # noqa: E501
-            _query_params.append(('relevantFilenamesFileName', _params['relevant_filenames_file_name']))
+            _query_params.append((
+                'relevantFilenamesFileName',
+                _params['relevant_filenames_file_name'].value if hasattr(_params['relevant_filenames_file_name'], 'value') else _params['relevant_filenames_file_name']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -964,25 +985,46 @@ class DatasourcesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('var_from') is not None:  # noqa: E501
-            _query_params.append(('from', _params['var_from']))
+            _query_params.append((
+                'from',
+                _params['var_from'].value if hasattr(_params['var_from'], 'value') else _params['var_from']
+            ))
 
         if _params.get('to') is not None:  # noqa: E501
-            _query_params.append(('to', _params['to']))
+            _query_params.append((
+                'to',
+                _params['to'].value if hasattr(_params['to'], 'value') else _params['to']
+            ))
 
         if _params.get('cursor') is not None:  # noqa: E501
-            _query_params.append(('cursor', _params['cursor']))
+            _query_params.append((
+                'cursor',
+                _params['cursor'].value if hasattr(_params['cursor'], 'value') else _params['cursor']
+            ))
 
         if _params.get('use_redirected_read_url') is not None:  # noqa: E501
-            _query_params.append(('useRedirectedReadUrl', _params['use_redirected_read_url']))
+            _query_params.append((
+                'useRedirectedReadUrl',
+                _params['use_redirected_read_url'].value if hasattr(_params['use_redirected_read_url'], 'value') else _params['use_redirected_read_url']
+            ))
 
         if _params.get('relevant_filenames_file_name') is not None:  # noqa: E501
-            _query_params.append(('relevantFilenamesFileName', _params['relevant_filenames_file_name']))
+            _query_params.append((
+                'relevantFilenamesFileName',
+                _params['relevant_filenames_file_name'].value if hasattr(_params['relevant_filenames_file_name'], 'value') else _params['relevant_filenames_file_name']
+            ))
 
         if _params.get('relevant_filenames_run_id') is not None:  # noqa: E501
-            _query_params.append(('relevantFilenamesRunId', _params['relevant_filenames_run_id']))
+            _query_params.append((
+                'relevantFilenamesRunId',
+                _params['relevant_filenames_run_id'].value if hasattr(_params['relevant_filenames_run_id'], 'value') else _params['relevant_filenames_run_id']
+            ))
 
         if _params.get('relevant_filenames_artifact_id') is not None:  # noqa: E501
-            _query_params.append(('relevantFilenamesArtifactId', _params['relevant_filenames_artifact_id']))
+            _query_params.append((
+                'relevantFilenamesArtifactId',
+                _params['relevant_filenames_artifact_id'].value if hasattr(_params['relevant_filenames_artifact_id'], 'value') else _params['relevant_filenames_artifact_id']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1168,28 +1210,52 @@ class DatasourcesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('task_name') is not None:  # noqa: E501
-            _query_params.append(('taskName', _params['task_name']))
+            _query_params.append((
+                'taskName',
+                _params['task_name'].value if hasattr(_params['task_name'], 'value') else _params['task_name']
+            ))
 
         if _params.get('var_from') is not None:  # noqa: E501
-            _query_params.append(('from', _params['var_from']))
+            _query_params.append((
+                'from',
+                _params['var_from'].value if hasattr(_params['var_from'], 'value') else _params['var_from']
+            ))
 
         if _params.get('to') is not None:  # noqa: E501
-            _query_params.append(('to', _params['to']))
+            _query_params.append((
+                'to',
+                _params['to'].value if hasattr(_params['to'], 'value') else _params['to']
+            ))
 
         if _params.get('cursor') is not None:  # noqa: E501
-            _query_params.append(('cursor', _params['cursor']))
+            _query_params.append((
+                'cursor',
+                _params['cursor'].value if hasattr(_params['cursor'], 'value') else _params['cursor']
+            ))
 
         if _params.get('use_redirected_read_url') is not None:  # noqa: E501
-            _query_params.append(('useRedirectedReadUrl', _params['use_redirected_read_url']))
+            _query_params.append((
+                'useRedirectedReadUrl',
+                _params['use_redirected_read_url'].value if hasattr(_params['use_redirected_read_url'], 'value') else _params['use_redirected_read_url']
+            ))
 
         if _params.get('relevant_filenames_file_name') is not None:  # noqa: E501
-            _query_params.append(('relevantFilenamesFileName', _params['relevant_filenames_file_name']))
+            _query_params.append((
+                'relevantFilenamesFileName',
+                _params['relevant_filenames_file_name'].value if hasattr(_params['relevant_filenames_file_name'], 'value') else _params['relevant_filenames_file_name']
+            ))
 
         if _params.get('relevant_filenames_run_id') is not None:  # noqa: E501
-            _query_params.append(('relevantFilenamesRunId', _params['relevant_filenames_run_id']))
+            _query_params.append((
+                'relevantFilenamesRunId',
+                _params['relevant_filenames_run_id'].value if hasattr(_params['relevant_filenames_run_id'], 'value') else _params['relevant_filenames_run_id']
+            ))
 
         if _params.get('relevant_filenames_artifact_id') is not None:  # noqa: E501
-            _query_params.append(('relevantFilenamesArtifactId', _params['relevant_filenames_artifact_id']))
+            _query_params.append((
+                'relevantFilenamesArtifactId',
+                _params['relevant_filenames_artifact_id'].value if hasattr(_params['relevant_filenames_artifact_id'], 'value') else _params['relevant_filenames_artifact_id']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1340,7 +1406,10 @@ class DatasourcesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('file_name') is not None:  # noqa: E501
-            _query_params.append(('fileName', _params['file_name']))
+            _query_params.append((
+                'fileName',
+                _params['file_name'].value if hasattr(_params['file_name'], 'value') else _params['file_name']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1491,7 +1560,10 @@ class DatasourcesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('file_name') is not None:  # noqa: E501
-            _query_params.append(('fileName', _params['file_name']))
+            _query_params.append((
+                'fileName',
+                _params['file_name'].value if hasattr(_params['file_name'], 'value') else _params['file_name']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1642,7 +1714,10 @@ class DatasourcesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('file_name') is not None:  # noqa: E501
-            _query_params.append(('fileName', _params['file_name']))
+            _query_params.append((
+                'fileName',
+                _params['file_name'].value if hasattr(_params['file_name'], 'value') else _params['file_name']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1793,7 +1868,10 @@ class DatasourcesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('path') is not None:  # noqa: E501
-            _query_params.append(('path', _params['path']))
+            _query_params.append((
+                'path',
+                _params['path'].value if hasattr(_params['path'], 'value') else _params['path']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))

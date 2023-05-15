@@ -155,7 +155,10 @@ class MappingsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('field') is not None:  # noqa: E501
-            _query_params.append(('field', _params['field'].value))
+            _query_params.append((
+                'field',
+                _params['field'].value if hasattr(_params['field'], 'value') else _params['field']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))

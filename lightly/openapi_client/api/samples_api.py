@@ -639,7 +639,10 @@ class SamplesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('type') is not None:  # noqa: E501
-            _query_params.append(('type', _params['type'].value))
+            _query_params.append((
+                'type',
+                _params['type'].value if hasattr(_params['type'], 'value') else _params['type']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -798,7 +801,10 @@ class SamplesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('type') is not None:  # noqa: E501
-            _query_params.append(('type', _params['type'].value))
+            _query_params.append((
+                'type',
+                _params['type'].value if hasattr(_params['type'], 'value') else _params['type']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -951,7 +957,10 @@ class SamplesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('is_thumbnail') is not None:  # noqa: E501
-            _query_params.append(('isThumbnail', _params['is_thumbnail']))
+            _query_params.append((
+                'isThumbnail',
+                _params['is_thumbnail'].value if hasattr(_params['is_thumbnail'], 'value') else _params['is_thumbnail']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1268,16 +1277,28 @@ class SamplesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('file_name') is not None:  # noqa: E501
-            _query_params.append(('fileName', _params['file_name']))
+            _query_params.append((
+                'fileName',
+                _params['file_name'].value if hasattr(_params['file_name'], 'value') else _params['file_name']
+            ))
 
         if _params.get('sort_by') is not None:  # noqa: E501
-            _query_params.append(('sortBy', _params['sort_by'].value))
+            _query_params.append((
+                'sortBy',
+                _params['sort_by'].value if hasattr(_params['sort_by'], 'value') else _params['sort_by']
+            ))
 
         if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append(('pageSize', _params['page_size']))
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
         if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append(('pageOffset', _params['page_offset']))
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1443,16 +1464,28 @@ class SamplesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('mode') is not None:  # noqa: E501
-            _query_params.append(('mode', _params['mode'].value))
+            _query_params.append((
+                'mode',
+                _params['mode'].value if hasattr(_params['mode'], 'value') else _params['mode']
+            ))
 
         if _params.get('file_name') is not None:  # noqa: E501
-            _query_params.append(('fileName', _params['file_name']))
+            _query_params.append((
+                'fileName',
+                _params['file_name'].value if hasattr(_params['file_name'], 'value') else _params['file_name']
+            ))
 
         if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append(('pageSize', _params['page_size']))
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
         if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append(('pageOffset', _params['page_offset']))
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1616,7 +1649,10 @@ class SamplesApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('enable_dataset_update') is not None:  # noqa: E501
-            _query_params.append(('enableDatasetUpdate', _params['enable_dataset_update']))
+            _query_params.append((
+                'enableDatasetUpdate',
+                _params['enable_dataset_update'].value if hasattr(_params['enable_dataset_update'], 'value') else _params['enable_dataset_update']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))

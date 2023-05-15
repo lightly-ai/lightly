@@ -147,7 +147,10 @@ class VersioningApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('current_version') is not None:  # noqa: E501
-            _query_params.append(('currentVersion', _params['current_version']))
+            _query_params.append((
+                'currentVersion',
+                _params['current_version'].value if hasattr(_params['current_version'], 'value') else _params['current_version']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))

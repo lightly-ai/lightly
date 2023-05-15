@@ -311,7 +311,10 @@ class DatasetsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('force') is not None:  # noqa: E501
-            _query_params.append(('force', _params['force']))
+            _query_params.append((
+                'force',
+                _params['force'].value if hasattr(_params['force'], 'value') else _params['force']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -754,19 +757,34 @@ class DatasetsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('shared') is not None:  # noqa: E501
-            _query_params.append(('shared', _params['shared']))
+            _query_params.append((
+                'shared',
+                _params['shared'].value if hasattr(_params['shared'], 'value') else _params['shared']
+            ))
 
         if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeam', _params['get_assets_of_team']))
+            _query_params.append((
+                'getAssetsOfTeam',
+                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
+            ))
 
         if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeamInclusiveSelf', _params['get_assets_of_team_inclusive_self']))
+            _query_params.append((
+                'getAssetsOfTeamInclusiveSelf',
+                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
 
         if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append(('pageSize', _params['page_size']))
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
         if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append(('pageOffset', _params['page_offset']))
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -934,22 +952,40 @@ class DatasetsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('shared') is not None:  # noqa: E501
-            _query_params.append(('shared', _params['shared']))
+            _query_params.append((
+                'shared',
+                _params['shared'].value if hasattr(_params['shared'], 'value') else _params['shared']
+            ))
 
         if _params.get('limit') is not None:  # noqa: E501
-            _query_params.append(('limit', _params['limit']))
+            _query_params.append((
+                'limit',
+                _params['limit'].value if hasattr(_params['limit'], 'value') else _params['limit']
+            ))
 
         if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeam', _params['get_assets_of_team']))
+            _query_params.append((
+                'getAssetsOfTeam',
+                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
+            ))
 
         if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeamInclusiveSelf', _params['get_assets_of_team_inclusive_self']))
+            _query_params.append((
+                'getAssetsOfTeamInclusiveSelf',
+                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
 
         if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append(('pageSize', _params['page_size']))
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
         if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append(('pageOffset', _params['page_offset']))
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1125,22 +1161,40 @@ class DatasetsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('shared') is not None:  # noqa: E501
-            _query_params.append(('shared', _params['shared']))
+            _query_params.append((
+                'shared',
+                _params['shared'].value if hasattr(_params['shared'], 'value') else _params['shared']
+            ))
 
         if _params.get('exact') is not None:  # noqa: E501
-            _query_params.append(('exact', _params['exact']))
+            _query_params.append((
+                'exact',
+                _params['exact'].value if hasattr(_params['exact'], 'value') else _params['exact']
+            ))
 
         if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeam', _params['get_assets_of_team']))
+            _query_params.append((
+                'getAssetsOfTeam',
+                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
+            ))
 
         if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeamInclusiveSelf', _params['get_assets_of_team_inclusive_self']))
+            _query_params.append((
+                'getAssetsOfTeamInclusiveSelf',
+                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
 
         if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append(('pageSize', _params['page_size']))
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
         if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append(('pageOffset', _params['page_offset']))
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1316,22 +1370,40 @@ class DatasetsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('shared') is not None:  # noqa: E501
-            _query_params.append(('shared', _params['shared']))
+            _query_params.append((
+                'shared',
+                _params['shared'].value if hasattr(_params['shared'], 'value') else _params['shared']
+            ))
 
         if _params.get('exact') is not None:  # noqa: E501
-            _query_params.append(('exact', _params['exact']))
+            _query_params.append((
+                'exact',
+                _params['exact'].value if hasattr(_params['exact'], 'value') else _params['exact']
+            ))
 
         if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeam', _params['get_assets_of_team']))
+            _query_params.append((
+                'getAssetsOfTeam',
+                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
+            ))
 
         if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeamInclusiveSelf', _params['get_assets_of_team_inclusive_self']))
+            _query_params.append((
+                'getAssetsOfTeamInclusiveSelf',
+                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
 
         if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append(('pageSize', _params['page_size']))
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
         if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append(('pageOffset', _params['page_offset']))
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))

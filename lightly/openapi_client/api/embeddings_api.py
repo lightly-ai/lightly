@@ -456,7 +456,10 @@ class EmbeddingsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('mode') is not None:  # noqa: E501
-            _query_params.append(('mode', _params['mode'].value))
+            _query_params.append((
+                'mode',
+                _params['mode'].value if hasattr(_params['mode'], 'value') else _params['mode']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -758,7 +761,10 @@ class EmbeddingsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('name') is not None:  # noqa: E501
-            _query_params.append(('name', _params['name']))
+            _query_params.append((
+                'name',
+                _params['name'].value if hasattr(_params['name'], 'value') else _params['name']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))

@@ -827,28 +827,52 @@ class TagsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('expires_in') is not None:  # noqa: E501
-            _query_params.append(('expiresIn', _params['expires_in']))
+            _query_params.append((
+                'expiresIn',
+                _params['expires_in'].value if hasattr(_params['expires_in'], 'value') else _params['expires_in']
+            ))
 
         if _params.get('access_control') is not None:  # noqa: E501
-            _query_params.append(('accessControl', _params['access_control']))
+            _query_params.append((
+                'accessControl',
+                _params['access_control'].value if hasattr(_params['access_control'], 'value') else _params['access_control']
+            ))
 
         if _params.get('file_name_format') is not None:  # noqa: E501
-            _query_params.append(('fileNameFormat', _params['file_name_format'].value))
+            _query_params.append((
+                'fileNameFormat',
+                _params['file_name_format'].value if hasattr(_params['file_name_format'], 'value') else _params['file_name_format']
+            ))
 
         if _params.get('include_meta_data') is not None:  # noqa: E501
-            _query_params.append(('includeMetaData', _params['include_meta_data']))
+            _query_params.append((
+                'includeMetaData',
+                _params['include_meta_data'].value if hasattr(_params['include_meta_data'], 'value') else _params['include_meta_data']
+            ))
 
         if _params.get('format') is not None:  # noqa: E501
-            _query_params.append(('format', _params['format'].value))
+            _query_params.append((
+                'format',
+                _params['format'].value if hasattr(_params['format'], 'value') else _params['format']
+            ))
 
         if _params.get('preview_example') is not None:  # noqa: E501
-            _query_params.append(('previewExample', _params['preview_example']))
+            _query_params.append((
+                'previewExample',
+                _params['preview_example'].value if hasattr(_params['preview_example'], 'value') else _params['preview_example']
+            ))
 
         if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append(('pageSize', _params['page_size']))
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
         if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append(('pageOffset', _params['page_offset']))
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1022,16 +1046,28 @@ class TagsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('format') is not None:  # noqa: E501
-            _query_params.append(('format', _params['format'].value))
+            _query_params.append((
+                'format',
+                _params['format'].value if hasattr(_params['format'], 'value') else _params['format']
+            ))
 
         if _params.get('preview_example') is not None:  # noqa: E501
-            _query_params.append(('previewExample', _params['preview_example']))
+            _query_params.append((
+                'previewExample',
+                _params['preview_example'].value if hasattr(_params['preview_example'], 'value') else _params['preview_example']
+            ))
 
         if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append(('pageSize', _params['page_size']))
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
         if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append(('pageOffset', _params['page_offset']))
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1227,28 +1263,52 @@ class TagsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('expires_in') is not None:  # noqa: E501
-            _query_params.append(('expiresIn', _params['expires_in']))
+            _query_params.append((
+                'expiresIn',
+                _params['expires_in'].value if hasattr(_params['expires_in'], 'value') else _params['expires_in']
+            ))
 
         if _params.get('access_control') is not None:  # noqa: E501
-            _query_params.append(('accessControl', _params['access_control']))
+            _query_params.append((
+                'accessControl',
+                _params['access_control'].value if hasattr(_params['access_control'], 'value') else _params['access_control']
+            ))
 
         if _params.get('file_name_format') is not None:  # noqa: E501
-            _query_params.append(('fileNameFormat', _params['file_name_format'].value))
+            _query_params.append((
+                'fileNameFormat',
+                _params['file_name_format'].value if hasattr(_params['file_name_format'], 'value') else _params['file_name_format']
+            ))
 
         if _params.get('include_meta_data') is not None:  # noqa: E501
-            _query_params.append(('includeMetaData', _params['include_meta_data']))
+            _query_params.append((
+                'includeMetaData',
+                _params['include_meta_data'].value if hasattr(_params['include_meta_data'], 'value') else _params['include_meta_data']
+            ))
 
         if _params.get('format') is not None:  # noqa: E501
-            _query_params.append(('format', _params['format'].value))
+            _query_params.append((
+                'format',
+                _params['format'].value if hasattr(_params['format'], 'value') else _params['format']
+            ))
 
         if _params.get('preview_example') is not None:  # noqa: E501
-            _query_params.append(('previewExample', _params['preview_example']))
+            _query_params.append((
+                'previewExample',
+                _params['preview_example'].value if hasattr(_params['preview_example'], 'value') else _params['preview_example']
+            ))
 
         if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append(('pageSize', _params['page_size']))
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
         if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append(('pageOffset', _params['page_offset']))
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1442,28 +1502,52 @@ class TagsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('expires_in') is not None:  # noqa: E501
-            _query_params.append(('expiresIn', _params['expires_in']))
+            _query_params.append((
+                'expiresIn',
+                _params['expires_in'].value if hasattr(_params['expires_in'], 'value') else _params['expires_in']
+            ))
 
         if _params.get('access_control') is not None:  # noqa: E501
-            _query_params.append(('accessControl', _params['access_control']))
+            _query_params.append((
+                'accessControl',
+                _params['access_control'].value if hasattr(_params['access_control'], 'value') else _params['access_control']
+            ))
 
         if _params.get('file_name_format') is not None:  # noqa: E501
-            _query_params.append(('fileNameFormat', _params['file_name_format'].value))
+            _query_params.append((
+                'fileNameFormat',
+                _params['file_name_format'].value if hasattr(_params['file_name_format'], 'value') else _params['file_name_format']
+            ))
 
         if _params.get('include_meta_data') is not None:  # noqa: E501
-            _query_params.append(('includeMetaData', _params['include_meta_data']))
+            _query_params.append((
+                'includeMetaData',
+                _params['include_meta_data'].value if hasattr(_params['include_meta_data'], 'value') else _params['include_meta_data']
+            ))
 
         if _params.get('format') is not None:  # noqa: E501
-            _query_params.append(('format', _params['format'].value))
+            _query_params.append((
+                'format',
+                _params['format'].value if hasattr(_params['format'], 'value') else _params['format']
+            ))
 
         if _params.get('preview_example') is not None:  # noqa: E501
-            _query_params.append(('previewExample', _params['preview_example']))
+            _query_params.append((
+                'previewExample',
+                _params['preview_example'].value if hasattr(_params['preview_example'], 'value') else _params['preview_example']
+            ))
 
         if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append(('pageSize', _params['page_size']))
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
         if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append(('pageOffset', _params['page_offset']))
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1657,28 +1741,52 @@ class TagsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('expires_in') is not None:  # noqa: E501
-            _query_params.append(('expiresIn', _params['expires_in']))
+            _query_params.append((
+                'expiresIn',
+                _params['expires_in'].value if hasattr(_params['expires_in'], 'value') else _params['expires_in']
+            ))
 
         if _params.get('access_control') is not None:  # noqa: E501
-            _query_params.append(('accessControl', _params['access_control']))
+            _query_params.append((
+                'accessControl',
+                _params['access_control'].value if hasattr(_params['access_control'], 'value') else _params['access_control']
+            ))
 
         if _params.get('file_name_format') is not None:  # noqa: E501
-            _query_params.append(('fileNameFormat', _params['file_name_format'].value))
+            _query_params.append((
+                'fileNameFormat',
+                _params['file_name_format'].value if hasattr(_params['file_name_format'], 'value') else _params['file_name_format']
+            ))
 
         if _params.get('include_meta_data') is not None:  # noqa: E501
-            _query_params.append(('includeMetaData', _params['include_meta_data']))
+            _query_params.append((
+                'includeMetaData',
+                _params['include_meta_data'].value if hasattr(_params['include_meta_data'], 'value') else _params['include_meta_data']
+            ))
 
         if _params.get('format') is not None:  # noqa: E501
-            _query_params.append(('format', _params['format'].value))
+            _query_params.append((
+                'format',
+                _params['format'].value if hasattr(_params['format'], 'value') else _params['format']
+            ))
 
         if _params.get('preview_example') is not None:  # noqa: E501
-            _query_params.append(('previewExample', _params['preview_example']))
+            _query_params.append((
+                'previewExample',
+                _params['preview_example'].value if hasattr(_params['preview_example'], 'value') else _params['preview_example']
+            ))
 
         if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append(('pageSize', _params['page_size']))
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
         if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append(('pageOffset', _params['page_offset']))
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1872,28 +1980,52 @@ class TagsApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('expires_in') is not None:  # noqa: E501
-            _query_params.append(('expiresIn', _params['expires_in']))
+            _query_params.append((
+                'expiresIn',
+                _params['expires_in'].value if hasattr(_params['expires_in'], 'value') else _params['expires_in']
+            ))
 
         if _params.get('access_control') is not None:  # noqa: E501
-            _query_params.append(('accessControl', _params['access_control']))
+            _query_params.append((
+                'accessControl',
+                _params['access_control'].value if hasattr(_params['access_control'], 'value') else _params['access_control']
+            ))
 
         if _params.get('file_name_format') is not None:  # noqa: E501
-            _query_params.append(('fileNameFormat', _params['file_name_format'].value))
+            _query_params.append((
+                'fileNameFormat',
+                _params['file_name_format'].value if hasattr(_params['file_name_format'], 'value') else _params['file_name_format']
+            ))
 
         if _params.get('include_meta_data') is not None:  # noqa: E501
-            _query_params.append(('includeMetaData', _params['include_meta_data']))
+            _query_params.append((
+                'includeMetaData',
+                _params['include_meta_data'].value if hasattr(_params['include_meta_data'], 'value') else _params['include_meta_data']
+            ))
 
         if _params.get('format') is not None:  # noqa: E501
-            _query_params.append(('format', _params['format'].value))
+            _query_params.append((
+                'format',
+                _params['format'].value if hasattr(_params['format'], 'value') else _params['format']
+            ))
 
         if _params.get('preview_example') is not None:  # noqa: E501
-            _query_params.append(('previewExample', _params['preview_example']))
+            _query_params.append((
+                'previewExample',
+                _params['preview_example'].value if hasattr(_params['preview_example'], 'value') else _params['preview_example']
+            ))
 
         if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append(('pageSize', _params['page_size']))
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
         if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append(('pageOffset', _params['page_offset']))
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))

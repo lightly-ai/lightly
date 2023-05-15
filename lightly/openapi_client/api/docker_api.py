@@ -784,7 +784,10 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('disable_config_validation') is not None:  # noqa: E501
-            _query_params.append(('disableConfigValidation', _params['disable_config_validation']))
+            _query_params.append((
+                'disableConfigValidation',
+                _params['disable_config_validation'].value if hasattr(_params['disable_config_validation'], 'value') else _params['disable_config_validation']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -2099,7 +2102,10 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('cursor') is not None:  # noqa: E501
-            _query_params.append(('cursor', _params['cursor']))
+            _query_params.append((
+                'cursor',
+                _params['cursor'].value if hasattr(_params['cursor'], 'value') else _params['cursor']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -2690,16 +2696,28 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append(('pageSize', _params['page_size']))
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
         if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append(('pageOffset', _params['page_offset']))
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeam', _params['get_assets_of_team']))
+            _query_params.append((
+                'getAssetsOfTeam',
+                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
+            ))
 
         if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeamInclusiveSelf', _params['get_assets_of_team_inclusive_self']))
+            _query_params.append((
+                'getAssetsOfTeamInclusiveSelf',
+                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -2847,10 +2865,16 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeam', _params['get_assets_of_team']))
+            _query_params.append((
+                'getAssetsOfTeam',
+                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
+            ))
 
         if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeamInclusiveSelf', _params['get_assets_of_team_inclusive_self']))
+            _query_params.append((
+                'getAssetsOfTeamInclusiveSelf',
+                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -3016,16 +3040,28 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append(('pageSize', _params['page_size']))
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
         if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append(('pageOffset', _params['page_offset']))
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeam', _params['get_assets_of_team']))
+            _query_params.append((
+                'getAssetsOfTeam',
+                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
+            ))
 
         if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeamInclusiveSelf', _params['get_assets_of_team_inclusive_self']))
+            _query_params.append((
+                'getAssetsOfTeamInclusiveSelf',
+                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -3175,7 +3211,10 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('state') is not None:  # noqa: E501
-            _query_params.append(('state', _params['state'].value))
+            _query_params.append((
+                'state',
+                _params['state'].value if hasattr(_params['state'], 'value') else _params['state']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -3337,20 +3376,35 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('state') is not None:  # noqa: E501
-            _query_params.append(('state', _params['state'].value))
+            _query_params.append((
+                'state',
+                _params['state'].value if hasattr(_params['state'], 'value') else _params['state']
+            ))
 
         if _params.get('labels') is not None:  # noqa: E501
-            _query_params.append(('labels', _params['labels']))
+            _query_params.append((
+                'labels',
+                _params['labels'].value if hasattr(_params['labels'], 'value') else _params['labels']
+            ))
             _collection_formats['labels'] = 'multi'
 
         if _params.get('version') is not None:  # noqa: E501
-            _query_params.append(('version', _params['version']))
+            _query_params.append((
+                'version',
+                _params['version'].value if hasattr(_params['version'], 'value') else _params['version']
+            ))
 
         if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeam', _params['get_assets_of_team']))
+            _query_params.append((
+                'getAssetsOfTeam',
+                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
+            ))
 
         if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeamInclusiveSelf', _params['get_assets_of_team_inclusive_self']))
+            _query_params.append((
+                'getAssetsOfTeamInclusiveSelf',
+                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -3510,13 +3564,22 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('state') is not None:  # noqa: E501
-            _query_params.append(('state', _params['state'].value))
+            _query_params.append((
+                'state',
+                _params['state'].value if hasattr(_params['state'], 'value') else _params['state']
+            ))
 
         if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeam', _params['get_assets_of_team']))
+            _query_params.append((
+                'getAssetsOfTeam',
+                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
+            ))
 
         if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeamInclusiveSelf', _params['get_assets_of_team_inclusive_self']))
+            _query_params.append((
+                'getAssetsOfTeamInclusiveSelf',
+                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -4223,10 +4286,16 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeam', _params['get_assets_of_team']))
+            _query_params.append((
+                'getAssetsOfTeam',
+                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
+            ))
 
         if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append(('getAssetsOfTeamInclusiveSelf', _params['get_assets_of_team_inclusive_self']))
+            _query_params.append((
+                'getAssetsOfTeamInclusiveSelf',
+                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -4957,7 +5026,10 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         if _params.get('for_user_id') is not None:  # noqa: E501
-            _query_params.append(('forUserId', _params['for_user_id']))
+            _query_params.append((
+                'forUserId',
+                _params['for_user_id'].value if hasattr(_params['for_user_id'], 'value') else _params['for_user_id']
+            ))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
