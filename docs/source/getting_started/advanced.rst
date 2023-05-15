@@ -3,16 +3,15 @@
 Advanced Concepts in Self-Supervised Learning
 =============================================
 
-In this section, we will have a look at some more advanced topics around lightly. 
-For the moment lightly focuses mostly on contrastive learning methods. 
-In contrastive learning, we create multiple views of each sample and during 
-the training of the model force similar views (originating from the 
-same sample) to be close to each other respective different views 
-(originating from different samples to be far away. Views are typically 
-obtained using augmentation methods.
+In this section, we will have a look at some more advanced topics around Lightly.
 
-Through this procedure, we train invariances towards certain augmentations 
-when training models using contrastive learning methods. 
+Augmentations
+-------------
+
+Most recent self-supervised learning methods create multiple views of each image during
+training and learn that embeddings of views from the same image should be as similar as
+possible. As these views are typically created using augmentations, the model learns to
+be *invariant* to certain augmentations.
 
 Different augmentations result in different invariances. The invariances you 
 want to learn heavily depend on the type of downstream task you want to solve. 
@@ -64,62 +63,116 @@ Some interesting papers regarding invariances in self-supervised learning:
           to create a model classifying cats by color we should not use strong
           color augmentations such as color jittering or random grayscale.
 
+.. note:: Recently, masked image modeling (MIM) has become a popular method
+          for self-supervised learning. MIM is a different approach as the goal is not
+          to map different views of the same image close to each other in the feature
+          space. Instead, the model learns to predict the masked parts of the image.
+          This has the advantage that the model doesn't learn an invariance with respect
+          to the augmentations. Popular MIM methods are :ref:`mae` and :ref:`simmim`.
+          For a more in-depth discussion of different self-supervised learning methods
+          see `A Cookbook of Self-Supervised Learning <https://arxiv.org/abs/2304.12210>`_.
 
-Augmentations
--------------------
 
-Lightly uses the collate operation to apply augmentations when loading a batch 
-of samples using the 
-`PyTorch dataloader <https://pytorch.org/docs/stable/data.html>`_.
+Transforms
+^^^^^^^^^^
 
-The built-in collate class  
-:py:class:`lightly.data.collate.ImageCollateFunction` provides a set of 
-common augmentations used in SimCLR and MoCo. Instead of a single batch of images,
-it returns a tuple of two batches of randomly transformed images.
+Lightly uses `Torchvision transforms <https://pytorch.org/vision/stable/transforms.html>`_
+to apply augmentations to images. The Lightly :py:mod:`~lightly.transforms` module
+exposes transforms for common self-supervised learning methods.
 
-If you use the :ref:`lightly-command-line-tool` you have access to all the SimCLR
-collate augmentations. 
-You find the default parameters here: :ref:`ref-cli-config-default`. 
+The most important difference compared to transforms for other tasks, such as
+classification, object detection, or segmentation, is that self-supervised learning
+requires multiple views per image. For example, :ref:`simclr` uses two views per image
+while :ref:`dino` uses two global and multiple, smaller local views per image.
 
-Since **gaussian blur**, **solarization** and **random rotations** by 90 degrees 
-are not supported in torchvision, we added them to lightly 
-:py:class:`lightly.transforms`
+.. note:: If you use the :ref:`lightly-command-line-tool` you have access to all SimCLR
+  augmentations. You find the default parameters here: :ref:`ref-cli-config-default`. 
 
-You can build your own collate function by inheriting from 
-:py:class:`lightly.data.collate.BaseCollateFunction`
+.. note:: Since **solarization** and **random rotations** by 90 degrees are not supported
+  in Torchvision, we added them also to the :py:mod:`~lightly.transforms` module.
 
-.. code-block:: python
 
-  # create a dataset using SimCLR augmentations
-  collate_fn = lightly.data.SimCLRCollateFunction()
-  dataloader_train_simclr = torch.utils.data.DataLoader(
-    dataset_train_simclr, 
-    collate_fn=collate_fn,
-  )
+Custom Transforms
+^^^^^^^^^^^^^^^^^
+
+There are three ways how you can customize augmentations in Lightly:
+
+1. Modify the parameters of the :py:mod:`~lightly.transforms` provided by Lightly:
   
-  # same augmentation but without blur and resize images to 128x128
-  collate_fn = lightly.data.SimCLRCollateFunction(
-    input_size=128,
-    gaussian_blur=0.
-  )
-  dataloader_train_simclr = torch.utils.data.DataLoader(
-    dataset_train_simclr, 
-    collate_fn=collate_fn,
-  )
+  .. code-block:: python
 
+    from lightly.transforms import SimCLRTransform
 
-.. note:: You can disable the augmentations by either setting the probability to `0.0`
+    transform = SimCLRTransform(
+        input_size=128,   # resize input images to 128x128 pixels
+        cj_prob=0.0,      # disable color jittering
+        rr_prob=0.5,      # apply random rotation by 90 degrees with 50% probability
+    )
+
+  .. note:: You can disable the augmentations by either setting the probability to `0.0`
     or making sure the augmentation has no effect. For example, random cropping 
     can be disabled by setting `min_scale=1.0`.
+
+2. Create a new transform by combining multiple transforms into a :py:class:`~lightly.transforms.multi_view_transform.MultiViewTransform`:
+
+  .. code-block:: python
+
+    from torchvision import transforms as T
+    from lightly.transforms.multi_view_transform import MultiViewTransform
+
+    # Create a global view transform that crops 224x224 patches from the input image.
+    global_view = T.Collate([
+        T.RandomResizedCrop(size=224, scale=(0.08, 1.0)),
+        T.RandomHorizontalFlip(p=0.5),
+        T.RandomGrayscale(p=0.5),
+        T.ToTensor(),
+    ])
+
+    # Create local view transform that crops 96x96 patches from the input image.
+    local_view = T.Collate([
+        T.RandomResizedCrop(size=96, scale=(0.05, 0.4)),
+        T.RandomHorizontalFlip(p=0.5),
+        T.RandomGrayscale(p=0.5),
+        T.ToTensor(),
+    ])
+
+    # Combine the transforms. Every transform will create one view.
+    transform = MultiViewTransform([global_view, global_view, local_view, local_view])
+
+    # Create two global and two local views from an image.
+    views = transform(image)
+
+3. Write a completely new `Torchvision transform <https://pytorch.org/vision/stable/transforms.html>`_.
+  One of the benefits of Lightly is that it doesn't restrict you to a specific framework.
+  If you need a special transform then you can write it yourself. Just make sure to
+  adapt your training loop if required:
+
+  .. code:: python
+
+    from torch.utils.data import DataLoader
+
+    class MyTransform:
+        def __call__(self, image):
+            # Overwrite this method and apply custom augmentations to your image.
+
+    transform = MyTransform(...)
+    dataset = LightlyDataset(..., transform=transform)
+    dataloader = DataLoader(dataset, ...)
+    for batch in dataloader:
+        views = ... # get views from the batch, this depends on your transform
 
 
 
 Previewing Augmentations
 ------------------------
 
+.. note::
+  This section is outdated and still uses the old collate functions which are deprecated
+  since v1.4.0. We will update this section soon.
+
 It often can be very useful to understand how the image augmentations we pick affect
 the input dataset. We provide a few helper methods that make it very easy to 
-preview augmentations using lightly.
+preview augmentations using Lightly.
 
 .. literalinclude:: code_examples/plot_image_augmentations.py
 
@@ -158,118 +211,79 @@ our DINO model would see during training.
 
 
 Models
--------------------
+------
 
-Lightly supports at the moment the following models for self-supervised
-learning:
+See the :ref:`models` section for a list of models that are available in Lightly.
 
-- `SimCLR: A Simple Framework for Contrastive Learning of Visual Representations, T. Chen, 2020 <https://arxiv.org/abs/2002.05709>`_
-  
-  - Check the tutorial: :ref:`lightly-simclr-tutorial-3`. 
+Do you know a model that should be on this list? Please add an `issue <https://github.com/lightly-ai/lightly/issues>`_
+on GitHub :)
 
-- `MoCo: Momentum Contrast for Unsupervised Visual Representation Learning, K. He, 2019 <https://arxiv.org/abs/1911.05722>`_
-  
-  - Check the tutorial: :ref:`lightly-moco-tutorial-2`
+All models have a backbone component. This could be a ResNet, Vision Transformer, or any
+other vision model. When creating a self-supervised learning model you pass it a
+backbone. You need to make sure the backbone output dimension matches the input
+dimension of the head component for the respective self-supervised model.
 
-- `SimSiam: Exploring Simple Siamese Representation Learning, K. He, 2020 <https://arxiv.org/abs/2011.10566>`_
+Lightly has a built-in generator for ResNets. However, the model architecture slightly
+differs from the official ResNet implementation. The difference is in the first few
+layers. Whereas the official ResNet starts with a 7x7 convolution the one from Lightly
+has a 3x3 convolution. 
 
-  - Check the tutorial: :ref:`lightly-simsiam-tutorial-4`
-
-- `Barlow Twins: Self-Supervised Learning via Redundancy Reduction, S. Deny, 2021 <https://arxiv.org/abs/2103.03230v1>`_
-
-- `NNCLR: With a Little Help from My Friends: Nearest-Neighbor Contrastive Learning of Visual Representations, D. Dwibedi, 2021 <https://arxiv.org/abs/2104.14548>`_
-
-- `BYOL: Bootstrap your own latent: A new approach to self-supervised Learning, J. Grill, 2020 <https://arxiv.org/abs/2006.07733>`_
-
-- `SwAV: Unsupervised Learning of Visual Features by Contrasting Cluster Assignments, M. Caron, 2020 <https://arxiv.org/abs/2006.09882>`_
-
-
-Do you know a model that should be on this list? Please add an issue on GitHub :)
-
-All models have a backbone component. This could be a ResNet.
-When creating a self-supervised learning model you pass it a backbone. You need
-to make sure the backbone output dimension matches the input dimension of the
-head component for the respective self-supervised model.
-
-Lightly has a built-in generator for ResNets. However, the model architecture slightly differs from the official ResNet implementatation.
-The difference is in the first few layers. Whereas the official ResNet starts 
-with a 7x7 convolution the one from lightly has a 3x3 convolution. 
-
-* The 3x3 convolution variant is more efficient (less parameters and faster 
+* The 3x3 convolution variant is more efficient (fewer parameters and faster 
   processing) and is better suited for small input images (32x32 pixels or 64x64 pixels). 
-  We recommend to use the lighlty variant for cifar10 or running the model on a microcontroller 
+  We recommend using the Lightly variant for cifar10 or running the model on a microcontroller 
   (see https://github.com/ARM-software/EndpointAI/tree/master/ProofOfConcepts/Vision/OpenMvMaskDefaults)
 * However, the 7x7 convolution variant is better suited for larger images 
   since the number of features is smaller due to the stride and additional 
   `MaxPool2d` layer. For benchmarking against other academic papers on 
-  datasets such as ImageNet, Pascal VOC, MOCO, etc. use the torchvision variant.
+  datasets such as ImageNet, Pascal VOC, MOCO, etc. use the Torchvision variant.
+
 
 .. code-block:: python
 
-        # create a lightly ResNet
-        from lightly.models import ResNetGenerator
-        resnet = ResNetGenerator('resnet-18')
+  from torch import nn
 
-        # alternatively create a torchvision ResNet backbone
-        resnet_torchvision = torchvision.models.resnet18()
+  # Create a Lightly ResNet.
+  from lightly.models import ResNetGenerator
+  resnet = ResNetGenerator('resnet-18')
+  # Ignore the classification layer as we want the features as output.
+  resnet.linear = nn.Identity()
 
-        # remove the last linear layer and add an adaptive average pooling layer
-        backbone = nn.Sequential(
-            *list(resnet.children())[:-1],
-            nn.AdaptiveAvgPool2d(1),
-        )
-        
-        # create a simclr model based on ResNet
-        class SimCLR(torch.nn.Module):
-            def __init__(self, backbone, hidden_dim, out_dim):
-                super().__init__()
-                self.backbone = backbone
-                self.projection_head = SimCLRProjectionHead(hidden_dim, hidden_dim, out_dim)
+  # Alternatively create a Torchvision ResNet backbone.
+  import torchvision
+  resnet_torchvision = torchvision.models.resnet18()
+  # Ignore the classification layer as we want the features as output.
+  resnet_torchvision.fc = nn.Identity()
 
-            def forward(self, x):
-                h = self.backbone(x).flatten(start_dim=1)
-                z = self.projection_head(h)
-                return z
-        
-        resnet_simclr = SimCLR(backbone, hidden_dim=512, out_dim=128)
+  # Create a SimCLR model based on ResNet.
+  class SimCLR(torch.nn.Module):
+      def __init__(self, backbone, hidden_dim, out_dim):
+          super().__init__()
+          self.backbone = backbone
+          self.projection_head = SimCLRProjectionHead(hidden_dim, hidden_dim, out_dim)
 
-You can also use **custom backbones** with lightly. We provide a 
+      def forward(self, x):
+          h = self.backbone(x).flatten(start_dim=1)
+          z = self.projection_head(h)
+          return z
+
+  resnet_simclr = SimCLR(backbone, hidden_dim=512, out_dim=128)
+
+You can also use **custom backbones** with Lightly. We provide a 
 `colab notebook to show how you can use torchvision or timm models
 <https://colab.research.google.com/drive/1ubepXnpANiWOSmq80e-mqAxjLx53m-zu?usp=sharing>`_.
 
 
-Losses 
--------------------
+Losses
+------
 
-We provide the most common loss function for contrastive learning and a symmetric negative cosine similarity 
-loss for non-contrastive methods.
-
-- `NTXentLoss: Normalized Temperature-scaled Cross Entropy Loss <https://paperswithcode.com/method/nt-xent>`_
-
-  - Check the documentation: :py:class:`lightly.loss.ntx_ent_loss.NTXentLoss`
-  - This loss can be combined with a :ref:`lightly-advanced-memory-bank` 
-
-- `Negative Cosine Similarity <https://arxiv.org/abs/2011.10566>`_
-
-  - Check the documentation: :py:class:`lightly.loss.negative_cosine_similarity.NegativeCosineSimilarity`
-
-- `Barlow Twin Loss <https://arxiv.org/abs/2103.03230v1>`_
-
-  - Check the documentation: :py:class:`lightly.loss.barlow_twins_loss.BarlowTwinsLoss`
-
-- `CO2 regularization Loss <https://arxiv.org/abs/2010.02217>`_
-
-  - Check the documentation: :py:class:`lightly.loss.regularizer.co2.CO2Regularizer`
-
-- `Hypersphere Loss <https://arxiv.org/abs/2005.10242>`_
-
-  - Check the documentation: :py:class:`lightly.loss.hypersphere_loss.HypersphereLoss`
+We provide the most common loss functions for self-supervised learning in the
+:py:mod:`~lightly.loss` module.
 
 
 .. _lightly-advanced-memory-bank:
 
 Memory Bank
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^
 
 Since contrastive learning methods benefit from many negative examples, larger
 batch sizes are preferred. However, not everyone has a multi GPU cluster at 
@@ -291,6 +305,7 @@ For more information check the documentation:
   # the memory bank is used automatically for every forward pass
   y0, y1 = resnet_moco(x0, x1)
   loss = criterion(y0, y1)
+
 
 Obtaining Good Embeddings
 ---------------------------
@@ -322,11 +337,11 @@ We provide several tools to assess the embedding quality during model training.
 The :class:`Benchmark Module <lightly.utils.benchmarking.BenchmarkModule>` runs
 a KNN benchmark on a validation set after every training epoch. Measuring KNN
 accuracy during training is an efficient way to monitor model training and does
-not require expensive finetuning.
+not require expensive fine-tuning.
 
 We also provide a helper function to monitor representation collapse. 
-Representation collapse can happen during  unstable training and results in the 
-model predicting the same, or very similar,  representations for all images. 
+Representation collapse can happen during unstable training and results in the 
+model predicting the same, or very similar, representations for all images. 
 This is of course disastrous for model training as we want to the 
 representations to be as different as possible between images!
 The :func:`std_of_l2_normalized <lightly.utils.debug.std_of_l2_normalized>` 
@@ -380,11 +395,11 @@ not have noticed the representation collapse in the first run and continued
 training, using up valuable time and compute resources.
 
 
-Extracting specific Video Frames
+Extracting Specific Video Frames
 --------------------------------
 
 When working with videos, it is preferred not to have to extract all 
-the frames beforehand. With lightly we can not only subsample the video 
+the frames beforehand. With Lightly we can not only subsample the video 
 to find interesting frames for annotation but also extract only these frames.
 
 Let's have a look at how this works:
@@ -460,4 +475,4 @@ Let's have a look at how this works:
     #    dst_fname = dst_fname.replace('.png', '.jpg')
     #    img.save(dst_fname)
 
-The example has been tested on a system running Python 3.7 and lightly 1.0.6
+The example has been tested on a system running Python 3.7 and Lightly 1.0.6
