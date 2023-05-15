@@ -143,9 +143,9 @@ There are three ways how you can customize augmentations in Lightly:
     views = transform(image)
 
 3. Write a completely new `Torchvision transform <https://pytorch.org/vision/stable/transforms.html>`_.
-  One of the benefits of Lightly is that it doesn't restrict you to a specific framework.
-  If you need a special transform then you can write it yourself. Just make sure to
-  adapt your training loop if required:
+   One of the benefits of Lightly is that it doesn't restrict you to a specific framework.
+   If you need a special transform then you can write it yourself. Just make sure to
+   adapt your training loop if required:
 
   .. code:: python
 
@@ -164,7 +164,7 @@ There are three ways how you can customize augmentations in Lightly:
 
 
 Previewing Augmentations
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
   This section is outdated and still uses the old collate functions which are deprecated
