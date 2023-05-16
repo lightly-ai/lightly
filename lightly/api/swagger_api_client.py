@@ -20,6 +20,61 @@ class PatchApiClientMixin:
             del state["last_response"]
         return state
 
+    def call_api(
+        self,
+        resource_path,
+        method,
+        path_params=None,
+        query_params=None,
+        header_params=None,
+        body=None,
+        post_params=None,
+        files=None,
+        response_types_map=None,
+        auth_settings=None,
+        async_req=None,
+        _return_http_data_only=None,
+        collection_formats=None,
+        _preload_content=True,
+        _request_timeout=None,
+        _host=None,
+        _request_auth=None,
+    ):
+        query_params = _flatten_list_query_parameters(query_params)
+        super().call_api(
+            resource_path,
+            method,
+            path_params=path_params,
+            query_params=query_params,
+            header_params=header_params,
+            body=body,
+            post_params=post_params,
+            files=files,
+            response_types_map=response_types_map,
+            auth_settings=auth_settings,
+            async_req=async_req,
+            _return_http_data_only=_return_http_data_only,
+            collection_formats=collection_formats,
+            _preload_content=_preload_content,
+            _request_timeout=_request_timeout,
+            _host=_host,
+            _request_auth=_request_auth,
+        )
+
+
+def _flatten_list_query_parameters(
+    query_params: Union[None, list[Tuple[str, Any]]]
+) -> Union[None, list[Tuple[str, Any]]]:
+    if query_params is not None:
+        new_query_params = []
+        for name, value in query_params:
+            if isinstance(value, list):
+                new_query_params.extend([(name, val) for val in value])
+            else:
+                new_query_params.append((name, value))
+        query_params = new_query_params
+    return query_params
+
 
 class LightlySwaggerApiClient(PatchApiClientMixin, ApiClient):
     """Subclass of ApiClient with patches to make the client picklable.
