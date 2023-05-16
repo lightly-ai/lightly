@@ -85,6 +85,7 @@ from lightly.openapi_client.models import (
 from lightly.openapi_client.rest import ApiException
 from tests.api_workflow.utils import generate_id
 
+
 def _check_dataset_id(dataset_id: str):
     if not isinstance(dataset_id, str) or len(dataset_id) == 0:
         raise ApiException(status=400, reason="Invalid dataset id.")

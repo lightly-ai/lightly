@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 from lightly.api.swagger_rest_client import LightlySwaggerRESTClientObject
 from lightly.openapi_client.api_client import ApiClient, Configuration
@@ -63,8 +63,8 @@ class PatchApiClientMixin:
 
 
 def _flatten_list_query_parameters(
-    query_params: Union[None, list[Tuple[str, Any]]]
-) -> Union[None, list[Tuple[str, Any]]]:
+    query_params: Union[None, List[Tuple[str, Any]]]
+) -> Union[None, List[Tuple[str, Any]]]:
     if query_params is not None:
         new_query_params = []
         for name, value in query_params:
