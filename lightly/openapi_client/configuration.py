@@ -211,7 +211,7 @@ conf = lightly.openapi_client.Configuration(
         result = cls.__new__(cls)
         memo[id(self)] = result
         for k, v in self.__dict__.items():
-            if k not in ('logger', 'logger_file_handler'):
+            if k not in ('logger', 'logger_file_handler', 'logger_stream_handler'):
                 setattr(result, k, copy.deepcopy(v, memo))
         # shallow copy of loggers
         result.logger = copy.copy(self.logger)
@@ -288,6 +288,17 @@ conf = lightly.openapi_client.Configuration(
             self.logger_file_handler.setFormatter(self.logger_formatter)
             for _, logger in self.logger.items():
                 logger.addHandler(self.logger_file_handler)
+                if self.logger_stream_handler:
+                    logger.removeHandler(self.logger_stream_handler)
+        else:
+            # If not set logging file,
+            # then add stream handler and remove file handler.
+            self.logger_stream_handler = logging.StreamHandler()
+            self.logger_stream_handler.setFormatter(self.logger_formatter)
+            for _, logger in self.logger.items():
+                logger.addHandler(self.logger_stream_handler)
+                if self.logger_file_handler:
+                    logger.removeHandler(self.logger_file_handler)
 
     @property
     def debug(self):
