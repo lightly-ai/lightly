@@ -1,7 +1,8 @@
 from typing import Optional, Sequence, Tuple
 
 import torch
-from torch import Tensor, dist
+from torch import Tensor
+import torch.distributed as dist
 
 from lightly.loss.vicreg_loss import (
     VICRegLoss,
