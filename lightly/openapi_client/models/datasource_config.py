@@ -257,22 +257,22 @@ class DatasourceConfig(BaseModel):
         else:
             return instance
 
-    def to_json(self) -> str:
+    def to_json(self, by_alias: bool = False) -> str:
         """Returns the JSON representation of the actual instance"""
         if self.actual_instance is not None:
-            return self.actual_instance.to_json()
+            return self.actual_instance.to_json(by_alias=by_alias)
         else:
             return "null"
 
-    def to_dict(self) -> dict:
+    def to_dict(self, by_alias: bool = False) -> dict:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is not None:
-            return self.actual_instance.to_dict()
+            return self.actual_instance.to_dict(by_alias=by_alias)
         else:
             return dict()
 
-    def to_str(self) -> str:
+    def to_str(self, by_alias: bool = False) -> str:
         """Returns the string representation of the actual instance"""
-        return pprint.pformat(self.dict())
+        return pprint.pformat(self.dict(by_alias=by_alias))
 
 

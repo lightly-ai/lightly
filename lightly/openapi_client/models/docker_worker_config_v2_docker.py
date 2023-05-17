@@ -58,37 +58,37 @@ class DockerWorkerConfigV2Docker(BaseModel):
         use_enum_values = True
         extra = Extra.forbid
 
-    def to_str(self) -> str:
-        """Returns the string representation of the model using alias"""
-        return pprint.pformat(self.dict(by_alias=True))
+    def to_str(self, by_alias: bool = False) -> str:
+        """Returns the string representation of the model"""
+        return pprint.pformat(self.dict(by_alias=by_alias))
 
-    def to_json(self) -> str:
-        """Returns the JSON representation of the model using alias"""
-        return json.dumps(self.to_dict())
+    def to_json(self, by_alias: bool = False) -> str:
+        """Returns the JSON representation of the model"""
+        return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
     def from_json(cls, json_str: str) -> DockerWorkerConfigV2Docker:
         """Create an instance of DockerWorkerConfigV2Docker from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
-    def to_dict(self):
-        """Returns the dictionary representation of the model using alias"""
-        _dict = self.dict(by_alias=True,
+    def to_dict(self, by_alias: bool = False):
+        """Returns the dictionary representation of the model"""
+        _dict = self.dict(by_alias=by_alias,
                           exclude={
                           },
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of corruptness_check
         if self.corruptness_check:
-            _dict['corruptnessCheck'] = self.corruptness_check.to_dict()
+            _dict['corruptnessCheck'] = self.corruptness_check.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of datasource
         if self.datasource:
-            _dict['datasource'] = self.datasource.to_dict()
+            _dict['datasource'] = self.datasource.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of object_level
         if self.object_level:
-            _dict['objectLevel'] = self.object_level.to_dict()
+            _dict['objectLevel'] = self.object_level.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of stopping_condition
         if self.stopping_condition:
-            _dict['stoppingCondition'] = self.stopping_condition.to_dict()
+            _dict['stoppingCondition'] = self.stopping_condition.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod

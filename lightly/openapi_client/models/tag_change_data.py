@@ -55,50 +55,50 @@ class TagChangeData(BaseModel):
         use_enum_values = True
         extra = Extra.forbid
 
-    def to_str(self) -> str:
-        """Returns the string representation of the model using alias"""
-        return pprint.pformat(self.dict(by_alias=True))
+    def to_str(self, by_alias: bool = False) -> str:
+        """Returns the string representation of the model"""
+        return pprint.pformat(self.dict(by_alias=by_alias))
 
-    def to_json(self) -> str:
-        """Returns the JSON representation of the model using alias"""
-        return json.dumps(self.to_dict())
+    def to_json(self, by_alias: bool = False) -> str:
+        """Returns the JSON representation of the model"""
+        return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
     def from_json(cls, json_str: str) -> TagChangeData:
         """Create an instance of TagChangeData from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
-    def to_dict(self):
-        """Returns the dictionary representation of the model using alias"""
-        _dict = self.dict(by_alias=True,
+    def to_dict(self, by_alias: bool = False):
+        """Returns the dictionary representation of the model"""
+        _dict = self.dict(by_alias=by_alias,
                           exclude={
                             "additional_properties"
                           },
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of initial
         if self.initial:
-            _dict['initial'] = self.initial.to_dict()
+            _dict['initial'] = self.initial.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of rename
         if self.rename:
-            _dict['rename'] = self.rename.to_dict()
+            _dict['rename'] = self.rename.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of upsize
         if self.upsize:
-            _dict['upsize'] = self.upsize.to_dict()
+            _dict['upsize'] = self.upsize.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of arithmetics
         if self.arithmetics:
-            _dict['arithmetics'] = self.arithmetics.to_dict()
+            _dict['arithmetics'] = self.arithmetics.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of metadata
         if self.metadata:
-            _dict['metadata'] = self.metadata.to_dict()
+            _dict['metadata'] = self.metadata.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of samples
         if self.samples:
-            _dict['samples'] = self.samples.to_dict()
+            _dict['samples'] = self.samples.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of scatterplot
         if self.scatterplot:
-            _dict['scatterplot'] = self.scatterplot.to_dict()
+            _dict['scatterplot'] = self.scatterplot.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of sampler
         if self.sampler:
-            _dict['sampler'] = self.sampler.to_dict()
+            _dict['sampler'] = self.sampler.to_dict(by_alias=by_alias)
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():

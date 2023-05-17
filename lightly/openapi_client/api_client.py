@@ -289,7 +289,7 @@ class ApiClient(object):
             # and attributes which value is not None.
             # Convert attribute name to json key in
             # model definition for request.
-            obj_dict = obj.to_dict()
+            obj_dict = obj.to_dict(by_alias=True)
 
         return {key: self.sanitize_for_serialization(val)
                 for key, val in obj_dict.items()}
