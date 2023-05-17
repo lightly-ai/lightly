@@ -41,7 +41,7 @@ class PatchApiClientMixin:
         _request_auth=None,
     ):
         query_params = _flatten_list_query_parameters(query_params)
-        super().call_api(
+        return super().call_api(
             resource_path,
             method,
             path_params=path_params,
