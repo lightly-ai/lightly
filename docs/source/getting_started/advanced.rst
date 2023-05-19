@@ -137,9 +137,8 @@ There are three ways how you can customize augmentations in Lightly:
     ])
 
     # Combine the transforms. Every transform will create one view.
+    # The final transform will create four views: two global and two local views.
     transform = MultiViewTransform([global_view, global_view, local_view, local_view])
-
-    # Create two global and two local views from an image.
     views = transform(image)
 
 3. Write a completely new `Torchvision transform <https://pytorch.org/vision/stable/transforms.html>`_.
