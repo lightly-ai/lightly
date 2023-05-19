@@ -128,7 +128,7 @@ There are three ways how you can customize augmentations in Lightly:
         T.ToTensor(),
     ])
 
-    # Create local view transform that crops 96x96 patches from the input image.
+    # Create a local view transform that crops a random portion of the input image and resizes it to a 96x96 patch.
     local_view = T.Collate([
         T.RandomResizedCrop(size=96, scale=(0.05, 0.4)),
         T.RandomHorizontalFlip(p=0.5),
