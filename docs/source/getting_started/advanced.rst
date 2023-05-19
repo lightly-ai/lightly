@@ -89,7 +89,7 @@ while :ref:`dino` uses two global and multiple, smaller local views per image.
   augmentations. You find the default parameters here: :ref:`ref-cli-config-default`. 
 
 .. note:: Since **solarization** and **random rotations** by 90 degrees are not supported
-  in Torchvision, we added them also to the :py:mod:`~lightly.transforms` module.
+  in Torchvision, we added them to the :py:mod:`~lightly.transforms` module as well.
 
 
 Custom Transforms
