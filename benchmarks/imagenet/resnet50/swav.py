@@ -32,7 +32,7 @@ class SwAV(LightningModule):
         self.projection_head = SwaVProjectionHead()
         self.prototypes = SwaVPrototypes(
             n_steps_frozen_prototypes=(
-                self.trainer.estimated_stepping_batches / self.trainer.max_epochs
+                2# TODO: self.trainer.estimated_stepping_batches / self.trainer.max_epochs
             )
         )
         self.criterion = SwaVLoss(sinkhorn_gather_distributed=True)
@@ -176,7 +176,7 @@ transform = SwaVTransform(crop_counts=CROP_COUNTS)
 @torch.no_grad()
 def _enqueue_and_get_queue_projections(
     high_resolution_projections: List[Tensor],
-    queues: ModuleList[MemoryBankModule],
+    queues: ModuleList,
 ):
     """Adds the high resolution projections to the queues and returns the queues."""
 
