@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 
@@ -34,12 +30,14 @@ class TagBitMaskResponse(BaseModel):
     __properties = ["bitMaskData"]
 
     @validator('bit_mask_data')
-    def bit_mask_data_validate_regular_expression(cls, v):
-        if not re.match(r"^0x[a-f0-9]+$", v):
+    def bit_mask_data_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^0x[a-f0-9]+$", value):
             raise ValueError(r"must validate the regular expression /^0x[a-f0-9]+$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -72,7 +70,7 @@ class TagBitMaskResponse(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return TagBitMaskResponse.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -84,5 +82,4 @@ class TagBitMaskResponse(BaseModel):
             "bit_mask_data": obj.get("bitMaskData")
         })
         return _obj
-
 

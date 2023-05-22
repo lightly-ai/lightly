@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -39,12 +35,14 @@ class DockerWorkerConfigV2Data(BaseModel):
     __properties = ["id", "version", "config", "configOrig", "createdAt"]
 
     @validator('id')
-    def id_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-f0-9]{24}$", v):
+    def id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -71,10 +69,10 @@ class DockerWorkerConfigV2Data(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of config
         if self.config:
-            _dict['config'] = self.config.to_dict(by_alias=by_alias)
+            _dict['config' if by_alias else 'config'] = self.config.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of config_orig
         if self.config_orig:
-            _dict['configOrig'] = self.config_orig.to_dict(by_alias=by_alias)
+            _dict['configOrig' if by_alias else 'config_orig'] = self.config_orig.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -83,7 +81,7 @@ class DockerWorkerConfigV2Data(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DockerWorkerConfigV2Data.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -99,5 +97,4 @@ class DockerWorkerConfigV2Data(BaseModel):
             "created_at": obj.get("createdAt")
         })
         return _obj
-
 

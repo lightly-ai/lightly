@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -36,5 +36,10 @@ class TaskType(str, Enum):
     SEMANTIC_SEGMENTATION = 'SEMANTIC_SEGMENTATION'
     INSTANCE_SEGMENTATION = 'INSTANCE_SEGMENTATION'
     KEYPOINT_DETECTION = 'KEYPOINT_DETECTION'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'TaskType':
+        """Create an instance of TaskType from a JSON string"""
+        return TaskType(json.loads(json_str))
 
 

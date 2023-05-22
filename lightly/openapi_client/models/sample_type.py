@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -34,5 +34,10 @@ class SampleType(str, Enum):
     CROP = 'CROP'
     IMAGE = 'IMAGE'
     VIDEO_FRAME = 'VIDEO_FRAME'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'SampleType':
+        """Create an instance of SampleType from a JSON string"""
+        return SampleType(json.loads(json_str))
 
 

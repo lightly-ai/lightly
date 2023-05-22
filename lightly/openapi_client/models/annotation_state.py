@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -37,5 +37,10 @@ class AnnotationState(str, Enum):
     ACCEPTED = 'ACCEPTED'
     ACTIVE = 'ACTIVE'
     COMPLETED = 'COMPLETED'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'AnnotationState':
+        """Create an instance of AnnotationState from a JSON string"""
+        return AnnotationState(json.loads(json_str))
 
 

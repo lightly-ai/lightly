@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -32,5 +32,10 @@ class SharedAccessType(str, Enum):
     allowed enum values
     """
     WRITE = 'WRITE'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'SharedAccessType':
+        """Create an instance of SharedAccessType from a JSON string"""
+        return SharedAccessType(json.loads(json_str))
 
 

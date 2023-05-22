@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -39,5 +39,10 @@ class DockerRunArtifactType(str, Enum):
     CORRUPTNESS_CHECK_INFORMATION = 'CORRUPTNESS_CHECK_INFORMATION'
     SEQUENCE_INFORMATION = 'SEQUENCE_INFORMATION'
     RELEVANT_FILENAMES = 'RELEVANT_FILENAMES'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'DockerRunArtifactType':
+        """Create an instance of DockerRunArtifactType from a JSON string"""
+        return DockerRunArtifactType(json.loads(json_str))
 
 

@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 
@@ -36,12 +32,14 @@ class CreateSampleWithWriteUrlsResponse(BaseModel):
     __properties = ["id", "sampleWriteUrls"]
 
     @validator('id')
-    def id_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-f0-9]{24}$", v):
+    def id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -68,7 +66,7 @@ class CreateSampleWithWriteUrlsResponse(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of sample_write_urls
         if self.sample_write_urls:
-            _dict['sampleWriteUrls'] = self.sample_write_urls.to_dict(by_alias=by_alias)
+            _dict['sampleWriteUrls' if by_alias else 'sample_write_urls'] = self.sample_write_urls.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -77,7 +75,7 @@ class CreateSampleWithWriteUrlsResponse(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return CreateSampleWithWriteUrlsResponse.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -90,5 +88,4 @@ class CreateSampleWithWriteUrlsResponse(BaseModel):
             "sample_write_urls": SampleWriteUrls.from_dict(obj.get("sampleWriteUrls")) if obj.get("sampleWriteUrls") is not None else None
         })
         return _obj
-
 

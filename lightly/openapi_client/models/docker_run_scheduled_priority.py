@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -35,5 +35,10 @@ class DockerRunScheduledPriority(str, Enum):
     MID = 'MID'
     HIGH = 'HIGH'
     CRITICAL = 'CRITICAL'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'DockerRunScheduledPriority':
+        """Create an instance of DockerRunScheduledPriority from a JSON string"""
+        return DockerRunScheduledPriority(json.loads(json_str))
 
 

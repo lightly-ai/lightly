@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -34,5 +34,10 @@ class FileNameFormat(str, Enum):
     NAME = 'NAME'
     DATASOURCE_FULL = 'DATASOURCE_FULL'
     REDIRECTED_READ_URL = 'REDIRECTED_READ_URL'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'FileNameFormat':
+        """Create an instance of FileNameFormat from a JSON string"""
+        return FileNameFormat(json.loads(json_str))
 
 

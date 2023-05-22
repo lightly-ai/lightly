@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Any, Dict, Optional
@@ -39,6 +35,7 @@ class DockerWorkerConfig(BaseModel):
     __properties = ["workerType", "docker", "lightly", "selection"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -65,16 +62,16 @@ class DockerWorkerConfig(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of selection
         if self.selection:
-            _dict['selection'] = self.selection.to_dict(by_alias=by_alias)
+            _dict['selection' if by_alias else 'selection'] = self.selection.to_dict(by_alias=by_alias)
         # set to None if docker (nullable) is None
         # and __fields_set__ contains the field
         if self.docker is None and "docker" in self.__fields_set__:
-            _dict['docker'] = None
+            _dict['docker' if by_alias else 'docker'] = None
 
         # set to None if lightly (nullable) is None
         # and __fields_set__ contains the field
         if self.lightly is None and "lightly" in self.__fields_set__:
-            _dict['lightly'] = None
+            _dict['lightly' if by_alias else 'lightly'] = None
 
         return _dict
 
@@ -84,7 +81,7 @@ class DockerWorkerConfig(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DockerWorkerConfig.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -99,5 +96,4 @@ class DockerWorkerConfig(BaseModel):
             "selection": SelectionConfig.from_dict(obj.get("selection")) if obj.get("selection") is not None else None
         })
         return _obj
-
 

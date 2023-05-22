@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional, Union
@@ -38,6 +34,7 @@ class InternalDebugLatency(BaseModel):
     __properties = ["express", "mongodb", "redisCache", "redisWorker"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -64,13 +61,13 @@ class InternalDebugLatency(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of mongodb
         if self.mongodb:
-            _dict['mongodb'] = self.mongodb.to_dict(by_alias=by_alias)
+            _dict['mongodb' if by_alias else 'mongodb'] = self.mongodb.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of redis_cache
         if self.redis_cache:
-            _dict['redisCache'] = self.redis_cache.to_dict(by_alias=by_alias)
+            _dict['redisCache' if by_alias else 'redis_cache'] = self.redis_cache.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of redis_worker
         if self.redis_worker:
-            _dict['redisWorker'] = self.redis_worker.to_dict(by_alias=by_alias)
+            _dict['redisWorker' if by_alias else 'redis_worker'] = self.redis_worker.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -79,7 +76,7 @@ class InternalDebugLatency(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return InternalDebugLatency.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -94,5 +91,4 @@ class InternalDebugLatency(BaseModel):
             "redis_worker": InternalDebugLatencyMongodb.from_dict(obj.get("redisWorker")) if obj.get("redisWorker") is not None else None
         })
         return _obj
-
 

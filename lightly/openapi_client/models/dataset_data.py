@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import List, Optional
@@ -52,54 +48,61 @@ class DatasetData(BaseModel):
     __properties = ["id", "name", "userId", "accessType", "type", "imgType", "nSamples", "sizeInBytes", "metaDataConfigurationId", "datasources", "createdAt", "lastModifiedAt", "datasourceProcessedUntilTimestamp", "accessRole", "parentDatasetId", "originalDatasetId"]
 
     @validator('id')
-    def id_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-f0-9]{24}$", v):
+    def id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('name')
-    def name_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 _-]+$", v):
+    def name_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 _-]+$", value):
             raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 _-]+$/")
-        return v
+        return value
 
     @validator('meta_data_configuration_id')
-    def meta_data_configuration_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def meta_data_configuration_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('access_role')
-    def access_role_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def access_role_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^0b[01]{6}$", v):
+        if not re.match(r"^0b[01]{6}$", value):
             raise ValueError(r"must validate the regular expression /^0b[01]{6}$/")
-        return v
+        return value
 
     @validator('parent_dataset_id')
-    def parent_dataset_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def parent_dataset_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('original_dataset_id')
-    def original_dataset_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def original_dataset_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -132,7 +135,7 @@ class DatasetData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DatasetData.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -159,5 +162,4 @@ class DatasetData(BaseModel):
             "original_dataset_id": obj.get("originalDatasetId")
         })
         return _obj
-
 

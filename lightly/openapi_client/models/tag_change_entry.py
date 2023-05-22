@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 
@@ -39,6 +35,7 @@ class TagChangeEntry(BaseModel):
     __properties = ["userId", "creator", "ts", "changes"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -65,7 +62,7 @@ class TagChangeEntry(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of changes
         if self.changes:
-            _dict['changes'] = self.changes.to_dict(by_alias=by_alias)
+            _dict['changes' if by_alias else 'changes'] = self.changes.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -74,7 +71,7 @@ class TagChangeEntry(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return TagChangeEntry.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -89,5 +86,4 @@ class TagChangeEntry(BaseModel):
             "changes": TagChangeData.from_dict(obj.get("changes")) if obj.get("changes") is not None else None
         })
         return _obj
-
 

@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Any, Optional
@@ -36,6 +32,7 @@ class JobStatusDataResult(BaseModel):
     __properties = ["type", "data"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -63,7 +60,7 @@ class JobStatusDataResult(BaseModel):
         # set to None if data (nullable) is None
         # and __fields_set__ contains the field
         if self.data is None and "data" in self.__fields_set__:
-            _dict['data'] = None
+            _dict['data' if by_alias else 'data'] = None
 
         return _dict
 
@@ -73,7 +70,7 @@ class JobStatusDataResult(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return JobStatusDataResult.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -86,5 +83,4 @@ class JobStatusDataResult(BaseModel):
             "data": obj.get("data")
         })
         return _obj
-
 

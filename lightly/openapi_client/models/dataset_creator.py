@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -36,5 +36,10 @@ class DatasetCreator(str, Enum):
     USER_PIP = 'USER_PIP'
     USER_PIP_LIGHTLY_MAGIC = 'USER_PIP_LIGHTLY_MAGIC'
     USER_WORKER = 'USER_WORKER'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'DatasetCreator':
+        """Create an instance of DatasetCreator from a JSON string"""
+        return DatasetCreator(json.loads(json_str))
 
 

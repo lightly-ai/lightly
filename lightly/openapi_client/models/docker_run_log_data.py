@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import List, Optional
@@ -36,6 +32,7 @@ class DockerRunLogData(BaseModel):
     __properties = ["cursor", "logs"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -66,7 +63,7 @@ class DockerRunLogData(BaseModel):
             for _item in self.logs:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict['logs'] = _items
+            _dict['logs' if by_alias else 'logs'] = _items
         return _dict
 
     @classmethod
@@ -75,7 +72,7 @@ class DockerRunLogData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DockerRunLogData.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -88,5 +85,4 @@ class DockerRunLogData(BaseModel):
             "logs": [DockerRunLogEntryData.from_dict(_item) for _item in obj.get("logs")] if obj.get("logs") is not None else None
         })
         return _obj
-
 

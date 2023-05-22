@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -36,5 +36,10 @@ class JobResultType(str, Enum):
     EMBEDDING = 'EMBEDDING'
     EMBEDDINGS2D = 'EMBEDDINGS2D'
     SAMPLING = 'SAMPLING'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'JobResultType':
+        """Create an instance of JobResultType from a JSON string"""
+        return JobResultType(json.loads(json_str))
 
 

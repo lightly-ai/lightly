@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -40,5 +40,10 @@ class TagCreator(str, Enum):
     SAMPLER_CORAL = 'SAMPLER_CORAL'
     SAMPLER_CORESET = 'SAMPLER_CORESET'
     SAMPLER_RANDOM = 'SAMPLER_RANDOM'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'TagCreator':
+        """Create an instance of TagCreator from a JSON string"""
+        return TagCreator(json.loads(json_str))
 
 

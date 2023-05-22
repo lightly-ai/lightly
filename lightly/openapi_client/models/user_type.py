@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -35,5 +35,10 @@ class UserType(str, Enum):
     PROFESSIONAL = 'PROFESSIONAL'
     ENTERPRISE = 'ENTERPRISE'
     ADMIN = 'ADMIN'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'UserType':
+        """Create an instance of UserType from a JSON string"""
+        return UserType(json.loads(json_str))
 
 

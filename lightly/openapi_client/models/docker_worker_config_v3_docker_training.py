@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -34,15 +30,17 @@ class DockerWorkerConfigV3DockerTraining(BaseModel):
     __properties = ["taskName"]
 
     @validator('task_name')
-    def task_name_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def task_name_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]*$", v):
+        if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]*$", value):
             raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -75,7 +73,7 @@ class DockerWorkerConfigV3DockerTraining(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DockerWorkerConfigV3DockerTraining.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -87,5 +85,4 @@ class DockerWorkerConfigV3DockerTraining(BaseModel):
             "task_name": obj.get("taskName")
         })
         return _obj
-
 

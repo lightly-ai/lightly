@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import List
@@ -37,6 +33,7 @@ class DatasourceRawSamplesPredictionsData(BaseModel):
     __properties = ["hasMore", "cursor", "data"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -67,7 +64,7 @@ class DatasourceRawSamplesPredictionsData(BaseModel):
             for _item in self.data:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict['data'] = _items
+            _dict['data' if by_alias else 'data'] = _items
         return _dict
 
     @classmethod
@@ -76,7 +73,7 @@ class DatasourceRawSamplesPredictionsData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DatasourceRawSamplesPredictionsData.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -90,5 +87,4 @@ class DatasourceRawSamplesPredictionsData(BaseModel):
             "data": [DatasourceRawSamplesPredictionsDataRow.from_dict(_item) for _item in obj.get("data")] if obj.get("data") is not None else None
         })
         return _obj
-
 

@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -46,21 +42,24 @@ class JobStatusData(BaseModel):
     __properties = ["id", "datasetId", "status", "meta", "waitTimeTillNextPoll", "createdAt", "lastModifiedAt", "finishedAt", "error", "result"]
 
     @validator('id')
-    def id_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-f0-9]{24}$", v):
+    def id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('dataset_id')
-    def dataset_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def dataset_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -87,10 +86,10 @@ class JobStatusData(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of meta
         if self.meta:
-            _dict['meta'] = self.meta.to_dict(by_alias=by_alias)
+            _dict['meta' if by_alias else 'meta'] = self.meta.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of result
         if self.result:
-            _dict['result'] = self.result.to_dict(by_alias=by_alias)
+            _dict['result' if by_alias else 'result'] = self.result.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -99,7 +98,7 @@ class JobStatusData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return JobStatusData.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -120,5 +119,4 @@ class JobStatusData(BaseModel):
             "result": JobStatusDataResult.from_dict(obj.get("result")) if obj.get("result") is not None else None
         })
         return _obj
-
 

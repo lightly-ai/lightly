@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -34,5 +34,10 @@ class ImageType(str, Enum):
     FULL = 'full'
     THUMBNAIL = 'thumbnail'
     META = 'meta'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'ImageType':
+        """Create an instance of ImageType from a JSON string"""
+        return ImageType(json.loads(json_str))
 
 

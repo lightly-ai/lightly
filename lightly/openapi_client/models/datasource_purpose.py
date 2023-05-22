@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -34,5 +34,10 @@ class DatasourcePurpose(str, Enum):
     INPUT_OUTPUT = 'INPUT_OUTPUT'
     INPUT = 'INPUT'
     LIGHTLY = 'LIGHTLY'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'DatasourcePurpose':
+        """Create an instance of DatasourcePurpose from a JSON string"""
+        return DatasourcePurpose(json.loads(json_str))
 
 

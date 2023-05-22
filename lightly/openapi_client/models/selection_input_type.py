@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -36,5 +36,10 @@ class SelectionInputType(str, Enum):
     METADATA = 'METADATA'
     PREDICTIONS = 'PREDICTIONS'
     RANDOM = 'RANDOM'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'SelectionInputType':
+        """Create an instance of SelectionInputType from a JSON string"""
+        return SelectionInputType(json.loads(json_str))
 
 

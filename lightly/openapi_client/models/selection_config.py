@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import List, Optional, Union
@@ -37,6 +33,7 @@ class SelectionConfig(BaseModel):
     __properties = ["nSamples", "proportionSamples", "strategies"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -67,7 +64,7 @@ class SelectionConfig(BaseModel):
             for _item in self.strategies:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict['strategies'] = _items
+            _dict['strategies' if by_alias else 'strategies'] = _items
         return _dict
 
     @classmethod
@@ -76,7 +73,7 @@ class SelectionConfig(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return SelectionConfig.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -90,5 +87,4 @@ class SelectionConfig(BaseModel):
             "strategies": [SelectionConfigEntry.from_dict(_item) for _item in obj.get("strategies")] if obj.get("strategies") is not None else None
         })
         return _obj
-
 

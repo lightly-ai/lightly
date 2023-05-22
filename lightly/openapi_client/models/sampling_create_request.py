@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional, Union
@@ -42,39 +38,44 @@ class SamplingCreateRequest(BaseModel):
     __properties = ["newTagName", "method", "config", "preselectedTagId", "queryTagId", "scoreType", "rowCount"]
 
     @validator('new_tag_name')
-    def new_tag_name_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$", v):
+    def new_tag_name_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$", value):
             raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/")
-        return v
+        return value
 
     @validator('preselected_tag_id')
-    def preselected_tag_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def preselected_tag_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('query_tag_id')
-    def query_tag_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def query_tag_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('score_type')
-    def score_type_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def score_type_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]*$", v):
+        if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]*$", value):
             raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -101,7 +102,7 @@ class SamplingCreateRequest(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of config
         if self.config:
-            _dict['config'] = self.config.to_dict(by_alias=by_alias)
+            _dict['config' if by_alias else 'config'] = self.config.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -110,7 +111,7 @@ class SamplingCreateRequest(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return SamplingCreateRequest.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -128,5 +129,4 @@ class SamplingCreateRequest(BaseModel):
             "row_count": obj.get("rowCount")
         })
         return _obj
-
 

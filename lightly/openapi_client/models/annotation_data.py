@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -45,6 +41,7 @@ class AnnotationData(BaseModel):
     __properties = ["_id", "state", "datasetId", "tagId", "partnerId", "createdAt", "lastModifiedAt", "meta", "offer"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -71,10 +68,10 @@ class AnnotationData(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of meta
         if self.meta:
-            _dict['meta'] = self.meta.to_dict(by_alias=by_alias)
+            _dict['meta' if by_alias else 'meta'] = self.meta.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of offer
         if self.offer:
-            _dict['offer'] = self.offer.to_dict(by_alias=by_alias)
+            _dict['offer' if by_alias else 'offer'] = self.offer.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -83,7 +80,7 @@ class AnnotationData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return AnnotationData.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -103,5 +100,4 @@ class AnnotationData(BaseModel):
             "offer": AnnotationOfferData.from_dict(obj.get("offer")) if obj.get("offer") is not None else None
         })
         return _obj
-
 

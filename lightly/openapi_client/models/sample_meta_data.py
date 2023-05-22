@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Any, Dict, List, Optional, Union
@@ -43,6 +39,7 @@ class SampleMetaData(BaseModel):
     __properties = ["custom", "dynamic", "sharpness", "sizeInBytes", "snr", "mean", "shape", "std", "sumOfSquares", "sumOfValues"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -75,7 +72,7 @@ class SampleMetaData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return SampleMetaData.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -96,5 +93,4 @@ class SampleMetaData(BaseModel):
             "sum_of_values": obj.get("sumOfValues")
         })
         return _obj
-
 

@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 
@@ -37,12 +33,14 @@ class DatasourceConfigOBS(DatasourceConfigBase):
     __properties = ["id", "purpose", "type", "fullPath", "thumbSuffix", "obsEndpoint", "obsAccessKeyId", "obsSecretAccessKey"]
 
     @validator('obs_endpoint')
-    def obs_endpoint_validate_regular_expression(cls, v):
-        if not re.match(r"^https?:\/\/.+$", v):
+    def obs_endpoint_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^https?:\/\/.+$", value):
             raise ValueError(r"must validate the regular expression /^https?:\/\/.+$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -75,7 +73,7 @@ class DatasourceConfigOBS(DatasourceConfigBase):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DatasourceConfigOBS.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -94,5 +92,4 @@ class DatasourceConfigOBS(DatasourceConfigBase):
             "obs_secret_access_key": obj.get("obsSecretAccessKey")
         })
         return _obj
-
 

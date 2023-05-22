@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -35,5 +35,10 @@ class SamplingMethod(str, Enum):
     CORAL = 'CORAL'
     CORESET = 'CORESET'
     RANDOM = 'RANDOM'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'SamplingMethod':
+        """Create an instance of SamplingMethod from a JSON string"""
+        return SamplingMethod(json.loads(json_str))
 
 

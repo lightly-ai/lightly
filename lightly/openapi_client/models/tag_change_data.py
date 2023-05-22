@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -50,6 +46,7 @@ class TagChangeData(BaseModel):
     __properties = ["initial", "rename", "upsize", "arithmetics", "metadata", "samples", "scatterplot", "sampler"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -77,28 +74,28 @@ class TagChangeData(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of initial
         if self.initial:
-            _dict['initial'] = self.initial.to_dict(by_alias=by_alias)
+            _dict['initial' if by_alias else 'initial'] = self.initial.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of rename
         if self.rename:
-            _dict['rename'] = self.rename.to_dict(by_alias=by_alias)
+            _dict['rename' if by_alias else 'rename'] = self.rename.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of upsize
         if self.upsize:
-            _dict['upsize'] = self.upsize.to_dict(by_alias=by_alias)
+            _dict['upsize' if by_alias else 'upsize'] = self.upsize.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of arithmetics
         if self.arithmetics:
-            _dict['arithmetics'] = self.arithmetics.to_dict(by_alias=by_alias)
+            _dict['arithmetics' if by_alias else 'arithmetics'] = self.arithmetics.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of metadata
         if self.metadata:
-            _dict['metadata'] = self.metadata.to_dict(by_alias=by_alias)
+            _dict['metadata' if by_alias else 'metadata'] = self.metadata.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of samples
         if self.samples:
-            _dict['samples'] = self.samples.to_dict(by_alias=by_alias)
+            _dict['samples' if by_alias else 'samples'] = self.samples.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of scatterplot
         if self.scatterplot:
-            _dict['scatterplot'] = self.scatterplot.to_dict(by_alias=by_alias)
+            _dict['scatterplot' if by_alias else 'scatterplot'] = self.scatterplot.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of sampler
         if self.sampler:
-            _dict['sampler'] = self.sampler.to_dict(by_alias=by_alias)
+            _dict['sampler' if by_alias else 'sampler'] = self.sampler.to_dict(by_alias=by_alias)
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -112,7 +109,7 @@ class TagChangeData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return TagChangeData.parse_obj(obj)
 
         _obj = TagChangeData.parse_obj({
@@ -131,5 +128,4 @@ class TagChangeData(BaseModel):
                 _obj.additional_properties[_key] = obj.get(_key)
 
         return _obj
-
 

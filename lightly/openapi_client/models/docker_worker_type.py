@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -32,5 +32,10 @@ class DockerWorkerType(str, Enum):
     allowed enum values
     """
     FULL = 'FULL'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'DockerWorkerType':
+        """Create an instance of DockerWorkerType from a JSON string"""
+        return DockerWorkerType(json.loads(json_str))
 
 

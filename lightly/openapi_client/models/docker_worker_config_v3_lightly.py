@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -48,6 +44,7 @@ class DockerWorkerConfigV3Lightly(BaseModel):
     __properties = ["seed", "checkpointCallback", "loader", "model", "trainer", "criterion", "optimizer", "collate"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -74,25 +71,25 @@ class DockerWorkerConfigV3Lightly(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of checkpoint_callback
         if self.checkpoint_callback:
-            _dict['checkpointCallback'] = self.checkpoint_callback.to_dict(by_alias=by_alias)
+            _dict['checkpointCallback' if by_alias else 'checkpoint_callback'] = self.checkpoint_callback.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of loader
         if self.loader:
-            _dict['loader'] = self.loader.to_dict(by_alias=by_alias)
+            _dict['loader' if by_alias else 'loader'] = self.loader.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of model
         if self.model:
-            _dict['model'] = self.model.to_dict(by_alias=by_alias)
+            _dict['model' if by_alias else 'model'] = self.model.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of trainer
         if self.trainer:
-            _dict['trainer'] = self.trainer.to_dict(by_alias=by_alias)
+            _dict['trainer' if by_alias else 'trainer'] = self.trainer.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of criterion
         if self.criterion:
-            _dict['criterion'] = self.criterion.to_dict(by_alias=by_alias)
+            _dict['criterion' if by_alias else 'criterion'] = self.criterion.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of optimizer
         if self.optimizer:
-            _dict['optimizer'] = self.optimizer.to_dict(by_alias=by_alias)
+            _dict['optimizer' if by_alias else 'optimizer'] = self.optimizer.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of collate
         if self.collate:
-            _dict['collate'] = self.collate.to_dict(by_alias=by_alias)
+            _dict['collate' if by_alias else 'collate'] = self.collate.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -101,7 +98,7 @@ class DockerWorkerConfigV3Lightly(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DockerWorkerConfigV3Lightly.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -120,5 +117,4 @@ class DockerWorkerConfigV3Lightly(BaseModel):
             "collate": DockerWorkerConfigV3LightlyCollate.from_dict(obj.get("collate")) if obj.get("collate") is not None else None
         })
         return _obj
-
 

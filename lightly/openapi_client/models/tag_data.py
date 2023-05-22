@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import List, Optional
@@ -46,66 +42,75 @@ class TagData(BaseModel):
     __properties = ["id", "datasetId", "prevTagId", "queryTagId", "preselectedTagId", "name", "bitMaskData", "totSize", "createdAt", "lastModifiedAt", "changes", "runId"]
 
     @validator('id')
-    def id_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-f0-9]{24}$", v):
+    def id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('dataset_id')
-    def dataset_id_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-f0-9]{24}$", v):
+    def dataset_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('prev_tag_id')
-    def prev_tag_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def prev_tag_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('query_tag_id')
-    def query_tag_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def query_tag_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('preselected_tag_id')
-    def preselected_tag_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def preselected_tag_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('name')
-    def name_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$", v):
+    def name_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$", value):
             raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/")
-        return v
+        return value
 
     @validator('bit_mask_data')
-    def bit_mask_data_validate_regular_expression(cls, v):
-        if not re.match(r"^0x[a-f0-9]+$", v):
+    def bit_mask_data_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^0x[a-f0-9]+$", value):
             raise ValueError(r"must validate the regular expression /^0x[a-f0-9]+$/")
-        return v
+        return value
 
     @validator('run_id')
-    def run_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def run_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -136,11 +141,11 @@ class TagData(BaseModel):
             for _item in self.changes:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict['changes'] = _items
+            _dict['changes' if by_alias else 'changes'] = _items
         # set to None if prev_tag_id (nullable) is None
         # and __fields_set__ contains the field
         if self.prev_tag_id is None and "prev_tag_id" in self.__fields_set__:
-            _dict['prevTagId'] = None
+            _dict['prevTagId' if by_alias else 'prev_tag_id'] = None
 
         return _dict
 
@@ -150,7 +155,7 @@ class TagData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return TagData.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -173,5 +178,4 @@ class TagData(BaseModel):
             "run_id": obj.get("runId")
         })
         return _obj
-
 

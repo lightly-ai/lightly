@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -33,5 +33,10 @@ class SampleSortBy(str, Enum):
     """
     ID = '_id'
     INDEX = 'index'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'SampleSortBy':
+        """Create an instance of SampleSortBy from a JSON string"""
+        return SampleSortBy(json.loads(json_str))
 
 

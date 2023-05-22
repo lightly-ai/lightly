@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -33,5 +33,10 @@ class DockerRunArtifactStorageLocation(str, Enum):
     """
     LIGHTLY = 'LIGHTLY'
     DATASOURCE = 'DATASOURCE'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'DockerRunArtifactStorageLocation':
+        """Create an instance of DockerRunArtifactStorageLocation from a JSON string"""
+        return DockerRunArtifactStorageLocation(json.loads(json_str))
 
 

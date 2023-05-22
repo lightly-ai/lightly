@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -39,15 +35,17 @@ class DatasourceConfigS3(DatasourceConfigBase):
     __properties = ["id", "purpose", "type", "fullPath", "thumbSuffix", "s3Region", "s3AccessKeyId", "s3SecretAccessKey", "s3ServerSideEncryptionKMSKey"]
 
     @validator('s3_server_side_encryption_kms_key')
-    def s3_server_side_encryption_kms_key_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def s3_server_side_encryption_kms_key_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^arn:aws:kms:[a-zA-Z0-9-]*:[0-9]{12}:key.+$", v):
+        if not re.match(r"^arn:aws:kms:[a-zA-Z0-9-]*:[0-9]{12}:key.+$", value):
             raise ValueError(r"must validate the regular expression /^arn:aws:kms:[a-zA-Z0-9-]*:[0-9]{12}:key.+$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -80,7 +78,7 @@ class DatasourceConfigS3(DatasourceConfigBase):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DatasourceConfigS3.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -100,5 +98,4 @@ class DatasourceConfigS3(DatasourceConfigBase):
             "s3_server_side_encryption_kms_key": obj.get("s3ServerSideEncryptionKMSKey")
         })
         return _obj
-
 

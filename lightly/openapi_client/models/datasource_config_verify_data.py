@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -39,6 +35,7 @@ class DatasourceConfigVerifyData(BaseModel):
     __properties = ["canRead", "canWrite", "canList", "canOverwrite", "errors"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -65,7 +62,7 @@ class DatasourceConfigVerifyData(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of errors
         if self.errors:
-            _dict['errors'] = self.errors.to_dict(by_alias=by_alias)
+            _dict['errors' if by_alias else 'errors'] = self.errors.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -74,7 +71,7 @@ class DatasourceConfigVerifyData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DatasourceConfigVerifyData.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -90,5 +87,4 @@ class DatasourceConfigVerifyData(BaseModel):
             "errors": DatasourceConfigVerifyDataErrors.from_dict(obj.get("errors")) if obj.get("errors") is not None else None
         })
         return _obj
-
 

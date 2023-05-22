@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -33,5 +33,10 @@ class LightlyDockerSelectionMethod(str, Enum):
     """
     CORESET = 'coreset'
     RANDOM = 'random'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'LightlyDockerSelectionMethod':
+        """Create an instance of LightlyDockerSelectionMethod from a JSON string"""
+        return LightlyDockerSelectionMethod(json.loads(json_str))
 
 

@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -57,5 +57,10 @@ class DockerRunState(str, Enum):
     FAILED = 'FAILED'
     CRASHED = 'CRASHED'
     ABORTED = 'ABORTED'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'DockerRunState':
+        """Create an instance of DockerRunState from a JSON string"""
+        return DockerRunState(json.loads(json_str))
 
 

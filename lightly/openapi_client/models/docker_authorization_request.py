@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 
@@ -36,6 +32,7 @@ class DockerAuthorizationRequest(BaseModel):
     __properties = ["timestamp", "taskDescription"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -62,7 +59,7 @@ class DockerAuthorizationRequest(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of task_description
         if self.task_description:
-            _dict['taskDescription'] = self.task_description.to_dict(by_alias=by_alias)
+            _dict['taskDescription' if by_alias else 'task_description'] = self.task_description.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -71,7 +68,7 @@ class DockerAuthorizationRequest(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DockerAuthorizationRequest.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -84,5 +81,4 @@ class DockerAuthorizationRequest(BaseModel):
             "task_description": DockerTaskDescription.from_dict(obj.get("taskDescription")) if obj.get("taskDescription") is not None else None
         })
         return _obj
-
 

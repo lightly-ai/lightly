@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Any, Dict, Optional
@@ -39,6 +35,7 @@ class SampleUpdateRequest(BaseModel):
     __properties = ["fileName", "thumbName", "exif", "metaData", "customMetaData"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -65,11 +62,11 @@ class SampleUpdateRequest(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of meta_data
         if self.meta_data:
-            _dict['metaData'] = self.meta_data.to_dict(by_alias=by_alias)
+            _dict['metaData' if by_alias else 'meta_data'] = self.meta_data.to_dict(by_alias=by_alias)
         # set to None if custom_meta_data (nullable) is None
         # and __fields_set__ contains the field
         if self.custom_meta_data is None and "custom_meta_data" in self.__fields_set__:
-            _dict['customMetaData'] = None
+            _dict['customMetaData' if by_alias else 'custom_meta_data'] = None
 
         return _dict
 
@@ -79,7 +76,7 @@ class SampleUpdateRequest(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return SampleUpdateRequest.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -95,5 +92,4 @@ class SampleUpdateRequest(BaseModel):
             "custom_meta_data": obj.get("customMetaData")
         })
         return _obj
-
 

@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -51,6 +47,7 @@ class DockerWorkerConfigV3Docker(BaseModel):
     __properties = ["checkpoint", "corruptnessCheck", "datasource", "embeddings", "enableTraining", "training", "normalizeEmbeddings", "numProcesses", "numThreads", "outputImageFormat", "pretagging", "pretaggingUpload", "relevantFilenamesFile", "selectedSequenceLength", "uploadReport"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -77,13 +74,13 @@ class DockerWorkerConfigV3Docker(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of corruptness_check
         if self.corruptness_check:
-            _dict['corruptnessCheck'] = self.corruptness_check.to_dict(by_alias=by_alias)
+            _dict['corruptnessCheck' if by_alias else 'corruptness_check'] = self.corruptness_check.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of datasource
         if self.datasource:
-            _dict['datasource'] = self.datasource.to_dict(by_alias=by_alias)
+            _dict['datasource' if by_alias else 'datasource'] = self.datasource.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of training
         if self.training:
-            _dict['training'] = self.training.to_dict(by_alias=by_alias)
+            _dict['training' if by_alias else 'training'] = self.training.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -92,7 +89,7 @@ class DockerWorkerConfigV3Docker(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DockerWorkerConfigV3Docker.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -118,5 +115,4 @@ class DockerWorkerConfigV3Docker(BaseModel):
             "upload_report": obj.get("uploadReport")
         })
         return _obj
-
 

@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 
@@ -34,6 +30,7 @@ class TagChangeDataSampler(BaseModel):
     __properties = ["method"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -66,7 +63,7 @@ class TagChangeDataSampler(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return TagChangeDataSampler.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -78,5 +75,4 @@ class TagChangeDataSampler(BaseModel):
             "method": obj.get("method")
         })
         return _obj
-
 

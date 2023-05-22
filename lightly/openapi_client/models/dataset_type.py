@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -34,5 +34,10 @@ class DatasetType(str, Enum):
     CROPS = 'Crops'
     IMAGES = 'Images'
     VIDEOS = 'Videos'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'DatasetType':
+        """Create an instance of DatasetType from a JSON string"""
+        return DatasetType(json.loads(json_str))
 
 

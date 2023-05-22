@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -61,5 +61,10 @@ class S3Region(str, Enum):
     SA_MINUS_EAST_MINUS_1 = 'sa-east-1'
     US_MINUS_GOV_MINUS_EAST = 'us-gov-east'
     US_MINUS_GOV_MINUS_WEST = 'us-gov-west'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'S3Region':
+        """Create an instance of S3Region from a JSON string"""
+        return S3Region(json.loads(json_str))
 
 

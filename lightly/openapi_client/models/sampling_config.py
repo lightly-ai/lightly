@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -35,6 +31,7 @@ class SamplingConfig(BaseModel):
     __properties = ["stoppingCondition"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -61,7 +58,7 @@ class SamplingConfig(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of stopping_condition
         if self.stopping_condition:
-            _dict['stoppingCondition'] = self.stopping_condition.to_dict(by_alias=by_alias)
+            _dict['stoppingCondition' if by_alias else 'stopping_condition'] = self.stopping_condition.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -70,7 +67,7 @@ class SamplingConfig(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return SamplingConfig.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -82,5 +79,4 @@ class SamplingConfig(BaseModel):
             "stopping_condition": SamplingConfigStoppingCondition.from_dict(obj.get("stoppingCondition")) if obj.get("stoppingCondition") is not None else None
         })
         return _obj
-
 

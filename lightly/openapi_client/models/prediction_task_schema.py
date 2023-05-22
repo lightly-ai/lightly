@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import List
@@ -38,12 +34,14 @@ class PredictionTaskSchema(BaseModel):
     __properties = ["name", "type", "categories"]
 
     @validator('name')
-    def name_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$", v):
+    def name_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$", value):
             raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -74,7 +72,7 @@ class PredictionTaskSchema(BaseModel):
             for _item in self.categories:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict['categories'] = _items
+            _dict['categories' if by_alias else 'categories'] = _items
         return _dict
 
     @classmethod
@@ -83,7 +81,7 @@ class PredictionTaskSchema(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return PredictionTaskSchema.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -97,5 +95,4 @@ class PredictionTaskSchema(BaseModel):
             "categories": [PredictionTaskSchemaCategory.from_dict(_item) for _item in obj.get("categories")] if obj.get("categories") is not None else None
         })
         return _obj
-
 
