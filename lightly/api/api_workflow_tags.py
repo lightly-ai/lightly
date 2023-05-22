@@ -1,10 +1,11 @@
 from typing import *
 
 from lightly.api.bitmask import BitMask
-from lightly.openapi_generated.swagger_client import (
+from lightly.openapi_client.models import (
     TagArithmeticsOperation,
     TagArithmeticsRequest,
     TagBitMaskResponse,
+    TagCreateRequest,
     TagData,
 )
 
@@ -86,7 +87,8 @@ class _TagsMixin:
             )
             bit_mask_response: TagBitMaskResponse = (
                 self._tags_api.perform_tag_arithmetics_bitmask(
-                    body=tag_arithmetics_request, dataset_id=self.dataset_id
+                    tag_arithmetics_request=tag_arithmetics_request,
+                    dataset_id=self.dataset_id,
                 )
             )
             bit_mask_data = bit_mask_response.bit_mask_data
@@ -150,11 +152,11 @@ class _TagsMixin:
         num_selected_samples = len(bitmask.to_indices())
         if num_selected_samples != len(fnames_new_tag):
             raise RuntimeError(
-                f"An error occured when creating the new subset! "
+                "An error occured when creating the new subset! "
                 f"Out of the {len(fnames_new_tag)} filenames you provided "
                 f"to create a new tag, only {num_selected_samples} have been "
-                f"found on the server. "
-                f"Make sure you use the correct filenames. "
+                "found on the server. "
+                "Make sure you use the correct filenames. "
                 f"Valid filename example from the dataset: {fnames_server[0]}"
             )
 
@@ -168,8 +170,8 @@ class _TagsMixin:
         }
 
         new_tag = self._tags_api.create_tag_by_dataset_id(
-            tag_data_dict,
-            self.dataset_id,
+            tag_create_request=TagCreateRequest.from_dict(tag_data_dict),
+            dataset_id=self.dataset_id,
         )
 
         return new_tag
