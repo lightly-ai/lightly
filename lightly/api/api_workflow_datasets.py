@@ -106,6 +106,7 @@ class _DatasetsMixin:
             datasets.extend(
                 utils.paginate_endpoint(
                     self._datasets_api.get_datasets,
+                    page_size=16,
                     shared=False,
                 )
             )
@@ -113,6 +114,7 @@ class _DatasetsMixin:
             datasets.extend(
                 utils.paginate_endpoint(
                     self._datasets_api.get_datasets,
+                    page_size=16,
                     shared=True,
                 )
             )
