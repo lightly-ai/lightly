@@ -1,289 +1,291 @@
-from collections import defaultdict
-from unittest import mock
-
 import pytest
-import tqdm
+from pytest_mock import MockerFixture
 
-from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import (
+from lightly.api import ApiWorkflowClient
+from lightly.openapi_client.models import (
+    DatasourceConfigAzure,
+    DatasourceConfigGCS,
+    DatasourceConfigLOCAL,
+    DatasourceConfigS3,
+    DatasourceConfigS3DelegatedAccess,
     DatasourceRawSamplesDataRow,
 )
-from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
-class TestApiWorkflowDatasources(MockedApiWorkflowSetup):
-    def test_get_processed_until_timestamp(self):
-        self.api_workflow_client._datasources_api.reset()
-        assert self.api_workflow_client.get_processed_until_timestamp() == 0
+def test__download_raw_files(mocker: MockerFixture) -> None:
+    mock_response_1 = mocker.MagicMock()
+    mock_response_1.has_more = True
+    mock_response_1.data = [
+        DatasourceRawSamplesDataRow(file_name="/file1", read_url="url1"),
+        DatasourceRawSamplesDataRow(file_name="file2", read_url="url2"),
+    ]
 
-    def test_update_processed_until_timestamp(self):
-        self.api_workflow_client._datasources_api.reset()
-        self.api_workflow_client.update_processed_until_timestamp(10)
-        assert self.api_workflow_client.get_processed_until_timestamp() == 10
+    mock_response_2 = mocker.MagicMock()
+    mock_response_2.has_more = False
+    mock_response_2.data = [
+        DatasourceRawSamplesDataRow(file_name="./file3", read_url="url3"),
+        DatasourceRawSamplesDataRow(file_name="file2", read_url="url2"),
+    ]
 
-    def test_download_raw_samples(self):
-        self.api_workflow_client._datasources_api.reset()
-        samples = self.api_workflow_client.download_raw_samples()
-        num_samples = self.api_workflow_client._datasources_api._num_samples
-        assert len(samples) == num_samples
+    mocked_method = mocker.MagicMock(side_effect=[mock_response_1, mock_response_2])
+    mocked_pbar = mocker.MagicMock()
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_warning = mocker.patch("warnings.warn")
+    client = ApiWorkflowClient()
+    client._dataset_id = "dataset-id"
+    result = client._download_raw_files(
+        download_function=mocked_method,
+        progress_bar=mocked_pbar,
+    )
+    kwargs = mocked_method.call_args[1]
+    assert "relevant_filenames_file_name" not in kwargs
+    assert mocked_pbar.update.call_count == 2
+    assert mocked_warning.call_count == 3
+    warning_text = [str(call.args[0]) for call in mocked_warning.call_args_list]
+    assert warning_text == [
+        (
+            "Absolute file paths like /file1 are not supported"
+            " in relevant filenames file None due to blob storage"
+        ),
+        (
+            "Using dot notation ('./', '../') like in ./file3 is not supported"
+            " in relevant filenames file None due to blob storage"
+        ),
+        ("Duplicate filename file2 in relevant filenames file None"),
+    ]
+    assert len(result) == 1
+    assert result[0][0] == "file2"
 
-    def test_download_raw_samples_progress_bar(self):
-        self.api_workflow_client._datasources_api.reset()
-        pbar = mock.Mock(wraps=tqdm.tqdm(unit="file"))
-        samples = self.api_workflow_client.download_raw_samples(progress_bar=pbar)
-        num_samples = self.api_workflow_client._datasources_api._num_samples
-        assert len(samples) == num_samples
-        pbar.update.assert_called()
 
-    def test_download_raw_samples_no_duplicates(self):
-        self.api_workflow_client._datasources_api.reset()
-        samples = self.api_workflow_client.download_raw_samples()
-        assert len(samples) == len(set(samples))
+def test_get_prediction_read_url(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._dataset_id = "dataset-id"
+    client._datasources_api = mocked_api
+    client.get_prediction_read_url("test.json")
+    mocked_method = (
+        mocked_api.get_prediction_file_read_url_from_datasource_by_dataset_id
+    )
+    mocked_method.assert_called_once_with(
+        dataset_id="dataset-id", file_name="test.json"
+    )
 
-    def test_download_new_raw_samples_no_duplicates(self):
-        self.api_workflow_client._datasources_api.reset()
-        samples = self.api_workflow_client.download_new_raw_samples()
-        assert len(samples) == len(set(samples))
 
-    def test_download_new_raw_samples_not_yet_processed(self):
-        self.api_workflow_client._datasources_api.reset()
-        samples = self.api_workflow_client.download_raw_samples()
-        num_samples = self.api_workflow_client._datasources_api._num_samples
-        assert len(samples) == num_samples
+def test_download_new_raw_samples(mocker: MockerFixture) -> None:
+    from_timestamp = 2
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocker.patch.object(
+        ApiWorkflowClient, "get_processed_until_timestamp", return_value=from_timestamp
+    )
+    current_time = 5
+    mocker.patch("time.time", return_value=current_time)
+    mocked_download = mocker.patch.object(ApiWorkflowClient, "download_raw_samples")
+    mocked_update_timestamp = mocker.patch.object(
+        ApiWorkflowClient, "update_processed_until_timestamp"
+    )
+    client = ApiWorkflowClient()
+    client.download_new_raw_samples()
+    mocked_download.assert_called_once_with(
+        from_=from_timestamp + 1,
+        to=current_time,
+        relevant_filenames_file_name=None,
+        use_redirected_read_url=False,
+    )
+    mocked_update_timestamp.assert_called_once_with(timestamp=current_time)
 
-    def test_download_new_raw_samples_partially_processed(self):
-        self.api_workflow_client._datasources_api.reset()
-        num_samples = self.api_workflow_client._datasources_api._num_samples
-        n_processed = num_samples // 2
-        n_remaining = num_samples - n_processed
-        processed_timestamp = n_processed - 1
-        self.api_workflow_client.update_processed_until_timestamp(processed_timestamp)
-        samples = self.api_workflow_client.download_new_raw_samples()
-        assert len(samples) == n_remaining
 
-    def test_download_raw_samples_equal_to_download_all_raw_new_samples(self):
-        self.api_workflow_client._datasources_api.reset()
-        samples = self.api_workflow_client.download_raw_samples()
-        new_samples = self.api_workflow_client.download_new_raw_samples()
-        assert len(samples) == len(new_samples)
-        assert set(samples) == set(new_samples)
+def test_download_new_raw_samples__from_beginning(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocker.patch.object(
+        ApiWorkflowClient, "get_processed_until_timestamp", return_value=0
+    )
+    current_time = 5
+    mocker.patch("time.time", return_value=current_time)
+    mocked_download = mocker.patch.object(ApiWorkflowClient, "download_raw_samples")
+    mocked_update_timestamp = mocker.patch.object(
+        ApiWorkflowClient, "update_processed_until_timestamp"
+    )
+    client = ApiWorkflowClient()
+    client.download_new_raw_samples()
+    mocked_download.assert_called_once_with(
+        from_=0,
+        to=current_time,
+        relevant_filenames_file_name=None,
+        use_redirected_read_url=False,
+    )
+    mocked_update_timestamp.assert_called_once_with(timestamp=current_time)
 
-    def test_download_raw_samples_predictions_relevant_filenames_artifact_id(self):
-        mock_response = mock.MagicMock()
-        mock_response.has_more = False
-        with mock.patch(
-            "tests.api_workflow.mocked_api_workflow_client.MockedDatasourcesApi"
-            ".get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
-            return_value=mock_response,
-        ) as func:
-            self.api_workflow_client.download_raw_predictions(
-                task_name="task", run_id="foo", relevant_filenames_artifact_id="bar"
-            )
-            kwargs = func.call_args[1]
-            assert kwargs.get("relevant_filenames_run_id") == "foo"
-            assert kwargs.get("relevant_filenames_artifact_id") == "bar"
 
-        # should raise ValueError when only run_id is given
-        with pytest.raises(ValueError):
-            self.api_workflow_client.download_raw_predictions(
-                task_name="foobar", run_id="foo"
-            )
-        # should raise ValueError when only relevant_filenames_artifact_id is given
-        with pytest.raises(ValueError):
-            self.api_workflow_client.download_raw_predictions(
-                task_name="foobar", relevant_filenames_artifact_id="bar"
-            )
+def test_download_raw_samples_predictions__relevant_filenames_artifact_id(
+    mocker: MockerFixture,
+) -> None:
+    mock_response = mocker.MagicMock()
+    mock_response.has_more = False
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_api = mocker.MagicMock()
+    mocked_method = mocker.MagicMock(return_value=mock_response)
+    mocked_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id = (
+        mocked_method
+    )
+    client = ApiWorkflowClient()
+    client._dataset_id = "dataset-id"
+    client._datasources_api = mocked_api
+    client.download_raw_predictions(
+        task_name="task", run_id="foo", relevant_filenames_artifact_id="bar"
+    )
+    kwargs = mocked_method.call_args[1]
+    assert kwargs.get("relevant_filenames_run_id") == "foo"
+    assert kwargs.get("relevant_filenames_artifact_id") == "bar"
 
-    def test_download_raw_samples_metadata_relevant_filenames_artifact_id(self):
-        mock_response = mock.MagicMock()
-        mock_response.has_more = False
-        with mock.patch(
-            "tests.api_workflow.mocked_api_workflow_client.MockedDatasourcesApi"
-            ".get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
-            return_value=mock_response,
-        ) as func:
-            self.api_workflow_client.download_raw_metadata(
-                run_id="foo", relevant_filenames_artifact_id="bar"
-            )
-            kwargs = func.call_args[1]
-            assert kwargs.get("relevant_filenames_run_id") == "foo"
-            assert kwargs.get("relevant_filenames_artifact_id") == "bar"
-
-        # should raise ValueError when only run_id is given
-        with pytest.raises(ValueError):
-            self.api_workflow_client.download_raw_metadata(run_id="foo")
-        # should raise ValueError when only relevant_filenames_artifact_id is given
-        with pytest.raises(ValueError):
-            self.api_workflow_client.download_raw_metadata(
-                relevant_filenames_artifact_id="bar"
-            )
-
-    def test_download_raw_samples_or_metadata_relevant_filenames(self):
-        self.api_workflow_client._datasources_api.reset()
-        for method in [
-            self.api_workflow_client.download_raw_samples,
-            self.api_workflow_client.download_raw_metadata,
-        ]:
-            for relevant_filenames_path in [None, "", "relevant_filenames.txt"]:
-                with self.subTest(
-                    relevant_filenames_path=relevant_filenames_path, method=method
-                ):
-                    samples = method(
-                        relevant_filenames_file_name=relevant_filenames_path
-                    )
-            with self.subTest(relevant_filenames_path="unset", method=method):
-                samples = method()
-
-    def test_set_azure_config(self):
-        self.api_workflow_client.set_azure_config(
-            container_name="my-container/name",
-            account_name="my-account-name",
-            sas_token="my-sas-token",
-            thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+    # should raise ValueError when only run_id is given
+    with pytest.raises(ValueError):
+        client.download_raw_predictions(task_name="foobar", run_id="foo")
+    # should raise ValueError when only relevant_filenames_artifact_id is given
+    with pytest.raises(ValueError):
+        client.download_raw_predictions(
+            task_name="foobar", relevant_filenames_artifact_id="bar"
         )
 
-    def test_set_gcs_config(self):
-        self.api_workflow_client.set_gcs_config(
-            resource_path="gs://my-bucket/my-dataset",
-            project_id="my-project-id",
-            credentials="my-credentials",
-            thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
-        )
 
-    def test_set_local_config(self):
-        self.api_workflow_client.set_local_config(
-            resource_path="http://localhost:1234/path/to/my/data",
-            thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
-        )
+def test_download_raw_samples_metadata__relevant_filenames_artifact_id(
+    mocker: MockerFixture,
+) -> None:
+    mock_response = mocker.MagicMock()
+    mock_response.has_more = False
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_api = mocker.MagicMock()
+    mocked_method = mocker.MagicMock(return_value=mock_response)
+    mocked_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id = (
+        mocked_method
+    )
+    client = ApiWorkflowClient()
+    client._dataset_id = "dataset-id"
+    client._datasources_api = mocked_api
+    client.download_raw_metadata(run_id="foo", relevant_filenames_artifact_id="bar")
+    kwargs = mocked_method.call_args[1]
+    assert kwargs.get("relevant_filenames_run_id") == "foo"
+    assert kwargs.get("relevant_filenames_artifact_id") == "bar"
 
-    def test_set_s3_config(self):
-        self.api_workflow_client.set_s3_config(
-            resource_path="s3://my-bucket/my-dataset",
-            thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
-            region="eu-central-1",
-            access_key="my-access-key",
-            secret_access_key="my-secret-access-key",
-        )
+    # should raise ValueError when only run_id is given
+    with pytest.raises(ValueError):
+        client.download_raw_metadata(run_id="foo")
+    # should raise ValueError when only relevant_filenames_artifact_id is given
+    with pytest.raises(ValueError):
+        client.download_raw_metadata(relevant_filenames_artifact_id="bar")
 
-    def test_set_s3_delegated_access_config(self):
-        self.api_workflow_client.set_s3_delegated_access_config(
-            resource_path="s3://my-bucket/my-dataset",
-            thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
-            region="eu-central-1",
-            role_arn="my-role-arn",
-            external_id="my-external-id",
-        )
 
-    def test_download_raw_samples_predictions(self):
-        self.api_workflow_client._datasources_api.reset()
+def test_get_processed_until_timestamp(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_datasources_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._dataset_id = "dataset-id"
+    client._datasources_api = mocked_datasources_api
+    client.get_processed_until_timestamp()
+    mocked_method = (
+        mocked_datasources_api.get_datasource_processed_until_timestamp_by_dataset_id
+    )
+    mocked_method.assert_called_once_with(dataset_id="dataset-id")
 
-        predictions = self.api_workflow_client.download_raw_predictions("test")
-        num_samples = self.api_workflow_client._datasources_api._num_samples
-        assert len(predictions) == num_samples
 
-    def test_download_raw_samples_predictions_progress_bar(self):
-        self.api_workflow_client._datasources_api.reset()
-        pbar = mock.Mock(wraps=tqdm.tqdm(unit="file"))
-        predictions = self.api_workflow_client.download_raw_predictions(
-            "test", progress_bar=pbar
-        )
-        num_samples = self.api_workflow_client._datasources_api._num_samples
-        assert len(predictions) == num_samples
-        pbar.update.assert_called()
+def test_set_azure_config(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_datasources_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._datasources_api = mocked_datasources_api
+    client._dataset_id = "dataset-id"
+    client.set_azure_config(
+        container_name="my-container/name",
+        account_name="my-account-name",
+        sas_token="my-sas-token",
+        thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+    )
+    kwargs = mocked_datasources_api.update_datasource_by_dataset_id.call_args[1]
+    assert isinstance(
+        kwargs["datasource_config"].actual_instance, DatasourceConfigAzure
+    )
 
-    def test_download_raw_sample_metadata(self):
-        self.api_workflow_client._datasources_api.reset()
-        predictions = self.api_workflow_client.download_raw_metadata()
-        num_samples = self.api_workflow_client._datasources_api._num_samples
-        assert len(predictions) == num_samples
 
-    def test_download_raw_sample_metadata_progress_bar(self):
-        self.api_workflow_client._datasources_api.reset()
-        pbar = mock.Mock(wraps=tqdm.tqdm(unit="file"))
-        predictions = self.api_workflow_client.download_raw_metadata(progress_bar=pbar)
-        num_samples = self.api_workflow_client._datasources_api._num_samples
-        assert len(predictions) == num_samples
-        pbar.update.assert_called()
+def test_set_gcs_config(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_datasources_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._datasources_api = mocked_datasources_api
+    client._dataset_id = "dataset-id"
+    client.set_gcs_config(
+        resource_path="gs://my-bucket/my-dataset",
+        project_id="my-project-id",
+        credentials="my-credentials",
+        thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+    )
+    kwargs = mocked_datasources_api.update_datasource_by_dataset_id.call_args[1]
+    assert isinstance(kwargs["datasource_config"].actual_instance, DatasourceConfigGCS)
 
-    def test_download_raw_samples_predictions_relevant_filenames(self):
-        self.api_workflow_client._datasources_api.reset()
-        predictions = self.api_workflow_client.download_raw_predictions(
-            "test", relevant_filenames_file_name="test"
-        )
-        num_samples = self.api_workflow_client._datasources_api._num_samples
-        assert len(predictions) == num_samples
 
-    def test_get_prediction_read_url(self):
-        self.api_workflow_client._datasources_api.reset()
-        read_url = self.api_workflow_client.get_prediction_read_url("test.json")
-        self.assertIsNotNone(read_url)
+def test_set_local_config(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_datasources_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._datasources_api = mocked_datasources_api
+    client._dataset_id = "dataset-id"
+    client.set_local_config(
+        resource_path="http://localhost:1234/path/to/my/data",
+        thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+    )
+    kwargs = mocked_datasources_api.update_datasource_by_dataset_id.call_args[1]
+    assert isinstance(
+        kwargs["datasource_config"].actual_instance, DatasourceConfigLOCAL
+    )
 
-    def test__download_raw_files_duplicate_filenames(self):
-        self.api_workflow_client._datasources_api.reset()
-        self.api_workflow_client._datasources_api._samples = defaultdict(
-            lambda: [
-                DatasourceRawSamplesDataRow(file_name="file_0", read_url="url_0"),
-                DatasourceRawSamplesDataRow(file_name="file_1", read_url="url_1"),
-                DatasourceRawSamplesDataRow(file_name="file_0", read_url="url_0"),
-                DatasourceRawSamplesDataRow(file_name="file_2", read_url="url_2"),
-                DatasourceRawSamplesDataRow(file_name="file_3", read_url="url_3"),
-                DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
-            ]
-        )
-        with pytest.warns(
-            UserWarning, match="Duplicate filename file_0 in relevant filenames file"
-        ):
-            samples = self.api_workflow_client.download_raw_samples()
 
-        assert len(samples) == 5
-        assert samples == [(f"file_{i}", f"url_{i}") for i in range(5)]
+def test_set_s3_config(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_datasources_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._datasources_api = mocked_datasources_api
+    client._dataset_id = "dataset-id"
+    client.set_s3_config(
+        resource_path="s3://my-bucket/my-dataset",
+        thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+        region="eu-central-1",
+        access_key="my-access-key",
+        secret_access_key="my-secret-access-key",
+    )
+    kwargs = mocked_datasources_api.update_datasource_by_dataset_id.call_args[1]
+    assert isinstance(kwargs["datasource_config"].actual_instance, DatasourceConfigS3)
 
-    def test__download_raw_files_absolute_filenames(self):
-        self.api_workflow_client._datasources_api.reset
-        self.api_workflow_client._datasources_api._samples = defaultdict(
-            lambda: [
-                DatasourceRawSamplesDataRow(file_name="/file_0", read_url="url_0"),
-                DatasourceRawSamplesDataRow(file_name="file_1", read_url="url_1"),
-                DatasourceRawSamplesDataRow(file_name="file_2", read_url="url_2"),
-                DatasourceRawSamplesDataRow(file_name="file_3", read_url="url_3"),
-                DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
-            ]
-        )
-        with pytest.warns(
-            UserWarning,
-            match="Absolute file paths like /file_0 are not supported in relevant filenames file",
-        ):
-            samples = self.api_workflow_client.download_raw_samples()
 
-    def test__download_raw_files_dot_slash(self):
-        self.api_workflow_client._datasources_api.reset
-        self.api_workflow_client._datasources_api._samples = defaultdict(
-            lambda: [
-                DatasourceRawSamplesDataRow(file_name="./file_0", read_url="url_0"),
-                DatasourceRawSamplesDataRow(file_name="file_1", read_url="url_1"),
-                DatasourceRawSamplesDataRow(file_name="file_2", read_url="url_2"),
-                DatasourceRawSamplesDataRow(file_name="file_3", read_url="url_3"),
-                DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
-            ]
-        )
-        with pytest.warns(
-            UserWarning,
-            match="Using dot notation \('\./', '\.\./'\) like in \./file_0 is not supported.*",
-        ):
-            samples = self.api_workflow_client.download_raw_samples()
+def test_set_s3_delegated_access_config(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_datasources_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._datasources_api = mocked_datasources_api
+    client._dataset_id = "dataset-id"
+    client.set_s3_delegated_access_config(
+        resource_path="s3://my-bucket/my-dataset",
+        thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+        region="eu-central-1",
+        role_arn="arn:aws:iam::000000000000:role.test",
+        external_id="my-external-id",
+    )
+    kwargs = mocked_datasources_api.update_datasource_by_dataset_id.call_args[1]
+    assert isinstance(
+        kwargs["datasource_config"].actual_instance, DatasourceConfigS3DelegatedAccess
+    )
 
-    def test__download_raw_files_dot_dot_slash(self):
-        self.api_workflow_client._datasources_api.reset
-        self.api_workflow_client._datasources_api._samples = defaultdict(
-            lambda: [
-                DatasourceRawSamplesDataRow(file_name="../file_0", read_url="url_0"),
-                DatasourceRawSamplesDataRow(file_name="file_1", read_url="url_1"),
-                DatasourceRawSamplesDataRow(file_name="file_2", read_url="url_2"),
-                DatasourceRawSamplesDataRow(file_name="file_3", read_url="url_3"),
-                DatasourceRawSamplesDataRow(file_name="file_4", read_url="url_4"),
-            ]
-        )
-        with pytest.warns(
-            UserWarning,
-            match="Using dot notation \('\./', '\.\./'\) like in \.\./file_0 is not supported.*",
-        ):
-            samples = self.api_workflow_client.download_raw_samples()
+
+def test_update_processed_until_timestamp(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_datasources_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._dataset_id = "dataset-id"
+    client._datasources_api = mocked_datasources_api
+    client.update_processed_until_timestamp(10)
+    kwargs = mocked_datasources_api.update_datasource_processed_until_timestamp_by_dataset_id.call_args[
+        1
+    ]
+    assert kwargs["dataset_id"] == "dataset-id"
+    assert (
+        kwargs["datasource_processed_until_timestamp_request"].processed_until_timestamp
+        == 10
+    )
