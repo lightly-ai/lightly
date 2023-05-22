@@ -185,7 +185,6 @@ def pretrain(
     )
 
     # Train model.
-    accelerator = "cpu" # TODO: Remove me
     metric_callback = MetricCallback()
     trainer = Trainer(
         max_epochs=epochs,
