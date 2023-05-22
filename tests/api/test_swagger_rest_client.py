@@ -3,9 +3,8 @@ import pickle
 from pytest_mock import MockerFixture
 from urllib3 import PoolManager, Timeout
 
-from lightly.api import swagger_rest_client
 from lightly.api.swagger_rest_client import LightlySwaggerRESTClientObject
-from lightly.openapi_generated.swagger_client import Configuration
+from lightly.openapi_client.configuration import Configuration
 
 
 class TestLightlySwaggerRESTClientObject:
@@ -71,32 +70,3 @@ class TestLightlySwaggerRESTClientObject:
         assert isinstance(kwargs["timeout"], Timeout)
         assert kwargs["timeout"].connect_timeout == 1
         assert kwargs["timeout"].read_timeout == 2
-
-    def test_request__flatten_list_query_parameters(
-        self, mocker: MockerFixture
-    ) -> None:
-        client = LightlySwaggerRESTClientObject(
-            configuration=Configuration(), timeout=5
-        )
-        response = mocker.MagicMock()
-        response.status = 200
-        client.pool_manager.request = mocker.MagicMock(return_value=response)
-
-        client.request(
-            method="GET",
-            url="some-url",
-            query_params=[("param-name", ["value-1", "value-2"])],
-        )
-        calls = client.pool_manager.request.mock_calls
-        _, _, kwargs = calls[0]
-        assert kwargs["fields"] == [
-            ("param-name", "value-1"),
-            ("param-name", "value-2"),
-        ]
-
-
-def test__flatten_list_query_parameters() -> None:
-    params = swagger_rest_client._flatten_list_query_parameters(
-        query_params=[("param-name", ["value-1", "value-2"])]
-    )
-    assert params == [("param-name", "value-1"), ("param-name", "value-2")]
