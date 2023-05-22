@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -37,5 +37,10 @@ class DockerRunLogLevel(str, Enum):
     WARN = 'WARN'
     ERROR = 'ERROR'
     CRITICAL = 'CRITICAL'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'DockerRunLogLevel':
+        """Create an instance of DockerRunLogLevel from a JSON string"""
+        return DockerRunLogLevel(json.loads(json_str))
 
 

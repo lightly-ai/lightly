@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -36,5 +36,10 @@ class TeamRole(str, Enum):
     MEMBER = 'MEMBER'
     ANALYST = 'ANALYST'
     SERVICEACCOUNT = 'SERVICEACCOUNT'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'TeamRole':
+        """Create an instance of TeamRole from a JSON string"""
+        return TeamRole(json.loads(json_str))
 
 

@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Union
@@ -43,6 +39,7 @@ class DockerTaskDescription(BaseModel):
     __properties = ["embeddingsFilename", "embeddingsHash", "method", "existingSelectionColumnName", "activeLearningScoresColumnName", "maskedOutColumnName", "samplingConfig", "nData"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -69,7 +66,7 @@ class DockerTaskDescription(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of sampling_config
         if self.sampling_config:
-            _dict['samplingConfig'] = self.sampling_config.to_dict(by_alias=by_alias)
+            _dict['samplingConfig' if by_alias else 'sampling_config'] = self.sampling_config.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -78,7 +75,7 @@ class DockerTaskDescription(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DockerTaskDescription.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -97,5 +94,4 @@ class DockerTaskDescription(BaseModel):
             "n_data": obj.get("nData")
         })
         return _obj
-
 

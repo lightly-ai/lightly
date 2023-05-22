@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -36,5 +36,10 @@ class SelectionStrategyType(str, Enum):
     THRESHOLD = 'THRESHOLD'
     BALANCE = 'BALANCE'
     SIMILARITY = 'SIMILARITY'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'SelectionStrategyType':
+        """Create an instance of SelectionStrategyType from a JSON string"""
+        return SelectionStrategyType(json.loads(json_str))
 
 

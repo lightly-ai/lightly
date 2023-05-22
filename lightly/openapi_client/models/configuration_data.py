@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import List
@@ -39,12 +35,14 @@ class ConfigurationData(BaseModel):
     __properties = ["id", "name", "configs", "createdAt", "lastModifiedAt"]
 
     @validator('id')
-    def id_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-f0-9]{24}$", v):
+    def id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -75,7 +73,7 @@ class ConfigurationData(BaseModel):
             for _item in self.configs:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict['configs'] = _items
+            _dict['configs' if by_alias else 'configs'] = _items
         return _dict
 
     @classmethod
@@ -84,7 +82,7 @@ class ConfigurationData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return ConfigurationData.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -100,5 +98,4 @@ class ConfigurationData(BaseModel):
             "last_modified_at": obj.get("lastModifiedAt")
         })
         return _obj
-
 

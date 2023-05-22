@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Any, Dict, Optional
@@ -43,6 +39,7 @@ class SampleCreateRequest(BaseModel):
     __properties = ["fileName", "thumbName", "exif", "metaData", "customMetaData", "videoFrameData", "cropData"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -69,17 +66,17 @@ class SampleCreateRequest(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of meta_data
         if self.meta_data:
-            _dict['metaData'] = self.meta_data.to_dict(by_alias=by_alias)
+            _dict['metaData' if by_alias else 'meta_data'] = self.meta_data.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of video_frame_data
         if self.video_frame_data:
-            _dict['videoFrameData'] = self.video_frame_data.to_dict(by_alias=by_alias)
+            _dict['videoFrameData' if by_alias else 'video_frame_data'] = self.video_frame_data.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of crop_data
         if self.crop_data:
-            _dict['cropData'] = self.crop_data.to_dict(by_alias=by_alias)
+            _dict['cropData' if by_alias else 'crop_data'] = self.crop_data.to_dict(by_alias=by_alias)
         # set to None if custom_meta_data (nullable) is None
         # and __fields_set__ contains the field
         if self.custom_meta_data is None and "custom_meta_data" in self.__fields_set__:
-            _dict['customMetaData'] = None
+            _dict['customMetaData' if by_alias else 'custom_meta_data'] = None
 
         return _dict
 
@@ -89,7 +86,7 @@ class SampleCreateRequest(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return SampleCreateRequest.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -107,5 +104,4 @@ class SampleCreateRequest(BaseModel):
             "crop_data": CropData.from_dict(obj.get("cropData")) if obj.get("cropData") is not None else None
         })
         return _obj
-
 

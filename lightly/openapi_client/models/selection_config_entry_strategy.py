@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Any, Dict, Optional, Union
@@ -40,6 +36,7 @@ class SelectionConfigEntryStrategy(BaseModel):
     __properties = ["type", "stopping_condition_minimum_distance", "threshold", "operation", "target"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -72,7 +69,7 @@ class SelectionConfigEntryStrategy(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return SelectionConfigEntryStrategy.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -88,5 +85,4 @@ class SelectionConfigEntryStrategy(BaseModel):
             "target": obj.get("target")
         })
         return _obj
-
 

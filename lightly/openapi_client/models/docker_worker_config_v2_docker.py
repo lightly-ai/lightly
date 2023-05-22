@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -53,6 +49,7 @@ class DockerWorkerConfigV2Docker(BaseModel):
     __properties = ["checkpoint", "corruptnessCheck", "datasource", "embeddings", "enableTraining", "method", "normalizeEmbeddings", "outputImageFormat", "objectLevel", "pretagging", "pretaggingUpload", "relevantFilenamesFile", "selectedSequenceLength", "stoppingCondition", "uploadReport"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -79,16 +76,16 @@ class DockerWorkerConfigV2Docker(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of corruptness_check
         if self.corruptness_check:
-            _dict['corruptnessCheck'] = self.corruptness_check.to_dict(by_alias=by_alias)
+            _dict['corruptnessCheck' if by_alias else 'corruptness_check'] = self.corruptness_check.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of datasource
         if self.datasource:
-            _dict['datasource'] = self.datasource.to_dict(by_alias=by_alias)
+            _dict['datasource' if by_alias else 'datasource'] = self.datasource.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of object_level
         if self.object_level:
-            _dict['objectLevel'] = self.object_level.to_dict(by_alias=by_alias)
+            _dict['objectLevel' if by_alias else 'object_level'] = self.object_level.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of stopping_condition
         if self.stopping_condition:
-            _dict['stoppingCondition'] = self.stopping_condition.to_dict(by_alias=by_alias)
+            _dict['stoppingCondition' if by_alias else 'stopping_condition'] = self.stopping_condition.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -97,7 +94,7 @@ class DockerWorkerConfigV2Docker(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DockerWorkerConfigV2Docker.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -123,5 +120,4 @@ class DockerWorkerConfigV2Docker(BaseModel):
             "upload_report": obj.get("uploadReport")
         })
         return _obj
-
 

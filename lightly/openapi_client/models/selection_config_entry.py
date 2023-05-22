@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 
@@ -37,6 +33,7 @@ class SelectionConfigEntry(BaseModel):
     __properties = ["input", "strategy"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -63,10 +60,10 @@ class SelectionConfigEntry(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of input
         if self.input:
-            _dict['input'] = self.input.to_dict(by_alias=by_alias)
+            _dict['input' if by_alias else 'input'] = self.input.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of strategy
         if self.strategy:
-            _dict['strategy'] = self.strategy.to_dict(by_alias=by_alias)
+            _dict['strategy' if by_alias else 'strategy'] = self.strategy.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -75,7 +72,7 @@ class SelectionConfigEntry(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return SelectionConfigEntry.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -88,5 +85,4 @@ class SelectionConfigEntry(BaseModel):
             "strategy": SelectionConfigEntryStrategy.from_dict(obj.get("strategy")) if obj.get("strategy") is not None else None
         })
         return _obj
-
 

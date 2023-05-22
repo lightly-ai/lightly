@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -42,21 +38,24 @@ class JobsData(BaseModel):
     __properties = ["id", "jobId", "jobType", "datasetId", "status", "finishedAt", "createdAt"]
 
     @validator('id')
-    def id_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-f0-9]{24}$", v):
+    def id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('dataset_id')
-    def dataset_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def dataset_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -89,7 +88,7 @@ class JobsData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return JobsData.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -107,5 +106,4 @@ class JobsData(BaseModel):
             "created_at": obj.get("createdAt")
         })
         return _obj
-
 

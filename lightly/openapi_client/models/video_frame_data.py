@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional, Union
@@ -36,6 +32,7 @@ class VideoFrameData(BaseModel):
     __properties = ["sourceVideo", "sourceVideoFrameIndex", "sourceVideoFrameTimestamp"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -68,7 +65,7 @@ class VideoFrameData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return VideoFrameData.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -82,5 +79,4 @@ class VideoFrameData(BaseModel):
             "source_video_frame_timestamp": obj.get("sourceVideoFrameTimestamp")
         })
         return _obj
-
 

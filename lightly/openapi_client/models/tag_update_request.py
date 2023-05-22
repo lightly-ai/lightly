@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -39,21 +35,24 @@ class TagUpdateRequest(BaseModel):
     __properties = ["updateCreator", "name", "bitMaskData", "changes"]
 
     @validator('name')
-    def name_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$", v):
+    def name_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$", value):
             raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/")
-        return v
+        return value
 
     @validator('bit_mask_data')
-    def bit_mask_data_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def bit_mask_data_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^0x[a-f0-9]+$", v):
+        if not re.match(r"^0x[a-f0-9]+$", value):
             raise ValueError(r"must validate the regular expression /^0x[a-f0-9]+$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -80,7 +79,7 @@ class TagUpdateRequest(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of changes
         if self.changes:
-            _dict['changes'] = self.changes.to_dict(by_alias=by_alias)
+            _dict['changes' if by_alias else 'changes'] = self.changes.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -89,7 +88,7 @@ class TagUpdateRequest(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return TagUpdateRequest.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -104,5 +103,4 @@ class TagUpdateRequest(BaseModel):
             "changes": TagChangeData.from_dict(obj.get("changes")) if obj.get("changes") is not None else None
         })
         return _obj
-
 

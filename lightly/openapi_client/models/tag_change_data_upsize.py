@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional, Union
@@ -36,15 +32,17 @@ class TagChangeDataUpsize(BaseModel):
     __properties = ["runId", "from", "to"]
 
     @validator('run_id')
-    def run_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def run_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -77,7 +75,7 @@ class TagChangeDataUpsize(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return TagChangeDataUpsize.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -91,5 +89,4 @@ class TagChangeDataUpsize(BaseModel):
             "to": obj.get("to")
         })
         return _obj
-
 

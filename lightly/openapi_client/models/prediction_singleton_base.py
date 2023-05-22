@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 import lightly.openapi_client.models
 
 
@@ -40,30 +36,34 @@ class PredictionSingletonBase(BaseModel):
     __properties = ["type", "taskName", "cropDatasetId", "cropSampleId", "categoryId", "score"]
 
     @validator('task_name')
-    def task_name_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$", v):
+    def task_name_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$", value):
             raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$/")
-        return v
+        return value
 
     @validator('crop_dataset_id')
-    def crop_dataset_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def crop_dataset_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('crop_sample_id')
-    def crop_sample_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def crop_sample_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -123,5 +123,4 @@ class PredictionSingletonBase(BaseModel):
             raise ValueError("PredictionSingletonBase failed to lookup discriminator value from " +
                              json.dumps(obj) + ". Discriminator property name: " + cls.__discriminator_property_name +
                              ", mapping: " + json.dumps(cls.__discriminator_value_class_map))
-
 

@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -40,12 +36,14 @@ class DockerRunArtifactData(BaseModel):
     __properties = ["id", "type", "fileName", "storageLocation", "createdAt"]
 
     @validator('id')
-    def id_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-f0-9]{24}$", v):
+    def id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -78,7 +76,7 @@ class DockerRunArtifactData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DockerRunArtifactData.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -94,5 +92,4 @@ class DockerRunArtifactData(BaseModel):
             "created_at": obj.get("createdAt")
         })
         return _obj
-
 

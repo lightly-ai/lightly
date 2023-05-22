@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -35,5 +35,10 @@ class DockerWorkerState(str, Enum):
     CRASHED = 'CRASHED'
     IDLE = 'IDLE'
     BUSY = 'BUSY'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'DockerWorkerState':
+        """Create an instance of DockerWorkerState from a JSON string"""
+        return DockerWorkerState(json.loads(json_str))
 
 

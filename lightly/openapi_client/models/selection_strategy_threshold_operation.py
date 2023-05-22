@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -35,5 +35,10 @@ class SelectionStrategyThresholdOperation(str, Enum):
     SMALLER_EQUAL = 'SMALLER_EQUAL'
     BIGGER = 'BIGGER'
     BIGGER_EQUAL = 'BIGGER_EQUAL'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'SelectionStrategyThresholdOperation':
+        """Create an instance of SelectionStrategyThresholdOperation from a JSON string"""
+        return SelectionStrategyThresholdOperation(json.loads(json_str))
 
 

@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -34,5 +34,10 @@ class JobStatusUploadMethod(str, Enum):
     USER_WEBAPP = 'USER_WEBAPP'
     USER_PIP = 'USER_PIP'
     INTERNAL = 'INTERNAL'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'JobStatusUploadMethod':
+        """Create an instance of JobStatusUploadMethod from a JSON string"""
+        return JobStatusUploadMethod(json.loads(json_str))
 
 

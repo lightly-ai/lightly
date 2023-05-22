@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -36,6 +32,7 @@ class UpdateDockerWorkerRegistryEntryRequest(BaseModel):
     __properties = ["state", "dockerVersion"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -68,7 +65,7 @@ class UpdateDockerWorkerRegistryEntryRequest(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return UpdateDockerWorkerRegistryEntryRequest.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -81,5 +78,4 @@ class UpdateDockerWorkerRegistryEntryRequest(BaseModel):
             "docker_version": obj.get("dockerVersion")
         })
         return _obj
-
 

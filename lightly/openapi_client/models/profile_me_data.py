@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import List, Optional, Union
@@ -48,6 +44,7 @@ class ProfileMeData(BaseModel):
     __properties = ["id", "userType", "email", "nickname", "name", "givenName", "familyName", "token", "createdAt", "teams", "settings", "onboarding"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -78,10 +75,10 @@ class ProfileMeData(BaseModel):
             for _item in self.teams:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict['teams'] = _items
+            _dict['teams' if by_alias else 'teams'] = _items
         # override the default output from pydantic by calling `to_dict()` of settings
         if self.settings:
-            _dict['settings'] = self.settings.to_dict(by_alias=by_alias)
+            _dict['settings' if by_alias else 'settings'] = self.settings.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -90,7 +87,7 @@ class ProfileMeData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return ProfileMeData.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -113,5 +110,4 @@ class ProfileMeData(BaseModel):
             "onboarding": obj.get("onboarding")
         })
         return _obj
-
 

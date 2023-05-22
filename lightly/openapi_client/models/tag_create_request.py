@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -44,51 +40,58 @@ class TagCreateRequest(BaseModel):
     __properties = ["name", "prevTagId", "queryTagId", "preselectedTagId", "bitMaskData", "totSize", "creator", "changes", "runId"]
 
     @validator('name')
-    def name_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$", v):
+    def name_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$", value):
             raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/")
-        return v
+        return value
 
     @validator('prev_tag_id')
-    def prev_tag_id_validate_regular_expression(cls, v):
-        if not re.match(r"^[a-f0-9]{24}$", v):
+    def prev_tag_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('query_tag_id')
-    def query_tag_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def query_tag_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('preselected_tag_id')
-    def preselected_tag_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def preselected_tag_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     @validator('bit_mask_data')
-    def bit_mask_data_validate_regular_expression(cls, v):
-        if not re.match(r"^0x[a-f0-9]+$", v):
+    def bit_mask_data_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^0x[a-f0-9]+$", value):
             raise ValueError(r"must validate the regular expression /^0x[a-f0-9]+$/")
-        return v
+        return value
 
     @validator('run_id')
-    def run_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def run_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -115,7 +118,7 @@ class TagCreateRequest(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of changes
         if self.changes:
-            _dict['changes'] = self.changes.to_dict(by_alias=by_alias)
+            _dict['changes' if by_alias else 'changes'] = self.changes.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -124,7 +127,7 @@ class TagCreateRequest(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return TagCreateRequest.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -144,5 +147,4 @@ class TagCreateRequest(BaseModel):
             "run_id": obj.get("runId")
         })
         return _obj
-
 

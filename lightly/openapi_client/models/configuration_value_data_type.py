@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -39,5 +39,10 @@ class ConfigurationValueDataType(str, Enum):
     CATEGORICAL_DATETIME = 'CATEGORICAL_DATETIME'
     CATEGORICAL_TIMESTAMP = 'CATEGORICAL_TIMESTAMP'
     OTHER_STRING = 'OTHER_STRING'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'ConfigurationValueDataType':
+        """Create an instance of ConfigurationValueDataType from a JSON string"""
+        return ConfigurationValueDataType(json.loads(json_str))
 
 

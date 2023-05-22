@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -36,5 +36,10 @@ class JobState(str, Enum):
     RUNNING = 'RUNNING'
     FAILED = 'FAILED'
     FINISHED = 'FINISHED'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'JobState':
+        """Create an instance of JobState from a JSON string"""
+        return JobState(json.loads(json_str))
 
 

@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -33,5 +33,10 @@ class LightlyTrainerPrecisionV2(int, Enum):
     """
     NUMBER_16 = 16
     NUMBER_32 = 32
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'LightlyTrainerPrecisionV2':
+        """Create an instance of LightlyTrainerPrecisionV2 from a JSON string"""
+        return LightlyTrainerPrecisionV2(json.loads(json_str))
 
 

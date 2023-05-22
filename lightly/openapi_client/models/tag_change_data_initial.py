@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import Optional
@@ -34,15 +30,17 @@ class TagChangeDataInitial(BaseModel):
     __properties = ["runId"]
 
     @validator('run_id')
-    def run_id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def run_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -75,7 +73,7 @@ class TagChangeDataInitial(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return TagChangeDataInitial.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -87,5 +85,4 @@ class TagChangeDataInitial(BaseModel):
             "run_id": obj.get("runId")
         })
         return _obj
-
 

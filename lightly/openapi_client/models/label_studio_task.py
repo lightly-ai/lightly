@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 
@@ -36,6 +32,7 @@ class LabelStudioTask(BaseModel):
     __properties = ["id", "data"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -62,7 +59,7 @@ class LabelStudioTask(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of data
         if self.data:
-            _dict['data'] = self.data.to_dict(by_alias=by_alias)
+            _dict['data' if by_alias else 'data'] = self.data.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -71,7 +68,7 @@ class LabelStudioTask(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return LabelStudioTask.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -84,5 +81,4 @@ class LabelStudioTask(BaseModel):
             "data": LabelStudioTaskData.from_dict(obj.get("data")) if obj.get("data") is not None else None
         })
         return _obj
-
 

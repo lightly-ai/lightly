@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 import lightly.openapi_client.models
 
 
@@ -40,15 +36,17 @@ class DatasourceConfigBase(BaseModel):
     __properties = ["id", "purpose", "type", "fullPath", "thumbSuffix"]
 
     @validator('id')
-    def id_validate_regular_expression(cls, v):
-        if v is None:
-            return v
+    def id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
 
-        if not re.match(r"^[a-f0-9]{24}$", v):
+        if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return v
+        return value
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -110,5 +108,4 @@ class DatasourceConfigBase(BaseModel):
             raise ValueError("DatasourceConfigBase failed to lookup discriminator value from " +
                              json.dumps(obj) + ". Discriminator property name: " + cls.__discriminator_property_name +
                              ", mapping: " + json.dumps(cls.__discriminator_value_class_map))
-
 

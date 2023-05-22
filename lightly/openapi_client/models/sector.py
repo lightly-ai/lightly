@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -55,5 +55,10 @@ class Sector(str, Enum):
     SURVEILLANCE = 'SURVEILLANCE'
     TRANSPORTATION = 'TRANSPORTATION'
     OTHER = 'OTHER'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'Sector':
+        """Create an instance of Sector from a JSON string"""
+        return Sector(json.loads(json_str))
 
 

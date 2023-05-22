@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import List, Optional
@@ -38,6 +34,7 @@ class DockerRunScheduledUpdateRequest(BaseModel):
     __properties = ["state", "priority", "runsOn"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -70,7 +67,7 @@ class DockerRunScheduledUpdateRequest(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DockerRunScheduledUpdateRequest.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -84,5 +81,4 @@ class DockerRunScheduledUpdateRequest(BaseModel):
             "runs_on": obj.get("runsOn")
         })
         return _obj
-
 

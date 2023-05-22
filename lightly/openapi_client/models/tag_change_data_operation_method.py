@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -34,5 +34,10 @@ class TagChangeDataOperationMethod(str, Enum):
     SELECTED = 'selected'
     ADDED = 'added'
     REMOVED = 'removed'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'TagChangeDataOperationMethod':
+        """Create an instance of TagChangeDataOperationMethod from a JSON string"""
+        return TagChangeDataOperationMethod(json.loads(json_str))
 
 

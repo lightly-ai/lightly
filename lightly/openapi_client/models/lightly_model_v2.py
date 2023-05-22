@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -36,5 +36,10 @@ class LightlyModelV2(str, Enum):
     RESNET_MINUS_50 = 'resnet-50'
     RESNET_MINUS_101 = 'resnet-101'
     RESNET_MINUS_152 = 'resnet-152'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'LightlyModelV2':
+        """Create an instance of LightlyModelV2 from a JSON string"""
+        return LightlyModelV2(json.loads(json_str))
 
 

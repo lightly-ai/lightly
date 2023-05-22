@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import List, Optional, Union
@@ -47,6 +43,7 @@ class DockerWorkerConfigV2LightlyCollate(BaseModel):
     __properties = ["inputSize", "cjProb", "cjBright", "cjContrast", "cjSat", "cjHue", "minScale", "randomGrayScale", "gaussianBlur", "kernelSize", "sigmas", "vfProb", "hfProb", "rrProb"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -79,7 +76,7 @@ class DockerWorkerConfigV2LightlyCollate(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DockerWorkerConfigV2LightlyCollate.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -104,5 +101,4 @@ class DockerWorkerConfigV2LightlyCollate(BaseModel):
             "rr_prob": obj.get("rrProb")
         })
         return _obj
-
 

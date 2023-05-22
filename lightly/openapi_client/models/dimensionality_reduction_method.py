@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -34,5 +34,10 @@ class DimensionalityReductionMethod(str, Enum):
     PCA = 'PCA'
     TSNE = 'TSNE'
     UMAP = 'UMAP'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'DimensionalityReductionMethod':
+        """Create an instance of DimensionalityReductionMethod from a JSON string"""
+        return DimensionalityReductionMethod(json.loads(json_str))
 
 

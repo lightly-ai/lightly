@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import List, Optional
@@ -42,6 +38,7 @@ class ProfileBasicData(BaseModel):
     __properties = ["id", "nickname", "name", "givenName", "familyName", "email", "createdAt", "teams"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -72,7 +69,7 @@ class ProfileBasicData(BaseModel):
             for _item in self.teams:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict['teams'] = _items
+            _dict['teams' if by_alias else 'teams'] = _items
         return _dict
 
     @classmethod
@@ -81,7 +78,7 @@ class ProfileBasicData(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return ProfileBasicData.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -100,5 +97,4 @@ class ProfileBasicData(BaseModel):
             "teams": [TeamBasicData.from_dict(_item) for _item in obj.get("teams")] if obj.get("teams") is not None else None
         })
         return _obj
-
 

@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 from typing import List, Optional, Union
@@ -48,6 +44,7 @@ class DockerWorkerConfigV3LightlyCollate(BaseModel):
     __properties = ["inputSize", "cjProb", "cjBright", "cjContrast", "cjSat", "cjHue", "minScale", "randomGrayScale", "gaussianBlur", "kernelSize", "sigmas", "vfProb", "hfProb", "rrProb", "rrDegrees"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -75,7 +72,7 @@ class DockerWorkerConfigV3LightlyCollate(BaseModel):
         # set to None if rr_degrees (nullable) is None
         # and __fields_set__ contains the field
         if self.rr_degrees is None and "rr_degrees" in self.__fields_set__:
-            _dict['rrDegrees'] = None
+            _dict['rrDegrees' if by_alias else 'rr_degrees'] = None
 
         return _dict
 
@@ -85,7 +82,7 @@ class DockerWorkerConfigV3LightlyCollate(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return DockerWorkerConfigV3LightlyCollate.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -111,5 +108,4 @@ class DockerWorkerConfigV3LightlyCollate(BaseModel):
             "rr_degrees": obj.get("rrDegrees")
         })
         return _obj
-
 

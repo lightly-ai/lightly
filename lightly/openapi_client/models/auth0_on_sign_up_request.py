@@ -14,13 +14,9 @@
 
 
 from __future__ import annotations
-from inspect import getfullargspec
 import pprint
 import re  # noqa: F401
 import json
-
-from typing_extensions import Annotated
-
 
 
 
@@ -35,6 +31,7 @@ class Auth0OnSignUpRequest(BaseModel):
     __properties = ["user"]
 
     class Config:
+        """Pydantic configuration"""
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -61,7 +58,7 @@ class Auth0OnSignUpRequest(BaseModel):
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of user
         if self.user:
-            _dict['user'] = self.user.to_dict(by_alias=by_alias)
+            _dict['user' if by_alias else 'user'] = self.user.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -70,7 +67,7 @@ class Auth0OnSignUpRequest(BaseModel):
         if obj is None:
             return None
 
-        if type(obj) is not dict:
+        if not isinstance(obj, dict):
             return Auth0OnSignUpRequest.parse_obj(obj)
 
         # raise errors for additional fields in the input
@@ -82,5 +79,4 @@ class Auth0OnSignUpRequest(BaseModel):
             "user": Auth0OnSignUpRequestUser.from_dict(obj.get("user")) if obj.get("user") is not None else None
         })
         return _obj
-
 

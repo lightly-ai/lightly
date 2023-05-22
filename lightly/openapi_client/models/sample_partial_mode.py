@@ -13,7 +13,7 @@
 """
 
 
-from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
 from enum import Enum
@@ -34,5 +34,10 @@ class SamplePartialMode(str, Enum):
     IDS = 'ids'
     FILENAMES = 'fileNames'
     FULL = 'full'
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'SamplePartialMode':
+        """Create an instance of SamplePartialMode from a JSON string"""
+        return SamplePartialMode(json.loads(json_str))
 
 
