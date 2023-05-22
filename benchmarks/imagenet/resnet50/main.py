@@ -185,6 +185,7 @@ def pretrain(
     )
 
     # Train model.
+    accelerator = "cpu" # TODO: Remove me
     metric_callback = MetricCallback()
     trainer = Trainer(
         max_epochs=epochs,
@@ -197,6 +198,7 @@ def pretrain(
         ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
+        strategy="ddp_find_unused_parameters_true",
         sync_batchnorm=True,
     )
 

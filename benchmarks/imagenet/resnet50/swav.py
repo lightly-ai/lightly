@@ -108,9 +108,8 @@ class SwAV(LightningModule):
         )
 
         # Calculate the classification loss.
-        features = torch.cat(multi_crop_features[: CROP_COUNTS[0]])
         cls_loss, cls_log = self.online_classifier.training_step(
-            (features.detach(), targets.repeat(CROP_COUNTS[0])), batch_idx
+            (multi_crop_features[0].detach(), targets), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss

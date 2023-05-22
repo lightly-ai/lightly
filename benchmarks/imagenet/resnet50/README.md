@@ -43,7 +43,7 @@ Or with SLURM, create the following script (`run_imagenet.sh`):
 
 eval "$(conda shell.bash hook)"
 
-conda lightly-env
+conda activate lightly-env
 srun python main.py --epochs 100 --train-dir /datasets/imagenet/train --val-dir /datasets/imagenet/val --num-workers 12 --devices 2 --batch-size 128
 conda deactivate
 ```
