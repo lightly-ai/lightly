@@ -1,13 +1,17 @@
 import numpy as np
+import pytest
 
 from lightly.active_learning.agents.agent import ActiveLearningAgent
 from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.active_learning.scorers import ScorerSemanticSegmentation
 from lightly.active_learning.scorers.classification import ScorerClassification
-from lightly.openapi_generated.swagger_client import SamplingMethod
+from lightly.openapi_client import SamplingMethod
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
+@pytest.skip(
+    "Skip the test. Active learning agent is being deprecated", allow_module_level=True
+)
 class TestActiveLearningAgent(MockedApiWorkflowSetup):
     def test_agent(self):
         self.api_workflow_client.embedding_id = "embedding_id_xyz"

@@ -41,7 +41,7 @@ def test__download_raw_files(mocker: MockerFixture) -> None:
     assert "relevant_filenames_file_name" not in kwargs
     assert mocked_pbar.update.call_count == 2
     assert mocked_warning.call_count == 3
-    warning_text = [str(call.args[0]) for call in mocked_warning.call_args_list]
+    warning_text = [str(call_args[0][0]) for call_args in mocked_warning.call_args_list]
     assert warning_text == [
         (
             "Absolute file paths like /file1 are not supported"

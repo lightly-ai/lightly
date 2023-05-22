@@ -190,7 +190,7 @@ class _UploadCustomMetadataMixin:
             request = SampleUpdateRequest(custom_meta_data=metadata)
             return retry(
                 self._samples_api.update_sample_by_id,
-                request,
+                sample_update_request=request,
                 dataset_id=self.dataset_id,
                 sample_id=sample_id,
             )

@@ -35,7 +35,9 @@ class _TagsMixin:
             Tag data for the requested tag.
 
         """
-        tag_data = self._tags_api.get_tag_by_tag_id(self.dataset_id, tag_id)
+        tag_data = self._tags_api.get_tag_by_tag_id(
+            dataset_id=self.dataset_id, tag_id=tag_id
+        )
         return tag_data
 
     def get_tag_by_name(self, tag_name: str) -> TagData:
@@ -184,7 +186,7 @@ class _TagsMixin:
                 The id of the tag to be deleted.
 
         """
-        self._tags_api.delete_tag_by_tag_id(self.dataset_id, tag_id)
+        self._tags_api.delete_tag_by_tag_id(dataset_id=self.dataset_id, tag_id=tag_id)
 
     def delete_tag_by_name(self, tag_name: str) -> None:
         """Deletes a tag from the current dataset on the Lightly Platform.

@@ -1,10 +1,9 @@
+from typing import List
+
 import pytest
 from pytest_mock import MockerFixture
 
-from lightly.active_learning.config.selection_config import (
-    SamplingConfig,
-    SelectionConfig,
-)
+from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.api import ApiWorkflowClient, api_workflow_selection
 from lightly.openapi_client.models import (
     JobResultType,
@@ -18,7 +17,7 @@ from lightly.openapi_client.models import (
 from tests.api_workflow.utils import generate_id
 
 
-def _get_tags(dataset_id: str, tag_name: str = "just-a-tag") -> list[TagData]:
+def _get_tags(dataset_id: str, tag_name: str = "just-a-tag") -> List[TagData]:
     return [
         TagData(
             id=generate_id(),

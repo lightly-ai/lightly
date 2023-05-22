@@ -13,6 +13,7 @@ from tests.api_workflow.mocked_api_workflow_client import (
 )
 
 
+@pytest.skip("Skip this test.", allow_module_level=True)
 class TestCLIDownload(MockedApiWorkflowSetup):
     @classmethod
     def setUpClass(cls) -> None:

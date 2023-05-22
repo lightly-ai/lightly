@@ -112,8 +112,8 @@ class _DownloadDatasetMixin:
             # try to download image
             try:
                 read_url = self._samples_api.get_sample_image_read_url_by_id(
-                    self.dataset_id,
-                    sample_id,
+                    dataset_id=self.dataset_id,
+                    sample_id=sample_id,
                     type="full",
                 )
                 img = _get_image_from_read_url(read_url)

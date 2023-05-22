@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, Tuple, Union
 
 from lightly.openapi_client.api_client import Configuration
 from lightly.openapi_client.rest import RESTClientObject
@@ -60,13 +60,11 @@ class PatchRESTClientObjectMixin:
         if _request_timeout is None:
             _request_timeout = self.timeout
 
-        flat_query_params = _flatten_list_query_parameters(query_params=query_params)
-
         # Call RESTClientObject.request
         return super().request(
             method=method,
             url=url,
-            query_params=flat_query_params,
+            query_params=query_params,
             headers=headers,
             body=body,
             post_params=post_params,
@@ -118,17 +116,3 @@ class LightlySwaggerRESTClientObject(PatchRESTClientObjectMixin, RESTClientObjec
     """
 
     pass
-
-
-def _flatten_list_query_parameters(
-    query_params: Union[None, List[Tuple[str, Any]]]
-) -> Union[None, List[Tuple[str, Any]]]:
-    if query_params is not None:
-        new_query_params = []
-        for name, value in query_params:
-            if isinstance(value, list):
-                new_query_params.extend([(name, val) for val in value])
-            else:
-                new_query_params.append((name, value))
-        query_params = new_query_params
-    return query_params

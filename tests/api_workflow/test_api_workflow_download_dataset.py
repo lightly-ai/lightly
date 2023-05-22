@@ -140,7 +140,7 @@ def test_download_dataset__ok(mocker: MockerFixture) -> None:
     client.download_dataset(output_dir="path/to/dir", tag_name="some-tag")
 
     assert mocked_warning.call_count == 2
-    warning_text = [str(call.args[0]) for call in mocked_warning.call_args_list]
+    warning_text = [str(call_args[0][0]) for call_args in mocked_warning.call_args_list]
     assert warning_text == [
         "Downloading of image file0 failed with error some error",
         "Warning: Unsuccessful download! Failed at image: 0",

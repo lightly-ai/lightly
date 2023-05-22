@@ -80,7 +80,9 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
 
     # Only `file1` is a valid sample
     assert mocked_print_warning.call_count == 2
-    warning_text = [call.args[0] for call in mocked_print_warning.call_args_list]
+    warning_text = [
+        call_args[0][0] for call_args in mocked_print_warning.call_args_list
+    ]
     assert warning_text == [
         (
             "No image found for custom metadata annotation with image_id image-id2. "
@@ -95,15 +97,19 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
 
     assert mocked_retry.call_count == 2
     # First call: get_samples_partial_by_dataset_id
+    args_first_call = mocked_retry.call_args_list[0][0]
     assert (
-        mocked_retry.call_args_list[0].args[0]
+        # Check first positional argument
+        args_first_call[0]
         == mocked_samples_api.get_samples_partial_by_dataset_id
     )
     # Second call: update_sample_by_id with the only valid sample
-    assert (
-        mocked_retry.call_args_list[1].args[0] == mocked_samples_api.update_sample_by_id
-    )
-    assert isinstance(mocked_retry.call_args_list[1].args[1], SampleUpdateRequest)
-    assert mocked_retry.call_args_list[1].args[1].custom_meta_data == {
+    args_second_call = mocked_retry.call_args_list[1][0]
+    kwargs_second_call = mocked_retry.call_args_list[1][1]
+    # Check first positional argument
+    assert args_second_call[0] == mocked_samples_api.update_sample_by_id
+    # Check second positional argument
+    assert isinstance(kwargs_second_call["sample_update_request"], SampleUpdateRequest)
+    assert kwargs_second_call["sample_update_request"].custom_meta_data == {
         COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id1"
     }

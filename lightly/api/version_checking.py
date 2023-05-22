@@ -4,7 +4,7 @@ from typing import Tuple
 
 from lightly.api import utils
 from lightly.api.swagger_api_client import LightlySwaggerApiClient
-from lightly.openapi_generated.swagger_client import VersioningApi
+from lightly.openapi_client.api import VersioningApi
 from lightly.utils.version_compare import version_compare
 
 

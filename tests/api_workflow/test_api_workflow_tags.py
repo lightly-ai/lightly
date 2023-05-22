@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 import pytest
 from pytest_mock import MockerFixture
 
@@ -8,8 +10,8 @@ from tests.api_workflow.utils import generate_id
 
 
 def _get_tags(
-    dataset_id: str, tag_name: str = "just-a-tag", prev_tag_id: str | None = None
-) -> list[TagData]:
+    dataset_id: str, tag_name: str = "just-a-tag", prev_tag_id: Optional[str] = None
+) -> List[TagData]:
     return [
         TagData(
             id=generate_id(),
@@ -171,7 +173,9 @@ def test_get_tag_by_id(mocker: MockerFixture) -> None:
     client._dataset_id = "dataset-id"
     client._tags_api = mocked_api
     client.get_tag_by_id("tag-id")
-    mocked_api.get_tag_by_tag_id.assert_called_once_with("dataset-id", "tag-id")
+    mocked_api.get_tag_by_tag_id.assert_called_once_with(
+        dataset_id="dataset-id", tag_id="tag-id"
+    )
 
 
 def test_get_tag_name(mocker: MockerFixture) -> None:
@@ -205,4 +209,6 @@ def test_delete_tag_by_id(mocker: MockerFixture) -> None:
     client._dataset_id = "dataset-id"
     client._tags_api = mocked_api
     client.delete_tag_by_id("tag-id")
-    mocked_api.delete_tag_by_tag_id.assert_called_once_with("dataset-id", "tag-id")
+    mocked_api.delete_tag_by_tag_id.assert_called_once_with(
+        dataset_id="dataset-id", tag_id="tag-id"
+    )

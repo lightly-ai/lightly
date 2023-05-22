@@ -1,3 +1,5 @@
+from typing import List
+
 import pytest
 from pytest_mock import MockerFixture
 
@@ -14,7 +16,7 @@ from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 from tests.api_workflow.utils import generate_id
 
 
-def _get_datasets(count: int) -> list[DatasetData]:
+def _get_datasets(count: int) -> List[DatasetData]:
     return [
         DatasetData(
             name=f"mock_dataset_{i}",

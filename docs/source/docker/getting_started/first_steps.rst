@@ -87,7 +87,7 @@ a new dataset from Python or re-use an existing one (see :ref:`datapool`).
     :caption: Creating a new dataset from Python
 
     from lightly.api import ApiWorkflowClient
-    from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
+    from lightly.openapi_client.models.dataset_type import DatasetType
 
     # Create the Lightly client to connect to the API.
     client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
@@ -141,7 +141,7 @@ The `LIGHTLY` bucket is used for many purposes:
         .. code-block:: python
             :caption: Giving access to storage buckets from Python
 
-            from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
+            from lightly.openapi_client.models.datasource_purpose import DatasourcePurpose
 
             ## AWS S3
             # Input bucket
@@ -166,7 +166,7 @@ The `LIGHTLY` bucket is used for many purposes:
         .. code-block:: python
             :caption: Giving access to storage buckets from Python
 
-            from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
+            from lightly.openapi_client.models.datasource_purpose import DatasourcePurpose
 
             ## AWS S3
             # Input bucket
@@ -192,7 +192,7 @@ The `LIGHTLY` bucket is used for many purposes:
             :caption: Giving access to storage buckets from Python
 
             import json
-            from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
+            from lightly.openapi_client.models.datasource_purpose import DatasourcePurpose
 
             ## Google Cloud Storage
             # Input bucket
@@ -216,7 +216,7 @@ The `LIGHTLY` bucket is used for many purposes:
         .. code-block:: python
             :caption: Giving access to storage buckets from Python
 
-            from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
+            from lightly.openapi_client.models.datasource_purpose import DatasourcePurpose
 
             ## Azure
             # Input bucket

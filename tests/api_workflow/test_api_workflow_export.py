@@ -51,7 +51,8 @@ def test_export_tag_to_basic_filenames_and_read_urls(mocker: MockerFixture) -> N
     ]
     assert mocked_retry.call_count == 3
     file_name_format_call_args = [
-        call.kwargs.get("file_name_format") for call in mocked_retry.call_args_list
+        call_args[1].get("file_name_format")
+        for call_args in mocked_retry.call_args_list
     ]
     assert file_name_format_call_args == [
         FileNameFormat.NAME,

@@ -2,13 +2,13 @@ import unittest
 
 import numpy as np
 
-from lightly.openapi_generated.swagger_client import (
+from lightly.openapi_client import (
     ActiveLearningScoreCreateRequest,
     ApiClient,
     SamplingMethod,
     ScoresApi,
 )
-from lightly.openapi_generated.swagger_client.rest import ApiException
+from lightly.openapi_client.rest import ApiException
 
 
 class TestRestParser(unittest.TestCase):

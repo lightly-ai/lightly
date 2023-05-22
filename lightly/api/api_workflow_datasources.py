@@ -671,8 +671,8 @@ class _DatasourcesMixin:
 
         """
         return self._datasources_api.get_metadata_file_read_url_from_datasource_by_dataset_id(
-            self.dataset_id,
-            filename,
+            dataset_id=self.dataset_id,
+            file_name=filename,
         )
 
     def get_custom_embedding_read_url(
@@ -690,8 +690,8 @@ class _DatasourcesMixin:
 
         """
         return self._datasources_api.get_custom_embedding_file_read_url_from_datasource_by_dataset_id(
-            self.dataset_id,
-            filename,
+            dataset_id=self.dataset_id,
+            file_name=filename,
         )
 
     def list_datasource_permissions(

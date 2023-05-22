@@ -183,11 +183,13 @@ class MockedJobsApi(JobsApi):
 
 
 class MockedTagsApi(TagsApi):
-    def create_initial_tag_by_dataset_id(self, body, dataset_id, **kwargs):
+    def create_initial_tag_by_dataset_id(
+        self, initial_tag_create_request, dataset_id, **kwargs
+    ):
         _check_dataset_id(dataset_id)
-        assert isinstance(body, InitialTagCreateRequest)
+        assert isinstance(initial_tag_create_request, InitialTagCreateRequest)
         assert isinstance(dataset_id, str)
-        response_ = CreateEntityResponse(id="xyz")
+        response_ = CreateEntityResponse(id=generate_id())
         return response_
 
     def get_tag_by_tag_id(self, dataset_id, tag_id, **kwargs):
@@ -562,20 +564,20 @@ class MockedDatasetsApi(DatasetsApi):
         else:
             return self.datasets[start:end]
 
-    def create_dataset(self, body: DatasetCreateRequest, **kwargs):
-        assert isinstance(body, DatasetCreateRequest)
-        id = body.name + "_id"
-        if body.name == "xyz-no-tags":
+    def create_dataset(self, dataset_create_request: DatasetCreateRequest, **kwargs):
+        assert isinstance(dataset_create_request, DatasetCreateRequest)
+        id = generate_id()
+        if dataset_create_request.name == "xyz-no-tags":
             id = "xyz-no-tags"
         dataset = DatasetData(
             id=id,
-            name=body.name,
+            name=dataset_create_request.name,
             last_modified_at=len(self.datasets) + 1,
             type="Images",
             size_in_bytes=-1,
             n_samples=-1,
             created_at=-1,
-            user_id="user_0",
+            user_id=generate_id(),
         )
         self.datasets.append(dataset)
         response_ = CreateEntityResponse(id=id)

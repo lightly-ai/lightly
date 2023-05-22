@@ -1,9 +1,9 @@
 from unittest.mock import MagicMock, call
 
 from lightly.api import ApiWorkflowClient
-from lightly.api.prediction_singletons import PredictionSingletonClassificationRepr
 from lightly.openapi_client.api import PredictionsApi
 from lightly.openapi_client.models import (
+    PredictionSingletonClassification,
     PredictionTaskSchema,
     PredictionTaskSchemaCategory,
     TaskType,
@@ -43,15 +43,13 @@ def test_create_or_update_prediction() -> None:
     mocked_client._predictions_api = MagicMock(spec_set=PredictionsApi)
 
     prediction_singletons = [
-        PredictionSingletonClassificationRepr(
+        PredictionSingletonClassification(
+            type="CLASSIFICATION",
             taskName="my-task",
             categoryId=1,
             score=0.9,
             probabilities=[0.1, 0.2, 0.3, 0.4],
         )
-    ]
-    expected_upload_prediction_singletons = [
-        singleton.to_dict() for singleton in prediction_singletons
     ]
 
     sample_id = "some_sample_id"
@@ -64,7 +62,7 @@ def test_create_or_update_prediction() -> None:
     )
 
     mocked_client._predictions_api.create_or_update_prediction_by_sample_id.assert_called_once_with(
-        prediction_singleton=expected_upload_prediction_singletons,
+        prediction_singleton=prediction_singletons,
         dataset_id=mocked_client.dataset_id,
         sample_id=sample_id,
         prediction_uuid_timestamp=timestamp,
@@ -77,7 +75,8 @@ def test_create_or_update_predictions() -> None:
 
     sample_id_to_prediction_singletons_dummy = {
         f"sample_id_{i}": [
-            PredictionSingletonClassificationRepr(
+            PredictionSingletonClassification(
+                type="CLASSIFICATION",
                 taskName="my-task",
                 categoryId=i % 4,
                 score=0.9,
