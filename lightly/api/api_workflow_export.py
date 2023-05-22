@@ -1,22 +1,8 @@
-import io
-import os
 import warnings
-from concurrent.futures.thread import ThreadPoolExecutor
-from typing import Dict, List, Optional
-from urllib.request import Request, urlopen
+from typing import Dict, List
 
-import tqdm
-from PIL import Image
-
-from lightly.api import download
-from lightly.api.bitmask import BitMask
 from lightly.api.utils import paginate_endpoint, retry
-from lightly.openapi_generated.swagger_client import (
-    DatasetEmbeddingData,
-    FileNameFormat,
-    ImageType,
-)
-from lightly.utils.hipify import bcolors
+from lightly.openapi_client.models import FileNameFormat
 
 
 class _ExportDatasetMixin:
