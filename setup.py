@@ -91,6 +91,7 @@ if __name__ == "__main__":
         "lightly.models.modules",
         "lightly.transforms",
         "lightly.utils",
+        "lightly.utils.benchmarking",
         "lightly.utils.cropping",
         "lightly.active_learning",
         "lightly.active_learning.agents",
