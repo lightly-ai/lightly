@@ -1,10 +1,10 @@
 from concurrent.futures import ThreadPoolExecutor
-from typing import List, Mapping, Optional, Sequence, Tuple
+from typing import Mapping, Optional, Sequence, Tuple
 
 import tqdm
 
 from lightly.api.prediction_singletons import PredictionSingletonRepr
-from lightly.openapi_generated.swagger_client import PredictionTaskSchema
+from lightly.openapi_client.models import PredictionTaskSchema
 
 
 class _PredictionsMixin:
@@ -25,7 +25,7 @@ class _PredictionsMixin:
         Example:
           >>> import time
           >>> from lightly.api import ApiWorkflowClient
-          >>> from lightly.openapi_generated.swagger_client import (
+          >>> from lightly.openapi_client.models import (
           >>>     PredictionTaskSchema,
           >>>     TaskType,
           >>>     PredictionTaskSchemaCategory,
@@ -48,7 +48,7 @@ class _PredictionsMixin:
 
         """
         self._predictions_api.create_or_update_prediction_task_schema_by_dataset_id(
-            body=schema,
+            prediction_task_schema=schema,
             dataset_id=self.dataset_id,
             prediction_uuid_timestamp=prediction_version_id,
         )
@@ -84,7 +84,7 @@ class _PredictionsMixin:
           >>> import time
           >>> from tqdm import tqdm
           >>> from lightly.api import ApiWorkflowClient
-          >>> from lightly.openapi_generated.swagger_client import (
+          >>> from lightly.openapi_client.models import (
           >>>     PredictionTaskSchema,
           >>>     TaskType,
           >>>     PredictionTaskSchemaCategory,
@@ -153,7 +153,7 @@ class _PredictionsMixin:
             singleton.to_dict() for singleton in prediction_singletons
         ]
         self._predictions_api.create_or_update_prediction_by_sample_id(
-            body=prediction_singletons_for_sending,
+            prediction_singleton=prediction_singletons_for_sending,
             dataset_id=self.dataset_id,
             sample_id=sample_id,
             prediction_uuid_timestamp=prediction_version_id,

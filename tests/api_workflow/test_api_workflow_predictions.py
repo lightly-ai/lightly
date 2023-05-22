@@ -2,8 +2,8 @@ from unittest.mock import MagicMock, call
 
 from lightly.api import ApiWorkflowClient
 from lightly.api.prediction_singletons import PredictionSingletonClassificationRepr
-from lightly.openapi_generated.swagger_client import (
-    PredictionsApi,
+from lightly.openapi_client.api import PredictionsApi
+from lightly.openapi_client.models import (
     PredictionTaskSchema,
     PredictionTaskSchemaCategory,
     TaskType,
@@ -31,7 +31,7 @@ def test_create_or_update_prediction_task_schema() -> None:
     )
 
     mocked_client._predictions_api.create_or_update_prediction_task_schema_by_dataset_id.assert_called_once_with(
-        body=schema,
+        prediction_task_schema=schema,
         dataset_id=mocked_client.dataset_id,
         prediction_uuid_timestamp=timestamp,
     )
@@ -64,7 +64,7 @@ def test_create_or_update_prediction() -> None:
     )
 
     mocked_client._predictions_api.create_or_update_prediction_by_sample_id.assert_called_once_with(
-        body=expected_upload_prediction_singletons,
+        prediction_singleton=expected_upload_prediction_singletons,
         dataset_id=mocked_client.dataset_id,
         sample_id=sample_id,
         prediction_uuid_timestamp=timestamp,
