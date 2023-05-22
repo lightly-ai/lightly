@@ -7,8 +7,8 @@ from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar,
 
 from lightly.api import utils
 from lightly.api.utils import retry
-from lightly.openapi_generated.swagger_client import (
-    ApiClient,
+from lightly.openapi_client.api_client import ApiClient
+from lightly.openapi_client.models import (
     CreateDockerWorkerRegistryEntryRequest,
     DockerRunData,
     DockerRunScheduledCreateRequest,
@@ -28,7 +28,7 @@ from lightly.openapi_generated.swagger_client import (
     SelectionConfigEntryStrategy,
     TagData,
 )
-from lightly.openapi_generated.swagger_client.rest import ApiException
+from lightly.openapi_client.rest import ApiException
 
 STATE_SCHEDULED_ID_NOT_FOUND = "CANCELED_OR_NOT_EXISTING"
 
@@ -252,7 +252,7 @@ class _ComputeWorkerMixin:
             creator=self._creator,
         )
         response = self._compute_worker_api.create_docker_run_scheduled_by_dataset_id(
-            body=request,
+            docker_run_scheduled_create_request=request,
             dataset_id=self.dataset_id,
         )
         return response.id
@@ -551,14 +551,9 @@ def _validate_config(
     if cfg is None:
         return
 
-    if not hasattr(type(obj), "swagger_types"):
-        raise TypeError(
-            f"Type {type(obj)} of argument 'obj' has not attribute 'swagger_types'"
-        )
-
     for key, item in cfg.items():
         if not hasattr(obj, key):
-            possible_options = list(type(obj).swagger_types.keys())
+            possible_options = list(type(obj).__fields__.keys())
             closest_match = difflib.get_close_matches(
                 word=key, possibilities=possible_options, n=1, cutoff=0.0
             )[0]

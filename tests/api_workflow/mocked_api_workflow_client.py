@@ -842,26 +842,27 @@ class MockedComputeWorkerApi(DockerApi):
 
     def register_docker_worker(self, body, **kwargs):
         assert isinstance(body, CreateDockerWorkerRegistryEntryRequest)
-        return CreateEntityResponse(id="worker-id-123")
-
-    def delete_docker_worker_registry_entry_by_id(self, worker_id, **kwargs):
-        assert worker_id == "worker-id-123"
+        return CreateEntityResponse(id=generate_id())
 
     def get_docker_worker_registry_entries(self, **kwargs):
         return self._registered_workers
 
     def create_docker_worker_config(self, body, **kwargs):
         assert isinstance(body, DockerWorkerConfigCreateRequest)
-        return CreateEntityResponse(id="worker-config-id-123")
+        return CreateEntityResponse(id=generate_id())
 
     def create_docker_worker_config_v3(self, body, **kwargs):
         assert isinstance(body, DockerWorkerConfigV3CreateRequest)
-        return CreateEntityResponse(id="worker-configv2-id-123")
+        return CreateEntityResponse(id=generate_id())
 
-    def create_docker_run_scheduled_by_dataset_id(self, body, dataset_id, **kwargs):
-        assert isinstance(body, DockerRunScheduledCreateRequest)
+    def create_docker_run_scheduled_by_dataset_id(
+        self, docker_run_scheduled_create_request, dataset_id, **kwargs
+    ):
+        assert isinstance(
+            docker_run_scheduled_create_request, DockerRunScheduledCreateRequest
+        )
         _check_dataset_id(dataset_id)
-        return CreateEntityResponse(id=f"scheduled-run-id-123-dataset-{dataset_id}")
+        return CreateEntityResponse(id=generate_id())
 
     def get_docker_runs(
         self,
@@ -983,14 +984,16 @@ def mocked_request_put(dst_url: str, data=IOBase) -> Response:
 
 class MockedAPICollaboration(CollaborationApi):
     def create_or_update_shared_access_config_by_dataset_id(
-        self, body, dataset_id, **kwargs
+        self, shared_access_config_create_request, dataset_id, **kwargs
     ):
-        assert isinstance(body, SharedAccessConfigCreateRequest)
-        return CreateEntityResponse(id="access-share-config")
+        assert isinstance(
+            shared_access_config_create_request, SharedAccessConfigCreateRequest
+        )
+        return CreateEntityResponse(id=generate_id())
 
     def get_shared_access_configs_by_dataset_id(self, dataset_id, **kwargs):
         write_config = SharedAccessConfigData(
-            id="some-id",
+            id=generate_id(),
             owner="owner-id",
             users=["user1@gmail.com", "user2@something.com"],
             teams=["some-id"],
