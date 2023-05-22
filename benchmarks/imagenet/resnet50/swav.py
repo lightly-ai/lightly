@@ -32,7 +32,7 @@ class SwAV(LightningModule):
         self.projection_head = SwaVProjectionHead()
         self.prototypes = SwaVPrototypes(
             n_steps_frozen_prototypes=(
-                2# TODO: self.trainer.estimated_stepping_batches / self.trainer.max_epochs
+                2  # TODO: self.trainer.estimated_stepping_batches / self.trainer.max_epochs
             )
         )
         self.criterion = SwaVLoss(sinkhorn_gather_distributed=True)
