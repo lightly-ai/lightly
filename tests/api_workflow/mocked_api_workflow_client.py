@@ -127,9 +127,11 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         assert isinstance(dataset_id, str)
         return self.embeddings
 
-    def trigger2d_embeddings_job(self, body, dataset_id, embedding_id, **kwargs):
+    def trigger2d_embeddings_job(
+        self, trigger2d_embedding_job_request, dataset_id, embedding_id, **kwargs
+    ):
         _check_dataset_id(dataset_id)
-        assert isinstance(body, Trigger2dEmbeddingJobRequest)
+        assert isinstance(trigger2d_embedding_job_request, Trigger2dEmbeddingJobRequest)
 
     def get_embeddings_csv_read_url_by_id(self, dataset_id, embedding_id, **kwargs):
         _check_dataset_id(dataset_id)
@@ -209,7 +211,7 @@ class MockedTagsApi(TagsApi):
         if dataset_id == "xyz-no-tags":
             return []
         tag_1 = TagData(
-            id="inital_tag_id",
+            id=generate_id(),
             dataset_id=dataset_id,
             prev_tag_id=None,
             bit_mask_data="0xF",
@@ -219,7 +221,7 @@ class MockedTagsApi(TagsApi):
             changes=dict(),
         )
         tag_2 = TagData(
-            id="query_tag_id_xyz",
+            id=generate_id(),
             dataset_id=dataset_id,
             prev_tag_id="initial-tag",
             bit_mask_data="0xF",
@@ -229,7 +231,7 @@ class MockedTagsApi(TagsApi):
             changes=dict(),
         )
         tag_3 = TagData(
-            id="preselected_tag_id_xyz",
+            id=generate_id(),
             dataset_id=dataset_id,
             prev_tag_id="initial-tag",
             bit_mask_data="0x1",
@@ -239,7 +241,7 @@ class MockedTagsApi(TagsApi):
             changes=dict(),
         )
         tag_4 = TagData(
-            id="selected_tag_xyz",
+            id=generate_id(),
             dataset_id=dataset_id,
             prev_tag_id="preselected_tag_id_xyz",
             bit_mask_data="0x3",
@@ -249,7 +251,7 @@ class MockedTagsApi(TagsApi):
             changes=dict(),
         )
         tag_5 = TagData(
-            id="tag_with_integer_name",
+            id=generate_id(),
             dataset_id=dataset_id,
             prev_tag_id=None,
             bit_mask_data="0x1",
