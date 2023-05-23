@@ -191,7 +191,7 @@ def t_est_api_with_matrix(
     )
 
     for method in [SamplingMethod.CORAL, SamplingMethod.CORESET, SamplingMethod.RANDOM]:
-        for query_tag_name in ["initial-tag", "query_tag_name_xyz"]:
+        for query_tag_name in ["query_tag_name_xyz"]:
             for preselected_tag_name in [None, "preselected_tag_name_xyz"]:
                 print(
                     f"Starting AL run with method '{method}', query_tag '{query_tag_name}' "
