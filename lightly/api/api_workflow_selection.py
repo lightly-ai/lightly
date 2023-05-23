@@ -33,17 +33,7 @@ def _parse_active_learning_scores(scores: Union[np.ndarray, List]):
 
 
 class _SelectionMixin:
-    def upload_scores(self, al_scores: Dict[str, np.ndarray], query_tag_id: str = None):
-        tags = self.get_all_tags()
-
-        # upload the active learning scores to the api
-        # change @20210422: we store the active learning scores with the query
-        # tag. policy is that if there's no explicit query tag, the whole dataset
-        # will be the query tag (i.e. query_tag = initial-tag)
-        # set the query tag to the initial-tag if necessary
-        if query_tag_id is None:
-            query_tag = next(t for t in tags if t.name == "initial-tag")
-            query_tag_id = query_tag.id
+    def upload_scores(self, al_scores: Dict[str, np.ndarray], query_tag_id: str):
         # iterate over all available score types and upload them
         for score_type, score_values in al_scores.items():
             body = ActiveLearningScoreCreateRequest(

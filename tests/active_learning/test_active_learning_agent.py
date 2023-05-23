@@ -11,18 +11,25 @@ from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 class TestActiveLearningAgent(MockedApiWorkflowSetup):
     def test_agent(self):
         self.api_workflow_client.embedding_id = "embedding_id_xyz"
+        tags = self.api_workflow_client.get_all_tags()
+        assert tags[1].name != "initial-tag"
+        query_tag_name = tags[1].name
 
-        agent_0 = ActiveLearningAgent(self.api_workflow_client)
+        agent_0 = ActiveLearningAgent(
+            self.api_workflow_client, query_tag_name=query_tag_name
+        )
         agent_1 = ActiveLearningAgent(
             self.api_workflow_client, query_tag_name="query_tag_name_xyz"
         )
         agent_2 = ActiveLearningAgent(
             self.api_workflow_client,
-            query_tag_name="query_tag_name_xyz",
+            query_tag_name=query_tag_name,
             preselected_tag_name="preselected_tag_name_xyz",
         )
         agent_3 = ActiveLearningAgent(
-            self.api_workflow_client, preselected_tag_name="preselected_tag_name_xyz"
+            self.api_workflow_client,
+            query_tag_name=query_tag_name,
+            preselected_tag_name="preselected_tag_name_xyz",
         )
 
         for method in [
@@ -73,9 +80,14 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
 
     def test_agent_wrong_number_of_scores(self):
         self.api_workflow_client.embedding_id = "embedding_id_xyz"
+        tags = self.api_workflow_client.get_all_tags()
+        assert tags[1].name != "initial-tag"
+        query_tag_name = tags[1].name
 
         agent = ActiveLearningAgent(
-            self.api_workflow_client, preselected_tag_name="preselected_tag_name_xyz"
+            self.api_workflow_client,
+            query_tag_name=query_tag_name,
+            preselected_tag_name="preselected_tag_name_xyz",
         )
         method = SamplingMethod.CORAL
         n_samples = len(agent.labeled_set) + 2
@@ -97,8 +109,14 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
         height = 32
         no_classes = 13
 
+        tags = self.api_workflow_client.get_all_tags()
+        assert tags[1].name != "initial-tag"
+        query_tag_name = tags[1].name
+
         agent = ActiveLearningAgent(
-            self.api_workflow_client, preselected_tag_name="preselected_tag_name_xyz"
+            self.api_workflow_client,
+            query_tag_name=query_tag_name,
+            preselected_tag_name="preselected_tag_name_xyz",
         )
         method = SamplingMethod.CORAL
         n_samples = len(agent.labeled_set) + 2
@@ -124,8 +142,14 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
 
     def test_agent_added_set_before_query(self):
         self.api_workflow_client.embedding_id = "embedding_id_xyz"
+        tags = self.api_workflow_client.get_all_tags()
+        assert tags[1].name != "initial-tag"
+        query_tag_name = tags[1].name
+
         agent = ActiveLearningAgent(
-            self.api_workflow_client, preselected_tag_name="preselected_tag_name_xyz"
+            self.api_workflow_client,
+            query_tag_name=query_tag_name,
+            preselected_tag_name="preselected_tag_name_xyz",
         )
 
         agent.query_set
@@ -136,8 +160,13 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
 
     def test_agent_query_too_few(self):
         self.api_workflow_client.embedding_id = "embedding_id_xyz"
+        tags = self.api_workflow_client.get_all_tags()
+        assert tags[1].name != "initial-tag"
+        query_tag_name = tags[1].name
+
         agent = ActiveLearningAgent(
             self.api_workflow_client,
+            query_tag_name=query_tag_name,
             preselected_tag_name="preselected_tag_name_xyz",
         )
 
@@ -148,8 +177,13 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
 
     def test_agent_only_upload_scores(self):
         self.api_workflow_client.embedding_id = "embedding_id_xyz"
+        tags = self.api_workflow_client.get_all_tags()
+        assert tags[1].name != "initial-tag"
+        query_tag_name = tags[1].name
+
         agent = ActiveLearningAgent(
             self.api_workflow_client,
+            query_tag_name=query_tag_name,
             preselected_tag_name="preselected_tag_name_xyz",
         )
 
@@ -163,8 +197,14 @@ class TestActiveLearningAgent(MockedApiWorkflowSetup):
         agent.upload_scores(al_scorer)
 
     def test_agent_without_embedding_id(self):
+        tags = self.api_workflow_client.get_all_tags()
+        assert tags[1].name != "initial-tag"
+        query_tag_name = tags[1].name
+
         agent = ActiveLearningAgent(
-            self.api_workflow_client, preselected_tag_name="preselected_tag_name_xyz"
+            self.api_workflow_client,
+            query_tag_name=query_tag_name,
+            preselected_tag_name="preselected_tag_name_xyz",
         )
         method = SamplingMethod.CORAL
         n_samples = len(agent.labeled_set) + 2
