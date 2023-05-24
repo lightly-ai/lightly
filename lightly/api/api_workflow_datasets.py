@@ -58,7 +58,7 @@ class _DatasetsMixin:
         return bool(self.get_datasets_by_name(dataset_name=dataset_name, shared=shared))
 
     def get_dataset_by_id(self, dataset_id: str) -> DatasetData:
-        """Fetches a dataset with its ID.
+        """Fetches a dataset by ID.
 
         Args:
             dataset_id: Dataset ID.
@@ -74,20 +74,22 @@ class _DatasetsMixin:
         dataset_name: str,
         shared: Optional[bool] = False,
     ) -> List[DatasetData]:
-        """Fetches a dataset with its name.
-
-        An empty list is returned if no datasets with the name exist.
+        """Fetches a dataset by name.
 
         Args:
             dataset_name:
-                Name of the dataset.
+                Name of the target dataset.
             shared:
                 If False, returns only datasets owned by the user. In this case at most
                 one dataset will be returned.
                 If True, returns only datasets which have been shared with the user. Can
                 return multiple datasets.
                 If None, returns datasets the users has access to. Can return multiple
-                datasets.
+                datasets. Default to False.
+
+        Returns:
+            A list of datasets that match the name. If no datasets with the name exist,
+            an empty list is returned.
         """
         datasets = []
         if not shared or shared is None:
@@ -109,14 +111,17 @@ class _DatasetsMixin:
         return datasets
 
     def get_datasets(self, shared: Optional[bool] = False) -> List[DatasetData]:
-        """Returns all datasets the user owns.
+        """Returns all datasets owned by the current user.
 
         Args:
             shared:
                 If False, returns only datasets owned by the user.
                 If True, returns only the datasets which have been shared with the user.
                 If None, returns all datasets the user has access to (owned and shared).
+                Default to False.
 
+        Returns:
+            A list of datasets owned by the current user.
         """
         datasets = []
         if not shared or shared is None:
@@ -149,19 +154,22 @@ class _DatasetsMixin:
         owned_datasets = self.get_datasets(shared=None)
         return owned_datasets
 
-    def set_dataset_id_by_name(self, dataset_name: str, shared: Optional[bool] = False):
-        """Sets the dataset id given the name of the dataset
+    def set_dataset_id_by_name(
+        self, dataset_name: str, shared: Optional[bool] = False
+    ) -> None:
+        """Sets the dataset ID in the API client given the name of the desired dataset.
 
         Args:
             dataset_name:
-                The name of the dataset for which the dataset_id should be set as
-                attribute.
+                The name of the target dataset.
             shared:
                 If False, considers only datasets owned by the user.
                 If True, considers only the datasets which have been shared with the user.
                 If None, consider all datasets the user has access to (owned and shared).
+                Default to False.
 
-        Raises: ValueError
+        Raises:
+            ValueError
 
         """
         datasets = self.get_datasets_by_name(dataset_name=dataset_name, shared=shared)
@@ -189,7 +197,7 @@ class _DatasetsMixin:
         self,
         dataset_name: str,
         dataset_type: str = DatasetType.IMAGES,
-    ):
+    ) -> None:
         """Creates a dataset on the Lightly Platform.
 
         The dataset_id of the created dataset is stored in the client.dataset_id
@@ -237,7 +245,7 @@ class _DatasetsMixin:
 
     def _create_dataset_without_check_existing(
         self, dataset_name: str, dataset_type: str
-    ):
+    ) -> None:
         """Creates a dataset on the Lightly Platform.
 
         No checking if a dataset with such a name already exists is performed.
@@ -260,11 +268,11 @@ class _DatasetsMixin:
         self,
         dataset_basename: str,
         dataset_type: str = DatasetType.IMAGES,
-    ):
+    ) -> None:
         """Creates a new dataset on the Lightly Platform.
 
         If a dataset with the specified name already exists,
-        a counter is added to the name to be able to still create it.
+        the name is suffixed by a counter value.
 
         Args:
             dataset_basename:
@@ -296,12 +304,12 @@ class _DatasetsMixin:
                 dataset_type=dataset_type,
             )
 
-    def delete_dataset_by_id(self, dataset_id: str):
+    def delete_dataset_by_id(self, dataset_id: str) -> None:
         """Deletes a dataset on the Lightly Platform.
 
         Args:
             dataset_id:
-                The id of the dataset to be deleted.
+                The ID of the dataset to be deleted.
 
         """
         self._datasets_api.delete_dataset_by_id(dataset_id=dataset_id)
