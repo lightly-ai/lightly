@@ -11,7 +11,6 @@ from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.active_learning.scorers.classification import ScorerClassification
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.api.bitmask import BitMask
-from lightly.cli import upload_cli
 from lightly.data.dataset import LightlyDataset
 from lightly.openapi_generated.swagger_client.models.sampling_method import (
     SamplingMethod,
@@ -74,18 +73,6 @@ def create_new_dataset_with_embeddings(
     api_workflow_client.create_new_dataset_with_unique_name(
         dataset_basename=dataset_name
     )
-
-    # upload to the dataset
-    initialize(config_path="../../lightly/cli/config", job_name="test_app")
-    cfg = compose(
-        config_name="config",
-        overrides=[
-            f"input_dir='{path_to_dataset}'",
-            f"token='{token}'",
-            f"dataset_id={api_workflow_client.dataset_id}",
-        ],
-    )
-    upload_cli(cfg)
 
     # calculate and save the embeddings
     path_to_embeddings_csv = f"{path_to_dataset}/embeddings.csv"
