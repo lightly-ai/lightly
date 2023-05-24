@@ -79,7 +79,10 @@ class SwAV(LightningModule):
         queue_crop_logits = None
         if self.queues is not None and self.start_queue_at_epoch is not None:
             queue_crop_projections = _enqueue_and_get_queue_projections(
-                high_resolution_projections=multi_crop_projections[: CROP_COUNTS[0]],
+                high_resolution_projections=_gather_multi_crop_projections(
+                    multi_crop_projections=multi_crop_projections[: CROP_COUNTS[0]],
+                    world_size=self.trainer.world_size,
+                ),
                 queues=self.queues,
             )
             if self.current_epoch >= self.start_queue_at_epoch:
@@ -170,6 +173,29 @@ class SwAV(LightningModule):
 
 
 transform = SwaVTransform(crop_counts=CROP_COUNTS)
+
+
+@torch.no_grad()
+def _gather_multi_crop_projections(
+    multi_crop_projections: List[Tensor],
+    world_size: int,
+) -> List[Tensor]:
+    """TODO"""
+
+    # Allocate buffers for all the multi crop projections.
+    all_multi_crop_projections_buffer = [
+        [torch.zeros_like(projections) for _ in range(world_size)]
+        for projections in multi_crop_projections
+    ]
+
+    # Gather the multi crop projections and concatenate them.
+    for buffer, projections in zip(all_multi_crop_projections_buffer, multi_crop_projections):
+        torch.distributed.all_gather(buffer, projections)
+    
+    return [
+        torch.cat(multi_crop_projections)
+        for multi_crop_projections in all_multi_crop_projections_buffer
+    ]
 
 
 @torch.no_grad()
