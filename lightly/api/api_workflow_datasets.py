@@ -23,7 +23,14 @@ class _DatasetsMixin:
         return self.get_dataset_by_id(dataset_id=self.dataset_id)
 
     def dataset_exists(self, dataset_id: str) -> bool:
-        """Returns True if a dataset with dataset_id exists."""
+        """Checks if a dataset exists.
+
+        Args:
+            dataset_id: Dataset ID.
+
+        Returns:
+            A boolean value indicating whether the dataset exists.
+        """
         try:
             self.get_dataset_by_id(dataset_id)
             return True
@@ -35,7 +42,7 @@ class _DatasetsMixin:
     def dataset_name_exists(
         self, dataset_name: str, shared: Optional[bool] = False
     ) -> bool:
-        """Returns True if a dataset with dataset_name exists and False otherwise.
+        """Checks if any dataset with a certain name exists.
 
         Args:
             dataset_name:
@@ -43,12 +50,22 @@ class _DatasetsMixin:
             shared:
                 If False, considers only datasets owned by the user.
                 If True, considers only datasets which have been shared with the user.
-                If None, considers all datasets the users has access to.
+                If None, considers all datasets the users has access to. Default to False.
+
+        Returns:
+            A boolean value indicating whether any dataset with the given name exists.
         """
         return bool(self.get_datasets_by_name(dataset_name=dataset_name, shared=shared))
 
     def get_dataset_by_id(self, dataset_id: str) -> DatasetData:
-        """Returns the dataset for the given dataset id."""
+        """Fetches a dataset with its ID.
+
+        Args:
+            dataset_id: Dataset ID.
+
+        Returns:
+            The dataset with the given dataset id.
+        """
         dataset: DatasetData = self._datasets_api.get_dataset_by_id(dataset_id)
         return dataset
 
@@ -57,7 +74,7 @@ class _DatasetsMixin:
         dataset_name: str,
         shared: Optional[bool] = False,
     ) -> List[DatasetData]:
-        """Returns datasets by name.
+        """Fetches a dataset with its name.
 
         An empty list is returned if no datasets with the name exist.
 

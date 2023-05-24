@@ -80,8 +80,8 @@ class _ComputeWorkerMixin:
     ) -> str:
         """Registers a new compute worker.
 
-        If a worker with the same name already exists, the worker id of the existing
-        worker is returned instead of registering a new worker.
+        The ID of the registered worker will be returned. If a worker with the same
+        name already exists, the ID of the existing worker is returned.
 
         Args:
             name:
@@ -92,7 +92,7 @@ class _ComputeWorkerMixin:
                 https://docs.lightly.ai/docs/assign-scheduled-runs-to-specific-workers
 
         Returns:
-            The id of the newly registered compute worker.
+            ID of the registered compute worker.
 
         """
         if labels is None:
@@ -119,14 +119,14 @@ class _ComputeWorkerMixin:
         """Fetches details of all registered compute workers.
 
         Returns:
-            A list of compute workers.
+            A list of compute worker details.
         """
         entries: list[
             DockerWorkerRegistryEntryData
         ] = self._compute_worker_api.get_docker_worker_registry_entries()
         return entries
 
-    def delete_compute_worker(self, worker_id: str):
+    def delete_compute_worker(self, worker_id: str) -> None:
         """Removes a compute worker.
 
         Args:
@@ -156,7 +156,7 @@ class _ComputeWorkerMixin:
                 Selection configuration.
 
         Returns:
-            The id of the created config.
+            The ID of the created config.
 
         """
         if isinstance(selection_config, dict):
@@ -261,14 +261,15 @@ class _ComputeWorkerMixin:
         self,
         dataset_id: Optional[str] = None,
     ) -> List[DockerRunData]:
-        """Get all compute worker runs for the user.
+        """Fetches all compute worker runs for the user.
 
         Args:
             dataset_id:
-                If set, then only runs for the given dataset are returned.
+                Target dataset ID. Optional. If set, only runs with the given dataset
+                will be returned.
 
         Returns:
-            Runs sorted by creation time from old to new.
+            Runs sorted by creation time from the oldest to the latest.
 
         """
         if dataset_id is not None:
@@ -284,11 +285,17 @@ class _ComputeWorkerMixin:
         return sorted_runs
 
     def get_compute_worker_run(self, run_id: str) -> DockerRunData:
-        """Returns a run given its id.
+        """Fetches a compute worker run.
+
+        Args:
+            run_id: Run ID.
+
+        Returns:
+            Details of the compute worker run.
 
         Raises:
             ApiException:
-                If no run with the given id exists.
+                If no run with the given ID exists.
         """
         return self._compute_worker_api.get_docker_run_by_id(run_id=run_id)
 
@@ -296,12 +303,18 @@ class _ComputeWorkerMixin:
         self,
         scheduled_run_id: str,
     ) -> DockerRunData:
-        """Returns a run given its scheduled run id.
+        """Fetches a compute worker run given its scheduled run ID.
+
+        Args:
+            scheduled_run_id: Scheduled run ID.
+
+        Returns:
+            Details of the compute worker run.
 
         Raises:
             ApiException:
-                If no run with the given scheduled run id exists or if the scheduled
-                run has not yet started being processed by a worker.
+                If no run with the given scheduled run ID exists or if the scheduled
+                run is not yet picked up by a worker.
         """
         return self._compute_worker_api.get_docker_run_by_scheduled_id(
             scheduled_id=scheduled_run_id
@@ -311,8 +324,7 @@ class _ComputeWorkerMixin:
         self,
         state: Optional[str] = None,
     ) -> List[DockerRunScheduledData]:
-        """Returns a list of all scheduled compute worker runs for the current
-        dataset.
+        """Returns a list of scheduled compute worker runs with the current dataset.
 
         Args:
             state:
@@ -320,6 +332,9 @@ class _ComputeWorkerMixin:
                 state are returned. If omitted, then runs which have not yet finished
                 (neither 'DONE' nor 'CANCELED') are returned. Valid states are 'OPEN',
                 'LOCKED', 'DONE', and 'CANCELED'.
+
+        Returns:
+            A list of scheduled compute worker runs.
         """
         if state is not None:
             return self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
@@ -339,7 +354,7 @@ class _ComputeWorkerMixin:
                 The id with which the run was scheduled.
 
         Returns:
-            Data about the scheduled run.
+            Defails of the scheduled run.
 
         """
         try:
@@ -368,7 +383,7 @@ class _ComputeWorkerMixin:
                 The id with which the run was scheduled.
 
         Returns:
-            Data about the compute worker run.
+            Details of the compute worker run.
 
         Examples:
             >>> # Scheduled a compute worker run and get its state
@@ -414,11 +429,10 @@ class _ComputeWorkerMixin:
     def compute_worker_run_info_generator(
         self, scheduled_run_id: str
     ) -> Iterator[ComputeWorkerRunInfo]:
-        """
-        Yields information about a compute worker run
+        """Pulls information about a compute worker run continuously.
 
         Polls the compute worker status every 30s.
-        If the status changed, it will yield a new ComputeWorkerRunInfo.
+        If the status changed, an update pops up.
         If the compute worker run finished, the generator stops.
 
         Args:
@@ -456,13 +470,13 @@ class _ComputeWorkerMixin:
             last_run_info = run_info
 
     def get_compute_worker_run_tags(self, run_id: str) -> List[TagData]:
-        """Returns all tags from a run for the current dataset.
+        """Returns all tags from a run with the current dataset.
 
         Only returns tags for runs made with Lightly Worker version >=2.4.2.
 
         Args:
             run_id:
-                Run id from which to return tags.
+                Run ID from which to return tags.
 
         Returns:
             List of tags created by the run. The tags are ordered by creation date from
