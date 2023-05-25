@@ -70,27 +70,29 @@ class SwAV(LightningModule):
         multi_crop_projections = [
             _project(features) for features in multi_crop_features
         ]
-        multi_crop_logits = [
-            self.prototypes(projections, step=self.global_step)
-            for projections in multi_crop_projections
-        ]
 
         # Get the queue projections and logits for small batch sizes (<= 256).
         queue_crop_logits = None
         if self.queues is not None and self.start_queue_at_epoch is not None:
-            queue_crop_projections = _enqueue_and_get_queue_projections(
-                high_resolution_projections=_gather_multi_crop_projections(
-                    multi_crop_projections=multi_crop_projections[: CROP_COUNTS[0]],
-                    world_size=self.trainer.world_size,
-                ),
-                queues=self.queues,
-            )
-            if self.current_epoch >= self.start_queue_at_epoch:
-                with torch.no_grad():
-                    queue_crop_logits = [
-                        self.prototypes(projections, step=self.global_step)
-                        for projections in queue_crop_projections
-                    ]
+            with torch.no_grad():
+                if self.current_epoch >= self.start_queue_at_epoch:
+                    # Start filling the queue.
+                    queue_crop_projections = _enqueue_and_get_queue_projections(
+                        high_resolution_projections=multi_crop_projections[: CROP_COUNTS[0]],
+                        queues=self.queues,
+                    )
+                    if batch_idx > 15:
+                        # The queue is filled, so we can start using it.
+                        queue_crop_logits = [
+                            self.prototypes(projections, step=self.global_step)
+                            for projections in queue_crop_projections
+                        ]
+
+        # Get the rest of the multi-crop logits.
+        multi_crop_logits = [
+            self.prototypes(projections, step=self.global_step)
+            for projections in multi_crop_projections
+        ]
 
         # Split the list of crop logits into high and low resolution.
         high_resolution_logits = multi_crop_logits[: CROP_COUNTS[0]]
@@ -173,29 +175,6 @@ class SwAV(LightningModule):
 
 
 transform = SwaVTransform(crop_counts=CROP_COUNTS)
-
-
-@torch.no_grad()
-def _gather_multi_crop_projections(
-    multi_crop_projections: List[Tensor],
-    world_size: int,
-) -> List[Tensor]:
-    """TODO"""
-
-    # Allocate buffers for all the multi crop projections.
-    all_multi_crop_projections_buffer = [
-        [torch.zeros_like(projections) for _ in range(world_size)]
-        for projections in multi_crop_projections
-    ]
-
-    # Gather the multi crop projections and concatenate them.
-    for buffer, projections in zip(all_multi_crop_projections_buffer, multi_crop_projections):
-        torch.distributed.all_gather(buffer, projections)
-    
-    return [
-        torch.cat(multi_crop_projections)
-        for multi_crop_projections in all_multi_crop_projections_buffer
-    ]
 
 
 @torch.no_grad()
