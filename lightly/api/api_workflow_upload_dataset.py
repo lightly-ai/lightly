@@ -79,7 +79,7 @@ class _UploadDatasetMixin:
 
         Raises:
             ValueError:
-                If dataset is too large or input has the wrong type
+                If dataset is too large or input has the wrong type.
             RuntimeError:
                 If the connection to the server failed.
 

@@ -1,6 +1,6 @@
 import time
 import warnings
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 
@@ -69,8 +69,8 @@ class _SelectionMixin:
     def selection(
         self,
         selection_config: SelectionConfig,
-        preselected_tag_id: str = None,
-        query_tag_id: str = None,
+        preselected_tag_id: Optional[str] = None,
+        query_tag_id: Optional[str] = None,
     ) -> TagData:
         """Performs a selection given the arguments.
 
@@ -82,15 +82,18 @@ class _SelectionMixin:
                 labelled ones). Optional.
             query_tag_id:
                 ID of the tag where samples should be fetched. None resolves to
-                `initial-tag`. Default to None.
+                `initial-tag`. Defaults to None.
 
         Returns:
             The newly created tag of the selection.
 
         Raises:
-            ApiException
-            ValueError
-            RuntimeError
+            ApiException:
+                When errors occur during calls to Lightly API.
+            RuntimeError:
+                When a tag with the tag name specified in the selection config already exists.
+                When `initial-tag` does not exist in the dataset.
+                When the selection task fails.
 
         """
 
@@ -164,8 +167,8 @@ class _SelectionMixin:
     def _create_selection_create_request(
         self,
         selection_config: SelectionConfig,
-        preselected_tag_id: str,
-        query_tag_id: str,
+        preselected_tag_id: Optional[str],
+        query_tag_id: Optional[str],
     ) -> SamplingCreateRequest:
         """Creates a SamplingCreateRequest
 

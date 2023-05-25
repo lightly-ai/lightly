@@ -118,7 +118,10 @@ class _TagsMixin:
             The newly created tag.
 
         Raises:
-            RuntimeError
+            RuntimeError:
+                When a tag with the desired tag name already exists.
+                When `initial-tag` does not exist.
+                When any of the given files does not exist.
         """
 
         # make sure the tag name does not exist yet
