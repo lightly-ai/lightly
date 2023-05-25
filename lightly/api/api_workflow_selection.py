@@ -82,6 +82,13 @@ class _SelectionMixin:
 
         """
 
+        warnings.warn(
+            DeprecationWarning(
+                "ApiWorkflowClient.selection() is deprecated "
+                "and will be removed in the future."
+            ),
+        )
+
         # make sure the tag name does not exist yet
         tags = self.get_all_tags()
         if selection_config.name in [tag.name for tag in tags]:
