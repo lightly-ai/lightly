@@ -2,6 +2,7 @@ from bisect import bisect_left
 from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List, Union
 
+from requests import Response
 from tqdm import tqdm
 
 from lightly.api.utils import retry
@@ -37,7 +38,7 @@ def _assert_key_exists_in_custom_metadata(key: str, dictionary: Dict):
 class _UploadCustomMetadataMixin:
     """Mixin of helpers to allow upload of custom metadata."""
 
-    def verify_custom_metadata_format(self, custom_metadata: Dict):
+    def verify_custom_metadata_format(self, custom_metadata: Dict) -> None:
         """Verifies that the custom metadata is in the correct format.
 
         Args:
@@ -94,13 +95,14 @@ class _UploadCustomMetadataMixin:
 
     def upload_custom_metadata(
         self, custom_metadata: Dict, verbose: bool = False, max_workers: int = 8
-    ):
-        """Uploads custom metadata to the Lightly platform.
+    ) -> None:
+        """Uploads custom metadata to the Lightly Platform.
 
         The custom metadata is expected in a format similar to the COCO annotations:
         Under the key "images" there should be a list of dictionaries, each with
-        a file_name and id. Under the key "metadata" the custom metadata is stored
-        as a list of dictionaries, each with a image_id to match it to the image.
+        a file_name and id. Under the key "metadata", the custom metadata is stored
+        as a list of dictionaries, each with an image ID that corresponds to an image
+        under the key "images".
 
         Example:
             >>> custom_metadata = {
@@ -138,7 +140,7 @@ class _UploadCustomMetadataMixin:
             custom_metadata:
                 Custom metadata as described above.
             verbose:
-                If True displays a progress bar during the upload.
+                If True, displays a progress bar during the upload.
             max_workers:
                 Maximum number of concurrent threads during upload.
 
@@ -213,14 +215,14 @@ class _UploadCustomMetadataMixin:
 
     def create_custom_metadata_config(
         self, name: str, configs: List[ConfigurationEntry]
-    ):
+    ) -> Response:
         """Creates custom metadata config from a list of configurations.
 
         Args:
             name:
                 The name of the custom metadata configuration.
             configs:
-                List of configuration entries each specifying.
+                List of metadata configuration entries.
 
         Returns:
             The API response.

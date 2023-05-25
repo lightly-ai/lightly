@@ -33,7 +33,17 @@ def _parse_active_learning_scores(scores: Union[np.ndarray, List]):
 
 
 class _SelectionMixin:
-    def upload_scores(self, al_scores: Dict[str, np.ndarray], query_tag_id: str):
+    def upload_scores(
+        self, al_scores: Dict[str, np.ndarray], query_tag_id: str
+    ) -> None:
+        """Uploads active learning scores for a tag.
+
+        Args:
+            al_scores: Active learning scores. Must be a mapping between score names
+                and score arrays. The length of each score array must match samples
+                in the designated tag.
+            query_tag_id: ID of the desired tag.
+        """
         # iterate over all available score types and upload them
         for score_type, score_values in al_scores.items():
             body = ActiveLearningScoreCreateRequest(
@@ -68,9 +78,11 @@ class _SelectionMixin:
             selection_config:
                 The configuration of the selection.
             preselected_tag_id:
-                The tag defining the already chosen samples (e.g. already labelled ones), default: None.
+                The tag defining the already chosen samples (e.g., already
+                labelled ones). Optional.
             query_tag_id:
-                The tag defining where to sample from, default: None resolves to the initial-tag.
+                ID of the tag where samples should be fetched. None resolves to
+                `initial-tag`. Default to None.
 
         Returns:
             The newly created tag of the selection.

@@ -15,20 +15,20 @@ class TagDoesNotExistError(ValueError):
 
 class _TagsMixin:
     def get_all_tags(self) -> List[TagData]:
-        """Gets all tags in the Lightly Platform for current dataset id.
+        """Gets all tags in the Lightly Platform from the current dataset.
 
         Returns:
-            A list of TagData entries for each tag on the server.
+            A list of tags.
 
         """
         return self._tags_api.get_tags_by_dataset_id(self.dataset_id)
 
     def get_tag_by_id(self, tag_id: str) -> TagData:
-        """Gets a tag from the current dataset by tag id.
+        """Gets a tag from the current dataset by tag ID.
 
         Args:
             tag_id:
-                The id of the requested tag.
+                ID of the requested tag.
 
         Returns:
             Tag data for the requested tag.
@@ -42,7 +42,7 @@ class _TagsMixin:
 
         Args:
             tag_name:
-                The name of the requested tag.
+                Name of the requested tag.
 
         Returns:
             Tag data for the requested tag.
@@ -60,20 +60,19 @@ class _TagsMixin:
         filenames_on_server: List[str] = None,
         exclude_parent_tag: bool = False,
     ) -> List[str]:
-        """Gets the filenames of a tag
+        """Gets the filenames of samples under a tag.
 
         Args:
             tag_data:
-                The data of the tag.
+                Information about the tag.
             filenames_on_server:
                 List of all filenames on the server. If they are not given,
-                they need to be downloaded, which is quite expensive.
+                they need to be downloaded, which is a time-consuming operation.
             exclude_parent_tag:
                 Excludes the parent tag in the returned filenames.
 
         Returns:
-            filenames_tag:
-                The filenames of all samples in the tag.
+            Filenames of all samples under the tag.
 
         """
 
@@ -175,7 +174,7 @@ class _TagsMixin:
         return new_tag
 
     def delete_tag_by_id(self, tag_id: str) -> None:
-        """Deletes a tag from the current dataset on the Lightly Platform.
+        """Deletes a tag from the current dataset.
 
         Args:
             tag_id:
@@ -185,7 +184,7 @@ class _TagsMixin:
         self._tags_api.delete_tag_by_tag_id(self.dataset_id, tag_id)
 
     def delete_tag_by_name(self, tag_name: str) -> None:
-        """Deletes a tag from the current dataset on the Lightly Platform.
+        """Deletes a tag from the current dataset.
 
         Args:
             tag_name:
