@@ -111,11 +111,11 @@ class _DatasourcesMixin:
 
         Args:
             from_:
-                Unix timestamp from which on samples are downloaded. Default to the
+                Unix timestamp from which on samples are downloaded. Defaults to the
                 very beginning (timestamp 0).
             to:
-                Unix timestamp up to and including which samples are downloaded. If
-                not given, the current timestamp is used. Optional.
+                Unix timestamp up to and including which samples are downloaded.
+                Defaults to the current timestamp.
             relevant_filenames_file_name:
                 Path to the relevant filenames text file in the cloud bucket.
                 The path is relative to the datasource root. Optional.
@@ -123,7 +123,7 @@ class _DatasourcesMixin:
                 Flag for redirected read urls. When this flag is true,
                 RedirectedReadUrls are returned instead of ReadUrls, meaning that the
                 returned URLs have unlimited access to the file.
-                Default to False. When S3DelegatedAccess is configured, this flag has
+                Defaults to False. When S3DelegatedAccess is configured, this flag has
                 no effect because RedirectedReadUrls are always returned.
             progress_bar:
                 Tqdm progress bar to show how many samples have already been
@@ -163,11 +163,11 @@ class _DatasourcesMixin:
             task_name:
                 Name of the prediction task.
             from_:
-                Unix timestamp from which on samples are downloaded. Default to the
+                Unix timestamp from which on samples are downloaded. Defaults to the
                 very beginning (timestamp 0).
             to:
-                Unix timestamp up to and including which samples are downloaded. If
-                not given, the current timestamp is used. Optional.
+                Unix timestamp up to and including which samples are downloaded.
+                Defaults to the current timestamp.
             relevant_filenames_file_name:
                 Path to the relevant filenames text file in the cloud bucket.
                 The path is relative to the datasource root. Optional.
@@ -182,7 +182,7 @@ class _DatasourcesMixin:
                 Flag for redirected read urls. When this flag is true,
                 RedirectedReadUrls are returned instead of ReadUrls, meaning that the
                 returned URLs have unlimited access to the file.
-                Default to False. When S3DelegatedAccess is configured, this flag has
+                Defaults to False. When S3DelegatedAccess is configured, this flag has
                 no effect because RedirectedReadUrls are always returned.
             progress_bar:
                 Tqdm progress bar to show how many prediction files have already been
@@ -233,18 +233,16 @@ class _DatasourcesMixin:
     ) -> List[Tuple[str, str]]:
         """Downloads all metadata filenames and read urls from the datasource.
 
-          between `from_` and `to`.
-
         Only samples with timestamp between `from_` (inclusive) and `to` (inclusive)
         will be downloaded.
 
         Args:
             from_:
-                Unix timestamp from which on samples are downloaded. Default to the
+                Unix timestamp from which on samples are downloaded. Defaults to the
                 very beginning (timestamp 0).
             to:
-                Unix timestamp up to and including which samples are downloaded. If
-                not given, the current timestamp is used. Optional.
+                Unix timestamp up to and including which samples are downloaded.
+                Defaults to the current timestamp.
             relevant_filenames_file_name:
                 Path to the relevant filenames text file in the cloud bucket.
                 The path is relative to the datasource root. Optional.
@@ -259,7 +257,7 @@ class _DatasourcesMixin:
                 Flag for redirected read urls. When this flag is true,
                 RedirectedReadUrls are returned instead of ReadUrls, meaning that the
                 returned URLs have unlimited access to the file.
-                Default to False. When S3DelegatedAccess is configured, this flag has
+                Defaults to False. When S3DelegatedAccess is configured, this flag has
                 no effect because RedirectedReadUrls are always returned.
             progress_bar:
                 Tqdm progress bar to show how many metadata files have already been
@@ -312,7 +310,7 @@ class _DatasourcesMixin:
                 Flag for redirected read urls. When this flag is true,
                 RedirectedReadUrls are returned instead of ReadUrls, meaning that the
                 returned URLs have unlimited access to the file.
-                Default to False. When S3DelegatedAccess is configured, this flag has
+                Defaults to False. When S3DelegatedAccess is configured, this flag has
                 no effect because RedirectedReadUrls are always returned.
 
         Returns:
@@ -677,7 +675,8 @@ class _DatasourcesMixin:
                 Filename for which to get the read-url.
 
         Returns:
-            A read-url to the file.
+            A read-url to the file. Note that a URL will be returned even if the file does not
+            exist.
 
         """
         return self._datasources_api.get_metadata_file_read_url_from_datasource_by_dataset_id(
@@ -696,7 +695,8 @@ class _DatasourcesMixin:
                 Filename for which to get the read-url.
 
         Returns:
-            A read-url to the file.
+            A read-url to the file. Note that a URL will be returned even if the file does not
+            exist.
 
         """
         return self._datasources_api.get_custom_embedding_file_read_url_from_datasource_by_dataset_id(
