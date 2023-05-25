@@ -29,7 +29,7 @@ class _DatasetsMixin:
             dataset_id: Dataset ID.
 
         Returns:
-            A boolean value indicating whether the dataset exists.
+            True if the dataset exists and False otherwise.
         """
         try:
             self.get_dataset_by_id(dataset_id)
@@ -42,7 +42,7 @@ class _DatasetsMixin:
     def dataset_name_exists(
         self, dataset_name: str, shared: Optional[bool] = False
     ) -> bool:
-        """Checks if any dataset with a certain name exists.
+        """Checks if a dataset with the given name exists.
 
         Args:
             dataset_name:
@@ -50,7 +50,7 @@ class _DatasetsMixin:
             shared:
                 If False, considers only datasets owned by the user.
                 If True, considers only datasets which have been shared with the user.
-                If None, considers all datasets the users has access to. Default to False.
+                If None, considers all datasets the users has access to. Defaults to False.
 
         Returns:
             A boolean value indicating whether any dataset with the given name exists.
@@ -85,7 +85,7 @@ class _DatasetsMixin:
                 If True, returns only datasets which have been shared with the user. Can
                 return multiple datasets.
                 If None, returns datasets the users has access to. Can return multiple
-                datasets. Default to False.
+                datasets. Defaults to False.
 
         Returns:
             A list of datasets that match the name. If no datasets with the name exist,
@@ -118,7 +118,7 @@ class _DatasetsMixin:
                 If False, returns only datasets owned by the user.
                 If True, returns only the datasets which have been shared with the user.
                 If None, returns all datasets the user has access to (owned and shared).
-                Default to False.
+                Defaults to False.
 
         Returns:
             A list of datasets owned by the current user.
@@ -166,10 +166,11 @@ class _DatasetsMixin:
                 If False, considers only datasets owned by the user.
                 If True, considers only the datasets which have been shared with the user.
                 If None, consider all datasets the user has access to (owned and shared).
-                Default to False.
+                Defaults to False.
 
         Raises:
-            ValueError
+            ValueError:
+                If no dataset with the given name exists.
 
         """
         datasets = self.get_datasets_by_name(dataset_name=dataset_name, shared=shared)

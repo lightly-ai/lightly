@@ -17,7 +17,7 @@ class _CollaborationMixin:
 
         This method overwrites the list of users that have had access to the dataset
         before. If you want to add someone new to the list, make sure you first fetch
-        the list of users with access already and include them in the `user_emails`
+        the list of users with access and include them in the `user_emails`
         parameter.
 
         Args:
