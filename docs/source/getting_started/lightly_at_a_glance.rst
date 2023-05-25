@@ -26,7 +26,7 @@ For example, the transforms below will apply the SimCLR image transform to the i
 
     from lightly.transforms.simclr_transform import SimCLRTransform
 
-    # The following transform will return two augmented image per input image.
+    # The following transform will return two augmented images per input image.
     transform = SimCLRTransform()
 
 Let's now load an image dataset and create a PyTorch dataloader.
