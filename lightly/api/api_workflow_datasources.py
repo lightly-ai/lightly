@@ -101,7 +101,7 @@ class _DatasourcesMixin:
         from_: int = 0,
         to: Optional[int] = None,
         relevant_filenames_file_name: Optional[str] = None,
-        use_redirected_read_url: Optional[bool] = False,
+        use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
         """Downloads filenames and read urls from the datasource.
