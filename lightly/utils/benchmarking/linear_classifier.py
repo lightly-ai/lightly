@@ -14,7 +14,7 @@ class LinearClassifier(LightningModule):
     def __init__(
         self,
         model: Module,
-        batch_size: int,
+        batch_size_per_device: int,
         feature_dim: int = 2048,
         num_classes: int = 1000,
         topk: Tuple[int, ...] = (1, 5),
@@ -30,7 +30,7 @@ class LinearClassifier(LightningModule):
             model:
                 Model used for feature extraction. Must define a forward(images) method
                 that returns a feature tensor.
-            batch_size:
+            batch_size_per_device:
                 Batch size per device.
             feature_dim:
                 Dimension of features returned by forward method of model.
@@ -83,7 +83,7 @@ class LinearClassifier(LightningModule):
         self.save_hyperparameters(ignore="model")
 
         self.model = model
-        self.batch_size = batch_size
+        self.batch_size_per_device = batch_size_per_device
         self.feature_dim = feature_dim
         self.num_classes = num_classes
         self.topk = topk
@@ -128,7 +128,7 @@ class LinearClassifier(LightningModule):
             parameters += self.model.parameters()
         optimizer = SGD(
             parameters,
-            lr=0.1 * self.batch_size * self.trainer.world_size / 256,
+            lr=0.1 * self.batch_size_per_device * self.trainer.world_size / 256,
             momentum=0.9,
             weight_decay=0.0,
         )

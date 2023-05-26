@@ -70,7 +70,7 @@ class _PredictionsMixin:
                 The singletons can be from different tasks and different types.
 
             prediction_version_id:
-                A numerical ID (e.g timestamp) to distinguish different predictions of different model versions.
+                A numerical ID (e.g., timestamp) to distinguish different predictions of different model versions.
                 Use the same id if you don't require versioning or if you wish to overwrite the previous schema.
                 This ID must match the ID of a prediction task schema.
 
@@ -144,7 +144,7 @@ class _PredictionsMixin:
                 The ID of the sample.
 
             prediction_version_id:
-                A numerical ID (e.g timestamp) to distinguish different predictions of different model versions.
+                A numerical ID (e.g., timestamp) to distinguish different predictions of different model versions.
                 Use the same id if you don't require versioning or if you wish to overwrite the previous schema.
                 This ID must match the ID of a prediction task schema.
 

@@ -58,16 +58,6 @@ class _SelectionMixin:
                 tag_id=query_tag_id,
             )
 
-    def sampling(self, *args, **kwargs):
-        warnings.warn(
-            DeprecationWarning(
-                "ApiWorkflowClient.sampling() is deprecated "
-                "in favour of ApiWorkflowClient.selection() "
-                "and will be removed in the future."
-            ),
-        )
-        return self.selection(*args, **kwargs)
-
     def selection(
         self,
         selection_config: SelectionConfig,
@@ -96,6 +86,13 @@ class _SelectionMixin:
                 When the selection task fails.
 
         """
+
+        warnings.warn(
+            DeprecationWarning(
+                "ApiWorkflowClient.selection() is deprecated "
+                "and will be removed in the future."
+            ),
+        )
 
         # make sure the tag name does not exist yet
         tags = self.get_all_tags()
