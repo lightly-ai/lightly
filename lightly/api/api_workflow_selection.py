@@ -1,5 +1,4 @@
 import time
-import warnings
 from typing import Dict, List, Union
 
 import numpy as np
@@ -45,16 +44,6 @@ class _SelectionMixin:
                 dataset_id=self.dataset_id,
                 tag_id=query_tag_id,
             )
-
-    def sampling(self, *args, **kwargs):
-        warnings.warn(
-            DeprecationWarning(
-                "ApiWorkflowClient.sampling() is deprecated "
-                "in favour of ApiWorkflowClient.selection() "
-                "and will be removed in the future."
-            ),
-        )
-        return self.selection(*args, **kwargs)
 
     def selection(
         self,

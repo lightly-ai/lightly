@@ -13,9 +13,9 @@ from typing import List
 import hydra
 import yaml
 
-from lightly.active_learning.utils import BoundingBox
 from lightly.cli._helpers import fix_hydra_arguments, fix_input_path
 from lightly.data import LightlyDataset
+from lightly.utils.bounding_box import BoundingBox
 from lightly.utils.cropping.crop_image_by_bounding_boxes import (
     crop_dataset_by_bounding_boxes_and_save,
 )
