@@ -30,6 +30,22 @@ def linear_eval(
     """
     print("Running linear evaluation...")
 
+    # Setup trainer.
+    metric_callback = MetricCallback()
+    trainer = Trainer(
+        max_epochs=90,
+        accelerator=accelerator,
+        devices=devices,
+        callbacks=[
+            LearningRateMonitor(),
+            DeviceStatsMonitor(),
+            metric_callback,
+        ],
+        logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
+        precision=precision,
+        strategy="ddp_find_unused_parameters_true",
+    )
+
     # Setup training data.
     train_transform = T.Compose(
         [
@@ -40,9 +56,10 @@ def linear_eval(
         ]
     )
     train_dataset = LightlyDataset(input_dir=str(train_dir), transform=train_transform)
+    assert batch_size % trainer.world_size == 0
     train_dataloader = DataLoader(
         train_dataset,
-        batch_size=batch_size,
+        batch_size=batch_size // trainer.world_size,
         shuffle=True,
         num_workers=num_workers,
         drop_last=True,
@@ -60,7 +77,7 @@ def linear_eval(
     val_dataset = LightlyDataset(input_dir=str(val_dir), transform=val_transform)
     val_dataloader = DataLoader(
         val_dataset,
-        batch_size=batch_size,
+        batch_size=batch_size // trainer.world_size,
         shuffle=False,
         num_workers=num_workers,
     )
@@ -72,20 +89,6 @@ def linear_eval(
         feature_dim=2048,
         num_classes=num_classes,
         freeze_model=True,
-    )
-    metric_callback = MetricCallback()
-    trainer = Trainer(
-        max_epochs=90,
-        accelerator=accelerator,
-        devices=devices,
-        callbacks=[
-            LearningRateMonitor(),
-            DeviceStatsMonitor(),
-            metric_callback,
-        ],
-        logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
-        precision=precision,
-        strategy="ddp_find_unused_parameters_true",
     )
     trainer.fit(
         model=classifier,

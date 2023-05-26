@@ -23,7 +23,7 @@ parser = ArgumentParser("ImageNet ResNet50 Benchmarks")
 parser.add_argument("--train-dir", type=Path, default="/datasets/imagenet/train")
 parser.add_argument("--val-dir", type=Path, default="/datasets/imagenet/val")
 parser.add_argument("--log-dir", type=Path, default="benchmark_logs")
-parser.add_argument("--batch-size", type=int, default=512)
+parser.add_argument("--batch-size", type=int, default=256, help="Global batch size.")
 parser.add_argument("--epochs", type=int, default=100)
 parser.add_argument("--num-workers", type=int, default=8)
 parser.add_argument("--accelerator", type=str, default="gpu")
@@ -153,12 +153,29 @@ def pretrain(
 ) -> None:
     print(f"Running pretraining for {method}...")
 
+    # Setup trainer.
+    metric_callback = MetricCallback()
+    trainer = Trainer(
+        max_epochs=epochs,
+        accelerator=accelerator,
+        devices=devices,
+        callbacks=[
+            LearningRateMonitor(),
+            DeviceStatsMonitor(),
+            metric_callback,
+        ],
+        logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
+        precision=precision,
+        sync_batchnorm=True,
+    )
+
     # Setup training data.
     train_transform = METHODS[method]["transform"]
     train_dataset = LightlyDataset(input_dir=str(train_dir), transform=train_transform)
+    assert batch_size % trainer.world_size == 0
     train_dataloader = DataLoader(
         train_dataset,
-        batch_size=batch_size,
+        batch_size=batch_size // trainer.world_size,
         shuffle=True,
         num_workers=num_workers,
         collate_fn=MultiViewCollate(),
@@ -177,27 +194,12 @@ def pretrain(
     val_dataset = LightlyDataset(input_dir=str(val_dir), transform=val_transform)
     val_dataloader = DataLoader(
         val_dataset,
-        batch_size=batch_size,
+        batch_size=batch_size // trainer.world_size,
         shuffle=False,
         num_workers=num_workers,
     )
 
     # Train model.
-    metric_callback = MetricCallback()
-    trainer = Trainer(
-        max_epochs=epochs,
-        accelerator=accelerator,
-        devices=devices,
-        callbacks=[
-            LearningRateMonitor(),
-            DeviceStatsMonitor(),
-            metric_callback,
-        ],
-        logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
-        precision=precision,
-        sync_batchnorm=True,
-    )
-
     trainer.fit(
         model=model,
         train_dataloaders=train_dataloader,
