@@ -91,7 +91,7 @@ class _DatasetsMixin:
             )
         return datasets
 
-    def get_datasets(self, shared: Optional[bool] = False, max_num_datasets: Optional[int] = None) -> List[DatasetData]:
+    def get_datasets(self, shared: Optional[bool] = False, num_datasets: Optional[int] = None) -> List[DatasetData]:
         """Returns all datasets the user owns.
 
         Args:
@@ -99,9 +99,9 @@ class _DatasetsMixin:
                 If False, returns only datasets owned by the user.
                 If True, returns only the datasets which have been shared with the user.
                 If None, returns all datasets the user has access to (owned and shared).
-            max_num_datasets:
-                If integer, the maximum number of datasets to be retrieved
-                If None, returns all available datasets
+            num_datasets:
+                If integer, returns at least this number of datasets (paginated) but no more pages than required.
+                If None, returns all available datasets.
 
         """
         datasets = []
@@ -111,7 +111,7 @@ class _DatasetsMixin:
                 utils.paginate_endpoint(
                     self._datasets_api.get_datasets,
                     page_size=page_size,
-                    n_pages=(max_datasets if max_datasets is None else max_datasets // page_size),
+                    n_pages=(max_datasets if max_datasets is None else -(max_datasets // -page_size)),
                     shared=False,
                 )
             )
