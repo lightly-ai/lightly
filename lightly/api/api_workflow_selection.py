@@ -1,4 +1,5 @@
 import time
+import warnings
 from typing import Dict, List, Union
 
 import numpy as np
@@ -70,6 +71,13 @@ class _SelectionMixin:
             RuntimeError
 
         """
+
+        warnings.warn(
+            DeprecationWarning(
+                "ApiWorkflowClient.selection() is deprecated "
+                "and will be removed in the future."
+            ),
+        )
 
         # make sure the tag name does not exist yet
         tags = self.get_all_tags()
