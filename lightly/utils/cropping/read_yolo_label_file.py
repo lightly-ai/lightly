@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from lightly.active_learning.utils import BoundingBox
+from lightly.utils.bounding_box import BoundingBox
 
 
 def read_yolo_label_file(

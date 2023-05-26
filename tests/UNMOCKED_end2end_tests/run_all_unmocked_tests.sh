@@ -50,9 +50,6 @@ lightly-upload token=$LIGHTLY_TOKEN input_dir=$INPUT_DIR new_dataset_name=test_u
 echo "############################### Deleting all datasets again"
 python tests/UNMOCKED_end2end_tests/delete_datasets_test_unmocked_cli.py $NUMBER_OF_DATASETS $LIGHTLY_TOKEN ${DATE_TIME}
 
-echo "############################### Test active learning"
-INPUT_DIR="${PWD}/clothing_dataset_small/test"
-python tests/UNMOCKED_end2end_tests/test_api.py $INPUT_DIR $LIGHTLY_TOKEN
 
 echo "############################### Delete dataset again"
 rm -rf $DIR_DATASET
