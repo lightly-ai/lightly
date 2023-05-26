@@ -6,9 +6,6 @@ import warnings
 import numpy as np
 
 import lightly
-from lightly.active_learning.agents.agent import ActiveLearningAgent
-from lightly.active_learning.config.selection_config import SelectionConfig
-from lightly.active_learning.scorers.classification import ScorerClassification
 from lightly.openapi_generated.swagger_client import SamplingMethod
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from tests.api_workflow.mocked_api_workflow_client import (
