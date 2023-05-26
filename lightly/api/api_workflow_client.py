@@ -81,7 +81,9 @@ class ApiWorkflowClient(
 
     Args:
         token:
-            The token of the user. For further information on how to get a token,
+            The token of the user. If it is not passed in during initialization, the token
+            will be read from the environment variable LIGHTLY_TOKEN.
+            For further information on how to get a token,
             see: https://docs.lightly.ai/docs/install-lightly#api-token
         dataset_id:
             The id of the dataset. If it is not set, but used by a workflow, the last
@@ -149,9 +151,10 @@ class ApiWorkflowClient(
 
     @property
     def dataset_id(self) -> str:
-        """The current dataset_id.
+        """The current dataset ID.
 
-        If the dataset_id is set, it is returned. Otherwise, the dataset_id of the
+        Future requests with the client will automatically use this dataset ID.
+        If the dataset ID is set, it is returned. Otherwise, the ID of the
         last modified dataset is selected.
         """
         try:
@@ -173,14 +176,14 @@ class ApiWorkflowClient(
 
     @dataset_id.setter
     def dataset_id(self, dataset_id: str) -> None:
-        """Sets the current dataset id for the client.
+        """Sets the current dataset ID for the client.
 
         Args:
             dataset_id:
                 The new dataset id.
 
         Raises:
-            ValueError if the dataset id does not exist.
+            ValueError if the dataset does not exist.
         """
         if not self.dataset_exists(dataset_id):
             raise ValueError(
@@ -243,7 +246,7 @@ class ApiWorkflowClient(
                 The url to upload the file to. As no authorization is used,
                 the url must be a signed write url.
             headers:
-                Specific headers for the request. Default to None.
+                Specific headers for the request. Defaults to None.
             session:
                 Optional requests session used to upload the file.
 
