@@ -12,18 +12,19 @@ from lightly.openapi_generated.swagger_client.models.shared_access_type import (
 
 
 class _CollaborationMixin:
-    def share_dataset_only_with(self, dataset_id: str, user_emails: List[str]):
-        """Shares dataset with a list of users
+    def share_dataset_only_with(self, dataset_id: str, user_emails: List[str]) -> None:
+        """Shares a dataset with a list of users.
 
         This method overwrites the list of users that have had access to the dataset
-        before. If you want to add someone new to the list make sure you get the
-        list of users with access beforehand and add them as well.
+        before. If you want to add someone new to the list, make sure you first fetch
+        the list of users with access and include them in the `user_emails`
+        parameter.
 
         Args:
-          dataset_id:
-            Identifier of dataset
-          user_emails:
-            List of email addresses of users to grant write permission
+            dataset_id:
+                ID of the dataset to be shared.
+            user_emails:
+                List of email addresses of users who will get access to the dataset.
 
         Examples:
           >>> # share a dataset with a user
@@ -48,14 +49,14 @@ class _CollaborationMixin:
         )
 
     def get_shared_users(self, dataset_id: str) -> List[str]:
-        """Get list of users that have access to the dataset
+        """Fetches a list of users that have access to the dataset.
 
         Args:
-          dataset_id:
-            Identifier of dataset
+            dataset_id:
+                Dataset ID.
 
         Returns:
-          List of email addresses of users that have write access to the dataset
+            List of email addresses of users that have write access to the dataset.
 
         Examples:
             >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
