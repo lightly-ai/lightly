@@ -21,33 +21,37 @@ CROP_COUNTS: Tuple[int, int] = (2, 6)
 
 
 class SwAV(LightningModule):
-    def __init__(self, batch_size: int, num_classes: int) -> None:
+    def __init__(self, batch_size_per_device: int, num_classes: int) -> None:
         super().__init__()
         self.save_hyperparameters()
-        self.batch_size = batch_size
+        self.batch_size_per_device = batch_size_per_device
 
         resnet = resnet50()
         resnet.fc = Identity()  # Ignore classification head
         self.backbone = resnet
         self.projection_head = SwaVProjectionHead()
-        self.prototypes = SwaVPrototypes()
+        self.prototypes = SwaVPrototypes(n_steps_frozen_prototypes=1)
         self.criterion = SwaVLoss(sinkhorn_gather_distributed=True)
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
 
-        if self.batch_size <= 256:
-            self.start_queue_at_epoch = 15
-            self.queues = ModuleList(
-                [
-                    MemoryBankModule(size=15 * self.batch_size)
-                    for _ in range(CROP_COUNTS[0])
-                ]
-            )
-        else:
-            self.start_queue_at_epoch = None
-            self.queues = None
+        # Use a queue for small batch sizes (<= 256).
+        self.start_queue_at_epoch = 15
+        self.n_batches_in_queue = 15
+        self.queues = ModuleList(
+            [
+                MemoryBankModule(
+                    size=self.n_batches_in_queue * self.batch_size_per_device
+                )
+                for _ in range(CROP_COUNTS[0])
+            ]
+        )
 
     def forward(self, x: Tensor) -> Tensor:
         return self.backbone(x)
+
+    def project(self, x: Tensor) -> Tensor:
+        x = self.projection_head(x)
+        return F.normalize(x, dim=1, p=2)
 
     def training_step(
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
@@ -59,60 +63,56 @@ class SwAV(LightningModule):
         # first few items are high resolution crops and the rest are low
         # resolution crops.
         multi_crops, targets, _ = batch
+
+        # Forward pass through backbone and projection head.
         multi_crop_features = [
             self.forward(crops).flatten(start_dim=1) for crops in multi_crops
         ]
-
-        def _project(x: Tensor) -> Tensor:
-            x = self.projection_head(x)
-            return F.normalize(x, dim=1, p=2)
-
         multi_crop_projections = [
-            _project(features) for features in multi_crop_features
+            self.project(features) for features in multi_crop_features
         ]
 
-        # Get the queue projections and logits for small batch sizes (<= 256).
+        # Get the queue projections and logits.
         queue_crop_logits = None
-        if self.queues is not None and self.start_queue_at_epoch is not None:
-            with torch.no_grad():
-                if self.current_epoch >= self.start_queue_at_epoch:
-                    # Start filling the queue.
-                    queue_crop_projections = _enqueue_and_get_queue_projections(
-                        high_resolution_projections=multi_crop_projections[: CROP_COUNTS[0]],
-                        queues=self.queues,
-                    )
-                    if batch_idx > 15:
-                        # The queue is filled, so we can start using it.
-                        queue_crop_logits = [
-                            self.prototypes(projections, step=self.global_step)
-                            for projections in queue_crop_projections
-                        ]
+        with torch.no_grad():
+            if self.current_epoch >= self.start_queue_at_epoch:
+                # Start filling the queue.
+                queue_crop_projections = _update_queue(
+                    projections=multi_crop_projections[: CROP_COUNTS[0]],
+                    queues=self.queues,
+                )
+                if batch_idx > self.n_batches_in_queue:
+                    # The queue is filled, so we can start using it.
+                    queue_crop_logits = [
+                        self.prototypes(projections, step=self.current_epoch)
+                        for projections in queue_crop_projections
+                    ]
 
         # Get the rest of the multi-crop logits.
         multi_crop_logits = [
-            self.prototypes(projections, step=self.global_step)
+            self.prototypes(projections, step=self.current_epoch)
             for projections in multi_crop_projections
         ]
 
-        # Split the list of crop logits into high and low resolution.
-        high_resolution_logits = multi_crop_logits[: CROP_COUNTS[0]]
-        low_resolution_logits = multi_crop_logits[CROP_COUNTS[0] :]
-
         # Calculate the SwAV loss.
         loss = self.criterion(
-            high_resolution_outputs=high_resolution_logits,
-            low_resolution_outputs=low_resolution_logits,
+            high_resolution_outputs=multi_crop_logits[: CROP_COUNTS[0]],
+            low_resolution_outputs=multi_crop_logits[CROP_COUNTS[0] :],
             queue_outputs=queue_crop_logits,
         )
         self.log(
-            "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
+            "train_loss",
+            loss,
+            prog_bar=True,
+            sync_dist=True,
+            batch_size_per_device=len(targets),
         )
 
         # Calculate the classification loss.
         cls_loss, cls_log = self.online_classifier.training_step(
             (multi_crop_features[0].detach(), targets), batch_idx
         )
-        self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
+        self.log_dict(cls_log, sync_dist=True, batch_size_per_device=len(targets))
         return loss + cls_loss
 
     def validation_step(
@@ -123,7 +123,9 @@ class SwAV(LightningModule):
         cls_loss, cls_log = self.online_classifier.validation_step(
             (features.detach(), targets), batch_idx
         )
-        self.log_dict(cls_log, prog_bar=True, sync_dist=True, batch_size=len(targets))
+        self.log_dict(
+            cls_log, prog_bar=True, sync_dist=True, batch_size_per_device=len(targets)
+        )
         return cls_loss
 
     def configure_optimizers(self):
@@ -132,7 +134,6 @@ class SwAV(LightningModule):
         params, params_no_weight_decay = get_weight_decay_parameters(
             [self.backbone, self.projection_head, self.prototypes]
         )
-        # After warmup, we use the cosine learning rate decay [40 , 44] witha final value of 0.0048
         optimizer = LARS(
             [
                 {"name": "swav", "params": params},
@@ -148,9 +149,9 @@ class SwAV(LightningModule):
                 },
             ],
             # Smaller learning rate for smaller batches: lr=0.6 for batch_size=256
-            # scaled by linearly by batch size to lr=4.8 for batch_size=2048.
+            # scaled linearly by batch size to lr=4.8 for batch_size=2048.
             # See Appendix A.1. and A.6. in SwAV paper https://arxiv.org/pdf/2006.09882.pdf
-            lr=0.6 * (self.batch_size * self.trainer.world_size) / 256,
+            lr=0.6 * (self.batch_size_per_device * self.trainer.world_size) / 256,
             momentum=0.9,
             weight_decay=1e-6,
         )
@@ -163,14 +164,12 @@ class SwAV(LightningModule):
                     * 10
                 ),
                 max_epochs=self.trainer.estimated_stepping_batches,
-                end_value=0.0006 * (self.batch_size * self.trainer.world_size) / 256,
+                end_value=0.0006
+                * (self.batch_size_per_device * self.trainer.world_size)
+                / 256,
             ),
             "interval": "step",
         }
-        # Set the number of steps to freeze the prototypes for.
-        self.prototypes.n_steps_frozen_prototypes = (
-            self.trainer.estimated_stepping_batches / self.trainer.max_epochs
-        )
         return [optimizer], [scheduler]
 
 
@@ -178,24 +177,24 @@ transform = SwaVTransform(crop_counts=CROP_COUNTS)
 
 
 @torch.no_grad()
-def _enqueue_and_get_queue_projections(
-    high_resolution_projections: List[Tensor],
+def _update_queue(
+    projections: List[Tensor],
     queues: ModuleList,
 ):
     """Adds the high resolution projections to the queues and returns the queues."""
 
-    if len(high_resolution_projections) != len(queues):
+    if len(projections) != len(queues):
         raise ValueError(
             f"The number of queues ({len(queues)}) should be equal to the number of high "
-            f"resolution inputs ({len(high_resolution_projections)})."
+            f"resolution inputs ({len(projections)})."
         )
 
     # Get the queue projections
     queue_projections = []
     for i in range(len(queues)):
-        _, projections = queues[i](high_resolution_projections[i], update=True)
+        _, projections = queues[i](projections[i], update=True)
         # Queue projections are in (num_ftrs X queue_length) shape, while the high res
-        # projections are in (batch_size X num_ftrs). Swap the axes for interoperability.
+        # projections are in (batch_size_per_device X num_ftrs). Swap the axes for interoperability.
         projections = torch.permute(projections, (1, 0))
         queue_projections.append(projections)
 
