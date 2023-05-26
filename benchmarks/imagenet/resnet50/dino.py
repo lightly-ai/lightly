@@ -108,6 +108,8 @@ class DINO(LightningModule):
         params, params_no_weight_decay = get_weight_decay_parameters(
             [self.student_backbone, self.student_projection_head]
         )
+        # For ResNet50 we use SGD instead of AdamW/LARS as recommended by the authors:
+        # https://github.com/facebookresearch/dino#resnet-50-and-other-convnets-trainings
         optimizer = SGD(
             [
                 {"name": "dino", "params": params},
@@ -142,6 +144,6 @@ class DINO(LightningModule):
 
 
 # For ResNet50 we use global crop scale (0.14, 1) instead of (0.4, 1) as recommended
-# in the code by the authors:
+# by the authors:
 # https://github.com/facebookresearch/dino#resnet-50-and-other-convnets-trainings
 transform = DINOTransform(global_crop_scale=(0.14, 1))
