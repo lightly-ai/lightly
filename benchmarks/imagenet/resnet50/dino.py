@@ -65,6 +65,7 @@ class DINO(LightningModule):
         student_projections = torch.cat(
             [self.forward_student(global_views), self.forward_student(local_views)]
         )
+        self.student_projection_head.cancel_last_layer_gradients(self.current_epoch)
 
         loss = self.criterion(
             teacher_projections.chunk(2),
