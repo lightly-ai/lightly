@@ -11,7 +11,7 @@ frequent updates. PRs for new methods are highly welcome!
 * Provide easy to use/adapt reference implementations of SSL methods.
 * Implemented methods should be self-contained and use the Lightly building blocks.
 See [simclr.py](simclr.py).
-* Remain as framework agnostic as possible. The benchmarks currently only rely on PyTorch and Pytorch Lightning.
+* Remain as framework agnostic as possible. The benchmarks currently only rely on PyTorch and PyTorch Lightning.
 
 
 **Non-Goals**
@@ -28,7 +28,7 @@ To run the benchmark first download the ImageNet ILSVRC2012 split from here: htt
 
 Then start the benchmark with:
 ```
-python main.py --epochs 100 --train-dir /datasets/imagenet/train --val-dir /datasets/imagenet/val --num-workers 12 --devices 2 --batch-size 128 --skip-finetune-eval
+python main.py --epochs 100 --train-dir /datasets/imagenet/train --val-dir /datasets/imagenet/val --num-workers 12 --devices 2 --batch-size-per-device 128 --skip-finetune-eval
 ```
 
 Or with SLURM, create the following script (`run_imagenet.sh`):
@@ -44,7 +44,7 @@ Or with SLURM, create the following script (`run_imagenet.sh`):
 eval "$(conda shell.bash hook)"
 
 conda lightly-env
-srun python main.py --epochs 100 --train-dir /datasets/imagenet/train --val-dir /datasets/imagenet/val --num-workers 12 --devices 2 --batch-size 128
+srun python main.py --epochs 100 --train-dir /datasets/imagenet/train --val-dir /datasets/imagenet/val --num-workers 12 --devices 2 --batch-size-per-device 128
 conda deactivate
 ```
 
@@ -55,12 +55,12 @@ And run it with sbatch: `sbatch run_imagenet.sh`.
 
 To run the benchmark on specific methods use the `--methods` flag:
 ```
-python main.py --epochs 100 --batch-size 128 --methods simclr byol
+python main.py --epochs 100 --batch-size-per-device 128 --methods simclr byol
 ```
 
 Training/evaluation steps can be skipped as follows:
 ```
-python main.py --batch-size 128 \
+python main.py --batch-size-per-device 128 \
     --epochs 0              # no pretraining
     --skip-knn-eval         # no KNN evaluation
     --skip-linear-eval      # no linear evaluation
@@ -72,7 +72,7 @@ python main.py --batch-size 128 \
 
 For ImageNet100 you have to adapt the dataset location and set number of classes to 100:
 ```
-python main.py --train-dir /datasets/imagenet100/train --val-dir /datasets/imagenet100/val --num-classes 100 --epochs 100 --num-workers 12 --devices 2 --batch-size 128
+python main.py --train-dir /datasets/imagenet100/train --val-dir /datasets/imagenet100/val --num-classes 100 --epochs 100 --num-workers 12 --devices 2 --batch-size-per-device 128
 ```
 
 
@@ -81,5 +81,5 @@ python main.py --train-dir /datasets/imagenet100/train --val-dir /datasets/image
 For [Imagenette](https://github.com/fastai/imagenette) you have to adapt the dataset location and set number of classes to 10:
 
 ```
-python main.py --train-dir /datasets/imagenette2-320/train --val-dir /datasets/imagenette2-320/val --num-classes 10 --epochs 100 --num-workers 12 --devices 2 --batch-size 128
+python main.py --train-dir /datasets/imagenette2-320/train --val-dir /datasets/imagenette2-320/val --num-classes 10 --epochs 100 --num-workers 12 --devices 2 --batch-size-per-device 128
 ```

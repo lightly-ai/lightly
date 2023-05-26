@@ -20,7 +20,7 @@ class FinetuneLinearClassifier(LinearClassifier):
         parameters += self.model.parameters()
         optimizer = SGD(
             parameters,
-            lr=0.05 * self.batch_size * self.trainer.world_size / 256,
+            lr=0.05 * self.batch_size_per_device * self.trainer.world_size / 256,
             momentum=0.9,
             weight_decay=0.0,
         )
@@ -40,7 +40,7 @@ def finetune_eval(
     train_dir: Path,
     val_dir: Path,
     log_dir: Path,
-    batch_size: int,
+    batch_size_per_device: int,
     num_workers: int,
     accelerator: str,
     devices: int,
@@ -65,7 +65,7 @@ def finetune_eval(
     train_dataset = LightlyDataset(input_dir=str(train_dir), transform=train_transform)
     train_dataloader = DataLoader(
         train_dataset,
-        batch_size=batch_size,
+        batch_size=batch_size_per_device,
         shuffle=True,
         num_workers=num_workers,
         drop_last=True,
@@ -83,19 +83,12 @@ def finetune_eval(
     val_dataset = LightlyDataset(input_dir=str(val_dir), transform=val_transform)
     val_dataloader = DataLoader(
         val_dataset,
-        batch_size=batch_size,
+        batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
     )
 
     # Train linear classifier.
-    classifier = FinetuneLinearClassifier(
-        model=model,
-        batch_size=batch_size,
-        feature_dim=2048,
-        num_classes=num_classes,
-        freeze_model=False,
-    )
     metric_callback = MetricCallback()
     trainer = Trainer(
         max_epochs=30,
@@ -109,6 +102,13 @@ def finetune_eval(
         logger=TensorBoardLogger(save_dir=str(log_dir), name="finetune_eval"),
         precision=precision,
         strategy="ddp_find_unused_parameters_true",
+    )
+    classifier = FinetuneLinearClassifier(
+        model=model,
+        batch_size_per_device=batch_size_per_device,
+        feature_dim=2048,
+        num_classes=num_classes,
+        freeze_model=False,
     )
     trainer.fit(
         model=classifier,
