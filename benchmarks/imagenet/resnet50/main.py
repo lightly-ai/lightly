@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Sequence, Union
 
+import dino
 import finetune_eval
 import knn_eval
 import linear_eval
@@ -38,6 +39,7 @@ parser.add_argument("--skip-finetune-eval", action="store_true")
 
 METHODS = {
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
+    "dino": {"model": dino.DINO, "transform": dino.transform},
 }
 
 
