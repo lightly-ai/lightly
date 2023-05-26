@@ -90,8 +90,6 @@ class _SelectionMixin:
             The newly created tag of the selection.
 
         Raises:
-            ApiException:
-                When errors occur during calls to Lightly API.
             RuntimeError:
                 When a tag with the tag name specified in the selection config already exists.
                 When `initial-tag` does not exist in the dataset.
