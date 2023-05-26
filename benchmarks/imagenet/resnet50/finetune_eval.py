@@ -52,6 +52,7 @@ def finetune_eval(
     Parameters follow SimCLR settings.
     """
     print("Running fine-tune evaluation...")
+
     # Setup trainer.
     metric_callback = MetricCallback()
     trainer = Trainer(
