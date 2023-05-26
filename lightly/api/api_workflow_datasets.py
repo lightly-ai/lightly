@@ -91,7 +91,9 @@ class _DatasetsMixin:
             )
         return datasets
 
-    def get_datasets(self, shared: Optional[bool] = False, num_datasets: Optional[int] = None) -> List[DatasetData]:
+    def get_datasets(
+        self, shared: Optional[bool] = False, num_datasets: Optional[int] = None
+    ) -> List[DatasetData]:
         """Returns all datasets the user owns.
 
         Args:
@@ -111,7 +113,11 @@ class _DatasetsMixin:
                 utils.paginate_endpoint(
                     self._datasets_api.get_datasets,
                     page_size=page_size,
-                    n_pages=(max_datasets if max_datasets is None else -(max_datasets // -page_size)),
+                    n_pages=(
+                        num_datasets
+                        if num_datasets is None
+                        else -(num_datasets // -page_size)
+                    ),  # ceil int division
                     shared=False,
                 )
             )
@@ -120,7 +126,11 @@ class _DatasetsMixin:
                 utils.paginate_endpoint(
                     self._datasets_api.get_datasets,
                     page_size=16,
-                    n_pages=(max_datasets if max_datasets is None else max_datasets // page_size),
+                    n_pages=(
+                        num_datasets
+                        if num_datasets is None
+                        else num_datasets // page_size
+                    ),  # ceil int division
                     shared=True,
                 )
             )
