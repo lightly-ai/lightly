@@ -52,15 +52,3 @@ class SelectionConfig:
             date_time = datetime.now().strftime("%m_%d_%Y__%H_%M_%S")
             name = f"{self.method}_{self.n_samples}_{self.min_distance}_{date_time}"
         self.name = name
-
-
-class SamplingConfig(SelectionConfig):
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            DeprecationWarning(
-                "SamplingConfig() is deprecated "
-                "in favour of SelectionConfig() "
-                "and will be removed in the future."
-            ),
-        )
-        SelectionConfig.__init__(self, *args, **kwargs)
