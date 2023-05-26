@@ -76,11 +76,6 @@ class DINO(LightningModule):
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
         )
 
-        cls_loss, cls_log = self.online_classifier.training_step(
-            (teacher_features.chunk(2)[0].detach(), targets), batch_idx
-        )
-        self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
-
         # Momentum update teacher.
         momentum = cosine_schedule(
             step=self.trainer.global_step,
@@ -90,6 +85,12 @@ class DINO(LightningModule):
         )
         update_momentum(self.student_backbone, self.backbone, m=momentum)
         update_momentum(self.student_projection_head, self.projection_head, m=momentum)
+
+        # Online classification.
+        cls_loss, cls_log = self.online_classifier.training_step(
+            (teacher_features.chunk(2)[0].detach(), targets), batch_idx
+        )
+        self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss
 
     def validation_step(
