@@ -7,49 +7,46 @@ Lightly is a computer vision framework for training deep learning models using s
 The framework can be used for a wide range of useful applications such as finding the nearest 
 neighbors, similarity search, transfer learning, or data analytics.
 
-Additionally, you can use the Lightly framework to directly interact with the `lightly platform <https://www.lightly.ai>`_.
-Check out our section on :ref:`lightly-platform` for more information.
-
 
 How Lightly Works
 -----------------
-The flexible design of Lightly makes it easy to integrate in your Python code. Lightly is built completely around PyTorch
-frameworks and the different pieces can be put together to fit *your* requirements.
+The flexible design of Lightly makes it easy to integrate in your Python code. Lightly is built
+completely around PyTorch and the different pieces can be put together to fit *your* requirements.
 
 Data and Transformations
 ^^^^^^^^^^^^^^^^^^^^^^^^
-The basic building block of self-supervised methods
+The basic building block of contrastive self-supervised methods
 such as `SimCLR <https://arxiv.org/abs/2002.05709>`_ are image transformations. Each image is transformed into
-two new images by randomly applied augmentations. The task of the self-supervised model is then to identify the
+several new images by randomly applied augmentations. The task of the self-supervised model is then to identify the
 images which come from the same original among a set of negative examples.
 
-Lightly implements these transformations
-as torchvision transforms in the collate function of the dataloader. For example, the collate
-function below will apply two different, randomized transforms to each image: A randomized resized crop and a
-random color jitter.
+For example, the transforms below will apply the SimCLR image transform to the input images.
 
 .. code-block:: python
 
-    import lightly.data as data
+    from lightly.transforms.simclr_transform import SimCLRTransform
 
-    # the collate function applies random transforms to the input images
-    collate_fn = data.ImageCollateFunction(input_size=32, cj_prob=0.5)
+    # The following transform will return two augmented images per input image.
+    transform = SimCLRTransform()
 
-Let's now load an image dataset and create a PyTorch dataloader with the collate function from above.
+Let's now load an image dataset and create a PyTorch dataloader.
 
 .. code-block:: python
 
     import torch
 
-    # create a dataset from your image folder
-    dataset = data.LightlyDataset(input_dir='./my/cute/cats/dataset/')
+    # Create a dataset from your image folder.
+    dataset = data.LightlyDataset(
+        input_dir='./my/cute/cats/dataset/',
+        transform=transform,
+    )
 
-    # build a PyTorch dataloader
+    # Build a PyTorch dataloader.
     dataloader = torch.utils.data.DataLoader(
-        dataset,                # pass the dataset to the dataloader
-        batch_size=128,         # a large batch size helps with the learning
-        shuffle=True,           # shuffling is important!
-        collate_fn=collate_fn)  # apply transformations to the input images
+        dataset,                # Pass the dataset to the dataloader.
+        batch_size=128,         # A large batch size helps with learning.
+        shuffle=True,           # Shuffling is important!
+    )
 
 .. note:: You can also use a custom PyTorch `Dataset` instead of the 
           `LightlyDataset`. Just make sure your `Dataset` implementation returns

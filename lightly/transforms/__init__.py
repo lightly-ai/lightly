@@ -1,8 +1,8 @@
-"""The lightly.transforms package provides additional augmentations.
+"""The lightly.transforms package transforms for various self-supervised learning
+methods.
 
-    Contains implementations of Gaussian blur and random rotations which are
-    not part of torchvisions transforms.
-
+It also contains some additional transforms that are not part of torchvisions
+transforms.
 """
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
