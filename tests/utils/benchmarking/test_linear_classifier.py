@@ -25,7 +25,7 @@ class TestLinearClassifier:
         initial_weights = linear.weight.clone()
         linear_classifier = LinearClassifier(
             model=model,
-            batch_size=2,
+            batch_size_per_device=2,
             feature_dim=4,
             num_classes=5,
             freeze_model=False,  # Don't freeze the model for finetuning.
@@ -72,7 +72,7 @@ class TestLinearClassifier:
         initial_weights = linear.weight.clone()
         linear_classifier = LinearClassifier(
             model=model,
-            batch_size=2,
+            batch_size_per_device=2,
             feature_dim=4,
             num_classes=5,
             freeze_model=True,  # Freeze the model for finetuning.

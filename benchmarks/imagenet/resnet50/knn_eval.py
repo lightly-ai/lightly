@@ -17,7 +17,7 @@ def knn_eval(
     train_dir: Path,
     val_dir: Path,
     log_dir: Path,
-    batch_size: int,
+    batch_size_per_device: int,
     num_workers: int,
     accelerator: str,
     devices: int,
@@ -25,7 +25,40 @@ def knn_eval(
 ) -> None:
     print("Running KNN evaluation...")
 
-    # Setup trainer.
+    # Setup training data.
+    transform = T.Compose(
+        [
+            T.Resize(256),
+            T.CenterCrop(224),
+            T.ToTensor(),
+            T.Normalize(mean=IMAGENET_NORMALIZE["mean"], std=IMAGENET_NORMALIZE["std"]),
+        ]
+    )
+    train_dataset = LightlyDataset(input_dir=str(train_dir), transform=transform)
+    train_dataloader = DataLoader(
+        train_dataset,
+        batch_size=batch_size_per_device,
+        shuffle=False,
+        num_workers=num_workers,
+        drop_last=False,
+    )
+
+    # Setup validation data.
+    val_dataset = LightlyDataset(input_dir=str(val_dir), transform=transform)
+    val_dataloader = DataLoader(
+        val_dataset,
+        batch_size=batch_size_per_device,
+        shuffle=False,
+        num_workers=num_workers,
+    )
+
+    classifier = KNNClassifier(
+        model=model,
+        num_classes=num_classes,
+        feature_dtype=torch.float16,
+    )
+
+    # Run KNN evaluation.
     metric_callback = MetricCallback()
     trainer = Trainer(
         max_epochs=1,
@@ -38,42 +71,6 @@ def knn_eval(
         ],
         strategy="ddp_find_unused_parameters_true",
     )
-
-    # Setup training data.
-    transform = T.Compose(
-        [
-            T.Resize(256),
-            T.CenterCrop(224),
-            T.ToTensor(),
-            T.Normalize(mean=IMAGENET_NORMALIZE["mean"], std=IMAGENET_NORMALIZE["std"]),
-        ]
-    )
-    train_dataset = LightlyDataset(input_dir=str(train_dir), transform=transform)
-    assert batch_size % trainer.world_size == 0
-    train_dataloader = DataLoader(
-        train_dataset,
-        batch_size=batch_size // trainer.world_size,
-        shuffle=False,
-        num_workers=num_workers,
-        drop_last=False,
-    )
-
-    # Setup validation data.
-    val_dataset = LightlyDataset(input_dir=str(val_dir), transform=transform)
-    val_dataloader = DataLoader(
-        val_dataset,
-        batch_size=batch_size // trainer.world_size,
-        shuffle=False,
-        num_workers=num_workers,
-    )
-
-    classifier = KNNClassifier(
-        model=model,
-        num_classes=num_classes,
-        feature_dtype=torch.float16,
-    )
-
-    # Run KNN evaluation.
     trainer.fit(
         model=classifier,
         train_dataloaders=train_dataloader,
