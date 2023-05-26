@@ -5,7 +5,7 @@ import os
 import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
 from datetime import datetime
-from typing import Dict, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import tqdm
 from lightly_utils import image_processing
@@ -61,7 +61,7 @@ class _UploadDatasetMixin:
         input: Union[str, "LightlyDataset"],
         max_workers: int = 8,
         mode: str = "thumbnails",
-        custom_metadata: Optional[Dict] = None,
+        custom_metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Uploads a dataset to the Lightly Platform.
 

@@ -1,6 +1,6 @@
 from bisect import bisect_left
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Union
 
 from requests import Response
 from tqdm import tqdm
@@ -26,7 +26,7 @@ class InvalidCustomMetadataWarning(Warning):
     pass
 
 
-def _assert_key_exists_in_custom_metadata(key: str, dictionary: Dict):
+def _assert_key_exists_in_custom_metadata(key: str, dictionary: Dict[str, Any]):
     """Raises a formatted KeyError if key is not a key of the dictionary."""
     if key not in dictionary.keys():
         raise KeyError(
@@ -59,7 +59,7 @@ class _UploadCustomMetadataMixin:
         )
 
     def index_custom_metadata_by_filename(
-        self, custom_metadata: Dict
+        self, custom_metadata: Dict[str, Any]
     ) -> Dict[str, Union[Dict, None]]:
         """Creates an index to lookup custom metadata by filename.
 
@@ -94,7 +94,10 @@ class _UploadCustomMetadataMixin:
         return filename_to_metadata
 
     def upload_custom_metadata(
-        self, custom_metadata: Dict, verbose: bool = False, max_workers: int = 8
+        self,
+        custom_metadata: Dict[str, Any],
+        verbose: bool = False,
+        max_workers: int = 8,
     ) -> None:
         """Uploads custom metadata to the Lightly Platform.
 

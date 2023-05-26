@@ -3,6 +3,7 @@ import warnings
 from typing import Dict, List, Optional, Union
 
 import numpy as np
+from numpy.typing import NDArray
 
 from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.openapi_generated.swagger_client import ActiveLearningScoreCreateRequest
@@ -34,12 +35,13 @@ def _parse_active_learning_scores(scores: Union[np.ndarray, List]):
 
 class _SelectionMixin:
     def upload_scores(
-        self, al_scores: Dict[str, np.ndarray], query_tag_id: str
+        self, al_scores: Dict[str, NDArray[np.float_]], query_tag_id: str
     ) -> None:
         """Uploads active learning scores for a tag.
 
         Args:
-            al_scores: Active learning scores. Must be a mapping between score names
+            al_scores:
+                Active learning scores. Must be a mapping between score names
                 and score arrays. The length of each score array must match samples
                 in the designated tag.
             query_tag_id: ID of the desired tag.
