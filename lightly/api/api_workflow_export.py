@@ -36,6 +36,13 @@ class _ExportDatasetMixin:
         Returns:
             A list of dictionaries in a format compatible with Label Studio.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.export_label_studio_tasks_by_tag_id(tag_id="646f34608a5613b57d8b73cc")
+            [{'id': 0, 'data': {'image': '...', ...}}]
         """
         label_studio_tasks = paginate_endpoint(
             self._tags_api.export_tag_to_label_studio_tasks,
@@ -89,6 +96,13 @@ class _ExportDatasetMixin:
         Returns:
             A list of dictionaries in a format compatible with Labelbox v3.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.export_label_box_data_rows_by_tag_id(tag_id="646f34608a5613b57d8b73cc")
+            [{'externalId': '2218961434_7916358f53_z.jpg', 'imageUrl': ...}]
         """
         warnings.warn(
             DeprecationWarning(
@@ -153,6 +167,14 @@ class _ExportDatasetMixin:
                 ID of the tag which should exported.
         Returns:
             A list of dictionaries in a format compatible with Labelbox v4.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.export_label_box_v4_data_rows_by_tag_id(tag_id="646f34608a5613b57d8b73cc")
+            [{'row_data': '...', 'global_key': 'image-1.jpg', 'media_type': 'IMAGE'}
         """
         label_box_data_rows = paginate_endpoint(
             self._tags_api.export_tag_to_label_box_v4_data_rows,
@@ -200,6 +222,13 @@ class _ExportDatasetMixin:
         Returns:
             A list of filenames of samples within a certain tag.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.export_filenames_by_tag_id("646b40d6c06aae1b91294a9e")
+            'image-1.jpg\nimage-2.jpg\nimage-3.jpg'
         """
         filenames = retry(
             self._tags_api.export_tag_to_basic_filenames,

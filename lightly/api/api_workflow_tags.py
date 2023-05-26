@@ -20,6 +20,19 @@ class _TagsMixin:
         Returns:
             A list of tags.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.get_all_tags()
+            [{'created_at': 1684750550014,
+             'dataset_id': '646b40a18355e2f54c6d2200',
+             'id': '646b40d6c06aae1b91294a9e',
+             'last_modified_at': 1684750550014,
+             'name': 'cool-tag',
+             'preselected_tag_id': None,
+             ...}]
         """
         return self._tags_api.get_tags_by_dataset_id(self.dataset_id)
 
@@ -33,6 +46,19 @@ class _TagsMixin:
         Returns:
             Tag data for the requested tag.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.get_tag_by_id("646b40d6c06aae1b91294a9e")
+            {'created_at': 1684750550014,
+             'dataset_id': '646b40a18355e2f54c6d2200',
+             'id': '646b40d6c06aae1b91294a9e',
+             'last_modified_at': 1684750550014,
+             'name': 'cool-tag',
+             'preselected_tag_id': None,
+             ...}
         """
         tag_data = self._tags_api.get_tag_by_tag_id(self.dataset_id, tag_id)
         return tag_data
@@ -47,6 +73,19 @@ class _TagsMixin:
         Returns:
             Tag data for the requested tag.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.get_tag_by_name("cool-tag")
+            {'created_at': 1684750550014,
+             'dataset_id': '646b40a18355e2f54c6d2200',
+             'id': '646b40d6c06aae1b91294a9e',
+             'last_modified_at': 1684750550014,
+             'name': 'cool-tag',
+             'preselected_tag_id': None,
+             ...}
         """
         tag_name_id_dict = {tag.name: tag.id for tag in self.get_all_tags()}
         tag_id = tag_name_id_dict.get(tag_name, None)
@@ -74,6 +113,14 @@ class _TagsMixin:
         Returns:
             Filenames of all samples under the tag.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> tag = client.get_tag_by_name("cool-tag")
+            >>> client.get_filenames_in_tag(tag_data=tag)
+            ['image-1.png', 'image-2.png']
         """
 
         if exclude_parent_tag:
@@ -122,6 +169,15 @@ class _TagsMixin:
                 When a tag with the desired tag name already exists.
                 When `initial-tag` does not exist.
                 When any of the given files does not exist.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> filenames = ['image-1.png', 'image-2.png']
+            >>> client.create_tag_from_filenames(fnames_new_tag=filenames, new_tag_name='new-tag')
+            {'id': '6470c4c1060894655c5a8ed5'}
         """
 
         # make sure the tag name does not exist yet
@@ -183,6 +239,14 @@ class _TagsMixin:
             tag_id:
                 The id of the tag to be deleted.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> filenames = ['image-1.png', 'image-2.png']
+            >>> tag_id = client.create_tag_from_filenames(fnames_new_tag=filenames, new_tag_name='new-tag')["id"]
+            >>> client.delete_tag_by_id(tag_id=tag_id)
         """
         self._tags_api.delete_tag_by_tag_id(self.dataset_id, tag_id)
 
@@ -193,6 +257,14 @@ class _TagsMixin:
             tag_name:
                 The name of the tag to be deleted.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> filenames = ['image-1.png', 'image-2.png']
+            >>> client.create_tag_from_filenames(fnames_new_tag=filenames, new_tag_name='new-tag')
+            >>> client.delete_tag_by_name(tag_name="new-tag")
         """
         tag_data = self.get_tag_by_name(tag_name=tag_name)
         self.delete_tag_by_id(tag_data.id)
