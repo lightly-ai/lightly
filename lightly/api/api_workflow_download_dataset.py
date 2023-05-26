@@ -47,7 +47,7 @@ class _DownloadDatasetMixin:
         tag_name: str = "initial-tag",
         max_workers: int = 8,
         verbose: bool = True,
-    ):
+    ) -> None:
         """Downloads images from the web-app and stores them in output_dir.
 
         Args:
@@ -144,13 +144,23 @@ class _DownloadDatasetMixin:
             warnings.warn(msg)
 
     def get_all_embedding_data(self) -> List[DatasetEmbeddingData]:
-        """Returns embedding data of all embeddings for this dataset."""
+        """Fetches embedding data of all embeddings for this dataset.
+
+        Returns:
+            A list of embedding data.
+        """
         return self._embeddings_api.get_embeddings_by_dataset_id(
             dataset_id=self.dataset_id
         )
 
     def get_embedding_data_by_name(self, name: str) -> DatasetEmbeddingData:
-        """Returns embedding data with the given name for this dataset.
+        """Fetches embedding data with the given name for this dataset.
+
+        Args:
+            name: Embedding name.
+
+        Returns:
+            Embedding data.
 
         Raises:
             ValueError:
@@ -170,8 +180,11 @@ class _DownloadDatasetMixin:
         embedding_id: str,
         output_path: str,
     ) -> None:
-        """Downloads embeddings with the given embedding id from the dataset and saves
-        them to the output path.
+        """Downloads embeddings with the given embedding id from the dataset.
+
+        Args:
+            embedding_id: ID of the embedding data to be downloaded.
+            output_path: Where the downloaded embedding data should be stored.
         """
         read_url = self._embeddings_api.get_embeddings_csv_read_url_by_id(
             dataset_id=self.dataset_id, embedding_id=embedding_id
@@ -179,8 +192,10 @@ class _DownloadDatasetMixin:
         download.download_and_write_file(url=read_url, output_path=output_path)
 
     def download_embeddings_csv(self, output_path: str) -> None:
-        """Downloads the latest embeddings from the dataset and saves them to the output
-        path.
+        """Downloads the latest embeddings from the dataset.
+
+        Args:
+            output_path: Where the downloaded embedding data should be stored.
 
         Raises:
             RuntimeError:

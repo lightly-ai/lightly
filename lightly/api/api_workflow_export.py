@@ -24,7 +24,7 @@ class _ExportDatasetMixin:
         self,
         tag_id: str,
     ) -> List[Dict]:
-        """Exports samples in a format compatible with Label Studio.
+        """Fetches samples in a format compatible with Label Studio.
 
         The format is documented here:
         https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format
@@ -49,7 +49,7 @@ class _ExportDatasetMixin:
         self,
         tag_name: str,
     ) -> List[Dict]:
-        """Exports samples in a format compatible with Label Studio.
+        """Fetches samples in a format compatible with Label Studio.
 
         The format is documented here:
         https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format
@@ -78,13 +78,13 @@ class _ExportDatasetMixin:
         self,
         tag_id: str,
     ) -> List[Dict]:
-        """Exports samples in a format compatible with Labelbox v3.
+        """Fetches samples in a format compatible with Labelbox v3.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
 
         Args:
             tag_id:
-                Id of the tag which should exported.
+                ID of the tag which should exported.
 
         Returns:
             A list of dictionaries in a format compatible with Labelbox v3.
@@ -109,7 +109,7 @@ class _ExportDatasetMixin:
         self,
         tag_name: str,
     ) -> List[Dict]:
-        """Exports samples in a format compatible with Labelbox v3.
+        """Fetches samples in a format compatible with Labelbox v3.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
 
@@ -144,13 +144,13 @@ class _ExportDatasetMixin:
         self,
         tag_id: str,
     ) -> List[Dict]:
-        """Exports samples in a format compatible with Labelbox v4.
+        """Fetches samples in a format compatible with Labelbox v4.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
 
         Args:
             tag_id:
-                Id of the tag which should exported.
+                ID of the tag which should exported.
         Returns:
             A list of dictionaries in a format compatible with Labelbox v4.
         """
@@ -166,7 +166,7 @@ class _ExportDatasetMixin:
         self,
         tag_name: str,
     ) -> List[Dict]:
-        """Exports samples in a format compatible with Labelbox.
+        """Fetches samples in a format compatible with Labelbox.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
 
@@ -191,14 +191,14 @@ class _ExportDatasetMixin:
         self,
         tag_id: str,
     ) -> str:
-        """Exports a list of the samples filenames within a certain tag.
+        """Fetches samples filenames within a certain tag by tag ID.
 
         Args:
             tag_id:
-                Id of the tag which should exported.
+                ID of the tag which should exported.
 
         Returns:
-            A list of the samples filenames within a certain tag.
+            A list of filenames of samples within a certain tag.
 
         """
         filenames = retry(
@@ -212,14 +212,14 @@ class _ExportDatasetMixin:
         self,
         tag_name: str,
     ) -> str:
-        """Exports a list of the samples filenames within a certain tag.
+        """Fetches samples filenames within a certain tag by tag name.
 
         Args:
             tag_name:
                 Name of the tag which should exported.
 
         Returns:
-            A list of the samples filenames within a certain tag.
+            A list of filenames of samples within a certain tag.
 
         Examples:
             >>> # write json file which can be imported in Label Studio
@@ -238,11 +238,11 @@ class _ExportDatasetMixin:
         self,
         tag_id: str,
     ) -> List[Dict[str, str]]:
-        """Export filenames, read URLs, and datasource URLs from the given tag.
+        """Fetches filenames, read URLs, and datasource URLs from the given tag.
 
         Args:
             tag_id:
-                Id of the tag which should exported.
+                ID of the tag which should exported.
 
         Returns:
             A list of dictionaries with the keys "filename", "readUrl" and "datasourceUrl".
@@ -301,14 +301,14 @@ class _ExportDatasetMixin:
         self,
         tag_name: str,
     ) -> List[Dict[str, str]]:
-        """Export filenames, read URLs, and datasource URLs from the given tag name.
+        """Fetches filenames, read URLs, and datasource URLs from the given tag name.
 
         Args:
             tag_name:
                 Name of the tag which should exported.
 
         Returns:
-            A list of dictionaries with the keys "filename", "readUrl" and "datasourceUrl".
+            A list of dictionaries with keys "filename", "readUrl" and "datasourceUrl".
 
         Examples:
             >>> # write json file which can be used to access the actual file contents.

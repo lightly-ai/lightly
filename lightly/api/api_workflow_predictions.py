@@ -13,14 +13,14 @@ class _PredictionsMixin:
         schema: PredictionTaskSchema,
         prediction_version_id: int = -1,
     ) -> None:
-        """Creates or updates the prediction task schema
+        """Creates or updates the prediction task schema.
 
         Args:
             schema:
                 The prediction task schema.
             prediction_version_id:
-                A numerical id (e.g timestamp) to distinguish different predictions of different model versions.
-                Use the same id if you don't require versioning or if you wish to overwrite the previous schema.
+                A numerical ID (e.g., timestamp) to distinguish different predictions of different model versions.
+                Use the same ID if you don't require versioning or if you wish to overwrite the previous schema.
 
         Example:
           >>> import time
@@ -62,7 +62,7 @@ class _PredictionsMixin:
         progress_bar: Optional[tqdm.tqdm] = None,
         max_workers: int = 8,
     ) -> None:
-        """Creates or updates the predictions for specific samples
+        """Creates or updates the predictions for specific samples.
 
         Args:
             sample_id_to_prediction_singletons
@@ -70,9 +70,9 @@ class _PredictionsMixin:
                 The singletons can be from different tasks and different types.
 
             prediction_version_id:
-                 A numerical id (e.g timestamp) to distinguish different predictions of different model versions.
-                 Use the same id if you don't require versioning or if you wish to overwrite the previous schema.
-                 This id must match the id of a prediction task schema.
+                A numerical ID (e.g., timestamp) to distinguish different predictions of different model versions.
+                Use the same id if you don't require versioning or if you wish to overwrite the previous schema.
+                This ID must match the ID of a prediction task schema.
 
             progress_bar:
                 Tqdm progress bar to show how many prediction files have already been uploaded.
@@ -137,17 +137,19 @@ class _PredictionsMixin:
         prediction_singletons: Sequence[PredictionSingletonRepr],
         prediction_version_id: int = -1,
     ) -> None:
-        """Creates or updates the predictions for one specific sample
+        """Creates or updates predictions for one specific sample.
 
         Args:
             sample_id
-                The id of the sample
+                The ID of the sample.
 
             prediction_version_id:
-                And id to distinguish different predictions for the same sample.
+                A numerical ID (e.g., timestamp) to distinguish different predictions of different model versions.
+                Use the same id if you don't require versioning or if you wish to overwrite the previous schema.
+                This ID must match the ID of a prediction task schema.
 
             prediction_singletons:
-                The predictions to upload for that sample
+                Predictions to be uploaded for the designated sample.
         """
         prediction_singletons_for_sending = [
             singleton.to_dict() for singleton in prediction_singletons
