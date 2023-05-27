@@ -107,17 +107,14 @@ class _DatasetsMixin:
 
         """
         datasets = []
-        page_size = 16
+        page_size = 16 # the paginate_endpoint default is 5000, which is rather high for datasets
+        n_pages = num_datasets if num_datasets is None else -(num_datasets // -page_size) # ceil int division
         if not shared or shared is None:
             datasets.extend(
                 utils.paginate_endpoint(
                     self._datasets_api.get_datasets,
                     page_size=page_size,
-                    n_pages=(
-                        num_datasets
-                        if num_datasets is None
-                        else -(num_datasets // -page_size)
-                    ),  # ceil int division
+                    n_pages=n_pages,
                     shared=False,
                 )
             )
@@ -126,11 +123,7 @@ class _DatasetsMixin:
                 utils.paginate_endpoint(
                     self._datasets_api.get_datasets,
                     page_size=16,
-                    n_pages=(
-                        num_datasets
-                        if num_datasets is None
-                        else num_datasets // page_size
-                    ),  # ceil int division
+                    n_pages=n_pages,
                     shared=True,
                 )
             )

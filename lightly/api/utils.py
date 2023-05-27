@@ -66,7 +66,7 @@ def retry(func, *args, **kwargs):
                 ) from e
 
 
-def paginate_endpoint(fn, page_size=5000, *args, **kwargs) -> List:
+def paginate_endpoint(fn, page_size=5000, *args, n_pages=None, **kwargs) -> List:
     """Paginates an API endpoint
 
     Args:
@@ -78,7 +78,8 @@ def paginate_endpoint(fn, page_size=5000, *args, **kwargs) -> List:
     entries: List = []
     offset = 0
     has_more = True
-    while has_more:
+
+    while has_more and (n_pages is None or offset < n_pages):
         chunk = retry(
             fn, page_offset=offset * page_size, page_size=page_size, *args, **kwargs
         )
