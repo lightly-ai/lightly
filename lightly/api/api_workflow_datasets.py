@@ -138,7 +138,6 @@ class _DatasetsMixin:
                 page_size=page_size,
                 shared=True,
             )
-        return datasets
 
     def get_all_datasets(self) -> List[DatasetData]:
         """Returns all datasets the user has access to.
