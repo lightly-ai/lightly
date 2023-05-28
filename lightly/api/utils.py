@@ -8,7 +8,7 @@ import os
 import random
 import time
 from enum import Enum
-from typing import List, Optional
+from typing import Iterable, List, Optional
 
 # the following two lines are needed because
 # PIL misidentifies certain jpeg images as MPOs
