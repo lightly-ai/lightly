@@ -123,16 +123,19 @@ class _DatasetsMixin:
         Returns:
             A list of datasets owned by the current user.
         """
+        page_size = 16
         if (
             not shared or shared is None
         ):  # shared is False by default, so why check for none-ness?
             return utils.paginate_endpoint(
                 self._datasets_api.get_datasets,
+                page_size=page_size,
                 shared=False,
             )
         else:
             return utils.paginate_endpoint(
                 self._datasets_api.get_datasets,
+                page_size=page_size,
                 shared=True,
             )
         return datasets
