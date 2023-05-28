@@ -1,5 +1,5 @@
 import warnings
-from typing import List, Optional
+from typing import Iterable, List, Optional
 
 from lightly.api import utils
 from lightly.openapi_generated.swagger_client import (
