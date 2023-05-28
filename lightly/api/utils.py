@@ -66,7 +66,56 @@ def retry(func, *args, **kwargs):
                 ) from e
 
 
-def paginate_endpoint(fn, page_size=5000, *args, **kwargs) -> List:
+class Paginated(Iterable):
+    def __init__(self, fn, page_size, *args, **kwargs):
+        self.entries: List = []
+        self.entries_lock = threading.Condition()
+        self.offset = 0
+        self.fn = fn
+        self.page_size = page_size
+        self.args = args
+        self.kwargs = kwargs
+        self.itteration_over = False
+        # fetch first page on init
+        fetch = threading.Thread(target=self.fetch_page)
+        fetch.start()
+
+    def __iter__(self):
+        return self
+
+    def fetch_page(self):
+        chunk = retry(
+            self.fn,
+            page_offset=self.offset * self.page_size,
+            page_size=self.page_size,
+            *self.args,
+            **self.kwargs,
+        )
+        self.entries_lock.acquire()
+        if len(chunk) < self.page_size:
+            self.itteration_over = True
+        self.entries.extend(chunk)
+        self.offset += 1
+        self.entries_lock.notify()
+        self.entries_lock.release()
+
+    def __next__(self):
+        self.entries_lock.acquire()
+        # fetch more entries only when precisely half (ceil division) a page remains (another threshold could be chosen)
+        if (len(self.entries) == -(self.page_size // -2)) and not self.itteration_over:
+            fetch = threading.Thread(target=self.fetch_page)
+            fetch.start()
+        while len(self.entries) == 0:
+            if self.itteration_over:
+                raise StopIteration
+            else:
+                self.entries_lock.wait()
+        v = self.entries.pop(0)
+        self.entries_lock.release()
+        return v
+
+
+def paginate_endpoint(fn, page_size=5000, *args, **kwargs) -> Iterable:
     """Paginates an API endpoint
 
     Args:
@@ -75,21 +124,7 @@ def paginate_endpoint(fn, page_size=5000, *args, **kwargs) -> List:
         page_size:
             The size of the pages to pull
     """
-    entries: List = []
-    offset = 0
-    has_more = True
-    while has_more:
-        chunk = retry(
-            fn, page_offset=offset * page_size, page_size=page_size, *args, **kwargs
-        )
-        # if we don't find more data, stop pagination otherwise get next chunk
-        if len(chunk) == 0:
-            has_more = False
-        else:
-            entries.extend(chunk)
-            offset += 1
-
-    return entries
+    return Paginated(fn, page_size, *args, **kwargs)
 
 
 def getenv(key: str, default: str):

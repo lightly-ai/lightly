@@ -110,7 +110,7 @@ class _DatasetsMixin:
             )
         return datasets
 
-    def get_datasets(self, shared: Optional[bool] = False) -> List[DatasetData]:
+    def get_datasets(self, shared: Optional[bool] = False) -> Iterable[DatasetData]:
         """Returns all datasets owned by the current user.
 
         Args:
@@ -123,20 +123,17 @@ class _DatasetsMixin:
         Returns:
             A list of datasets owned by the current user.
         """
-        datasets = []
-        if not shared or shared is None:
-            datasets.extend(
-                utils.paginate_endpoint(
-                    self._datasets_api.get_datasets,
-                    shared=False,
-                )
+        if (
+            not shared or shared is None
+        ):  # shared is False by default, so why check for none-ness?
+            return utils.paginate_endpoint(
+                self._datasets_api.get_datasets,
+                shared=False,
             )
-        if shared or shared is None:
-            datasets.extend(
-                utils.paginate_endpoint(
-                    self._datasets_api.get_datasets,
-                    shared=True,
-                )
+        else:
+            return utils.paginate_endpoint(
+                self._datasets_api.get_datasets,
+                shared=True,
             )
         return datasets
 
