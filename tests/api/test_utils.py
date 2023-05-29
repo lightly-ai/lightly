@@ -90,3 +90,16 @@ class TestUtils(unittest.TestCase):
         os.environ["LIGHTLY_SERVER_LOCATION"] = "https://api.dev.lightly.ai/ "
         host = get_lightly_server_location_from_env()
         self.assertEqual(host, "https://api.dev.lightly.ai")
+
+    def test_paginate_endpoint(self):
+        def some_function(page_offset, page_size):
+            if page_offset == 4:
+                return (page_size - 1) * ["a"]
+            elif page_offset > 4:
+                return []
+            else:
+                return page_size * ["a"]
+
+        some_iterator = paginate_endpoint(some_function, page_size=8)
+        some_list = list(some_iterator)
+        self.assertEqual(len(some_list), 38)
