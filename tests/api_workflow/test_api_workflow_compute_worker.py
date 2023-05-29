@@ -161,7 +161,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
         assert workers[0].labels == ["label-1"]
 
     def test_get_compute_worker_runs(self):
-        runs = self.api_workflow_client.get_compute_worker_runs()
+        runs = list(self.api_workflow_client.get_compute_worker_runs())
         assert len(runs) > 0
         assert all(isinstance(run, DockerRunData) for run in runs)
 
@@ -548,7 +548,7 @@ def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
         [],
     ]
     client._compute_worker_api = mock_compute_worker_api
-    runs = client.get_compute_worker_runs()
+    runs = list(client.get_compute_worker_runs())
     assert runs == [
         DockerRunData(
             id="run-2",
@@ -593,7 +593,7 @@ def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
     ]
 
     client._compute_worker_api = mock_compute_worker_api
-    runs = client.get_compute_worker_runs(dataset_id="dataset-2")
+    runs = list(client.get_compute_worker_runs(dataset_id="dataset-2"))
     assert runs == [
         DockerRunData(
             id="run-2",
