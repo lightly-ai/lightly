@@ -94,13 +94,15 @@ class TestUtils(unittest.TestCase):
 
     def test_paginate_endpoint(self):
         def some_function(page_offset, page_size):
-            if page_offset == 4:
+            if page_offset == 3:
                 return (page_size - 1) * ["a"]
-            elif page_offset > 4:
+            elif page_offset > 3:
                 return []
             else:
                 return page_size * ["a"]
 
-        some_iterator = paginate_endpoint(some_function, page_size=8)
+        page_size = 2
+        some_iterator = paginate_endpoint(some_function, page_size=page_size)
         some_list = list(some_iterator)
-        self.assertEqual(len(some_list), 38)
+        self.assertEqual((4*page_size-1)*["a"], some_list)
+        self.assertEqual(len(some_list), (4*page_size-1))
