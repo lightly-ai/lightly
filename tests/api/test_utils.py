@@ -106,3 +106,18 @@ class TestUtils(unittest.TestCase):
         some_list = list(some_iterator)
         self.assertEqual((4 * page_size - 1) * ["a"], some_list)
         self.assertEqual(len(some_list), (4 * page_size - 1))
+
+    def test_paginate_endpoint_raises_error_from_fetch_thread(self):
+        def some_function(page_size=8, page_offset=0):
+            if page_offset > 3 * page_size:
+                raise RuntimeError(f"Maximum retries exceeded!")
+            else:
+                return page_size * ["a"]
+
+        page_size = 8
+        some_iterator = paginate_endpoint(some_function, page_size=page_size)
+        with pytest.raises(
+            RuntimeError,
+            match="Maximum retries exceeded!",
+        ):
+            some_list = list(some_iterator)
