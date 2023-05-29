@@ -139,7 +139,7 @@ class _DatasetsMixin:
                 shared=True,
             )
 
-    def get_all_datasets(self) -> List[DatasetData]:
+    def get_all_datasets(self) -> Iterable[DatasetData]:
         """Returns all datasets the user has access to.
 
         DEPRECATED in favour of get_datasets(shared=None) and will be removed in the

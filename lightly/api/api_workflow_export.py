@@ -2,7 +2,7 @@ import io
 import os
 import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
-from typing import Dict, List, Optional
+from typing import Dict, Iterable, List, Optional
 from urllib.request import Request, urlopen
 
 import tqdm
@@ -23,7 +23,7 @@ class _ExportDatasetMixin:
     def export_label_studio_tasks_by_tag_id(
         self,
         tag_id: str,
-    ) -> List[Dict]:
+    ) -> Iterable[Dict]:
         """Fetches samples in a format compatible with Label Studio.
 
         The format is documented here:
@@ -48,7 +48,7 @@ class _ExportDatasetMixin:
     def export_label_studio_tasks_by_tag_name(
         self,
         tag_name: str,
-    ) -> List[Dict]:
+    ) -> Iterable[Dict]:
         """Fetches samples in a format compatible with Label Studio.
 
         The format is documented here:
@@ -77,7 +77,7 @@ class _ExportDatasetMixin:
     def export_label_box_data_rows_by_tag_id(
         self,
         tag_id: str,
-    ) -> List[Dict]:
+    ) -> Iterable[Dict]:
         """Fetches samples in a format compatible with Labelbox v3.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
@@ -108,7 +108,7 @@ class _ExportDatasetMixin:
     def export_label_box_data_rows_by_tag_name(
         self,
         tag_name: str,
-    ) -> List[Dict]:
+    ) -> Iterable[Dict]:
         """Fetches samples in a format compatible with Labelbox v3.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
@@ -143,7 +143,7 @@ class _ExportDatasetMixin:
     def export_label_box_v4_data_rows_by_tag_id(
         self,
         tag_id: str,
-    ) -> List[Dict]:
+    ) -> Iterable[Dict]:
         """Fetches samples in a format compatible with Labelbox v4.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
@@ -165,7 +165,7 @@ class _ExportDatasetMixin:
     def export_label_box_v4_data_rows_by_tag_name(
         self,
         tag_name: str,
-    ) -> List[Dict]:
+    ) -> Iterable[Dict]:
         """Fetches samples in a format compatible with Labelbox.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json

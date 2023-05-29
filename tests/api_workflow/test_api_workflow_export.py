@@ -15,8 +15,10 @@ class TestApiWorkflowExport(MockedApiWorkflowSetup):
         self.api_workflow_client._tags_api.no_tags = 3
 
     def test_export_label_box_data_rows_by_tag_id(self):
-        rows = self.api_workflow_client.export_label_box_data_rows_by_tag_id(
-            tag_id="some-tag-id"
+        rows = list(
+            self.api_workflow_client.export_label_box_data_rows_by_tag_id(
+                tag_id="some-tag-id"
+            )
         )
         assert rows == [
             {
@@ -26,8 +28,10 @@ class TestApiWorkflowExport(MockedApiWorkflowSetup):
         ]
 
     def test_export_label_box_data_rows_by_tag_name(self):
-        rows = self.api_workflow_client.export_label_box_data_rows_by_tag_name(
-            tag_name="initial-tag"
+        rows = list(
+            self.api_workflow_client.export_label_box_data_rows_by_tag_name(
+                tag_name="initial-tag"
+            )
         )
         assert rows == [
             {
@@ -37,8 +41,10 @@ class TestApiWorkflowExport(MockedApiWorkflowSetup):
         ]
 
     def test_export_label_box_v4_data_rows_by_tag_name(self):
-        rows = self.api_workflow_client.export_label_box_v4_data_rows_by_tag_name(
-            tag_name="initial-tag"
+        rows = list(
+            self.api_workflow_client.export_label_box_v4_data_rows_by_tag_name(
+                tag_name="initial-tag"
+            )
         )
         assert rows == [
             {
@@ -49,8 +55,10 @@ class TestApiWorkflowExport(MockedApiWorkflowSetup):
         ]
 
     def test_export_label_box_v4_data_rows_by_tag_id(self):
-        rows = self.api_workflow_client.export_label_box_v4_data_rows_by_tag_id(
-            tag_id="some-tag-id"
+        rows = list(
+            self.api_workflow_client.export_label_box_v4_data_rows_by_tag_id(
+                tag_id="some-tag-id"
+            )
         )
         assert rows == [
             {
@@ -61,8 +69,10 @@ class TestApiWorkflowExport(MockedApiWorkflowSetup):
         ]
 
     def test_export_label_studio_tasks_by_tag_name(self):
-        tasks = self.api_workflow_client.export_label_studio_tasks_by_tag_name(
-            "initial-tag"
+        tasks = list(
+            self.api_workflow_client.export_label_studio_tasks_by_tag_name(
+                "initial-tag"
+            )
         )
         self.assertIsNotNone(tasks)
         self.assertTrue(all(isinstance(task, dict) for task in tasks))
