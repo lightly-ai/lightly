@@ -94,10 +94,10 @@ class TestUtils(unittest.TestCase):
 
     def test_paginate_endpoint(self):
         def some_function(page_size=8, page_offset=0):
-            if page_offset == 3:
-                return (page_size - 1) * ["a"]
-            elif page_offset > 3:
+            if page_offset > 3*page_size:
                 return []
+            elif page_offset > 2*page_size:
+                return (page_size - 1) * ["a"]
             else:
                 return page_size * ["a"]
 
