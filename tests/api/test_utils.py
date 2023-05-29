@@ -1,6 +1,7 @@
 import os
 import unittest
 
+import pytest
 from PIL import Image
 
 import lightly
