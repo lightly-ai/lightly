@@ -93,7 +93,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(host, "https://api.dev.lightly.ai")
 
     def test_paginate_endpoint(self):
-        def some_function(page_offset, page_size):
+        def some_function(page_size=8, page_offset=0):
             if page_offset == 3:
                 return (page_size - 1) * ["a"]
             elif page_offset > 3:
@@ -101,7 +101,7 @@ class TestUtils(unittest.TestCase):
             else:
                 return page_size * ["a"]
 
-        page_size = 2
+        page_size = 8
         some_iterator = paginate_endpoint(some_function, page_size=page_size)
         some_list = list(some_iterator)
         self.assertEqual((4*page_size-1)*["a"], some_list)
