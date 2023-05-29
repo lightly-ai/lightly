@@ -77,6 +77,7 @@ class Paginated(Iterable):
         self.args = args
         self.kwargs = kwargs
         self.itteration_over = False
+        self.exception = None
         # fetch first page on init
         fetch = threading.Thread(target=self.fetch_page)
         fetch.start()
@@ -85,13 +86,21 @@ class Paginated(Iterable):
         return self
 
     def fetch_page(self):
-        chunk = retry(
-            self.fn,
-            page_offset=self.offset * self.page_size,
-            page_size=self.page_size,
-            *self.args,
-            **self.kwargs,
-        )
+        chunk = []
+        try:
+            chunk = retry(
+                self.fn,
+                page_offset=self.offset * self.page_size,
+                page_size=self.page_size,
+                *self.args,
+                **self.kwargs,
+            )
+        except RuntimeError as e:
+            self.entries_lock.acquire()
+            self.exception = e
+            self.entries_lock.notify()
+            self.entries_lock.release()
+            return
         self.entries_lock.acquire()
         if len(chunk) < self.page_size:
             self.itteration_over = True
@@ -109,6 +118,8 @@ class Paginated(Iterable):
         while len(self.entries) == 0:
             if self.itteration_over:
                 raise StopIteration
+            elif self.exception is not None:
+                raise self.exception
             else:
                 self.entries_lock.wait()
         v = self.entries.pop(0)

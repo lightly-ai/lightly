@@ -123,7 +123,7 @@ class _DatasetsMixin:
         Returns:
             A list of datasets owned by the current user.
         """
-        page_size = 16
+        page_size = 32
         if (
             not shared or shared is None
         ):  # shared is False by default, so why check for none-ness?
