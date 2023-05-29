@@ -1,4 +1,5 @@
 import warnings
+from itertools import chain
 from typing import Iterable, List, Optional
 
 from lightly.api import utils
@@ -123,21 +124,24 @@ class _DatasetsMixin:
         Returns:
             A list of datasets owned by the current user.
         """
+        dataset_iterable = []
         page_size = 32
-        if (
-            not shared or shared is None
-        ):  # shared is False by default, so why check for none-ness?
-            return utils.paginate_endpoint(
+        if not shared or shared is None:
+            dataset_iterable = utils.paginate_endpoint(
                 self._datasets_api.get_datasets,
                 page_size=page_size,
                 shared=False,
             )
-        else:
-            return utils.paginate_endpoint(
-                self._datasets_api.get_datasets,
-                page_size=page_size,
-                shared=True,
+        if shared or shared is None:
+            dataset_iterable = chain(
+                dataset_iterable,
+                utils.paginate_endpoint(
+                    self._datasets_api.get_datasets,
+                    page_size=page_size,
+                    shared=True,
+                ),
             )
+        return dataset_iterable
 
     def get_all_datasets(self) -> Iterable[DatasetData]:
         """Returns all datasets the user has access to.
