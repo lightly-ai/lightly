@@ -111,8 +111,13 @@ class Paginated(Iterable):
 
     def __next__(self):
         self.entries_lock.acquire()
-        # fetch more entries only when precisely half (ceil division) a page remains (another threshold could be chosen)
-        if (len(self.entries) == -(self.page_size // -2)) and not self.itteration_over:
+        # fetch more entries only when precisely one page is locally queued
+        # if the consuming thread reads faster than api fetches are supplying,
+        # this becomes a chain of immediately consecutive fetches
+        if len(self.entries) == self.page_size and not self.itteration_over:
+            # fetching on a separate thread avoids unnecessary latency
+            # (1) when beginning iteration or
+            # (2) when iterating across pages
             fetch = threading.Thread(target=self.fetch_page)
             fetch.start()
         while len(self.entries) == 0:
