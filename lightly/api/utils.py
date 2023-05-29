@@ -122,6 +122,8 @@ class Paginated(Iterable):
                 raise self.exception
             else:
                 self.entries_lock.wait()
+        if self.exception is not None:
+            raise self.exception
         v = self.entries.pop(0)
         self.entries_lock.release()
         return v
