@@ -3,7 +3,7 @@ import dataclasses
 import difflib
 import time
 from functools import partial
-from typing import Any, Callable, Dict, Iterable, List, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 
 from lightly.api import utils
 from lightly.api.utils import retry
@@ -433,7 +433,7 @@ class _ComputeWorkerMixin:
 
     def compute_worker_run_info_generator(
         self, scheduled_run_id: str
-    ) -> Iterable[ComputeWorkerRunInfo]:
+    ) -> Iterator[ComputeWorkerRunInfo]:
         """Pulls information about a Lightly Worker run continuously.
 
         Polls the Lightly Worker status every 30s.
