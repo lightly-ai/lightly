@@ -25,7 +25,7 @@ the code at `benchmarks/imagenet/resnet50 <https://github.com/lightly-ai/lightly
   :widths: 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
 
   "SimCLR", "Res50", "256", "100", "63.2", "85.3", "63.1", "85.2", "44.9", "74.2", "`link <https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-05-04_09-02-54/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
-
+  "SwAV", "Res50", "256", "100", "67.2", "88.1", "62.1", "85.4", "49.5", "78.6", "`link <https://tensorboard.dev/experiment/Ipx4Oxl5Qkqm5Sl5kWyKKg>`_", "`link <TODO>`_"
 
 
 ImageNette
