@@ -1,4 +1,3 @@
 [run]
 omit = 
     lightly/openapi_generated/*
-    lightly/openapi_client/*
