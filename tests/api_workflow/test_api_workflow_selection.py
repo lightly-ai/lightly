@@ -40,15 +40,6 @@ def _get_sampling_create_request(tag_name: str = "new-tag") -> SamplingCreateReq
     )
 
 
-def test_sampling_deprecated(mocker: MockerFixture) -> None:
-    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
-    mocker.patch.object(ApiWorkflowClient, "selection")
-    mocked_warning = mocker.patch("warnings.warn")
-    client = ApiWorkflowClient()
-    client.sampling()
-    mocked_warning.assert_called_once()
-
-
 def test_selection__tag_exists(mocker: MockerFixture) -> None:
     tag_name = "some-tag"
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
@@ -231,13 +222,6 @@ def test_upload_scores(mocker: MockerFixture) -> None:
     client._scores_api = mocked_api
     client._dataset_id = dataset_id
 
-    # without query_tag_id
-    client.upload_scores(al_scores={"score_type": [1, 2, 3]})
-    mocked_create_score.assert_called_once()
-    kwargs = mocked_create_score.call_args[1]
-    assert kwargs.get("tag_id") == tag_id
-
-    # with query_tag_id
     mocked_create_score.reset_mock()
     client.upload_scores(
         al_scores={"score_type": [1, 2, 3]}, query_tag_id="some-tag-id"
