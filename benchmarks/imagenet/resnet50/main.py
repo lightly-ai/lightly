@@ -169,6 +169,7 @@ def pretrain(
         num_workers=num_workers,
         collate_fn=MultiViewCollate(),
         drop_last=True,
+        persistent_workers=True,
     )
 
     # Setup validation data.
@@ -186,6 +187,7 @@ def pretrain(
         batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
+        persistent_workers=True,
     )
 
     # Train model.

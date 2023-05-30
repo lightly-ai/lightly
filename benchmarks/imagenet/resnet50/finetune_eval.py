@@ -69,6 +69,7 @@ def finetune_eval(
         shuffle=True,
         num_workers=num_workers,
         drop_last=True,
+        persistent_workers=True,
     )
 
     # Setup validation data.
@@ -86,6 +87,7 @@ def finetune_eval(
         batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
+        persistent_workers=True,
     )
 
     # Train linear classifier.
