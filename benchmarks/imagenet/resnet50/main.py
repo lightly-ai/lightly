@@ -8,6 +8,7 @@ import finetune_eval
 import knn_eval
 import linear_eval
 import simclr
+import swav
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
@@ -29,7 +30,7 @@ parser.add_argument("--epochs", type=int, default=100)
 parser.add_argument("--num-workers", type=int, default=8)
 parser.add_argument("--accelerator", type=str, default="gpu")
 parser.add_argument("--devices", type=int, default=1)
-parser.add_argument("--precision", type=int, default=16)
+parser.add_argument("--precision", type=str, default=16)
 parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
 parser.add_argument("--num-classes", type=int, default=1000)
@@ -38,8 +39,9 @@ parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
 
 METHODS = {
-    "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
     "dino": {"model": dino.DINO, "transform": dino.transform},
+    "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
+    "swav": {"model": swav.SwAV, "transform": swav.transform},
 }
 
 
@@ -199,6 +201,7 @@ def pretrain(
         ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
+        strategy="ddp_find_unused_parameters_true",
         sync_batchnorm=True,
     )
     trainer.fit(

@@ -5,7 +5,7 @@ import os
 import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
 from datetime import datetime
-from typing import Dict, Union
+from typing import Any, Dict, Optional, Union
 
 import tqdm
 from lightly_utils import image_processing
@@ -61,25 +61,25 @@ class _UploadDatasetMixin:
         input: Union[str, "LightlyDataset"],
         max_workers: int = 8,
         mode: str = "thumbnails",
-        custom_metadata: Union[Dict, None] = None,
-    ):
-        """Uploads a dataset to to the Lightly cloud solution.
+        custom_metadata: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """Uploads a dataset to the Lightly Platform.
 
         Args:
             input:
                 Either the path to the dataset, e.g. "path/to/dataset",
-                or the dataset in form of a LightlyDataset
+                or the dataset in form of a LightlyDataset.
             max_workers:
                 Maximum number of workers uploading images in parallel.
             mode:
                 One of [full, thumbnails, metadata]. Whether to upload
                 thumbnails, full images, or metadata only.
             custom_metadata:
-                COCO-style dictionary of custom metadata to be uploaded.
+                COCO-style dictionary of custom metadata to be uploaded. Optional.
 
         Raises:
             ValueError:
-                If dataset is too large or input has the wrong type
+                If dataset is too large or input has the wrong type.
             RuntimeError:
                 If the connection to the server failed.
 
@@ -256,7 +256,7 @@ class _UploadDatasetMixin:
         mode: str,
         custom_metadata: Union[Dict, None] = None,
         datasource_type: str = "LIGHTLY",
-    ):
+    ) -> None:
         """Uploads a single image to the Lightly platform."""
         # check whether the filepath is too long
         if not check_filename(filepath):

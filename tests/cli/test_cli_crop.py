@@ -9,8 +9,8 @@ import yaml
 from hydra.experimental import compose, initialize
 
 import lightly
-from lightly.active_learning.utils import BoundingBox
 from lightly.data import LightlyDataset
+from lightly.utils.bounding_box import BoundingBox
 from lightly.utils.cropping.crop_image_by_bounding_boxes import (
     crop_dataset_by_bounding_boxes_and_save,
 )
