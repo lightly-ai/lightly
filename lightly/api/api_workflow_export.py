@@ -29,6 +29,9 @@ class _ExportDatasetMixin:
         The format is documented here:
         https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format
 
+        More information:
+        https://docs.lightly.ai/docs/labelstudio-integration
+
         Args:
             tag_id:
                 Id of the tag which should exported.
@@ -61,6 +64,9 @@ class _ExportDatasetMixin:
         The format is documented here:
         https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format
 
+        More information:
+        https://docs.lightly.ai/docs/labelstudio-integration
+
         Args:
             tag_name:
                 Name of the tag which should exported.
@@ -88,6 +94,9 @@ class _ExportDatasetMixin:
         """Fetches samples in a format compatible with Labelbox v3.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
+
+        More information:
+        https://docs.lightly.ai/docs/labelbox
 
         Args:
             tag_id:
@@ -127,6 +136,9 @@ class _ExportDatasetMixin:
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
 
+        More information:
+        https://docs.lightly.ai/docs/labelbox
+
         Args:
             tag_name:
                 Name of the tag which should exported.
@@ -162,6 +174,9 @@ class _ExportDatasetMixin:
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
 
+        More information:
+        https://docs.lightly.ai/docs/labelbox
+
         Args:
             tag_id:
                 ID of the tag which should exported.
@@ -192,6 +207,9 @@ class _ExportDatasetMixin:
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
 
+        More information:
+        https://docs.lightly.ai/docs/labelbox
+
         Args:
             tag_name:
                 Name of the tag which should exported.
@@ -214,6 +232,9 @@ class _ExportDatasetMixin:
         tag_id: str,
     ) -> str:
         """Fetches samples filenames within a certain tag by tag ID.
+
+        More information:
+        https://docs.lightly.ai/docs/filenames-and-readurls
 
         Args:
             tag_id:
@@ -243,6 +264,9 @@ class _ExportDatasetMixin:
     ) -> str:
         """Fetches samples filenames within a certain tag by tag name.
 
+        More information:
+        https://docs.lightly.ai/docs/filenames-and-readurls
+
         Args:
             tag_name:
                 Name of the tag which should exported.
@@ -268,6 +292,9 @@ class _ExportDatasetMixin:
         tag_id: str,
     ) -> List[Dict[str, str]]:
         """Fetches filenames, read URLs, and datasource URLs from the given tag.
+
+        More information:
+        https://docs.lightly.ai/docs/filenames-and-readurls
 
         Args:
             tag_id:
@@ -331,6 +358,9 @@ class _ExportDatasetMixin:
         tag_name: str,
     ) -> List[Dict[str, str]]:
         """Fetches filenames, read URLs, and datasource URLs from the given tag name.
+
+        More information:
+        https://docs.lightly.ai/docs/filenames-and-readurls
 
         Args:
             tag_name:
