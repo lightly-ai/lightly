@@ -59,10 +59,10 @@ class SwAV(LightningModule):
         # Normalize the prototypes so they are on the unit sphere.
         self.prototypes.normalize()
 
-        # The multi-crop dataloader returns a list of image crops where the
+        # The dataloader returns a list of image crops where the
         # first few items are high resolution crops and the rest are low
         # resolution crops.
-        multi_crops, targets, _ = batch
+        multi_crops, targets = batch[0], batch[1]
 
         # Forward pass through backbone and projection head.
         multi_crop_features = [

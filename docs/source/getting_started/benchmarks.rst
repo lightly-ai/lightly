@@ -21,11 +21,11 @@ takes about two days on two GeForce RTX 4090 GPUs. You can reproduce the results
 the code at `benchmarks/imagenet/resnet50 <https://github.com/lightly-ai/lightly/tree/master/benchmarks/imagenet/resnet50>`_.
 
 .. csv-table:: Imagenet benchmark results.
-  :header: "Model", "Backbone", "Batch Size", "Epochs", "Linear Top1", "Linear Top5", "Linear Top1 Online", "Linear Top5 Online", "KNN Top1", "KNN Top5", "Tensorboard", "Checkpoint"
+  :header: "Model", "Backbone", "Batch Size", "Epochs", "Linear Top1", "Linear Top5", "Finetune Top1", "Finetune Top5", "KNN Top1", "KNN Top5", "Tensorboard", "Checkpoint"
   :widths: 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
 
-  "SimCLR", "Res50", "256", "100", "63.2", "85.3", "63.1", "85.2", "44.9", "74.2", "`link <https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-05-04_09-02-54/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
-  "SwAV", "Res50", "256", "100", "67.2", "88.1", "62.1", "85.4", "49.5", "78.6", "`link <https://tensorboard.dev/experiment/Ipx4Oxl5Qkqm5Sl5kWyKKg>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_swav_2023-05-25_08-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
+  "SimCLR", "Res50", "256", "100", "63.2", "85.3", "N/A", "N/A", "44.9", "74.2", "`link <https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-05-04_09-02-54/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
+  "SwAV", "Res50", "256", "100", "67.2", "88.1", "75.4", "92.7", "49.5", "78.6", "`link <https://tensorboard.dev/experiment/Ipx4Oxl5Qkqm5Sl5kWyKKg>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_swav_2023-05-25_08-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
 
 
 ImageNette
