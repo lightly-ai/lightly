@@ -68,8 +68,8 @@ a datasource. We call the dataset `frame-extraction-example` and use the input t
 .. code-block:: python
 
   from lightly.api import ApiWorkflowClient
-  from lightly.openapi_client.models.dataset_type import DatasetType
-  from lightly.openapi_client.models.datasource_purpose import DatasourcePurpose
+  from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
+  from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
 
   # Create the Lightly client to connect to the API.
   client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
