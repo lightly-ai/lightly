@@ -4,30 +4,34 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.nn import Module
-from torch.optim import SGD
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import LinearClassifier, MetricCallback
+from lightly.utils.lars import LARS
 from lightly.utils.scheduler import CosineWarmupScheduler
 
 
-class FinetuneEvalClassifier(LinearClassifier):
+class LinearEvalClassifier(LinearClassifier):
+    # Adapt optimizer to match MAE settings.
     def configure_optimizers(self):
         parameters = list(self.classification_head.parameters())
-        parameters += self.model.parameters()
-        optimizer = SGD(
+        optimizer = LARS(
             parameters,
-            lr=0.05 * self.batch_size_per_device * self.trainer.world_size / 256,
+            lr=0.1 * self.batch_size_per_device * self.trainer.world_size / 256,
             momentum=0.9,
             weight_decay=0.0,
         )
         scheduler = {
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
-                warmup_epochs=0,
+                warmup_epochs=(
+                    self.trainer.estimated_stepping_batches
+                    / self.trainer.max_epochs
+                    * 10
+                ),
                 max_epochs=self.trainer.estimated_stepping_batches,
             ),
             "interval": "step",
@@ -35,7 +39,7 @@ class FinetuneEvalClassifier(LinearClassifier):
         return [optimizer], [scheduler]
 
 
-def finetune_eval(
+def linear_eval(
     model: Module,
     train_dir: Path,
     val_dir: Path,
@@ -47,11 +51,11 @@ def finetune_eval(
     precision: str,
     num_classes: int,
 ) -> None:
-    """Runs fine-tune evaluation on the given model.
+    """Runs a linear evaluation on the given model.
 
-    Parameters follow SimCLR settings.
+    Parameters follow MAE settings.
     """
-    print("Running fine-tune evaluation...")
+    print("Running linear evaluation...")
 
     # Setup training data.
     train_transform = T.Compose(
@@ -69,6 +73,7 @@ def finetune_eval(
         shuffle=True,
         num_workers=num_workers,
         drop_last=True,
+        persistent_workers=True,
     )
 
     # Setup validation data.
@@ -86,12 +91,13 @@ def finetune_eval(
         batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
+        persistent_workers=True,
     )
 
     # Train linear classifier.
     metric_callback = MetricCallback()
     trainer = Trainer(
-        max_epochs=30,
+        max_epochs=90,
         accelerator=accelerator,
         devices=devices,
         callbacks=[
@@ -99,16 +105,16 @@ def finetune_eval(
             DeviceStatsMonitor(),
             metric_callback,
         ],
-        logger=TensorBoardLogger(save_dir=str(log_dir), name="finetune_eval"),
+        logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
         precision=precision,
         strategy="ddp_find_unused_parameters_true",
     )
-    classifier = FinetuneEvalClassifier(
+    classifier = LinearEvalClassifier(
         model=model,
         batch_size_per_device=batch_size_per_device,
-        feature_dim=2048,
+        feature_dim=768,
         num_classes=num_classes,
-        freeze_model=False,
+        freeze_model=True,
     )
     trainer.fit(
         model=classifier,
@@ -116,4 +122,4 @@ def finetune_eval(
         val_dataloaders=val_dataloader,
     )
     for metric in ["val_top1", "val_top5"]:
-        print(f"max finetune {metric}: {max(metric_callback.val_metrics[metric])}")
+        print(f"max linear {metric}: {max(metric_callback.val_metrics[metric])}")
