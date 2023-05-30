@@ -132,6 +132,13 @@ class _DatasourcesMixin:
         Returns:
             A list of (filename, url) tuples where each tuple represents a sample.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.download_raw_samples()
+            [('image-1.png', 'https://......'), ('image-2.png', 'https://......')]
         """
         samples = self._download_raw_files(
             download_function=self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id,
@@ -191,6 +198,15 @@ class _DatasourcesMixin:
         Returns:
             A list of (filename, url) tuples where each tuple represents a sample.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> task_name = "object-detection"
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.download_raw_predictions(task_name=task_name)
+            [('.lightly/predictions/object-detection/image-1.json', 'https://......'),
+             ('.lightly/predictions/object-detection/image-2.json', 'https://......')]
         """
         if run_id is not None and relevant_filenames_artifact_id is None:
             raise ValueError(
@@ -266,6 +282,14 @@ class _DatasourcesMixin:
         Returns:
             A list of (filename, url) tuples where each tuple represents a sample.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.download_raw_metadata()
+            [('.lightly/metadata/object-detection/image-1.json', 'https://......'),
+             ('.lightly/metadata/object-detection/image-2.json', 'https://......')]
         """
         if run_id is not None and relevant_filenames_artifact_id is None:
             raise ValueError(
@@ -316,6 +340,13 @@ class _DatasourcesMixin:
         Returns:
             A list of (filename, url) tuples where each tuple represents a sample.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.download_new_raw_samples()
+            [('image-3.png', 'https://......'), ('image-4.png', 'https://......')]
         """
         from_ = self.get_processed_until_timestamp()
 
@@ -340,6 +371,14 @@ class _DatasourcesMixin:
 
         Returns:
             Unix timestamp of last processed sample.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.get_processed_until_timestamp()
+            1684750513
         """
         response: DatasourceProcessedUntilTimestampResponse = self._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id(
             dataset_id=self.dataset_id
@@ -353,6 +392,20 @@ class _DatasourcesMixin:
         Args:
             timestamp:
                 Unix timestamp of last processed sample.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset.
+            >>> # All samples are processed at this moment.
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.download_new_raw_samples()
+            []
+            >>>
+            >>> # Set timestamp to an earlier moment to reprocess samples
+            >>> client.update_processed_until_timestamp(1684749813)
+            >>> client.download_new_raw_samples()
+            [('image-3.png', 'https://......'), ('image-4.png', 'https://......')]
         """
         body = DatasourceProcessedUntilTimestampRequest(
             processed_until_timestamp=timestamp
@@ -656,7 +709,8 @@ class _DatasourcesMixin:
                 Filename for which to get the read-url.
 
         Returns:
-            A read-url to the file.
+            A read-url to the file. Note that a URL will be returned even if the file does not
+            exist.
 
         """
         return self._datasources_api.get_prediction_file_read_url_from_datasource_by_dataset_id(

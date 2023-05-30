@@ -99,6 +99,11 @@ class _ComputeWorkerMixin:
         Returns:
             ID of the registered Lightly Worker.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> worker_id = client.register_compute_worker(name="my-worker", labels=["worker-label"])
+            >>> worker_id
+            '64709eac61e9ce68180a6529'
         """
         if labels is None:
             labels = []
@@ -116,6 +121,12 @@ class _ComputeWorkerMixin:
 
         Returns:
             A list of worker IDs.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> worker_ids = client.get_compute_worker_ids()
+            >>> worker_ids
+            ['64709eac61e9ce68180a6529', '64709f8f61e9ce68180a652a']
         """
         entries = self._compute_worker_api.get_docker_worker_registry_entries()
         return [entry.id for entry in entries]
@@ -125,6 +136,17 @@ class _ComputeWorkerMixin:
 
         Returns:
             A list of Lightly Worker details.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> workers = client.get_compute_workers()
+            >>> workers
+            [{'created_at': 1685102336056,
+                'docker_version': '2.6.0',
+                'id': '64709eac61e9ce68180a6529',
+                'labels': [],
+                ...
+            }]
         """
         entries: list[
             DockerWorkerRegistryEntryData
@@ -138,6 +160,14 @@ class _ComputeWorkerMixin:
             worker_id:
                 ID of the worker to be removed.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> worker_ids = client.get_compute_worker_ids()
+            >>> worker_ids
+            ['64709eac61e9ce68180a6529']
+            >>> client.delete_compute_worker(worker_id="64709eac61e9ce68180a6529")
+            >>> client.get_compute_worker_ids()
+            []
         """
         self._compute_worker_api.delete_docker_worker_registry_entry_by_id(worker_id)
 
@@ -163,6 +193,20 @@ class _ComputeWorkerMixin:
         Returns:
             The ID of the created config.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> selection_config = {
+            ...     "n_samples": 3,
+            ...     "strategies": [
+            ...         {
+            ...             "input": {"type": "RANDOM", "random_seed": 42},
+            ...             "strategy": {"type": "WEIGHTS"},
+            ...         }
+            ...     ],
+            ... }
+            >>> config_id = client.create_compute_worker_config(
+            ...     selection_config=selection_config,
+            ... )
         """
         if isinstance(selection_config, dict):
             selection = selection_config_from_dict(cfg=selection_config)
@@ -242,6 +286,13 @@ class _ComputeWorkerMixin:
             InvalidConfigError:
                 If one of the configurations is invalid.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> selection_config = {...}
+            >>> worker_labels = ["worker-label"]
+            >>> run_id = client.schedule_compute_worker_run(
+            ...     selection_config=selection_config, runs_on=worker_labels
+            ... )
         """
         if runs_on is None:
             runs_on = []
@@ -276,6 +327,16 @@ class _ComputeWorkerMixin:
         Returns:
             Runs sorted by creation time from the oldest to the latest.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.get_compute_worker_runs()
+            [{'artifacts': [...],
+             'config_id': '6470a16461e9ce68180a6530',
+             'created_at': 1679479418110,
+             'dataset_id': '6470a36361e9ce68180a6531',
+             'docker_version': '2.6.0',
+             ...
+             }]
         """
         if dataset_id is not None:
             runs: List[DockerRunData] = utils.paginate_endpoint(
@@ -301,6 +362,17 @@ class _ComputeWorkerMixin:
         Raises:
             ApiException:
                 If no run with the given ID exists.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.get_compute_worker_run(run_id="6470a20461e9ce68180a6530")
+            {'artifacts': [...],
+             'config_id': '6470a16461e9ce68180a6530',
+             'created_at': 1679479418110,
+             'dataset_id': '6470a36361e9ce68180a6531',
+             'docker_version': '2.6.0',
+             ...
+             }
         """
         return self._compute_worker_api.get_docker_run_by_id(run_id=run_id)
 
@@ -320,6 +392,17 @@ class _ComputeWorkerMixin:
             ApiException:
                 If no run with the given scheduled run ID exists or if the scheduled
                 run is not yet picked up by a worker.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.get_compute_worker_run_from_scheduled_run(scheduled_run_id="646f338a8a5613b57d8b73a1")
+            {'artifacts': [...],
+             'config_id': '6470a16461e9ce68180a6530',
+             'created_at': 1679479418110,
+             'dataset_id': '6470a36361e9ce68180a6531',
+             'docker_version': '2.6.0',
+             ...
+            }
         """
         return self._compute_worker_api.get_docker_run_by_scheduled_id(
             scheduled_id=scheduled_run_id
@@ -340,6 +423,19 @@ class _ComputeWorkerMixin:
 
         Returns:
             A list of scheduled Lightly Worker runs.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.get_scheduled_compute_worker_runs(state="OPEN")
+            [{'config_id': '646f34608a5613b57d8b73cc',
+             'created_at': 1685009508254,
+             'dataset_id': '6470a36361e9ce68180a6531',
+             'id': '646f338a8a5613b57d8b73a1',
+             'last_modified_at': 1685009542667,
+             'owner': '643d050b8bcb91967ded65df',
+             'priority': 'MID',
+             'runs_on': ['worker-label'],
+             'state': 'OPEN'}]
         """
         if state is not None:
             return self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
