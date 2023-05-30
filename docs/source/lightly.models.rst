@@ -24,4 +24,3 @@ lightly.models
 --------
 .. automodule:: lightly.models.modules.heads
    :members:
-

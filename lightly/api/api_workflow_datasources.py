@@ -25,7 +25,7 @@ class _DatasourcesMixin:
         from_: int = 0,
         to: Optional[int] = None,
         relevant_filenames_file_name: Optional[str] = None,
-        use_redirected_read_url: Optional[bool] = False,
+        use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
         **kwargs,
     ) -> List[Tuple[str, str]]:
@@ -93,33 +93,44 @@ class _DatasourcesMixin:
         from_: int = 0,
         to: Optional[int] = None,
         relevant_filenames_file_name: Optional[str] = None,
-        use_redirected_read_url: Optional[bool] = False,
+        use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
-        """Downloads all filenames and read urls from the datasource between `from_` and `to`.
+        """Downloads filenames and read urls from the datasource.
 
-        Samples which have timestamp == `from_` or timestamp == `to` will also be included.
+        Only samples with timestamp between `from_` (inclusive) and `to` (inclusive)
+        will be downloaded.
 
         Args:
             from_:
-                Unix timestamp from which on samples are downloaded.
+                Unix timestamp from which on samples are downloaded. Defaults to the
+                very beginning (timestamp 0).
             to:
                 Unix timestamp up to and including which samples are downloaded.
+                Defaults to the current timestamp.
             relevant_filenames_file_name:
-                The path to the relevant filenames text file in the cloud bucket.
-                The path is relative to the datasource root.
+                Path to the relevant filenames text file in the cloud bucket.
+                The path is relative to the datasource root. Optional.
             use_redirected_read_url:
-                By default this is set to false unless a S3DelegatedAccess is configured in which
-                case its always true and this param has no effect.
-                When true this will return RedirectedReadUrls instead of ReadUrls meaning that
-                returned URLs allow for unlimited access to the file
+                Flag for redirected read urls. When this flag is true,
+                RedirectedReadUrls are returned instead of ReadUrls, meaning that the
+                returned URLs have unlimited access to the file.
+                Defaults to False. When S3DelegatedAccess is configured, this flag has
+                no effect because RedirectedReadUrls are always returned.
             progress_bar:
                 Tqdm progress bar to show how many samples have already been
                 retrieved.
 
         Returns:
-           A list of (filename, url) tuples, where each tuple represents a sample
+            A list of (filename, url) tuples where each tuple represents a sample.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.download_raw_samples()
+            [('image-1.png', 'https://......'), ('image-2.png', 'https://......')]
         """
         samples = self._download_raw_files(
             download_function=self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id,
@@ -139,42 +150,55 @@ class _DatasourcesMixin:
         relevant_filenames_file_name: Optional[str] = None,
         run_id: Optional[str] = None,
         relevant_filenames_artifact_id: Optional[str] = None,
-        use_redirected_read_url: Optional[bool] = False,
+        use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
-        """Downloads all prediction filenames and read urls from the datasource between `from_` and `to`.
+        """Downloads prediction filenames and read urls from the datasource.
 
-        Samples which have timestamp == `from_` or timestamp == `to` will also be included.
+        Only samples with timestamp between `from_` (inclusive) and `to` (inclusive)
+        will be downloaded.
 
         Args:
             task_name:
                 Name of the prediction task.
             from_:
-                Unix timestamp from which on samples are downloaded.
+                Unix timestamp from which on samples are downloaded. Defaults to the
+                very beginning (timestamp 0).
             to:
                 Unix timestamp up to and including which samples are downloaded.
+                Defaults to the current timestamp.
             relevant_filenames_file_name:
-                The path to the relevant filenames text file in the cloud bucket.
-                The path is relative to the datasource root.
+                Path to the relevant filenames text file in the cloud bucket.
+                The path is relative to the datasource root. Optional.
             run_id:
-                Run ID. Should be given along with `relevant_filenames_artifact_id` to
-                download relevant files only.
+                Run ID. Optional. Should be given along with
+                `relevant_filenames_artifact_id` to download relevant files only.
             relevant_filenames_artifact_id:
-                ID of the relevant filename artifact. Should be given along with
-                `run_id` to download relevant files only. Note that this is different
-                from `relevant_filenames_file_name`.
+                ID of the relevant filename artifact. Optional. Should be given along
+                with `run_id` to download relevant files only. Note that this is
+                different from `relevant_filenames_file_name`.
             use_redirected_read_url:
-                By default this is set to false unless a S3DelegatedAccess is configured in which
-                case its always true and this param has no effect.
-                When true this will return RedirectedReadUrls instead of ReadUrls meaning that
-                returned URLs allow for unlimited access to the file
+                Flag for redirected read urls. When this flag is true,
+                RedirectedReadUrls are returned instead of ReadUrls, meaning that the
+                returned URLs have unlimited access to the file.
+                Defaults to False. When S3DelegatedAccess is configured, this flag has
+                no effect because RedirectedReadUrls are always returned.
             progress_bar:
                 Tqdm progress bar to show how many prediction files have already been
                 retrieved.
 
         Returns:
-           A list of (filename, url) tuples, where each tuple represents a sample
+            A list of (filename, url) tuples where each tuple represents a sample.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> task_name = "object-detection"
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.download_raw_predictions(task_name=task_name)
+            [('.lightly/predictions/object-detection/image-1.json', 'https://......'),
+             ('.lightly/predictions/object-detection/image-2.json', 'https://......')]
         """
         if run_id is not None and relevant_filenames_artifact_id is None:
             raise ValueError(
@@ -212,40 +236,52 @@ class _DatasourcesMixin:
         run_id: Optional[str] = None,
         relevant_filenames_artifact_id: Optional[str] = None,
         relevant_filenames_file_name: Optional[str] = None,
-        use_redirected_read_url: Optional[bool] = False,
+        use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
-        """Downloads all metadata filenames and read urls from the datasource between `from_` and `to`.
+        """Downloads all metadata filenames and read urls from the datasource.
 
-        Samples which have timestamp == `from_` or timestamp == `to` will also be included.
+        Only samples with timestamp between `from_` (inclusive) and `to` (inclusive)
+        will be downloaded.
 
         Args:
             from_:
-                Unix timestamp from which on samples are downloaded.
+                Unix timestamp from which on samples are downloaded. Defaults to the
+                very beginning (timestamp 0).
             to:
                 Unix timestamp up to and including which samples are downloaded.
+                Defaults to the current timestamp.
             relevant_filenames_file_name:
-                The path to the relevant filenames text file in the cloud bucket.
-                The path is relative to the datasource root.
+                Path to the relevant filenames text file in the cloud bucket.
+                The path is relative to the datasource root. Optional.
             run_id:
-                Run ID. Should be given along with `relevant_filenames_artifact_id` to
-                download relevant files only.
+                Run ID. Optional. Should be given along with
+                `relevant_filenames_artifact_id` to download relevant files only.
             relevant_filenames_artifact_id:
-                ID of the relevant filename artifact. Should be given along with
-                `run_id` to download relevant files only. Note that this is different
-                from `relevant_filenames_file_name`.
+                ID of the relevant filename artifact. Optional. Should be given along
+                with `run_id` to download relevant files only. Note that this is
+                different from `relevant_filenames_file_name`.
             use_redirected_read_url:
-                By default this is set to false unless a S3DelegatedAccess is configured in which
-                case its always true and this param has no effect.
-                When true this will return RedirectedReadUrls instead of ReadUrls meaning that
-                returned URLs allow for unlimited access to the file
+                Flag for redirected read urls. When this flag is true,
+                RedirectedReadUrls are returned instead of ReadUrls, meaning that the
+                returned URLs have unlimited access to the file.
+                Defaults to False. When S3DelegatedAccess is configured, this flag has
+                no effect because RedirectedReadUrls are always returned.
             progress_bar:
                 Tqdm progress bar to show how many metadata files have already been
                 retrieved.
 
         Returns:
-           A list of (filename, url) tuples, where each tuple represents a sample
+            A list of (filename, url) tuples where each tuple represents a sample.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.download_raw_metadata()
+            [('.lightly/metadata/object-detection/image-1.json', 'https://......'),
+             ('.lightly/metadata/object-detection/image-2.json', 'https://......')]
         """
         if run_id is not None and relevant_filenames_artifact_id is None:
             raise ValueError(
@@ -277,24 +313,32 @@ class _DatasourcesMixin:
 
     def download_new_raw_samples(
         self,
-        use_redirected_read_url: Optional[bool] = False,
+        use_redirected_read_url: bool = False,
     ) -> List[Tuple[str, str]]:
         """Downloads filenames and read urls of unprocessed samples from the datasource.
 
         All samples after the timestamp of `ApiWorkflowClient.get_processed_until_timestamp()` are
-        fetched. After downloading the samples the timestamp is updated to the current time.
+        fetched. After downloading the samples, the timestamp is updated to the current time.
         This function can be repeatedly called to retrieve new samples from the datasource.
 
         Args:
             use_redirected_read_url:
-                By default this is set to false unless a S3DelegatedAccess is configured in which
-                case its always true and this param has no effect.
-                When true this will return RedirectedReadUrls instead of ReadUrls meaning that
-                returned URLs allow for unlimited access to the file
+                Flag for redirected read urls. When this flag is true,
+                RedirectedReadUrls are returned instead of ReadUrls, meaning that the
+                returned URLs have unlimited access to the file.
+                Defaults to False. When S3DelegatedAccess is configured, this flag has
+                no effect because RedirectedReadUrls are always returned.
 
         Returns:
-            A list of (filename, url) tuples, where each tuple represents a sample
+            A list of (filename, url) tuples where each tuple represents a sample.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.download_new_raw_samples()
+            [('image-3.png', 'https://......'), ('image-4.png', 'https://......')]
         """
         from_ = self.get_processed_until_timestamp()
 
@@ -318,7 +362,15 @@ class _DatasourcesMixin:
         """Returns the timestamp until which samples have been processed.
 
         Returns:
-            Unix timestamp of last processed sample
+            Unix timestamp of last processed sample.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.get_processed_until_timestamp()
+            1684750513
         """
         response: DatasourceProcessedUntilTimestampResponse = self._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id(
             dataset_id=self.dataset_id
@@ -331,7 +383,21 @@ class _DatasourcesMixin:
 
         Args:
             timestamp:
-                Unix timestamp of last processed sample
+                Unix timestamp of last processed sample.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset.
+            >>> # All samples are processed at this moment.
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.download_new_raw_samples()
+            []
+            >>>
+            >>> # Set timestamp to an earlier moment to reprocess samples
+            >>> client.update_processed_until_timestamp(1684749813)
+            >>> client.download_new_raw_samples()
+            [('image-3.png', 'https://......'), ('image-4.png', 'https://......')]
         """
         body = DatasourceProcessedUntilTimestampRequest(
             processed_until_timestamp=timestamp
@@ -342,7 +408,7 @@ class _DatasourcesMixin:
         )
 
     def get_datasource(self) -> DatasourceConfig:
-        """Calls the api to return the datasource of the current dataset.
+        """Returns the datasource of the current dataset.
 
         Returns:
             Datasource data of the datasource of the current dataset.
@@ -647,8 +713,9 @@ class _DatasourcesMixin:
             filename:
                 Filename for which to get the read-url.
 
-        Returns the read-url. If the file does not exist, a read-url is returned
-        anyways.
+        Returns:
+            A read-url to the file. Note that a URL will be returned even if the file does not
+            exist.
 
         """
         return self._datasources_api.get_prediction_file_read_url_from_datasource_by_dataset_id(
@@ -666,8 +733,9 @@ class _DatasourcesMixin:
             filename:
                 Filename for which to get the read-url.
 
-        Returns the read-url. If the file does not exist, a read-url is returned
-        anyways.
+        Returns:
+            A read-url to the file. Note that a URL will be returned even if the file does not
+            exist.
 
         """
         return self._datasources_api.get_metadata_file_read_url_from_datasource_by_dataset_id(
@@ -685,8 +753,9 @@ class _DatasourcesMixin:
             filename:
                 Filename for which to get the read-url.
 
-        Returns the read-url. If the file does not exist, a read-url is returned
-        anyways.
+        Returns:
+            A read-url to the file. Note that a URL will be returned even if the file does not
+            exist.
 
         """
         return self._datasources_api.get_custom_embedding_file_read_url_from_datasource_by_dataset_id(
@@ -697,12 +766,12 @@ class _DatasourcesMixin:
     def list_datasource_permissions(
         self,
     ) -> Dict[str, Union[bool, Optional[DatasourceConfigVerifyDataErrors]]]:
-        """List granted access permissions for the datasource set up with a dataset.
+        """Lists granted access permissions for the datasource set up with a dataset.
 
         Returns a string dictionary, with each permission mapped to a boolean value,
-        see the example below. Additionally, there is the ``errors`` key. If there
-        are permission errors it maps to a dictionary from permission name to the
-        error message, otherwise the value is ``None``.
+        see the example below. Additionally, there is the ``errors`` key. Permission
+        errors are stored in a dictionary where permission names are keys and error
+        messages are values. If there is no error, the value is ``None``.
 
         >>> from lightly.api import ApiWorkflowClient
         >>> client = ApiWorkflowClient(

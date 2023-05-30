@@ -17,10 +17,10 @@ from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class SimCLR(LightningModule):
-    def __init__(self, batch_size: int, num_classes: int) -> None:
+    def __init__(self, batch_size_per_device: int, num_classes: int) -> None:
         super().__init__()
         self.save_hyperparameters()
-        self.batch_size = batch_size
+        self.batch_size_per_device = batch_size_per_device
 
         resnet = resnet50()
         resnet.fc = Identity()  # Ignore classification head
@@ -85,9 +85,9 @@ class SimCLR(LightningModule):
             # Square root learning rate scaling improves performance for small
             # batch sizes (<=2048) and few training epochs (<=200). Alternatively,
             # linear scaling can be used for larger batches and longer training:
-            #   lr=0.3 * self.batch_size * self.trainer.world_size / 256
+            #   lr=0.3 * self.batch_size_per_device * self.trainer.world_size / 256
             # See Appendix B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
-            lr=0.075 * math.sqrt(self.batch_size * self.trainer.world_size),
+            lr=0.075 * math.sqrt(self.batch_size_per_device * self.trainer.world_size),
             momentum=0.9,
             # Note: Paper uses weight decay of 1e-6 but reference code 1e-4. See:
             # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103

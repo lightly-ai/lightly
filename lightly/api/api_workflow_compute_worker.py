@@ -39,14 +39,13 @@ class InvalidConfigurationError(RuntimeError):
 
 @dataclasses.dataclass
 class ComputeWorkerRunInfo:
-    """
-    Contains information about a compute worker run that is useful for monitoring it.
+    """Information about a Lightly Worker run.
 
     Attributes:
         state:
-            The state of the compute worker run.
+            The state of the Lightly Worker run.
         message:
-            The last message of the compute worker run.
+            The last message of the Lightly Worker run.
     """
 
     state: Union[
@@ -55,7 +54,7 @@ class ComputeWorkerRunInfo:
     message: str
 
     def in_end_state(self) -> bool:
-        """Returns wether the compute worker has ended"""
+        """Checks whether the Lightly Worker run has ended."""
         return self.state in [
             DockerRunState.COMPLETED,
             DockerRunState.ABORTED,
@@ -65,12 +64,18 @@ class ComputeWorkerRunInfo:
         ]
 
     def ended_successfully(self) -> bool:
-        """
-        Returns wether the compute worker ended successfully or failed.
-        Raises a ValueError if the compute worker is still running.
+        """Checkes whether the Lightly Worker run ended successfully or failed.
+
+        Returns:
+            A boolean value indicating if the Lightly Worker run was successful.
+            True if the run was successful.
+
+        Raises:
+            ValueError:
+                If the Lightly Worker run is still in progress.
         """
         if not self.in_end_state():
-            raise ValueError("Compute worker is still running")
+            raise ValueError("Lightly Worker run is still in progress.")
         return self.state == DockerRunState.COMPLETED
 
 
@@ -78,10 +83,10 @@ class _ComputeWorkerMixin:
     def register_compute_worker(
         self, name: str = "Default", labels: Optional[List[str]] = None
     ) -> str:
-        """Registers a new compute worker.
+        """Registers a new Lightly Worker.
 
-        If a worker with the same name already exists, the worker id of the existing
-        worker is returned instead of registering a new worker.
+        The ID of the registered worker will be returned. If a worker with the same
+        name already exists, the ID of the existing worker is returned.
 
         Args:
             name:
@@ -92,8 +97,13 @@ class _ComputeWorkerMixin:
                 https://docs.lightly.ai/docs/assign-scheduled-runs-to-specific-workers
 
         Returns:
-            The id of the newly registered compute worker.
+            ID of the registered Lightly Worker.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> worker_id = client.register_compute_worker(name="my-worker", labels=["worker-label"])
+            >>> worker_id
+            '64709eac61e9ce68180a6529'
         """
         if labels is None:
             labels = []
@@ -107,32 +117,57 @@ class _ComputeWorkerMixin:
         return response.id
 
     def get_compute_worker_ids(self) -> List[str]:
-        """Fetches the IDs of all registered compute workers.
+        """Fetches the IDs of all registered Lightly Workers.
 
         Returns:
             A list of worker IDs.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> worker_ids = client.get_compute_worker_ids()
+            >>> worker_ids
+            ['64709eac61e9ce68180a6529', '64709f8f61e9ce68180a652a']
         """
         entries = self._compute_worker_api.get_docker_worker_registry_entries()
         return [entry.id for entry in entries]
 
     def get_compute_workers(self) -> List[DockerWorkerRegistryEntryData]:
-        """Fetches details of all registered compute workers.
+        """Fetches details of all registered Lightly Workers.
 
         Returns:
-            A list of compute workers.
+            A list of Lightly Worker details.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> workers = client.get_compute_workers()
+            >>> workers
+            [{'created_at': 1685102336056,
+                'docker_version': '2.6.0',
+                'id': '64709eac61e9ce68180a6529',
+                'labels': [],
+                ...
+            }]
         """
         entries: list[
             DockerWorkerRegistryEntryData
         ] = self._compute_worker_api.get_docker_worker_registry_entries()
         return entries
 
-    def delete_compute_worker(self, worker_id: str):
-        """Removes a compute worker.
+    def delete_compute_worker(self, worker_id: str) -> None:
+        """Removes a Lightly Worker.
 
         Args:
             worker_id:
-                The id of the worker to remove.
+                ID of the worker to be removed.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> worker_ids = client.get_compute_worker_ids()
+            >>> worker_ids
+            ['64709eac61e9ce68180a6529']
+            >>> client.delete_compute_worker(worker_id="64709eac61e9ce68180a6529")
+            >>> client.get_compute_worker_ids()
+            []
         """
         self._compute_worker_api.delete_docker_worker_registry_entry_by_id(worker_id)
 
@@ -142,22 +177,36 @@ class _ComputeWorkerMixin:
         lightly_config: Optional[Dict[str, Any]] = None,
         selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
     ) -> str:
-        """Creates a new configuration for a compute worker run.
+        """Creates a new configuration for a Lightly Worker run.
 
         See our docs for more information regarding the different configurations:
         https://docs.lightly.ai/docs/all-configuration-options
 
         Args:
             worker_config:
-                Compute worker configuration.
+                Lightly Worker configuration.
             lightly_config:
                 Lightly configuration.
             selection_config:
                 Selection configuration.
 
         Returns:
-            The id of the created config.
+            The ID of the created config.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> selection_config = {
+            ...     "n_samples": 3,
+            ...     "strategies": [
+            ...         {
+            ...             "input": {"type": "RANDOM", "random_seed": 42},
+            ...             "strategy": {"type": "WEIGHTS"},
+            ...         }
+            ...     ],
+            ... }
+            >>> config_id = client.create_compute_worker_config(
+            ...     selection_config=selection_config,
+            ... )
         """
         if isinstance(selection_config, dict):
             selection = selection_config_from_dict(cfg=selection_config)
@@ -213,7 +262,7 @@ class _ComputeWorkerMixin:
 
         Args:
             worker_config:
-                Compute worker configuration.
+                Lightly Worker configuration.
             lightly_config:
                 Lightly configuration.
             selection_config:
@@ -237,6 +286,13 @@ class _ComputeWorkerMixin:
             InvalidConfigError:
                 If one of the configurations is invalid.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> selection_config = {...}
+            >>> worker_labels = ["worker-label"]
+            >>> run_id = client.schedule_compute_worker_run(
+            ...     selection_config=selection_config, runs_on=worker_labels
+            ... )
         """
         if runs_on is None:
             runs_on = []
@@ -261,15 +317,26 @@ class _ComputeWorkerMixin:
         self,
         dataset_id: Optional[str] = None,
     ) -> List[DockerRunData]:
-        """Get all compute worker runs for the user.
+        """Fetches all Lightly Worker runs for the user.
 
         Args:
             dataset_id:
-                If set, then only runs for the given dataset are returned.
+                Target dataset ID. Optional. If set, only runs with the given dataset
+                will be returned.
 
         Returns:
-            Runs sorted by creation time from old to new.
+            Runs sorted by creation time from the oldest to the latest.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.get_compute_worker_runs()
+            [{'artifacts': [...],
+             'config_id': '6470a16461e9ce68180a6530',
+             'created_at': 1679479418110,
+             'dataset_id': '6470a36361e9ce68180a6531',
+             'docker_version': '2.6.0',
+             ...
+             }]
         """
         if dataset_id is not None:
             runs: List[DockerRunData] = utils.paginate_endpoint(
@@ -284,11 +351,28 @@ class _ComputeWorkerMixin:
         return sorted_runs
 
     def get_compute_worker_run(self, run_id: str) -> DockerRunData:
-        """Returns a run given its id.
+        """Fetches a Lightly Worker run.
+
+        Args:
+            run_id: Run ID.
+
+        Returns:
+            Details of the Lightly Worker run.
 
         Raises:
             ApiException:
-                If no run with the given id exists.
+                If no run with the given ID exists.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.get_compute_worker_run(run_id="6470a20461e9ce68180a6530")
+            {'artifacts': [...],
+             'config_id': '6470a16461e9ce68180a6530',
+             'created_at': 1679479418110,
+             'dataset_id': '6470a36361e9ce68180a6531',
+             'docker_version': '2.6.0',
+             ...
+             }
         """
         return self._compute_worker_api.get_docker_run_by_id(run_id=run_id)
 
@@ -296,12 +380,29 @@ class _ComputeWorkerMixin:
         self,
         scheduled_run_id: str,
     ) -> DockerRunData:
-        """Returns a run given its scheduled run id.
+        """Fetches a Lightly Worker run given its scheduled run ID.
+
+        Args:
+            scheduled_run_id: Scheduled run ID.
+
+        Returns:
+            Details of the Lightly Worker run.
 
         Raises:
             ApiException:
-                If no run with the given scheduled run id exists or if the scheduled
-                run has not yet started being processed by a worker.
+                If no run with the given scheduled run ID exists or if the scheduled
+                run is not yet picked up by a worker.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.get_compute_worker_run_from_scheduled_run(scheduled_run_id="646f338a8a5613b57d8b73a1")
+            {'artifacts': [...],
+             'config_id': '6470a16461e9ce68180a6530',
+             'created_at': 1679479418110,
+             'dataset_id': '6470a36361e9ce68180a6531',
+             'docker_version': '2.6.0',
+             ...
+            }
         """
         return self._compute_worker_api.get_docker_run_by_scheduled_id(
             scheduled_id=scheduled_run_id
@@ -311,8 +412,7 @@ class _ComputeWorkerMixin:
         self,
         state: Optional[str] = None,
     ) -> List[DockerRunScheduledData]:
-        """Returns a list of all scheduled compute worker runs for the current
-        dataset.
+        """Returns a list of scheduled Lightly Worker runs with the current dataset.
 
         Args:
             state:
@@ -320,6 +420,22 @@ class _ComputeWorkerMixin:
                 state are returned. If omitted, then runs which have not yet finished
                 (neither 'DONE' nor 'CANCELED') are returned. Valid states are 'OPEN',
                 'LOCKED', 'DONE', and 'CANCELED'.
+
+        Returns:
+            A list of scheduled Lightly Worker runs.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.get_scheduled_compute_worker_runs(state="OPEN")
+            [{'config_id': '646f34608a5613b57d8b73cc',
+             'created_at': 1685009508254,
+             'dataset_id': '6470a36361e9ce68180a6531',
+             'id': '646f338a8a5613b57d8b73a1',
+             'last_modified_at': 1685009542667,
+             'owner': '643d050b8bcb91967ded65df',
+             'priority': 'MID',
+             'runs_on': ['worker-label'],
+             'state': 'OPEN'}]
         """
         if state is not None:
             return self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
@@ -336,10 +452,10 @@ class _ComputeWorkerMixin:
         TODO (MALTE, 09/2022): Have a proper API endpoint for doing this.
         Args:
             scheduled_run_id:
-                The id with which the run was scheduled.
+                The ID with which the run was scheduled.
 
         Returns:
-            Data about the scheduled run.
+            Defails of the scheduled run.
 
         """
         try:
@@ -361,17 +477,17 @@ class _ComputeWorkerMixin:
     def get_compute_worker_run_info(
         self, scheduled_run_id: str
     ) -> ComputeWorkerRunInfo:
-        """Returns information about the compute worker run.
+        """Returns information about the Lightly Worker run.
 
         Args:
             scheduled_run_id:
-                The id with which the run was scheduled.
+                ID of the scheduled run.
 
         Returns:
-            Data about the compute worker run.
+            Details of the Lightly Worker run.
 
         Examples:
-            >>> # Scheduled a compute worker run and get its state
+            >>> # Scheduled a Lightly Worker run and get its state
             >>> scheduled_run_id = client.schedule_compute_worker_run(...)
             >>> run_info = client.get_compute_worker_run_info(scheduled_run_id)
             >>> print(run_info)
@@ -414,25 +530,24 @@ class _ComputeWorkerMixin:
     def compute_worker_run_info_generator(
         self, scheduled_run_id: str
     ) -> Iterator[ComputeWorkerRunInfo]:
-        """
-        Yields information about a compute worker run
+        """Pulls information about a Lightly Worker run continuously.
 
-        Polls the compute worker status every 30s.
-        If the status changed, it will yield a new ComputeWorkerRunInfo.
-        If the compute worker run finished, the generator stops.
+        Polls the Lightly Worker status every 30s.
+        If the status changed, an update pops up.
+        If the Lightly Worker run finished, the generator stops.
 
         Args:
             scheduled_run_id:
                 The id with which the run was scheduled.
 
         Returns:
-            Generator of information about the compute worker run status.
+            Generator of information about the Lightly Worker run status.
 
         Examples:
-            >>> # Scheduled a compute worker run and monitor its state
+            >>> # Scheduled a Lightly Worker run and monitor its state
             >>> scheduled_run_id = client.schedule_compute_worker_run(...)
             >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id):
-            >>>     print(f"Compute worker run is now in state='{run_info.state}' with message='{run_info.message}'")
+            >>>     print(f"Lightly Worker run is now in state='{run_info.state}' with message='{run_info.message}'")
             >>>
 
         """
@@ -456,13 +571,13 @@ class _ComputeWorkerMixin:
             last_run_info = run_info
 
     def get_compute_worker_run_tags(self, run_id: str) -> List[TagData]:
-        """Returns all tags from a run for the current dataset.
+        """Returns all tags from a run with the current dataset.
 
         Only returns tags for runs made with Lightly Worker version >=2.4.2.
 
         Args:
             run_id:
-                Run id from which to return tags.
+                Run ID from which to return tags.
 
         Returns:
             List of tags created by the run. The tags are ordered by creation date from

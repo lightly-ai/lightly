@@ -1,8 +1,9 @@
 import time
 import warnings
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import numpy as np
+from numpy.typing import NDArray
 
 from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.openapi_generated.swagger_client.models import (
@@ -27,17 +28,18 @@ def _parse_active_learning_scores(scores: Union[np.ndarray, List]):
 
 
 class _SelectionMixin:
-    def upload_scores(self, al_scores: Dict[str, np.ndarray], query_tag_id: str = None):
-        tags = self.get_all_tags()
+    def upload_scores(
+        self, al_scores: Dict[str, NDArray[np.float_]], query_tag_id: str
+    ) -> None:
+        """Uploads active learning scores for a tag.
 
-        # upload the active learning scores to the api
-        # change @20210422: we store the active learning scores with the query
-        # tag. policy is that if there's no explicit query tag, the whole dataset
-        # will be the query tag (i.e. query_tag = initial-tag)
-        # set the query tag to the initial-tag if necessary
-        if query_tag_id is None:
-            query_tag = next(t for t in tags if t.name == "initial-tag")
-            query_tag_id = query_tag.id
+        Args:
+            al_scores:
+                Active learning scores. Must be a mapping between score names
+                and score arrays. The length of each score array must match samples
+                in the designated tag.
+            query_tag_id: ID of the desired tag.
+        """
         # iterate over all available score types and upload them
         for score_type, score_values in al_scores.items():
             body = ActiveLearningScoreCreateRequest(
@@ -50,21 +52,11 @@ class _SelectionMixin:
                 tag_id=query_tag_id,
             )
 
-    def sampling(self, *args, **kwargs):
-        warnings.warn(
-            DeprecationWarning(
-                "ApiWorkflowClient.sampling() is deprecated "
-                "in favour of ApiWorkflowClient.selection() "
-                "and will be removed in the future."
-            ),
-        )
-        return self.selection(*args, **kwargs)
-
     def selection(
         self,
         selection_config: SelectionConfig,
-        preselected_tag_id: str = None,
-        query_tag_id: str = None,
+        preselected_tag_id: Optional[str] = None,
+        query_tag_id: Optional[str] = None,
     ) -> TagData:
         """Performs a selection given the arguments.
 
@@ -72,19 +64,29 @@ class _SelectionMixin:
             selection_config:
                 The configuration of the selection.
             preselected_tag_id:
-                The tag defining the already chosen samples (e.g. already labelled ones), default: None.
+                The tag defining the already chosen samples (e.g., already
+                labelled ones). Optional.
             query_tag_id:
-                The tag defining where to sample from, default: None resolves to the initial-tag.
+                ID of the tag where samples should be fetched. None resolves to
+                `initial-tag`. Defaults to None.
 
         Returns:
             The newly created tag of the selection.
 
         Raises:
-            ApiException
-            ValueError
-            RuntimeError
+            RuntimeError:
+                When a tag with the tag name specified in the selection config already exists.
+                When `initial-tag` does not exist in the dataset.
+                When the selection task fails.
 
         """
+
+        warnings.warn(
+            DeprecationWarning(
+                "ApiWorkflowClient.selection() is deprecated "
+                "and will be removed in the future."
+            ),
+        )
 
         # make sure the tag name does not exist yet
         tags = self.get_all_tags()
@@ -158,8 +160,8 @@ class _SelectionMixin:
     def _create_selection_create_request(
         self,
         selection_config: SelectionConfig,
-        preselected_tag_id: str,
-        query_tag_id: str,
+        preselected_tag_id: Optional[str],
+        query_tag_id: Optional[str],
     ) -> SamplingCreateRequest:
         """Creates a SamplingCreateRequest
 

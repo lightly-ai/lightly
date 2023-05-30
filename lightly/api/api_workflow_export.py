@@ -10,10 +10,13 @@ class _ExportDatasetMixin:
         self,
         tag_id: str,
     ) -> List[Dict]:
-        """Exports samples in a format compatible with Label Studio.
+        """Fetches samples in a format compatible with Label Studio.
 
         The format is documented here:
         https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format
+
+        More information:
+        https://docs.lightly.ai/docs/labelstudio-integration
 
         Args:
             tag_id:
@@ -22,6 +25,13 @@ class _ExportDatasetMixin:
         Returns:
             A list of dictionaries in a format compatible with Label Studio.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.export_label_studio_tasks_by_tag_id(tag_id="646f34608a5613b57d8b73cc")
+            [{'id': 0, 'data': {'image': '...', ...}}]
         """
         label_studio_tasks = paginate_endpoint(
             self._tags_api.export_tag_to_label_studio_tasks,
@@ -35,10 +45,13 @@ class _ExportDatasetMixin:
         self,
         tag_name: str,
     ) -> List[Dict]:
-        """Exports samples in a format compatible with Label Studio.
+        """Fetches samples in a format compatible with Label Studio.
 
         The format is documented here:
         https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format
+
+        More information:
+        https://docs.lightly.ai/docs/labelstudio-integration
 
         Args:
             tag_name:
@@ -64,17 +77,27 @@ class _ExportDatasetMixin:
         self,
         tag_id: str,
     ) -> List[Dict]:
-        """Exports samples in a format compatible with Labelbox v3.
+        """Fetches samples in a format compatible with Labelbox v3.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
 
+        More information:
+        https://docs.lightly.ai/docs/labelbox
+
         Args:
             tag_id:
-                Id of the tag which should exported.
+                ID of the tag which should exported.
 
         Returns:
             A list of dictionaries in a format compatible with Labelbox v3.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.export_label_box_data_rows_by_tag_id(tag_id="646f34608a5613b57d8b73cc")
+            [{'externalId': '2218961434_7916358f53_z.jpg', 'imageUrl': ...}]
         """
         warnings.warn(
             DeprecationWarning(
@@ -95,9 +118,12 @@ class _ExportDatasetMixin:
         self,
         tag_name: str,
     ) -> List[Dict]:
-        """Exports samples in a format compatible with Labelbox v3.
+        """Fetches samples in a format compatible with Labelbox v3.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
+
+        More information:
+        https://docs.lightly.ai/docs/labelbox
 
         Args:
             tag_name:
@@ -130,15 +156,26 @@ class _ExportDatasetMixin:
         self,
         tag_id: str,
     ) -> List[Dict]:
-        """Exports samples in a format compatible with Labelbox v4.
+        """Fetches samples in a format compatible with Labelbox v4.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
 
+        More information:
+        https://docs.lightly.ai/docs/labelbox
+
         Args:
             tag_id:
-                Id of the tag which should exported.
+                ID of the tag which should exported.
         Returns:
             A list of dictionaries in a format compatible with Labelbox v4.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.export_label_box_v4_data_rows_by_tag_id(tag_id="646f34608a5613b57d8b73cc")
+            [{'row_data': '...', 'global_key': 'image-1.jpg', 'media_type': 'IMAGE'}
         """
         label_box_data_rows = paginate_endpoint(
             self._tags_api.export_tag_to_label_box_v4_data_rows,
@@ -152,9 +189,12 @@ class _ExportDatasetMixin:
         self,
         tag_name: str,
     ) -> List[Dict]:
-        """Exports samples in a format compatible with Labelbox.
+        """Fetches samples in a format compatible with Labelbox.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
+
+        More information:
+        https://docs.lightly.ai/docs/labelbox
 
         Args:
             tag_name:
@@ -177,15 +217,25 @@ class _ExportDatasetMixin:
         self,
         tag_id: str,
     ) -> str:
-        """Exports a list of the samples filenames within a certain tag.
+        """Fetches samples filenames within a certain tag by tag ID.
+
+        More information:
+        https://docs.lightly.ai/docs/filenames-and-readurls
 
         Args:
             tag_id:
-                Id of the tag which should exported.
+                ID of the tag which should exported.
 
         Returns:
-            A list of the samples filenames within a certain tag.
+            A list of filenames of samples within a certain tag.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.export_filenames_by_tag_id("646b40d6c06aae1b91294a9e")
+            'image-1.jpg\nimage-2.jpg\nimage-3.jpg'
         """
         filenames = retry(
             self._tags_api.export_tag_to_basic_filenames,
@@ -198,14 +248,17 @@ class _ExportDatasetMixin:
         self,
         tag_name: str,
     ) -> str:
-        """Exports a list of the samples filenames within a certain tag.
+        """Fetches samples filenames within a certain tag by tag name.
+
+        More information:
+        https://docs.lightly.ai/docs/filenames-and-readurls
 
         Args:
             tag_name:
                 Name of the tag which should exported.
 
         Returns:
-            A list of the samples filenames within a certain tag.
+            A list of filenames of samples within a certain tag.
 
         Examples:
             >>> # write json file which can be imported in Label Studio
@@ -224,11 +277,14 @@ class _ExportDatasetMixin:
         self,
         tag_id: str,
     ) -> List[Dict[str, str]]:
-        """Export filenames, read URLs, and datasource URLs from the given tag.
+        """Fetches filenames, read URLs, and datasource URLs from the given tag.
+
+        More information:
+        https://docs.lightly.ai/docs/filenames-and-readurls
 
         Args:
             tag_id:
-                Id of the tag which should exported.
+                ID of the tag which should exported.
 
         Returns:
             A list of dictionaries with the keys "filename", "readUrl" and "datasourceUrl".
@@ -287,14 +343,17 @@ class _ExportDatasetMixin:
         self,
         tag_name: str,
     ) -> List[Dict[str, str]]:
-        """Export filenames, read URLs, and datasource URLs from the given tag name.
+        """Fetches filenames, read URLs, and datasource URLs from the given tag name.
+
+        More information:
+        https://docs.lightly.ai/docs/filenames-and-readurls
 
         Args:
             tag_name:
                 Name of the tag which should exported.
 
         Returns:
-            A list of dictionaries with the keys "filename", "readUrl" and "datasourceUrl".
+            A list of dictionaries with keys "filename", "readUrl" and "datasourceUrl".
 
         Examples:
             >>> # write json file which can be used to access the actual file contents.

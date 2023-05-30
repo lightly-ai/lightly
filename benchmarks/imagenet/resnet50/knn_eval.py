@@ -17,7 +17,7 @@ def knn_eval(
     train_dir: Path,
     val_dir: Path,
     log_dir: Path,
-    batch_size: int,
+    batch_size_per_device: int,
     num_workers: int,
     accelerator: str,
     devices: int,
@@ -37,7 +37,7 @@ def knn_eval(
     train_dataset = LightlyDataset(input_dir=str(train_dir), transform=transform)
     train_dataloader = DataLoader(
         train_dataset,
-        batch_size=batch_size,
+        batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
         drop_last=False,
@@ -47,7 +47,7 @@ def knn_eval(
     val_dataset = LightlyDataset(input_dir=str(val_dir), transform=transform)
     val_dataloader = DataLoader(
         val_dataset,
-        batch_size=batch_size,
+        batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
     )
@@ -57,6 +57,8 @@ def knn_eval(
         num_classes=num_classes,
         feature_dtype=torch.float16,
     )
+
+    # Run KNN evaluation.
     metric_callback = MetricCallback()
     trainer = Trainer(
         max_epochs=1,

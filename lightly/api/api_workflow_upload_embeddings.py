@@ -20,7 +20,7 @@ class EmbeddingDoesNotExistError(ValueError):
 
 
 class _UploadEmbeddingsMixin:
-    def _get_csv_reader_from_read_url(self, read_url: str):
+    def _get_csv_reader_from_read_url(self, read_url: str) -> None:
         """Makes a get request to the signed read url and returns the .csv file."""
         request = Request(read_url, method="GET")
         with urlopen(request) as response:
@@ -29,8 +29,8 @@ class _UploadEmbeddingsMixin:
 
         return reader
 
-    def set_embedding_id_to_latest(self):
-        """Sets the self.embedding_id to the one of the latest on the server."""
+    def set_embedding_id_to_latest(self) -> None:
+        """Sets the embedding ID in the API client to the latest embedding ID in the current dataset."""
         embeddings_on_server: List[
             DatasetEmbeddingData
         ] = self._embeddings_api.get_embeddings_by_dataset_id(
@@ -46,13 +46,13 @@ class _UploadEmbeddingsMixin:
     def get_embedding_by_name(
         self, name: str, ignore_suffix: bool = True
     ) -> DatasetEmbeddingData:
-        """Gets an embedding form the server by name.
+        """Fetches an embedding in the current dataset by name.
 
         Args:
             name:
-                The name of the embedding to get.
+                The name of the desired embedding.
             ignore_suffix:
-                If true, a suffix of the embedding name on the server
+                If true, a suffix of the embedding name in the current dataset
                 is ignored.
 
         Returns:
@@ -89,12 +89,12 @@ class _UploadEmbeddingsMixin:
             )
         return embedding
 
-    def upload_embeddings(self, path_to_embeddings_csv: str, name: str):
-        """Uploads embeddings to the server.
+    def upload_embeddings(self, path_to_embeddings_csv: str, name: str) -> None:
+        """Uploads embeddings to the Lightly Platform.
 
         First checks that the specified embedding name is not on the server. If it is, the upload is aborted.
-        Then creates a new csv with the embeddings in the order specified on the server. Next it uploads it to the server.
-        The received embedding_id is saved as a property of self.
+        Then creates a new csv file with the embeddings in the order specified on the server. Next uploads it
+        to the Lightly Platform. The received embedding ID is stored in the API client.
 
         Args:
             path_to_embeddings_csv:
@@ -164,22 +164,22 @@ class _UploadEmbeddingsMixin:
                 embedding_id=self.embedding_id,
             )
 
-    def append_embeddings(self, path_to_embeddings_csv: str, embedding_id: str):
-        """Concatenates the embeddings from the server to the local ones.
+    def append_embeddings(self, path_to_embeddings_csv: str, embedding_id: str) -> None:
+        """Concatenates embeddings from the Lightly Platform to the local ones.
 
-        Loads the embedding csv file belonging to the embedding_id, and
-        appends all of its rows to the local embeddings file located at
+        Loads the embedding csv file with the corresponding embedding ID in the current dataset
+        and appends all of its rows to the local embeddings file located at
         'path_to_embeddings_csv'.
 
         Args:
             path_to_embeddings_csv:
                 The path to the csv containing the local embeddings.
             embedding_id:
-                Id of the embedding summary of the embeddings on the server.
+                ID of the embedding summary of the embeddings on the Lightly Platform.
 
         Raises:
             RuntimeError:
-                If the number of columns in the local and the remote
+                If the number of columns in the local embeddings file and that of the remote
                 embeddings file mismatch.
 
         """

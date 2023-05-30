@@ -1,4 +1,4 @@
-""" The lightly.api module provides access to the Lightly web-app. """
+""" The lightly.api module provides access to the Lightly API."""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved

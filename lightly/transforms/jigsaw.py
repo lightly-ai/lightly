@@ -1,5 +1,3 @@
-""" Jigsaw Crop """
-
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 

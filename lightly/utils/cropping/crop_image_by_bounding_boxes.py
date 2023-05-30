@@ -6,8 +6,8 @@ from typing import List
 from PIL import Image
 from tqdm import tqdm
 
-from lightly.active_learning.utils import BoundingBox
 from lightly.data import LightlyDataset
+from lightly.utils.bounding_box import BoundingBox
 
 
 def crop_dataset_by_bounding_boxes_and_save(
