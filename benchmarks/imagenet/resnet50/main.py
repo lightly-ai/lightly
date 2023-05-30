@@ -7,6 +7,7 @@ import finetune_eval
 import knn_eval
 import linear_eval
 import simclr
+import swav
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
@@ -23,7 +24,7 @@ parser = ArgumentParser("ImageNet ResNet50 Benchmarks")
 parser.add_argument("--train-dir", type=Path, default="/datasets/imagenet/train")
 parser.add_argument("--val-dir", type=Path, default="/datasets/imagenet/val")
 parser.add_argument("--log-dir", type=Path, default="benchmark_logs")
-parser.add_argument("--batch-size", type=int, default=512)
+parser.add_argument("--batch-size-per-device", type=int, default=128)
 parser.add_argument("--epochs", type=int, default=100)
 parser.add_argument("--num-workers", type=int, default=8)
 parser.add_argument("--accelerator", type=str, default="gpu")
@@ -38,6 +39,7 @@ parser.add_argument("--skip-finetune-eval", action="store_true")
 
 METHODS = {
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
+    "swav": {"model": swav.SwAV, "transform": swav.transform},
 }
 
 
@@ -45,7 +47,7 @@ def main(
     train_dir: Path,
     val_dir: Path,
     log_dir: Path,
-    batch_size: int,
+    batch_size_per_device: int,
     epochs: int,
     num_workers: int,
     accelerator: str,
@@ -66,7 +68,9 @@ def main(
         method_dir = (
             log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         ).resolve()
-        model = METHODS[method]["model"](batch_size=batch_size, num_classes=num_classes)
+        model = METHODS[method]["model"](
+            batch_size_per_device=batch_size_per_device, num_classes=num_classes
+        )
 
         if compile_model and hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
@@ -82,7 +86,7 @@ def main(
                 train_dir=train_dir,
                 val_dir=val_dir,
                 log_dir=method_dir,
-                batch_size=batch_size,
+                batch_size_per_device=batch_size_per_device,
                 epochs=epochs,
                 num_workers=num_workers,
                 accelerator=accelerator,
@@ -99,7 +103,7 @@ def main(
                 train_dir=train_dir,
                 val_dir=val_dir,
                 log_dir=method_dir,
-                batch_size=batch_size,
+                batch_size_per_device=batch_size_per_device,
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
@@ -114,7 +118,7 @@ def main(
                 train_dir=train_dir,
                 val_dir=val_dir,
                 log_dir=method_dir,
-                batch_size=batch_size,
+                batch_size_per_device=batch_size_per_device,
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
@@ -130,7 +134,7 @@ def main(
                 train_dir=train_dir,
                 val_dir=val_dir,
                 log_dir=method_dir,
-                batch_size=batch_size,
+                batch_size_per_device=batch_size_per_device,
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
@@ -144,7 +148,7 @@ def pretrain(
     train_dir: Path,
     val_dir: Path,
     log_dir: Path,
-    batch_size: int,
+    batch_size_per_device: int,
     epochs: int,
     num_workers: int,
     accelerator: str,
@@ -158,7 +162,7 @@ def pretrain(
     train_dataset = LightlyDataset(input_dir=str(train_dir), transform=train_transform)
     train_dataloader = DataLoader(
         train_dataset,
-        batch_size=batch_size,
+        batch_size=batch_size_per_device,
         shuffle=True,
         num_workers=num_workers,
         collate_fn=MultiViewCollate(),
@@ -177,7 +181,7 @@ def pretrain(
     val_dataset = LightlyDataset(input_dir=str(val_dir), transform=val_transform)
     val_dataloader = DataLoader(
         val_dataset,
-        batch_size=batch_size,
+        batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
     )
@@ -195,9 +199,9 @@ def pretrain(
         ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
+        strategy="ddp_find_unused_parameters_true",
         sync_batchnorm=True,
     )
-
     trainer.fit(
         model=model,
         train_dataloaders=train_dataloader,
