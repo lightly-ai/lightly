@@ -4,8 +4,8 @@ from pytest_mock import MockerFixture
 
 from lightly.api.swagger_api_client import LightlySwaggerApiClient
 from lightly.api.swagger_rest_client import LightlySwaggerRESTClientObject
-from lightly.openapi_client import Configuration
-from lightly.openapi_client.rest import RESTResponse
+from lightly.openapi_generated.swagger_client import Configuration
+from lightly.openapi_generated.swagger_client.rest import RESTResponse
 
 
 def test_pickle(mocker: MockerFixture) -> None:

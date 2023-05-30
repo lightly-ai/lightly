@@ -2,13 +2,13 @@ import warnings
 from typing import List, Optional
 
 from lightly.api import utils
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.models import (
     CreateEntityResponse,
     DatasetCreateRequest,
     DatasetData,
     DatasetType,
 )
-from lightly.openapi_client.rest import ApiException
+from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class _DatasetsMixin:
@@ -191,7 +191,7 @@ class _DatasetsMixin:
 
         Examples:
             >>> from lightly.api import ApiWorkflowClient
-            >>> from lightly.openapi_client.models import DatasetType
+            >>> from lightly.openapi_generated.swagger_client.models import DatasetType
             >>>
             >>> client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
             >>> client.create_dataset('your-dataset-name', dataset_type=DatasetType.IMAGES)

@@ -3,7 +3,10 @@ from typing import Mapping, Optional, Sequence, Tuple
 
 import tqdm
 
-from lightly.openapi_client.models import PredictionSingleton, PredictionTaskSchema
+from lightly.openapi_generated.swagger_client.models import (
+    PredictionSingleton,
+    PredictionTaskSchema,
+)
 
 
 class _PredictionsMixin:
@@ -24,7 +27,7 @@ class _PredictionsMixin:
         Example:
           >>> import time
           >>> from lightly.api import ApiWorkflowClient
-          >>> from lightly.openapi_client.models import (
+          >>> from lightly.openapi_generated.swagger_client.models import (
           >>>     PredictionTaskSchema,
           >>>     TaskType,
           >>>     PredictionTaskSchemaCategory,
@@ -81,7 +84,7 @@ class _PredictionsMixin:
           >>> import time
           >>> from tqdm import tqdm
           >>> from lightly.api import ApiWorkflowClient
-          >>> from lightly.openapi_client.models import (
+          >>> from lightly.openapi_generated.swagger_client.models import (
           >>>     PredictionTaskSchema,
           >>>     TaskType,
           >>>     PredictionTaskSchemaCategory,

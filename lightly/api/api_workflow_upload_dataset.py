@@ -16,7 +16,7 @@ from lightly.api.utils import (
     check_filename,
     retry,
 )
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.models import (
     DatasourceConfigBase,
     InitialTagCreateRequest,
     JobStatusMeta,
@@ -26,7 +26,7 @@ from lightly.openapi_client.models import (
     SampleWriteUrls,
     TagUpsizeRequest,
 )
-from lightly.openapi_client.rest import ApiException
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from lightly.utils.hipify import bcolors
 
 try:

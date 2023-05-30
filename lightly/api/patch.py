@@ -35,7 +35,9 @@ def _Configuration__getstate__(self: Type) -> Dict[str, Any]:
 def _Configuration__setstate__(self: Type, state: Dict[str, Any]) -> None:
     self.__dict__.update(state)
     # Recreate logger objects.
-    self.logger["package_logger"] = logging.getLogger("lightly.openapi_client")
+    self.logger["package_logger"] = logging.getLogger(
+        "lightly.openapi_generated.swagger_client"
+    )
     self.logger["urllib3_logger"] = logging.getLogger("urllib3")
 
     # Set logger_format and logger_file explicitly because they have setter decoraters

@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 
 from lightly.api import ApiWorkflowClient
 from lightly.api.api_workflow_tags import TagDoesNotExistError
-from lightly.openapi_client.models import TagCreator, TagData
+from lightly.openapi_generated.swagger_client.models import TagCreator, TagData
 from tests.api_workflow.utils import generate_id
 
 

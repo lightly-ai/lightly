@@ -1,7 +1,7 @@
 import logging
 import pickle
 
-from lightly.openapi_client import Configuration
+from lightly.openapi_generated.swagger_client import Configuration
 
 
 def test_make_swagger_configuration_picklable() -> None:
@@ -26,7 +26,9 @@ def test_make_swagger_configuration_picklable() -> None:
         # "logger_formatter", ignore because a new object is created on unpickle
         # "logger_stream_handler", ignore because a new object is created on unpickle
         "logger": {
-            "package_logger": logging.getLogger("lightly.openapi_client"),
+            "package_logger": logging.getLogger(
+                "lightly.openapi_generated.swagger_client"
+            ),
             "urllib3_logger": logging.getLogger("urllib3"),
         },
         "password": None,

@@ -11,7 +11,10 @@ from PIL import Image
 from lightly.api import download
 from lightly.api.bitmask import BitMask
 from lightly.api.utils import paginate_endpoint
-from lightly.openapi_client.models import DatasetEmbeddingData, ImageType
+from lightly.openapi_generated.swagger_client.models import (
+    DatasetEmbeddingData,
+    ImageType,
+)
 from lightly.utils.hipify import bcolors
 
 

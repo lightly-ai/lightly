@@ -141,7 +141,7 @@ from lightly.active_learning.agents.agent import ActiveLearningAgent
 from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.active_learning.scorers.classification import ScorerClassification
 from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.openapi_client import SamplingMethod
+from lightly.openapi_generated.swagger_client import SamplingMethod
 
 # %%
 # Define the dataset for the classifier based on the embeddings.csv

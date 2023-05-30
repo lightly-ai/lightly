@@ -126,7 +126,7 @@ else:
                 LightlyAPITimeoutException,
                 is_latest_version,
             )
-            from lightly.openapi_client.rest import ApiException
+            from lightly.openapi_generated.swagger_client.rest import ApiException
 
             try:
                 is_latest_version(current_version=__version__)

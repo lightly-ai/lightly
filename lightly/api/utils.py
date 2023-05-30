@@ -16,7 +16,7 @@ from PIL import JpegImagePlugin
 
 JpegImagePlugin._getmp = lambda: None
 
-from lightly.openapi_client.configuration import Configuration
+from lightly.openapi_generated.swagger_client.configuration import Configuration
 
 MAXIMUM_FILENAME_LENGTH = 255
 RETRY_MAX_BACKOFF = 32

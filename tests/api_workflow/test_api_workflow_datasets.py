@@ -4,14 +4,14 @@ import pytest
 from pytest_mock import MockerFixture
 
 from lightly.api import ApiWorkflowClient, api_workflow_datasets
-from lightly.openapi_client.api import DatasetsApi
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.api import DatasetsApi
+from lightly.openapi_generated.swagger_client.models import (
     Creator,
     DatasetCreateRequest,
     DatasetData,
     DatasetType,
 )
-from lightly.openapi_client.rest import ApiException
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 from tests.api_workflow.utils import generate_id
 

@@ -13,7 +13,7 @@ from requests import Response
 
 import lightly
 from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.openapi_client.api import (
+from lightly.openapi_generated.swagger_client.api import (
     CollaborationApi,
     DatasetsApi,
     DatasourcesApi,
@@ -28,7 +28,7 @@ from lightly.openapi_client.api import (
     TagsApi,
     VersioningApi,
 )
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.models import (
     AsyncTaskData,
     CreateDockerWorkerRegistryEntryRequest,
     CreateEntityResponse,
@@ -82,7 +82,7 @@ from lightly.openapi_client.models import (
     Trigger2dEmbeddingJobRequest,
     WriteCSVUrlData,
 )
-from lightly.openapi_client.rest import ApiException
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from tests.api_workflow.utils import generate_id
 
 

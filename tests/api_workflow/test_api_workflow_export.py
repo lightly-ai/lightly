@@ -1,7 +1,7 @@
 from pytest_mock import MockerFixture
 
 from lightly.api import ApiWorkflowClient, api_workflow_export
-from lightly.openapi_client.models import FileNameFormat, TagData
+from lightly.openapi_generated.swagger_client.models import FileNameFormat, TagData
 from tests.api_workflow.utils import generate_id
 
 

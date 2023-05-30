@@ -2,8 +2,8 @@ import pytest
 from pytest_mock import MockerFixture
 
 from lightly.api import ApiWorkflowClient, ArtifactNotExist
-from lightly.openapi_client.api import DockerApi
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.api import DockerApi
+from lightly.openapi_generated.swagger_client.models import (
     DockerRunArtifactData,
     DockerRunArtifactType,
     DockerRunData,

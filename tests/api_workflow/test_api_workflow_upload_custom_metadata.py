@@ -1,7 +1,10 @@
 from pytest_mock import MockerFixture
 
 from lightly.api import ApiWorkflowClient, api_workflow_upload_metadata
-from lightly.openapi_client.models import SampleDataModes, SampleUpdateRequest
+from lightly.openapi_generated.swagger_client.models import (
+    SampleDataModes,
+    SampleUpdateRequest,
+)
 from lightly.utils.io import COCO_ANNOTATION_KEYS
 from tests.api_workflow.utils import generate_id
 

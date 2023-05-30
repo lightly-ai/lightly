@@ -113,7 +113,7 @@ from lightly.active_learning.scorers import ScorerObjectDetection
 from lightly.active_learning.utils.bounding_box import BoundingBox
 from lightly.active_learning.utils.object_detection_output import ObjectDetectionOutput
 from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.openapi_client import SamplingMethod
+from lightly.openapi_generated.swagger_client import SamplingMethod
 
 # %%
 # Upload dataset to Lightly

@@ -2,7 +2,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from lightly.api import ApiWorkflowClient
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.models import (
     DatasourceConfigAzure,
     DatasourceConfigGCS,
     DatasourceConfigLOCAL,

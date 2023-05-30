@@ -4,7 +4,7 @@ from typing import Dict, List, Union
 from tqdm import tqdm
 
 from lightly.api.utils import retry
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.models import (
     ConfigurationEntry,
     ConfigurationSetRequest,
     SamplePartialMode,

@@ -13,8 +13,12 @@ from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.api.bitmask import BitMask
 from lightly.cli import upload_cli
 from lightly.data.dataset import LightlyDataset
-from lightly.openapi_client.models.sampling_method import SamplingMethod
-from lightly.openapi_client.models.tag_create_request import TagCreateRequest
+from lightly.openapi_generated.swagger_client.models.sampling_method import (
+    SamplingMethod,
+)
+from lightly.openapi_generated.swagger_client.models.tag_create_request import (
+    TagCreateRequest,
+)
 from lightly.utils.io import save_embeddings
 
 

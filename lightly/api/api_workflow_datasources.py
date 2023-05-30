@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import tqdm
 
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.models import (
     DatasourceConfig,
     DatasourceConfigVerifyDataErrors,
     DatasourceProcessedUntilTimestampRequest,

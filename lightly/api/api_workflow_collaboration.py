@@ -1,6 +1,6 @@
 from typing import List
 
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.models import (
     SharedAccessConfigCreateRequest,
     SharedAccessConfigData,
     SharedAccessType,

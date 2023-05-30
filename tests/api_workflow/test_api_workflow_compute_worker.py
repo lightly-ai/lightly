@@ -17,9 +17,9 @@ from lightly.api.api_workflow_compute_worker import (
     _snake_to_camel_case,
     _validate_config,
 )
-from lightly.openapi_client.api import DockerApi
-from lightly.openapi_client.api_client import ApiClient
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.api import DockerApi
+from lightly.openapi_generated.swagger_client.api_client import ApiClient
+from lightly.openapi_generated.swagger_client.models import (
     DockerRunData,
     DockerRunScheduledData,
     DockerRunScheduledPriority,
@@ -43,7 +43,7 @@ from lightly.openapi_client.models import (
     SelectionStrategyType,
     TagData,
 )
-from lightly.openapi_client.rest import ApiException
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 from tests.api_workflow.utils import generate_id
 

@@ -5,7 +5,7 @@ from typing import Dict, List, Union
 import numpy as np
 
 from lightly.active_learning.config.selection_config import SelectionConfig
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.models import (
     ActiveLearningScoreCreateRequest,
     JobState,
     JobStatusData,

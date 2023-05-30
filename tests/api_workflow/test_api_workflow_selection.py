@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 
 from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.api import ApiWorkflowClient, api_workflow_selection
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.models import (
     JobResultType,
     JobState,
     JobStatusData,

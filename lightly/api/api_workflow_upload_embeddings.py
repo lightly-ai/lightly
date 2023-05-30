@@ -6,7 +6,7 @@ from typing import List
 from urllib.request import Request, urlopen
 
 from lightly.api.utils import retry
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.models import (
     DatasetEmbeddingData,
     DimensionalityReductionMethod,
     Trigger2dEmbeddingJobRequest,

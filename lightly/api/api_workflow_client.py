@@ -31,7 +31,7 @@ from lightly.api.version_checking import (
     LightlyAPITimeoutException,
     is_compatible_version,
 )
-from lightly.openapi_client.api import (
+from lightly.openapi_generated.swagger_client.api import (
     CollaborationApi,
     DatasetsApi,
     DatasourcesApi,
@@ -47,8 +47,8 @@ from lightly.openapi_client.api import (
     ScoresApi,
     TagsApi,
 )
-from lightly.openapi_client.models import Creator, DatasetData
-from lightly.openapi_client.rest import ApiException
+from lightly.openapi_generated.swagger_client.models import Creator, DatasetData
+from lightly.openapi_generated.swagger_client.rest import ApiException
 from lightly.utils.reordering import sort_items_by_keys
 
 # Env variable for server side encryption on S3

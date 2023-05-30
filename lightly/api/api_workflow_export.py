@@ -2,7 +2,7 @@ import warnings
 from typing import Dict, List
 
 from lightly.api.utils import paginate_endpoint, retry
-from lightly.openapi_client.models import FileNameFormat
+from lightly.openapi_generated.swagger_client.models import FileNameFormat
 
 
 class _ExportDatasetMixin:

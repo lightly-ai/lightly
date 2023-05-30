@@ -10,7 +10,7 @@ import torchvision
 
 from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
 from lightly.data.dataset import LightlyDataset
-from lightly.openapi_client.models import SamplePartialMode
+from lightly.openapi_generated.swagger_client.models import SamplePartialMode
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 

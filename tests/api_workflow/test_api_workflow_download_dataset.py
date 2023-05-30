@@ -2,7 +2,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from lightly.api import ApiWorkflowClient, api_workflow_download_dataset
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.models import (
     DatasetData,
     DatasetEmbeddingData,
     DatasetType,

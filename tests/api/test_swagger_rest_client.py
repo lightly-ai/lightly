@@ -4,7 +4,7 @@ from pytest_mock import MockerFixture
 from urllib3 import PoolManager, Timeout
 
 from lightly.api.swagger_rest_client import LightlySwaggerRESTClientObject
-from lightly.openapi_client.configuration import Configuration
+from lightly.openapi_generated.swagger_client.configuration import Configuration
 
 
 class TestLightlySwaggerRESTClientObject:

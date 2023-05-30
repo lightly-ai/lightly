@@ -7,8 +7,8 @@ from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar,
 
 from lightly.api import utils
 from lightly.api.utils import retry
-from lightly.openapi_client.api_client import ApiClient
-from lightly.openapi_client.models import (
+from lightly.openapi_generated.swagger_client.api_client import ApiClient
+from lightly.openapi_generated.swagger_client.models import (
     CreateDockerWorkerRegistryEntryRequest,
     DockerRunData,
     DockerRunScheduledCreateRequest,
@@ -28,7 +28,7 @@ from lightly.openapi_client.models import (
     SelectionConfigEntryStrategy,
     TagData,
 )
-from lightly.openapi_client.rest import ApiException
+from lightly.openapi_generated.swagger_client.rest import ApiException
 
 STATE_SCHEDULED_ID_NOT_FOUND = "CANCELED_OR_NOT_EXISTING"
 
