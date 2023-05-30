@@ -288,6 +288,8 @@ class _DatasourcesMixin:
             >>> # Already created some Lightly Worker runs with this dataset
             >>> client.set_dataset_id_by_name("my-dataset")
             >>> client.download_raw_metadata()
+            [('.lightly/metadata/object-detection/image-1.json', 'https://......'),
+             ('.lightly/metadata/object-detection/image-2.json', 'https://......')]
         """
         if run_id is not None and relevant_filenames_artifact_id is None:
             raise ValueError(
