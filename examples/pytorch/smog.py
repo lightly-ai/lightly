@@ -9,8 +9,6 @@ import torchvision
 from sklearn.cluster import KMeans
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss.memory_bank import MemoryBankModule
 from lightly.models import utils
 from lightly.models.modules.heads import (
@@ -87,7 +85,6 @@ memory_bank = MemoryBankModule(size=memory_bank_size)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
 transform = SMoGTransform(
     crop_sizes=(32, 32),
     crop_counts=(1, 1),
@@ -95,19 +92,15 @@ transform = SMoGTransform(
     crop_min_scales=(0.2, 0.2),
     crop_max_scales=(1.0, 1.0),
 )
-dataset = LightlyDataset.from_torch_dataset(
-    cifar10,
-    transform=transform,
+dataset = torchvision.datasets.CIFAR10(
+    "datasets/cifar10", download=True, transform=transform
 )
 # or create a dataset from a folder containing images or videos:
-# dataset = LightlyDataset("path/to/folder")
-
-collate_fn = MultiViewCollate()
+# dataset = LightlyDataset("path/to/folder", transform=transform)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=256,
-    collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,
