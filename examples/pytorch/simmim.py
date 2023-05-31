@@ -71,7 +71,7 @@ dataset = pascal_voc = torchvision.datasets.VOCDetection(
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
-    batch_size=64,
+    batch_size=8,
     shuffle=True,
     drop_last=True,
     num_workers=8,
