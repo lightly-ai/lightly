@@ -113,7 +113,7 @@ class TestApiWorkflowDatasets(MockedApiWorkflowSetup):
         assert len(datasets) == 1
 
     def test_get_all_datasets(self):
-        datasets = list(self.api_workflow_client.get_all_datasets())
+        datasets = self.api_workflow_client.get_all_datasets()
         dataset_names = {dataset.name for dataset in datasets}
         assert "dataset_1" in dataset_names
         assert "shared_dataset_1" in dataset_names
@@ -180,9 +180,9 @@ class TestApiWorkflowDatasets(MockedApiWorkflowSetup):
         assert self.api_workflow_client.dataset_type == "Images"
 
     def test_get_datasets(self):
-        num_datasets_before = len(list(self.api_workflow_client.get_datasets()))
+        num_datasets_before = len(self.api_workflow_client.get_datasets())
         self.api_workflow_client.create_new_dataset_with_unique_name("dataset")
-        num_datasets_after = len(list(self.api_workflow_client.get_datasets()))
+        num_datasets_after = len(self.api_workflow_client.get_datasets())
         assert num_datasets_before + 1 == num_datasets_after
 
 

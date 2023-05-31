@@ -9,7 +9,7 @@ import random
 import threading
 import time
 from enum import Enum
-from typing import Iterable, List, Optional
+from typing import Iterator, List, Optional
 
 # the following two lines are needed because
 # PIL misidentifies certain jpeg images as MPOs
@@ -67,7 +67,7 @@ def retry(func, *args, **kwargs):
                 ) from e
 
 
-class Paginated(Iterable):
+class Paginated(Iterator):
     def __init__(self, fn, page_size, *args, **kwargs):
         self.entries: List = []
         self.entries_lock = threading.Condition()
@@ -134,7 +134,7 @@ class Paginated(Iterable):
         return v
 
 
-def paginate_endpoint(fn, page_size=5000, *args, **kwargs) -> Iterable:
+def paginate_endpoint(fn, page_size=5000, *args, **kwargs) -> Iterator:
     """Paginates an API endpoint
 
     Args:

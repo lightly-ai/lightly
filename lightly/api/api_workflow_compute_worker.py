@@ -262,6 +262,31 @@ class _ComputeWorkerMixin:
         )
         return response.id
 
+    def get_compute_worker_runs_iter(
+        self,
+        dataset_id: Optional[str] = None,
+    ) -> Iterator[DockerRunData]:
+        """Fetches all Lightly Worker runs for the user.
+
+        Args:
+            dataset_id:
+                Target dataset ID. Optional. If set, only runs with the given dataset
+                will be returned.
+
+        Returns:
+            Runs sorted by creation time from the oldest to the latest.
+
+        """
+        if dataset_id is not None:
+            return utils.paginate_endpoint(
+                self._compute_worker_api.get_docker_runs_query_by_dataset_id,
+                dataset_id=dataset_id,
+            )
+        else:
+            return utils.paginate_endpoint(
+                self._compute_worker_api.get_docker_runs,
+            )
+
     def get_compute_worker_runs(
         self,
         dataset_id: Optional[str] = None,
@@ -277,15 +302,7 @@ class _ComputeWorkerMixin:
             Runs sorted by creation time from the oldest to the latest.
 
         """
-        if dataset_id is not None:
-            runs: List[DockerRunData] = utils.paginate_endpoint(
-                self._compute_worker_api.get_docker_runs_query_by_dataset_id,
-                dataset_id=dataset_id,
-            )
-        else:
-            runs: List[DockerRunData] = utils.paginate_endpoint(
-                self._compute_worker_api.get_docker_runs,
-            )
+        runs: List[DockerRunData] = list(self.get_compute_worker_runs_iter(dataset_id))
         sorted_runs = sorted(runs, key=lambda run: run.created_at or -1)
         return sorted_runs
 

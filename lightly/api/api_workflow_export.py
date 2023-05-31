@@ -2,7 +2,7 @@ import io
 import os
 import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, List, Optional
 from urllib.request import Request, urlopen
 
 import tqdm
@@ -23,7 +23,7 @@ class _ExportDatasetMixin:
     def export_label_studio_tasks_by_tag_id(
         self,
         tag_id: str,
-    ) -> Iterable[Dict]:
+    ) -> List[Dict]:
         """Fetches samples in a format compatible with Label Studio.
 
         The format is documented here:
@@ -37,18 +37,20 @@ class _ExportDatasetMixin:
             A list of dictionaries in a format compatible with Label Studio.
 
         """
-        label_studio_tasks = paginate_endpoint(
-            self._tags_api.export_tag_to_label_studio_tasks,
-            page_size=20000,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
+        label_studio_tasks = list(
+            paginate_endpoint(
+                self._tags_api.export_tag_to_label_studio_tasks,
+                page_size=20000,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+            )
         )
         return label_studio_tasks
 
     def export_label_studio_tasks_by_tag_name(
         self,
         tag_name: str,
-    ) -> Iterable[Dict]:
+    ) -> List[Dict]:
         """Fetches samples in a format compatible with Label Studio.
 
         The format is documented here:
@@ -77,7 +79,7 @@ class _ExportDatasetMixin:
     def export_label_box_data_rows_by_tag_id(
         self,
         tag_id: str,
-    ) -> Iterable[Dict]:
+    ) -> List[Dict]:
         """Fetches samples in a format compatible with Labelbox v3.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
@@ -97,18 +99,20 @@ class _ExportDatasetMixin:
                 "to export data in the Labelbox v4 format instead."
             )
         )
-        label_box_data_rows = paginate_endpoint(
-            self._tags_api.export_tag_to_label_box_data_rows,
-            page_size=20000,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
+        label_box_data_rows = list(
+            paginate_endpoint(
+                self._tags_api.export_tag_to_label_box_data_rows,
+                page_size=20000,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+            )
         )
         return label_box_data_rows
 
     def export_label_box_data_rows_by_tag_name(
         self,
         tag_name: str,
-    ) -> Iterable[Dict]:
+    ) -> List[Dict]:
         """Fetches samples in a format compatible with Labelbox v3.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
@@ -143,7 +147,7 @@ class _ExportDatasetMixin:
     def export_label_box_v4_data_rows_by_tag_id(
         self,
         tag_id: str,
-    ) -> Iterable[Dict]:
+    ) -> List[Dict]:
         """Fetches samples in a format compatible with Labelbox v4.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json
@@ -154,18 +158,20 @@ class _ExportDatasetMixin:
         Returns:
             A list of dictionaries in a format compatible with Labelbox v4.
         """
-        label_box_data_rows = paginate_endpoint(
-            self._tags_api.export_tag_to_label_box_v4_data_rows,
-            page_size=20000,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
+        label_box_data_rows = list(
+            paginate_endpoint(
+                self._tags_api.export_tag_to_label_box_v4_data_rows,
+                page_size=20000,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+            )
         )
         return label_box_data_rows
 
     def export_label_box_v4_data_rows_by_tag_name(
         self,
         tag_name: str,
-    ) -> Iterable[Dict]:
+    ) -> List[Dict]:
         """Fetches samples in a format compatible with Labelbox.
 
         The format is documented here: https://docs.labelbox.com/docs/images-json

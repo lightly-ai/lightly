@@ -1,6 +1,6 @@
 import warnings
 from itertools import chain
-from typing import Iterable, List, Optional
+from typing import Iterator, List, Optional
 
 from lightly.api import utils
 from lightly.openapi_generated.swagger_client import (
@@ -111,7 +111,9 @@ class _DatasetsMixin:
             )
         return datasets
 
-    def get_datasets(self, shared: Optional[bool] = False) -> Iterable[DatasetData]:
+    def get_datasets_iter(
+        self, shared: Optional[bool] = False
+    ) -> Iterator[DatasetData]:
         """Returns all datasets owned by the current user.
 
         Args:
@@ -143,7 +145,10 @@ class _DatasetsMixin:
             )
         return dataset_iterable
 
-    def get_all_datasets(self) -> Iterable[DatasetData]:
+    def get_datasets(self, shared: Optional[bool] = False) -> List[DatasetData]:
+        return list(self.get_datasets_iter(shared))
+
+    def get_all_datasets(self) -> List[DatasetData]:
         """Returns all datasets the user has access to.
 
         DEPRECATED in favour of get_datasets(shared=None) and will be removed in the

@@ -2,7 +2,7 @@ import io
 import os
 import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, List, Optional
 from urllib.request import Request, urlopen
 
 import tqdm
@@ -217,7 +217,7 @@ class _DownloadDatasetMixin:
     def export_label_studio_tasks_by_tag_id(
         self,
         tag_id: str,
-    ) -> Iterable[Dict]:
+    ) -> List[Dict]:
         """Exports samples in a format compatible with Label Studio.
 
         The format is documented here:
@@ -231,11 +231,13 @@ class _DownloadDatasetMixin:
             A list of dictionaries in a format compatible with Label Studio.
 
         """
-        label_studio_tasks = paginate_endpoint(
-            self._tags_api.export_tag_to_label_studio_tasks,
-            page_size=20000,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
+        label_studio_tasks = list(
+            paginate_endpoint(
+                self._tags_api.export_tag_to_label_studio_tasks,
+                page_size=20000,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+            )
         )
         return label_studio_tasks
 
