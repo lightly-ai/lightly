@@ -127,7 +127,7 @@ class _DatasetsMixin:
             An iterator over datasets owned by the current user.
         """
         dataset_iterable = []
-        page_size = 128
+        page_size = 512
         if not shared or shared is None:
             dataset_iterable = utils.paginate_endpoint(
                 self._datasets_api.get_datasets,
