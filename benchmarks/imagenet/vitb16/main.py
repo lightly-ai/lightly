@@ -37,7 +37,7 @@ parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
 
 METHODS = {
-    # "mae": {"model": mae.MAE, "transform": mae.transform},
+    "mae": {"model": mae.MAE, "transform": mae.transform},
 }
 
 
