@@ -1,12 +1,11 @@
 from pathlib import Path
-from typing import Tuple
+from typing import Dict, Tuple
 
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
 from timm.data import create_transform
 from timm.data.mixup import Mixup
-from timm.loss import SoftTargetCrossEntropy
 from torch import Tensor
 from torch.nn import Module
 from torch.optim import AdamW
@@ -17,6 +16,7 @@ from lightly.data import LightlyDataset
 from lightly.models.utils import add_stochastic_depth_to_blocks
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import LinearClassifier, MetricCallback
+from lightly.utils.benchmarking.topk import mean_topk_accuracy
 from lightly.utils.scheduler import CosineWarmupScheduler
 
 
@@ -27,15 +27,14 @@ class FinetuneEvalClassifier(LinearClassifier):
         self,
         model: Module,
         batch_size_per_device: int,
-        feature_dim: int = 2048,
-        num_classes: int = 1000,
+        feature_dim: int,
+        num_classes: int,
         topk: Tuple[int, ...] = (1, 5),
         freeze_model: bool = False,
     ) -> None:
         super().__init__(
             model, batch_size_per_device, feature_dim, num_classes, topk, freeze_model
         )
-        self.criterion = SoftTargetCrossEntropy()
         self.mixup = Mixup(
             mixup_alpha=0.8,
             cutmix_alpha=1.0,
@@ -43,17 +42,16 @@ class FinetuneEvalClassifier(LinearClassifier):
             num_classes=num_classes,
         )
 
-    # Adapt training step to include mixup.
-    def training_step(self, batch, batch_idx) -> Tensor:
-        batch = self.mixup(batch[0], batch[1])
-        loss, topk = self.shared_step(batch=batch, batch_idx=batch_idx)
-        batch_size = len(batch[1])
-        log_dict = {f"train_top{k}": acc for k, acc in topk.items()}
-        self.log(
-            "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=batch_size
-        )
-        self.log_dict(log_dict, sync_dist=True, batch_size=batch_size)
-        return loss
+    # Adapt step to include mixup.
+    def shared_step(self, batch, batch_idx) -> Tuple[Tensor, Dict[int, Tensor]]:
+        images, targets = batch[0], batch[1]
+        if self.trainer.state.stage == "train":
+            images, targets = self.mixup(images, targets)
+        predictions = self.forward(images)
+        loss = self.criterion(predictions, targets)
+        _, predicted_labels = predictions.topk(max(self.topk))
+        topk = mean_topk_accuracy(predicted_labels, batch[1], k=self.topk)
+        return loss, topk
 
     # Adapt optimizer to match MAE settings.
     def configure_optimizers(self):
