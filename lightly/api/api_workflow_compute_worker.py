@@ -266,7 +266,7 @@ class _ComputeWorkerMixin:
         self,
         dataset_id: Optional[str] = None,
     ) -> Iterator[DockerRunData]:
-        """Fetches in iterator over all Lightly Worker runs for the user.
+        """Returns an iterator over all Lightly Worker runs for the user.
 
         Args:
             dataset_id:
