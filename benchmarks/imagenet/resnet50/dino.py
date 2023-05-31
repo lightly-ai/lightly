@@ -72,9 +72,6 @@ class DINO(LightningModule):
             student_projections.chunk(len(views)),
             epoch=self.current_epoch,
         )
-        self.log(
-            "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
-        )
 
         # Momentum update teacher.
         momentum = cosine_schedule(
@@ -155,7 +152,6 @@ class DINO(LightningModule):
         return [optimizer], [scheduler]
 
 
-# For ResNet50 we use global crop scale (0.14, 1) instead of (0.4, 1) as recommended
-# by the authors:
+# For ResNet50 we adjust crop scales as recommended by the authors:
 # https://github.com/facebookresearch/dino#resnet-50-and-other-convnets-trainings
-transform = DINOTransform(global_crop_scale=(0.14, 1))
+transform = DINOTransform(global_crop_scale=(0.14, 1), local_crop_scale=(0.05, 0.14))
