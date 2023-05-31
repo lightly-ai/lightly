@@ -21,12 +21,6 @@ from tests.api_workflow.mocked_api_workflow_client import (
 
 
 class TestCLICrop(MockedApiWorkflowSetup):
-    @classmethod
-    def setUpClass(cls) -> None:
-        sys.modules[
-            "lightly.cli.upload_cli"
-        ].ApiWorkflowClient = MockedApiWorkflowClient
-
     def test_save_metadata(self):
         metadata = [("filename.jpg", {"random_metadata": 42})]
         metadata_filepath = tempfile.mktemp(".json", "metadata")

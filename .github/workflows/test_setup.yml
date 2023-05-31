@@ -39,7 +39,6 @@ jobs:
         lightly-crop --help
         lightly-train --help
         lightly-embed --help
-        lightly-upload --help
         lightly-magic --help
         lightly-download --help
         lightly-version
