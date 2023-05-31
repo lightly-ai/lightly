@@ -7,8 +7,6 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import SwaVLoss
 from lightly.loss.memory_bank import MemoryBankModule
 from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
@@ -90,26 +88,20 @@ class SwaV(pl.LightningModule):
 
 model = SwaV()
 
-# we ignore object detection annotations by setting target_transform to return 0
-pascal_voc = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc", download=True, target_transform=lambda t: 0
+transform = SwaVTransform()
+dataset = pascal_voc = torchvision.datasets.VOCDetection(
+    "datasets/pascal_voc", download=True, transform=transform
 )
-trasnform = SwaVTransform()
-dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
 
-collate_fn = MultiViewCollate()
-
 dataloader = torch.utils.data.DataLoader(
     dataset,
-    batch_size=128,
-    collate_fn=collate_fn,
+    batch_size=64,
     shuffle=True,
     drop_last=True,
     num_workers=8,
 )
-
 accelerator = "gpu" if torch.cuda.is_available() else "cpu"
 
 trainer = pl.Trainer(max_epochs=10, devices=1, accelerator=accelerator)

@@ -8,8 +8,6 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import MSNLoss
 from lightly.models import utils
 from lightly.models.modules.heads import MSNProjectionHead
@@ -87,20 +85,16 @@ class MSN(pl.LightningModule):
 
 model = MSN()
 
-# we ignore object detection annotations by setting target_transform to return 0
-pascal_voc = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc", download=True, target_transform=lambda t: 0
+transform = MSNTransform()
+dataset = pascal_voc = torchvision.datasets.VOCDetection(
+    "datasets/pascal_voc", download=True, transform=transform
 )
-dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=MSNTransform())
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
-
-collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=64,
-    collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,
