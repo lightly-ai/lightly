@@ -47,11 +47,13 @@ class _ExportDatasetMixin:
             >>> client.export_label_studio_tasks_by_tag_id(tag_id="646f34608a5613b57d8b73cc")
             [{'id': 0, 'data': {'image': '...', ...}}]
         """
-        label_studio_tasks = paginate_endpoint(
-            self._tags_api.export_tag_to_label_studio_tasks,
-            page_size=20000,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
+        label_studio_tasks = list(
+            paginate_endpoint(
+                self._tags_api.export_tag_to_label_studio_tasks,
+                page_size=20000,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+            )
         )
         return label_studio_tasks
 
@@ -120,11 +122,13 @@ class _ExportDatasetMixin:
                 "to export data in the Labelbox v4 format instead."
             )
         )
-        label_box_data_rows = paginate_endpoint(
-            self._tags_api.export_tag_to_label_box_data_rows,
-            page_size=20000,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
+        label_box_data_rows = list(
+            paginate_endpoint(
+                self._tags_api.export_tag_to_label_box_data_rows,
+                page_size=20000,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+            )
         )
         return label_box_data_rows
 
@@ -191,11 +195,13 @@ class _ExportDatasetMixin:
             >>> client.export_label_box_v4_data_rows_by_tag_id(tag_id="646f34608a5613b57d8b73cc")
             [{'row_data': '...', 'global_key': 'image-1.jpg', 'media_type': 'IMAGE'}
         """
-        label_box_data_rows = paginate_endpoint(
-            self._tags_api.export_tag_to_label_box_v4_data_rows,
-            page_size=20000,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
+        label_box_data_rows = list(
+            paginate_endpoint(
+                self._tags_api.export_tag_to_label_box_v4_data_rows,
+                page_size=20000,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+            )
         )
         return label_box_data_rows
 
