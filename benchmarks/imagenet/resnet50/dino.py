@@ -86,6 +86,16 @@ class DINO(LightningModule):
         update_momentum(self.student_backbone, self.backbone, m=momentum)
         update_momentum(self.student_projection_head, self.projection_head, m=momentum)
 
+        self.log_dict(
+            {
+                "train_loss": loss,
+                "ema_momentum": momentum,
+            },
+            prog_bar=True,
+            sync_dist=True,
+            batch_size=len(targets),
+        )
+
         # Online classification.
         cls_loss, cls_log = self.online_classifier.training_step(
             (teacher_features.chunk(2)[0].detach(), targets), batch_idx
