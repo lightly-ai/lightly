@@ -656,10 +656,10 @@ def _validate_config(
 
     Recursively checks if the keys in the cfg dictionary match the attributes of
     the DockerWorkerConfigV2Docker/DockerWorkerConfigV2Lightly instances. If not,
-    suggests a best match based on the keys in 'swagger_types'.
+    suggests a best match.
 
     Raises:
-        TypeError: If obj is not of swagger type.
+        InvalidConfigurationError: If obj is not a valid config.
 
     """
 
@@ -668,7 +668,7 @@ def _validate_config(
 
     for key, item in cfg.items():
         if not hasattr(obj, key):
-            possible_options = list(type(obj).__fields__.keys())
+            possible_options = list(obj.__fields__.keys())
             closest_match = difflib.get_close_matches(
                 word=key, possibilities=possible_options, n=1, cutoff=0.0
             )[0]
