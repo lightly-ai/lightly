@@ -10,9 +10,16 @@ from typing import Iterable, List, Optional, Tuple, Union
 import torch
 import torch.distributed as dist
 import torch.nn as nn
-from torch.nn import Module
+from torch.nn import Module, Sequential
 from torch.nn.modules.batchnorm import _BatchNorm
 from torch.nn.parameter import Parameter
+from torchvision.ops import StochasticDepth
+
+from lightly import _torchvision_vit_available
+
+if _torchvision_vit_available:
+    # Requires torchvision >=0.12
+    from torchvision.models.vision_transformer import EncoderBlock
 
 
 @torch.no_grad()
@@ -567,3 +574,15 @@ def get_weight_decay_parameters(
                     else:
                         params.append(param)
     return params, params_no_weight_decay
+
+
+def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -> None:
+    """Adds stochastic depth dropout to all transformer blocks."""
+    if prob <= 0:
+        return
+
+    stochastic_depth = StochasticDepth(p=prob, mode=mode)
+    for mod in vit.modules():
+        if isinstance(mod, EncoderBlock):
+            mod.dropout = Sequential(mod.dropout, stochastic_depth)
+            mod.mlp = Sequential(mod.mlp, stochastic_depth)
