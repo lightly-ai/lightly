@@ -22,7 +22,7 @@ from lightly.utils.scheduler import CosineWarmupScheduler
 
 class FinetuneEvalClassifier(LinearClassifier):
     # Parameters follow MAE settings.
-    # Adapt initialization to include label smoothing and mixup.
+    # Adapt initialization to include mixup.
     def __init__(
         self,
         model: Module,
@@ -50,6 +50,7 @@ class FinetuneEvalClassifier(LinearClassifier):
         predictions = self.forward(images)
         loss = self.criterion(predictions, targets)
         _, predicted_labels = predictions.topk(max(self.topk))
+        # Pass targets without mixup for topk accuracy calculation.
         topk = mean_topk_accuracy(predicted_labels, batch[1], k=self.topk)
         return loss, topk
 
