@@ -34,11 +34,6 @@ below.
    * :ref:`lightly-advanced`
    * :ref:`lightly-custom-augmentation-5`.
 
-* **Collate Function**
-   The collate function aggregates the views of multiple images into a single batch.
-   Lightly provides a default :py:class:`~lightly.data.multi_view_collate.MultiViewCollate`
-   function that can be used with any transform.
-
 * **Dataloader**
    For the dataloader you can simply use a `PyTorch dataloader <https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader>`_.
    Be sure to pass it a :py:class:`~lightly.data.dataset.LightlyDataset` though!
