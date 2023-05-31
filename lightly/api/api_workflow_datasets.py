@@ -114,7 +114,7 @@ class _DatasetsMixin:
     def get_datasets_iter(
         self, shared: Optional[bool] = False
     ) -> Iterator[DatasetData]:
-        """Returns all datasets owned by the current user.
+        """Returns an iterator over all datasets owned by the current user.
 
         Args:
             shared:
@@ -124,7 +124,7 @@ class _DatasetsMixin:
                 Defaults to False.
 
         Returns:
-            A list of datasets owned by the current user.
+            An iterator over datasets owned by the current user.
         """
         dataset_iterable = []
         page_size = 32
@@ -146,6 +146,18 @@ class _DatasetsMixin:
         return dataset_iterable
 
     def get_datasets(self, shared: Optional[bool] = False) -> List[DatasetData]:
+        """Returns all datasets owned by the current user.
+
+        Args:
+            shared:
+                If False, returns only datasets owned by the user.
+                If True, returns only the datasets which have been shared with the user.
+                If None, returns all datasets the user has access to (owned and shared).
+                Defaults to False.
+
+        Returns:
+            A list of datasets owned by the current user.
+        """
         return list(self.get_datasets_iter(shared))
 
     def get_all_datasets(self) -> List[DatasetData]:

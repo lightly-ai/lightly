@@ -70,24 +70,17 @@ def retry(func, *args, **kwargs):
 class Paginated(Iterator):
     def __init__(self, fn, page_size, *args, **kwargs):
         self.entries: List = []
-        self.entries_lock = threading.Condition()
         self.offset = 0
         self.fn = fn
         self.page_size = page_size
         self.args = args
         self.kwargs = kwargs
-        self.itteration_over = False
-        self.exception = None
-        # fetch first page on init
-        fetch = threading.Thread(target=self.fetch_page)
-        fetch.start()
 
     def __iter__(self):
         return self
 
-    def fetch_page(self):
-        chunk = []
-        try:
+    def __next__(self):
+        if len(self.entries) == 0:
             chunk = retry(
                 self.fn,
                 page_offset=self.offset * self.page_size,
@@ -95,43 +88,11 @@ class Paginated(Iterator):
                 *self.args,
                 **self.kwargs,
             )
-        except RuntimeError as e:
-            self.entries_lock.acquire()
-            self.exception = e
-            self.entries_lock.notify()
-            self.entries_lock.release()
-            return
-        self.entries_lock.acquire()
-        if len(chunk) < self.page_size:
-            self.itteration_over = True
-        self.entries.extend(chunk)
-        self.offset += 1
-        self.entries_lock.notify()
-        self.entries_lock.release()
-
-    def __next__(self):
-        self.entries_lock.acquire()
-        while len(self.entries) == 0:
-            if self.itteration_over:
+            if len(chunk) == 0:
                 raise StopIteration
-            elif self.exception is not None:
-                raise self.exception
-            else:
-                self.entries_lock.wait()
-        if self.exception is not None:
-            raise self.exception
-        # fetch more entries only when precisely one page is locally queued
-        # if the consuming thread reads faster than api fetches are supplying,
-        # this becomes a chain of immediately consecutive fetches
-        if len(self.entries) == self.page_size and not self.itteration_over:
-            # fetching on a separate thread avoids unnecessary latency
-            # (1) when beginning iteration or
-            # (2) when iterating across pages
-            fetch = threading.Thread(target=self.fetch_page)
-            fetch.start()
-        v = self.entries.pop(0)
-        self.entries_lock.release()
-        return v
+            self.offset += 1
+            self.entries.extend(chunk)
+        return self.entries.pop(0)
 
 
 def paginate_endpoint(fn, page_size=5000, *args, **kwargs) -> Iterator:
