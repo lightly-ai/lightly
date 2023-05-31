@@ -569,7 +569,7 @@ def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
             last_modified_at=0,
         ),
     ]
-    assert mock_compute_worker_api.get_docker_runs.call_count == 1
+    assert mock_compute_worker_api.get_docker_runs.call_count == 2
 
 
 def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
@@ -605,7 +605,7 @@ def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
             last_modified_at=0,
         ),
     ]
-    assert mock_compute_worker_api.get_docker_runs_query_by_dataset_id.call_count == 1
+    assert mock_compute_worker_api.get_docker_runs_query_by_dataset_id.call_count == 2
 
 
 def test_get_compute_worker_run_tags__no_tags(mocker: MockerFixture) -> None:
