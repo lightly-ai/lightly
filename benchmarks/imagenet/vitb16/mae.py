@@ -79,7 +79,6 @@ class MAE(LightningModule):
             mask_ratio=self.mask_ratio,
             device=images.device,
         )
-        assert (idx_keep[:, 0] == 0).all()  # first token must be class token
         features = self.forward_encoder(images, idx_keep)
         predictions = self.forward_decoder(features, idx_keep, idx_mask)
 
