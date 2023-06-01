@@ -3,8 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import copy
 from typing import Optional
-import collections.abc
-from itertools import repeat
 
 
 class PatchEmbed(nn.Module):
