@@ -17,12 +17,6 @@ from tests.api_workflow.mocked_api_workflow_client import (
 
 @pytest.skip("Skip this test.", allow_module_level=True)
 class TestCLIMagic(MockedApiWorkflowSetup):
-    @classmethod
-    def setUpClass(cls) -> None:
-        sys.modules[
-            "lightly.cli.upload_cli"
-        ].ApiWorkflowClient = MockedApiWorkflowClient
-
     def setUp(self):
         MockedApiWorkflowSetup.setUp(self)
         self.create_fake_dataset()
@@ -30,7 +24,6 @@ class TestCLIMagic(MockedApiWorkflowSetup):
             self.cfg = compose(
                 config_name="config",
                 overrides=[
-                    "token='123'",
                     f"input_dir={self.folder_path}",
                     "trainer.max_epochs=0",
                 ],
@@ -76,38 +69,15 @@ class TestCLIMagic(MockedApiWorkflowSetup):
                 )
 
     def test_parse_cli_string(self):
-        cli_string = (
-            "lightly-magic dataset_id='XYZ' upload='thumbnails' trainer.max_epochs=3"
-        )
+        cli_string = "lightly-magic trainer.max_epochs=3"
         self.parse_cli_string(cli_string)
-        self.assertEqual(self.cfg["dataset_id"], "XYZ")
-        self.assertEqual(self.cfg["upload"], "thumbnails")
         self.assertEqual(self.cfg["trainer"]["max_epochs"], 3)
 
-    def test_magic_new_dataset_name(self):
-        MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
-        cli_string = "lightly-magic new_dataset_name='dataset_name_xyz'"
-        self.parse_cli_string(cli_string)
-        cli.lightly_cli(self.cfg)
-
-    def test_magic_new_dataset_id(self):
-        MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
-        cli_string = "lightly-magic dataset_id='dataset_id_xyz'"
-        self.parse_cli_string(cli_string)
-        cli.lightly_cli(self.cfg)
-
-    def test_magic_without_upload_with_trainer(self):
+    def test_magic_with_trainer(self):
         MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
         cli_string = "lightly-magic trainer.max_epochs=1"
         self.parse_cli_string(cli_string)
         cli.lightly_cli(self.cfg)
-
-    def test_magic_with_trainer_and_append(self):
-        MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
-        cli_string = "lightly-magic trainer.max_epochs=1 append=True"
-        self.parse_cli_string(cli_string)
-        with self.assertWarns(UserWarning):
-            cli.lightly_cli(self.cfg)
 
     def tearDown(self) -> None:
         for filename in ["embeddings.csv", "embeddings_sorted.csv"]:

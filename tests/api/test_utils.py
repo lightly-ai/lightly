@@ -2,6 +2,7 @@ import os
 import unittest
 from unittest import mock
 
+import pytest
 from PIL import Image
 
 from lightly.api.utils import (
@@ -10,6 +11,7 @@ from lightly.api.utils import (
     get_lightly_server_location_from_env,
     get_signed_url_destination,
     getenv,
+    paginate_endpoint,
     retry,
 )
 
@@ -90,3 +92,26 @@ class TestUtils(unittest.TestCase):
         os.environ["LIGHTLY_SERVER_LOCATION"] = "https://api.dev.lightly.ai/ "
         host = get_lightly_server_location_from_env()
         self.assertEqual(host, "https://api.dev.lightly.ai")
+
+    def test_paginate_endpoint(self):
+        def some_function(page_size=8, page_offset=0):
+            if page_offset > 3 * page_size:
+                return []
+            elif page_offset > 2 * page_size:
+                return (page_size - 1) * ["a"]
+            else:
+                return page_size * ["a"]
+
+        page_size = 8
+        some_iterator = paginate_endpoint(some_function, page_size=page_size)
+        some_list = list(some_iterator)
+        self.assertEqual((4 * page_size - 1) * ["a"], some_list)
+        self.assertEqual(len(some_list), (4 * page_size - 1))
+
+    def test_paginate_endpoint_empty(self):
+        def some_function(page_size=8, page_offset=0):
+            return []
+
+        some_iterator = paginate_endpoint(some_function, page_size=8)
+        some_list = list(some_iterator)
+        self.assertEqual(some_list, [])
