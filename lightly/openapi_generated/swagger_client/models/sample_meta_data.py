@@ -20,7 +20,7 @@ import json
 
 
 from typing import Any, Dict, List, Optional, Union
-from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, confloat, conint, conlist
+from pydantic import Extra,  BaseModel, Field, confloat, conint, conlist
 
 class SampleMetaData(BaseModel):
     """
@@ -28,15 +28,16 @@ class SampleMetaData(BaseModel):
     """
     custom: Optional[Dict[str, Any]] = None
     dynamic: Optional[Dict[str, Any]] = None
-    sharpness: Optional[Union[StrictFloat, StrictInt]] = None
-    size_in_bytes: Optional[StrictInt] = Field(None, alias="sizeInBytes")
-    snr: Optional[Union[StrictFloat, StrictInt]] = None
-    mean: Optional[conlist(Union[confloat(strict=True), conint(strict=True)])] = None
-    shape: Optional[conlist(conint(strict=True))] = None
-    std: Optional[conlist(Union[confloat(strict=True), conint(strict=True)])] = None
-    sum_of_squares: Optional[conlist(Union[confloat(strict=True), conint(strict=True)])] = Field(None, alias="sumOfSquares")
-    sum_of_values: Optional[conlist(Union[confloat(strict=True), conint(strict=True)])] = Field(None, alias="sumOfValues")
-    __properties = ["custom", "dynamic", "sharpness", "sizeInBytes", "snr", "mean", "shape", "std", "sumOfSquares", "sumOfValues"]
+    sharpness: Optional[Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)]] = None
+    size_in_bytes: Optional[conint(strict=True, ge=0)] = Field(None, alias="sizeInBytes")
+    snr: Optional[Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)]] = None
+    uniform_row_ratio: Optional[Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)]] = Field(None, alias="uniformRowRatio")
+    mean: Optional[conlist(Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)], max_items=3, min_items=3)] = None
+    shape: Optional[conlist(conint(strict=True, ge=0), max_items=3, min_items=3)] = None
+    std: Optional[conlist(Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)], max_items=3, min_items=3)] = None
+    sum_of_squares: Optional[conlist(Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)], max_items=3, min_items=3)] = Field(None, alias="sumOfSquares")
+    sum_of_values: Optional[conlist(Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)], max_items=3, min_items=3)] = Field(None, alias="sumOfValues")
+    __properties = ["custom", "dynamic", "sharpness", "sizeInBytes", "snr", "uniformRowRatio", "mean", "shape", "std", "sumOfSquares", "sumOfValues"]
 
     class Config:
         """Pydantic configuration"""
@@ -86,6 +87,7 @@ class SampleMetaData(BaseModel):
             "sharpness": obj.get("sharpness"),
             "size_in_bytes": obj.get("sizeInBytes"),
             "snr": obj.get("snr"),
+            "uniform_row_ratio": obj.get("uniformRowRatio"),
             "mean": obj.get("mean"),
             "shape": obj.get("shape"),
             "std": obj.get("std"),
