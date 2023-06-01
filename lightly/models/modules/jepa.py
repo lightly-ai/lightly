@@ -1,20 +1,10 @@
 import torch
 import torch.nn as nn
-import math
 import torch.nn.functional as F
-from einops import rearrange
 import copy
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Optional
 import collections.abc
 from itertools import repeat
-
-
-
-def to_2tuple(x):
-    if isinstance(x, collections.abc.Iterable) and not isinstance(x, str):
-        return tuple(x)
-    return tuple(repeat(x, n))
-
 
 
 class PatchEmbed(nn.Module):
@@ -26,29 +16,19 @@ class PatchEmbed(nn.Module):
             patch_size: int = 16,
             in_chans: int = 3,
             embed_dim: int = 768,
-            norm_layer: Optional[Callable] = None,
-            flatten: bool = True,
-            bias: bool = True,
-            strict_img_size: bool = True,
+
     ):
         super().__init__()
-        self.patch_size = to_2tuple(patch_size)
-        self.img_size = to_2tuple(img_size)
-        self.grid_size = tuple([s // p for s, p in zip(self.img_size, self.patch_size)])
-        self.num_patches = self.grid_size[0] * self.grid_size[1]
-
-
-        self.flatten = flatten
-        self.strict_img_size = strict_img_size
-
-        self.proj = nn.Conv2d(in_chans, embed_dim, kernel_size=patch_size, stride=patch_size, bias=bias)
-        self.norm = norm_layer(embed_dim) if norm_layer else nn.Identity()
+        if isinstance(img_size, int):
+            img_size = img_size, img_size
+        if isinstance(patch_size, int):
+            patch_size = patch_size, patch_size
+        self.patch_shape = (img_size[0] // patch_size[0], img_size[1] // patch_size[1])
+        self.proj = nn.Conv2d(in_chans, embed_dim, kernel_size=patch_size, stride=patch_size)
 
     def forward(self, x):
         x = self.proj(x)
-        if self.flatten:
-            x = x.flatten(2).transpose(1, 2)  # NCHW -> NLC
-        x = self.norm(x)
+        x = x.flatten(2).transpose(1, 2)
         return x
 
 
