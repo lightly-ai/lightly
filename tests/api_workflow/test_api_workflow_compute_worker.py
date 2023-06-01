@@ -150,7 +150,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
 
     def test_schedule_compute_worker_run__runs_on(self):
         scheduled_run_id = self.api_workflow_client.schedule_compute_worker_run(
-            worker_config={}, lightly_config={}, runs_on=[generate_id(), generate_id()]
+            worker_config={}, lightly_config={}, runs_on=["AAA", "BBB"]
         )
         assert scheduled_run_id
 
