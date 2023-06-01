@@ -416,13 +416,13 @@ def test_get_compute_worker_state_and_message_OPEN() -> None:
     dataset_id = generate_id()
     scheduled_run = DockerRunScheduledData(
         id=generate_id(),
-        dataset_id=generate_id(),
+        dataset_id=dataset_id,
         config_id=generate_id(),
         priority=DockerRunScheduledPriority.MID,
         state=DockerRunScheduledState.OPEN,
         created_at=0,
         last_modified_at=1,
-        runs_on=[dataset_id],
+        runs_on=["worker-label"],
     )
 
     def mocked_raise_exception(*args, **kwargs):

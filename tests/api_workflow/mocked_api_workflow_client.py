@@ -199,58 +199,57 @@ class MockedTagsApi(TagsApi):
         response_ = TagData(
             id=tag_id,
             dataset_id=dataset_id,
-            prev_tag_id="initial-tag",
+            prev_tag_id=generate_id(),
             bit_mask_data="0x80bda23e9",
             name="second-tag",
             tot_size=15,
             created_at=1577836800,
-            changes=dict(),
+            changes=[],
         )
         return response_
 
     def get_tags_by_dataset_id(self, dataset_id, **kwargs):
         _check_dataset_id(dataset_id)
-        if dataset_id == "xyz-no-tags":
-            return []
+
         tag_1 = TagData(
             id=generate_id(),
             dataset_id=dataset_id,
             prev_tag_id=None,
-            bit_mask_data="0xF",
+            bit_mask_data="0xf",
             name="initial-tag",
             tot_size=4,
             created_at=1577836800,
-            changes=dict(),
+            changes=[],
         )
         tag_2 = TagData(
             id=generate_id(),
             dataset_id=dataset_id,
-            prev_tag_id="initial-tag",
-            bit_mask_data="0xF",
+            prev_tag_id=tag_1.id,
+            bit_mask_data="0xf",
             name="query_tag_name_xyz",
             tot_size=4,
             created_at=1577836800,
-            changes=dict(),
+            changes=[],
         )
         tag_3 = TagData(
             id=generate_id(),
             dataset_id=dataset_id,
-            prev_tag_id="initial-tag",
+            prev_tag_id=tag_1.id,
             bit_mask_data="0x1",
             name="preselected_tag_name_xyz",
             tot_size=4,
             created_at=1577836800,
-            changes=dict(),
+            changes=[],
         )
         tag_4 = TagData(
             id=generate_id(),
             dataset_id=dataset_id,
-            prev_tag_id="preselected_tag_id_xyz",
+            prev_tag_id=tag_3.id,
             bit_mask_data="0x3",
             name="selected_tag_xyz",
             tot_size=4,
             created_at=1577836800,
-            changes=dict(),
+            changes=[],
         )
         tag_5 = TagData(
             id=generate_id(),
@@ -260,7 +259,7 @@ class MockedTagsApi(TagsApi):
             name="1000",
             tot_size=4,
             created_at=1577836800,
-            changes=dict(),
+            changes=[],
         )
         tags = [tag_1, tag_2, tag_3, tag_4, tag_5]
         no_tags_to_return = getattr(self, "no_tags", 5)
@@ -268,38 +267,42 @@ class MockedTagsApi(TagsApi):
         return tags
 
     def perform_tag_arithmetics(
-        self, body: TagArithmeticsRequest, dataset_id, **kwargs
+        self, tag_arithmetics_request: TagArithmeticsRequest, dataset_id, **kwargs
     ):
         _check_dataset_id(dataset_id)
-        if (body.new_tag_name is None) or (body.new_tag_name == ""):
+        if (tag_arithmetics_request.new_tag_name is None) or (
+            tag_arithmetics_request.new_tag_name == ""
+        ):
             return TagBitMaskResponse(bit_mask_data="0x2")
         else:
             return CreateEntityResponse(id="tag-arithmetic-created")
 
     def perform_tag_arithmetics_bitmask(
-        self, body: TagArithmeticsRequest, dataset_id, **kwargs
+        self, tag_arithmetics_request: TagArithmeticsRequest, dataset_id, **kwargs
     ):
         _check_dataset_id(dataset_id)
         return TagBitMaskResponse(bit_mask_data="0x2")
 
-    def upsize_tags_by_dataset_id(self, body, dataset_id, **kwargs):
+    def upsize_tags_by_dataset_id(self, tag_upsize_request, dataset_id, **kwargs):
         _check_dataset_id(dataset_id)
-        assert body.upsize_tag_creator in (
+        assert tag_upsize_request.upsize_tag_creator in (
             TagCreator.USER_PIP,
             TagCreator.USER_PIP_LIGHTLY_MAGIC,
         )
 
-    def create_tag_by_dataset_id(self, body, dataset_id, **kwargs) -> TagData:
+    def create_tag_by_dataset_id(
+        self, tag_create_request, dataset_id, **kwargs
+    ) -> TagData:
         _check_dataset_id(dataset_id)
         tag = TagData(
-            id="inital_tag_id",
+            id=generate_id(),
             dataset_id=dataset_id,
-            prev_tag_id=body["prev_tag_id"],
-            bit_mask_data=body["bit_mask_data"],
-            name=body["name"],
+            prev_tag_id=tag_create_request["prev_tag_id"],
+            bit_mask_data=tag_create_request["bit_mask_data"],
+            name=tag_create_request["name"],
             tot_size=10,
             created_at=1577836800,
-            changes=dict(),
+            changes=[],
         )
         return tag
 
