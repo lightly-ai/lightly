@@ -196,13 +196,7 @@ def test__get_compute_worker_run_checkpoint_url(
         state=DockerRunState.COMPUTING_METADATA,
         created_at=0,
         last_modified_at=0,
-        artifacts=[
-            DockerRunArtifactData(
-                id=generate_id(),
-                file_name="report.pdf",
-                type=DockerRunArtifactType.REPORT_PDF,
-            ),
-        ],
+        artifacts=[mocked_artifact],
     )
     read_url = ApiWorkflowClient.get_compute_worker_run_checkpoint_url(
         self=mocked_client, run=run
