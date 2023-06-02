@@ -123,7 +123,6 @@ import torchvision
 from lightly import loss
 from lightly import transforms
 from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.models.modules import heads
 
 
@@ -155,8 +154,6 @@ model = SimCLR(backbone)
 # Prepare transform that creates multiple random views for every image.
 transform = transforms.SimCLRTransform(input_size=32, cj_prob=0.5)
 
-# Combine views from multiple images into a batch.
-collate_fn = MultiViewCollate()
 
 # Create a dataset from your image folder.
 dataset = data.LightlyDataset(input_dir="./my/cute/cats/dataset/", transform=transform)
@@ -166,7 +163,6 @@ dataloader = torch.utils.data.DataLoader(
     dataset,  # Pass the dataset to the dataloader.
     batch_size=128,  # A large batch size helps with the learning.
     shuffle=True,  # Shuffling is important!
-    collate_fn=collate_fn,
 )
 
 # Lightly exposes building blocks such as loss functions.

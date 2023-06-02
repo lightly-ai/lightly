@@ -2,8 +2,6 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import VICRegLLoss
 
 ## The global projection head is the same as the Barlow Twins one
@@ -36,20 +34,20 @@ model = VICRegL(backbone)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-pascal_voc = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc", download=True, target_transform=lambda t: 0
-)
 transform = VICRegLTransform(n_local_views=0)
-dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
+# we ignore object detection annotations by setting target_transform to return 0
+dataset = torchvision.datasets.VOCDetection(
+    "datasets/pascal_voc",
+    download=True,
+    transform=transform,
+    target_transform=lambda t: 0,
+)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
-
-collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=256,
-    collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,
@@ -61,7 +59,7 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for views_and_grids, _, _ in dataloader:
+    for views_and_grids, _ in dataloader:
         views_and_grids = [x.to(device) for x in views_and_grids]
         views = views_and_grids[: len(views_and_grids) // 2]
         grids = views_and_grids[len(views_and_grids) // 2 :]

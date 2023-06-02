@@ -7,8 +7,6 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import SwaVLoss
 from lightly.loss.memory_bank import MemoryBankModule
 from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
@@ -27,7 +25,7 @@ class SwaV(pl.LightningModule):
         self.criterion = SwaVLoss()
 
     def training_step(self, batch, batch_idx):
-        batch_swav, _, _ = batch
+        batch_swav, _ = batch
         high_resolution, low_resolution = batch_swav[:2], batch_swav[2:]
         self.prototypes.normalize()
 
@@ -90,26 +88,24 @@ class SwaV(pl.LightningModule):
 
 model = SwaV()
 
+transform = SwaVTransform()
 # we ignore object detection annotations by setting target_transform to return 0
-pascal_voc = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc", download=True, target_transform=lambda t: 0
+dataset = torchvision.datasets.VOCDetection(
+    "datasets/pascal_voc",
+    download=True,
+    transform=transform,
+    target_transform=lambda t: 0,
 )
-trasnform = SwaVTransform()
-dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
-
-collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=128,
-    collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,
 )
-
 accelerator = "gpu" if torch.cuda.is_available() else "cpu"
 
 trainer = pl.Trainer(max_epochs=10, devices=1, accelerator=accelerator)
