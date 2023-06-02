@@ -100,6 +100,7 @@ class VICRegLTransform(ImageGridTransform):
         global_solarize_prob: float = 0.0,
         local_solarize_prob: float = 0.2,
         hf_prob: float = 0.5,
+        vf_prob: float = 0.0,
         cj_prob: float = 1.0,
         cj_strength: float = 0.5,
         cj_bright: float = 0.8,
@@ -115,6 +116,7 @@ class VICRegLTransform(ImageGridTransform):
                 crop_min_scale=global_crop_scale[0],
                 crop_max_scale=global_crop_scale[1],
                 hf_prob=hf_prob,
+                vf_prob=vf_prob,
                 grid_size=global_grid_size,
             ),
             VICRegLViewTransform(
