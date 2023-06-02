@@ -56,6 +56,16 @@ class DINO(LightningModule):
     def training_step(
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
     ) -> Tensor:
+        # Momentum update teacher.
+        momentum = cosine_schedule(
+            step=self.trainer.global_step,
+            max_steps=self.trainer.estimated_stepping_batches,
+            start_value=0.996,
+            end_value=1.0,
+        )
+        update_momentum(self.student_backbone, self.backbone, m=momentum)
+        update_momentum(self.student_projection_head, self.projection_head, m=momentum)
+
         views, targets = batch[0], batch[1]
         global_views = torch.cat(views[:2])
         local_views = torch.cat(views[2:])
@@ -72,16 +82,6 @@ class DINO(LightningModule):
             student_projections.chunk(len(views)),
             epoch=self.current_epoch,
         )
-
-        # Momentum update teacher.
-        momentum = cosine_schedule(
-            step=self.trainer.global_step,
-            max_steps=self.trainer.estimated_stepping_batches,
-            start_value=0.996,
-            end_value=1.0,
-        )
-        update_momentum(self.student_backbone, self.backbone, m=momentum)
-        update_momentum(self.student_projection_head, self.projection_head, m=momentum)
 
         self.log_dict(
             {
