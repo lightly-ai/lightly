@@ -13,11 +13,11 @@ class PatchEmbed(nn.Module):
     """ 2D Image to Patch Embedding
     """
     def __init__(
-            self,
-            img_size: Optional[int] = 224,
-            patch_size: int = 16,
-            in_chans: int = 3,
-            embed_dim: int = 768,
+        self,
+        img_size: Optional[int] = 224,
+        patch_size: int = 16,
+        in_chans: int = 3,
+        embed_dim: int = 768,
 
     ):
         super().__init__()
@@ -34,11 +34,16 @@ class PatchEmbed(nn.Module):
         return x
 
 
-class Predictor(nn.Module):
+class IJEPA_Decoder(nn.Module):
+    def __init__(self, embed_dim, depth, num_heads):
+        super().__init__()
+        pass
+
+class IJEPA_Predictor(nn.Module):
     def __init__(self, embed_dim, num_heads, depth):
         super().__init__()
         
-        self.predictor = Decoder(dim = embed_dim, depth = depth, heads = num_heads)
+        self.predictor = IJEPA_Decoder(dim = embed_dim, depth = depth, heads = num_heads)
     def forward(self, context_encoding, target_masks):
         x = torch.cat((context_encoding, target_masks), dim = 1)
         x = self.predictor(x)
@@ -146,9 +151,9 @@ class IJEPA_base(nn.Module):
             heads=num_heads,
             depth=enc_depth, 
             layer_dropout=self.layer_dropout,
-        )  
+    )  
         self.student_encoder = copy.deepcopy(self.teacher_encoder).cuda()
-        self.predictor = Predictor(embed_dim, num_heads, pred_depth)
+        self.predictor = IJEPA_Predictor(embed_dim, num_heads, pred_depth)
 
     @torch.no_grad() 
     def get_target_block(self, target_encoder, x, patch_dim, aspect_ratio, scale, M):  
