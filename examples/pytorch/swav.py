@@ -35,7 +35,10 @@ model.to(device)
 
 transform = SwaVTransform()
 dataset = pascal_voc = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc", download=True, transform=transform
+    "datasets/pascal_voc",
+    download=True,
+    transform=transform,
+    target_transform=lambda t: 0,
 )
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
@@ -54,7 +57,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for batch, _, _ in dataloader:
+    for batch, _ in dataloader:
         model.prototypes.normalize()
         multi_crop_features = [model(x.to(device)) for x in batch]
         high_resolution = multi_crop_features[:2]

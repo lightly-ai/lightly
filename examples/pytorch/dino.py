@@ -53,7 +53,10 @@ model.to(device)
 
 transform = DINOTransform()
 dataset = pascal_voc = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc", download=True, transform=transform
+    "datasets/pascal_voc",
+    download=True,
+    transform=transform,
+    target_transform=lambda t: 0,
 )
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
@@ -81,7 +84,7 @@ print("Starting Training")
 for epoch in range(epochs):
     total_loss = 0
     momentum_val = cosine_schedule(epoch, epochs, 0.996, 1)
-    for views, _, _ in dataloader:
+    for views, _ in dataloader:
         update_momentum(model.student_backbone, model.teacher_backbone, m=momentum_val)
         update_momentum(model.student_head, model.teacher_head, m=momentum_val)
         views = [view.to(device) for view in views]

@@ -72,7 +72,7 @@ print("Starting Training")
 for epoch in range(epochs):
     total_loss = 0
     momentum_val = cosine_schedule(epoch, epochs, 0.996, 1)
-    for (x0, x1), _, _ in dataloader:
+    for (x0, x1), _ in dataloader:
         update_momentum(model.backbone, model.backbone_momentum, m=momentum_val)
         update_momentum(
             model.projection_head, model.projection_head_momentum, m=momentum_val

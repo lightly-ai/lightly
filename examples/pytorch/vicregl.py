@@ -36,7 +36,10 @@ model.to(device)
 
 transform = VICRegLTransform(n_local_views=0)
 dataset = pascal_voc = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc", download=True, transform=transform
+    "datasets/pascal_voc",
+    download=True,
+    transform=transform,
+    target_transform=lambda t: 0,
 )
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
@@ -55,7 +58,7 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for views_and_grids, _, _ in dataloader:
+    for views_and_grids, _ in dataloader:
         views_and_grids = [x.to(device) for x in views_and_grids]
         views = views_and_grids[: len(views_and_grids) // 2]
         grids = views_and_grids[len(views_and_grids) // 2 :]

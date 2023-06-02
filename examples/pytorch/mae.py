@@ -78,7 +78,10 @@ model.to(device)
 
 transform = MAETransform()
 dataset = pascal_voc = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc", download=True, transform=transform
+    "datasets/pascal_voc",
+    download=True,
+    transform=transform,
+    target_transform=lambda t: 0,
 )
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
@@ -97,7 +100,7 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=1.5e-4)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for images, _, _ in dataloader:
+    for images, _ in dataloader:
         images = images[0].to(device)  # images is a list containing only one view
         predictions, targets = model(images)
         loss = criterion(predictions, targets)

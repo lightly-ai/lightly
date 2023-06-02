@@ -65,7 +65,10 @@ model.to(device)
 
 transform = MSNTransform()
 dataset = pascal_voc = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc", download=True, transform=transform
+    "datasets/pascal_voc",
+    download=True,
+    transform=transform,
+    target_transform=lambda t: 0,
 )
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
@@ -90,7 +93,7 @@ optimizer = torch.optim.AdamW(params, lr=1.5e-4)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for views, _, _ in dataloader:
+    for views, _ in dataloader:
         utils.update_momentum(model.anchor_backbone, model.backbone, 0.996)
         utils.update_momentum(
             model.anchor_projection_head, model.projection_head, 0.996
