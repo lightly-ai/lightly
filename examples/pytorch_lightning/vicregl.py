@@ -54,7 +54,8 @@ class VICRegL(pl.LightningModule):
 model = VICRegL()
 
 transform = VICRegLTransform(n_local_views=0)
-dataset = pascal_voc = torchvision.datasets.VOCDetection(
+# we ignore object detection annotations by setting target_transform to return 0
+dataset = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc",
     download=True,
     transform=transform,

@@ -64,7 +64,8 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
 transform = MSNTransform()
-dataset = pascal_voc = torchvision.datasets.VOCDetection(
+# we ignore object detection annotations by setting target_transform to return 0
+dataset = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc",
     download=True,
     transform=transform,
