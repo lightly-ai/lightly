@@ -223,9 +223,7 @@ def test_upload_scores(mocker: MockerFixture) -> None:
     client._dataset_id = dataset_id
 
     mocked_create_score.reset_mock()
-    client.upload_scores(
-        al_scores={"score_type": [1, 2, 3]}, query_tag_id="some-tag-id"
-    )
+    client.upload_scores(al_scores={"score_type": [1, 2, 3]}, query_tag_id=tag_id)
     mocked_create_score.assert_called_once()
     kwargs = mocked_create_score.call_args[1]
-    assert kwargs.get("tag_id") == "some-tag-id"
+    assert kwargs.get("tag_id") == tag_id

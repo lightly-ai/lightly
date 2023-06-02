@@ -25,7 +25,7 @@ from lightly.openapi_generated.swagger_client.models import (
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
-    DockerWorkerConfig,
+    DockerWorkerConfigV3,
     DockerWorkerConfigV3Docker,
     DockerWorkerConfigV3DockerCorruptnessCheck,
     DockerWorkerConfigV3Lightly,
@@ -202,7 +202,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
 
         return obj_api
 
-    def xtest_selection_config(self):
+    def test_selection_config(self):
         selection_config = SelectionConfig(
             n_samples=1,
             strategies=[
@@ -246,7 +246,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
                 ),
             ],
         )
-        config = DockerWorkerConfig(
+        config = DockerWorkerConfigV3(
             worker_type=DockerWorkerType.FULL, selection=selection_config
         )
 
@@ -522,6 +522,7 @@ def test_compute_worker_run_info_generator(mocker) -> None:
 
 
 def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     dataset_id = generate_id()
     run_ids = [generate_id(), generate_id()]
     client = ApiWorkflowClient(token="123")
@@ -577,6 +578,7 @@ def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
 
 
 def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     dataset_id = generate_id()
     run_id = generate_id()
     client = ApiWorkflowClient(token="123")
@@ -615,6 +617,7 @@ def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
 
 
 def test_get_compute_worker_run_tags__no_tags(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     run_id = generate_id()
     client = ApiWorkflowClient(token="123", dataset_id=generate_id())
     mock_compute_worker_api = mocker.create_autospec(
@@ -630,7 +633,9 @@ def test_get_compute_worker_run_tags__no_tags(mocker: MockerFixture) -> None:
 def test_get_compute_worker_run_tags__single_tag(mocker: MockerFixture) -> None:
     dataset_id = generate_id()
     run_id = generate_id()
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     client = ApiWorkflowClient(token="123", dataset_id=dataset_id)
+    client._dataset_id = dataset_id
     mock_compute_worker_api = mocker.create_autospec(
         DockerApi, spec_set=True
     ).return_value
@@ -654,9 +659,11 @@ def test_get_compute_worker_run_tags__single_tag(mocker: MockerFixture) -> None:
 
 
 def test_get_compute_worker_run_tags__multiple_tags(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     run_id = generate_id()
     dataset_id = generate_id()
     client = ApiWorkflowClient(token="123", dataset_id=dataset_id)
+    client._dataset_id = dataset_id
     mock_compute_worker_api = mocker.create_autospec(
         DockerApi, spec_set=True
     ).return_value
