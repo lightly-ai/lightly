@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import copy
+from functools import partial
 from typing import Optional, Callable, List
 from torchvision.models import vision_transformer
 from lightly.models import utils
@@ -118,8 +119,6 @@ class IJEPA_Encoder(vision_transformer.Encoder):
         )
         pos_embedding = pos_embedding.permute(0, 2, 3, 1).view(1, -1, dim)
         return torch.cat((class_emb.unsqueeze(0), pos_embedding), dim=1)
-
-
 
 
 class IJEPA_base(nn.Module):
