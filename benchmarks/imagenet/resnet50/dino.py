@@ -1,11 +1,12 @@
 import copy
-from typing import List, Tuple
+from typing import List, Optional, Tuple, Union
 
 import torch
 from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import Identity
 from torch.optim import SGD
+from torch.optim.optimizer import Optimizer
 from torchvision.models import resnet50
 
 from lightly.loss import DINOLoss
@@ -75,7 +76,6 @@ class DINO(LightningModule):
         student_projections = torch.cat(
             [self.forward_student(global_views), self.forward_student(local_views)]
         )
-        self.student_projection_head.cancel_last_layer_gradients(self.current_epoch)
 
         loss = self.criterion(
             teacher_projections.chunk(2),
@@ -150,6 +150,19 @@ class DINO(LightningModule):
             "interval": "step",
         }
         return [optimizer], [scheduler]
+
+    def configure_gradient_clipping(
+        self,
+        optimizer: Optimizer,
+        gradient_clip_val: Union[int, float, None] = None,
+        gradient_clip_algorithm: Union[str, None] = None,
+    ) -> None:
+        self.clip_gradients(
+            optimizer=optimizer,
+            gradient_clip_val=3.0,
+            gradient_clip_algorithm="norm",
+        )
+        self.student_projection_head.cancel_last_layer_gradients(self.current_epoch)
 
 
 # For ResNet50 we adjust crop scales as recommended by the authors:
