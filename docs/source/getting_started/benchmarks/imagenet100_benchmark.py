@@ -40,7 +40,6 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from torch.optim.lr_scheduler import LambdaLR
 
 from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import (
     BarlowTwinsLoss,
     DINOLoss,
@@ -108,9 +107,6 @@ else:
 
 path_to_train = "/datasets/imagenet100/train/"
 path_to_test = "/datasets/imagenet100/val/"
-
-# Collate function init
-collate_fn = MultiViewCollate()
 
 # Use SimCLR augmentations
 simclr_transform = SimCLRTransform(input_size=input_size)
@@ -183,7 +179,6 @@ def get_data_loaders(batch_size: int, dataset_train_ssl):
         dataset_train_ssl,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=collate_fn,
         drop_last=True,
         num_workers=num_workers,
     )

@@ -8,8 +8,6 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import PMSNLoss
 from lightly.models import utils
 from lightly.models.modules.heads import MSNProjectionHead
@@ -49,7 +47,7 @@ class PMSN(pl.LightningModule):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
         utils.update_momentum(self.anchor_projection_head, self.projection_head, 0.996)
 
-        views, _, _ = batch
+        views, _ = batch
         views = [view.to(self.device, non_blocking=True) for view in views]
         targets = views[0]
         anchors = views[1]
@@ -87,21 +85,20 @@ class PMSN(pl.LightningModule):
 
 model = PMSN()
 
-# we ignore object detection annotations by setting target_transform to return 0
-pascal_voc = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc", download=True, target_transform=lambda t: 0
-)
 transform = MSNTransform()
-dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
+# we ignore object detection annotations by setting target_transform to return 0
+dataset = torchvision.datasets.VOCDetection(
+    "datasets/pascal_voc",
+    download=True,
+    transform=transform,
+    target_transform=lambda t: 0,
+)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
-
-collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=64,
-    collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,

@@ -3,8 +3,6 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.models import utils
 from lightly.models.modules import masked_autoencoder
 from lightly.transforms.mae_transform import MAETransform  # Same transform as MAE
@@ -40,7 +38,7 @@ class SimMIM(pl.LightningModule):
         return self.decoder(x_encoded)
 
     def training_step(self, batch, batch_idx):
-        images, _, _ = batch
+        images, _ = batch
         images = images[0]  # images is a list containing only one view
         batch_size = images.shape[0]
         idx_keep, idx_mask = utils.random_token_mask(
@@ -75,21 +73,20 @@ model = SimMIM()
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-# we ignore object detection annotations by setting target_transform to return 0
-pascal_voc = torchvision.datasets.VOCDetection(
-    "/home/ubuntu/datasets/pascal_voc", download=False, target_transform=lambda t: 0
-)
 transform = MAETransform()
-dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
+# we ignore object detection annotations by setting target_transform to return 0
+dataset = torchvision.datasets.VOCDetection(
+    "datasets/pascal_voc",
+    download=True,
+    transform=transform,
+    target_transform=lambda t: 0,
+)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
-
-collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=8,
-    collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,
