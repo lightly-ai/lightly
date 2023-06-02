@@ -2,7 +2,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import copy
-from typing import Optional
+from typing import Optional, Callable, List
+from torchvision.models import vision_transformer
+from lightly.models import utils
+import math
 
 
 class PatchEmbed(nn.Module):
@@ -43,6 +46,82 @@ class Predictor(nn.Module):
         return x[:, l - target_masks.shape[1]:, :]
 
 
+class IJEPA_Encoder(vision_transformer.Encoder):
+    def __init__(
+        self,
+        seq_length: int,
+        num_layers: int,
+        num_heads: int,
+        hidden_dim: int,
+        mlp_dim: int,
+        dropout: float,
+        attention_dropout: float,
+        norm_layer: Callable[..., torch.nn.Module] = partial(nn.LayerNorm, eps=1e-6),
+    ):
+        super().__init__(
+            seq_length=seq_length,
+            num_layers=num_layers,
+            num_heads=num_heads,
+            hidden_dim=hidden_dim,
+            mlp_dim=mlp_dim,
+            dropout=dropout,
+            attention_dropout=attention_dropout,
+            norm_layer=norm_layer,
+        )
+        
+    def forward(
+        self, input: torch.Tensor, idx_keep: Optional[torch.Tensor] = None
+    ) -> torch.Tensor:
+        """Encode input tokens.
+
+        Args:
+            input:
+                Batch of token sequences.
+            idx_keep:
+                Tensor with shape (batch_size, num_tokens_to_keep) where each
+                entry is an index of the token to keep in the respective batch.
+                If specified, only the indexed tokens will be encoded.
+
+        Returns:
+            Batch of encoded output tokens.
+        """
+        input = input + self.interpolate_pos_encoding(input)
+        if idx_keep is not None:
+            input = utils.get_at_index(input, idx_keep)
+        return self.ln(self.layers(self.dropout(input)))
+
+    def interpolate_pos_encoding(self, input: torch.Tensor):
+        """Returns the interpolated positional embedding for the given input.
+
+        This function interpolates self.pos_embedding for all tokens in the input,
+        ignoring the class token. This allows encoding variable sized images.
+
+        Args:
+            input:
+               Input tensor with shape (batch_size, num_sequences).
+
+        """
+        # code copied from:
+        npatch = input.shape[1] - 1
+        N = self.pos_embedding.shape[1] - 1
+        if npatch == N:
+            return self.pos_embedding
+        class_emb = self.pos_embedding[:, 0]
+        pos_embedding = self.pos_embedding[:, 1:]
+        dim = input.shape[-1]
+        pos_embedding = nn.functional.interpolate(
+            pos_embedding.reshape(1, int(math.sqrt(N)), int(math.sqrt(N)), dim).permute(
+                0, 3, 1, 2
+            ),
+            scale_factor=math.sqrt(npatch / N),
+            mode="bicubic",
+        )
+        pos_embedding = pos_embedding.permute(0, 2, 3, 1).view(1, -1, dim)
+        return torch.cat((class_emb.unsqueeze(0), pos_embedding), dim=1)
+
+
+
+
 class IJEPA_base(nn.Module):
     def __init__(self, img_size, patch_size, in_chans, embed_dim, enc_depth, pred_depth, num_heads, post_emb_norm=False, M = 4, mode="train", layer_dropout=0.):
         super().__init__()
@@ -63,7 +142,7 @@ class IJEPA_base(nn.Module):
         #define the encoder and decoder, as well as the layer normalization and dropout
         self.post_emb_norm = nn.LayerNorm(embed_dim) if post_emb_norm else nn.Identity()
         self.norm = nn.LayerNorm(embed_dim)
-        self.teacher_encoder = Encoder(
+        self.teacher_encoder = IJEPA_Encoder(
             dim=embed_dim,
             heads=num_heads,
             depth=enc_depth, 
