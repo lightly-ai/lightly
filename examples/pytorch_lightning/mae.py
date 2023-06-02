@@ -57,7 +57,7 @@ class MAE(pl.LightningModule):
         return x_pred
 
     def training_step(self, batch, batch_idx):
-        images, _, _ = batch
+        images, _ = batch
         images = images[0]  # images is a list containing only one view
         batch_size = images.shape[0]
         idx_keep, idx_mask = utils.random_token_mask(
@@ -85,7 +85,10 @@ model = MAE()
 
 transform = MAETransform()
 dataset = pascal_voc = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc", download=True, transform=transform
+    "datasets/pascal_voc",
+    download=True,
+    transform=transform,
+    target_transform=lambda t: 0,
 )
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")

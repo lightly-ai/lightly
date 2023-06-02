@@ -25,7 +25,7 @@ class SimCLR(pl.LightningModule):
         return z
 
     def training_step(self, batch, batch_index):
-        (x0, x1), _, _ = batch
+        (x0, x1), _ = batch
         z0 = self.forward(x0)
         z1 = self.forward(x1)
         loss = self.criterion(z0, z1)

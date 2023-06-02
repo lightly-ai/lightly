@@ -30,7 +30,7 @@ class SwaV(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         self.prototypes.normalize()
-        crops, _, _ = batch
+        crops, _ = batch
         multi_crop_features = [self.forward(x.to(self.device)) for x in crops]
         high_resolution = multi_crop_features[:2]
         low_resolution = multi_crop_features[2:]
@@ -46,7 +46,10 @@ model = SwaV()
 
 transform = SwaVTransform()
 dataset = pascal_voc = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc", download=True, transform=transform
+    "datasets/pascal_voc",
+    download=True,
+    transform=transform,
+    target_transform=lambda t: 0,
 )
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")

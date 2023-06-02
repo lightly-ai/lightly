@@ -29,7 +29,7 @@ class FastSiam(pl.LightningModule):
         return z, p
 
     def training_step(self, batch, batch_idx):
-        views, _, _ = batch
+        views, _ = batch
         features = [self.forward(view) for view in views]
         zs = torch.stack([z for z, _ in features])
         ps = torch.stack([p for _, p in features])
