@@ -57,10 +57,11 @@ class FinetuneEvalClassifier(LinearClassifier):
 
     # Adapt optimizer to match MAE settings. Parameters follow the original code from
     # the authors: https://github.com/facebookresearch/mae/blob/main/FINETUNE.md#fine-tuning
-    # Note that lr and layer-wise lr decay are smaller than in the paper but match the
-    # original code.
+    # Note that lr and layerwise_lr_decay for ViT-B/16 are 1e-3 and 0.75 in the paper
+    # but 5e-4 and 0.65 in the code.
     def configure_optimizers(self):
         lr = 5e-4 * self.batch_size_per_device * self.trainer.world_size / 256
+        layerwise_lr_decay = 0.65
 
         # Group parameters by weight decay and learning rate.
         param_groups = {}
@@ -70,7 +71,7 @@ class FinetuneEvalClassifier(LinearClassifier):
                 group_name = f"vit_layer_{layer_index}"
                 # ViT-B has 12 layers. LR increases from first layer with index 0 to
                 # last layer with index 11.
-                group_lr = lr * (0.65 ** (11 - layer_index))
+                group_lr = lr * (layerwise_lr_decay ** (11 - layer_index))
             else:
                 group_name = "vit"
                 group_lr = lr
