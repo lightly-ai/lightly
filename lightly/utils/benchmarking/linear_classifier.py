@@ -142,12 +142,14 @@ class LinearClassifier(LightningModule):
         }
         return [optimizer], [scheduler]
 
-    def on_fit_start(self) -> None:
+    def on_train_start(self) -> None:
         # Freeze model weights.
         if self.freeze_model:
+            # Set model to eval mode to disable batch norm layer updates.
+            self.model.eval()
             deactivate_requires_grad(model=self.model)
 
-    def on_fit_end(self) -> None:
+    def on_train_end(self) -> None:
         # Unfreeze model weights.
         if self.freeze_model:
             activate_requires_grad(model=self.model)
