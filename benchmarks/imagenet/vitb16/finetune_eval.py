@@ -13,6 +13,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
+from lightly.models import utils
 from lightly.models.utils import add_stochastic_depth_to_blocks
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import LinearClassifier, MetricCallback
@@ -54,14 +55,53 @@ class FinetuneEvalClassifier(LinearClassifier):
         topk = mean_topk_accuracy(predicted_labels, batch[1], k=self.topk)
         return loss, topk
 
-    # Adapt optimizer to match MAE settings.
+    # Adapt optimizer to match MAE settings. Parameters follow the original code from
+    # the authors: https://github.com/facebookresearch/mae/blob/main/FINETUNE.md#fine-tuning
+    # Note that lr and layer-wise lr decay are smaller than in the paper but match the
+    # original code.
     def configure_optimizers(self):
-        parameters = list(self.classification_head.parameters())
-        parameters += self.model.parameters()
+        lr = 5e-4 * self.batch_size_per_device * self.trainer.world_size / 256
+
+        # Group parameters by weight decay and learning rate.
+        param_groups = {}
+        for name, module in utils.get_named_leaf_modules(self.model).items():
+            if "encoder_layer_" in name:
+                layer_index = int(name.split("encoder_layer_")[1].split(".")[0])
+                group_name = f"vit_layer_{layer_index}"
+                # ViT-B has 12 layers. LR increases from first layer with index 0 to
+                # last layer with index 11.
+                group_lr = lr * (0.65 ** (11 - layer_index))
+            else:
+                group_name = "vit"
+                group_lr = lr
+            params, params_no_weight_decay = utils.get_weight_decay_parameters([module])
+            group = param_groups.setdefault(
+                group_name,
+                {
+                    "name": group_name,
+                    "params": [],
+                    "lr": group_lr,
+                    "weight_decay": 0.05,
+                },
+            )
+            group["params"].extend(params)
+            group_no_weight_decay = param_groups.setdefault(
+                f"{group_name}_no_weight_decay",
+                {
+                    "name": f"{group_name}_no_weight_decay",
+                    "params": [],
+                    "lr": group_lr,
+                    "weight_decay": 0.0,
+                },
+            )
+            group_no_weight_decay["params"].extend(params_no_weight_decay)
+        param_groups["classification_head"] = {
+            "name": "classification_head",
+            "params": self.classification_head.parameters(),
+            "weight_decay": 0.0,
+        }
         optimizer = AdamW(
-            parameters,
-            lr=1e-3 * self.batch_size_per_device * self.trainer.world_size / 256,
-            weight_decay=0.05,
+            list(param_groups.values()),
             betas=(0.9, 0.999),
         )
         scheduler = {

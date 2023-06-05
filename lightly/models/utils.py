@@ -5,13 +5,14 @@
 
 import math
 import warnings
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Tuple, TypeVar, Union
 
 import torch
 import torch.distributed as dist
 import torch.nn as nn
 from torch.nn import Module, Sequential
-from torch.nn.modules.batchnorm import _BatchNorm
+from torch.nn.modules import CrossMapLRN2d, GroupNorm, LayerNorm, LocalResponseNorm
+from torch.nn.modules.batchnorm import _NormBase
 from torch.nn.parameter import Parameter
 from torchvision.ops import StochasticDepth
 
@@ -540,20 +541,26 @@ def nearest_neighbors(
     return filtered_input_maps, filtered_candidate_maps
 
 
+_NORM_LAYERS = (_NormBase, LayerNorm, CrossMapLRN2d, LocalResponseNorm, GroupNorm)
+
+
 def get_weight_decay_parameters(
     modules: Iterable[Module],
-    decay_batch_norm: bool = False,
+    decay_norm: bool = False,
     decay_bias: bool = False,
+    norm_layers: Tuple[Module] = _NORM_LAYERS,
 ) -> Tuple[List[Parameter], List[Parameter]]:
     """Returns all parameters of the modules that should be decayed and not decayed.
 
     Args:
         modules:
             List of modules to get the parameters from.
-        no_batch_norm:
-            If True, batch norm parameters are decayed.
-        no_bias:
+        decay_norm:
+            If True, normalization parameters are decayed.
+        decay_bias:
             If True, bias parameters are decayed.
+        norm_layers:
+            Tuple of normalization classes to decay if decay_norm is True.
 
     Returns:
         (params, params_no_weight_decay) tuple.
@@ -562,8 +569,8 @@ def get_weight_decay_parameters(
     params_no_weight_decay = []
     for module in modules:
         for mod in module.modules():
-            if isinstance(mod, _BatchNorm):
-                if not decay_batch_norm:
+            if isinstance(mod, norm_layers):
+                if not decay_norm:
                     params_no_weight_decay.extend(mod.parameters(recurse=False))
                 else:
                     params.extend(mod.parameters(recurse=False))
@@ -574,6 +581,13 @@ def get_weight_decay_parameters(
                     else:
                         params.append(param)
     return params, params_no_weight_decay
+
+
+def get_named_leaf_modules(module: Module) -> Dict[str, Module]:
+    """Returns all leaf modules of the model with their names."""
+    return {
+        name: mod for name, mod in module.named_modules() if not any(mod.children())
+    }
 
 
 def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -> None:
