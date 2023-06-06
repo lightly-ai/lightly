@@ -142,11 +142,13 @@ class KNNClassifier(LightningModule):
             targets = targets.flatten().t().contiguous()
             self._train_targets_tensor = targets.to(self.device)
 
-    def on_fit_start(self) -> None:
+    def on_train_epoch_start(self) -> None:
         # Freeze model weights.
         deactivate_requires_grad(model=self.model)
+        # Set model to eval mode to disable batch norm layer updates.
+        self.model.eval()
 
-    def on_fit_end(self) -> None:
+    def on_train_epoch_end(self) -> None:
         # Unfreeze model weights.
         activate_requires_grad(model=self.model)
 
