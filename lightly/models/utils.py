@@ -595,8 +595,7 @@ def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -
     if prob <= 0:
         return
 
-    stochastic_depth = StochasticDepth(p=prob, mode=mode)
     for mod in vit.modules():
         if isinstance(mod, EncoderBlock):
-            mod.dropout = Sequential(mod.dropout, stochastic_depth)
-            mod.mlp = Sequential(mod.mlp, stochastic_depth)
+            mod.dropout = Sequential(mod.dropout, StochasticDepth(p=prob, mode=mode))
+            mod.mlp = Sequential(mod.mlp, StochasticDepth(p=prob, mode=mode))
