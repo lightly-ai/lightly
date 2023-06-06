@@ -5,11 +5,13 @@
 
 import math
 import warnings
-from typing import Dict, Iterable, List, Optional, Tuple, TypeVar, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
+import numpy as np
 import torch
 import torch.distributed as dist
 import torch.nn as nn
+from numpy.typing import NDArray
 from torch.nn import Module, Sequential
 from torch.nn.modules import CrossMapLRN2d, GroupNorm, LayerNorm, LocalResponseNorm
 from torch.nn.modules.batchnorm import _NormBase
@@ -599,3 +601,94 @@ def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -
         if isinstance(mod, EncoderBlock):
             mod.dropout = Sequential(mod.dropout, StochasticDepth(p=prob, mode=mode))
             mod.mlp = Sequential(mod.mlp, StochasticDepth(p=prob, mode=mode))
+
+
+def get_2d_sine_cosine_positional_embedding(
+    embed_dim: int, grid_size: int, cls_token: bool
+) -> NDArray[np.float32]:
+    """Generates 2D sine-cosine positional embedding.
+
+    Code follows: https://github.com/facebookresearch/mae/blob/main/util/pos_embed.py
+
+    Args:
+        embed_dim:
+            Embedding dimension.
+        grid_size:
+            Height and width of the grid.
+        cls_token:
+            If True, a positional embedding for the class token is generated.
+    Returns:
+        Positional embedding with shape (grid_size * grid_size, embed_dim) or
+        (1 + grid_size * grid_size, embed_dim) if cls_token is True.
+    """
+    grid_h = np.arange(grid_size, dtype=np.float32)
+    grid_w = np.arange(grid_size, dtype=np.float32)
+    grid = np.meshgrid(grid_w, grid_h)  # here w goes first
+    grid = np.stack(grid, axis=0)
+
+    grid = grid.reshape([2, 1, grid_size, grid_size])
+    pos_embed = get_2d_sine_cosine_positional_embedding_from_grid(embed_dim, grid)
+    if cls_token:
+        pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
+    return pos_embed
+
+
+def get_2d_sine_cosine_positional_embedding_from_grid(
+    embed_dim: int, grid: NDArray[np.float32]
+) -> NDArray[np.float32]:
+    """Generates 2D sine-cosine positional embedding from a grid.
+
+    Code follows: https://github.com/facebookresearch/mae/blob/main/util/pos_embed.py
+
+    Args:
+        embed_dim:
+            Embedding dimension.
+        grid:
+            Grid of shape (2, grid_size, grid_size) with x and y coordinates.
+    Returns:
+        Positional embedding with shape (grid_size * grid_size, embed_dim).
+    """
+    assert embed_dim % 2 == 0
+
+    # Use half of dimensions to encode grid_h.
+    # (grid_size * grid_size, embed_dim/2)
+    emb_h = get_1d_sine_cosine_positional_embedding_from_positions(
+        embed_dim // 2, grid[0]
+    )
+    # (grid_size * grid_size, embed_dim/2)
+    emb_w = get_1d_sine_cosine_positional_embedding_from_positions(
+        embed_dim // 2, grid[1]
+    )
+
+    emb = np.concatenate([emb_h, emb_w], axis=1)  # (grid_size * grid_size, embed_dim)
+    return emb
+
+
+def get_1d_sine_cosine_positional_embedding_from_positions(
+    embed_dim: int, pos: NDArray[np.float32]
+) -> NDArray[np.float32]:
+    """Generates 1D sine-cosine positional embedding from positions.
+
+    Code follows: https://github.com/facebookresearch/mae/blob/main/util/pos_embed.py
+
+    Args:
+        embed_dim:
+            Embedding dimension.
+        pos:
+            Positions to be encoded with shape (N, M).
+    Returns:
+        Positional embedding with shape (N * M, embed_dim).
+    """
+    assert embed_dim % 2 == 0
+    omega = np.arange(embed_dim // 2, dtype=np.float)
+    omega /= embed_dim / 2.0
+    omega = 1.0 / 10000**omega  # (embed_dim/2,)
+
+    pos = pos.reshape(-1)  # (N*M,)
+    out = np.einsum("m,d->md", pos, omega)  # (N*M, embed_dim/2), outer product
+
+    emb_sin = np.sin(out)  # (N*M, embed_dim/2)
+    emb_cos = np.cos(out)  # (N*M, embed_dim/2)
+
+    emb = np.concatenate([emb_sin, emb_cos], axis=1)  # (N*M, embed_dim)
+    return emb
