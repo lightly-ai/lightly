@@ -34,16 +34,11 @@ class PatchEmbed(nn.Module):
         return x
 
 
-class IJEPA_Decoder(nn.Module):
-    def __init__(self, embed_dim, depth, num_heads):
-        super().__init__()
-        pass
-
 class IJEPA_Predictor(nn.Module):
     def __init__(self, embed_dim, num_heads, depth):
         super().__init__()
-        
-        self.predictor = IJEPA_Decoder(dim = embed_dim, depth = depth, heads = num_heads)
+        decoder_layer = nn.TransformerDecoderLayer(d_model=embed_dim, nhead=num_heads)
+        self.predictor = nn.TransformerDecoder(decoder_layer, num_layers=depth)
     def forward(self, context_encoding, target_masks):
         x = torch.cat((context_encoding, target_masks), dim = 1)
         x = self.predictor(x)
@@ -64,7 +59,11 @@ class IJEPA_Encoder(nn.Module):
         attention_dropout: float,
         norm_layer: Callable[..., torch.nn.Module] = partial(nn.LayerNorm, eps=1e-6),
     ):
-        pass
+        encoder_layer = nn.TransformerEncoderLayer(d_model=512, nhead=8)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+
+    def forward(self, src):
+        return self.transformer_encoder(src)
 
 
 class IJEPA_base(nn.Module):
