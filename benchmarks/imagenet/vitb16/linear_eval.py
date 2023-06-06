@@ -1,9 +1,10 @@
 from pathlib import Path
+from typing import Tuple
 
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
-from torch.nn import Module
+from torch.nn import BatchNorm1d, Module, Sequential, Linear
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
@@ -15,6 +16,29 @@ from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class LinearEvalClassifier(LinearClassifier):
+    def __init__(
+        self,
+        model: Module,
+        batch_size_per_device: int,
+        feature_dim: int = 2048,
+        num_classes: int = 1000,
+        topk: Tuple[int, ...] = (1, 5),
+        freeze_model: bool = True,
+    ) -> None:
+        super().__init__(
+            model=model,
+            batch_size_per_device=batch_size_per_device,
+            feature_dim=feature_dim,
+            num_classes=num_classes,
+            topk=topk,
+            freeze_model=freeze_model,
+        )
+        # MAE adds an extra batch norm layer before the classification head.
+        self.classification_head = Sequential(
+            BatchNorm1d(feature_dim, affine=False, eps=1e-6),
+            Linear(feature_dim, num_classes),
+        )
+
     # Adapt optimizer to match MAE settings.
     def configure_optimizers(self):
         parameters = list(self.classification_head.parameters())
