@@ -680,7 +680,7 @@ def get_1d_sine_cosine_positional_embedding_from_positions(
         Positional embedding with shape (N * M, embed_dim).
     """
     assert embed_dim % 2 == 0
-    omega = np.arange(embed_dim // 2, dtype=np.float)
+    omega = np.arange(embed_dim // 2, dtype=np.float32)
     omega /= embed_dim / 2.0
     omega = 1.0 / 10000**omega  # (embed_dim/2,)
 

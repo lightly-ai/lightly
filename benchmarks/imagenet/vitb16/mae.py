@@ -27,6 +27,7 @@ class MAE(LightningModule):
         self.patch_size = vit.patch_size
         self.sequence_length = vit.seq_length
         self.mask_token = Parameter(torch.zeros(1, 1, decoder_dim))
+        torch.nn.init.normal_(self.mask_token, std=0.02)
         self.backbone = MAEBackbone.from_vit(vit)
         self.decoder = MAEDecoder(
             seq_length=vit.seq_length,
@@ -114,8 +115,9 @@ class MAE(LightningModule):
         # Don't use weight decay for batch norm, bias parameters, and classification
         # head to improve performance.
         params, params_no_weight_decay = utils.get_weight_decay_parameters(
-            [self.mask_token, self.backbone, self.decoder]
+            [self.backbone, self.decoder]
         )
+        params.append(self.mask_token)
         optimizer = AdamW(
             [
                 {"name": "mae", "params": params},
