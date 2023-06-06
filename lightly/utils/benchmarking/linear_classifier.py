@@ -1,11 +1,11 @@
 from typing import Dict, Tuple
 
+import torch
 from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import CrossEntropyLoss, Linear, Module
 from torch.optim import SGD
 
-from lightly.models.utils import activate_requires_grad, deactivate_requires_grad
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
 from lightly.utils.scheduler import CosineWarmupScheduler
 
@@ -93,7 +93,11 @@ class LinearClassifier(LightningModule):
         self.criterion = CrossEntropyLoss()
 
     def forward(self, images: Tensor) -> Tensor:
-        features = self.model.forward(images).flatten(start_dim=1)
+        if self.freeze_model:
+            with torch.no_grad():
+                features = self.model.forward(images).flatten(start_dim=1)
+        else:
+            features = self.model.forward(images).flatten(start_dim=1)
         return self.classification_head(features)
 
     def shared_step(self, batch, batch_idx) -> Tuple[Tensor, Dict[int, Tensor]]:
@@ -143,13 +147,6 @@ class LinearClassifier(LightningModule):
         return [optimizer], [scheduler]
 
     def on_train_epoch_start(self) -> None:
-        # Freeze model weights.
         if self.freeze_model:
-            # Set model to eval mode to disable batch norm layer updates.
+            # Set model to eval mode to disable norm layer updates.
             self.model.eval()
-            deactivate_requires_grad(model=self.model)
-
-    def on_train_epoch_end(self) -> None:
-        # Unfreeze model weights.
-        if self.freeze_model:
-            activate_requires_grad(model=self.model)
