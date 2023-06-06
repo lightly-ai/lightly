@@ -4,7 +4,7 @@ from typing import Tuple
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
-from torch.nn import BatchNorm1d, Module, Sequential, Linear
+from torch.nn import BatchNorm1d, Linear, Module, Sequential
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
