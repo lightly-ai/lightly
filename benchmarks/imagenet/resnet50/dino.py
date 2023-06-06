@@ -133,7 +133,7 @@ class DINO(LightningModule):
                     "weight_decay": 0.0,
                 },
             ],
-            lr=0.03 * self.batch_size_per_device * self.trainer.world_size,
+            lr=0.03 * self.batch_size_per_device * self.trainer.world_size / 256,
             momentum=0.9,
             weight_decay=1e-4,
         )
