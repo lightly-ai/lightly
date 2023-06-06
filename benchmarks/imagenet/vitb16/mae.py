@@ -114,7 +114,7 @@ class MAE(LightningModule):
         # Don't use weight decay for batch norm, bias parameters, and classification
         # head to improve performance.
         params, params_no_weight_decay = utils.get_weight_decay_parameters(
-            [self.backbone, self.decoder]
+            [self.mask_token, self.backbone, self.decoder]
         )
         optimizer = AdamW(
             [
