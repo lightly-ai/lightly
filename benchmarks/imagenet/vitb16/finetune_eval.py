@@ -36,6 +36,9 @@ class FinetuneEvalClassifier(LinearClassifier):
         super().__init__(
             model, batch_size_per_device, feature_dim, num_classes, topk, freeze_model
         )
+        # Add path dropout.
+        add_stochastic_depth_to_blocks(self.model, prob=0.1)
+        # Add mixup and cutmix.
         self.mixup = Mixup(
             mixup_alpha=0.8,
             cutmix_alpha=1.0,
@@ -137,9 +140,6 @@ def finetune_eval(
     Parameters follow MAE settings.
     """
     print("Running fine-tune evaluation...")
-
-    # Add path dropout.
-    add_stochastic_depth_to_blocks(model, prob=0.1)
 
     # Setup training data.
     # NOTE: We use transforms from the timm library here as they are the default in MAE
