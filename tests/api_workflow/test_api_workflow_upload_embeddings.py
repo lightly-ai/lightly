@@ -1,8 +1,13 @@
+import csv
+import io
 import os
+import random
 import tempfile
+from json import load
 
 import numpy as np
 
+import lightly
 from lightly.utils.io import (
     INVALID_FILENAME_CHARACTERS,
     load_embeddings,
@@ -94,12 +99,7 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
 
     def test_set_embedding_id_default(self):
         self.api_workflow_client.set_embedding_id_to_latest()
-        embeddings = (
-            self.api_workflow_client._embeddings_api.get_embeddings_by_dataset_id(
-                dataset_id=self.api_workflow_client.dataset_id
-            )
-        )
-        self.assertEqual(self.api_workflow_client.embedding_id, embeddings[0].id)
+        self.assertEqual(self.api_workflow_client.embedding_id, "embedding_id_xyz")
 
     def test_set_embedding_id_no_embeddings(self):
         self.api_workflow_client._embeddings_api.embeddings = []

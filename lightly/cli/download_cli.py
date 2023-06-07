@@ -15,7 +15,7 @@ import hydra
 import lightly.data as data
 from lightly.api.api_workflow_client import ApiWorkflowClient
 from lightly.cli._helpers import cpu_count, fix_hydra_arguments, fix_input_path
-from lightly.openapi_generated.swagger_client.models import Creator
+from lightly.openapi_generated.swagger_client import Creator
 from lightly.utils.hipify import bcolors, print_as_warning
 
 

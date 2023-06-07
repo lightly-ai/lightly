@@ -1,4 +1,5 @@
 import csv
+import hashlib
 import io
 import tempfile
 from datetime import datetime
@@ -6,10 +7,14 @@ from typing import List
 from urllib.request import Request, urlopen
 
 from lightly.api.utils import retry
-from lightly.openapi_generated.swagger_client.models import (
-    DatasetEmbeddingData,
+from lightly.openapi_generated.swagger_client import (
     DimensionalityReductionMethod,
     Trigger2dEmbeddingJobRequest,
+)
+from lightly.openapi_generated.swagger_client.models.dataset_embedding_data import (
+    DatasetEmbeddingData,
+)
+from lightly.openapi_generated.swagger_client.models.write_csv_url_data import (
     WriteCSVUrlData,
 )
 from lightly.utils.io import check_embeddings, check_filenames
@@ -159,9 +164,7 @@ class _UploadEmbeddingsMixin:
                 dimensionality_reduction_method=dimensionality_reduction_method
             )
             self._embeddings_api.trigger2d_embeddings_job(
-                trigger2d_embedding_job_request=body,
-                dataset_id=self.dataset_id,
-                embedding_id=self.embedding_id,
+                body=body, dataset_id=self.dataset_id, embedding_id=self.embedding_id
             )
 
     def append_embeddings(self, path_to_embeddings_csv: str, embedding_id: str) -> None:

@@ -1,10 +1,10 @@
 import os
 import unittest
-from unittest import mock
 
 import pytest
 from PIL import Image
 
+import lightly
 from lightly.api.utils import (
     DatasourceType,
     PIL_to_bytes,
@@ -27,7 +27,7 @@ class TestUtils(unittest.TestCase):
         def my_func():
             raise RuntimeError()
 
-        with self.assertRaises(RuntimeError), mock.patch("time.sleep"):
+        with self.assertRaises(RuntimeError):
             retry(my_func)
 
     def test_getenv(self):
