@@ -167,7 +167,6 @@ class IJEPA_base(nn.Module):
 
 
         prediction_blocks = torch.zeros((m, b, n, e)).cuda()
-        #get the prediction blocks, predict each target block separately
         for i in range(m):
             target_masks = self.mask_token.repeat(b, n, 1)
             target_pos_embedding = self.pos_embedding[:, target_patches[i], :]
