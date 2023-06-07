@@ -16,14 +16,26 @@ from lightly.api.utils import (
     check_filename,
     retry,
 )
-from lightly.openapi_generated.swagger_client.models import (
+from lightly.openapi_generated.swagger_client import SampleWriteUrls
+from lightly.openapi_generated.swagger_client.models.datasource_config_base import (
     DatasourceConfigBase,
+)
+from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import (
     InitialTagCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.job_status_meta import (
     JobStatusMeta,
+)
+from lightly.openapi_generated.swagger_client.models.job_status_upload_method import (
     JobStatusUploadMethod,
+)
+from lightly.openapi_generated.swagger_client.models.sample_create_request import (
     SampleCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.sample_partial_mode import (
     SamplePartialMode,
-    SampleWriteUrls,
+)
+from lightly.openapi_generated.swagger_client.models.tag_upsize_request import (
     TagUpsizeRequest,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
@@ -222,7 +234,7 @@ class _UploadDatasetMixin:
                 creator=self._creator,
             )
             self._tags_api.create_initial_tag_by_dataset_id(
-                initial_tag_create_request=initial_tag_create_request,
+                body=initial_tag_create_request,
                 dataset_id=self.dataset_id,
             )
         else:
@@ -232,7 +244,7 @@ class _UploadDatasetMixin:
                 upsize_tag_creator=self._creator,
             )
             self._tags_api.upsize_tags_by_dataset_id(
-                tag_upsize_request=upsize_tags_request,
+                body=upsize_tags_request,
                 dataset_id=self.dataset_id,
             )
 
@@ -278,7 +290,7 @@ class _UploadDatasetMixin:
         )
         sample_id = retry(
             self._samples_api.create_sample_by_dataset_id,
-            sample_create_request=body,
+            body=body,
             dataset_id=self.dataset_id,
         ).id
 

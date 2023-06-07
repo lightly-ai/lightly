@@ -20,7 +20,7 @@ def test_make_swagger_configuration_picklable() -> None:
         "cert_file": None,
         "client_side_validation": True,
         "connection_pool_maxsize": 4,
-        "_base_path": "https://api.lightly.ai",
+        "host": "https://api.lightly.ai",
         "key_file": None,
         "logger_file_handler": None,
         # "logger_formatter", ignore because a new object is created on unpickle
@@ -31,17 +31,20 @@ def test_make_swagger_configuration_picklable() -> None:
             ),
             "urllib3_logger": logging.getLogger("urllib3"),
         },
-        "password": None,
+        "password": "",
         "proxy": None,
         "refresh_api_key_hook": None,
         "safe_chars_for_path_param": "",
         "ssl_ca_cert": None,
         "temp_folder_path": None,
-        "username": None,
+        "username": "",
         "verify_ssl": True,
     }
     # Check that all expected values are set except the ignored ones.
-    assert all(hasattr(config, key) for key in expected.keys())
+    assert set(expected.keys()) == set(config.__dict__.keys()) - {
+        "logger_formatter",
+        "logger_stream_handler",
+    }
     # Check that new_config values are equal to expected values.
     assert all(new_config.__dict__[key] == value for key, value in expected.items())
 

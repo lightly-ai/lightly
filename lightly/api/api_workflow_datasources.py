@@ -4,12 +4,20 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import tqdm
 
-from lightly.openapi_generated.swagger_client.models import (
+from lightly.openapi_generated.swagger_client import DatasourceConfigVerifyDataErrors
+from lightly.openapi_generated.swagger_client.models.datasource_config import (
     DatasourceConfig,
-    DatasourceConfigVerifyDataErrors,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import (
     DatasourceProcessedUntilTimestampRequest,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import (
     DatasourceProcessedUntilTimestampResponse,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_purpose import (
     DatasourcePurpose,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import (
     DatasourceRawSamplesData,
 )
 
@@ -39,7 +47,7 @@ class _DatasourcesMixin:
 
         response: DatasourceRawSamplesData = download_function(
             dataset_id=self.dataset_id,
-            var_from=from_,
+            _from=from_,
             to=to,
             use_redirected_read_url=use_redirected_read_url,
             **relevant_filenames_kwargs,
@@ -403,8 +411,7 @@ class _DatasourcesMixin:
             processed_until_timestamp=timestamp
         )
         self._datasources_api.update_datasource_processed_until_timestamp_by_dataset_id(
-            dataset_id=self.dataset_id,
-            datasource_processed_until_timestamp_request=body,
+            dataset_id=self.dataset_id, body=body
         )
 
     def get_datasource(self) -> DatasourceConfig:
@@ -454,16 +461,14 @@ class _DatasourcesMixin:
         """
         # TODO: Use DatasourceConfigAzure once we switch/update the api generator.
         self._datasources_api.update_datasource_by_dataset_id(
-            datasource_config=DatasourceConfig.from_dict(
-                {
-                    "type": "AZURE",
-                    "fullPath": container_name,
-                    "thumbSuffix": thumbnail_suffix,
-                    "accountName": account_name,
-                    "accountKey": sas_token,
-                    "purpose": purpose,
-                }
-            ),
+            body={
+                "type": "AZURE",
+                "fullPath": container_name,
+                "thumbSuffix": thumbnail_suffix,
+                "accountName": account_name,
+                "accountKey": sas_token,
+                "purpose": purpose,
+            },
             dataset_id=self.dataset_id,
         )
 
@@ -504,16 +509,14 @@ class _DatasourcesMixin:
         """
         # TODO: Use DatasourceConfigGCS once we switch/update the api generator.
         self._datasources_api.update_datasource_by_dataset_id(
-            datasource_config=DatasourceConfig.from_dict(
-                {
-                    "type": "GCS",
-                    "fullPath": resource_path,
-                    "thumbSuffix": thumbnail_suffix,
-                    "gcsProjectId": project_id,
-                    "gcsCredentials": credentials,
-                    "purpose": purpose,
-                }
-            ),
+            body={
+                "type": "GCS",
+                "fullPath": resource_path,
+                "thumbSuffix": thumbnail_suffix,
+                "gcsProjectId": project_id,
+                "gcsCredentials": credentials,
+                "purpose": purpose,
+            },
             dataset_id=self.dataset_id,
         )
 
@@ -540,14 +543,12 @@ class _DatasourcesMixin:
         """
         # TODO: Use DatasourceConfigLocal once we switch/update the api generator.
         self._datasources_api.update_datasource_by_dataset_id(
-            datasource_config=DatasourceConfig.from_dict(
-                {
-                    "type": "LOCAL",
-                    "fullPath": resource_path,
-                    "thumbSuffix": thumbnail_suffix,
-                    "purpose": DatasourcePurpose.INPUT_OUTPUT,
-                }
-            ),
+            body={
+                "type": "LOCAL",
+                "fullPath": resource_path,
+                "thumbSuffix": thumbnail_suffix,
+                "purpose": DatasourcePurpose.INPUT_OUTPUT,
+            },
             dataset_id=self.dataset_id,
         )
 
@@ -589,17 +590,15 @@ class _DatasourcesMixin:
         """
         # TODO: Use DatasourceConfigS3 once we switch/update the api generator.
         self._datasources_api.update_datasource_by_dataset_id(
-            datasource_config=DatasourceConfig.from_dict(
-                {
-                    "type": "S3",
-                    "fullPath": resource_path,
-                    "thumbSuffix": thumbnail_suffix,
-                    "s3Region": region,
-                    "s3AccessKeyId": access_key,
-                    "s3SecretAccessKey": secret_access_key,
-                    "purpose": purpose,
-                }
-            ),
+            body={
+                "type": "S3",
+                "fullPath": resource_path,
+                "thumbSuffix": thumbnail_suffix,
+                "s3Region": region,
+                "s3AccessKeyId": access_key,
+                "s3SecretAccessKey": secret_access_key,
+                "purpose": purpose,
+            },
             dataset_id=self.dataset_id,
         )
 
@@ -641,17 +640,15 @@ class _DatasourcesMixin:
         """
         # TODO: Use DatasourceConfigS3 once we switch/update the api generator.
         self._datasources_api.update_datasource_by_dataset_id(
-            datasource_config=DatasourceConfig.from_dict(
-                {
-                    "type": "S3DelegatedAccess",
-                    "fullPath": resource_path,
-                    "thumbSuffix": thumbnail_suffix,
-                    "s3Region": region,
-                    "s3ARN": role_arn,
-                    "s3ExternalId": external_id,
-                    "purpose": purpose,
-                }
-            ),
+            body={
+                "type": "S3DelegatedAccess",
+                "fullPath": resource_path,
+                "thumbSuffix": thumbnail_suffix,
+                "s3Region": region,
+                "s3ARN": role_arn,
+                "s3ExternalId": external_id,
+                "purpose": purpose,
+            },
             dataset_id=self.dataset_id,
         )
 
@@ -689,17 +686,15 @@ class _DatasourcesMixin:
         """
         # TODO: Use DatasourceConfigOBS once we switch/update the api generator.
         self._datasources_api.update_datasource_by_dataset_id(
-            datasource_config=DatasourceConfig.from_dict(
-                {
-                    "type": "OBS",
-                    "fullPath": resource_path,
-                    "thumbSuffix": thumbnail_suffix,
-                    "obsEndpoint": obs_endpoint,
-                    "obsAccessKeyId": obs_access_key_id,
-                    "obsSecretAccessKey": obs_secret_access_key,
-                    "purpose": purpose,
-                }
-            ),
+            body={
+                "type": "OBS",
+                "fullPath": resource_path,
+                "thumbSuffix": thumbnail_suffix,
+                "obsEndpoint": obs_endpoint,
+                "obsAccessKeyId": obs_access_key_id,
+                "obsSecretAccessKey": obs_secret_access_key,
+                "purpose": purpose,
+            },
             dataset_id=self.dataset_id,
         )
 
@@ -719,8 +714,8 @@ class _DatasourcesMixin:
 
         """
         return self._datasources_api.get_prediction_file_read_url_from_datasource_by_dataset_id(
-            dataset_id=self.dataset_id,
-            file_name=filename,
+            self.dataset_id,
+            filename,
         )
 
     def get_metadata_read_url(
@@ -739,8 +734,8 @@ class _DatasourcesMixin:
 
         """
         return self._datasources_api.get_metadata_file_read_url_from_datasource_by_dataset_id(
-            dataset_id=self.dataset_id,
-            file_name=filename,
+            self.dataset_id,
+            filename,
         )
 
     def get_custom_embedding_read_url(
@@ -759,8 +754,8 @@ class _DatasourcesMixin:
 
         """
         return self._datasources_api.get_custom_embedding_file_read_url_from_datasource_by_dataset_id(
-            dataset_id=self.dataset_id,
-            file_name=filename,
+            self.dataset_id,
+            filename,
         )
 
     def list_datasource_permissions(

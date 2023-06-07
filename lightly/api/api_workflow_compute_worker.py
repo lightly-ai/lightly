@@ -7,8 +7,8 @@ from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar,
 
 from lightly.api import utils
 from lightly.api.utils import retry
-from lightly.openapi_generated.swagger_client.api_client import ApiClient
-from lightly.openapi_generated.swagger_client.models import (
+from lightly.openapi_generated.swagger_client import (
+    ApiClient,
     CreateDockerWorkerRegistryEntryRequest,
     DockerRunData,
     DockerRunScheduledCreateRequest,
@@ -308,7 +308,7 @@ class _ComputeWorkerMixin:
             creator=self._creator,
         )
         response = self._compute_worker_api.create_docker_run_scheduled_by_dataset_id(
-            docker_run_scheduled_create_request=request,
+            body=request,
             dataset_id=self.dataset_id,
         )
         return response.id
@@ -673,19 +673,24 @@ def _validate_config(
 
     Recursively checks if the keys in the cfg dictionary match the attributes of
     the DockerWorkerConfigV2Docker/DockerWorkerConfigV2Lightly instances. If not,
-    suggests a best match.
+    suggests a best match based on the keys in 'swagger_types'.
 
     Raises:
-        InvalidConfigurationError: If obj is not a valid config.
+        TypeError: If obj is not of swagger type.
 
     """
 
     if cfg is None:
         return
 
+    if not hasattr(type(obj), "swagger_types"):
+        raise TypeError(
+            f"Type {type(obj)} of argument 'obj' has not attribute 'swagger_types'"
+        )
+
     for key, item in cfg.items():
         if not hasattr(obj, key):
-            possible_options = list(obj.__fields__.keys())
+            possible_options = list(type(obj).swagger_types.keys())
             closest_match = difflib.get_close_matches(
                 word=key, possibilities=possible_options, n=1, cutoff=0.0
             )[0]

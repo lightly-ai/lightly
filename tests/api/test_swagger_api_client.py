@@ -18,12 +18,16 @@ def test_pickle(mocker: MockerFixture) -> None:
         "client_side_validation": True,
         # "configuration", ignore because some parts of configuration are recreated on unpickling
         "cookie": None,
-        "default_headers": {"User-Agent": "OpenAPI-Generator/1.0.0/python"},
+        "default_headers": {"User-Agent": "Swagger-Codegen/1.0.0/python"},
         # "last_response", ignore because it is not copied during pickling
         # "rest_client", ignore because some parts of rest client are recreated on unpickling
     }
     # Check that all expected values are set except the ignored ones.
-    assert all(hasattr(client, key) for key in expected.keys())
+    assert set(expected.keys()) == set(client.__dict__.keys()) - {
+        "configuration",
+        "last_response",
+        "rest_client",
+    }
     # Check that new client values are equal to expected values.
     assert all(new_client.__dict__[key] == value for key, value in expected.items())
 
