@@ -1,4 +1,3 @@
-from bisect import bisect_left
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List, Union
 
@@ -6,16 +5,10 @@ from requests import Response
 from tqdm import tqdm
 
 from lightly.api.utils import retry
-from lightly.openapi_generated.swagger_client.models.configuration_entry import (
+from lightly.openapi_generated.swagger_client.models import (
     ConfigurationEntry,
-)
-from lightly.openapi_generated.swagger_client.models.configuration_set_request import (
     ConfigurationSetRequest,
-)
-from lightly.openapi_generated.swagger_client.models.sample_partial_mode import (
     SamplePartialMode,
-)
-from lightly.openapi_generated.swagger_client.models.sample_update_request import (
     SampleUpdateRequest,
 )
 from lightly.utils.hipify import print_as_warning
@@ -176,20 +169,20 @@ class _UploadCustomMetadataMixin:
             filename = image_id_to_filename.get(image_id, None)
             if filename is None:
                 print_as_warning(
-                    f"No image found for custom metadata annotation "
+                    "No image found for custom metadata annotation "
                     f"with image_id {image_id}. "
-                    f"This custom metadata annotation is skipped. ",
+                    "This custom metadata annotation is skipped. ",
                     InvalidCustomMetadataWarning,
                 )
                 continue
             sample_id = filename_to_sample_id.get(filename, None)
             if sample_id is None:
                 print_as_warning(
-                    f"You tried to upload custom metadata for a sample with "
+                    "You tried to upload custom metadata for a sample with "
                     f"filename {{{filename}}}, "
-                    f"but a sample with this filename "
-                    f"does not exist on the server. "
-                    f"This custom metadata annotation is skipped. ",
+                    "but a sample with this filename "
+                    "does not exist on the server. "
+                    "This custom metadata annotation is skipped. ",
                     InvalidCustomMetadataWarning,
                 )
                 continue
@@ -202,7 +195,7 @@ class _UploadCustomMetadataMixin:
             request = SampleUpdateRequest(custom_meta_data=metadata)
             return retry(
                 self._samples_api.update_sample_by_id,
-                request,
+                sample_update_request=request,
                 dataset_id=self.dataset_id,
                 sample_id=sample_id,
             )
@@ -248,7 +241,7 @@ class _UploadCustomMetadataMixin:
         """
         config_set_request = ConfigurationSetRequest(name=name, configs=configs)
         resp = self._metadata_configurations_api.create_meta_data_configuration(
-            body=config_set_request,
+            configuration_set_request=config_set_request,
             dataset_id=self.dataset_id,
         )
         return resp

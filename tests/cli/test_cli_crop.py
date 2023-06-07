@@ -22,12 +22,6 @@ from tests.api_workflow.mocked_api_workflow_client import (
 
 
 class TestCLICrop(MockedApiWorkflowSetup):
-    @classmethod
-    def setUpClass(cls) -> None:
-        sys.modules[
-            "lightly.cli.upload_cli"
-        ].ApiWorkflowClient = MockedApiWorkflowClient
-
     def setUp(self):
         MockedApiWorkflowSetup.setUp(self)
         self.create_fake_dataset()

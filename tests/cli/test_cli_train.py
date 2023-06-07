@@ -14,12 +14,6 @@ from tests.api_workflow.mocked_api_workflow_client import (
 
 
 class TestCLITrain(MockedApiWorkflowSetup):
-    @classmethod
-    def setUpClass(cls) -> None:
-        sys.modules[
-            "lightly.cli.upload_cli"
-        ].ApiWorkflowClient = MockedApiWorkflowClient
-
     def setUp(self):
         MockedApiWorkflowSetup.setUp(self)
         self.create_fake_dataset()
@@ -27,7 +21,6 @@ class TestCLITrain(MockedApiWorkflowSetup):
             self.cfg = compose(
                 config_name="config",
                 overrides=[
-                    "token='123'",
                     f"input_dir={self.folder_path}",
                     "trainer.max_epochs=1",
                 ],

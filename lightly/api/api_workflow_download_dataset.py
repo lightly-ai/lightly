@@ -10,10 +10,9 @@ from PIL import Image
 
 from lightly.api import download
 from lightly.api.bitmask import BitMask
-from lightly.api.utils import paginate_endpoint, retry
-from lightly.openapi_generated.swagger_client import (
+from lightly.api.utils import paginate_endpoint
+from lightly.openapi_generated.swagger_client.models import (
     DatasetEmbeddingData,
-    FileNameFormat,
     ImageType,
 )
 from lightly.utils.hipify import bcolors
@@ -66,6 +65,14 @@ class _DownloadDatasetMixin:
             RuntimeError:
                 If the connection to the server failed.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.download_dataset("/tmp/data")
+            Downloading 3 images (with 3 workers):
+            100%|██████████████████████████████████| 3/3 [00:01<00:00,  1.99imgs/s]
         """
 
         # check if images are available
@@ -116,8 +123,8 @@ class _DownloadDatasetMixin:
             # try to download image
             try:
                 read_url = self._samples_api.get_sample_image_read_url_by_id(
-                    self.dataset_id,
-                    sample_id,
+                    dataset_id=self.dataset_id,
+                    sample_id=sample_id,
                     type="full",
                 )
                 img = _get_image_from_read_url(read_url)
@@ -148,6 +155,18 @@ class _DownloadDatasetMixin:
 
         Returns:
             A list of embedding data.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.get_all_embedding_data()
+            [{'created_at': 1684750552181,
+             'id': '646b40d88355e2f54c6d2235',
+             'is2d': False,
+             'is_processed': True,
+             'name': 'default_20230522_10h15m50s'}]
         """
         return self._embeddings_api.get_embeddings_by_dataset_id(
             dataset_id=self.dataset_id
@@ -166,6 +185,17 @@ class _DownloadDatasetMixin:
             ValueError:
                 If no embedding with this name exists.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.get_embedding_data_by_name("embedding-data")
+            [{'created_at': 1654756552401,
+             'id': '646f346004d77b4e1424e67e',
+             'is2d': False,
+             'is_processed': True,
+             'name': 'embedding-data'}]
         """
         for embedding_data in self.get_all_embedding_data():
             if embedding_data.name == name:
@@ -185,6 +215,20 @@ class _DownloadDatasetMixin:
         Args:
             embedding_id: ID of the embedding data to be downloaded.
             output_path: Where the downloaded embedding data should be stored.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.download_embeddings_csv_by_id(
+            ...     embedding_id="646f346004d77b4e1424e67e",
+            ...     output_path="/tmp/embeddings.csv"
+            ... )
+            >>>
+            >>> # File content:
+            >>> # filenames,embedding_0,embedding_1,embedding_...,labels
+            >>> # image-1.png,0.2124302,-0.26934767,...,0
         """
         read_url = self._embeddings_api.get_embeddings_csv_read_url_by_id(
             dataset_id=self.dataset_id, embedding_id=embedding_id
@@ -201,6 +245,16 @@ class _DownloadDatasetMixin:
             RuntimeError:
                 If no embeddings could be found for the dataset.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.download_embeddings_csv(output_path="/tmp/embeddings.csv")
+            >>>
+            >>> # File content:
+            >>> # filenames,embedding_0,embedding_1,embedding_...,labels
+            >>> # image-1.png,0.2124302,-0.26934767,...,0
         """
         last_embedding = _get_latest_default_embedding_data(
             embeddings=self.get_all_embedding_data()
@@ -230,12 +284,21 @@ class _DownloadDatasetMixin:
         Returns:
             A list of dictionaries in a format compatible with Label Studio.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Already created some Lightly Worker runs with this dataset
+            >>> client.set_dataset_id_by_name("my-dataset")
+            >>> client.export_label_studio_tasks_by_tag_id(tag_id="646f34608a5613b57d8b73cc")
+            [{'id': 0, 'data': {'image': '...', ...}}]
         """
-        label_studio_tasks = paginate_endpoint(
-            self._tags_api.export_tag_to_label_studio_tasks,
-            page_size=20000,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
+        label_studio_tasks = list(
+            paginate_endpoint(
+                self._tags_api.export_tag_to_label_studio_tasks,
+                page_size=20000,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+            )
         )
         return label_studio_tasks
 

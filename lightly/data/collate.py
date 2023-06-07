@@ -1348,7 +1348,6 @@ class VICRegLCollateFunction(nn.Module):
 def _deprecation_warning_collate_functions() -> None:
     warn(
         "Collate functions are deprecated and will be removed in favor of transforms in v1.4.0.\n"
-        "Please use MultiViewCollate in `lightly.data.multi_view_collate` together with the correct transform for your model instead.\n"
         "See https://docs.lightly.ai/self-supervised-learning/examples/models.html for examples.",
         category=DeprecationWarning,
     )

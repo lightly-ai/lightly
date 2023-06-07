@@ -20,36 +20,12 @@ INPUT_DIR="${DIR_DATASET}/test/dress"
 CUSTOM_METADATA_FILENAME="${DIR_DATASET}/custom_metadata.json"
 python tests/UNMOCKED_end2end_tests/create_custom_metadata_from_input_dir.py $INPUT_DIR $CUSTOM_METADATA_FILENAME
 
-NUMBER_OF_DATASETS=0
 # Run the tests
 echo "############################### Test 1"
-lightly-magic token=$LIGHTLY_TOKEN input_dir=$INPUT_DIR trainer.max_epochs=0 new_dataset_name=test_unmocked_cli_1_${DATE_TIME}
-((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
+lightly-magic input_dir=$INPUT_DIR trainer.max_epochs=0
 
 echo "############################### Test 2"
-lightly-magic token=$LIGHTLY_TOKEN input_dir=$INPUT_DIR trainer.max_epochs=1 new_dataset_name=test_unmocked_cli_2_${DATE_TIME}
-((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
-
-echo "############################### Test 3"
-lightly-upload token=$LIGHTLY_TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_3_${DATE_TIME}
-((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
-
-echo "############################### Test 4"
-lightly-upload token=$LIGHTLY_TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_4_${DATE_TIME} upload=metadata
-((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
-
-echo "############################### Test 5"
-lightly-upload token=$LIGHTLY_TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_5_${DATE_TIME} upload=thumbnails
-((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
-
-echo "############################### Test 6"
-lightly-upload token=$LIGHTLY_TOKEN input_dir=$INPUT_DIR new_dataset_name=test_unmocked_cli_6_${DATE_TIME} upload=metadata custom_metadata=$CUSTOM_METADATA_FILENAME
-((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
-
-
-echo "############################### Deleting all datasets again"
-python tests/UNMOCKED_end2end_tests/delete_datasets_test_unmocked_cli.py $NUMBER_OF_DATASETS $LIGHTLY_TOKEN ${DATE_TIME}
-
+lightly-magic input_dir=$INPUT_DIR trainer.max_epochs=1
 
 echo "############################### Delete dataset again"
 rm -rf $DIR_DATASET

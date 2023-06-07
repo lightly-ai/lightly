@@ -1,167 +1,118 @@
-import copy
-import json
-import os
-import pathlib
-import random
-import tempfile
-from typing import List
+from pytest_mock import MockerFixture
 
-import cv2
-import numpy as np
-import torchvision
-
-from lightly.api.api_workflow_upload_metadata import InvalidCustomMetadataWarning
-from lightly.api.utils import MAXIMUM_FILENAME_LENGTH
-from lightly.data.dataset import LightlyDataset
-from lightly.openapi_generated.swagger_client import SampleData
-from lightly.openapi_generated.swagger_client.models.sample_data_modes import (
+from lightly.api import ApiWorkflowClient, api_workflow_upload_metadata
+from lightly.openapi_generated.swagger_client.models import (
     SampleDataModes,
+    SampleUpdateRequest,
 )
 from lightly.utils.io import COCO_ANNOTATION_KEYS
-from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
+from tests.api_workflow.utils import generate_id
 
 
-class TestApiWorkflowUploadCustomMetadata(MockedApiWorkflowSetup):
-    def create_fake_dataset(self, n_data: int = 10, sample_names=None):
-        self.dataset = torchvision.datasets.FakeData(
-            size=n_data, image_size=(3, 32, 32)
-        )
+def test_index_custom_metadata_by_filename(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    custom_metadata = {}
+    custom_metadata[COCO_ANNOTATION_KEYS.images] = [
+        {
+            COCO_ANNOTATION_KEYS.images_filename: "file0",
+            COCO_ANNOTATION_KEYS.images_id: "image-id0",
+        },
+        {
+            COCO_ANNOTATION_KEYS.images_filename: "file1",
+            COCO_ANNOTATION_KEYS.images_id: "image-id1",
+        },
+    ]
+    custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata] = [
+        {COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id2"},
+        {COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id0"},
+    ]
 
-        self.folder_path = tempfile.mkdtemp()
-        image_extension = ".jpg"
-        sample_names = (
-            sample_names
-            if sample_names is not None
-            else [f"img_{i}{image_extension}" for i in range(n_data)]
-        )
-        for sample_idx in range(n_data):
-            data = self.dataset[sample_idx]
-            sample_name = sample_names[sample_idx]
-            path = os.path.join(self.folder_path, sample_name)
-            data[0].save(path)
+    client = ApiWorkflowClient()
+    result = client.index_custom_metadata_by_filename(custom_metadata=custom_metadata)
+    assert result == {
+        "file0": {COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id0"},
+        "file1": None,
+    }
 
-        coco_json = dict()
-        coco_json[COCO_ANNOTATION_KEYS.images] = [
-            {"id": i, "file_name": fname} for i, fname in enumerate(sample_names)
-        ]
-        coco_json[COCO_ANNOTATION_KEYS.custom_metadata] = [
-            {"id": i, "image_id": i, "custom_metadata": 0}
-            for i, _ in enumerate(sample_names)
-        ]
 
-        self.custom_metadata_file = tempfile.NamedTemporaryFile(mode="w+")
-        json.dump(coco_json, self.custom_metadata_file)
-        self.custom_metadata_file.flush()
+def test_upload_custom_metadata(mocker: MockerFixture) -> None:
+    mocker.patch("tqdm.tqdm")
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    # retry should be called twice: once for get_samples_partial_by_dataset_id
+    # and once for update_sample_by_id. get_samples_partial_by_dataset_id returns
+    # only one valid sample file `file1`
+    mocked_retry = mocker.patch.object(
+        api_workflow_upload_metadata,
+        "retry",
+        side_effect=[
+            [SampleDataModes(id=generate_id(), file_name="file1")],
+            None,
+        ],
+    )
+    mocked_print_warning = mocker.patch.object(
+        api_workflow_upload_metadata, "print_as_warning"
+    )
+    mocked_executor = mocker.patch.object(
+        api_workflow_upload_metadata, "ThreadPoolExecutor"
+    )
+    mocked_executor.return_value.__enter__.return_value.map = (
+        lambda fn, iterables, **_: map(fn, iterables)
+    )
+    mocked_samples_api = mocker.MagicMock()
 
-    def test_upload_custom_metadata_one_step(self):
-        self.create_fake_dataset()
-        with open(self.custom_metadata_file.name, "r") as f:
-            custom_metadata = json.load(f)
-            self.api_workflow_client.upload_dataset(
-                input=self.folder_path, custom_metadata=custom_metadata
-            )
+    custom_metadata = {}
+    custom_metadata[COCO_ANNOTATION_KEYS.images] = [
+        {
+            COCO_ANNOTATION_KEYS.images_filename: "file0",
+            COCO_ANNOTATION_KEYS.images_id: "image-id0",
+        },
+        {
+            COCO_ANNOTATION_KEYS.images_filename: "file1",
+            COCO_ANNOTATION_KEYS.images_id: "image-id1",
+        },
+    ]
+    custom_metadata[COCO_ANNOTATION_KEYS.custom_metadata] = [
+        {COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id2"},
+        {COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id1"},
+        {COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id0"},
+    ]
+    client = ApiWorkflowClient()
+    client._dataset_id = "dataset-id"
+    client._samples_api = mocked_samples_api
+    client.upload_custom_metadata(custom_metadata=custom_metadata)
 
-    def test_upload_custom_metadata_two_steps_verbose(self):
-        self.create_fake_dataset()
-        self.api_workflow_client.upload_dataset(input=self.folder_path)
-        with open(self.custom_metadata_file.name, "r") as f:
-            custom_metadata = json.load(f)
-            self.api_workflow_client.upload_custom_metadata(
-                custom_metadata, verbose=True
-            )
+    # Only `file1` is a valid sample
+    assert mocked_print_warning.call_count == 2
+    warning_text = [
+        call_args[0][0] for call_args in mocked_print_warning.call_args_list
+    ]
+    assert warning_text == [
+        (
+            "No image found for custom metadata annotation with image_id image-id2. "
+            "This custom metadata annotation is skipped. "
+        ),
+        (
+            "You tried to upload custom metadata for a sample with filename {file0}, "
+            "but a sample with this filename does not exist on the server. "
+            "This custom metadata annotation is skipped. "
+        ),
+    ]
 
-    def test_upload_custom_metadata_two_steps(self):
-        self.create_fake_dataset()
-        self.api_workflow_client.upload_dataset(input=self.folder_path)
-        with open(self.custom_metadata_file.name, "r") as f:
-            custom_metadata = json.load(f)
-            self.api_workflow_client.upload_custom_metadata(custom_metadata)
-
-    def test_upload_custom_metadata_before_uploading_samples(self):
-        self.create_fake_dataset()
-        with open(self.custom_metadata_file.name, "r") as f:
-            custom_metadata = json.load(f)
-            with self.assertWarns(InvalidCustomMetadataWarning):
-                self.api_workflow_client.upload_custom_metadata(custom_metadata)
-
-    def test_upload_custom_metadata_with_append(self):
-        self.create_fake_dataset()
-        self.api_workflow_client.upload_dataset(input=self.folder_path)
-        with open(self.custom_metadata_file.name, "r") as f:
-            custom_metadata = json.load(f)
-            custom_metadata["metadata"] = custom_metadata["metadata"][:3]
-            self.api_workflow_client.upload_custom_metadata(custom_metadata)
-
-    def subtest_upload_custom_metadata(
-        self,
-        image_ids_images: List[int],
-        image_ids_annotations: List[int],
-        filenames_server: List[str],
-    ):
-        def get_samples_partial_by_dataset_id(*args, **kwargs) -> List[SampleDataModes]:
-            samples = [
-                SampleDataModes(
-                    id="dfd",
-                    file_name=filename,
-                )
-                for filename in filenames_server
-            ]
-            return samples
-
-        self.api_workflow_client._samples_api.get_samples_partial_by_dataset_id = (
-            get_samples_partial_by_dataset_id
-        )
-        filenames_metadata = [f"img_{id}.jpg" for id in image_ids_annotations]
-
-        with self.subTest(
-            image_ids_images=image_ids_images,
-            image_ids_annotations=image_ids_annotations,
-            filenames_server=filenames_server,
-        ):
-            custom_metadata = {
-                COCO_ANNOTATION_KEYS.images: [
-                    {
-                        COCO_ANNOTATION_KEYS.images_id: id,
-                        COCO_ANNOTATION_KEYS.images_filename: filename,
-                    }
-                    for id, filename in zip(image_ids_images, filenames_metadata)
-                ],
-                COCO_ANNOTATION_KEYS.custom_metadata: [
-                    {
-                        COCO_ANNOTATION_KEYS.custom_metadata_image_id: id,
-                        "any_key": "any_value",
-                    }
-                    for id in image_ids_annotations
-                ],
-            }
-            # The annotations must only have image_ids that are also in the images.
-            custom_metadata_malformatted = (
-                len(set(image_ids_annotations) - set(image_ids_images)) > 0
-            )
-            # Only custom metadata whose filename is on the server can be uploaded.
-            metatadata_without_filenames_on_server = (
-                len(set(filenames_metadata) - set(filenames_server)) > 0
-            )
-
-            if metatadata_without_filenames_on_server or custom_metadata_malformatted:
-                with self.assertWarns(InvalidCustomMetadataWarning):
-                    self.api_workflow_client.upload_custom_metadata(custom_metadata)
-            else:
-                self.api_workflow_client.upload_custom_metadata(custom_metadata)
-
-    def test_upload_custom_metadata(self):
-        potential_image_ids_images = [[0, 1, 2], [-1, 1], list(range(10)), [-3]]
-        potential_image_ids_annotations = potential_image_ids_images
-        potential_filenames_server = [
-            [f"img_{id}.jpg" for id in ids] for ids in potential_image_ids_images
-        ]
-
-        self.create_fake_dataset()
-        self.api_workflow_client.upload_dataset(input=self.folder_path)
-
-        for image_ids_images in potential_image_ids_images:
-            for image_ids_annotations in potential_image_ids_annotations:
-                for filenames_server in potential_filenames_server:
-                    self.subtest_upload_custom_metadata(
-                        image_ids_images, image_ids_annotations, filenames_server
-                    )
+    assert mocked_retry.call_count == 2
+    # First call: get_samples_partial_by_dataset_id
+    args_first_call = mocked_retry.call_args_list[0][0]
+    assert (
+        # Check first positional argument
+        args_first_call[0]
+        == mocked_samples_api.get_samples_partial_by_dataset_id
+    )
+    # Second call: update_sample_by_id with the only valid sample
+    args_second_call = mocked_retry.call_args_list[1][0]
+    kwargs_second_call = mocked_retry.call_args_list[1][1]
+    # Check first positional argument
+    assert args_second_call[0] == mocked_samples_api.update_sample_by_id
+    # Check second positional argument
+    assert isinstance(kwargs_second_call["sample_update_request"], SampleUpdateRequest)
+    assert kwargs_second_call["sample_update_request"].custom_meta_data == {
+        COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id1"
+    }

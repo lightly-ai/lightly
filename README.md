@@ -123,7 +123,6 @@ import torchvision
 from lightly import loss
 from lightly import transforms
 from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.models.modules import heads
 
 
@@ -155,8 +154,6 @@ model = SimCLR(backbone)
 # Prepare transform that creates multiple random views for every image.
 transform = transforms.SimCLRTransform(input_size=32, cj_prob=0.5)
 
-# Combine views from multiple images into a batch.
-collate_fn = MultiViewCollate()
 
 # Create a dataset from your image folder.
 dataset = data.LightlyDataset(input_dir="./my/cute/cats/dataset/", transform=transform)
@@ -166,7 +163,6 @@ dataloader = torch.utils.data.DataLoader(
     dataset,  # Pass the dataset to the dataloader.
     batch_size=128,  # A large batch size helps with the learning.
     shuffle=True,  # Shuffling is important!
-    collate_fn=collate_fn,
 )
 
 # Lightly exposes building blocks such as loss functions.
@@ -284,9 +280,10 @@ tuned for maximum accuracy. For detailed results and more info about the benchma
 
 ### Imagenet
 
-| Model       | Backbone | Batch Size | Epochs | Linear Top1 | Linear Top1 Online | KNN Top1 | Tensorboard | Checkpoint |
-|-------------|----------|------------|--------|-------------|--------------------|----------|-------------|------------|
-| SimCLR      | Res50    |        256 |    100 |        63.2 |               63.1 |     44.9 |      [link](https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-05-04_09-02-54/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
+| Model       | Backbone | Batch Size | Epochs | Linear Top1 | Finetune Top1 | KNN Top1 | Tensorboard | Checkpoint |
+|-------------|----------|------------|--------|-------------|---------------|----------|-------------|------------|
+| SimCLR      | Res50    |        256 |    100 |        63.2 |           N/A |     44.9 |      [link](https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-05-04_09-02-54/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
+| SwAV        | Res50    |        256 |    100 |        67.2 |          75.4 |     49.5 |      [link](https://tensorboard.dev/experiment/Ipx4Oxl5Qkqm5Sl5kWyKKg) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_swav_2023-05-25_08-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)
 
 
 ### ImageNette

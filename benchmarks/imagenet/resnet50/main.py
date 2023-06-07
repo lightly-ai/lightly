@@ -7,6 +7,7 @@ import finetune_eval
 import knn_eval
 import linear_eval
 import simclr
+import swav
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
@@ -15,7 +16,6 @@ from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import MetricCallback
 
@@ -38,6 +38,7 @@ parser.add_argument("--skip-finetune-eval", action="store_true")
 
 METHODS = {
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
+    "swav": {"model": swav.SwAV, "transform": swav.transform},
 }
 
 
@@ -163,7 +164,6 @@ def pretrain(
         batch_size=batch_size_per_device,
         shuffle=True,
         num_workers=num_workers,
-        collate_fn=MultiViewCollate(),
         drop_last=True,
     )
 
@@ -197,6 +197,7 @@ def pretrain(
         ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
+        strategy="ddp_find_unused_parameters_true",
         sync_batchnorm=True,
     )
     trainer.fit(
