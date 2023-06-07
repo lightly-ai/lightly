@@ -114,7 +114,6 @@ class IJEPA_base(nn.Module):
             start_patch = start_patch_h * patch_w + start_patch_w
 
             patches = []
-            #get the patches in the target block
             for i in range(block_h):
                 for j in range(block_w):
                     patches.append(start_patch + i * patch_w + j)
