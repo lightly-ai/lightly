@@ -1,10 +1,12 @@
 from concurrent.futures import ThreadPoolExecutor
-from typing import List, Mapping, Optional, Sequence, Tuple
+from typing import Mapping, Optional, Sequence, Tuple
 
 import tqdm
 
-from lightly.api.prediction_singletons import PredictionSingletonRepr
-from lightly.openapi_generated.swagger_client import PredictionTaskSchema
+from lightly.openapi_generated.swagger_client.models import (
+    PredictionSingleton,
+    PredictionTaskSchema,
+)
 
 
 class _PredictionsMixin:
@@ -25,7 +27,7 @@ class _PredictionsMixin:
         Example:
           >>> import time
           >>> from lightly.api import ApiWorkflowClient
-          >>> from lightly.openapi_generated.swagger_client import (
+          >>> from lightly.openapi_generated.swagger_client.models import (
           >>>     PredictionTaskSchema,
           >>>     TaskType,
           >>>     PredictionTaskSchemaCategory,
@@ -48,16 +50,14 @@ class _PredictionsMixin:
 
         """
         self._predictions_api.create_or_update_prediction_task_schema_by_dataset_id(
-            body=schema,
+            prediction_task_schema=schema,
             dataset_id=self.dataset_id,
             prediction_uuid_timestamp=prediction_version_id,
         )
 
     def create_or_update_predictions(
         self,
-        sample_id_to_prediction_singletons: Mapping[
-            str, Sequence[PredictionSingletonRepr]
-        ],
+        sample_id_to_prediction_singletons: Mapping[str, Sequence[PredictionSingleton]],
         prediction_version_id: int = -1,
         progress_bar: Optional[tqdm.tqdm] = None,
         max_workers: int = 8,
@@ -84,7 +84,7 @@ class _PredictionsMixin:
           >>> import time
           >>> from tqdm import tqdm
           >>> from lightly.api import ApiWorkflowClient
-          >>> from lightly.openapi_generated.swagger_client import (
+          >>> from lightly.openapi_generated.swagger_client.models import (
           >>>     PredictionTaskSchema,
           >>>     TaskType,
           >>>     PredictionTaskSchemaCategory,
@@ -114,7 +114,7 @@ class _PredictionsMixin:
 
         def upload_prediction(
             sample_id_prediction_singletons_tuple: Tuple[
-                str, Sequence[PredictionSingletonRepr]
+                str, Sequence[PredictionSingleton]
             ]
         ) -> None:
             (sample_id, prediction_singletons) = sample_id_prediction_singletons_tuple
@@ -134,7 +134,7 @@ class _PredictionsMixin:
     def create_or_update_prediction(
         self,
         sample_id: str,
-        prediction_singletons: Sequence[PredictionSingletonRepr],
+        prediction_singletons: Sequence[PredictionSingleton],
         prediction_version_id: int = -1,
     ) -> None:
         """Creates or updates predictions for one specific sample.
@@ -151,11 +151,8 @@ class _PredictionsMixin:
             prediction_singletons:
                 Predictions to be uploaded for the designated sample.
         """
-        prediction_singletons_for_sending = [
-            singleton.to_dict() for singleton in prediction_singletons
-        ]
         self._predictions_api.create_or_update_prediction_by_sample_id(
-            body=prediction_singletons_for_sending,
+            prediction_singleton=prediction_singletons,
             dataset_id=self.dataset_id,
             sample_id=sample_id,
             prediction_uuid_timestamp=prediction_version_id,
