@@ -103,7 +103,6 @@ class IJEPA_base(nn.Module):
         #get the height and width of the target block with aspect ratio
         block_h = int(torch.sqrt(torch.tensor(num_patches_block / aspect_ratio)))
         block_w = int(aspect_ratio * block_h)
-        #get the patches in the target block
         target_block = torch.zeros((M, x.shape[0], block_h*block_w, x.shape[2]))
         target_patches = []
         all_patches = []
