@@ -49,7 +49,19 @@ def finetune_eval(
 ) -> None:
     """Runs fine-tune evaluation on the given model.
 
-    Parameters follow SimCLR settings.
+    Parameters follow SimCLR [0] settings.
+
+    The most important settings are:
+        - Backbone: Frozen
+        - Epochs: 30
+        - Optimizer: SGD
+        - Base Learning Rate: 0.05
+        - Momentum: 0.9
+        - Weight Decay: 0.0
+        - LR Schedule: Cosine without warmup
+
+    References:
+        - [0]: SimCLR, 2020, https://arxiv.org/abs/2002.05709
     """
     print("Running fine-tune evaluation...")
 

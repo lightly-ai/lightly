@@ -20,7 +20,14 @@ Self-supervised training of a SimCLR model for 100 epochs with total batch size 
 takes about two days on two GeForce RTX 4090 GPUs. You can reproduce the results with
 the code at `benchmarks/imagenet/resnet50 <https://github.com/lightly-ai/lightly/tree/master/benchmarks/imagenet/resnet50>`_.
 
-.. note:: All results are obtained with SimCLR evaluation settings.
+Evaluation settings are based on these papers:
+
+- Linear: `SimCLR <https://arxiv.org/abs/2002.05709>`_
+- Finetune: `SimCLR <https://arxiv.org/abs/2002.05709>`_
+- KNN: `InstDisc <https://arxiv.org/abs/1805.01978>`_
+
+See the `benchmarking scripts <https://github.com/lightly-ai/lightly/tree/master/benchmarks/imagenet/resnet50>`_ for details.
+
 
 .. csv-table:: Imagenet benchmark results.
   :header: "Model", "Backbone", "Batch Size", "Epochs", "Linear Top1", "Linear Top5", "Finetune Top1", "Finetune Top5", "KNN Top1", "KNN Top5", "Tensorboard", "Checkpoint"
