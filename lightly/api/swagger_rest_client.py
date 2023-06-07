@@ -1,6 +1,6 @@
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, Tuple, Union
 
-from lightly.openapi_generated.swagger_client import Configuration
+from lightly.openapi_generated.swagger_client.api_client import Configuration
 from lightly.openapi_generated.swagger_client.rest import RESTClientObject
 
 
@@ -53,20 +53,18 @@ class PatchRESTClientObjectMixin:
         _preload_content=True,
         _request_timeout=None,
     ):
-        # Set default timeout. This is necessary because the swagger api client does not
+        # Set default timeout. This is necessary because the openapi client does not
         # respect timeouts configured by urllib3. Instead it expects a timeout to be
         # passed with every request. See code here:
         # https://github.com/lightly-ai/lightly/blob/ffbd32fe82f76b37c8ac497640355314474bfc3b/lightly/openapi_generated/swagger_client/rest.py#L141-L148
         if _request_timeout is None:
             _request_timeout = self.timeout
 
-        flat_query_params = _flatten_list_query_parameters(query_params=query_params)
-
         # Call RESTClientObject.request
         return super().request(
             method=method,
             url=url,
-            query_params=flat_query_params,
+            query_params=query_params,
             headers=headers,
             body=body,
             post_params=post_params,
@@ -118,17 +116,3 @@ class LightlySwaggerRESTClientObject(PatchRESTClientObjectMixin, RESTClientObjec
     """
 
     pass
-
-
-def _flatten_list_query_parameters(
-    query_params: Union[None, List[Tuple[str, Any]]]
-) -> Union[None, List[Tuple[str, Any]]]:
-    if query_params is not None:
-        new_query_params = []
-        for name, value in query_params:
-            if isinstance(value, list):
-                new_query_params.extend([(name, val) for val in value])
-            else:
-                new_query_params.append((name, value))
-        query_params = new_query_params
-    return query_params

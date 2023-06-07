@@ -1,12 +1,8 @@
 from typing import List
 
-from lightly.openapi_generated.swagger_client.models.shared_access_config_create_request import (
+from lightly.openapi_generated.swagger_client.models import (
     SharedAccessConfigCreateRequest,
-)
-from lightly.openapi_generated.swagger_client.models.shared_access_config_data import (
     SharedAccessConfigData,
-)
-from lightly.openapi_generated.swagger_client.models.shared_access_type import (
     SharedAccessType,
 )
 
@@ -45,7 +41,7 @@ class _CollaborationMixin:
             access_type=SharedAccessType.WRITE, users=user_emails, creator=self._creator
         )
         self._collaboration_api.create_or_update_shared_access_config_by_dataset_id(
-            body=body, dataset_id=dataset_id
+            shared_access_config_create_request=body, dataset_id=dataset_id
         )
 
     def get_shared_users(self, dataset_id: str) -> List[str]:
