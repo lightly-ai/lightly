@@ -1,5 +1,5 @@
 import copy
-from typing import List, Optional, Tuple, Union
+from typing import List, Tuple, Union
 
 import torch
 from pytorch_lightning import LightningModule
