@@ -4,8 +4,6 @@ import torch.nn.functional as F
 import copy
 from functools import partial
 from typing import Optional, Callable, List
-from torchvision.models import vision_transformer
-from lightly.models import utils
 import math
 
 
@@ -50,17 +48,13 @@ class IJEPA_Predictor(nn.Module):
 class IJEPA_Encoder(nn.Module):
     def __init__(
         self,
-        seq_length: int,
-        num_layers: int,
-        num_heads: int,
-        hidden_dim: int,
-        mlp_dim: int,
-        dropout: float,
-        attention_dropout: float,
-        norm_layer: Callable[..., torch.nn.Module] = partial(nn.LayerNorm, eps=1e-6),
+        dim,
+        heads,
+        depth, 
     ):
-        encoder_layer = nn.TransformerEncoderLayer(d_model=512, nhead=8)
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        super().__init__()
+        encoder_layer = nn.TransformerEncoderLayer(d_model=dim, nhead=heads)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=depth)
 
     def forward(self, src):
         return self.transformer_encoder(src)
@@ -90,10 +84,9 @@ class IJEPA_base(nn.Module):
             dim=embed_dim,
             heads=num_heads,
             depth=enc_depth, 
-            layer_dropout=self.layer_dropout,
-    )  
+        )  
         self.student_encoder = copy.deepcopy(self.teacher_encoder).cuda()
-        self.predictor = IJEPA_Predictor(embed_dim, num_heads, pred_depth)
+        self.predictor = IJEPA_Encoder(embed_dim, num_heads, pred_depth)
 
     @torch.no_grad() 
     def get_target_block(self, target_encoder, x, patch_dim, aspect_ratio, scale, M):  
