@@ -194,7 +194,7 @@ class _ExportDatasetMixin:
                 tag_id=tag_id,
             )
         )
-        return [row.to_dict(by_alias=True) for row in label_box_data_rows]
+        return [row.to_dict() for row in label_box_data_rows]
 
     def export_label_box_v4_data_rows_by_tag_name(
         self,
