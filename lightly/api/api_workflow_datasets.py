@@ -1,8 +1,9 @@
 import warnings
-from typing import List, Optional
+from itertools import chain
+from typing import Iterator, List, Optional
 
 from lightly.api import utils
-from lightly.openapi_generated.swagger_client import (
+from lightly.openapi_generated.swagger_client.models import (
     CreateEntityResponse,
     DatasetCreateRequest,
     DatasetData,
@@ -30,6 +31,13 @@ class _DatasetsMixin:
 
         Returns:
             True if the dataset exists and False otherwise.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.create_dataset("your-dataset-name", dataset_type=DatasetType.IMAGES)
+            >>> dataset_id = client.dataset_id
+            >>> client.dataset_exists(dataset_id=dataset_id)
+            True
         """
         try:
             self.get_dataset_by_id(dataset_id)
@@ -54,6 +62,12 @@ class _DatasetsMixin:
 
         Returns:
             A boolean value indicating whether any dataset with the given name exists.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.create_dataset("your-dataset-name", dataset_type=DatasetType.IMAGES)
+            >>> client.dataset_name_exists(dataset_name="your-dataset-name")
+            True
         """
         return bool(self.get_datasets_by_name(dataset_name=dataset_name, shared=shared))
 
@@ -65,6 +79,19 @@ class _DatasetsMixin:
 
         Returns:
             The dataset with the given dataset id.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.create_dataset("your-dataset-name", dataset_type=DatasetType.IMAGES)
+            >>> dataset_id = client.dataset_id
+            >>> client.get_dataset_by_id(dataset_id=dataset_id)
+            {'created_at': 1685009504596,
+             'datasource_processed_until_timestamp': 1685009513,
+             'datasources': ['646f346004d77b4e1424e67e', '646f346004d77b4e1424e695'],
+             'id': '646f34608a5613b57d8b73c9',
+             'img_type': 'full',
+             'type': 'Images',
+             ...}
         """
         dataset: DatasetData = self._datasets_api.get_dataset_by_id(dataset_id)
         return dataset
@@ -90,6 +117,22 @@ class _DatasetsMixin:
         Returns:
             A list of datasets that match the name. If no datasets with the name exist,
             an empty list is returned.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.create_dataset("your-dataset-name", dataset_type=DatasetType.IMAGES)
+            >>> client.get_datasets_by_name(dataset_name="your-dataset-name")
+            [{'created_at': 1685009504596,
+             'datasource_processed_until_timestamp': 1685009513,
+             'datasources': ['646f346004d77b4e1424e67e', '646f346004d77b4e1424e695'],
+             'id': '646f34608a5613b57d8b73c9',
+             'img_type': 'full',
+             'type': 'Images',
+             ...}]
+            >>>
+            >>> # Non-existent dataset
+            >>> client.get_datasets_by_name(dataset_name="random-name")
+            []
         """
         datasets = []
         if not shared or shared is None:
@@ -109,6 +152,37 @@ class _DatasetsMixin:
                 )
             )
         return datasets
+
+    def get_datasets_iter(
+        self, shared: Optional[bool] = False
+    ) -> Iterator[DatasetData]:
+        """Returns an iterator over all datasets owned by the current user.
+
+        Args:
+            shared:
+                If False, returns only datasets owned by the user.
+                If True, returns only the datasets which have been shared with the user.
+                If None, returns all datasets the user has access to (owned and shared).
+                Defaults to False.
+
+        Returns:
+            An iterator over datasets owned by the current user.
+        """
+        dataset_iterable = []
+        if not shared or shared is None:
+            dataset_iterable = utils.paginate_endpoint(
+                self._datasets_api.get_datasets,
+                shared=False,
+            )
+        if shared or shared is None:
+            dataset_iterable = chain(
+                dataset_iterable,
+                utils.paginate_endpoint(
+                    self._datasets_api.get_datasets,
+                    shared=True,
+                ),
+            )
+        return dataset_iterable
 
     def get_datasets(self, shared: Optional[bool] = False) -> List[DatasetData]:
         """Returns all datasets owned by the current user.
@@ -122,23 +196,20 @@ class _DatasetsMixin:
 
         Returns:
             A list of datasets owned by the current user.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.create_dataset("your-dataset-name", dataset_type=DatasetType.IMAGES)
+            >>> client.get_datasets()
+            [{'created_at': 1685009504596,
+             'datasource_processed_until_timestamp': 1685009513,
+             'datasources': ['646f346004d77b4e1424e67e', '646f346004d77b4e1424e695'],
+             'id': '646f34608a5613b57d8b73c9',
+             'img_type': 'full',
+             'type': 'Images',
+             ...}]
         """
-        datasets = []
-        if not shared or shared is None:
-            datasets.extend(
-                utils.paginate_endpoint(
-                    self._datasets_api.get_datasets,
-                    shared=False,
-                )
-            )
-        if shared or shared is None:
-            datasets.extend(
-                utils.paginate_endpoint(
-                    self._datasets_api.get_datasets,
-                    shared=True,
-                )
-            )
-        return datasets
+        return list(self.get_datasets_iter(shared))
 
     def get_all_datasets(self) -> List[DatasetData]:
         """Returns all datasets the user has access to.
@@ -172,6 +243,10 @@ class _DatasetsMixin:
             ValueError:
                 If no dataset with the given name exists.
 
+        Examples:
+            >>> # A new session. Dataset "old-dataset" was created before.
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.set_dataset_id_by_name("old-dataset")
         """
         datasets = self.get_datasets_by_name(dataset_name=dataset_name, shared=shared)
         if not datasets:
@@ -217,7 +292,7 @@ class _DatasetsMixin:
 
         Examples:
             >>> from lightly.api import ApiWorkflowClient
-            >>> from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
+            >>> from lightly.openapi_generated.swagger_client.models import DatasetType
             >>>
             >>> client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
             >>> client.create_dataset('your-dataset-name', dataset_type=DatasetType.IMAGES)
@@ -262,7 +337,9 @@ class _DatasetsMixin:
         body = DatasetCreateRequest(
             name=dataset_name, type=dataset_type, creator=self._creator
         )
-        response: CreateEntityResponse = self._datasets_api.create_dataset(body=body)
+        response: CreateEntityResponse = self._datasets_api.create_dataset(
+            dataset_create_request=body
+        )
         self._dataset_id = response.id
 
     def create_new_dataset_with_unique_name(
@@ -281,6 +358,24 @@ class _DatasetsMixin:
             dataset_type:
                 The type of the dataset. We recommend to use the API provided
                 constants `DatasetType.IMAGES` and `DatasetType.VIDEOS`.
+
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>>
+            >>> # Create a dataset with a brand new name.
+            >>> client.create_new_dataset_with_unique_name("new-dataset")
+            >>> client.get_dataset_by_id(client.dataset_id)
+            {'id': '6470abef4f0eb7e635c30954',
+             'name': 'new-dataset',
+             ...}
+            >>>
+            >>> # Create another dataset with the same name. This time, the
+            >>> # new dataset should have a suffix `_1`.
+            >>> client.create_new_dataset_with_unique_name("new-dataset")
+            >>> client.get_dataset_by_id(client.dataset_id)
+            {'id': '6470ac194f0eb7e635c30990',
+             'name': 'new-dataset_1',
+             ...}
 
         """
         if not self.dataset_name_exists(dataset_name=dataset_basename):
@@ -312,6 +407,17 @@ class _DatasetsMixin:
             dataset_id:
                 The ID of the dataset to be deleted.
 
+        Examples:
+            >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
+            >>> client.create_dataset("your-dataset-name", dataset_type=DatasetType.IMAGES)
+            >>> dataset_id = client.dataset_id
+            >>> client.dataset_exists(dataset_id=dataset_id)
+            True
+            >>>
+            >>> # Delete the dataset
+            >>> client.delete_dataset_by_id(dataset_id=dataset_id)
+            >>> client.dataset_exists(dataset_id=dataset_id)
+            False
         """
         self._datasets_api.delete_dataset_by_id(dataset_id=dataset_id)
         del self._dataset_id
