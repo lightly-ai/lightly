@@ -228,7 +228,7 @@ def get_api_client_configuration(
         )
 
     configuration = Configuration()
-    configuration.api_key = {"token": token}
+    configuration.api_key = {"ApiKeyAuth": token}
     configuration.ssl_ca_cert = ssl_ca_cert
     configuration.host = host
 
