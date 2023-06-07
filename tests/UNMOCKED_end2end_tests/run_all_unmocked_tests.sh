@@ -30,9 +30,5 @@ echo "############################### Test 2"
 lightly-magic input_dir=$INPUT_DIR trainer.max_epochs=1
 ((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
-echo "############################### Deleting all datasets again"
-python tests/UNMOCKED_end2end_tests/delete_datasets_test_unmocked_cli.py $NUMBER_OF_DATASETS $LIGHTLY_TOKEN ${DATE_TIME}
-
-
 echo "############################### Delete dataset again"
 rm -rf $DIR_DATASET
