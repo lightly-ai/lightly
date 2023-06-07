@@ -280,6 +280,13 @@ tuned for maximum accuracy. For detailed results and more info about the benchma
 
 ### Imagenet
 
+> **Note**: Evaluation settings are based on these papers:
+> * Linear: [SimCLR](https://arxiv.org/abs/2002.05709)
+> * Finetune: [SimCLR](https://arxiv.org/abs/2002.05709)
+> * KNN: [InstDisc](https://arxiv.org/abs/1805.01978)
+> 
+> See the [benchmarking scripts](./benchmarks/imagenet/resnet50/) for details.
+
 | Model       | Backbone | Batch Size | Epochs | Linear Top1 | Finetune Top1 | KNN Top1 | Tensorboard | Checkpoint |
 |-------------|----------|------------|--------|-------------|---------------|----------|-------------|------------|
 | SimCLR      | Res50    |        256 |    100 |        63.2 |           N/A |     44.9 |      [link](https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-05-04_09-02-54/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
