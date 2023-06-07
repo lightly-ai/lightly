@@ -127,7 +127,6 @@ class IJEPA_base(nn.Module):
 
     def get_context_block(self, x, patch_dim, aspect_ratio, scale, target_patches):
         patch_h, patch_w = patch_dim
-        #get the number of patches in the target block
         num_patches_block = int(patch_h * patch_w * scale)
         #get the height and width of the target block with aspect ratio
         block_h = int(torch.sqrt(torch.tensor(num_patches_block / aspect_ratio)))
