@@ -121,7 +121,6 @@ class IJEPA_base(nn.Module):
                     if start_patch + i * patch_w + j not in all_patches:
                         all_patches.append(start_patch + i * patch_w + j)
                     
-            #get the target block
             target_patches.append(patches)
             target_block[z] = x[:, patches, :]
         return target_block.cuda(), target_patches, all_patches
