@@ -3,7 +3,7 @@ from itertools import chain
 from typing import Iterator, List, Optional
 
 from lightly.api import utils
-from lightly.openapi_generated.swagger_client.models import (
+from lightly.openapi_generated.swagger_client import (
     CreateEntityResponse,
     DatasetCreateRequest,
     DatasetData,
@@ -292,7 +292,7 @@ class _DatasetsMixin:
 
         Examples:
             >>> from lightly.api import ApiWorkflowClient
-            >>> from lightly.openapi_generated.swagger_client.models import DatasetType
+            >>> from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
             >>>
             >>> client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
             >>> client.create_dataset('your-dataset-name', dataset_type=DatasetType.IMAGES)
@@ -337,9 +337,7 @@ class _DatasetsMixin:
         body = DatasetCreateRequest(
             name=dataset_name, type=dataset_type, creator=self._creator
         )
-        response: CreateEntityResponse = self._datasets_api.create_dataset(
-            dataset_create_request=body
-        )
+        response: CreateEntityResponse = self._datasets_api.create_dataset(body=body)
         self._dataset_id = response.id
 
     def create_new_dataset_with_unique_name(

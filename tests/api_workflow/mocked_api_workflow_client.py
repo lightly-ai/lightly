@@ -13,77 +13,148 @@ from requests import Response
 
 import lightly
 from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.openapi_generated.swagger_client.api import (
-    CollaborationApi,
-    DatasetsApi,
-    DatasourcesApi,
-    DockerApi,
-    EmbeddingsApi,
-    JobsApi,
-    MappingsApi,
-    QuotaApi,
-    SamplesApi,
-    SamplingsApi,
-    ScoresApi,
-    TagsApi,
-    VersioningApi,
-)
-from lightly.openapi_generated.swagger_client.models import (
-    AsyncTaskData,
-    CreateDockerWorkerRegistryEntryRequest,
+from lightly.openapi_generated.swagger_client import (
+    ApiClient,
     CreateEntityResponse,
-    DatasetCreateRequest,
-    DatasetData,
-    DatasetEmbeddingData,
-    DatasourceConfig,
-    DatasourceConfigBase,
-    DatasourceProcessedUntilTimestampRequest,
-    DatasourceProcessedUntilTimestampResponse,
-    DatasourceRawSamplesData,
-    DatasourceRawSamplesDataRow,
     DatasourceRawSamplesMetadataData,
-    DatasourceRawSamplesPredictionsData,
-    DockerRunData,
-    DockerRunScheduledCreateRequest,
-    DockerRunScheduledData,
-    DockerRunScheduledPriority,
-    DockerRunScheduledState,
-    DockerRunState,
-    DockerWorkerConfigCreateRequest,
-    DockerWorkerConfigV3CreateRequest,
-    DockerWorkerRegistryEntryData,
-    DockerWorkerState,
-    DockerWorkerType,
-    FilenameAndReadUrl,
     InitialTagCreateRequest,
-    JobResultType,
-    JobState,
-    JobStatusData,
-    JobStatusDataResult,
-    LabelBoxDataRow,
     LabelBoxV4DataRow,
-    LabelStudioTask,
-    LabelStudioTaskData,
+    QuotaApi,
     SampleCreateRequest,
     SampleData,
     SampleDataModes,
     SampleMetaData,
-    SamplePartialMode,
+    SamplesApi,
     SampleUpdateRequest,
     SampleWriteUrls,
-    SamplingCreateRequest,
-    SharedAccessConfigCreateRequest,
-    SharedAccessConfigData,
-    SharedAccessType,
+    ScoresApi,
     TagArithmeticsRequest,
     TagBitMaskResponse,
-    TagCreator,
-    TagData,
     Trigger2dEmbeddingJobRequest,
+    VersioningApi,
+)
+from lightly.openapi_generated.swagger_client.api.collaboration_api import (
+    CollaborationApi,
+)
+from lightly.openapi_generated.swagger_client.api.datasets_api import DatasetsApi
+from lightly.openapi_generated.swagger_client.api.datasources_api import DatasourcesApi
+from lightly.openapi_generated.swagger_client.api.docker_api import DockerApi
+from lightly.openapi_generated.swagger_client.api.embeddings_api import EmbeddingsApi
+from lightly.openapi_generated.swagger_client.api.jobs_api import JobsApi
+from lightly.openapi_generated.swagger_client.api.mappings_api import MappingsApi
+from lightly.openapi_generated.swagger_client.api.samplings_api import SamplingsApi
+from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
+from lightly.openapi_generated.swagger_client.models.async_task_data import (
+    AsyncTaskData,
+)
+from lightly.openapi_generated.swagger_client.models.create_docker_worker_registry_entry_request import (
+    CreateDockerWorkerRegistryEntryRequest,
+)
+from lightly.openapi_generated.swagger_client.models.dataset_create_request import (
+    DatasetCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
+from lightly.openapi_generated.swagger_client.models.dataset_embedding_data import (
+    DatasetEmbeddingData,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_config import (
+    DatasourceConfig,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_config_base import (
+    DatasourceConfigBase,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_request import (
+    DatasourceProcessedUntilTimestampRequest,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import (
+    DatasourceProcessedUntilTimestampResponse,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import (
+    DatasourceRawSamplesData,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import (
+    DatasourceRawSamplesDataRow,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_predictions_data import (
+    DatasourceRawSamplesPredictionsData,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_data import (
+    DockerRunData,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_create_request import (
+    DockerRunScheduledCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import (
+    DockerRunScheduledData,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_priority import (
+    DockerRunScheduledPriority,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_state import (
+    DockerRunScheduledState,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_state import (
+    DockerRunState,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import (
+    DockerWorkerConfigCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_create_request import (
+    DockerWorkerConfigV3CreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_registry_entry_data import (
+    DockerWorkerRegistryEntryData,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_state import (
+    DockerWorkerState,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_type import (
+    DockerWorkerType,
+)
+from lightly.openapi_generated.swagger_client.models.filename_and_read_url import (
+    FilenameAndReadUrl,
+)
+from lightly.openapi_generated.swagger_client.models.job_result_type import (
+    JobResultType,
+)
+from lightly.openapi_generated.swagger_client.models.job_state import JobState
+from lightly.openapi_generated.swagger_client.models.job_status_data import (
+    JobStatusData,
+)
+from lightly.openapi_generated.swagger_client.models.job_status_data_result import (
+    JobStatusDataResult,
+)
+from lightly.openapi_generated.swagger_client.models.label_box_data_row import (
+    LabelBoxDataRow,
+)
+from lightly.openapi_generated.swagger_client.models.label_studio_task import (
+    LabelStudioTask,
+)
+from lightly.openapi_generated.swagger_client.models.label_studio_task_data import (
+    LabelStudioTaskData,
+)
+from lightly.openapi_generated.swagger_client.models.sample_partial_mode import (
+    SamplePartialMode,
+)
+from lightly.openapi_generated.swagger_client.models.sampling_create_request import (
+    SamplingCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.shared_access_config_create_request import (
+    SharedAccessConfigCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.shared_access_config_data import (
+    SharedAccessConfigData,
+)
+from lightly.openapi_generated.swagger_client.models.shared_access_type import (
+    SharedAccessType,
+)
+from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
+from lightly.openapi_generated.swagger_client.models.tag_data import TagData
+from lightly.openapi_generated.swagger_client.models.timestamp import Timestamp
+from lightly.openapi_generated.swagger_client.models.write_csv_url_data import (
     WriteCSVUrlData,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
-from tests.api_workflow.utils import generate_id
 
 
 def _check_dataset_id(dataset_id: str):
@@ -99,13 +170,13 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         EmbeddingsApi.__init__(self, api_client=api_client)
         self.embeddings = [
             DatasetEmbeddingData(
-                id=generate_id(),
+                id="embedding_id_xyz",
                 name="embedding_newest",
                 is_processed=True,
                 created_at=1111111,
             ),
             DatasetEmbeddingData(
-                id=generate_id(),
+                id="embedding_id_xyz_2",
                 name="default",
                 is_processed=True,
                 created_at=0,
@@ -116,7 +187,7 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         _check_dataset_id(dataset_id)
         assert isinstance(dataset_id, str)
         response_ = WriteCSVUrlData(
-            signed_write_url="signed_write_url_valid", embedding_id=generate_id()
+            signed_write_url="signed_write_url_valid", embedding_id="embedding_id_xyz"
         )
         return response_
 
@@ -127,11 +198,9 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         assert isinstance(dataset_id, str)
         return self.embeddings
 
-    def trigger2d_embeddings_job(
-        self, trigger2d_embedding_job_request, dataset_id, embedding_id, **kwargs
-    ):
+    def trigger2d_embeddings_job(self, body, dataset_id, embedding_id, **kwargs):
         _check_dataset_id(dataset_id)
-        assert isinstance(trigger2d_embedding_job_request, Trigger2dEmbeddingJobRequest)
+        assert isinstance(body, Trigger2dEmbeddingJobRequest)
 
     def get_embeddings_csv_read_url_by_id(self, dataset_id, embedding_id, **kwargs):
         _check_dataset_id(dataset_id)
@@ -183,13 +252,11 @@ class MockedJobsApi(JobsApi):
 
 
 class MockedTagsApi(TagsApi):
-    def create_initial_tag_by_dataset_id(
-        self, initial_tag_create_request, dataset_id, **kwargs
-    ):
+    def create_initial_tag_by_dataset_id(self, body, dataset_id, **kwargs):
         _check_dataset_id(dataset_id)
-        assert isinstance(initial_tag_create_request, InitialTagCreateRequest)
+        assert isinstance(body, InitialTagCreateRequest)
         assert isinstance(dataset_id, str)
-        response_ = CreateEntityResponse(id=generate_id())
+        response_ = CreateEntityResponse(id="xyz")
         return response_
 
     def get_tag_by_tag_id(self, dataset_id, tag_id, **kwargs):
@@ -199,67 +266,68 @@ class MockedTagsApi(TagsApi):
         response_ = TagData(
             id=tag_id,
             dataset_id=dataset_id,
-            prev_tag_id=generate_id(),
+            prev_tag_id="initial-tag",
             bit_mask_data="0x80bda23e9",
             name="second-tag",
             tot_size=15,
             created_at=1577836800,
-            changes=[],
+            changes=dict(),
         )
         return response_
 
     def get_tags_by_dataset_id(self, dataset_id, **kwargs):
         _check_dataset_id(dataset_id)
-
+        if dataset_id == "xyz-no-tags":
+            return []
         tag_1 = TagData(
-            id=generate_id(),
+            id="inital_tag_id",
             dataset_id=dataset_id,
             prev_tag_id=None,
-            bit_mask_data="0xf",
+            bit_mask_data="0xF",
             name="initial-tag",
             tot_size=4,
             created_at=1577836800,
-            changes=[],
+            changes=dict(),
         )
         tag_2 = TagData(
-            id=generate_id(),
+            id="query_tag_id_xyz",
             dataset_id=dataset_id,
-            prev_tag_id=tag_1.id,
-            bit_mask_data="0xf",
+            prev_tag_id="initial-tag",
+            bit_mask_data="0xF",
             name="query_tag_name_xyz",
             tot_size=4,
             created_at=1577836800,
-            changes=[],
+            changes=dict(),
         )
         tag_3 = TagData(
-            id=generate_id(),
+            id="preselected_tag_id_xyz",
             dataset_id=dataset_id,
-            prev_tag_id=tag_1.id,
+            prev_tag_id="initial-tag",
             bit_mask_data="0x1",
             name="preselected_tag_name_xyz",
             tot_size=4,
             created_at=1577836800,
-            changes=[],
+            changes=dict(),
         )
         tag_4 = TagData(
-            id=generate_id(),
+            id="selected_tag_xyz",
             dataset_id=dataset_id,
-            prev_tag_id=tag_3.id,
+            prev_tag_id="preselected_tag_id_xyz",
             bit_mask_data="0x3",
             name="selected_tag_xyz",
             tot_size=4,
             created_at=1577836800,
-            changes=[],
+            changes=dict(),
         )
         tag_5 = TagData(
-            id=generate_id(),
+            id="tag_with_integer_name",
             dataset_id=dataset_id,
             prev_tag_id=None,
             bit_mask_data="0x1",
             name="1000",
             tot_size=4,
             created_at=1577836800,
-            changes=[],
+            changes=dict(),
         )
         tags = [tag_1, tag_2, tag_3, tag_4, tag_5]
         no_tags_to_return = getattr(self, "no_tags", 5)
@@ -267,42 +335,38 @@ class MockedTagsApi(TagsApi):
         return tags
 
     def perform_tag_arithmetics(
-        self, tag_arithmetics_request: TagArithmeticsRequest, dataset_id, **kwargs
+        self, body: TagArithmeticsRequest, dataset_id, **kwargs
     ):
         _check_dataset_id(dataset_id)
-        if (tag_arithmetics_request.new_tag_name is None) or (
-            tag_arithmetics_request.new_tag_name == ""
-        ):
+        if (body.new_tag_name is None) or (body.new_tag_name == ""):
             return TagBitMaskResponse(bit_mask_data="0x2")
         else:
             return CreateEntityResponse(id="tag-arithmetic-created")
 
     def perform_tag_arithmetics_bitmask(
-        self, tag_arithmetics_request: TagArithmeticsRequest, dataset_id, **kwargs
+        self, body: TagArithmeticsRequest, dataset_id, **kwargs
     ):
         _check_dataset_id(dataset_id)
         return TagBitMaskResponse(bit_mask_data="0x2")
 
-    def upsize_tags_by_dataset_id(self, tag_upsize_request, dataset_id, **kwargs):
+    def upsize_tags_by_dataset_id(self, body, dataset_id, **kwargs):
         _check_dataset_id(dataset_id)
-        assert tag_upsize_request.upsize_tag_creator in (
+        assert body.upsize_tag_creator in (
             TagCreator.USER_PIP,
             TagCreator.USER_PIP_LIGHTLY_MAGIC,
         )
 
-    def create_tag_by_dataset_id(
-        self, tag_create_request, dataset_id, **kwargs
-    ) -> TagData:
+    def create_tag_by_dataset_id(self, body, dataset_id, **kwargs) -> TagData:
         _check_dataset_id(dataset_id)
         tag = TagData(
-            id=generate_id(),
+            id="inital_tag_id",
             dataset_id=dataset_id,
-            prev_tag_id=tag_create_request["prev_tag_id"],
-            bit_mask_data=tag_create_request["bit_mask_data"],
-            name=tag_create_request["name"],
+            prev_tag_id=body["prev_tag_id"],
+            bit_mask_data=body["bit_mask_data"],
+            name=body["name"],
             tot_size=10,
             created_at=1577836800,
-            changes=[],
+            changes=dict(),
         )
         return tag
 
@@ -520,13 +584,13 @@ class MockedDatasetsApi(DatasetsApi):
         self._default_datasets = [
             DatasetData(
                 name=f"dataset_{i}",
-                id=generate_id(),
+                id=f"dataset_{i}_id",
                 last_modified_at=i,
-                type="Images",
+                type="",
                 img_type="full",
                 size_in_bytes=-1,
                 n_samples=-1,
-                created_at=0,
+                created_at=-1,
                 user_id="user_0",
             )
             for i in range(no_datasets)
@@ -534,13 +598,13 @@ class MockedDatasetsApi(DatasetsApi):
         self._shared_datasets = [
             DatasetData(
                 name=f"shared_dataset_{i}",
-                id=generate_id(),
-                last_modified_at=0,
+                id=f"shared_dataset_{i}_id",
+                last_modified_at=-1,
                 type="Images",
                 img_type="full",
                 size_in_bytes=-1,
                 n_samples=-1,
-                created_at=0,
+                created_at=-1,
                 user_id="another_user",
             )
             for i in range(2)
@@ -567,20 +631,20 @@ class MockedDatasetsApi(DatasetsApi):
         else:
             return self.datasets[start:end]
 
-    def create_dataset(self, dataset_create_request: DatasetCreateRequest, **kwargs):
-        assert isinstance(dataset_create_request, DatasetCreateRequest)
-        id = generate_id()
-        if dataset_create_request.name == "xyz-no-tags":
+    def create_dataset(self, body: DatasetCreateRequest, **kwargs):
+        assert isinstance(body, DatasetCreateRequest)
+        id = body.name + "_id"
+        if body.name == "xyz-no-tags":
             id = "xyz-no-tags"
         dataset = DatasetData(
             id=id,
-            name=dataset_create_request.name,
+            name=body.name,
             last_modified_at=len(self.datasets) + 1,
             type="Images",
             size_in_bytes=-1,
             n_samples=-1,
             created_at=-1,
-            user_id=generate_id(),
+            user_id="user_0",
         )
         self.datasets.append(dataset)
         response_ = CreateEntityResponse(id=id)
@@ -810,66 +874,65 @@ class MockedComputeWorkerApi(DockerApi):
         super().__init__(api_client=api_client)
         self._compute_worker_runs = [
             DockerRunData(
-                id=generate_id(),
+                id="compute-worker-run-1",
                 user_id="user-id",
                 docker_version="v1",
-                dataset_id=generate_id(),
+                dataset_id="dataset_id_xyz",
                 state=DockerRunState.TRAINING,
-                created_at=0,
-                last_modified_at=100,
+                created_at=Timestamp(0),
+                last_modified_at=Timestamp(100),
                 message=None,
                 artifacts=[],
             )
         ]
         self._scheduled_compute_worker_runs = [
             DockerRunScheduledData(
-                id=generate_id(),
-                dataset_id=generate_id(),
-                config_id=generate_id(),
+                id="compute-worker-scheduled-run-1",
+                dataset_id="dataset_id_xyz",
+                config_id="config-id-1",
                 priority=DockerRunScheduledPriority.MID,
                 state=DockerRunScheduledState.OPEN,
-                created_at=0,
-                last_modified_at=100,
-                owner=generate_id(),
+                created_at=Timestamp(0),
+                last_modified_at=Timestamp(100),
+                owner="user-id-1",
                 runs_on=[],
             )
         ]
         self._registered_workers = [
             DockerWorkerRegistryEntryData(
-                id=generate_id(),
+                id="worker-registry-id-1",
                 user_id="user-id",
                 name="worker-name-1",
                 worker_type=DockerWorkerType.FULL,
                 state=DockerWorkerState.OFFLINE,
-                created_at=0,
-                last_modified_at=0,
+                created_at=Timestamp(0),
+                last_modified_at=Timestamp(0),
                 labels=["label-1"],
             )
         ]
 
     def register_docker_worker(self, body, **kwargs):
         assert isinstance(body, CreateDockerWorkerRegistryEntryRequest)
-        return CreateEntityResponse(id=generate_id())
+        return CreateEntityResponse(id="worker-id-123")
+
+    def delete_docker_worker_registry_entry_by_id(self, worker_id, **kwargs):
+        assert worker_id == "worker-id-123"
 
     def get_docker_worker_registry_entries(self, **kwargs):
         return self._registered_workers
 
     def create_docker_worker_config(self, body, **kwargs):
         assert isinstance(body, DockerWorkerConfigCreateRequest)
-        return CreateEntityResponse(id=generate_id())
+        return CreateEntityResponse(id="worker-config-id-123")
 
     def create_docker_worker_config_v3(self, body, **kwargs):
         assert isinstance(body, DockerWorkerConfigV3CreateRequest)
-        return CreateEntityResponse(id=generate_id())
+        return CreateEntityResponse(id="worker-configv2-id-123")
 
-    def create_docker_run_scheduled_by_dataset_id(
-        self, docker_run_scheduled_create_request, dataset_id, **kwargs
-    ):
-        assert isinstance(
-            docker_run_scheduled_create_request, DockerRunScheduledCreateRequest
-        )
+    def create_docker_run_scheduled_by_dataset_id(self, body, dataset_id, **kwargs):
+        assert isinstance(body, DockerRunScheduledCreateRequest)
         _check_dataset_id(dataset_id)
-        return CreateEntityResponse(id=generate_id())
+        return CreateEntityResponse(id=f"scheduled-run-id-123-dataset-{dataset_id}")
 
     def get_docker_runs(
         self,
@@ -991,21 +1054,19 @@ def mocked_request_put(dst_url: str, data=IOBase) -> Response:
 
 class MockedAPICollaboration(CollaborationApi):
     def create_or_update_shared_access_config_by_dataset_id(
-        self, shared_access_config_create_request, dataset_id, **kwargs
+        self, body, dataset_id, **kwargs
     ):
-        assert isinstance(
-            shared_access_config_create_request, SharedAccessConfigCreateRequest
-        )
-        return CreateEntityResponse(id=generate_id())
+        assert isinstance(body, SharedAccessConfigCreateRequest)
+        return CreateEntityResponse(id="access-share-config")
 
     def get_shared_access_configs_by_dataset_id(self, dataset_id, **kwargs):
         write_config = SharedAccessConfigData(
-            id=generate_id(),
+            id="some-id",
             owner="owner-id",
             users=["user1@gmail.com", "user2@something.com"],
             teams=["some-id"],
-            created_at=0,
-            last_modified_at=0,
+            created_at=Timestamp(0),
+            last_modified_at=Timestamp(0),
             access_type=SharedAccessType.WRITE,
         )
         return [write_config]

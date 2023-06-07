@@ -31,8 +31,11 @@ from lightly.api.version_checking import (
     LightlyAPITimeoutException,
     is_compatible_version,
 )
-from lightly.openapi_generated.swagger_client.api import (
+from lightly.openapi_generated.swagger_client import (
+    ApiClient,
     CollaborationApi,
+    Creator,
+    DatasetData,
     DatasetsApi,
     DatasourcesApi,
     DockerApi,
@@ -47,7 +50,6 @@ from lightly.openapi_generated.swagger_client.api import (
     ScoresApi,
     TagsApi,
 )
-from lightly.openapi_generated.swagger_client.models import Creator, DatasetData
 from lightly.openapi_generated.swagger_client.rest import ApiException
 from lightly.utils.reordering import sort_items_by_keys
 
@@ -123,7 +125,7 @@ class ApiWorkflowClient(
         self.api_client = LightlySwaggerApiClient(configuration=configuration)
         self.api_client.user_agent = f"Lightly/{__version__} ({platform.system()}/{platform.release()}; {platform.platform()}; {platform.processor()};) python/{platform.python_version()}"
 
-        self.token = configuration.api_key["ApiKeyAuth"]
+        self.token = configuration.api_key["token"]
         if dataset_id is not None:
             self._dataset_id = dataset_id
         if embedding_id is not None:

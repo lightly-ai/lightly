@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 # flake8: noqa
 
 # import apis into api package
@@ -18,4 +20,3 @@ from lightly.openapi_generated.swagger_client.api.scores_api import ScoresApi
 from lightly.openapi_generated.swagger_client.api.tags_api import TagsApi
 from lightly.openapi_generated.swagger_client.api.teams_api import TeamsApi
 from lightly.openapi_generated.swagger_client.api.versioning_api import VersioningApi
-
