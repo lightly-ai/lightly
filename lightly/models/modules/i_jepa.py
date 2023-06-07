@@ -158,10 +158,8 @@ class IJEPA_base(nn.Module):
         #if mode is test, we get return full embedding:
         if self.mode == 'test':
             return self.student_encoder(x)
-        # #get target embeddings
         target_blocks, target_patches, all_patches = self.get_target_block(self.teacher_encoder, x, self.patch_dim, target_aspect_ratio, target_scale, self.M)
         m, b, n, e = target_blocks.shape
-        #get context embedding
 
         context_block = self.get_context_block(x, self.patch_dim, context_aspect_ratio, context_scale, all_patches)
         context_encoding = self.student_encoder(context_block)
