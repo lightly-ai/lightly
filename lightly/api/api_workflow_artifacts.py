@@ -1,12 +1,10 @@
 import os
 
 from lightly.api import download
-from lightly.openapi_generated.swagger_client import (
+from lightly.openapi_generated.swagger_client.models import (
     DockerRunArtifactData,
-    DockerRunData,
-)
-from lightly.openapi_generated.swagger_client.models.docker_run_artifact_type import (
     DockerRunArtifactType,
+    DockerRunData,
 )
 
 
