@@ -20,13 +20,13 @@ import json
 
 
 from typing import List, Optional, Union
-from pydantic import Extra,  BaseModel, Field, StrictInt, confloat, conint, conlist
+from pydantic import Extra,  BaseModel, Field, confloat, conint, conlist
 
 class PredictionSingletonKeypointDetectionAllOf(BaseModel):
     """
     PredictionSingletonKeypointDetectionAllOf
     """
-    keypoints: conlist(StrictInt, min_items=3) = Field(..., description="[x1, y2, v1, ..., xk, yk, vk] as outlined by the coco format https://cocodataset.org/#format-results ")
+    keypoints: conlist(Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)], min_items=3) = Field(..., description="[x1, y2, v1, ..., xk, yk, vk] as outlined by the coco format https://cocodataset.org/#format-results ")
     probabilities: Optional[conlist(Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)])] = Field(None, description="The probabilities of it being a certain category other than the one which was selected. The sum of all probabilities should equal 1.")
     __properties = ["keypoints", "probabilities"]
 
