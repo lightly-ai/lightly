@@ -49,7 +49,7 @@ import torch
 import torch.nn as nn
 import torchvision
 
-from lightly.data import LightlyDataset, SimCLRCollateFunction, collate
+from lightly.data import LightlyDataset
 from lightly.loss import NTXentLoss
 from lightly.models import ResNetGenerator
 from lightly.models.modules.heads import MoCoProjectionHead
@@ -59,6 +59,7 @@ from lightly.models.utils import (
     deactivate_requires_grad,
     update_momentum,
 )
+from lightly.transforms import MoCoV2Transform, utils
 
 # %%
 # Configuration
@@ -113,8 +114,7 @@ pl.seed_everything(seed)
 # ------------------------------------
 #
 # We start with our data preprocessing pipeline. We can implement augmentations
-# from the MOCO paper using the collate functions provided by lightly. For MoCo v2,
-# we can use the same augmentations as SimCLR but override the input size and blur.
+# from the MoCo paper using the transforms provided by lightly.
 # Images from the CIFAR-10 dataset have a resolution of 32x32 pixels. Let's use
 # this resolution to train our model.
 #
@@ -123,8 +123,8 @@ pl.seed_everything(seed)
 #   in increasing the resolution. A higher resolution results in higher memory
 #   consumption and to compensate for that we would need to reduce the batch size.
 
-# MoCo v2 uses SimCLR augmentations, additionally, disable blur
-collate_fn = SimCLRCollateFunction(
+# disable blur because we're working with tiny images
+transform = MoCoV2Transform(
     input_size=32,
     gaussian_blur=0.0,
 )
@@ -142,8 +142,8 @@ train_classifier_transforms = torchvision.transforms.Compose(
         torchvision.transforms.RandomHorizontalFlip(),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
-            mean=collate.imagenet_normalize["mean"],
-            std=collate.imagenet_normalize["std"],
+            mean=utils.IMAGENET_NORMALIZE["mean"],
+            std=utils.IMAGENET_NORMALIZE["std"],
         ),
     ]
 )
@@ -154,14 +154,14 @@ test_transforms = torchvision.transforms.Compose(
         torchvision.transforms.Resize((32, 32)),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
-            mean=collate.imagenet_normalize["mean"],
-            std=collate.imagenet_normalize["std"],
+            mean=utils.IMAGENET_NORMALIZE["mean"],
+            std=utils.IMAGENET_NORMALIZE["std"],
         ),
     ]
 )
 
 # We use the moco augmentations for training moco
-dataset_train_moco = LightlyDataset(input_dir=path_to_train)
+dataset_train_moco = LightlyDataset(input_dir=path_to_train, transform=transform)
 
 # Since we also train a linear classifier on the pre-trained moco model we
 # reuse the test augmentations here (MoCo augmentations are very strong and
@@ -182,7 +182,6 @@ dataloader_train_moco = torch.utils.data.DataLoader(
     dataset_train_moco,
     batch_size=batch_size,
     shuffle=True,
-    collate_fn=collate_fn,
     drop_last=True,
     num_workers=num_workers,
 )

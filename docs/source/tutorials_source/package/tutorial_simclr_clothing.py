@@ -45,7 +45,8 @@ from PIL import Image
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import normalize
 
-from lightly.data import LightlyDataset, SimCLRCollateFunction, collate
+from lightly.data import LightlyDataset
+from lightly.transforms import SimCLRTransform , utils
 
 # %%
 # Configuration
@@ -87,30 +88,29 @@ path_to_data = "/datasets/clothing-dataset/images"
 #
 # You can learn more about the different augmentations and learned invariances
 # here: :ref:`lightly-advanced`.
-collate_fn = SimCLRCollateFunction(input_size=input_size, vf_prob=0.5, rr_prob=0.5)
+transform = SimCLRTransform(input_size=input_size, vf_prob=0.5, rr_prob=0.5)
 
 # We create a torchvision transformation for embedding the dataset after
 # training
-test_transforms = torchvision.transforms.Compose(
+test_transform = torchvision.transforms.Compose(
     [
         torchvision.transforms.Resize((input_size, input_size)),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
-            mean=collate.imagenet_normalize["mean"],
-            std=collate.imagenet_normalize["std"],
+            mean=utils.IMAGENET_NORMALIZE["mean"],
+            std=utils.IMAGENET_NORMALIZE["std"],
         ),
     ]
 )
 
-dataset_train_simclr = LightlyDataset(input_dir=path_to_data)
+dataset_train_simclr = LightlyDataset(input_dir=path_to_data, transform=transform)
 
-dataset_test = LightlyDataset(input_dir=path_to_data, transform=test_transforms)
+dataset_test = LightlyDataset(input_dir=path_to_data, transform=test_transform)
 
 dataloader_train_simclr = torch.utils.data.DataLoader(
     dataset_train_simclr,
     batch_size=batch_size,
     shuffle=True,
-    collate_fn=collate_fn,
     drop_last=True,
     num_workers=num_workers,
 )
@@ -193,7 +193,7 @@ def generate_embeddings(model, dataloader):
     embeddings = []
     filenames = []
     with torch.no_grad():
-        for img, label, fnames in dataloader:
+        for img, _, fnames in dataloader:
             img = img.to(model.device)
             emb = model.backbone(img).flatten(start_dim=1)
             embeddings.append(emb)
@@ -262,12 +262,12 @@ plot_knn_examples(embeddings, filenames)
 # respect the colors in the images.
 
 # Set color jitter and gray scale probability to 0
-new_collate_fn = SimCLRCollateFunction(
+new_transform = SimCLRTransform(
     input_size=input_size, vf_prob=0.5, rr_prob=0.5, cj_prob=0.0, random_gray_scale=0.0
 )
 
-# let's update our collate method and reuse our dataloader
-dataloader_train_simclr.collate_fn = new_collate_fn
+# let's update the transform on the training dataset
+dataset_train_simclr.transform = new_transform
 
 # then train a new model
 model = SimCLRModel()
