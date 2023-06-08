@@ -64,9 +64,9 @@ from detectron2 import config, modeling
 from detectron2.checkpoint import DetectionCheckpointer
 
 from lightly.data import LightlyDataset
-from lightly.transforms import SimCLRTransform
 from lightly.loss import NTXentLoss
 from lightly.models.modules import SimCLRProjectionHead
+from lightly.transforms import SimCLRTransform
 
 # %%
 # Configuration

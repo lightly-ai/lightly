@@ -43,8 +43,8 @@ import torchvision
 
 from lightly.data import LightlyDataset
 from lightly.loss import NegativeCosineSimilarity
-from lightly.transforms import SimCLRTransform, utils
 from lightly.models.modules.heads import SimSiamPredictionHead, SimSiamProjectionHead
+from lightly.transforms import SimCLRTransform, utils
 
 # %%
 # Configuration

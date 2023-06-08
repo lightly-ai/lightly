@@ -46,7 +46,7 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import normalize
 
 from lightly.data import LightlyDataset
-from lightly.transforms import SimCLRTransform , utils
+from lightly.transforms import SimCLRTransform, utils
 
 # %%
 # Configuration
