@@ -313,7 +313,7 @@ class Classifier(pl.LightningModule):
         self.log("train_loss_fc", loss)
         return loss
 
-    def training_epoch_end(self, outputs):
+    def on_train_epoch_end(self):
         self.custom_histogram_weights()
 
     # We provide a helper method to log weights in tensorboard
@@ -331,14 +331,15 @@ class Classifier(pl.LightningModule):
         _, predicted = torch.max(y_hat, 1)
         num = predicted.shape[0]
         correct = (predicted == y).float().sum()
+        self.validation_step_outputs.append((num, correct))
         return num, correct
 
-    def validation_epoch_end(self, outputs):
+    def on_validation_epoch_end(self):
         # calculate and log top1 accuracy
-        if outputs:
+        if self.validation_step_outputs:
             total_num = 0
             total_correct = 0
-            for num, correct in outputs:
+            for num, correct in self.validation_step_outputs:
                 total_num += num
                 total_correct += correct
             acc = total_correct / total_num
