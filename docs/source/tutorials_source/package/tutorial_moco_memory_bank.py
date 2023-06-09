@@ -260,7 +260,7 @@ class MocoModel(pl.LightningModule):
         self.log("train_loss_ssl", loss)
         return loss
 
-    def on_train_epoch_end(self, outputs):
+    def on_train_epoch_end(self):
         self.custom_histogram_weights()
 
     # We provide a helper method to log weights in tensorboard
