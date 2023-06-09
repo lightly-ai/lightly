@@ -300,6 +300,7 @@ class Classifier(pl.LightningModule):
         self.fc = nn.Linear(512, 10)
 
         self.criterion = nn.CrossEntropyLoss()
+        self.validation_step_outputs = []
 
     def forward(self, x):
         y_hat = self.backbone(x).flatten(start_dim=1)
