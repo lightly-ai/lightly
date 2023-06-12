@@ -39,7 +39,7 @@ class TiCo(pl.LightningModule):
         return z
 
     def training_step(self, batch, batch_idx):
-        (x0, x1), _ = batch
+        (x0, x1) = batch[0]
         momentum = cosine_schedule(self.current_epoch, 10, 0.996, 1)
         update_momentum(self.backbone, self.backbone_momentum, m=momentum)
         update_momentum(self.projection_head, self.projection_head_momentum, m=momentum)

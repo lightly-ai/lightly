@@ -35,7 +35,7 @@ class NNCLR(pl.LightningModule):
         return z, p
 
     def training_step(self, batch, batch_idx):
-        (x0, x1), _ = batch
+        (x0, x1) = batch[0]
         z0, p0 = self.forward(x0)
         z1, p1 = self.forward(x1)
         z0 = self.memory_bank(z0, update=False)

@@ -76,7 +76,7 @@ class SMoGModel(pl.LightningModule):
                 self.projection_head, self.projection_head_momentum, 0.99
             )
 
-        (x0, x1), _ = batch
+        (x0, x1) = batch[0]
 
         if batch_idx % 2:
             # swap batches every second iteration
