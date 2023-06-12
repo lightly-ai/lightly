@@ -345,6 +345,7 @@ class Classifier(pl.LightningModule):
                 total_correct += correct
             acc = total_correct / total_num
             self.log("val_acc", acc, on_epoch=True, prog_bar=True)
+            self.validation_step_outputs.clear()
 
     def configure_optimizers(self):
         optim = torch.optim.SGD(self.fc.parameters(), lr=30.0)

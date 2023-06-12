@@ -261,7 +261,7 @@ checkpointer.save("my_model")
 
 # %%
 #
-# The :py:class:`lightly.transforms.simclr.SimCLRTransform` applies an ImageNet
+# The :py:class:`~lightly.transforms.simclr.SimCLRTransform` applies an ImageNet
 # normalization of the input images by default. Therefore, we have to normalize
 # the input images at training time, too. Since Detectron2 uses an input space
 # in the range 0 - 255, we use the numbers above.
