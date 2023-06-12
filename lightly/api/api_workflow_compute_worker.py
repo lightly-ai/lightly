@@ -307,11 +307,21 @@ class _ComputeWorkerMixin:
             runs_on=runs_on,
             creator=self._creator,
         )
-        response = self._compute_worker_api.create_docker_run_scheduled_by_dataset_id(
-            docker_run_scheduled_create_request=request,
-            dataset_id=self.dataset_id,
-        )
-        return response.id
+        try:
+            response = self._compute_worker_api.create_docker_run_scheduled_by_dataset_id(
+                docker_run_scheduled_create_request=request,
+                dataset_id=self.dataset_id,
+            )
+            return response.id
+        except ApiException as e:
+            if e.body:
+                print(
+                    f"There was an error scheduling the run due to a misconfiguration."
+                    f"Please check the following message for more information:"
+                    f"{e.body}",
+                    flush=True,
+                )
+            raise e
 
     def get_compute_worker_runs_iter(
         self,
