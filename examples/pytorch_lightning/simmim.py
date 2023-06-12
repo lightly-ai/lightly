@@ -38,8 +38,8 @@ class SimMIM(pl.LightningModule):
         return self.decoder(x_encoded)
 
     def training_step(self, batch, batch_idx):
-        images, _ = batch
-        images = images[0]  # images is a list containing only one view
+        views = batch[0]
+        images = views[0]  # views contains only a single view
         batch_size = images.shape[0]
         idx_keep, idx_mask = utils.random_token_mask(
             size=(batch_size, self.sequence_length),

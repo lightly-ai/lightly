@@ -88,8 +88,9 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=1.5e-4)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for images, _ in dataloader:
-        images = images[0].to(device)  # images is a list containing only one view
+    for batch in dataloader:
+        views = batch[0]
+        images = views[0].to(device)  # views contains only a single view
         predictions, targets = model(images)
 
         loss = criterion(predictions, targets)
