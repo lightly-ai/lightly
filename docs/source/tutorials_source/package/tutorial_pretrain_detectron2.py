@@ -63,9 +63,10 @@ import torch
 from detectron2 import config, modeling
 from detectron2.checkpoint import DetectionCheckpointer
 
-from lightly.data import LightlyDataset, SimCLRCollateFunction
+from lightly.data import LightlyDataset
 from lightly.loss import NTXentLoss
 from lightly.models.modules import SimCLRProjectionHead
+from lightly.transforms import SimCLRTransform
 
 # %%
 # Configuration
@@ -176,15 +177,14 @@ projection_head = SimCLRProjectionHead(
 # We don't go into detail here about using the optimal augmentations.
 # You can learn more about the different augmentations and learned invariances
 # here: :ref:`lightly-advanced`.
-collate_fn = SimCLRCollateFunction(input_size=input_size)
+transform = SimCLRTransform(input_size=input_size)
 
-dataset_train_simclr = LightlyDataset(input_dir=data_path)
+dataset_train_simclr = LightlyDataset(input_dir=data_path, transform=transform)
 
 dataloader_train_simclr = torch.utils.data.DataLoader(
     dataset_train_simclr,
     batch_size=batch_size,
     shuffle=True,
-    collate_fn=collate_fn,
     drop_last=True,
     num_workers=num_workers,
 )
@@ -261,7 +261,7 @@ checkpointer.save("my_model")
 
 # %%
 #
-# The :py:class:`lightly.data.collate.SimCLRCollateFunction` applies an ImageNet
+# The :py:class:`~lightly.transforms.simclr.SimCLRTransform` applies an ImageNet
 # normalization of the input images by default. Therefore, we have to normalize
 # the input images at training time, too. Since Detectron2 uses an input space
 # in the range 0 - 255, we use the numbers above.

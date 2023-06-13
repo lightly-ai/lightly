@@ -23,6 +23,17 @@ def knn_eval(
     devices: int,
     num_classes: int,
 ) -> None:
+    """Runs KNN evaluation on the given model.
+
+    Parameters follow InstDisc [0] settings.
+
+    The most important settings are:
+        - Num nearest neighbors: 200
+        - Temperature: 0.1
+
+    References:
+       - [0]: InstDict, 2018, https://arxiv.org/abs/1805.01978
+    """
     print("Running KNN evaluation...")
 
     # Setup training data.

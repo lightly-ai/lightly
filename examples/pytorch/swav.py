@@ -6,8 +6,6 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import SwaVLoss
 from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
 from lightly.transforms.swav_transform import SwaVTransform
@@ -35,21 +33,20 @@ model = SwaV(backbone)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-# we ignore object detection annotations by setting target_transform to return 0
-pascal_voc = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc", download=True, target_transform=lambda t: 0
-)
 transform = SwaVTransform()
-dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
+# we ignore object detection annotations by setting target_transform to return 0
+dataset = torchvision.datasets.VOCDetection(
+    "datasets/pascal_voc",
+    download=True,
+    transform=transform,
+    target_transform=lambda t: 0,
+)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
-
-collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=128,
-    collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,
@@ -61,9 +58,10 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for batch, _, _ in dataloader:
+    for batch in dataloader:
+        views = batch[0]
         model.prototypes.normalize()
-        multi_crop_features = [model(x.to(device)) for x in batch]
+        multi_crop_features = [model(view.to(device)) for view in views]
         high_resolution = multi_crop_features[:2]
         low_resolution = multi_crop_features[2:]
         loss = criterion(high_resolution, low_resolution)

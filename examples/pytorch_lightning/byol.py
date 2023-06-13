@@ -9,8 +9,6 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import NegativeCosineSimilarity
 from lightly.models.modules import BYOLPredictionHead, BYOLProjectionHead
 from lightly.models.utils import deactivate_requires_grad, update_momentum
@@ -50,7 +48,7 @@ class BYOL(pl.LightningModule):
         momentum = cosine_schedule(self.current_epoch, 10, 0.996, 1)
         update_momentum(self.backbone, self.backbone_momentum, m=momentum)
         update_momentum(self.projection_head, self.projection_head_momentum, m=momentum)
-        (x0, x1), _, _ = batch
+        (x0, x1) = batch[0]
         p0 = self.forward(x0)
         z0 = self.forward_momentum(x0)
         p1 = self.forward(x1)
@@ -64,18 +62,16 @@ class BYOL(pl.LightningModule):
 
 model = BYOL()
 
-cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
 transform = SimCLRTransform(input_size=32)
-dataset = LightlyDataset.from_torch_dataset(cifar10, transform=transform)
+dataset = torchvision.datasets.CIFAR10(
+    "datasets/cifar10", download=True, transform=transform
+)
 # or create a dataset from a folder containing images or videos:
-# dataset = LightlyDataset("path/to/folder")
-
-collate_fn = MultiViewCollate()
+# dataset = LightlyDataset("path/to/folder", transform=transform)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=256,
-    collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,

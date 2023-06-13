@@ -6,8 +6,6 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import BarlowTwinsLoss
 from lightly.models.modules import BarlowTwinsProjectionHead
 from lightly.transforms.simclr_transform import SimCLRTransform
@@ -32,18 +30,16 @@ model = BarlowTwins(backbone)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
 transform = SimCLRTransform(input_size=32)
-dataset = LightlyDataset.from_torch_dataset(cifar10, transform=transform)
+dataset = torchvision.datasets.CIFAR10(
+    "datasets/cifar10", download=True, transform=transform
+)
 # or create a dataset from a folder containing images or videos:
-# dataset = LightlyDataset("path/to/folder")
-
-collate_fn = MultiViewCollate()
+# dataset = LightlyDataset("path/to/folder", transform=transform)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=256,
-    collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,
@@ -55,7 +51,8 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for (x0, x1), _, _ in dataloader:
+    for batch in dataloader:
+        x0, x1 = batch[0]
         x0 = x0.to(device)
         x1 = x1.to(device)
         z0 = model(x0)

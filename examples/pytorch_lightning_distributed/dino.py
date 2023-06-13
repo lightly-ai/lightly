@@ -9,8 +9,6 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import DINOLoss
 from lightly.models.modules import DINOProjectionHead
 from lightly.models.utils import deactivate_requires_grad, update_momentum
@@ -54,7 +52,7 @@ class DINO(pl.LightningModule):
         momentum = cosine_schedule(self.current_epoch, 10, 0.996, 1)
         update_momentum(self.student_backbone, self.teacher_backbone, m=momentum)
         update_momentum(self.student_head, self.teacher_head, m=momentum)
-        views, _, _ = batch
+        views = batch[0]
         views = [view.to(self.device) for view in views]
         global_views = views[:2]
         teacher_out = [self.forward_teacher(view) for view in global_views]
@@ -72,21 +70,20 @@ class DINO(pl.LightningModule):
 
 model = DINO()
 
-# we ignore object detection annotations by setting target_transform to return 0
-pascal_voc = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc", download=True, target_transform=lambda t: 0
-)
 transform = DINOTransform()
-dataset = LightlyDataset.from_torch_dataset(pascal_voc, transform=transform)
+# we ignore object detection annotations by setting target_transform to return 0
+dataset = torchvision.datasets.VOCDetection(
+    "datasets/pascal_voc",
+    download=True,
+    transform=transform,
+    target_transform=lambda t: 0,
+)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
-
-collate_fn = MultiViewCollate()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=64,
-    collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,

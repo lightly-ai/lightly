@@ -1,8 +1,9 @@
 import warnings
-from typing import List, Optional
+from itertools import chain
+from typing import Iterator, List, Optional
 
 from lightly.api import utils
-from lightly.openapi_generated.swagger_client import (
+from lightly.openapi_generated.swagger_client.models import (
     CreateEntityResponse,
     DatasetCreateRequest,
     DatasetData,
@@ -152,6 +153,37 @@ class _DatasetsMixin:
             )
         return datasets
 
+    def get_datasets_iter(
+        self, shared: Optional[bool] = False
+    ) -> Iterator[DatasetData]:
+        """Returns an iterator over all datasets owned by the current user.
+
+        Args:
+            shared:
+                If False, returns only datasets owned by the user.
+                If True, returns only the datasets which have been shared with the user.
+                If None, returns all datasets the user has access to (owned and shared).
+                Defaults to False.
+
+        Returns:
+            An iterator over datasets owned by the current user.
+        """
+        dataset_iterable = []
+        if not shared or shared is None:
+            dataset_iterable = utils.paginate_endpoint(
+                self._datasets_api.get_datasets,
+                shared=False,
+            )
+        if shared or shared is None:
+            dataset_iterable = chain(
+                dataset_iterable,
+                utils.paginate_endpoint(
+                    self._datasets_api.get_datasets,
+                    shared=True,
+                ),
+            )
+        return dataset_iterable
+
     def get_datasets(self, shared: Optional[bool] = False) -> List[DatasetData]:
         """Returns all datasets owned by the current user.
 
@@ -177,22 +209,7 @@ class _DatasetsMixin:
              'type': 'Images',
              ...}]
         """
-        datasets = []
-        if not shared or shared is None:
-            datasets.extend(
-                utils.paginate_endpoint(
-                    self._datasets_api.get_datasets,
-                    shared=False,
-                )
-            )
-        if shared or shared is None:
-            datasets.extend(
-                utils.paginate_endpoint(
-                    self._datasets_api.get_datasets,
-                    shared=True,
-                )
-            )
-        return datasets
+        return list(self.get_datasets_iter(shared))
 
     def get_all_datasets(self) -> List[DatasetData]:
         """Returns all datasets the user has access to.
@@ -275,7 +292,7 @@ class _DatasetsMixin:
 
         Examples:
             >>> from lightly.api import ApiWorkflowClient
-            >>> from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
+            >>> from lightly.openapi_generated.swagger_client.models import DatasetType
             >>>
             >>> client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
             >>> client.create_dataset('your-dataset-name', dataset_type=DatasetType.IMAGES)
@@ -320,7 +337,9 @@ class _DatasetsMixin:
         body = DatasetCreateRequest(
             name=dataset_name, type=dataset_type, creator=self._creator
         )
-        response: CreateEntityResponse = self._datasets_api.create_dataset(body=body)
+        response: CreateEntityResponse = self._datasets_api.create_dataset(
+            dataset_create_request=body
+        )
         self._dataset_id = response.id
 
     def create_new_dataset_with_unique_name(

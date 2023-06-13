@@ -121,7 +121,7 @@ There are three ways how you can customize augmentations in Lightly:
     from lightly.transforms.multi_view_transform import MultiViewTransform
 
     # Create a global view transform that crops 224x224 patches from the input image.
-    global_view = T.Collate([
+    global_view = T.Compose([
         T.RandomResizedCrop(size=224, scale=(0.08, 1.0)),
         T.RandomHorizontalFlip(p=0.5),
         T.RandomGrayscale(p=0.5),
@@ -129,7 +129,7 @@ There are three ways how you can customize augmentations in Lightly:
     ])
 
     # Create a local view transform that crops a random portion of the input image and resizes it to a 96x96 patch.
-    local_view = T.Collate([
+    local_view = T.Compose([
         T.RandomResizedCrop(size=96, scale=(0.05, 0.4)),
         T.RandomHorizontalFlip(p=0.5),
         T.RandomGrayscale(p=0.5),

@@ -6,21 +6,15 @@ import numpy as np
 from numpy.typing import NDArray
 
 from lightly.active_learning.config.selection_config import SelectionConfig
-from lightly.openapi_generated.swagger_client import ActiveLearningScoreCreateRequest
-from lightly.openapi_generated.swagger_client.models.job_state import JobState
-from lightly.openapi_generated.swagger_client.models.job_status_data import (
+from lightly.openapi_generated.swagger_client.models import (
+    ActiveLearningScoreCreateRequest,
+    JobState,
     JobStatusData,
-)
-from lightly.openapi_generated.swagger_client.models.sampling_config import (
     SamplingConfig,
-)
-from lightly.openapi_generated.swagger_client.models.sampling_config_stopping_condition import (
     SamplingConfigStoppingCondition,
-)
-from lightly.openapi_generated.swagger_client.models.sampling_create_request import (
     SamplingCreateRequest,
+    TagData,
 )
-from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 
 
 def _parse_active_learning_scores(scores: Union[np.ndarray, List]):
@@ -53,7 +47,7 @@ class _SelectionMixin:
                 scores=_parse_active_learning_scores(score_values),
             )
             self._scores_api.create_or_update_active_learning_score_by_tag_id(
-                body,
+                active_learning_score_create_request=body,
                 dataset_id=self.dataset_id,
                 tag_id=query_tag_id,
             )
@@ -115,7 +109,9 @@ class _SelectionMixin:
         )
         payload.row_count = self.get_all_tags()[0].tot_size
         response = self._selection_api.trigger_sampling_by_id(
-            payload, self.dataset_id, self.embedding_id
+            sampling_create_request=payload,
+            dataset_id=self.dataset_id,
+            embedding_id=self.embedding_id,
         )
         job_id = response.job_id
 
@@ -156,7 +152,7 @@ class _SelectionMixin:
         if new_tag_id is None:
             raise RuntimeError(f"TagId returned by job with job_id {job_id} is None.")
         new_tag_data = self._tags_api.get_tag_by_tag_id(
-            self.dataset_id, tag_id=new_tag_id
+            dataset_id=self.dataset_id, tag_id=new_tag_id
         )
 
         return new_tag_data

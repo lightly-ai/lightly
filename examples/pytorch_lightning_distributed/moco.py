@@ -9,8 +9,6 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import NTXentLoss
 from lightly.models.modules import MoCoProjectionHead
 from lightly.models.utils import deactivate_requires_grad, update_momentum
@@ -47,7 +45,7 @@ class MoCo(pl.LightningModule):
         momentum = cosine_schedule(self.current_epoch, 10, 0.996, 1)
         update_momentum(self.backbone, self.backbone_momentum, m=momentum)
         update_momentum(self.projection_head, self.projection_head_momentum, m=momentum)
-        (x_query, x_key), _, _ = batch
+        x_query, x_key = batch[0]
         query = self.forward(x_query)
         key = self.forward_momentum(x_key)
         loss = self.criterion(query, key)
@@ -60,18 +58,16 @@ class MoCo(pl.LightningModule):
 
 model = MoCo()
 
-cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
 transform = MoCoV2Transform(input_size=32)
-dataset = LightlyDataset.from_torch_dataset(cifar10, transform=transform)
+dataset = torchvision.datasets.CIFAR10(
+    "datasets/cifar10", download=True, transform=transform
+)
 # or create a dataset from a folder containing images or videos:
-# dataset = LightlyDataset("path/to/folder")
-
-collate_fn = MultiViewCollate()
+# dataset = LightlyDataset("path/to/folder", transform=transform)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=256,
-    collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,

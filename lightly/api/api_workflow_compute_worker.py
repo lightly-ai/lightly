@@ -7,8 +7,8 @@ from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar,
 
 from lightly.api import utils
 from lightly.api.utils import retry
-from lightly.openapi_generated.swagger_client import (
-    ApiClient,
+from lightly.openapi_generated.swagger_client.api_client import ApiClient
+from lightly.openapi_generated.swagger_client.models import (
     CreateDockerWorkerRegistryEntryRequest,
     DockerRunData,
     DockerRunScheduledCreateRequest,
@@ -308,10 +308,35 @@ class _ComputeWorkerMixin:
             creator=self._creator,
         )
         response = self._compute_worker_api.create_docker_run_scheduled_by_dataset_id(
-            body=request,
+            docker_run_scheduled_create_request=request,
             dataset_id=self.dataset_id,
         )
         return response.id
+
+    def get_compute_worker_runs_iter(
+        self,
+        dataset_id: Optional[str] = None,
+    ) -> Iterator[DockerRunData]:
+        """Returns an iterator over all Lightly Worker runs for the user.
+
+        Args:
+            dataset_id:
+                Target dataset ID. Optional. If set, only runs with the given dataset
+                will be returned.
+
+        Returns:
+            Runs iterator.
+
+        """
+        if dataset_id is not None:
+            return utils.paginate_endpoint(
+                self._compute_worker_api.get_docker_runs_query_by_dataset_id,
+                dataset_id=dataset_id,
+            )
+        else:
+            return utils.paginate_endpoint(
+                self._compute_worker_api.get_docker_runs,
+            )
 
     def get_compute_worker_runs(
         self,
@@ -338,15 +363,7 @@ class _ComputeWorkerMixin:
              ...
              }]
         """
-        if dataset_id is not None:
-            runs: List[DockerRunData] = utils.paginate_endpoint(
-                self._compute_worker_api.get_docker_runs_query_by_dataset_id,
-                dataset_id=dataset_id,
-            )
-        else:
-            runs: List[DockerRunData] = utils.paginate_endpoint(
-                self._compute_worker_api.get_docker_runs,
-            )
+        runs: List[DockerRunData] = list(self.get_compute_worker_runs_iter(dataset_id))
         sorted_runs = sorted(runs, key=lambda run: run.created_at or -1)
         return sorted_runs
 
@@ -656,24 +673,19 @@ def _validate_config(
 
     Recursively checks if the keys in the cfg dictionary match the attributes of
     the DockerWorkerConfigV2Docker/DockerWorkerConfigV2Lightly instances. If not,
-    suggests a best match based on the keys in 'swagger_types'.
+    suggests a best match.
 
     Raises:
-        TypeError: If obj is not of swagger type.
+        InvalidConfigurationError: If obj is not a valid config.
 
     """
 
     if cfg is None:
         return
 
-    if not hasattr(type(obj), "swagger_types"):
-        raise TypeError(
-            f"Type {type(obj)} of argument 'obj' has not attribute 'swagger_types'"
-        )
-
     for key, item in cfg.items():
         if not hasattr(obj, key):
-            possible_options = list(type(obj).swagger_types.keys())
+            possible_options = list(obj.__fields__.keys())
             closest_match = difflib.get_close_matches(
                 word=key, possibilities=possible_options, n=1, cutoff=0.0
             )[0]

@@ -10,10 +10,9 @@ from PIL import Image
 
 from lightly.api import download
 from lightly.api.bitmask import BitMask
-from lightly.api.utils import paginate_endpoint, retry
-from lightly.openapi_generated.swagger_client import (
+from lightly.api.utils import paginate_endpoint
+from lightly.openapi_generated.swagger_client.models import (
     DatasetEmbeddingData,
-    FileNameFormat,
     ImageType,
 )
 from lightly.utils.hipify import bcolors
@@ -124,8 +123,8 @@ class _DownloadDatasetMixin:
             # try to download image
             try:
                 read_url = self._samples_api.get_sample_image_read_url_by_id(
-                    self.dataset_id,
-                    sample_id,
+                    dataset_id=self.dataset_id,
+                    sample_id=sample_id,
                     type="full",
                 )
                 img = _get_image_from_read_url(read_url)
@@ -293,11 +292,13 @@ class _DownloadDatasetMixin:
             >>> client.export_label_studio_tasks_by_tag_id(tag_id="646f34608a5613b57d8b73cc")
             [{'id': 0, 'data': {'image': '...', ...}}]
         """
-        label_studio_tasks = paginate_endpoint(
-            self._tags_api.export_tag_to_label_studio_tasks,
-            page_size=20000,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
+        label_studio_tasks = list(
+            paginate_endpoint(
+                self._tags_api.export_tag_to_label_studio_tasks,
+                page_size=20000,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+            )
         )
         return label_studio_tasks
 

@@ -21,7 +21,6 @@ from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import MetricCallback
 
@@ -171,7 +170,6 @@ def pretrain(
         batch_size=batch_size_per_device,
         shuffle=True,
         num_workers=num_workers,
-        collate_fn=MultiViewCollate(),
         drop_last=True,
         persistent_workers=True,
     )

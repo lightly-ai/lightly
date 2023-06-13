@@ -8,8 +8,6 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import NTXentLoss
 from lightly.models.modules import MoCoProjectionHead
 from lightly.models.utils import deactivate_requires_grad, update_momentum
@@ -48,18 +46,17 @@ model = MoCo(backbone)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-transform = MoCoV2Transform(input_size=32)
-dataset = LightlyDataset.from_torch_dataset(cifar10, transform=transform)
-# or create a dataset from a folder containing images or videos:
-# dataset = LightlyDataset("path/to/folder")
 
-collate_fn = MultiViewCollate()
+transform = MoCoV2Transform(input_size=32)
+dataset = torchvision.datasets.CIFAR10(
+    "datasets/cifar10", download=True, transform=transform
+)
+# or create a dataset from a folder containing images or videos:
+# dataset = LightlyDataset("path/to/folder", transform=transform)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=256,
-    collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,
@@ -74,7 +71,8 @@ print("Starting Training")
 for epoch in range(epochs):
     total_loss = 0
     momentum_val = cosine_schedule(epoch, epochs, 0.996, 1)
-    for (x_query, x_key), _, _ in dataloader:
+    for batch in dataloader:
+        x_query, x_key = batch[0]
         update_momentum(model.backbone, model.backbone_momentum, m=momentum_val)
         update_momentum(
             model.projection_head, model.projection_head_momentum, m=momentum_val

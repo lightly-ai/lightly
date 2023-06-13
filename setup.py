@@ -56,7 +56,6 @@ if __name__ == "__main__":
             "lightly-train = lightly.cli.train_cli:entry",
             "lightly-embed = lightly.cli.embed_cli:entry",
             "lightly-magic = lightly.cli.lightly_cli:entry",
-            "lightly-upload = lightly.cli.upload_cli:entry",
             "lightly-download = lightly.cli.download_cli:entry",
             "lightly-version = lightly.cli.version_cli:entry",
         ]
@@ -66,12 +65,13 @@ if __name__ == "__main__":
 
     python_requires = ">=3.6"
     base_requires = load_requirements(filename="base.txt")
+    openapi_requires = load_requirements(filename="openapi.txt")
     torch_requires = load_requirements(filename="torch.txt")
     video_requires = load_requirements(filename="video.txt")
     dev_requires = load_requirements(filename="dev.txt")
 
     setup_requires = ["setuptools>=21"]
-    install_requires = base_requires + torch_requires
+    install_requires = base_requires + openapi_requires + torch_requires
     extras_require = {
         "video": video_requires,
         "dev": dev_requires,

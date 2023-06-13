@@ -123,7 +123,6 @@ import torchvision
 from lightly import loss
 from lightly import transforms
 from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.models.modules import heads
 
 
@@ -155,8 +154,6 @@ model = SimCLR(backbone)
 # Prepare transform that creates multiple random views for every image.
 transform = transforms.SimCLRTransform(input_size=32, cj_prob=0.5)
 
-# Combine views from multiple images into a batch.
-collate_fn = MultiViewCollate()
 
 # Create a dataset from your image folder.
 dataset = data.LightlyDataset(input_dir="./my/cute/cats/dataset/", transform=transform)
@@ -166,7 +163,6 @@ dataloader = torch.utils.data.DataLoader(
     dataset,  # Pass the dataset to the dataloader.
     batch_size=128,  # A large batch size helps with the learning.
     shuffle=True,  # Shuffling is important!
-    collate_fn=collate_fn,
 )
 
 # Lightly exposes building blocks such as loss functions.
@@ -283,6 +279,13 @@ tuned for maximum accuracy. For detailed results and more info about the benchma
 
 
 ### Imagenet
+
+> **Note**: Evaluation settings are based on these papers:
+> * Linear: [SimCLR](https://arxiv.org/abs/2002.05709)
+> * Finetune: [SimCLR](https://arxiv.org/abs/2002.05709)
+> * KNN: [InstDisc](https://arxiv.org/abs/1805.01978)
+> 
+> See the [benchmarking scripts](./benchmarks/imagenet/resnet50/) for details.
 
 | Model       | Backbone | Batch Size | Epochs | Linear Top1 | Finetune Top1 | KNN Top1 | Tensorboard | Checkpoint |
 |-------------|----------|------------|--------|-------------|---------------|----------|-------------|------------|
@@ -420,6 +423,7 @@ make format
 
 ## Lightly in Research
 
+- [Reverse Engineering Self-Supervised Learning, 2023](https://arxiv.org/abs/2305.15614)
 - [Learning Visual Representations via Language-Guided Sampling, 2023](https://arxiv.org/pdf/2302.12248.pdf)
 - [Self-Supervised Learning Methods for Label-Efficient Dental Caries Classification, 2022](https://www.mdpi.com/2075-4418/12/5/1237)
 - [DPCL: Constrative Representation Learning with Differential Privacy, 2022](https://assets.researchsquare.com/files/rs-1516950/v1_covered.pdf?c=1654486158)
