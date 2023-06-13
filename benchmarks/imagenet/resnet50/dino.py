@@ -82,12 +82,8 @@ class DINO(LightningModule):
             student_projections.chunk(len(views)),
             epoch=self.current_epoch,
         )
-
         self.log_dict(
-            {
-                "train_loss": loss,
-                "ema_momentum": momentum,
-            },
+            {"train_loss": loss, "ema_momentum": momentum},
             prog_bar=True,
             sync_dist=True,
             batch_size=len(targets),
