@@ -78,8 +78,8 @@ class DINO(LightningModule):
         )
 
         loss = self.criterion(
-            teacher_projections.chunk(2),
-            student_projections.chunk(len(views)),
+            teacher_out=teacher_projections.chunk(2),
+            student_out=student_projections.chunk(len(views)),
             epoch=self.current_epoch,
         )
         self.log_dict(
