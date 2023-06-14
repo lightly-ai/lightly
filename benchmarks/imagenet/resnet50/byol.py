@@ -1,4 +1,4 @@
-import math
+import copy
 from typing import List, Tuple
 
 import torch
@@ -8,13 +8,12 @@ from torch.nn import Identity
 from torchvision.models import resnet50
 
 from lightly.loss import NegativeCosineSimilarity
-from lightly.models.modules import BYOLProjectionHead, BYOLPredictionHead
+from lightly.models.modules import BYOLPredictionHead, BYOLProjectionHead
 from lightly.models.utils import get_weight_decay_parameters, update_momentum
 from lightly.transforms import SimCLRTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.lars import LARS
 from lightly.utils.scheduler import CosineWarmupScheduler, cosine_schedule
-import copy
 
 
 class BYOL(LightningModule):
@@ -37,8 +36,14 @@ class BYOL(LightningModule):
     def forward(self, x: Tensor) -> Tensor:
         return self.backbone(x)
 
+    @torch.no_grad()
+    def forward_teacher(self, x: Tensor) -> Tensor:
+        features = self.forward(x).flatten(start_dim=1)
+        projections = self.projection_head(features)
+        return features, projections
+
     def forward_student(self, x: Tensor) -> Tensor:
-        features = self.student_backbone(x)
+        features = self.student_backbone(x).flatten(start_dim=1)
         projections = self.student_projection_head(features)
         predictions = self.student_prediction_head(projections)
         return predictions
@@ -47,32 +52,35 @@ class BYOL(LightningModule):
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
     ) -> Tensor:
         # Momentum update teacher.
+        # Note: Momentum update settings are for smaller batch sizes (<=512),
+        # see Appendix G of the BYOL paper. For larger batch sizes (>512) set
+        # start_value=0.996.
         momentum = cosine_schedule(
             step=self.trainer.global_step,
             max_steps=self.trainer.estimated_stepping_batches,
-            start_value=0.996,
+            start_value=0.9995,
             end_value=1.0,
         )
         update_momentum(self.student_backbone, self.backbone, m=momentum)
         update_momentum(self.student_projection_head, self.projection_head, m=momentum)
 
-        views = torch.cat(batch[0])
-        targets = batch[1]
-        with torch.no_grad():
-            teacher_features = self.forward(views).flatten(start_dim=1)
-            teacher_projections = self.projection_head(teacher_features).chunk(2)
-
-        student_predictions = self.forward_student(views).chunk(2)
+        # Forward pass and loss calculation.
+        views, targets = batch[0], batch[1]
+        teacher_features_0, teacher_projections_0 = self.forward_teacher(views[0])
+        _, teacher_projections_1 = self.forward_teacher(views[1])
+        student_predictions_0 = self.forward_student(views[0])
+        student_predictions_1 = self.forward_student(views[1])
         loss = 0.5 * (
-            self.criterion(student_predictions[0], teacher_projections[1])
-            + self.criterion(student_predictions[1], teacher_projections[0])
+            self.criterion(teacher_projections_0, student_predictions_1)
+            + self.criterion(teacher_projections_1, student_predictions_0)
         )
         self.log(
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
         )
 
+        # Online linear evaluation.
         cls_loss, cls_log = self.online_classifier.training_step(
-            (teacher_features.chunk(2)[0].detach(), targets), batch_idx
+            (teacher_features_0.detach(), targets), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss
@@ -88,7 +96,6 @@ class BYOL(LightningModule):
         self.log_dict(cls_log, prog_bar=True, sync_dist=True, batch_size=len(targets))
         return cls_loss
 
-    # TODO: Update optimizer configuration.
     def configure_optimizers(self):
         # Don't use weight decay for batch norm, bias parameters, and classification
         # head to improve performance.
@@ -109,16 +116,11 @@ class BYOL(LightningModule):
                     "weight_decay": 0.0,
                 },
             ],
-            # Square root learning rate scaling improves performance for small
-            # batch sizes (<=2048) and few training epochs (<=200). Alternatively,
-            # linear scaling can be used for larger batches and longer training:
-            #   lr=0.3 * self.batch_size_per_device * self.trainer.world_size / 256
-            # See Appendix B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
-            lr=0.075 * math.sqrt(self.batch_size_per_device * self.trainer.world_size),
+            # Learning rate settings are for smaller batch sizes (<=512), see
+            # Appendix G of the BYOL paper. For larger batch sizes (>512) set lr=0.2.
+            lr=0.4 * self.batch_size_per_device * self.trainer.world_size / 256,
             momentum=0.9,
-            # Note: Paper uses weight decay of 1e-6 but reference code 1e-4. See:
-            # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
-            weight_decay=1e-6,
+            weight_decay=1.5 * 1e-6,
         )
         scheduler = {
             "scheduler": CosineWarmupScheduler(
