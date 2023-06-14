@@ -262,7 +262,7 @@ def test_get_datasets__shared_None(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient()
     client._datasets_api = mock_datasets_api
     client.get_datasets(shared=None)
-    assert mocked_pagination.call_count == 2
+    assert mocked_pagination.call_count == 3
 
 
 def test_set_dataset_id__error(mocker: MockerFixture):
