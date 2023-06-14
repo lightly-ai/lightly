@@ -55,7 +55,7 @@ class DINOLoss(nn.Module):
 
     def __init__(
         self,
-        output_dim: int,
+        output_dim: int = 65536,
         warmup_teacher_temp: float = 0.04,
         teacher_temp: float = 0.04,
         warmup_teacher_temp_epochs: int = 30,
