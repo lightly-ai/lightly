@@ -49,7 +49,7 @@ class PMSN(pl.LightningModule):
         utils.update_momentum(self.anchor_backbone, self.backbone, 0.996)
         utils.update_momentum(self.anchor_projection_head, self.projection_head, 0.996)
 
-        views, _ = batch
+        views = batch[0]
         views = [view.to(self.device, non_blocking=True) for view in views]
         targets = views[0]
         anchors = views[1]

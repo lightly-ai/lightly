@@ -103,9 +103,10 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for batch, _ in dataloader:
-        batch = [x.to(device) for x in batch]
-        high_resolution, low_resolution = batch[:2], batch[2:]
+    for batch in dataloader:
+        views = batch[0]
+        views = [view.to(device) for view in views]
+        high_resolution, low_resolution = views[:2], views[2:]
         high_resolution, low_resolution, queue = model(
             high_resolution, low_resolution, epoch
         )

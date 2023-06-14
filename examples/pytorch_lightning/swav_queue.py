@@ -25,8 +25,8 @@ class SwaV(pl.LightningModule):
         self.criterion = SwaVLoss()
 
     def training_step(self, batch, batch_idx):
-        batch_swav, _ = batch
-        high_resolution, low_resolution = batch_swav[:2], batch_swav[2:]
+        views = batch[0]
+        high_resolution, low_resolution = views[:2], views[2:]
         self.prototypes.normalize()
 
         high_resolution_features = [self._subforward(x) for x in high_resolution]

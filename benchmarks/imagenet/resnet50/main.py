@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Sequence, Union
 
+import dino
 import finetune_eval
 import knn_eval
 import linear_eval
@@ -10,7 +11,11 @@ import simclr
 import swav
 import torch
 from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
+from pytorch_lightning.callbacks import (
+    DeviceStatsMonitor,
+    EarlyStopping,
+    LearningRateMonitor,
+)
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
@@ -28,7 +33,7 @@ parser.add_argument("--epochs", type=int, default=100)
 parser.add_argument("--num-workers", type=int, default=8)
 parser.add_argument("--accelerator", type=str, default="gpu")
 parser.add_argument("--devices", type=int, default=1)
-parser.add_argument("--precision", type=int, default=16)
+parser.add_argument("--precision", type=str, default="16-mixed")
 parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
 parser.add_argument("--num-classes", type=int, default=1000)
@@ -37,6 +42,7 @@ parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
 
 METHODS = {
+    "dino": {"model": dino.DINO, "transform": dino.transform},
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
     "swav": {"model": swav.SwAV, "transform": swav.transform},
 }
@@ -165,6 +171,7 @@ def pretrain(
         shuffle=True,
         num_workers=num_workers,
         drop_last=True,
+        persistent_workers=True,
     )
 
     # Setup validation data.
@@ -182,6 +189,7 @@ def pretrain(
         batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
+        persistent_workers=True,
     )
 
     # Train model.
@@ -192,6 +200,8 @@ def pretrain(
         devices=devices,
         callbacks=[
             LearningRateMonitor(),
+            # Stop if training loss diverges.
+            EarlyStopping(monitor="train_loss", patience=int(1e12), check_finite=True),
             DeviceStatsMonitor(),
             metric_callback,
         ],

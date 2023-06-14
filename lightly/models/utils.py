@@ -192,6 +192,7 @@ def activate_requires_grad(model: nn.Module):
         param.requires_grad = True
 
 
+@torch.no_grad()
 def update_momentum(model: nn.Module, model_ema: nn.Module, m: float):
     """Updates parameters of `model_ema` with Exponential Moving Average of `model`
 

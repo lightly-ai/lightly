@@ -41,9 +41,10 @@ import torch
 import torch.nn as nn
 import torchvision
 
-from lightly.data import ImageCollateFunction, LightlyDataset, collate
+from lightly.data import LightlyDataset
 from lightly.loss import NegativeCosineSimilarity
 from lightly.models.modules.heads import SimSiamPredictionHead, SimSiamProjectionHead
+from lightly.transforms import SimCLRTransform, utils
 
 # %%
 # Configuration
@@ -89,7 +90,7 @@ path_to_data = "/datasets/sentinel-2-italy-v1/"
 #
 
 # define the augmentations for self-supervised learning
-collate_fn = ImageCollateFunction(
+transform = SimCLRTransform(
     input_size=input_size,
     # require invariance to flips and rotations
     hf_prob=0.5,
@@ -106,16 +107,14 @@ collate_fn = ImageCollateFunction(
     cj_sat=0.1,
 )
 
-# create a lightly dataset for training, since the augmentations are handled
-# by the collate function, there is no need to apply additional ones here
-dataset_train_simsiam = LightlyDataset(input_dir=path_to_data)
+# create a lightly dataset for training with augmentations
+dataset_train_simsiam = LightlyDataset(input_dir=path_to_data, transform=transform)
 
 # create a dataloader for training
 dataloader_train_simsiam = torch.utils.data.DataLoader(
     dataset_train_simsiam,
     batch_size=batch_size,
     shuffle=True,
-    collate_fn=collate_fn,
     drop_last=True,
     num_workers=num_workers,
 )
@@ -128,8 +127,8 @@ test_transforms = torchvision.transforms.Compose(
         torchvision.transforms.Resize((input_size, input_size)),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
-            mean=collate.imagenet_normalize["mean"],
-            std=collate.imagenet_normalize["std"],
+            mean=utils.IMAGENET_NORMALIZE["mean"],
+            std=utils.IMAGENET_NORMALIZE["std"],
         ),
     ]
 )
