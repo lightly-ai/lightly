@@ -1,22 +1,13 @@
-import io
-import os
 import warnings
-from concurrent.futures.thread import ThreadPoolExecutor
-from typing import Dict, List, Optional
-from urllib.request import Request, urlopen
+from typing import Dict, List
 
-import tqdm
-from PIL import Image
-
-from lightly.api import download
-from lightly.api.bitmask import BitMask
 from lightly.api.utils import paginate_endpoint, retry
-from lightly.openapi_generated.swagger_client import (
-    DatasetEmbeddingData,
+from lightly.openapi_generated.swagger_client.models import (
     FileNameFormat,
-    ImageType,
+    LabelBoxDataRow,
+    LabelBoxV4DataRow,
+    LabelStudioTask,
 )
-from lightly.utils.hipify import bcolors
 
 
 class _ExportDatasetMixin:
@@ -34,7 +25,7 @@ class _ExportDatasetMixin:
 
         Args:
             tag_id:
-                Id of the tag which should exported.
+                ID of the tag which should exported.
 
         Returns:
             A list of dictionaries in a format compatible with Label Studio.
@@ -47,7 +38,7 @@ class _ExportDatasetMixin:
             >>> client.export_label_studio_tasks_by_tag_id(tag_id="646f34608a5613b57d8b73cc")
             [{'id': 0, 'data': {'image': '...', ...}}]
         """
-        label_studio_tasks = list(
+        label_studio_tasks: List[LabelStudioTask] = list(
             paginate_endpoint(
                 self._tags_api.export_tag_to_label_studio_tasks,
                 page_size=20000,
@@ -55,7 +46,7 @@ class _ExportDatasetMixin:
                 tag_id=tag_id,
             )
         )
-        return label_studio_tasks
+        return [task.to_dict(by_alias=True) for task in label_studio_tasks]
 
     def export_label_studio_tasks_by_tag_name(
         self,
@@ -122,7 +113,7 @@ class _ExportDatasetMixin:
                 "to export data in the Labelbox v4 format instead."
             )
         )
-        label_box_data_rows = list(
+        label_box_data_rows: List[LabelBoxDataRow] = list(
             paginate_endpoint(
                 self._tags_api.export_tag_to_label_box_data_rows,
                 page_size=20000,
@@ -130,7 +121,7 @@ class _ExportDatasetMixin:
                 tag_id=tag_id,
             )
         )
-        return label_box_data_rows
+        return [row.to_dict(by_alias=True) for row in label_box_data_rows]
 
     def export_label_box_data_rows_by_tag_name(
         self,
@@ -195,7 +186,7 @@ class _ExportDatasetMixin:
             >>> client.export_label_box_v4_data_rows_by_tag_id(tag_id="646f34608a5613b57d8b73cc")
             [{'row_data': '...', 'global_key': 'image-1.jpg', 'media_type': 'IMAGE'}
         """
-        label_box_data_rows = list(
+        label_box_data_rows: List[LabelBoxV4DataRow] = list(
             paginate_endpoint(
                 self._tags_api.export_tag_to_label_box_v4_data_rows,
                 page_size=20000,
@@ -203,7 +194,7 @@ class _ExportDatasetMixin:
                 tag_id=tag_id,
             )
         )
-        return label_box_data_rows
+        return [row.to_dict() for row in label_box_data_rows]
 
     def export_label_box_v4_data_rows_by_tag_name(
         self,

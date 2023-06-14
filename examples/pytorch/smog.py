@@ -117,7 +117,7 @@ print("Starting Training")
 for epoch in range(10):
     total_loss = 0
     for batch_idx, batch in enumerate(dataloader):
-        (x0, x1), _ = batch
+        (x0, x1) = batch[0]
 
         if batch_idx % 2:
             # swap batches every second iteration

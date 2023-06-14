@@ -45,7 +45,7 @@ class MoCo(pl.LightningModule):
         momentum = cosine_schedule(self.current_epoch, 10, 0.996, 1)
         update_momentum(self.backbone, self.backbone_momentum, m=momentum)
         update_momentum(self.projection_head, self.projection_head_momentum, m=momentum)
-        (x_query, x_key), _, _ = batch
+        x_query, x_key = batch[0]
         query = self.forward(x_query)
         key = self.forward_momentum(x_key)
         loss = self.criterion(query, key)

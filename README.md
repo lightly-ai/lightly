@@ -280,8 +280,16 @@ tuned for maximum accuracy. For detailed results and more info about the benchma
 
 ### Imagenet
 
+> **Note**: Evaluation settings are based on these papers:
+> * Linear: [SimCLR](https://arxiv.org/abs/2002.05709)
+> * Finetune: [SimCLR](https://arxiv.org/abs/2002.05709)
+> * KNN: [InstDisc](https://arxiv.org/abs/1805.01978)
+> 
+> See the [benchmarking scripts](./benchmarks/imagenet/resnet50/) for details.
+
 | Model       | Backbone | Batch Size | Epochs | Linear Top1 | Finetune Top1 | KNN Top1 | Tensorboard | Checkpoint |
 |-------------|----------|------------|--------|-------------|---------------|----------|-------------|------------|
+| DINO        | Res50    |        128 |    100 |        68.2 |          72.5 |     49.9 |      [link](https://tensorboard.dev/experiment/DvKHX9sNSWWqDrRksllPLA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dino_2023-06-06_13-59-48/pretrain/version_0/checkpoints/epoch%3D99-step%3D1000900.ckpt) |
 | SimCLR      | Res50    |        256 |    100 |        63.2 |           N/A |     44.9 |      [link](https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-05-04_09-02-54/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 | SwAV        | Res50    |        256 |    100 |        67.2 |          75.4 |     49.5 |      [link](https://tensorboard.dev/experiment/Ipx4Oxl5Qkqm5Sl5kWyKKg) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_swav_2023-05-25_08-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)
 
@@ -416,6 +424,7 @@ make format
 
 ## Lightly in Research
 
+- [Reverse Engineering Self-Supervised Learning, 2023](https://arxiv.org/abs/2305.15614)
 - [Learning Visual Representations via Language-Guided Sampling, 2023](https://arxiv.org/pdf/2302.12248.pdf)
 - [Self-Supervised Learning Methods for Label-Efficient Dental Caries Classification, 2022](https://www.mdpi.com/2075-4418/12/5/1237)
 - [DPCL: Constrative Representation Learning with Differential Privacy, 2022](https://assets.researchsquare.com/files/rs-1516950/v1_covered.pdf?c=1654486158)

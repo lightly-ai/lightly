@@ -94,7 +94,8 @@ optimizer = torch.optim.AdamW(params, lr=1.5e-4)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for views, _ in dataloader:
+    for batch in dataloader:
+        views = batch[0]
         utils.update_momentum(model.anchor_backbone, model.backbone, 0.996)
         utils.update_momentum(
             model.anchor_projection_head, model.projection_head, 0.996

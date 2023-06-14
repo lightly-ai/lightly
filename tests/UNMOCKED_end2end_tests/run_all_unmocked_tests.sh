@@ -20,19 +20,12 @@ INPUT_DIR="${DIR_DATASET}/test/dress"
 CUSTOM_METADATA_FILENAME="${DIR_DATASET}/custom_metadata.json"
 python tests/UNMOCKED_end2end_tests/create_custom_metadata_from_input_dir.py $INPUT_DIR $CUSTOM_METADATA_FILENAME
 
-NUMBER_OF_DATASETS=0
 # Run the tests
 echo "############################### Test 1"
 lightly-magic input_dir=$INPUT_DIR trainer.max_epochs=0
-((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
 
 echo "############################### Test 2"
 lightly-magic input_dir=$INPUT_DIR trainer.max_epochs=1
-((NUMBER_OF_DATASETS=NUMBER_OF_DATASETS+1))
-
-echo "############################### Deleting all datasets again"
-python tests/UNMOCKED_end2end_tests/delete_datasets_test_unmocked_cli.py $NUMBER_OF_DATASETS $LIGHTLY_TOKEN ${DATE_TIME}
-
 
 echo "############################### Delete dataset again"
 rm -rf $DIR_DATASET

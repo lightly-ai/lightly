@@ -85,7 +85,8 @@ print("Starting Training")
 for epoch in range(epochs):
     total_loss = 0
     momentum_val = cosine_schedule(epoch, epochs, 0.996, 1)
-    for views, _ in dataloader:
+    for batch in dataloader:
+        views = batch[0]
         update_momentum(model.student_backbone, model.teacher_backbone, m=momentum_val)
         update_momentum(model.student_head, model.teacher_head, m=momentum_val)
         views = [view.to(device) for view in views]

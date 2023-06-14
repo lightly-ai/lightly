@@ -58,9 +58,10 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for batch, _ in dataloader:
+    for batch in dataloader:
+        views = batch[0]
         model.prototypes.normalize()
-        multi_crop_features = [model(x.to(device)) for x in batch]
+        multi_crop_features = [model(view.to(device)) for view in views]
         high_resolution = multi_crop_features[:2]
         low_resolution = multi_crop_features[2:]
         loss = criterion(high_resolution, low_resolution)
