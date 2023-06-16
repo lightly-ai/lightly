@@ -29,7 +29,8 @@ class NTXentLoss(MemoryBankModule):
             Use 0 for SimCLR. For MoCo we typically use numbers like 4096 or 65536.
         gather_distributed:
             If True then negatives from all gpus are gathered before the
-            loss calculation. This flag has no effect if memory_bank_size > 0.
+            loss calculation. If a memory bank is used and gather_distributed is True,
+            then tensors from all gpus are gathered before the memory bank is updated.
 
     Raises:
         ValueError: If abs(temperature) < 1e-8 to prevent divide by zero.
@@ -58,7 +59,9 @@ class NTXentLoss(MemoryBankModule):
         memory_bank_size: int = 0,
         gather_distributed: bool = False,
     ):
-        super(NTXentLoss, self).__init__(size=memory_bank_size)
+        super(NTXentLoss, self).__init__(
+            size=memory_bank_size, gather_distributed=gather_distributed
+        )
         self.temperature = temperature
         self.gather_distributed = gather_distributed
         self.cross_entropy = nn.CrossEntropyLoss(reduction="mean")

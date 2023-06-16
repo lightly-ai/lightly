@@ -3,9 +3,9 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-import functools
-
 import torch
+
+from lightly.models import utils
 
 
 class MemoryBankModule(torch.nn.Module):
@@ -19,6 +19,12 @@ class MemoryBankModule(torch.nn.Module):
         size:
             Number of keys the memory bank can store. If set to 0,
             memory bank is not used.
+        gather_distributed:
+            If True then negatives from all gpus are gathered before the memory bank
+            is updated. This results in more frequent updates of the memory bank and
+            keeps the memory bank contents independent of the number of gpus. But it has
+            the drawback that synchronization between processes is required and
+            diversity of the memory bank content is reduced.
 
     Examples:
         >>> class MyLossFunction(MemoryBankModule):
@@ -39,7 +45,7 @@ class MemoryBankModule(torch.nn.Module):
 
     """
 
-    def __init__(self, size: int = 2**16):
+    def __init__(self, size: int = 65536, gather_distributed: bool = False):
         super(MemoryBankModule, self).__init__()
 
         if size < 0:
@@ -47,6 +53,7 @@ class MemoryBankModule(torch.nn.Module):
             raise ValueError(msg)
 
         self.size = size
+        self.gather_distributed = gather_distributed
         self.register_buffer(
             "bank", tensor=torch.empty(0, dtype=torch.float), persistent=False
         )
@@ -80,6 +87,8 @@ class MemoryBankModule(torch.nn.Module):
                 The latest batch of keys to add to the memory bank.
 
         """
+        if self.gather_distributed:
+            batch = utils.concat_all_gather(batch)
         batch_size = batch.shape[0]
         ptr = int(self.bank_ptr)
 
