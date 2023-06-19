@@ -8,8 +8,8 @@ import torchvision
 from torch import nn
 
 from lightly.loss import SwaVLoss
-from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
+from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.transforms.swav_transform import SwaVTransform
 
 

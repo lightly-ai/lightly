@@ -7,9 +7,9 @@ import dino
 import finetune_eval
 import knn_eval
 import linear_eval
+import mocov2
 import simclr
 import swav
-import mocov2
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import (

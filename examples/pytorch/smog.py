@@ -9,13 +9,13 @@ import torchvision
 from sklearn.cluster import KMeans
 from torch import nn
 
-from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.models import utils
 from lightly.models.modules.heads import (
     SMoGPredictionHead,
     SMoGProjectionHead,
     SMoGPrototypes,
 )
+from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.transforms.smog_transform import SMoGTransform
 
 

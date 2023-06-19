@@ -5,19 +5,19 @@ import torch
 from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import Identity
+from torch.optim import SGD
 from torchvision.models import resnet50
 
 from lightly.loss import NTXentLoss
 from lightly.models.modules import MoCoProjectionHead
 from lightly.models.utils import (
-    get_weight_decay_parameters,
-    update_momentum,
     batch_shuffle,
     batch_unshuffle,
+    get_weight_decay_parameters,
+    update_momentum,
 )
 from lightly.transforms import MoCoV2Transform
 from lightly.utils.benchmarking import OnlineLinearClassifier
-from torch.optim import SGD
 from lightly.utils.scheduler import CosineWarmupScheduler
 
 
