@@ -41,12 +41,12 @@ class MoCoV2(LightningModule):
         return self.backbone(x)
 
     @torch.no_grad()
-    def forward_key_encoder(self, x: Tensor) -> Tensor:
-        x, idx = batch_shuffle(batch=x, distributed=self.trainer.num_devices > 1)
+    def forward_key_encoder(self, x: Tensor) -> Tuple[Tensor, Tensor]:
+        x, shuffle = batch_shuffle(batch=x, distributed=self.trainer.num_devices > 1)
         features = self.forward(x).flatten(start_dim=1)
         projections = self.projection_head(features)
-        features = batch_unshuffle(batch=features, idx=idx)
-        projections = batch_unshuffle(batch=projections, idx=idx)
+        features = batch_unshuffle(batch=features, shuffle=shuffle)
+        projections = batch_unshuffle(batch=projections, shuffle=shuffle)
         return features, projections
 
     def forward_query_encoder(self, x: Tensor) -> Tensor:
@@ -58,12 +58,19 @@ class MoCoV2(LightningModule):
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
     ) -> Tensor:
         views, targets = batch[0], batch[1]
+
+        # Encode queries.
         query_projections = self.forward_query_encoder(views[1])
+
+        # Momentum update. This happens between query and key encoding, following the
+        # original implementation from the authors:
+        # https://github.com/facebookresearch/moco/blob/5a429c00bb6d4efdf511bf31b6f01e064bf929ab/moco/builder.py#L142
         update_momentum(self.query_backbone, self.backbone, m=0.999)
         update_momentum(self.query_projection_head, self.projection_head, m=0.999)
+
+        # Encode keys.
         key_features, key_projections = self.forward_key_encoder(views[0])
         loss = self.criterion(query_projections, key_projections)
-
         self.log(
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
         )
