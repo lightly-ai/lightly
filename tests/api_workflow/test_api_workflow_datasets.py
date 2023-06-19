@@ -234,9 +234,12 @@ def test_get_datasets__shared(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient()
     client._datasets_api = mock_datasets_api
     client.get_datasets(shared=True)
-    mocked_pagination.assert_called_once_with(
-        mock_datasets_api.get_datasets, shared=True
-    )
+    assert mocked_pagination.call_count == 2
+    call_args = mocked_pagination.call_args_list
+    assert call_args[0][0] == (mock_datasets_api.get_datasets,)
+    assert call_args[0][1] == {"shared": True}
+    assert call_args[1][0] == (mock_datasets_api.get_datasets,)
+    assert call_args[1][1] == {"get_assets_of_team": True}
 
 
 def test_get_datasets__not_shared(mocker: MockerFixture) -> None:

@@ -57,8 +57,10 @@ class _DatasetsMixin:
                 Name of the dataset.
             shared:
                 If False, considers only datasets owned by the user.
-                If True, considers only datasets which have been shared with the user.
-                If None, considers all datasets the users has access to. Defaults to False.
+                If True, considers only datasets which have been shared with the user,
+                including team datasets.
+                If None, considers all datasets the users has access to,
+                including team datasets. Defaults to False.
 
         Returns:
             A boolean value indicating whether any dataset with the given name exists.
@@ -109,8 +111,8 @@ class _DatasetsMixin:
             shared:
                 If False, returns only datasets owned by the user. In this case at most
                 one dataset will be returned.
-                If True, returns only datasets which have been shared with the user. Can
-                return multiple datasets.
+                If True, returns only datasets which have been shared with the user,
+                including team datasets. Can return multiple datasets.
                 If None, returns datasets the users has access to, including team
                 datasets. Can return multiple datasets. Defaults to False.
 
@@ -151,7 +153,6 @@ class _DatasetsMixin:
                     shared=True,
                 )
             )
-        if shared is None:
             datasets.extend(
                 self._datasets_api.get_datasets_query_by_name(
                     dataset_name=dataset_name,
@@ -179,7 +180,8 @@ class _DatasetsMixin:
         Args:
             shared:
                 If False, returns only datasets owned by the user.
-                If True, returns only the datasets which have been shared with the user.
+                If True, returns only the datasets which have been shared with the user,
+                including team datasets.
                 If None, returns all datasets the user has access to (owned and shared),
                 including team datasets.
                 Defaults to False.
@@ -201,7 +203,6 @@ class _DatasetsMixin:
                     shared=True,
                 ),
             )
-        if shared is None:
             dataset_iterable = chain(
                 dataset_iterable,
                 utils.paginate_endpoint(
@@ -224,8 +225,10 @@ class _DatasetsMixin:
         Args:
             shared:
                 If False, returns only datasets owned by the user.
-                If True, returns only the datasets which have been shared with the user.
-                If None, returns all datasets the user has access to (owned and shared).
+                If True, returns only the datasets which have been shared with the user,
+                including team datasets.
+                If None, returns all datasets the user has access to (owned and shared),
+                including team datasets.
                 Defaults to False.
 
         Returns:
@@ -269,8 +272,10 @@ class _DatasetsMixin:
                 The name of the target dataset.
             shared:
                 If False, considers only datasets owned by the user.
-                If True, considers only the datasets which have been shared with the user.
-                If None, consider all datasets the user has access to (owned and shared).
+                If True, considers only the datasets which have been shared with the user,
+                including team datasets.
+                If None, consider all datasets the user has access to (owned and shared),
+                including team datasets.
                 Defaults to False.
 
         Raises:
