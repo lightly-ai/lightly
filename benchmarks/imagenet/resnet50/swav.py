@@ -8,7 +8,7 @@ from torch.nn import Identity, ModuleList
 from torch.nn import functional as F
 from torchvision.models import resnet50
 
-from lightly.loss.memory_bank import MemoryBankModule
+from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.loss.swav_loss import SwaVLoss
 from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
 from lightly.models.utils import get_weight_decay_parameters

@@ -85,10 +85,9 @@ from lightly.loss import (
     TiCoLoss,
     VICRegLLoss,
     VICRegLoss,
-    memory_bank,
 )
 from lightly.models import modules, utils
-from lightly.models.modules import heads, masked_autoencoder
+from lightly.models.modules import heads, masked_autoencoder, memory_bank
 from lightly.transforms import (
     DINOTransform,
     FastSiamTransform,

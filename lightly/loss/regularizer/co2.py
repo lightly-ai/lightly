@@ -5,7 +5,7 @@
 
 import torch
 
-from lightly.loss.memory_bank import MemoryBankModule
+from lightly.models.modules.memory_bank import MemoryBankModule
 
 
 class CO2Regularizer(MemoryBankModule):

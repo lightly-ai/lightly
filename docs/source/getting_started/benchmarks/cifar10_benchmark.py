@@ -79,10 +79,9 @@ from lightly.loss import (
     NegativeCosineSimilarity,
     NTXentLoss,
     SwaVLoss,
-    memory_bank,
 )
 from lightly.models import ResNetGenerator, modules, utils
-from lightly.models.modules import heads
+from lightly.models.modules import heads, memory_bank
 from lightly.transforms import (
     DINOTransform,
     FastSiamTransform,

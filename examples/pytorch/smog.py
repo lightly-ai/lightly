@@ -9,7 +9,7 @@ import torchvision
 from sklearn.cluster import KMeans
 from torch import nn
 
-from lightly.loss.memory_bank import MemoryBankModule
+from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.models import utils
 from lightly.models.modules.heads import (
     SMoGPredictionHead,

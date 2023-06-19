@@ -7,7 +7,7 @@ import torch
 from torch import distributed as torch_dist
 from torch import nn
 
-from lightly.loss.memory_bank import MemoryBankModule
+from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.utils import dist
 
 

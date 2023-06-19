@@ -2,7 +2,7 @@ import unittest
 
 import torch
 
-from lightly.loss.memory_bank import MemoryBankModule
+from lightly.models.modules.memory_bank import MemoryBankModule
 
 
 class TestNTXentLoss(unittest.TestCase):
