@@ -9,6 +9,7 @@ import knn_eval
 import linear_eval
 import simclr
 import swav
+import mocov2
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import (
@@ -43,6 +44,7 @@ parser.add_argument("--skip-finetune-eval", action="store_true")
 
 METHODS = {
     "dino": {"model": dino.DINO, "transform": dino.transform},
+    "mocov2": {"model": mocov2.MoCoV2, "transform": mocov2.transform},
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
     "swav": {"model": swav.SwAV, "transform": swav.transform},
 }
