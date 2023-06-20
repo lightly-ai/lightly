@@ -226,14 +226,21 @@ def test_delete_dataset(mocker: MockerFixture) -> None:
 
 
 def test_get_datasets__shared(mocker: MockerFixture) -> None:
+    datasets = _get_datasets(2)
+    # Returns the same set of datasets twice. API client should remove duplicates
     mocked_pagination = mocker.patch.object(
-        api_workflow_datasets.utils, "paginate_endpoint"
+        api_workflow_datasets.utils,
+        "paginate_endpoint",
+        side_effect=[datasets, datasets],
     )
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     mock_datasets_api = mocker.MagicMock()
     client = ApiWorkflowClient()
     client._datasets_api = mock_datasets_api
-    client.get_datasets(shared=True)
+    datasets = client.get_datasets(shared=True)
+    unique_dataset_ids = set([dataset.id for dataset in datasets])
+    assert len(unique_dataset_ids) == len(datasets)
+
     assert mocked_pagination.call_count == 2
     call_args = mocked_pagination.call_args_list
     assert call_args[0][0] == (mock_datasets_api.get_datasets,)
