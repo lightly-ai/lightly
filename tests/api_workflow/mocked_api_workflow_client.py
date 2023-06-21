@@ -557,11 +557,14 @@ class MockedDatasetsApi(DatasetsApi):
 
     def get_datasets(
         self,
-        shared: bool,
+        shared: bool = False,
+        get_assets_of_team: bool = False,
         page_size: Optional[int] = None,
         page_offset: Optional[int] = None,
     ):
         start, end = _start_and_end_offset(page_size=page_size, page_offset=page_offset)
+        if get_assets_of_team:
+            return []
         if shared:
             return self.shared_datasets[start:end]
         else:
@@ -615,9 +618,15 @@ class MockedDatasetsApi(DatasetsApi):
         raise NotImplementedError()
 
     def get_datasets_query_by_name(
-        self, dataset_name: str, shared: bool, exact: bool
+        self,
+        dataset_name: str,
+        shared: bool = False,
+        exact: bool = False,
+        get_assets_of_team: bool = False,
     ) -> List[DatasetData]:
-        datasets = self.get_datasets(shared=shared)
+        datasets = self.get_datasets(
+            shared=shared, get_assets_of_team=get_assets_of_team
+        )
         if exact:
             return [dataset for dataset in datasets if dataset.name == dataset_name]
         else:
