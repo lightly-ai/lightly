@@ -22,14 +22,21 @@ class MemoryBankModule(Module):
 
     Attributes:
         size:
-            Number of keys the memory bank can store. If set to 0,
-            memory bank is not used.
+            Size of the memory bank as (num_features, dim) tuple. If num_features is 0
+            then the memory bank is disabled. Deprecated: If only a single integer is
+            passed, it is interpreted as the number of features and the feature
+            dimension is inferred from the first batch stored in the memory bank.
+            Leaving out the feature dimension might lead to errors in distributed
+            training.
         gather_distributed:
             If True then negatives from all gpus are gathered before the memory bank
             is updated. This results in more frequent updates of the memory bank and
             keeps the memory bank contents independent of the number of gpus. But it has
             the drawback that synchronization between processes is required and
             diversity of the memory bank content is reduced.
+        dim_first:
+            If True, the memory bank returns features with shape (dim, num_features).
+            If False, the memory bank returns features with shape (num_features, dim).
 
     Examples:
         >>> class MyLossFunction(MemoryBankModule):
