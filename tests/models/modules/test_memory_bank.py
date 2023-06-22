@@ -25,8 +25,8 @@ class TestNTXentLoss(unittest.TestCase):
             _, curr_memory_bank = memory_bank(out1, update=True)
             next_memory_bank = memory_bank.bank
 
-            curr_diff = out0.T - curr_memory_bank[:, ptr : ptr + bsz]
-            next_diff = out1.T - next_memory_bank[:, ptr : ptr + bsz]
+            curr_diff = out0 - curr_memory_bank[ptr : ptr + bsz]
+            next_diff = out1 - next_memory_bank[ptr : ptr + bsz]
 
             # the current memory bank should not hold the batch yet
             self.assertGreater(curr_diff.norm(), 1e-5)
