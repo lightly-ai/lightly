@@ -52,7 +52,8 @@ class BYOL(LightningModule):
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
     ) -> Tensor:
         # Momentum update teacher.
-        # Note: Settings follow original code for 100 epochs, see:
+        # Settings follow original code for 100 epochs which are slightly different
+        # from the paper, see:
         # https://github.com/deepmind/deepmind-research/blob/f5de0ede8430809180254ee957abf36ed62579ef/byol/configs/byol.py#L21-L23
         momentum = cosine_schedule(
             step=self.trainer.global_step,
@@ -117,7 +118,8 @@ class BYOL(LightningModule):
                     "weight_decay": 0.0,
                 },
             ],
-            # Settings follow original code for 100 epochs, see:
+            # Settings follow original code for 100 epochs which are slightly different
+            # from the paper, see:
             # https://github.com/deepmind/deepmind-research/blob/f5de0ede8430809180254ee957abf36ed62579ef/byol/configs/byol.py#L21-L23
             lr=0.45 * self.batch_size_per_device * self.trainer.world_size / 256,
             momentum=0.9,
