@@ -148,3 +148,14 @@ class TestMemoryBank:
         assert bank0[:3].tolist() != x0.tolist()
         # Verify that memory bank was updated.
         assert memory_bank.bank[:3].tolist() == x0.tolist()
+
+    def test_forward__dim_first(self) -> None:
+        torch.manual_seed(0)
+        memory_bank = MemoryBankModule(size=(5, 2), dim_first=True)
+        x0 = torch.randn(3, 2)
+        out0, bank0 = memory_bank(x0, update=True)
+        assert bank0.shape == (2, 5)
+        x1 = torch.randn(3, 2)
+        out1, bank1 = memory_bank(x1, update=True)
+        assert bank1.shape == (2, 5)
+        assert bank1[:, :3].tolist() == x0.T.tolist()
