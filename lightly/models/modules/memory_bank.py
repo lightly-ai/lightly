@@ -60,7 +60,7 @@ class MemoryBankModule(Module):
 
         if any(x < 0 for x in size_tuple):
             raise ValueError(
-                f"Illegal memory bank size {size}, entries must be non-negative."
+                f"Illegal memory bank size {size}, all entries must be non-negative."
             )
 
         self.size = size_tuple
