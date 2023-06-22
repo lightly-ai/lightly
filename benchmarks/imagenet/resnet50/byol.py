@@ -52,13 +52,12 @@ class BYOL(LightningModule):
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
     ) -> Tensor:
         # Momentum update teacher.
-        # Note: Momentum update settings are for smaller batch sizes (<=512),
-        # see Appendix G of the BYOL paper. For larger batch sizes (>512) set
-        # start_value=0.996.
+        # Note: Settings follow original code for 100 epochs, see:
+        # https://github.com/deepmind/deepmind-research/blob/f5de0ede8430809180254ee957abf36ed62579ef/byol/configs/byol.py#L21-L23
         momentum = cosine_schedule(
             step=self.trainer.global_step,
             max_steps=self.trainer.estimated_stepping_batches,
-            start_value=0.9995,
+            start_value=0.99,
             end_value=1.0,
         )
         update_momentum(self.student_backbone, self.backbone, m=momentum)
@@ -118,11 +117,11 @@ class BYOL(LightningModule):
                     "weight_decay": 0.0,
                 },
             ],
-            # Learning rate settings are for smaller batch sizes (<=512), see
-            # Appendix G of the BYOL paper. For larger batch sizes (>512) set lr=0.2.
-            lr=0.4 * self.batch_size_per_device * self.trainer.world_size / 256,
+            # Settings follow original code for 100 epochs, see:
+            # https://github.com/deepmind/deepmind-research/blob/f5de0ede8430809180254ee957abf36ed62579ef/byol/configs/byol.py#L21-L23
+            lr=0.45 * self.batch_size_per_device * self.trainer.world_size / 256,
             momentum=0.9,
-            weight_decay=1.5 * 1e-6,
+            weight_decay=1e-6,
         )
         scheduler = {
             "scheduler": CosineWarmupScheduler(
