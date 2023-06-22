@@ -37,7 +37,7 @@ class BYOL(LightningModule):
         return self.backbone(x)
 
     @torch.no_grad()
-    def forward_teacher(self, x: Tensor) -> Tensor:
+    def forward_teacher(self, x: Tensor) -> Tuple[Tensor, Tensor]:
         features = self.forward(x).flatten(start_dim=1)
         projections = self.projection_head(features)
         return features, projections
