@@ -298,9 +298,9 @@ For more information check the documentation:
 .. code-block:: python
 
   # to create a NTXentLoss with a memory bank (like for MoCo) set the 
-  # memory_bank_size parameter to a value > 0
+  # memory_bank_size parameter to a value > 0 and specify the feature dimension
   from lightly.loss import NTXentLoss
-  criterion = NTXentLoss(memory_bank_size=4096)
+  criterion = NTXentLoss(memory_bank_size=(4096, 128))
   # the memory bank is used automatically for every forward pass
   y0, y1 = resnet_moco(x0, x1)
   loss = criterion(y0, y1)

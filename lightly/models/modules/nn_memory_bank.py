@@ -4,6 +4,7 @@
 # All Rights Reserved
 
 from typing import Sequence, Union
+
 import torch
 
 from lightly.models.modules.memory_bank import MemoryBankModule
@@ -31,7 +32,7 @@ class NNMemoryBankModule(MemoryBankModule):
         >>> model = NNCLR(backbone)
         >>> criterion = NTXentLoss(temperature=0.1)
         >>>
-        >>> nn_replacer = NNmemoryBankModule(size=2 ** 16)
+        >>> nn_replacer = NNmemoryBankModule(size=(2 ** 16, 128))
         >>>
         >>> # forward pass
         >>> (z0, p0), (z1, p1) = model(x0, x1)

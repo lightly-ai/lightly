@@ -3,6 +3,8 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from typing import Sequence, Union
+
 import torch
 from torch import distributed as torch_dist
 from torch import nn
@@ -25,8 +27,14 @@ class NTXentLoss(MemoryBankModule):
         temperature:
             Scale logits by the inverse of the temperature.
         memory_bank_size:
-            Number of negative samples to store in the memory bank.
-            Use 0 for SimCLR. For MoCo we typically use numbers like 4096 or 65536.
+            Size of the memory bank as (num_features, dim) tuple. num_features are the
+            number of negative samples stored in the memory bank. If num_features is 0,
+            the memory bank is disabled. Use 0 for SimCLR. For MoCo we typically use
+            numbers like 4096 or 65536.
+            Deprecated: If only a single integer is passed, it is interpreted as the
+            number of features and the feature dimension is inferred from the first
+            batch stored in the memory bank. Leaving out the feature dimension might
+            lead to errors in distributed training.
         gather_distributed:
             If True then negatives from all gpus are gathered before the
             loss calculation. If a memory bank is used and gather_distributed is True,
@@ -56,12 +64,10 @@ class NTXentLoss(MemoryBankModule):
     def __init__(
         self,
         temperature: float = 0.5,
-        memory_bank_size: int = 0,
+        memory_bank_size: Union[int, Sequence[int]] = 0,
         gather_distributed: bool = False,
     ):
-        super(NTXentLoss, self).__init__(
-            size=memory_bank_size, gather_distributed=gather_distributed
-        )
+        super().__init__(size=memory_bank_size, gather_distributed=gather_distributed)
         self.temperature = temperature
         self.gather_distributed = gather_distributed
         self.cross_entropy = nn.CrossEntropyLoss(reduction="mean")

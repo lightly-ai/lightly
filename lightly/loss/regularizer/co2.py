@@ -4,6 +4,7 @@
 # All Rights Reserved
 
 from typing import Sequence, Union
+
 import torch
 
 from lightly.models.modules.memory_bank import MemoryBankModule
@@ -29,10 +30,10 @@ class CO2Regularizer(MemoryBankModule):
 
     Examples:
         >>> # initialize loss function for MoCo
-        >>> loss_fn = NTXentLoss(memory_bank_size=4096)
+        >>> loss_fn = NTXentLoss(memory_bank_size=(4096, 128))
         >>>
         >>> # initialize CO2 regularizer
-        >>> co2 = CO2Regularizer(alpha=1.0, memory_bank_size=4096)
+        >>> co2 = CO2Regularizer(alpha=1.0, memory_bank_size=(4096, 128))
         >>>
         >>> # generate two random trasnforms of images
         >>> t0 = transforms(images)

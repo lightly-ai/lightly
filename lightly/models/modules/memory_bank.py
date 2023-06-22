@@ -41,14 +41,11 @@ class MemoryBankModule(Module):
     Examples:
         >>> class MyLossFunction(MemoryBankModule):
         >>>
-        >>>     def __init__(self, memory_bank_size: int = 2 ** 16):
-        >>>         super(MyLossFunction, self).__init__(memory_bank_size)
+        >>>     def __init__(self, memory_bank_size: Tuple[int, int] = (2 ** 16, 128)):
+        >>>         super().__init__(memory_bank_size)
         >>>
-        >>>     def forward(self, output: Tensor,
-        >>>                 labels: Tensor = None):
-        >>>
-        >>>         output, negatives = super(
-        >>>             MyLossFunction, self).forward(output)
+        >>>     def forward(self, output: Tensor, labels: Union[Tensor, None] = None):
+        >>>         output, negatives = super().forward(output)
         >>>
         >>>         if negatives is not None:
         >>>             # evaluate loss with negative samples
