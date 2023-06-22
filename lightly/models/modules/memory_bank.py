@@ -54,6 +54,7 @@ class MemoryBankModule(Module):
         self,
         size: Union[int, Sequence[int]] = 65536,
         gather_distributed: bool = False,
+        dim_first: bool = True,
     ):
         super(MemoryBankModule, self).__init__()
         size_tuple = (size,) if isinstance(size, int) else tuple(size)
@@ -65,6 +66,7 @@ class MemoryBankModule(Module):
 
         self.size = size_tuple
         self.gather_distributed = gather_distributed
+        self.dim_first = dim_first
         self.register_buffer(
             "bank",
             tensor=torch.empty(size=self.size, dtype=torch.float),
@@ -160,6 +162,9 @@ class MemoryBankModule(Module):
 
         # query and update memory bank
         bank = self.bank.clone().detach()
+        if self.dim_first:
+            # swap bank size and feature dimension for backwards compatibility
+            bank = bank.transpose(0, -1)
 
         # only update memory bank if we later do backward pass (gradient)
         if update:

@@ -1,9 +1,10 @@
+import re
 import unittest
 
-import torch
 import pytest
+import torch
+
 from lightly.models.modules.memory_bank import MemoryBankModule
-import re
 
 
 class TestNTXentLoss(unittest.TestCase):
@@ -24,10 +25,10 @@ class TestNTXentLoss(unittest.TestCase):
             out0, out1 = output[:bsz], output[bsz:]
 
             _, curr_memory_bank = memory_bank(out1, update=True)
-            next_memory_bank = memory_bank.bank
+            next_memory_bank = memory_bank.bank.transpose(0, -1)
 
-            curr_diff = out0 - curr_memory_bank[ptr : ptr + bsz]
-            next_diff = out1 - next_memory_bank[ptr : ptr + bsz]
+            curr_diff = out0.T - curr_memory_bank[:, ptr : ptr + bsz]
+            next_diff = out1.T - next_memory_bank[:, ptr : ptr + bsz]
 
             # the current memory bank should not hold the batch yet
             self.assertGreater(curr_diff.norm(), 1e-5)
@@ -94,7 +95,7 @@ class TestMemoryBank:
 
     def test_forward(self) -> None:
         torch.manual_seed(0)
-        memory_bank = MemoryBankModule(size=(5, 2))
+        memory_bank = MemoryBankModule(size=(5, 2), dim_first=False)
         x0 = torch.randn(3, 2)
         out0, bank0 = memory_bank(x0, update=True)
         # Verify that output is same as input.
@@ -135,7 +136,7 @@ class TestMemoryBank:
     def test_forward__no_dim(self) -> None:
         torch.manual_seed(0)
         # Only specify size but not feature dimension.
-        memory_bank = MemoryBankModule(size=5)
+        memory_bank = MemoryBankModule(size=5, dim_first=False)
         x0 = torch.randn(3, 2)
         out0, bank0 = memory_bank(x0, update=True)
         # Verify that output is same as input.
