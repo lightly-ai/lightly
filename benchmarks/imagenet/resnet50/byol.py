@@ -70,10 +70,12 @@ class BYOL(LightningModule):
         _, teacher_projections_1 = self.forward_teacher(views[1])
         student_predictions_0 = self.forward_student(views[0])
         student_predictions_1 = self.forward_student(views[1])
-        loss = 0.5 * (
-            self.criterion(teacher_projections_0, student_predictions_1)
-            + self.criterion(teacher_projections_1, student_predictions_0)
-        )
+        loss_0 = self.criterion(teacher_projections_0, student_predictions_1)
+        loss_1 = self.criterion(teacher_projections_1, student_predictions_0)
+        # Note: We don't take average of losses as original code uses L2 loss which is
+        # 2x larger than cosine similarity loss because:
+        # L2(norm(x), norm(y)) = 2 - 2 * cossim(x, y)
+        loss = loss_0 + loss_1
         self.log(
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
         )
