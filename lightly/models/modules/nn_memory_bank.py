@@ -3,6 +3,7 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from typing import Sequence, Union
 import torch
 
 from lightly.models.modules.memory_bank import MemoryBankModule
@@ -19,8 +20,12 @@ class NNMemoryBankModule(MemoryBankModule):
 
     Attributes:
         size:
-            Number of keys the memory bank can store. If set to 0,
-            memory bank is not used.
+            Size of the memory bank as (num_features, dim) tuple. If num_features is 0
+            then the memory bank is disabled. Deprecated: If only a single integer is
+            passed, it is interpreted as the number of features and the feature
+            dimension is inferred from the first batch stored in the memory bank.
+            Leaving out the feature dimension might lead to errors in distributed
+            training.
 
     Examples:
         >>> model = NNCLR(backbone)
@@ -37,7 +42,7 @@ class NNMemoryBankModule(MemoryBankModule):
 
     """
 
-    def __init__(self, size: int = 2**16):
+    def __init__(self, size: Union[int, Sequence[int]] = 2**16):
         super(NNMemoryBankModule, self).__init__(size)
 
     def forward(self, output: torch.Tensor, update: bool = False):

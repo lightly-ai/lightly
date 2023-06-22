@@ -3,6 +3,7 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from typing import Sequence, Union
 import torch
 
 from lightly.models.modules.memory_bank import MemoryBankModule
@@ -19,8 +20,12 @@ class CO2Regularizer(MemoryBankModule):
         t_consistency:
             Temperature used during softmax calculations.
         memory_bank_size:
-            Number of negative samples to store in the memory bank.
-            Use 0 to use the second batch for negative samples.
+            Size of the memory bank as (num_features, dim) tuple. num_features is the
+            number of negatives stored in the bank. If set to 0, the memory bank is
+            disabled. Deprecated: If only a single integer is passed, it is interpreted
+            as the number of features and the feature dimension is inferred from the
+            first batch stored in the memory bank. Leaving out the feature dimension
+            might lead to errors in distributed training.
 
     Examples:
         >>> # initialize loss function for MoCo
@@ -42,7 +47,10 @@ class CO2Regularizer(MemoryBankModule):
     """
 
     def __init__(
-        self, alpha: float = 1, t_consistency: float = 0.05, memory_bank_size: int = 0
+        self,
+        alpha: float = 1,
+        t_consistency: float = 0.05,
+        memory_bank_size: Union[int, Sequence[int]] = 0,
     ):
         super(CO2Regularizer, self).__init__(size=memory_bank_size)
         # try-catch the KLDivLoss construction for backwards compatability

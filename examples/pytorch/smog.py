@@ -80,7 +80,7 @@ model = SMoGModel(backbone)
 
 # memory bank because we reset the group features every 300 iterations
 memory_bank_size = 300 * batch_size
-memory_bank = MemoryBankModule(size=memory_bank_size)
+memory_bank = MemoryBankModule(size=(memory_bank_size, 128))
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)

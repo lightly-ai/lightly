@@ -21,7 +21,9 @@ class SwaV(pl.LightningModule):
         self.projection_head = SwaVProjectionHead(512, 512, 128)
         self.prototypes = SwaVPrototypes(128, 512, 1)
         self.start_queue_at_epoch = 2
-        self.queues = nn.ModuleList([MemoryBankModule(size=3840) for _ in range(2)])
+        self.queues = nn.ModuleList(
+            [MemoryBankModule(size=(3840, 128)) for _ in range(2)]
+        )
         self.criterion = SwaVLoss()
 
     def training_step(self, batch, batch_idx):

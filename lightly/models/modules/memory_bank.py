@@ -63,7 +63,7 @@ class MemoryBankModule(Module):
         gather_distributed: bool = False,
         dim_first: bool = True,
     ):
-        super(MemoryBankModule, self).__init__()
+        super().__init__()
         size_tuple = (size,) if isinstance(size, int) else tuple(size)
 
         if any(x < 0 for x in size_tuple):

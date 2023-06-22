@@ -790,7 +790,7 @@ class SMoGModel(BenchmarkModule):
         # smog
         self.n_groups = 300
         memory_bank_size = 10000
-        self.memory_bank = memory_bank.MemoryBankModule(size=memory_bank_size)
+        self.memory_bank = memory_bank.MemoryBankModule(size=(memory_bank_size, 128))
         # create our loss
         group_features = torch.nn.functional.normalize(
             torch.rand(self.n_groups, 128), dim=1
