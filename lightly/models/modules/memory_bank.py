@@ -34,7 +34,7 @@ class MemoryBankModule(Module):
             keeps the memory bank contents independent of the number of gpus. But it has
             the drawback that synchronization between processes is required and
             diversity of the memory bank content is reduced.
-        dim_first:
+        feature_dim_first:
             If True, the memory bank returns features with shape (dim, num_features).
             If False, the memory bank returns features with shape (num_features, dim).
 
@@ -58,7 +58,7 @@ class MemoryBankModule(Module):
         self,
         size: Union[int, Sequence[int]] = 65536,
         gather_distributed: bool = False,
-        dim_first: bool = True,
+        feature_dim_first: bool = True,
     ):
         super().__init__()
         size_tuple = (size,) if isinstance(size, int) else tuple(size)
@@ -70,7 +70,7 @@ class MemoryBankModule(Module):
 
         self.size = size_tuple
         self.gather_distributed = gather_distributed
-        self.dim_first = dim_first
+        self.feature_dim_first = feature_dim_first
         self.register_buffer(
             "bank",
             tensor=torch.empty(size=self.size, dtype=torch.float),
@@ -151,7 +151,9 @@ class MemoryBankModule(Module):
 
         Returns:
             The output if the memory bank is of size 0, otherwise the output
-            and the entries from the memory bank.
+            and the entries from the memory bank. Entries from the memory bank have
+            shape (dim, num_features) if feature_dim_first is True and
+            (num_features, dim) otherwise.
 
         """
 
@@ -166,7 +168,7 @@ class MemoryBankModule(Module):
 
         # query and update memory bank
         bank = self.bank.clone().detach()
-        if self.dim_first:
+        if self.feature_dim_first:
             # swap bank size and feature dimension for backwards compatibility
             bank = bank.transpose(0, -1)
 

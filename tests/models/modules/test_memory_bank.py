@@ -95,7 +95,7 @@ class TestMemoryBank:
 
     def test_forward(self) -> None:
         torch.manual_seed(0)
-        memory_bank = MemoryBankModule(size=(5, 2), dim_first=False)
+        memory_bank = MemoryBankModule(size=(5, 2), feature_dim_first=False)
         x0 = torch.randn(3, 2)
         out0, bank0 = memory_bank(x0, update=True)
         # Verify that output is same as input.
@@ -136,7 +136,7 @@ class TestMemoryBank:
     def test_forward__no_dim(self) -> None:
         torch.manual_seed(0)
         # Only specify size but not feature dimension.
-        memory_bank = MemoryBankModule(size=5, dim_first=False)
+        memory_bank = MemoryBankModule(size=5, feature_dim_first=False)
         x0 = torch.randn(3, 2)
         out0, bank0 = memory_bank(x0, update=True)
         # Verify that output is same as input.
@@ -151,7 +151,7 @@ class TestMemoryBank:
 
     def test_forward__dim_first(self) -> None:
         torch.manual_seed(0)
-        memory_bank = MemoryBankModule(size=(5, 2), dim_first=True)
+        memory_bank = MemoryBankModule(size=(5, 2), feature_dim_first=True)
         x0 = torch.randn(3, 2)
         out0, bank0 = memory_bank(x0, update=True)
         assert bank0.shape == (2, 5)
