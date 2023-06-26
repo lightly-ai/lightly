@@ -190,10 +190,10 @@ def _update_queue(
     # Get the queue projections
     queue_projections = []
     for i in range(len(queues)):
-        _, projections = queues[i](projections[i], update=True)
+        _, queue_proj = queues[i](projections[i], update=True)
         # Queue projections are in (num_ftrs X queue_length) shape, while the high res
         # projections are in (batch_size_per_device X num_ftrs). Swap the axes for interoperability.
-        projections = torch.permute(projections, (1, 0))
-        queue_projections.append(projections)
+        queue_proj = torch.permute(queue_proj, (1, 0))
+        queue_projections.append(queue_proj)
 
     return queue_projections
