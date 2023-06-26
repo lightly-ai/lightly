@@ -105,14 +105,14 @@ class SwAV(LightningModule):
             loss,
             prog_bar=True,
             sync_dist=True,
-            batch_size_per_device=len(targets),
+            batch_size=len(targets),
         )
 
         # Calculate the classification loss.
         cls_loss, cls_log = self.online_classifier.training_step(
             (multi_crop_features[0].detach(), targets), batch_idx
         )
-        self.log_dict(cls_log, sync_dist=True, batch_size_per_device=len(targets))
+        self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss
 
     def validation_step(
@@ -123,9 +123,7 @@ class SwAV(LightningModule):
         cls_loss, cls_log = self.online_classifier.validation_step(
             (features.detach(), targets), batch_idx
         )
-        self.log_dict(
-            cls_log, prog_bar=True, sync_dist=True, batch_size_per_device=len(targets)
-        )
+        self.log_dict(cls_log, prog_bar=True, sync_dist=True, batch_size=len(targets))
         return cls_loss
 
     def configure_optimizers(self):
