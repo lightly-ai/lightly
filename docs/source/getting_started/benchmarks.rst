@@ -34,7 +34,7 @@ See the `benchmarking scripts <https://github.com/lightly-ai/lightly/tree/master
   :widths: 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
 
   "DINO", "Res50", "128", "100", "68.2", "87.9", "72.5", "90.8", "49.9", "78.7", "`link <https://tensorboard.dev/experiment/DvKHX9sNSWWqDrRksllPLA>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dino_2023-06-06_13-59-48/pretrain/version_0/checkpoints/epoch%3D99-step%3D1000900.ckpt>`_"
-  "SimCLR", "Res50", "256", "100", "63.2", "85.3", "N/A", "N/A", "44.9", "74.2", "`link <https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-05-04_09-02-54/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
+  "SimCLR", "Res50", "256", "100", "63.2", "85.2", "73.9", "91.9", "44.8", "73.9", "`link <https://tensorboard.dev/experiment/Ugol97adQdezgcVibDYMMA>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
   "SwAV", "Res50", "256", "100", "67.2", "88.1", "75.4", "92.7", "49.5", "78.6", "`link <https://tensorboard.dev/experiment/Ipx4Oxl5Qkqm5Sl5kWyKKg>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_swav_2023-05-25_08-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
 
 
