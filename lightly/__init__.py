@@ -122,18 +122,10 @@ else:
         from multiprocessing import current_process
 
         if current_process().name == "MainProcess":
-            from lightly.api.version_checking import (
-                LightlyAPITimeoutException,
-                is_latest_version,
-            )
-            from lightly.openapi_generated.swagger_client.rest import ApiException
+            from lightly.api.version_checking import is_latest_version
 
             try:
                 is_latest_version(current_version=__version__)
-            except (
-                ValueError,
-                ApiException,
-                LightlyAPITimeoutException,
-                AttributeError,
-            ):
+            except Exception:
+                # Version check should never break the package.
                 pass
