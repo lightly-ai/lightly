@@ -326,7 +326,6 @@ class _ComputeWorkerMixin:
             docker_run_scheduled_create_request=request,
             dataset_id=self.dataset_id,
         )
-
         return response.id
 
     def get_compute_worker_runs_iter(
