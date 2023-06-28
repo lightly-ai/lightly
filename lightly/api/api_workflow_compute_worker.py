@@ -307,12 +307,13 @@ class _ComputeWorkerMixin:
             eb = json.loads(e.body)
             eb_code = eb.get("code")
             eb_error = eb.get("error")
-            if str(e.status)[0] == '4' and eb_code is not None and eb_error is not None:
+            if str(e.status)[0] == "4" and eb_code is not None and eb_error is not None:
                 eb = json.loads(e.body)
-                raise ValueError(f'Trying to schedule your job resulted in\n'
-                                 f'{eb_code}\n{eb_error}\n'
-                                 f'Please fix the issue mentioned above and see our docs '
-                                 f'https://docs.lightly.ai/docs/all-configuration-options for more help.'
+                raise ValueError(
+                    f"Trying to schedule your job resulted in\n"
+                    f"{eb_code}\n{eb_error}\n"
+                    f"Please fix the issue mentioned above and see our docs "
+                    f"https://docs.lightly.ai/docs/all-configuration-options for more help."
                 ) from None
             else:
                 raise e
