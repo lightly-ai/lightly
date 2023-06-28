@@ -462,21 +462,22 @@ def test_schedule_compute_worker_run_api_error() -> None:
                 '{"code": "ACCOUNT_SUBSCRIPTION_INSUFFICIENT", "error": "Your current plan allows for 1000000 samples but you tried to use 2000000 samples, please contact sales at sales@lightly.ai to upgrade your account."}',
             )
         )
+    client = ApiWorkflowClient(token="123")
+    client._dataset_id = generate_id()
+    client._compute_worker_api.create_docker_worker_config_v3 = mocked_raise_exception
 
-    mocked_api_client = MagicMock(
-        dataset_id=generate_id(),
-        _compute_worker_api=MagicMock(
-            create_docker_worker_config_v3=mocked_raise_exception
-        ),
-        _get_scheduled_run_by_id=mocked_raise_exception,
-        _creator="USER_PIP",
-    )
+#     mocked_api_client = MagicMock(
+#         dataset_id=generate_id(),
+#         _compute_worker_api=MagicMock(
+#             create_docker_worker_config_v3=mocked_raise_exception
+#         ),
+#         _creator="USER_PIP",
+#     )
     with pytest.raises(
         ValueError,
         match=r'Trying to schedule your job resulted in\n>> ACCOUNT_SUBSCRIPTION_INSUFFICIENT\n>> "Your current plan allows for 1000000 samples but you tried to use 2000000 samples, please contact sales at sales@lightly.ai to upgrade your account."\n>> Please fix the issue mentioned above and see our docs https://docs.lightly.ai/docs/all-configuration-options for more help.',
     ):
-        r = ApiWorkflowClient.create_compute_worker_config(
-            self=mocked_api_client,
+        r = client.create_compute_worker_config(
             selection_config={
                 "n_samples": 2000000,
                 "strategies": [
