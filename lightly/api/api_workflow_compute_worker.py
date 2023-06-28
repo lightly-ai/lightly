@@ -245,8 +245,22 @@ class _ComputeWorkerMixin:
         request = DockerWorkerConfigV3CreateRequest(
             config=config, creator=self._creator
         )
-        response = self._compute_worker_api.create_docker_worker_config_v3(request)
-        return response.id
+        try:
+            response = self._compute_worker_api.create_docker_worker_config_v3(request)
+            return response.id
+        except ApiException as e:
+            eb = json.loads(e.body)
+            eb_code = eb.get("code")
+            eb_error = eb.get("error")
+            if str(e.status)[0] == "4" and eb_code is not None and eb_error is not None:
+                raise ValueError(
+                    f"Trying to schedule your job resulted in\n"
+                    f">> {eb_code}\n>> {eb_error}\n"
+                    f">> Please fix the issue mentioned above and see our docs "
+                    f"https://docs.lightly.ai/docs/all-configuration-options for more help."
+                ) from None
+            else:
+                raise e
 
     def schedule_compute_worker_run(
         self,
@@ -297,25 +311,11 @@ class _ComputeWorkerMixin:
         """
         if runs_on is None:
             runs_on = []
-        try:
-            config_id = self.create_compute_worker_config(
-                worker_config=worker_config,
-                lightly_config=lightly_config,
-                selection_config=selection_config,
-            )
-        except ApiException as e:
-            eb = json.loads(e.body)
-            eb_code = eb.get("code")
-            eb_error = eb.get("error")
-            if str(e.status)[0] == "4" and eb_code is not None and eb_error is not None:
-                raise ValueError(
-                    f"Trying to schedule your job resulted in\n"
-                    f"{eb_code}\n{eb_error}\n"
-                    f"Please fix the issue mentioned above and see our docs "
-                    f"https://docs.lightly.ai/docs/all-configuration-options for more help."
-                ) from None
-            else:
-                raise e
+        config_id = self.create_compute_worker_config(
+            worker_config=worker_config,
+            lightly_config=lightly_config,
+            selection_config=selection_config,
+        )
         request = DockerRunScheduledCreateRequest(
             config_id=config_id,
             priority=priority,

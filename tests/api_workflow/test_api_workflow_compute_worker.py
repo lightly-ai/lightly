@@ -443,6 +443,46 @@ def test_get_compute_worker_state_and_message_OPEN() -> None:
     assert run_info.message.startswith("Waiting for pickup by Lightly Worker.")
     assert run_info.in_end_state() == False
 
+def test_schedule_compute_worker_run_api_error() -> None:
+    class HttpThing:
+        def __init__(self, status, reason, data):
+            self.status = status
+            self.reason = reason
+            self.data = data
+        def getheaders(self):
+            return []
+
+    def mocked_raise_exception(*args, **kwargs):
+        raise ApiException(http_resp=HttpThing(403, "Not everything has a reason", '{"code": "ACCOUNT_SUBSCRIPTION_INSUFFICIENT", "error": "Your current plan allow for 1000000 samples but you tried to use 2000000 samples, please contact sales at sales@lightly.ai to upgrade your account."}'))
+
+    mocked_api_client = MagicMock(
+        dataset_id=generate_id(),
+        _compute_worker_api=MagicMock(
+            create_docker_worker_config_v3=mocked_raise_exception
+        ),
+        _get_scheduled_run_by_id=mocked_raise_exception,
+        _creator='USER_PIP'
+    )
+    with pytest.raises(
+        ValueError,
+        match=r"Trying to schedule your job resulted in\nACCOUNT_SUBSCRIPTION_INSUFFICIENT\nYour current plan allow for 1000000 samples but you tried to use 2000000 samples, please contact sales at sales@lightly.ai to upgrade your account.\nPlease fix the issue mentioned above and see our docs https://docs.lightly.ai/docs/all-configuration-options for more help.",
+    ):
+        r = ApiWorkflowClient.create_compute_worker_config(
+            self=mocked_api_client,
+            selection_config={
+                "n_samples": 2000000,
+                "strategies": [
+                    {
+                        "input": {
+                            "type": "EMBEDDINGS"
+                        },
+                        "strategy": {
+                            "type": "DIVERSITY"
+                        }
+                    }
+                ]
+            },
+        )
 
 def test_get_compute_worker_state_and_message_CANCELED() -> None:
     def mocked_raise_exception(*args, **kwargs):
