@@ -462,6 +462,7 @@ def test_schedule_compute_worker_run_api_error() -> None:
                 '{"code": "ACCOUNT_SUBSCRIPTION_INSUFFICIENT", "error": "Your current plan allows for 1000000 samples but you tried to use 2000000 samples, please contact sales at sales@lightly.ai to upgrade your account."}',
             )
         )
+
     client = ApiWorkflowClient(token="123")
     client._dataset_id = generate_id()
     client._compute_worker_api.create_docker_worker_config_v3 = mocked_raise_exception
