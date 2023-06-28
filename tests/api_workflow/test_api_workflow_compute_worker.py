@@ -352,6 +352,17 @@ def test_selection_config_from_dict__extra_strategy_strategy_key() -> None:
         api_workflow_compute_worker.selection_config_from_dict(cfg)
 
 
+def test_selection_config_from_dict__multiple_references() -> None:
+    """Test that conversion is successful if the dictionary contains multiple references
+    to the same object.
+    """
+    strategy = {"input": {"type": "EMBEDDINGS"}, "strategy": {"type": "DIVERSITY"}}
+    cfg = {"strategies": [strategy, strategy]}
+    selection_cfg = api_workflow_compute_worker.selection_config_from_dict(cfg)
+    assert len(selection_cfg.strategies) == 2
+    assert selection_cfg.strategies[0] == selection_cfg.strategies[1]
+
+
 def test_get_scheduled_run_by_id() -> None:
     run_ids = [generate_id() for _ in range(3)]
     scheduled_runs = [
