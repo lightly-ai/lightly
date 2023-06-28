@@ -255,7 +255,7 @@ class _ComputeWorkerMixin:
             if str(e.status)[0] == "4" and eb_code is not None and eb_error is not None:
                 raise ValueError(
                     f"Trying to schedule your job resulted in\n"
-                    f">> {eb_code}\n>> {eb_error}\n"
+                    f">> {eb_code}\n>> {json.dumps(eb_error, indent=4)}\n"
                     f">> Please fix the issue mentioned above and see our docs "
                     f"https://docs.lightly.ai/docs/all-configuration-options for more help."
                 ) from None

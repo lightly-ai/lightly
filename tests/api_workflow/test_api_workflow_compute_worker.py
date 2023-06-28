@@ -473,7 +473,7 @@ def test_schedule_compute_worker_run_api_error() -> None:
     )
     with pytest.raises(
         ValueError,
-        match=r"Trying to schedule your job resulted in\n>> ACCOUNT_SUBSCRIPTION_INSUFFICIENT\n>> Your current plan allow for 1000000 samples but you tried to use 2000000 samples, please contact sales at sales@lightly.ai to upgrade your account.\n>> Please fix the issue mentioned above and see our docs https://docs.lightly.ai/docs/all-configuration-options for more help.",
+        match=r'Trying to schedule your job resulted in\n>> ACCOUNT_SUBSCRIPTION_INSUFFICIENT\n>> "Your current plan allow for 1000000 samples but you tried to use 2000000 samples, please contact sales at sales@lightly.ai to upgrade your account."\n>> Please fix the issue mentioned above and see our docs https://docs.lightly.ai/docs/all-configuration-options for more help.',
     ):
         r = ApiWorkflowClient.create_compute_worker_config(
             self=mocked_api_client,
