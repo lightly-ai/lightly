@@ -459,7 +459,7 @@ def test_schedule_compute_worker_run_api_error() -> None:
             http_resp=HttpThing(
                 403,
                 "Not everything has a reason",
-                '{"code": "ACCOUNT_SUBSCRIPTION_INSUFFICIENT", "error": "Your current plan allow for 1000000 samples but you tried to use 2000000 samples, please contact sales at sales@lightly.ai to upgrade your account."}',
+                '{"code": "ACCOUNT_SUBSCRIPTION_INSUFFICIENT", "error": "Your current plan allows for 1000000 samples but you tried to use 2000000 samples, please contact sales at sales@lightly.ai to upgrade your account."}',
             )
         )
 
