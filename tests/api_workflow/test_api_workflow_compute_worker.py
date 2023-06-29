@@ -504,7 +504,7 @@ def test_create_docker_worker_config_v3_5xx_api_error() -> None:
     client._compute_worker_api.create_docker_worker_config_v3 = mocked_raise_exception
     with pytest.raises(
         ApiException,
-        match=r'Server pains',
+        match=r"Server pains",
     ):
         r = client.create_compute_worker_config(
             selection_config={
@@ -514,6 +514,7 @@ def test_create_docker_worker_config_v3_5xx_api_error() -> None:
                 ],
             },
         )
+
 
 def test_create_docker_worker_config_v3_no_body_api_error() -> None:
     def mocked_raise_exception(*args, **kwargs):
@@ -533,6 +534,7 @@ def test_create_docker_worker_config_v3_no_body_api_error() -> None:
                 ],
             },
         )
+
 
 def test_get_compute_worker_state_and_message_CANCELED() -> None:
     def mocked_raise_exception(*args, **kwargs):
