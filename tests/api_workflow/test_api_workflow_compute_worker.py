@@ -444,7 +444,7 @@ def test_get_compute_worker_state_and_message_OPEN() -> None:
     assert run_info.in_end_state() == False
 
 
-def test_schedule_compute_worker_run_api_error() -> None:
+def test_create_docker_worker_config_v3_api_error() -> None:
     class HttpThing:
         def __init__(self, status, reason, data):
             self.status = status
@@ -473,6 +473,36 @@ def test_schedule_compute_worker_run_api_error() -> None:
         r = client.create_compute_worker_config(
             selection_config={
                 "n_samples": 2000000,
+                "strategies": [
+                    {"input": {"type": "EMBEDDINGS"}, "strategy": {"type": "DIVERSITY"}}
+                ],
+            },
+        )
+
+
+def test_create_docker_worker_config_v3_nonapi_error() -> None:
+    class HttpThing:
+        def __init__(self, status, reason, data):
+            self.status = status
+            self.reason = reason
+            self.data = data
+
+        def getheaders(self):
+            return []
+
+    def mocked_raise_exception(*args, **kwargs):
+        raise OSError("something else")
+
+    client = ApiWorkflowClient(token="123")
+    client._dataset_id = generate_id()
+    client._compute_worker_api.create_docker_worker_config_v3 = mocked_raise_exception
+    with pytest.raises(
+        OSError,
+        match=r"something else",
+    ):
+        r = client.create_compute_worker_config(
+            selection_config={
+                "n_samples": 20,
                 "strategies": [
                     {"input": {"type": "EMBEDDINGS"}, "strategy": {"type": "DIVERSITY"}}
                 ],
