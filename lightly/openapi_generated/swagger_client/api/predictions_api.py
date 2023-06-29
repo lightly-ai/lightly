@@ -27,6 +27,7 @@ from typing import List, Optional
 from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
 from lightly.openapi_generated.swagger_client.models.prediction_singleton import PredictionSingleton
 from lightly.openapi_generated.swagger_client.models.prediction_task_schema import PredictionTaskSchema
+from lightly.openapi_generated.swagger_client.models.prediction_task_schemas import PredictionTaskSchemas
 
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.api_response import ApiResponse
@@ -718,7 +719,7 @@ class PredictionsApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_prediction_task_schemas_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> List[PredictionTaskSchema]:  # noqa: E501
+    def get_prediction_task_schemas_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> PredictionTaskSchemas:  # noqa: E501
         """get_prediction_task_schemas_by_dataset_id  # noqa: E501
 
         Get list of all the prediction task schemas for a datasetId at a specific predictionUUIDTimestamp. If no predictionUUIDTimestamp is set, it defaults to the newest  # noqa: E501
@@ -741,7 +742,7 @@ class PredictionsApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: List[PredictionTaskSchema]
+        :rtype: PredictionTaskSchemas
         """
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
@@ -785,7 +786,7 @@ class PredictionsApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: tuple(List[PredictionTaskSchema], status_code(int), headers(HTTPHeaderDict))
+        :rtype: tuple(PredictionTaskSchemas, status_code(int), headers(HTTPHeaderDict))
         """
 
         _params = locals()
@@ -847,7 +848,7 @@ class PredictionsApi(object):
         _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {
-            '200': "List[PredictionTaskSchema]",
+            '200': "PredictionTaskSchemas",
             '400': "ApiErrorResponse",
             '401': "ApiErrorResponse",
             '403': "ApiErrorResponse",
