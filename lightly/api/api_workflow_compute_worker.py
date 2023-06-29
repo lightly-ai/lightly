@@ -1,6 +1,7 @@
 import copy
 import dataclasses
 import difflib
+import json
 import time
 from functools import partial
 from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
@@ -244,8 +245,24 @@ class _ComputeWorkerMixin:
         request = DockerWorkerConfigV3CreateRequest(
             config=config, creator=self._creator
         )
-        response = self._compute_worker_api.create_docker_worker_config_v3(request)
-        return response.id
+        try:
+            response = self._compute_worker_api.create_docker_worker_config_v3(request)
+            return response.id
+        except ApiException as e:
+            if e.body is None:
+                raise e
+            eb = json.loads(e.body)
+            eb_code = eb.get("code")
+            eb_error = eb.get("error")
+            if str(e.status)[0] == "4" and eb_code is not None and eb_error is not None:
+                raise ValueError(
+                    f"Trying to schedule your job resulted in\n"
+                    f">> {eb_code}\n>> {json.dumps(eb_error, indent=4)}\n"
+                    f">> Please fix the issue mentioned above and see our docs "
+                    f"https://docs.lightly.ai/docs/all-configuration-options for more help."
+                ) from e
+            else:
+                raise e
 
     def schedule_compute_worker_run(
         self,
