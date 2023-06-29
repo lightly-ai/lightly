@@ -20,9 +20,8 @@ import json
 import lightly.openapi_generated.swagger_client.models
 
 
-from typing import Optional
+
 from pydantic import Extra,  BaseModel, Field, StrictStr, constr, validator
-from lightly.openapi_generated.swagger_client.models.task_type import TaskType
 
 class PredictionTaskSchemaBase(BaseModel):
     """
@@ -30,8 +29,7 @@ class PredictionTaskSchemaBase(BaseModel):
     """
     name: constr(strict=True, min_length=1) = Field(..., description="A name which is safe to have as a file/folder name in a file system")
     type: StrictStr = Field(..., description="This is the TaskType. Due to openapi.oneOf fuckery with discriminators, this needs to be a string")
-    type: Optional[TaskType] = Field(None, alias="$type")
-    __properties = ["name", "type", "$type"]
+    __properties = ["name", "type"]
 
     @validator('name')
     def name_validate_regular_expression(cls, value):

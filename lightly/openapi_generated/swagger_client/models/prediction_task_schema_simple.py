@@ -29,7 +29,7 @@ class PredictionTaskSchemaSimple(PredictionTaskSchemaBase):
     PredictionTaskSchemaSimple
     """
     categories: conlist(PredictionTaskSchemaCategory) = Field(..., description="An array of the categories that exist for this prediction task. The id needs to be unique")
-    __properties = ["name", "type", "$type", "categories"]
+    __properties = ["name", "type", "categories"]
 
     class Config:
         """Pydantic configuration"""
@@ -83,7 +83,6 @@ class PredictionTaskSchemaSimple(PredictionTaskSchemaBase):
         _obj = PredictionTaskSchemaSimple.parse_obj({
             "name": obj.get("name"),
             "type": obj.get("type"),
-            "type": obj.get("$type"),
             "categories": [PredictionTaskSchemaCategory.from_dict(_item) for _item in obj.get("categories")] if obj.get("categories") is not None else None
         })
         return _obj
