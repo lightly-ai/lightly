@@ -111,6 +111,9 @@ environment_variable_names:
 # seed
 seed: 1
 
+# use datapool
+use_datapool: True
+
 ### hydra
 # The arguments below are built-ins from the hydra-core Python package.
 hydra:
