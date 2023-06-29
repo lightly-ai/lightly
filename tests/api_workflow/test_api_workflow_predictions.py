@@ -15,13 +15,15 @@ def test_create_or_update_prediction_task_schema() -> None:
     mocked_client.dataset_id = "some_dataset_id"
     mocked_client._predictions_api = MagicMock(spec_set=PredictionsApi)
 
-    schema = PredictionTaskSchema(
-        name="my-object-detection",
-        type=TaskType.OBJECT_DETECTION,
-        categories=[
-            PredictionTaskSchemaCategory(id=0, name="dog"),
-            PredictionTaskSchemaCategory(id=1, name="cat"),
-        ],
+    schema = PredictionTaskSchema.from_dict(
+        {
+            "name": "my-object-detection",
+            "type": TaskType.OBJECT_DETECTION,
+            "categories": [
+                PredictionTaskSchemaCategory(id=0, name="dog").to_dict(),
+                PredictionTaskSchemaCategory(id=1, name="cat").to_dict(),
+            ],
+        }
     )
     timestamp = 1234
     ApiWorkflowClient.create_or_update_prediction_task_schema(
