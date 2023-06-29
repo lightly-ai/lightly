@@ -480,7 +480,7 @@ def test_create_docker_worker_config_v3_api_error() -> None:
         )
 
 
-def test_create_docker_worker_config_v3_nonapi_error() -> None:
+def test_create_docker_worker_config_v3_5xx_api_error() -> None:
     class HttpThing:
         def __init__(self, status, reason, data):
             self.status = status
@@ -491,14 +491,20 @@ def test_create_docker_worker_config_v3_nonapi_error() -> None:
             return []
 
     def mocked_raise_exception(*args, **kwargs):
-        raise OSError("something else")
+        raise ApiException(
+            http_resp=HttpThing(
+                502,
+                "Not everything has a reason",
+                '{"code": "SOMETHING_BAD", "error": "Server pains"}',
+            )
+        )
 
     client = ApiWorkflowClient(token="123")
     client._dataset_id = generate_id()
     client._compute_worker_api.create_docker_worker_config_v3 = mocked_raise_exception
     with pytest.raises(
-        OSError,
-        match=r"something else",
+        ApiException,
+        match=r'Server pains',
     ):
         r = client.create_compute_worker_config(
             selection_config={
@@ -509,6 +515,24 @@ def test_create_docker_worker_config_v3_nonapi_error() -> None:
             },
         )
 
+def test_create_docker_worker_config_v3_no_body_api_error() -> None:
+    def mocked_raise_exception(*args, **kwargs):
+        raise ApiException
+
+    client = ApiWorkflowClient(token="123")
+    client._dataset_id = generate_id()
+    client._compute_worker_api.create_docker_worker_config_v3 = mocked_raise_exception
+    with pytest.raises(
+        ApiException,
+    ):
+        r = client.create_compute_worker_config(
+            selection_config={
+                "n_samples": 20,
+                "strategies": [
+                    {"input": {"type": "EMBEDDINGS"}, "strategy": {"type": "DIVERSITY"}}
+                ],
+            },
+        )
 
 def test_get_compute_worker_state_and_message_CANCELED() -> None:
     def mocked_raise_exception(*args, **kwargs):
