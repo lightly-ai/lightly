@@ -455,6 +455,98 @@ def test_get_compute_worker_state_and_message_OPEN() -> None:
     assert run_info.in_end_state() == False
 
 
+def test_create_docker_worker_config_v3_api_error() -> None:
+    class HttpThing:
+        def __init__(self, status, reason, data):
+            self.status = status
+            self.reason = reason
+            self.data = data
+
+        def getheaders(self):
+            return []
+
+    def mocked_raise_exception(*args, **kwargs):
+        raise ApiException(
+            http_resp=HttpThing(
+                403,
+                "Not everything has a reason",
+                '{"code": "ACCOUNT_SUBSCRIPTION_INSUFFICIENT", "error": "Your current plan allows for 1000000 samples but you tried to use 2000000 samples, please contact sales at sales@lightly.ai to upgrade your account."}',
+            )
+        )
+
+    client = ApiWorkflowClient(token="123")
+    client._dataset_id = generate_id()
+    client._compute_worker_api.create_docker_worker_config_v3 = mocked_raise_exception
+    with pytest.raises(
+        ValueError,
+        match=r'Trying to schedule your job resulted in\n>> ACCOUNT_SUBSCRIPTION_INSUFFICIENT\n>> "Your current plan allows for 1000000 samples but you tried to use 2000000 samples, please contact sales at sales@lightly.ai to upgrade your account."\n>> Please fix the issue mentioned above and see our docs https://docs.lightly.ai/docs/all-configuration-options for more help.',
+    ):
+        r = client.create_compute_worker_config(
+            selection_config={
+                "n_samples": 2000000,
+                "strategies": [
+                    {"input": {"type": "EMBEDDINGS"}, "strategy": {"type": "DIVERSITY"}}
+                ],
+            },
+        )
+
+
+def test_create_docker_worker_config_v3_5xx_api_error() -> None:
+    class HttpThing:
+        def __init__(self, status, reason, data):
+            self.status = status
+            self.reason = reason
+            self.data = data
+
+        def getheaders(self):
+            return []
+
+    def mocked_raise_exception(*args, **kwargs):
+        raise ApiException(
+            http_resp=HttpThing(
+                502,
+                "Not everything has a reason",
+                '{"code": "SOMETHING_BAD", "error": "Server pains"}',
+            )
+        )
+
+    client = ApiWorkflowClient(token="123")
+    client._dataset_id = generate_id()
+    client._compute_worker_api.create_docker_worker_config_v3 = mocked_raise_exception
+    with pytest.raises(
+        ApiException,
+        match=r"Server pains",
+    ):
+        r = client.create_compute_worker_config(
+            selection_config={
+                "n_samples": 20,
+                "strategies": [
+                    {"input": {"type": "EMBEDDINGS"}, "strategy": {"type": "DIVERSITY"}}
+                ],
+            },
+        )
+
+
+def test_create_docker_worker_config_v3_no_body_api_error() -> None:
+    def mocked_raise_exception(*args, **kwargs):
+        raise ApiException
+
+    client = ApiWorkflowClient(token="123")
+    client._dataset_id = generate_id()
+    client._compute_worker_api.create_docker_worker_config_v3 = mocked_raise_exception
+    with pytest.raises(
+        ApiException,
+    ):
+        r = client.create_compute_worker_config(
+            selection_config={
+                "n_samples": 20,
+                "strategies": [
+                    {"input": {"type": "EMBEDDINGS"}, "strategy": {"type": "DIVERSITY"}}
+                ],
+            },
+        )
+
+
 def test_get_compute_worker_state_and_message_CANCELED() -> None:
     def mocked_raise_exception(*args, **kwargs):
         raise ApiException
