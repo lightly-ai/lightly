@@ -38,7 +38,7 @@ class BYOL(LightningModule):
 
     @torch.no_grad()
     def forward_teacher(self, x: Tensor) -> Tuple[Tensor, Tensor]:
-        features = self.forward(x).flatten(start_dim=1)
+        features = self(x).flatten(start_dim=1)
         projections = self.projection_head(features)
         return features, projections
 
@@ -102,7 +102,11 @@ class BYOL(LightningModule):
         # Don't use weight decay for batch norm, bias parameters, and classification
         # head to improve performance.
         params, params_no_weight_decay = get_weight_decay_parameters(
-            [self.backbone, self.projection_head]
+            [
+                self.student_backbone,
+                self.student_projection_head,
+                self.student_prediction_head,
+            ]
         )
         optimizer = LARS(
             [
