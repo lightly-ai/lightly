@@ -10,6 +10,7 @@ import linear_eval
 import simclr
 import swav
 import dcl
+import dclw
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import (
@@ -47,6 +48,7 @@ METHODS = {
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
     "swav": {"model": swav.SwAV, "transform": swav.transform},
     "dcl": {"model": dcl.DCL, "transform": simclr.transform},
+    "dclw": {"model": dclw.DCLW, "transform": simclr.transform},
 }
 
 
