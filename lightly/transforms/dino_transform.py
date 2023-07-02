@@ -19,7 +19,7 @@ class DINOTransform(MultiViewTransform):
         PIL Image or Tensor.
 
     Output of this transform:
-        List of Tensor of length 2 global + n_local_views. (8 by default)
+        List of Tensor of length 2x global + n_local_views. (8 by default)
 
     Applies the following augmentations by default:
         - Random resized crop
