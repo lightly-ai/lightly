@@ -7,6 +7,19 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 class MoCoV1Transform(SimCLRTransform):
     """Implements the transformations for MoCo v1.
 
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length 2.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - ImageNet normalization
+
     Attributes:
         input_size:
             Size of the input image in pixels.
@@ -97,6 +110,20 @@ class MoCoV2Transform(SimCLRTransform):
     """Implements the transformations for MoCo v2 [0].
 
     Identical to SimCLRTransform.
+
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of [tensor] of length 2.
+    
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - ImageNet normalization
 
     - [0]: MoCo v2, 2020, https://arxiv.org/abs/2003.04297
 

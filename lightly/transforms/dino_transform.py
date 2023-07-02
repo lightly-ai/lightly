@@ -15,6 +15,21 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 class DINOTransform(MultiViewTransform):
     """Implements the global and local view augmentations for DINO [0].
 
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length 2 global + n_local_views. (8 by default)
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - Random solarization
+        - ImageNet normalization
+
     This class generates two global and a user defined number of local views
     for each image in a batch. The code is adapted from [1].
 

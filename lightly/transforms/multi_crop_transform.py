@@ -8,6 +8,16 @@ from lightly.transforms.multi_view_transform import MultiViewTransform
 class MultiCropTranform(MultiViewTransform):
     """Implements the multi-crop transformations. Used by Swav.
 
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length crop_counts.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - transforms passed by constructor
+    
     Attributes:
         crop_sizes:
             Size of the input image in pixels for each crop category.
