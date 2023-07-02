@@ -16,7 +16,7 @@ class MSNTransform(MultiViewTransform):
         PIL Image or Tensor.
 
     Output of this transform:
-        List of Tensor of length 2 random_views + focal_views. (12 by default)
+        List of Tensor of length 2x random_views + focal_views. (12 by default)
 
     Applies the following augmentations by default:
         - Random resized crop

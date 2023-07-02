@@ -115,7 +115,7 @@ class MoCoV2Transform(SimCLRTransform):
         PIL Image or Tensor.
 
     Output of this transform:
-        List of [tensor] of length 2.
+        List of Tensor of length 2.
     
     Applies the following augmentations by default:
         - Random resized crop
