@@ -101,7 +101,7 @@ class _PredictionsMixin:
           >>> samples: List[SampleDataModes] = list(
           >>>     paginate_endpoint(
           >>>         client._samples_api.get_samples_partial_by_dataset_id,
-          >>>         page_size=25000, # as this information is rather small, we can request a lot of samples at once
+          >>>         page_size=25000,
           >>>         dataset_id=client.dataset_id,
           >>>         mode=SamplePartialMode.FILENAMES,
           >>>     )
