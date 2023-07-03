@@ -111,7 +111,6 @@ environment_variable_names:
 # seed
 seed: 1
 
-
 ### hydra
 # The arguments below are built-ins from the hydra-core Python package.
 hydra:
