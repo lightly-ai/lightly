@@ -83,11 +83,14 @@ class _PredictionsMixin:
         Example:
           >>> import time
           >>> from tqdm import tqdm
+          >>> from typing import List
           >>> from lightly.api import ApiWorkflowClient
+          >>> from lightly.api.utils import paginate_endpoint
           >>> from lightly.openapi_generated.swagger_client.models import (
           >>>     PredictionTaskSchema,
           >>>     TaskType,
           >>>     PredictionTaskSchemaCategory,
+          >>>     SampleDataModes,
           >>> )
           >>> from lightly.api.prediction_singletons import PredictionSingletonClassificationRepr
           >>>
@@ -95,7 +98,14 @@ class _PredictionsMixin:
           >>>     token="MY_LIGHTLY_TOKEN", dataset_id="MY_DATASET_ID"
           >>> )
           >>>
-          >>> samples = client._samples_api.get_samples_partial_by_dataset_id(dataset_id=client.dataset_id, mode=SamplePartialMode.FILENAMES)
+          >>> samples: List[SampleDataModes] = list(
+          >>>     paginate_endpoint(
+          >>>         client._samples_api.get_samples_partial_by_dataset_id,
+          >>>         page_size=25000, # as this information is rather small, we can request a lot of samples at once
+          >>>         dataset_id=client.dataset_id,
+          >>>         mode=SamplePartialMode.FILENAMES,
+          >>>     )
+          >>> )
           >>> sample_id_to_prediction_singletons_dummy = {
           >>>     sample.id: [PredictionSingletonClassificationRepr(taskName="my-task", categoryId=i%4, score=0.9, probabilities=[0.1, 0.2, 0.3, 0.4])]
           >>>     for i, sample in enumerate(samples)

@@ -6,8 +6,10 @@ import time
 from functools import partial
 from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 
-from lightly.api import utils
-from lightly.api.utils import retry
+from lightly.api.utils import (
+    retry,
+    paginate_endpoint,
+)
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.models import (
     CreateDockerWorkerRegistryEntryRequest,
@@ -346,12 +348,12 @@ class _ComputeWorkerMixin:
 
         """
         if dataset_id is not None:
-            return utils.paginate_endpoint(
+            return paginate_endpoint(
                 self._compute_worker_api.get_docker_runs_query_by_dataset_id,
                 dataset_id=dataset_id,
             )
         else:
-            return utils.paginate_endpoint(
+            return paginate_endpoint(
                 self._compute_worker_api.get_docker_runs,
             )
 

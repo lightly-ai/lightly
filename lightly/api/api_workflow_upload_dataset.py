@@ -5,7 +5,7 @@ import os
 import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
 from datetime import datetime
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import tqdm
 from lightly_utils import image_processing
@@ -14,6 +14,7 @@ from lightly.api.utils import (
     MAXIMUM_FILENAME_LENGTH,
     build_azure_signed_url_write_headers,
     check_filename,
+    paginate_endpoint,
     retry,
 )
 from lightly.openapi_generated.swagger_client.models import (
@@ -25,6 +26,7 @@ from lightly.openapi_generated.swagger_client.models import (
     SamplePartialMode,
     SampleWriteUrls,
     TagUpsizeRequest,
+    SampleDataModes,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
 from lightly.utils.hipify import bcolors
@@ -108,10 +110,13 @@ class _UploadDatasetMixin:
         )  # pylint: disable=protected-access
 
         # get the filenames of the samples already on the server
-        samples = retry(
-            self._samples_api.get_samples_partial_by_dataset_id,
-            dataset_id=self.dataset_id,
-            mode=SamplePartialMode.FILENAMES,
+        samples: List[SampleDataModes] = list(
+            paginate_endpoint(
+                self._samples_api.get_samples_partial_by_dataset_id,
+                page_size=25000, # as this information is rather small, we can request a lot of samples at once
+                dataset_id=self.dataset_id,
+                mode=SamplePartialMode.FILENAMES,
+            )
         )
         filenames_on_server = [sample.file_name for sample in samples]
         filenames_on_server_set = set(filenames_on_server)
