@@ -26,6 +26,7 @@ from lightly.api.utils import (
     DatasourceType,
     get_api_client_configuration,
     get_signed_url_destination,
+    paginate_endpoint,
 )
 from lightly.api.version_checking import (
     LightlyAPITimeoutException,
@@ -158,7 +159,11 @@ class ApiWorkflowClient(
         try:
             return self._dataset_id
         except AttributeError:
-            all_datasets: List[DatasetData] = self.get_datasets()
+            all_datasets: List[DatasetData] = list(
+                paginate_endpoint(
+                    self.get_datasets,
+                )
+            )
             datasets_sorted = sorted(
                 all_datasets, key=lambda dataset: dataset.last_modified_at
             )

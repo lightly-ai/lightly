@@ -1,9 +1,9 @@
 import warnings
 from itertools import chain
-from typing import Iterator, List, Optional, Set
+from typing import Iterator, List, Optional
 
 from lightly.api import utils
-from lightly.openapi_generated.swagger_client.models import (
+from lightly.openapi_generated.swagger_client import (
     CreateEntityResponse,
     DatasetCreateRequest,
     DatasetData,
@@ -52,20 +52,13 @@ class _DatasetsMixin:
     ) -> bool:
         """Checks if a dataset with the given name exists.
 
-        There can be multiple datasets with the same name accessible to the current
-        user. This can happen if either:
-        * A dataset has been explicitly shared with the user
-        * The user has access to team datasets
-        The `shared` flag controls whether these datasets are checked.
-
         Args:
             dataset_name:
                 Name of the dataset.
             shared:
-                * If False (default), checks only datasets owned by the user.
-                * If True, checks datasets which have been shared with the user,
-                including team datasets. Excludes user's own datasets.
-                * If None, checks all datasets the users has access to.
+                If False, considers only datasets owned by the user.
+                If True, considers only datasets which have been shared with the user.
+                If None, considers all datasets the users has access to. Defaults to False.
 
         Returns:
             A boolean value indicating whether any dataset with the given name exists.
@@ -108,25 +101,18 @@ class _DatasetsMixin:
         dataset_name: str,
         shared: Optional[bool] = False,
     ) -> List[DatasetData]:
-        """Fetches datasets by name.
-
-        There can be multiple datasets with the same name accessible to the current
-        user. This can happen if either:
-        * A dataset has been explicitly shared with the user
-        * The user has access to team datasets
-        The `shared` flag controls whether these datasets are returned.
+        """Fetches a dataset by name.
 
         Args:
             dataset_name:
                 Name of the target dataset.
             shared:
-                * If False (default), returns only datasets owned by the user. In this
-                case at most one dataset will be returned.
-                * If True, returns datasets which have been shared with the user,
-                including team datasets. Excludes user's own datasets. Can return
-                multiple datasets.
-                * If None, returns all datasets the users has access to. Can return
-                multiple datasets.
+                If False, returns only datasets owned by the user. In this case at most
+                one dataset will be returned.
+                If True, returns only datasets which have been shared with the user. Can
+                return multiple datasets.
+                If None, returns datasets the users has access to. Can return multiple
+                datasets. Defaults to False.
 
         Returns:
             A list of datasets that match the name. If no datasets with the name exist,
@@ -148,67 +134,47 @@ class _DatasetsMixin:
             >>> client.get_datasets_by_name(dataset_name="random-name")
             []
         """
-        datasets: List[DatasetData] = []
+        datasets = []
         if not shared or shared is None:
             datasets.extend(
-                self._datasets_api.get_datasets_query_by_name(
-                    dataset_name=dataset_name,
-                    exact=True,
-                    shared=False,
+                list(
+                    utils.paginate_endpoint(
+                        self._datasets_api.get_datasets_query_by_name,
+                        dataset_name=dataset_name,
+                        exact=True,
+                        shared=False,
+                    )
                 )
             )
         if shared or shared is None:
             datasets.extend(
-                self._datasets_api.get_datasets_query_by_name(
-                    dataset_name=dataset_name,
-                    exact=True,
-                    shared=True,
+                list(
+                    utils.paginate_endpoint(
+                        self._datasets_api.get_datasets_query_by_name,
+                        dataset_name=dataset_name,
+                        exact=True,
+                        shared=True,
+                    )
                 )
             )
-            datasets.extend(
-                self._datasets_api.get_datasets_query_by_name(
-                    dataset_name=dataset_name,
-                    exact=True,
-                    get_assets_of_team=True,
-                )
-            )
-
-        # De-duplicate datasets because results from shared=True and
-        # those from get_assets_of_team=True might overlap
-        dataset_ids: Set[str] = set()
-        filtered_datasets: List[DatasetData] = []
-        for dataset in datasets:
-            if dataset.id not in dataset_ids:
-                dataset_ids.add(dataset.id)
-                filtered_datasets.append(dataset)
-
-        return filtered_datasets
+        return datasets
 
     def get_datasets_iter(
         self, shared: Optional[bool] = False
     ) -> Iterator[DatasetData]:
         """Returns an iterator over all datasets owned by the current user.
 
-        There can be multiple datasets with the same name accessible to the current
-        user. This can happen if either:
-        * A dataset has been explicitly shared with the user
-        * The user has access to team datasets
-        The `shared` flag controls whether these datasets are returned.
-
         Args:
             shared:
-                * If False (default), returns only datasets owned by the user. In this
-                case at most one dataset will be returned.
-                * If True, returns datasets which have been shared with the user,
-                including team datasets. Excludes user's own datasets. Can return
-                multiple datasets.
-                * If None, returns all datasets the users has access to. Can return
-                multiple datasets.
+                If False, returns only datasets owned by the user.
+                If True, returns only the datasets which have been shared with the user.
+                If None, returns all datasets the user has access to (owned and shared).
+                Defaults to False.
 
         Returns:
             An iterator over datasets owned by the current user.
         """
-        dataset_iterable: Iterator[DatasetData] = (_ for _ in ())
+        dataset_iterable = []
         if not shared or shared is None:
             dataset_iterable = utils.paginate_endpoint(
                 self._datasets_api.get_datasets,
@@ -222,40 +188,17 @@ class _DatasetsMixin:
                     shared=True,
                 ),
             )
-            dataset_iterable = chain(
-                dataset_iterable,
-                utils.paginate_endpoint(
-                    self._datasets_api.get_datasets,
-                    get_assets_of_team=True,
-                ),
-            )
-
-        # De-duplicate datasets because results from shared=True and
-        # those from get_assets_of_team=True might overlap
-        dataset_ids: Set[str] = set()
-        for dataset in dataset_iterable:
-            if dataset.id not in dataset_ids:
-                dataset_ids.add(dataset.id)
-                yield dataset
+        return dataset_iterable
 
     def get_datasets(self, shared: Optional[bool] = False) -> List[DatasetData]:
         """Returns all datasets owned by the current user.
 
-        There can be multiple datasets with the same name accessible to the current
-        user. This can happen if either:
-        * A dataset has been explicitly shared with the user
-        * The user has access to team datasets
-        The `shared` flag controls whether these datasets are returned.
-
         Args:
             shared:
-                * If False (default), returns only datasets owned by the user. In this
-                case at most one dataset will be returned.
-                * If True, returns datasets which have been shared with the user,
-                including team datasets. Excludes user's own datasets. Can return
-                multiple datasets.
-                * If None, returns all datasets the users has access to. Can return
-                multiple datasets.
+                If False, returns only datasets owned by the user.
+                If True, returns only the datasets which have been shared with the user.
+                If None, returns all datasets the user has access to (owned and shared).
+                Defaults to False.
 
         Returns:
             A list of datasets owned by the current user.
@@ -293,24 +236,14 @@ class _DatasetsMixin:
     ) -> None:
         """Sets the dataset ID in the API client given the name of the desired dataset.
 
-        There can be multiple datasets with the same name accessible to the current
-        user. This can happen if either:
-        * A dataset has been explicitly shared with the user
-        * The user has access to team datasets
-        The `shared` flag controls whether these datasets are also checked. If multiple
-        datasets with the given name are found, the API client uses the ID of the first
-        dataset and prints a warning message.
-
         Args:
             dataset_name:
                 The name of the target dataset.
             shared:
-                * If False (default), checks only datasets owned by the user.
-                * If True, returns datasets which have been shared with the user,
-                including team datasets. Excludes user's own datasets. There can be
-                multiple candidate datasets.
-                * If None, returns all datasets the users has access to. There can be
-                multiple candidate datasets.
+                If False, considers only datasets owned by the user.
+                If True, considers only the datasets which have been shared with the user.
+                If None, consider all datasets the user has access to (owned and shared).
+                Defaults to False.
 
         Raises:
             ValueError:
@@ -365,7 +298,7 @@ class _DatasetsMixin:
 
         Examples:
             >>> from lightly.api import ApiWorkflowClient
-            >>> from lightly.openapi_generated.swagger_client.models import DatasetType
+            >>> from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
             >>>
             >>> client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
             >>> client.create_dataset('your-dataset-name', dataset_type=DatasetType.IMAGES)
@@ -410,9 +343,7 @@ class _DatasetsMixin:
         body = DatasetCreateRequest(
             name=dataset_name, type=dataset_type, creator=self._creator
         )
-        response: CreateEntityResponse = self._datasets_api.create_dataset(
-            dataset_create_request=body
-        )
+        response: CreateEntityResponse = self._datasets_api.create_dataset(body=body)
         self._dataset_id = response.id
 
     def create_new_dataset_with_unique_name(
@@ -457,10 +388,13 @@ class _DatasetsMixin:
                 dataset_type=dataset_type,
             )
         else:
-            existing_datasets = self._datasets_api.get_datasets_query_by_name(
-                dataset_name=dataset_basename,
-                exact=False,
-                shared=False,
+            existing_datasets: List[DatasetData] = list(
+                utils.paginate_endpoint(
+                    self._datasets_api.get_datasets_query_by_name,
+                    dataset_name=dataset_basename,
+                    exact=False,
+                    shared=False,
+                )
             )
             existing_dataset_names = {dataset.name for dataset in existing_datasets}
             counter = 1
