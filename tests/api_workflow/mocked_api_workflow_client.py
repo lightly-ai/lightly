@@ -622,12 +622,14 @@ class MockedDatasetsApi(DatasetsApi):
     def get_datasets_query_by_name(
         self,
         dataset_name: str,
+        page_size: Optional[int] = None,
+        page_offset: Optional[int] = None,
         shared: bool = False,
         exact: bool = False,
         get_assets_of_team: bool = False,
     ) -> List[DatasetData]:
         datasets = self.get_datasets(
-            shared=shared, get_assets_of_team=get_assets_of_team
+            shared=shared, get_assets_of_team=get_assets_of_team, page_size=page_size, page_offset=page_offset
         )
         if exact:
             return [dataset for dataset in datasets if dataset.name == dataset_name]
