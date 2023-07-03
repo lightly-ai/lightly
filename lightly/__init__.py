@@ -94,17 +94,6 @@ if __LIGHTLY_SETUP__:
     msg = f"Partial import of {__name__}=={__version__} during build process."
     print(msg)
 else:
-    # see if prefetch_generator is available
-    try:
-        import prefetch_generator
-    except ImportError:
-        _prefetch_generator_available = False
-    else:
-        _prefetch_generator_available = True
-
-    def _is_prefetch_generator_available():
-        return _prefetch_generator_available
-
     # see if torchvision vision transformer is available
     try:
         import torchvision.models.vision_transformer
