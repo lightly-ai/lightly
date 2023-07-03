@@ -248,10 +248,12 @@ class _ExportDatasetMixin:
             >>> client.export_filenames_by_tag_id("646b40d6c06aae1b91294a9e")
             'image-1.jpg\nimage-2.jpg\nimage-3.jpg'
         """
-        filenames = retry(
-            self._tags_api.export_tag_to_basic_filenames,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
+        filenames = list(
+            paginate_endpoint(
+                self._tags_api.export_tag_to_basic_filenames,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+            )
         )
         return filenames
 
@@ -314,23 +316,29 @@ class _ExportDatasetMixin:
             ]
 
         """
-        filenames_string = retry(
-            self._tags_api.export_tag_to_basic_filenames,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
-            file_name_format=FileNameFormat.NAME,
+        filenames_string = list(
+            paginate_endpoint(
+                self._tags_api.export_tag_to_basic_filenames,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+                file_name_format=FileNameFormat.NAME,
+            )
         )
-        read_urls_string = retry(
-            self._tags_api.export_tag_to_basic_filenames,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
-            file_name_format=FileNameFormat.REDIRECTED_READ_URL,
+        read_urls_string = list(
+            paginate_endpoint(
+                self._tags_api.export_tag_to_basic_filenames,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+                file_name_format=FileNameFormat.REDIRECTED_READ_URL,
+            )
         )
-        datasource_urls_string = retry(
-            self._tags_api.export_tag_to_basic_filenames,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
-            file_name_format=FileNameFormat.DATASOURCE_FULL,
+        datasource_urls_string = list(
+            paginate_endpoint(
+                self._tags_api.export_tag_to_basic_filenames,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+                file_name_format=FileNameFormat.DATASOURCE_FULL,
+            )
         )
         # The endpoint exportTagToBasicFilenames returns a plain string so we
         # have to split it by newlines in order to get the individual entries.
