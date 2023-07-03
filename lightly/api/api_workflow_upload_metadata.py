@@ -4,16 +4,13 @@ from typing import Any, Dict, List, Union
 from requests import Response
 from tqdm import tqdm
 
-from lightly.api.utils import (
-    retry,
-    paginate_endpoint,
-)
+from lightly.api.utils import paginate_endpoint, retry
 from lightly.openapi_generated.swagger_client.models import (
     ConfigurationEntry,
     ConfigurationSetRequest,
+    SampleDataModes,
     SamplePartialMode,
     SampleUpdateRequest,
-    SampleDataModes,
 )
 from lightly.utils.hipify import print_as_warning
 from lightly.utils.io import COCO_ANNOTATION_KEYS
@@ -162,7 +159,7 @@ class _UploadCustomMetadataMixin:
         samples: List[SampleDataModes] = list(
             paginate_endpoint(
                 self._samples_api.get_samples_partial_by_dataset_id,
-                page_size=25000, # as this information is rather small, we can request a lot of samples at once
+                page_size=25000,  # as this information is rather small, we can request a lot of samples at once
                 dataset_id=self.dataset_id,
                 mode=SamplePartialMode.FILENAMES,
             )

@@ -23,10 +23,10 @@ from lightly.openapi_generated.swagger_client.models import (
     JobStatusMeta,
     JobStatusUploadMethod,
     SampleCreateRequest,
+    SampleDataModes,
     SamplePartialMode,
     SampleWriteUrls,
     TagUpsizeRequest,
-    SampleDataModes,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
 from lightly.utils.hipify import bcolors
@@ -113,7 +113,7 @@ class _UploadDatasetMixin:
         samples: List[SampleDataModes] = list(
             paginate_endpoint(
                 self._samples_api.get_samples_partial_by_dataset_id,
-                page_size=25000, # as this information is rather small, we can request a lot of samples at once
+                page_size=25000,  # as this information is rather small, we can request a lot of samples at once
                 dataset_id=self.dataset_id,
                 mode=SamplePartialMode.FILENAMES,
             )

@@ -6,10 +6,7 @@ import time
 from functools import partial
 from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 
-from lightly.api.utils import (
-    retry,
-    paginate_endpoint,
-)
+from lightly.api.utils import paginate_endpoint, retry
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.models import (
     CreateDockerWorkerRegistryEntryRequest,
