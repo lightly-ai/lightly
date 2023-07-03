@@ -406,7 +406,10 @@ class MockedTagsApi(TagsApi):
         self, dataset_id: str, tag_id: str, **kwargs
     ) -> str:
         if kwargs["page_offset"] and kwargs["page_offset"] > 0:
-            return """"""
+            return """
+IMG_2288.jpg
+IMG_2299.jpg
+            """
         return """
 IMG_2276_jpeg_jpg.rf.7411b1902c81bad8cdefd2cc4eb3a97b.jpg
 IMG_2285_jpeg_jpg.rf.4a93d99b9f0b6cccfb27bf2f4a13b99e.jpg
@@ -629,7 +632,10 @@ class MockedDatasetsApi(DatasetsApi):
         get_assets_of_team: bool = False,
     ) -> List[DatasetData]:
         datasets = self.get_datasets(
-            shared=shared, get_assets_of_team=get_assets_of_team, page_size=page_size, page_offset=page_offset
+            shared=shared,
+            get_assets_of_team=get_assets_of_team,
+            page_size=page_size,
+            page_offset=page_offset,
         )
         if exact:
             return [dataset for dataset in datasets if dataset.name == dataset_name]

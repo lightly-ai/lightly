@@ -316,28 +316,34 @@ class _ExportDatasetMixin:
             ]
 
         """
-        filenames_string = list(
-            paginate_endpoint(
-                self._tags_api.export_tag_to_basic_filenames,
-                dataset_id=self.dataset_id,
-                tag_id=tag_id,
-                file_name_format=FileNameFormat.NAME,
+        filenames_string = "".join(
+            list(
+                paginate_endpoint(
+                    self._tags_api.export_tag_to_basic_filenames,
+                    dataset_id=self.dataset_id,
+                    tag_id=tag_id,
+                    file_name_format=FileNameFormat.NAME,
+                )
             )
         )
-        read_urls_string = list(
-            paginate_endpoint(
-                self._tags_api.export_tag_to_basic_filenames,
-                dataset_id=self.dataset_id,
-                tag_id=tag_id,
-                file_name_format=FileNameFormat.REDIRECTED_READ_URL,
+        read_urls_string = "".join(
+            list(
+                paginate_endpoint(
+                    self._tags_api.export_tag_to_basic_filenames,
+                    dataset_id=self.dataset_id,
+                    tag_id=tag_id,
+                    file_name_format=FileNameFormat.REDIRECTED_READ_URL,
+                )
             )
         )
-        datasource_urls_string = list(
-            paginate_endpoint(
-                self._tags_api.export_tag_to_basic_filenames,
-                dataset_id=self.dataset_id,
-                tag_id=tag_id,
-                file_name_format=FileNameFormat.DATASOURCE_FULL,
+        datasource_urls_string = "".join(
+            list(
+                paginate_endpoint(
+                    self._tags_api.export_tag_to_basic_filenames,
+                    dataset_id=self.dataset_id,
+                    tag_id=tag_id,
+                    file_name_format=FileNameFormat.DATASOURCE_FULL,
+                )
             )
         )
         # The endpoint exportTagToBasicFilenames returns a plain string so we
