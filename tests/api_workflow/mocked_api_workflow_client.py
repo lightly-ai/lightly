@@ -406,10 +406,7 @@ class MockedTagsApi(TagsApi):
         self, dataset_id: str, tag_id: str, **kwargs
     ) -> str:
         if kwargs["page_offset"] and kwargs["page_offset"] > 0:
-            return """
-IMG_2288.jpg
-IMG_2299.jpg
-            """
+            return ""
         return """
 IMG_2276_jpeg_jpg.rf.7411b1902c81bad8cdefd2cc4eb3a97b.jpg
 IMG_2285_jpeg_jpg.rf.4a93d99b9f0b6cccfb27bf2f4a13b99e.jpg
