@@ -106,7 +106,7 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
         ),
     ]
 
-    assert mocked_paginate_endpoint.call_count == 1
+    mocked_paginate_endpoint. assert_called_once_with(mocked_samples_api.get_samples_partial_by_dataset_id)
     # First call: get_samples_partial_by_dataset_id
     args_first_call = mocked_paginate_endpoint.call_args_list[0][0]
     assert (
