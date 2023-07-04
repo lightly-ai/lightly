@@ -70,6 +70,7 @@ def retry(func, *args, **kwargs):
 class Paginated(Iterator):
     def __init__(self, fn, page_size, *args, **kwargs):
         self.entries: List = []
+        self.last_chunk_size = page_size
         self.offset = 0
         self.fn = fn
         self.page_size = page_size
@@ -81,6 +82,9 @@ class Paginated(Iterator):
 
     def __next__(self):
         if len(self.entries) == 0:
+            # stop iteration if the last chunk was smaller than the page size
+            if (self.last_chunk_size < self.page_size):
+                raise StopIteration
             chunk = retry(
                 self.fn,
                 page_offset=self.offset * self.page_size,
@@ -91,6 +95,7 @@ class Paginated(Iterator):
             if len(chunk) == 0:
                 raise StopIteration
             self.offset += 1
+            self.last_chunk_size = len(chunk)
             self.entries.extend(chunk)
         return self.entries.pop(0)
 
