@@ -41,6 +41,14 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
     # retry should be called twice: once for get_samples_partial_by_dataset_id
     # and once for update_sample_by_id. get_samples_partial_by_dataset_id returns
     # only one valid sample file `file1`
+    mocked_paginate_endpoint = mocker.patch.object(
+        api_workflow_upload_metadata,
+        "paginate_endpoint",
+        side_effect=[
+            [SampleDataModes(id=generate_id(), file_name="file1")],
+            None,
+        ],
+    )
     mocked_retry = mocker.patch.object(
         api_workflow_upload_metadata,
         "retry",
@@ -98,15 +106,16 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
         ),
     ]
 
-    assert mocked_retry.call_count == 2
+    assert mocked_paginate_endpoint.call_count == 1
     # First call: get_samples_partial_by_dataset_id
-    args_first_call = mocked_retry.call_args_list[0][0]
+    args_first_call = mocked_paginate_endpoint.call_args_list[0][0]
     assert (
         # Check first positional argument
         args_first_call[0]
         == mocked_samples_api.get_samples_partial_by_dataset_id
     )
     # Second call: update_sample_by_id with the only valid sample
+    assert mocked_retry.call_count == 1
     args_second_call = mocked_retry.call_args_list[1][0]
     kwargs_second_call = mocked_retry.call_args_list[1][1]
     # Check first positional argument
