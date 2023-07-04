@@ -677,7 +677,7 @@ def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
             last_modified_at=0,
         ),
     ]
-    assert mock_compute_worker_api.get_docker_runs.call_count == 1
+    mock_compute_worker_api.get_docker_runs.assert_called_once()
 
 
 def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
