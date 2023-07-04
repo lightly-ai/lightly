@@ -22,7 +22,7 @@ def test_export_tag_to_basic_filenames_and_read_urls(mocker: MockerFixture) -> N
     dataset_id = generate_id()
     mocked_retry = mocker.patch.object(
         api_workflow_export,
-        "retry",
+        "paginate_endpoint",
         side_effect=[
             "file0\nfile1",
             "read_url0\nread_url1",
