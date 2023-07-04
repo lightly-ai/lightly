@@ -106,7 +106,9 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
         ),
     ]
 
-    mocked_paginate_endpoint. assert_called_once_with(mocked_samples_api.get_samples_partial_by_dataset_id)
+    mocked_paginate_endpoint.assert_called_once_with(
+        mocked_samples_api.get_samples_partial_by_dataset_id
+    )
     # First call: get_samples_partial_by_dataset_id
     args_first_call = mocked_paginate_endpoint.call_args_list[0][0]
     assert (
@@ -117,13 +119,7 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
     # Second call: update_sample_by_id with the only valid sample
     mocked_retry.assert_called_once_with(
         mocked_samples_api.update_sample_by_id,
-        sample_update_request=SampleUpdateRequest(custom_metadata={
-            COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id1"
-        })
-    # Check first positional argument
-    assert args_second_call[0] == mocked_samples_api.update_sample_by_id
-    # Check second positional argument
-    assert isinstance(kwargs_second_call["sample_update_request"], SampleUpdateRequest)
-    assert kwargs_second_call["sample_update_request"].custom_meta_data == {
-        COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id1"
-    }
+        sample_update_request=SampleUpdateRequest(
+            custom_metadata={COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id1"}
+        ),
+    )
