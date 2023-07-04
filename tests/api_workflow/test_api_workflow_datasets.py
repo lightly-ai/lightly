@@ -170,6 +170,8 @@ def test_create_new_dataset_with_unique_name__name_exists(
         dataset_name=dataset_name,
         exact=False,
         shared=False,
+        page_offset=0,
+        page_size=5000,
     )
     mocked_create_dataset.assert_called_once_with(
         dataset_name=actual_dataset_name,
