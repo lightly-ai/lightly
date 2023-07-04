@@ -42,11 +42,14 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
     # retry should be called twice: once for get_samples_partial_by_dataset_id
     # and once for update_sample_by_id. get_samples_partial_by_dataset_id returns
     # only one valid sample file `file1`
+
+    dummy_sample = SampleDataModes(id=generate_id(), file_name="file1")
+
     mocked_paginate_endpoint = mocker.patch.object(
         api_workflow_upload_metadata,
         "paginate_endpoint",
         side_effect=[
-            [SampleDataModes(id=generate_id(), file_name="file1")],
+            [dummy_sample],
             None,
         ],
     )
@@ -54,7 +57,7 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
         api_workflow_upload_metadata,
         "retry",
         side_effect=[
-            [SampleDataModes(id=generate_id(), file_name="file1")],
+            [dummy_sample],
             None,
         ],
     )
@@ -123,6 +126,8 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
     # Second call: update_sample_by_id with the only valid sample
     mocked_retry.assert_called_once_with(
         mocked_samples_api.update_sample_by_id,
+        dataset_id="dataset-id",
+        sample_id=dummy_sample.id,
         sample_update_request=SampleUpdateRequest(
             custom_meta_data={
                 COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id1"
