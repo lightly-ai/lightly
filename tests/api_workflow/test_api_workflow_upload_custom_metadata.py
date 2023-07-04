@@ -110,18 +110,12 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
         ),
     ]
 
+    # First call: get_samples_partial_by_dataset_id
     mocked_paginate_endpoint.assert_called_once_with(
         mocked_samples_api.get_samples_partial_by_dataset_id,
         dataset_id="dataset-id",
         mode=SamplePartialMode.FILENAMES,
         page_size=25000,
-    )
-    # First call: get_samples_partial_by_dataset_id
-    args_first_call = mocked_paginate_endpoint.call_args_list[0][0]
-    assert (
-        # Check first positional argument
-        args_first_call[0]
-        == mocked_samples_api.get_samples_partial_by_dataset_id
     )
     # Second call: update_sample_by_id with the only valid sample
     mocked_retry.assert_called_once_with(
