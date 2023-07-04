@@ -124,6 +124,8 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
     mocked_retry.assert_called_once_with(
         mocked_samples_api.update_sample_by_id,
         sample_update_request=SampleUpdateRequest(
-            custom_metadata={COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id1"}
+            custom_meta_data={
+                COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id1"
+            }
         ),
     )
