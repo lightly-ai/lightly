@@ -3,6 +3,7 @@ from pytest_mock import MockerFixture
 from lightly.api import ApiWorkflowClient, api_workflow_upload_metadata
 from lightly.openapi_generated.swagger_client.models import (
     SampleDataModes,
+    SamplePartialMode,
     SampleUpdateRequest,
 )
 from lightly.utils.io import COCO_ANNOTATION_KEYS
@@ -107,7 +108,10 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
     ]
 
     mocked_paginate_endpoint.assert_called_once_with(
-        mocked_samples_api.get_samples_partial_by_dataset_id
+        mocked_samples_api.get_samples_partial_by_dataset_id,
+        dataset_id="dataset-id",
+        mode=SamplePartialMode.FILENAMES,
+        page_size=25000,
     )
     # First call: get_samples_partial_by_dataset_id
     args_first_call = mocked_paginate_endpoint.call_args_list[0][0]
