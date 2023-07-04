@@ -83,7 +83,7 @@ class Paginated(Iterator):
     def __next__(self):
         if len(self.entries) == 0:
             # stop iteration if the last chunk was smaller than the page size
-            if (self.last_chunk_size < self.page_size):
+            if self.last_chunk_size < self.page_size:
                 raise StopIteration
             chunk = retry(
                 self.fn,
