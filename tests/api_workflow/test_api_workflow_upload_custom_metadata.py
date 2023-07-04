@@ -116,8 +116,8 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
     )
     # Second call: update_sample_by_id with the only valid sample
     assert mocked_retry.call_count == 1
-    args_second_call = mocked_retry.call_args_list[1][0]
-    kwargs_second_call = mocked_retry.call_args_list[1][1]
+    args_second_call = mocked_retry.call_args_list[0][0]
+    kwargs_second_call = mocked_retry.call_args_list[0][1]
     # Check first positional argument
     assert args_second_call[0] == mocked_samples_api.update_sample_by_id
     # Check second positional argument
