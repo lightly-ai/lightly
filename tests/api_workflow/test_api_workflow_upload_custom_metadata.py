@@ -115,9 +115,11 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
         == mocked_samples_api.get_samples_partial_by_dataset_id
     )
     # Second call: update_sample_by_id with the only valid sample
-    assert mocked_retry.call_count == 1
-    args_second_call = mocked_retry.call_args_list[0][0]
-    kwargs_second_call = mocked_retry.call_args_list[0][1]
+    mocked_retry.assert_called_once_with(
+        mocked_samples_api.update_sample_by_id,
+        sample_update_request=SampleUpdateRequest(custom_metadata={
+            COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id1"
+        })
     # Check first positional argument
     assert args_second_call[0] == mocked_samples_api.update_sample_by_id
     # Check second positional argument
