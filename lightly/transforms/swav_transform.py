@@ -17,7 +17,7 @@ class SwaVTransform(MultiCropTranform):
         PIL Image or Tensor.
 
     Output of this transform:
-        List of Tensor of length crop_counts. (8 by default)
+        List of Tensor of length sum(crop_counts). (8 by default)
 
     Applies the following augmentations by default:
         - Random resized crop
