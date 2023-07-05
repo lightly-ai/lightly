@@ -26,7 +26,6 @@ from lightly.api.utils import (
     DatasourceType,
     get_api_client_configuration,
     get_signed_url_destination,
-    paginate_endpoint,
 )
 from lightly.api.version_checking import (
     LightlyAPITimeoutException,
