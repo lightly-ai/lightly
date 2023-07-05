@@ -653,7 +653,6 @@ def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
                 last_modified_at=0,
             ),
         ],
-        [],
     ]
     client._compute_worker_api = mock_compute_worker_api
     runs = client.get_compute_worker_runs()
@@ -677,7 +676,9 @@ def test_get_compute_worker_runs(mocker: MockerFixture) -> None:
             last_modified_at=0,
         ),
     ]
-    mock_compute_worker_api.get_docker_runs.assert_called_once()
+    mock_compute_worker_api.get_docker_runs.assert_called_once_with(
+        page_offset=0, page_size=5000
+    )
 
 
 def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
@@ -716,7 +717,9 @@ def test_get_compute_worker_runs__dataset(mocker: MockerFixture) -> None:
             last_modified_at=0,
         ),
     ]
-    mock_compute_worker_api.get_docker_runs_query_by_dataset_id.assert_called_once()
+    mock_compute_worker_api.get_docker_runs_query_by_dataset_id.assert_called_once_with(
+        page_offset=0, page_size=5000, dataset_id=dataset_id
+    )
 
 
 def test_get_compute_worker_run_tags__no_tags(mocker: MockerFixture) -> None:
