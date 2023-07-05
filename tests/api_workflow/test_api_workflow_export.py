@@ -61,6 +61,32 @@ def test_export_tag_to_basic_filenames_and_read_urls(mocker: MockerFixture) -> N
     ]
 
 
+def test_export_filenames_by_tag_id(mocker: MockerFixture) -> None:
+    dataset_id = generate_id()
+    mocked_paginate = mocker.patch.object(
+        api_workflow_export,
+        "paginate_endpoint",
+        side_effect=[
+            # Simulate two pages.
+            iter(["file0\nfile1", "file2\nfile3"])
+        ],
+    )
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_api = mocker.MagicMock()
+
+    client = ApiWorkflowClient()
+    client._dataset_id = dataset_id
+    client._tags_api = mocked_api
+    data = client.export_filenames_by_tag_id(tag_id="tag_id")
+
+    assert data == "file0\nfile1\nfile2\nfile3"
+    mocked_paginate.assert_called_once_with(
+        mocked_api.export_tag_to_basic_filenames,
+        dataset_id=dataset_id,
+        tag_id="tag_id",
+    )
+
+
 def test_export_filenames_by_tag_name(mocker: MockerFixture) -> None:
     dataset_id = generate_id()
     tag_name = "some-tag"
