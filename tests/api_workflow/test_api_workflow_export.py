@@ -23,10 +23,7 @@ def test_export_filenames_by_tag_id(mocker: MockerFixture) -> None:
     mocked_paginate = mocker.patch.object(
         api_workflow_export,
         "paginate_endpoint",
-        side_effect=[
-            # Simulate two pages.
-            iter(["file0\nfile1"])
-        ],
+        side_effect=[iter(["file0\nfile1"])],
     )
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     mocked_api = mocker.MagicMock()
@@ -76,7 +73,6 @@ def test_export_filenames_and_read_urls_by_tag_id(mocker: MockerFixture) -> None
         api_workflow_export,
         "paginate_endpoint",
         side_effect=[
-            # Simulate two pages.
             iter(["file0\nfile1"]),
             iter(["read_url0\nread_url1"]),
             iter(["datasource_url0\ndatasource_url1"]),
