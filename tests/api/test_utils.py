@@ -96,7 +96,7 @@ class TestUtils(unittest.TestCase):
     def test_paginate_endpoint(self):
         def some_function(page_size=8, page_offset=0):
             if page_offset > 3 * page_size:
-                return []
+                assert False  # should not happen
             elif page_offset > 2 * page_size:
                 return (page_size - 1) * ["a"]
             else:
@@ -107,6 +107,21 @@ class TestUtils(unittest.TestCase):
         some_list = list(some_iterator)
         self.assertEqual((4 * page_size - 1) * ["a"], some_list)
         self.assertEqual(len(some_list), (4 * page_size - 1))
+
+    def test_paginate_endpoint__multiple_of_page_size(self):
+        def some_function(page_size=8, page_offset=0):
+            if page_offset > 3 * page_size:
+                return []
+            elif page_offset > 2 * page_size:
+                return page_size * ["a"]
+            else:
+                return page_size * ["a"]
+
+        page_size = 8
+        some_iterator = paginate_endpoint(some_function, page_size=page_size)
+        some_list = list(some_iterator)
+        self.assertEqual((4 * page_size) * ["a"], some_list)
+        self.assertEqual(len(some_list), (4 * page_size))
 
     def test_paginate_endpoint_empty(self):
         def some_function(page_size=8, page_offset=0):
