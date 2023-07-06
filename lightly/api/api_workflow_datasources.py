@@ -769,22 +769,24 @@ class _DatasourcesMixin:
         """Lists granted access permissions for the datasource set up with a dataset.
 
         Returns a string dictionary, with each permission mapped to a boolean value,
-        see the example below. Additionally, there is the ``errors`` key. Permission
-        errors are stored in a dictionary where permission names are keys and error
-        messages are values. If there is no error, the value is ``None``.
+        see the example below. An additional ``errors`` key is present if any permission
+        errors have been encountered. Permission errors are stored in a dictionary where
+        permission names are keys and error messages are values.
 
         >>> from lightly.api import ApiWorkflowClient
         >>> client = ApiWorkflowClient(
         ...    token="MY_LIGHTLY_TOKEN", dataset_id="MY_DATASET_ID"
         ... )
         >>> client.list_datasource_permissions()
-        {'can_list': True,
-         'can_overwrite': True,
-         'can_read': True,
-         'can_write': True,
-         'errors': None}
+        {
+            'can_read': True,
+            'can_write': True,
+            'can_list': False,
+            'can_overwrite': True,
+            'errors': {'can_list': 'error message'}
+        }
 
         """
         return self._datasources_api.verify_datasource_by_dataset_id(
             dataset_id=self.dataset_id,
-        )
+        ).to_dict()
