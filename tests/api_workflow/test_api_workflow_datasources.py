@@ -298,7 +298,7 @@ def test_update_processed_until_timestamp(mocker: MockerFixture) -> None:
 
 
 def test_list_datasource_permissions(mocker: MockerFixture) -> None:
-    client = ApiWorkflowClient()
+    client = ApiWorkflowClient(token="abc")
     client._dataset_id = "dataset-id"
     client._datasources_api.verify_datasource_by_dataset_id = mocker.MagicMock(
         return_value=DatasourceConfigVerifyData(
@@ -318,7 +318,7 @@ def test_list_datasource_permissions(mocker: MockerFixture) -> None:
 
 
 def test_list_datasource_permissions__error(mocker: MockerFixture) -> None:
-    client = ApiWorkflowClient()
+    client = ApiWorkflowClient(token="abc")
     client._dataset_id = "dataset-id"
     client._datasources_api.verify_datasource_by_dataset_id = mocker.MagicMock(
         return_value=DatasourceConfigVerifyData(
