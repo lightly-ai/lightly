@@ -7,29 +7,7 @@ from functools import partial
 from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 
 from lightly.api import utils
-from lightly.api.utils import retry
-from lightly.openapi_generated.swagger_client.api_client import ApiClient
-from lightly.openapi_generated.swagger_client.models import (
-    CreateDockerWorkerRegistryEntryRequest,
-    DockerRunData,
-    DockerRunScheduledCreateRequest,
-    DockerRunScheduledData,
-    DockerRunScheduledPriority,
-    DockerRunScheduledState,
-    DockerRunState,
-    DockerWorkerConfigV3,
-    DockerWorkerConfigV3CreateRequest,
-    DockerWorkerConfigV3Docker,
-    DockerWorkerConfigV3Lightly,
-    DockerWorkerRegistryEntryData,
-    DockerWorkerType,
-    SelectionConfig,
-    SelectionConfigEntry,
-    SelectionConfigEntryInput,
-    SelectionConfigEntryStrategy,
-    TagData,
-)
-from lightly.openapi_generated.swagger_client.rest import ApiException
+from lightly.openapi_generated.swagger_client import api_client, exceptions, models
 
 STATE_SCHEDULED_ID_NOT_FOUND = "CANCELED_OR_NOT_EXISTING"
 
@@ -50,17 +28,19 @@ class ComputeWorkerRunInfo:
     """
 
     state: Union[
-        DockerRunState, DockerRunScheduledState.OPEN, STATE_SCHEDULED_ID_NOT_FOUND
+        models.DockerRunState,
+        models.DockerRunScheduledState.OPEN,
+        STATE_SCHEDULED_ID_NOT_FOUND,
     ]
     message: str
 
     def in_end_state(self) -> bool:
         """Checks whether the Lightly Worker run has ended."""
         return self.state in [
-            DockerRunState.COMPLETED,
-            DockerRunState.ABORTED,
-            DockerRunState.FAILED,
-            DockerRunState.CRASHED,
+            models.DockerRunState.COMPLETED,
+            models.DockerRunState.ABORTED,
+            models.DockerRunState.FAILED,
+            models.DockerRunState.CRASHED,
             STATE_SCHEDULED_ID_NOT_FOUND,
         ]
 
@@ -77,7 +57,7 @@ class ComputeWorkerRunInfo:
         """
         if not self.in_end_state():
             raise ValueError("Lightly Worker run is still in progress.")
-        return self.state == DockerRunState.COMPLETED
+        return self.state == models.DockerRunState.COMPLETED
 
 
 class _ComputeWorkerMixin:
@@ -108,9 +88,9 @@ class _ComputeWorkerMixin:
         """
         if labels is None:
             labels = []
-        request = CreateDockerWorkerRegistryEntryRequest(
+        request = models.CreateDockerWorkerRegistryEntryRequest(
             name=name,
-            worker_type=DockerWorkerType.FULL,
+            worker_type=models.DockerWorkerType.FULL,
             labels=labels,
             creator=self._creator,
         )
@@ -132,7 +112,7 @@ class _ComputeWorkerMixin:
         entries = self._compute_worker_api.get_docker_worker_registry_entries()
         return [entry.id for entry in entries]
 
-    def get_compute_workers(self) -> List[DockerWorkerRegistryEntryData]:
+    def get_compute_workers(self) -> List[models.DockerWorkerRegistryEntryData]:
         """Fetches details of all registered Lightly Workers.
 
         Returns:
@@ -150,7 +130,7 @@ class _ComputeWorkerMixin:
             }]
         """
         entries: list[
-            DockerWorkerRegistryEntryData
+            models.DockerWorkerRegistryEntryData
         ] = self._compute_worker_api.get_docker_worker_registry_entries()
         return entries
 
@@ -176,7 +156,9 @@ class _ComputeWorkerMixin:
         self,
         worker_config: Optional[Dict[str, Any]] = None,
         lightly_config: Optional[Dict[str, Any]] = None,
-        selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
+        selection_config: Optional[
+            Union[Dict[str, Any], models.SelectionConfig]
+        ] = None,
     ) -> str:
         """Creates a new configuration for a Lightly Worker run.
 
@@ -218,7 +200,7 @@ class _ComputeWorkerMixin:
             worker_config_cc = _config_to_camel_case(cfg=worker_config)
             deserialize_worker_config = _get_deserialize(
                 api_client=self.api_client,
-                klass=DockerWorkerConfigV3Docker,
+                klass=models.DockerWorkerConfigV3Docker,
             )
             docker = deserialize_worker_config(worker_config_cc)
             _validate_config(cfg=worker_config, obj=docker)
@@ -229,26 +211,26 @@ class _ComputeWorkerMixin:
             lightly_config_cc = _config_to_camel_case(cfg=lightly_config)
             deserialize_lightly_config = _get_deserialize(
                 api_client=self.api_client,
-                klass=DockerWorkerConfigV3Lightly,
+                klass=models.DockerWorkerConfigV3Lightly,
             )
             lightly = deserialize_lightly_config(lightly_config_cc)
             _validate_config(cfg=lightly_config, obj=lightly)
         else:
             lightly = None
 
-        config = DockerWorkerConfigV3(
-            worker_type=DockerWorkerType.FULL,
+        config = models.DockerWorkerConfigV3(
+            worker_type=models.DockerWorkerType.FULL,
             docker=docker,
             lightly=lightly,
             selection=selection,
         )
-        request = DockerWorkerConfigV3CreateRequest(
+        request = models.DockerWorkerConfigV3CreateRequest(
             config=config, creator=self._creator
         )
         try:
             response = self._compute_worker_api.create_docker_worker_config_v3(request)
             return response.id
-        except ApiException as e:
+        except exceptions.ApiException as e:
             if e.body is None:
                 raise e
             eb = json.loads(e.body)
@@ -268,8 +250,10 @@ class _ComputeWorkerMixin:
         self,
         worker_config: Optional[Dict[str, Any]] = None,
         lightly_config: Optional[Dict[str, Any]] = None,
-        selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
-        priority: str = DockerRunScheduledPriority.MID,
+        selection_config: Optional[
+            Union[Dict[str, Any], models.SelectionConfig]
+        ] = None,
+        priority: str = models.DockerRunScheduledPriority.MID,
         runs_on: Optional[List[str]] = None,
     ) -> str:
         """Schedules a run with the given configurations.
@@ -318,7 +302,7 @@ class _ComputeWorkerMixin:
             lightly_config=lightly_config,
             selection_config=selection_config,
         )
-        request = DockerRunScheduledCreateRequest(
+        request = models.DockerRunScheduledCreateRequest(
             config_id=config_id,
             priority=priority,
             runs_on=runs_on,
@@ -333,7 +317,7 @@ class _ComputeWorkerMixin:
     def get_compute_worker_runs_iter(
         self,
         dataset_id: Optional[str] = None,
-    ) -> Iterator[DockerRunData]:
+    ) -> Iterator[models.DockerRunData]:
         """Returns an iterator over all Lightly Worker runs for the user.
 
         Args:
@@ -358,7 +342,7 @@ class _ComputeWorkerMixin:
     def get_compute_worker_runs(
         self,
         dataset_id: Optional[str] = None,
-    ) -> List[DockerRunData]:
+    ) -> List[models.DockerRunData]:
         """Fetches all Lightly Worker runs for the user.
 
         Args:
@@ -380,11 +364,13 @@ class _ComputeWorkerMixin:
              ...
              }]
         """
-        runs: List[DockerRunData] = list(self.get_compute_worker_runs_iter(dataset_id))
+        runs: List[models.DockerRunData] = list(
+            self.get_compute_worker_runs_iter(dataset_id)
+        )
         sorted_runs = sorted(runs, key=lambda run: run.created_at or -1)
         return sorted_runs
 
-    def get_compute_worker_run(self, run_id: str) -> DockerRunData:
+    def get_compute_worker_run(self, run_id: str) -> models.DockerRunData:
         """Fetches a Lightly Worker run.
 
         Args:
@@ -413,7 +399,7 @@ class _ComputeWorkerMixin:
     def get_compute_worker_run_from_scheduled_run(
         self,
         scheduled_run_id: str,
-    ) -> DockerRunData:
+    ) -> models.DockerRunData:
         """Fetches a Lightly Worker run given its scheduled run ID.
 
         Args:
@@ -445,7 +431,7 @@ class _ComputeWorkerMixin:
     def get_scheduled_compute_worker_runs(
         self,
         state: Optional[str] = None,
-    ) -> List[DockerRunScheduledData]:
+    ) -> List[models.DockerRunScheduledData]:
         """Returns a list of scheduled Lightly Worker runs with the current dataset.
 
         Args:
@@ -480,7 +466,9 @@ class _ComputeWorkerMixin:
             dataset_id=self.dataset_id,
         )
 
-    def _get_scheduled_run_by_id(self, scheduled_run_id: str) -> DockerRunScheduledData:
+    def _get_scheduled_run_by_id(
+        self, scheduled_run_id: str
+    ) -> models.DockerRunScheduledData:
         """Returns the schedule run data given the id of the scheduled run.
 
         TODO (MALTE, 09/2022): Have a proper API endpoint for doing this.
@@ -493,9 +481,9 @@ class _ComputeWorkerMixin:
 
         """
         try:
-            run: DockerRunScheduledData = next(
+            run: models.DockerRunScheduledData = next(
                 run
-                for run in retry(
+                for run in utils.retry(
                     lambda: self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
                         self.dataset_id
                     )
@@ -504,7 +492,7 @@ class _ComputeWorkerMixin:
             )
             return run
         except StopIteration:
-            raise ApiException(
+            raise exceptions.ApiException(
                 f"No scheduled run found for run with scheduled_run_id='{scheduled_run_id}'."
             )
 
@@ -533,7 +521,7 @@ class _ComputeWorkerMixin:
         """
         try:
             # Case 1: DockerRun exists.
-            docker_run: DockerRunData = (
+            docker_run: models.DockerRunData = (
                 self._compute_worker_api.get_docker_run_by_scheduled_id(
                     scheduled_id=scheduled_run_id
                 )
@@ -541,17 +529,17 @@ class _ComputeWorkerMixin:
             info = ComputeWorkerRunInfo(
                 state=docker_run.state, message=docker_run.message
             )
-        except ApiException:
+        except exceptions.ApiException:
             try:
                 # Case 2: DockerRun does NOT exist, but ScheduledRun exists.
                 _ = self._get_scheduled_run_by_id(scheduled_run_id)
                 info = ComputeWorkerRunInfo(
-                    state=DockerRunScheduledState.OPEN,
+                    state=models.DockerRunScheduledState.OPEN,
                     message="Waiting for pickup by Lightly Worker. "
                     "Make sure to start a Lightly Worker connected to your "
                     "user token to process the job.",
                 )
-            except ApiException:
+            except exceptions.ApiException:
                 # Case 3: NEITHER the DockerRun NOR the ScheduledRun exist.
                 info = ComputeWorkerRunInfo(
                     state=STATE_SCHEDULED_ID_NOT_FOUND,
@@ -604,7 +592,7 @@ class _ComputeWorkerMixin:
 
             last_run_info = run_info
 
-    def get_compute_worker_run_tags(self, run_id: str) -> List[TagData]:
+    def get_compute_worker_run_tags(self, run_id: str) -> List[models.TagData]:
         """Returns all tags from a run with the current dataset.
 
         Only returns tags for runs made with Lightly Worker version >=2.4.2.
@@ -633,24 +621,24 @@ class _ComputeWorkerMixin:
         return tags_in_dataset
 
 
-def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
+def selection_config_from_dict(cfg: Dict[str, Any]) -> models.SelectionConfig:
     """Recursively converts selection config from dict to a SelectionConfig instance."""
     strategies = []
     for entry in cfg.get("strategies", []):
         new_entry = copy.deepcopy(entry)
-        new_entry["input"] = SelectionConfigEntryInput(**entry["input"])
-        new_entry["strategy"] = SelectionConfigEntryStrategy(**entry["strategy"])
-        strategies.append(SelectionConfigEntry(**new_entry))
+        new_entry["input"] = models.SelectionConfigEntryInput(**entry["input"])
+        new_entry["strategy"] = models.SelectionConfigEntryStrategy(**entry["strategy"])
+        strategies.append(models.SelectionConfigEntry(**new_entry))
     new_cfg = copy.deepcopy(cfg)
     new_cfg["strategies"] = strategies
-    return SelectionConfig(**new_cfg)
+    return models.SelectionConfig(**new_cfg)
 
 
 _T = TypeVar("_T")
 
 
 def _get_deserialize(
-    api_client: ApiClient,
+    api_client: api_client.ApiClient,
     klass: Type[_T],
 ) -> Callable[[Dict[str, Any]], _T]:
     """Returns the deserializer of the ApiClient class for class klass.
