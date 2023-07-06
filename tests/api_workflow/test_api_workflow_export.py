@@ -79,7 +79,9 @@ def test_export_filenames_by_tag_name(mocker: MockerFixture) -> None:
 
 def test_export_label_box_data_rows_by_tag_id(mocker: MockerFixture) -> None:
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
-    mocked_paginate = mocker.patch.object(api_workflow_export.utils, "paginate_endpoint")
+    mocked_paginate = mocker.patch.object(
+        api_workflow_export.utils, "paginate_endpoint"
+    )
     mocked_api = mocker.MagicMock()
     mocked_warning = mocker.patch("warnings.warn")
 
@@ -125,7 +127,9 @@ def test_export_label_box_data_rows_by_tag_name(mocker: MockerFixture) -> None:
 
 def test_export_label_box_v4_data_rows_by_tag_id(mocker: MockerFixture) -> None:
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
-    mocked_paginate = mocker.patch.object(api_workflow_export.utils, "paginate_endpoint")
+    mocked_paginate = mocker.patch.object(
+        api_workflow_export.utils, "paginate_endpoint"
+    )
     mocked_api = mocker.MagicMock()
 
     client = ApiWorkflowClient()
