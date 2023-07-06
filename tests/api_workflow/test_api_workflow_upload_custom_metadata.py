@@ -50,7 +50,7 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
         ],
     )
     mocked_print_warning = mocker.patch.object(
-        api_workflow_upload_metadata, "print_as_warning"
+        api_workflow_upload_metadata.hipify, "print_as_warning"
     )
     mocked_executor = mocker.patch.object(
         api_workflow_upload_metadata, "ThreadPoolExecutor"
