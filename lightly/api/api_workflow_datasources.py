@@ -765,7 +765,7 @@ class _DatasourcesMixin:
 
     def list_datasource_permissions(
         self,
-    ) -> Dict[str, Union[bool, Optional[DatasourceConfigVerifyDataErrors]]]:
+    ) -> Dict[str, Union[bool, Dict[str, str]]]:
         """Lists granted access permissions for the datasource set up with a dataset.
 
         Returns a string dictionary, with each permission mapped to a boolean value,
