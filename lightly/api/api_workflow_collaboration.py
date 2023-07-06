@@ -1,10 +1,6 @@
 from typing import List
 
-from lightly.openapi_generated.swagger_client.models import (
-    SharedAccessConfigCreateRequest,
-    SharedAccessConfigData,
-    SharedAccessType,
-)
+from lightly.openapi_generated.swagger_client import models
 
 
 class _CollaborationMixin:
@@ -37,8 +33,10 @@ class _CollaborationMixin:
           >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
           >>> client.share_dataset_only_with(dataset_id="MY_DATASET_ID", user_emails=[])
         """
-        body = SharedAccessConfigCreateRequest(
-            access_type=SharedAccessType.WRITE, users=user_emails, creator=self._creator
+        body = models.SharedAccessConfigCreateRequest(
+            access_type=models.SharedAccessType.WRITE,
+            users=user_emails,
+            creator=self._creator,
         )
         self._collaboration_api.create_or_update_shared_access_config_by_dataset_id(
             shared_access_config_create_request=body, dataset_id=dataset_id
@@ -61,7 +59,7 @@ class _CollaborationMixin:
         """
 
         access_configs: List[
-            SharedAccessConfigData
+            models.SharedAccessConfigData
         ] = self._collaboration_api.get_shared_access_configs_by_dataset_id(
             dataset_id=dataset_id
         )
@@ -71,7 +69,7 @@ class _CollaborationMixin:
         # we use the same hard rule in the frontend to communicate with the API
         # as we currently only support WRITE access
         for access_config in access_configs:
-            if access_config.access_type == SharedAccessType.WRITE:
+            if access_config.access_type == models.SharedAccessType.WRITE:
                 user_emails.extend(access_config.users)
                 break
 

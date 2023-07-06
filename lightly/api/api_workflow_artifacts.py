@@ -1,11 +1,7 @@
 import os
 
 from lightly.api import download
-from lightly.openapi_generated.swagger_client.models import (
-    DockerRunArtifactData,
-    DockerRunArtifactType,
-    DockerRunData,
-)
+from lightly.openapi_generated.swagger_client import models
 
 
 class ArtifactNotExist(Exception):
@@ -15,7 +11,7 @@ class ArtifactNotExist(Exception):
 class _ArtifactsMixin:
     def download_compute_worker_run_artifacts(
         self,
-        run: DockerRunData,
+        run: models.DockerRunData,
         output_dir: str,
         timeout: int = 60,
     ) -> None:
@@ -54,7 +50,7 @@ class _ArtifactsMixin:
 
     def download_compute_worker_run_checkpoint(
         self,
-        run: DockerRunData,
+        run: models.DockerRunData,
         output_path: str,
         timeout: int = 60,
     ) -> None:
@@ -91,14 +87,14 @@ class _ArtifactsMixin:
         """
         self._download_compute_worker_run_artifact_by_type(
             run=run,
-            artifact_type=DockerRunArtifactType.CHECKPOINT,
+            artifact_type=models.DockerRunArtifactType.CHECKPOINT,
             output_path=output_path,
             timeout=timeout,
         )
 
     def download_compute_worker_run_report_pdf(
         self,
-        run: DockerRunData,
+        run: models.DockerRunData,
         output_path: str,
         timeout: int = 60,
     ) -> None:
@@ -132,14 +128,14 @@ class _ArtifactsMixin:
         """
         self._download_compute_worker_run_artifact_by_type(
             run=run,
-            artifact_type=DockerRunArtifactType.REPORT_PDF,
+            artifact_type=models.DockerRunArtifactType.REPORT_PDF,
             output_path=output_path,
             timeout=timeout,
         )
 
     def download_compute_worker_run_report_json(
         self,
-        run: DockerRunData,
+        run: models.DockerRunData,
         output_path: str,
         timeout: int = 60,
     ) -> None:
@@ -173,14 +169,14 @@ class _ArtifactsMixin:
         """
         self._download_compute_worker_run_artifact_by_type(
             run=run,
-            artifact_type=DockerRunArtifactType.REPORT_JSON,
+            artifact_type=models.DockerRunArtifactType.REPORT_JSON,
             output_path=output_path,
             timeout=timeout,
         )
 
     def download_compute_worker_run_log(
         self,
-        run: DockerRunData,
+        run: models.DockerRunData,
         output_path: str,
         timeout: int = 60,
     ) -> None:
@@ -214,14 +210,14 @@ class _ArtifactsMixin:
         """
         self._download_compute_worker_run_artifact_by_type(
             run=run,
-            artifact_type=DockerRunArtifactType.LOG,
+            artifact_type=models.DockerRunArtifactType.LOG,
             output_path=output_path,
             timeout=timeout,
         )
 
     def download_compute_worker_run_memory_log(
         self,
-        run: DockerRunData,
+        run: models.DockerRunData,
         output_path: str,
         timeout: int = 60,
     ) -> None:
@@ -255,14 +251,14 @@ class _ArtifactsMixin:
         """
         self._download_compute_worker_run_artifact_by_type(
             run=run,
-            artifact_type=DockerRunArtifactType.MEMLOG,
+            artifact_type=models.DockerRunArtifactType.MEMLOG,
             output_path=output_path,
             timeout=timeout,
         )
 
     def download_compute_worker_run_corruptness_check_information(
         self,
-        run: DockerRunData,
+        run: models.DockerRunData,
         output_path: str,
         timeout: int = 60,
     ) -> None:
@@ -302,14 +298,14 @@ class _ArtifactsMixin:
         """
         self._download_compute_worker_run_artifact_by_type(
             run=run,
-            artifact_type=DockerRunArtifactType.CORRUPTNESS_CHECK_INFORMATION,
+            artifact_type=models.DockerRunArtifactType.CORRUPTNESS_CHECK_INFORMATION,
             output_path=output_path,
             timeout=timeout,
         )
 
     def download_compute_worker_run_sequence_information(
         self,
-        run: DockerRunData,
+        run: models.DockerRunData,
         output_path: str,
         timeout: int = 60,
     ) -> None:
@@ -343,14 +339,14 @@ class _ArtifactsMixin:
         """
         self._download_compute_worker_run_artifact_by_type(
             run=run,
-            artifact_type=DockerRunArtifactType.SEQUENCE_INFORMATION,
+            artifact_type=models.DockerRunArtifactType.SEQUENCE_INFORMATION,
             output_path=output_path,
             timeout=timeout,
         )
 
     def _download_compute_worker_run_artifact_by_type(
         self,
-        run: DockerRunData,
+        run: models.DockerRunData,
         artifact_type: str,
         output_path: str,
         timeout: int,
@@ -364,8 +360,8 @@ class _ArtifactsMixin:
         )
 
     def _get_artifact_by_type(
-        self, artifact_type: str, run: DockerRunData
-    ) -> DockerRunArtifactData:
+        self, artifact_type: str, run: models.DockerRunData
+    ) -> models.DockerRunArtifactData:
         if run.artifacts is None:
             raise ArtifactNotExist(f"Run has no artifacts.")
         try:
@@ -395,7 +391,7 @@ class _ArtifactsMixin:
 
     def get_compute_worker_run_checkpoint_url(
         self,
-        run: DockerRunData,
+        run: models.DockerRunData,
     ) -> str:
         """Gets the download url of the last training checkpoint from a run.
 
@@ -428,7 +424,7 @@ class _ArtifactsMixin:
 
         """
         artifact = self._get_artifact_by_type(
-            artifact_type=DockerRunArtifactType.CHECKPOINT, run=run
+            artifact_type=models.DockerRunArtifactType.CHECKPOINT, run=run
         )
         read_url = self._compute_worker_api.get_docker_run_artifact_read_url_by_id(
             run_id=run.id, artifact_id=artifact.id

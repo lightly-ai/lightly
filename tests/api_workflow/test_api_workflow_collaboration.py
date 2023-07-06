@@ -1,26 +1,24 @@
-from tests.api_workflow.mocked_api_workflow_client import (
-    MockedApiWorkflowClient,
-    MockedApiWorkflowSetup,
-)
-from tests.api_workflow.utils import generate_id
+from tests.api_workflow import mocked_api_workflow_client, utils
 
 
-class TestApiWorkflowDatasets(MockedApiWorkflowSetup):
+class TestApiWorkflowDatasets(mocked_api_workflow_client.MockedApiWorkflowSetup):
     def setUp(self) -> None:
-        self.api_workflow_client = MockedApiWorkflowClient(token="token_xyz")
+        self.api_workflow_client = mocked_api_workflow_client.MockedApiWorkflowClient(
+            token="token_xyz"
+        )
 
     def test_share_empty_dataset(self):
         self.api_workflow_client.share_dataset_only_with(
-            dataset_id=generate_id(), user_emails=[]
+            dataset_id=utils.generate_id(), user_emails=[]
         )
 
     def test_share_dataset(self):
         self.api_workflow_client.share_dataset_only_with(
-            dataset_id=generate_id(), user_emails=["someone@something.com"]
+            dataset_id=utils.generate_id(), user_emails=["someone@something.com"]
         )
 
     def test_get_shared_users(self):
         user_emails = self.api_workflow_client.get_shared_users(
-            dataset_id=generate_id()
+            dataset_id=utils.generate_id()
         )
         assert user_emails == ["user1@gmail.com", "user2@something.com"]
