@@ -2,7 +2,7 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-from copy import deepcopy
+import copy
 from typing import List
 
 
@@ -175,7 +175,7 @@ class BitMask:
         self.x = self.x - other.x
 
     def __sub__(self, other):
-        ret = deepcopy(self)
+        ret = copy.deepcopy(self)
         ret.difference(other)
         return ret
 

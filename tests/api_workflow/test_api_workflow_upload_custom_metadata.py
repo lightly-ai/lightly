@@ -6,7 +6,7 @@ from lightly.openapi_generated.swagger_client.models import (
     SampleUpdateRequest,
 )
 from lightly.utils.io import COCO_ANNOTATION_KEYS
-from tests.api_workflow.utils import generate_id
+from tests.api_workflow import utils
 
 
 def test_index_custom_metadata_by_filename(mocker: MockerFixture) -> None:
@@ -45,12 +45,12 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
         api_workflow_upload_metadata,
         "retry",
         side_effect=[
-            [SampleDataModes(id=generate_id(), file_name="file1")],
+            [SampleDataModes(id=utils.generate_id(), file_name="file1")],
             None,
         ],
     )
     mocked_print_warning = mocker.patch.object(
-        api_workflow_upload_metadata, "print_as_warning"
+        api_workflow_upload_metadata.hipify, "print_as_warning"
     )
     mocked_executor = mocker.patch.object(
         api_workflow_upload_metadata, "ThreadPoolExecutor"

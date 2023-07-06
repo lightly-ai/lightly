@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 from lightly.api import ApiWorkflowClient
 from lightly.api.api_workflow_tags import TagDoesNotExistError
 from lightly.openapi_generated.swagger_client.models import TagCreator, TagData
-from tests.api_workflow.utils import generate_id
+from tests.api_workflow import utils
 
 
 def _get_tags(
@@ -14,7 +14,7 @@ def _get_tags(
 ) -> List[TagData]:
     return [
         TagData(
-            id=generate_id(),
+            id=utils.generate_id(),
             dataset_id=dataset_id,
             prev_tag_id=prev_tag_id,
             bit_mask_data="0x5",
@@ -27,7 +27,7 @@ def _get_tags(
 
 
 def test_create_tag_from_filenames(mocker: MockerFixture) -> None:
-    dataset_id = generate_id()
+    dataset_id = utils.generate_id()
     tags = _get_tags(dataset_id=dataset_id, tag_name="initial-tag")
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     mocker.patch.object(ApiWorkflowClient, "get_all_tags", return_value=tags)
@@ -51,7 +51,7 @@ def test_create_tag_from_filenames(mocker: MockerFixture) -> None:
 
 def test_create_tag_from_filenames__tag_exists(mocker: MockerFixture) -> None:
     tag_name = "some-tag"
-    tags = _get_tags(dataset_id=generate_id(), tag_name=tag_name)
+    tags = _get_tags(dataset_id=utils.generate_id(), tag_name=tag_name)
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     mocker.patch.object(ApiWorkflowClient, "get_all_tags", return_value=tags)
 
@@ -78,7 +78,7 @@ def test_create_tag_from_filenames__no_tags(mocker: MockerFixture) -> None:
 
 
 def test_create_tag_from_filenames__file_not_found(mocker: MockerFixture) -> None:
-    tags = _get_tags(dataset_id=generate_id(), tag_name="initial-tag")
+    tags = _get_tags(dataset_id=utils.generate_id(), tag_name="initial-tag")
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     mocker.patch.object(ApiWorkflowClient, "get_all_tags", return_value=tags)
     mocked_get_filenames = mocker.patch.object(
@@ -101,7 +101,7 @@ def test_create_tag_from_filenames__file_not_found(mocker: MockerFixture) -> Non
 
 
 def test_get_filenames_in_tag(mocker: MockerFixture) -> None:
-    tag = _get_tags(dataset_id=generate_id())[0]
+    tag = _get_tags(dataset_id=utils.generate_id())[0]
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     mocked_get_filenames = mocker.patch.object(
         ApiWorkflowClient, "get_filenames", return_value=[f"file{i}" for i in range(3)]
@@ -115,7 +115,7 @@ def test_get_filenames_in_tag(mocker: MockerFixture) -> None:
 
 
 def test_get_filenames_in_tag__filenames_given(mocker: MockerFixture) -> None:
-    tag = _get_tags(dataset_id=generate_id())[0]
+    tag = _get_tags(dataset_id=utils.generate_id())[0]
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     mocked_get_filenames = mocker.patch.object(ApiWorkflowClient, "get_filenames")
 
@@ -129,8 +129,8 @@ def test_get_filenames_in_tag__filenames_given(mocker: MockerFixture) -> None:
 
 
 def test_get_filenames_in_tag__exclude_parent_tag(mocker: MockerFixture) -> None:
-    prev_tag_id = generate_id()
-    dataset_id = generate_id()
+    prev_tag_id = utils.generate_id()
+    dataset_id = utils.generate_id()
     tag = _get_tags(dataset_id=dataset_id, prev_tag_id=prev_tag_id)[0]
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     mocked_get_filenames = mocker.patch.object(
@@ -180,7 +180,7 @@ def test_get_tag_by_id(mocker: MockerFixture) -> None:
 
 def test_get_tag_name(mocker: MockerFixture) -> None:
     tag_name = "some-tag"
-    tags = _get_tags(dataset_id=generate_id(), tag_name=tag_name)
+    tags = _get_tags(dataset_id=utils.generate_id(), tag_name=tag_name)
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     mocker.patch.object(ApiWorkflowClient, "get_all_tags", return_value=tags)
     mocked_get_tag = mocker.patch.object(ApiWorkflowClient, "get_tag_by_id")

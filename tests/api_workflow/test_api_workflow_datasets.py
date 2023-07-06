@@ -12,15 +12,15 @@ from lightly.openapi_generated.swagger_client.models import (
     DatasetType,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
+from tests.api_workflow import utils
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
-from tests.api_workflow.utils import generate_id
 
 
 def _get_datasets(count: int) -> List[DatasetData]:
     return [
         DatasetData(
             name=f"mock_dataset_{i}",
-            id=generate_id(),
+            id=utils.generate_id(),
             last_modified_at=0,
             type=DatasetType.IMAGES,
             img_type="full",

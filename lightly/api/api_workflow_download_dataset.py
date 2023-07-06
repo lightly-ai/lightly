@@ -1,16 +1,16 @@
 import io
 import os
+import urllib.request
 import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Dict, List, Optional
-from urllib.request import Request, urlopen
+from urllib.request import Request
 
 import tqdm
 from PIL import Image
 
-from lightly.api import download
+from lightly.api import download, utils
 from lightly.api.bitmask import BitMask
-from lightly.api.utils import paginate_endpoint
 from lightly.openapi_generated.swagger_client.models import (
     DatasetEmbeddingData,
     ImageType,
@@ -33,7 +33,7 @@ def _make_dir_and_save_image(output_dir: str, filename: str, img: Image):
 def _get_image_from_read_url(read_url: str):
     """Makes a get request to the signed read url and returns the image."""
     request = Request(read_url, method="GET")
-    with urlopen(request) as response:
+    with urllib.request.urlopen(request) as response:
         blob = response.read()
         img = Image.open(io.BytesIO(blob))
     return img
@@ -293,7 +293,7 @@ class _DownloadDatasetMixin:
             [{'id': 0, 'data': {'image': '...', ...}}]
         """
         label_studio_tasks = list(
-            paginate_endpoint(
+            utils.paginate_endpoint(
                 self._tags_api.export_tag_to_label_studio_tasks,
                 page_size=20000,
                 dataset_id=self.dataset_id,
