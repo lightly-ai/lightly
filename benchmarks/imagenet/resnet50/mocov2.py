@@ -45,7 +45,9 @@ class MoCoV2(LightningModule):
         x, shuffle = batch_shuffle(batch=x, distributed=self.trainer.num_devices > 1)
         features = self.forward(x).flatten(start_dim=1)
         projections = self.projection_head(features)
-        features = batch_unshuffle(batch=features, shuffle=shuffle)
+        features = batch_unshuffle(
+            batch=features, shuffle=shuffle, distributed=self.trainer.num_devices > 1
+        )
         projections = batch_unshuffle(batch=projections, shuffle=shuffle)
         return features, projections
 
