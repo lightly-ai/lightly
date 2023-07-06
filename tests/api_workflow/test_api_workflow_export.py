@@ -2,12 +2,12 @@ from pytest_mock import MockerFixture
 
 from lightly.api import ApiWorkflowClient, api_workflow_export
 from lightly.openapi_generated.swagger_client.models import FileNameFormat, TagData
-from tests.api_workflow.utils import generate_id
+from tests.api_workflow import utils
 
 
 def _get_tag(dataset_id: str, tag_name: str) -> TagData:
     return TagData(
-        id=generate_id(),
+        id=utils.generate_id(),
         dataset_id=dataset_id,
         prev_tag_id=None,
         bit_mask_data="0x1",
@@ -19,7 +19,7 @@ def _get_tag(dataset_id: str, tag_name: str) -> TagData:
 
 
 def test_export_tag_to_basic_filenames_and_read_urls(mocker: MockerFixture) -> None:
-    dataset_id = generate_id()
+    dataset_id = utils.generate_id()
     mocked_retry = mocker.patch.object(
         api_workflow_export,
         "retry",
@@ -62,7 +62,7 @@ def test_export_tag_to_basic_filenames_and_read_urls(mocker: MockerFixture) -> N
 
 
 def test_export_filenames_by_tag_name(mocker: MockerFixture) -> None:
-    dataset_id = generate_id()
+    dataset_id = utils.generate_id()
     tag_name = "some-tag"
     tag = _get_tag(dataset_id=dataset_id, tag_name=tag_name)
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
@@ -79,12 +79,14 @@ def test_export_filenames_by_tag_name(mocker: MockerFixture) -> None:
 
 def test_export_label_box_data_rows_by_tag_id(mocker: MockerFixture) -> None:
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
-    mocked_paginate = mocker.patch.object(api_workflow_export, "paginate_endpoint")
+    mocked_paginate = mocker.patch.object(
+        api_workflow_export.utils, "paginate_endpoint"
+    )
     mocked_api = mocker.MagicMock()
     mocked_warning = mocker.patch("warnings.warn")
 
     client = ApiWorkflowClient()
-    client._dataset_id = generate_id()
+    client._dataset_id = utils.generate_id()
     client._tags_api = mocked_api
     client.export_label_box_data_rows_by_tag_id(tag_id="tag_id")
     mocked_paginate.assert_called_once()
@@ -99,7 +101,7 @@ def test_export_label_box_data_rows_by_tag_id(mocker: MockerFixture) -> None:
 
 
 def test_export_label_box_data_rows_by_tag_name(mocker: MockerFixture) -> None:
-    dataset_id = generate_id()
+    dataset_id = utils.generate_id()
     tag_name = "some-tag"
     tag = _get_tag(dataset_id=dataset_id, tag_name=tag_name)
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
@@ -125,11 +127,13 @@ def test_export_label_box_data_rows_by_tag_name(mocker: MockerFixture) -> None:
 
 def test_export_label_box_v4_data_rows_by_tag_id(mocker: MockerFixture) -> None:
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
-    mocked_paginate = mocker.patch.object(api_workflow_export, "paginate_endpoint")
+    mocked_paginate = mocker.patch.object(
+        api_workflow_export.utils, "paginate_endpoint"
+    )
     mocked_api = mocker.MagicMock()
 
     client = ApiWorkflowClient()
-    client._dataset_id = generate_id()
+    client._dataset_id = utils.generate_id()
     client._tags_api = mocked_api
     client.export_label_box_v4_data_rows_by_tag_id(tag_id="tag_id")
     mocked_paginate.assert_called_once()
@@ -138,7 +142,7 @@ def test_export_label_box_v4_data_rows_by_tag_id(mocker: MockerFixture) -> None:
 
 
 def test_export_label_box_v4_data_rows_by_tag_name(mocker: MockerFixture) -> None:
-    dataset_id = generate_id()
+    dataset_id = utils.generate_id()
     tag_name = "some-tag"
     tag = _get_tag(dataset_id=dataset_id, tag_name=tag_name)
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
@@ -156,7 +160,7 @@ def test_export_label_box_v4_data_rows_by_tag_name(mocker: MockerFixture) -> Non
 
 
 def test_export_label_studio_tasks_by_tag_name(mocker: MockerFixture) -> None:
-    dataset_id = generate_id()
+    dataset_id = utils.generate_id()
     tag_name = "some-tag"
     tag = _get_tag(dataset_id=dataset_id, tag_name=tag_name)
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)

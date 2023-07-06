@@ -9,18 +9,18 @@ from lightly.openapi_generated.swagger_client.models import (
     ImageType,
     TagData,
 )
-from tests.api_workflow.utils import generate_id
+from tests.api_workflow import utils
 
 
 def test_download_dataset__no_image(mocker: MockerFixture) -> None:
-    dataset_id = generate_id()
+    dataset_id = utils.generate_id()
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     mocked_api = mocker.MagicMock()
     mocked_get_dataset_by_id = mocker.MagicMock(
         return_value=DatasetData(
             name="dataset",
             id=dataset_id,
-            user_id=generate_id(),
+            user_id=utils.generate_id(),
             last_modified_at=0,
             type=DatasetType.IMAGES,
             img_type=ImageType.META,
@@ -47,8 +47,8 @@ def test_download_dataset__tag_missing(mocker: MockerFixture) -> None:
     mocked_get_dataset_by_id = mocker.MagicMock(
         return_value=DatasetData(
             name="dataset",
-            id=generate_id(),
-            user_id=generate_id(),
+            id=utils.generate_id(),
+            user_id=utils.generate_id(),
             last_modified_at=0,
             type=DatasetType.IMAGES,
             img_type=ImageType.FULL,
@@ -68,13 +68,13 @@ def test_download_dataset__tag_missing(mocker: MockerFixture) -> None:
 
 
 def test_download_dataset__ok(mocker: MockerFixture) -> None:
-    dataset_id = generate_id()
+    dataset_id = utils.generate_id()
 
     mocked_get_dataset_by_id = mocker.MagicMock(
         return_value=DatasetData(
             name="dataset",
             id=dataset_id,
-            user_id=generate_id(),
+            user_id=utils.generate_id(),
             last_modified_at=0,
             type=DatasetType.IMAGES,
             img_type=ImageType.FULL,
@@ -106,7 +106,7 @@ def test_download_dataset__ok(mocker: MockerFixture) -> None:
         "get_all_tags",
         return_value=[
             TagData(
-                id=generate_id(),
+                id=utils.generate_id(),
                 dataset_id=dataset_id,
                 prev_tag_id=None,
                 bit_mask_data="0x1",
@@ -149,13 +149,13 @@ def test_download_dataset__ok(mocker: MockerFixture) -> None:
 
 def test_get_embedding_data_by_name(mocker: MockerFixture) -> None:
     embedding_0 = DatasetEmbeddingData(
-        id=generate_id(),
+        id=utils.generate_id(),
         name="embedding_0",
         created_at=0,
         is_processed=False,
     )
     embedding_1 = DatasetEmbeddingData(
-        id=generate_id(),
+        id=utils.generate_id(),
         name="embedding_1",
         created_at=1,
         is_processed=False,
@@ -177,7 +177,7 @@ def test_get_embedding_data_by_name__no_embedding_with_name(
     mocker: MockerFixture,
 ) -> None:
     embedding = DatasetEmbeddingData(
-        id=generate_id(),
+        id=utils.generate_id(),
         name="embedding",
         created_at=0,
         is_processed=False,
@@ -230,7 +230,7 @@ def test_download_embeddings_csv_by_id(mocker: MockerFixture) -> None:
 
 
 def test_download_embeddings_csv(mocker: MockerFixture) -> None:
-    embedding_id = generate_id()
+    embedding_id = utils.generate_id()
 
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     mock_get_all_embedding_data = mocker.patch.object(
@@ -282,7 +282,7 @@ def test_download_embeddings_csv__no_default_embedding(mocker: MockerFixture) ->
 
 def test__get_latest_default_embedding_data__no_default_embedding() -> None:
     custom_embedding = DatasetEmbeddingData(
-        id=generate_id(),
+        id=utils.generate_id(),
         name="custom-name",
         created_at=0,
         is_processed=False,

@@ -1,7 +1,8 @@
 import warnings
 from typing import Dict, List
 
-from lightly.api.utils import paginate_endpoint, retry
+from lightly.api import utils
+from lightly.api.utils import retry
 from lightly.openapi_generated.swagger_client.models import (
     FileNameFormat,
     LabelBoxDataRow,
@@ -39,7 +40,7 @@ class _ExportDatasetMixin:
             [{'id': 0, 'data': {'image': '...', ...}}]
         """
         label_studio_tasks: List[LabelStudioTask] = list(
-            paginate_endpoint(
+            utils.paginate_endpoint(
                 self._tags_api.export_tag_to_label_studio_tasks,
                 page_size=20000,
                 dataset_id=self.dataset_id,
@@ -114,7 +115,7 @@ class _ExportDatasetMixin:
             )
         )
         label_box_data_rows: List[LabelBoxDataRow] = list(
-            paginate_endpoint(
+            utils.paginate_endpoint(
                 self._tags_api.export_tag_to_label_box_data_rows,
                 page_size=20000,
                 dataset_id=self.dataset_id,
@@ -187,7 +188,7 @@ class _ExportDatasetMixin:
             [{'row_data': '...', 'global_key': 'image-1.jpg', 'media_type': 'IMAGE'}
         """
         label_box_data_rows: List[LabelBoxV4DataRow] = list(
-            paginate_endpoint(
+            utils.paginate_endpoint(
                 self._tags_api.export_tag_to_label_box_v4_data_rows,
                 page_size=20000,
                 dataset_id=self.dataset_id,
