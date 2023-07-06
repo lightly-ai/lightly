@@ -14,13 +14,13 @@ from lightly.openapi_generated.swagger_client.models import (
     SamplingMethod,
     TagData,
 )
-from tests.api_workflow.utils import generate_id
+from tests.api_workflow import utils
 
 
 def _get_tags(dataset_id: str, tag_name: str = "just-a-tag") -> List[TagData]:
     return [
         TagData(
-            id=generate_id(),
+            id=utils.generate_id(),
             dataset_id=dataset_id,
             prev_tag_id=None,
             bit_mask_data="0x1",
@@ -46,7 +46,7 @@ def test_selection__tag_exists(mocker: MockerFixture) -> None:
     mocker.patch.object(
         ApiWorkflowClient,
         "get_all_tags",
-        return_value=_get_tags(dataset_id=generate_id(), tag_name=tag_name),
+        return_value=_get_tags(dataset_id=utils.generate_id(), tag_name=tag_name),
     )
 
     client = ApiWorkflowClient()
@@ -71,7 +71,7 @@ def test_selection__no_tags(mocker: MockerFixture) -> None:
 
 def test_selection(mocker: MockerFixture) -> None:
     tag_name = "some-tag"
-    dataset_id = generate_id()
+    dataset_id = utils.generate_id()
     mocker.patch("time.sleep")
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     mocker.patch.object(
@@ -86,13 +86,13 @@ def test_selection(mocker: MockerFixture) -> None:
 
     mocked_selection_api = mocker.MagicMock()
     mocked_sampling_response = mocker.MagicMock()
-    mocked_sampling_response.job_id = generate_id()
+    mocked_sampling_response.job_id = utils.generate_id()
     mocked_selection_api.trigger_sampling_by_id.return_value = mocked_sampling_response
 
     mocked_jobs_api = mocker.MagicMock()
     mocked_get_job_status = mocker.MagicMock(
         return_value=JobStatusData(
-            id=generate_id(),
+            id=utils.generate_id(),
             wait_time_till_next_poll=1,
             created_at=0,
             status=JobState.FINISHED,
@@ -118,7 +118,7 @@ def test_selection(mocker: MockerFixture) -> None:
 
 
 def test_selection__job_failed(mocker: MockerFixture) -> None:
-    dataset_id = generate_id()
+    dataset_id = utils.generate_id()
     job_id = "some-job-id"
     mocker.patch("time.sleep")
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
@@ -140,7 +140,7 @@ def test_selection__job_failed(mocker: MockerFixture) -> None:
     mocked_jobs_api = mocker.MagicMock()
     mocked_get_job_status = mocker.MagicMock(
         return_value=JobStatusData(
-            id=generate_id(),
+            id=utils.generate_id(),
             wait_time_till_next_poll=1,
             created_at=0,
             status=JobState.FAILED,
@@ -162,7 +162,7 @@ def test_selection__job_failed(mocker: MockerFixture) -> None:
 
 
 def test_selection__too_many_errors(mocker: MockerFixture) -> None:
-    dataset_id = generate_id()
+    dataset_id = utils.generate_id()
     job_id = "some-job-id"
     mocker.patch("time.sleep")
     mocked_print = mocker.patch("builtins.print")
@@ -203,7 +203,7 @@ def test_selection__too_many_errors(mocker: MockerFixture) -> None:
 
 
 def test_upload_scores(mocker: MockerFixture) -> None:
-    dataset_id = generate_id()
+    dataset_id = utils.generate_id()
     tags = _get_tags(dataset_id=dataset_id, tag_name="initial-tag")
     tag_id = tags[0].id
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)

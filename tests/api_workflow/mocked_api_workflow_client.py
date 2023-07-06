@@ -83,7 +83,7 @@ from lightly.openapi_generated.swagger_client.models import (
     WriteCSVUrlData,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
-from tests.api_workflow.utils import generate_id
+from tests.api_workflow import utils
 
 
 def _check_dataset_id(dataset_id: str):
@@ -99,13 +99,13 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         EmbeddingsApi.__init__(self, api_client=api_client)
         self.embeddings = [
             DatasetEmbeddingData(
-                id=generate_id(),
+                id=utils.generate_id(),
                 name="embedding_newest",
                 is_processed=True,
                 created_at=1111111,
             ),
             DatasetEmbeddingData(
-                id=generate_id(),
+                id=utils.generate_id(),
                 name="default",
                 is_processed=True,
                 created_at=0,
@@ -116,7 +116,7 @@ class MockedEmbeddingsApi(EmbeddingsApi):
         _check_dataset_id(dataset_id)
         assert isinstance(dataset_id, str)
         response_ = WriteCSVUrlData(
-            signed_write_url="signed_write_url_valid", embedding_id=generate_id()
+            signed_write_url="signed_write_url_valid", embedding_id=utils.generate_id()
         )
         return response_
 
@@ -189,7 +189,7 @@ class MockedTagsApi(TagsApi):
         _check_dataset_id(dataset_id)
         assert isinstance(initial_tag_create_request, InitialTagCreateRequest)
         assert isinstance(dataset_id, str)
-        response_ = CreateEntityResponse(id=generate_id())
+        response_ = CreateEntityResponse(id=utils.generate_id())
         return response_
 
     def get_tag_by_tag_id(self, dataset_id, tag_id, **kwargs):
@@ -199,7 +199,7 @@ class MockedTagsApi(TagsApi):
         response_ = TagData(
             id=tag_id,
             dataset_id=dataset_id,
-            prev_tag_id=generate_id(),
+            prev_tag_id=utils.generate_id(),
             bit_mask_data="0x80bda23e9",
             name="second-tag",
             tot_size=15,
@@ -212,7 +212,7 @@ class MockedTagsApi(TagsApi):
         _check_dataset_id(dataset_id)
 
         tag_1 = TagData(
-            id=generate_id(),
+            id=utils.generate_id(),
             dataset_id=dataset_id,
             prev_tag_id=None,
             bit_mask_data="0xf",
@@ -222,7 +222,7 @@ class MockedTagsApi(TagsApi):
             changes=[],
         )
         tag_2 = TagData(
-            id=generate_id(),
+            id=utils.generate_id(),
             dataset_id=dataset_id,
             prev_tag_id=tag_1.id,
             bit_mask_data="0xf",
@@ -232,7 +232,7 @@ class MockedTagsApi(TagsApi):
             changes=[],
         )
         tag_3 = TagData(
-            id=generate_id(),
+            id=utils.generate_id(),
             dataset_id=dataset_id,
             prev_tag_id=tag_1.id,
             bit_mask_data="0x1",
@@ -242,7 +242,7 @@ class MockedTagsApi(TagsApi):
             changes=[],
         )
         tag_4 = TagData(
-            id=generate_id(),
+            id=utils.generate_id(),
             dataset_id=dataset_id,
             prev_tag_id=tag_3.id,
             bit_mask_data="0x3",
@@ -252,7 +252,7 @@ class MockedTagsApi(TagsApi):
             changes=[],
         )
         tag_5 = TagData(
-            id=generate_id(),
+            id=utils.generate_id(),
             dataset_id=dataset_id,
             prev_tag_id=None,
             bit_mask_data="0x1",
@@ -295,7 +295,7 @@ class MockedTagsApi(TagsApi):
     ) -> TagData:
         _check_dataset_id(dataset_id)
         tag = TagData(
-            id=generate_id(),
+            id=utils.generate_id(),
             dataset_id=dataset_id,
             prev_tag_id=tag_create_request["prev_tag_id"],
             bit_mask_data=tag_create_request["bit_mask_data"],
@@ -520,7 +520,7 @@ class MockedDatasetsApi(DatasetsApi):
         self._default_datasets = [
             DatasetData(
                 name=f"dataset_{i}",
-                id=generate_id(),
+                id=utils.generate_id(),
                 last_modified_at=i,
                 type="Images",
                 img_type="full",
@@ -534,7 +534,7 @@ class MockedDatasetsApi(DatasetsApi):
         self._shared_datasets = [
             DatasetData(
                 name=f"shared_dataset_{i}",
-                id=generate_id(),
+                id=utils.generate_id(),
                 last_modified_at=0,
                 type="Images",
                 img_type="full",
@@ -572,7 +572,7 @@ class MockedDatasetsApi(DatasetsApi):
 
     def create_dataset(self, dataset_create_request: DatasetCreateRequest, **kwargs):
         assert isinstance(dataset_create_request, DatasetCreateRequest)
-        id = generate_id()
+        id = utils.generate_id()
         if dataset_create_request.name == "xyz-no-tags":
             id = "xyz-no-tags"
         dataset = DatasetData(
@@ -583,7 +583,7 @@ class MockedDatasetsApi(DatasetsApi):
             size_in_bytes=-1,
             n_samples=-1,
             created_at=-1,
-            user_id=generate_id(),
+            user_id=utils.generate_id(),
         )
         self.datasets.append(dataset)
         response_ = CreateEntityResponse(id=id)
@@ -819,10 +819,10 @@ class MockedComputeWorkerApi(DockerApi):
         super().__init__(api_client=api_client)
         self._compute_worker_runs = [
             DockerRunData(
-                id=generate_id(),
+                id=utils.generate_id(),
                 user_id="user-id",
                 docker_version="v1",
-                dataset_id=generate_id(),
+                dataset_id=utils.generate_id(),
                 state=DockerRunState.TRAINING,
                 created_at=0,
                 last_modified_at=100,
@@ -832,20 +832,20 @@ class MockedComputeWorkerApi(DockerApi):
         ]
         self._scheduled_compute_worker_runs = [
             DockerRunScheduledData(
-                id=generate_id(),
-                dataset_id=generate_id(),
-                config_id=generate_id(),
+                id=utils.generate_id(),
+                dataset_id=utils.generate_id(),
+                config_id=utils.generate_id(),
                 priority=DockerRunScheduledPriority.MID,
                 state=DockerRunScheduledState.OPEN,
                 created_at=0,
                 last_modified_at=100,
-                owner=generate_id(),
+                owner=utils.generate_id(),
                 runs_on=[],
             )
         ]
         self._registered_workers = [
             DockerWorkerRegistryEntryData(
-                id=generate_id(),
+                id=utils.generate_id(),
                 user_id="user-id",
                 name="worker-name-1",
                 worker_type=DockerWorkerType.FULL,
@@ -858,18 +858,18 @@ class MockedComputeWorkerApi(DockerApi):
 
     def register_docker_worker(self, body, **kwargs):
         assert isinstance(body, CreateDockerWorkerRegistryEntryRequest)
-        return CreateEntityResponse(id=generate_id())
+        return CreateEntityResponse(id=utils.generate_id())
 
     def get_docker_worker_registry_entries(self, **kwargs):
         return self._registered_workers
 
     def create_docker_worker_config(self, body, **kwargs):
         assert isinstance(body, DockerWorkerConfigCreateRequest)
-        return CreateEntityResponse(id=generate_id())
+        return CreateEntityResponse(id=utils.generate_id())
 
     def create_docker_worker_config_v3(self, body, **kwargs):
         assert isinstance(body, DockerWorkerConfigV3CreateRequest)
-        return CreateEntityResponse(id=generate_id())
+        return CreateEntityResponse(id=utils.generate_id())
 
     def create_docker_run_scheduled_by_dataset_id(
         self, docker_run_scheduled_create_request, dataset_id, **kwargs
@@ -878,7 +878,7 @@ class MockedComputeWorkerApi(DockerApi):
             docker_run_scheduled_create_request, DockerRunScheduledCreateRequest
         )
         _check_dataset_id(dataset_id)
-        return CreateEntityResponse(id=generate_id())
+        return CreateEntityResponse(id=utils.generate_id())
 
     def get_docker_runs(
         self,
@@ -1005,11 +1005,11 @@ class MockedAPICollaboration(CollaborationApi):
         assert isinstance(
             shared_access_config_create_request, SharedAccessConfigCreateRequest
         )
-        return CreateEntityResponse(id=generate_id())
+        return CreateEntityResponse(id=utils.generate_id())
 
     def get_shared_access_configs_by_dataset_id(self, dataset_id, **kwargs):
         write_config = SharedAccessConfigData(
-            id=generate_id(),
+            id=utils.generate_id(),
             owner="owner-id",
             users=["user1@gmail.com", "user2@something.com"],
             teams=["some-id"],
