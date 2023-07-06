@@ -130,7 +130,7 @@ class MemoryBankModule(Module):
         ptr = int(self.bank_ptr)
         if ptr + batch_size >= self.size[0]:
             self.bank[ptr:] = batch[: self.size[0] - ptr].detach()
-            self.bank_ptr[0] = 0
+            self.bank_ptr.zero_()
         else:
             self.bank[ptr : ptr + batch_size] = batch.detach()
             self.bank_ptr[0] = ptr + batch_size
