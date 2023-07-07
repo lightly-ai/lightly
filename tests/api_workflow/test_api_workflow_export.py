@@ -98,16 +98,28 @@ def test_export_filenames_and_read_urls_by_tag_id(mocker: MockerFixture) -> None
             "datasourceUrl": "datasource_url1",
         },
     ]
-    assert mocked_paginate.call_count == 3
-    file_name_format_call_args = [
-        call_args[1].get("file_name_format")
-        for call_args in mocked_paginate.call_args_list
-    ]
-    assert file_name_format_call_args == [
-        FileNameFormat.NAME,
-        FileNameFormat.REDIRECTED_READ_URL,
-        FileNameFormat.DATASOURCE_FULL,
-    ]
+    mocked_paginate.assert_has_calls(
+        [
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.NAME,
+            ),
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.REDIRECTED_READ_URL,
+            ),
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.DATASOURCE_FULL,
+            ),
+        ]
+    )
 
 
 def test_export_filenames_and_read_urls_by_tag_id__two_pages(
@@ -156,16 +168,28 @@ def test_export_filenames_and_read_urls_by_tag_id__two_pages(
             "datasourceUrl": "datasource_url3",
         },
     ]
-    assert mocked_paginate.call_count == 3
-    file_name_format_call_args = [
-        call_args[1].get("file_name_format")
-        for call_args in mocked_paginate.call_args_list
-    ]
-    assert file_name_format_call_args == [
-        FileNameFormat.NAME,
-        FileNameFormat.REDIRECTED_READ_URL,
-        FileNameFormat.DATASOURCE_FULL,
-    ]
+    mocked_paginate.assert_has_calls(
+        [
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.NAME,
+            ),
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.REDIRECTED_READ_URL,
+            ),
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.DATASOURCE_FULL,
+            ),
+        ]
+    )
 
 
 def test_export_filenames_by_tag_name(mocker: MockerFixture) -> None:
