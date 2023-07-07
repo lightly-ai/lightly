@@ -10,13 +10,8 @@ from typing import Any, Dict, List, Optional, Union
 import tqdm
 from lightly_utils import image_processing
 
-from lightly.api.utils import (
-    MAXIMUM_FILENAME_LENGTH,
-    build_azure_signed_url_write_headers,
-    check_filename,
-    paginate_endpoint,
-    retry,
-)
+from lightly.api import utils
+from lightly.api.utils import MAXIMUM_FILENAME_LENGTH, retry
 from lightly.openapi_generated.swagger_client.models import (
     DatasourceConfigBase,
     InitialTagCreateRequest,
@@ -111,7 +106,7 @@ class _UploadDatasetMixin:
 
         # get the filenames of the samples already on the server
         samples: List[SampleDataModes] = list(
-            paginate_endpoint(
+            utils.paginate_endpoint(
                 self._samples_api.get_samples_partial_by_dataset_id,
                 page_size=25000,  # as this information is rather small, we can request a lot of samples at once
                 dataset_id=self.dataset_id,
@@ -252,7 +247,7 @@ class _UploadDatasetMixin:
     ) -> None:
         """Uploads a single image to the Lightly platform."""
         # check whether the filepath is too long
-        if not check_filename(filepath):
+        if not utils.check_filename(filepath):
             msg = (
                 "Filepath {filepath} is longer than the allowed maximum of "
                 f"{MAXIMUM_FILENAME_LENGTH} characters and will be skipped."
@@ -296,7 +291,7 @@ class _UploadDatasetMixin:
                 if datasource_type == "AZURE":
                     # build headers for Azure blob storage
                     size_in_bytes = str(image_to_upload.getbuffer().nbytes)
-                    headers = build_azure_signed_url_write_headers(size_in_bytes)
+                    headers = utils.build_azure_signed_url_write_headers(size_in_bytes)
                 retry(
                     self.upload_file_with_signed_url,
                     image_to_upload,
@@ -313,7 +308,9 @@ class _UploadDatasetMixin:
                         image_to_upload.seek(0, 2)
                         size_in_bytes = str(image_to_upload.tell())
                         image_to_upload.seek(0, 0)
-                        headers = build_azure_signed_url_write_headers(size_in_bytes)
+                        headers = utils.build_azure_signed_url_write_headers(
+                            size_in_bytes
+                        )
                     retry(
                         self.upload_file_with_signed_url,
                         image_to_upload,

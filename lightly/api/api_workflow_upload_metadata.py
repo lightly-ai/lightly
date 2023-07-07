@@ -12,7 +12,7 @@ from lightly.openapi_generated.swagger_client.models import (
     SamplePartialMode,
     SampleUpdateRequest,
 )
-from lightly.utils.hipify import print_as_warning
+from lightly.utils import hipify
 from lightly.utils.io import COCO_ANNOTATION_KEYS
 
 
@@ -172,7 +172,7 @@ class _UploadCustomMetadataMixin:
             image_id = metadata[COCO_ANNOTATION_KEYS.custom_metadata_image_id]
             filename = image_id_to_filename.get(image_id, None)
             if filename is None:
-                print_as_warning(
+                hipify.print_as_warning(
                     "No image found for custom metadata annotation "
                     f"with image_id {image_id}. "
                     "This custom metadata annotation is skipped. ",
@@ -181,7 +181,7 @@ class _UploadCustomMetadataMixin:
                 continue
             sample_id = filename_to_sample_id.get(filename, None)
             if sample_id is None:
-                print_as_warning(
+                hipify.print_as_warning(
                     "You tried to upload custom metadata for a sample with "
                     f"filename {{{filename}}}, "
                     "but a sample with this filename "

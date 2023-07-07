@@ -3,11 +3,8 @@ import tempfile
 
 import numpy as np
 
-from lightly.utils.io import (
-    INVALID_FILENAME_CHARACTERS,
-    load_embeddings,
-    save_embeddings,
-)
+from lightly.utils import io as io_utils
+from lightly.utils.io import INVALID_FILENAME_CHARACTERS
 from tests.api_workflow.mocked_api_workflow_client import (
     N_FILES_ON_SERVER,
     MockedApiWorkflowSetup,
@@ -37,7 +34,7 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
                 f"_{special_char_in_first_filename}" f"{self.sample_names[0]}"
             )
         labels = [0] * len(self.sample_names)
-        save_embeddings(
+        io_utils.save_embeddings(
             self.path_to_embeddings,
             np.random.randn(n_data, n_dims),
             labels,
@@ -160,13 +157,13 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         )
 
         # load the new (appended) embeddings
-        _, labels_appended, filenames_appended = load_embeddings(
+        _, labels_appended, filenames_appended = io_utils.load_embeddings(
             self.path_to_embeddings
         )
 
         # define the expected filenames and labels
         self.create_fake_embeddings(n_data=n_data_local + n_data_start_local)
-        _, _, filenames_expected = load_embeddings(self.path_to_embeddings)
+        _, _, filenames_expected = io_utils.load_embeddings(self.path_to_embeddings)
         labels_expected = list(range(n_data_start_local)) + [0] * n_data_local
 
         # make sure the list of filenames and labels equal

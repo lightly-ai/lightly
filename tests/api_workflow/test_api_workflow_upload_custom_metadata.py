@@ -7,7 +7,7 @@ from lightly.openapi_generated.swagger_client.models import (
     SampleUpdateRequest,
 )
 from lightly.utils.io import COCO_ANNOTATION_KEYS
-from tests.api_workflow.utils import generate_id
+from tests.api_workflow import utils
 
 
 def test_index_custom_metadata_by_filename(mocker: MockerFixture) -> None:
@@ -42,8 +42,7 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
     # retry should be called twice: once for get_samples_partial_by_dataset_id
     # and once for update_sample_by_id. get_samples_partial_by_dataset_id returns
     # only one valid sample file `file1`
-
-    dummy_sample = SampleDataModes(id=generate_id(), file_name="file1")
+    dummy_sample = SampleDataModes(id=utils.generate_id(), file_name="file1")
 
     mocked_paginate_endpoint = mocker.patch.object(
         api_workflow_upload_metadata,
@@ -62,7 +61,7 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
         ],
     )
     mocked_print_warning = mocker.patch.object(
-        api_workflow_upload_metadata, "print_as_warning"
+        api_workflow_upload_metadata.hipify, "print_as_warning"
     )
     mocked_executor = mocker.patch.object(
         api_workflow_upload_metadata, "ThreadPoolExecutor"
