@@ -277,19 +277,83 @@ def test_get_datasets__shared_None(mocker: MockerFixture) -> None:
     assert mocked_pagination.call_count == 3
 
 
-def test_get_datasets_by_name__paginated(mocker: MockerFixture) -> None:
+def test_get_datasets_by_name__not_shared__paginated(mocker: MockerFixture) -> None:
     datasets = _get_datasets(3)
     # Returns the same set of datasets twice. API client should remove duplicates
     mocker.patch.object(
         api_workflow_datasets.utils,
         "paginate_endpoint",
+        return_value=iter([datasets[0], datasets[1]]),
+    )
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mock_datasets_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._datasets_api = mock_datasets_api
+
+    datasets_not_shared = client.get_datasets_by_name(
+        shared=False, dataset_name="mocked_dataset_0"
+    )
+
+
+def test_get_datasets_by_name__not_shared__paginated(mocker: MockerFixture) -> None:
+    datasets = _get_datasets(3)
+    # Returns the same set of datasets twice. API client should remove duplicates.
+    mocker.patch.object(
+        api_workflow_datasets.utils,
+        "paginate_endpoint",
+        # There's one call to paginate_endpoint.
+        # It returns a paginated list of datasets.
+        return_value=iter([datasets[0], datasets[1]]),
+    )
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mock_datasets_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._datasets_api = mock_datasets_api
+
+    # The dataset names are created in the _get_datasets function and correspond
+    # to mocked_dataset_{index}.
+    datasets_not_shared = client.get_datasets_by_name(
+        shared=False, dataset_name="mocked_dataset_0"
+    )
+    assert len(datasets_not_shared) == 2
+
+
+def test_get_datasets_by_name__shared__paginated(mocker: MockerFixture) -> None:
+    datasets = _get_datasets(3)
+    # Returns the same set of datasets twice. API client should remove duplicates.
+    mocker.patch.object(
+        api_workflow_datasets.utils,
+        "paginate_endpoint",
         side_effect=[
-            # shared=False, simulate two pages.
-            iter([datasets[0], datasets[1]]),
-            # shared=True, simulate one page.
+            # There are two calls to paginate_endpoint to get all the team's datasets.
             iter([datasets[2]]),
             iter([]),
-            # shared=None
+        ],
+    )
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mock_datasets_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._datasets_api = mock_datasets_api
+
+    # The dataset names are created in the _get_datasets function and correspond
+    # to mocked_dataset_{index}.
+    datasets_shared = client.get_datasets_by_name(
+        shared=True, dataset_name="mocked_dataset_2"
+    )
+    assert len(datasets_shared) == 1
+
+
+def test_get_datasets_by_name__shared_None__paginated(mocker: MockerFixture) -> None:
+    datasets = _get_datasets(3)
+    # Returns the same set of datasets twice. API client should remove duplicates.
+    mocker.patch.object(
+        api_workflow_datasets.utils,
+        "paginate_endpoint",
+        side_effect=[
+            # There are three calls to paginate_endpoint. The first call
+            # gets all the user's datasets. The second and third calls get
+            # all the team's datasets.
+            # The first call returns a paginated list of datasets.
             iter([datasets[0], datasets[1]]),
             iter([datasets[2]]),
             iter([]),
@@ -300,14 +364,8 @@ def test_get_datasets_by_name__paginated(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient()
     client._datasets_api = mock_datasets_api
 
-    datasets_not_shared = client.get_datasets_by_name(
-        shared=False, dataset_name="mocked_dataset_0"
-    )
-    assert len(datasets_not_shared) == 2
-    datasets_shared = client.get_datasets_by_name(
-        shared=True, dataset_name="mocked_dataset_2"
-    )
-    assert len(datasets_shared) == 1
+    # The dataset names are created in the _get_datasets function and correspond
+    # to mocked_dataset_{index}.
     datasets_shared_none = client.get_datasets_by_name(
         shared=None, dataset_name="mocked_dataset_0"
     )
