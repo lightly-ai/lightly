@@ -109,22 +109,24 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(len(some_list), (4 * page_size - 1))
 
     def test_paginate_endpoint__string(self):
-        def some_function(page_size=8, page_offset=0):
+        def paginated_function(page_size=8, page_offset=0):
+            """Returns one page of size page_size, then one page of size page_size - 1."""
             if page_offset > 3 * page_size:
-                assert False  # should not happen
+                assert False  # This should not happen.
             elif page_offset > 2 * page_size:
                 return (page_size - 1) * "a"
             else:
                 return page_size * "a"
 
         page_size = 8
-        some_iterator = paginate_endpoint(some_function, page_size=page_size)
+        some_iterator = paginate_endpoint(paginated_function, page_size=page_size)
         some_list = list(some_iterator)
         self.assertEqual((4 * page_size - 1) * "a", "".join(some_list))
         self.assertEqual(len(some_list), 4)  # Expect four pages of strings.
 
     def test_paginate_endpoint__multiple_of_page_size(self):
-        def some_function(page_size=8, page_offset=0):
+        def paginated_function(page_size=8, page_offset=0):
+            """Returns two pages of size page_size, then an empty page."""
             if page_offset > 3 * page_size:
                 return []
             elif page_offset > 2 * page_size:
@@ -133,7 +135,7 @@ class TestUtils(unittest.TestCase):
                 return page_size * ["a"]
 
         page_size = 8
-        some_iterator = paginate_endpoint(some_function, page_size=page_size)
+        some_iterator = paginate_endpoint(paginated_function, page_size=page_size)
         some_list = list(some_iterator)
         self.assertEqual((4 * page_size) * ["a"], some_list)
         self.assertEqual(len(some_list), (4 * page_size))
