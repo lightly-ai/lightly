@@ -18,7 +18,7 @@ class PIRLTransform(MultiViewTransform):
         PIL Image or Tensor.
 
     Output of this transform:
-        List of Tensor of length 2 (original, augmented). 
+        List of Tensor of length 2 (original, augmented).
 
     Applies the following augmentations by default:
         - Random resized crop
@@ -26,7 +26,7 @@ class PIRLTransform(MultiViewTransform):
         - Color jitter
         - Random gray scale
         - Jigsaw puzzle
-    
+
     - [0] PIRL, 2019: https://arxiv.org/abs/1912.01991
 
     Attributes:

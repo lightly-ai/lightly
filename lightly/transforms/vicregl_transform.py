@@ -28,7 +28,7 @@ class VICRegLTransform(ImageGridTransform):
         - Gaussian blur
         - Random solarization
         - ImageNet normalization
-    
+
     - [0]: VICRegL, 2022, https://arxiv.org/abs/2210.01571
 
     Attributes:

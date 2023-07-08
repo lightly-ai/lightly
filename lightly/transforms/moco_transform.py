@@ -116,7 +116,7 @@ class MoCoV2Transform(SimCLRTransform):
 
     Output of this transform:
         List of Tensor of length 2.
-    
+
     Applies the following augmentations by default:
         - Random resized crop
         - Random horizontal flip

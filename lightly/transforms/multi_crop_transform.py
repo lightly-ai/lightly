@@ -17,7 +17,7 @@ class MultiCropTranform(MultiViewTransform):
     Applies the following augmentations by default:
         - Random resized crop
         - transforms passed by constructor
-    
+
     Attributes:
         crop_sizes:
             Size of the input image in pixels for each crop category.

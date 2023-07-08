@@ -28,7 +28,7 @@ class VICRegTransform(MultiViewTransform):
         - Random solarization
         - Gaussian blur
         - ImageNet normalization
-    
+
     Similar to SimCLR transform but with extra solarization.
 
     Attributes:

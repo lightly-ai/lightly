@@ -25,7 +25,7 @@ class MSNTransform(MultiViewTransform):
         - Random gray scale
         - Gaussian blur
         - ImageNet normalization
-    
+
     Generates a set of random and focal views for each input image. The generated output
     is (views, target, filenames) where views is list with the following entries:
     [random_views_0, random_views_1, ..., focal_views_0, focal_views_1, ...].
