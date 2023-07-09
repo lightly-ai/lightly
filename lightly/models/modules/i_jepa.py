@@ -126,7 +126,8 @@ class IJEPA_predictor(vision_transformer.Encoder):
 
         
 class IJEPA_encoder(vision_transformer.Encoder):
-    """Encoder for the I-JEPA model [0].
+    """
+    Encoder for the I-JEPA model [0].
 
     Encodes patch embeddings. Code inspired by [1].
 
