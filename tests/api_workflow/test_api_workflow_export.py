@@ -1,6 +1,7 @@
 from pytest_mock import MockerFixture
 
 from lightly.api import ApiWorkflowClient, api_workflow_export
+from lightly.api import utils as api_utils
 from lightly.openapi_generated.swagger_client.models import FileNameFormat, TagData
 from tests.api_workflow import utils
 
@@ -18,15 +19,64 @@ def _get_tag(dataset_id: str, tag_name: str) -> TagData:
     )
 
 
-def test_export_tag_to_basic_filenames_and_read_urls(mocker: MockerFixture) -> None:
+def test_export_filenames_by_tag_id(mocker: MockerFixture) -> None:
     dataset_id = utils.generate_id()
-    mocked_retry = mocker.patch.object(
-        api_workflow_export,
-        "retry",
+    mocked_paginate = mocker.patch.object(
+        api_utils,
+        "paginate_endpoint",
+        side_effect=[iter(["file0\nfile1"])],
+    )
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_api = mocker.MagicMock()
+
+    client = ApiWorkflowClient()
+    client._dataset_id = dataset_id
+    client._tags_api = mocked_api
+    data = client.export_filenames_by_tag_id(tag_id="tag_id")
+
+    assert data == "file0\nfile1"
+    mocked_paginate.assert_called_once_with(
+        mocked_api.export_tag_to_basic_filenames,
+        dataset_id=dataset_id,
+        tag_id="tag_id",
+    )
+
+
+def test_export_filenames_by_tag_id__two_pages(mocker: MockerFixture) -> None:
+    dataset_id = utils.generate_id()
+    mocked_paginate = mocker.patch.object(
+        api_utils,
+        "paginate_endpoint",
         side_effect=[
-            "file0\nfile1",
-            "read_url0\nread_url1",
-            "datasource_url0\ndatasource_url1",
+            # Simulate two pages.
+            iter(["file0\nfile1", "file2\nfile3"])
+        ],
+    )
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_api = mocker.MagicMock()
+
+    client = ApiWorkflowClient()
+    client._dataset_id = dataset_id
+    client._tags_api = mocked_api
+    data = client.export_filenames_by_tag_id(tag_id="tag_id")
+
+    assert data == "file0\nfile1\nfile2\nfile3"
+    mocked_paginate.assert_called_once_with(
+        mocked_api.export_tag_to_basic_filenames,
+        dataset_id=dataset_id,
+        tag_id="tag_id",
+    )
+
+
+def test_export_filenames_and_read_urls_by_tag_id(mocker: MockerFixture) -> None:
+    dataset_id = utils.generate_id()
+    mocked_paginate = mocker.patch.object(
+        api_utils,
+        "paginate_endpoint",
+        side_effect=[
+            iter(["file0\nfile1"]),
+            iter(["read_url0\nread_url1"]),
+            iter(["datasource_url0\ndatasource_url1"]),
         ],
     )
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
@@ -49,16 +99,98 @@ def test_export_tag_to_basic_filenames_and_read_urls(mocker: MockerFixture) -> N
             "datasourceUrl": "datasource_url1",
         },
     ]
-    assert mocked_retry.call_count == 3
-    file_name_format_call_args = [
-        call_args[1].get("file_name_format")
-        for call_args in mocked_retry.call_args_list
+    mocked_paginate.assert_has_calls(
+        [
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.NAME,
+            ),
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.REDIRECTED_READ_URL,
+            ),
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.DATASOURCE_FULL,
+            ),
+        ]
+    )
+
+
+def test_export_filenames_and_read_urls_by_tag_id__two_pages(
+    mocker: MockerFixture,
+) -> None:
+    dataset_id = utils.generate_id()
+    mocked_paginate = mocker.patch.object(
+        api_utils,
+        "paginate_endpoint",
+        side_effect=[
+            # Simulate two pages.
+            iter(["file0\nfile1", "file2\nfile3"]),
+            iter(["read_url0\nread_url1", "read_url2\nread_url3"]),
+            iter(
+                ["datasource_url0\ndatasource_url1", "datasource_url2\ndatasource_url3"]
+            ),
+        ],
+    )
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_api = mocker.MagicMock()
+
+    client = ApiWorkflowClient()
+    client._dataset_id = dataset_id
+    client._tags_api = mocked_api
+    data = client.export_filenames_and_read_urls_by_tag_id(tag_id="tag_id")
+
+    assert data == [
+        {
+            "fileName": "file0",
+            "readUrl": "read_url0",
+            "datasourceUrl": "datasource_url0",
+        },
+        {
+            "fileName": "file1",
+            "readUrl": "read_url1",
+            "datasourceUrl": "datasource_url1",
+        },
+        {
+            "fileName": "file2",
+            "readUrl": "read_url2",
+            "datasourceUrl": "datasource_url2",
+        },
+        {
+            "fileName": "file3",
+            "readUrl": "read_url3",
+            "datasourceUrl": "datasource_url3",
+        },
     ]
-    assert file_name_format_call_args == [
-        FileNameFormat.NAME,
-        FileNameFormat.REDIRECTED_READ_URL,
-        FileNameFormat.DATASOURCE_FULL,
-    ]
+    mocked_paginate.assert_has_calls(
+        [
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.NAME,
+            ),
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.REDIRECTED_READ_URL,
+            ),
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.DATASOURCE_FULL,
+            ),
+        ]
+    )
 
 
 def test_export_filenames_by_tag_name(mocker: MockerFixture) -> None:

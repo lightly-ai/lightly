@@ -7,7 +7,6 @@ from functools import partial
 from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 
 from lightly.api import utils
-from lightly.api.utils import retry
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.models import (
     CreateDockerWorkerRegistryEntryRequest,
@@ -495,7 +494,7 @@ class _ComputeWorkerMixin:
         try:
             run: DockerRunScheduledData = next(
                 run
-                for run in retry(
+                for run in utils.retry(
                     lambda: self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
                         self.dataset_id
                     )
