@@ -151,25 +151,34 @@ class _DatasetsMixin:
         datasets: List[DatasetData] = []
         if not shared or shared is None:
             datasets.extend(
-                self._datasets_api.get_datasets_query_by_name(
-                    dataset_name=dataset_name,
-                    exact=True,
-                    shared=False,
+                list(
+                    utils.paginate_endpoint(
+                        self._datasets_api.get_datasets_query_by_name,
+                        dataset_name=dataset_name,
+                        exact=True,
+                        shared=False,
+                    )
                 )
             )
         if shared or shared is None:
             datasets.extend(
-                self._datasets_api.get_datasets_query_by_name(
-                    dataset_name=dataset_name,
-                    exact=True,
-                    shared=True,
+                list(
+                    utils.paginate_endpoint(
+                        self._datasets_api.get_datasets_query_by_name,
+                        dataset_name=dataset_name,
+                        exact=True,
+                        shared=True,
+                    )
                 )
             )
             datasets.extend(
-                self._datasets_api.get_datasets_query_by_name(
-                    dataset_name=dataset_name,
-                    exact=True,
-                    get_assets_of_team=True,
+                list(
+                    utils.paginate_endpoint(
+                        self._datasets_api.get_datasets_query_by_name,
+                        dataset_name=dataset_name,
+                        exact=True,
+                        get_assets_of_team=True,
+                    )
                 )
             )
 
@@ -457,10 +466,13 @@ class _DatasetsMixin:
                 dataset_type=dataset_type,
             )
         else:
-            existing_datasets = self._datasets_api.get_datasets_query_by_name(
-                dataset_name=dataset_basename,
-                exact=False,
-                shared=False,
+            existing_datasets = list(
+                utils.paginate_endpoint(
+                    self._datasets_api.get_datasets_query_by_name,
+                    dataset_name=dataset_basename,
+                    exact=False,
+                    shared=False,
+                )
             )
             existing_dataset_names = {dataset.name for dataset in existing_datasets}
             counter = 1

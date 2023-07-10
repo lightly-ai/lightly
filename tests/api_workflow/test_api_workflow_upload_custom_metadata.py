@@ -3,6 +3,7 @@ from pytest_mock import MockerFixture
 from lightly.api import ApiWorkflowClient, api_workflow_upload_metadata
 from lightly.openapi_generated.swagger_client.models import (
     SampleDataModes,
+    SamplePartialMode,
     SampleUpdateRequest,
 )
 from lightly.utils.io import COCO_ANNOTATION_KEYS
@@ -41,11 +42,21 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
     # retry should be called twice: once for get_samples_partial_by_dataset_id
     # and once for update_sample_by_id. get_samples_partial_by_dataset_id returns
     # only one valid sample file `file1`
+    dummy_sample = SampleDataModes(id=utils.generate_id(), file_name="file1")
+
+    mocked_paginate_endpoint = mocker.patch.object(
+        api_workflow_upload_metadata,
+        "paginate_endpoint",
+        side_effect=[
+            [dummy_sample],
+            None,
+        ],
+    )
     mocked_retry = mocker.patch.object(
         api_workflow_upload_metadata,
         "retry",
         side_effect=[
-            [SampleDataModes(id=utils.generate_id(), file_name="file1")],
+            [dummy_sample],
             None,
         ],
     )
@@ -98,21 +109,21 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
         ),
     ]
 
-    assert mocked_retry.call_count == 2
     # First call: get_samples_partial_by_dataset_id
-    args_first_call = mocked_retry.call_args_list[0][0]
-    assert (
-        # Check first positional argument
-        args_first_call[0]
-        == mocked_samples_api.get_samples_partial_by_dataset_id
+    mocked_paginate_endpoint.assert_called_once_with(
+        mocked_samples_api.get_samples_partial_by_dataset_id,
+        dataset_id="dataset-id",
+        mode=SamplePartialMode.FILENAMES,
+        page_size=25000,
     )
     # Second call: update_sample_by_id with the only valid sample
-    args_second_call = mocked_retry.call_args_list[1][0]
-    kwargs_second_call = mocked_retry.call_args_list[1][1]
-    # Check first positional argument
-    assert args_second_call[0] == mocked_samples_api.update_sample_by_id
-    # Check second positional argument
-    assert isinstance(kwargs_second_call["sample_update_request"], SampleUpdateRequest)
-    assert kwargs_second_call["sample_update_request"].custom_meta_data == {
-        COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id1"
-    }
+    mocked_retry.assert_called_once_with(
+        mocked_samples_api.update_sample_by_id,
+        dataset_id="dataset-id",
+        sample_id=dummy_sample.id,
+        sample_update_request=SampleUpdateRequest(
+            custom_meta_data={
+                COCO_ANNOTATION_KEYS.custom_metadata_image_id: "image-id1"
+            }
+        ),
+    )
