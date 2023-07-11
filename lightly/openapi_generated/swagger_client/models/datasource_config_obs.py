@@ -17,6 +17,7 @@ from __future__ import annotations
 import pprint
 import re  # noqa: F401
 import json
+import lightly.openapi_generated.swagger_client.models
 
 
 
@@ -46,6 +47,23 @@ class DatasourceConfigOBS(DatasourceConfigBase):
         use_enum_values = True
         extra = Extra.forbid
 
+    # JSON field name that stores the object type
+    __discriminator_property_name = 'type'
+
+    # discriminator mappings
+    __discriminator_value_class_map = {
+        'DatasourceConfigLOCAL': 'DatasourceConfigLOCAL'
+    }
+
+    @classmethod
+    def get_discriminator_value(cls, obj: dict) -> str:
+        """Returns the discriminator value (object type) of the data"""
+        discriminator_value = obj[cls.__discriminator_property_name]
+        if discriminator_value:
+            return cls.__discriminator_value_class_map.get(discriminator_value)
+        else:
+            return None
+
     def to_str(self, by_alias: bool = False) -> str:
         """Returns the string representation of the model"""
         return pprint.pformat(self.dict(by_alias=by_alias))
@@ -55,7 +73,7 @@ class DatasourceConfigOBS(DatasourceConfigBase):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> DatasourceConfigOBS:
+    def from_json(cls, json_str: str) -> Union(DatasourceConfigLOCAL):
         """Create an instance of DatasourceConfigOBS from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
@@ -68,28 +86,15 @@ class DatasourceConfigOBS(DatasourceConfigBase):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> DatasourceConfigOBS:
+    def from_dict(cls, obj: dict) -> Union(DatasourceConfigLOCAL):
         """Create an instance of DatasourceConfigOBS from a dict"""
-        if obj is None:
-            return None
-
-        if not isinstance(obj, dict):
-            return DatasourceConfigOBS.parse_obj(obj)
-
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DatasourceConfigOBS) in the input: " + str(obj))
-
-        _obj = DatasourceConfigOBS.parse_obj({
-            "id": obj.get("id"),
-            "purpose": obj.get("purpose"),
-            "type": obj.get("type"),
-            "full_path": obj.get("fullPath"),
-            "thumb_suffix": obj.get("thumbSuffix"),
-            "obs_endpoint": obj.get("obsEndpoint"),
-            "obs_access_key_id": obj.get("obsAccessKeyId"),
-            "obs_secret_access_key": obj.get("obsSecretAccessKey")
-        })
-        return _obj
+        # look up the object type based on discriminator mapping
+        object_type = cls.get_discriminator_value(obj)
+        if object_type:
+            klass = getattr(lightly.openapi_generated.swagger_client.models, object_type)
+            return klass.from_dict(obj)
+        else:
+            raise ValueError("DatasourceConfigOBS failed to lookup discriminator value from " +
+                             json.dumps(obj) + ". Discriminator property name: " + cls.__discriminator_property_name +
+                             ", mapping: " + json.dumps(cls.__discriminator_value_class_map))
 

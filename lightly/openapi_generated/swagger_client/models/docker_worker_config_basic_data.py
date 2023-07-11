@@ -20,24 +20,22 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, constr, validator
-from lightly.openapi_generated.swagger_client.models.datasource_config_obs import DatasourceConfigOBS
+from pydantic import Extra,  BaseModel, Field, StrictStr, conint, constr, validator
 
-class DatasourceConfigLOCAL(DatasourceConfigOBS):
+class DockerWorkerConfigBasicData(BaseModel):
     """
-    DatasourceConfigLOCAL
+    DockerWorkerConfigBasicData
     """
-    local_endpoint: Optional[constr(strict=True, min_length=4)] = Field('http://127.0.0.1:5666', alias="localEndpoint", description="The local endpoint. Defaults to http://127.0.0.1:5666")
-    __properties = ["id", "purpose", "type", "fullPath", "thumbSuffix", "obsEndpoint", "obsAccessKeyId", "obsSecretAccessKey", "localEndpoint"]
+    id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
+    version: Optional[StrictStr] = None
+    created_at: Optional[conint(strict=True, ge=0)] = Field(None, alias="createdAt", description="unix timestamp in milliseconds")
+    __properties = ["id", "version", "createdAt"]
 
-    @validator('local_endpoint')
-    def local_endpoint_validate_regular_expression(cls, value):
+    @validator('id')
+    def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^https?:\/\/.+$", value):
-            raise ValueError(r"must validate the regular expression /^https?:\/\/.+$/")
+        if not re.match(r"^[a-f0-9]{24}$", value):
+            raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
     class Config:
@@ -56,8 +54,8 @@ class DatasourceConfigLOCAL(DatasourceConfigOBS):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> DatasourceConfigLOCAL:
-        """Create an instance of DatasourceConfigLOCAL from a JSON string"""
+    def from_json(cls, json_str: str) -> DockerWorkerConfigBasicData:
+        """Create an instance of DockerWorkerConfigBasicData from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -69,29 +67,23 @@ class DatasourceConfigLOCAL(DatasourceConfigOBS):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> DatasourceConfigLOCAL:
-        """Create an instance of DatasourceConfigLOCAL from a dict"""
+    def from_dict(cls, obj: dict) -> DockerWorkerConfigBasicData:
+        """Create an instance of DockerWorkerConfigBasicData from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return DatasourceConfigLOCAL.parse_obj(obj)
+            return DockerWorkerConfigBasicData.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DatasourceConfigLOCAL) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigBasicData) in the input: " + str(obj))
 
-        _obj = DatasourceConfigLOCAL.parse_obj({
+        _obj = DockerWorkerConfigBasicData.parse_obj({
             "id": obj.get("id"),
-            "purpose": obj.get("purpose"),
-            "type": obj.get("type"),
-            "full_path": obj.get("fullPath"),
-            "thumb_suffix": obj.get("thumbSuffix"),
-            "obs_endpoint": obj.get("obsEndpoint"),
-            "obs_access_key_id": obj.get("obsAccessKeyId"),
-            "obs_secret_access_key": obj.get("obsSecretAccessKey"),
-            "local_endpoint": obj.get("localEndpoint") if obj.get("localEndpoint") is not None else 'http://127.0.0.1:5666'
+            "version": obj.get("version"),
+            "created_at": obj.get("createdAt")
         })
         return _obj
 

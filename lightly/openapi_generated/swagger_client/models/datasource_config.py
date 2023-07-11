@@ -25,13 +25,14 @@ from lightly.openapi_generated.swagger_client.models.datasource_config_azure imp
 from lightly.openapi_generated.swagger_client.models.datasource_config_gcs import DatasourceConfigGCS
 from lightly.openapi_generated.swagger_client.models.datasource_config_lightly import DatasourceConfigLIGHTLY
 from lightly.openapi_generated.swagger_client.models.datasource_config_local import DatasourceConfigLOCAL
+from lightly.openapi_generated.swagger_client.models.datasource_config_localbasic import DatasourceConfigLOCALBASIC
 from lightly.openapi_generated.swagger_client.models.datasource_config_obs import DatasourceConfigOBS
 from lightly.openapi_generated.swagger_client.models.datasource_config_s3 import DatasourceConfigS3
 from lightly.openapi_generated.swagger_client.models.datasource_config_s3_delegated_access import DatasourceConfigS3DelegatedAccess
 from typing import Any, List
 from pydantic import StrictStr, Field, Extra
 
-DATASOURCECONFIG_ONE_OF_SCHEMAS = ["DatasourceConfigAzure", "DatasourceConfigGCS", "DatasourceConfigLIGHTLY", "DatasourceConfigLOCAL", "DatasourceConfigOBS", "DatasourceConfigS3", "DatasourceConfigS3DelegatedAccess"]
+DATASOURCECONFIG_ONE_OF_SCHEMAS = ["DatasourceConfigAzure", "DatasourceConfigGCS", "DatasourceConfigLIGHTLY", "DatasourceConfigLOCAL", "DatasourceConfigLOCALBASIC", "DatasourceConfigOBS", "DatasourceConfigS3", "DatasourceConfigS3DelegatedAccess"]
 
 class DatasourceConfig(BaseModel):
     """
@@ -51,6 +52,8 @@ class DatasourceConfig(BaseModel):
     oneof_schema_6_validator: Optional[DatasourceConfigOBS] = None
     # data type: DatasourceConfigLOCAL
     oneof_schema_7_validator: Optional[DatasourceConfigLOCAL] = None
+    # data type: DatasourceConfigLOCALBASIC
+    oneof_schema_8_validator: Optional[DatasourceConfigLOCALBASIC] = None
     actual_instance: Any
     one_of_schemas: List[str] = Field(DATASOURCECONFIG_ONE_OF_SCHEMAS, const=True)
 
@@ -112,12 +115,17 @@ class DatasourceConfig(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `DatasourceConfigLOCAL`")
         else:
             match += 1
+        # validate data type: DatasourceConfigLOCALBASIC
+        if not isinstance(v, DatasourceConfigLOCALBASIC):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `DatasourceConfigLOCALBASIC`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in DatasourceConfig with oneOf schemas: DatasourceConfigAzure, DatasourceConfigGCS, DatasourceConfigLIGHTLY, DatasourceConfigLOCAL, DatasourceConfigOBS, DatasourceConfigS3, DatasourceConfigS3DelegatedAccess. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in DatasourceConfig with oneOf schemas: DatasourceConfigAzure, DatasourceConfigGCS, DatasourceConfigLIGHTLY, DatasourceConfigLOCAL, DatasourceConfigLOCALBASIC, DatasourceConfigOBS, DatasourceConfigS3, DatasourceConfigS3DelegatedAccess. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in DatasourceConfig with oneOf schemas: DatasourceConfigAzure, DatasourceConfigGCS, DatasourceConfigLIGHTLY, DatasourceConfigLOCAL, DatasourceConfigOBS, DatasourceConfigS3, DatasourceConfigS3DelegatedAccess. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in DatasourceConfig with oneOf schemas: DatasourceConfigAzure, DatasourceConfigGCS, DatasourceConfigLIGHTLY, DatasourceConfigLOCAL, DatasourceConfigLOCALBASIC, DatasourceConfigOBS, DatasourceConfigS3, DatasourceConfigS3DelegatedAccess. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -162,6 +170,11 @@ class DatasourceConfig(BaseModel):
             instance.actual_instance = DatasourceConfigLOCAL.from_json(json_str)
             return instance
 
+        # check if data type is `DatasourceConfigLOCALBASIC`
+        if _data_type == "DatasourceConfigLOCALBASIC":
+            instance.actual_instance = DatasourceConfigLOCALBASIC.from_json(json_str)
+            return instance
+
         # check if data type is `DatasourceConfigOBS`
         if _data_type == "DatasourceConfigOBS":
             instance.actual_instance = DatasourceConfigOBS.from_json(json_str)
@@ -190,6 +203,11 @@ class DatasourceConfig(BaseModel):
         # check if data type is `DatasourceConfigLOCAL`
         if _data_type == "LOCAL":
             instance.actual_instance = DatasourceConfigLOCAL.from_json(json_str)
+            return instance
+
+        # check if data type is `DatasourceConfigLOCALBASIC`
+        if _data_type == "LOCALBASIC":
+            instance.actual_instance = DatasourceConfigLOCALBASIC.from_json(json_str)
             return instance
 
         # check if data type is `DatasourceConfigOBS`
@@ -249,13 +267,19 @@ class DatasourceConfig(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into DatasourceConfigLOCALBASIC
+        try:
+            instance.actual_instance = DatasourceConfigLOCALBASIC.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into DatasourceConfig with oneOf schemas: DatasourceConfigAzure, DatasourceConfigGCS, DatasourceConfigLIGHTLY, DatasourceConfigLOCAL, DatasourceConfigOBS, DatasourceConfigS3, DatasourceConfigS3DelegatedAccess. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into DatasourceConfig with oneOf schemas: DatasourceConfigAzure, DatasourceConfigGCS, DatasourceConfigLIGHTLY, DatasourceConfigLOCAL, DatasourceConfigLOCALBASIC, DatasourceConfigOBS, DatasourceConfigS3, DatasourceConfigS3DelegatedAccess. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into DatasourceConfig with oneOf schemas: DatasourceConfigAzure, DatasourceConfigGCS, DatasourceConfigLIGHTLY, DatasourceConfigLOCAL, DatasourceConfigOBS, DatasourceConfigS3, DatasourceConfigS3DelegatedAccess. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into DatasourceConfig with oneOf schemas: DatasourceConfigAzure, DatasourceConfigGCS, DatasourceConfigLIGHTLY, DatasourceConfigLOCAL, DatasourceConfigLOCALBASIC, DatasourceConfigOBS, DatasourceConfigS3, DatasourceConfigS3DelegatedAccess. Details: " + ", ".join(error_messages))
         else:
             return instance
 

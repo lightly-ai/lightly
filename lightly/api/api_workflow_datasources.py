@@ -703,6 +703,61 @@ class _DatasourcesMixin:
             dataset_id=self.dataset_id,
         )
 
+
+    def set_local_config(
+        self,
+        resource_path: str,
+        local_endpoint: str,
+        obs_endpoint: str,
+        obs_access_key_id: str,
+        obs_secret_access_key: str,
+        thumbnail_suffix: Optional[
+            str
+        ] = ".lightly/thumbnails/[filename]_thumb.[extension]",
+        purpose: str = DatasourcePurpose.INPUT_OUTPUT,
+    ) -> None:
+        """Sets the LOCAL OBS configuration for the datasource of the current dataset.
+        It is intended to be used with the Lightly local workflow which utlises a S3 compliant
+        layer such as the one of OBS, minio or similar.
+
+        Args:
+            resource_path:
+                OBS url of your dataset. For example, "local://my_bucket/path/to/my/data".
+            local_endpoint:
+                The the local Lightly API is running. Typically http://127.0.0.1:5666
+            obs_endpoint:
+                OBS endpoint.
+            obs_access_key_id:
+                OBS access key id.
+            obs_secret_access_key:
+                OBS secret access key.
+            thumbnail_suffix:
+                Where to save thumbnails of the images in the dataset, for
+                example ".lightly/thumbnails/[filename]_thumb.[extension]".
+                Set to None to disable thumbnails and use the full images from the
+                datasource instead.
+            purpose:
+                Datasource purpose, determines if datasource is read only (INPUT)
+                or can be written to as well (LIGHTLY, INPUT_OUTPUT).
+                The latter is required when Lightly extracts frames from input videos.
+        """
+        # TODO: Use DatasourceConfigLocal once we switch/update the api generator.
+        self._datasources_api.update_datasource_by_dataset_id(
+            datasource_config=DatasourceConfig.from_dict(
+                {
+                    "type": "LOCAL",
+                    "localEndpoint": local_endpoint,
+                    "fullPath": resource_path,
+                    "thumbSuffix": thumbnail_suffix,
+                    "obsEndpoint": obs_endpoint,
+                    "obsAccessKeyId": obs_access_key_id,
+                    "obsSecretAccessKey": obs_secret_access_key,
+                    "purpose": purpose,
+                }
+            ),
+            dataset_id=self.dataset_id,
+        )
+
     def get_prediction_read_url(
         self,
         filename: str,

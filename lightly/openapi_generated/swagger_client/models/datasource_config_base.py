@@ -61,6 +61,7 @@ class DatasourceConfigBase(BaseModel):
         'DatasourceConfigGCS': 'DatasourceConfigGCS',
         'DatasourceConfigLIGHTLY': 'DatasourceConfigLIGHTLY',
         'DatasourceConfigLOCAL': 'DatasourceConfigLOCAL',
+        'DatasourceConfigLOCALBASIC': 'DatasourceConfigLOCALBASIC',
         'DatasourceConfigOBS': 'DatasourceConfigOBS',
         'DatasourceConfigS3': 'DatasourceConfigS3',
         'DatasourceConfigS3DelegatedAccess': 'DatasourceConfigS3DelegatedAccess'
@@ -84,7 +85,7 @@ class DatasourceConfigBase(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> Union(DatasourceConfigAzure, DatasourceConfigGCS, DatasourceConfigLIGHTLY, DatasourceConfigLOCAL, DatasourceConfigOBS, DatasourceConfigS3, DatasourceConfigS3DelegatedAccess):
+    def from_json(cls, json_str: str) -> Union(DatasourceConfigAzure, DatasourceConfigGCS, DatasourceConfigLIGHTLY, DatasourceConfigLOCAL, DatasourceConfigLOCALBASIC, DatasourceConfigOBS, DatasourceConfigS3, DatasourceConfigS3DelegatedAccess):
         """Create an instance of DatasourceConfigBase from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
@@ -97,7 +98,7 @@ class DatasourceConfigBase(BaseModel):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> Union(DatasourceConfigAzure, DatasourceConfigGCS, DatasourceConfigLIGHTLY, DatasourceConfigLOCAL, DatasourceConfigOBS, DatasourceConfigS3, DatasourceConfigS3DelegatedAccess):
+    def from_dict(cls, obj: dict) -> Union(DatasourceConfigAzure, DatasourceConfigGCS, DatasourceConfigLIGHTLY, DatasourceConfigLOCAL, DatasourceConfigLOCALBASIC, DatasourceConfigOBS, DatasourceConfigS3, DatasourceConfigS3DelegatedAccess):
         """Create an instance of DatasourceConfigBase from a dict"""
         # look up the object type based on discriminator mapping
         object_type = cls.get_discriminator_value(obj)

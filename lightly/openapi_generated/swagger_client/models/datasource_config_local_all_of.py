@@ -21,14 +21,13 @@ import json
 
 from typing import Optional
 from pydantic import Extra,  BaseModel, Field, constr, validator
-from lightly.openapi_generated.swagger_client.models.datasource_config_obs import DatasourceConfigOBS
 
-class DatasourceConfigLOCAL(DatasourceConfigOBS):
+class DatasourceConfigLOCALAllOf(BaseModel):
     """
-    DatasourceConfigLOCAL
+    DatasourceConfigLOCALAllOf
     """
     local_endpoint: Optional[constr(strict=True, min_length=4)] = Field('http://127.0.0.1:5666', alias="localEndpoint", description="The local endpoint. Defaults to http://127.0.0.1:5666")
-    __properties = ["id", "purpose", "type", "fullPath", "thumbSuffix", "obsEndpoint", "obsAccessKeyId", "obsSecretAccessKey", "localEndpoint"]
+    __properties = ["localEndpoint"]
 
     @validator('local_endpoint')
     def local_endpoint_validate_regular_expression(cls, value):
@@ -56,8 +55,8 @@ class DatasourceConfigLOCAL(DatasourceConfigOBS):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> DatasourceConfigLOCAL:
-        """Create an instance of DatasourceConfigLOCAL from a JSON string"""
+    def from_json(cls, json_str: str) -> DatasourceConfigLOCALAllOf:
+        """Create an instance of DatasourceConfigLOCALAllOf from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -69,28 +68,20 @@ class DatasourceConfigLOCAL(DatasourceConfigOBS):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> DatasourceConfigLOCAL:
-        """Create an instance of DatasourceConfigLOCAL from a dict"""
+    def from_dict(cls, obj: dict) -> DatasourceConfigLOCALAllOf:
+        """Create an instance of DatasourceConfigLOCALAllOf from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return DatasourceConfigLOCAL.parse_obj(obj)
+            return DatasourceConfigLOCALAllOf.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DatasourceConfigLOCAL) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in DatasourceConfigLOCALAllOf) in the input: " + str(obj))
 
-        _obj = DatasourceConfigLOCAL.parse_obj({
-            "id": obj.get("id"),
-            "purpose": obj.get("purpose"),
-            "type": obj.get("type"),
-            "full_path": obj.get("fullPath"),
-            "thumb_suffix": obj.get("thumbSuffix"),
-            "obs_endpoint": obj.get("obsEndpoint"),
-            "obs_access_key_id": obj.get("obsAccessKeyId"),
-            "obs_secret_access_key": obj.get("obsSecretAccessKey"),
+        _obj = DatasourceConfigLOCALAllOf.parse_obj({
             "local_endpoint": obj.get("localEndpoint") if obj.get("localEndpoint") is not None else 'http://127.0.0.1:5666'
         })
         return _obj
