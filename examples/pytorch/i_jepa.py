@@ -45,19 +45,16 @@ class I_JEPA(nn.Module):
                 param_k.data.mul_(m).add_((1.-m) * param_q.detach().data)
 
 
-vit_for_predictor = torchvision.models.vit_b_32(pretrained=False)
-vit_for_embedder = torchvision.models.vit_b_32(pretrained=False)
-model = I_JEPA(vit_for_predictor, vit_for_embedder)
-
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model.to(device)
-
 collator = IJEPAMaskCollator(
     input_size=(224,224),
     patch_size=32,
 )
 
 transform = IJEPATransform()
+
+# we ignore object detection annotations by setting target_transform to return 0
+# or create a dataset from a folder containing images or videos:
+# dataset = LightlyDataset("path/to/folder")
 dataset = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc",
     download=True,
@@ -71,13 +68,23 @@ data_loader = torch.utils.data.DataLoader(
     persistent_workers=False
 )
 
-# we ignore object detection annotations by setting target_transform to return 0
+ema = (0.996, 1.0)
+ipe_scale = 1.0
+ipe = len(data_loader)
+num_epochs = 10
+momentum_scheduler = (ema[0] + i*(ema[1]-ema[0])/(ipe*num_epochs*ipe_scale)
+                          for i in range(int(ipe*num_epochs*ipe_scale)+1))
+vit_for_predictor = torchvision.models.vit_b_32(pretrained=False)
+vit_for_embedder = torchvision.models.vit_b_32(pretrained=False)
+model = I_JEPA(vit_for_predictor, vit_for_embedder, momentum_scheduler)
+
 criterion = nn.SmoothL1Loss()
 optimizer = torch.optim.AdamW(model.parameters(), lr=1.5e-4)
-# or create a dataset from a folder containing images or videos:
-# dataset = LightlyDataset("path/to/folder")
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model.to(device)
+
 print("Starting Training")
-for epoch in range(10):
+for epoch in range(num_epochs):
     total_loss = 0
     for itr, (udata, masks_enc, masks_pred) in enumerate(data_loader):
 
