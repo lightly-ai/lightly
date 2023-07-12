@@ -19,23 +19,23 @@ import re  # noqa: F401
 import json
 
 
-from typing import Optional
-from pydantic import Extra,  BaseModel, Field, StrictStr, conint, constr, validator
 
-class DockerWorkerConfigBasicData(BaseModel):
-    """
-    DockerWorkerConfigBasicData
-    """
-    id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
-    version: Optional[StrictStr] = None
-    created_at: Optional[conint(strict=True, ge=0)] = Field(None, alias="createdAt", description="unix timestamp in milliseconds")
-    __properties = ["id", "version", "createdAt"]
+from pydantic import Extra,  BaseModel, Field, constr, validator
 
-    @validator('id')
-    def id_validate_regular_expression(cls, value):
+class DatasourceConfigOBSBase(BaseModel):
+    """
+    Object Storage Service (OBS) is a S3 (AWS) compatible cloud storage like openstack
+    """
+    obs_endpoint: constr(strict=True, min_length=1) = Field(..., alias="obsEndpoint", description="The Object Storage Service (OBS) endpoint to use of your S3 compatible cloud storage provider")
+    obs_access_key_id: constr(strict=True, min_length=1) = Field(..., alias="obsAccessKeyId", description="The Access Key Id of the credential you are providing Lightly to use")
+    obs_secret_access_key: constr(strict=True, min_length=1) = Field(..., alias="obsSecretAccessKey", description="The Secret Access Key of the credential you are providing Lightly to use")
+    __properties = ["obsEndpoint", "obsAccessKeyId", "obsSecretAccessKey"]
+
+    @validator('obs_endpoint')
+    def obs_endpoint_validate_regular_expression(cls, value):
         """Validates the regular expression"""
-        if not re.match(r"^[a-f0-9]{24}$", value):
-            raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
+        if not re.match(r"^https?:\/\/.+$", value):
+            raise ValueError(r"must validate the regular expression /^https?:\/\/.+$/")
         return value
 
     class Config:
@@ -54,8 +54,8 @@ class DockerWorkerConfigBasicData(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> DockerWorkerConfigBasicData:
-        """Create an instance of DockerWorkerConfigBasicData from a JSON string"""
+    def from_json(cls, json_str: str) -> DatasourceConfigOBSBase:
+        """Create an instance of DatasourceConfigOBSBase from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -67,23 +67,23 @@ class DockerWorkerConfigBasicData(BaseModel):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> DockerWorkerConfigBasicData:
-        """Create an instance of DockerWorkerConfigBasicData from a dict"""
+    def from_dict(cls, obj: dict) -> DatasourceConfigOBSBase:
+        """Create an instance of DatasourceConfigOBSBase from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return DockerWorkerConfigBasicData.parse_obj(obj)
+            return DatasourceConfigOBSBase.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigBasicData) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in DatasourceConfigOBSBase) in the input: " + str(obj))
 
-        _obj = DockerWorkerConfigBasicData.parse_obj({
-            "id": obj.get("id"),
-            "version": obj.get("version"),
-            "created_at": obj.get("createdAt")
+        _obj = DatasourceConfigOBSBase.parse_obj({
+            "obs_endpoint": obj.get("obsEndpoint"),
+            "obs_access_key_id": obj.get("obsAccessKeyId"),
+            "obs_secret_access_key": obj.get("obsSecretAccessKey")
         })
         return _obj
 

@@ -6,6 +6,7 @@ from lightly.openapi_generated.swagger_client.models import (
     DatasourceConfigAzure,
     DatasourceConfigGCS,
     DatasourceConfigLOCAL,
+    DatasourceConfigLOCALBASIC,
     DatasourceConfigS3,
     DatasourceConfigS3DelegatedAccess,
     DatasourceRawSamplesDataRow,
@@ -228,20 +229,39 @@ def test_set_gcs_config(mocker: MockerFixture) -> None:
     assert isinstance(kwargs["datasource_config"].actual_instance, DatasourceConfigGCS)
 
 
-# def test_set_local_config(mocker: MockerFixture) -> None:
-#     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
-#     mocked_datasources_api = mocker.MagicMock()
-#     client = ApiWorkflowClient()
-#     client._datasources_api = mocked_datasources_api
-#     client._dataset_id = "dataset-id"
-#     client.set_local_config(
-#         resource_path="http://localhost:1234/path/to/my/data",
-#         thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
-#     )
-#     kwargs = mocked_datasources_api.update_datasource_by_dataset_id.call_args[1]
-#     assert isinstance(
-#         kwargs["datasource_config"].actual_instance, DatasourceConfigLOCAL
-#     )
+def test_set_local_basic_config(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_datasources_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._datasources_api = mocked_datasources_api
+    client._dataset_id = "dataset-id"
+    client.set_local_basic_config(
+        resource_path="http://localhost:1234/path/to/my/data",
+        thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+    )
+    kwargs = mocked_datasources_api.update_datasource_by_dataset_id.call_args[1]
+    assert isinstance(
+        kwargs["datasource_config"].actual_instance, DatasourceConfigLOCALBASIC
+    )
+
+def test_set_local_config(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_datasources_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._datasources_api = mocked_datasources_api
+    client._dataset_id = "dataset-id"
+    client.set_local_config(
+        resource_path="local://my_bucket/folder",
+        thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+        local_endpoint="http://localhost:5666",
+        obs_endpoint="http://localhost:9000",
+        obs_access_key_id="obs_access_key_id",
+        obs_secret_access_key="obs_secret_access_key",
+    )
+    kwargs = mocked_datasources_api.update_datasource_by_dataset_id.call_args[1]
+    assert isinstance(
+        kwargs["datasource_config"].actual_instance, DatasourceConfigLOCAL
+    )
 
 
 def test_set_s3_config(mocker: MockerFixture) -> None:

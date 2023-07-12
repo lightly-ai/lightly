@@ -669,6 +669,41 @@ class _DatasourcesMixin:
             dataset_id=self.dataset_id,
         )
 
+    def set_local_basic_config(
+        self,
+        resource_path: str,
+        thumbnail_suffix: Optional[
+            str
+        ] = ".lightly/thumbnails/[filename]_thumb.[extension]",
+    ) -> None:
+        """Sets the local basic configuration for the datasource of the current dataset.
+        Is to be used with a deprecated workflow of
+
+        Find a detailed explanation on how to setup Lightly with a local file
+        server in our docs: https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_local_server.html
+
+        Args:
+            resource_path:
+                Url to your local file server, for example: "http://localhost:1234/path/to/my/data".
+            thumbnail_suffix:
+                Where to save thumbnails of the images in the dataset, for
+                example ".lightly/thumbnails/[filename]_thumb.[extension]".
+                Set to None to disable thumbnails and use the full images from the
+                datasource instead.
+        """
+        # TODO: Use DatasourceConfigLocal once we switch/update the api generator.
+        self._datasources_api.update_datasource_by_dataset_id(
+            datasource_config=DatasourceConfig.from_dict(
+                {
+                    "type": "LOCALBASIC",
+                    "fullPath": resource_path,
+                    "thumbSuffix": thumbnail_suffix,
+                    "purpose": DatasourcePurpose.INPUT_OUTPUT,
+                }
+            ),
+            dataset_id=self.dataset_id,
+        )
+
 
     def set_local_config(
         self,
@@ -711,14 +746,14 @@ class _DatasourcesMixin:
         self._datasources_api.update_datasource_by_dataset_id(
             datasource_config=DatasourceConfig.from_dict(
                 {
+                    "purpose": purpose,
                     "type": "LOCAL",
-                    "localEndpoint": local_endpoint,
                     "fullPath": resource_path,
                     "thumbSuffix": thumbnail_suffix,
+                    "localEndpoint": local_endpoint,
                     "obsEndpoint": obs_endpoint,
                     "obsAccessKeyId": obs_access_key_id,
                     "obsSecretAccessKey": obs_secret_access_key,
-                    "purpose": purpose,
                 }
             ),
             dataset_id=self.dataset_id,

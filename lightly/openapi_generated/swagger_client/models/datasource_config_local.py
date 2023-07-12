@@ -21,14 +21,24 @@ import json
 
 from typing import Optional
 from pydantic import Extra,  BaseModel, Field, constr, validator
-from lightly.openapi_generated.swagger_client.models.datasource_config_obs import DatasourceConfigOBS
+from lightly.openapi_generated.swagger_client.models.datasource_config_base import DatasourceConfigBase
 
-class DatasourceConfigLOCAL(DatasourceConfigOBS):
+class DatasourceConfigLOCAL(DatasourceConfigBase):
     """
     DatasourceConfigLOCAL
     """
+    obs_endpoint: constr(strict=True, min_length=1) = Field(..., alias="obsEndpoint", description="The Object Storage Service (OBS) endpoint to use of your S3 compatible cloud storage provider")
+    obs_access_key_id: constr(strict=True, min_length=1) = Field(..., alias="obsAccessKeyId", description="The Access Key Id of the credential you are providing Lightly to use")
+    obs_secret_access_key: constr(strict=True, min_length=1) = Field(..., alias="obsSecretAccessKey", description="The Secret Access Key of the credential you are providing Lightly to use")
     local_endpoint: Optional[constr(strict=True, min_length=4)] = Field('http://127.0.0.1:5666', alias="localEndpoint", description="The local endpoint. Defaults to http://127.0.0.1:5666")
     __properties = ["id", "purpose", "type", "fullPath", "thumbSuffix", "obsEndpoint", "obsAccessKeyId", "obsSecretAccessKey", "localEndpoint"]
+
+    @validator('obs_endpoint')
+    def obs_endpoint_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^https?:\/\/.+$", value):
+            raise ValueError(r"must validate the regular expression /^https?:\/\/.+$/")
+        return value
 
     @validator('local_endpoint')
     def local_endpoint_validate_regular_expression(cls, value):
