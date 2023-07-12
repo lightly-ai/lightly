@@ -6,7 +6,8 @@ import numpy as np
 from torchvision.models import vision_transformer
 
 from lightly.models import utils
-from typing import Optional, partial, Callable
+from typing import Optional, Callable
+from functools import partial
 import math
 
 
