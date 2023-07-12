@@ -9,7 +9,7 @@ from lightly.openapi_generated.swagger_client.models import (
     DockerRunData,
     DockerRunState,
 )
-from tests.api_workflow.utils import generate_id
+from tests.api_workflow import utils
 
 
 def test_download_compute_worker_run_artifacts(mocker: MockerFixture) -> None:
@@ -20,12 +20,12 @@ def test_download_compute_worker_run_artifacts(mocker: MockerFixture) -> None:
     client._download_compute_worker_run_artifact = (
         mock_download_compute_worker_run_artifact
     )
-    run_id = generate_id()
-    artifact_ids = [generate_id(), generate_id()]
+    run_id = utils.generate_id()
+    artifact_ids = [utils.generate_id(), utils.generate_id()]
     run = DockerRunData(
         id=run_id,
         user_id="user-id",
-        dataset_id=generate_id(),
+        dataset_id=utils.generate_id(),
         docker_version="",
         state=DockerRunState.COMPUTING_METADATA,
         created_at=0,
@@ -72,12 +72,12 @@ def test__download_compute_worker_run_artifact_by_type(
     client._download_compute_worker_run_artifact = (
         mock_download_compute_worker_run_artifact
     )
-    run_id = generate_id()
-    artifact_ids = [generate_id(), generate_id()]
+    run_id = utils.generate_id()
+    artifact_ids = [utils.generate_id(), utils.generate_id()]
     run = DockerRunData(
         id=run_id,
         user_id="user-id",
-        dataset_id=generate_id(),
+        dataset_id=utils.generate_id(),
         docker_version="",
         state=DockerRunState.COMPUTING_METADATA,
         created_at=0,
@@ -120,9 +120,9 @@ def test__download_compute_worker_run_artifact_by_type__no_artifacts(
         mock_download_compute_worker_run_artifact
     )
     run = DockerRunData(
-        id=generate_id(),
+        id=utils.generate_id(),
         user_id="user-id",
-        dataset_id=generate_id(),
+        dataset_id=utils.generate_id(),
         docker_version="",
         state=DockerRunState.COMPUTING_METADATA,
         created_at=0,
@@ -149,16 +149,16 @@ def test__download_compute_worker_run_artifact_by_type__no_artifact_with_type(
         mock_download_compute_worker_run_artifact
     )
     run = DockerRunData(
-        id=generate_id(),
+        id=utils.generate_id(),
         user_id="user-id",
-        dataset_id=generate_id(),
+        dataset_id=utils.generate_id(),
         docker_version="",
         state=DockerRunState.COMPUTING_METADATA,
         created_at=0,
         last_modified_at=0,
         artifacts=[
             DockerRunArtifactData(
-                id=generate_id(),
+                id=utils.generate_id(),
                 file_name="report.pdf",
                 type=DockerRunArtifactType.REPORT_PDF,
             ),
@@ -178,7 +178,7 @@ def test__get_compute_worker_run_checkpoint_url(
 ) -> None:
     mocked_client = mocker.MagicMock(spec=ApiWorkflowClient)
     mocked_artifact = DockerRunArtifactData(
-        id=generate_id(),
+        id=utils.generate_id(),
         file_name="report.pdf",
         type=DockerRunArtifactType.REPORT_PDF,
     )
@@ -189,9 +189,9 @@ def test__get_compute_worker_run_checkpoint_url(
     )
 
     run = DockerRunData(
-        id=generate_id(),
+        id=utils.generate_id(),
         user_id="user-id",
-        dataset_id=generate_id(),
+        dataset_id=utils.generate_id(),
         docker_version="",
         state=DockerRunState.COMPUTING_METADATA,
         created_at=0,

@@ -19,15 +19,15 @@ import re  # noqa: F401
 import json
 
 
-from typing import Optional
+
 from pydantic import Extra,  BaseModel, Field, conint, constr
 
 class PredictionTaskSchemaCategory(BaseModel):
     """
     The link between the categoryId and the name that should be used
     """
-    id: Optional[conint(strict=True, ge=0)] = Field(None, description="The id of the category. Needs to be a positive integer but can be any integer (gaps are allowed, does not need to be sequential)")
-    name: Optional[constr(strict=True, min_length=1)] = Field(None, description="The name of the category when it should be visualized")
+    id: conint(strict=True, ge=0) = Field(..., description="The id of the category. Needs to be a positive integer but can be any integer (gaps are allowed, does not need to be sequential)")
+    name: constr(strict=True, min_length=1) = Field(..., description="The name of the category when it should be visualized")
     __properties = ["id", "name"]
 
     class Config:

@@ -34,7 +34,6 @@ class TeamRole(str, Enum):
     OWNER = 'OWNER'
     ADMIN = 'ADMIN'
     MEMBER = 'MEMBER'
-    ANALYST = 'ANALYST'
     SERVICEACCOUNT = 'SERVICEACCOUNT'
 
     @classmethod

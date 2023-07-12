@@ -54,7 +54,8 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for views, _ in dataloader:
+    for batch in dataloader:
+        views = batch[0]
         features = [model(view.to(device)) for view in views]
         zs = torch.stack([z for z, _ in features])
         ps = torch.stack([p for _, p in features])

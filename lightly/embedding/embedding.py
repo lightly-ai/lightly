@@ -14,9 +14,6 @@ import lightly
 from lightly.embedding._base import BaseEmbedding
 from lightly.utils.reordering import sort_items_by_keys
 
-if lightly._is_prefetch_generator_available():
-    from prefetch_generator import BackgroundGenerator
-
 
 class SelfSupervisedEmbedding(BaseEmbedding):
     """Implementation of self-supervised embedding models.
@@ -105,8 +102,6 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         embeddings, labels, filenames = None, None, []
 
         dataset = dataloader.dataset
-        if lightly._is_prefetch_generator_available():
-            dataloader = BackgroundGenerator(dataloader, max_prefetch=3)
 
         pbar = tqdm(total=len(dataset), unit="imgs")
 
