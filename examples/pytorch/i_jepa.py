@@ -6,7 +6,7 @@ import copy
 
 from lightly.models import utils
 from lightly.models.modules import i_jepa
-from lightly.transforms.mae_transform import IJEPATransform
+from lightly.transforms.ijepa_transform import IJEPATransform
 from lightly.data.collate import IJEPAMaskCollator
 
 
