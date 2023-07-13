@@ -191,6 +191,7 @@ class IJEPA_encoder(vision_transformer.Encoder):
             dropout=0,
             attention_dropout=0,
         )
+        encoder.pos_embedding = vit_encoder.pos_embedding
         encoder.dropout = vit_encoder.dropout
         encoder.layers = vit_encoder.layers
         encoder.ln = vit_encoder.ln
