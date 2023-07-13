@@ -242,7 +242,7 @@ class IJEPA_encoder(vision_transformer.Encoder):
 
     @classmethod
     def from_vit_encoder(cls, vit_encoder: vision_transformer.Encoder):
-        """Creates a MAEEncoder from a torchvision ViT encoder."""
+        """Creates a IJEPA encoder from a torchvision ViT encoder."""
         # Create a new instance with dummy values as they will be overwritten
         # by the copied vit_encoder attributes
         encoder = cls(
