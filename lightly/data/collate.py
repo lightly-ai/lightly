@@ -16,6 +16,7 @@ from lightly.transforms import GaussianBlur, Jigsaw, RandomSolarization
 from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropAndFlip
 from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
+from multiprocessing import Value
 
 imagenet_normalize = IMAGENET_NORMALIZE
 # Kept for backwards compatibility
@@ -1370,6 +1371,7 @@ class IJEPAMaskCollator:
         self.npred = npred
         self.min_keep = min_keep  # minimum number of patches to keep
         self.allow_overlap = allow_overlap  # whether to allow overlap b/w enc and pred masks
+        self._itr_counter = Value('i', -1)  # collator is shared across worker processes
 
     def step(self):
         i = self._itr_counter

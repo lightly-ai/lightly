@@ -88,6 +88,7 @@ class IJEPA_predictor(vision_transformer.Encoder):
             attention_dropout=0,
         )
         encoder.layers = vit_encoder.layers
+        encoder.predictor_pos_embed = vit_encoder.pos_embedding
         encoder.ln = vit_encoder.ln
         return encoder
 
