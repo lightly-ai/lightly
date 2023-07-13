@@ -1345,7 +1345,7 @@ class VICRegLCollateFunction(nn.Module):
         return (views_global, views_local, grids_global, grids_local), labels, fnames
 
 
-class IJEPAMaskCollator(MultiViewCollateFunction):
+class IJEPAMaskCollator:
 
     def __init__(
         self,
@@ -1359,7 +1359,6 @@ class IJEPAMaskCollator(MultiViewCollateFunction):
         min_keep=4,
         allow_overlap=False
     ):
-        super(IJEPAMaskCollator, self).__init__()
         if not isinstance(input_size, tuple):
             input_size = (input_size, ) * 2
         self.patch_size = patch_size
