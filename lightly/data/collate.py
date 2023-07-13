@@ -17,6 +17,7 @@ from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropA
 from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from multiprocessing import Value
+import math
 
 imagenet_normalize = IMAGENET_NORMALIZE
 # Kept for backwards compatibility
@@ -1390,8 +1391,8 @@ class IJEPAMaskCollator:
         min_ar, max_ar = aspect_ratio_scale
         aspect_ratio = min_ar + _rand * (max_ar - min_ar)
         # -- Compute block height and width (given scale and aspect-ratio)
-        h = int(round(torch.sqrt(max_keep * aspect_ratio)))
-        w = int(round(torch.sqrt(max_keep / aspect_ratio)))
+        h = int(round(math.sqrt(max_keep * aspect_ratio)))
+        w = int(round(math.sqrt(max_keep / aspect_ratio)))
         while h >= self.height:
             h -= 1
         while w >= self.width:
