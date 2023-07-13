@@ -54,4 +54,4 @@ class IJEPATransform:
             The transformed image.
 
         """
-        return [self.transform(image)]
+        return self.transform(image)

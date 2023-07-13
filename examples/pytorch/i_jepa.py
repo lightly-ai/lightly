@@ -9,12 +9,14 @@ from lightly.models.modules import i_jepa
 from lightly.transforms.ijepa_transform import IJEPATransform
 from lightly.data.collate import IJEPAMaskCollator
 
+from tqdm import tqdm
+
 
 class I_JEPA(nn.Module):
     def __init__(self, vit_encoder, vit_predictor, momentum_scheduler):
         super().__init__()
-        self.encoder = i_jepa.IJEPA_encoder.from_vit_encoder(vit_encoder)
-        self.predictor = i_jepa.IJEPA_predictor.from_vit_encoder(vit_predictor)
+        self.encoder = i_jepa.IJEPA_Backbone.from_vit(vit_encoder)
+        self.predictor = i_jepa.IJEPA_predictor.from_vit_encoder(vit_predictor.encoder, (vit_predictor.image_size//vit_predictor.patch_size)**2)
         self.target_encoder = copy.deepcopy(self.encoder)
         self.momentum_scheduler = momentum_scheduler
 
@@ -34,8 +36,8 @@ class I_JEPA(nn.Module):
         return z
 
     def forward(self, imgs, masks_enc, masks_pred):
-        z = self.forward_context(self, imgs, masks_enc, masks_pred)
-        h = self.forward_target(self, imgs, masks_enc, masks_pred)
+        z = self.forward_context(imgs, masks_enc, masks_pred)
+        h = self.forward_target(imgs, masks_enc, masks_pred)
         return z, h
     
     def update_target_encoder(self,):
@@ -64,7 +66,7 @@ dataset = torchvision.datasets.VOCDetection(
 data_loader = torch.utils.data.DataLoader(
     dataset,
     collate_fn=collator,
-    batch_size=1,
+    batch_size=10,
     persistent_workers=False
 )
 
@@ -74,9 +76,10 @@ ipe = len(data_loader)
 num_epochs = 10
 momentum_scheduler = (ema[0] + i*(ema[1]-ema[0])/(ipe*num_epochs*ipe_scale)
                           for i in range(int(ipe*num_epochs*ipe_scale)+1))
+
 vit_for_predictor = torchvision.models.vit_b_32(pretrained=False)
 vit_for_embedder = torchvision.models.vit_b_32(pretrained=False)
-model = I_JEPA(vit_for_predictor, vit_for_embedder, momentum_scheduler)
+model = I_JEPA(vit_for_embedder, vit_for_predictor, momentum_scheduler)
 
 criterion = nn.SmoothL1Loss()
 optimizer = torch.optim.AdamW(model.parameters(), lr=1.5e-4)
@@ -86,7 +89,7 @@ model.to(device)
 print("Starting Training")
 for epoch in range(num_epochs):
     total_loss = 0
-    for itr, (udata, masks_enc, masks_pred) in enumerate(data_loader):
+    for udata, masks_enc, masks_pred in tqdm(data_loader):
 
         def load_imgs():
             # -- unsupervised imgs
@@ -101,5 +104,7 @@ for epoch in range(num_epochs):
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
+        model.update_target_encoder()
+        
     avg_loss = total_loss / len(data_loader)
     print(f"epoch: {epoch:>02}, loss: {avg_loss:.5f}")  

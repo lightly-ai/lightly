@@ -11,6 +11,68 @@ from typing import Optional, List, Callable
 from functools import partial
 import math
 
+def get_2d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
+    """
+    grid_size: int of the grid height and width
+    return:
+    pos_embed: [grid_size*grid_size, embed_dim] or [1+grid_size*grid_size, embed_dim] (w/ or w/o cls_token)
+    """
+    grid_h = np.arange(grid_size, dtype=float)
+    grid_w = np.arange(grid_size, dtype=float)
+    grid = np.meshgrid(grid_w, grid_h)  # here w goes first
+    grid = np.stack(grid, axis=0)
+
+    grid = grid.reshape([2, 1, grid_size, grid_size])
+    pos_embed = get_2d_sincos_pos_embed_from_grid(embed_dim, grid)
+    if cls_token:
+        pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
+    return pos_embed
+
+
+def get_2d_sincos_pos_embed_from_grid(embed_dim, grid):
+    assert embed_dim % 2 == 0
+
+    # use half of dimensions to encode grid_h
+    emb_h = get_1d_sincos_pos_embed_from_grid(embed_dim // 2, grid[0])  # (H*W, D/2)
+    emb_w = get_1d_sincos_pos_embed_from_grid(embed_dim // 2, grid[1])  # (H*W, D/2)
+
+    emb = np.concatenate([emb_h, emb_w], axis=1)  # (H*W, D)
+    return emb
+
+
+def get_1d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
+    """
+    grid_size: int of the grid length
+    return:
+    pos_embed: [grid_size, embed_dim] or [1+grid_size, embed_dim] (w/ or w/o cls_token)
+    """
+    grid = np.arange(grid_size, dtype=float)
+    pos_embed = get_1d_sincos_pos_embed_from_grid(embed_dim, grid)
+    if cls_token:
+        pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
+    return pos_embed
+
+
+def get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
+    """
+    embed_dim: output dimension for each position
+    pos: a list of positions to be encoded: size (M,)
+    out: (M, D)
+    """
+    assert embed_dim % 2 == 0
+    omega = np.arange(embed_dim // 2, dtype=float)
+    omega /= embed_dim / 2.
+    omega = 1. / 10000**omega   # (D/2,)
+
+    pos = pos.reshape(-1)   # (M,)
+    out = np.einsum('m,d->md', pos, omega)   # (M, D/2), outer product
+
+    emb_sin = np.sin(out)  # (M, D/2)
+    emb_cos = np.cos(out)  # (M, D/2)
+
+    emb = np.concatenate([emb_sin, emb_cos], axis=1)  # (M, D)
+    return emb
+
 
 class IJEPA_predictor(vision_transformer.Encoder):
     """
@@ -46,7 +108,8 @@ class IJEPA_predictor(vision_transformer.Encoder):
         num_layers: int,
         num_heads: int,
         hidden_dim: int,
-        predictor_embed_dim :int, 
+        predictor_embed_dim :int,
+        num_patches : int,
         mlp_dim: int,
         dropout: float,
         attention_dropout: float,
@@ -66,15 +129,15 @@ class IJEPA_predictor(vision_transformer.Encoder):
         self.predictor_embed = nn.Linear(mlp_dim, predictor_embed_dim, bias=True)
         self.mask_token = nn.Parameter(torch.zeros(1, 1, predictor_embed_dim))
         self.predictor_proj = nn.Linear(predictor_embed_dim, mlp_dim, bias=True)
-        # self.predictor_pos_embed = nn.Parameter(torch.zeros(1, num_patches, predictor_embed_dim),
-        #                                         requires_grad=False)
-        # predictor_pos_embed = get_2d_sincos_pos_embed(self.predictor_pos_embed.shape[-1],
-        #                                               int(num_patches**.5),
-        #                                               cls_token=False)
-        # self.predictor_pos_embed.data.copy_(torch.from_numpy(predictor_pos_embed).float().unsqueeze(0))
+        self.predictor_pos_embed = nn.Parameter(torch.zeros(1, num_patches, predictor_embed_dim),
+                                                requires_grad=False)
+        predictor_pos_embed = get_2d_sincos_pos_embed(self.predictor_pos_embed.shape[-1],
+                                                      int(num_patches**.5),
+                                                      cls_token=False)
+        self.predictor_pos_embed.data.copy_(torch.from_numpy(predictor_pos_embed).float().unsqueeze(0))
 
     @classmethod
-    def from_vit_encoder(cls, vit_encoder):
+    def from_vit_encoder(cls, vit_encoder, num_patches):
         """Creates a I-JEPA predictor backbone (mhas and layernorm) from a torchvision ViT encoder."""
         # Create a new instance with dummy values as they will be overwritten
         # by the copied vit_encoder attributes
@@ -83,13 +146,13 @@ class IJEPA_predictor(vision_transformer.Encoder):
             num_layers=1,
             num_heads=1,
             hidden_dim=1,
-            predictor_embed_dim=512,
-            mlp_dim=1,
+            predictor_embed_dim=768,
+            mlp_dim=768,
+            num_patches=num_patches, 
             dropout=0,
             attention_dropout=0,
         )
         encoder.layers = vit_encoder.layers
-        encoder.predictor_pos_embed = vit_encoder.pos_embedding
         encoder.ln = vit_encoder.ln
         return encoder
 
@@ -105,10 +168,9 @@ class IJEPA_predictor(vision_transformer.Encoder):
             masks = [masks]
 
         B = len(x) // len(masks_x)
-
         x = self.predictor_embed(x)
-
         x_pos_embed = self.predictor_pos_embed.repeat(B, 1, 1)
+
         x += utils.apply_masks(x_pos_embed, masks_x)
         _, N_ctxt, _ = x.shape
 
@@ -216,7 +278,7 @@ class IJEPA_encoder(vision_transformer.Encoder):
         """
         input = input + self.interpolate_pos_encoding(input)
         if idx_keep is not None:
-            input = utils.get_at_index(input, idx_keep)
+            input = utils.apply_masks(input, idx_keep)
         return self.ln(self.layers(self.dropout(input)))
 
     def interpolate_pos_encoding(self, input: torch.Tensor):
@@ -249,7 +311,7 @@ class IJEPA_encoder(vision_transformer.Encoder):
         pos_embedding = pos_embedding.permute(0, 2, 3, 1).view(1, -1, dim)
         return torch.cat((class_emb.unsqueeze(0), pos_embedding), dim=1)
 
-class MAEBackbone(vision_transformer.VisionTransformer):
+class IJEPA_Backbone(vision_transformer.VisionTransformer):
     """
     Encoder for the I-JEPA model [0].
     Converts images into patches and encodes them. Code inspired by [1].
@@ -356,7 +418,8 @@ class MAEBackbone(vision_transformer.VisionTransformer):
     def forward(
         self, images: torch.Tensor, idx_keep: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
-        """Returns encoded class tokens from a batch of images.
+        """
+        Returns encoded class tokens from a batch of images.
 
         Args:
             images:
@@ -372,9 +435,12 @@ class MAEBackbone(vision_transformer.VisionTransformer):
             encoded class token for every image.
 
         """
+        if idx_keep is not None:
+            if not isinstance(idx_keep, list):
+                idx_keep = [idx_keep]
+                
         out = self.encode(images, idx_keep)
-        class_token = out[:, 0]
-        return class_token
+        return out
 
     def encode(
         self, images: torch.Tensor, idx_keep: Optional[torch.Tensor] = None
