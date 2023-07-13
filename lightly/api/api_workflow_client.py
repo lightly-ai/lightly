@@ -93,6 +93,7 @@ class ApiWorkflowClient(
         dataset_id: Optional[str] = None,
         embedding_id: Optional[str] = None,
         creator: str = Creator.USER_PIP,
+        api_client: LightlySwaggerApiClient = None,
     ):
         try:
             if not version_checking.is_compatible_version(__version__):
@@ -113,11 +114,16 @@ class ApiWorkflowClient(
         ):
             pass
 
-        configuration = utils.get_api_client_configuration(token=token)
-        self.api_client = LightlySwaggerApiClient(configuration=configuration)
-        self.api_client.user_agent = f"Lightly/{__version__} ({platform.system()}/{platform.release()}; {platform.platform()}; {platform.processor()};) python/{platform.python_version()}"
+        # reuse an existing api_client if provided or create a new one
+        if api_client is not None:
+            self.api_client = api_client
+            self.token = self.api_client.configuration.api_key["ApiKeyAuth"]
+        else:
+            configuration = utils.get_api_client_configuration(token=token)
+            self.api_client = LightlySwaggerApiClient(configuration=configuration)
+            self.api_client.user_agent = f"Lightly/{__version__} ({platform.system()}/{platform.release()}; {platform.platform()}; {platform.processor()};) python/{platform.python_version()}"
+            self.token = configuration.api_key["ApiKeyAuth"]
 
-        self.token = configuration.api_key["ApiKeyAuth"]
         if dataset_id is not None:
             self._dataset_id = dataset_id
         if embedding_id is not None:
