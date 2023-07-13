@@ -82,6 +82,7 @@ class IJEPA_predictor(vision_transformer.Encoder):
             num_layers=1,
             num_heads=1,
             hidden_dim=1,
+            predictor_embed_dim=512,
             mlp_dim=1,
             dropout=0,
             attention_dropout=0,
