@@ -12,6 +12,20 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 class MSNTransform(MultiViewTransform):
     """Implements the transformations for MSN [0].
 
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length 2 * random_views + focal_views. (12 by default)
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - ImageNet normalization
+
     Generates a set of random and focal views for each input image. The generated output
     is (views, target, filenames) where views is list with the following entries:
     [random_views_0, random_views_1, ..., focal_views_0, focal_views_1, ...].

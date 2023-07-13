@@ -11,6 +11,16 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 class MAETransform:
     """Implements the view augmentation for MAE [0].
 
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length 1.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+
     - [0]: Masked Autoencoder, 2021, https://arxiv.org/abs/2111.06377
 
     Attributes:

@@ -8,6 +8,20 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 class FastSiamTransform(MultiViewTransform):
     """Implements the transformations for FastSiam.
 
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length 4.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - ImageNet normalization
+
     Attributes:
         num_views:
             Number of views (num_views = K+1 where K is the number of target views).
