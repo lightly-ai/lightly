@@ -19,7 +19,6 @@ from lightly.api.api_workflow_export import _ExportDatasetMixin
 from lightly.api.api_workflow_predictions import _PredictionsMixin
 from lightly.api.api_workflow_selection import _SelectionMixin
 from lightly.api.api_workflow_tags import _TagsMixin
-from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
 from lightly.api.swagger_api_client import LightlySwaggerApiClient
@@ -52,7 +51,6 @@ LIGHTLY_S3_SSE_KMS_KEY = "LIGHTLY_S3_SSE_KMS_KEY"
 class ApiWorkflowClient(
     _UploadEmbeddingsMixin,
     _SelectionMixin,
-    _UploadDatasetMixin,
     _DownloadDatasetMixin,
     _DatasetsMixin,
     _UploadCustomMetadataMixin,
