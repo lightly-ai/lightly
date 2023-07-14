@@ -1,15 +1,17 @@
-from typing import List, Tuple, Union
+from typing import Tuple, Union
 
 import torchvision.transforms as T
 from PIL.Image import Image
 from torch import Tensor
 
-from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class IJEPATransform:
-    """Implements the augmentations for I-JEPA (IMAGENET data transforms accorgind to original code) [0, 1].
+    """Implements the augmentations for I-JEPA [0, 1].
+
+    Experimental: Support for I-JEPA is experimental, there might be breaking changes
+    in the future.
 
     - [0]: Joint-Embedding Predictive Architecture, 2023, https://arxiv.org/abs/2301.08243
     - [1]: https://github.com/facebookresearch/ijepa
@@ -42,9 +44,8 @@ class IJEPATransform:
 
         self.transform = T.Compose(transforms)
 
-    def __call__(self, image: Union[Tensor, Image]) -> List[Tensor]:
-        """
-        Applies the transforms to the input image.
+    def __call__(self, image: Union[Tensor, Image]) -> Tensor:
+        """Applies the transforms to the input image.
 
         Args:
             image:

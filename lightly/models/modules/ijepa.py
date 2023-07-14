@@ -5,79 +5,17 @@ from typing import Callable, List, Optional
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torchvision.models import vision_transformer
 from torchvision.models.vision_transformer import ConvStemConfig
 
 from lightly.models import utils
 
 
-def get_2d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
-    """
-    grid_size: int of the grid height and width
-    return:
-    pos_embed: [grid_size*grid_size, embed_dim] or [1+grid_size*grid_size, embed_dim] (w/ or w/o cls_token)
-    """
-    grid_h = np.arange(grid_size, dtype=float)
-    grid_w = np.arange(grid_size, dtype=float)
-    grid = np.meshgrid(grid_w, grid_h)  # here w goes first
-    grid = np.stack(grid, axis=0)
-
-    grid = grid.reshape([2, 1, grid_size, grid_size])
-    pos_embed = get_2d_sincos_pos_embed_from_grid(embed_dim, grid)
-    if cls_token:
-        pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
-    return pos_embed
-
-
-def get_2d_sincos_pos_embed_from_grid(embed_dim, grid):
-    assert embed_dim % 2 == 0
-
-    # use half of dimensions to encode grid_h
-    emb_h = get_1d_sincos_pos_embed_from_grid(embed_dim // 2, grid[0])  # (H*W, D/2)
-    emb_w = get_1d_sincos_pos_embed_from_grid(embed_dim // 2, grid[1])  # (H*W, D/2)
-
-    emb = np.concatenate([emb_h, emb_w], axis=1)  # (H*W, D)
-    return emb
-
-
-def get_1d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
-    """
-    grid_size: int of the grid length
-    return:
-    pos_embed: [grid_size, embed_dim] or [1+grid_size, embed_dim] (w/ or w/o cls_token)
-    """
-    grid = np.arange(grid_size, dtype=float)
-    pos_embed = get_1d_sincos_pos_embed_from_grid(embed_dim, grid)
-    if cls_token:
-        pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
-    return pos_embed
-
-
-def get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
-    """
-    embed_dim: output dimension for each position
-    pos: a list of positions to be encoded: size (M,)
-    out: (M, D)
-    """
-    assert embed_dim % 2 == 0
-    omega = np.arange(embed_dim // 2, dtype=float)
-    omega /= embed_dim / 2.0
-    omega = 1.0 / 10000**omega  # (D/2,)
-
-    pos = pos.reshape(-1)  # (M,)
-    out = np.einsum("m,d->md", pos, omega)  # (M, D/2), outer product
-
-    emb_sin = np.sin(out)  # (M, D/2)
-    emb_cos = np.cos(out)  # (M, D/2)
-
-    emb = np.concatenate([emb_sin, emb_cos], axis=1)  # (M, D)
-    return emb
-
-
 class IJEPAPredictor(vision_transformer.Encoder):
-    """
-    Predictor for the I-JEPA model [0].
+    """Predictor for the I-JEPA model [0].
+
+    Experimental: Support for I-JEPA is experimental, there might be breaking changes
+    in the future.
 
     Predict patch embeddings. Code inspired by [1].
 
@@ -134,7 +72,7 @@ class IJEPAPredictor(vision_transformer.Encoder):
         self.predictor_pos_embed = nn.Parameter(
             torch.zeros(1, num_patches, predictor_embed_dim), requires_grad=False
         )
-        predictor_pos_embed = get_2d_sincos_pos_embed(
+        predictor_pos_embed = _get_2d_sincos_pos_embed(
             self.predictor_pos_embed.shape[-1], int(num_patches**0.5), cls_token=False
         )
         self.predictor_pos_embed.data.copy_(
@@ -197,8 +135,10 @@ class IJEPAPredictor(vision_transformer.Encoder):
 
 
 class IJEPAEncoder(vision_transformer.Encoder):
-    """
-    Encoder for the I-JEPA model [0].
+    """Encoder for the I-JEPA model [0].
+
+    Experimental: Support for I-JEPA is experimental, there might be breaking changes
+    in the future.
 
     Encodes patch embeddings. Code inspired by [1].
 
@@ -318,8 +258,11 @@ class IJEPAEncoder(vision_transformer.Encoder):
 
 
 class IJEPABackbone(vision_transformer.VisionTransformer):
-    """
-    Encoder for the I-JEPA model [0].
+    """Encoder for the I-JEPA model [0].
+
+    Experimental: Support for I-JEPA is experimental, there might be breaking changes
+    in the future.
+
     Converts images into patches and encodes them. Code inspired by [1].
     Note that this implementation uses a learned positional embedding while [0]
     uses a fixed positional embedding.
@@ -488,3 +431,66 @@ class IJEPABackbone(vision_transformer.VisionTransformer):
         if prepend_class_token:
             tokens = utils.prepend_class_token(tokens, self.class_token)
         return tokens
+
+
+def _get_2d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
+    """
+    grid_size: int of the grid height and width
+    return:
+    pos_embed: [grid_size*grid_size, embed_dim] or [1+grid_size*grid_size, embed_dim] (w/ or w/o cls_token)
+    """
+    grid_h = np.arange(grid_size, dtype=float)
+    grid_w = np.arange(grid_size, dtype=float)
+    grid = np.meshgrid(grid_w, grid_h)  # here w goes first
+    grid = np.stack(grid, axis=0)
+
+    grid = grid.reshape([2, 1, grid_size, grid_size])
+    pos_embed = _get_2d_sincos_pos_embed_from_grid(embed_dim, grid)
+    if cls_token:
+        pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
+    return pos_embed
+
+
+def _get_2d_sincos_pos_embed_from_grid(embed_dim, grid):
+    assert embed_dim % 2 == 0
+
+    # use half of dimensions to encode grid_h
+    emb_h = _get_1d_sincos_pos_embed_from_grid(embed_dim // 2, grid[0])  # (H*W, D/2)
+    emb_w = _get_1d_sincos_pos_embed_from_grid(embed_dim // 2, grid[1])  # (H*W, D/2)
+
+    emb = np.concatenate([emb_h, emb_w], axis=1)  # (H*W, D)
+    return emb
+
+
+def _get_1d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
+    """
+    grid_size: int of the grid length
+    return:
+    pos_embed: [grid_size, embed_dim] or [1+grid_size, embed_dim] (w/ or w/o cls_token)
+    """
+    grid = np.arange(grid_size, dtype=float)
+    pos_embed = _get_1d_sincos_pos_embed_from_grid(embed_dim, grid)
+    if cls_token:
+        pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
+    return pos_embed
+
+
+def _get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
+    """
+    embed_dim: output dimension for each position
+    pos: a list of positions to be encoded: size (M,)
+    out: (M, D)
+    """
+    assert embed_dim % 2 == 0
+    omega = np.arange(embed_dim // 2, dtype=float)
+    omega /= embed_dim / 2.0
+    omega = 1.0 / 10000**omega  # (D/2,)
+
+    pos = pos.reshape(-1)  # (M,)
+    out = np.einsum("m,d->md", pos, omega)  # (M, D/2), outer product
+
+    emb_sin = np.sin(out)  # (M, D/2)
+    emb_cos = np.cos(out)  # (M, D/2)
+
+    emb = np.concatenate([emb_sin, emb_cos], axis=1)  # (M, D)
+    return emb

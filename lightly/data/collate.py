@@ -1348,10 +1348,12 @@ class VICRegLCollateFunction(nn.Module):
 
 
 class IJEPAMaskCollator:
-    """
-    Collator for IJEPA model [0].
+    """Collator for IJEPA model [0].
 
-    Include collate function. Code inspired by [1].
+    Experimental: Support for I-JEPA is experimental, there might be breaking changes
+    in the future.
+
+    Code inspired by [1].
 
     - [0]: Joint-Embedding Predictive Architecture, 2023, https://arxiv.org/abs/2301.08243
     - [1]: https://github.com/facebookresearch/ijepa
