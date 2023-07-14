@@ -1,15 +1,16 @@
+import math
+from functools import partial
+from typing import Callable, List, Optional
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
-
 from torchvision.models import vision_transformer
 from torchvision.models.vision_transformer import ConvStemConfig
 
 from lightly.models import utils
-from typing import Optional, List, Callable
-from functools import partial
-import math
+
 
 def get_2d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
     """
@@ -61,11 +62,11 @@ def get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
     """
     assert embed_dim % 2 == 0
     omega = np.arange(embed_dim // 2, dtype=float)
-    omega /= embed_dim / 2.
-    omega = 1. / 10000**omega   # (D/2,)
+    omega /= embed_dim / 2.0
+    omega = 1.0 / 10000**omega  # (D/2,)
 
-    pos = pos.reshape(-1)   # (M,)
-    out = np.einsum('m,d->md', pos, omega)   # (M, D/2), outer product
+    pos = pos.reshape(-1)  # (M,)
+    out = np.einsum("m,d->md", pos, omega)  # (M, D/2), outer product
 
     emb_sin = np.sin(out)  # (M, D/2)
     emb_cos = np.cos(out)  # (M, D/2)
@@ -102,14 +103,15 @@ class IJEPAPredictor(vision_transformer.Encoder):
             Percentage of elements set to zero after the attention head.
 
     """
+
     def __init__(
         self,
         seq_length: int,
         num_layers: int,
         num_heads: int,
         hidden_dim: int,
-        predictor_embed_dim :int,
-        num_patches : int,
+        predictor_embed_dim: int,
+        num_patches: int,
         mlp_dim: int,
         dropout: float,
         attention_dropout: float,
@@ -129,12 +131,15 @@ class IJEPAPredictor(vision_transformer.Encoder):
         self.predictor_embed = nn.Linear(mlp_dim, predictor_embed_dim, bias=True)
         self.mask_token = nn.Parameter(torch.zeros(1, 1, predictor_embed_dim))
         self.predictor_proj = nn.Linear(predictor_embed_dim, mlp_dim, bias=True)
-        self.predictor_pos_embed = nn.Parameter(torch.zeros(1, num_patches, predictor_embed_dim),
-                                                requires_grad=False)
-        predictor_pos_embed = get_2d_sincos_pos_embed(self.predictor_pos_embed.shape[-1],
-                                                      int(num_patches**.5),
-                                                      cls_token=False)
-        self.predictor_pos_embed.data.copy_(torch.from_numpy(predictor_pos_embed).float().unsqueeze(0))
+        self.predictor_pos_embed = nn.Parameter(
+            torch.zeros(1, num_patches, predictor_embed_dim), requires_grad=False
+        )
+        predictor_pos_embed = get_2d_sincos_pos_embed(
+            self.predictor_pos_embed.shape[-1], int(num_patches**0.5), cls_token=False
+        )
+        self.predictor_pos_embed.data.copy_(
+            torch.from_numpy(predictor_pos_embed).float().unsqueeze(0)
+        )
 
     @classmethod
     def from_vit_encoder(cls, vit_encoder, num_patches):
@@ -148,7 +153,7 @@ class IJEPAPredictor(vision_transformer.Encoder):
             hidden_dim=1,
             predictor_embed_dim=768,
             mlp_dim=768,
-            num_patches=num_patches, 
+            num_patches=num_patches,
             dropout=0,
             attention_dropout=0,
         )
@@ -156,10 +161,10 @@ class IJEPAPredictor(vision_transformer.Encoder):
         encoder.ln = vit_encoder.ln
         return encoder
 
-    def forward(
-        self,  x, masks_x, masks
-    ):
-        assert (masks is not None) and (masks_x is not None), 'Cannot run predictor without mask indices'
+    def forward(self, x, masks_x, masks):
+        assert (masks is not None) and (
+            masks_x is not None
+        ), "Cannot run predictor without mask indices"
 
         if not isinstance(masks_x, list):
             masks_x = [masks_x]
@@ -190,7 +195,7 @@ class IJEPAPredictor(vision_transformer.Encoder):
 
         return x
 
-        
+
 class IJEPAEncoder(vision_transformer.Encoder):
     """
     Encoder for the I-JEPA model [0].
@@ -310,6 +315,7 @@ class IJEPAEncoder(vision_transformer.Encoder):
         )
         pos_embedding = pos_embedding.permute(0, 2, 3, 1).view(1, -1, dim)
         return torch.cat((class_emb.unsqueeze(0), pos_embedding), dim=1)
+
 
 class IJEPABackbone(vision_transformer.VisionTransformer):
     """
@@ -438,7 +444,7 @@ class IJEPABackbone(vision_transformer.VisionTransformer):
         if idx_keep is not None:
             if not isinstance(idx_keep, list):
                 idx_keep = [idx_keep]
-                
+
         out = self.encode(images, idx_keep)
         return out
 

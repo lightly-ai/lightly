@@ -570,7 +570,7 @@ def get_weight_decay_parameters(
     return params, params_no_weight_decay
 
 
-def trunc_normal_(tensor, mean=0., std=1., a=-2., b=2.):
+def trunc_normal_(tensor, mean=0.0, std=1.0, a=-2.0, b=2.0):
     return _no_grad_trunc_normal(tensor, mean, std, a, b)
 
 
@@ -585,10 +585,14 @@ def apply_masks(x, masks):
         all_x += [torch.gather(x, dim=1, index=mask_keep)]
     return torch.cat(all_x, dim=0)
 
+
 def repeat_interleave_batch(x, B, repeat):
     N = len(x) // B
-    x = torch.cat([
-        torch.cat([x[i*B:(i+1)*B] for _ in range(repeat)], dim=0)
-        for i in range(N)
-    ], dim=0)
+    x = torch.cat(
+        [
+            torch.cat([x[i * B : (i + 1) * B] for _ in range(repeat)], dim=0)
+            for i in range(N)
+        ],
+        dim=0,
+    )
     return x

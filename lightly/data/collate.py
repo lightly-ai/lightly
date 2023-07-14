@@ -3,6 +3,8 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+import math
+from multiprocessing import Value
 from typing import List, Optional, Tuple, Union
 from warnings import warn
 
@@ -16,8 +18,6 @@ from lightly.transforms import GaussianBlur, Jigsaw, RandomSolarization
 from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropAndFlip
 from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
-from multiprocessing import Value
-import math
 
 imagenet_normalize = IMAGENET_NORMALIZE
 # Kept for backwards compatibility
@@ -1356,6 +1356,7 @@ class IJEPAMaskCollator:
     - [0]: Joint-Embedding Predictive Architecture, 2023, https://arxiv.org/abs/2301.08243
     - [1]: https://github.com/facebookresearch/ijepa
     """
+
     def __init__(
         self,
         input_size=(224, 224),
@@ -1366,20 +1367,25 @@ class IJEPAMaskCollator:
         nenc=1,
         npred=2,
         min_keep=4,
-        allow_overlap=False
+        allow_overlap=False,
     ):
         if not isinstance(input_size, tuple):
-            input_size = (input_size, ) * 2
+            input_size = (input_size,) * 2
         self.patch_size = patch_size
-        self.height, self.width = input_size[0] // patch_size, input_size[1] // patch_size
+        self.height, self.width = (
+            input_size[0] // patch_size,
+            input_size[1] // patch_size,
+        )
         self.enc_mask_scale = enc_mask_scale
         self.pred_mask_scale = pred_mask_scale
         self.aspect_ratio = aspect_ratio
         self.nenc = nenc
         self.npred = npred
         self.min_keep = min_keep  # minimum number of patches to keep
-        self.allow_overlap = allow_overlap  # whether to allow overlap b/w enc and pred masks
-        self._itr_counter = Value('i', -1)  # collator is shared across worker processes
+        self.allow_overlap = (
+            allow_overlap  # whether to allow overlap b/w enc and pred masks
+        )
+        self._itr_counter = Value("i", -1)  # collator is shared across worker processes
 
     def step(self):
         i = self._itr_counter
@@ -1411,10 +1417,11 @@ class IJEPAMaskCollator:
         h, w = b_size
 
         def constrain_mask(mask, tries=0):
-            """ Helper to restrict given mask to a set of acceptable regions """
-            N = max(int(len(acceptable_regions)-tries), 0)
+            """Helper to restrict given mask to a set of acceptable regions"""
+            N = max(int(len(acceptable_regions) - tries), 0)
             for k in range(N):
                 mask *= acceptable_regions[k]
+
         # --
         # -- Loop to sample masks until we find a valid one
         tries = 0
@@ -1425,7 +1432,7 @@ class IJEPAMaskCollator:
             top = torch.randint(0, self.height - h, (1,))
             left = torch.randint(0, self.width - w, (1,))
             mask = torch.zeros((self.height, self.width), dtype=torch.int32)
-            mask[top:top+h, left:left+w] = 1
+            mask[top : top + h, left : left + w] = 1
             # -- Constrain mask to a set of acceptable regions
             if acceptable_regions is not None:
                 constrain_mask(mask, tries)
@@ -1440,19 +1447,19 @@ class IJEPAMaskCollator:
         mask = mask.squeeze()
         # --
         mask_complement = torch.ones((self.height, self.width), dtype=torch.int32)
-        mask_complement[top:top+h, left:left+w] = 0
+        mask_complement[top : top + h, left : left + w] = 0
         # --
         return mask, mask_complement
 
     def __call__(self, batch):
-        '''
+        """
         Create encoder and predictor masks when collating imgs into a batch
         # 1. sample enc block (size + location) using seed
         # 2. sample pred block (size) using seed
         # 3. sample several enc block locations for each image (w/o seed)
         # 4. sample several pred block locations for each image (w/o seed)
         # 5. return enc mask and pred mask
-        '''
+        """
         B = len(batch)
 
         collated_batch = torch.utils.data.default_collate(batch)
@@ -1463,17 +1470,16 @@ class IJEPAMaskCollator:
         p_size = self._sample_block_size(
             generator=g,
             scale=self.pred_mask_scale,
-            aspect_ratio_scale=self.aspect_ratio)
+            aspect_ratio_scale=self.aspect_ratio,
+        )
         e_size = self._sample_block_size(
-            generator=g,
-            scale=self.enc_mask_scale,
-            aspect_ratio_scale=(1., 1.))
+            generator=g, scale=self.enc_mask_scale, aspect_ratio_scale=(1.0, 1.0)
+        )
 
         collated_masks_pred, collated_masks_enc = [], []
         min_keep_pred = self.height * self.width
         min_keep_enc = self.height * self.width
         for _ in range(B):
-
             masks_p, masks_C = [], []
             for _ in range(self.npred):
                 mask, mask_C = self._sample_block_mask(p_size)
@@ -1485,20 +1491,25 @@ class IJEPAMaskCollator:
             acceptable_regions = masks_C
 
             if self.allow_overlap:
-                acceptable_regions= None
-
+                acceptable_regions = None
 
             masks_e = []
             for _ in range(self.nenc):
-                mask, _ = self._sample_block_mask(e_size, acceptable_regions=acceptable_regions)
+                mask, _ = self._sample_block_mask(
+                    e_size, acceptable_regions=acceptable_regions
+                )
                 masks_e.append(mask)
                 min_keep_enc = min(min_keep_enc, len(mask))
             collated_masks_enc.append(masks_e)
 
-        collated_masks_pred = [[cm[:min_keep_pred] for cm in cm_list] for cm_list in collated_masks_pred]
+        collated_masks_pred = [
+            [cm[:min_keep_pred] for cm in cm_list] for cm_list in collated_masks_pred
+        ]
         collated_masks_pred = torch.utils.data.default_collate(collated_masks_pred)
         # --
-        collated_masks_enc = [[cm[:min_keep_enc] for cm in cm_list] for cm_list in collated_masks_enc]
+        collated_masks_enc = [
+            [cm[:min_keep_enc] for cm in cm_list] for cm_list in collated_masks_enc
+        ]
         collated_masks_enc = torch.utils.data.default_collate(collated_masks_enc)
 
         return collated_batch, collated_masks_enc, collated_masks_pred
