@@ -10,6 +10,12 @@ from lightly.openapi_generated.swagger_client.models import (
     DatasourceConfigS3DelegatedAccess,
     DatasourceRawSamplesDataRow,
 )
+from lightly.openapi_generated.swagger_client.models.datasource_config_verify_data import (
+    DatasourceConfigVerifyData,
+)
+from lightly.openapi_generated.swagger_client.models.datasource_config_verify_data_errors import (
+    DatasourceConfigVerifyDataErrors,
+)
 
 
 def test__download_raw_files(mocker: MockerFixture) -> None:
@@ -289,3 +295,48 @@ def test_update_processed_until_timestamp(mocker: MockerFixture) -> None:
         kwargs["datasource_processed_until_timestamp_request"].processed_until_timestamp
         == 10
     )
+
+
+def test_list_datasource_permissions(mocker: MockerFixture) -> None:
+    client = ApiWorkflowClient(token="abc")
+    client._dataset_id = "dataset-id"
+    client._datasources_api.verify_datasource_by_dataset_id = mocker.MagicMock(
+        return_value=DatasourceConfigVerifyData(
+            canRead=True,
+            canWrite=True,
+            canList=False,
+            canOverwrite=True,
+            errors=None,
+        ),
+    )
+    assert client.list_datasource_permissions() == {
+        "can_read": True,
+        "can_write": True,
+        "can_list": False,
+        "can_overwrite": True,
+    }
+
+
+def test_list_datasource_permissions__error(mocker: MockerFixture) -> None:
+    client = ApiWorkflowClient(token="abc")
+    client._dataset_id = "dataset-id"
+    client._datasources_api.verify_datasource_by_dataset_id = mocker.MagicMock(
+        return_value=DatasourceConfigVerifyData(
+            canRead=True,
+            canWrite=True,
+            canList=False,
+            canOverwrite=True,
+            errors=DatasourceConfigVerifyDataErrors(
+                canRead=None, canWrite=None, canList="error message", canOverwrite=None
+            ),
+        ),
+    )
+    assert client.list_datasource_permissions() == {
+        "can_read": True,
+        "can_write": True,
+        "can_list": False,
+        "can_overwrite": True,
+        "errors": {
+            "can_list": "error message",
+        },
+    }

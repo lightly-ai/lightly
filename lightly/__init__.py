@@ -75,7 +75,7 @@ The framework is structured into the following modules:
 # All Rights Reserved
 
 __name__ = "lightly"
-__version__ = "1.4.9"
+__version__ = "1.4.12"
 
 import os
 
@@ -94,17 +94,6 @@ if __LIGHTLY_SETUP__:
     msg = f"Partial import of {__name__}=={__version__} during build process."
     print(msg)
 else:
-    # see if prefetch_generator is available
-    try:
-        import prefetch_generator
-    except ImportError:
-        _prefetch_generator_available = False
-    else:
-        _prefetch_generator_available = True
-
-    def _is_prefetch_generator_available():
-        return _prefetch_generator_available
-
     # see if torchvision vision transformer is available
     try:
         import torchvision.models.vision_transformer
@@ -122,18 +111,10 @@ else:
         from multiprocessing import current_process
 
         if current_process().name == "MainProcess":
-            from lightly.api.version_checking import (
-                LightlyAPITimeoutException,
-                is_latest_version,
-            )
-            from lightly.openapi_generated.swagger_client.rest import ApiException
+            from lightly.api.version_checking import is_latest_version
 
             try:
                 is_latest_version(current_version=__version__)
-            except (
-                ValueError,
-                ApiException,
-                LightlyAPITimeoutException,
-                AttributeError,
-            ):
+            except Exception:
+                # Version check should never break the package.
                 pass
