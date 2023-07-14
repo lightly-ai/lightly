@@ -290,8 +290,13 @@ tuned for maximum accuracy. For detailed results and more info about the benchma
 | Model       | Backbone | Batch Size | Epochs | Linear Top1 | Finetune Top1 | KNN Top1 | Tensorboard | Checkpoint |
 |-------------|----------|------------|--------|-------------|---------------|----------|-------------|------------|
 | DINO        | Res50    |        128 |    100 |        68.2 |          72.5 |     49.9 |      [link](https://tensorboard.dev/experiment/DvKHX9sNSWWqDrRksllPLA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dino_2023-06-06_13-59-48/pretrain/version_0/checkpoints/epoch%3D99-step%3D1000900.ckpt) |
-| SimCLR      | Res50    |        256 |    100 |        63.2 |          73.9 |     44.8 |      [link](https://tensorboard.dev/experiment/Ugol97adQdezgcVibDYMMA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
+| SimCLR*      | Res50    |        256 |    100 |        63.2 |          73.9 |     44.8 |      [link](https://tensorboard.dev/experiment/Ugol97adQdezgcVibDYMMA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 | SwAV        | Res50    |        256 |    100 |        67.2 |          75.4 |     49.5 |      [link](https://tensorboard.dev/experiment/Ipx4Oxl5Qkqm5Sl5kWyKKg) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_swav_2023-05-25_08-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)
+| SimCLR* + DCL| Res50    |        256 |    100 |        65.1 |          73.5 |     49.6 |      [link](https://tensorboard.dev/experiment/k4ZonZ77QzmBkc0lXswQlg/) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dcl_2023-07-04_16-51-40/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)
+| SimCLR* + DCLW| Res50    |        256 |    100 |        64.5 |          73.2 |     48.5 |      [link](https://tensorboard.dev/experiment/TrALnpwFQ4OkZV3uvaX7wQ/) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dclw_2023-07-07_14-57-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)
+
+*\*We use square root learning rate scaling instead of linear scaling as it yields better results for smaller batch sizes. See Appendix B.1 in [SimCLR paper](https://arxiv.org/abs/2002.05709).*
+
 
 
 ### ImageNette
