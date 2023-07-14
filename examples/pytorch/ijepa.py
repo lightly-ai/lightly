@@ -8,15 +8,15 @@ from tqdm import tqdm
 
 from lightly.data.collate import IJEPAMaskCollator
 from lightly.models import utils
-from lightly.models.modules import ijepa
+from lightly.models.modules.ijepa import IJEPABackbone, IJEPAPredictor
 from lightly.transforms.ijepa_transform import IJEPATransform
 
 
 class IJEPA(nn.Module):
     def __init__(self, vit_encoder, vit_predictor, momentum_scheduler):
         super().__init__()
-        self.encoder = ijepa.IJEPABackbone.from_vit(vit_encoder)
-        self.predictor = ijepa.IJEPAPredictor.from_vit_encoder(
+        self.encoder = IJEPABackbone.from_vit(vit_encoder)
+        self.predictor = IJEPAPredictor.from_vit_encoder(
             vit_predictor.encoder,
             (vit_predictor.image_size // vit_predictor.patch_size) ** 2,
         )
