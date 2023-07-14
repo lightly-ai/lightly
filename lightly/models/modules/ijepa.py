@@ -74,7 +74,7 @@ def get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
     return emb
 
 
-class IJEPA_predictor(vision_transformer.Encoder):
+class IJEPAPredictor(vision_transformer.Encoder):
     """
     Predictor for the I-JEPA model [0].
 
@@ -191,7 +191,7 @@ class IJEPA_predictor(vision_transformer.Encoder):
         return x
 
         
-class IJEPA_encoder(vision_transformer.Encoder):
+class IJEPAEncoder(vision_transformer.Encoder):
     """
     Encoder for the I-JEPA model [0].
 
@@ -311,7 +311,7 @@ class IJEPA_encoder(vision_transformer.Encoder):
         pos_embedding = pos_embedding.permute(0, 2, 3, 1).view(1, -1, dim)
         return torch.cat((class_emb.unsqueeze(0), pos_embedding), dim=1)
 
-class IJEPA_Backbone(vision_transformer.VisionTransformer):
+class IJEPABackbone(vision_transformer.VisionTransformer):
     """
     Encoder for the I-JEPA model [0].
     Converts images into patches and encodes them. Code inspired by [1].
@@ -379,7 +379,7 @@ class IJEPA_Backbone(vision_transformer.VisionTransformer):
             norm_layer=norm_layer,
             conv_stem_configs=conv_stem_configs,
         )
-        self.encoder = IJEPA_encoder(
+        self.encoder = IJEPAEncoder(
             seq_length=self.seq_length,
             num_layers=num_layers,
             num_heads=num_heads,
@@ -392,7 +392,7 @@ class IJEPA_Backbone(vision_transformer.VisionTransformer):
 
     @classmethod
     def from_vit(cls, vit: vision_transformer.VisionTransformer):
-        """Creates a IJEPAbackbone from a torchvision ViT model."""
+        """Creates a IJEPABackbone from a torchvision ViT model."""
         # Create a new instance with dummy values as they will be overwritten
         # by the copied vit_encoder attributes
         backbone = cls(
@@ -412,7 +412,7 @@ class IJEPA_Backbone(vision_transformer.VisionTransformer):
         backbone.class_token = vit.class_token
         backbone.seq_length = vit.seq_length
         backbone.heads = vit.heads
-        backbone.encoder = IJEPA_encoder.from_vit_encoder(vit.encoder)
+        backbone.encoder = IJEPAEncoder.from_vit_encoder(vit.encoder)
         return backbone
 
     def forward(

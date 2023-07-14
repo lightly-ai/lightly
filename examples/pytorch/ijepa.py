@@ -5,18 +5,18 @@ from torch.nn import functional as F
 import copy
 
 from lightly.models import utils
-from lightly.models.modules import i_jepa
+from lightly.models.modules import ijepa
 from lightly.transforms.ijepa_transform import IJEPATransform
 from lightly.data.collate import IJEPAMaskCollator
 
 from tqdm import tqdm
 
 
-class I_JEPA(nn.Module):
+class IJEPA(nn.Module):
     def __init__(self, vit_encoder, vit_predictor, momentum_scheduler):
         super().__init__()
-        self.encoder = i_jepa.IJEPA_Backbone.from_vit(vit_encoder)
-        self.predictor = i_jepa.IJEPA_predictor.from_vit_encoder(vit_predictor.encoder, (vit_predictor.image_size//vit_predictor.patch_size)**2)
+        self.encoder = ijepa.IJEPABackbone.from_vit(vit_encoder)
+        self.predictor = ijepa.IJEPAPredictor.from_vit_encoder(vit_predictor.encoder, (vit_predictor.image_size//vit_predictor.patch_size)**2)
         self.target_encoder = copy.deepcopy(self.encoder)
         self.momentum_scheduler = momentum_scheduler
 
@@ -79,7 +79,7 @@ momentum_scheduler = (ema[0] + i*(ema[1]-ema[0])/(ipe*num_epochs*ipe_scale)
 
 vit_for_predictor = torchvision.models.vit_b_32(pretrained=False)
 vit_for_embedder = torchvision.models.vit_b_32(pretrained=False)
-model = I_JEPA(vit_for_embedder, vit_for_predictor, momentum_scheduler)
+model = IJEPA(vit_for_embedder, vit_for_predictor, momentum_scheduler)
 
 criterion = nn.SmoothL1Loss()
 optimizer = torch.optim.AdamW(model.parameters(), lr=1.5e-4)
