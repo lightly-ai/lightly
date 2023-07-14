@@ -3,14 +3,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Sequence, Union
 
+import dcl
+import dclw
 import dino
 import finetune_eval
 import knn_eval
 import linear_eval
 import simclr
 import swav
-import dcl
-import dclw
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import (

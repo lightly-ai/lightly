@@ -25,7 +25,7 @@ class DCLW(LightningModule):
         resnet = resnet50()
         resnet.fc = Identity()  # Ignore classification head
         self.backbone = resnet
-        self.projection_head = SimCLRProjectionHead() # DCLW uses SimCLR head
+        self.projection_head = SimCLRProjectionHead()  # DCLW uses SimCLR head
         self.criterion = DCLWLoss(temperature=0.1, sigma=0.5, gather_distributed=True)
 
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
@@ -107,6 +107,7 @@ class DCLW(LightningModule):
             "interval": "step",
         }
         return [optimizer], [scheduler]
+
 
 # DCLW uses SimCLR augmentations
 transform = SimCLRTransform()
