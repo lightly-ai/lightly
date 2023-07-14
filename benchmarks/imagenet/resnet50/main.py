@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Sequence, Union
 
+import byol
 import dcl
 import dclw
 import dino
@@ -44,6 +45,7 @@ parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
 
 METHODS = {
+    "byol": {"model": byol.BYOL, "transform": byol.transform},
     "dcl": {"model": dcl.DCL, "transform": dcl.transform},
     "dclw": {"model": dclw.DCLW, "transform": dclw.transform},
     "dino": {"model": dino.DINO, "transform": dino.transform},
