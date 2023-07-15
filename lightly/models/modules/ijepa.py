@@ -70,13 +70,13 @@ class IJEPAPredictor(vision_transformer.Encoder):
         self.mask_token = nn.Parameter(torch.zeros(1, 1, predictor_embed_dim))
         self.predictor_proj = nn.Linear(predictor_embed_dim, mlp_dim, bias=True)
         self.predictor_pos_embed = nn.Parameter(
-             torch.zeros(1, num_patches, predictor_embed_dim), requires_grad=False
+            torch.zeros(1, num_patches, predictor_embed_dim), requires_grad=False
         )
         predictor_pos_embed = utils._get_2d_sincos_pos_embed(
-             self.predictor_pos_embed.shape[-1], int(num_patches**0.5), cls_token=False
+            self.predictor_pos_embed.shape[-1], int(num_patches**0.5), cls_token=False
         )
         self.predictor_pos_embed.data.copy_(
-             torch.from_numpy(predictor_pos_embed).float().unsqueeze(0)
+            torch.from_numpy(predictor_pos_embed).float().unsqueeze(0)
         )
 
     @classmethod
