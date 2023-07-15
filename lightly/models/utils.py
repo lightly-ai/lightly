@@ -600,7 +600,7 @@ def repeat_interleave_batch(x, B, repeat):
     return x
 
 
-def get_2d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
+def _get_2d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
     """
     Made 2d sincos positial embeddings. Code inspired by [0].
 
@@ -632,7 +632,7 @@ def _get_2d_sincos_pos_embed_from_grid(embed_dim, grid):
     return emb
 
 
-def get_1d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
+def _get_1d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
     """
     Made 1d sincos positial embeddings. Code inspired by [0].
 
