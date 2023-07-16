@@ -9,14 +9,12 @@
 
 Lightly is a computer vision framework for self-supervised learning.
 
-> We, at [Lightly](https://www.lightly.ai), are passionate engineers who want to make deep learning more efficient. That's why - together with our community - we want to popularize the use of self-supervised methods to understand and curate raw image data. Our solution can be applied before any data annotation step and the learned representations can be used to visualize and analyze datasets. This allows to select the best set of samples for model training through advanced filtering.
-
-- [Homepage](https://www.lightly.ai)
-- [Web-App](https://app.lightly.ai)
 - [Documentation](https://docs.lightly.ai/self-supervised-learning/)
-- [Lightly Solution Documentation (Lightly Worker & API)](https://docs.lightly.ai/)
 - [Github](https://github.com/lightly-ai/lightly)
 - [Discord](https://discord.gg/xvNJW94) (We have weekly paper sessions!)
+
+We also built a whole platform on top with additional features for active learning
+and data curation. If you're interested in the platform check out our [website](https://www.lightly.ai).
 
 
 ## Features
@@ -66,17 +64,6 @@ Want to jump to the tutorials and see Lightly in action?
 - [Use Lightly with Custom Augmentations](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_custom_augmentations.html)
 - [Pre-train a Detectron2 Backbone with Lightly](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_pretrain_detectron2.html)
 
-Tutorials for the Lightly Solution (Lightly Worker & API):
-
-- [General Docs of Lightly Solution](https://docs.lightly.ai)
-- [Active Learning Using YOLOv7 and Comma10k](https://docs.lightly.ai/docs/active-learning-yolov7)
-- [Active Learning for Driveable Area Segmentation Using Cityscapes](https://docs.lightly.ai/docs/active-learning-for-driveable-area-segmentation-using-cityscapes)
-- [Active Learning for Transactions of Images](https://docs.lightly.ai/docs/active-learning-for-transactions-of-images)
-- [Improving YOLOv8 using Active Learning on Videos](https://docs.lightly.ai/docs/active-learning-yolov8-video)
-- [Assertion-based Active Learning with YOLOv8](https://docs.lightly.ai/docs/assertion-based-active-learning-tutorial)
-- and more ...
-
-
 Community and partner projects:
 
 - [On-Device Deep Learning with Lightly on an ARM microcontroller](https://github.com/ARM-software/EndpointAI/tree/master/ProofOfConcepts/Vision/OpenMvMaskDefaults)
@@ -104,9 +91,6 @@ pip3 install lightly
 
 We strongly recommend that you install Lightly in a dedicated virtualenv, to avoid
 conflicting with your system packages.
-
-If you only want to install the API client without torch and torchvision dependencies
-follow the docs on [how to install the Lightly Python Client](https://docs.lightly.ai/docs/install-lightly#install-the-lightly-python-client).
 
 
 ### Lightly in Action
@@ -348,7 +332,7 @@ The terms in bold are explained in more detail in our [documentation](https://do
 
 ### Next Steps
 
-Head to the [documentation](https://docs.lightly.ai) and see the things you can achieve with Lightly!
+Head to the [documentation](https://docs.lightly.ai/self-supervised-learning/) and see the things you can achieve with Lightly!
 
 
 ## Development
@@ -431,6 +415,15 @@ make format
 - [Decoupled Contrastive Learning, 2021](https://arxiv.org/abs/2110.06848)
 - [solo-learn: A Library of Self-supervised Methods for Visual Representation Learning, 2021](https://www.jmlr.org/papers/volume23/21-1155/21-1155.pdf)
 
+## Company behind this Open Source Framework
+[Lightly](https://www.lightly.ai) is a spin-off from ETH Zurich that helps companies 
+build efficient active learning pipelines to select the most relevant data for their models.
+
+You can find out more about the company and it's services by following the links below:
+
+- [Homepage](https://www.lightly.ai)
+- [Web-App](https://app.lightly.ai)
+- [Lightly Solution Documentation (Lightly Worker & API)](https://docs.lightly.ai/)
 
 ## BibTeX
 If you want to cite the framework feel free to use this:
