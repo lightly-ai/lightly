@@ -151,7 +151,7 @@ class BYOLTransform(MultiViewTransform):
     asymmetric gaussian blur and solarization. Furthermore, BYOL has weaker
     color jitter compared to SimCLR.
 
-    - [0]:Bootstrap Your Own Latent, 2020, https://arxiv.org/pdf/2006.07733.pdf
+    - [0]: Bootstrap Your Own Latent, 2020, https://arxiv.org/pdf/2006.07733.pdf
 
     Input to this transform:
         PIL Image or Tensor.
@@ -166,7 +166,10 @@ class BYOLTransform(MultiViewTransform):
 
     def __init__(
         self,
-        view_1_transform: BYOLView1Transform = BYOLView1Transform(),
-        view_2_transform: BYOLView2Transform = BYOLView2Transform(),
+        view_1_transform: Union[BYOLView1Transform, None] = None,
+        view_2_transform: Union[BYOLView2Transform, None] = None,
     ):
+        # We need to initialize the transforms here
+        view_1_transform = view_1_transform or BYOLView1Transform()
+        view_2_transform = view_2_transform or BYOLView2Transform()
         super().__init__(transforms=[view_1_transform, view_2_transform])
