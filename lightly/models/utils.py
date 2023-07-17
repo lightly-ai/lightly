@@ -602,12 +602,21 @@ def repeat_interleave_batch(x, B, repeat):
 
 def get_2d_sincos_pos_embed(embed_dim: int, grid_size: int, cls_token: bool = False) -> NDArray[np.float_]:
     """
-    Made 2d sincos positial embeddings. Code inspired by [0].
-
+    Returns 2D sin-cos embeddings. Code from [0].
     - [0]: https://github.com/facebookresearch/ijepa
-    grid_size: int of the grid height and width
-    return:
-    pos_embed: [grid_size*grid_size, embed_dim] or [1+grid_size*grid_size, embed_dim] (w/ or w/o cls_token)
+    
+    Args:
+        embed_dim:
+            Embedding dimension.
+        grid_size:
+            Grid height and width. Should usually be set to sqrt(sequence length).
+        cls_token:
+            If True, a positional embedding for the class token is prepended to the returned
+            embeddings.
+    
+    Returns:
+        Positional embeddings array with size (grid_size * grid_size, embed_dim) if cls_token is False. 
+        If cls_token is True, a (1 + grid_size * grid_size, embed_dim) array is returned.
     """
     grid_h = np.arange(grid_size, dtype=float)
     grid_w = np.arange(grid_size, dtype=float)
@@ -622,6 +631,19 @@ def get_2d_sincos_pos_embed(embed_dim: int, grid_size: int, cls_token: bool = Fa
 
 
 def get_2d_sincos_pos_embed_from_grid(embed_dim: int, grid: NDArray[np.int_]) -> NDArray[np.float_]:
+    """
+    Returns 2D sin-cos embeddings grid. Code from [0].
+    - [0]: https://github.com/facebookresearch/ijepa
+    
+    Args:
+        embed_dim:
+            Embedding dimension.
+        grid:
+            2-dimensional grid to embed.
+    
+    Returns:
+        Positional embeddings array with size (grid_size * grid_size, embed_dim).
+    """
     assert embed_dim % 2 == 0
 
     # use half of dimensions to encode grid_h
@@ -634,12 +656,21 @@ def get_2d_sincos_pos_embed_from_grid(embed_dim: int, grid: NDArray[np.int_]) ->
 
 def get_1d_sincos_pos_embed(embed_dim: int, grid_size: int, cls_token: bool = False) -> NDArray[np.float_]:
     """
-    Made 1d sincos positial embeddings. Code inspired by [0].
-
+    Returns 1D sin-cos embeddings. Code from [0].
     - [0]: https://github.com/facebookresearch/ijepa
-    grid_size: int of the grid length
-    return:
-    pos_embed: [grid_size, embed_dim] or [1+grid_size, embed_dim] (w/ or w/o cls_token)
+    
+    Args:
+        embed_dim:
+            Embedding dimension.
+        grid_size:
+            Grid height and width. Should usually be set to sqrt(sequence length).
+        cls_token:
+            If True, a positional embedding for the class token is prepended to the returned
+            embeddings.
+    
+    Returns:
+        Positional embeddings array with size (grid_size, embed_dim) if cls_token is False. 
+        If cls_token is True, a (1 + grid_size, embed_dim) array is returned.
     """
     grid = np.arange(grid_size, dtype=float)
     pos_embed = get_1d_sincos_pos_embed_from_grid(embed_dim, grid)
@@ -650,9 +681,17 @@ def get_1d_sincos_pos_embed(embed_dim: int, grid_size: int, cls_token: bool = Fa
 
 def get_1d_sincos_pos_embed_from_grid(embed_dim: int, pos: NDArray[np.int_]) -> NDArray[np.float_]:
     """
-    embed_dim: output dimension for each position
-    pos: a list of positions to be encoded: size (M,)
-    out: (M, D)
+    Returns 1D sin-cos embeddings grid. Code from [0].
+    - [0]: https://github.com/facebookresearch/ijepa
+    
+    Args:
+        embed_dim:
+            Embedding dimension.
+        pos:
+            1-dimensional grid to embed.
+    
+    Returns:
+        Positional embeddings array with size (grid_size, embed_dim).
     """
     assert embed_dim % 2 == 0
     omega = np.arange(embed_dim // 2, dtype=float)
