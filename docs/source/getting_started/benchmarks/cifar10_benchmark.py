@@ -239,7 +239,7 @@ def create_dataset_train_ssl(model):
     """
     model_to_transform = {
         BarlowTwinsModel: byol_transform,
-        BYOLModel: byol_transform,  # for cifar10 we use SimCLR transforms
+        BYOLModel: byol_transform,
         DCL: simclr_transform,
         DCLW: simclr_transform,
         DINOModel: dino_transform,

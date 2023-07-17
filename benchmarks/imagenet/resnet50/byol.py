@@ -145,6 +145,6 @@ class BYOL(LightningModule):
 
 
 # BYOL uses a slight modification of the SimCLR transforms.
-# Iuses asymmetric augmentation and solarize.
+# It uses asymmetric augmentation and solarize.
 # Check table 6 in the BYOL paper for more info.
 transform = BYOLTransform()
