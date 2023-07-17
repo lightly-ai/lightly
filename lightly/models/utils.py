@@ -8,6 +8,7 @@ import warnings
 from typing import Iterable, List, Optional, Tuple, Union
 
 import numpy as np
+from numpy.typing import NDArray
 import torch
 import torch.distributed as dist
 import torch.nn as nn
@@ -599,7 +600,7 @@ def repeat_interleave_batch(x, B, repeat):
     return x
 
 
-def _get_2d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
+def get_2d_sincos_pos_embed(embed_dim: int, grid_size: int, cls_token: bool = False) -> NDArray[np.float_]:
     """
     Made 2d sincos positial embeddings. Code inspired by [0].
 
@@ -614,24 +615,24 @@ def _get_2d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
     grid = np.stack(grid, axis=0)
 
     grid = grid.reshape([2, 1, grid_size, grid_size])
-    pos_embed = _get_2d_sincos_pos_embed_from_grid(embed_dim, grid)
+    pos_embed = get_2d_sincos_pos_embed_from_grid(embed_dim, grid)
     if cls_token:
         pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
     return pos_embed
 
 
-def _get_2d_sincos_pos_embed_from_grid(embed_dim, grid):
+def get_2d_sincos_pos_embed_from_grid(embed_dim: int, grid: NDArray[np.int_]) -> NDArray[np.float_]:
     assert embed_dim % 2 == 0
 
     # use half of dimensions to encode grid_h
-    emb_h = _get_1d_sincos_pos_embed_from_grid(embed_dim // 2, grid[0])  # (H*W, D/2)
-    emb_w = _get_1d_sincos_pos_embed_from_grid(embed_dim // 2, grid[1])  # (H*W, D/2)
+    emb_h = get_1d_sincos_pos_embed_from_grid(embed_dim // 2, grid[0])  # (H*W, D/2)
+    emb_w = get_1d_sincos_pos_embed_from_grid(embed_dim // 2, grid[1])  # (H*W, D/2)
 
     emb = np.concatenate([emb_h, emb_w], axis=1)  # (H*W, D)
     return emb
 
 
-def _get_1d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
+def get_1d_sincos_pos_embed(embed_dim: int, grid_size: int, cls_token: bool = False) -> NDArray[np.float_]:
     """
     Made 1d sincos positial embeddings. Code inspired by [0].
 
@@ -641,13 +642,13 @@ def _get_1d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
     pos_embed: [grid_size, embed_dim] or [1+grid_size, embed_dim] (w/ or w/o cls_token)
     """
     grid = np.arange(grid_size, dtype=float)
-    pos_embed = _get_1d_sincos_pos_embed_from_grid(embed_dim, grid)
+    pos_embed = get_1d_sincos_pos_embed_from_grid(embed_dim, grid)
     if cls_token:
         pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
     return pos_embed
 
 
-def _get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
+def get_1d_sincos_pos_embed_from_grid(embed_dim: int, pos: NDArray[np.int_]) -> NDArray[np.float_]:
     """
     embed_dim: output dimension for each position
     pos: a list of positions to be encoded: size (M,)
