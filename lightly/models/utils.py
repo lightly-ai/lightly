@@ -603,8 +603,8 @@ def repeat_interleave_batch(x, B, repeat):
 def get_2d_sincos_pos_embed(
     embed_dim: int, grid_size: int, cls_token: bool = False
 ) -> NDArray[np.float_]:
-    """
-    Returns 2D sin-cos embeddings. Code from [0].
+    """Returns 2D sin-cos embeddings. Code from [0].
+
     - [0]: https://github.com/facebookresearch/ijepa
 
     Args:
@@ -635,8 +635,8 @@ def get_2d_sincos_pos_embed(
 def get_2d_sincos_pos_embed_from_grid(
     embed_dim: int, grid: NDArray[np.int_]
 ) -> NDArray[np.float_]:
-    """
-    Returns 2D sin-cos embeddings grid. Code from [0].
+    """Returns 2D sin-cos embeddings grid. Code from [0].
+
     - [0]: https://github.com/facebookresearch/ijepa
 
     Args:
@@ -661,8 +661,8 @@ def get_2d_sincos_pos_embed_from_grid(
 def get_1d_sincos_pos_embed(
     embed_dim: int, grid_size: int, cls_token: bool = False
 ) -> NDArray[np.float_]:
-    """
-    Returns 1D sin-cos embeddings. Code from [0].
+    """Returns 1D sin-cos embeddings. Code from [0].
+
     - [0]: https://github.com/facebookresearch/ijepa
 
     Args:
@@ -688,8 +688,8 @@ def get_1d_sincos_pos_embed(
 def get_1d_sincos_pos_embed_from_grid(
     embed_dim: int, pos: NDArray[np.int_]
 ) -> NDArray[np.float_]:
-    """
-    Returns 1D sin-cos embeddings grid. Code from [0].
+    """Returns 1D sin-cos embeddings grid. Code from [0].
+
     - [0]: https://github.com/facebookresearch/ijepa
 
     Args:
