@@ -8,7 +8,11 @@ transforms.
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from lightly.transforms.byol_transform import BYOLTransform, BYOLViewTransform
+from lightly.transforms.byol_transform import (
+    BYOLTransform,
+    BYOLView1Transform,
+    BYOLView2Transform,
+)
 from lightly.transforms.dino_transform import DINOTransform, DINOViewTransform
 from lightly.transforms.fast_siam_transform import FastSiamTransform
 from lightly.transforms.gaussian_blur import GaussianBlur
