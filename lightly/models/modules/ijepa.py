@@ -72,7 +72,7 @@ class IJEPAPredictor(vision_transformer.Encoder):
         self.predictor_pos_embed = nn.Parameter(
             torch.zeros(1, num_patches, predictor_embed_dim), requires_grad=False
         )
-        predictor_pos_embed = _get_2d_sincos_pos_embed(
+        predictor_pos_embed = utils.get_2d_sincos_pos_embed(
             self.predictor_pos_embed.shape[-1], int(num_patches**0.5), cls_token=False
         )
         self.predictor_pos_embed.data.copy_(
