@@ -31,3 +31,20 @@ class TestDist(unittest.TestCase):
                         expected.append(zeros)
                     expected = torch.cat(expected, dim=1)
                     self.assertTrue(torch.all(dist.eye_rank(n) == expected))
+
+
+def test_rank_zero_only__rank_0() -> None:
+    @dist.rank_zero_only
+    def fn():
+        return 0
+
+    assert fn() == 0
+
+
+def test_rank_zero_only__rank_1() -> None:
+    @dist.rank_zero_only
+    def fn():
+        return 0
+
+    with mock.patch.object(dist, "rank", lambda: 1):
+        assert fn() is None
