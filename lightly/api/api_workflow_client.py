@@ -8,6 +8,7 @@ import requests
 from requests import Response
 
 from lightly.__init__ import __version__
+from lightly.api import utils, version_checking
 from lightly.api.api_workflow_artifacts import _ArtifactsMixin
 from lightly.api.api_workflow_collaboration import _CollaborationMixin
 from lightly.api.api_workflow_compute_worker import _ComputeWorkerMixin
@@ -18,19 +19,11 @@ from lightly.api.api_workflow_export import _ExportDatasetMixin
 from lightly.api.api_workflow_predictions import _PredictionsMixin
 from lightly.api.api_workflow_selection import _SelectionMixin
 from lightly.api.api_workflow_tags import _TagsMixin
-from lightly.api.api_workflow_upload_dataset import _UploadDatasetMixin
 from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
 from lightly.api.swagger_api_client import LightlySwaggerApiClient
-from lightly.api.utils import (
-    DatasourceType,
-    get_api_client_configuration,
-    get_signed_url_destination,
-)
-from lightly.api.version_checking import (
-    LightlyAPITimeoutException,
-    is_compatible_version,
-)
+from lightly.api.utils import DatasourceType
+from lightly.api.version_checking import LightlyAPITimeoutException
 from lightly.openapi_generated.swagger_client.api import (
     CollaborationApi,
     DatasetsApi,
@@ -49,7 +42,7 @@ from lightly.openapi_generated.swagger_client.api import (
 )
 from lightly.openapi_generated.swagger_client.models import Creator, DatasetData
 from lightly.openapi_generated.swagger_client.rest import ApiException
-from lightly.utils.reordering import sort_items_by_keys
+from lightly.utils import reordering
 
 # Env variable for server side encryption on S3
 LIGHTLY_S3_SSE_KMS_KEY = "LIGHTLY_S3_SSE_KMS_KEY"
@@ -58,7 +51,6 @@ LIGHTLY_S3_SSE_KMS_KEY = "LIGHTLY_S3_SSE_KMS_KEY"
 class ApiWorkflowClient(
     _UploadEmbeddingsMixin,
     _SelectionMixin,
-    _UploadDatasetMixin,
     _DownloadDatasetMixin,
     _DatasetsMixin,
     _UploadCustomMetadataMixin,
@@ -101,7 +93,7 @@ class ApiWorkflowClient(
         creator: str = Creator.USER_PIP,
     ):
         try:
-            if not is_compatible_version(__version__):
+            if not version_checking.is_compatible_version(__version__):
                 warnings.warn(
                     UserWarning(
                         (
@@ -119,7 +111,7 @@ class ApiWorkflowClient(
         ):
             pass
 
-        configuration = get_api_client_configuration(token=token)
+        configuration = utils.get_api_client_configuration(token=token)
         self.api_client = LightlySwaggerApiClient(configuration=configuration)
         self.api_client.user_agent = f"Lightly/{__version__} ({platform.system()}/{platform.release()}; {platform.platform()}; {platform.processor()};) python/{platform.python_version()}"
 
@@ -210,7 +202,7 @@ class ApiWorkflowClient(
 
         """
         filenames_on_server = self.get_filenames()
-        list_ordered = sort_items_by_keys(
+        list_ordered = reordering.sort_items_by_keys(
             filenames_for_list, list_to_order, filenames_on_server
         )
         return list_ordered
@@ -259,7 +251,7 @@ class ApiWorkflowClient(
         lightly_s3_sse_kms_key = os.environ.get(LIGHTLY_S3_SSE_KMS_KEY, "").strip()
         # Only set s3 related headers when we are talking with s3
         if (
-            get_signed_url_destination(signed_write_url) == DatasourceType.S3
+            utils.get_signed_url_destination(signed_write_url) == DatasourceType.S3
             and lightly_s3_sse_kms_key
         ):
             if headers is None:

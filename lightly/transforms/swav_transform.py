@@ -13,6 +13,20 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 class SwaVTransform(MultiCropTranform):
     """Implements the multi-crop transformations for SwaV.
 
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length sum(crop_counts). (8 by default)
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - ImageNet normalization
+
     Attributes:
         crop_sizes:
             Size of the input image in pixels for each crop category.

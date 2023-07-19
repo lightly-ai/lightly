@@ -1,27 +1,20 @@
-from typing import List, Tuple, Union
+from typing import Tuple, Union
 
 import torchvision.transforms as T
 from PIL.Image import Image
 from torch import Tensor
 
-from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
-class MAETransform:
-    """Implements the view augmentation for MAE [0].
+class IJEPATransform:
+    """Implements the augmentations for I-JEPA [0, 1].
 
-    Input to this transform:
-        PIL Image or Tensor.
+    Experimental: Support for I-JEPA is experimental, there might be breaking changes
+    in the future.
 
-    Output of this transform:
-        List of Tensor of length 1.
-
-    Applies the following augmentations by default:
-        - Random resized crop
-        - Random horizontal flip
-
-    - [0]: Masked Autoencoder, 2021, https://arxiv.org/abs/2111.06377
+    - [0]: Joint-Embedding Predictive Architecture, 2023, https://arxiv.org/abs/2301.08243
+    - [1]: https://github.com/facebookresearch/ijepa
 
     Attributes:
         input_size:
@@ -51,9 +44,8 @@ class MAETransform:
 
         self.transform = T.Compose(transforms)
 
-    def __call__(self, image: Union[Tensor, Image]) -> List[Tensor]:
-        """
-        Applies the transforms to the input image.
+    def __call__(self, image: Union[Tensor, Image]) -> Tensor:
+        """Applies the transforms to the input image.
 
         Args:
             image:
@@ -63,4 +55,4 @@ class MAETransform:
             The transformed image.
 
         """
-        return [self.transform(image)]
+        return self.transform(image)

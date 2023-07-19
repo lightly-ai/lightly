@@ -13,6 +13,20 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 class SimSiamTransform(MultiViewTransform):
     """Implements the transformations for SimSiam.
 
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length 2.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - ImageNet normalization
+
     Attributes:
         input_size:
             Size of the input image in pixels.

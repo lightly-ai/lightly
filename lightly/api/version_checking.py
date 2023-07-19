@@ -5,7 +5,7 @@ from typing import Tuple
 from lightly.api import utils
 from lightly.api.swagger_api_client import LightlySwaggerApiClient
 from lightly.openapi_generated.swagger_client.api import VersioningApi
-from lightly.utils.version_compare import version_compare
+from lightly.utils import version_compare
 
 
 class LightlyAPITimeoutException(Exception):
@@ -33,14 +33,14 @@ def is_latest_version(current_version: str) -> bool:
         latest_version: str = versioning_api.get_latest_pip_version(
             current_version=current_version
         )
-    return version_compare(current_version, latest_version) >= 0
+    return version_compare.version_compare(current_version, latest_version) >= 0
 
 
 def is_compatible_version(current_version: str) -> bool:
     with TimeoutDecorator(1):
         versioning_api = get_versioning_api()
         minimum_version: str = versioning_api.get_minimum_compatible_pip_version()
-    return version_compare(current_version, minimum_version) >= 0
+    return version_compare.version_compare(current_version, minimum_version) >= 0
 
 
 def get_versioning_api() -> VersioningApi:

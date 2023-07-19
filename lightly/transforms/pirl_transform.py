@@ -14,6 +14,19 @@ class PIRLTransform(MultiViewTransform):
     """Implements the transformations for PIRL [0]. The jigsaw augmentation
     is applied during the forward pass.
 
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length 2 (original, augmented).
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Jigsaw puzzle
+
     - [0] PIRL, 2019: https://arxiv.org/abs/1912.01991
 
     Attributes:

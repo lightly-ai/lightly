@@ -4,11 +4,11 @@ from unittest import mock
 import numpy as np
 
 import lightly
+from tests.api_workflow import utils
 from tests.api_workflow.mocked_api_workflow_client import (
     MockedApiWorkflowClient,
     MockedApiWorkflowSetup,
 )
-from tests.api_workflow.utils import generate_id
 
 
 class TestApiWorkflow(MockedApiWorkflowSetup):
@@ -44,7 +44,7 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
         assert dataset_id == self.api_workflow_client._datasets_api.datasets[-1].id
 
     def test_dataset_id_existing(self):
-        id = generate_id()
+        id = utils.generate_id()
         self.api_workflow_client._dataset_id = id
         assert self.api_workflow_client.dataset_id == id
 
