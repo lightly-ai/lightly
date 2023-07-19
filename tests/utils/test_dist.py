@@ -2,9 +2,9 @@ import unittest
 from unittest import mock
 
 import torch
+from pytest import CaptureFixture
 
 from lightly.utils import dist
-from pytest import CaptureFixture
 
 
 class TestDist(unittest.TestCase):
