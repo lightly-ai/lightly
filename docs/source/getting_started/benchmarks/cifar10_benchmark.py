@@ -84,6 +84,9 @@ from lightly.loss import (
 from lightly.models import ResNetGenerator, modules, utils
 from lightly.models.modules import heads
 from lightly.transforms import (
+    BYOLTransform,
+    BYOLView1Transform,
+    BYOLView2Transform,
     DINOTransform,
     FastSiamTransform,
     SimCLRTransform,
@@ -161,6 +164,12 @@ else:
 path_to_train = "/datasets/cifar10/train/"
 path_to_test = "/datasets/cifar10/test/"
 
+# Use BYOL augmentations
+byol_transform = BYOLTransform(
+    view_1_transform=BYOLView1Transform(input_size=32, gaussian_blur=0.0),
+    view_2_transform=BYOLView2Transform(input_size=32, gaussian_blur=0.0),
+)
+
 # Use SimCLR augmentations
 simclr_transform = SimCLRTransform(
     input_size=32,
@@ -229,8 +238,8 @@ def create_dataset_train_ssl(model):
             Model class for which to select the transform.
     """
     model_to_transform = {
-        BarlowTwinsModel: simclr_transform,
-        BYOLModel: simclr_transform,
+        BarlowTwinsModel: byol_transform,
+        BYOLModel: byol_transform,
         DCL: simclr_transform,
         DCLW: simclr_transform,
         DINOModel: dino_transform,
