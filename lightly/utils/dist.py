@@ -68,3 +68,28 @@ def eye_rank(n: int, device: Optional[torch.device] = None) -> torch.Tensor:
     diag_mask = torch.zeros((n, n * world_size()), dtype=torch.bool)
     diag_mask[(rows, cols)] = True
     return diag_mask
+
+
+def rank_zero_only(fn):
+    """Decorator that only runs the function on the process with rank 0.
+
+    Example:
+        >>> @rank_zero_only
+        >>> def print_rank_zero(message: str):
+        >>>     print(message)
+        >>>
+        >>> print_rank_zero("Hello from rank 0!")
+
+    """
+
+    def wrapped(*args, **kwargs):
+        if rank() == 0:
+            return fn(*args, **kwargs)
+
+    return wrapped
+
+
+@rank_zero_only
+def print_rank_zero(*args, **kwargs) -> None:
+    """Equivalent to print, but only runs on the process with rank 0."""
+    print(*args, **kwargs)
