@@ -4,6 +4,7 @@ from unittest import mock
 import torch
 
 from lightly.utils import dist
+from pytest import CaptureFixture
 
 
 class TestDist(unittest.TestCase):
@@ -48,3 +49,8 @@ def test_rank_zero_only__rank_1() -> None:
 
     with mock.patch.object(dist, "rank", lambda: 1):
         assert fn() is None
+
+
+def test_print_rank_zero(capsys: CaptureFixture[str]) -> None:
+    dist.print_rank_zero("message")
+    assert capsys.readouterr().out == "message\n"
