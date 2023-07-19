@@ -13,15 +13,15 @@ Lightly is a computer vision framework for self-supervised learning.
 - [Github](https://github.com/lightly-ai/lightly)
 - [Discord](https://discord.gg/xvNJW94) (We have weekly paper sessions!)
 
-We also built a whole platform on top with additional features for active learning
-and data curation. If you're interested in the platform check out our [website](https://www.lightly.ai).
+We also built a whole platform on top, with additional features for active learning
+and data curation. If you're interested in the platform, check out [lightly.ai](https://www.lightly.ai).
 
 
 ## Features
 
-Lightly offers features like
+This framework offers the following features:
 
-- Modular framework which exposes low-level building blocks such as loss functions and
+- Modular framework, which exposes low-level building blocks such as loss functions and
   model heads.
 - Easy to use and written in a PyTorch like style.
 - Supports custom backbone models for self-supervised pre-training.
