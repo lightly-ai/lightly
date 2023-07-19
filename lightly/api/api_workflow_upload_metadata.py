@@ -4,14 +4,15 @@ from typing import Any, Dict, List, Union
 from requests import Response
 from tqdm import tqdm
 
-from lightly.api.utils import retry
+from lightly.api.utils import paginate_endpoint, retry
 from lightly.openapi_generated.swagger_client.models import (
     ConfigurationEntry,
     ConfigurationSetRequest,
+    SampleDataModes,
     SamplePartialMode,
     SampleUpdateRequest,
 )
-from lightly.utils.hipify import print_as_warning
+from lightly.utils import hipify
 from lightly.utils.io import COCO_ANNOTATION_KEYS
 
 
@@ -155,10 +156,13 @@ class _UploadCustomMetadataMixin:
             for image_info in custom_metadata[COCO_ANNOTATION_KEYS.images]
         }
 
-        samples = retry(
-            self._samples_api.get_samples_partial_by_dataset_id,
-            dataset_id=self.dataset_id,
-            mode=SamplePartialMode.FILENAMES,
+        samples: List[SampleDataModes] = list(
+            paginate_endpoint(
+                self._samples_api.get_samples_partial_by_dataset_id,
+                page_size=25000,  # as this information is rather small, we can request a lot of samples at once
+                dataset_id=self.dataset_id,
+                mode=SamplePartialMode.FILENAMES,
+            )
         )
 
         filename_to_sample_id = {sample.file_name: sample.id for sample in samples}
@@ -168,7 +172,7 @@ class _UploadCustomMetadataMixin:
             image_id = metadata[COCO_ANNOTATION_KEYS.custom_metadata_image_id]
             filename = image_id_to_filename.get(image_id, None)
             if filename is None:
-                print_as_warning(
+                hipify.print_as_warning(
                     "No image found for custom metadata annotation "
                     f"with image_id {image_id}. "
                     "This custom metadata annotation is skipped. ",
@@ -177,7 +181,7 @@ class _UploadCustomMetadataMixin:
                 continue
             sample_id = filename_to_sample_id.get(filename, None)
             if sample_id is None:
-                print_as_warning(
+                hipify.print_as_warning(
                     "You tried to upload custom metadata for a sample with "
                     f"filename {{{filename}}}, "
                     "but a sample with this filename "

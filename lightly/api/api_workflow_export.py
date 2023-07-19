@@ -1,7 +1,7 @@
 import warnings
 from typing import Dict, List
 
-from lightly.api.utils import paginate_endpoint, retry
+from lightly.api import utils
 from lightly.openapi_generated.swagger_client.models import (
     FileNameFormat,
     LabelBoxDataRow,
@@ -39,7 +39,7 @@ class _ExportDatasetMixin:
             [{'id': 0, 'data': {'image': '...', ...}}]
         """
         label_studio_tasks: List[LabelStudioTask] = list(
-            paginate_endpoint(
+            utils.paginate_endpoint(
                 self._tags_api.export_tag_to_label_studio_tasks,
                 page_size=20000,
                 dataset_id=self.dataset_id,
@@ -114,7 +114,7 @@ class _ExportDatasetMixin:
             )
         )
         label_box_data_rows: List[LabelBoxDataRow] = list(
-            paginate_endpoint(
+            utils.paginate_endpoint(
                 self._tags_api.export_tag_to_label_box_data_rows,
                 page_size=20000,
                 dataset_id=self.dataset_id,
@@ -187,7 +187,7 @@ class _ExportDatasetMixin:
             [{'row_data': '...', 'global_key': 'image-1.jpg', 'media_type': 'IMAGE'}
         """
         label_box_data_rows: List[LabelBoxV4DataRow] = list(
-            paginate_endpoint(
+            utils.paginate_endpoint(
                 self._tags_api.export_tag_to_label_box_v4_data_rows,
                 page_size=20000,
                 dataset_id=self.dataset_id,
@@ -248,10 +248,12 @@ class _ExportDatasetMixin:
             >>> client.export_filenames_by_tag_id("646b40d6c06aae1b91294a9e")
             'image-1.jpg\nimage-2.jpg\nimage-3.jpg'
         """
-        filenames = retry(
-            self._tags_api.export_tag_to_basic_filenames,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
+        filenames = "\n".join(
+            utils.paginate_endpoint(
+                self._tags_api.export_tag_to_basic_filenames,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+            )
         )
         return filenames
 
@@ -314,23 +316,29 @@ class _ExportDatasetMixin:
             ]
 
         """
-        filenames_string = retry(
-            self._tags_api.export_tag_to_basic_filenames,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
-            file_name_format=FileNameFormat.NAME,
+        filenames_string = "\n".join(
+            utils.paginate_endpoint(
+                self._tags_api.export_tag_to_basic_filenames,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+                file_name_format=FileNameFormat.NAME,
+            )
         )
-        read_urls_string = retry(
-            self._tags_api.export_tag_to_basic_filenames,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
-            file_name_format=FileNameFormat.REDIRECTED_READ_URL,
+        read_urls_string = "\n".join(
+            utils.paginate_endpoint(
+                self._tags_api.export_tag_to_basic_filenames,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+                file_name_format=FileNameFormat.REDIRECTED_READ_URL,
+            )
         )
-        datasource_urls_string = retry(
-            self._tags_api.export_tag_to_basic_filenames,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
-            file_name_format=FileNameFormat.DATASOURCE_FULL,
+        datasource_urls_string = "\n".join(
+            utils.paginate_endpoint(
+                self._tags_api.export_tag_to_basic_filenames,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+                file_name_format=FileNameFormat.DATASOURCE_FULL,
+            )
         )
         # The endpoint exportTagToBasicFilenames returns a plain string so we
         # have to split it by newlines in order to get the individual entries.

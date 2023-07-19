@@ -33,9 +33,14 @@ See the `benchmarking scripts <https://github.com/lightly-ai/lightly/tree/master
   :header: "Model", "Backbone", "Batch Size", "Epochs", "Linear Top1", "Linear Top5", "Finetune Top1", "Finetune Top5", "KNN Top1", "KNN Top5", "Tensorboard", "Checkpoint"
   :widths: 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
 
+  "BYOL", "Res50", "256", "100", "62.4", "84.7", "74.0", "91.9", "45.6", "74.8", "`link <https://tensorboard.dev/experiment/Z0iG2JLaTJe5nuBD7DK1bg>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_byol_2023-07-10_10-37-32/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
   "DINO", "Res50", "128", "100", "68.2", "87.9", "72.5", "90.8", "49.9", "78.7", "`link <https://tensorboard.dev/experiment/DvKHX9sNSWWqDrRksllPLA>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dino_2023-06-06_13-59-48/pretrain/version_0/checkpoints/epoch%3D99-step%3D1000900.ckpt>`_"
-  "SimCLR", "Res50", "256", "100", "63.2", "85.3", "N/A", "N/A", "44.9", "74.2", "`link <https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-05-04_09-02-54/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
+  "SimCLR*", "Res50", "256", "100", "63.2", "85.2", "73.9", "91.9", "44.8", "73.9", "`link <https://tensorboard.dev/experiment/Ugol97adQdezgcVibDYMMA>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
+  "SimCLR* + DCL", "Res50", "256", "100", "65.1", "86.2", "73.5", "91.7", "49.6", "77.5", "`link <https://tensorboard.dev/experiment/k4ZonZ77QzmBkc0lXswQlg>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dcl_2023-07-04_16-51-40/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
+  "SimCLR* + DCLW", "Res50", "256", "100", "64.5", "86.0", "73.2", "91.5", "48.5", "76.8", "`link <https://tensorboard.dev/experiment/TrALnpwFQ4OkZV3uvaX7wQ>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dclw_2023-07-07_14-57-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
   "SwAV", "Res50", "256", "100", "67.2", "88.1", "75.4", "92.7", "49.5", "78.6", "`link <https://tensorboard.dev/experiment/Ipx4Oxl5Qkqm5Sl5kWyKKg>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_swav_2023-05-25_08-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
+
+*\*We use square root learning rate scaling instead of linear scaling as it yields better results for smaller batch sizes. See Appendix B.1 in SimCLR paper.*
 
 
 ImageNette

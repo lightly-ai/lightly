@@ -12,15 +12,15 @@ from lightly.openapi_generated.swagger_client.models import (
     DatasetType,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
+from tests.api_workflow import utils
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
-from tests.api_workflow.utils import generate_id
 
 
 def _get_datasets(count: int) -> List[DatasetData]:
     return [
         DatasetData(
             name=f"mock_dataset_{i}",
-            id=generate_id(),
+            id=utils.generate_id(),
             last_modified_at=0,
             type=DatasetType.IMAGES,
             img_type="full",
@@ -170,6 +170,8 @@ def test_create_new_dataset_with_unique_name__name_exists(
         dataset_name=dataset_name,
         exact=False,
         shared=False,
+        page_offset=0,
+        page_size=5000,
     )
     mocked_create_dataset.assert_called_once_with(
         dataset_name=actual_dataset_name,
@@ -226,17 +228,27 @@ def test_delete_dataset(mocker: MockerFixture) -> None:
 
 
 def test_get_datasets__shared(mocker: MockerFixture) -> None:
+    datasets = _get_datasets(2)
+    # Returns the same set of datasets twice. API client should remove duplicates
     mocked_pagination = mocker.patch.object(
-        api_workflow_datasets.utils, "paginate_endpoint"
+        api_workflow_datasets.utils,
+        "paginate_endpoint",
+        side_effect=[datasets, datasets],
     )
     mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
     mock_datasets_api = mocker.MagicMock()
     client = ApiWorkflowClient()
     client._datasets_api = mock_datasets_api
-    client.get_datasets(shared=True)
-    mocked_pagination.assert_called_once_with(
-        mock_datasets_api.get_datasets, shared=True
-    )
+    datasets = client.get_datasets(shared=True)
+    unique_dataset_ids = set([dataset.id for dataset in datasets])
+    assert len(unique_dataset_ids) == len(datasets)
+
+    assert mocked_pagination.call_count == 2
+    call_args = mocked_pagination.call_args_list
+    assert call_args[0][0] == (mock_datasets_api.get_datasets,)
+    assert call_args[0][1] == {"shared": True}
+    assert call_args[1][0] == (mock_datasets_api.get_datasets,)
+    assert call_args[1][1] == {"get_assets_of_team": True}
 
 
 def test_get_datasets__not_shared(mocker: MockerFixture) -> None:
@@ -262,7 +274,128 @@ def test_get_datasets__shared_None(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient()
     client._datasets_api = mock_datasets_api
     client.get_datasets(shared=None)
-    assert mocked_pagination.call_count == 2
+    assert mocked_pagination.call_count == 3
+
+
+def test_get_datasets_by_name__not_shared__paginated(mocker: MockerFixture) -> None:
+    datasets = _get_datasets(3)
+    # Returns the same set of datasets twice. API client should remove duplicates.
+    mocked_paginate_endpoint = mocker.patch.object(
+        api_workflow_datasets.utils,
+        "paginate_endpoint",
+        # There's one call to paginate_endpoint.
+        # It returns a paginated list of datasets.
+        return_value=iter([datasets[0], datasets[1]]),
+    )
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mock_datasets_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._datasets_api = mock_datasets_api
+
+    # Note: because the `dataset_name` filtering is mocked away in this test,
+    # the `dataset_name` passed as argument and in the returned dataset are independent.
+    datasets_not_shared = client.get_datasets_by_name(
+        shared=False, dataset_name="some_random_dataset_name"
+    )
+    assert datasets_not_shared == [datasets[0], datasets[1]]
+    mocked_paginate_endpoint.assert_called_once_with(
+        mock_datasets_api.get_datasets_query_by_name,
+        dataset_name="some_random_dataset_name",
+        exact=True,
+        shared=False,
+    )
+
+
+def test_get_datasets_by_name__shared__paginated(mocker: MockerFixture) -> None:
+    datasets = _get_datasets(3)
+    # Returns the same set of datasets twice. API client should remove duplicates.
+    mocked_paginate_endpoint = mocker.patch.object(
+        api_workflow_datasets.utils,
+        "paginate_endpoint",
+        side_effect=[
+            # There are two calls to paginate_endpoint to get all the team's datasets.
+            iter([datasets[2]]),
+            iter([]),
+        ],
+    )
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mock_datasets_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._datasets_api = mock_datasets_api
+
+    # Note: because the `dataset_name` filtering is mocked away in this test,
+    # the `dataset_name` passed as argument and in the returned dataset are independent.
+    datasets_shared = client.get_datasets_by_name(
+        shared=True, dataset_name="some_random_dataset_name"
+    )
+    assert datasets_shared == [datasets[2]]
+    mocked_paginate_endpoint.assert_has_calls(
+        [
+            mocker.call(
+                mock_datasets_api.get_datasets_query_by_name,
+                dataset_name="some_random_dataset_name",
+                exact=True,
+                shared=True,
+            ),
+            mocker.call(
+                mock_datasets_api.get_datasets_query_by_name,
+                dataset_name="some_random_dataset_name",
+                exact=True,
+                get_assets_of_team=True,
+            ),
+        ]
+    )
+
+
+def test_get_datasets_by_name__shared_None__paginated(mocker: MockerFixture) -> None:
+    datasets = _get_datasets(3)
+    # Returns the same set of datasets twice. API client should remove duplicates.
+    mocked_paginate_endpoint = mocker.patch.object(
+        api_workflow_datasets.utils,
+        "paginate_endpoint",
+        side_effect=[
+            # There are three calls to paginate_endpoint. The first call
+            # gets all the user's datasets. The second and third calls get
+            # all the team's datasets.
+            # The first call returns a paginated list of datasets.
+            iter([datasets[0], datasets[1]]),
+            iter([datasets[2]]),
+            iter([]),
+        ],
+    )
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mock_datasets_api = mocker.MagicMock()
+    client = ApiWorkflowClient()
+    client._datasets_api = mock_datasets_api
+
+    # Note: because the `dataset_name` filtering is mocked away in this test,
+    # the `dataset_name` passed as argument and in the returned dataset are independent.
+    datasets_shared_none = client.get_datasets_by_name(
+        shared=None, dataset_name="some_random_dataset_name"
+    )
+    assert datasets_shared_none == [datasets[0], datasets[1], datasets[2]]
+    mocked_paginate_endpoint.assert_has_calls(
+        [
+            mocker.call(
+                mock_datasets_api.get_datasets_query_by_name,
+                dataset_name="some_random_dataset_name",
+                exact=True,
+                shared=False,
+            ),
+            mocker.call(
+                mock_datasets_api.get_datasets_query_by_name,
+                dataset_name="some_random_dataset_name",
+                exact=True,
+                shared=True,
+            ),
+            mocker.call(
+                mock_datasets_api.get_datasets_query_by_name,
+                dataset_name="some_random_dataset_name",
+                exact=True,
+                get_assets_of_team=True,
+            ),
+        ]
+    )
 
 
 def test_set_dataset_id__error(mocker: MockerFixture):

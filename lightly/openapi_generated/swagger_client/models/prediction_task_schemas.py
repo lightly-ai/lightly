@@ -19,16 +19,17 @@ import re  # noqa: F401
 import json
 
 
+from typing import List
+from pydantic import Extra,  BaseModel, Field, conint, conlist
+from lightly.openapi_generated.swagger_client.models.prediction_task_schema import PredictionTaskSchema
 
-from pydantic import Extra,  BaseModel, Field, conint, constr
-
-class PredictionTaskSchemaCategory(BaseModel):
+class PredictionTaskSchemas(BaseModel):
     """
-    The link between the categoryId and the name that should be used
+    PredictionTaskSchemas
     """
-    id: conint(strict=True, ge=0) = Field(..., description="The id of the category. Needs to be a positive integer but can be any integer (gaps are allowed, does not need to be sequential)")
-    name: constr(strict=True, min_length=1) = Field(..., description="The name of the category when it should be visualized")
-    __properties = ["id", "name"]
+    prediction_uuid_timestamp: conint(strict=True, ge=0) = Field(..., alias="predictionUUIDTimestamp", description="unix timestamp in milliseconds")
+    schemas: conlist(PredictionTaskSchema) = Field(...)
+    __properties = ["predictionUUIDTimestamp", "schemas"]
 
     class Config:
         """Pydantic configuration"""
@@ -46,8 +47,8 @@ class PredictionTaskSchemaCategory(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> PredictionTaskSchemaCategory:
-        """Create an instance of PredictionTaskSchemaCategory from a JSON string"""
+    def from_json(cls, json_str: str) -> PredictionTaskSchemas:
+        """Create an instance of PredictionTaskSchemas from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -56,25 +57,32 @@ class PredictionTaskSchemaCategory(BaseModel):
                           exclude={
                           },
                           exclude_none=True)
+        # override the default output from pydantic by calling `to_dict()` of each item in schemas (list)
+        _items = []
+        if self.schemas:
+            for _item in self.schemas:
+                if _item:
+                    _items.append(_item.to_dict(by_alias=by_alias))
+            _dict['schemas' if by_alias else 'schemas'] = _items
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> PredictionTaskSchemaCategory:
-        """Create an instance of PredictionTaskSchemaCategory from a dict"""
+    def from_dict(cls, obj: dict) -> PredictionTaskSchemas:
+        """Create an instance of PredictionTaskSchemas from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return PredictionTaskSchemaCategory.parse_obj(obj)
+            return PredictionTaskSchemas.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in PredictionTaskSchemaCategory) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in PredictionTaskSchemas) in the input: " + str(obj))
 
-        _obj = PredictionTaskSchemaCategory.parse_obj({
-            "id": obj.get("id"),
-            "name": obj.get("name")
+        _obj = PredictionTaskSchemas.parse_obj({
+            "prediction_uuid_timestamp": obj.get("predictionUUIDTimestamp"),
+            "schemas": [PredictionTaskSchema.from_dict(_item) for _item in obj.get("schemas")] if obj.get("schemas") is not None else None
         })
         return _obj
 

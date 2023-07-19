@@ -4,6 +4,7 @@
 lightning_logs/
 **lightning_logs/
 **/__MACOSX
+datasets/
 docs/source/tutorials/package/*
 docs/source/tutorials/platform/*
 docs/source/tutorials_source/platform/data

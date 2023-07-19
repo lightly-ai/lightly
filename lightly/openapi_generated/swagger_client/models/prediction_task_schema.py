@@ -14,85 +14,170 @@
 
 
 from __future__ import annotations
+from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
-import json
 
+from typing import Any, List, Optional
+from pydantic import BaseModel, Field, StrictStr, ValidationError, validator
+from lightly.openapi_generated.swagger_client.models.prediction_task_schema_keypoint import PredictionTaskSchemaKeypoint
+from lightly.openapi_generated.swagger_client.models.prediction_task_schema_simple import PredictionTaskSchemaSimple
+from typing import Any, List
+from pydantic import StrictStr, Field, Extra
 
-from typing import List
-from pydantic import Extra,  BaseModel, Field, conlist, constr, validator
-from lightly.openapi_generated.swagger_client.models.prediction_task_schema_category import PredictionTaskSchemaCategory
-from lightly.openapi_generated.swagger_client.models.task_type import TaskType
+PREDICTIONTASKSCHEMA_ONE_OF_SCHEMAS = ["PredictionTaskSchemaKeypoint", "PredictionTaskSchemaSimple"]
 
 class PredictionTaskSchema(BaseModel):
     """
-    The schema for predictions or labels when doing classification, object detection, keypoint detection or instance segmentation 
+    PredictionTaskSchema
     """
-    name: constr(strict=True, min_length=1) = Field(..., description="A name which is safe to have as a file/folder name in a file system")
-    type: TaskType = Field(...)
-    categories: conlist(PredictionTaskSchemaCategory) = Field(..., description="An array of the categories that exist for this prediction task. The id needs to be unique")
-    __properties = ["name", "type", "categories"]
-
-    @validator('name')
-    def name_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$/")
-        return value
+    # data type: PredictionTaskSchemaSimple
+    oneof_schema_1_validator: Optional[PredictionTaskSchemaSimple] = None
+    # data type: PredictionTaskSchemaKeypoint
+    oneof_schema_2_validator: Optional[PredictionTaskSchemaKeypoint] = None
+    actual_instance: Any
+    one_of_schemas: List[str] = Field(PREDICTIONTASKSCHEMA_ONE_OF_SCHEMAS, const=True)
 
     class Config:
-        """Pydantic configuration"""
-        allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
         extra = Extra.forbid
 
-    def to_str(self, by_alias: bool = False) -> str:
-        """Returns the string representation of the model"""
-        return pprint.pformat(self.dict(by_alias=by_alias))
+    discriminator_value_class_map = {
+    }
 
-    def to_json(self, by_alias: bool = False) -> str:
-        """Returns the JSON representation of the model"""
-        return json.dumps(self.to_dict(by_alias=by_alias))
+    def __init__(self, *args, **kwargs):
+        if args:
+            if len(args) > 1:
+                raise ValueError("If a position argument is used, only 1 is allowed to set `actual_instance`")
+            if kwargs:
+                raise ValueError("If a position argument is used, keyword arguments cannot be used.")
+            super().__init__(actual_instance=args[0])
+        else:
+            super().__init__(**kwargs)
 
-    @classmethod
-    def from_json(cls, json_str: str) -> PredictionTaskSchema:
-        """Create an instance of PredictionTaskSchema from a JSON string"""
-        return cls.from_dict(json.loads(json_str))
-
-    def to_dict(self, by_alias: bool = False):
-        """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
-        # override the default output from pydantic by calling `to_dict()` of each item in categories (list)
-        _items = []
-        if self.categories:
-            for _item in self.categories:
-                if _item:
-                    _items.append(_item.to_dict(by_alias=by_alias))
-            _dict['categories' if by_alias else 'categories'] = _items
-        return _dict
+    @validator('actual_instance')
+    def actual_instance_must_validate_oneof(cls, v):
+        instance = PredictionTaskSchema.construct()
+        error_messages = []
+        match = 0
+        # validate data type: PredictionTaskSchemaSimple
+        if not isinstance(v, PredictionTaskSchemaSimple):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `PredictionTaskSchemaSimple`")
+        else:
+            match += 1
+        # validate data type: PredictionTaskSchemaKeypoint
+        if not isinstance(v, PredictionTaskSchemaKeypoint):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `PredictionTaskSchemaKeypoint`")
+        else:
+            match += 1
+        if match > 1:
+            # more than 1 match
+            raise ValueError("Multiple matches found when setting `actual_instance` in PredictionTaskSchema with oneOf schemas: PredictionTaskSchemaKeypoint, PredictionTaskSchemaSimple. Details: " + ", ".join(error_messages))
+        elif match == 0:
+            # no match
+            raise ValueError("No match found when setting `actual_instance` in PredictionTaskSchema with oneOf schemas: PredictionTaskSchemaKeypoint, PredictionTaskSchemaSimple. Details: " + ", ".join(error_messages))
+        else:
+            return v
 
     @classmethod
     def from_dict(cls, obj: dict) -> PredictionTaskSchema:
-        """Create an instance of PredictionTaskSchema from a dict"""
-        if obj is None:
+        return cls.from_json(json.dumps(obj))
+
+    @classmethod
+    def from_json(cls, json_str: str) -> PredictionTaskSchema:
+        """Returns the object represented by the json string"""
+        instance = PredictionTaskSchema.construct()
+        error_messages = []
+        match = 0
+
+        # use oneOf discriminator to lookup the data type
+        _data_type = json.loads(json_str).get("type")
+        if not _data_type:
+            raise ValueError("Failed to lookup data type from the field `type` in the input.")
+
+        # check if data type is `PredictionTaskSchemaSimple`
+        if _data_type == "CLASSIFICATION":
+            instance.actual_instance = PredictionTaskSchemaSimple.from_json(json_str)
+            return instance
+
+        # check if data type is `PredictionTaskSchemaSimple`
+        if _data_type == "INSTANCE_SEGMENTATION":
+            instance.actual_instance = PredictionTaskSchemaSimple.from_json(json_str)
+            return instance
+
+        # check if data type is `PredictionTaskSchemaKeypoint`
+        if _data_type == "KEYPOINT_DETECTION":
+            instance.actual_instance = PredictionTaskSchemaKeypoint.from_json(json_str)
+            return instance
+
+        # check if data type is `PredictionTaskSchemaSimple`
+        if _data_type == "OBJECT_DETECTION":
+            instance.actual_instance = PredictionTaskSchemaSimple.from_json(json_str)
+            return instance
+
+        # check if data type is `PredictionTaskSchemaKeypoint`
+        if _data_type == "PredictionTaskSchemaKeypoint":
+            instance.actual_instance = PredictionTaskSchemaKeypoint.from_json(json_str)
+            return instance
+
+        # check if data type is `PredictionTaskSchemaSimple`
+        if _data_type == "PredictionTaskSchemaSimple":
+            instance.actual_instance = PredictionTaskSchemaSimple.from_json(json_str)
+            return instance
+
+        # check if data type is `PredictionTaskSchemaSimple`
+        if _data_type == "SEMANTIC_SEGMENTATION":
+            instance.actual_instance = PredictionTaskSchemaSimple.from_json(json_str)
+            return instance
+
+        # deserialize data into PredictionTaskSchemaSimple
+        try:
+            instance.actual_instance = PredictionTaskSchemaSimple.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into PredictionTaskSchemaKeypoint
+        try:
+            instance.actual_instance = PredictionTaskSchemaKeypoint.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+
+        if match > 1:
+            # more than 1 match
+            raise ValueError("Multiple matches found when deserializing the JSON string into PredictionTaskSchema with oneOf schemas: PredictionTaskSchemaKeypoint, PredictionTaskSchemaSimple. Details: " + ", ".join(error_messages))
+        elif match == 0:
+            # no match
+            raise ValueError("No match found when deserializing the JSON string into PredictionTaskSchema with oneOf schemas: PredictionTaskSchemaKeypoint, PredictionTaskSchemaSimple. Details: " + ", ".join(error_messages))
+        else:
+            return instance
+
+    def to_json(self, by_alias: bool = False) -> str:
+        """Returns the JSON representation of the actual instance"""
+        if self.actual_instance is None:
+            return "null"
+
+        to_json = getattr(self.actual_instance, "to_json", None)
+        if callable(to_json):
+            return self.actual_instance.to_json(by_alias=by_alias)
+        else:
+            return json.dumps(self.actual_instance)
+
+    def to_dict(self, by_alias: bool = False) -> dict:
+        """Returns the dict representation of the actual instance"""
+        if self.actual_instance is None:
             return None
 
-        if not isinstance(obj, dict):
-            return PredictionTaskSchema.parse_obj(obj)
+        to_dict = getattr(self.actual_instance, "to_dict", None)
+        if callable(to_dict):
+            return self.actual_instance.to_dict(by_alias=by_alias)
+        else:
+            # primitive type
+            return self.actual_instance
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in PredictionTaskSchema) in the input: " + str(obj))
-
-        _obj = PredictionTaskSchema.parse_obj({
-            "name": obj.get("name"),
-            "type": obj.get("type"),
-            "categories": [PredictionTaskSchemaCategory.from_dict(_item) for _item in obj.get("categories")] if obj.get("categories") is not None else None
-        })
-        return _obj
+    def to_str(self, by_alias: bool = False) -> str:
+        """Returns the string representation of the actual instance"""
+        return pprint.pformat(self.dict(by_alias=by_alias))
 

@@ -1,12 +1,12 @@
 import copy
 import dataclasses
 import difflib
+import json
 import time
 from functools import partial
 from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 
 from lightly.api import utils
-from lightly.api.utils import retry
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.models import (
     CreateDockerWorkerRegistryEntryRequest,
@@ -244,8 +244,24 @@ class _ComputeWorkerMixin:
         request = DockerWorkerConfigV3CreateRequest(
             config=config, creator=self._creator
         )
-        response = self._compute_worker_api.create_docker_worker_config_v3(request)
-        return response.id
+        try:
+            response = self._compute_worker_api.create_docker_worker_config_v3(request)
+            return response.id
+        except ApiException as e:
+            if e.body is None:
+                raise e
+            eb = json.loads(e.body)
+            eb_code = eb.get("code")
+            eb_error = eb.get("error")
+            if str(e.status)[0] == "4" and eb_code is not None and eb_error is not None:
+                raise ValueError(
+                    f"Trying to schedule your job resulted in\n"
+                    f">> {eb_code}\n>> {json.dumps(eb_error, indent=4)}\n"
+                    f">> Please fix the issue mentioned above and see our docs "
+                    f"https://docs.lightly.ai/docs/all-configuration-options for more help."
+                ) from e
+            else:
+                raise e
 
     def schedule_compute_worker_run(
         self,
@@ -478,7 +494,7 @@ class _ComputeWorkerMixin:
         try:
             run: DockerRunScheduledData = next(
                 run
-                for run in retry(
+                for run in utils.retry(
                     lambda: self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
                         self.dataset_id
                     )
@@ -618,12 +634,13 @@ class _ComputeWorkerMixin:
 
 def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
     """Recursively converts selection config from dict to a SelectionConfig instance."""
-    new_cfg = copy.deepcopy(cfg)
     strategies = []
-    for entry in new_cfg.get("strategies", []):
-        entry["input"] = SelectionConfigEntryInput(**entry["input"])
-        entry["strategy"] = SelectionConfigEntryStrategy(**entry["strategy"])
-        strategies.append(SelectionConfigEntry(**entry))
+    for entry in cfg.get("strategies", []):
+        new_entry = copy.deepcopy(entry)
+        new_entry["input"] = SelectionConfigEntryInput(**entry["input"])
+        new_entry["strategy"] = SelectionConfigEntryStrategy(**entry["strategy"])
+        strategies.append(SelectionConfigEntry(**new_entry))
+    new_cfg = copy.deepcopy(cfg)
     new_cfg["strategies"] = strategies
     return SelectionConfig(**new_cfg)
 

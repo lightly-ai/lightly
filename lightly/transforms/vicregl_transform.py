@@ -14,6 +14,21 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 class VICRegLTransform(ImageGridTransform):
     """Transforms images for VICRegL.
 
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length n_global_views + n_local_views. (8 by default)
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - Random solarization
+        - ImageNet normalization
+
     - [0]: VICRegL, 2022, https://arxiv.org/abs/2210.01571
 
     Attributes:
