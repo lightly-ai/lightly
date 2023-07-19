@@ -20,7 +20,8 @@ import json
 
 
 from typing import Any, Dict, Optional, Union
-from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt
+from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, confloat, conint
+from lightly.openapi_generated.swagger_client.models.selection_config_entry_strategy_target_range import SelectionConfigEntryStrategyTargetRange
 from lightly.openapi_generated.swagger_client.models.selection_strategy_threshold_operation import SelectionStrategyThresholdOperation
 from lightly.openapi_generated.swagger_client.models.selection_strategy_type import SelectionStrategyType
 
@@ -29,11 +30,14 @@ class SelectionConfigEntryStrategy(BaseModel):
     SelectionConfigEntryStrategy
     """
     type: SelectionStrategyType = Field(...)
+    strength: Optional[Union[confloat(le=10000000000, ge=-10000000000, strict=True), conint(le=2147483647, ge=-2147483648, strict=True)]] = Field(None, description="The relative strength of this strategy compared to other strategies. The default value is 1.0, which is set in the worker for backwards compatibility. The minimum and maximum values of +-10^10 are used to prevent numerical issues. ")
     stopping_condition_minimum_distance: Optional[Union[StrictFloat, StrictInt]] = None
     threshold: Optional[Union[StrictFloat, StrictInt]] = None
     operation: Optional[SelectionStrategyThresholdOperation] = None
     target: Optional[Dict[str, Any]] = None
-    __properties = ["type", "stopping_condition_minimum_distance", "threshold", "operation", "target"]
+    stopping_condition_max_sum: Optional[Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]] = Field(None, description="When the sum of inputs reaches this, the selection stops. Only compatible with the WEIGHTS strategy. Similar to the stopping_condition_minimum_distance for the DIVERSITY strategy. ")
+    target_range: Optional[SelectionConfigEntryStrategyTargetRange] = None
+    __properties = ["type", "strength", "stopping_condition_minimum_distance", "threshold", "operation", "target", "stopping_condition_max_sum", "target_range"]
 
     class Config:
         """Pydantic configuration"""
@@ -61,6 +65,9 @@ class SelectionConfigEntryStrategy(BaseModel):
                           exclude={
                           },
                           exclude_none=True)
+        # override the default output from pydantic by calling `to_dict()` of target_range
+        if self.target_range:
+            _dict['target_range' if by_alias else 'target_range'] = self.target_range.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -79,10 +86,13 @@ class SelectionConfigEntryStrategy(BaseModel):
 
         _obj = SelectionConfigEntryStrategy.parse_obj({
             "type": obj.get("type"),
+            "strength": obj.get("strength"),
             "stopping_condition_minimum_distance": obj.get("stopping_condition_minimum_distance"),
             "threshold": obj.get("threshold"),
             "operation": obj.get("operation"),
-            "target": obj.get("target")
+            "target": obj.get("target"),
+            "stopping_condition_max_sum": obj.get("stopping_condition_max_sum"),
+            "target_range": SelectionConfigEntryStrategyTargetRange.from_dict(obj.get("target_range")) if obj.get("target_range") is not None else None
         })
         return _obj
 
