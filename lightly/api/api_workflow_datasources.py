@@ -449,7 +449,6 @@ class _DatasourcesMixin:
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
                 or can be written to as well (LIGHTLY, INPUT_OUTPUT).
-                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigAzure once we switch/update the api generator.
@@ -499,7 +498,6 @@ class _DatasourcesMixin:
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
                 or can be written to as well (LIGHTLY, INPUT_OUTPUT).
-                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigGCS once we switch/update the api generator.
@@ -523,6 +521,7 @@ class _DatasourcesMixin:
         thumbnail_suffix: Optional[
             str
         ] = ".lightly/thumbnails/[filename]_thumb.[extension]",
+        purpose: str = DatasourcePurpose.INPUT_OUTPUT,
     ) -> None:
         """Sets the local configuration for the datasource of the current dataset.
 
@@ -537,6 +536,10 @@ class _DatasourcesMixin:
                 example ".lightly/thumbnails/[filename]_thumb.[extension]".
                 Set to None to disable thumbnails and use the full images from the
                 datasource instead.
+            purpose:
+                Datasource purpose, determines if datasource is read only (INPUT)
+                or can be written to as well (LIGHTLY, INPUT_OUTPUT).
+
         """
         # TODO: Use DatasourceConfigLocal once we switch/update the api generator.
         self._datasources_api.update_datasource_by_dataset_id(
@@ -545,7 +548,7 @@ class _DatasourcesMixin:
                     "type": "LOCAL",
                     "fullPath": resource_path,
                     "thumbSuffix": thumbnail_suffix,
-                    "purpose": DatasourcePurpose.INPUT_OUTPUT,
+                    "purpose": purpose,
                 }
             ),
             dataset_id=self.dataset_id,
@@ -584,7 +587,6 @@ class _DatasourcesMixin:
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
                 or can be written to as well (LIGHTLY, INPUT_OUTPUT).
-                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigS3 once we switch/update the api generator.
@@ -636,7 +638,6 @@ class _DatasourcesMixin:
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
                 or can be written to as well (LIGHTLY, INPUT_OUTPUT).
-                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigS3 once we switch/update the api generator.
@@ -685,7 +686,7 @@ class _DatasourcesMixin:
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
                 or can be written to as well (LIGHTLY, INPUT_OUTPUT).
-                The latter is required when Lightly extracts frames from input videos.
+
         """
         # TODO: Use DatasourceConfigOBS once we switch/update the api generator.
         self._datasources_api.update_datasource_by_dataset_id(
