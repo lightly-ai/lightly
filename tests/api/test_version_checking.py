@@ -53,7 +53,7 @@ def test_get_latest_version__timeout(mocker: MockerFixture) -> None:
         # Urllib3 raises a timeout error (connection refused) for invalid URLs.
         _version_checking.get_latest_version("1.2.8", timeout_sec=0.1)
     end = time.perf_counter()
-    assert end - start < 0.2  # give some slack for timeout
+    assert end - start < 0.2  # Give some slack for timeout.
 
 
 def test_get_minimum_compatible_version(mocker: MockerFixture) -> None:
@@ -73,12 +73,13 @@ def test_get_minimum_compatible_version__timeout(mocker: MockerFixture) -> None:
         # Urllib3 raises a timeout error (connection refused) for invalid URLs.
         _version_checking.get_minimum_compatible_version(timeout_sec=0.1)
     end = time.perf_counter()
-    assert end - start < 0.2  # give some slack for timeout
+    assert end - start < 0.2  # Give some slack for timeout.
 
 
 def test_check_is_latest_version_in_background(mocker: MockerFixture) -> None:
     spy_is_latest_version = mocker.spy(_version_checking, "is_latest_version")
     _version_checking.check_is_latest_version_in_background("1.2.8")
+    time.sleep(0.1)  # Wait for thread to run.
     spy_is_latest_version.assert_called_once_with(current_version="1.2.8")
 
 
