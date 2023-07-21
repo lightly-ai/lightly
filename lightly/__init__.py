@@ -111,7 +111,7 @@ else:
         from multiprocessing import current_process
 
         if current_process().name == "MainProcess":
-            from lightly.api.version_checking import is_latest_version
+            from lightly.api._version_checking import is_latest_version
 
             try:
                 is_latest_version(current_version=__version__)

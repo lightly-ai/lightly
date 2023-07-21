@@ -1,75 +1,80 @@
-import sys
+import os
 import time
-import unittest
 
-import lightly
-from lightly.api.version_checking import (
-    LightlyAPITimeoutException,
-    get_latest_version,
-    get_minimum_compatible_version,
-    is_compatible_version,
-    is_latest_version,
-    pretty_print_latest_version,
-)
-from tests.api_workflow.mocked_api_workflow_client import MockedVersioningApi
+import pytest
+from pytest_mock import MockerFixture
+from urllib3.exceptions import MaxRetryError
+
+from lightly.api import _version_checking
+from lightly.openapi_generated.swagger_client.api import VersioningApi
 
 
-class TestVersionChecking(unittest.TestCase):
-    def setUp(self) -> None:
-        lightly.api.version_checking.VersioningApi = MockedVersioningApi
+# Overwrite the mock_versioning_api fixture from conftest.py that is applied by default
+# for all tests as we want to test the functionality of the versioning api.
+@pytest.fixture(autouse=True)
+def mock_versioning_api():
+    return
 
-    def test_get_latest_version(self):
-        get_latest_version("1.2.3")
 
-    def test_get_minimum_compatible_version(self):
-        get_minimum_compatible_version()
+@pytest.mark.disable_mock_versioning_api
+def test_is_latest_version(mocker: MockerFixture) -> None:
+    mocker.patch.object(
+        _version_checking.VersioningApi, "get_latest_pip_version", return_value="1.2.8"
+    )
+    assert _version_checking.is_latest_version("1.2.8")
+    assert not _version_checking.is_latest_version("1.2.7")
+    assert not _version_checking.is_latest_version("1.1.8")
+    assert not _version_checking.is_latest_version("0.2.8")
 
-    def test_is_latest_version(self) -> None:
-        assert is_latest_version("1.2.8")
-        assert not is_latest_version("1.2.7")
-        assert not is_latest_version("1.1.8")
-        assert not is_latest_version("0.2.8")
 
-    def test_is_compatible_version(self) -> None:
-        assert is_compatible_version("1.2.1")
-        assert not is_compatible_version("1.2.0")
-        assert not is_compatible_version("1.1.9")
-        assert not is_compatible_version("0.2.1")
+def test_is_compatible_version(mocker: MockerFixture) -> None:
+    mocker.patch.object(
+        _version_checking.VersioningApi,
+        "get_minimum_compatible_pip_version",
+        return_value="1.2.8",
+    )
+    assert _version_checking.is_compatible_version("1.2.8")
+    assert not _version_checking.is_compatible_version("1.2.7")
+    assert not _version_checking.is_compatible_version("1.1.8")
+    assert not _version_checking.is_compatible_version("0.2.8")
 
-    def test_pretty_print(self):
-        pretty_print_latest_version(current_version="curr", latest_version="1.1.1")
 
-    def test_version_check_timout_mocked(self):
-        """
-        We cannot check for other errors as we don't know whether the
-        current LIGHTLY_SERVER_URL is
-        - unreachable (error in < 1 second)
-        - causing a timeout and thus raising a LightlyAPITimeoutException
-        - reachable (success in < 1 second
+def test_get_latest_version(mocker: MockerFixture) -> None:
+    mocker.patch.object(
+        _version_checking.VersioningApi, "get_latest_pip_version", return_value="1.2.8"
+    )
+    assert _version_checking.get_latest_version("1.2.8") == "1.2.8"
 
-        Thus this only checks that the actual lightly.do_version_check()
-        with needing >1s internally causes a LightlyAPITimeoutException
-        """
-        try:
-            old_get_versioning_api = lightly.api.version_checking.get_versioning_api
 
-            def mocked_get_versioning_api_timeout():
-                time.sleep(10)
-                print("This line should never be reached, calling sys.exit()")
-                sys.exit()
+def test_get_latest_version__timeout(mocker: MockerFixture) -> None:
+    mocker.patch.dict(os.environ, {"LIGHTLY_SERVER_LOCATION": "invalid-url"})
+    start = time.perf_counter()
+    with pytest.raises(MaxRetryError):
+        # Urllib3 raises a timeout error (connection refused) for invalid URLs.
+        _version_checking.get_latest_version("1.2.8", timeout_sec=0.1)
+    end = time.perf_counter()
+    assert end - start < 0.2  # give some slack for timeout
 
-            lightly.api.version_checking.get_versioning_api = (
-                mocked_get_versioning_api_timeout
-            )
 
-            start_time = time.time()
+def test_get_minimum_compatible_version(mocker: MockerFixture) -> None:
+    mocker.patch.object(
+        _version_checking.VersioningApi,
+        "get_minimum_compatible_pip_version",
+        return_value="1.2.8",
+    )
 
-            with self.assertRaises(LightlyAPITimeoutException):
-                is_latest_version(lightly.__version__)
+    assert _version_checking.get_minimum_compatible_version() == "1.2.8"
 
-            duration = time.time() - start_time
 
-            self.assertLess(duration, 1.5)
+def test_get_minimum_compatible_version__timeout(mocker: MockerFixture) -> None:
+    mocker.patch.dict(os.environ, {"LIGHTLY_SERVER_LOCATION": "invalid-url"})
+    start = time.perf_counter()
+    with pytest.raises(MaxRetryError):
+        # Urllib3 raises a timeout error (connection refused) for invalid URLs.
+        _version_checking.get_minimum_compatible_version(timeout_sec=0.1)
+    end = time.perf_counter()
+    assert end - start < 0.2  # give some slack for timeout
 
-        finally:
-            lightly.api.version_checking.get_versioning_api = old_get_versioning_api
+
+def test__get_versioning_api() -> None:
+    assert isinstance(_version_checking._get_versioning_api(), VersioningApi)
