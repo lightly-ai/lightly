@@ -76,5 +76,11 @@ def test_get_minimum_compatible_version__timeout(mocker: MockerFixture) -> None:
     assert end - start < 0.2  # give some slack for timeout
 
 
+def test_check_is_latest_version_in_background(mocker: MockerFixture) -> None:
+    spy_is_latest_version = mocker.spy(_version_checking, "is_latest_version")
+    _version_checking.check_is_latest_version_in_background("1.2.8")
+    spy_is_latest_version.assert_called_once_with(current_version="1.2.8")
+
+
 def test__get_versioning_api() -> None:
     assert isinstance(_version_checking._get_versioning_api(), VersioningApi)

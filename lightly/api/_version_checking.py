@@ -1,3 +1,5 @@
+from threading import Thread
+
 from lightly.api import utils
 from lightly.api.swagger_api_client import LightlySwaggerApiClient
 from lightly.openapi_generated.swagger_client.api import VersioningApi
@@ -40,6 +42,24 @@ def get_minimum_compatible_version(
         _request_timeout=timeout_sec
     )
     return version_number
+
+
+def check_is_latest_version_in_background(current_version: str) -> None:
+    """Checks if the current version is the latest version in a background thread."""
+
+    def _check_version_in_background(current_version: str) -> None:
+        try:
+            is_latest_version(current_version=current_version)
+        except Exception:
+            # Ignore failed check.
+            pass
+
+    thread = Thread(
+        target=_check_version_in_background,
+        kwargs=dict(current_version=current_version),
+        daemon=True,
+    )
+    thread.start()
 
 
 def _get_versioning_api() -> VersioningApi:
