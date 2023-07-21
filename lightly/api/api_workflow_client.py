@@ -6,9 +6,10 @@ from typing import *
 
 import requests
 from requests import Response
+from urllib3.exceptions import HTTPError
 
 from lightly.__init__ import __version__
-from lightly.api import utils, version_checking
+from lightly.api import _version_checking, utils
 from lightly.api.api_workflow_artifacts import _ArtifactsMixin
 from lightly.api.api_workflow_collaboration import _CollaborationMixin
 from lightly.api.api_workflow_compute_worker import _ComputeWorkerMixin
@@ -23,7 +24,6 @@ from lightly.api.api_workflow_upload_embeddings import _UploadEmbeddingsMixin
 from lightly.api.api_workflow_upload_metadata import _UploadCustomMetadataMixin
 from lightly.api.swagger_api_client import LightlySwaggerApiClient
 from lightly.api.utils import DatasourceType
-from lightly.api.version_checking import LightlyAPITimeoutException
 from lightly.openapi_generated.swagger_client.api import (
     CollaborationApi,
     DatasetsApi,
@@ -93,7 +93,7 @@ class ApiWorkflowClient(
         creator: str = Creator.USER_PIP,
     ):
         try:
-            if not version_checking.is_compatible_version(__version__):
+            if not _version_checking.is_compatible_version(__version__):
                 warnings.warn(
                     UserWarning(
                         (
@@ -104,10 +104,14 @@ class ApiWorkflowClient(
                     )
                 )
         except (
+            # Error if version compare fails.
             ValueError,
+            # Any error by API client if status not in [200, 299].
             ApiException,
-            LightlyAPITimeoutException,
-            AttributeError,
+            # Any error by urllib3 from within API client. Happens for failed requests
+            # that are not handled by API client. For example if there is no internet
+            # connection or a timeout.
+            HTTPError,
         ):
             pass
 
