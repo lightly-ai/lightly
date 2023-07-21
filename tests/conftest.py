@@ -60,7 +60,7 @@ def mock_versioning_api():
         return current_version
 
     # NOTE(guarin, 2/6/23): Cannot use pytest mocker fixture here because it has not
-    # a "session" scope and it is not possible to use a fixture that has a tighter scope
+    # a "module" scope and it is not possible to use a fixture that has a tighter scope
     # inside a fixture with a wider scope.
     with mock.patch(
         "lightly.api._version_checking.VersioningApi.get_latest_pip_version",
