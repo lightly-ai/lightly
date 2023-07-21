@@ -104,7 +104,7 @@ class ApiWorkflowClient(
                     )
                 )
         except (
-            # TODO(guarin, 07/23): Why do we have to catch value errors?
+            # Error if version compare fails.
             ValueError,
             # Any error by API client if status not in [200, 299].
             ApiException,
