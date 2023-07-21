@@ -85,11 +85,6 @@ class TestApiWorkflowClient(unittest.TestCase):
 
 def test_user_agent_header(mocker: MockerFixture) -> None:
     mocker.patch.object(lightly.api.api_workflow_client, "__version__", new="VERSION")
-    mocker.patch.object(
-        lightly.api.api_workflow_client._version_checking,
-        "is_compatible_version",
-        new=lambda _: True,
-    )
     mocked_platform = mocker.patch.object(
         lightly.api.api_workflow_client, "platform", spec_set=platform
     )
