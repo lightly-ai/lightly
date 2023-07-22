@@ -9,11 +9,11 @@ from torchvision.models import resnet50
 
 from lightly.loss import BarlowTwinsLoss
 from lightly.models.modules import BarlowTwinsProjectionHead
-from lightly.models.utils import get_weight_decay_parameters, update_momentum
+from lightly.models.utils import get_weight_decay_parameters
 from lightly.transforms import BYOLTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.lars import LARS
-from lightly.utils.scheduler import CosineWarmupScheduler, cosine_schedule
+from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class BarlowTwins(LightningModule):
