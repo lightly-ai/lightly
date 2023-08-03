@@ -19,16 +19,16 @@ import re  # noqa: F401
 import json
 
 
-from typing import Optional, Union
-from pydantic import Extra,  BaseModel, Field, confloat, conint
+from typing import List
+from pydantic import Extra,  BaseModel, Field, conlist
+from lightly.openapi_generated.swagger_client.models.selection_config_entry import SelectionConfigEntry
 
-class SelectionConfigEntryStrategyTargetRange(BaseModel):
+class SelectionConfigAllOf(BaseModel):
     """
-    If specified, it tries to select samples such that their sum of inputs is >= min_sum and <= max_sum. Only compatible with the WEIGHTS strategy. 
+    SelectionConfigAllOf
     """
-    min_sum: Optional[Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]] = Field(None, description="Target minimum sum of inputs. ")
-    max_sum: Optional[Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]] = Field(None, description="Target maximum sum of inputs.  Must be >= min_sum. ")
-    __properties = ["min_sum", "max_sum"]
+    strategies: conlist(SelectionConfigEntry, min_items=1) = Field(...)
+    __properties = ["strategies"]
 
     class Config:
         """Pydantic configuration"""
@@ -46,8 +46,8 @@ class SelectionConfigEntryStrategyTargetRange(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> SelectionConfigEntryStrategyTargetRange:
-        """Create an instance of SelectionConfigEntryStrategyTargetRange from a JSON string"""
+    def from_json(cls, json_str: str) -> SelectionConfigAllOf:
+        """Create an instance of SelectionConfigAllOf from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -56,25 +56,31 @@ class SelectionConfigEntryStrategyTargetRange(BaseModel):
                           exclude={
                           },
                           exclude_none=True)
+        # override the default output from pydantic by calling `to_dict()` of each item in strategies (list)
+        _items = []
+        if self.strategies:
+            for _item in self.strategies:
+                if _item:
+                    _items.append(_item.to_dict(by_alias=by_alias))
+            _dict['strategies' if by_alias else 'strategies'] = _items
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> SelectionConfigEntryStrategyTargetRange:
-        """Create an instance of SelectionConfigEntryStrategyTargetRange from a dict"""
+    def from_dict(cls, obj: dict) -> SelectionConfigAllOf:
+        """Create an instance of SelectionConfigAllOf from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return SelectionConfigEntryStrategyTargetRange.parse_obj(obj)
+            return SelectionConfigAllOf.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in SelectionConfigEntryStrategyTargetRange) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in SelectionConfigAllOf) in the input: " + str(obj))
 
-        _obj = SelectionConfigEntryStrategyTargetRange.parse_obj({
-            "min_sum": obj.get("min_sum"),
-            "max_sum": obj.get("max_sum")
+        _obj = SelectionConfigAllOf.parse_obj({
+            "strategies": [SelectionConfigEntry.from_dict(_item) for _item in obj.get("strategies")] if obj.get("strategies") is not None else None
         })
         return _obj
 
