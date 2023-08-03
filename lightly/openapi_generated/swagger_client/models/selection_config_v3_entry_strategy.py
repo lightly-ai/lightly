@@ -21,12 +21,13 @@ import json
 
 from typing import Any, Dict, Optional, Union
 from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, confloat, conint
+from lightly.openapi_generated.swagger_client.models.selection_config_v3_entry_strategy_all_of_target_range import SelectionConfigV3EntryStrategyAllOfTargetRange
 from lightly.openapi_generated.swagger_client.models.selection_strategy_threshold_operation import SelectionStrategyThresholdOperation
 from lightly.openapi_generated.swagger_client.models.selection_strategy_type import SelectionStrategyType
 
-class SelectionConfigEntryStrategy(BaseModel):
+class SelectionConfigV3EntryStrategy(BaseModel):
     """
-    SelectionConfigEntryStrategy
+    SelectionConfigV3EntryStrategy
     """
     type: SelectionStrategyType = Field(...)
     strength: Optional[Union[confloat(le=1000000000, ge=-1000000000, strict=True), conint(le=1000000000, ge=-1000000000, strict=True)]] = Field(None, description="The relative strength of this strategy compared to other strategies. The default value is 1.0, which is set in the worker for backwards compatibility. The minimum and maximum values of +-10^9 are used to prevent numerical issues. ")
@@ -34,7 +35,9 @@ class SelectionConfigEntryStrategy(BaseModel):
     threshold: Optional[Union[StrictFloat, StrictInt]] = None
     operation: Optional[SelectionStrategyThresholdOperation] = None
     target: Optional[Dict[str, Any]] = None
-    __properties = ["type", "strength", "stopping_condition_minimum_distance", "threshold", "operation", "target"]
+    stopping_condition_max_sum: Optional[Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]] = Field(None, alias="stoppingConditionMaxSum", description="When the sum of inputs reaches this, the selection stops. Only compatible with the WEIGHTS strategy. Similar to the stopping_condition_minimum_distance for the DIVERSITY strategy. ")
+    target_range: Optional[SelectionConfigV3EntryStrategyAllOfTargetRange] = Field(None, alias="targetRange")
+    __properties = ["type", "strength", "stopping_condition_minimum_distance", "threshold", "operation", "target", "stoppingConditionMaxSum", "targetRange"]
 
     class Config:
         """Pydantic configuration"""
@@ -52,8 +55,8 @@ class SelectionConfigEntryStrategy(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> SelectionConfigEntryStrategy:
-        """Create an instance of SelectionConfigEntryStrategy from a JSON string"""
+    def from_json(cls, json_str: str) -> SelectionConfigV3EntryStrategy:
+        """Create an instance of SelectionConfigV3EntryStrategy from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -62,29 +65,34 @@ class SelectionConfigEntryStrategy(BaseModel):
                           exclude={
                           },
                           exclude_none=True)
+        # override the default output from pydantic by calling `to_dict()` of target_range
+        if self.target_range:
+            _dict['targetRange' if by_alias else 'target_range'] = self.target_range.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> SelectionConfigEntryStrategy:
-        """Create an instance of SelectionConfigEntryStrategy from a dict"""
+    def from_dict(cls, obj: dict) -> SelectionConfigV3EntryStrategy:
+        """Create an instance of SelectionConfigV3EntryStrategy from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return SelectionConfigEntryStrategy.parse_obj(obj)
+            return SelectionConfigV3EntryStrategy.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in SelectionConfigEntryStrategy) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in SelectionConfigV3EntryStrategy) in the input: " + str(obj))
 
-        _obj = SelectionConfigEntryStrategy.parse_obj({
+        _obj = SelectionConfigV3EntryStrategy.parse_obj({
             "type": obj.get("type"),
             "strength": obj.get("strength"),
             "stopping_condition_minimum_distance": obj.get("stopping_condition_minimum_distance"),
             "threshold": obj.get("threshold"),
             "operation": obj.get("operation"),
-            "target": obj.get("target")
+            "target": obj.get("target"),
+            "stopping_condition_max_sum": obj.get("stoppingConditionMaxSum"),
+            "target_range": SelectionConfigV3EntryStrategyAllOfTargetRange.from_dict(obj.get("targetRange")) if obj.get("targetRange") is not None else None
         })
         return _obj
 
