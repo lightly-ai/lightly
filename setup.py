@@ -143,6 +143,7 @@ if __name__ == "__main__":
         extras_require=extras_require,
         python_requires=python_requires,
         packages=packages,
+        package_data={"lightly": ["py.typed"]},
         classifiers=classifiers,
         include_package_data=True,
         project_urls=project_urls,
