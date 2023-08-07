@@ -23,6 +23,7 @@ from typing import List, Optional
 from pydantic import Extra,  BaseModel, Field, StrictStr, conint, conlist, constr, validator
 from lightly.openapi_generated.swagger_client.models.docker_run_artifact_data import DockerRunArtifactData
 from lightly.openapi_generated.swagger_client.models.docker_run_state import DockerRunState
+from lightly.openapi_generated.swagger_client.models.report import Report
 
 class DockerRunData(BaseModel):
     """
@@ -39,7 +40,8 @@ class DockerRunData(BaseModel):
     last_modified_at: conint(strict=True, ge=0) = Field(..., alias="lastModifiedAt", description="unix timestamp in milliseconds")
     message: Optional[StrictStr] = Field(None, description="last message sent to the docker run")
     artifacts: Optional[conlist(DockerRunArtifactData)] = Field(None, description="list of artifacts that were created for a run")
-    __properties = ["id", "userId", "dockerVersion", "state", "datasetId", "configId", "scheduledId", "createdAt", "lastModifiedAt", "message", "artifacts"]
+    report: Optional[Report] = None
+    __properties = ["id", "userId", "dockerVersion", "state", "datasetId", "configId", "scheduledId", "createdAt", "lastModifiedAt", "message", "artifacts", "report"]
 
     @validator('id')
     def id_validate_regular_expression(cls, value):
@@ -111,6 +113,9 @@ class DockerRunData(BaseModel):
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
             _dict['artifacts' if by_alias else 'artifacts'] = _items
+        # override the default output from pydantic by calling `to_dict()` of report
+        if self.report:
+            _dict['report' if by_alias else 'report'] = self.report.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -138,7 +143,8 @@ class DockerRunData(BaseModel):
             "created_at": obj.get("createdAt"),
             "last_modified_at": obj.get("lastModifiedAt"),
             "message": obj.get("message"),
-            "artifacts": [DockerRunArtifactData.from_dict(_item) for _item in obj.get("artifacts")] if obj.get("artifacts") is not None else None
+            "artifacts": [DockerRunArtifactData.from_dict(_item) for _item in obj.get("artifacts")] if obj.get("artifacts") is not None else None,
+            "report": Report.from_dict(obj.get("report")) if obj.get("report") is not None else None
         })
         return _obj
 

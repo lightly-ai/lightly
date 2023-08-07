@@ -139,6 +139,8 @@ from lightly.openapi_generated.swagger_client.models.lightly_model_v2 import Lig
 from lightly.openapi_generated.swagger_client.models.lightly_model_v3 import LightlyModelV3
 from lightly.openapi_generated.swagger_client.models.lightly_trainer_precision_v2 import LightlyTrainerPrecisionV2
 from lightly.openapi_generated.swagger_client.models.lightly_trainer_precision_v3 import LightlyTrainerPrecisionV3
+from lightly.openapi_generated.swagger_client.models.numerical_distribution import NumericalDistribution
+from lightly.openapi_generated.swagger_client.models.numerical_distribution_per_set import NumericalDistributionPerSet
 from lightly.openapi_generated.swagger_client.models.prediction_singleton import PredictionSingleton
 from lightly.openapi_generated.swagger_client.models.prediction_singleton_base import PredictionSingletonBase
 from lightly.openapi_generated.swagger_client.models.prediction_singleton_classification import PredictionSingletonClassification
@@ -165,6 +167,8 @@ from lightly.openapi_generated.swagger_client.models.profile_basic_data import P
 from lightly.openapi_generated.swagger_client.models.profile_me_data import ProfileMeData
 from lightly.openapi_generated.swagger_client.models.profile_me_data_settings import ProfileMeDataSettings
 from lightly.openapi_generated.swagger_client.models.questionnaire_data import QuestionnaireData
+from lightly.openapi_generated.swagger_client.models.report import Report
+from lightly.openapi_generated.swagger_client.models.report_per_image_information import ReportPerImageInformation
 from lightly.openapi_generated.swagger_client.models.s3_region import S3Region
 from lightly.openapi_generated.swagger_client.models.sama_task import SamaTask
 from lightly.openapi_generated.swagger_client.models.sama_task_data import SamaTaskData
