@@ -12,8 +12,8 @@ import knn_eval
 import linear_eval
 import simclr
 import swav
-import vicreg
 import torch
+import vicreg
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import (
     DeviceStatsMonitor,
