@@ -5,7 +5,10 @@ import torch
 
 
 def cosine_schedule(
-    step: float, max_steps: float, start_value: float, end_value: float
+    step: int, 
+    max_steps: int, 
+    start_value: float, 
+    end_value: float
 ) -> float:
     """
     Use cosine decay to gradually modify start_value to reach target end_value during iterations.
@@ -75,9 +78,9 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
     def __init__(
         self,
         optimizer: torch.optim.Optimizer,
-        warmup_epochs: float,
-        max_epochs: float,
-        last_epoch: float = -1,
+        warmup_epochs: int,
+        max_epochs: int,
+        last_epoch: int = -1,
         start_value: float = 1.0,
         end_value: float = 0.001,
         verbose: bool = False,
