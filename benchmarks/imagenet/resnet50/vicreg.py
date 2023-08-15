@@ -68,11 +68,7 @@ class VICReg(LightningModule):
         # Don't use weight decay for batch norm, bias parameters, and classification
         # head to improve performance.
         params, params_no_weight_decay = get_weight_decay_parameters(
-            [
-                self.student_backbone,
-                self.student_projection_head,
-                self.student_prediction_head,
-            ]
+            [self.backbone, self.projection_head]
         )
         optimizer = LARS(
             [
