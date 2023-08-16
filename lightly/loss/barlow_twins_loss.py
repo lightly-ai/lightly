@@ -67,10 +67,9 @@ class BarlowTwinsLoss(torch.nn.Module):
                 c = c / world_size
                 dist.all_reduce(c)
 
-        # loss
-        c_diff = (c - torch.eye(D, device=device)).pow(2)  # DxD
-        # multiply off-diagonal elems of c_diff by lambda
-        c_diff[~torch.eye(D, dtype=bool)] *= self.lambda_param
-        loss = c_diff.sum()
+        on_diag = torch.diagonal(c).add_(-1).pow_(2).sum()
+        n, m = c.shape
+        off_diag = c.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten().pow_(2).sum()
+        loss = on_diag + self.lambda_param * off_diag
 
         return loss
