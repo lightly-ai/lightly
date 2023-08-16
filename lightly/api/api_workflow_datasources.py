@@ -517,9 +517,7 @@ class _DatasourcesMixin:
     def set_local_config(
         self,
         relative_path: str,
-        web_server_location: Optional[
-            str
-        ] = "http://localhost:4567",  # TODO CHECK WITH JEREMY
+        web_server_location: Optional[str] = "http://localhost:3456",
         thumbnail_suffix: Optional[
             str
         ] = ".lightly/thumbnails/[filename]_thumb.[extension]",
@@ -534,8 +532,8 @@ class _DatasourcesMixin:
             relative_path:
                 Relative path from the mount root, for example: "path/to/my/data".
             web_server_location:
-                Location of your local file server, for example: "http://localhost:1234".
-                Defaults to XXXXXXX TODO TODO
+                Location of your local file server, for example: "http://localhost:9999".
+                Defaults to "http://localhost:3456".
             thumbnail_suffix:
                 Where to save thumbnails of the images in the dataset, for
                 example ".lightly/thumbnails/[filename]_thumb.[extension]".

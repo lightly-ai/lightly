@@ -234,15 +234,24 @@ def test_set_local_config(mocker: MockerFixture) -> None:
     client = ApiWorkflowClient()
     client._datasources_api = mocked_datasources_api
     client._dataset_id = "dataset-id"
+
     client.set_local_config(
         web_server_location="http://localhost:1234",
         relative_path="path/to/my/data",
         thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
     )
     kwargs = mocked_datasources_api.update_datasource_by_dataset_id.call_args[1]
-    assert isinstance(
-        kwargs["datasource_config"].actual_instance, DatasourceConfigLOCAL
+    datasource_config = kwargs["datasource_config"].actual_instance
+    assert isinstance(datasource_config, DatasourceConfigLOCAL)
+
+    client.set_local_config(
+        relative_path="path/to/my/data",
+        thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
     )
+    kwargs = mocked_datasources_api.update_datasource_by_dataset_id.call_args[1]
+    datasource_config = kwargs["datasource_config"].actual_instance
+    assert isinstance(datasource_config, DatasourceConfigLOCAL)
+    assert datasource_config.web_server_location == "http://localhost:3456"
 
 
 def test_set_s3_config(mocker: MockerFixture) -> None:
