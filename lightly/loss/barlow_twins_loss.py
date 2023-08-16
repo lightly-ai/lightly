@@ -1,5 +1,8 @@
+from typing import Tuple
+
 import torch
 import torch.distributed as dist
+import torch.nn.functional as F
 
 
 class BarlowTwinsLoss(torch.nn.Module):
@@ -51,8 +54,9 @@ class BarlowTwinsLoss(torch.nn.Module):
         device = z_a.device
 
         # normalize repr. along the batch dimension
-        z_a_norm = (z_a - z_a.mean(0)) / z_a.std(0)  # NxD
-        z_b_norm = (z_b - z_b.mean(0)) / z_b.std(0)  # NxD
+        # z_a_norm = (z_a - z_a.mean(0)) / z_a.std(0)  # NxD
+        # z_b_norm = (z_b - z_b.mean(0)) / z_b.std(0)  # NxD
+        z_a_norm, z_b_norm = _normalize(z_a, z_b)
 
         N = z_a.size(0)
         D = z_a.size(1)
@@ -67,14 +71,30 @@ class BarlowTwinsLoss(torch.nn.Module):
                 c = c / world_size
                 dist.all_reduce(c)
 
-        invariance_loss = torch.diagonal(c).add_(-1).pow_(2).sum()
-        redundancy_reduction_loss = off_diagonal(c).pow_(2).sum()
+        invariance_loss = (torch.trace(c) - D) ** 2
+        redundancy_reduction_loss = _off_diagonal(c).pow_(2).sum()
         loss = invariance_loss + self.lambda_param * redundancy_reduction_loss
 
         return loss
 
 
-def off_diagonal(x):
+def _normalize(
+    z_a: torch.Tensor, z_b: torch.Tensor
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Helper function to normalize tensors along the batch dimension."""
+    combined = torch.stack([z_a, z_b], dim=0)  # Shape: 2 x N x D
+    normalized = F.batch_norm(
+        combined.flatten(0, 1),
+        running_mean=None,
+        running_var=None,
+        weight=None,
+        bias=None,
+        training=True,
+    ).view_as(combined)
+    return normalized[0], normalized[1]
+
+
+def _off_diagonal(x):
     # return a flattened view of the off-diagonal elements of a square matrix
     n, m = x.shape
     assert n == m
