@@ -67,9 +67,15 @@ class BarlowTwinsLoss(torch.nn.Module):
                 c = c / world_size
                 dist.all_reduce(c)
 
-        on_diag = torch.diagonal(c).add_(-1).pow_(2).sum()
-        n, m = c.shape
-        off_diag = c.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten().pow_(2).sum()
-        loss = on_diag + self.lambda_param * off_diag
+        invariance_loss = torch.diagonal(c).add_(-1).pow_(2).sum()
+        redundancy_reduction_loss = off_diagonal(c).pow_(2).sum()
+        loss = invariance_loss + self.lambda_param * redundancy_reduction_loss
 
         return loss
+
+
+def off_diagonal(x):
+    # return a flattened view of the off-diagonal elements of a square matrix
+    n, m = x.shape
+    assert n == m
+    return x.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten()
