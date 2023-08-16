@@ -235,7 +235,8 @@ def test_set_local_config(mocker: MockerFixture) -> None:
     client._datasources_api = mocked_datasources_api
     client._dataset_id = "dataset-id"
     client.set_local_config(
-        resource_path="http://localhost:1234/path/to/my/data",
+        web_server_location="http://localhost:1234",
+        relative_path="path/to/my/data",
         thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
     )
     kwargs = mocked_datasources_api.update_datasource_by_dataset_id.call_args[1]

@@ -36,7 +36,9 @@ from lightly.openapi_generated.swagger_client.models import (
     DatasetData,
     DatasetEmbeddingData,
     DatasourceConfig,
+    DatasourceConfigAzure,
     DatasourceConfigBase,
+    DatasourceConfigLOCAL,
     DatasourceProcessedUntilTimestampRequest,
     DatasourceProcessedUntilTimestampResponse,
     DatasourceRawSamplesData,
@@ -657,11 +659,14 @@ class MockedDatasourcesApi(DatasourcesApi):
         self.reset()
 
     def reset(self):
-        local_datasource = DatasourceConfigBase(
-            type="LOCAL", full_path="", purpose="INPUT_OUTPUT"
+        local_datasource = DatasourceConfigLOCAL(
+            type="LOCAL",
+            full_path="",
+            web_server_location="https://localhost:4567",
+            purpose="INPUT_OUTPUT",
         ).to_dict()
         azure_datasource = DatasourceConfigBase(
-            type="AZURE", full_path="", purpose="INPUT_OUTPUT"
+            type="AZURE", purpose="INPUT_OUTPUT"
         ).to_dict()
 
         self._datasources = {
