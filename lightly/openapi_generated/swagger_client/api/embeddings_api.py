@@ -199,7 +199,7 @@ class EmbeddingsApi(object):
     def get_embeddings_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> List[DatasetEmbeddingData]:  # noqa: E501
         """get_embeddings_by_dataset_id  # noqa: E501
 
-        Get all annotations of a dataset  # noqa: E501
+        Get all embeddings of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -228,7 +228,7 @@ class EmbeddingsApi(object):
     def get_embeddings_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> ApiResponse:  # noqa: E501
         """get_embeddings_by_dataset_id  # noqa: E501
 
-        Get all annotations of a dataset  # noqa: E501
+        Get all embeddings of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 

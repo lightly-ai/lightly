@@ -6,7 +6,6 @@ import tqdm
 
 from lightly.openapi_generated.swagger_client.models import (
     DatasourceConfig,
-    DatasourceConfigVerifyDataErrors,
     DatasourceProcessedUntilTimestampRequest,
     DatasourceProcessedUntilTimestampResponse,
     DatasourcePurpose,
@@ -517,7 +516,8 @@ class _DatasourcesMixin:
 
     def set_local_config(
         self,
-        resource_path: str,
+        relative_path: str,
+        web_server_location: Optional[str] = "http://localhost:3456",
         thumbnail_suffix: Optional[
             str
         ] = ".lightly/thumbnails/[filename]_thumb.[extension]",
@@ -529,8 +529,10 @@ class _DatasourcesMixin:
         server in our docs: https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_local_server.html
 
         Args:
-            resource_path:
-                Url to your local file server, for example: "http://localhost:1234/path/to/my/data".
+            relative_path:
+                Relative path from the mount root, for example: "path/to/my/data".
+            web_server_location:
+                Location of your local file server. Defaults to "http://localhost:3456".
             thumbnail_suffix:
                 Where to save thumbnails of the images in the dataset, for
                 example ".lightly/thumbnails/[filename]_thumb.[extension]".
@@ -546,7 +548,8 @@ class _DatasourcesMixin:
             datasource_config=DatasourceConfig.from_dict(
                 {
                     "type": "LOCAL",
-                    "fullPath": resource_path,
+                    "webServerLocation": web_server_location,
+                    "fullPath": relative_path,
                     "thumbSuffix": thumbnail_suffix,
                     "purpose": purpose,
                 }
