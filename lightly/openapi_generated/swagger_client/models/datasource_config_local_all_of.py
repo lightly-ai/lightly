@@ -20,14 +20,25 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, StrictStr
+from pydantic import Extra,  BaseModel, Field, StrictStr, constr, validator
 
-class AnnotationMetaData(BaseModel):
+class DatasourceConfigLOCALAllOf(BaseModel):
     """
-    AnnotationMetaData
+    DatasourceConfigLOCALAllOf
     """
-    description: Optional[StrictStr] = None
-    __properties = ["description"]
+    full_path: StrictStr = Field(..., alias="fullPath", description="Relative path from the mount point. Not allowed to start with \"/\", contain \"://\" or contain \".\" or \"..\" directory parts.")
+    web_server_location: Optional[constr(strict=True)] = Field(None, alias="webServerLocation", description="The webserver location where your local webserver is running to use for viewing images in the webapp when using the local datasource workflow. Defaults to http://localhost:3456 ")
+    __properties = ["fullPath", "webServerLocation"]
+
+    @validator('web_server_location')
+    def web_server_location_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^https?:\/\/.+$", value):
+            raise ValueError(r"must validate the regular expression /^https?:\/\/.+$/")
+        return value
 
     class Config:
         """Pydantic configuration"""
@@ -45,8 +56,8 @@ class AnnotationMetaData(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> AnnotationMetaData:
-        """Create an instance of AnnotationMetaData from a JSON string"""
+    def from_json(cls, json_str: str) -> DatasourceConfigLOCALAllOf:
+        """Create an instance of DatasourceConfigLOCALAllOf from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -58,21 +69,22 @@ class AnnotationMetaData(BaseModel):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> AnnotationMetaData:
-        """Create an instance of AnnotationMetaData from a dict"""
+    def from_dict(cls, obj: dict) -> DatasourceConfigLOCALAllOf:
+        """Create an instance of DatasourceConfigLOCALAllOf from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return AnnotationMetaData.parse_obj(obj)
+            return DatasourceConfigLOCALAllOf.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in AnnotationMetaData) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in DatasourceConfigLOCALAllOf) in the input: " + str(obj))
 
-        _obj = AnnotationMetaData.parse_obj({
-            "description": obj.get("description")
+        _obj = DatasourceConfigLOCALAllOf.parse_obj({
+            "full_path": obj.get("fullPath"),
+            "web_server_location": obj.get("webServerLocation")
         })
         return _obj
 
