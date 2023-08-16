@@ -532,8 +532,7 @@ class _DatasourcesMixin:
             relative_path:
                 Relative path from the mount root, for example: "path/to/my/data".
             web_server_location:
-                Location of your local file server, for example: "http://localhost:9999".
-                Defaults to "http://localhost:3456".
+                Location of your local file server. Defaults to "http://localhost:3456".
             thumbnail_suffix:
                 Where to save thumbnails of the images in the dataset, for
                 example ".lightly/thumbnails/[filename]_thumb.[extension]".

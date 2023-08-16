@@ -662,7 +662,7 @@ class MockedDatasourcesApi(DatasourcesApi):
         local_datasource = DatasourceConfigLOCAL(
             type="LOCAL",
             full_path="",
-            web_server_location="https://localhost:4567",
+            web_server_location="https://localhost:1234",
             purpose="INPUT_OUTPUT",
         ).to_dict()
         azure_datasource = DatasourceConfigBase(
