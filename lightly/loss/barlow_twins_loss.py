@@ -55,16 +55,15 @@ class BarlowTwinsLoss(torch.nn.Module):
         z_a_norm, z_b_norm = _normalize(z_a, z_b)
 
         N = z_a.size(0)
-        D = z_a.size(1)
 
         # cross-correlation matrix
-        c = torch.mm(z_a_norm.T, z_b_norm) / N  # DxD
+        c = z_a_norm.T @ z_b_norm
+        c.div_(N)
 
         # sum cross-correlation matrix between multiple gpus
         if self.gather_distributed and dist.is_initialized():
             world_size = dist.get_world_size()
             if world_size > 1:
-                c = c / world_size
                 dist.all_reduce(c)
 
         invariance_loss = torch.diagonal(c).add_(-1).pow_(2).sum()
