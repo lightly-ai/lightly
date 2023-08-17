@@ -23,8 +23,7 @@ def get_server(
         >>> from lightly.api import serve
         >>> from pathlib import Path
         >>> serve(
-        >>>    input_dir=Path("/input_dir),
-        >>>    lightly_dir=Path("/lightly_dir),
+        >>>    paths=[Path("/input_dir), Path("/lightly_dir)],
         >>>    host="localhost",
         >>>    port=1234,
         >>> )
