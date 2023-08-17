@@ -51,11 +51,7 @@ class BarlowTwinsLoss(torch.nn.Module):
             )
 
     def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
-        device = z_a.device
-
         # normalize repr. along the batch dimension
-        # z_a_norm = (z_a - z_a.mean(0)) / z_a.std(0)  # NxD
-        # z_b_norm = (z_b - z_b.mean(0)) / z_b.std(0)  # NxD
         z_a_norm, z_b_norm = _normalize(z_a, z_b)
 
         N = z_a.size(0)
@@ -71,7 +67,7 @@ class BarlowTwinsLoss(torch.nn.Module):
                 c = c / world_size
                 dist.all_reduce(c)
 
-        invariance_loss = (torch.trace(c) - D) ** 2
+        invariance_loss = torch.diagonal(c).add_(-1).pow_(2).sum()
         redundancy_reduction_loss = _off_diagonal(c).pow_(2).sum()
         loss = invariance_loss + self.lambda_param * redundancy_reduction_loss
 
