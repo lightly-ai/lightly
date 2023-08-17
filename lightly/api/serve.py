@@ -1,16 +1,17 @@
 import re
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
+from typing import Sequence, Type
 
 
-def serve(
+def get_server(
     root_dir: Path,
     input_path: str,
     lightly_path: str,
     host: str,
     port: int,
 ):
-    """Serve the local datasource.
+    """Returns an HTTP server that serves a local datasource.
 
     Args:
         root_dir:
@@ -35,27 +36,39 @@ def serve(
         >>> )
 
     """
-
     directories = [root_dir / input_path, root_dir / lightly_path]
 
     class _LocalDatasourceRequestHandler(SimpleHTTPRequestHandler):
-        """Request handler for the local datasource.
-
-        Tries to resolve the relative path to a file in the local input directory
-        and serves it if it exists. Otherwise, it tries to resolve the relative
-        path to a file in the lightly directory and serves it if it exists.
-
-        """
-
         def translate_path(self, path: str) -> str:
-            path = _strip_leading_slashes(path)
-            for directory in directories:
-                if (directory / path).is_file():
-                    return str(directory / path)
-            return ""  # Not found.
+            return _translate_path(path=path, directories=directories)
 
-    httpd = HTTPServer((host, port), _LocalDatasourceRequestHandler)
-    httpd.serve_forever()
+    return HTTPServer((host, port), _LocalDatasourceRequestHandler)
+
+
+def _translate_path(path: str, directories: Sequence[Path]) -> str:
+    """Translates a relative path to a file in the local datasource.
+
+    Tries to resolve the relative path to a file in the local input directory
+    and serves it if it exists. Otherwise, it tries to resolve the relative
+    path to a file in the lightly directory and serves it if it exists.
+
+    Args:
+        path:
+            Relative path to a file in the local datasource.
+        directories:
+            List of directories to search for the file.
+
+
+    Returns:
+        Absolute path to the file in the local datasource or an empty string
+        if the file doesn't exist.
+
+    """
+    path = _strip_leading_slashes(path)
+    for directory in directories:
+        if (directory / path).exists():
+            return str(directory / path)
+    return ""  # Not found.
 
 
 def _strip_leading_slashes(path: str) -> str:
