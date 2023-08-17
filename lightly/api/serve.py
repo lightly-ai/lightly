@@ -1,25 +1,19 @@
 import re
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
-from typing import Sequence, Type
+from typing import Sequence
 
 
 def get_server(
-    root_dir: Path,
-    input_path: str,
-    lightly_path: str,
+    paths: Sequence[str],
     host: str,
     port: int,
 ):
     """Returns an HTTP server that serves a local datasource.
 
     Args:
-        root_dir:
-            Root directory of the local datasource.
-        input_path:
-            Path to the input directory, relative to the root directory.
-        lightly_path:
-            Path to the Lightly directory, relative to the root directory.
+        paths:
+            List of paths to serve.
         host:
             Host to serve the datasource on.
         port:
@@ -36,11 +30,10 @@ def get_server(
         >>> )
 
     """
-    directories = [root_dir / input_path, root_dir / lightly_path]
 
     class _LocalDatasourceRequestHandler(SimpleHTTPRequestHandler):
         def translate_path(self, path: str) -> str:
-            return _translate_path(path=path, directories=directories)
+            return _translate_path(path=path, directories=paths)
 
     return HTTPServer((host, port), _LocalDatasourceRequestHandler)
 

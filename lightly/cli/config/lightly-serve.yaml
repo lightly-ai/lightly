@@ -1,0 +1,10 @@
+
+input_dir: ''     # Path to the input directory.
+lightly_dir: ''   # Path to the lightly directory.
+host: 'localhost' # Hostname for serving the data.
+port:             # Port for serving the data.
+
+
+hydra:
+  run:
+    dir: lightly_outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
