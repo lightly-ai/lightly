@@ -2,9 +2,15 @@
 input_dir: ''     # Path to the input directory.
 lightly_dir: ''   # Path to the lightly directory.
 host: 'localhost' # Hostname for serving the data.
-port:             # Port for serving the data.
+port: 3456        # Port for serving the data.
 
 
-hydra:
-  run:
-    dir: lightly_outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+defaults:  
+  - _self_  
+  - override hydra/hydra_logging: disabled  
+  - override hydra/job_logging: disabled  
+  
+hydra:  
+  output_subdir: null  
+  run:  
+    dir: .

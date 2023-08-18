@@ -38,15 +38,13 @@ def lightly_serve(cfg):
         )
         sys.exit(1)
 
-    if cfg.port is None:
-        print("Please provide a valid port. Use --help for more information.")
-        sys.exit(1)
-
     httpd = serve.get_server(
         paths=[Path(cfg.input_dir), Path(cfg.lightly_dir)],
         host=cfg.host,
         port=cfg.port,
     )
+    print(f"Starting server, listening at '{httpd.server_name}:{httpd.server_port}'")
+    print(f"Listing files in '{cfg.input_dir}' and '{cfg.lightly_dir}'")
     httpd.serve_forever()
 
 

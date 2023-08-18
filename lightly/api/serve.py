@@ -40,9 +40,9 @@ def get_server(
 def _translate_path(path: str, directories: Sequence[Path]) -> str:
     """Translates a relative path to a file in the local datasource.
 
-    Tries to resolve the relative path to a file in the local input directory
+    Tries to resolve the relative path to a file in the first directory
     and serves it if it exists. Otherwise, it tries to resolve the relative
-    path to a file in the lightly directory and serves it if it exists.
+    path to a file in the second directory and serves it if it exists, etc.
 
     Args:
         path:
@@ -56,22 +56,8 @@ def _translate_path(path: str, directories: Sequence[Path]) -> str:
         if the file doesn't exist.
 
     """
-    path = _strip_leading_slashes(path)
+    stripped_path = path.lstrip("/")
     for directory in directories:
-        if (directory / path).exists():
-            return str(directory / path)
+        if (directory / stripped_path).exists():
+            return str(directory / stripped_path)
     return ""  # Not found.
-
-
-def _strip_leading_slashes(path: str) -> str:
-    """Strip leading slashes from a path.
-
-    Args:
-        path:
-            Path to strip leading slashes from.
-
-    Returns:
-        Path without leading slashes.
-
-    """
-    return re.sub(r"^/+", "", path)
