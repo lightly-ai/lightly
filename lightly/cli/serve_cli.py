@@ -12,39 +12,39 @@ def lightly_serve(cfg):
     """Use lightly-serve to serve your data for interactive exploration.
 
     Command-Line Args:
-        input_dir:
+        input_mount:
             Path to the input directory.
-        lightly_dir:
+        lightly_mount:
             Path to the Lightly directory.
         host:
             Hostname for serving the data (defaults to localhost).
         port:
-            Port for serving the data.
+            Port for serving the data (defaults to 3456).
 
     Examples:
-        >>> lightly-serve input_dir=data/ lightly_dir=lightly/ port=8080
+        >>> lightly-serve input_mount=data/ lightly_mount=lightly/ port=8080
 
 
     """
-    if not cfg.input_dir:
+    if not cfg.input_mount:
         print(
-            "Please provide a valid input directory. Use --help for more information."
+            "Please provide a valid input mount. Use --help for more information."
         )
         sys.exit(1)
 
-    if not cfg.lightly_dir:
+    if not cfg.lightly_mount:
         print(
-            "Please provide a valid Lightly directory. Use --help for more information."
+            "Please provide a valid Lightly mount. Use --help for more information."
         )
         sys.exit(1)
 
     httpd = serve.get_server(
-        paths=[Path(cfg.input_dir), Path(cfg.lightly_dir)],
+        paths=[Path(cfg.input_mount), Path(cfg.lightly_mount)],
         host=cfg.host,
         port=cfg.port,
     )
     print(f"Starting server, listening at '{httpd.server_name}:{httpd.server_port}'")
-    print(f"Listing files in '{cfg.input_dir}' and '{cfg.lightly_dir}'")
+    print(f"Listing files in '{cfg.input_mount}' and '{cfg.lightly_mount}'")
     httpd.serve_forever()
 
 
