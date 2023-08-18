@@ -22,7 +22,7 @@ def lightly_serve(cfg):
             Port for serving the data (defaults to 3456).
 
     Examples:
-        >>> lightly-serve input_mount=data/ lightly_mount=lightly/ port=8080
+        >>> lightly-serve input_mount=data/ lightly_mount=lightly/ port=3456
 
 
     """
@@ -40,7 +40,7 @@ def lightly_serve(cfg):
         port=cfg.port,
     )
     print(f"Starting server, listening at '{httpd.server_name}:{httpd.server_port}'")
-    print(f"Listing files in '{cfg.input_mount}' and '{cfg.lightly_mount}'")
+    print(f"Serving files in '{cfg.input_mount}' and '{cfg.lightly_mount}'")
     httpd.serve_forever()
 
 
