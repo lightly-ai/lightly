@@ -1,5 +1,8 @@
+from typing import Tuple
+
 import torch
 import torch.distributed as dist
+import torch.nn.functional as F
 
 
 class BarlowTwinsLoss(torch.nn.Module):
@@ -48,17 +51,14 @@ class BarlowTwinsLoss(torch.nn.Module):
             )
 
     def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
-        device = z_a.device
-
         # normalize repr. along the batch dimension
-        z_a_norm = (z_a - z_a.mean(0)) / z_a.std(0)  # NxD
-        z_b_norm = (z_b - z_b.mean(0)) / z_b.std(0)  # NxD
+        z_a_norm, z_b_norm = _normalize(z_a, z_b)
 
         N = z_a.size(0)
-        D = z_a.size(1)
 
         # cross-correlation matrix
-        c = torch.mm(z_a_norm.T, z_b_norm) / N  # DxD
+        c = z_a_norm.T @ z_b_norm
+        c.div_(N)
 
         # sum cross-correlation matrix between multiple gpus
         if self.gather_distributed and dist.is_initialized():
@@ -67,10 +67,31 @@ class BarlowTwinsLoss(torch.nn.Module):
                 c = c / world_size
                 dist.all_reduce(c)
 
-        # loss
-        c_diff = (c - torch.eye(D, device=device)).pow(2)  # DxD
-        # multiply off-diagonal elems of c_diff by lambda
-        c_diff[~torch.eye(D, dtype=bool)] *= self.lambda_param
-        loss = c_diff.sum()
+        invariance_loss = torch.diagonal(c).add_(-1).pow_(2).sum()
+        redundancy_reduction_loss = _off_diagonal(c).pow_(2).sum()
+        loss = invariance_loss + self.lambda_param * redundancy_reduction_loss
 
         return loss
+
+
+def _normalize(
+    z_a: torch.Tensor, z_b: torch.Tensor
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Helper function to normalize tensors along the batch dimension."""
+    combined = torch.stack([z_a, z_b], dim=0)  # Shape: 2 x N x D
+    normalized = F.batch_norm(
+        combined.flatten(0, 1),
+        running_mean=None,
+        running_var=None,
+        weight=None,
+        bias=None,
+        training=True,
+    ).view_as(combined)
+    return normalized[0], normalized[1]
+
+
+def _off_diagonal(x):
+    # return a flattened view of the off-diagonal elements of a square matrix
+    n, m = x.shape
+    assert n == m
+    return x.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten()
