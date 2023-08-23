@@ -62,3 +62,22 @@ class TestScheduler(unittest.TestCase):
             RuntimeWarning, msg="Current step number 7 exceeds max_steps 6."
         ):
             scheduler.step()
+
+    def test_CosineWarmupScheduler__warmup(self):
+        model = nn.Linear(10, 1)
+        optimizer = torch.optim.SGD(
+            model.parameters(), lr=1.0, momentum=0.0, weight_decay=0.0
+        )
+        scheduler = CosineWarmupScheduler(
+            optimizer,
+            warmup_epochs=3,
+            max_epochs=6,
+            start_value=2.0,
+            end_value=0.0,
+        )
+        # Linear warmup
+        self.assertAlmostEqual(scheduler.scale_lr(epoch=0), 2.0 * 1 / 3)
+        self.assertAlmostEqual(scheduler.scale_lr(epoch=1), 2.0 * 2 / 3)
+        self.assertAlmostEqual(scheduler.scale_lr(epoch=2), 2.0 * 3 / 3)
+        # Cosine decay
+        self.assertLess(scheduler.scale_lr(epoch=3), 2.0)
