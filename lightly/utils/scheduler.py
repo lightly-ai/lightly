@@ -5,13 +5,10 @@ import torch
 
 
 def cosine_schedule(
-    step: int, 
-    max_steps: int, 
-    start_value: float, 
-    end_value: float
+    step: int, max_steps: int, start_value: float, end_value: float
 ) -> float:
-    """
-    Use cosine decay to gradually modify start_value to reach target end_value during iterations.
+    """Use cosine decay to gradually modify start_value to reach target end_value during
+    iterations.
 
     Args:
         step:
@@ -51,12 +48,11 @@ def cosine_schedule(
             * (np.cos(np.pi * step / (max_steps - 1)) + 1)
             / 2
         )
-    return decay / start_value 
+    return decay
 
 
 class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
-    """
-    Cosine warmup scheduler for learning rate.
+    """Cosine warmup scheduler for learning rate.
 
     Args:
         optimizer:
@@ -73,6 +69,10 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
             Target learning rate scale. Default: 0.001
         verbose:
             If True, prints a message to stdout for each update. Default: False.
+
+    Note: The `epoch` arguments do not necessarily have to be epochs. Any step or index
+    can be used. The naming follows the Pytorch convention to use `epoch` for the steps
+    in the scheduler.
     """
 
     def __init__(
