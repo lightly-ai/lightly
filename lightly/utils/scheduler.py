@@ -106,7 +106,7 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
 
         """
         if epoch < self.warmup_epochs:
-            return (epoch + 1) / self.warmup_epochs
+            return self.start_value * (epoch + 1) / self.warmup_epochs
         else:
             return cosine_schedule(
                 step=epoch - self.warmup_epochs,
