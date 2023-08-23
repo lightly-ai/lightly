@@ -80,4 +80,5 @@ class TestScheduler(unittest.TestCase):
         self.assertAlmostEqual(scheduler.scale_lr(epoch=1), 2.0 * 2 / 3)
         self.assertAlmostEqual(scheduler.scale_lr(epoch=2), 2.0 * 3 / 3)
         # Cosine decay
-        self.assertLess(scheduler.scale_lr(epoch=3), 2.0)
+        self.assertAlmostEqual(scheduler.scale_lr(epoch=3), 2.0 * 3 / 3)
+        self.assertLess(scheduler.scale_lr(epoch=4), 2.0)
