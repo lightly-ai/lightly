@@ -136,12 +136,12 @@ class DINO(LightningModule):
         scheduler = {
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
-                warmup_epochs=(
+                warmup_epochs=int(
                     self.trainer.estimated_stepping_batches
                     / self.trainer.max_epochs
                     * 10
                 ),
-                max_epochs=self.trainer.estimated_stepping_batches,
+                max_epochs=int(self.trainer.estimated_stepping_batches),
             ),
             "interval": "step",
         }
