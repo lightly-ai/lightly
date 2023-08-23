@@ -1,0 +1,16 @@
+input_mount: ''     # Path to the input directory.
+lightly_mount: ''   # Path to the lightly directory.
+host: 'localhost'   # Hostname for serving the data.
+port: 3456          # Port for serving the data.
+
+
+# Disable Hydra log directories.
+defaults:  
+  - _self_  
+  - override hydra/hydra_logging: disabled  
+  - override hydra/job_logging: disabled  
+  
+hydra:  
+  output_subdir: null  
+  run:  
+    dir: .

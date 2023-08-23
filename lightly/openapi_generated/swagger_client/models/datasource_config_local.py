@@ -19,15 +19,27 @@ import re  # noqa: F401
 import json
 
 
-
-from pydantic import Extra,  BaseModel
+from typing import Optional
+from pydantic import Extra,  BaseModel, Field, StrictStr, constr, validator
 from lightly.openapi_generated.swagger_client.models.datasource_config_base import DatasourceConfigBase
 
 class DatasourceConfigLOCAL(DatasourceConfigBase):
     """
     DatasourceConfigLOCAL
     """
-    __properties = ["id", "purpose", "type", "fullPath", "thumbSuffix"]
+    full_path: StrictStr = Field(..., alias="fullPath", description="Relative path from the mount point. Not allowed to start with \"/\", contain \"://\" or contain \".\" or \"..\" directory parts.")
+    web_server_location: Optional[constr(strict=True)] = Field(None, alias="webServerLocation", description="The webserver location where your local webserver is running to use for viewing images in the webapp when using the local datasource workflow. Defaults to http://localhost:3456 ")
+    __properties = ["id", "purpose", "type", "thumbSuffix", "fullPath", "webServerLocation"]
+
+    @validator('web_server_location')
+    def web_server_location_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^https?:\/\/.+$", value):
+            raise ValueError(r"must validate the regular expression /^https?:\/\/.+$/")
+        return value
 
     class Config:
         """Pydantic configuration"""
@@ -75,8 +87,9 @@ class DatasourceConfigLOCAL(DatasourceConfigBase):
             "id": obj.get("id"),
             "purpose": obj.get("purpose"),
             "type": obj.get("type"),
+            "thumb_suffix": obj.get("thumbSuffix"),
             "full_path": obj.get("fullPath"),
-            "thumb_suffix": obj.get("thumbSuffix")
+            "web_server_location": obj.get("webServerLocation")
         })
         return _obj
 

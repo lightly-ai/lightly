@@ -20,14 +20,15 @@ import json
 
 
 
-from pydantic import Extra,  BaseModel
+from pydantic import Extra,  BaseModel, Field, StrictStr
 from lightly.openapi_generated.swagger_client.models.datasource_config_base import DatasourceConfigBase
 
 class DatasourceConfigLIGHTLY(DatasourceConfigBase):
     """
     DatasourceConfigLIGHTLY
     """
-    __properties = ["id", "purpose", "type", "fullPath", "thumbSuffix"]
+    full_path: StrictStr = Field(..., alias="fullPath", description="path includes the bucket name and the path within the bucket where you have stored your information")
+    __properties = ["id", "purpose", "type", "thumbSuffix", "fullPath"]
 
     class Config:
         """Pydantic configuration"""
@@ -75,8 +76,8 @@ class DatasourceConfigLIGHTLY(DatasourceConfigBase):
             "id": obj.get("id"),
             "purpose": obj.get("purpose"),
             "type": obj.get("type"),
-            "full_path": obj.get("fullPath"),
-            "thumb_suffix": obj.get("thumbSuffix")
+            "thumb_suffix": obj.get("thumbSuffix"),
+            "full_path": obj.get("fullPath")
         })
         return _obj
 

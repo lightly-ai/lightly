@@ -19,16 +19,15 @@ import re  # noqa: F401
 import json
 
 
-from typing import Optional, Union
-from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, conint
 
-class AnnotationOfferData(BaseModel):
+from pydantic import Extra,  BaseModel, Field, StrictStr
+
+class DatasourceConfigBaseFullPath(BaseModel):
     """
-    AnnotationOfferData
+    DatasourceConfigBaseFullPath
     """
-    cost: Optional[Union[StrictFloat, StrictInt]] = None
-    completed_by: Optional[conint(strict=True, ge=0)] = Field(None, alias="completedBy", description="unix timestamp in milliseconds")
-    __properties = ["cost", "completedBy"]
+    full_path: StrictStr = Field(..., alias="fullPath", description="path includes the bucket name and the path within the bucket where you have stored your information")
+    __properties = ["fullPath"]
 
     class Config:
         """Pydantic configuration"""
@@ -46,8 +45,8 @@ class AnnotationOfferData(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> AnnotationOfferData:
-        """Create an instance of AnnotationOfferData from a JSON string"""
+    def from_json(cls, json_str: str) -> DatasourceConfigBaseFullPath:
+        """Create an instance of DatasourceConfigBaseFullPath from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -59,22 +58,21 @@ class AnnotationOfferData(BaseModel):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> AnnotationOfferData:
-        """Create an instance of AnnotationOfferData from a dict"""
+    def from_dict(cls, obj: dict) -> DatasourceConfigBaseFullPath:
+        """Create an instance of DatasourceConfigBaseFullPath from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return AnnotationOfferData.parse_obj(obj)
+            return DatasourceConfigBaseFullPath.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in AnnotationOfferData) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in DatasourceConfigBaseFullPath) in the input: " + str(obj))
 
-        _obj = AnnotationOfferData.parse_obj({
-            "cost": obj.get("cost"),
-            "completed_by": obj.get("completedBy")
+        _obj = DatasourceConfigBaseFullPath.parse_obj({
+            "full_path": obj.get("fullPath")
         })
         return _obj
 
