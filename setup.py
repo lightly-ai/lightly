@@ -1,25 +1,17 @@
 import os
+from pathlib import Path
+from typing import List
 
 import setuptools
 
 import lightly
 
-PATH_ROOT = os.path.dirname(__file__)
+_PATH_ROOT = Path(os.path.dirname(__file__))
 
 
-def load_description(path_dir=PATH_ROOT, filename="DOCS.md"):
-    """Load long description from readme in the path_dir/ directory"""
-    with open(os.path.join(path_dir, filename)) as f:
-        long_description = f.read()
-    return long_description
-
-
-def load_requirements(path_dir=PATH_ROOT, filename="base.txt", comment_char="#"):
-    """From pytorch-lightning repo: https://github.com/PyTorchLightning/pytorch-lightning.
-    Load requirements from text file in the path_dir/requirements/ directory.
-
-    """
-    with open(os.path.join(path_dir, "requirements", filename), "r") as file:
+def load_requirements(filename: str, comment_char: str = "#") -> List[str]:
+    """Load requirements from text file in the requirements directory."""
+    with (_PATH_ROOT / "requirements" / filename).open() as file:
         lines = [ln.strip() for ln in file.readlines()]
     reqs = []
     for ln in lines:
@@ -54,8 +46,7 @@ if __name__ == "__main__":
             "lightly-serve = lightly.cli.serve_cli:entry",
         ]
     }
-
-    long_description = load_description()
+    long_description = (_PATH_ROOT / "README.md").read_text()
 
     python_requires = ">=3.6"
     base_requires = load_requirements(filename="base.txt")
