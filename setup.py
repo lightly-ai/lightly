@@ -4,8 +4,6 @@ from typing import List
 
 import setuptools
 
-import lightly
-
 _PATH_ROOT = Path(os.path.dirname(__file__))
 
 
@@ -26,9 +24,26 @@ def load_requirements(filename: str, comment_char: str = "#") -> List[str]:
     return reqs
 
 
+def load_version() -> str:
+    """Load version from the lightly/__init__.py file.
+
+    Note: We do not want to get the version with `lightly.__version__` because it would
+    require importing `lightly`. We do not want to import lightly during setup/install
+    because it has side effects and it expects dependencies to installed. This is
+    however only the case after the package has been installed.
+    """
+    version_filepath = _PATH_ROOT / "lightly" / "__init__.py"
+    with version_filepath.open() as file:
+        for line in file.readlines():
+            if line.startswith("__version__"):
+                version = line.split("=")[-1].strip().strip('"')
+                return version
+    raise RuntimeError("Unable to find version string in '{version_filepath}'.")
+
+
 if __name__ == "__main__":
     name = "lightly"
-    version = lightly.__version__
+    version = load_version()
     author = "Lightly Team"
     author_email = "team@lightly.ai"
     description = "A deep learning package for self-supervised learning"
