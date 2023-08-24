@@ -1,10 +1,8 @@
-import builtins
 import os
 
 import setuptools
 
 PATH_ROOT = os.path.dirname(__file__)
-builtins.__LIGHTLY_SETUP__ = True
 
 import lightly
 
