@@ -15,7 +15,7 @@ def load_requirements(filename: str, comment_char: str = "#") -> List[str]:
         lines = [ln.strip() for ln in file.readlines()]
     reqs = []
     for ln in lines:
-        # filer all comments
+        # filter all comments
         if comment_char in ln:
             ln = ln[: ln.index(comment_char)].strip()
         # skip directly installed dependencies
