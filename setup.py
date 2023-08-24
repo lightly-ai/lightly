@@ -1,11 +1,7 @@
+import builtins
 import os
 
 import setuptools
-
-try:
-    import builtins
-except ImportError:
-    import __builtin__ as builtins
 
 PATH_ROOT = os.path.dirname(__file__)
 builtins.__LIGHTLY_SETUP__ = True
