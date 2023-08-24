@@ -137,6 +137,7 @@ if __name__ == "__main__":
         description=description,
         entry_points=entry_points,
         license="MIT",
+        license_files=["LICENSE.txt"],
         long_description=long_description,
         long_description_content_type="text/markdown",
         setup_requires=setup_requires,
