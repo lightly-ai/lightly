@@ -31,8 +31,8 @@ if __name__ == "__main__":
     version = lightly.__version__
     description = lightly.__doc__
 
-    author = "Philipp Wirth & Igor Susmelj"
-    author_email = "philipp@lightly.ai"
+    author = "Lightly Team"
+    author_email = "team@lightly.ai"
     description = "A deep learning package for self-supervised learning"
 
     entry_points = {
