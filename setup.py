@@ -29,8 +29,6 @@ def load_requirements(filename: str, comment_char: str = "#") -> List[str]:
 if __name__ == "__main__":
     name = "lightly"
     version = lightly.__version__
-    description = lightly.__doc__
-
     author = "Lightly Team"
     author_email = "team@lightly.ai"
     description = "A deep learning package for self-supervised learning"
