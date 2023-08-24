@@ -2,9 +2,9 @@ import os
 
 import setuptools
 
-PATH_ROOT = os.path.dirname(__file__)
-
 import lightly
+
+PATH_ROOT = os.path.dirname(__file__)
 
 
 def load_description(path_dir=PATH_ROOT, filename="DOCS.md"):
