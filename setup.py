@@ -34,19 +34,19 @@ if __name__ == "__main__":
     author = "Lightly Team"
     author_email = "team@lightly.ai"
     description = "A deep learning package for self-supervised learning"
+    long_description = (_PATH_ROOT / "README.md").read_text()
 
     entry_points = {
         "console_scripts": [
             "lightly-crop = lightly.cli.crop_cli:entry",
-            "lightly-train = lightly.cli.train_cli:entry",
+            "lightly-download = lightly.cli.download_cli:entry",
             "lightly-embed = lightly.cli.embed_cli:entry",
             "lightly-magic = lightly.cli.lightly_cli:entry",
-            "lightly-download = lightly.cli.download_cli:entry",
-            "lightly-version = lightly.cli.version_cli:entry",
             "lightly-serve = lightly.cli.serve_cli:entry",
+            "lightly-train = lightly.cli.train_cli:entry",
+            "lightly-version = lightly.cli.version_cli:entry",
         ]
     }
-    long_description = (_PATH_ROOT / "README.md").read_text()
 
     python_requires = ">=3.6"
     base_requires = load_requirements(filename="base.txt")
