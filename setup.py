@@ -76,28 +76,7 @@ if __name__ == "__main__":
         "all": dev_requires + video_requires,
     }
 
-    packages = [
-        "lightly",
-        "lightly.api",
-        "lightly.cli",
-        "lightly.cli.config",
-        "lightly.data",
-        "lightly.embedding",
-        "lightly.loss",
-        "lightly.loss.regularizer",
-        "lightly.models",
-        "lightly.models.modules",
-        "lightly.transforms",
-        "lightly.utils",
-        "lightly.utils.benchmarking",
-        "lightly.utils.cropping",
-        "lightly.active_learning",
-        "lightly.active_learning.config",
-        "lightly.openapi_generated",
-        "lightly.openapi_generated.swagger_client",
-        "lightly.openapi_generated.swagger_client.api",
-        "lightly.openapi_generated.swagger_client.models",
-    ]
+    packages = setuptools.find_packages(include=["lightly*"])
 
     project_urls = {
         "Homepage": "https://www.lightly.ai",
