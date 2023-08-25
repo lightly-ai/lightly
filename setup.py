@@ -27,10 +27,11 @@ def load_requirements(filename: str, comment_char: str = "#") -> List[str]:
 def load_version() -> str:
     """Load version from the lightly/__init__.py file.
 
-    Note: We do not want to get the version with `lightly.__version__` because it would
-    require importing `lightly`. We do not want to import lightly during setup/install
-    because it has side effects and it expects dependencies to installed. This is
-    however only the case after the package has been installed.
+    Note: We do not want to get the version by accessing `lightly.__version__` because
+    it would require importing `lightly`. Importing `lightly` in setup.py breaks the
+    installation process as the import has side effects and requires dependencies to be
+    installed. As dependencies are not yet available during installation, the `lightly`
+    import fails.
     """
     version_filepath = _PATH_ROOT / "lightly" / "__init__.py"
     with version_filepath.open() as file:
