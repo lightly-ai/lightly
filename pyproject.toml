@@ -1,3 +1,6 @@
+# pyproject.toml is currently only used to configure developement tools.
+# Configurations for the lightly package are in setup.py.
+
 [tool.black]
 extend-exclude = "lightly/openapi_generated/.*"
 
