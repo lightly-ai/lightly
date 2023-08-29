@@ -4,7 +4,7 @@
 ![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)
 ![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)
 [![PyPI](https://img.shields.io/pypi/v/lightly)](https://pypi.org/project/lightly/)
-[![Downloads](https://pepy.tech/badge/lightly)](https://pepy.tech/project/lightly)
+[![Downloads](https://static.pepy.tech/badge/lightly)](https://pepy.tech/project/lightly)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Lightly is a computer vision framework for self-supervised learning.
@@ -264,6 +264,9 @@ tuned for maximum accuracy. For detailed results and more info about the benchma
 
 ### Imagenet
 
+The following experiments have been conducted on a system with 2x4090 GPUs. 
+Training a model takes around 4 days for 100 epochs (35 min per epoch), including kNN, linear probing, and fine-tuning evaluation.
+
 > **Note**: Evaluation settings are based on these papers:
 > * Linear: [SimCLR](https://arxiv.org/abs/2002.05709)
 > * Finetune: [SimCLR](https://arxiv.org/abs/2002.05709)
@@ -273,6 +276,7 @@ tuned for maximum accuracy. For detailed results and more info about the benchma
 
 | Model          | Backbone | Batch Size | Epochs | Linear Top1 | Finetune Top1 | KNN Top1 | Tensorboard | Checkpoint |
 |----------------|----------|------------|--------|-------------|---------------|----------|-------------|------------|
+| BarlowTwins    | Res50    |        256 |    100 |        62.9 |          72.6 |     45.6 |      [link](https://tensorboard.dev/experiment/NxyNRiQsQjWZ82I9b0PvKg/) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_barlowtwins_2023-08-18_00-11-03/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 | BYOL           | Res50    |        256 |    100 |        62.4 |          74.0 |     45.6 |      [link](https://tensorboard.dev/experiment/Z0iG2JLaTJe5nuBD7DK1bg) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_byol_2023-07-10_10-37-32/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 | DINO           | Res50    |        128 |    100 |        68.2 |          72.5 |     49.9 |      [link](https://tensorboard.dev/experiment/DvKHX9sNSWWqDrRksllPLA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dino_2023-06-06_13-59-48/pretrain/version_0/checkpoints/epoch%3D99-step%3D1000900.ckpt) |
 | SimCLR*        | Res50    |        256 |    100 |        63.2 |          73.9 |     44.8 |      [link](https://tensorboard.dev/experiment/Ugol97adQdezgcVibDYMMA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |

@@ -17,7 +17,7 @@ ImageNet
 We use the ImageNet1k ILSVRC2012 split provided here: https://image-net.org/download.php.
 
 Self-supervised training of a SimCLR model for 100 epochs with total batch size 256
-takes about two days on two GeForce RTX 4090 GPUs. You can reproduce the results with
+takes about four days including evaluation on two GeForce RTX 4090 GPUs. You can reproduce the results with
 the code at `benchmarks/imagenet/resnet50 <https://github.com/lightly-ai/lightly/tree/master/benchmarks/imagenet/resnet50>`_.
 
 Evaluation settings are based on these papers:
@@ -33,6 +33,7 @@ See the `benchmarking scripts <https://github.com/lightly-ai/lightly/tree/master
   :header: "Model", "Backbone", "Batch Size", "Epochs", "Linear Top1", "Linear Top5", "Finetune Top1", "Finetune Top5", "KNN Top1", "KNN Top5", "Tensorboard", "Checkpoint"
   :widths: 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
 
+  "BarlowTwins", "Res50", "256", "100", "62.9", "84.3", "72.6", "90.9", "45.6", "73.9", "`link <https://tensorboard.dev/experiment/NxyNRiQsQjWZ82I9b0PvKg/>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_barlowtwins_2023-08-18_00-11-03/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
   "BYOL", "Res50", "256", "100", "62.4", "84.7", "74.0", "91.9", "45.6", "74.8", "`link <https://tensorboard.dev/experiment/Z0iG2JLaTJe5nuBD7DK1bg>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_byol_2023-07-10_10-37-32/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
   "DINO", "Res50", "128", "100", "68.2", "87.9", "72.5", "90.8", "49.9", "78.7", "`link <https://tensorboard.dev/experiment/DvKHX9sNSWWqDrRksllPLA>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dino_2023-06-06_13-59-48/pretrain/version_0/checkpoints/epoch%3D99-step%3D1000900.ckpt>`_"
   "SimCLR*", "Res50", "256", "100", "63.2", "85.2", "73.9", "91.9", "44.8", "73.9", "`link <https://tensorboard.dev/experiment/Ugol97adQdezgcVibDYMMA>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"

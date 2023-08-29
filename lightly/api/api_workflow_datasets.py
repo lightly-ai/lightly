@@ -376,7 +376,7 @@ class _DatasetsMixin:
             >>> from lightly.api import ApiWorkflowClient
             >>> from lightly.openapi_generated.swagger_client.models import DatasetType
             >>>
-            >>> client = lightly.api.ApiWorkflowClient(token="YOUR_TOKEN")
+            >>> client = ApiWorkflowClient(token="YOUR_TOKEN")
             >>> client.create_dataset('your-dataset-name', dataset_type=DatasetType.IMAGES)
             >>>
             >>> # or to work with videos

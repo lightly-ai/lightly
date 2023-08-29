@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Sequence, Union
 
+import barlowtwins
 import byol
 import dcl
 import dclw
@@ -47,6 +48,10 @@ parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
 
 METHODS = {
+    "barlowtwins": {
+        "model": barlowtwins.BarlowTwins,
+        "transform": barlowtwins.transform,
+    },
     "byol": {"model": byol.BYOL, "transform": byol.transform},
     "dcl": {"model": dcl.DCL, "transform": dcl.transform},
     "dclw": {"model": dclw.DCLW, "transform": dclw.transform},
@@ -180,7 +185,7 @@ def pretrain(
         shuffle=True,
         num_workers=num_workers,
         drop_last=True,
-        persistent_workers=True,
+        persistent_workers=False,
     )
 
     # Setup validation data.
@@ -198,7 +203,7 @@ def pretrain(
         batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
-        persistent_workers=True,
+        persistent_workers=False,
     )
 
     # Train model.
@@ -218,6 +223,7 @@ def pretrain(
         precision=precision,
         strategy="ddp_find_unused_parameters_true",
         sync_batchnorm=True,
+        num_sanity_val_steps=0,
     )
     trainer.fit(
         model=model,
