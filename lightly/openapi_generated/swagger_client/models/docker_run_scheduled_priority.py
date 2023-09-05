@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class DockerRunScheduledPriority(str, Enum):
     """
     DockerRunScheduledPriority
@@ -28,12 +31,14 @@ class DockerRunScheduledPriority(str, Enum):
     """
     allowed enum values
     """
-    LOW = "LOW"
-    MID = "MID"
-    HIGH = "HIGH"
-    CRITICAL = "CRITICAL"
+    LOW = 'LOW'
+    MID = 'MID'
+    HIGH = 'HIGH'
+    CRITICAL = 'CRITICAL'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "DockerRunScheduledPriority":
+    def from_json(cls, json_str: str) -> 'DockerRunScheduledPriority':
         """Create an instance of DockerRunScheduledPriority from a JSON string"""
         return DockerRunScheduledPriority(json.loads(json_str))
+
+

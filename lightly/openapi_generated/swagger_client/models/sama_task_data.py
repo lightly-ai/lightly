@@ -20,34 +20,21 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra, BaseModel, Field, StrictInt, StrictStr
-
+from pydantic import Extra,  BaseModel, Field, StrictInt, StrictStr
 
 class SamaTaskData(BaseModel):
     """
     SamaTaskData
     """
-
     id: StrictInt = Field(...)
-    url: StrictStr = Field(
-        ...,
-        description="A URL which allows anyone in possession of said URL for the time specified by the expiresIn query param to access the resource",
-    )
-    image: Optional[StrictStr] = Field(
-        None,
-        description="A URL which allows anyone in possession of said URL for the time specified by the expiresIn query param to access the resource",
-    )
-    lightly_file_name: Optional[StrictStr] = Field(
-        None,
-        alias="lightlyFileName",
-        description="The original fileName of the sample. This is unique within a dataset",
-    )
+    url: StrictStr = Field(..., description="A URL which allows anyone in possession of said URL for the time specified by the expiresIn query param to access the resource")
+    image: Optional[StrictStr] = Field(None, description="A URL which allows anyone in possession of said URL for the time specified by the expiresIn query param to access the resource")
+    lightly_file_name: Optional[StrictStr] = Field(None, alias="lightlyFileName", description="The original fileName of the sample. This is unique within a dataset")
     lightly_meta_info: Optional[StrictStr] = Field(None, alias="lightlyMetaInfo")
     __properties = ["id", "url", "image", "lightlyFileName", "lightlyMetaInfo"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -68,7 +55,10 @@ class SamaTaskData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -83,18 +73,14 @@ class SamaTaskData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in SamaTaskData) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in SamaTaskData) in the input: " + str(obj))
 
-        _obj = SamaTaskData.parse_obj(
-            {
-                "id": obj.get("id"),
-                "url": obj.get("url"),
-                "image": obj.get("image"),
-                "lightly_file_name": obj.get("lightlyFileName"),
-                "lightly_meta_info": obj.get("lightlyMetaInfo"),
-            }
-        )
+        _obj = SamaTaskData.parse_obj({
+            "id": obj.get("id"),
+            "url": obj.get("url"),
+            "image": obj.get("image"),
+            "lightly_file_name": obj.get("lightlyFileName"),
+            "lightly_meta_info": obj.get("lightlyMetaInfo")
+        })
         return _obj
+

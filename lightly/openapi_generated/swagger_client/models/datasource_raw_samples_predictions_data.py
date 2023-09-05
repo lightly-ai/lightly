@@ -20,34 +20,20 @@ import json
 
 
 from typing import List
-from pydantic import Extra, BaseModel, Field, StrictBool, StrictStr, conlist
-from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_predictions_data_row import (
-    DatasourceRawSamplesPredictionsDataRow,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictBool, StrictStr, conlist
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_predictions_data_row import DatasourceRawSamplesPredictionsDataRow
 
 class DatasourceRawSamplesPredictionsData(BaseModel):
     """
     DatasourceRawSamplesPredictionsData
     """
-
-    has_more: StrictBool = Field(
-        ...,
-        alias="hasMore",
-        description="Set to `false` if end of list is reached. Otherwise `true`.",
-    )
-    cursor: StrictStr = Field(
-        ...,
-        description="A cursor that indicates the current position in the list. Must be passed to future requests to continue reading from the same list. ",
-    )
-    data: conlist(DatasourceRawSamplesPredictionsDataRow) = Field(
-        ..., description="Array containing the raw samples prediction objects"
-    )
+    has_more: StrictBool = Field(..., alias="hasMore", description="Set to `false` if end of list is reached. Otherwise `true`.")
+    cursor: StrictStr = Field(..., description="A cursor that indicates the current position in the list. Must be passed to future requests to continue reading from the same list. ")
+    data: conlist(DatasourceRawSamplesPredictionsDataRow) = Field(..., description="Array containing the raw samples prediction objects")
     __properties = ["hasMore", "cursor", "data"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -68,14 +54,17 @@ class DatasourceRawSamplesPredictionsData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of each item in data (list)
         _items = []
         if self.data:
             for _item in self.data:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict["data" if by_alias else "data"] = _items
+            _dict['data' if by_alias else 'data'] = _items
         return _dict
 
     @classmethod
@@ -90,21 +79,12 @@ class DatasourceRawSamplesPredictionsData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DatasourceRawSamplesPredictionsData) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DatasourceRawSamplesPredictionsData) in the input: " + str(obj))
 
-        _obj = DatasourceRawSamplesPredictionsData.parse_obj(
-            {
-                "has_more": obj.get("hasMore"),
-                "cursor": obj.get("cursor"),
-                "data": [
-                    DatasourceRawSamplesPredictionsDataRow.from_dict(_item)
-                    for _item in obj.get("data")
-                ]
-                if obj.get("data") is not None
-                else None,
-            }
-        )
+        _obj = DatasourceRawSamplesPredictionsData.parse_obj({
+            "has_more": obj.get("hasMore"),
+            "cursor": obj.get("cursor"),
+            "data": [DatasourceRawSamplesPredictionsDataRow.from_dict(_item) for _item in obj.get("data")] if obj.get("data") is not None else None
+        })
         return _obj
+

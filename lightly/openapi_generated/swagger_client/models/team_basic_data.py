@@ -19,21 +19,20 @@ import re  # noqa: F401
 import json
 
 
-from pydantic import Extra, BaseModel, Field, StrictStr, constr, validator
-from lightly.openapi_generated.swagger_client.models.team_role import TeamRole
 
+from pydantic import Extra,  BaseModel, Field, StrictStr, constr, validator
+from lightly.openapi_generated.swagger_client.models.team_role import TeamRole
 
 class TeamBasicData(BaseModel):
     """
     TeamBasicData
     """
-
     id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
     name: StrictStr = Field(...)
     role: TeamRole = Field(...)
     __properties = ["id", "name", "role"]
 
-    @validator("id")
+    @validator('id')
     def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
@@ -42,7 +41,6 @@ class TeamBasicData(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -63,7 +61,10 @@ class TeamBasicData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -78,12 +79,12 @@ class TeamBasicData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in TeamBasicData) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in TeamBasicData) in the input: " + str(obj))
 
-        _obj = TeamBasicData.parse_obj(
-            {"id": obj.get("id"), "name": obj.get("name"), "role": obj.get("role")}
-        )
+        _obj = TeamBasicData.parse_obj({
+            "id": obj.get("id"),
+            "name": obj.get("name"),
+            "role": obj.get("role")
+        })
         return _obj
+

@@ -20,29 +20,18 @@ import json
 
 
 from typing import Optional, Union
-from pydantic import Extra, BaseModel, Field, StrictFloat, StrictInt
-
+from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt
 
 class SamplingConfigStoppingCondition(BaseModel):
     """
     SamplingConfigStoppingCondition
     """
-
-    n_samples: Optional[Union[StrictFloat, StrictInt]] = Field(
-        None,
-        alias="nSamples",
-        description="How many samples/images should be used for the sampling. 0-1 represents a percentage of all. 1-N are absolute numbers",
-    )
-    min_distance: Optional[Union[StrictFloat, StrictInt]] = Field(
-        None,
-        alias="minDistance",
-        description="The minimum distance sampled images should have. Before the distance would fall below, the sampling is stopped.",
-    )
+    n_samples: Optional[Union[StrictFloat, StrictInt]] = Field(None, alias="nSamples", description="How many samples/images should be used for the sampling. 0-1 represents a percentage of all. 1-N are absolute numbers")
+    min_distance: Optional[Union[StrictFloat, StrictInt]] = Field(None, alias="minDistance", description="The minimum distance sampled images should have. Before the distance would fall below, the sampling is stopped.")
     __properties = ["nSamples", "minDistance"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -63,7 +52,10 @@ class SamplingConfigStoppingCondition(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -78,12 +70,11 @@ class SamplingConfigStoppingCondition(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in SamplingConfigStoppingCondition) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in SamplingConfigStoppingCondition) in the input: " + str(obj))
 
-        _obj = SamplingConfigStoppingCondition.parse_obj(
-            {"n_samples": obj.get("nSamples"), "min_distance": obj.get("minDistance")}
-        )
+        _obj = SamplingConfigStoppingCondition.parse_obj({
+            "n_samples": obj.get("nSamples"),
+            "min_distance": obj.get("minDistance")
+        })
         return _obj
+

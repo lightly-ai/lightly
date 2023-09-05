@@ -20,35 +20,21 @@ import json
 
 
 from typing import Any, Optional
-from pydantic import Extra, BaseModel, Field, constr
-from lightly.openapi_generated.swagger_client.models.configuration_value_data_type import (
-    ConfigurationValueDataType,
-)
-
+from pydantic import Extra,  BaseModel, Field, constr
+from lightly.openapi_generated.swagger_client.models.configuration_value_data_type import ConfigurationValueDataType
 
 class ConfigurationEntry(BaseModel):
     """
     ConfigurationEntry
     """
-
-    name: constr(strict=True, min_length=1) = Field(
-        ..., description="the name of this entry which is displayed in the UI"
-    )
-    path: constr(strict=True, min_length=1) = Field(
-        ...,
-        description="the path is the dotnotation which is used to easily access the customMetadata JSON structure of a sample e.g myArray[0].myObject.field",
-    )
-    default_value: Optional[Any] = Field(
-        ...,
-        alias="defaultValue",
-        description="the default value used if its not possible to extract the value using the path or if the value extracted is nullish",
-    )
+    name: constr(strict=True, min_length=1) = Field(..., description="the name of this entry which is displayed in the UI")
+    path: constr(strict=True, min_length=1) = Field(..., description="the path is the dotnotation which is used to easily access the customMetadata JSON structure of a sample e.g myArray[0].myObject.field")
+    default_value: Optional[Any] = Field(..., alias="defaultValue", description="the default value used if its not possible to extract the value using the path or if the value extracted is nullish")
     value_data_type: ConfigurationValueDataType = Field(..., alias="valueDataType")
     __properties = ["name", "path", "defaultValue", "valueDataType"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -69,11 +55,14 @@ class ConfigurationEntry(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         # set to None if default_value (nullable) is None
         # and __fields_set__ contains the field
         if self.default_value is None and "default_value" in self.__fields_set__:
-            _dict["defaultValue" if by_alias else "default_value"] = None
+            _dict['defaultValue' if by_alias else 'default_value'] = None
 
         return _dict
 
@@ -89,17 +78,13 @@ class ConfigurationEntry(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in ConfigurationEntry) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in ConfigurationEntry) in the input: " + str(obj))
 
-        _obj = ConfigurationEntry.parse_obj(
-            {
-                "name": obj.get("name"),
-                "path": obj.get("path"),
-                "default_value": obj.get("defaultValue"),
-                "value_data_type": obj.get("valueDataType"),
-            }
-        )
+        _obj = ConfigurationEntry.parse_obj({
+            "name": obj.get("name"),
+            "path": obj.get("path"),
+            "default_value": obj.get("defaultValue"),
+            "value_data_type": obj.get("valueDataType")
+        })
         return _obj
+

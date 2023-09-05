@@ -23,7 +23,7 @@ class SimMIM(pl.LightningModule):
         self.backbone = masked_autoencoder.MAEBackbone.from_vit(vit)
 
         # the decoder is a simple linear layer
-        self.decoder = nn.Linear(vit.hidden_dim, vit.patch_size ** 2 * 3)
+        self.decoder = nn.Linear(vit.hidden_dim, vit.patch_size**2 * 3)
 
         # L1 loss as paper suggestion
         self.criterion = nn.L1Loss()

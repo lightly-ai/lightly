@@ -20,46 +20,24 @@ import json
 
 
 from typing import Any, Dict, Optional, Union
-from pydantic import Extra, BaseModel, Field, StrictFloat, StrictInt, confloat, conint
-from lightly.openapi_generated.swagger_client.models.selection_strategy_threshold_operation import (
-    SelectionStrategyThresholdOperation,
-)
-from lightly.openapi_generated.swagger_client.models.selection_strategy_type import (
-    SelectionStrategyType,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, confloat, conint
+from lightly.openapi_generated.swagger_client.models.selection_strategy_threshold_operation import SelectionStrategyThresholdOperation
+from lightly.openapi_generated.swagger_client.models.selection_strategy_type import SelectionStrategyType
 
 class SelectionConfigEntryStrategy(BaseModel):
     """
     SelectionConfigEntryStrategy
     """
-
     type: SelectionStrategyType = Field(...)
-    strength: Optional[
-        Union[
-            confloat(le=1000000000, ge=-1000000000, strict=True),
-            conint(le=1000000000, ge=-1000000000, strict=True),
-        ]
-    ] = Field(
-        None,
-        description="The relative strength of this strategy compared to other strategies. The default value is 1.0, which is set in the worker for backwards compatibility. The minimum and maximum values of +-10^9 are used to prevent numerical issues. ",
-    )
+    strength: Optional[Union[confloat(le=1000000000, ge=-1000000000, strict=True), conint(le=1000000000, ge=-1000000000, strict=True)]] = Field(None, description="The relative strength of this strategy compared to other strategies. The default value is 1.0, which is set in the worker for backwards compatibility. The minimum and maximum values of +-10^9 are used to prevent numerical issues. ")
     stopping_condition_minimum_distance: Optional[Union[StrictFloat, StrictInt]] = None
     threshold: Optional[Union[StrictFloat, StrictInt]] = None
     operation: Optional[SelectionStrategyThresholdOperation] = None
     target: Optional[Dict[str, Any]] = None
-    __properties = [
-        "type",
-        "strength",
-        "stopping_condition_minimum_distance",
-        "threshold",
-        "operation",
-        "target",
-    ]
+    __properties = ["type", "strength", "stopping_condition_minimum_distance", "threshold", "operation", "target"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -80,7 +58,10 @@ class SelectionConfigEntryStrategy(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -95,21 +76,15 @@ class SelectionConfigEntryStrategy(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in SelectionConfigEntryStrategy) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in SelectionConfigEntryStrategy) in the input: " + str(obj))
 
-        _obj = SelectionConfigEntryStrategy.parse_obj(
-            {
-                "type": obj.get("type"),
-                "strength": obj.get("strength"),
-                "stopping_condition_minimum_distance": obj.get(
-                    "stopping_condition_minimum_distance"
-                ),
-                "threshold": obj.get("threshold"),
-                "operation": obj.get("operation"),
-                "target": obj.get("target"),
-            }
-        )
+        _obj = SelectionConfigEntryStrategy.parse_obj({
+            "type": obj.get("type"),
+            "strength": obj.get("strength"),
+            "stopping_condition_minimum_distance": obj.get("stopping_condition_minimum_distance"),
+            "threshold": obj.get("threshold"),
+            "operation": obj.get("operation"),
+            "target": obj.get("target")
+        })
         return _obj
+

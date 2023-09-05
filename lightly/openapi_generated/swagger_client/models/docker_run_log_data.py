@@ -20,26 +20,19 @@ import json
 
 
 from typing import List, Optional
-from pydantic import Extra, BaseModel, Field, conint, conlist
-from lightly.openapi_generated.swagger_client.models.docker_run_log_entry_data import (
-    DockerRunLogEntryData,
-)
-
+from pydantic import Extra,  BaseModel, Field, conint, conlist
+from lightly.openapi_generated.swagger_client.models.docker_run_log_entry_data import DockerRunLogEntryData
 
 class DockerRunLogData(BaseModel):
     """
     DockerRunLogData
     """
-
-    cursor: Optional[conint(strict=True, ge=0)] = Field(
-        0, description="The cursor to use to fetch more logs."
-    )
+    cursor: Optional[conint(strict=True, ge=0)] = Field(0, description="The cursor to use to fetch more logs.")
     logs: conlist(DockerRunLogEntryData) = Field(...)
     __properties = ["cursor", "logs"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -60,14 +53,17 @@ class DockerRunLogData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of each item in logs (list)
         _items = []
         if self.logs:
             for _item in self.logs:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict["logs" if by_alias else "logs"] = _items
+            _dict['logs' if by_alias else 'logs'] = _items
         return _dict
 
     @classmethod
@@ -82,19 +78,11 @@ class DockerRunLogData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DockerRunLogData) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DockerRunLogData) in the input: " + str(obj))
 
-        _obj = DockerRunLogData.parse_obj(
-            {
-                "cursor": obj.get("cursor") if obj.get("cursor") is not None else 0,
-                "logs": [
-                    DockerRunLogEntryData.from_dict(_item) for _item in obj.get("logs")
-                ]
-                if obj.get("logs") is not None
-                else None,
-            }
-        )
+        _obj = DockerRunLogData.parse_obj({
+            "cursor": obj.get("cursor") if obj.get("cursor") is not None else 0,
+            "logs": [DockerRunLogEntryData.from_dict(_item) for _item in obj.get("logs")] if obj.get("logs") is not None else None
+        })
         return _obj
+

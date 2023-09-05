@@ -19,27 +19,26 @@ import re  # noqa: F401
 import json
 
 
-from pydantic import Extra, BaseModel, Field, StrictStr, constr, validator
 
+from pydantic import Extra,  BaseModel, Field, StrictStr, constr, validator
 
 class EmbeddingData(BaseModel):
     """
     EmbeddingData
     """
-
     id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
     dataset: constr(strict=True) = Field(..., description="MongoDB ObjectId")
     name: StrictStr = Field(...)
     __properties = ["id", "dataset", "name"]
 
-    @validator("id")
+    @validator('id')
     def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("dataset")
+    @validator('dataset')
     def dataset_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
@@ -48,7 +47,6 @@ class EmbeddingData(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -69,7 +67,10 @@ class EmbeddingData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -84,16 +85,12 @@ class EmbeddingData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in EmbeddingData) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in EmbeddingData) in the input: " + str(obj))
 
-        _obj = EmbeddingData.parse_obj(
-            {
-                "id": obj.get("id"),
-                "dataset": obj.get("dataset"),
-                "name": obj.get("name"),
-            }
-        )
+        _obj = EmbeddingData.parse_obj({
+            "id": obj.get("id"),
+            "dataset": obj.get("dataset"),
+            "name": obj.get("name")
+        })
         return _obj
+

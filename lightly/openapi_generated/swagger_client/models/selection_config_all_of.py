@@ -20,23 +20,18 @@ import json
 
 
 from typing import List
-from pydantic import Extra, BaseModel, Field, conlist
-from lightly.openapi_generated.swagger_client.models.selection_config_entry import (
-    SelectionConfigEntry,
-)
-
+from pydantic import Extra,  BaseModel, Field, conlist
+from lightly.openapi_generated.swagger_client.models.selection_config_entry import SelectionConfigEntry
 
 class SelectionConfigAllOf(BaseModel):
     """
     SelectionConfigAllOf
     """
-
     strategies: conlist(SelectionConfigEntry, min_items=1) = Field(...)
     __properties = ["strategies"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -57,14 +52,17 @@ class SelectionConfigAllOf(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of each item in strategies (list)
         _items = []
         if self.strategies:
             for _item in self.strategies:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict["strategies" if by_alias else "strategies"] = _items
+            _dict['strategies' if by_alias else 'strategies'] = _items
         return _dict
 
     @classmethod
@@ -79,19 +77,10 @@ class SelectionConfigAllOf(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in SelectionConfigAllOf) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in SelectionConfigAllOf) in the input: " + str(obj))
 
-        _obj = SelectionConfigAllOf.parse_obj(
-            {
-                "strategies": [
-                    SelectionConfigEntry.from_dict(_item)
-                    for _item in obj.get("strategies")
-                ]
-                if obj.get("strategies") is not None
-                else None
-            }
-        )
+        _obj = SelectionConfigAllOf.parse_obj({
+            "strategies": [SelectionConfigEntry.from_dict(_item) for _item in obj.get("strategies")] if obj.get("strategies") is not None else None
+        })
         return _obj
+

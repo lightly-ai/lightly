@@ -20,19 +20,24 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class FileNameFormat(str, Enum):
     """
-    When the filename is output, which format shall be used. E.g for a sample called 'frame0.png' that was uploaded from a datasource 's3://my_bucket/datasets/for_lightly/' in the folder 'car/green/' - NAME: car/green/frame0.png - DATASOURCE_FULL: s3://my_bucket/datasets/for_lightly/car/green/frame0.png - REDIRECTED_READ_URL: https://api.lightly.ai/v1/datasets/{datasetId}/samples/{sampleId}/readurlRedirect?publicToken={jsonWebToken}
+    When the filename is output, which format shall be used. E.g for a sample called 'frame0.png' that was uploaded from a datasource 's3://my_bucket/datasets/for_lightly/' in the folder 'car/green/' - NAME: car/green/frame0.png - DATASOURCE_FULL: s3://my_bucket/datasets/for_lightly/car/green/frame0.png - REDIRECTED_READ_URL: https://api.lightly.ai/v1/datasets/{datasetId}/samples/{sampleId}/readurlRedirect?publicToken={jsonWebToken}  
     """
 
     """
     allowed enum values
     """
-    NAME = "NAME"
-    DATASOURCE_FULL = "DATASOURCE_FULL"
-    REDIRECTED_READ_URL = "REDIRECTED_READ_URL"
+    NAME = 'NAME'
+    DATASOURCE_FULL = 'DATASOURCE_FULL'
+    REDIRECTED_READ_URL = 'REDIRECTED_READ_URL'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "FileNameFormat":
+    def from_json(cls, json_str: str) -> 'FileNameFormat':
         """Create an instance of FileNameFormat from a JSON string"""
         return FileNameFormat(json.loads(json_str))
+
+

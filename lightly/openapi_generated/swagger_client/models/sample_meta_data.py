@@ -20,76 +20,28 @@ import json
 
 
 from typing import Any, Dict, List, Optional, Union
-from pydantic import Extra, BaseModel, Field, confloat, conint, conlist
-
+from pydantic import Extra,  BaseModel, Field, confloat, conint, conlist
 
 class SampleMetaData(BaseModel):
     """
     SampleMetaData
     """
-
     custom: Optional[Dict[str, Any]] = None
     dynamic: Optional[Dict[str, Any]] = None
-    sharpness: Optional[
-        Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)]
-    ] = None
-    luminance: Optional[
-        Union[confloat(le=100, ge=0, strict=True), conint(le=100, ge=0, strict=True)]
-    ] = None
-    size_in_bytes: Optional[conint(strict=True, ge=0)] = Field(
-        None, alias="sizeInBytes"
-    )
+    sharpness: Optional[Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)]] = None
+    luminance: Optional[Union[confloat(le=100, ge=0, strict=True), conint(le=100, ge=0, strict=True)]] = None
+    size_in_bytes: Optional[conint(strict=True, ge=0)] = Field(None, alias="sizeInBytes")
     snr: Optional[Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)]] = None
-    uniform_row_ratio: Optional[
-        Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)]
-    ] = Field(None, alias="uniformRowRatio")
-    mean: Optional[
-        conlist(
-            Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)],
-            max_items=3,
-            min_items=3,
-        )
-    ] = None
+    uniform_row_ratio: Optional[Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)]] = Field(None, alias="uniformRowRatio")
+    mean: Optional[conlist(Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)], max_items=3, min_items=3)] = None
     shape: Optional[conlist(conint(strict=True, ge=0), max_items=3, min_items=3)] = None
-    std: Optional[
-        conlist(
-            Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)],
-            max_items=3,
-            min_items=3,
-        )
-    ] = None
-    sum_of_squares: Optional[
-        conlist(
-            Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)],
-            max_items=3,
-            min_items=3,
-        )
-    ] = Field(None, alias="sumOfSquares")
-    sum_of_values: Optional[
-        conlist(
-            Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)],
-            max_items=3,
-            min_items=3,
-        )
-    ] = Field(None, alias="sumOfValues")
-    __properties = [
-        "custom",
-        "dynamic",
-        "sharpness",
-        "luminance",
-        "sizeInBytes",
-        "snr",
-        "uniformRowRatio",
-        "mean",
-        "shape",
-        "std",
-        "sumOfSquares",
-        "sumOfValues",
-    ]
+    std: Optional[conlist(Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)], max_items=3, min_items=3)] = None
+    sum_of_squares: Optional[conlist(Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)], max_items=3, min_items=3)] = Field(None, alias="sumOfSquares")
+    sum_of_values: Optional[conlist(Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)], max_items=3, min_items=3)] = Field(None, alias="sumOfValues")
+    __properties = ["custom", "dynamic", "sharpness", "luminance", "sizeInBytes", "snr", "uniformRowRatio", "mean", "shape", "std", "sumOfSquares", "sumOfValues"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -110,7 +62,10 @@ class SampleMetaData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -125,25 +80,21 @@ class SampleMetaData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in SampleMetaData) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in SampleMetaData) in the input: " + str(obj))
 
-        _obj = SampleMetaData.parse_obj(
-            {
-                "custom": obj.get("custom"),
-                "dynamic": obj.get("dynamic"),
-                "sharpness": obj.get("sharpness"),
-                "luminance": obj.get("luminance"),
-                "size_in_bytes": obj.get("sizeInBytes"),
-                "snr": obj.get("snr"),
-                "uniform_row_ratio": obj.get("uniformRowRatio"),
-                "mean": obj.get("mean"),
-                "shape": obj.get("shape"),
-                "std": obj.get("std"),
-                "sum_of_squares": obj.get("sumOfSquares"),
-                "sum_of_values": obj.get("sumOfValues"),
-            }
-        )
+        _obj = SampleMetaData.parse_obj({
+            "custom": obj.get("custom"),
+            "dynamic": obj.get("dynamic"),
+            "sharpness": obj.get("sharpness"),
+            "luminance": obj.get("luminance"),
+            "size_in_bytes": obj.get("sizeInBytes"),
+            "snr": obj.get("snr"),
+            "uniform_row_ratio": obj.get("uniformRowRatio"),
+            "mean": obj.get("mean"),
+            "shape": obj.get("shape"),
+            "std": obj.get("std"),
+            "sum_of_squares": obj.get("sumOfSquares"),
+            "sum_of_values": obj.get("sumOfValues")
+        })
         return _obj
+

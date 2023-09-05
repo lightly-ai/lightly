@@ -20,38 +20,20 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra, BaseModel
-from lightly.openapi_generated.swagger_client.models.tag_change_data_arithmetics import (
-    TagChangeDataArithmetics,
-)
-from lightly.openapi_generated.swagger_client.models.tag_change_data_initial import (
-    TagChangeDataInitial,
-)
-from lightly.openapi_generated.swagger_client.models.tag_change_data_metadata import (
-    TagChangeDataMetadata,
-)
-from lightly.openapi_generated.swagger_client.models.tag_change_data_rename import (
-    TagChangeDataRename,
-)
-from lightly.openapi_generated.swagger_client.models.tag_change_data_sampler import (
-    TagChangeDataSampler,
-)
-from lightly.openapi_generated.swagger_client.models.tag_change_data_samples import (
-    TagChangeDataSamples,
-)
-from lightly.openapi_generated.swagger_client.models.tag_change_data_scatterplot import (
-    TagChangeDataScatterplot,
-)
-from lightly.openapi_generated.swagger_client.models.tag_change_data_upsize import (
-    TagChangeDataUpsize,
-)
-
+from pydantic import Extra,  BaseModel
+from lightly.openapi_generated.swagger_client.models.tag_change_data_arithmetics import TagChangeDataArithmetics
+from lightly.openapi_generated.swagger_client.models.tag_change_data_initial import TagChangeDataInitial
+from lightly.openapi_generated.swagger_client.models.tag_change_data_metadata import TagChangeDataMetadata
+from lightly.openapi_generated.swagger_client.models.tag_change_data_rename import TagChangeDataRename
+from lightly.openapi_generated.swagger_client.models.tag_change_data_sampler import TagChangeDataSampler
+from lightly.openapi_generated.swagger_client.models.tag_change_data_samples import TagChangeDataSamples
+from lightly.openapi_generated.swagger_client.models.tag_change_data_scatterplot import TagChangeDataScatterplot
+from lightly.openapi_generated.swagger_client.models.tag_change_data_upsize import TagChangeDataUpsize
 
 class TagChangeData(BaseModel):
     """
     TagChangeData
     """
-
     initial: Optional[TagChangeDataInitial] = None
     rename: Optional[TagChangeDataRename] = None
     upsize: Optional[TagChangeDataUpsize] = None
@@ -61,20 +43,10 @@ class TagChangeData(BaseModel):
     scatterplot: Optional[TagChangeDataScatterplot] = None
     sampler: Optional[TagChangeDataSampler] = None
     additional_properties: Dict[str, Any] = {}
-    __properties = [
-        "initial",
-        "rename",
-        "upsize",
-        "arithmetics",
-        "metadata",
-        "samples",
-        "scatterplot",
-        "sampler",
-    ]
+    __properties = ["initial", "rename", "upsize", "arithmetics", "metadata", "samples", "scatterplot", "sampler"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -95,49 +67,35 @@ class TagChangeData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(
-            by_alias=by_alias, exclude={"additional_properties"}, exclude_none=True
-        )
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                            "additional_properties"
+                          },
+                          exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of initial
         if self.initial:
-            _dict["initial" if by_alias else "initial"] = self.initial.to_dict(
-                by_alias=by_alias
-            )
+            _dict['initial' if by_alias else 'initial'] = self.initial.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of rename
         if self.rename:
-            _dict["rename" if by_alias else "rename"] = self.rename.to_dict(
-                by_alias=by_alias
-            )
+            _dict['rename' if by_alias else 'rename'] = self.rename.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of upsize
         if self.upsize:
-            _dict["upsize" if by_alias else "upsize"] = self.upsize.to_dict(
-                by_alias=by_alias
-            )
+            _dict['upsize' if by_alias else 'upsize'] = self.upsize.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of arithmetics
         if self.arithmetics:
-            _dict[
-                "arithmetics" if by_alias else "arithmetics"
-            ] = self.arithmetics.to_dict(by_alias=by_alias)
+            _dict['arithmetics' if by_alias else 'arithmetics'] = self.arithmetics.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of metadata
         if self.metadata:
-            _dict["metadata" if by_alias else "metadata"] = self.metadata.to_dict(
-                by_alias=by_alias
-            )
+            _dict['metadata' if by_alias else 'metadata'] = self.metadata.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of samples
         if self.samples:
-            _dict["samples" if by_alias else "samples"] = self.samples.to_dict(
-                by_alias=by_alias
-            )
+            _dict['samples' if by_alias else 'samples'] = self.samples.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of scatterplot
         if self.scatterplot:
-            _dict[
-                "scatterplot" if by_alias else "scatterplot"
-            ] = self.scatterplot.to_dict(by_alias=by_alias)
+            _dict['scatterplot' if by_alias else 'scatterplot'] = self.scatterplot.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of sampler
         if self.sampler:
-            _dict["sampler" if by_alias else "sampler"] = self.sampler.to_dict(
-                by_alias=by_alias
-            )
+            _dict['sampler' if by_alias else 'sampler'] = self.sampler.to_dict(by_alias=by_alias)
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -154,41 +112,20 @@ class TagChangeData(BaseModel):
         if not isinstance(obj, dict):
             return TagChangeData.parse_obj(obj)
 
-        _obj = TagChangeData.parse_obj(
-            {
-                "initial": TagChangeDataInitial.from_dict(obj.get("initial"))
-                if obj.get("initial") is not None
-                else None,
-                "rename": TagChangeDataRename.from_dict(obj.get("rename"))
-                if obj.get("rename") is not None
-                else None,
-                "upsize": TagChangeDataUpsize.from_dict(obj.get("upsize"))
-                if obj.get("upsize") is not None
-                else None,
-                "arithmetics": TagChangeDataArithmetics.from_dict(
-                    obj.get("arithmetics")
-                )
-                if obj.get("arithmetics") is not None
-                else None,
-                "metadata": TagChangeDataMetadata.from_dict(obj.get("metadata"))
-                if obj.get("metadata") is not None
-                else None,
-                "samples": TagChangeDataSamples.from_dict(obj.get("samples"))
-                if obj.get("samples") is not None
-                else None,
-                "scatterplot": TagChangeDataScatterplot.from_dict(
-                    obj.get("scatterplot")
-                )
-                if obj.get("scatterplot") is not None
-                else None,
-                "sampler": TagChangeDataSampler.from_dict(obj.get("sampler"))
-                if obj.get("sampler") is not None
-                else None,
-            }
-        )
+        _obj = TagChangeData.parse_obj({
+            "initial": TagChangeDataInitial.from_dict(obj.get("initial")) if obj.get("initial") is not None else None,
+            "rename": TagChangeDataRename.from_dict(obj.get("rename")) if obj.get("rename") is not None else None,
+            "upsize": TagChangeDataUpsize.from_dict(obj.get("upsize")) if obj.get("upsize") is not None else None,
+            "arithmetics": TagChangeDataArithmetics.from_dict(obj.get("arithmetics")) if obj.get("arithmetics") is not None else None,
+            "metadata": TagChangeDataMetadata.from_dict(obj.get("metadata")) if obj.get("metadata") is not None else None,
+            "samples": TagChangeDataSamples.from_dict(obj.get("samples")) if obj.get("samples") is not None else None,
+            "scatterplot": TagChangeDataScatterplot.from_dict(obj.get("scatterplot")) if obj.get("scatterplot") is not None else None,
+            "sampler": TagChangeDataSampler.from_dict(obj.get("sampler")) if obj.get("sampler") is not None else None
+        })
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:
                 _obj.additional_properties[_key] = obj.get(_key)
 
         return _obj
+

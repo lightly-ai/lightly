@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class JobResultType(str, Enum):
     """
     JobResultType
@@ -28,13 +31,15 @@ class JobResultType(str, Enum):
     """
     allowed enum values
     """
-    DATASET_PROCESSING = "DATASET_PROCESSING"
-    IMAGEMETA = "IMAGEMETA"
-    EMBEDDING = "EMBEDDING"
-    EMBEDDINGS2D = "EMBEDDINGS2D"
-    SAMPLING = "SAMPLING"
+    DATASET_PROCESSING = 'DATASET_PROCESSING'
+    IMAGEMETA = 'IMAGEMETA'
+    EMBEDDING = 'EMBEDDING'
+    EMBEDDINGS2D = 'EMBEDDINGS2D'
+    SAMPLING = 'SAMPLING'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "JobResultType":
+    def from_json(cls, json_str: str) -> 'JobResultType':
         """Create an instance of JobResultType from a JSON string"""
         return JobResultType(json.loads(json_str))
+
+

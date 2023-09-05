@@ -176,7 +176,7 @@ class TestModelUtils(unittest.TestCase):
         height_patches = height // patch_size
         width_patches = width // patch_size
         num_patches = height_patches * width_patches
-        patch_dim = channels * patch_size ** 2
+        patch_dim = channels * patch_size**2
 
         self.assertListEqual(
             list(batch_patches.shape), [batch_size, num_patches, patch_dim]

@@ -20,34 +20,22 @@ import json
 
 
 from typing import Any, Dict
-from pydantic import Extra, BaseModel, Field, StrictStr, conint
-
+from pydantic import Extra,  BaseModel, Field, StrictStr, conint
 
 class DockerUserStats(BaseModel):
     """
     DockerUserStats
     """
-
     run_id: StrictStr = Field(..., alias="runId")
     action: StrictStr = Field(...)
     data: Dict[str, Any] = Field(...)
-    timestamp: conint(strict=True, ge=0) = Field(
-        ..., description="unix timestamp in milliseconds"
-    )
+    timestamp: conint(strict=True, ge=0) = Field(..., description="unix timestamp in milliseconds")
     pip_version: StrictStr = Field(..., alias="pipVersion")
     docker_version: StrictStr = Field(..., alias="dockerVersion")
-    __properties = [
-        "runId",
-        "action",
-        "data",
-        "timestamp",
-        "pipVersion",
-        "dockerVersion",
-    ]
+    __properties = ["runId", "action", "data", "timestamp", "pipVersion", "dockerVersion"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -68,7 +56,10 @@ class DockerUserStats(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -83,19 +74,15 @@ class DockerUserStats(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DockerUserStats) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DockerUserStats) in the input: " + str(obj))
 
-        _obj = DockerUserStats.parse_obj(
-            {
-                "run_id": obj.get("runId"),
-                "action": obj.get("action"),
-                "data": obj.get("data"),
-                "timestamp": obj.get("timestamp"),
-                "pip_version": obj.get("pipVersion"),
-                "docker_version": obj.get("dockerVersion"),
-            }
-        )
+        _obj = DockerUserStats.parse_obj({
+            "run_id": obj.get("runId"),
+            "action": obj.get("action"),
+            "data": obj.get("data"),
+            "timestamp": obj.get("timestamp"),
+            "pip_version": obj.get("pipVersion"),
+            "docker_version": obj.get("dockerVersion")
+        })
         return _obj
+

@@ -20,52 +20,23 @@ import json
 
 
 from typing import List
-from pydantic import (
-    Extra,
-    BaseModel,
-    Field,
-    StrictStr,
-    conint,
-    conlist,
-    constr,
-    validator,
-)
-from lightly.openapi_generated.swagger_client.models.shared_access_type import (
-    SharedAccessType,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictStr, conint, conlist, constr, validator
+from lightly.openapi_generated.swagger_client.models.shared_access_type import SharedAccessType
 
 class SharedAccessConfigData(BaseModel):
     """
     SharedAccessConfigData
     """
-
     id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
     owner: StrictStr = Field(..., description="Id of the user who owns the dataset")
     access_type: SharedAccessType = Field(..., alias="accessType")
-    users: conlist(StrictStr) = Field(
-        ..., description="List of user mails with access to the dataset"
-    )
-    teams: conlist(StrictStr) = Field(
-        ..., description="List of teams with access to the dataset"
-    )
-    created_at: conint(strict=True, ge=0) = Field(
-        ..., alias="createdAt", description="unix timestamp in milliseconds"
-    )
-    last_modified_at: conint(strict=True, ge=0) = Field(
-        ..., alias="lastModifiedAt", description="unix timestamp in milliseconds"
-    )
-    __properties = [
-        "id",
-        "owner",
-        "accessType",
-        "users",
-        "teams",
-        "createdAt",
-        "lastModifiedAt",
-    ]
+    users: conlist(StrictStr) = Field(..., description="List of user mails with access to the dataset")
+    teams: conlist(StrictStr) = Field(..., description="List of teams with access to the dataset")
+    created_at: conint(strict=True, ge=0) = Field(..., alias="createdAt", description="unix timestamp in milliseconds")
+    last_modified_at: conint(strict=True, ge=0) = Field(..., alias="lastModifiedAt", description="unix timestamp in milliseconds")
+    __properties = ["id", "owner", "accessType", "users", "teams", "createdAt", "lastModifiedAt"]
 
-    @validator("id")
+    @validator('id')
     def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
@@ -74,7 +45,6 @@ class SharedAccessConfigData(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -95,7 +65,10 @@ class SharedAccessConfigData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -110,20 +83,16 @@ class SharedAccessConfigData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in SharedAccessConfigData) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in SharedAccessConfigData) in the input: " + str(obj))
 
-        _obj = SharedAccessConfigData.parse_obj(
-            {
-                "id": obj.get("id"),
-                "owner": obj.get("owner"),
-                "access_type": obj.get("accessType"),
-                "users": obj.get("users"),
-                "teams": obj.get("teams"),
-                "created_at": obj.get("createdAt"),
-                "last_modified_at": obj.get("lastModifiedAt"),
-            }
-        )
+        _obj = SharedAccessConfigData.parse_obj({
+            "id": obj.get("id"),
+            "owner": obj.get("owner"),
+            "access_type": obj.get("accessType"),
+            "users": obj.get("users"),
+            "teams": obj.get("teams"),
+            "created_at": obj.get("createdAt"),
+            "last_modified_at": obj.get("lastModifiedAt")
+        })
         return _obj
+

@@ -21,23 +21,17 @@ import re  # noqa: F401
 
 from typing import Any, List, Optional
 from pydantic import BaseModel, Field, StrictStr, ValidationError, validator
-from lightly.openapi_generated.swagger_client.models.create_entity_response import (
-    CreateEntityResponse,
-)
-from lightly.openapi_generated.swagger_client.models.tag_bit_mask_response import (
-    TagBitMaskResponse,
-)
+from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
+from lightly.openapi_generated.swagger_client.models.tag_bit_mask_response import TagBitMaskResponse
 from typing import Any, List
 from pydantic import StrictStr, Field, Extra
 
 TAGARITHMETICSRESPONSE_ONE_OF_SCHEMAS = ["CreateEntityResponse", "TagBitMaskResponse"]
 
-
 class TagArithmeticsResponse(BaseModel):
     """
     TagArithmeticsResponse
     """
-
     # data type: CreateEntityResponse
     oneof_schema_1_validator: Optional[CreateEntityResponse] = None
     # data type: TagBitMaskResponse
@@ -53,48 +47,34 @@ class TagArithmeticsResponse(BaseModel):
     def __init__(self, *args, **kwargs):
         if args:
             if len(args) > 1:
-                raise ValueError(
-                    "If a position argument is used, only 1 is allowed to set `actual_instance`"
-                )
+                raise ValueError("If a position argument is used, only 1 is allowed to set `actual_instance`")
             if kwargs:
-                raise ValueError(
-                    "If a position argument is used, keyword arguments cannot be used."
-                )
+                raise ValueError("If a position argument is used, keyword arguments cannot be used.")
             super().__init__(actual_instance=args[0])
         else:
             super().__init__(**kwargs)
 
-    @validator("actual_instance")
+    @validator('actual_instance')
     def actual_instance_must_validate_oneof(cls, v):
         instance = TagArithmeticsResponse.construct()
         error_messages = []
         match = 0
         # validate data type: CreateEntityResponse
         if not isinstance(v, CreateEntityResponse):
-            error_messages.append(
-                f"Error! Input type `{type(v)}` is not `CreateEntityResponse`"
-            )
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateEntityResponse`")
         else:
             match += 1
         # validate data type: TagBitMaskResponse
         if not isinstance(v, TagBitMaskResponse):
-            error_messages.append(
-                f"Error! Input type `{type(v)}` is not `TagBitMaskResponse`"
-            )
+            error_messages.append(f"Error! Input type `{type(v)}` is not `TagBitMaskResponse`")
         else:
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError(
-                "Multiple matches found when setting `actual_instance` in TagArithmeticsResponse with oneOf schemas: CreateEntityResponse, TagBitMaskResponse. Details: "
-                + ", ".join(error_messages)
-            )
+            raise ValueError("Multiple matches found when setting `actual_instance` in TagArithmeticsResponse with oneOf schemas: CreateEntityResponse, TagBitMaskResponse. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError(
-                "No match found when setting `actual_instance` in TagArithmeticsResponse with oneOf schemas: CreateEntityResponse, TagBitMaskResponse. Details: "
-                + ", ".join(error_messages)
-            )
+            raise ValueError("No match found when setting `actual_instance` in TagArithmeticsResponse with oneOf schemas: CreateEntityResponse, TagBitMaskResponse. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -124,16 +104,10 @@ class TagArithmeticsResponse(BaseModel):
 
         if match > 1:
             # more than 1 match
-            raise ValueError(
-                "Multiple matches found when deserializing the JSON string into TagArithmeticsResponse with oneOf schemas: CreateEntityResponse, TagBitMaskResponse. Details: "
-                + ", ".join(error_messages)
-            )
+            raise ValueError("Multiple matches found when deserializing the JSON string into TagArithmeticsResponse with oneOf schemas: CreateEntityResponse, TagBitMaskResponse. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError(
-                "No match found when deserializing the JSON string into TagArithmeticsResponse with oneOf schemas: CreateEntityResponse, TagBitMaskResponse. Details: "
-                + ", ".join(error_messages)
-            )
+            raise ValueError("No match found when deserializing the JSON string into TagArithmeticsResponse with oneOf schemas: CreateEntityResponse, TagBitMaskResponse. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -163,3 +137,4 @@ class TagArithmeticsResponse(BaseModel):
     def to_str(self, by_alias: bool = False) -> str:
         """Returns the string representation of the actual instance"""
         return pprint.pformat(self.dict(by_alias=by_alias))
+

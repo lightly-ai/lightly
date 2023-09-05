@@ -21,26 +21,17 @@ import re  # noqa: F401
 
 from typing import Any, List, Optional
 from pydantic import BaseModel, Field, StrictStr, ValidationError, validator
-from lightly.openapi_generated.swagger_client.models.prediction_task_schema_keypoint import (
-    PredictionTaskSchemaKeypoint,
-)
-from lightly.openapi_generated.swagger_client.models.prediction_task_schema_simple import (
-    PredictionTaskSchemaSimple,
-)
+from lightly.openapi_generated.swagger_client.models.prediction_task_schema_keypoint import PredictionTaskSchemaKeypoint
+from lightly.openapi_generated.swagger_client.models.prediction_task_schema_simple import PredictionTaskSchemaSimple
 from typing import Any, List
 from pydantic import StrictStr, Field, Extra
 
-PREDICTIONTASKSCHEMA_ONE_OF_SCHEMAS = [
-    "PredictionTaskSchemaKeypoint",
-    "PredictionTaskSchemaSimple",
-]
-
+PREDICTIONTASKSCHEMA_ONE_OF_SCHEMAS = ["PredictionTaskSchemaKeypoint", "PredictionTaskSchemaSimple"]
 
 class PredictionTaskSchema(BaseModel):
     """
     PredictionTaskSchema
     """
-
     # data type: PredictionTaskSchemaSimple
     oneof_schema_1_validator: Optional[PredictionTaskSchemaSimple] = None
     # data type: PredictionTaskSchemaKeypoint
@@ -53,53 +44,40 @@ class PredictionTaskSchema(BaseModel):
         use_enum_values = True
         extra = Extra.forbid
 
-    discriminator_value_class_map = {}
+    discriminator_value_class_map = {
+    }
 
     def __init__(self, *args, **kwargs):
         if args:
             if len(args) > 1:
-                raise ValueError(
-                    "If a position argument is used, only 1 is allowed to set `actual_instance`"
-                )
+                raise ValueError("If a position argument is used, only 1 is allowed to set `actual_instance`")
             if kwargs:
-                raise ValueError(
-                    "If a position argument is used, keyword arguments cannot be used."
-                )
+                raise ValueError("If a position argument is used, keyword arguments cannot be used.")
             super().__init__(actual_instance=args[0])
         else:
             super().__init__(**kwargs)
 
-    @validator("actual_instance")
+    @validator('actual_instance')
     def actual_instance_must_validate_oneof(cls, v):
         instance = PredictionTaskSchema.construct()
         error_messages = []
         match = 0
         # validate data type: PredictionTaskSchemaSimple
         if not isinstance(v, PredictionTaskSchemaSimple):
-            error_messages.append(
-                f"Error! Input type `{type(v)}` is not `PredictionTaskSchemaSimple`"
-            )
+            error_messages.append(f"Error! Input type `{type(v)}` is not `PredictionTaskSchemaSimple`")
         else:
             match += 1
         # validate data type: PredictionTaskSchemaKeypoint
         if not isinstance(v, PredictionTaskSchemaKeypoint):
-            error_messages.append(
-                f"Error! Input type `{type(v)}` is not `PredictionTaskSchemaKeypoint`"
-            )
+            error_messages.append(f"Error! Input type `{type(v)}` is not `PredictionTaskSchemaKeypoint`")
         else:
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError(
-                "Multiple matches found when setting `actual_instance` in PredictionTaskSchema with oneOf schemas: PredictionTaskSchemaKeypoint, PredictionTaskSchemaSimple. Details: "
-                + ", ".join(error_messages)
-            )
+            raise ValueError("Multiple matches found when setting `actual_instance` in PredictionTaskSchema with oneOf schemas: PredictionTaskSchemaKeypoint, PredictionTaskSchemaSimple. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError(
-                "No match found when setting `actual_instance` in PredictionTaskSchema with oneOf schemas: PredictionTaskSchemaKeypoint, PredictionTaskSchemaSimple. Details: "
-                + ", ".join(error_messages)
-            )
+            raise ValueError("No match found when setting `actual_instance` in PredictionTaskSchema with oneOf schemas: PredictionTaskSchemaKeypoint, PredictionTaskSchemaSimple. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -117,9 +95,7 @@ class PredictionTaskSchema(BaseModel):
         # use oneOf discriminator to lookup the data type
         _data_type = json.loads(json_str).get("type")
         if not _data_type:
-            raise ValueError(
-                "Failed to lookup data type from the field `type` in the input."
-            )
+            raise ValueError("Failed to lookup data type from the field `type` in the input.")
 
         # check if data type is `PredictionTaskSchemaSimple`
         if _data_type == "CLASSIFICATION":
@@ -171,16 +147,10 @@ class PredictionTaskSchema(BaseModel):
 
         if match > 1:
             # more than 1 match
-            raise ValueError(
-                "Multiple matches found when deserializing the JSON string into PredictionTaskSchema with oneOf schemas: PredictionTaskSchemaKeypoint, PredictionTaskSchemaSimple. Details: "
-                + ", ".join(error_messages)
-            )
+            raise ValueError("Multiple matches found when deserializing the JSON string into PredictionTaskSchema with oneOf schemas: PredictionTaskSchemaKeypoint, PredictionTaskSchemaSimple. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError(
-                "No match found when deserializing the JSON string into PredictionTaskSchema with oneOf schemas: PredictionTaskSchemaKeypoint, PredictionTaskSchemaSimple. Details: "
-                + ", ".join(error_messages)
-            )
+            raise ValueError("No match found when deserializing the JSON string into PredictionTaskSchema with oneOf schemas: PredictionTaskSchemaKeypoint, PredictionTaskSchemaSimple. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -210,3 +180,4 @@ class PredictionTaskSchema(BaseModel):
     def to_str(self, by_alias: bool = False) -> str:
         """Returns the string representation of the actual instance"""
         return pprint.pformat(self.dict(by_alias=by_alias))
+

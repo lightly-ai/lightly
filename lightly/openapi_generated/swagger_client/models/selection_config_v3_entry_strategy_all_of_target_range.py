@@ -20,29 +20,18 @@ import json
 
 
 from typing import Optional, Union
-from pydantic import Extra, BaseModel, Field, confloat, conint
-
+from pydantic import Extra,  BaseModel, Field, confloat, conint
 
 class SelectionConfigV3EntryStrategyAllOfTargetRange(BaseModel):
     """
-    If specified, it tries to select samples such that their sum of inputs is >= min_sum and <= max_sum. Only compatible with the WEIGHTS strategy.
+    If specified, it tries to select samples such that their sum of inputs is >= min_sum and <= max_sum. Only compatible with the WEIGHTS strategy. 
     """
-
-    min_sum: Optional[
-        Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]
-    ] = Field(None, alias="minSum", description="Target minimum sum of inputs. ")
-    max_sum: Optional[
-        Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]
-    ] = Field(
-        None,
-        alias="maxSum",
-        description="Target maximum sum of inputs.  Must be >= min_sum. ",
-    )
+    min_sum: Optional[Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]] = Field(None, alias="minSum", description="Target minimum sum of inputs. ")
+    max_sum: Optional[Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]] = Field(None, alias="maxSum", description="Target maximum sum of inputs.  Must be >= min_sum. ")
     __properties = ["minSum", "maxSum"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -63,7 +52,10 @@ class SelectionConfigV3EntryStrategyAllOfTargetRange(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -78,12 +70,11 @@ class SelectionConfigV3EntryStrategyAllOfTargetRange(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in SelectionConfigV3EntryStrategyAllOfTargetRange) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in SelectionConfigV3EntryStrategyAllOfTargetRange) in the input: " + str(obj))
 
-        _obj = SelectionConfigV3EntryStrategyAllOfTargetRange.parse_obj(
-            {"min_sum": obj.get("minSum"), "max_sum": obj.get("maxSum")}
-        )
+        _obj = SelectionConfigV3EntryStrategyAllOfTargetRange.parse_obj({
+            "min_sum": obj.get("minSum"),
+            "max_sum": obj.get("maxSum")
+        })
         return _obj
+

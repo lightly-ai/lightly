@@ -20,68 +20,40 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra, BaseModel, Field, StrictInt, constr, validator
-from lightly.openapi_generated.swagger_client.models.tag_change_data import (
-    TagChangeData,
-)
+from pydantic import Extra,  BaseModel, Field, StrictInt, constr, validator
+from lightly.openapi_generated.swagger_client.models.tag_change_data import TagChangeData
 from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
-
 
 class TagCreateRequest(BaseModel):
     """
     TagCreateRequest
     """
-
-    name: constr(strict=True, min_length=3) = Field(
-        ..., description="The name of the tag"
-    )
-    prev_tag_id: constr(strict=True) = Field(
-        ..., alias="prevTagId", description="MongoDB ObjectId"
-    )
-    query_tag_id: Optional[constr(strict=True)] = Field(
-        None, alias="queryTagId", description="MongoDB ObjectId"
-    )
-    preselected_tag_id: Optional[constr(strict=True)] = Field(
-        None, alias="preselectedTagId", description="MongoDB ObjectId"
-    )
-    bit_mask_data: constr(strict=True) = Field(
-        ..., alias="bitMaskData", description="BitMask as a base16 (hex) string"
-    )
+    name: constr(strict=True, min_length=3) = Field(..., description="The name of the tag")
+    prev_tag_id: constr(strict=True) = Field(..., alias="prevTagId", description="MongoDB ObjectId")
+    query_tag_id: Optional[constr(strict=True)] = Field(None, alias="queryTagId", description="MongoDB ObjectId")
+    preselected_tag_id: Optional[constr(strict=True)] = Field(None, alias="preselectedTagId", description="MongoDB ObjectId")
+    bit_mask_data: constr(strict=True) = Field(..., alias="bitMaskData", description="BitMask as a base16 (hex) string")
     tot_size: StrictInt = Field(..., alias="totSize")
     creator: Optional[TagCreator] = None
     changes: Optional[TagChangeData] = None
-    run_id: Optional[constr(strict=True)] = Field(
-        None, alias="runId", description="MongoDB ObjectId"
-    )
-    __properties = [
-        "name",
-        "prevTagId",
-        "queryTagId",
-        "preselectedTagId",
-        "bitMaskData",
-        "totSize",
-        "creator",
-        "changes",
-        "runId",
-    ]
+    run_id: Optional[constr(strict=True)] = Field(None, alias="runId", description="MongoDB ObjectId")
+    __properties = ["name", "prevTagId", "queryTagId", "preselectedTagId", "bitMaskData", "totSize", "creator", "changes", "runId"]
 
-    @validator("name")
+    @validator('name')
     def name_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$", value):
-            raise ValueError(
-                r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/"
-            )
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/")
         return value
 
-    @validator("prev_tag_id")
+    @validator('prev_tag_id')
     def prev_tag_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("query_tag_id")
+    @validator('query_tag_id')
     def query_tag_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -91,7 +63,7 @@ class TagCreateRequest(BaseModel):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("preselected_tag_id")
+    @validator('preselected_tag_id')
     def preselected_tag_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -101,14 +73,14 @@ class TagCreateRequest(BaseModel):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("bit_mask_data")
+    @validator('bit_mask_data')
     def bit_mask_data_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^0x[a-f0-9]+$", value):
             raise ValueError(r"must validate the regular expression /^0x[a-f0-9]+$/")
         return value
 
-    @validator("run_id")
+    @validator('run_id')
     def run_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -120,7 +92,6 @@ class TagCreateRequest(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -141,12 +112,13 @@ class TagCreateRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of changes
         if self.changes:
-            _dict["changes" if by_alias else "changes"] = self.changes.to_dict(
-                by_alias=by_alias
-            )
+            _dict['changes' if by_alias else 'changes'] = self.changes.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -161,24 +133,18 @@ class TagCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in TagCreateRequest) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in TagCreateRequest) in the input: " + str(obj))
 
-        _obj = TagCreateRequest.parse_obj(
-            {
-                "name": obj.get("name"),
-                "prev_tag_id": obj.get("prevTagId"),
-                "query_tag_id": obj.get("queryTagId"),
-                "preselected_tag_id": obj.get("preselectedTagId"),
-                "bit_mask_data": obj.get("bitMaskData"),
-                "tot_size": obj.get("totSize"),
-                "creator": obj.get("creator"),
-                "changes": TagChangeData.from_dict(obj.get("changes"))
-                if obj.get("changes") is not None
-                else None,
-                "run_id": obj.get("runId"),
-            }
-        )
+        _obj = TagCreateRequest.parse_obj({
+            "name": obj.get("name"),
+            "prev_tag_id": obj.get("prevTagId"),
+            "query_tag_id": obj.get("queryTagId"),
+            "preselected_tag_id": obj.get("preselectedTagId"),
+            "bit_mask_data": obj.get("bitMaskData"),
+            "tot_size": obj.get("totSize"),
+            "creator": obj.get("creator"),
+            "changes": TagChangeData.from_dict(obj.get("changes")) if obj.get("changes") is not None else None,
+            "run_id": obj.get("runId")
+        })
         return _obj
+

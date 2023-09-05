@@ -20,22 +20,18 @@ import json
 
 
 from typing import Optional, Union
-from pydantic import Extra, BaseModel, Field, StrictFloat, StrictInt, constr, validator
-
+from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, constr, validator
 
 class TagChangeDataUpsize(BaseModel):
     """
     TagChangeDataUpsize
     """
-
-    run_id: Optional[constr(strict=True)] = Field(
-        None, alias="runId", description="MongoDB ObjectId"
-    )
+    run_id: Optional[constr(strict=True)] = Field(None, alias="runId", description="MongoDB ObjectId")
     var_from: Union[StrictFloat, StrictInt] = Field(..., alias="from")
     to: Union[StrictFloat, StrictInt] = Field(...)
     __properties = ["runId", "from", "to"]
 
-    @validator("run_id")
+    @validator('run_id')
     def run_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -47,7 +43,6 @@ class TagChangeDataUpsize(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -68,7 +63,10 @@ class TagChangeDataUpsize(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -83,16 +81,12 @@ class TagChangeDataUpsize(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in TagChangeDataUpsize) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in TagChangeDataUpsize) in the input: " + str(obj))
 
-        _obj = TagChangeDataUpsize.parse_obj(
-            {
-                "run_id": obj.get("runId"),
-                "var_from": obj.get("from"),
-                "to": obj.get("to"),
-            }
-        )
+        _obj = TagChangeDataUpsize.parse_obj({
+            "run_id": obj.get("runId"),
+            "var_from": obj.get("from"),
+            "to": obj.get("to")
+        })
         return _obj
+

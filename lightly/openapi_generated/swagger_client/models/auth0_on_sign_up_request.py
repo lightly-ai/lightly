@@ -19,23 +19,19 @@ import re  # noqa: F401
 import json
 
 
-from pydantic import Extra, BaseModel, Field
-from lightly.openapi_generated.swagger_client.models.auth0_on_sign_up_request_user import (
-    Auth0OnSignUpRequestUser,
-)
 
+from pydantic import Extra,  BaseModel, Field
+from lightly.openapi_generated.swagger_client.models.auth0_on_sign_up_request_user import Auth0OnSignUpRequestUser
 
 class Auth0OnSignUpRequest(BaseModel):
     """
     Auth0OnSignUpRequest
     """
-
     user: Auth0OnSignUpRequestUser = Field(...)
     __properties = ["user"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -56,10 +52,13 @@ class Auth0OnSignUpRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of user
         if self.user:
-            _dict["user" if by_alias else "user"] = self.user.to_dict(by_alias=by_alias)
+            _dict['user' if by_alias else 'user'] = self.user.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -74,16 +73,10 @@ class Auth0OnSignUpRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in Auth0OnSignUpRequest) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in Auth0OnSignUpRequest) in the input: " + str(obj))
 
-        _obj = Auth0OnSignUpRequest.parse_obj(
-            {
-                "user": Auth0OnSignUpRequestUser.from_dict(obj.get("user"))
-                if obj.get("user") is not None
-                else None
-            }
-        )
+        _obj = Auth0OnSignUpRequest.parse_obj({
+            "user": Auth0OnSignUpRequestUser.from_dict(obj.get("user")) if obj.get("user") is not None else None
+        })
         return _obj
+

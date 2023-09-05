@@ -20,65 +20,42 @@ import json
 
 
 from typing import List, Union
-from pydantic import (
-    Extra,
-    BaseModel,
-    Field,
-    StrictFloat,
-    StrictInt,
-    conint,
-    conlist,
-    constr,
-    validator,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, conint, conlist, constr, validator
 
 class ActiveLearningScoreData(BaseModel):
     """
     ActiveLearningScoreData
     """
-
     id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
-    tag_id: constr(strict=True) = Field(
-        ..., alias="tagId", description="MongoDB ObjectId"
-    )
-    score_type: constr(strict=True, min_length=1) = Field(
-        ..., alias="scoreType", description="Type of active learning score"
-    )
-    scores: conlist(Union[StrictFloat, StrictInt], min_items=1) = Field(
-        ..., description="Array of active learning scores"
-    )
-    created_at: conint(strict=True, ge=0) = Field(
-        ..., alias="createdAt", description="unix timestamp in milliseconds"
-    )
+    tag_id: constr(strict=True) = Field(..., alias="tagId", description="MongoDB ObjectId")
+    score_type: constr(strict=True, min_length=1) = Field(..., alias="scoreType", description="Type of active learning score")
+    scores: conlist(Union[StrictFloat, StrictInt], min_items=1) = Field(..., description="Array of active learning scores")
+    created_at: conint(strict=True, ge=0) = Field(..., alias="createdAt", description="unix timestamp in milliseconds")
     __properties = ["id", "tagId", "scoreType", "scores", "createdAt"]
 
-    @validator("id")
+    @validator('id')
     def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("tag_id")
+    @validator('tag_id')
     def tag_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("score_type")
+    @validator('score_type')
     def score_type_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]*$", value):
-            raise ValueError(
-                r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/"
-            )
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/")
         return value
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -99,7 +76,10 @@ class ActiveLearningScoreData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -114,18 +94,14 @@ class ActiveLearningScoreData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in ActiveLearningScoreData) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in ActiveLearningScoreData) in the input: " + str(obj))
 
-        _obj = ActiveLearningScoreData.parse_obj(
-            {
-                "id": obj.get("id"),
-                "tag_id": obj.get("tagId"),
-                "score_type": obj.get("scoreType"),
-                "scores": obj.get("scores"),
-                "created_at": obj.get("createdAt"),
-            }
-        )
+        _obj = ActiveLearningScoreData.parse_obj({
+            "id": obj.get("id"),
+            "tag_id": obj.get("tagId"),
+            "score_type": obj.get("scoreType"),
+            "scores": obj.get("scores"),
+            "created_at": obj.get("createdAt")
+        })
         return _obj
+

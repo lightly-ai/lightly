@@ -20,17 +20,13 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra, BaseModel, Field, StrictBool
-from lightly.openapi_generated.swagger_client.models.datasource_config_verify_data_errors import (
-    DatasourceConfigVerifyDataErrors,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictBool
+from lightly.openapi_generated.swagger_client.models.datasource_config_verify_data_errors import DatasourceConfigVerifyDataErrors
 
 class DatasourceConfigVerifyData(BaseModel):
     """
     DatasourceConfigVerifyData
     """
-
     can_read: StrictBool = Field(..., alias="canRead")
     can_write: StrictBool = Field(..., alias="canWrite")
     can_list: StrictBool = Field(..., alias="canList")
@@ -40,7 +36,6 @@ class DatasourceConfigVerifyData(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -61,12 +56,13 @@ class DatasourceConfigVerifyData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of errors
         if self.errors:
-            _dict["errors" if by_alias else "errors"] = self.errors.to_dict(
-                by_alias=by_alias
-            )
+            _dict['errors' if by_alias else 'errors'] = self.errors.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -81,20 +77,14 @@ class DatasourceConfigVerifyData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DatasourceConfigVerifyData) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DatasourceConfigVerifyData) in the input: " + str(obj))
 
-        _obj = DatasourceConfigVerifyData.parse_obj(
-            {
-                "can_read": obj.get("canRead"),
-                "can_write": obj.get("canWrite"),
-                "can_list": obj.get("canList"),
-                "can_overwrite": obj.get("canOverwrite"),
-                "errors": DatasourceConfigVerifyDataErrors.from_dict(obj.get("errors"))
-                if obj.get("errors") is not None
-                else None,
-            }
-        )
+        _obj = DatasourceConfigVerifyData.parse_obj({
+            "can_read": obj.get("canRead"),
+            "can_write": obj.get("canWrite"),
+            "can_list": obj.get("canList"),
+            "can_overwrite": obj.get("canOverwrite"),
+            "errors": DatasourceConfigVerifyDataErrors.from_dict(obj.get("errors")) if obj.get("errors") is not None else None
+        })
         return _obj
+

@@ -20,32 +20,19 @@ import json
 
 
 from typing import Optional, Union
-from pydantic import Extra, BaseModel, Field, confloat, conint
-from lightly.openapi_generated.swagger_client.models.selection_config_v3_entry_strategy_all_of_target_range import (
-    SelectionConfigV3EntryStrategyAllOfTargetRange,
-)
-
+from pydantic import Extra,  BaseModel, Field, confloat, conint
+from lightly.openapi_generated.swagger_client.models.selection_config_v3_entry_strategy_all_of_target_range import SelectionConfigV3EntryStrategyAllOfTargetRange
 
 class SelectionConfigV3EntryStrategyAllOf(BaseModel):
     """
     SelectionConfigV3EntryStrategyAllOf
     """
-
-    stopping_condition_max_sum: Optional[
-        Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]
-    ] = Field(
-        None,
-        alias="stoppingConditionMaxSum",
-        description="When the sum of inputs reaches this, the selection stops. Only compatible with the WEIGHTS strategy. Similar to the stopping_condition_minimum_distance for the DIVERSITY strategy. ",
-    )
-    target_range: Optional[SelectionConfigV3EntryStrategyAllOfTargetRange] = Field(
-        None, alias="targetRange"
-    )
+    stopping_condition_max_sum: Optional[Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]] = Field(None, alias="stoppingConditionMaxSum", description="When the sum of inputs reaches this, the selection stops. Only compatible with the WEIGHTS strategy. Similar to the stopping_condition_minimum_distance for the DIVERSITY strategy. ")
+    target_range: Optional[SelectionConfigV3EntryStrategyAllOfTargetRange] = Field(None, alias="targetRange")
     __properties = ["stoppingConditionMaxSum", "targetRange"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -66,12 +53,13 @@ class SelectionConfigV3EntryStrategyAllOf(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of target_range
         if self.target_range:
-            _dict[
-                "targetRange" if by_alias else "target_range"
-            ] = self.target_range.to_dict(by_alias=by_alias)
+            _dict['targetRange' if by_alias else 'target_range'] = self.target_range.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -86,19 +74,11 @@ class SelectionConfigV3EntryStrategyAllOf(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in SelectionConfigV3EntryStrategyAllOf) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in SelectionConfigV3EntryStrategyAllOf) in the input: " + str(obj))
 
-        _obj = SelectionConfigV3EntryStrategyAllOf.parse_obj(
-            {
-                "stopping_condition_max_sum": obj.get("stoppingConditionMaxSum"),
-                "target_range": SelectionConfigV3EntryStrategyAllOfTargetRange.from_dict(
-                    obj.get("targetRange")
-                )
-                if obj.get("targetRange") is not None
-                else None,
-            }
-        )
+        _obj = SelectionConfigV3EntryStrategyAllOf.parse_obj({
+            "stopping_condition_max_sum": obj.get("stoppingConditionMaxSum"),
+            "target_range": SelectionConfigV3EntryStrategyAllOfTargetRange.from_dict(obj.get("targetRange")) if obj.get("targetRange") is not None else None
+        })
         return _obj
+

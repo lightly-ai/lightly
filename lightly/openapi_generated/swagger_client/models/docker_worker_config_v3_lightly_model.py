@@ -20,17 +20,13 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra, BaseModel, Field, conint
-from lightly.openapi_generated.swagger_client.models.lightly_model_v3 import (
-    LightlyModelV3,
-)
-
+from pydantic import Extra,  BaseModel, Field, conint
+from lightly.openapi_generated.swagger_client.models.lightly_model_v3 import LightlyModelV3
 
 class DockerWorkerConfigV3LightlyModel(BaseModel):
     """
     DockerWorkerConfigV3LightlyModel
     """
-
     name: Optional[LightlyModelV3] = None
     out_dim: Optional[conint(strict=True, ge=1)] = Field(None, alias="outDim")
     num_ftrs: Optional[conint(strict=True, ge=1)] = Field(None, alias="numFtrs")
@@ -39,7 +35,6 @@ class DockerWorkerConfigV3LightlyModel(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -60,7 +55,10 @@ class DockerWorkerConfigV3LightlyModel(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -75,17 +73,13 @@ class DockerWorkerConfigV3LightlyModel(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DockerWorkerConfigV3LightlyModel) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV3LightlyModel) in the input: " + str(obj))
 
-        _obj = DockerWorkerConfigV3LightlyModel.parse_obj(
-            {
-                "name": obj.get("name"),
-                "out_dim": obj.get("outDim"),
-                "num_ftrs": obj.get("numFtrs"),
-                "width": obj.get("width"),
-            }
-        )
+        _obj = DockerWorkerConfigV3LightlyModel.parse_obj({
+            "name": obj.get("name"),
+            "out_dim": obj.get("outDim"),
+            "num_ftrs": obj.get("numFtrs"),
+            "width": obj.get("width")
+        })
         return _obj
+

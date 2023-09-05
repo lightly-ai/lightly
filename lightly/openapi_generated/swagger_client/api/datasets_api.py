@@ -24,28 +24,18 @@ from pydantic import Field, StrictBool, StrictInt, conint, constr, validator
 
 from typing import List, Optional
 
-from lightly.openapi_generated.swagger_client.models.create_entity_response import (
-    CreateEntityResponse,
-)
-from lightly.openapi_generated.swagger_client.models.dataset_create_request import (
-    DatasetCreateRequest,
-)
+from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
+from lightly.openapi_generated.swagger_client.models.dataset_create_request import DatasetCreateRequest
 from lightly.openapi_generated.swagger_client.models.dataset_data import DatasetData
-from lightly.openapi_generated.swagger_client.models.dataset_data_enriched import (
-    DatasetDataEnriched,
-)
-from lightly.openapi_generated.swagger_client.models.dataset_update_request import (
-    DatasetUpdateRequest,
-)
-from lightly.openapi_generated.swagger_client.models.job_status_meta import (
-    JobStatusMeta,
-)
+from lightly.openapi_generated.swagger_client.models.dataset_data_enriched import DatasetDataEnriched
+from lightly.openapi_generated.swagger_client.models.dataset_update_request import DatasetUpdateRequest
+from lightly.openapi_generated.swagger_client.models.job_status_meta import JobStatusMeta
 
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.api_response import ApiResponse
 from lightly.openapi_generated.swagger_client.exceptions import (  # noqa: F401
     ApiTypeError,
-    ApiValueError,
+    ApiValueError
 )
 
 
@@ -62,9 +52,7 @@ class DatasetsApi(object):
         self.api_client = api_client
 
     @validate_arguments
-    def create_dataset(
-        self, dataset_create_request: DatasetCreateRequest, **kwargs
-    ) -> CreateEntityResponse:  # noqa: E501
+    def create_dataset(self, dataset_create_request : DatasetCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
         """create_dataset  # noqa: E501
 
         Creates a new dataset for a user  # noqa: E501
@@ -87,19 +75,13 @@ class DatasetsApi(object):
                  returns the request thread.
         :rtype: CreateEntityResponse
         """
-        kwargs["_return_http_data_only"] = True
-        if "_preload_content" in kwargs:
-            raise ValueError(
-                "Error! Please call the create_dataset_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
-            )
-        return self.create_dataset_with_http_info(
-            dataset_create_request, **kwargs
-        )  # noqa: E501
+        kwargs['_return_http_data_only'] = True
+        if '_preload_content' in kwargs:
+            raise ValueError("Error! Please call the create_dataset_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        return self.create_dataset_with_http_info(dataset_create_request, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def create_dataset_with_http_info(
-        self, dataset_create_request: DatasetCreateRequest, **kwargs
-    ) -> ApiResponse:  # noqa: E501
+    def create_dataset_with_http_info(self, dataset_create_request : DatasetCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
         """create_dataset  # noqa: E501
 
         Creates a new dataset for a user  # noqa: E501
@@ -114,7 +96,7 @@ class DatasetsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the
+                                 be set to none and raw_data will store the 
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -138,28 +120,30 @@ class DatasetsApi(object):
 
         _params = locals()
 
-        _all_params = ["dataset_create_request"]
+        _all_params = [
+            'dataset_create_request'
+        ]
         _all_params.extend(
             [
-                "async_req",
-                "_return_http_data_only",
-                "_preload_content",
-                "_request_timeout",
-                "_request_auth",
-                "_content_type",
-                "_headers",
+                'async_req',
+                '_return_http_data_only',
+                '_preload_content',
+                '_request_timeout',
+                '_request_auth',
+                '_content_type',
+                '_headers'
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params["kwargs"].items():
+        for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method create_dataset" % _key
                 )
             _params[_key] = _val
-        del _params["kwargs"]
+        del _params['kwargs']
 
         _collection_formats = {}
 
@@ -169,42 +153,39 @@ class DatasetsApi(object):
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get("_headers", {}))
+        _header_params = dict(_params.get('_headers', {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params["dataset_create_request"] is not None:
-            _body_params = _params["dataset_create_request"]
+        if _params['dataset_create_request'] is not None:
+            _body_params = _params['dataset_create_request']
 
         # set the HTTP header `Accept`
-        _header_params["Accept"] = self.api_client.select_header_accept(
-            ["application/json"]
-        )  # noqa: E501
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get(
-            "_content_type",
-            self.api_client.select_header_content_type(["application/json"]),
-        )
+        _content_types_list = _params.get('_content_type',
+            self.api_client.select_header_content_type(
+                ['application/json']))
         if _content_types_list:
-            _header_params["Content-Type"] = _content_types_list
+                _header_params['Content-Type'] = _content_types_list
 
         # authentication setting
-        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
+        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {
-            "201": "CreateEntityResponse",
-            "400": "ApiErrorResponse",
-            "401": "ApiErrorResponse",
-            "403": "ApiErrorResponse",
-            "404": "ApiErrorResponse",
+            '201': "CreateEntityResponse",
+            '400': "ApiErrorResponse",
+            '401': "ApiErrorResponse",
+            '403': "ApiErrorResponse",
+            '404': "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            "/v1/datasets",
-            "POST",
+            '/v1/datasets', 'POST',
             _path_params,
             _query_params,
             _header_params,
@@ -213,23 +194,15 @@ class DatasetsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get("async_req"),
-            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
-            _preload_content=_params.get("_preload_content", True),
-            _request_timeout=_params.get("_request_timeout"),
+            async_req=_params.get('async_req'),
+            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=_params.get('_preload_content', True),
+            _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
-            _request_auth=_params.get("_request_auth"),
-        )
+            _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def delete_dataset_by_id(
-        self,
-        dataset_id: Annotated[
-            constr(strict=True), Field(..., description="ObjectId of the dataset")
-        ],
-        force: Optional[StrictBool] = None,
-        **kwargs
-    ) -> None:  # noqa: E501
+    def delete_dataset_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], force : Optional[StrictBool] = None, **kwargs) -> None:  # noqa: E501
         """delete_dataset_by_id  # noqa: E501
 
         Delete a specific dataset  # noqa: E501
@@ -254,24 +227,13 @@ class DatasetsApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs["_return_http_data_only"] = True
-        if "_preload_content" in kwargs:
-            raise ValueError(
-                "Error! Please call the delete_dataset_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
-            )
-        return self.delete_dataset_by_id_with_http_info(
-            dataset_id, force, **kwargs
-        )  # noqa: E501
+        kwargs['_return_http_data_only'] = True
+        if '_preload_content' in kwargs:
+            raise ValueError("Error! Please call the delete_dataset_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        return self.delete_dataset_by_id_with_http_info(dataset_id, force, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def delete_dataset_by_id_with_http_info(
-        self,
-        dataset_id: Annotated[
-            constr(strict=True), Field(..., description="ObjectId of the dataset")
-        ],
-        force: Optional[StrictBool] = None,
-        **kwargs
-    ) -> ApiResponse:  # noqa: E501
+    def delete_dataset_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], force : Optional[StrictBool] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """delete_dataset_by_id  # noqa: E501
 
         Delete a specific dataset  # noqa: E501
@@ -288,7 +250,7 @@ class DatasetsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the
+                                 be set to none and raw_data will store the 
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -312,68 +274,66 @@ class DatasetsApi(object):
 
         _params = locals()
 
-        _all_params = ["dataset_id", "force"]
+        _all_params = [
+            'dataset_id',
+            'force'
+        ]
         _all_params.extend(
             [
-                "async_req",
-                "_return_http_data_only",
-                "_preload_content",
-                "_request_timeout",
-                "_request_auth",
-                "_content_type",
-                "_headers",
+                'async_req',
+                '_return_http_data_only',
+                '_preload_content',
+                '_request_timeout',
+                '_request_auth',
+                '_content_type',
+                '_headers'
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params["kwargs"].items():
+        for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method delete_dataset_by_id" % _key
                 )
             _params[_key] = _val
-        del _params["kwargs"]
+        del _params['kwargs']
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params["dataset_id"]:
-            _path_params["datasetId"] = _params["dataset_id"]
+        if _params['dataset_id']:
+            _path_params['datasetId'] = _params['dataset_id']
+
 
         # process the query parameters
         _query_params = []
-        if _params.get("force") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "force",
-                    _params["force"].value
-                    if hasattr(_params["force"], "value")
-                    else _params["force"],
-                )
-            )
+        if _params.get('force') is not None:  # noqa: E501
+            _query_params.append((
+                'force',
+                _params['force'].value if hasattr(_params['force'], 'value') else _params['force']
+            ))
 
         # process the header parameters
-        _header_params = dict(_params.get("_headers", {}))
+        _header_params = dict(_params.get('_headers', {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params["Accept"] = self.api_client.select_header_accept(
-            ["application/json"]
-        )  # noqa: E501
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
 
         # authentication setting
-        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
+        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            "/v1/datasets/{datasetId}",
-            "DELETE",
+            '/v1/datasets/{datasetId}', 'DELETE',
             _path_params,
             _query_params,
             _header_params,
@@ -382,22 +342,15 @@ class DatasetsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get("async_req"),
-            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
-            _preload_content=_params.get("_preload_content", True),
-            _request_timeout=_params.get("_request_timeout"),
+            async_req=_params.get('async_req'),
+            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=_params.get('_preload_content', True),
+            _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
-            _request_auth=_params.get("_request_auth"),
-        )
+            _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_children_of_dataset_id(
-        self,
-        dataset_id: Annotated[
-            constr(strict=True), Field(..., description="ObjectId of the dataset")
-        ],
-        **kwargs
-    ) -> List[DatasetData]:  # noqa: E501
+    def get_children_of_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> List[DatasetData]:  # noqa: E501
         """get_children_of_dataset_id  # noqa: E501
 
         Get all datasets which are the children of a specific dataset (e.g crop datasets)  # noqa: E501
@@ -420,23 +373,13 @@ class DatasetsApi(object):
                  returns the request thread.
         :rtype: List[DatasetData]
         """
-        kwargs["_return_http_data_only"] = True
-        if "_preload_content" in kwargs:
-            raise ValueError(
-                "Error! Please call the get_children_of_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
-            )
-        return self.get_children_of_dataset_id_with_http_info(
-            dataset_id, **kwargs
-        )  # noqa: E501
+        kwargs['_return_http_data_only'] = True
+        if '_preload_content' in kwargs:
+            raise ValueError("Error! Please call the get_children_of_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        return self.get_children_of_dataset_id_with_http_info(dataset_id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_children_of_dataset_id_with_http_info(
-        self,
-        dataset_id: Annotated[
-            constr(strict=True), Field(..., description="ObjectId of the dataset")
-        ],
-        **kwargs
-    ) -> ApiResponse:  # noqa: E501
+    def get_children_of_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> ApiResponse:  # noqa: E501
         """get_children_of_dataset_id  # noqa: E501
 
         Get all datasets which are the children of a specific dataset (e.g crop datasets)  # noqa: E501
@@ -451,7 +394,7 @@ class DatasetsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the
+                                 be set to none and raw_data will store the 
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -475,64 +418,65 @@ class DatasetsApi(object):
 
         _params = locals()
 
-        _all_params = ["dataset_id"]
+        _all_params = [
+            'dataset_id'
+        ]
         _all_params.extend(
             [
-                "async_req",
-                "_return_http_data_only",
-                "_preload_content",
-                "_request_timeout",
-                "_request_auth",
-                "_content_type",
-                "_headers",
+                'async_req',
+                '_return_http_data_only',
+                '_preload_content',
+                '_request_timeout',
+                '_request_auth',
+                '_content_type',
+                '_headers'
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params["kwargs"].items():
+        for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_children_of_dataset_id" % _key
                 )
             _params[_key] = _val
-        del _params["kwargs"]
+        del _params['kwargs']
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params["dataset_id"]:
-            _path_params["datasetId"] = _params["dataset_id"]
+        if _params['dataset_id']:
+            _path_params['datasetId'] = _params['dataset_id']
+
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get("_headers", {}))
+        _header_params = dict(_params.get('_headers', {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params["Accept"] = self.api_client.select_header_accept(
-            ["application/json"]
-        )  # noqa: E501
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
 
         # authentication setting
-        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
+        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {
-            "200": "List[DatasetData]",
-            "400": "ApiErrorResponse",
-            "401": "ApiErrorResponse",
-            "403": "ApiErrorResponse",
-            "404": "ApiErrorResponse",
+            '200': "List[DatasetData]",
+            '400': "ApiErrorResponse",
+            '401': "ApiErrorResponse",
+            '403': "ApiErrorResponse",
+            '404': "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            "/v1/datasets/{datasetId}/children",
-            "GET",
+            '/v1/datasets/{datasetId}/children', 'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -541,22 +485,15 @@ class DatasetsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get("async_req"),
-            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
-            _preload_content=_params.get("_preload_content", True),
-            _request_timeout=_params.get("_request_timeout"),
+            async_req=_params.get('async_req'),
+            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=_params.get('_preload_content', True),
+            _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
-            _request_auth=_params.get("_request_auth"),
-        )
+            _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_dataset_by_id(
-        self,
-        dataset_id: Annotated[
-            constr(strict=True), Field(..., description="ObjectId of the dataset")
-        ],
-        **kwargs
-    ) -> DatasetData:  # noqa: E501
+    def get_dataset_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> DatasetData:  # noqa: E501
         """get_dataset_by_id  # noqa: E501
 
         Get a specific dataset  # noqa: E501
@@ -579,21 +516,13 @@ class DatasetsApi(object):
                  returns the request thread.
         :rtype: DatasetData
         """
-        kwargs["_return_http_data_only"] = True
-        if "_preload_content" in kwargs:
-            raise ValueError(
-                "Error! Please call the get_dataset_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
-            )
+        kwargs['_return_http_data_only'] = True
+        if '_preload_content' in kwargs:
+            raise ValueError("Error! Please call the get_dataset_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
         return self.get_dataset_by_id_with_http_info(dataset_id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_dataset_by_id_with_http_info(
-        self,
-        dataset_id: Annotated[
-            constr(strict=True), Field(..., description="ObjectId of the dataset")
-        ],
-        **kwargs
-    ) -> ApiResponse:  # noqa: E501
+    def get_dataset_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> ApiResponse:  # noqa: E501
         """get_dataset_by_id  # noqa: E501
 
         Get a specific dataset  # noqa: E501
@@ -608,7 +537,7 @@ class DatasetsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the
+                                 be set to none and raw_data will store the 
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -632,64 +561,65 @@ class DatasetsApi(object):
 
         _params = locals()
 
-        _all_params = ["dataset_id"]
+        _all_params = [
+            'dataset_id'
+        ]
         _all_params.extend(
             [
-                "async_req",
-                "_return_http_data_only",
-                "_preload_content",
-                "_request_timeout",
-                "_request_auth",
-                "_content_type",
-                "_headers",
+                'async_req',
+                '_return_http_data_only',
+                '_preload_content',
+                '_request_timeout',
+                '_request_auth',
+                '_content_type',
+                '_headers'
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params["kwargs"].items():
+        for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_dataset_by_id" % _key
                 )
             _params[_key] = _val
-        del _params["kwargs"]
+        del _params['kwargs']
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params["dataset_id"]:
-            _path_params["datasetId"] = _params["dataset_id"]
+        if _params['dataset_id']:
+            _path_params['datasetId'] = _params['dataset_id']
+
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get("_headers", {}))
+        _header_params = dict(_params.get('_headers', {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params["Accept"] = self.api_client.select_header_accept(
-            ["application/json"]
-        )  # noqa: E501
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
 
         # authentication setting
-        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
+        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {
-            "200": "DatasetData",
-            "400": "ApiErrorResponse",
-            "401": "ApiErrorResponse",
-            "403": "ApiErrorResponse",
-            "404": "ApiErrorResponse",
+            '200': "DatasetData",
+            '400': "ApiErrorResponse",
+            '401': "ApiErrorResponse",
+            '403': "ApiErrorResponse",
+            '404': "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            "/v1/datasets/{datasetId}",
-            "GET",
+            '/v1/datasets/{datasetId}', 'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -698,46 +628,15 @@ class DatasetsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get("async_req"),
-            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
-            _preload_content=_params.get("_preload_content", True),
-            _request_timeout=_params.get("_request_timeout"),
+            async_req=_params.get('async_req'),
+            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=_params.get('_preload_content', True),
+            _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
-            _request_auth=_params.get("_request_auth"),
-        )
+            _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_datasets(
-        self,
-        shared: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if set, only returns the datasets which have been shared with the user"
-            ),
-        ] = None,
-        get_assets_of_team: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
-            ),
-        ] = None,
-        get_assets_of_team_inclusive_self: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
-            ),
-        ] = None,
-        page_size: Annotated[
-            Optional[conint(strict=True, ge=1)],
-            Field(
-                description="pagination size/limit of the number of samples to return"
-            ),
-        ] = None,
-        page_offset: Annotated[
-            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
-        ] = None,
-        **kwargs
-    ) -> List[DatasetData]:  # noqa: E501
+    def get_datasets(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetData]:  # noqa: E501
         """get_datasets  # noqa: E501
 
         Get all datasets for a user  # noqa: E501
@@ -768,52 +667,13 @@ class DatasetsApi(object):
                  returns the request thread.
         :rtype: List[DatasetData]
         """
-        kwargs["_return_http_data_only"] = True
-        if "_preload_content" in kwargs:
-            raise ValueError(
-                "Error! Please call the get_datasets_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
-            )
-        return self.get_datasets_with_http_info(
-            shared,
-            get_assets_of_team,
-            get_assets_of_team_inclusive_self,
-            page_size,
-            page_offset,
-            **kwargs
-        )  # noqa: E501
+        kwargs['_return_http_data_only'] = True
+        if '_preload_content' in kwargs:
+            raise ValueError("Error! Please call the get_datasets_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        return self.get_datasets_with_http_info(shared, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_datasets_with_http_info(
-        self,
-        shared: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if set, only returns the datasets which have been shared with the user"
-            ),
-        ] = None,
-        get_assets_of_team: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
-            ),
-        ] = None,
-        get_assets_of_team_inclusive_self: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
-            ),
-        ] = None,
-        page_size: Annotated[
-            Optional[conint(strict=True, ge=1)],
-            Field(
-                description="pagination size/limit of the number of samples to return"
-            ),
-        ] = None,
-        page_offset: Annotated[
-            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
-        ] = None,
-        **kwargs
-    ) -> ApiResponse:  # noqa: E501
+    def get_datasets_with_http_info(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_datasets  # noqa: E501
 
         Get all datasets for a user  # noqa: E501
@@ -836,7 +696,7 @@ class DatasetsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the
+                                 be set to none and raw_data will store the 
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -861,33 +721,33 @@ class DatasetsApi(object):
         _params = locals()
 
         _all_params = [
-            "shared",
-            "get_assets_of_team",
-            "get_assets_of_team_inclusive_self",
-            "page_size",
-            "page_offset",
+            'shared',
+            'get_assets_of_team',
+            'get_assets_of_team_inclusive_self',
+            'page_size',
+            'page_offset'
         ]
         _all_params.extend(
             [
-                "async_req",
-                "_return_http_data_only",
-                "_preload_content",
-                "_request_timeout",
-                "_request_auth",
-                "_content_type",
-                "_headers",
+                'async_req',
+                '_return_http_data_only',
+                '_preload_content',
+                '_request_timeout',
+                '_request_auth',
+                '_content_type',
+                '_headers'
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params["kwargs"].items():
+        for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_datasets" % _key
                 )
             _params[_key] = _val
-        del _params["kwargs"]
+        del _params['kwargs']
 
         _collection_formats = {}
 
@@ -896,82 +756,60 @@ class DatasetsApi(object):
 
         # process the query parameters
         _query_params = []
-        if _params.get("shared") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "shared",
-                    _params["shared"].value
-                    if hasattr(_params["shared"], "value")
-                    else _params["shared"],
-                )
-            )
+        if _params.get('shared') is not None:  # noqa: E501
+            _query_params.append((
+                'shared',
+                _params['shared'].value if hasattr(_params['shared'], 'value') else _params['shared']
+            ))
 
-        if _params.get("get_assets_of_team") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "getAssetsOfTeam",
-                    _params["get_assets_of_team"].value
-                    if hasattr(_params["get_assets_of_team"], "value")
-                    else _params["get_assets_of_team"],
-                )
-            )
+        if _params.get('get_assets_of_team') is not None:  # noqa: E501
+            _query_params.append((
+                'getAssetsOfTeam',
+                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
+            ))
 
-        if _params.get("get_assets_of_team_inclusive_self") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "getAssetsOfTeamInclusiveSelf",
-                    _params["get_assets_of_team_inclusive_self"].value
-                    if hasattr(_params["get_assets_of_team_inclusive_self"], "value")
-                    else _params["get_assets_of_team_inclusive_self"],
-                )
-            )
+        if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
+            _query_params.append((
+                'getAssetsOfTeamInclusiveSelf',
+                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
 
-        if _params.get("page_size") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "pageSize",
-                    _params["page_size"].value
-                    if hasattr(_params["page_size"], "value")
-                    else _params["page_size"],
-                )
-            )
+        if _params.get('page_size') is not None:  # noqa: E501
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
-        if _params.get("page_offset") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "pageOffset",
-                    _params["page_offset"].value
-                    if hasattr(_params["page_offset"], "value")
-                    else _params["page_offset"],
-                )
-            )
+        if _params.get('page_offset') is not None:  # noqa: E501
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
-        _header_params = dict(_params.get("_headers", {}))
+        _header_params = dict(_params.get('_headers', {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params["Accept"] = self.api_client.select_header_accept(
-            ["application/json"]
-        )  # noqa: E501
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
 
         # authentication setting
-        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
+        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {
-            "200": "List[DatasetData]",
-            "400": "ApiErrorResponse",
-            "401": "ApiErrorResponse",
-            "403": "ApiErrorResponse",
-            "404": "ApiErrorResponse",
+            '200': "List[DatasetData]",
+            '400': "ApiErrorResponse",
+            '401': "ApiErrorResponse",
+            '403': "ApiErrorResponse",
+            '404': "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            "/v1/datasets",
-            "GET",
+            '/v1/datasets', 'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -980,52 +818,15 @@ class DatasetsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get("async_req"),
-            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
-            _preload_content=_params.get("_preload_content", True),
-            _request_timeout=_params.get("_request_timeout"),
+            async_req=_params.get('async_req'),
+            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=_params.get('_preload_content', True),
+            _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
-            _request_auth=_params.get("_request_auth"),
-        )
+            _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_datasets_enriched(
-        self,
-        shared: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if set, only returns the datasets which have been shared with the user"
-            ),
-        ] = None,
-        limit: Annotated[
-            Optional[StrictInt],
-            Field(
-                description="DEPRECATED, use pageSize instead. if set, only returns the newest up until limit"
-            ),
-        ] = None,
-        get_assets_of_team: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
-            ),
-        ] = None,
-        get_assets_of_team_inclusive_self: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
-            ),
-        ] = None,
-        page_size: Annotated[
-            Optional[conint(strict=True, ge=1)],
-            Field(
-                description="pagination size/limit of the number of samples to return"
-            ),
-        ] = None,
-        page_offset: Annotated[
-            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
-        ] = None,
-        **kwargs
-    ) -> List[DatasetDataEnriched]:  # noqa: E501
+    def get_datasets_enriched(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, limit : Annotated[Optional[StrictInt], Field(description="DEPRECATED, use pageSize instead. if set, only returns the newest up until limit")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetDataEnriched]:  # noqa: E501
         """get_datasets_enriched  # noqa: E501
 
         Get all datasets for a user but enriched with additional information as nTags, nEmbeddings, samples  # noqa: E501
@@ -1058,59 +859,13 @@ class DatasetsApi(object):
                  returns the request thread.
         :rtype: List[DatasetDataEnriched]
         """
-        kwargs["_return_http_data_only"] = True
-        if "_preload_content" in kwargs:
-            raise ValueError(
-                "Error! Please call the get_datasets_enriched_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
-            )
-        return self.get_datasets_enriched_with_http_info(
-            shared,
-            limit,
-            get_assets_of_team,
-            get_assets_of_team_inclusive_self,
-            page_size,
-            page_offset,
-            **kwargs
-        )  # noqa: E501
+        kwargs['_return_http_data_only'] = True
+        if '_preload_content' in kwargs:
+            raise ValueError("Error! Please call the get_datasets_enriched_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        return self.get_datasets_enriched_with_http_info(shared, limit, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_datasets_enriched_with_http_info(
-        self,
-        shared: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if set, only returns the datasets which have been shared with the user"
-            ),
-        ] = None,
-        limit: Annotated[
-            Optional[StrictInt],
-            Field(
-                description="DEPRECATED, use pageSize instead. if set, only returns the newest up until limit"
-            ),
-        ] = None,
-        get_assets_of_team: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
-            ),
-        ] = None,
-        get_assets_of_team_inclusive_self: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
-            ),
-        ] = None,
-        page_size: Annotated[
-            Optional[conint(strict=True, ge=1)],
-            Field(
-                description="pagination size/limit of the number of samples to return"
-            ),
-        ] = None,
-        page_offset: Annotated[
-            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
-        ] = None,
-        **kwargs
-    ) -> ApiResponse:  # noqa: E501
+    def get_datasets_enriched_with_http_info(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, limit : Annotated[Optional[StrictInt], Field(description="DEPRECATED, use pageSize instead. if set, only returns the newest up until limit")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_datasets_enriched  # noqa: E501
 
         Get all datasets for a user but enriched with additional information as nTags, nEmbeddings, samples  # noqa: E501
@@ -1135,7 +890,7 @@ class DatasetsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the
+                                 be set to none and raw_data will store the 
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1160,34 +915,34 @@ class DatasetsApi(object):
         _params = locals()
 
         _all_params = [
-            "shared",
-            "limit",
-            "get_assets_of_team",
-            "get_assets_of_team_inclusive_self",
-            "page_size",
-            "page_offset",
+            'shared',
+            'limit',
+            'get_assets_of_team',
+            'get_assets_of_team_inclusive_self',
+            'page_size',
+            'page_offset'
         ]
         _all_params.extend(
             [
-                "async_req",
-                "_return_http_data_only",
-                "_preload_content",
-                "_request_timeout",
-                "_request_auth",
-                "_content_type",
-                "_headers",
+                'async_req',
+                '_return_http_data_only',
+                '_preload_content',
+                '_request_timeout',
+                '_request_auth',
+                '_content_type',
+                '_headers'
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params["kwargs"].items():
+        for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_datasets_enriched" % _key
                 )
             _params[_key] = _val
-        del _params["kwargs"]
+        del _params['kwargs']
 
         _collection_formats = {}
 
@@ -1196,92 +951,66 @@ class DatasetsApi(object):
 
         # process the query parameters
         _query_params = []
-        if _params.get("shared") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "shared",
-                    _params["shared"].value
-                    if hasattr(_params["shared"], "value")
-                    else _params["shared"],
-                )
-            )
+        if _params.get('shared') is not None:  # noqa: E501
+            _query_params.append((
+                'shared',
+                _params['shared'].value if hasattr(_params['shared'], 'value') else _params['shared']
+            ))
 
-        if _params.get("limit") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "limit",
-                    _params["limit"].value
-                    if hasattr(_params["limit"], "value")
-                    else _params["limit"],
-                )
-            )
+        if _params.get('limit') is not None:  # noqa: E501
+            _query_params.append((
+                'limit',
+                _params['limit'].value if hasattr(_params['limit'], 'value') else _params['limit']
+            ))
 
-        if _params.get("get_assets_of_team") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "getAssetsOfTeam",
-                    _params["get_assets_of_team"].value
-                    if hasattr(_params["get_assets_of_team"], "value")
-                    else _params["get_assets_of_team"],
-                )
-            )
+        if _params.get('get_assets_of_team') is not None:  # noqa: E501
+            _query_params.append((
+                'getAssetsOfTeam',
+                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
+            ))
 
-        if _params.get("get_assets_of_team_inclusive_self") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "getAssetsOfTeamInclusiveSelf",
-                    _params["get_assets_of_team_inclusive_self"].value
-                    if hasattr(_params["get_assets_of_team_inclusive_self"], "value")
-                    else _params["get_assets_of_team_inclusive_self"],
-                )
-            )
+        if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
+            _query_params.append((
+                'getAssetsOfTeamInclusiveSelf',
+                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
 
-        if _params.get("page_size") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "pageSize",
-                    _params["page_size"].value
-                    if hasattr(_params["page_size"], "value")
-                    else _params["page_size"],
-                )
-            )
+        if _params.get('page_size') is not None:  # noqa: E501
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
-        if _params.get("page_offset") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "pageOffset",
-                    _params["page_offset"].value
-                    if hasattr(_params["page_offset"], "value")
-                    else _params["page_offset"],
-                )
-            )
+        if _params.get('page_offset') is not None:  # noqa: E501
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
-        _header_params = dict(_params.get("_headers", {}))
+        _header_params = dict(_params.get('_headers', {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params["Accept"] = self.api_client.select_header_accept(
-            ["application/json"]
-        )  # noqa: E501
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
 
         # authentication setting
-        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
+        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {
-            "200": "List[DatasetDataEnriched]",
-            "400": "ApiErrorResponse",
-            "401": "ApiErrorResponse",
-            "403": "ApiErrorResponse",
-            "404": "ApiErrorResponse",
+            '200': "List[DatasetDataEnriched]",
+            '400': "ApiErrorResponse",
+            '401': "ApiErrorResponse",
+            '403': "ApiErrorResponse",
+            '404': "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            "/v1/datasets/enriched",
-            "GET",
+            '/v1/datasets/enriched', 'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -1290,53 +1019,15 @@ class DatasetsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get("async_req"),
-            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
-            _preload_content=_params.get("_preload_content", True),
-            _request_timeout=_params.get("_request_timeout"),
+            async_req=_params.get('async_req'),
+            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=_params.get('_preload_content', True),
+            _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
-            _request_auth=_params.get("_request_auth"),
-        )
+            _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_datasets_enriched_query_by_name(
-        self,
-        dataset_name: constr(strict=True, min_length=1),
-        shared: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if set, only returns the datasets which have been shared with the user"
-            ),
-        ] = None,
-        exact: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if set, only returns the datasets which match the name exactly (not just by prefix)"
-            ),
-        ] = None,
-        get_assets_of_team: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
-            ),
-        ] = None,
-        get_assets_of_team_inclusive_self: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
-            ),
-        ] = None,
-        page_size: Annotated[
-            Optional[conint(strict=True, ge=1)],
-            Field(
-                description="pagination size/limit of the number of samples to return"
-            ),
-        ] = None,
-        page_offset: Annotated[
-            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
-        ] = None,
-        **kwargs
-    ) -> List[DatasetDataEnriched]:  # noqa: E501
+    def get_datasets_enriched_query_by_name(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetDataEnriched]:  # noqa: E501
         """get_datasets_enriched_query_by_name  # noqa: E501
 
         Query for datasets  enriched with additional information by their name prefix unless exact flag is set  # noqa: E501
@@ -1371,61 +1062,13 @@ class DatasetsApi(object):
                  returns the request thread.
         :rtype: List[DatasetDataEnriched]
         """
-        kwargs["_return_http_data_only"] = True
-        if "_preload_content" in kwargs:
-            raise ValueError(
-                "Error! Please call the get_datasets_enriched_query_by_name_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
-            )
-        return self.get_datasets_enriched_query_by_name_with_http_info(
-            dataset_name,
-            shared,
-            exact,
-            get_assets_of_team,
-            get_assets_of_team_inclusive_self,
-            page_size,
-            page_offset,
-            **kwargs
-        )  # noqa: E501
+        kwargs['_return_http_data_only'] = True
+        if '_preload_content' in kwargs:
+            raise ValueError("Error! Please call the get_datasets_enriched_query_by_name_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        return self.get_datasets_enriched_query_by_name_with_http_info(dataset_name, shared, exact, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_datasets_enriched_query_by_name_with_http_info(
-        self,
-        dataset_name: constr(strict=True, min_length=1),
-        shared: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if set, only returns the datasets which have been shared with the user"
-            ),
-        ] = None,
-        exact: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if set, only returns the datasets which match the name exactly (not just by prefix)"
-            ),
-        ] = None,
-        get_assets_of_team: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
-            ),
-        ] = None,
-        get_assets_of_team_inclusive_self: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
-            ),
-        ] = None,
-        page_size: Annotated[
-            Optional[conint(strict=True, ge=1)],
-            Field(
-                description="pagination size/limit of the number of samples to return"
-            ),
-        ] = None,
-        page_offset: Annotated[
-            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
-        ] = None,
-        **kwargs
-    ) -> ApiResponse:  # noqa: E501
+    def get_datasets_enriched_query_by_name_with_http_info(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_datasets_enriched_query_by_name  # noqa: E501
 
         Query for datasets  enriched with additional information by their name prefix unless exact flag is set  # noqa: E501
@@ -1452,7 +1095,7 @@ class DatasetsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the
+                                 be set to none and raw_data will store the 
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1477,131 +1120,106 @@ class DatasetsApi(object):
         _params = locals()
 
         _all_params = [
-            "dataset_name",
-            "shared",
-            "exact",
-            "get_assets_of_team",
-            "get_assets_of_team_inclusive_self",
-            "page_size",
-            "page_offset",
+            'dataset_name',
+            'shared',
+            'exact',
+            'get_assets_of_team',
+            'get_assets_of_team_inclusive_self',
+            'page_size',
+            'page_offset'
         ]
         _all_params.extend(
             [
-                "async_req",
-                "_return_http_data_only",
-                "_preload_content",
-                "_request_timeout",
-                "_request_auth",
-                "_content_type",
-                "_headers",
+                'async_req',
+                '_return_http_data_only',
+                '_preload_content',
+                '_request_timeout',
+                '_request_auth',
+                '_content_type',
+                '_headers'
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params["kwargs"].items():
+        for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_datasets_enriched_query_by_name" % _key
                 )
             _params[_key] = _val
-        del _params["kwargs"]
+        del _params['kwargs']
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params["dataset_name"]:
-            _path_params["datasetName"] = _params["dataset_name"]
+        if _params['dataset_name']:
+            _path_params['datasetName'] = _params['dataset_name']
+
 
         # process the query parameters
         _query_params = []
-        if _params.get("shared") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "shared",
-                    _params["shared"].value
-                    if hasattr(_params["shared"], "value")
-                    else _params["shared"],
-                )
-            )
+        if _params.get('shared') is not None:  # noqa: E501
+            _query_params.append((
+                'shared',
+                _params['shared'].value if hasattr(_params['shared'], 'value') else _params['shared']
+            ))
 
-        if _params.get("exact") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "exact",
-                    _params["exact"].value
-                    if hasattr(_params["exact"], "value")
-                    else _params["exact"],
-                )
-            )
+        if _params.get('exact') is not None:  # noqa: E501
+            _query_params.append((
+                'exact',
+                _params['exact'].value if hasattr(_params['exact'], 'value') else _params['exact']
+            ))
 
-        if _params.get("get_assets_of_team") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "getAssetsOfTeam",
-                    _params["get_assets_of_team"].value
-                    if hasattr(_params["get_assets_of_team"], "value")
-                    else _params["get_assets_of_team"],
-                )
-            )
+        if _params.get('get_assets_of_team') is not None:  # noqa: E501
+            _query_params.append((
+                'getAssetsOfTeam',
+                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
+            ))
 
-        if _params.get("get_assets_of_team_inclusive_self") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "getAssetsOfTeamInclusiveSelf",
-                    _params["get_assets_of_team_inclusive_self"].value
-                    if hasattr(_params["get_assets_of_team_inclusive_self"], "value")
-                    else _params["get_assets_of_team_inclusive_self"],
-                )
-            )
+        if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
+            _query_params.append((
+                'getAssetsOfTeamInclusiveSelf',
+                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
 
-        if _params.get("page_size") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "pageSize",
-                    _params["page_size"].value
-                    if hasattr(_params["page_size"], "value")
-                    else _params["page_size"],
-                )
-            )
+        if _params.get('page_size') is not None:  # noqa: E501
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
-        if _params.get("page_offset") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "pageOffset",
-                    _params["page_offset"].value
-                    if hasattr(_params["page_offset"], "value")
-                    else _params["page_offset"],
-                )
-            )
+        if _params.get('page_offset') is not None:  # noqa: E501
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
-        _header_params = dict(_params.get("_headers", {}))
+        _header_params = dict(_params.get('_headers', {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params["Accept"] = self.api_client.select_header_accept(
-            ["application/json"]
-        )  # noqa: E501
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
 
         # authentication setting
-        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
+        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {
-            "200": "List[DatasetDataEnriched]",
-            "400": "ApiErrorResponse",
-            "401": "ApiErrorResponse",
-            "403": "ApiErrorResponse",
-            "404": "ApiErrorResponse",
+            '200': "List[DatasetDataEnriched]",
+            '400': "ApiErrorResponse",
+            '401': "ApiErrorResponse",
+            '403': "ApiErrorResponse",
+            '404': "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            "/v1/datasets/enriched/query/name/{datasetName}",
-            "GET",
+            '/v1/datasets/enriched/query/name/{datasetName}', 'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -1610,53 +1228,15 @@ class DatasetsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get("async_req"),
-            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
-            _preload_content=_params.get("_preload_content", True),
-            _request_timeout=_params.get("_request_timeout"),
+            async_req=_params.get('async_req'),
+            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=_params.get('_preload_content', True),
+            _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
-            _request_auth=_params.get("_request_auth"),
-        )
+            _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_datasets_query_by_name(
-        self,
-        dataset_name: constr(strict=True, min_length=1),
-        shared: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if set, only returns the datasets which have been shared with the user"
-            ),
-        ] = None,
-        exact: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if set, only returns the datasets which match the name exactly (not just by prefix)"
-            ),
-        ] = None,
-        get_assets_of_team: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
-            ),
-        ] = None,
-        get_assets_of_team_inclusive_self: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
-            ),
-        ] = None,
-        page_size: Annotated[
-            Optional[conint(strict=True, ge=1)],
-            Field(
-                description="pagination size/limit of the number of samples to return"
-            ),
-        ] = None,
-        page_offset: Annotated[
-            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
-        ] = None,
-        **kwargs
-    ) -> List[DatasetData]:  # noqa: E501
+    def get_datasets_query_by_name(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetData]:  # noqa: E501
         """get_datasets_query_by_name  # noqa: E501
 
         Query for datasets by their name prefix unless exact flag is set  # noqa: E501
@@ -1691,61 +1271,13 @@ class DatasetsApi(object):
                  returns the request thread.
         :rtype: List[DatasetData]
         """
-        kwargs["_return_http_data_only"] = True
-        if "_preload_content" in kwargs:
-            raise ValueError(
-                "Error! Please call the get_datasets_query_by_name_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
-            )
-        return self.get_datasets_query_by_name_with_http_info(
-            dataset_name,
-            shared,
-            exact,
-            get_assets_of_team,
-            get_assets_of_team_inclusive_self,
-            page_size,
-            page_offset,
-            **kwargs
-        )  # noqa: E501
+        kwargs['_return_http_data_only'] = True
+        if '_preload_content' in kwargs:
+            raise ValueError("Error! Please call the get_datasets_query_by_name_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        return self.get_datasets_query_by_name_with_http_info(dataset_name, shared, exact, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_datasets_query_by_name_with_http_info(
-        self,
-        dataset_name: constr(strict=True, min_length=1),
-        shared: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if set, only returns the datasets which have been shared with the user"
-            ),
-        ] = None,
-        exact: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if set, only returns the datasets which match the name exactly (not just by prefix)"
-            ),
-        ] = None,
-        get_assets_of_team: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
-            ),
-        ] = None,
-        get_assets_of_team_inclusive_self: Annotated[
-            Optional[StrictBool],
-            Field(
-                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
-            ),
-        ] = None,
-        page_size: Annotated[
-            Optional[conint(strict=True, ge=1)],
-            Field(
-                description="pagination size/limit of the number of samples to return"
-            ),
-        ] = None,
-        page_offset: Annotated[
-            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
-        ] = None,
-        **kwargs
-    ) -> ApiResponse:  # noqa: E501
+    def get_datasets_query_by_name_with_http_info(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_datasets_query_by_name  # noqa: E501
 
         Query for datasets by their name prefix unless exact flag is set  # noqa: E501
@@ -1772,7 +1304,7 @@ class DatasetsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the
+                                 be set to none and raw_data will store the 
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1797,131 +1329,106 @@ class DatasetsApi(object):
         _params = locals()
 
         _all_params = [
-            "dataset_name",
-            "shared",
-            "exact",
-            "get_assets_of_team",
-            "get_assets_of_team_inclusive_self",
-            "page_size",
-            "page_offset",
+            'dataset_name',
+            'shared',
+            'exact',
+            'get_assets_of_team',
+            'get_assets_of_team_inclusive_self',
+            'page_size',
+            'page_offset'
         ]
         _all_params.extend(
             [
-                "async_req",
-                "_return_http_data_only",
-                "_preload_content",
-                "_request_timeout",
-                "_request_auth",
-                "_content_type",
-                "_headers",
+                'async_req',
+                '_return_http_data_only',
+                '_preload_content',
+                '_request_timeout',
+                '_request_auth',
+                '_content_type',
+                '_headers'
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params["kwargs"].items():
+        for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_datasets_query_by_name" % _key
                 )
             _params[_key] = _val
-        del _params["kwargs"]
+        del _params['kwargs']
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params["dataset_name"]:
-            _path_params["datasetName"] = _params["dataset_name"]
+        if _params['dataset_name']:
+            _path_params['datasetName'] = _params['dataset_name']
+
 
         # process the query parameters
         _query_params = []
-        if _params.get("shared") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "shared",
-                    _params["shared"].value
-                    if hasattr(_params["shared"], "value")
-                    else _params["shared"],
-                )
-            )
+        if _params.get('shared') is not None:  # noqa: E501
+            _query_params.append((
+                'shared',
+                _params['shared'].value if hasattr(_params['shared'], 'value') else _params['shared']
+            ))
 
-        if _params.get("exact") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "exact",
-                    _params["exact"].value
-                    if hasattr(_params["exact"], "value")
-                    else _params["exact"],
-                )
-            )
+        if _params.get('exact') is not None:  # noqa: E501
+            _query_params.append((
+                'exact',
+                _params['exact'].value if hasattr(_params['exact'], 'value') else _params['exact']
+            ))
 
-        if _params.get("get_assets_of_team") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "getAssetsOfTeam",
-                    _params["get_assets_of_team"].value
-                    if hasattr(_params["get_assets_of_team"], "value")
-                    else _params["get_assets_of_team"],
-                )
-            )
+        if _params.get('get_assets_of_team') is not None:  # noqa: E501
+            _query_params.append((
+                'getAssetsOfTeam',
+                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
+            ))
 
-        if _params.get("get_assets_of_team_inclusive_self") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "getAssetsOfTeamInclusiveSelf",
-                    _params["get_assets_of_team_inclusive_self"].value
-                    if hasattr(_params["get_assets_of_team_inclusive_self"], "value")
-                    else _params["get_assets_of_team_inclusive_self"],
-                )
-            )
+        if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
+            _query_params.append((
+                'getAssetsOfTeamInclusiveSelf',
+                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
 
-        if _params.get("page_size") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "pageSize",
-                    _params["page_size"].value
-                    if hasattr(_params["page_size"], "value")
-                    else _params["page_size"],
-                )
-            )
+        if _params.get('page_size') is not None:  # noqa: E501
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
 
-        if _params.get("page_offset") is not None:  # noqa: E501
-            _query_params.append(
-                (
-                    "pageOffset",
-                    _params["page_offset"].value
-                    if hasattr(_params["page_offset"], "value")
-                    else _params["page_offset"],
-                )
-            )
+        if _params.get('page_offset') is not None:  # noqa: E501
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
 
         # process the header parameters
-        _header_params = dict(_params.get("_headers", {}))
+        _header_params = dict(_params.get('_headers', {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params["Accept"] = self.api_client.select_header_accept(
-            ["application/json"]
-        )  # noqa: E501
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
 
         # authentication setting
-        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
+        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {
-            "200": "List[DatasetData]",
-            "400": "ApiErrorResponse",
-            "401": "ApiErrorResponse",
-            "403": "ApiErrorResponse",
-            "404": "ApiErrorResponse",
+            '200': "List[DatasetData]",
+            '400': "ApiErrorResponse",
+            '401': "ApiErrorResponse",
+            '403': "ApiErrorResponse",
+            '404': "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            "/v1/datasets/query/name/{datasetName}",
-            "GET",
+            '/v1/datasets/query/name/{datasetName}', 'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -1930,23 +1437,15 @@ class DatasetsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get("async_req"),
-            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
-            _preload_content=_params.get("_preload_content", True),
-            _request_timeout=_params.get("_request_timeout"),
+            async_req=_params.get('async_req'),
+            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=_params.get('_preload_content', True),
+            _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
-            _request_auth=_params.get("_request_auth"),
-        )
+            _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def register_dataset_upload_by_id(
-        self,
-        dataset_id: Annotated[
-            constr(strict=True), Field(..., description="ObjectId of the dataset")
-        ],
-        job_status_meta: JobStatusMeta,
-        **kwargs
-    ) -> None:  # noqa: E501
+    def register_dataset_upload_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], job_status_meta : JobStatusMeta, **kwargs) -> None:  # noqa: E501
         """register_dataset_upload_by_id  # noqa: E501
 
         Registers a job to track the dataset upload  # noqa: E501
@@ -1971,24 +1470,13 @@ class DatasetsApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs["_return_http_data_only"] = True
-        if "_preload_content" in kwargs:
-            raise ValueError(
-                "Error! Please call the register_dataset_upload_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
-            )
-        return self.register_dataset_upload_by_id_with_http_info(
-            dataset_id, job_status_meta, **kwargs
-        )  # noqa: E501
+        kwargs['_return_http_data_only'] = True
+        if '_preload_content' in kwargs:
+            raise ValueError("Error! Please call the register_dataset_upload_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        return self.register_dataset_upload_by_id_with_http_info(dataset_id, job_status_meta, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def register_dataset_upload_by_id_with_http_info(
-        self,
-        dataset_id: Annotated[
-            constr(strict=True), Field(..., description="ObjectId of the dataset")
-        ],
-        job_status_meta: JobStatusMeta,
-        **kwargs
-    ) -> ApiResponse:  # noqa: E501
+    def register_dataset_upload_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], job_status_meta : JobStatusMeta, **kwargs) -> ApiResponse:  # noqa: E501
         """register_dataset_upload_by_id  # noqa: E501
 
         Registers a job to track the dataset upload  # noqa: E501
@@ -2005,7 +1493,7 @@ class DatasetsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the
+                                 be set to none and raw_data will store the 
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -2029,69 +1517,70 @@ class DatasetsApi(object):
 
         _params = locals()
 
-        _all_params = ["dataset_id", "job_status_meta"]
+        _all_params = [
+            'dataset_id',
+            'job_status_meta'
+        ]
         _all_params.extend(
             [
-                "async_req",
-                "_return_http_data_only",
-                "_preload_content",
-                "_request_timeout",
-                "_request_auth",
-                "_content_type",
-                "_headers",
+                'async_req',
+                '_return_http_data_only',
+                '_preload_content',
+                '_request_timeout',
+                '_request_auth',
+                '_content_type',
+                '_headers'
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params["kwargs"].items():
+        for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method register_dataset_upload_by_id" % _key
                 )
             _params[_key] = _val
-        del _params["kwargs"]
+        del _params['kwargs']
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params["dataset_id"]:
-            _path_params["datasetId"] = _params["dataset_id"]
+        if _params['dataset_id']:
+            _path_params['datasetId'] = _params['dataset_id']
+
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get("_headers", {}))
+        _header_params = dict(_params.get('_headers', {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params["job_status_meta"] is not None:
-            _body_params = _params["job_status_meta"]
+        if _params['job_status_meta'] is not None:
+            _body_params = _params['job_status_meta']
 
         # set the HTTP header `Accept`
-        _header_params["Accept"] = self.api_client.select_header_accept(
-            ["application/json"]
-        )  # noqa: E501
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get(
-            "_content_type",
-            self.api_client.select_header_content_type(["application/json"]),
-        )
+        _content_types_list = _params.get('_content_type',
+            self.api_client.select_header_content_type(
+                ['application/json']))
         if _content_types_list:
-            _header_params["Content-Type"] = _content_types_list
+                _header_params['Content-Type'] = _content_types_list
 
         # authentication setting
-        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
+        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            "/v1/datasets/{datasetId}/registerDatasetUpload",
-            "PUT",
+            '/v1/datasets/{datasetId}/registerDatasetUpload', 'PUT',
             _path_params,
             _query_params,
             _header_params,
@@ -2100,25 +1589,15 @@ class DatasetsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get("async_req"),
-            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
-            _preload_content=_params.get("_preload_content", True),
-            _request_timeout=_params.get("_request_timeout"),
+            async_req=_params.get('async_req'),
+            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=_params.get('_preload_content', True),
+            _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
-            _request_auth=_params.get("_request_auth"),
-        )
+            _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def update_dataset_by_id(
-        self,
-        dataset_id: Annotated[
-            constr(strict=True), Field(..., description="ObjectId of the dataset")
-        ],
-        dataset_update_request: Annotated[
-            DatasetUpdateRequest, Field(..., description="updated data for dataset")
-        ],
-        **kwargs
-    ) -> None:  # noqa: E501
+    def update_dataset_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], dataset_update_request : Annotated[DatasetUpdateRequest, Field(..., description="updated data for dataset")], **kwargs) -> None:  # noqa: E501
         """update_dataset_by_id  # noqa: E501
 
         Update a specific dataset  # noqa: E501
@@ -2143,26 +1622,13 @@ class DatasetsApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs["_return_http_data_only"] = True
-        if "_preload_content" in kwargs:
-            raise ValueError(
-                "Error! Please call the update_dataset_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
-            )
-        return self.update_dataset_by_id_with_http_info(
-            dataset_id, dataset_update_request, **kwargs
-        )  # noqa: E501
+        kwargs['_return_http_data_only'] = True
+        if '_preload_content' in kwargs:
+            raise ValueError("Error! Please call the update_dataset_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        return self.update_dataset_by_id_with_http_info(dataset_id, dataset_update_request, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def update_dataset_by_id_with_http_info(
-        self,
-        dataset_id: Annotated[
-            constr(strict=True), Field(..., description="ObjectId of the dataset")
-        ],
-        dataset_update_request: Annotated[
-            DatasetUpdateRequest, Field(..., description="updated data for dataset")
-        ],
-        **kwargs
-    ) -> ApiResponse:  # noqa: E501
+    def update_dataset_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], dataset_update_request : Annotated[DatasetUpdateRequest, Field(..., description="updated data for dataset")], **kwargs) -> ApiResponse:  # noqa: E501
         """update_dataset_by_id  # noqa: E501
 
         Update a specific dataset  # noqa: E501
@@ -2179,7 +1645,7 @@ class DatasetsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the
+                                 be set to none and raw_data will store the 
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -2203,69 +1669,70 @@ class DatasetsApi(object):
 
         _params = locals()
 
-        _all_params = ["dataset_id", "dataset_update_request"]
+        _all_params = [
+            'dataset_id',
+            'dataset_update_request'
+        ]
         _all_params.extend(
             [
-                "async_req",
-                "_return_http_data_only",
-                "_preload_content",
-                "_request_timeout",
-                "_request_auth",
-                "_content_type",
-                "_headers",
+                'async_req',
+                '_return_http_data_only',
+                '_preload_content',
+                '_request_timeout',
+                '_request_auth',
+                '_content_type',
+                '_headers'
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params["kwargs"].items():
+        for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method update_dataset_by_id" % _key
                 )
             _params[_key] = _val
-        del _params["kwargs"]
+        del _params['kwargs']
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params["dataset_id"]:
-            _path_params["datasetId"] = _params["dataset_id"]
+        if _params['dataset_id']:
+            _path_params['datasetId'] = _params['dataset_id']
+
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get("_headers", {}))
+        _header_params = dict(_params.get('_headers', {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params["dataset_update_request"] is not None:
-            _body_params = _params["dataset_update_request"]
+        if _params['dataset_update_request'] is not None:
+            _body_params = _params['dataset_update_request']
 
         # set the HTTP header `Accept`
-        _header_params["Accept"] = self.api_client.select_header_accept(
-            ["application/json"]
-        )  # noqa: E501
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get(
-            "_content_type",
-            self.api_client.select_header_content_type(["application/json"]),
-        )
+        _content_types_list = _params.get('_content_type',
+            self.api_client.select_header_content_type(
+                ['application/json']))
         if _content_types_list:
-            _header_params["Content-Type"] = _content_types_list
+                _header_params['Content-Type'] = _content_types_list
 
         # authentication setting
-        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
+        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            "/v1/datasets/{datasetId}",
-            "PUT",
+            '/v1/datasets/{datasetId}', 'PUT',
             _path_params,
             _query_params,
             _header_params,
@@ -2274,10 +1741,9 @@ class DatasetsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get("async_req"),
-            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
-            _preload_content=_params.get("_preload_content", True),
-            _request_timeout=_params.get("_request_timeout"),
+            async_req=_params.get('async_req'),
+            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=_params.get('_preload_content', True),
+            _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
-            _request_auth=_params.get("_request_auth"),
-        )
+            _request_auth=_params.get('_request_auth'))

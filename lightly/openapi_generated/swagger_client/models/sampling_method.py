@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class SamplingMethod(str, Enum):
     """
     SamplingMethod
@@ -28,12 +31,14 @@ class SamplingMethod(str, Enum):
     """
     allowed enum values
     """
-    ACTIVE_LEARNING = "ACTIVE_LEARNING"
-    CORAL = "CORAL"
-    CORESET = "CORESET"
-    RANDOM = "RANDOM"
+    ACTIVE_LEARNING = 'ACTIVE_LEARNING'
+    CORAL = 'CORAL'
+    CORESET = 'CORESET'
+    RANDOM = 'RANDOM'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "SamplingMethod":
+    def from_json(cls, json_str: str) -> 'SamplingMethod':
         """Create an instance of SamplingMethod from a JSON string"""
         return SamplingMethod(json.loads(json_str))
+
+

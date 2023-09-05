@@ -19,14 +19,13 @@ import re  # noqa: F401
 import json
 
 
-from pydantic import Extra, BaseModel, Field, StrictStr
 
+from pydantic import Extra,  BaseModel, Field, StrictStr
 
 class TagChangeDataArithmetics(BaseModel):
     """
     TagChangeDataArithmetics
     """
-
     operation: StrictStr = Field(...)
     tag1: StrictStr = Field(...)
     tag2: StrictStr = Field(...)
@@ -34,7 +33,6 @@ class TagChangeDataArithmetics(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -55,7 +53,10 @@ class TagChangeDataArithmetics(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -70,16 +71,12 @@ class TagChangeDataArithmetics(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in TagChangeDataArithmetics) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in TagChangeDataArithmetics) in the input: " + str(obj))
 
-        _obj = TagChangeDataArithmetics.parse_obj(
-            {
-                "operation": obj.get("operation"),
-                "tag1": obj.get("tag1"),
-                "tag2": obj.get("tag2"),
-            }
-        )
+        _obj = TagChangeDataArithmetics.parse_obj({
+            "operation": obj.get("operation"),
+            "tag1": obj.get("tag1"),
+            "tag2": obj.get("tag2")
+        })
         return _obj
+

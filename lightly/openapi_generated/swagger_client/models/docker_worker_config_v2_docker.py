@@ -20,77 +20,36 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra, BaseModel, Field, StrictBool, StrictStr, conint
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_docker_object_level import (
-    DockerWorkerConfigV2DockerObjectLevel,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_docker_stopping_condition import (
-    DockerWorkerConfigV2DockerStoppingCondition,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker_corruptness_check import (
-    DockerWorkerConfigV3DockerCorruptnessCheck,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker_datasource import (
-    DockerWorkerConfigV3DockerDatasource,
-)
-from lightly.openapi_generated.swagger_client.models.lightly_docker_selection_method import (
-    LightlyDockerSelectionMethod,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictBool, StrictStr, conint
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_docker_object_level import DockerWorkerConfigV2DockerObjectLevel
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_docker_stopping_condition import DockerWorkerConfigV2DockerStoppingCondition
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker_corruptness_check import DockerWorkerConfigV3DockerCorruptnessCheck
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker_datasource import DockerWorkerConfigV3DockerDatasource
+from lightly.openapi_generated.swagger_client.models.lightly_docker_selection_method import LightlyDockerSelectionMethod
 
 class DockerWorkerConfigV2Docker(BaseModel):
     """
-    docker run configurations, keys should match the structure of https://github.com/lightly-ai/lightly-core/blob/develop/onprem-docker/lightly_worker/src/lightly_worker/resources/docker/docker.yaml
+    docker run configurations, keys should match the structure of https://github.com/lightly-ai/lightly-core/blob/develop/onprem-docker/lightly_worker/src/lightly_worker/resources/docker/docker.yaml 
     """
-
     checkpoint: Optional[StrictStr] = None
-    corruptness_check: Optional[DockerWorkerConfigV3DockerCorruptnessCheck] = Field(
-        None, alias="corruptnessCheck"
-    )
+    corruptness_check: Optional[DockerWorkerConfigV3DockerCorruptnessCheck] = Field(None, alias="corruptnessCheck")
     datasource: Optional[DockerWorkerConfigV3DockerDatasource] = None
     embeddings: Optional[StrictStr] = None
     enable_training: Optional[StrictBool] = Field(None, alias="enableTraining")
     method: Optional[LightlyDockerSelectionMethod] = None
-    normalize_embeddings: Optional[StrictBool] = Field(
-        None, alias="normalizeEmbeddings"
-    )
+    normalize_embeddings: Optional[StrictBool] = Field(None, alias="normalizeEmbeddings")
     output_image_format: Optional[StrictStr] = Field(None, alias="outputImageFormat")
-    object_level: Optional[DockerWorkerConfigV2DockerObjectLevel] = Field(
-        None, alias="objectLevel"
-    )
+    object_level: Optional[DockerWorkerConfigV2DockerObjectLevel] = Field(None, alias="objectLevel")
     pretagging: Optional[StrictBool] = None
     pretagging_upload: Optional[StrictBool] = Field(None, alias="pretaggingUpload")
-    relevant_filenames_file: Optional[StrictStr] = Field(
-        None, alias="relevantFilenamesFile"
-    )
-    selected_sequence_length: Optional[conint(strict=True, ge=1)] = Field(
-        None, alias="selectedSequenceLength"
-    )
-    stopping_condition: Optional[DockerWorkerConfigV2DockerStoppingCondition] = Field(
-        None, alias="stoppingCondition"
-    )
+    relevant_filenames_file: Optional[StrictStr] = Field(None, alias="relevantFilenamesFile")
+    selected_sequence_length: Optional[conint(strict=True, ge=1)] = Field(None, alias="selectedSequenceLength")
+    stopping_condition: Optional[DockerWorkerConfigV2DockerStoppingCondition] = Field(None, alias="stoppingCondition")
     upload_report: Optional[StrictBool] = Field(None, alias="uploadReport")
-    __properties = [
-        "checkpoint",
-        "corruptnessCheck",
-        "datasource",
-        "embeddings",
-        "enableTraining",
-        "method",
-        "normalizeEmbeddings",
-        "outputImageFormat",
-        "objectLevel",
-        "pretagging",
-        "pretaggingUpload",
-        "relevantFilenamesFile",
-        "selectedSequenceLength",
-        "stoppingCondition",
-        "uploadReport",
-    ]
+    __properties = ["checkpoint", "corruptnessCheck", "datasource", "embeddings", "enableTraining", "method", "normalizeEmbeddings", "outputImageFormat", "objectLevel", "pretagging", "pretaggingUpload", "relevantFilenamesFile", "selectedSequenceLength", "stoppingCondition", "uploadReport"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -111,27 +70,22 @@ class DockerWorkerConfigV2Docker(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of corruptness_check
         if self.corruptness_check:
-            _dict[
-                "corruptnessCheck" if by_alias else "corruptness_check"
-            ] = self.corruptness_check.to_dict(by_alias=by_alias)
+            _dict['corruptnessCheck' if by_alias else 'corruptness_check'] = self.corruptness_check.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of datasource
         if self.datasource:
-            _dict["datasource" if by_alias else "datasource"] = self.datasource.to_dict(
-                by_alias=by_alias
-            )
+            _dict['datasource' if by_alias else 'datasource'] = self.datasource.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of object_level
         if self.object_level:
-            _dict[
-                "objectLevel" if by_alias else "object_level"
-            ] = self.object_level.to_dict(by_alias=by_alias)
+            _dict['objectLevel' if by_alias else 'object_level'] = self.object_level.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of stopping_condition
         if self.stopping_condition:
-            _dict[
-                "stoppingCondition" if by_alias else "stopping_condition"
-            ] = self.stopping_condition.to_dict(by_alias=by_alias)
+            _dict['stoppingCondition' if by_alias else 'stopping_condition'] = self.stopping_condition.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -146,44 +100,24 @@ class DockerWorkerConfigV2Docker(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DockerWorkerConfigV2Docker) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV2Docker) in the input: " + str(obj))
 
-        _obj = DockerWorkerConfigV2Docker.parse_obj(
-            {
-                "checkpoint": obj.get("checkpoint"),
-                "corruptness_check": DockerWorkerConfigV3DockerCorruptnessCheck.from_dict(
-                    obj.get("corruptnessCheck")
-                )
-                if obj.get("corruptnessCheck") is not None
-                else None,
-                "datasource": DockerWorkerConfigV3DockerDatasource.from_dict(
-                    obj.get("datasource")
-                )
-                if obj.get("datasource") is not None
-                else None,
-                "embeddings": obj.get("embeddings"),
-                "enable_training": obj.get("enableTraining"),
-                "method": obj.get("method"),
-                "normalize_embeddings": obj.get("normalizeEmbeddings"),
-                "output_image_format": obj.get("outputImageFormat"),
-                "object_level": DockerWorkerConfigV2DockerObjectLevel.from_dict(
-                    obj.get("objectLevel")
-                )
-                if obj.get("objectLevel") is not None
-                else None,
-                "pretagging": obj.get("pretagging"),
-                "pretagging_upload": obj.get("pretaggingUpload"),
-                "relevant_filenames_file": obj.get("relevantFilenamesFile"),
-                "selected_sequence_length": obj.get("selectedSequenceLength"),
-                "stopping_condition": DockerWorkerConfigV2DockerStoppingCondition.from_dict(
-                    obj.get("stoppingCondition")
-                )
-                if obj.get("stoppingCondition") is not None
-                else None,
-                "upload_report": obj.get("uploadReport"),
-            }
-        )
+        _obj = DockerWorkerConfigV2Docker.parse_obj({
+            "checkpoint": obj.get("checkpoint"),
+            "corruptness_check": DockerWorkerConfigV3DockerCorruptnessCheck.from_dict(obj.get("corruptnessCheck")) if obj.get("corruptnessCheck") is not None else None,
+            "datasource": DockerWorkerConfigV3DockerDatasource.from_dict(obj.get("datasource")) if obj.get("datasource") is not None else None,
+            "embeddings": obj.get("embeddings"),
+            "enable_training": obj.get("enableTraining"),
+            "method": obj.get("method"),
+            "normalize_embeddings": obj.get("normalizeEmbeddings"),
+            "output_image_format": obj.get("outputImageFormat"),
+            "object_level": DockerWorkerConfigV2DockerObjectLevel.from_dict(obj.get("objectLevel")) if obj.get("objectLevel") is not None else None,
+            "pretagging": obj.get("pretagging"),
+            "pretagging_upload": obj.get("pretaggingUpload"),
+            "relevant_filenames_file": obj.get("relevantFilenamesFile"),
+            "selected_sequence_length": obj.get("selectedSequenceLength"),
+            "stopping_condition": DockerWorkerConfigV2DockerStoppingCondition.from_dict(obj.get("stoppingCondition")) if obj.get("stoppingCondition") is not None else None,
+            "upload_report": obj.get("uploadReport")
+        })
         return _obj
+

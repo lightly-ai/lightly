@@ -20,61 +20,27 @@ import json
 
 
 from typing import Any, Dict, Optional, Union
-from pydantic import Extra, BaseModel, Field, StrictFloat, StrictInt, confloat, conint
-from lightly.openapi_generated.swagger_client.models.selection_config_v3_entry_strategy_all_of_target_range import (
-    SelectionConfigV3EntryStrategyAllOfTargetRange,
-)
-from lightly.openapi_generated.swagger_client.models.selection_strategy_threshold_operation import (
-    SelectionStrategyThresholdOperation,
-)
-from lightly.openapi_generated.swagger_client.models.selection_strategy_type import (
-    SelectionStrategyType,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, confloat, conint
+from lightly.openapi_generated.swagger_client.models.selection_config_v3_entry_strategy_all_of_target_range import SelectionConfigV3EntryStrategyAllOfTargetRange
+from lightly.openapi_generated.swagger_client.models.selection_strategy_threshold_operation import SelectionStrategyThresholdOperation
+from lightly.openapi_generated.swagger_client.models.selection_strategy_type import SelectionStrategyType
 
 class SelectionConfigV3EntryStrategy(BaseModel):
     """
     SelectionConfigV3EntryStrategy
     """
-
     type: SelectionStrategyType = Field(...)
-    strength: Optional[
-        Union[
-            confloat(le=1000000000, ge=-1000000000, strict=True),
-            conint(le=1000000000, ge=-1000000000, strict=True),
-        ]
-    ] = Field(
-        None,
-        description="The relative strength of this strategy compared to other strategies. The default value is 1.0, which is set in the worker for backwards compatibility. The minimum and maximum values of +-10^9 are used to prevent numerical issues. ",
-    )
+    strength: Optional[Union[confloat(le=1000000000, ge=-1000000000, strict=True), conint(le=1000000000, ge=-1000000000, strict=True)]] = Field(None, description="The relative strength of this strategy compared to other strategies. The default value is 1.0, which is set in the worker for backwards compatibility. The minimum and maximum values of +-10^9 are used to prevent numerical issues. ")
     stopping_condition_minimum_distance: Optional[Union[StrictFloat, StrictInt]] = None
     threshold: Optional[Union[StrictFloat, StrictInt]] = None
     operation: Optional[SelectionStrategyThresholdOperation] = None
     target: Optional[Dict[str, Any]] = None
-    stopping_condition_max_sum: Optional[
-        Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]
-    ] = Field(
-        None,
-        alias="stoppingConditionMaxSum",
-        description="When the sum of inputs reaches this, the selection stops. Only compatible with the WEIGHTS strategy. Similar to the stopping_condition_minimum_distance for the DIVERSITY strategy. ",
-    )
-    target_range: Optional[SelectionConfigV3EntryStrategyAllOfTargetRange] = Field(
-        None, alias="targetRange"
-    )
-    __properties = [
-        "type",
-        "strength",
-        "stopping_condition_minimum_distance",
-        "threshold",
-        "operation",
-        "target",
-        "stoppingConditionMaxSum",
-        "targetRange",
-    ]
+    stopping_condition_max_sum: Optional[Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]] = Field(None, alias="stoppingConditionMaxSum", description="When the sum of inputs reaches this, the selection stops. Only compatible with the WEIGHTS strategy. Similar to the stopping_condition_minimum_distance for the DIVERSITY strategy. ")
+    target_range: Optional[SelectionConfigV3EntryStrategyAllOfTargetRange] = Field(None, alias="targetRange")
+    __properties = ["type", "strength", "stopping_condition_minimum_distance", "threshold", "operation", "target", "stoppingConditionMaxSum", "targetRange"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -95,12 +61,13 @@ class SelectionConfigV3EntryStrategy(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of target_range
         if self.target_range:
-            _dict[
-                "targetRange" if by_alias else "target_range"
-            ] = self.target_range.to_dict(by_alias=by_alias)
+            _dict['targetRange' if by_alias else 'target_range'] = self.target_range.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -115,27 +82,17 @@ class SelectionConfigV3EntryStrategy(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in SelectionConfigV3EntryStrategy) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in SelectionConfigV3EntryStrategy) in the input: " + str(obj))
 
-        _obj = SelectionConfigV3EntryStrategy.parse_obj(
-            {
-                "type": obj.get("type"),
-                "strength": obj.get("strength"),
-                "stopping_condition_minimum_distance": obj.get(
-                    "stopping_condition_minimum_distance"
-                ),
-                "threshold": obj.get("threshold"),
-                "operation": obj.get("operation"),
-                "target": obj.get("target"),
-                "stopping_condition_max_sum": obj.get("stoppingConditionMaxSum"),
-                "target_range": SelectionConfigV3EntryStrategyAllOfTargetRange.from_dict(
-                    obj.get("targetRange")
-                )
-                if obj.get("targetRange") is not None
-                else None,
-            }
-        )
+        _obj = SelectionConfigV3EntryStrategy.parse_obj({
+            "type": obj.get("type"),
+            "strength": obj.get("strength"),
+            "stopping_condition_minimum_distance": obj.get("stopping_condition_minimum_distance"),
+            "threshold": obj.get("threshold"),
+            "operation": obj.get("operation"),
+            "target": obj.get("target"),
+            "stopping_condition_max_sum": obj.get("stoppingConditionMaxSum"),
+            "target_range": SelectionConfigV3EntryStrategyAllOfTargetRange.from_dict(obj.get("targetRange")) if obj.get("targetRange") is not None else None
+        })
         return _obj
+

@@ -20,24 +20,19 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra, BaseModel, Field, StrictStr
-from lightly.openapi_generated.swagger_client.models.docker_worker_state import (
-    DockerWorkerState,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictStr
+from lightly.openapi_generated.swagger_client.models.docker_worker_state import DockerWorkerState
 
 class UpdateDockerWorkerRegistryEntryRequest(BaseModel):
     """
     UpdateDockerWorkerRegistryEntryRequest
     """
-
     state: DockerWorkerState = Field(...)
     docker_version: Optional[StrictStr] = Field(None, alias="dockerVersion")
     __properties = ["state", "dockerVersion"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -58,7 +53,10 @@ class UpdateDockerWorkerRegistryEntryRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -73,12 +71,11 @@ class UpdateDockerWorkerRegistryEntryRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in UpdateDockerWorkerRegistryEntryRequest) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in UpdateDockerWorkerRegistryEntryRequest) in the input: " + str(obj))
 
-        _obj = UpdateDockerWorkerRegistryEntryRequest.parse_obj(
-            {"state": obj.get("state"), "docker_version": obj.get("dockerVersion")}
-        )
+        _obj = UpdateDockerWorkerRegistryEntryRequest.parse_obj({
+            "state": obj.get("state"),
+            "docker_version": obj.get("dockerVersion")
+        })
         return _obj
+

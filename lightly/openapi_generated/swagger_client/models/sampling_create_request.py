@@ -20,59 +20,31 @@ import json
 
 
 from typing import Optional, Union
-from pydantic import Extra, BaseModel, Field, StrictFloat, StrictInt, constr, validator
-from lightly.openapi_generated.swagger_client.models.sampling_config import (
-    SamplingConfig,
-)
-from lightly.openapi_generated.swagger_client.models.sampling_method import (
-    SamplingMethod,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, constr, validator
+from lightly.openapi_generated.swagger_client.models.sampling_config import SamplingConfig
+from lightly.openapi_generated.swagger_client.models.sampling_method import SamplingMethod
 
 class SamplingCreateRequest(BaseModel):
     """
     SamplingCreateRequest
     """
-
-    new_tag_name: constr(strict=True, min_length=3) = Field(
-        ..., alias="newTagName", description="The name of the tag"
-    )
+    new_tag_name: constr(strict=True, min_length=3) = Field(..., alias="newTagName", description="The name of the tag")
     method: SamplingMethod = Field(...)
     config: SamplingConfig = Field(...)
-    preselected_tag_id: Optional[constr(strict=True)] = Field(
-        None, alias="preselectedTagId", description="MongoDB ObjectId"
-    )
-    query_tag_id: Optional[constr(strict=True)] = Field(
-        None, alias="queryTagId", description="MongoDB ObjectId"
-    )
-    score_type: Optional[constr(strict=True, min_length=1)] = Field(
-        None, alias="scoreType", description="Type of active learning score"
-    )
-    row_count: Optional[Union[StrictFloat, StrictInt]] = Field(
-        None,
-        alias="rowCount",
-        description="temporary rowCount until the API/DB is aware how many they are..",
-    )
-    __properties = [
-        "newTagName",
-        "method",
-        "config",
-        "preselectedTagId",
-        "queryTagId",
-        "scoreType",
-        "rowCount",
-    ]
+    preselected_tag_id: Optional[constr(strict=True)] = Field(None, alias="preselectedTagId", description="MongoDB ObjectId")
+    query_tag_id: Optional[constr(strict=True)] = Field(None, alias="queryTagId", description="MongoDB ObjectId")
+    score_type: Optional[constr(strict=True, min_length=1)] = Field(None, alias="scoreType", description="Type of active learning score")
+    row_count: Optional[Union[StrictFloat, StrictInt]] = Field(None, alias="rowCount", description="temporary rowCount until the API/DB is aware how many they are..")
+    __properties = ["newTagName", "method", "config", "preselectedTagId", "queryTagId", "scoreType", "rowCount"]
 
-    @validator("new_tag_name")
+    @validator('new_tag_name')
     def new_tag_name_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$", value):
-            raise ValueError(
-                r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/"
-            )
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/")
         return value
 
-    @validator("preselected_tag_id")
+    @validator('preselected_tag_id')
     def preselected_tag_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -82,7 +54,7 @@ class SamplingCreateRequest(BaseModel):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("query_tag_id")
+    @validator('query_tag_id')
     def query_tag_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -92,21 +64,18 @@ class SamplingCreateRequest(BaseModel):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("score_type")
+    @validator('score_type')
     def score_type_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
             return value
 
         if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]*$", value):
-            raise ValueError(
-                r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/"
-            )
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/")
         return value
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -127,12 +96,13 @@ class SamplingCreateRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of config
         if self.config:
-            _dict["config" if by_alias else "config"] = self.config.to_dict(
-                by_alias=by_alias
-            )
+            _dict['config' if by_alias else 'config'] = self.config.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -147,22 +117,16 @@ class SamplingCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in SamplingCreateRequest) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in SamplingCreateRequest) in the input: " + str(obj))
 
-        _obj = SamplingCreateRequest.parse_obj(
-            {
-                "new_tag_name": obj.get("newTagName"),
-                "method": obj.get("method"),
-                "config": SamplingConfig.from_dict(obj.get("config"))
-                if obj.get("config") is not None
-                else None,
-                "preselected_tag_id": obj.get("preselectedTagId"),
-                "query_tag_id": obj.get("queryTagId"),
-                "score_type": obj.get("scoreType"),
-                "row_count": obj.get("rowCount"),
-            }
-        )
+        _obj = SamplingCreateRequest.parse_obj({
+            "new_tag_name": obj.get("newTagName"),
+            "method": obj.get("method"),
+            "config": SamplingConfig.from_dict(obj.get("config")) if obj.get("config") is not None else None,
+            "preselected_tag_id": obj.get("preselectedTagId"),
+            "query_tag_id": obj.get("queryTagId"),
+            "score_type": obj.get("scoreType"),
+            "row_count": obj.get("rowCount")
+        })
         return _obj
+

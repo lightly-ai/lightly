@@ -20,14 +20,12 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra, BaseModel, Field, StrictBool, conint
-
+from pydantic import Extra,  BaseModel, Field, StrictBool, conint
 
 class DockerWorkerConfigV3LightlyLoader(BaseModel):
     """
     DockerWorkerConfigV3LightlyLoader
     """
-
     batch_size: Optional[conint(strict=True, ge=1)] = Field(None, alias="batchSize")
     shuffle: Optional[StrictBool] = None
     num_workers: Optional[conint(strict=True, ge=-1)] = Field(None, alias="numWorkers")
@@ -36,7 +34,6 @@ class DockerWorkerConfigV3LightlyLoader(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -57,7 +54,10 @@ class DockerWorkerConfigV3LightlyLoader(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -72,17 +72,13 @@ class DockerWorkerConfigV3LightlyLoader(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DockerWorkerConfigV3LightlyLoader) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV3LightlyLoader) in the input: " + str(obj))
 
-        _obj = DockerWorkerConfigV3LightlyLoader.parse_obj(
-            {
-                "batch_size": obj.get("batchSize"),
-                "shuffle": obj.get("shuffle"),
-                "num_workers": obj.get("numWorkers"),
-                "drop_last": obj.get("dropLast"),
-            }
-        )
+        _obj = DockerWorkerConfigV3LightlyLoader.parse_obj({
+            "batch_size": obj.get("batchSize"),
+            "shuffle": obj.get("shuffle"),
+            "num_workers": obj.get("numWorkers"),
+            "drop_last": obj.get("dropLast")
+        })
         return _obj
+

@@ -19,27 +19,19 @@ import re  # noqa: F401
 import json
 
 
-from pydantic import Extra, BaseModel, Field, StrictStr
 
+from pydantic import Extra,  BaseModel, Field, StrictStr
 
 class LabelBoxDataRow(BaseModel):
     """
     LabelBoxDataRow
     """
-
-    external_id: StrictStr = Field(
-        ..., alias="externalId", description="The task_id for importing into LabelBox."
-    )
-    image_url: StrictStr = Field(
-        ...,
-        alias="imageUrl",
-        description="A URL which allows anyone in possession of said URL for the time specified by the expiresIn query param to access the resource",
-    )
+    external_id: StrictStr = Field(..., alias="externalId", description="The task_id for importing into LabelBox.")
+    image_url: StrictStr = Field(..., alias="imageUrl", description="A URL which allows anyone in possession of said URL for the time specified by the expiresIn query param to access the resource")
     __properties = ["externalId", "imageUrl"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -60,7 +52,10 @@ class LabelBoxDataRow(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -75,12 +70,11 @@ class LabelBoxDataRow(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in LabelBoxDataRow) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in LabelBoxDataRow) in the input: " + str(obj))
 
-        _obj = LabelBoxDataRow.parse_obj(
-            {"external_id": obj.get("externalId"), "image_url": obj.get("imageUrl")}
-        )
+        _obj = LabelBoxDataRow.parse_obj({
+            "external_id": obj.get("externalId"),
+            "image_url": obj.get("imageUrl")
+        })
         return _obj
+

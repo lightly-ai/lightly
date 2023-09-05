@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class UserType(str, Enum):
     """
     UserType
@@ -28,12 +31,14 @@ class UserType(str, Enum):
     """
     allowed enum values
     """
-    FREE = "FREE"
-    PROFESSIONAL = "PROFESSIONAL"
-    ENTERPRISE = "ENTERPRISE"
-    ADMIN = "ADMIN"
+    FREE = 'FREE'
+    PROFESSIONAL = 'PROFESSIONAL'
+    ENTERPRISE = 'ENTERPRISE'
+    ADMIN = 'ADMIN'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "UserType":
+    def from_json(cls, json_str: str) -> 'UserType':
         """Create an instance of UserType from a JSON string"""
         return UserType(json.loads(json_str))
+
+

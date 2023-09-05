@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class DockerRunLogLevel(str, Enum):
     """
     DockerRunLogLevel
@@ -28,14 +31,16 @@ class DockerRunLogLevel(str, Enum):
     """
     allowed enum values
     """
-    VERBOSE = "VERBOSE"
-    DEBUG = "DEBUG"
-    INFO = "INFO"
-    WARN = "WARN"
-    ERROR = "ERROR"
-    CRITICAL = "CRITICAL"
+    VERBOSE = 'VERBOSE'
+    DEBUG = 'DEBUG'
+    INFO = 'INFO'
+    WARN = 'WARN'
+    ERROR = 'ERROR'
+    CRITICAL = 'CRITICAL'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "DockerRunLogLevel":
+    def from_json(cls, json_str: str) -> 'DockerRunLogLevel':
         """Create an instance of DockerRunLogLevel from a JSON string"""
         return DockerRunLogLevel(json.loads(json_str))
+
+

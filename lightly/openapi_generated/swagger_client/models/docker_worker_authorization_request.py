@@ -19,20 +19,18 @@ import re  # noqa: F401
 import json
 
 
-from pydantic import Extra, BaseModel, Field, StrictStr
 
+from pydantic import Extra,  BaseModel, Field, StrictStr
 
 class DockerWorkerAuthorizationRequest(BaseModel):
     """
     DockerWorkerAuthorizationRequest
     """
-
     hashed_task_description: StrictStr = Field(..., alias="hashedTaskDescription")
     __properties = ["hashedTaskDescription"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -53,7 +51,10 @@ class DockerWorkerAuthorizationRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -68,12 +69,10 @@ class DockerWorkerAuthorizationRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DockerWorkerAuthorizationRequest) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DockerWorkerAuthorizationRequest) in the input: " + str(obj))
 
-        _obj = DockerWorkerAuthorizationRequest.parse_obj(
-            {"hashed_task_description": obj.get("hashedTaskDescription")}
-        )
+        _obj = DockerWorkerAuthorizationRequest.parse_obj({
+            "hashed_task_description": obj.get("hashedTaskDescription")
+        })
         return _obj
+

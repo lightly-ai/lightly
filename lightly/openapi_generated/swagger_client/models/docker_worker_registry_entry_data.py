@@ -20,75 +20,41 @@ import json
 
 
 from typing import List, Optional
-from pydantic import (
-    Extra,
-    BaseModel,
-    Field,
-    StrictStr,
-    conint,
-    conlist,
-    constr,
-    validator,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_state import (
-    DockerWorkerState,
-)
-from lightly.openapi_generated.swagger_client.models.docker_worker_type import (
-    DockerWorkerType,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictStr, conint, conlist, constr, validator
+from lightly.openapi_generated.swagger_client.models.docker_worker_state import DockerWorkerState
+from lightly.openapi_generated.swagger_client.models.docker_worker_type import DockerWorkerType
 
 class DockerWorkerRegistryEntryData(BaseModel):
     """
     DockerWorkerRegistryEntryData
     """
-
     id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
     user_id: StrictStr = Field(..., alias="userId")
     name: constr(strict=True, min_length=3) = Field(...)
     worker_type: DockerWorkerType = Field(..., alias="workerType")
     state: DockerWorkerState = Field(...)
-    created_at: conint(strict=True, ge=0) = Field(
-        ..., alias="createdAt", description="unix timestamp in milliseconds"
-    )
-    last_modified_at: conint(strict=True, ge=0) = Field(
-        ..., alias="lastModifiedAt", description="unix timestamp in milliseconds"
-    )
-    labels: conlist(StrictStr) = Field(
-        ..., description="The labels used for specifying the run-worker-relationship"
-    )
+    created_at: conint(strict=True, ge=0) = Field(..., alias="createdAt", description="unix timestamp in milliseconds")
+    last_modified_at: conint(strict=True, ge=0) = Field(..., alias="lastModifiedAt", description="unix timestamp in milliseconds")
+    labels: conlist(StrictStr) = Field(..., description="The labels used for specifying the run-worker-relationship")
     docker_version: Optional[StrictStr] = Field(None, alias="dockerVersion")
-    __properties = [
-        "id",
-        "userId",
-        "name",
-        "workerType",
-        "state",
-        "createdAt",
-        "lastModifiedAt",
-        "labels",
-        "dockerVersion",
-    ]
+    __properties = ["id", "userId", "name", "workerType", "state", "createdAt", "lastModifiedAt", "labels", "dockerVersion"]
 
-    @validator("id")
+    @validator('id')
     def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("name")
+    @validator('name')
     def name_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 _-]+$", value):
-            raise ValueError(
-                r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 _-]+$/"
-            )
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 _-]+$/")
         return value
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -109,7 +75,10 @@ class DockerWorkerRegistryEntryData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -124,22 +93,18 @@ class DockerWorkerRegistryEntryData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DockerWorkerRegistryEntryData) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DockerWorkerRegistryEntryData) in the input: " + str(obj))
 
-        _obj = DockerWorkerRegistryEntryData.parse_obj(
-            {
-                "id": obj.get("id"),
-                "user_id": obj.get("userId"),
-                "name": obj.get("name"),
-                "worker_type": obj.get("workerType"),
-                "state": obj.get("state"),
-                "created_at": obj.get("createdAt"),
-                "last_modified_at": obj.get("lastModifiedAt"),
-                "labels": obj.get("labels"),
-                "docker_version": obj.get("dockerVersion"),
-            }
-        )
+        _obj = DockerWorkerRegistryEntryData.parse_obj({
+            "id": obj.get("id"),
+            "user_id": obj.get("userId"),
+            "name": obj.get("name"),
+            "worker_type": obj.get("workerType"),
+            "state": obj.get("state"),
+            "created_at": obj.get("createdAt"),
+            "last_modified_at": obj.get("lastModifiedAt"),
+            "labels": obj.get("labels"),
+            "docker_version": obj.get("dockerVersion")
+        })
         return _obj
+

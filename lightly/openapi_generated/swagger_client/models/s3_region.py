@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class S3Region(str, Enum):
     """
     The region where your bucket is located (see https://docs.aws.amazon.com/general/latest/gr/s3.html for further information)
@@ -28,38 +31,40 @@ class S3Region(str, Enum):
     """
     allowed enum values
     """
-    US_MINUS_EAST_MINUS_2 = "us-east-2"
-    US_MINUS_EAST_MINUS_1 = "us-east-1"
-    US_MINUS_WEST_MINUS_1 = "us-west-1"
-    US_MINUS_WEST_MINUS_2 = "us-west-2"
-    AF_MINUS_SOUTH_MINUS_1 = "af-south-1"
-    AP_MINUS_EAST_MINUS_1 = "ap-east-1"
-    AP_MINUS_SOUTH_MINUS_2 = "ap-south-2"
-    AP_MINUS_SOUTHEAST_MINUS_3 = "ap-southeast-3"
-    AP_MINUS_SOUTHEAST_MINUS_4 = "ap-southeast-4"
-    AP_MINUS_SOUTH_MINUS_1 = "ap-south-1"
-    AP_MINUS_NORTHEAST_MINUS_3 = "ap-northeast-3"
-    AP_MINUS_NORTHEAST_MINUS_2 = "ap-northeast-2"
-    AP_MINUS_SOUTHEAST_MINUS_1 = "ap-southeast-1"
-    AP_MINUS_SOUTHEAST_MINUS_2 = "ap-southeast-2"
-    AP_MINUS_NORTHEAST_MINUS_1 = "ap-northeast-1"
-    CA_MINUS_CENTRAL_MINUS_1 = "ca-central-1"
-    CN_MINUS_NORTHWEST_MINUS_1 = "cn-northwest-1"
-    EU_MINUS_CENTRAL_MINUS_1 = "eu-central-1"
-    EU_MINUS_WEST_MINUS_1 = "eu-west-1"
-    EU_MINUS_WEST_MINUS_2 = "eu-west-2"
-    EU_MINUS_SOUTH_MINUS_1 = "eu-south-1"
-    EU_MINUS_WEST_MINUS_3 = "eu-west-3"
-    EU_MINUS_NORTH_MINUS_1 = "eu-north-1"
-    EU_MINUS_SOUTH_MINUS_2 = "eu-south-2"
-    EU_MINUS_CENTRAL_MINUS_2 = "eu-central-2"
-    ME_MINUS_SOUTH_MINUS_1 = "me-south-1"
-    ME_MINUS_CENTRAL_MINUS_1 = "me-central-1"
-    SA_MINUS_EAST_MINUS_1 = "sa-east-1"
-    US_MINUS_GOV_MINUS_EAST = "us-gov-east"
-    US_MINUS_GOV_MINUS_WEST = "us-gov-west"
+    US_MINUS_EAST_MINUS_2 = 'us-east-2'
+    US_MINUS_EAST_MINUS_1 = 'us-east-1'
+    US_MINUS_WEST_MINUS_1 = 'us-west-1'
+    US_MINUS_WEST_MINUS_2 = 'us-west-2'
+    AF_MINUS_SOUTH_MINUS_1 = 'af-south-1'
+    AP_MINUS_EAST_MINUS_1 = 'ap-east-1'
+    AP_MINUS_SOUTH_MINUS_2 = 'ap-south-2'
+    AP_MINUS_SOUTHEAST_MINUS_3 = 'ap-southeast-3'
+    AP_MINUS_SOUTHEAST_MINUS_4 = 'ap-southeast-4'
+    AP_MINUS_SOUTH_MINUS_1 = 'ap-south-1'
+    AP_MINUS_NORTHEAST_MINUS_3 = 'ap-northeast-3'
+    AP_MINUS_NORTHEAST_MINUS_2 = 'ap-northeast-2'
+    AP_MINUS_SOUTHEAST_MINUS_1 = 'ap-southeast-1'
+    AP_MINUS_SOUTHEAST_MINUS_2 = 'ap-southeast-2'
+    AP_MINUS_NORTHEAST_MINUS_1 = 'ap-northeast-1'
+    CA_MINUS_CENTRAL_MINUS_1 = 'ca-central-1'
+    CN_MINUS_NORTHWEST_MINUS_1 = 'cn-northwest-1'
+    EU_MINUS_CENTRAL_MINUS_1 = 'eu-central-1'
+    EU_MINUS_WEST_MINUS_1 = 'eu-west-1'
+    EU_MINUS_WEST_MINUS_2 = 'eu-west-2'
+    EU_MINUS_SOUTH_MINUS_1 = 'eu-south-1'
+    EU_MINUS_WEST_MINUS_3 = 'eu-west-3'
+    EU_MINUS_NORTH_MINUS_1 = 'eu-north-1'
+    EU_MINUS_SOUTH_MINUS_2 = 'eu-south-2'
+    EU_MINUS_CENTRAL_MINUS_2 = 'eu-central-2'
+    ME_MINUS_SOUTH_MINUS_1 = 'me-south-1'
+    ME_MINUS_CENTRAL_MINUS_1 = 'me-central-1'
+    SA_MINUS_EAST_MINUS_1 = 'sa-east-1'
+    US_MINUS_GOV_MINUS_EAST = 'us-gov-east'
+    US_MINUS_GOV_MINUS_WEST = 'us-gov-west'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "S3Region":
+    def from_json(cls, json_str: str) -> 'S3Region':
         """Create an instance of S3Region from a JSON string"""
         return S3Region(json.loads(json_str))
+
+

@@ -20,77 +20,46 @@ import json
 
 
 from typing import List, Optional
-from pydantic import Extra, BaseModel, Field, StrictInt, conlist, constr, validator
-from lightly.openapi_generated.swagger_client.models.selection_input_predictions_name import (
-    SelectionInputPredictionsName,
-)
-from lightly.openapi_generated.swagger_client.models.selection_input_type import (
-    SelectionInputType,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictInt, conlist, constr, validator
+from lightly.openapi_generated.swagger_client.models.selection_input_predictions_name import SelectionInputPredictionsName
+from lightly.openapi_generated.swagger_client.models.selection_input_type import SelectionInputType
 
 class SelectionConfigV3EntryInput(BaseModel):
     """
     SelectionConfigV3EntryInput
     """
-
     type: SelectionInputType = Field(...)
-    task: Optional[constr(strict=True)] = Field(
-        None,
-        description="Since we sometimes stitch together SelectionInputTask+ActiveLearningScoreType, they need to follow the same specs of ActiveLearningScoreType. However, this can be an empty string due to internal logic. ",
-    )
-    score: Optional[constr(strict=True, min_length=1)] = Field(
-        None, description="Type of active learning score"
-    )
+    task: Optional[constr(strict=True)] = Field(None, description="Since we sometimes stitch together SelectionInputTask+ActiveLearningScoreType, they need to follow the same specs of ActiveLearningScoreType. However, this can be an empty string due to internal logic. ")
+    score: Optional[constr(strict=True, min_length=1)] = Field(None, description="Type of active learning score")
     key: Optional[constr(strict=True, min_length=1)] = None
     name: Optional[SelectionInputPredictionsName] = None
-    dataset_id: Optional[constr(strict=True)] = Field(
-        None, alias="datasetId", description="MongoDB ObjectId"
-    )
-    tag_name: Optional[constr(strict=True, min_length=3)] = Field(
-        None, alias="tagName", description="The name of the tag"
-    )
+    dataset_id: Optional[constr(strict=True)] = Field(None, alias="datasetId", description="MongoDB ObjectId")
+    tag_name: Optional[constr(strict=True, min_length=3)] = Field(None, alias="tagName", description="The name of the tag")
     random_seed: Optional[StrictInt] = Field(None, alias="randomSeed")
-    categories: Optional[
-        conlist(constr(strict=True, min_length=1), min_items=1, unique_items=True)
-    ] = None
-    __properties = [
-        "type",
-        "task",
-        "score",
-        "key",
-        "name",
-        "datasetId",
-        "tagName",
-        "randomSeed",
-        "categories",
-    ]
+    categories: Optional[conlist(constr(strict=True, min_length=1), min_items=1, unique_items=True)] = None
+    __properties = ["type", "task", "score", "key", "name", "datasetId", "tagName", "randomSeed", "categories"]
 
-    @validator("task")
+    @validator('task')
     def task_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
             return value
 
         if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]*$", value):
-            raise ValueError(
-                r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/"
-            )
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/")
         return value
 
-    @validator("score")
+    @validator('score')
     def score_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
             return value
 
         if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]*$", value):
-            raise ValueError(
-                r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/"
-            )
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/")
         return value
 
-    @validator("dataset_id")
+    @validator('dataset_id')
     def dataset_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -100,21 +69,18 @@ class SelectionConfigV3EntryInput(BaseModel):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("tag_name")
+    @validator('tag_name')
     def tag_name_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
             return value
 
         if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$", value):
-            raise ValueError(
-                r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/"
-            )
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/")
         return value
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -135,7 +101,10 @@ class SelectionConfigV3EntryInput(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -150,22 +119,18 @@ class SelectionConfigV3EntryInput(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in SelectionConfigV3EntryInput) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in SelectionConfigV3EntryInput) in the input: " + str(obj))
 
-        _obj = SelectionConfigV3EntryInput.parse_obj(
-            {
-                "type": obj.get("type"),
-                "task": obj.get("task"),
-                "score": obj.get("score"),
-                "key": obj.get("key"),
-                "name": obj.get("name"),
-                "dataset_id": obj.get("datasetId"),
-                "tag_name": obj.get("tagName"),
-                "random_seed": obj.get("randomSeed"),
-                "categories": obj.get("categories"),
-            }
-        )
+        _obj = SelectionConfigV3EntryInput.parse_obj({
+            "type": obj.get("type"),
+            "task": obj.get("task"),
+            "score": obj.get("score"),
+            "key": obj.get("key"),
+            "name": obj.get("name"),
+            "dataset_id": obj.get("datasetId"),
+            "tag_name": obj.get("tagName"),
+            "random_seed": obj.get("randomSeed"),
+            "categories": obj.get("categories")
+        })
         return _obj
+

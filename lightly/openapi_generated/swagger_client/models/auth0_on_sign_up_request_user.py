@@ -20,14 +20,12 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra, BaseModel, Field, StrictStr
-
+from pydantic import Extra,  BaseModel, Field, StrictStr
 
 class Auth0OnSignUpRequestUser(BaseModel):
     """
     Auth0OnSignUpRequestUser
     """
-
     user_id: StrictStr = Field(..., alias="userId")
     email: Optional[StrictStr] = None
     locale: Optional[StrictStr] = None
@@ -35,19 +33,10 @@ class Auth0OnSignUpRequestUser(BaseModel):
     name: Optional[StrictStr] = None
     given_name: Optional[StrictStr] = Field(None, alias="givenName")
     family_name: Optional[StrictStr] = Field(None, alias="familyName")
-    __properties = [
-        "userId",
-        "email",
-        "locale",
-        "nickname",
-        "name",
-        "givenName",
-        "familyName",
-    ]
+    __properties = ["userId", "email", "locale", "nickname", "name", "givenName", "familyName"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -68,7 +57,10 @@ class Auth0OnSignUpRequestUser(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -83,20 +75,16 @@ class Auth0OnSignUpRequestUser(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in Auth0OnSignUpRequestUser) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in Auth0OnSignUpRequestUser) in the input: " + str(obj))
 
-        _obj = Auth0OnSignUpRequestUser.parse_obj(
-            {
-                "user_id": obj.get("userId"),
-                "email": obj.get("email"),
-                "locale": obj.get("locale"),
-                "nickname": obj.get("nickname"),
-                "name": obj.get("name"),
-                "given_name": obj.get("givenName"),
-                "family_name": obj.get("familyName"),
-            }
-        )
+        _obj = Auth0OnSignUpRequestUser.parse_obj({
+            "user_id": obj.get("userId"),
+            "email": obj.get("email"),
+            "locale": obj.get("locale"),
+            "nickname": obj.get("nickname"),
+            "name": obj.get("name"),
+            "given_name": obj.get("givenName"),
+            "family_name": obj.get("familyName")
+        })
         return _obj
+

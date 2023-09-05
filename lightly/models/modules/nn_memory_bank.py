@@ -37,7 +37,7 @@ class NNMemoryBankModule(MemoryBankModule):
 
     """
 
-    def __init__(self, size: int = 2 ** 16):
+    def __init__(self, size: int = 2**16):
         super(NNMemoryBankModule, self).__init__(size)
 
     def forward(self, output: torch.Tensor, update: bool = False):

@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class DatasetType(str, Enum):
     """
     DatasetType
@@ -28,11 +31,13 @@ class DatasetType(str, Enum):
     """
     allowed enum values
     """
-    CROPS = "Crops"
-    IMAGES = "Images"
-    VIDEOS = "Videos"
+    CROPS = 'Crops'
+    IMAGES = 'Images'
+    VIDEOS = 'Videos'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "DatasetType":
+    def from_json(cls, json_str: str) -> 'DatasetType':
         """Create an instance of DatasetType from a JSON string"""
         return DatasetType(json.loads(json_str))
+
+

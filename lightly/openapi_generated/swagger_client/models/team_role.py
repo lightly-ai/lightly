@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class TeamRole(str, Enum):
     """
     TeamRole
@@ -28,12 +31,14 @@ class TeamRole(str, Enum):
     """
     allowed enum values
     """
-    OWNER = "OWNER"
-    ADMIN = "ADMIN"
-    MEMBER = "MEMBER"
-    SERVICEACCOUNT = "SERVICEACCOUNT"
+    OWNER = 'OWNER'
+    ADMIN = 'ADMIN'
+    MEMBER = 'MEMBER'
+    SERVICEACCOUNT = 'SERVICEACCOUNT'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "TeamRole":
+    def from_json(cls, json_str: str) -> 'TeamRole':
         """Create an instance of TeamRole from a JSON string"""
         return TeamRole(json.loads(json_str))
+
+

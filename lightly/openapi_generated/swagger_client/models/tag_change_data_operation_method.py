@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class TagChangeDataOperationMethod(str, Enum):
     """
     TagChangeDataOperationMethod
@@ -28,11 +31,13 @@ class TagChangeDataOperationMethod(str, Enum):
     """
     allowed enum values
     """
-    SELECTED = "selected"
-    ADDED = "added"
-    REMOVED = "removed"
+    SELECTED = 'selected'
+    ADDED = 'added'
+    REMOVED = 'removed'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "TagChangeDataOperationMethod":
+    def from_json(cls, json_str: str) -> 'TagChangeDataOperationMethod':
         """Create an instance of TagChangeDataOperationMethod from a JSON string"""
         return TagChangeDataOperationMethod(json.loads(json_str))
+
+

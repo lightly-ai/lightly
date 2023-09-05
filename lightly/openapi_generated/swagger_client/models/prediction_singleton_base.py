@@ -21,64 +21,28 @@ import lightly.openapi_generated.swagger_client.models
 
 
 from typing import Optional, Union
-from pydantic import (
-    Extra,
-    BaseModel,
-    Field,
-    StrictStr,
-    confloat,
-    conint,
-    constr,
-    validator,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictStr, confloat, conint, constr, validator
 
 class PredictionSingletonBase(BaseModel):
     """
     PredictionSingletonBase
     """
-
     type: StrictStr = Field(...)
-    task_name: constr(strict=True, min_length=1) = Field(
-        ...,
-        alias="taskName",
-        description="A name which is safe to have as a file/folder name in a file system",
-    )
-    crop_dataset_id: Optional[constr(strict=True)] = Field(
-        None, alias="cropDatasetId", description="MongoDB ObjectId"
-    )
-    crop_sample_id: Optional[constr(strict=True)] = Field(
-        None, alias="cropSampleId", description="MongoDB ObjectId"
-    )
-    category_id: conint(strict=True, ge=0) = Field(
-        ...,
-        alias="categoryId",
-        description="The id of the category. Needs to be a positive integer but can be any integer (gaps are allowed, does not need to be sequential)",
-    )
-    score: Union[
-        confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)
-    ] = Field(
-        ..., description="the score for the prediction task which yielded this crop"
-    )
-    __properties = [
-        "type",
-        "taskName",
-        "cropDatasetId",
-        "cropSampleId",
-        "categoryId",
-        "score",
-    ]
+    task_name: constr(strict=True, min_length=1) = Field(..., alias="taskName", description="A name which is safe to have as a file/folder name in a file system")
+    crop_dataset_id: Optional[constr(strict=True)] = Field(None, alias="cropDatasetId", description="MongoDB ObjectId")
+    crop_sample_id: Optional[constr(strict=True)] = Field(None, alias="cropSampleId", description="MongoDB ObjectId")
+    category_id: conint(strict=True, ge=0) = Field(..., alias="categoryId", description="The id of the category. Needs to be a positive integer but can be any integer (gaps are allowed, does not need to be sequential)")
+    score: Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)] = Field(..., description="the score for the prediction task which yielded this crop")
+    __properties = ["type", "taskName", "cropDatasetId", "cropSampleId", "categoryId", "score"]
 
-    @validator("task_name")
+    @validator('task_name')
     def task_name_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$", value):
-            raise ValueError(
-                r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$/"
-            )
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$/")
         return value
 
-    @validator("crop_dataset_id")
+    @validator('crop_dataset_id')
     def crop_dataset_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -88,7 +52,7 @@ class PredictionSingletonBase(BaseModel):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("crop_sample_id")
+    @validator('crop_sample_id')
     def crop_sample_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -100,22 +64,21 @@ class PredictionSingletonBase(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
         extra = Extra.forbid
 
     # JSON field name that stores the object type
-    __discriminator_property_name = "type"
+    __discriminator_property_name = 'type'
 
     # discriminator mappings
     __discriminator_value_class_map = {
-        "PredictionSingletonClassification": "PredictionSingletonClassification",
-        "PredictionSingletonInstanceSegmentation": "PredictionSingletonInstanceSegmentation",
-        "PredictionSingletonKeypointDetection": "PredictionSingletonKeypointDetection",
-        "PredictionSingletonObjectDetection": "PredictionSingletonObjectDetection",
-        "PredictionSingletonSemanticSegmentation": "PredictionSingletonSemanticSegmentation",
+        'PredictionSingletonClassification': 'PredictionSingletonClassification',
+        'PredictionSingletonInstanceSegmentation': 'PredictionSingletonInstanceSegmentation',
+        'PredictionSingletonKeypointDetection': 'PredictionSingletonKeypointDetection',
+        'PredictionSingletonObjectDetection': 'PredictionSingletonObjectDetection',
+        'PredictionSingletonSemanticSegmentation': 'PredictionSingletonSemanticSegmentation'
     }
 
     @classmethod
@@ -136,47 +99,28 @@ class PredictionSingletonBase(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(
-        cls, json_str: str
-    ) -> Union(
-        PredictionSingletonClassification,
-        PredictionSingletonInstanceSegmentation,
-        PredictionSingletonKeypointDetection,
-        PredictionSingletonObjectDetection,
-        PredictionSingletonSemanticSegmentation,
-    ):
+    def from_json(cls, json_str: str) -> Union(PredictionSingletonClassification, PredictionSingletonInstanceSegmentation, PredictionSingletonKeypointDetection, PredictionSingletonObjectDetection, PredictionSingletonSemanticSegmentation):
         """Create an instance of PredictionSingletonBase from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
-    def from_dict(
-        cls, obj: dict
-    ) -> Union(
-        PredictionSingletonClassification,
-        PredictionSingletonInstanceSegmentation,
-        PredictionSingletonKeypointDetection,
-        PredictionSingletonObjectDetection,
-        PredictionSingletonSemanticSegmentation,
-    ):
+    def from_dict(cls, obj: dict) -> Union(PredictionSingletonClassification, PredictionSingletonInstanceSegmentation, PredictionSingletonKeypointDetection, PredictionSingletonObjectDetection, PredictionSingletonSemanticSegmentation):
         """Create an instance of PredictionSingletonBase from a dict"""
         # look up the object type based on discriminator mapping
         object_type = cls.get_discriminator_value(obj)
         if object_type:
-            klass = getattr(
-                lightly.openapi_generated.swagger_client.models, object_type
-            )
+            klass = getattr(lightly.openapi_generated.swagger_client.models, object_type)
             return klass.from_dict(obj)
         else:
-            raise ValueError(
-                "PredictionSingletonBase failed to lookup discriminator value from "
-                + json.dumps(obj)
-                + ". Discriminator property name: "
-                + cls.__discriminator_property_name
-                + ", mapping: "
-                + json.dumps(cls.__discriminator_value_class_map)
-            )
+            raise ValueError("PredictionSingletonBase failed to lookup discriminator value from " +
+                             json.dumps(obj) + ". Discriminator property name: " + cls.__discriminator_property_name +
+                             ", mapping: " + json.dumps(cls.__discriminator_value_class_map))
+

@@ -20,84 +20,38 @@ import json
 
 
 from typing import List, Optional, Union
-from pydantic import (
-    Extra,
-    BaseModel,
-    Field,
-    StrictFloat,
-    StrictInt,
-    StrictStr,
-    conint,
-    conlist,
-    constr,
-    validator,
-)
-from lightly.openapi_generated.swagger_client.models.dimensionality_reduction_method import (
-    DimensionalityReductionMethod,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, StrictStr, conint, conlist, constr, validator
+from lightly.openapi_generated.swagger_client.models.dimensionality_reduction_method import DimensionalityReductionMethod
 
 class Embedding2dData(BaseModel):
     """
     Embedding2dData
     """
-
     id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
-    dataset_id: constr(strict=True) = Field(
-        ..., alias="datasetId", description="MongoDB ObjectId"
-    )
-    embedding_id: constr(strict=True) = Field(
-        ..., alias="embeddingId", description="MongoDB ObjectId"
-    )
-    name: StrictStr = Field(
-        ..., description="Name of the 2d embedding (default is embedding name + __2d)"
-    )
-    created_at: conint(strict=True, ge=0) = Field(
-        ..., alias="createdAt", description="unix timestamp in milliseconds"
-    )
-    dimensionality_reduction_method: DimensionalityReductionMethod = Field(
-        ..., alias="dimensionalityReductionMethod"
-    )
-    coordinates_dimension1: Optional[
-        conlist(Union[StrictFloat, StrictInt], min_items=1)
-    ] = Field(
-        None,
-        alias="coordinatesDimension1",
-        description="Array of coordinates of a 2d embedding",
-    )
-    coordinates_dimension2: Optional[
-        conlist(Union[StrictFloat, StrictInt], min_items=1)
-    ] = Field(
-        None,
-        alias="coordinatesDimension2",
-        description="Array of coordinates of a 2d embedding",
-    )
-    __properties = [
-        "id",
-        "datasetId",
-        "embeddingId",
-        "name",
-        "createdAt",
-        "dimensionalityReductionMethod",
-        "coordinatesDimension1",
-        "coordinatesDimension2",
-    ]
+    dataset_id: constr(strict=True) = Field(..., alias="datasetId", description="MongoDB ObjectId")
+    embedding_id: constr(strict=True) = Field(..., alias="embeddingId", description="MongoDB ObjectId")
+    name: StrictStr = Field(..., description="Name of the 2d embedding (default is embedding name + __2d)")
+    created_at: conint(strict=True, ge=0) = Field(..., alias="createdAt", description="unix timestamp in milliseconds")
+    dimensionality_reduction_method: DimensionalityReductionMethod = Field(..., alias="dimensionalityReductionMethod")
+    coordinates_dimension1: Optional[conlist(Union[StrictFloat, StrictInt], min_items=1)] = Field(None, alias="coordinatesDimension1", description="Array of coordinates of a 2d embedding")
+    coordinates_dimension2: Optional[conlist(Union[StrictFloat, StrictInt], min_items=1)] = Field(None, alias="coordinatesDimension2", description="Array of coordinates of a 2d embedding")
+    __properties = ["id", "datasetId", "embeddingId", "name", "createdAt", "dimensionalityReductionMethod", "coordinatesDimension1", "coordinatesDimension2"]
 
-    @validator("id")
+    @validator('id')
     def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("dataset_id")
+    @validator('dataset_id')
     def dataset_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("embedding_id")
+    @validator('embedding_id')
     def embedding_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
@@ -106,7 +60,6 @@ class Embedding2dData(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -127,7 +80,10 @@ class Embedding2dData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -142,23 +98,17 @@ class Embedding2dData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in Embedding2dData) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in Embedding2dData) in the input: " + str(obj))
 
-        _obj = Embedding2dData.parse_obj(
-            {
-                "id": obj.get("id"),
-                "dataset_id": obj.get("datasetId"),
-                "embedding_id": obj.get("embeddingId"),
-                "name": obj.get("name"),
-                "created_at": obj.get("createdAt"),
-                "dimensionality_reduction_method": obj.get(
-                    "dimensionalityReductionMethod"
-                ),
-                "coordinates_dimension1": obj.get("coordinatesDimension1"),
-                "coordinates_dimension2": obj.get("coordinatesDimension2"),
-            }
-        )
+        _obj = Embedding2dData.parse_obj({
+            "id": obj.get("id"),
+            "dataset_id": obj.get("datasetId"),
+            "embedding_id": obj.get("embeddingId"),
+            "name": obj.get("name"),
+            "created_at": obj.get("createdAt"),
+            "dimensionality_reduction_method": obj.get("dimensionalityReductionMethod"),
+            "coordinates_dimension1": obj.get("coordinatesDimension1"),
+            "coordinates_dimension2": obj.get("coordinatesDimension2")
+        })
         return _obj
+

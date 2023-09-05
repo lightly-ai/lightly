@@ -19,18 +19,17 @@ import re  # noqa: F401
 import json
 
 
-from pydantic import Extra, BaseModel, Field, constr, validator
 
+from pydantic import Extra,  BaseModel, Field, constr, validator
 
 class CreateEntityResponse(BaseModel):
     """
     CreateEntityResponse
     """
-
     id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
     __properties = ["id"]
 
-    @validator("id")
+    @validator('id')
     def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
@@ -39,7 +38,6 @@ class CreateEntityResponse(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -60,7 +58,10 @@ class CreateEntityResponse(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -75,10 +76,10 @@ class CreateEntityResponse(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in CreateEntityResponse) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in CreateEntityResponse) in the input: " + str(obj))
 
-        _obj = CreateEntityResponse.parse_obj({"id": obj.get("id")})
+        _obj = CreateEntityResponse.parse_obj({
+            "id": obj.get("id")
+        })
         return _obj
+

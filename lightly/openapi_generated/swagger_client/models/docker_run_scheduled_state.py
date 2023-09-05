@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class DockerRunScheduledState(str, Enum):
     """
     DockerRunScheduledState
@@ -28,12 +31,14 @@ class DockerRunScheduledState(str, Enum):
     """
     allowed enum values
     """
-    OPEN = "OPEN"
-    LOCKED = "LOCKED"
-    DONE = "DONE"
-    CANCELED = "CANCELED"
+    OPEN = 'OPEN'
+    LOCKED = 'LOCKED'
+    DONE = 'DONE'
+    CANCELED = 'CANCELED'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "DockerRunScheduledState":
+    def from_json(cls, json_str: str) -> 'DockerRunScheduledState':
         """Create an instance of DockerRunScheduledState from a JSON string"""
         return DockerRunScheduledState(json.loads(json_str))
+
+

@@ -783,7 +783,7 @@ class MAEModel(BenchmarkModule):
             embed_input_dim=vit.hidden_dim,
             hidden_dim=decoder_dim,
             mlp_dim=decoder_dim * 4,
-            out_dim=vit.patch_size ** 2 * 3,
+            out_dim=vit.patch_size**2 * 3,
             dropout=0,
             attention_dropout=0,
         )
@@ -1112,7 +1112,7 @@ class SimMIMModel(BenchmarkModule):
         self.backbone = masked_autoencoder.MAEBackbone.from_vit(vit)
 
         # the decoder is a simple linear layer
-        self.decoder = nn.Linear(vit.hidden_dim, vit.patch_size ** 2 * 3)
+        self.decoder = nn.Linear(vit.hidden_dim, vit.patch_size**2 * 3)
 
         # L1 loss as paper suggestion
         self.criterion = nn.L1Loss()
@@ -1497,7 +1497,7 @@ for model, results in bench_results.items():
     runtime = runtime.mean() / 60  # convert to min
     accuracy = np.array([result["max_accuracy"] for result in results])
     gpu_memory_usage = np.array([result["gpu_memory_usage"] for result in results])
-    gpu_memory_usage = gpu_memory_usage.max() / (1024 ** 3)  # convert to gbyte
+    gpu_memory_usage = gpu_memory_usage.max() / (1024**3)  # convert to gbyte
 
     if len(accuracy) > 1:
         accuracy_msg = f"{accuracy.mean():>8.3f} +- {accuracy.std():>4.3f}"

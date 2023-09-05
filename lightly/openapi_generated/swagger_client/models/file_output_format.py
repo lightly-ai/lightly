@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class FileOutputFormat(str, Enum):
     """
     FileOutputFormat
@@ -28,10 +31,12 @@ class FileOutputFormat(str, Enum):
     """
     allowed enum values
     """
-    JSON = "JSON"
-    PLAIN = "PLAIN"
+    JSON = 'JSON'
+    PLAIN = 'PLAIN'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "FileOutputFormat":
+    def from_json(cls, json_str: str) -> 'FileOutputFormat':
         """Create an instance of FileOutputFormat from a JSON string"""
         return FileOutputFormat(json.loads(json_str))
+
+

@@ -19,24 +19,18 @@ import re  # noqa: F401
 import json
 
 
-from pydantic import Extra, BaseModel, Field, StrictStr
 
+from pydantic import Extra,  BaseModel, Field, StrictStr
 
 class DatasourceConfigBaseFullPath(BaseModel):
     """
     DatasourceConfigBaseFullPath
     """
-
-    full_path: StrictStr = Field(
-        ...,
-        alias="fullPath",
-        description="path includes the bucket name and the path within the bucket where you have stored your information",
-    )
+    full_path: StrictStr = Field(..., alias="fullPath", description="path includes the bucket name and the path within the bucket where you have stored your information")
     __properties = ["fullPath"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -57,7 +51,10 @@ class DatasourceConfigBaseFullPath(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -72,12 +69,10 @@ class DatasourceConfigBaseFullPath(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DatasourceConfigBaseFullPath) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DatasourceConfigBaseFullPath) in the input: " + str(obj))
 
-        _obj = DatasourceConfigBaseFullPath.parse_obj(
-            {"full_path": obj.get("fullPath")}
-        )
+        _obj = DatasourceConfigBaseFullPath.parse_obj({
+            "full_path": obj.get("fullPath")
+        })
         return _obj
+

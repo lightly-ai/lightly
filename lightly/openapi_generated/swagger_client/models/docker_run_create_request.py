@@ -20,37 +20,22 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra, BaseModel, Field, StrictStr, constr, validator
+from pydantic import Extra,  BaseModel, Field, StrictStr, constr, validator
 from lightly.openapi_generated.swagger_client.models.creator import Creator
-
 
 class DockerRunCreateRequest(BaseModel):
     """
     DockerRunCreateRequest
     """
-
     docker_version: StrictStr = Field(..., alias="dockerVersion")
-    dataset_id: Optional[constr(strict=True)] = Field(
-        None, alias="datasetId", description="MongoDB ObjectId"
-    )
-    scheduled_id: Optional[constr(strict=True)] = Field(
-        None, alias="scheduledId", description="MongoDB ObjectId"
-    )
-    config_id: Optional[constr(strict=True)] = Field(
-        None, alias="configId", description="MongoDB ObjectId"
-    )
+    dataset_id: Optional[constr(strict=True)] = Field(None, alias="datasetId", description="MongoDB ObjectId")
+    scheduled_id: Optional[constr(strict=True)] = Field(None, alias="scheduledId", description="MongoDB ObjectId")
+    config_id: Optional[constr(strict=True)] = Field(None, alias="configId", description="MongoDB ObjectId")
     message: Optional[StrictStr] = None
     creator: Optional[Creator] = None
-    __properties = [
-        "dockerVersion",
-        "datasetId",
-        "scheduledId",
-        "configId",
-        "message",
-        "creator",
-    ]
+    __properties = ["dockerVersion", "datasetId", "scheduledId", "configId", "message", "creator"]
 
-    @validator("dataset_id")
+    @validator('dataset_id')
     def dataset_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -60,7 +45,7 @@ class DockerRunCreateRequest(BaseModel):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("scheduled_id")
+    @validator('scheduled_id')
     def scheduled_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -70,7 +55,7 @@ class DockerRunCreateRequest(BaseModel):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator("config_id")
+    @validator('config_id')
     def config_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -82,7 +67,6 @@ class DockerRunCreateRequest(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -103,7 +87,10 @@ class DockerRunCreateRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -118,19 +105,15 @@ class DockerRunCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DockerRunCreateRequest) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DockerRunCreateRequest) in the input: " + str(obj))
 
-        _obj = DockerRunCreateRequest.parse_obj(
-            {
-                "docker_version": obj.get("dockerVersion"),
-                "dataset_id": obj.get("datasetId"),
-                "scheduled_id": obj.get("scheduledId"),
-                "config_id": obj.get("configId"),
-                "message": obj.get("message"),
-                "creator": obj.get("creator"),
-            }
-        )
+        _obj = DockerRunCreateRequest.parse_obj({
+            "docker_version": obj.get("dockerVersion"),
+            "dataset_id": obj.get("datasetId"),
+            "scheduled_id": obj.get("scheduledId"),
+            "config_id": obj.get("configId"),
+            "message": obj.get("message"),
+            "creator": obj.get("creator")
+        })
         return _obj
+

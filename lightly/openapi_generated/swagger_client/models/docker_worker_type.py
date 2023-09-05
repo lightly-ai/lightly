@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class DockerWorkerType(str, Enum):
     """
     DockerWorkerType
@@ -28,9 +31,11 @@ class DockerWorkerType(str, Enum):
     """
     allowed enum values
     """
-    FULL = "FULL"
+    FULL = 'FULL'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "DockerWorkerType":
+    def from_json(cls, json_str: str) -> 'DockerWorkerType':
         """Create an instance of DockerWorkerType from a JSON string"""
         return DockerWorkerType(json.loads(json_str))
+
+

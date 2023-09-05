@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class SampleSortBy(str, Enum):
     """
     SampleSortBy
@@ -28,10 +31,12 @@ class SampleSortBy(str, Enum):
     """
     allowed enum values
     """
-    ID = "_id"
-    INDEX = "index"
+    ID = '_id'
+    INDEX = 'index'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "SampleSortBy":
+    def from_json(cls, json_str: str) -> 'SampleSortBy':
         """Create an instance of SampleSortBy from a JSON string"""
         return SampleSortBy(json.loads(json_str))
+
+

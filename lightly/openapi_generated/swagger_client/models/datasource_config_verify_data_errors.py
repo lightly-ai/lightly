@@ -20,14 +20,12 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra, BaseModel, Field, StrictStr
-
+from pydantic import Extra,  BaseModel, Field, StrictStr
 
 class DatasourceConfigVerifyDataErrors(BaseModel):
     """
     DatasourceConfigVerifyDataErrors
     """
-
     can_read: Optional[StrictStr] = Field(None, alias="canRead")
     can_write: Optional[StrictStr] = Field(None, alias="canWrite")
     can_list: Optional[StrictStr] = Field(None, alias="canList")
@@ -36,7 +34,6 @@ class DatasourceConfigVerifyDataErrors(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -57,7 +54,10 @@ class DatasourceConfigVerifyDataErrors(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -72,17 +72,13 @@ class DatasourceConfigVerifyDataErrors(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DatasourceConfigVerifyDataErrors) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DatasourceConfigVerifyDataErrors) in the input: " + str(obj))
 
-        _obj = DatasourceConfigVerifyDataErrors.parse_obj(
-            {
-                "can_read": obj.get("canRead"),
-                "can_write": obj.get("canWrite"),
-                "can_list": obj.get("canList"),
-                "can_overwrite": obj.get("canOverwrite"),
-            }
-        )
+        _obj = DatasourceConfigVerifyDataErrors.parse_obj({
+            "can_read": obj.get("canRead"),
+            "can_write": obj.get("canWrite"),
+            "can_list": obj.get("canList"),
+            "can_overwrite": obj.get("canOverwrite")
+        })
         return _obj
+

@@ -20,22 +20,17 @@ import json
 
 
 from typing import Optional, Union
-from pydantic import Extra, BaseModel, Field, confloat, conint
-
+from pydantic import Extra,  BaseModel, Field, confloat, conint
 
 class DockerWorkerConfigV3DockerCorruptnessCheck(BaseModel):
     """
     DockerWorkerConfigV3DockerCorruptnessCheck
     """
-
-    corruption_threshold: Optional[
-        Union[confloat(le=1.0, ge=0.0, strict=True), conint(le=1, ge=0, strict=True)]
-    ] = Field(None, alias="corruptionThreshold")
+    corruption_threshold: Optional[Union[confloat(le=1.0, ge=0.0, strict=True), conint(le=1, ge=0, strict=True)]] = Field(None, alias="corruptionThreshold")
     __properties = ["corruptionThreshold"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -56,7 +51,10 @@ class DockerWorkerConfigV3DockerCorruptnessCheck(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -71,12 +69,10 @@ class DockerWorkerConfigV3DockerCorruptnessCheck(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DockerWorkerConfigV3DockerCorruptnessCheck) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV3DockerCorruptnessCheck) in the input: " + str(obj))
 
-        _obj = DockerWorkerConfigV3DockerCorruptnessCheck.parse_obj(
-            {"corruption_threshold": obj.get("corruptionThreshold")}
-        )
+        _obj = DockerWorkerConfigV3DockerCorruptnessCheck.parse_obj({
+            "corruption_threshold": obj.get("corruptionThreshold")
+        })
         return _obj
+

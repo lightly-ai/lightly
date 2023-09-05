@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class DimensionalityReductionMethod(str, Enum):
     """
     Method which was used to create the 2d embeddings
@@ -28,11 +31,13 @@ class DimensionalityReductionMethod(str, Enum):
     """
     allowed enum values
     """
-    PCA = "PCA"
-    TSNE = "TSNE"
-    UMAP = "UMAP"
+    PCA = 'PCA'
+    TSNE = 'TSNE'
+    UMAP = 'UMAP'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "DimensionalityReductionMethod":
+    def from_json(cls, json_str: str) -> 'DimensionalityReductionMethod':
         """Create an instance of DimensionalityReductionMethod from a JSON string"""
         return DimensionalityReductionMethod(json.loads(json_str))
+
+

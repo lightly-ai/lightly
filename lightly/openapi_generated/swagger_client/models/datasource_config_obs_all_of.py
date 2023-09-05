@@ -19,32 +19,19 @@ import re  # noqa: F401
 import json
 
 
-from pydantic import Extra, BaseModel, Field, constr, validator
 
+from pydantic import Extra,  BaseModel, Field, constr, validator
 
 class DatasourceConfigOBSAllOf(BaseModel):
     """
     Object Storage Service (OBS) is a S3 (AWS) compatible cloud storage like openstack
     """
-
-    obs_endpoint: constr(strict=True, min_length=1) = Field(
-        ...,
-        alias="obsEndpoint",
-        description="The Object Storage Service (OBS) endpoint to use of your S3 compatible cloud storage provider",
-    )
-    obs_access_key_id: constr(strict=True, min_length=1) = Field(
-        ...,
-        alias="obsAccessKeyId",
-        description="The Access Key Id of the credential you are providing Lightly to use",
-    )
-    obs_secret_access_key: constr(strict=True, min_length=1) = Field(
-        ...,
-        alias="obsSecretAccessKey",
-        description="The Secret Access Key of the credential you are providing Lightly to use",
-    )
+    obs_endpoint: constr(strict=True, min_length=1) = Field(..., alias="obsEndpoint", description="The Object Storage Service (OBS) endpoint to use of your S3 compatible cloud storage provider")
+    obs_access_key_id: constr(strict=True, min_length=1) = Field(..., alias="obsAccessKeyId", description="The Access Key Id of the credential you are providing Lightly to use")
+    obs_secret_access_key: constr(strict=True, min_length=1) = Field(..., alias="obsSecretAccessKey", description="The Secret Access Key of the credential you are providing Lightly to use")
     __properties = ["obsEndpoint", "obsAccessKeyId", "obsSecretAccessKey"]
 
-    @validator("obs_endpoint")
+    @validator('obs_endpoint')
     def obs_endpoint_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^https?:\/\/.+$", value):
@@ -53,7 +40,6 @@ class DatasourceConfigOBSAllOf(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -74,7 +60,10 @@ class DatasourceConfigOBSAllOf(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -89,16 +78,12 @@ class DatasourceConfigOBSAllOf(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DatasourceConfigOBSAllOf) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DatasourceConfigOBSAllOf) in the input: " + str(obj))
 
-        _obj = DatasourceConfigOBSAllOf.parse_obj(
-            {
-                "obs_endpoint": obj.get("obsEndpoint"),
-                "obs_access_key_id": obj.get("obsAccessKeyId"),
-                "obs_secret_access_key": obj.get("obsSecretAccessKey"),
-            }
-        )
+        _obj = DatasourceConfigOBSAllOf.parse_obj({
+            "obs_endpoint": obj.get("obsEndpoint"),
+            "obs_access_key_id": obj.get("obsAccessKeyId"),
+            "obs_secret_access_key": obj.get("obsSecretAccessKey")
+        })
         return _obj
+

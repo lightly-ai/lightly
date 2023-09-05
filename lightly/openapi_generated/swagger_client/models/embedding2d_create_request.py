@@ -20,43 +20,21 @@ import json
 
 
 from typing import List, Union
-from pydantic import Extra, BaseModel, Field, StrictFloat, StrictInt, StrictStr, conlist
-from lightly.openapi_generated.swagger_client.models.dimensionality_reduction_method import (
-    DimensionalityReductionMethod,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, StrictStr, conlist
+from lightly.openapi_generated.swagger_client.models.dimensionality_reduction_method import DimensionalityReductionMethod
 
 class Embedding2dCreateRequest(BaseModel):
     """
     Embedding2dCreateRequest
     """
-
-    name: StrictStr = Field(
-        ..., description="Name of the 2d embedding (default is embedding name + __2d)"
-    )
-    dimensionality_reduction_method: DimensionalityReductionMethod = Field(
-        ..., alias="dimensionalityReductionMethod"
-    )
-    coordinates_dimension1: conlist(Union[StrictFloat, StrictInt], min_items=1) = Field(
-        ...,
-        alias="coordinatesDimension1",
-        description="Array of coordinates of a 2d embedding",
-    )
-    coordinates_dimension2: conlist(Union[StrictFloat, StrictInt], min_items=1) = Field(
-        ...,
-        alias="coordinatesDimension2",
-        description="Array of coordinates of a 2d embedding",
-    )
-    __properties = [
-        "name",
-        "dimensionalityReductionMethod",
-        "coordinatesDimension1",
-        "coordinatesDimension2",
-    ]
+    name: StrictStr = Field(..., description="Name of the 2d embedding (default is embedding name + __2d)")
+    dimensionality_reduction_method: DimensionalityReductionMethod = Field(..., alias="dimensionalityReductionMethod")
+    coordinates_dimension1: conlist(Union[StrictFloat, StrictInt], min_items=1) = Field(..., alias="coordinatesDimension1", description="Array of coordinates of a 2d embedding")
+    coordinates_dimension2: conlist(Union[StrictFloat, StrictInt], min_items=1) = Field(..., alias="coordinatesDimension2", description="Array of coordinates of a 2d embedding")
+    __properties = ["name", "dimensionalityReductionMethod", "coordinatesDimension1", "coordinatesDimension2"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -77,7 +55,10 @@ class Embedding2dCreateRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -92,19 +73,13 @@ class Embedding2dCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in Embedding2dCreateRequest) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in Embedding2dCreateRequest) in the input: " + str(obj))
 
-        _obj = Embedding2dCreateRequest.parse_obj(
-            {
-                "name": obj.get("name"),
-                "dimensionality_reduction_method": obj.get(
-                    "dimensionalityReductionMethod"
-                ),
-                "coordinates_dimension1": obj.get("coordinatesDimension1"),
-                "coordinates_dimension2": obj.get("coordinatesDimension2"),
-            }
-        )
+        _obj = Embedding2dCreateRequest.parse_obj({
+            "name": obj.get("name"),
+            "dimensionality_reduction_method": obj.get("dimensionalityReductionMethod"),
+            "coordinates_dimension1": obj.get("coordinatesDimension1"),
+            "coordinates_dimension2": obj.get("coordinatesDimension2")
+        })
         return _obj
+

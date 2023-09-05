@@ -20,24 +20,19 @@ import json
 
 
 from typing import List
-from pydantic import Extra, BaseModel, Field, StrictStr, conlist
-from lightly.openapi_generated.swagger_client.models.configuration_entry import (
-    ConfigurationEntry,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictStr, conlist
+from lightly.openapi_generated.swagger_client.models.configuration_entry import ConfigurationEntry
 
 class ConfigurationSetRequest(BaseModel):
     """
     ConfigurationSetRequest
     """
-
     name: StrictStr = Field(...)
     configs: conlist(ConfigurationEntry) = Field(...)
     __properties = ["name", "configs"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -58,14 +53,17 @@ class ConfigurationSetRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of each item in configs (list)
         _items = []
         if self.configs:
             for _item in self.configs:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict["configs" if by_alias else "configs"] = _items
+            _dict['configs' if by_alias else 'configs'] = _items
         return _dict
 
     @classmethod
@@ -80,19 +78,11 @@ class ConfigurationSetRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in ConfigurationSetRequest) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in ConfigurationSetRequest) in the input: " + str(obj))
 
-        _obj = ConfigurationSetRequest.parse_obj(
-            {
-                "name": obj.get("name"),
-                "configs": [
-                    ConfigurationEntry.from_dict(_item) for _item in obj.get("configs")
-                ]
-                if obj.get("configs") is not None
-                else None,
-            }
-        )
+        _obj = ConfigurationSetRequest.parse_obj({
+            "name": obj.get("name"),
+            "configs": [ConfigurationEntry.from_dict(_item) for _item in obj.get("configs")] if obj.get("configs") is not None else None
+        })
         return _obj
+

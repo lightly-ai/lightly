@@ -20,17 +20,13 @@ import json
 
 
 from typing import Any, Dict, Optional
-from pydantic import Extra, BaseModel, Field, StrictStr
-from lightly.openapi_generated.swagger_client.models.sample_meta_data import (
-    SampleMetaData,
-)
-
+from pydantic import Extra,  BaseModel, Field, StrictStr
+from lightly.openapi_generated.swagger_client.models.sample_meta_data import SampleMetaData
 
 class SampleUpdateRequest(BaseModel):
     """
     SampleUpdateRequest
     """
-
     file_name: Optional[StrictStr] = Field(None, alias="fileName")
     thumb_name: Optional[StrictStr] = Field(None, alias="thumbName")
     exif: Optional[Dict[str, Any]] = None
@@ -40,7 +36,6 @@ class SampleUpdateRequest(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -61,16 +56,17 @@ class SampleUpdateRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of meta_data
         if self.meta_data:
-            _dict["metaData" if by_alias else "meta_data"] = self.meta_data.to_dict(
-                by_alias=by_alias
-            )
+            _dict['metaData' if by_alias else 'meta_data'] = self.meta_data.to_dict(by_alias=by_alias)
         # set to None if custom_meta_data (nullable) is None
         # and __fields_set__ contains the field
         if self.custom_meta_data is None and "custom_meta_data" in self.__fields_set__:
-            _dict["customMetaData" if by_alias else "custom_meta_data"] = None
+            _dict['customMetaData' if by_alias else 'custom_meta_data'] = None
 
         return _dict
 
@@ -86,20 +82,14 @@ class SampleUpdateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in SampleUpdateRequest) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in SampleUpdateRequest) in the input: " + str(obj))
 
-        _obj = SampleUpdateRequest.parse_obj(
-            {
-                "file_name": obj.get("fileName"),
-                "thumb_name": obj.get("thumbName"),
-                "exif": obj.get("exif"),
-                "meta_data": SampleMetaData.from_dict(obj.get("metaData"))
-                if obj.get("metaData") is not None
-                else None,
-                "custom_meta_data": obj.get("customMetaData"),
-            }
-        )
+        _obj = SampleUpdateRequest.parse_obj({
+            "file_name": obj.get("fileName"),
+            "thumb_name": obj.get("thumbName"),
+            "exif": obj.get("exif"),
+            "meta_data": SampleMetaData.from_dict(obj.get("metaData")) if obj.get("metaData") is not None else None,
+            "custom_meta_data": obj.get("customMetaData")
+        })
         return _obj
+

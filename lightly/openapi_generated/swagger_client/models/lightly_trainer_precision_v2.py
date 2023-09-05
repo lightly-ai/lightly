@@ -20,6 +20,9 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class LightlyTrainerPrecisionV2(int, Enum):
     """
     LightlyTrainerPrecisionV2
@@ -32,6 +35,8 @@ class LightlyTrainerPrecisionV2(int, Enum):
     NUMBER_32 = 32
 
     @classmethod
-    def from_json(cls, json_str: str) -> "LightlyTrainerPrecisionV2":
+    def from_json(cls, json_str: str) -> 'LightlyTrainerPrecisionV2':
         """Create an instance of LightlyTrainerPrecisionV2 from a JSON string"""
         return LightlyTrainerPrecisionV2(json.loads(json_str))
+
+

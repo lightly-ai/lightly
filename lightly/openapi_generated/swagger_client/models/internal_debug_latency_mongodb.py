@@ -20,21 +20,18 @@ import json
 
 
 from typing import Optional, Union
-from pydantic import Extra, BaseModel, StrictFloat, StrictInt
-
+from pydantic import Extra,  BaseModel, StrictFloat, StrictInt
 
 class InternalDebugLatencyMongodb(BaseModel):
     """
     InternalDebugLatencyMongodb
     """
-
     connection: Optional[Union[StrictFloat, StrictInt]] = None
     query: Optional[Union[StrictFloat, StrictInt]] = None
     __properties = ["connection", "query"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -55,7 +52,10 @@ class InternalDebugLatencyMongodb(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -70,12 +70,11 @@ class InternalDebugLatencyMongodb(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in InternalDebugLatencyMongodb) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in InternalDebugLatencyMongodb) in the input: " + str(obj))
 
-        _obj = InternalDebugLatencyMongodb.parse_obj(
-            {"connection": obj.get("connection"), "query": obj.get("query")}
-        )
+        _obj = InternalDebugLatencyMongodb.parse_obj({
+            "connection": obj.get("connection"),
+            "query": obj.get("query")
+        })
         return _obj
+

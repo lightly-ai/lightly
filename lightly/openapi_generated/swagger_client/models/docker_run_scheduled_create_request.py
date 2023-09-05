@@ -20,31 +20,21 @@ import json
 
 
 from typing import List, Optional
-from pydantic import Extra, BaseModel, Field, StrictStr, conlist, constr, validator
+from pydantic import Extra,  BaseModel, Field, StrictStr, conlist, constr, validator
 from lightly.openapi_generated.swagger_client.models.creator import Creator
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_priority import (
-    DockerRunScheduledPriority,
-)
-
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_priority import DockerRunScheduledPriority
 
 class DockerRunScheduledCreateRequest(BaseModel):
     """
     DockerRunScheduledCreateRequest
     """
-
-    config_id: constr(strict=True) = Field(
-        ..., alias="configId", description="MongoDB ObjectId"
-    )
+    config_id: constr(strict=True) = Field(..., alias="configId", description="MongoDB ObjectId")
     priority: DockerRunScheduledPriority = Field(...)
-    runs_on: Optional[conlist(StrictStr)] = Field(
-        None,
-        alias="runsOn",
-        description="The labels used for specifying the run-worker-relationship",
-    )
+    runs_on: Optional[conlist(StrictStr)] = Field(None, alias="runsOn", description="The labels used for specifying the run-worker-relationship")
     creator: Optional[Creator] = None
     __properties = ["configId", "priority", "runsOn", "creator"]
 
-    @validator("config_id")
+    @validator('config_id')
     def config_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
@@ -53,7 +43,6 @@ class DockerRunScheduledCreateRequest(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -74,7 +63,10 @@ class DockerRunScheduledCreateRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -89,17 +81,13 @@ class DockerRunScheduledCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in DockerRunScheduledCreateRequest) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in DockerRunScheduledCreateRequest) in the input: " + str(obj))
 
-        _obj = DockerRunScheduledCreateRequest.parse_obj(
-            {
-                "config_id": obj.get("configId"),
-                "priority": obj.get("priority"),
-                "runs_on": obj.get("runsOn"),
-                "creator": obj.get("creator"),
-            }
-        )
+        _obj = DockerRunScheduledCreateRequest.parse_obj({
+            "config_id": obj.get("configId"),
+            "priority": obj.get("priority"),
+            "runs_on": obj.get("runsOn"),
+            "creator": obj.get("creator")
+        })
         return _obj
+

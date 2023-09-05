@@ -20,30 +20,20 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra, BaseModel, Field, StrictStr
+from pydantic import Extra,  BaseModel, Field, StrictStr
 from lightly.openapi_generated.swagger_client.models.sample_data import SampleData
-
 
 class LabelStudioTaskData(BaseModel):
     """
     LabelStudioTaskData
     """
-
-    image: StrictStr = Field(
-        ...,
-        description="A URL which allows anyone in possession of said URL for the time specified by the expiresIn query param to access the resource",
-    )
-    lightly_file_name: Optional[StrictStr] = Field(
-        None,
-        alias="lightlyFileName",
-        description="The original fileName of the sample. This is unique within a dataset",
-    )
+    image: StrictStr = Field(..., description="A URL which allows anyone in possession of said URL for the time specified by the expiresIn query param to access the resource")
+    lightly_file_name: Optional[StrictStr] = Field(None, alias="lightlyFileName", description="The original fileName of the sample. This is unique within a dataset")
     lightly_meta_info: Optional[SampleData] = Field(None, alias="lightlyMetaInfo")
     __properties = ["image", "lightlyFileName", "lightlyMetaInfo"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -64,12 +54,13 @@ class LabelStudioTaskData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of lightly_meta_info
         if self.lightly_meta_info:
-            _dict[
-                "lightlyMetaInfo" if by_alias else "lightly_meta_info"
-            ] = self.lightly_meta_info.to_dict(by_alias=by_alias)
+            _dict['lightlyMetaInfo' if by_alias else 'lightly_meta_info'] = self.lightly_meta_info.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -84,18 +75,12 @@ class LabelStudioTaskData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in LabelStudioTaskData) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in LabelStudioTaskData) in the input: " + str(obj))
 
-        _obj = LabelStudioTaskData.parse_obj(
-            {
-                "image": obj.get("image"),
-                "lightly_file_name": obj.get("lightlyFileName"),
-                "lightly_meta_info": SampleData.from_dict(obj.get("lightlyMetaInfo"))
-                if obj.get("lightlyMetaInfo") is not None
-                else None,
-            }
-        )
+        _obj = LabelStudioTaskData.parse_obj({
+            "image": obj.get("image"),
+            "lightly_file_name": obj.get("lightlyFileName"),
+            "lightly_meta_info": SampleData.from_dict(obj.get("lightlyMetaInfo")) if obj.get("lightlyMetaInfo") is not None else None
+        })
         return _obj
+

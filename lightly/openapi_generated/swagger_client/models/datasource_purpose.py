@@ -20,19 +20,24 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
+
+
+
 class DatasourcePurpose(str, Enum):
     """
-    The datasource purpose and for which use-cases it is needed. - INPUT_OUTPUT: Is used as source of raw data and predictions/metadata within .lightly as well as destination for writing thumbnails, crops or video frame within .lightly - INPUT: Is only used as source of raw data - LIGHTLY: Is used as source of predictions/metadata within .lightly as well as destination for writing thumbnails, crops or video frames within .lightly
+    The datasource purpose and for which use-cases it is needed. - INPUT_OUTPUT: Is used as source of raw data and predictions/metadata within .lightly as well as destination for writing thumbnails, crops or video frame within .lightly - INPUT: Is only used as source of raw data - LIGHTLY: Is used as source of predictions/metadata within .lightly as well as destination for writing thumbnails, crops or video frames within .lightly 
     """
 
     """
     allowed enum values
     """
-    INPUT_OUTPUT = "INPUT_OUTPUT"
-    INPUT = "INPUT"
-    LIGHTLY = "LIGHTLY"
+    INPUT_OUTPUT = 'INPUT_OUTPUT'
+    INPUT = 'INPUT'
+    LIGHTLY = 'LIGHTLY'
 
     @classmethod
-    def from_json(cls, json_str: str) -> "DatasourcePurpose":
+    def from_json(cls, json_str: str) -> 'DatasourcePurpose':
         """Create an instance of DatasourcePurpose from a JSON string"""
         return DatasourcePurpose(json.loads(json_str))
+
+

@@ -20,32 +20,19 @@ import json
 
 
 from typing import Optional, Union
-from pydantic import Extra, BaseModel, Field, StrictFloat, StrictInt, StrictStr
-
+from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, StrictStr
 
 class VideoFrameData(BaseModel):
     """
     VideoFrameData
     """
-
-    source_video: Optional[StrictStr] = Field(
-        None, alias="sourceVideo", description="Name of the source video."
-    )
-    source_video_frame_index: Optional[Union[StrictFloat, StrictInt]] = Field(
-        None,
-        alias="sourceVideoFrameIndex",
-        description="Index of the frame in the source video.",
-    )
-    source_video_frame_timestamp: Optional[Union[StrictFloat, StrictInt]] = Field(
-        None,
-        alias="sourceVideoFrameTimestamp",
-        description="Timestamp of the frame in the source video.",
-    )
+    source_video: Optional[StrictStr] = Field(None, alias="sourceVideo", description="Name of the source video.")
+    source_video_frame_index: Optional[Union[StrictFloat, StrictInt]] = Field(None, alias="sourceVideoFrameIndex", description="Index of the frame in the source video.")
+    source_video_frame_timestamp: Optional[Union[StrictFloat, StrictInt]] = Field(None, alias="sourceVideoFrameTimestamp", description="Timestamp of the frame in the source video.")
     __properties = ["sourceVideo", "sourceVideoFrameIndex", "sourceVideoFrameTimestamp"]
 
     class Config:
         """Pydantic configuration"""
-
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -66,7 +53,10 @@ class VideoFrameData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
+        _dict = self.dict(by_alias=by_alias,
+                          exclude={
+                          },
+                          exclude_none=True)
         return _dict
 
     @classmethod
@@ -81,16 +71,12 @@ class VideoFrameData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError(
-                    "Error due to additional fields (not defined in VideoFrameData) in the input: "
-                    + str(obj)
-                )
+                raise ValueError("Error due to additional fields (not defined in VideoFrameData) in the input: " + str(obj))
 
-        _obj = VideoFrameData.parse_obj(
-            {
-                "source_video": obj.get("sourceVideo"),
-                "source_video_frame_index": obj.get("sourceVideoFrameIndex"),
-                "source_video_frame_timestamp": obj.get("sourceVideoFrameTimestamp"),
-            }
-        )
+        _obj = VideoFrameData.parse_obj({
+            "source_video": obj.get("sourceVideo"),
+            "source_video_frame_index": obj.get("sourceVideoFrameIndex"),
+            "source_video_frame_timestamp": obj.get("sourceVideoFrameTimestamp")
+        })
         return _obj
+
