@@ -77,7 +77,7 @@ def main(
     skip_knn_eval: bool,
     skip_linear_eval: bool,
     skip_finetune_eval: bool,
-    ckpt_path: str = None,
+    ckpt_path: Union[Path, None],
 ) -> None:
     torch.set_float32_matmul_precision("high")
 
