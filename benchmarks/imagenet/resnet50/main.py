@@ -176,7 +176,7 @@ def pretrain(
     accelerator: str,
     devices: int,
     precision: str,
-    ckpt_path: Union[Path,None],
+    ckpt_path: Union[Path, None],
 ) -> None:
     print_rank_zero(f"Running pretraining for {method}...")
 
