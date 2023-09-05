@@ -3,7 +3,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Sequence, Union
 
-import barlowtwins
 import byol
 import dcl
 import dclw
@@ -14,7 +13,7 @@ import linear_eval
 import simclr
 import swav
 import torch
-from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning import LightningModule, Trainer, strategies
 from pytorch_lightning.callbacks import (
     DeviceStatsMonitor,
     EarlyStopping,
@@ -38,19 +37,16 @@ parser.add_argument("--epochs", type=int, default=100)
 parser.add_argument("--num-workers", type=int, default=8)
 parser.add_argument("--accelerator", type=str, default="gpu")
 parser.add_argument("--devices", type=int, default=1)
-parser.add_argument("--precision", type=str, default="16-mixed")
+parser.add_argument("--precision", type=str, default="16")
 parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
 parser.add_argument("--num-classes", type=int, default=1000)
 parser.add_argument("--skip-knn-eval", action="store_true")
 parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
+parser.add_argument("--ckpt_path", type=str, default=None)
 
 METHODS = {
-    "barlowtwins": {
-        "model": barlowtwins.BarlowTwins,
-        "transform": barlowtwins.transform,
-    },
     "byol": {"model": byol.BYOL, "transform": byol.transform},
     "dcl": {"model": dcl.DCL, "transform": dcl.transform},
     "dclw": {"model": dclw.DCLW, "transform": dclw.transform},
@@ -76,6 +72,7 @@ def main(
     skip_knn_eval: bool,
     skip_linear_eval: bool,
     skip_finetune_eval: bool,
+    ckpt_path: str = None,
 ) -> None:
     torch.set_float32_matmul_precision("high")
 
@@ -96,6 +93,8 @@ def main(
 
         if epochs <= 0:
             print_rank_zero("Epochs <= 0, skipping pretraining.")
+            if ckpt_path is not None:
+                model.load_state_dict(torch.load(ckpt_path)['state_dict'])
         else:
             pretrain(
                 model=model,
@@ -104,11 +103,12 @@ def main(
                 val_dir=val_dir,
                 log_dir=method_dir,
                 batch_size_per_device=batch_size_per_device,
-                epochs=epochs,
+                epochs=epochs, # - end_epoch, #state_dict['epochs'],
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
                 precision=precision,
+                ckpt_path=ckpt_path,
             )
 
         if skip_knn_eval:
@@ -171,6 +171,7 @@ def pretrain(
     accelerator: str,
     devices: int,
     precision: str,
+    ckpt_path: str = None,
 ) -> None:
     print_rank_zero(f"Running pretraining for {method}...")
 
@@ -217,15 +218,17 @@ def pretrain(
             DeviceStatsMonitor(),
             metric_callback,
         ],
-        logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
+        logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain_o0p4_s0p8"),
         precision=precision,
         strategy="ddp_find_unused_parameters_true",
         sync_batchnorm=True,
     )
+
     trainer.fit(
         model=model,
         train_dataloaders=train_dataloader,
         val_dataloaders=val_dataloader,
+        ckpt_path=ckpt_path,
     )
     for metric in ["val_online_cls_top1", "val_online_cls_top5"]:
         print_rank_zero(f"max {metric}: {max(metric_callback.val_metrics[metric])}")
